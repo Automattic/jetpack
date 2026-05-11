@@ -147,6 +147,87 @@ jetpack docker down
 
 Will stop all of the containers created by this Docker compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
 
+### Parallel development environments
+
+You can run a second (or third, …) Jetpack Docker instance alongside your main one so that parallel work on different branches doesn't require tearing down your primary environment. The typical setup is: one checkout running `jetpack_dev`, plus one or more [git worktrees](https://git-scm.com/docs/git-worktree) each running their own named instance on non-default ports.
+
+#### Spinning up a parallel instance
+
+From your second checkout/worktree, pass `--name` and a free set of ports:
+
+```sh
+jetpack docker up -d \
+  --name feature \
+  --port 8080 \
+  --port-phpmy 8281 \
+  --port-inbox 1180 \
+  --port-smtp 2525 \
+  --port-sftp 1122
+```
+
+This gives you `jetpack_feature-*` containers running in parallel with `jetpack_dev-*`. Each instance gets its own database, its own volumes, and its own MailPit inbox.
+
+#### Flags
+
+| Flag | Applies to | Default | Description |
+|------|-----------|---------|-------------|
+| `--name <name>` | `dev`, `e2e` | `dev` (or `e2e`) | Compose project name suffix, used for isolation. Containers become `jetpack_<name>-*`. |
+| `--port <n>` | `dev`, `e2e` | `80` (`8889` for `e2e`) | Host port mapped to the WordPress container. |
+| `--port-phpmy <n>` | all | `8181` | Host port for phpMyAdmin. |
+| `--port-inbox <n>` | all | `1080` | Host port for the MailPit web UI. |
+| `--port-smtp <n>` | all | `25` | Host port for the MailPit SMTP server. |
+| `--port-sftp <n>` | all | `1022` | Host port for the SFTP container. |
+| `--clone-from <name>` | `dev` + `up` | — | Clone the DB from an existing running instance (e.g. `--clone-from feature`). The target site ends up with an installed WordPress populated from the source. |
+| `--no-clone` | `dev` + `up` | (auto-clone on) | Opt out of auto-cloning and get the default fresh-install flow instead. |
+
+#### Auto-clone behavior
+
+When you spin up a parallel instance with `--name <foo>`, by default the CLI will automatically clone the database from `jetpack_dev` if it's running. The goal is that `jetpack docker up -d --name feature --port 8080` gives you a fully working site at `http://localhost:8080/` with the same content, users, and Jetpack connection as your main instance — no separate `jetpack docker install` or reconnection needed.
+
+The auto-clone is only triggered when all of the following are true:
+
+* `--name` is set (i.e. you're creating a parallel instance — never on the primary `jetpack docker up`).
+* `jetpack_dev` has at least one running container.
+* `--no-clone` was not passed.
+* The target doesn't already have an installed WordPress (re-running `up` on an existing instance is a safe no-op).
+
+The clone runs `wp db export | wp db import` between the source and target containers, then `wp search-replace` on the target to rewrite the siteurl to `http://localhost:<target-port>`. `guid` columns are skipped as WP-CLI recommends.
+
+For explicit control:
+
+```sh
+# Clone from a specific source (not just jetpack_dev)
+jetpack docker up -d --name staging --port 8082 --clone-from feature
+
+# Opt out of cloning; get a fresh, uninstalled WordPress and run install yourself
+jetpack docker up -d --name clean --port 8090 --no-clone
+jetpack docker install --name clean --port 8090
+```
+
+#### Cleaning up a parallel instance
+
+```sh
+# Stop the instance (containers remain, can be resumed with `up -d` later)
+jetpack docker stop --name feature
+
+# Stop and remove containers
+jetpack docker down --name feature
+
+# Nuke everything for that instance: containers, volumes, MySQL data, logs
+jetpack docker clean --name feature
+
+# If you used a git worktree for this instance, remove it when you're done
+git worktree remove ../jetpack-feature
+```
+
+Each of the above needs the same `--name` you used when bringing the instance up. The primary `jetpack_dev` instance is untouched.
+
+#### Notes & gotchas
+
+* The `mailpit` container is no longer globally named — each instance gets its own `jetpack_<name>-mailpit-1`. Internal SMTP routing still uses the compose service name `mailpit`, so PHP mail from within any container routes to that instance's MailPit.
+* WordPress's `WP_SITEURL` / `WP_HOME` are dynamic via `HTTP_HOST`, so the same DB will happily serve requests on both the source and target ports after cloning. In practice this means your Jetpack connection works across instances on different localhost ports without reconnecting.
+* `e2e` keeps its defaults (`jetpack_e2e`, port `8889`) when no flags are passed — parallel-mode flags don't affect the e2e workflow.
+
 ### Running unit tests
 
 These commands require the WordPress container to be running.

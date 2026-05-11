@@ -20,10 +20,16 @@ if wp core is-installed; then
 	exit
 fi
 
+# Build the install URL, appending HOST_PORT when it's not the default 80.
+WP_URL="http://${WP_DOMAIN}"
+if [[ -n "$HOST_PORT" && "$HOST_PORT" != "80" ]]; then
+	WP_URL="${WP_URL}:${HOST_PORT}"
+fi
+
 # Install WP core
 echo 'Configuring WordPress...'
 wp core install \
-	--url="${WP_DOMAIN}" \
+	--url="${WP_URL}" \
 	--title="${WP_TITLE}" \
 	--admin_user="${WP_ADMIN_USER}" \
 	--admin_password="${WP_ADMIN_PASSWORD}" \
@@ -69,5 +75,5 @@ wp plugin is-active jetpack || wp plugin activate jetpack | sed 's/^/    /'
 echo
 echo 'Your site is ready! You can see it here:'
 echo
-echo "    http://${WP_DOMAIN}:${PORT_WORDPRESS}"
+echo "    ${WP_URL}"
 echo
