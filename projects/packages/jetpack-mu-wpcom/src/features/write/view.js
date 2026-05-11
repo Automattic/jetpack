@@ -3243,16 +3243,22 @@ async function savePost( postStatus, isAutosave = false ) {
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
 
-	// Resolve extracted tag names to WP term IDs, creating new tags as needed.
+	// Resolve extracted tag names to WP term IDs only when #tag paragraphs are present.
+	// When present, merge with existing tag IDs so tags set outside the Write editor survive.
+	// Omitting `tags` entirely when no #tag lines exist preserves existing tags without fetching.
 	// WordPress returns a term_exists error (with the existing ID) for duplicates.
-	const allTagIds = await Promise.all(
-		tagNames.map( name =>
-			window.wp
-				.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
-				.then( tag => tag.id )
-				.catch( err => err?.data?.term_id ?? null )
-		)
-	).then( ids => ids.filter( Boolean ) );
+	const tagData = {};
+	if ( tagNames.length ) {
+		const newTagIds = await Promise.all(
+			tagNames.map( name =>
+				window.wp
+					.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
+					.then( tag => tag.id )
+					.catch( err => err?.data?.term_id ?? null )
+			)
+		).then( ids => ids.filter( Boolean ) );
+		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
+	}
 
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
@@ -3266,7 +3272,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				content: blockMarkup,
 				status: postStatus,
 				categories: selectedCats,
-				tags: allTagIds,
+				...tagData,
 				featured_media: state.featuredMediaId || 0,
 			},
 		} );
@@ -3274,6 +3280,11 @@ async function savePost( postStatus, isAutosave = false ) {
 		// Store the post ID so subsequent saves update the same post.
 		if ( ! isEditing ) {
 			state.editPostId = post.id;
+		}
+
+		// Keep existingTagIds in sync so the next save in this session merges correctly.
+		if ( tagData.tags ) {
+			state.existingTagIds = tagData.tags;
 		}
 
 		// Mark only the submitted content as saved — if the user typed

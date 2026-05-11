@@ -294,6 +294,9 @@ function wpcom_write_render_admin_page() {
 		);
 	}
 
+	// Fetch existing tag IDs so JS can merge them with any #hashtag-extracted tags on save.
+	$existing_tag_ids = $edit_post_id ? wp_get_post_tags( $edit_post_id, array( 'fields' => 'ids' ) ) : array();
+
 	// Build categories list for the UI (only categories that have posts).
 	$all_cats        = get_categories( array( 'hide_empty' => true ) );
 	$selected_cats   = $edit_post_id ? wp_get_post_categories( $edit_post_id ) : array();
@@ -361,6 +364,7 @@ function wpcom_write_render_admin_page() {
 			'isUploading'         => false,
 			'categories'          => $categories_data,
 			'catLabel'            => $cat_label,
+			'existingTagIds'      => $existing_tag_ids,
 			'showCatDropdown'     => false,
 			'showHelp'            => false,
 			'showSlashMenu'       => false,
