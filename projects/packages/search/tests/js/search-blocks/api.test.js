@@ -332,6 +332,26 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
+	it.each( [ 'product_cat', 'product_tag', 'product_brand' ] )(
+		'leaves the WC built-in %s on its canonical field even when the map tries to redirect it',
+		taxonomy => {
+			// Same defensive guard as the category / post_tag case above —
+			// the WC product taxonomies have their own dedicated filter
+			// variations, so a saved-block deep link or a stray map entry
+			// must not silently redirect them onto a reserved slot.
+			expect(
+				resolveFilterFields(
+					{ filterType: 'taxonomy', taxonomy },
+					{ [ taxonomy ]: 'jetpack-search-tag5' }
+				)
+			).toEqual( {
+				aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
+				filterField: `taxonomy.${ taxonomy }.slug`,
+				bucketFormat: 'slash',
+			} );
+		}
+	);
+
 	it( 'uses plain `post_type` field for post type filters (no slug_slash_name)', () => {
 		expect( resolveFilterFields( { filterType: 'post_type' } ) ).toEqual( {
 			aggField: 'post_type',

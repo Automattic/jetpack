@@ -1173,17 +1173,52 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * A filter callback that returns something other than an array must not
-	 * crash callers — empty map is the safe fallback.
+	 * crash callers — empty map is the safe fallback. `_doing_it_wrong()` is
+	 * fired so a misconfiguration is visible during development; tested
+	 * separately below.
 	 */
 	public function test_custom_taxonomy_map_handles_non_array_return() {
 		$callback = static function () {
 			return 'not an array';
 		};
 		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		$prev = $this->silence_doing_it_wrong();
 		try {
 			$this->assertSame( array(), Search_Blocks::custom_taxonomy_map() );
 		} finally {
 			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev );
+		}
+	}
+
+	/**
+	 * Pins the docblock promise that a non-array filter return fires a
+	 * `_doing_it_wrong()` notice, so site owners notice misconfiguration
+	 * during development rather than silently getting an empty picker.
+	 */
+	public function test_custom_taxonomy_map_fires_doing_it_wrong_on_non_array_return() {
+		$callback = static function () {
+			return null;
+		};
+		$captured = null;
+		$listener = function ( $function, $message, $version ) use ( &$captured ) {
+			if ( 'jetpack_search_custom_taxonomy_map' === $function ) {
+				$captured = compact( 'message', 'version' );
+			}
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		add_action( 'doing_it_wrong_run', $listener, 10, 3 );
+		// Keep the actual error suppressed so PHPUnit's deprecation handler
+		// doesn't flip the test red on the codepath we're exercising.
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		try {
+			Search_Blocks::custom_taxonomy_map();
+			$this->assertIsArray( $captured, 'Expected _doing_it_wrong() to have fired.' );
+			$this->assertStringContainsString( 'must return an array', $captured['message'] );
+		} finally {
+			remove_action( 'doing_it_wrong_run', $listener, 10 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		}
 	}
 

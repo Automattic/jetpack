@@ -364,6 +364,9 @@ class Search_Blocks {
 		 */
 		$raw = apply_filters( 'jetpack_search_custom_taxonomy_map', array() );
 		if ( ! is_array( $raw ) ) {
+			$msg = esc_html__( 'The jetpack_search_custom_taxonomy_map filter must return an array of user-slug => jetpack-search-tagN pairs.', 'jetpack-search-pkg' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is esc_html__() output.
+			_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
 			self::$custom_taxonomy_map_cache = array();
 			return self::$custom_taxonomy_map_cache;
 		}
@@ -440,8 +443,12 @@ class Search_Blocks {
 			return self::$supported_custom_taxonomies_cache;
 		}
 
+		// Limit to public taxonomies so the picker stays in lockstep with
+		// the editor's `core.getTaxonomies()` call, which only returns
+		// REST-visible (public) taxonomies. Avoids surfacing a private
+		// taxonomy that happens to be in the Sync allowlist.
 		$registered = function_exists( 'get_taxonomies' )
-			? array_values( get_taxonomies( array(), 'names' ) )
+			? array_values( get_taxonomies( array( 'public' => true ), 'names' ) )
 			: array();
 
 		$indexed = class_exists( '\\Automattic\\Jetpack\\Sync\\Modules\\Search' )

@@ -136,6 +136,25 @@ export function resolveFilterFields( config, customTaxonomyMap = {} ) {
 			if ( ! taxonomy ) {
 				return { aggField: null, filterField: null, bucketFormat: 'slash' };
 			}
+			// Built-in WC product taxonomies have their own dedicated filter
+			// variations and are excluded from the editor's Custom Taxonomy
+			// picker via `BUILT_IN_TAXONOMY_SLUGS`. They reach this code
+			// path only via a saved-block deep link or a malformed map
+			// entry; either way, route them through their canonical
+			// `taxonomy.<slug>.*` fields rather than letting a stray
+			// `customTaxonomyMap[ 'product_cat' ]` redirect them onto a
+			// reserved slot.
+			if (
+				taxonomy === 'product_cat' ||
+				taxonomy === 'product_tag' ||
+				taxonomy === 'product_brand'
+			) {
+				return {
+					aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
+					filterField: `taxonomy.${ taxonomy }.slug`,
+					bucketFormat: 'slash',
+				};
+			}
 			// Slot mapping wins over the generic field path. The aggregation
 			// key the response is keyed under stays `filterKey` (i.e. the
 			// user-facing slug), so no response normalization is needed —
