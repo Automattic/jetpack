@@ -39,8 +39,12 @@ export default function FeatureSelector() {
 		? EXPERIENCE_ORDER.filter( experience => experience !== EXPERIENCE.OFF )
 		: EXPERIENCE_ORDER;
 
+	// While a save is in flight, freeze every radio so the user can't queue up a
+	// second change before the first one resolves. Plan-gating still disables
+	// Embedded / Overlay on classic-only plans regardless of save state.
 	const isExperienceDisabled = experience =>
-		supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' );
+		isUpdating ||
+		( supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' ) );
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 
