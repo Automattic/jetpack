@@ -21,8 +21,6 @@ use Automattic\Jetpack\Status\Request;
  */
 class Podcast_Episode_Block {
 
-	const BLOCK_NAME = 'jetpack/podcast-episode';
-
 	/**
 	 * Wire the block's actions. Hooks are added unconditionally; each
 	 * callback re-checks the untangle filter and short-circuits when off.
@@ -162,7 +160,7 @@ class Podcast_Episode_Block {
 
 		ob_start();
 		?>
-		<div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
+		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns pre-escaped attribute output. ?>>
 			<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
 				<?php if ( $image_url ) : ?>
 					<figure class="jetpack-podcast-episode__poster">
@@ -200,7 +198,7 @@ class Podcast_Episode_Block {
 								<span class="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--bonus"><?php esc_html_e( 'Bonus', 'jetpack-podcast' ); ?></span>
 							<?php endif; ?>
 							<?php if ( $is_explicit ) : ?>
-								<span class="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--explicit" title="<?php esc_attr_e( 'Explicit content', 'jetpack-podcast' ); ?>"><?php esc_html_e( 'E', 'jetpack-podcast' ); ?></span>
+								<span class="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--explicit" title="<?php esc_attr_e( 'Explicit content', 'jetpack-podcast' ); ?>"><?php echo esc_html( _x( 'E', 'short label for explicit content', 'jetpack-podcast' ) ); ?></span>
 							<?php endif; ?>
 						</p>
 					<?php endif; ?>
@@ -314,8 +312,8 @@ class Podcast_Episode_Block {
 							<?php if ( $license ) : ?>
 								<li class="jetpack-podcast-episode__license">
 									<?php
-									/* translators: %s: license identifier. */
-									$license_label = sprintf( __( 'License: %s', 'jetpack-podcast' ), $license );
+									/* translators: %s: license identifier (e.g. "CC-BY-4.0"). */
+									$license_label = sprintf( _x( 'License: %s', 'episode metadata license label', 'jetpack-podcast' ), $license );
 									?>
 									<?php if ( $license_url ) : ?>
 										<a href="<?php echo esc_url( $license_url ); ?>" itemprop="license"><?php echo esc_html( $license_label ); ?></a>

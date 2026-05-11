@@ -22,7 +22,7 @@ import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import { microphone } from './icons/index.js';
 import { getValidatedAttributes } from './util/get-validated-attributes.js';
@@ -557,7 +557,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									className="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--explicit"
 									title={ __( 'Explicit content', 'jetpack-podcast' ) }
 								>
-									{ __( 'E', 'jetpack-podcast' ) }
+									{ _x( 'E', 'short label for explicit content', 'jetpack-podcast' ) }
 								</span>
 							) }
 						</p>
