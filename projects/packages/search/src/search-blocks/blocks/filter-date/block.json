@@ -19,6 +19,11 @@
 			"enum": [ "year", "month" ]
 		},
 		"label": { "type": "string", "default": "" },
+		"displayStyle": {
+			"type": "string",
+			"default": "checkbox-list",
+			"enum": [ "checkbox-list", "chips" ]
+		},
 		"showCount": { "type": "boolean", "default": true },
 		"maxItems": { "type": "integer", "default": 10 },
 		"bucketSortOrder": {
