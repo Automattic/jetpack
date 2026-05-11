@@ -70,7 +70,7 @@
 		"jest": "30.3.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"storybook": "10.3.5",
+		"storybook": "10.3.6",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	},
