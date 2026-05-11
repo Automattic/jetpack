@@ -379,30 +379,17 @@ class Search_Blocks {
 				continue;
 			}
 			if ( ! preg_match( '/^jetpack-search-tag[0-9]$/', $slot ) ) {
-				_doing_it_wrong(
-					'jetpack_search_custom_taxonomy_map',
-					sprintf(
-						/* translators: 1: invalid slot value, 2: user-facing taxonomy slug */
-						esc_html__( 'Invalid Jetpack Search slot "%1$s" for taxonomy "%2$s"; expected one of jetpack-search-tag0…jetpack-search-tag9.', 'jetpack-search-pkg' ),
-						esc_html( $slot ),
-						esc_html( $user_slug )
-					),
-					'jetpack-search-pkg $$next-version$$'
-				);
+				/* translators: 1: invalid slot value, 2: user-facing taxonomy slug */
+				$msg = sprintf( esc_html__( 'Invalid Jetpack Search slot "%1$s" for taxonomy "%2$s"; expected one of jetpack-search-tag0…jetpack-search-tag9.', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $user_slug ) );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
+				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
 				continue;
 			}
 			if ( isset( $slot_owner[ $slot ] ) ) {
-				_doing_it_wrong(
-					'jetpack_search_custom_taxonomy_map',
-					sprintf(
-						/* translators: 1: slot, 2: first user-facing slug that owns the slot, 3: second user-facing slug attempting to claim it */
-						esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ),
-						esc_html( $slot ),
-						esc_html( $slot_owner[ $slot ] ),
-						esc_html( $user_slug )
-					),
-					'jetpack-search-pkg $$next-version$$'
-				);
+				/* translators: 1: slot, 2: first user-facing slug that owns the slot, 3: second user-facing slug attempting to claim it */
+				$msg = sprintf( esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $slot_owner[ $slot ] ), esc_html( $user_slug ) );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
+				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
 				continue;
 			}
 			$map[ $user_slug ]   = $slot;
