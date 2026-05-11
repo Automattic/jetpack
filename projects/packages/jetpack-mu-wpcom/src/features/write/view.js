@@ -1698,6 +1698,12 @@ const { state } = store( 'wpcom-write', {
 		formatQuote: false,
 		imageUrl: '',
 		headingLabel: i18n.normal || 'Normal',
+		get headerLabel() {
+			return state.title.trim() || i18n.untitled || 'Untitled';
+		},
+		get displayStatus() {
+			return state.message || state.headerLabel;
+		},
 	},
 
 	actions: {
