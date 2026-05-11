@@ -12,57 +12,76 @@ namespace Automattic\Jetpack\Search;
  * jetpack_search_ai_answers_enabled option.
  */
 class AI_Answers {
-	const BEHAVIOR_META_KEY = '_guideline_block_jetpack_search-ai-summary';
+	const BEHAVIOR_META_KEY   = '_guideline_block_jetpack_search-ai-summary';
+	const BEHAVIOR_OPTION_KEY = 'jetpack_search_ai_behavior_instructions';
 
 	/**
-	 * Hook up meta registration.
+	 * Hook up meta/setting registration.
 	 */
 	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_behavior_meta' ) );
 	}
 
 	/**
-	 * Register the block-specific meta key on the Gutenberg Guidelines CPT so it is
-	 * included in REST responses.
+	 * Register the behavior instructions storage for the REST API.
+	 *
+	 * When the Gutenberg Guidelines CPT is present, registers the block-specific
+	 * meta key on it. Otherwise registers a site option exposed via /wp/v2/settings.
 	 */
 	public function register_behavior_meta() {
-		if ( ! post_type_exists( 'wp_guideline' ) ) {
+		if ( post_type_exists( 'wp_guideline' ) ) {
+			register_post_meta(
+				'wp_guideline',
+				self::BEHAVIOR_META_KEY,
+				array(
+					'single'            => true,
+					'type'              => 'string',
+					'show_in_rest'      => true,
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_textarea_field',
+					'auth_callback'     => function () {
+						return current_user_can( 'manage_options' );
+					},
+				)
+			);
 			return;
 		}
-		register_post_meta(
-			'wp_guideline',
-			self::BEHAVIOR_META_KEY,
+
+		register_setting(
+			'options',
+			self::BEHAVIOR_OPTION_KEY,
 			array(
-				'single'            => true,
 				'type'              => 'string',
-				'show_in_rest'      => true,
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_textarea_field',
-				'auth_callback'     => function () {
-					return current_user_can( 'manage_options' );
-				},
+				'show_in_rest'      => true,
 			)
 		);
 	}
 
 	/**
-	 * Retrieve the behavior instructions from the Gutenberg Guidelines singleton.
+	 * Retrieve the behavior instructions.
+	 *
+	 * Reads from the Gutenberg Guidelines CPT when available, otherwise falls
+	 * back to the site option.
 	 *
 	 * @return string Behavior instructions, or empty string if none saved.
 	 */
 	public static function get_behavior_instructions() {
-		$posts = get_posts(
-			array(
-				'post_type'      => 'wp_guideline',
-				'posts_per_page' => 1,
-				'post_status'    => 'publish',
-			)
-		);
-		if ( empty( $posts ) ) {
-			return '';
+		if ( post_type_exists( 'wp_guideline' ) ) {
+			$posts = get_posts(
+				array(
+					'post_type'      => 'wp_guideline',
+					'posts_per_page' => 1,
+					'post_status'    => 'publish',
+				)
+			);
+			if ( ! empty( $posts ) ) {
+				$guidelines = get_post_meta( $posts[0]->ID, self::BEHAVIOR_META_KEY, true );
+				return is_string( $guidelines ) ? $guidelines : '';
+			}
 		}
-		$guidelines = get_post_meta( $posts[0]->ID, self::BEHAVIOR_META_KEY, true );
-		return is_string( $guidelines ) ? $guidelines : '';
+		return (string) get_option( self::BEHAVIOR_OPTION_KEY, '' );
 	}
 
 	/**

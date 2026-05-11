@@ -3,7 +3,7 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Button, Link, Notice } from '@wordpress/ui';
+import { Button, Notice } from '@wordpress/ui';
 import useAiAnswersSettings, { DEFAULT_PERSONALITY } from 'hooks/use-ai-answers-settings';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import useSearchSettings from 'hooks/use-search-settings';
@@ -139,7 +139,7 @@ export default function AiAnswersTab() {
 								</>
 							) }
 
-							{ ! isLoading && isUnavailable && isWpcomPlatformSite() && (
+							{ ! isLoading && isUnavailable && (
 								<Notice.Root intent="warning">
 									<Notice.Title>
 										{ __(
@@ -149,38 +149,6 @@ export default function AiAnswersTab() {
 									</Notice.Title>
 									<Notice.Description>
 										{ __( 'Please try again later or contact support.', 'jetpack-search-pkg' ) }
-									</Notice.Description>
-								</Notice.Root>
-							) }
-							{ ! isLoading && isUnavailable && ! isWpcomPlatformSite() && (
-								<Notice.Root intent="warning">
-									<Notice.Title>
-										{ __(
-											'Personality instructions require the Gutenberg Guidelines feature. To enable it:',
-											'jetpack-search-pkg'
-										) }
-									</Notice.Title>
-									<Notice.Description>
-										<ol>
-											<li>
-												{ __(
-													'Install or update to Gutenberg 22.7 or later.',
-													'jetpack-search-pkg'
-												) }
-											</li>
-											<li>
-												{ __(
-													'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
-													'jetpack-search-pkg'
-												) }{ ' ' }
-												<Link
-													href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }
-													openInNewTab
-												>
-													{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
-												</Link>
-											</li>
-										</ol>
 									</Notice.Description>
 								</Notice.Root>
 							) }

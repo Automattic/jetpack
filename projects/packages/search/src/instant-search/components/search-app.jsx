@@ -496,12 +496,9 @@ class SearchApp extends Component {
 			__( 'Putting on my reading glasses…', 'jetpack-search-pkg' ),
 			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
 			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
-			__( 'Searching the known internet…', 'jetpack-search-pkg' ),
 			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
 			__( 'Brewing a fresh batch of insights…', 'jetpack-search-pkg' ),
 			__( 'Unleashing the full power of search…', 'jetpack-search-pkg' ),
-			__( "One moment, I'm feeling inspired…", 'jetpack-search-pkg' ),
-			__( 'Turning it up to eleven…', 'jetpack-search-pkg' ),
 		];
 		const aiExtendedLoadingText =
 			loadingMessages[ Math.floor( Math.random() * loadingMessages.length ) ];

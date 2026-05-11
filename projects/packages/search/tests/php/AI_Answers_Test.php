@@ -54,16 +54,22 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertIsInt( $state['aiAnswersSiteId'] );
 	}
 
-	public function test_get_behavior_instructions_returns_empty_when_no_posts() {
+	public function test_get_behavior_instructions_returns_empty_by_default() {
+		// wp_guideline is not registered; option is unset — expect empty string.
 		$this->assertSame( '', AI_Answers::get_behavior_instructions() );
 	}
 
-	public function test_register_behavior_meta_skips_when_post_type_not_registered() {
-		// wp_guideline is not registered in the bare test environment.
-		// Calling register_behavior_meta should silently return without error.
+	public function test_get_behavior_instructions_reads_option_when_no_cpt() {
+		update_option( AI_Answers::BEHAVIOR_OPTION_KEY, 'Answer only in English.' );
+		$this->assertSame( 'Answer only in English.', AI_Answers::get_behavior_instructions() );
+		delete_option( AI_Answers::BEHAVIOR_OPTION_KEY );
+	}
+
+	public function test_register_behavior_meta_registers_setting_when_cpt_absent() {
+		// wp_guideline is not registered in the bare test environment — the fallback
+		// path should register the site option via register_setting() without error.
 		$ai = new AI_Answers();
 		$ai->register_behavior_meta();
-		// If we get here without a fatal, the early-return guard worked.
-		$this->assertTrue( true );
+		$this->assertNotFalse( get_registered_settings()[ AI_Answers::BEHAVIOR_OPTION_KEY ] ?? false );
 	}
 }

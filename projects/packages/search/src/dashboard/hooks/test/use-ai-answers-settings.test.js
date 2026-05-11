@@ -4,6 +4,8 @@ import useAiAnswersSettings, { DEFAULT_PERSONALITY } from '../use-ai-answers-set
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
+const SETTINGS_KEY = 'jetpack_search_ai_behavior_instructions';
+
 const makePost = ( overrides = {} ) => ( {
 	id: 42,
 	guideline_categories: {
@@ -19,7 +21,7 @@ describe( 'useAiAnswersSettings', () => {
 		jest.resetAllMocks();
 	} );
 
-	describe( 'initial load', () => {
+	describe( 'initial load — guidelines endpoint available', () => {
 		it( 'starts in loading state', () => {
 			apiFetch.mockReturnValue( new Promise( () => {} ) );
 			const { result } = renderHook( () => useAiAnswersSettings() );
@@ -62,21 +64,6 @@ describe( 'useAiAnswersSettings', () => {
 			expect( result.current.postId ).toBeNull();
 		} );
 
-		it( 'sets isUnavailable on rest_no_route error', async () => {
-			apiFetch.mockRejectedValue( { code: 'rest_no_route' } );
-			const { result } = renderHook( () => useAiAnswersSettings() );
-			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-			expect( result.current.isUnavailable ).toBe( true );
-			expect( result.current.error ).toBeNull();
-		} );
-
-		it( 'sets isUnavailable on 404 status error', async () => {
-			apiFetch.mockRejectedValue( { data: { status: 404 } } );
-			const { result } = renderHook( () => useAiAnswersSettings() );
-			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-			expect( result.current.isUnavailable ).toBe( true );
-		} );
-
 		it( 'sets error on generic fetch failure', async () => {
 			apiFetch.mockRejectedValue( { message: 'Network failure' } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
@@ -86,7 +73,46 @@ describe( 'useAiAnswersSettings', () => {
 		} );
 	} );
 
-	describe( 'savePersonality', () => {
+	describe( 'initial load — guidelines endpoint absent, settings fallback', () => {
+		it( 'falls back to /wp/v2/settings on rest_no_route', async () => {
+			apiFetch
+				.mockRejectedValueOnce( { code: 'rest_no_route' } )
+				.mockResolvedValueOnce( { [ SETTINGS_KEY ]: 'Answer in French.' } );
+			const { result } = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.content ).toBe( 'Answer in French.' );
+			expect( result.current.isUnavailable ).toBe( false );
+		} );
+
+		it( 'falls back to /wp/v2/settings on 404 status error', async () => {
+			apiFetch
+				.mockRejectedValueOnce( { data: { status: 404 } } )
+				.mockResolvedValueOnce( { [ SETTINGS_KEY ]: 'Be brief.' } );
+			const { result } = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.content ).toBe( 'Be brief.' );
+			expect( result.current.isUnavailable ).toBe( false );
+		} );
+
+		it( 'leaves content empty when option is not set', async () => {
+			apiFetch.mockRejectedValueOnce( { code: 'rest_no_route' } ).mockResolvedValueOnce( {} );
+			const { result } = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.content ).toBe( '' );
+		} );
+
+		it( 'sets isUnavailable when both endpoints fail', async () => {
+			apiFetch
+				.mockRejectedValueOnce( { code: 'rest_no_route' } )
+				.mockRejectedValueOnce( { message: 'Settings unavailable' } );
+			const { result } = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.isUnavailable ).toBe( true );
+			expect( result.current.error ).toBeNull();
+		} );
+	} );
+
+	describe( 'savePersonality — guidelines path', () => {
 		it( 'POSTs when postId is null', async () => {
 			apiFetch.mockResolvedValueOnce( [] ).mockResolvedValueOnce( { id: 99 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
@@ -160,6 +186,63 @@ describe( 'useAiAnswersSettings', () => {
 			expect(
 				saveCall.data.guideline_categories.blocks[ 'jetpack/search-ai-summary' ].guidelines
 			).toBe( 'Custom instructions.' );
+		} );
+	} );
+
+	describe( 'savePersonality — settings fallback path', () => {
+		const setupSettingsFallback = async () => {
+			apiFetch
+				.mockRejectedValueOnce( { code: 'rest_no_route' } )
+				.mockResolvedValueOnce( { [ SETTINGS_KEY ]: 'Be concise.' } );
+			const utils = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( utils.result.current.isLoading ).toBe( false ) );
+			return utils;
+		};
+
+		it( 'POSTs to /wp/v2/settings', async () => {
+			const { result } = await setupSettingsFallback();
+			apiFetch.mockResolvedValueOnce( {} );
+
+			await act( async () => result.current.savePersonality() );
+
+			const saveCall = apiFetch.mock.calls[ 2 ][ 0 ];
+			expect( saveCall.method ).toBe( 'POST' );
+			expect( saveCall.path ).toBe( '/wp/v2/settings' );
+			expect( saveCall.data[ SETTINGS_KEY ] ).toBe( 'Be concise.' );
+		} );
+
+		it( 'sends DEFAULT_PERSONALITY when content is empty', async () => {
+			apiFetch
+				.mockRejectedValueOnce( { code: 'rest_no_route' } )
+				.mockResolvedValueOnce( {} )
+				.mockResolvedValueOnce( {} );
+			const { result } = renderHook( () => useAiAnswersSettings() );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			await act( async () => result.current.savePersonality() );
+
+			const saveCall = apiFetch.mock.calls[ 2 ][ 0 ];
+			expect( saveCall.data[ SETTINGS_KEY ] ).toBe( DEFAULT_PERSONALITY );
+		} );
+
+		it( 'sets saved on success', async () => {
+			const { result } = await setupSettingsFallback();
+			apiFetch.mockResolvedValueOnce( {} );
+
+			await act( async () => result.current.savePersonality() );
+
+			expect( result.current.saved ).toBe( true );
+			expect( result.current.isSaving ).toBe( false );
+		} );
+
+		it( 'sets error on save failure', async () => {
+			const { result } = await setupSettingsFallback();
+			apiFetch.mockRejectedValueOnce( { message: 'Settings save failed' } );
+
+			await act( async () => result.current.savePersonality() );
+
+			expect( result.current.error ).toBe( 'Settings save failed' );
+			expect( result.current.saved ).toBe( false );
 		} );
 	} );
 } );
