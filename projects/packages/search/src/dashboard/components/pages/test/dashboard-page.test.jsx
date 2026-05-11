@@ -27,6 +27,7 @@ jest.mock( 'store', () => ( {
 jest.mock( 'components/global-notices', () => () => <div data-testid="notices-list" /> );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
+jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
 jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
 jest.mock( 'components/reader-chat-control', () => props => {
 	mockReaderChatControl( props );

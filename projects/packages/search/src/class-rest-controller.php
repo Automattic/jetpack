@@ -332,7 +332,7 @@ class REST_Controller {
 	 * @param bool|null   $reader_chat - Reader Chat status.
 	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null ) {
 		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -381,14 +381,12 @@ class REST_Controller {
 	 * GET `jetpack/v4/search/settings`
 	 */
 	public function get_settings() {
-		return rest_ensure_response(
-			array(
-				'module_active'                 => $this->search_module->is_active(),
-				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
-				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
-				'experience'                    => $this->search_module->get_experience(),
-				'ai_answers_enabled'            => AI_Answers::is_enabled(),
-			)
+		$settings = array(
+			'module_active'                 => $this->search_module->is_active(),
+			'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
+			'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
+			'experience'                    => $this->search_module->get_experience(),
+			'ai_answers_enabled'            => AI_Answers::is_enabled(),
 		);
 
 		if ( $this->is_reader_chat_setting_registered() ) {

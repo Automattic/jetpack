@@ -70,16 +70,7 @@ export function* updateJetpackSettings( settings = {} ) {
 		}
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
-		const oldSettings = Object.fromEntries(
-			Object.entries( select( STORE_ID ).getSearchModuleStatus() ).filter(
-				( [ k ] ) =>
-					k === 'module_active' ||
-					k === 'instant_search_enabled' ||
-					k === 'experience' ||
-					k === 'ai_answers_enabled'
-			)
-		);
-		yield setJetpackSettings( oldSettings );
+		yield setJetpackSettings( previousSettings ?? {} );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-search-pkg' ) );
 	} finally {
 		yield removeUpdatingNotice();

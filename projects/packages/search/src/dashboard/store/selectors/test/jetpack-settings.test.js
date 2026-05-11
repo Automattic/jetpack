@@ -25,6 +25,8 @@ describe( 'jetpackSettingSelectors', () => {
 				},
 			} )
 		).toBe( true );
+	} );
+
 	describe( 'isAiAnswersEnabled', () => {
 		it( 'returns false when ai_answers_enabled is false', () => {
 			const state = { jetpackSettings: { ai_answers_enabled: false } };
