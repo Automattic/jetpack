@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Phase 5: add a "Scan now" header button (always available on the Active tab, disabled while a scan is running) backed by a new `POST /jetpack/v4/site/scan/enqueue` REST bridge, and surface a `ScanStatus` panel with a spinner + progress percentage in place of the threats table while the scanner is `enqueued` or `running`.

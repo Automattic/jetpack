@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: adds the `jetpack-search/filter-wc-price` block — two number inputs (min, max) bound to the shared store's `priceRange` slice. Drives `actions.setPriceRange` on `change` / Enter. URL contract uses `min_price` / `max_price` reserved query params. The block seeds `priceCurrencySymbol` and `priceLabel` into the shared store so the active-filters chip block can render budget-filtered URLs correctly. Tracked under epic [RSM-1929].

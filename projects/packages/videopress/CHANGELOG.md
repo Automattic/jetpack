@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.8] - 2026-05-11
+### Added
+- VideoPress: Add Library tab as a DataViews grid with table alternate and mocked uploads, all behind the existing modernization filter. [#48586]
+- VideoPress: Add shared chrome with Overview/Library/Settings tabs and a working Restrict access toggle, all behind the existing modernization filter. [#48510]
+
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- VideoPress: Remove translation wrappers from the "VideoPress" product name. [#48519]
+
+### Fixed
+- VideoPress: Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+
 ## [0.36.7] - 2026-05-04
 ### Changed
 - Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
@@ -1947,6 +1959,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.7...v0.36.8
 [0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
 [0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6
 [0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5

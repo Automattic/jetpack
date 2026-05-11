@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-05-11
+### Added
+- ThreatsDataViews: Add an optional `empty` prop that's forwarded to the underlying `DataViews` so consumers can render their own empty-state node instead of DataViews' built-in "no items" body. [#48458]
+- ThreatsDataViews: Accept `RenderFixModal`, `RenderIgnoreModal`, and `RenderUnignoreModal` props so consumers can route row actions through DataViews-managed confirmation modals. [#48458]
+- ThreatsDataViews: Add an optional `onTrackEvent` callback for DataViews-canonical view transition events. [#48458]
+- ThreatsDataViews: Add an optional `persistKey` prop to persist filters, sort, search, pagination, and layout in local storage. [#48458]
+- ThreatsDataViews: Add an optional `RenderViewModal` prop for always-available threat detail views. [#48458]
+- ThreatsDataViews: Add an optional `showStatusFilter` prop so consumers that already filter by status can hide the in-table active/history toggle. [#48458]
+
+### Changed
+- Badge: Migrated usages to @wordpress/ui Badge. [#48156]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Scan Package: Switch the package to source exports so consumers resolve `@automattic/jetpack-scan` directly to `./src/index.ts`. [#48458]
+- Update package dependencies. [#47907]
+- Update package dependencies. [#48106]
+- Update package dependencies. [#48126]
+- Update package dependencies. [#48141]
+- Update package dependencies. [#48346]
+- ThreatsDataViews: Anchor the DataViews empty body to `calc(100vh - 320px)` so consumers get a full-height empty state without wiring a custom flex chain. [#48458]
+
 ## [1.3.0] - 2026-04-11
 ### Changed
 - Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
@@ -175,6 +195,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.4.0]: https://github.com/Automattic/jetpack-scan/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-scan/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Automattic/jetpack-scan/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Automattic/jetpack-scan/compare/v1.2.0...v1.2.1

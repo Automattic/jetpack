@@ -125,7 +125,7 @@ function image_studio_can_generate_video_clips() {
 	 * return a boolean to override. Useful for environments that need to
 	 * force the answer (custom hosts, integration tests, etc.).
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @param bool|null $override Override value, or null to use default detection.
 	 */

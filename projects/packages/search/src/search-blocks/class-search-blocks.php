@@ -202,7 +202,7 @@ class Search_Blocks {
 			 * Cast to bool before caching so a filter returning a truthy
 			 * non-bool (e.g. `1`) doesn't poison strictly-typed callers.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.59.0
 			 *
 			 * @param bool $is_active Result of the WooCommerce class probe.
 			 */

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Podcast: drop redundant late_initialization load — the package is loaded via jetpack-mu-wpcom on Simple/Atomic, and the host gate makes the Jetpack plugin call a no-op.
-
-

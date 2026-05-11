@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Add a REST proxy used by the wp-admin Newsletter page to manage subscribers (list, individual detail, comp, remove, add, plans, stats).
