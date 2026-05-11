@@ -1,0 +1,122 @@
+import { getSiteData } from '@automattic/jetpack-script-data';
+import { Notice } from '@wordpress/components';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import EpisodeStats from './components/episode-stats';
+import PeriodControl, { getPeriodHeading } from './components/period-control';
+import StatsByApp from './components/stats-by-app';
+import StatsByCountry from './components/stats-by-country';
+import StatsByDayChart from './components/stats-by-day-chart';
+import StatsTopEpisodes from './components/stats-top-episodes';
+import SummaryTiles from './components/summary-tiles';
+import './style.scss';
+import { useShowStatsQuery } from './use-show-stats-query';
+import type { PodcastStatsPeriod } from './types';
+
+const Stats = () => {
+	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
+	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( '30d' );
+	const [ episodeId, setEpisodeId ] = useState< number | null >( null );
+	const headingRef = useRef< HTMLHeadingElement | null >( null );
+	const prevEpisodeIdRef = useRef< number | null >( null );
+
+	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
+
+	const handleBack = useCallback( () => setEpisodeId( null ), [] );
+
+	// Return focus to the show heading when leaving the episode drilldown —
+	// the "Back to stats" button has unmounted and would otherwise drop focus
+	// to the document.
+	useEffect( () => {
+		if ( prevEpisodeIdRef.current !== null && episodeId === null ) {
+			headingRef.current?.focus();
+		}
+		prevEpisodeIdRef.current = episodeId;
+	}, [ episodeId ] );
+
+	if ( ! blogId ) {
+		return (
+			<div className="podcast-stats podcast-stats--stack">
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'Podcast stats are unavailable until this site is connected to WordPress.com.',
+						'jetpack-podcast'
+					) }
+				</Notice>
+			</div>
+		);
+	}
+
+	if ( episodeId !== null ) {
+		return <EpisodeStats postId={ episodeId } onBack={ handleBack } initialPeriod={ period } />;
+	}
+
+	const isEmpty = ! isLoading && ! isError && stats?.total_plays === 0;
+
+	return (
+		<div className="podcast-stats podcast-stats--stack">
+			<div className="podcast-stats__header">
+				<header className="podcast-stats__section-header">
+					<h2 ref={ headingRef } tabIndex={ -1 } className="podcast-stats__period-heading">
+						{ getPeriodHeading( period ) }
+					</h2>
+					<p className="podcast-stats__section-description">
+						{ __(
+							'Track downloads, top episodes, apps, and listener locations.',
+							'jetpack-podcast'
+						) }
+					</p>
+				</header>
+				<div className="podcast-stats__period-control">
+					<PeriodControl value={ period } onChange={ setPeriod } />
+				</div>
+			</div>
+
+			{ isError && (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'There was a problem loading podcast stats. Please try again.',
+						'jetpack-podcast'
+					) }
+				</Notice>
+			) }
+
+			{ ! isError && isEmpty && (
+				<Notice status="info" isDismissible={ false }>
+					{ __( 'No downloads yet. Share your show to start collecting data.', 'jetpack-podcast' ) }
+				</Notice>
+			) }
+
+			{ ! isError && ! isEmpty && (
+				<>
+					<StatsByDayChart
+						byDay={ stats?.by_day }
+						range={ stats?.range }
+						period={ period }
+						isLoading={ isLoading }
+					>
+						<SummaryTiles
+							totalPlays={ stats?.total_plays }
+							byApp={ stats?.by_app }
+							byCountry={ stats?.by_country }
+							episodesPublished={ stats?.episodes_published }
+							isLoading={ isLoading }
+							layout="chart"
+						/>
+					</StatsByDayChart>
+					<div className="podcast-stats__module-grid">
+						<StatsTopEpisodes
+							episodes={ stats?.top_episodes }
+							isLoading={ isLoading }
+							onSelect={ setEpisodeId }
+						/>
+						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
+						<StatsByCountry rows={ stats?.by_country } isLoading={ isLoading } />
+					</div>
+				</>
+			) }
+		</div>
+	);
+};
+
+export default Stats;
