@@ -1,9 +1,11 @@
 // Layout notes:
-// `@wordpress/admin-ui`'s `Page` already lays out the body as a flex column
-// where every direct child stretches to fill the viewport. The body wrapper
-// owns `overflow: auto`, so it's the scroll container — sticky descendants
-// resolve relative to it, NOT to the outer stage or the page header (which
-// is a sibling of the body wrapper, not a parent).
+// `@wordpress/admin-ui`'s `Page` lays out `.admin-ui-page` as a flex column
+// whose direct children are the sticky header and a single body slot. There
+// is no `.admin-ui-page__body` wrapper — whatever we pass as children sits
+// directly under `.admin-ui-page` (Tabs.Root in tabbed mode, the content
+// `div` in Settings-only mode). That body slot needs its own flex-grow
+// rule for the viewport-filling DataViews chain below it to work; see the
+// `.admin-ui-page:has(.dataviews-wrapper) > ...` rule further down.
 
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 
@@ -60,12 +62,16 @@ body.jetpack_page_jetpack-newsletter {
 	}
 
 	// On the Subscribers tab, let the DataViews surface fill the remaining
-	// viewport instead of collapsing to its content height. Walk the
-	// flex chain from the body wrapper down to the dataviews root: every
-	// wrapper needs to flex-grow AND drop its min-content floor so the leaf
-	// can absorb leftover space.
+	// viewport instead of collapsing to its content height. Walk the flex
+	// chain from `.admin-ui-page` down to `.dataviews-wrapper`: every link
+	// needs `display: flex` + `flex-grow: 1` + a zeroed min-block-size so
+	// the leaf can absorb leftover space. The body-slot rule covers both
+	// Tabs.Root (tabbed mode) and the bare content `div` (Settings-only
+	// mode); `Page` slots either one as a plain `display: block` child, so
+	// without this rule the rest of the chain has nothing to grow into.
 	.admin-ui-page:has(.dataviews-wrapper) {
 
+		> :not(.admin-ui-page__header):not(.jetpack-footer),
 		.jetpack-newsletter-page__content,
 		.jetpack-newsletter-page__content > [class*="__tabpanel"] {
 			display: flex;
