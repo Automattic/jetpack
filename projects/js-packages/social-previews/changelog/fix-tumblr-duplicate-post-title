@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tumblr: Fix "Your post" preview showing a rich link card that duplicates the post title. The preview now consistently uses the "View On WordPress" link style, matching how Tumblr social posts with media are displayed.

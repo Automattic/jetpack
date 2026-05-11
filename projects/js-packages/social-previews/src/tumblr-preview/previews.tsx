@@ -13,8 +13,6 @@ export const TumblrPreviews: React.FC< TumblrPreviewsProps > = ( {
 	hidePostPreview,
 	...props
 } ) => {
-	const hasMedia = !! props.media?.length;
-
 	return (
 		<div className="social-preview tumblr-preview">
 			{ ! hidePostPreview && (
@@ -28,7 +26,7 @@ export const TumblrPreviews: React.FC< TumblrPreviewsProps > = ( {
 					<p className="social-preview__section-desc">
 						{ __( 'This is what your social post will look like on Tumblr:', 'social-previews' ) }
 					</p>
-					{ hasMedia ? <TumblrPostPreview { ...props } /> : <TumblrLinkPreview { ...props } /> }
+					<TumblrPostPreview { ...props } />
 				</section>
 			) }
 			{ ! hideLinkPreview && (
