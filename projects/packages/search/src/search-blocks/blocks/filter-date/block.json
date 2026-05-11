@@ -5,8 +5,7 @@
 	"version": "0.1.0",
 	"title": "Filter by Date",
 	"category": "jetpack-search",
-	"icon": "calendar-alt",
-	"description": "Date filter for Jetpack Search. Group results into yearly or monthly buckets so visitors can scope a search to a single time window.",
+	"description": "Date filter. Group results into yearly or monthly buckets so visitors can scope a search to a single time window. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
 		"interactivity": true

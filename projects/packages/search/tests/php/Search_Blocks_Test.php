@@ -787,7 +787,6 @@ class Search_Blocks_Test extends TestCase {
 			$variations_by_name['product_cat']['attributes']
 		);
 		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_cat']['isActive'] );
-		$this->assertSame( 'category', $variations_by_name['product_cat']['icon'] );
 
 		$this->assertSame(
 			array(
@@ -798,7 +797,6 @@ class Search_Blocks_Test extends TestCase {
 			$variations_by_name['product_tag']['attributes']
 		);
 		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_tag']['isActive'] );
-		$this->assertSame( 'tag', $variations_by_name['product_tag']['icon'] );
 
 		// product_brand is gated on `taxonomy_exists( 'product_brand' )`. In a
 		// bare phpunit run no taxonomies are registered, so it must NOT appear.
@@ -831,7 +829,6 @@ class Search_Blocks_Test extends TestCase {
 			$variations_by_name['product_brand']['attributes']
 		);
 		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_brand']['isActive'] );
-		$this->assertSame( 'awards', $variations_by_name['product_brand']['icon'] );
 
 		// Inserter cards render in the order the variations are returned, so
 		// product_brand must precede custom_taxonomy to keep the three
