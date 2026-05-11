@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Filter by Product Attribute",
 	"category": "jetpack-search",
-	"icon": "filter",
 	"description": "Let shoppers filter products by a WooCommerce attribute (color, size, …). Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
@@ -20,6 +19,11 @@
 	"attributes": {
 		"attributeTaxonomy": { "type": "string", "default": "" },
 		"label": { "type": "string", "default": "" },
+		"displayStyle": {
+			"type": "string",
+			"default": "checkbox-list",
+			"enum": [ "checkbox-list", "chips" ]
+		},
 		"showCount": { "type": "boolean", "default": true },
 		"maxItems": { "type": "integer", "default": 10 },
 		"bucketSortOrder": {

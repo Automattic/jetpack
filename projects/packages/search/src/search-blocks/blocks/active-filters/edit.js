@@ -35,9 +35,6 @@ export default function ActiveFiltersEdit() {
 					</button>
 				</li>
 			</ul>
-			<button type="button" className="jetpack-search-active-filters__clear-all" disabled>
-				{ __( 'Clear all', 'jetpack-search-pkg' ) }
-			</button>
 		</div>
 	);
 }

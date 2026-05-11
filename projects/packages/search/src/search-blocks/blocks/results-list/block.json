@@ -5,8 +5,7 @@
 	"version": "0.2.0",
 	"title": "Results List",
 	"category": "jetpack-search",
-	"icon": "list-view",
-	"description": "Renders Jetpack Search results, plus the empty-state and error messages for the same region.",
+	"description": "Renders search results, plus the empty-state and error messages for the same region. Powered by Jetpack Search.",
 	"attributes": {
 		"layout": {
 			"type": "string",

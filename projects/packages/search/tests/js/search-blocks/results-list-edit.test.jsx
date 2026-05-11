@@ -59,6 +59,17 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 describe( 'ResultsListEdit', () => {
+	// Default the editor's localized WC flag to true so the existing
+	// product-layout tests keep exercising the full picker. The non-Woo
+	// path (Product option absent, saved `product` collapses to `expanded`)
+	// is covered in its own `describe` block below.
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+	} );
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
 	it( 'does not show author names in the compact preview', () => {
 		render( <ResultsListEdit attributes={ { layout: 'compact' } } setAttributes={ jest.fn() } /> );
 
@@ -148,5 +159,39 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'ResultsListEdit on non-WooCommerce sites (RSM-2805)', () => {
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+	} );
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'omits the Product layout option from the picker', () => {
+		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );
+
+		// Compact and Expanded remain; Product is hidden so authors can't
+		// pick a layout that reads WC-shaped fields the index doesn't have.
+		expect( screen.getByRole( 'radio', { name: 'Compact' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'collapses a saved product layout to expanded so the editor matches the renderer', () => {
+		// Authors who saved `product` on a Woo site that later deactivates
+		// WC should see the neutral expanded preview, not a broken product
+		// card. The PHP `render.php` applies the same fallback.
+		render( <ResultsListEdit attributes={ { layout: 'product' } } setAttributes={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeChecked();
+		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
+		// Product-only sample data must not bleed into the canvas.
+		expect( screen.queryByText( 'Sample product' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '$24.00' ) ).not.toBeInTheDocument();
 	} );
 } );

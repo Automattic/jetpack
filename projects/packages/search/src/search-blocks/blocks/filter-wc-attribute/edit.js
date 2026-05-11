@@ -22,9 +22,14 @@ import {
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { normalizeDisplayStyle } from '../display-style.js';
 
 const ATTRIBUTE_PREFIX = 'pa_';
 
@@ -113,7 +118,11 @@ function resolvePlaceholderInstructions( isLoading, hasAttributes ) {
  * @return {object} Rendered element.
  */
 export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps( { className: 'jetpack-search-filter-wc-attribute' } );
+	const displayStyle = normalizeDisplayStyle( attributes?.displayStyle );
+	const blockProps = useBlockProps( {
+		className: 'jetpack-search-filter-wc-attribute',
+		'data-display-style': displayStyle,
+	} );
 	const rawLabel = attributes?.label || '';
 	const showCount = attributes?.showCount !== false;
 	const maxItems = Math.max( 1, attributes?.maxItems ?? 10 );
@@ -197,6 +206,20 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 						checked={ showCount }
 						onChange={ value => setAttributes( { showCount: !! value } ) }
 					/>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						isBlock
+						label={ __( 'Display style', 'jetpack-search-pkg' ) }
+						value={ displayStyle }
+						onChange={ value => setAttributes( { displayStyle: normalizeDisplayStyle( value ) } ) }
+					>
+						<ToggleGroupControlOption
+							value="checkbox-list"
+							label={ __( 'Checkbox list', 'jetpack-search-pkg' ) }
+						/>
+						<ToggleGroupControlOption value="chips" label={ __( 'Chips', 'jetpack-search-pkg' ) } />
+					</ToggleGroupControl>
 					<RangeControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

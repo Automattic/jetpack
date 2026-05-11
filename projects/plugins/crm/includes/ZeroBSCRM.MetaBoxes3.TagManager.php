@@ -201,27 +201,23 @@ class zeroBS__Metabox_TagList extends zeroBS__Metabox {
 				}
 
 				?>
+				<?php
+				$jpcrm_tag_list_lang = array(
+					'delete'            => __( 'Delete', 'zero-bs-crm' ),
+					'deleteswaltitle'   => __( 'Are you sure?', 'zero-bs-crm' ),
+					/* translators: %s: object type (e.g. "contact", "company") */
+					'deleteswaltext'    => sprintf( __( 'This will delete the tag and remove it from any tagged %s. This is irreversable.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->typeInt ) ),
+					'deleteswalconfirm' => __( 'Yes, delete the tag!', 'zero-bs-crm' ),
+					'tagdeleted'        => __( 'Tag Deleted!', 'zero-bs-crm' ),
+					'tagremoved'        => __( 'Your tag has been removed.', 'zero-bs-crm' ),
+					'tagnotdeleted'     => __( 'Tag Not Deleted!', 'zero-bs-crm' ),
+					'tagnotremoved'     => __( 'Your tag was not removed, please try again.', 'zero-bs-crm' ),
+				);
+				?>
 				<script type="text/javascript">
-			<?php
-			#} Nonce for AJAX
-			echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';";
-			?>
+				var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-				var zbsTagListLang = {
-
-					'delete': '<?php zeroBSCRM_slashOut( __( 'Delete', 'zero-bs-crm' ) ); ?>',
-
-					'deleteswaltitle': '<?php zeroBSCRM_slashOut( __( 'Are you sure?', 'zero-bs-crm' ) ); ?>',
-					'deleteswaltext': '<?php zeroBSCRM_slashOut( __( 'This will delete the tag and remove it from any tagged ' . __( $zbs->DAL->typeStr( $this->typeInt ), 'zero-bs-crm' ) . '. This is irreversable.', 'zero-bs-crm' ) ); ?>',
-					'deleteswalconfirm': '<?php zeroBSCRM_slashOut( __( 'Yes, delete the tag!', 'zero-bs-crm' ) ); ?>',
-
-
-					'tagdeleted':'<?php zeroBSCRM_slashOut( __( 'Tag Deleted!', 'zero-bs-crm' ) ); ?>',
-					'tagremoved':'<?php zeroBSCRM_slashOut( __( 'Your tag has been removed.', 'zero-bs-crm' ) ); ?>',
-					'tagnotdeleted':'<?php zeroBSCRM_slashOut( __( 'Tag Not Deleted!', 'zero-bs-crm' ) ); ?>',
-					'tagnotremoved':'<?php zeroBSCRM_slashOut( __( 'Your tag was not removed, please try again.', 'zero-bs-crm' ) ); ?>',
-
-				};
+				var zbsTagListLang = <?php echo wp_json_encode( $jpcrm_tag_list_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 
 				</script>

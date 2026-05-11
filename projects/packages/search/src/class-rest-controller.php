@@ -242,6 +242,9 @@ class REST_Controller {
 	 */
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
+		if ( ! is_array( $request_body ) ) {
+			$request_body = array();
+		}
 
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
@@ -249,8 +252,9 @@ class REST_Controller {
 		$experience                    = isset( $request_body['experience'] ) && is_string( $request_body['experience'] )
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
+		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -291,6 +295,10 @@ class REST_Controller {
 			$this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
 		}
 
+		if ( $reader_chat !== null ) {
+			update_option( 'reader_chat', $reader_chat );
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
 				'some_updated',
@@ -316,24 +324,37 @@ class REST_Controller {
 	 * @param boolean     $instant_search_enabled - Instant Search status.
 	 * @param boolean     $swap_classic_to_inline_search - New inline search status.
 	 * @param string|null $experience - Experience value.
+	 * @param bool|null   $reader_chat - Reader Chat status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null ) {
+		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
 		// Reject requests that mix it with any other settings field so callers don't silently
 		// lose those fields — the `experience` branch in update_settings() early-returns and
 		// would otherwise drop them.
 		if ( $experience !== null ) {
-			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null ) {
 				return new WP_Error(
 					'rest_invalid_arguments',
-					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, or `swap_classic_to_inline_search`.', 'jetpack-search-pkg' ),
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, or `reader_chat`.', 'jetpack-search-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
 			return true;
 		}
-		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
-			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
+		if (
+			$module_active === null &&
+			$instant_search_enabled === null &&
+			( $swap_classic_to_inline_search !== null || $reader_chat !== null )
+		) {
+			// Allow updating auxiliary settings without updating/validating the module settings.
 			return true;
 		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
@@ -350,14 +371,30 @@ class REST_Controller {
 	 * GET `jetpack/v4/search/settings`
 	 */
 	public function get_settings() {
-		return rest_ensure_response(
-			array(
-				'module_active'                 => $this->search_module->is_active(),
-				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
-				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
-				'experience'                    => $this->search_module->get_experience(),
-			)
+		$settings = array(
+			'module_active'                 => $this->search_module->is_active(),
+			'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
+			'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
+			'experience'                    => $this->search_module->get_experience(),
 		);
+
+		if ( $this->is_reader_chat_setting_registered() ) {
+			$settings['reader_chat'] = (bool) get_option( 'reader_chat', false );
+		}
+
+		return rest_ensure_response( $settings );
+	}
+
+	/**
+	 * Check whether Reader Chat is available through REST settings in this request.
+	 *
+	 * Reader Chat registers `reader_chat` only for proxied rollout contexts, so the
+	 * Search dashboard should expose the toggle only when that setting exists.
+	 *
+	 * @return bool True when reader_chat is registered.
+	 */
+	protected function is_reader_chat_setting_registered() {
+		return array_key_exists( 'reader_chat', get_registered_settings() );
 	}
 
 	/**

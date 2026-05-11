@@ -7318,11 +7318,14 @@ function zeroBSCRM_clickToCallPrefix() {
 
 	$click2CallType = zeroBSCRM_getSetting( 'clicktocalltype' );
 
-	if ( $click2CallType == 1 ) {
+	if ( $click2CallType === 1 ) {
 		return 'tel:';
 	}
-	if ( $click2CallType == 2 ) {
+	if ( $click2CallType === 2 ) {
 		return 'callto:';
+	}
+	if ( $click2CallType === 3 ) {
+		return 'sip:';
 	}
 }
 

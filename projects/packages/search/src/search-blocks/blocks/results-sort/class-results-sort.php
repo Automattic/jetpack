@@ -12,39 +12,58 @@ namespace Automattic\Jetpack\Search;
  *
  * Centralizes the list of valid sort keys, their translated labels, and the
  * attribute-normalization logic so render.php and the block's own unit tests
- * share one source of truth. The block currently exposes only the base sort
- * keys (`relevance`, `newest`, `oldest`); product-format keys present in
- * instant-search's `VALID_SORT_KEYS` (src/instant-search/lib/constants.js)
- * are intentionally deferred to the WooCommerce integration tracked under
- * RSM-1082.
+ * share one source of truth. Base sort keys (`relevance`, `newest`, `oldest`)
+ * are always exposed; the product-format keys (`rating_desc`, `price_asc`,
+ * `price_desc`) join the set only when WooCommerce is active so deep links
+ * to a sort the API can't honour can't slip into the rendered control on
+ * non-Woo sites.
  */
 class Results_Sort {
 
-	/** Product-format keys (rating/price) land in RSM-1082. */
 	const BASE_SORT_KEYS = array( 'relevance', 'newest', 'oldest' );
 
 	/**
+	 * Product-format keys gated on WooCommerce. Order is meaningful — `rating`
+	 * leads because authors most often want it as the visible default sort
+	 * for product pages, with the two price directions grouped after it.
+	 */
+	const PRODUCT_SORT_KEYS = array( 'rating_desc', 'price_asc', 'price_desc' );
+
+	/**
 	 * All keys the block may render. Order is meaningful — `<option>` / radio
-	 * rows come out in this sequence.
+	 * rows come out in this sequence. Product-format keys append to the base
+	 * set when WooCommerce is active so non-Woo sites never expose a sort
+	 * the API would silently fall back to relevance on. Reads through to
+	 * `Search_Blocks::is_woocommerce_active()` so block-registration gates
+	 * for `filter-wc-*` and the sort-key gate share one memoized probe.
 	 *
 	 * @return string[]
 	 */
 	public static function get_all_option_keys(): array {
+		if ( Search_Blocks::is_woocommerce_active() ) {
+			return array_merge( self::BASE_SORT_KEYS, self::PRODUCT_SORT_KEYS );
+		}
 		return self::BASE_SORT_KEYS;
 	}
 
 	/**
 	 * Translated labels for each sort key. A separate accessor (rather than a
 	 * class constant) so the strings go through `__()` at call time — class
-	 * constants can't hold translation-function output.
+	 * constants can't hold translation-function output. Returns labels for
+	 * every key the block could render in any environment (base + product);
+	 * `resolve_available_options()` is the gate that decides which keys
+	 * actually surface, so the unused entries never reach the DOM.
 	 *
 	 * @return array<string, string>  Map of sort key → label.
 	 */
 	public static function get_option_labels(): array {
 		return array(
-			'relevance' => __( 'Relevance', 'jetpack-search-pkg' ),
-			'newest'    => __( 'Newest', 'jetpack-search-pkg' ),
-			'oldest'    => __( 'Oldest', 'jetpack-search-pkg' ),
+			'relevance'   => __( 'Relevance', 'jetpack-search-pkg' ),
+			'newest'      => __( 'Newest', 'jetpack-search-pkg' ),
+			'oldest'      => __( 'Oldest', 'jetpack-search-pkg' ),
+			'rating_desc' => __( 'Rating', 'jetpack-search-pkg' ),
+			'price_asc'   => __( 'Price: low to high', 'jetpack-search-pkg' ),
+			'price_desc'  => __( 'Price: high to low', 'jetpack-search-pkg' ),
 		);
 	}
 

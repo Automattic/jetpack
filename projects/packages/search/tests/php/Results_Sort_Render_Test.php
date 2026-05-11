@@ -69,14 +69,21 @@ class Results_Sort_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Reset `$_GET` between tests so URL parsing never leaks across cases.
-	 * Interactivity state carries across tests, but render.php always writes
-	 * `sortOrder` deterministically from attrs + URL, so each render
-	 * overwrites whatever the previous one left behind.
+	 * Reset `$_GET` and the WC-active memo between tests so URL parsing
+	 * and the gate state never leak across cases. Interactivity state
+	 * carries across tests, but render.php always writes `sortOrder`
+	 * deterministically from attrs + URL, so each render overwrites
+	 * whatever the previous one left behind.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$_GET = array();
+		Search_Blocks::reset_is_woocommerce_active_cache();
+	}
+
+	protected function tearDown(): void {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		parent::tearDown();
 	}
 
 	/**
@@ -92,13 +99,110 @@ class Results_Sort_Render_Test extends TestCase {
 		return do_blocks( '<!-- wp:jetpack-search/results-sort ' . $json . ' /-->' );
 	}
 
-	/** Default render: dropdown, "Sort by", all base options. Product keys deferred to RSM-1082. */
+	/** Default render on a non-Woo site: dropdown, "Sort by", base options only. */
 	public function test_default_attributes_render_select_with_base_options() {
 		$markup = $this->render();
 		$this->assertStringContainsString( '<select', $markup );
 		$this->assertStringContainsString( 'Sort by', $markup );
 		foreach ( array( 'relevance', 'newest', 'oldest' ) as $key ) {
 			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
+		}
+		foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+			$this->assertStringNotContainsString( 'value="' . $key . '"', $markup );
+		}
+	}
+
+	/**
+	 * On a WooCommerce site, when an author opts the product-format keys
+	 * into `availableSortOptions`, the renderer must expose them with the
+	 * matching translated labels. Authors keep the base-three default until
+	 * they explicitly check the new options in the inspector — that's the
+	 * "non-Woo behavior is unchanged" half of the acceptance criteria.
+	 */
+	public function test_woocommerce_active_renders_product_keys_when_author_opts_in() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		try {
+			$markup = $this->render(
+				array(
+					'availableSortOptions' => array(
+						'relevance',
+						'newest',
+						'oldest',
+						'rating_desc',
+						'price_asc',
+						'price_desc',
+					),
+				)
+			);
+			foreach ( array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+				$this->assertStringContainsString( 'value="' . $key . '"', $markup );
+			}
+			$this->assertStringContainsString( 'Rating', $markup );
+			$this->assertStringContainsString( 'Price: low to high', $markup );
+			$this->assertStringContainsString( 'Price: high to low', $markup );
+		} finally {
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+		}
+	}
+
+	/**
+	 * Even when WooCommerce is active, an unmodified block insertion — same
+	 * defaults the author would get on a non-Woo site — keeps the base
+	 * three options. This protects the "looks exactly as it does after
+	 * jetpack#48282" promise from the issue's acceptance criteria.
+	 */
+	public function test_woocommerce_active_keeps_base_options_when_author_did_not_opt_in() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		try {
+			$markup = $this->render();
+			foreach ( array( 'relevance', 'newest', 'oldest' ) as $key ) {
+				$this->assertStringContainsString( 'value="' . $key . '"', $markup );
+			}
+			foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+				$this->assertStringNotContainsString( 'value="' . $key . '"', $markup );
+			}
+		} finally {
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+		}
+	}
+
+	/**
+	 * On a non-Woo site a `?orderby=price_asc` deep link must collapse to
+	 * the block's `defaultSort` (which itself falls back to `relevance`),
+	 * mirroring the JS-side gate in store/url-state.js.
+	 */
+	public function test_url_product_sort_collapses_when_woocommerce_inactive() {
+		$_GET = array( 'orderby' => 'price_asc' );
+		try {
+			$markup = $this->render();
+			$this->assertStringNotContainsString( 'value="price_asc"', $markup );
+			$this->assertMatchesRegularExpression(
+				'/<option[^>]*value="relevance"[^>]*selected/',
+				$markup
+			);
+		} finally {
+			$_GET = array();
+		}
+	}
+
+	/**
+	 * On a Woo site the URL `?orderby=price_asc` must win over `defaultSort`
+	 * and select the corresponding option so deep links round-trip end-to-end.
+	 */
+	public function test_url_product_sort_selected_when_woocommerce_active() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		$_GET = array( 'orderby' => 'price_asc' );
+		try {
+			$markup = $this->render(
+				array( 'availableSortOptions' => array( 'relevance', 'price_asc', 'price_desc' ) )
+			);
+			$this->assertMatchesRegularExpression(
+				'/<option[^>]*value="price_asc"[^>]*selected/',
+				$markup
+			);
+		} finally {
+			$_GET = array();
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
 		}
 	}
 
@@ -178,6 +282,36 @@ class Results_Sort_Render_Test extends TestCase {
 			);
 		} finally {
 			$_GET = array();
+		}
+	}
+
+	/**
+	 * Every popover menu item — base or product — must bind `aria-checked`
+	 * to the shared `state.isSortOptionSelected` getter (which reads back
+	 * through `data-wp-context.sortKey`). Using a per-key getter map would
+	 * leave product keys falling through to a literal `"false"` binding,
+	 * which the Interactivity API resolves as `state.false` (undefined),
+	 * leaving screen reader users without a "currently selected" signal.
+	 */
+	public function test_display_as_popover_aria_checked_uses_shared_getter_for_all_keys() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		try {
+			$markup = $this->render(
+				array(
+					'displayAs'            => 'popover',
+					'availableSortOptions' => array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ),
+				)
+			);
+			foreach ( array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+				$this->assertMatchesRegularExpression(
+					'/data-wp-context=\'[^\']*' . preg_quote( $key, '/' ) . '[^\']*\'\s+data-wp-bind--aria-checked="state\.isSortOptionSelected"/s',
+					$markup,
+					"Expected $key menu item to bind aria-checked to state.isSortOptionSelected."
+				);
+			}
+			$this->assertStringNotContainsString( 'data-wp-bind--aria-checked="false"', $markup );
+		} finally {
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
 		}
 	}
 

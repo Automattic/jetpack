@@ -91,6 +91,11 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
+		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
+		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
+			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
+		}
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -322,6 +327,11 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Code_Block::setup();

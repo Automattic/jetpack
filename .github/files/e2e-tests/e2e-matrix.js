@@ -7,7 +7,6 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/onboarding' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
-		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
@@ -15,7 +14,6 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/post-connection' ],
 		targets: [ 'plugins/jetpack' ],
-		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
@@ -23,7 +21,6 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/editor' ],
 		targets: [ 'plugins/jetpack', 'packages/publicize' ],
-		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
@@ -31,7 +28,6 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/forms' ],
 		targets: [ 'plugins/jetpack', 'packages/forms' ],
-		suite: '',
 		buildGroup: 'jetpack-core',
 	},
 	{
@@ -39,7 +35,6 @@ const projects = [
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
 		targets: [ 'packages/sync' ],
-		suite: '',
 		buildGroup: 'jetpack-sync',
 	},
 	{
@@ -47,7 +42,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/base' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -55,7 +49,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/modules' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -63,7 +56,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/critical-css' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -71,7 +63,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/page-cache' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -79,7 +70,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/concatenate' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -87,7 +77,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/lcp-optimization' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -95,7 +84,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/cornerstone' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -103,7 +91,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/image-cdn' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -111,7 +98,6 @@ const projects = [
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/image-guide' ],
 		targets: [ 'plugins/boost' ],
-		suite: '',
 		buildGroup: 'jetpack-boost',
 	},
 	{
@@ -119,7 +105,6 @@ const projects = [
 		path: 'projects/plugins/search/tests/e2e',
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/search' ],
-		suite: '',
 		buildGroup: 'jetpack-search',
 	},
 	{
@@ -127,7 +112,6 @@ const projects = [
 		path: 'projects/plugins/videopress/tests/e2e',
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/videopress' ],
-		suite: '',
 		buildGroup: 'jetpack-videopress',
 	},
 	{
@@ -135,7 +119,6 @@ const projects = [
 		path: 'projects/plugins/social/tests/e2e',
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/social' ],
-		suite: '',
 		buildGroup: 'jetpack-social',
 	},
 	{
@@ -143,7 +126,6 @@ const projects = [
 		path: 'projects/plugins/protect/tests/e2e',
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/protect' ],
-		suite: '',
 		buildGroup: 'jetpack-protect',
 	},
 ];
@@ -189,12 +171,10 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
 
-				let suiteName = project.suite ? project.suite : repoName;
+				let suiteName = repoName;
 				if ( refType === 'tag' ) {
 					suiteName = `${ suiteName }-${ refName }`;
-				}
-
-				if ( refType === 'branch' && refName !== 'trunk' ) {
+				} else if ( refType === 'branch' && refName !== 'trunk' ) {
 					suiteName = `${ suiteName }-rc`;
 				}
 

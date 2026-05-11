@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search 3.0: include `jetpack-search/clear-filters` in the `jetpack-search/filters-product` allowed list, and seed it in the default template so a fresh Product Filters insertion ships with a one-tap clear-all affordance. Tracked under [RSM-2803].

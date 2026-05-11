@@ -36,12 +36,37 @@ export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
  * Maps Search 3.0 sort UI values to the v1.3 API `sort` parameter. Keep the
  * UI keys aligned with src/instant-search/lib/constants.js SORT_OPTIONS so
  * the two surfaces stay interoperable.
+ *
+ * Only contains the keys the API expects under a *different* name. The
+ * product-format keys (`rating_desc`, `price_asc`, `price_desc`) are passed
+ * through as-is by `mapSortToApiValue()` because the API accepts them
+ * verbatim — same contract as instant-search's `mapSortToApiValue` in
+ * src/instant-search/lib/api.js.
  */
 const SORT_QUERY_MAP = {
 	newest: 'date_desc',
 	oldest: 'date_asc',
 	relevance: 'score_default',
 };
+
+/**
+ * Sort keys the v1.3 API accepts unchanged. Mirrors the early-return pool in
+ * src/instant-search/lib/api.js → `mapSortToApiValue`.
+ */
+const SORT_PASSTHROUGH = new Set( [ 'rating_desc', 'price_asc', 'price_desc' ] );
+
+/**
+ * Translate a Search 3.0 store `sortOrder` to the API's `sort` value.
+ *
+ * @param {string} sortOrder - UI-side sort key.
+ * @return {string} API-side sort value.
+ */
+function mapSortToApiValue( sortOrder ) {
+	if ( SORT_PASSTHROUGH.has( sortOrder ) ) {
+		return sortOrder;
+	}
+	return SORT_QUERY_MAP[ sortOrder ] ?? 'score_default';
+}
 
 // Mirrors Filter_Date::ALLOWED_INTERVALS. Doubles as the gate in
 // buildAggregations — ES 400s on unknown intervals.
@@ -302,10 +327,17 @@ function dateRangeFromSlug( value, interval ) {
 /**
  * Build the ES filter clause from active selections.
  *
- * OR within a single filter key (`bool.should`); AND across keys
+ * Default: OR within a single filter key (`bool.should`); AND across keys
  * (`bool.must`). Diverges from the legacy instant-search overlay which ANDs
  * multi-value selections — Search 3.0 follows the broaden-on-click UX of
  * modern faceted search.
+ *
+ * Taxonomy filters can opt into AND semantics via `config.queryType === 'and'`
+ * (set by the filter-checkbox "Logic" inspector toggle). In that case the
+ * per-value `term` clauses are pushed as separate top-level `must` entries
+ * rather than wrapped in `bool.should`, so the post must carry every selected
+ * term. Only honoured for the `taxonomy` filterType — see
+ * `Filter_Checkbox::normalize_query_type()`.
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
@@ -376,7 +408,16 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( clauses.length === 0 ) {
 			continue;
 		}
-		must.push( clauses.length === 1 ? clauses[ 0 ] : { bool: { should: clauses } } );
+		// AND semantics only apply to taxonomy filters — see header docblock.
+		// For a single value the wrapping is irrelevant, so the early single-clause
+		// short-circuit covers both branches.
+		if ( clauses.length === 1 ) {
+			must.push( clauses[ 0 ] );
+		} else if ( config?.queryType === 'and' && config?.filterType === 'taxonomy' ) {
+			must.push( ...clauses );
+		} else {
+			must.push( { bool: { should: clauses } } );
+		}
 	}
 	return must.length ? { bool: { must } } : undefined;
 }
@@ -490,7 +531,9 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  * @param {object}      opts                   - Options.
  * @param {number}      opts.siteId            - Site ID.
  * @param {string}      opts.searchQuery       - Search query string.
- * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest'.
+ * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest', plus
+ *                                             'rating_desc' | 'price_asc' | 'price_desc'
+ *                                             on WooCommerce sites.
  * @param {string|null} opts.pageHandle        - Cursor for pagination.
  * @param {boolean}     opts.isPrivateSite     - Whether the site is private.
  * @param {boolean}     opts.isWpcom           - Whether the site runs on WordPress.com.
@@ -532,7 +575,7 @@ export function buildSearchUrl( {
 	// would otherwise search for the wrong string.
 	const params = {
 		query: searchQuery || '',
-		sort: SORT_QUERY_MAP[ sortOrder ] ?? 'score_default',
+		sort: mapSortToApiValue( sortOrder ),
 		size: 10,
 		fields: SEARCH_FIELDS,
 		highlight_fields: HIGHLIGHT_FIELDS,

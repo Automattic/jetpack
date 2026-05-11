@@ -62,7 +62,7 @@ jobs:
             echo "No build needed for $GITHUB_EVENT_NAME"
             BUILD_MATRIX="[]"
           else
-            BUILD_MATRIX=$(jq -c '[ .[] | select( .suite | startswith( "atomic" ) | not ) | { buildGroup: .buildGroup, path: .path } ] | unique' <<<"$MATRIX")
+            BUILD_MATRIX=$(jq -c '[ .[] | { buildGroup: .buildGroup, path: .path } ] | unique' <<<"$MATRIX")
             echo "build matrix: $BUILD_MATRIX"
             BAD=$( jq -r '[ group_by( .buildGroup )[] | select( length > 1 ) | .[0].buildGroup ] | unique | join( "," )' <<<"$BUILD_MATRIX" )
             if [[ -n "$BAD" ]]; then
@@ -166,11 +166,11 @@ jobs:
 
       - name: Restore ${{ matrix.buildGroup }} build cache
         uses: actions/download-artifact@v8
-        if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
+        if: needs.build-projects.result == 'success'
         with:
           name: ${{ matrix.buildGroup }}.tar.xz
       - name: Extract ${{ matrix.buildGroup }} build cache
-        if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
+        if: needs.build-projects.result == 'success'
         env:
           BUILD_GROUP: ${{ matrix.buildGroup }}
         run: |
@@ -210,7 +210,6 @@ jobs:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
-          SUITE: ${{ matrix.suite }}
           BUILD_JOB_RESULT: ${{ needs.build-projects.result }}
         run: |
           # Only execute these steps if the event name is 'repository_dispatch'
@@ -223,7 +222,7 @@ jobs:
             echo "::group::Update volume mapping"
             .github/files/e2e-tests/map-plugins-for-e2e-env.sh
             echo "::endgroup::"
-          elif [[ "$SUITE" != atomic* ]]; then
+          else
             echo "Using artifact from build-projects job"
           fi
 
@@ -231,7 +230,6 @@ jobs:
         working-directory: ${{ matrix.path }}
         env:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-          SUITE: ${{ matrix.suite }}
           PROJECT_NAME: ${{ matrix.project }}
           HOST_CWD: ${{ github.workspace }}
         run: |
@@ -244,45 +242,13 @@ jobs:
           touch "$WP_DEBUG_PATH"
           chmod 0666 "$WP_DEBUG_PATH"
 
-          if [[ "${SUITE}" != atomic* && "${SUITE}" != vip ]]; then
-            echo "::group::Start docker environment"
-            pnpm run env:up
-            echo "::endgroup::"
+          echo "::group::Start docker environment"
+          pnpm run env:up
+          echo "::endgroup::"
 
-            echo "::group::Create tunnel"
-            nohup pnpm run tunnel:up "$HOME/tunnel.log"
-            echo "::endgroup::"
-          fi
-
-          if [ "${SUITE}" == gutenberg ]; then
-              echo "::group::Setting up Gutenberg"
-              pnpm e2e-env gb-setup
-              echo "::endgroup::"
-          fi
-
-      - name: Wait for atomic site to be ready
-        if: ${{ startsWith(matrix.suite, 'atomic') }}
-        working-directory: ${{ matrix.path }}
-        env:
-          DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
-          DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
-        run: |
-          SITE="atomic"
-
-          if [[ "${DISPATCH_REF_NAME}" != trunk ]]; then
-              SITE="atomicRc"
-          fi
-
-          echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
-
-          # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.js" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
-
-      - name: Set up VIP site
-        if: ${{ matrix.suite == 'vip' }}
-        working-directory: ${{ matrix.path }}
-        run: |
-          echo "TEST_SITE=vip" >> $GITHUB_ENV
+          echo "::group::Create tunnel"
+          nohup pnpm run tunnel:up "$HOME/tunnel.log"
+          echo "::endgroup::"
 
       - name: Run ${{ matrix.project }} tests
         working-directory: ${{ matrix.path }}

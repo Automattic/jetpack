@@ -95,6 +95,20 @@ const conn = ( overrides: Partial< Connection > = {} ): Connection =>
 		...overrides,
 	} ) as Connection;
 
+/**
+ * The hook reads `connections` and `siteMessageTemplate` from a single
+ * `useSelect` call that returns an object. Tests pass `connections` here;
+ * `siteMessageTemplate` defaults to `''` so per-network items fall back to
+ * empty when no override.
+ *
+ * @param {Array<Connection>} connections         - The connections returned to the hook.
+ * @param {string}            siteMessageTemplate - The saved site message template.
+ */
+const mockSelect = ( connections: Connection[], siteMessageTemplate = '' ) => {
+	mockConnections = connections;
+	mockMessageTemplate = siteMessageTemplate;
+};
+
 const allFeaturesOn = ( feature: string ) =>
 	[ 'social-message-templates', 'social-image-generator', 'social-enhanced-publishing' ].includes(
 		feature
@@ -172,7 +186,7 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'returns empty items when MESSAGE_TEMPLATES is off', () => {
 		mockSiteHasFeature.mockReturnValue( false );
-		mockConnections = [];
+		mockSelect( [] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -180,10 +194,10 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'builds one item per connection in global mode, keyed by connection_id', () => {
-		mockConnections = [
+		mockSelect( [
 			conn( { connection_id: 'a', service_name: 'x' } ),
 			conn( { connection_id: 'b', service_name: 'facebook' } ),
-		];
+		] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -203,33 +217,26 @@ describe( 'useRenderMessageItems', () => {
 		] );
 	} );
 
-	it( 'uses connection messages in per-network mode', () => {
+	it( 'in per-network mode, uses the connection message and falls back to the site template', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
-		mockConnections = [
-			conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
-			conn( { connection_id: 'b', service_name: 'facebook' } ),
-		];
+		mockSelect(
+			[
+				conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
+				conn( { connection_id: 'b', service_name: 'facebook' } ),
+			],
+			'Site template'
+		);
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
 		expect( result.current ).toEqual( [
-			{
-				id: 'a',
-				network: 'x',
-				message: 'A',
-				is_social_post: false,
-			},
-			{
-				id: 'b',
-				network: 'facebook',
-				message: 'Global',
-				is_social_post: false,
-			},
+			{ id: 'a', network: 'x', message: 'A', is_social_post: false },
+			{ id: 'b', network: 'facebook', message: 'Site template', is_social_post: false },
 		] );
 	} );
 
 	it( 'sets is_social_post=true in global mode when there is global media', () => {
-		mockConnections = [ conn() ];
+		mockSelect( [ conn() ] );
 		mockUseSocialPreviewPostData.mockReturnValue( {
 			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
 		} );
@@ -246,7 +253,7 @@ describe( 'useRenderMessageItems', () => {
 			{ mediaData: { sourceUrl: 'https://example.com/feat.jpg' } },
 			false,
 		] );
-		mockConnections = [ conn( { media_source: 'featured-image' } ) ];
+		mockSelect( [ conn( { media_source: 'featured-image' } ) ] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -255,7 +262,7 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'in per-network mode, returns false for media_source = none', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
-		mockConnections = [ conn( { media_source: 'none' } ) ];
+		mockSelect( [ conn( { media_source: 'none' } ) ] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -263,7 +270,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'debounces 1500ms when a message string changes', () => {
-		mockConnections = [ conn() ];
+		mockSelect( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'first',
 			updateMessage: jest.fn(),
@@ -296,7 +303,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'debounces 1500ms when edited post intent changes', () => {
-		mockConnections = [ conn() ];
+		mockSelect( [ conn() ] );
 
 		const { result, rerender } = renderHook( () => useRenderMessageInputs() );
 
@@ -334,7 +341,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'does not flush a pending message change on unrelated re-renders', () => {
-		mockConnections = [ conn() ];
+		mockSelect( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'first',
 			updateMessage: jest.fn(),
@@ -375,7 +382,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'updates immediately when only non-message inputs change', () => {
-		mockConnections = [ conn() ];
+		mockSelect( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'same',
 			updateMessage: jest.fn(),

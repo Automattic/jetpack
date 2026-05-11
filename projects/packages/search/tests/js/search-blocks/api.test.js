@@ -97,6 +97,27 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'sort=date_asc' );
 	} );
 
+	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
+		'passes the product-format sort key %s through to the API verbatim (RSM-1082)',
+		key => {
+			// Mirrors instant-search/lib/api.js → mapSortToApiValue: the v1.3
+			// API accepts these three keys unchanged. Without the pass-through
+			// they'd hit the SORT_QUERY_MAP fallback and silently sort by
+			// relevance, leaving deep links broken on WC sites.
+			const url = buildSearchUrl( {
+				siteId: 12345,
+				searchQuery: 'shirt',
+				sortOrder: key,
+				pageHandle: null,
+				isPrivateSite: false,
+				isWpcom: false,
+				apiRoot: 'https://example.com/wp-json/',
+			} );
+			expect( url ).toContain( 'sort=' + key );
+			expect( url ).not.toContain( 'sort=score_default' );
+		}
+	);
+
 	it( 'single-encodes special characters in the search query', () => {
 		// `qss.encode` already runs encodeURIComponent, so the string we pass
 		// in must be raw. Double-encoding would turn `&` into `%2526` and
@@ -421,6 +442,46 @@ describe( 'buildFilterClause', () => {
 
 	it( 'returns undefined when no selections are active', () => {
 		expect( buildFilterClause( {}, {} ) ).toBeUndefined();
+	} );
+
+	it( 'wraps multi-value taxonomy selections in flat `must` clauses when queryType is `and`', () => {
+		const clause = buildFilterClause(
+			{ category: [ 'news', 'sports' ] },
+			{ category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [ { term: { 'category.slug': 'news' } }, { term: { 'category.slug': 'sports' } } ],
+			},
+		} );
+	} );
+
+	it( 'keeps single-value taxonomy selections as a bare `term` clause even under queryType `and`', () => {
+		const clause = buildFilterClause(
+			{ category: [ 'news' ] },
+			{ category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: { must: [ { term: { 'category.slug': 'news' } } ] },
+		} );
+	} );
+
+	it( 'ignores queryType `and` for non-taxonomy filters (defensive — post_type is single-valued per doc)', () => {
+		const clause = buildFilterClause(
+			{ post_types: [ 'post', 'page' ] },
+			{ post_types: { filterType: 'post_type', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						bool: {
+							should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+						},
+					},
+				],
+			},
+		} );
 	} );
 
 	it( 'emits a half-open `range` clause for a single year selection', () => {
@@ -815,6 +876,47 @@ describe( 'product-shaped filter helpers', () => {
 			expect( decoded ).toContain( 'filter[bool][must][1][term][post_type]=post' );
 			expect( decoded ).toContain(
 				'filter[bool][must][2][bool][must_not][0][term][post_type]=product'
+			);
+		} );
+	} );
+
+	describe( 'buildSearchUrl: queryType `and`', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'encodes flat `must` clauses for an AND-mode taxonomy filter', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news', 'sports' ] },
+				filterConfigs: {
+					category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' },
+				},
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][term][category.slug]=sports' );
+			expect( decoded ).not.toContain( 'filter[bool][must][0][bool][should]' );
+		} );
+
+		it( 'keeps the legacy `bool.should` wrapper for the default OR mode', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news', 'sports' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][should][0][term][category.slug]=news'
+			);
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][should][1][term][category.slug]=sports'
 			);
 		} );
 	} );

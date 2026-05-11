@@ -119,7 +119,7 @@ const defaultPostData = {
  *
  * @param opts                   - Per-test overrides.
  * @param opts.postId            - Post id returned to the editor-store useSelect.
- * @param opts.messageTemplate   - The site-wide social message template from `getSocialSettings()`.
+ * @param opts.messageTemplate   - Saved site message template.
  * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
  * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
  */

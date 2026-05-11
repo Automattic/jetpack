@@ -77,10 +77,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_ai_review_mediator_enabled' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		Status_Cache::clear();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
@@ -96,10 +99,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	private function simulate_connected_owner() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
-		wp_set_current_user( $user_id );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Get the inline agentsManagerData script.
+	 *
+	 * @return string Inline script contents.
+	 */
+	private function get_agents_manager_inline_script() {
+		$inline_scripts = $GLOBALS['wp_scripts']->registered['agents-manager']->extra['before'] ?? array();
+		return implode( "\n", array_filter( $inline_scripts ) );
 	}
 
 	/**
@@ -222,6 +235,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'register_provider should be hooked when filter is true.'
 		);
 		$this->assertNotFalse(
+			has_filter( 'jetpack_ai_sidebar_agents_manager_data', array( Jetpack_AI_Sidebar::class, 'add_agents_manager_data' ) ),
+			'add_agents_manager_data should be hooked when filter is true.'
+		);
+		$this->assertNotFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ) ),
 			'maybe_enqueue_am should be hooked when filter is true.'
 		);
@@ -274,6 +291,134 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Filter override flips the flag on regardless of dev-mode signals.
+	 */
+	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_via_filter() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * Default off when no dev-mode signal is present and no filter override.
+	 */
+	public function test_maybe_enqueue_am_hides_review_mediator_by_default() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * Dev-mode signals enable the review mediator flag by default.
+	 */
+	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_in_dev_mode() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The review mediator-specific filter can suppress the flag even in dev mode.
+	 */
+	public function test_maybe_enqueue_am_allows_review_mediator_filter_to_disable_dev_mode() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * Platform-emitted Agents Manager data gets the review mediator flag.
+	 */
+	public function test_add_agents_manager_data_exposes_review_mediator_enabled() {
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( true, $data['reviewMediatorEnabled'] );
+	}
+
+	/**
+	 * Invalid upstream filter data should pass through without a TypeError.
+	 */
+	public function test_add_agents_manager_data_ignores_non_array_data() {
+		$this->assertNull( Jetpack_AI_Sidebar::add_agents_manager_data( null ) );
+	}
+
+	/**
+	 * A misbehaving filter that returns non-array must not break the payload.
+	 */
+	public function test_maybe_enqueue_am_falls_back_when_filter_returns_non_array() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', '__return_null' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		// Original payload (with reviewMediatorEnabled) is still emitted.
+		$this->assertStringContainsString(
+			'"reviewMediatorEnabled":',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
+	 * Generic Agents Manager data filters should not override the Jetpack-owned review mediator flag.
+	 */
+	public function test_maybe_enqueue_am_keeps_review_mediator_flag_authoritative_after_data_filter() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+		add_filter(
+			'jetpack_ai_sidebar_agents_manager_data',
+			function ( $data ) {
+				$data['reviewMediatorEnabled'] = false;
+				return $data;
+			},
+			20
+		);
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * The generic data filter should not bypass the review mediator-specific gate.
+	 */
+	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_review_mediator() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter(
+			'jetpack_ai_sidebar_agents_manager_data',
+			function ( $data ) {
+				$data['reviewMediatorEnabled'] = true;
+				return $data;
+			},
+			20
+		);
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
 	 * Test that maybe_enqueue_am skips when AM is already loaded.
 	 */
 	public function test_maybe_enqueue_am_skips_when_am_already_loaded() {
@@ -285,11 +430,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		// Reset enqueue to track if our code adds it again.
 		$original_src = $GLOBALS['wp_scripts']->registered['agents-manager']->src;
+		$filter_calls = 0;
+		add_filter(
+			'jetpack_ai_sidebar_agents_manager_data',
+			function ( $data ) use ( &$filter_calls ) {
+				++$filter_calls;
+				return $data;
+			}
+		);
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		// Source should remain the original, not the CDN URL.
 		$this->assertSame( $original_src, $GLOBALS['wp_scripts']->registered['agents-manager']->src );
+		$this->assertSame( 0, $filter_calls );
 	}
 
 	/**
@@ -301,6 +455,43 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	// ──────────────────────────────────────────────────
+	// maybe_patch_review_mediator_flag() tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * When AM is enqueued by an external host (e.g. Big Sky on Atomic) and our
+	 * data filter never fires, the patch script sets reviewMediatorEnabled so
+	 * the client gating still works.
+	 */
+	public function test_patch_review_mediator_flag_sets_field_when_am_enqueued_externally() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		// Simulate external host (mu-wpcom / Big Sky) having enqueued AM and
+		// declared the upstream const.
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+
+		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
+
+		$this->assertStringContainsString(
+			'agentsManagerData.reviewMediatorEnabled = true',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
+	 * When AM was not enqueued by anyone, the patch is a no-op.
+	 */
+	public function test_patch_review_mediator_flag_noop_when_am_not_enqueued() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
 
 		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
 	}

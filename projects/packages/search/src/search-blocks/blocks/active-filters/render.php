@@ -15,9 +15,9 @@ namespace Automattic\Jetpack\Search;
 // `state.hasActiveFilters` flips — relying only on data-wp-bind--hidden
 // leaves the "Active filters:" label visible on the server-rendered HTML
 // until hydration, which pushes sibling filter blocks ~30px down and
-// misaligns the sidebar with the adjacent results column. Mirrors the
-// JS getter: priceRange counts as a filter, so a `?min_price=10` deep
-// link paints with the wrapper visible.
+// misaligns the sidebar with the adjacent results column. Reads activeFilters
+// AND priceRange so a price-only deep link doesn't keep the wrapper hidden
+// after hydration sees a half-open range come through the URL.
 $seeded_state        = function_exists( 'wp_interactivity_state' )
 	? wp_interactivity_state( 'jetpack-search' )
 	: array();
@@ -68,11 +68,4 @@ if ( ! $has_active_on_paint && is_array( $seeded_price_range ) ) {
 			</li>
 		</template>
 	</ul>
-	<button
-		type="button"
-		class="jetpack-search-active-filters__clear-all"
-		data-wp-on--click="actions.clearFilters"
-	>
-		<?php esc_html_e( 'Clear all', 'jetpack-search-pkg' ); ?>
-	</button>
 </div>

@@ -21,6 +21,9 @@ class Main {
 	 * @action plugins_loaded
 	 */
 	public static function configure() {
+		// Activity Log custom events must register even when Sync is disabled, e.g. on WordPress.com Simple sites.
+		Activity_Log_Event::init();
+
 		if ( Actions::sync_allowed() ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );

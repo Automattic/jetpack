@@ -5,22 +5,21 @@
 	"version": "0.1.0",
 	"title": "Sort By",
 	"category": "jetpack-search",
-	"icon": "sort",
-	"description": "Controls the order of Jetpack Search results.",
+	"description": "Controls the order of search results. Powered by Jetpack Search.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
 		"defaultSort": {
 			"type": "string",
 			"default": "relevance",
-			"enum": [ "relevance", "newest", "oldest" ]
+			"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
 		},
 		"availableSortOptions": {
 			"type": "array",
 			"default": [ "relevance", "newest", "oldest" ],
 			"items": {
 				"type": "string",
-				"enum": [ "relevance", "newest", "oldest" ]
+				"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
 			}
 		},
 		"label": { "type": "string", "default": "" },

@@ -217,16 +217,17 @@ if ( ! empty( $tax_errors ) ) {
 	</form>
 
 
+	<?php
+	$jpcrm_tax_table_lang = array(
+		'defaultTaxName' => __( 'Tax Rate Name', 'zero-bs-crm' ),
+		'defaultTaxPerc' => __( 'Tax Rate %', 'zero-bs-crm' ),
+		'percSymbol'     => __( '%', 'zero-bs-crm' ),
+	);
+	?>
 	<script type="text/javascript">
 
 		var zeroBSCRMJS_taxTable = <?php echo wp_json_encode( $taxTables, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-		var zeroBSCRMJS_taxTableLang = {
-
-			defaultTaxName: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Tax Rate Name', 'zero-bs-crm' ) ) ); ?>',
-			defaultTaxPerc: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Tax Rate %', 'zero-bs-crm' ) ) ); ?>',
-			percSymbol: '<?php echo esc_html( zeroBSCRM_slashOut( __( '%', 'zero-bs-crm' ) ) ); ?>',
-
-		};
+		var zeroBSCRMJS_taxTableLang = <?php echo wp_json_encode( $jpcrm_tax_table_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 		jQuery(function(){
 

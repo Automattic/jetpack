@@ -67,6 +67,13 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 describe( 'ResultsSortEdit', () => {
+	afterEach( () => {
+		// `isWooCommerceActive()` reads window.JetpackSearchBlocksConfig at
+		// each render, so resetting between tests keeps a single case from
+		// pinning the gate for everything that follows.
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
 	it( 'renders the dropdown preview with the default label and swaps to radios when displayAs=radio', () => {
 		const { rerender } = render(
 			<ResultsSortEdit attributes={ {} } setAttributes={ jest.fn() } />
@@ -95,6 +102,41 @@ describe( 'ResultsSortEdit', () => {
 		render( <ResultsSortEdit attributes={ { display: 'popover' } } setAttributes={ jest.fn() } /> );
 		expect( screen.getByRole( 'button', { name: 'Sort results' } ) ).toBeDisabled();
 		expect( screen.queryByRole( 'combobox', { name: 'Sort by' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the product-format checkboxes when WooCommerce is inactive (RSM-1082)', () => {
+		render( <ResultsSortEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+		expect( screen.getByRole( 'checkbox', { name: 'Relevance' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox', { name: 'Rating' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: 'Price: low to high' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: 'Price: high to low' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'surfaces the product-format checkboxes when WooCommerce is active (RSM-1082)', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		render( <ResultsSortEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+		expect( screen.getByRole( 'checkbox', { name: 'Rating' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Price: low to high' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Price: high to low' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'lets an author check a product-format option when WooCommerce is active (RSM-1082)', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		const onSetAttributes = jest.fn();
+		render(
+			<ResultsSortEdit
+				attributes={ { availableSortOptions: [ 'relevance', 'newest', 'oldest' ] } }
+				setAttributes={ onSetAttributes }
+			/>
+		);
+		fireEvent.click( screen.getByRole( 'checkbox', { name: 'Price: low to high' } ) );
+		expect( onSetAttributes ).toHaveBeenCalledWith( {
+			availableSortOptions: [ 'relevance', 'newest', 'oldest', 'price_asc' ],
+		} );
 	} );
 
 	it( 'moves defaultSort onto the next available key when the author unchecks the current default', () => {
