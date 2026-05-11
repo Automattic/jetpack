@@ -12,23 +12,6 @@ import './embedded-preview.scss';
 export default function EmbeddedPreview() {
 	return (
 		<div className="jp-search-feature-selector__embedded-preview" aria-hidden="true">
-			<div className="jp-search-feature-selector__embedded-preview-filters">
-				<div className="jp-search-feature-selector__embedded-preview-filter-title">Category</div>
-				<ul className="jp-search-feature-selector__embedded-preview-filter-list">
-					<li className="is-checked">
-						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-						Recipes
-					</li>
-					<li>
-						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-						Travel
-					</li>
-					<li>
-						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-						Reviews
-					</li>
-				</ul>
-			</div>
 			<div className="jp-search-feature-selector__embedded-preview-results">
 				<div className="jp-search-feature-selector__embedded-preview-search">
 					<span className="jp-search-feature-selector__embedded-preview-search-icon" />
@@ -50,6 +33,23 @@ export default function EmbeddedPreview() {
 						Reviews · Mar 2026
 					</div>
 				</div>
+			</div>
+			<div className="jp-search-feature-selector__embedded-preview-filters">
+				<div className="jp-search-feature-selector__embedded-preview-filter-title">Category</div>
+				<ul className="jp-search-feature-selector__embedded-preview-filter-list">
+					<li className="is-checked">
+						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
+						Recipes
+					</li>
+					<li>
+						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
+						Travel
+					</li>
+					<li>
+						<span className="jp-search-feature-selector__embedded-preview-checkbox" />
+						Reviews
+					</li>
+				</ul>
 			</div>
 		</div>
 	);
