@@ -378,17 +378,16 @@ class Custom_Taxonomy_Slot_Mapping {
 			if ( ! taxonomy_exists( $user_slug ) || ! taxonomy_exists( $slot ) ) {
 				continue;
 			}
+			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
+			$terms      = get_terms(
+				array(
+					'taxonomy'   => $user_slug,
+					'hide_empty' => false,
+					'fields'     => 'all',
+				)
+			);
 			$object_ids = get_objects_in_term(
-				wp_list_pluck(
-					get_terms(
-						array(
-							'taxonomy'   => $user_slug,
-							'hide_empty' => false,
-							'fields'     => 'all',
-						)
-					),
-					'term_id'
-				),
+				wp_list_pluck( $terms, 'term_id' ),
 				$user_slug
 			);
 			if ( is_wp_error( $object_ids ) || empty( $object_ids ) ) {
