@@ -1,3 +1,4 @@
+import { Icon, search } from '@wordpress/icons';
 import './overlay-preview.scss';
 
 /**
@@ -16,7 +17,11 @@ export default function OverlayPreview() {
 				<div className="jp-search-feature-selector__overlay-preview-page-bar is-short" />
 				<div className="jp-search-feature-selector__overlay-preview-popup">
 					<div className="jp-search-feature-selector__overlay-preview-search">
-						<span className="jp-search-feature-selector__overlay-preview-search-icon" />
+						<Icon
+							className="jp-search-feature-selector__overlay-preview-search-icon"
+							icon={ search }
+							size={ 16 }
+						/>
 						pasta
 					</div>
 					<div className="jp-search-feature-selector__overlay-preview-result">

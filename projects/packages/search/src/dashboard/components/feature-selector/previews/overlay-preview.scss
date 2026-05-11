@@ -62,10 +62,7 @@
 }
 
 .jp-search-feature-selector__overlay-preview-search-icon {
-	width: 10px;
-	height: 10px;
-	border: var(--wpds-border-width-xs) solid currentColor;
-	border-radius: 50%;
+	fill: currentColor;
 	flex: 0 0 auto;
 }
 

@@ -1,3 +1,4 @@
+import { Icon, search } from '@wordpress/icons';
 import './embedded-preview.scss';
 
 /**
@@ -14,7 +15,11 @@ export default function EmbeddedPreview() {
 		<div className="jp-search-feature-selector__embedded-preview" aria-hidden="true">
 			<div className="jp-search-feature-selector__embedded-preview-results">
 				<div className="jp-search-feature-selector__embedded-preview-search">
-					<span className="jp-search-feature-selector__embedded-preview-search-icon" />
+					<Icon
+						className="jp-search-feature-selector__embedded-preview-search-icon"
+						icon={ search }
+						size={ 16 }
+					/>
 					pasta
 				</div>
 				<div className="jp-search-feature-selector__embedded-preview-result">

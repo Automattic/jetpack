@@ -1,3 +1,4 @@
+import { Icon, search } from '@wordpress/icons';
 import './inline-preview.scss';
 
 /**
@@ -13,7 +14,11 @@ export default function InlinePreview() {
 	return (
 		<div className="jp-search-feature-selector__inline-preview" aria-hidden="true">
 			<div className="jp-search-feature-selector__inline-preview-search">
-				<span className="jp-search-feature-selector__inline-preview-search-icon" />
+				<Icon
+					className="jp-search-feature-selector__inline-preview-search-icon"
+					icon={ search }
+					size={ 16 }
+				/>
 				pasta
 			</div>
 			<div className="jp-search-feature-selector__inline-preview-lines">
