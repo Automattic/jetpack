@@ -16,7 +16,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 import analytics from 'lib/analytics';
-import illustrationUrl from '../../../../images/products/product-jetpack-ai.svg';
+import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
 const PRODUCT_SLUG = 'jetpack_ai_yearly';
@@ -55,7 +55,7 @@ export default function McpUpsell() {
 		<div className="jetpack-ai-mcp__upsell-callout">
 			<div className="jetpack-ai-mcp__upsell-callout-content">
 				<h2 className="jetpack-ai-mcp__upsell-callout-title">
-					{ __( 'Your dream site is just a prompt away', 'jetpack' ) }
+					{ __( 'Connect AI agents to your site', 'jetpack' ) }
 				</h2>
 				<p className="jetpack-ai-mcp__upsell-callout-description">
 					{ __(

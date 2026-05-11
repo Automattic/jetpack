@@ -100,47 +100,6 @@
 	&__access-card {
 		overflow: hidden;
 	}
-}
-
-.jetpack-ai-mcp-setup {
-
-	&__steps {
-		margin: 0;
-		padding-left: 20px;
-
-		li {
-			margin-bottom: 8px;
-		}
-	}
-
-	&__code {
-		font-size: 12px;
-		background: var(--color-neutral-5, #f0f0f1);
-		padding: 1px 4px;
-		border-radius: 2px;
-	}
-
-	&__config-textarea {
-
-		textarea {
-			font-family: monospace;
-			font-size: 12px;
-			min-height: 140px;
-		}
-	}
-
-	&__action-button {
-		align-self: flex-start;
-
-		// When the button renders as an <a> tag, WP admin link styles can override
-		// the button's foreground color — force white text to match variant="solid".
-		&,
-		&:visited,
-		&:hover,
-		&:active {
-			color: var(--wp-ui-button-foreground-color, #fff);
-		}
-	}
 
 	// Free-tier upsell rendered when the site has no MCP-capable plan.
 	// Layout mirrors Activity Log's UpsellCallout: bordered card with copy
@@ -196,14 +155,55 @@
 		margin-top: 8px;
 	}
 
-	// product-jetpack-ai.svg is a 128x128 brand icon, not a hero
-	// illustration — render it at its intrinsic size so it doesn't
-	// balloon to fill the column.
+	// upsell-illustration.svg is the Big Sky AI builder mark, recoloured
+	// to Jetpack green (--jp-green-primary). Render at 160px so it reads
+	// as a clear illustration without dominating the copy column.
 	&__upsell-callout-image {
 		display: block;
-		width: 128px;
-		height: 128px;
+		width: 160px;
+		height: 160px;
 		flex-shrink: 0;
 		align-self: center;
+	}
+}
+
+.jetpack-ai-mcp-setup {
+
+	&__steps {
+		margin: 0;
+		padding-left: 20px;
+
+		li {
+			margin-bottom: 8px;
+		}
+	}
+
+	&__code {
+		font-size: 12px;
+		background: var(--color-neutral-5, #f0f0f1);
+		padding: 1px 4px;
+		border-radius: 2px;
+	}
+
+	&__config-textarea {
+
+		textarea {
+			font-family: monospace;
+			font-size: 12px;
+			min-height: 140px;
+		}
+	}
+
+	&__action-button {
+		align-self: flex-start;
+
+		// When the button renders as an <a> tag, WP admin link styles can override
+		// the button's foreground color — force white text to match variant="solid".
+		&,
+		&:visited,
+		&:hover,
+		&:active {
+			color: var(--wp-ui-button-foreground-color, #fff);
+		}
 	}
 }
