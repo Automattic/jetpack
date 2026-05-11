@@ -315,12 +315,13 @@
 		border-radius: var(--wpds-border-radius-md);
 	}
 
+	// Inner "page" reuses the outer card's grey so the surface reads as one
+	// continuous canvas; the popup floats above it without a nested-card look.
 	&__overlay-preview-page {
 		position: relative;
 		min-height: 180px;
 		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
-		background: var(--wpds-color-bg-surface-neutral-strong);
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		background: var(--wpds-color-bg-surface-neutral);
 		border-radius: var(--wpds-border-radius-sm);
 	}
 
@@ -342,7 +343,7 @@
 		inset-inline-start: var(--wpds-dimension-padding-xl);
 		inset-inline-end: var(--wpds-dimension-padding-md);
 		padding: var(--wpds-dimension-padding-sm);
-		background: var(--wpds-color-bg-surface-neutral-weak);
+		background: #fff;
 		border-radius: var(--wpds-border-radius-md);
 		box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
 	}
