@@ -158,6 +158,161 @@ class Custom_Taxonomy_Slot_Mapping_Test extends TestCase {
 	}
 
 	/**
+	 * `wp_remove_object_terms()` fires `deleted_term_relationships` instead
+	 * of `set_object_terms`, so the `mirror_removal` hook is the only thing
+	 * keeping the slot in lockstep on partial removals (CLI `wp post term
+	 * remove`, plugin code, etc.). Use the same priority-5 observer pattern
+	 * as the assignment test — we can't pin the persisted slot post-set in
+	 * WorDBless, but we can pin the inner `wp_set_object_terms()` call
+	 * fires against the slot taxonomy.
+	 */
+	public function test_mirror_removal_invokes_slot_write_for_mapped_taxonomy() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function ( $map ) {
+			$map['genre'] = 'jetpack-search-tag1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+
+		$captured = array();
+		$listener = static function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$captured ) {
+			$captured[] = $taxonomy;
+		};
+		add_action( 'set_object_terms', $listener, 5, 6 );
+		add_action( 'deleted_term_relationships', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_removal' ), 10, 3 );
+
+		try {
+			Custom_Taxonomy_Slot_Mapping::register_slot_taxonomies();
+			$post_id = wp_insert_post(
+				array(
+					'post_title'  => 'removal test',
+					'post_status' => 'publish',
+				)
+			);
+			// Fire the action directly with synthetic args — WorDBless's
+			// `wp_remove_object_terms()` doesn't persist term rows, so the
+			// in-band path doesn't reach the hook. Direct invocation pins
+			// the handler's behavior in isolation.
+			do_action( 'deleted_term_relationships', $post_id, array( 1 ), 'genre' );
+
+			$this->assertContains( 'jetpack-search-tag1', $captured, 'mirror_removal must invoke wp_set_object_terms on the slot.' );
+		} finally {
+			remove_action( 'set_object_terms', $listener, 5 );
+			remove_action( 'deleted_term_relationships', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_removal' ), 10 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'jetpack-search-tag1' );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * `mirror_deletion` short-circuits cleanly when the user-side taxonomy
+	 * isn't mapped. Without the early return, every term deletion on the
+	 * site would pay an unnecessary `get_term_by()` lookup. End-to-end
+	 * verification (the actual `wp_delete_term` call against the slot) needs
+	 * real term-row persistence — WorDBless doesn't carry `get_term_by()`
+	 * results far enough for that, so we pin the gating in isolation here
+	 * and verify the full path in a live dev env.
+	 */
+	public function test_mirror_deletion_skips_unmapped_taxonomies() {
+		register_taxonomy( 'mood', 'post', array( 'public' => true ) );
+
+		// Sentinel: if the handler escapes the unmapped-taxonomy gate, it
+		// will call `wp_delete_term()` on a slot — which fires `delete_term`
+		// recursively with a `jetpack-search-tag*` taxonomy. Capture every
+		// taxonomy that hits this action and assert none of them are slot
+		// taxonomies.
+		$slot_deletions = array();
+		$listener       = static function ( $term_id, $tt_id, $taxonomy ) use ( &$slot_deletions ) {
+			if ( str_starts_with( (string) $taxonomy, 'jetpack-search-tag' ) ) {
+				$slot_deletions[] = $taxonomy;
+			}
+		};
+		add_action( 'delete_term', $listener, 5, 3 );
+		add_action( 'delete_term', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_deletion' ), 10, 4 );
+
+		try {
+			$deleted_term       = new \stdClass();
+			$deleted_term->name = 'Happy';
+			$deleted_term->slug = 'happy';
+			do_action( 'delete_term', 99, 99, 'mood', $deleted_term );
+
+			$this->assertSame( array(), $slot_deletions, 'mirror_deletion must not touch slot taxonomies for unmapped sources.' );
+		} finally {
+			remove_action( 'delete_term', $listener, 5 );
+			remove_action( 'delete_term', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_deletion' ), 10 );
+			unregister_taxonomy( 'mood' );
+		}
+	}
+
+	/**
+	 * `mirror_deletion` bails when the deleted term object has no slug —
+	 * defensive guard against malformed callers. Lookup-by-slug is the
+	 * preferred match strategy because `get_term_by( 'name', ... )` is
+	 * case-sensitive under non-default collations.
+	 */
+	public function test_mirror_deletion_bails_on_empty_slug() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function ( $map ) {
+			$map['genre'] = 'jetpack-search-tag1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		Custom_Taxonomy_Slot_Mapping::register_slot_taxonomies();
+
+		$slot_deletions = array();
+		$listener       = static function ( $term_id, $tt_id, $taxonomy ) use ( &$slot_deletions ) {
+			if ( str_starts_with( (string) $taxonomy, 'jetpack-search-tag' ) ) {
+				$slot_deletions[] = $taxonomy;
+			}
+		};
+		add_action( 'delete_term', $listener, 5, 3 );
+		add_action( 'delete_term', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_deletion' ), 10, 4 );
+
+		try {
+			$deleted_term       = new \stdClass();
+			$deleted_term->name = 'Fantasy';
+			// Intentionally no `slug` — handler must bail.
+			do_action( 'delete_term', 42, 42, 'genre', $deleted_term );
+
+			$this->assertSame( array(), $slot_deletions );
+		} finally {
+			remove_action( 'delete_term', $listener, 5 );
+			remove_action( 'delete_term', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_deletion' ), 10 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'jetpack-search-tag1' );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * `backfill()` returns 0 when the map is empty — confirms the
+	 * `feature off by default` invariant. End-to-end persistence is
+	 * verified in a live dev env; this guard test pins the early-return
+	 * shape.
+	 */
+	public function test_backfill_returns_zero_when_map_empty() {
+		$this->assertSame( 0, Custom_Taxonomy_Slot_Mapping::backfill() );
+	}
+
+	/**
+	 * `backfill()` skips map entries whose user-facing taxonomy isn't
+	 * registered on the site — a defensive gate against half-configured
+	 * mappings (taxonomy moved to a different plugin, plugin deactivated).
+	 */
+	public function test_backfill_skips_unregistered_user_taxonomies() {
+		$callback = static function () {
+			return array( 'never-registered' => 'jetpack-search-tag1' );
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame( 0, Custom_Taxonomy_Slot_Mapping::backfill() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
 	 * `get_map()` is the single source of truth. The feature is off by
 	 * default — the filter returns an empty array unless a site adds an
 	 * entry.

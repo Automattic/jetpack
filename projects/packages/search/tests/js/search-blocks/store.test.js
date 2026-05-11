@@ -249,6 +249,57 @@ describe( 'store actions', () => {
 		expect( state.resultsCountText ).toBe( '' );
 	} );
 
+	it( 'remaps slot-keyed aggregations back to the user-facing filterKey when search() resolves', async () => {
+		// End-to-end pin: a mapped custom taxonomy (`genre` →
+		// `jetpack-search-tag1`) sends its aggregation request under the
+		// slot slug because the WPCOM search proxy validates aggregation
+		// names against indexable taxonomies. The API response comes back
+		// keyed by the slot too. Every downstream consumer (`filterItems`,
+		// `retainedFilterOptions`, wrapper-visibility checks) reads
+		// `state.aggregations[filterKey]`, so `actions.search()` must flip
+		// the response key back to `genre` once before persisting to state.
+		// Otherwise the bucket list would never reach the Genre filter UI
+		// despite the API returning data for it.
+		state.filterConfigs = {
+			genre: {
+				filterKey: 'genre',
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+				maxItems: 10,
+			},
+		};
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Genre hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					'jetpack-search-tag1': {
+						buckets: [
+							{ key: 'fantasy/Fantasy', doc_count: 3 },
+							{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+						],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toEqual( {
+			genre: {
+				buckets: [
+					{ key: 'fantasy/Fantasy', doc_count: 3 },
+					{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+				],
+			},
+		} );
+		// Slot key must not leak into state — downstream readers key off
+		// `filterKey`, never `effectiveSlug`.
+		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
 		// loadMore failures must not clear the first-page results — they're
 		// still valid; only the *next* page failed to fetch. The success

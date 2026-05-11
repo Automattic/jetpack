@@ -345,11 +345,16 @@ class Custom_Taxonomy_Slot_Mapping {
 		if ( ! taxonomy_exists( $slot ) ) {
 			return;
 		}
-		$name = isset( $deleted_term->name ) ? (string) $deleted_term->name : '';
-		if ( '' === $name ) {
+		// Match by slug rather than name: `wp_set_object_terms()` creates the
+		// slot term with `sanitize_title( $name )` as its slug regardless of
+		// the user-side name's case, and `get_term_by( 'name', ... )` is
+		// case-sensitive on case-sensitive collations — slug-based lookup
+		// avoids missing "fantasy" when the source term is "Fantasy".
+		$slug = isset( $deleted_term->slug ) ? (string) $deleted_term->slug : '';
+		if ( '' === $slug ) {
 			return;
 		}
-		$slot_term = get_term_by( 'name', $name, $slot );
+		$slot_term = get_term_by( 'slug', $slug, $slot );
 		if ( $slot_term && ! is_wp_error( $slot_term ) ) {
 			wp_delete_term( (int) $slot_term->term_id, $slot );
 		}
@@ -379,13 +384,19 @@ class Custom_Taxonomy_Slot_Mapping {
 				continue;
 			}
 			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
-			$terms      = get_terms(
+			$terms = get_terms(
 				array(
 					'taxonomy'   => $user_slug,
 					'hide_empty' => false,
 					'fields'     => 'all',
 				)
 			);
+			// Bail explicitly on `WP_Error` (and on the empty case) rather than
+			// relying on `wp_list_pluck()` silently returning `[]` for an
+			// error input — keeps the failure path readable.
+			if ( is_wp_error( $terms ) || empty( $terms ) ) {
+				continue;
+			}
 			$object_ids = get_objects_in_term(
 				wp_list_pluck( $terms, 'term_id' ),
 				$user_slug
