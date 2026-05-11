@@ -42,6 +42,7 @@ class Search_Blocks_Test extends TestCase {
 			'homeUrl',
 			'locale',
 			'searchQuery',
+			'hasSearchParam',
 			'searchParamName',
 			'sortOrder',
 			'results',
@@ -998,6 +999,117 @@ class Search_Blocks_Test extends TestCase {
 			);
 		} finally {
 			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * `?s=foo` is the established case: param present and non-empty. The
+	 * initial-loading gate must keep firing so `results-list/render.php`
+	 * paints the skeleton during the JS-side hydration round-trip.
+	 */
+	public function test_is_initial_loading_with_non_empty_search_query() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+		try {
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['hasSearchParam'] );
+			$this->assertTrue( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * `?s=` (param present, value empty) is the SEARCH-183 case — visitor
+	 * submitted a blank search and expects an unfiltered result set. Both
+	 * the presence helper and the loading gate must flip true even though
+	 * `parse_url_search_query()` trims to `''`. The `wp_query` is primed
+	 * with a non-empty `s` so `is_search()` reports the search route and
+	 * `get_search_param_name()` picks the `s` key — the empty URL value
+	 * rides on `$_GET`.
+	 */
+	public function test_is_initial_loading_with_empty_search_query_string() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'placeholder' ) );
+		try {
+			$this->assertSame( '', Search_Blocks::parse_url_search_query() );
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['hasSearchParam'] );
+			$this->assertTrue( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Off the search route the active key is `q`. `?q=` (empty value) must
+	 * still trigger initial loading so an inline-search page on a singular
+	 * post matches the search-route behavior — visitor submitted a blank
+	 * inline search, expects the unfiltered result set.
+	 */
+	public function test_is_initial_loading_with_empty_q_param_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'q' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * A URL with no search param at all (homepage, archive, etc.) must not
+	 * flip into the loading state — there's no fetch to wait on, and a
+	 * seeded spinner would render placeholders that never resolve.
+	 */
+	public function test_is_initial_loading_with_no_search_param_present() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array();
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertFalse( Search_Blocks::has_search_param() );
+			$this->assertFalse( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertFalse( $state['hasSearchParam'] );
+			$this->assertFalse( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Array-shaped `?q[]=foo` is malformed input — `parse_url_search_query()`
+	 * bails to `''` via its `is_scalar()` guard, so `has_search_param()`
+	 * matches that contract and treats it as "not present" rather than
+	 * flipping the page into a loading state with no usable query.
+	 */
+	public function test_has_search_param_rejects_non_scalar_input() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'q' => array( 'foo' ) );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertFalse( Search_Blocks::has_search_param() );
+			$this->assertFalse( Search_Blocks::is_initial_loading() );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
 		}
 	}
 

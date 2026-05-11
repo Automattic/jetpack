@@ -172,7 +172,7 @@ export function stateToUrlParams( {
  *                                                `max_price` range params). Falsy on non-Woo
  *                                                sites ignores both rather than hydrating
  *                                                them into store state.
- * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
  */
 export function urlParamsToState(
 	params,
@@ -271,6 +271,12 @@ export function urlParamsToState(
 
 	return {
 		searchQuery: params.get( searchParamName ) ?? '',
+		// `params.has()` distinguishes `?s=` (present, empty) from a URL with
+		// no `s` at all — `params.get() ?? ''` collapses both to `''`. The
+		// store's initialize() guard reads this so an explicit-but-empty
+		// search param still fires the initial fetch, matching what a user
+		// who submits a blank search form expects.
+		hasSearchParam: params.has( searchParamName ),
 		sortOrder: allowedSorts.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
 		filterLogic,
@@ -302,7 +308,7 @@ export function pushStateToUrl( state ) {
  * @param {boolean} [isWooCommerceActive] - Gate for WC-only URL surface (product-format
  *                                        sort keys + `min_price` / `max_price` range params);
  *                                        forwarded to `urlParamsToState`.
- * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
  */
 export function readStateFromUrl(
 	filterConfigs = {},

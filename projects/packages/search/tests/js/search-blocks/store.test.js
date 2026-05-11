@@ -627,6 +627,26 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
+		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
+		// so the initial search fires (covered by other tests). If that search
+		// returns zero results (e.g. a site with no indexed posts), the
+		// no-results affordance must still surface; otherwise the page renders
+		// blank with no explanation. Pre-SEARCH-183 the getter gated only on
+		// `!! state.searchQuery` and silently swallowed this case.
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.searchQuery = '';
+		state.hasSearchParam = true;
+		expect( state.showNoResults ).toBe( true );
+
+		// Bare `/search/` page (no `s` in URL, no filters) — message stays
+		// hidden so it doesn't flash before the user types.
+		state.hasSearchParam = false;
+		expect( state.showNoResults ).toBe( false );
+	} );
+
 	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
 		state.activeFilters = {};
 		state.priceRange = null;
@@ -876,6 +896,33 @@ describe( 'store callbacks', () => {
 			expect( fresh.state.skeletonHidden ).toBe( true );
 		} );
 	} );
+
+	it( 'runs the URL-seeded search for `?s=` (empty value) via hasSearchParam (SEARCH-183)', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			// Visitor landed on `?s=` — searchQuery is `''` and no filters are
+			// selected. Without hasSearchParam the legacy guard `searchQuery ||
+			// hasActiveFilters` would skip the initial fetch and leave the
+			// results region empty until the visitor types.
+			fresh.state.searchQuery = '';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = {};
+			fresh.state.activeFilters = {};
+			fresh.state.hasSearchParam = true;
+
+			captured.callbacks.initialize();
+
+			expect( search ).toHaveBeenCalledTimes( 1 );
+			expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+			// Drop the flag so it doesn't leak into the `handlePopState` describe
+			// below — captured.state is a singleton across the mocked module.
+			fresh.state.hasSearchParam = false;
+		} );
+	} );
 } );
 
 describe( 'handlePopState gating', () => {
@@ -890,8 +937,10 @@ describe( 'handlePopState gating', () => {
 		const stub = require( '../../../src/search-blocks/store/url-state' );
 		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
 			searchQuery: 'hello',
+			hasSearchParam: true,
 			sortOrder: 'relevance',
 			activeFilters: { foo: [ 'bar' ] },
+			filterLogic: {},
 			priceRange: null,
 		} );
 		Object.assign( actions, originalActions );
@@ -901,5 +950,29 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'syncs `state.hasSearchParam` to the popped URL (SEARCH-183)', async () => {
+		// `initialize()` is the only consumer today, but keeping
+		// state.hasSearchParam in lockstep with the live URL avoids a
+		// footgun for future readers (e.g. `showNoResults`, which now
+		// gates on it). Mirrors how `state.searchQuery` is rewritten on
+		// each popstate.
+		const stub = require( '../../../src/search-blocks/store/url-state' );
+		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
+			searchQuery: '',
+			hasSearchParam: true,
+			sortOrder: 'relevance',
+			activeFilters: {},
+			filterLogic: {},
+			priceRange: null,
+		} );
+		Object.assign( actions, originalActions );
+		jest.spyOn( actions, 'search' ).mockImplementation();
+		state.hasSearchParam = false;
+
+		await runGenerator( actions.handlePopState() );
+
+		expect( state.hasSearchParam ).toBe( true );
 	} );
 } );

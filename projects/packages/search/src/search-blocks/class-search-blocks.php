@@ -1021,6 +1021,12 @@ class Search_Blocks {
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
 			'searchQuery'           => $search_query,
+			// Whether the search-query URL key was present in `$_GET`, even
+			// when its value is empty. The JS store's `initialize()` reads
+			// this so a `?s=` deep link still fires the initial search —
+			// `searchQuery` alone can't carry that signal because an empty
+			// param and a missing param both round-trip as `''`.
+			'hasSearchParam'        => static::has_search_param(),
 			// URL key the JS store uses to read/write the search query. `s`
 			// on the WP search route, `q` on non-search pages — see
 			// `get_search_param_name()`. Threaded through the seed so the JS
@@ -1167,8 +1173,12 @@ class Search_Blocks {
 		if ( null !== self::$is_initial_loading_cache ) {
 			return self::$is_initial_loading_cache;
 		}
-		$search_query = static::parse_url_search_query();
-		if ( '' !== $search_query ) {
+		// `has_search_param()` rather than `parse_url_search_query() !== ''` —
+		// an explicit `?s=` (empty value) still means the visitor landed on a
+		// search page and expects an initial unfiltered result set, the same
+		// as submitting a blank search form. The non-empty case is a subset
+		// of "param present" so this guard subsumes the old text-query check.
+		if ( static::has_search_param() ) {
 			self::$is_initial_loading_cache = true;
 			return true;
 		}
@@ -1339,6 +1349,27 @@ class Search_Blocks {
 			return '';
 		}
 		return trim( sanitize_text_field( wp_unslash( (string) $raw ) ) );
+	}
+
+	/**
+	 * Whether the active search-query URL key is present in `$_GET`, regardless
+	 * of value. Distinguishes `?s=` (visitor submitted a blank search and
+	 * expects an unfiltered result set) from a URL that omits `s` entirely
+	 * (homepage, archive, etc.) — `parse_url_search_query()` collapses both
+	 * to `''`. Mirrors the JS-side `hasSearchParam` field seeded into the
+	 * Interactivity store.
+	 *
+	 * Array-shaped `?s[]=foo` is treated as "not present" to stay in lockstep
+	 * with `parse_url_search_query()` (which returns `''` for non-scalar
+	 * input) — otherwise a malformed deep link would flip the page into the
+	 * loading state with no usable query to fire.
+	 *
+	 * @return bool
+	 */
+	public static function has_search_param(): bool {
+		$key = self::get_search_param_name();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL presence check; the value is never read here.
+		return isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] );
 	}
 
 	/**
