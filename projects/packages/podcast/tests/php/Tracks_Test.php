@@ -6,10 +6,12 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\Tracks;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
+use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Term;
@@ -32,7 +34,21 @@ class Tracks_Test extends BaseTestCase {
 			register_taxonomy( 'category', 'post', array( 'hierarchical' => true ) );
 		}
 
-		$GLOBALS['jetpack_podcast_test_captured_events'] = array();
+		if ( ! post_type_exists( Activity_Log_Event::POST_TYPE ) ) {
+			Activity_Log_Event::register_post_type();
+		}
+
+		$GLOBALS['jetpack_podcast_test_captured_events']           = array();
+		$GLOBALS['jetpack_podcast_test_activity_log_post_ids']     = array();
+
+		// WorDBless does not intercept complex WP_Query SQL, so track
+		// jp_act_log_event inserts via this hook and verify via get_post().
+		add_action(
+			'save_post_' . Activity_Log_Event::POST_TYPE,
+			static function ( int $post_id ): void {
+				$GLOBALS['jetpack_podcast_test_activity_log_post_ids'][] = $post_id;
+			}
+		);
 	}
 
 	protected function tearDown(): void {
@@ -44,10 +60,12 @@ class Tracks_Test extends BaseTestCase {
 		delete_option( 'podcasting_email' );
 		delete_option( 'podcasting_talent_name' );
 		delete_option( 'podcast_show_launched_tracked' );
+		remove_all_actions( 'save_post_' . Activity_Log_Event::POST_TYPE );
 		wp_cache_flush();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 		unset( $GLOBALS['jetpack_podcast_test_captured_events'] );
+		unset( $GLOBALS['jetpack_podcast_test_activity_log_post_ids'] );
 		parent::tearDown();
 	}
 
@@ -57,6 +75,47 @@ class Tracks_Test extends BaseTestCase {
 				$GLOBALS['jetpack_podcast_test_captured_events'],
 				static function ( array $event ) use ( $event_name ) {
 					return $event['event_name'] === $event_name;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Decodes the JSON payload from an Activity Log event post.
+	 *
+	 * WorDBless stores post_content in its slashed form (captured at the
+	 * wp_insert_post_data filter stage), so json_decode() needs a wp_unslash()
+	 * fallback — the same pattern used in Activity_Log_Event::decode_payload().
+	 *
+	 * @param WP_Post $post Activity Log event post.
+	 * @return array|null Decoded payload or null if decoding fails.
+	 */
+	private function decode_activity_log_payload( WP_Post $post ): ?array {
+		$payload = json_decode( $post->post_content, true );
+		if ( ! is_array( $payload ) ) {
+			$payload = json_decode( wp_unslash( $post->post_content ), true );
+		}
+		return is_array( $payload ) ? $payload : null;
+	}
+
+	/**
+	 * Returns all published `jp_act_log_event` posts whose decoded JSON payload
+	 * contains the given `source` value.
+	 *
+	 * WorDBless does not intercept complex WP_Query SQL, so posts are tracked
+	 * via the `save_post_jp_act_log_event` hook registered in setUp() and
+	 * retrieved individually via get_post().
+	 */
+	private function activity_log_posts_with_source( string $source ): array {
+		return array_values(
+			array_filter(
+				array_map( 'get_post', $GLOBALS['jetpack_podcast_test_activity_log_post_ids'] ?? array() ),
+				function ( ?WP_Post $post ) use ( $source ): bool {
+					if ( null === $post ) {
+						return false;
+					}
+					$payload = $this->decode_activity_log_payload( $post );
+					return is_array( $payload ) && isset( $payload['source'] ) && $source === $payload['source'];
 				}
 			)
 		);
@@ -332,5 +391,48 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
+	}
+
+	public function test_episode_published_creates_episode_published_activity_log_entry() {
+		$cat_id = $this->configure_podcast_category();
+		$post   = $this->insert_post_in_category( $cat_id );
+
+		Tracks::record_episode_published( $post->ID, $post, false, null );
+
+		$log_posts = $this->activity_log_posts_with_source( 'podcast_episode_published' );
+		$this->assertCount( 1, $log_posts );
+
+		$payload = $this->decode_activity_log_payload( $log_posts[0] );
+		$this->assertSame( 'info', $payload['severity'] );
+		$this->assertStringContainsString( (string) $post->ID, $payload['content'] );
+		$this->assertStringContainsString( $post->post_title, $payload['content'] );
+	}
+
+	public function test_episode_published_creates_show_launched_activity_log_on_first_episode() {
+		$cat_id = $this->configure_podcast_category();
+		$post   = $this->insert_post_in_category( $cat_id );
+
+		Tracks::record_episode_published( $post->ID, $post, false, null );
+
+		$log_posts = $this->activity_log_posts_with_source( 'podcast_show_launched' );
+		$this->assertCount( 1, $log_posts );
+
+		$payload = $this->decode_activity_log_payload( $log_posts[0] );
+		$this->assertSame( 'success', $payload['severity'] );
+		$this->assertStringContainsString( (string) $post->ID, $payload['content'] );
+		$this->assertStringContainsString( $post->post_title, $payload['content'] );
+	}
+
+	public function test_show_launched_activity_log_fires_only_once_per_site() {
+		$cat_id = $this->configure_podcast_category();
+
+		$first = $this->insert_post_in_category( $cat_id );
+		Tracks::record_episode_published( $first->ID, $first, false, null );
+
+		$second = $this->insert_post_in_category( $cat_id );
+		Tracks::record_episode_published( $second->ID, $second, false, null );
+
+		$this->assertCount( 1, $this->activity_log_posts_with_source( 'podcast_show_launched' ) );
+		$this->assertCount( 2, $this->activity_log_posts_with_source( 'podcast_episode_published' ) );
 	}
 }
