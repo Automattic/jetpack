@@ -111,3 +111,49 @@
 	white-space: nowrap;
 	min-width: 0;
 }
+
+.podcast__pocketcasts-modal .components-modal__content {
+	max-width: 520px;
+}
+
+.podcast__pocketcasts-status {
+	padding: 4px 0;
+}
+
+.podcast__pocketcasts-status-icon {
+	flex-shrink: 0;
+
+	// Gutenberg's Icon paths use fill="currentColor"; force any stray fill="none"
+	// or hard-coded colors to inherit so the status token actually wins.
+	svg {
+		fill: currentColor;
+	}
+}
+
+.podcast__pocketcasts-status-icon--success {
+	color: #007a3d;
+}
+
+.podcast__pocketcasts-share-row {
+	padding: 8px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.podcast__pocketcasts-share-url {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+	flex: 1;
+}
+
+.podcast__pocketcasts-feedback-errors {
+	margin: 8px 0 0;
+	padding-inline-start: 20px;
+
+	li {
+		margin: 0;
+	}
+}

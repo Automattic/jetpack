@@ -7,6 +7,8 @@ import { store as noticesStore } from '@wordpress/notices';
 import type {
 	PodcastSettings,
 	PodcastSettingsUpdate,
+	PodcastShowState,
+	PodcastShowStates,
 	PodcastShowUrls,
 	PodcatcherId,
 } from '../types';
@@ -25,7 +27,10 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_3',
 	'podcasting_email',
 	'podcasting_show_urls',
+	'podcasting_show_states',
 ];
+
+const SHOW_STATE_VALUES: readonly PodcastShowState[] = [ 'pending', 'active' ] as const;
 
 // Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
 const PODCATCHER_IDS: readonly PodcatcherId[] = [
@@ -43,6 +48,23 @@ const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	for ( const id of PODCATCHER_IDS ) {
 		const value = source[ id ];
 		out[ id ] = typeof value === 'string' ? value : '';
+	}
+	return out;
+};
+
+// The wpcom relay only persists `pending`/`active`; anything else is treated as
+// absent so the modal can fall back to the initial CTA without a re-submit.
+const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
+	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
+	const out: PodcastShowStates = {};
+	for ( const id of PODCATCHER_IDS ) {
+		const value = source[ id ];
+		if (
+			typeof value === 'string' &&
+			( SHOW_STATE_VALUES as readonly string[] ).includes( value )
+		) {
+			out[ id ] = value as PodcastShowState;
+		}
 	}
 	return out;
 };
@@ -70,6 +92,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );
+		} else if ( key === 'podcasting_show_states' ) {
+			out[ key ] = normalizeShowStates( value );
 		} else if (
 			key === 'podcasting_category_1' ||
 			key === 'podcasting_category_2' ||
@@ -89,6 +113,10 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
+	// Skip the snackbar when the save is a server-state sync (e.g. the Pocket
+	// Casts relay writing `share_link` back to `podcasting_show_urls`) rather
+	// than a user-initiated form submit.
+	silent?: boolean;
 }
 
 /**
@@ -107,6 +135,21 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 	// downstream (Settings' isDirty was permanently true on `podcasting_show_urls`).
 	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
 	return { data, isLoading: ! hasResolved };
+}
+
+/**
+ * Drop the cached `root/site` record so the next `usePodcastSettings()` read
+ * refetches. Use after side-effect endpoints (e.g. the Pocket Casts relay)
+ * that mutate `podcasting_*` options without going through core-data's save
+ * path.
+ *
+ * @return Stable callback that invalidates the cached `root/site` entity.
+ */
+export function useInvalidatePodcastSettings(): () => void {
+	const { invalidateResolution } = useDispatch( coreStore );
+	return useCallback( () => {
+		invalidateResolution( 'getEntityRecord', [ 'root', 'site', undefined ] );
+	}, [ invalidateResolution ] );
 }
 
 /**
@@ -130,26 +173,35 @@ export function useUpdatePodcastSettings(): {
 	);
 
 	const mutate = useCallback(
-		( updates: PodcastSettingsUpdate, { onSuccess, onError }: MutateCallbacks = {} ) => {
+		(
+			updates: PodcastSettingsUpdate,
+			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
+		) => {
 			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
 				.then( record => {
 					if ( ! record ) {
 						onError?.( new Error( 'save returned no record' ) );
+						if ( ! silent ) {
+							createErrorNotice(
+								__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+								{ type: 'snackbar' }
+							);
+						}
+						return;
+					}
+					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
+					if ( ! silent ) {
+						createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
+					}
+				} )
+				.catch( error => {
+					onError?.( error );
+					if ( ! silent ) {
 						createErrorNotice(
 							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
 							{ type: 'snackbar' }
 						);
-						return;
 					}
-					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
-					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
-				} )
-				.catch( error => {
-					onError?.( error );
-					createErrorNotice(
-						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-						{ type: 'snackbar' }
-					);
 				} );
 		},
 		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]

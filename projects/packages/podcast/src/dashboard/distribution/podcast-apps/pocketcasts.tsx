@@ -1,3 +1,4 @@
+import PocketCastsModal from './pocketcasts-modal';
 import type { PodcastApp } from './types';
 
 const PocketCastsLogo = () => (
@@ -26,4 +27,7 @@ export const pocketcasts: PodcastApp = {
 	submitUrl: 'https://pocketcasts.com/submit',
 	learnMoreUrl: 'https://support.pocketcasts.com/knowledge-base/submitting-podcasts/',
 	showHosts: [ 'pca.st', 'pocketcasts.com' ],
+	// One-click flow via the wpcom relay endpoint. Other directories fall back
+	// to the default 3-step copy/visit/paste modal in `submit-modal.tsx`.
+	Modal: PocketCastsModal,
 };
