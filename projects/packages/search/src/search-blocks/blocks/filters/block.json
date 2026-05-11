@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Filters",
 	"category": "jetpack-search",
-	"icon": "filter",
 	"description": "Vertical stack of Jetpack Search filter blocks. Pre-populated with the most common filters; rearrange, remove, or add more from the inserter.",
 	"keywords": [ "search", "filter", "filters" ],
 	"supports": {

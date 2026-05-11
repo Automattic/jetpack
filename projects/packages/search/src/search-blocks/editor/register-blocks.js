@@ -37,6 +37,7 @@ import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
 import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
+import BLOCK_ICONS from './icons';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -109,5 +110,8 @@ BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
 	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
-	registerBlockType( name, { edit, save: blockSave ?? save } );
+	// `icon` here overrides whatever server-side metadata block.json carries,
+	// so the centralized `{ src, foreground, background }` pill renders in
+	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
+	registerBlockType( name, { edit, save: blockSave ?? save, icon: BLOCK_ICONS[ name ] } );
 } );

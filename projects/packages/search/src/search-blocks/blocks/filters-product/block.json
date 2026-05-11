@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Product Filters",
 	"category": "jetpack-search",
-	"icon": "filter",
 	"description": "A composable container for WooCommerce-style product filters (status, rating, price, attributes). Powered by Jetpack Search.",
 	"keywords": [ "woocommerce", "product", "filter", "sidebar" ],
 	"supports": {

@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Search Results",
 	"category": "jetpack-search",
-	"icon": "list-view",
 	"description": "Container for the Jetpack Search results region — bundles the results list, count, sort, load-more, and error/empty-state messaging. Pre-populated with a sensible default; rearrange, remove, or add more from the inserter.",
 	"keywords": [ "search", "results", "feed" ],
 	"supports": {
