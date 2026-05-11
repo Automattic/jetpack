@@ -3616,6 +3616,9 @@ importers:
 
   projects/packages/podcast:
     dependencies:
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3625,6 +3628,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
