@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: adds the `jetpack-search/filter-wc-price-slider` block — a single shared track with two thumbs (lower = min, upper = max) that drives the same `actions.setPriceRange(min, max)` and writes the same `min_price` / `max_price` URL params as `filter-wc-price`, so deep links and the active-filters chip stay interchangeable. Slider bounds auto-detect from the store's actual product price range by default (transient-cached); authors can opt out and set `min` / `max` / `step` manually. Drag-vs-release split mirrors WooCommerce Blocks' price slider — `input` events update state for live visual feedback, `change` (mouseup / keyup / touchend) commits via `setPriceRange` to push the URL and refetch results. Tracked under epic [RSM-1929].
