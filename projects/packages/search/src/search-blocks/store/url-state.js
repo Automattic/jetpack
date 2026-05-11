@@ -29,6 +29,12 @@ const DEFAULT_SEARCH_PARAM = 's';
 // both possible search-query keys so neither leaks into `activeFilters`.
 const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
 
+// Per-filter URL prefix that controls AND/OR combination for a given filter
+// key (e.g. `?query_type_category=and`). Mirrors WooCommerce's
+// product-filter-attribute convention so Search 3.0 blocks on a Woo
+// storefront stay URL-interoperable with native WC filters.
+const QUERY_TYPE_PREFIX = 'query_type_';
+
 /**
  * Parse a `min_price` / `max_price` URL value into a finite number.
  * Returns null on missing, non-numeric, or negative input so a garbage
@@ -56,10 +62,19 @@ function parsePriceBound( raw ) {
  * so deep links are interchangeable between the two surfaces and the
  * PHP-side `parse_url_filters()` reads the same contract.
  *
+ * Per-filter AND/OR logic rides alongside as a scalar
+ * `?query_type_<filterKey>=and` param — mirrors WC's
+ * `woocommerce/product-filter-attribute` URL surface. Only emitted when
+ * the filter has selections AND the effective logic is `'and'`; `'or'` is
+ * the default and never serialized so URLs stay short.
+ *
  * @param {object}      state                       - Store state slice.
  * @param {string}      state.searchQuery           - Current search query.
  * @param {string}      state.sortOrder             - Current sort order.
  * @param {object}      [state.activeFilters]       - { [filterKey]: string[] } selected filters.
+ * @param {object}      [state.filterLogic]         - { [filterKey]: 'or' | 'and' } per-filter
+ *                                                  AND/OR override. Entries without active
+ *                                                  selections are dropped on write.
  * @param {object|null} [state.priceRange]          - { min, max } price range; either bound may be null.
  * @param {string}      [state.searchParamName]     - URL key the search query is written under
  *                                                  (`s` on the WP search route, `q`
@@ -74,6 +89,7 @@ export function stateToUrlParams( {
 	searchQuery,
 	sortOrder,
 	activeFilters = {},
+	filterLogic = {},
 	priceRange = null,
 	searchParamName = DEFAULT_SEARCH_PARAM,
 	isWooCommerceActive = false,
@@ -97,6 +113,12 @@ export function stateToUrlParams( {
 			continue;
 		}
 		values.forEach( value => params.append( `${ key }[]`, value ) );
+		// Only emit query_type when this filter has selections AND it's set to
+		// 'and'. Without selections the param is meaningless; for 'or' (the
+		// default) we skip the write to keep the URL short.
+		if ( filterLogic?.[ key ] === 'and' ) {
+			params.set( `${ QUERY_TYPE_PREFIX }${ key }`, 'and' );
+		}
 	}
 
 	// `min_price` / `max_price` are WC-only; the price filter block
@@ -136,7 +158,7 @@ export function stateToUrlParams( {
  *                                                `max_price` range params). Falsy on non-Woo
  *                                                sites ignores both rather than hydrating
  *                                                them into store state.
- * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
  */
 export function urlParamsToState(
 	params,
@@ -147,8 +169,30 @@ export function urlParamsToState(
 	const rawOrderby = params.get( 'orderby' );
 	const allowedSorts = validSortOrders( isWooCommerceActive );
 	const activeFilters = {};
+	const filterLogic = {};
+	const hasFilterConfigGate = filterConfigs && Object.keys( filterConfigs ).length > 0;
 
 	for ( const [ rawKey, value ] of params.entries() ) {
+		// query_type_<filterKey>=or|and rides alongside the array-shaped
+		// filter params. Parse it before the `[]` gate below so the prefix
+		// branch can't be missed.
+		if ( rawKey.startsWith( QUERY_TYPE_PREFIX ) ) {
+			const filterKey = rawKey.slice( QUERY_TYPE_PREFIX.length );
+			if ( ! filterKey || RESERVED_PARAMS.has( filterKey ) ) {
+				continue;
+			}
+			if ( hasFilterConfigGate && ! ( filterKey in filterConfigs ) ) {
+				continue;
+			}
+			// 'or' is the default — silently drop it so the gate matches the
+			// serializer (which never emits 'or'). Anything that isn't the
+			// literal 'and' is treated as garbage and skipped, mirroring
+			// `Filter_Checkbox::normalize_query_type()`.
+			if ( value === 'and' ) {
+				filterLogic[ filterKey ] = 'and';
+			}
+			continue;
+		}
 		if ( ! rawKey.endsWith( '[]' ) ) {
 			continue;
 		}
@@ -156,11 +200,7 @@ export function urlParamsToState(
 		if ( RESERVED_PARAMS.has( filterKey ) ) {
 			continue;
 		}
-		if (
-			filterConfigs &&
-			Object.keys( filterConfigs ).length > 0 &&
-			! ( filterKey in filterConfigs )
-		) {
+		if ( hasFilterConfigGate && ! ( filterKey in filterConfigs ) ) {
 			continue;
 		}
 		const normalized = String( value ?? '' ).trim();
@@ -179,6 +219,15 @@ export function urlParamsToState(
 			continue;
 		}
 		activeFilters[ filterKey ].push( normalized );
+	}
+
+	// Drop filterLogic entries whose filter has no active selections.
+	// A stray `?query_type_category=and` without `?category[]=...` would
+	// otherwise leak back through the next serializer call.
+	for ( const key of Object.keys( filterLogic ) ) {
+		if ( ! activeFilters[ key ] || activeFilters[ key ].length === 0 ) {
+			delete filterLogic[ key ];
+		}
 	}
 
 	// Mirror `Search_Blocks::parse_url_price_range()`: drop `min_price` /
@@ -201,6 +250,7 @@ export function urlParamsToState(
 		searchQuery: params.get( searchParamName ) ?? '',
 		sortOrder: allowedSorts.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
+		filterLogic,
 		priceRange,
 	};
 }
@@ -229,7 +279,7 @@ export function pushStateToUrl( state ) {
  * @param {boolean} [isWooCommerceActive] - Gate for WC-only URL surface (product-format
  *                                        sort keys + `min_price` / `max_price` range params);
  *                                        forwarded to `urlParamsToState`.
- * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
  */
 export function readStateFromUrl(
 	filterConfigs = {},

@@ -56,6 +56,55 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
+ * Drop filterLogic entries whose filter key is missing from `activeFilters`
+ * or has an empty selection set. Mirrors the cleanup `setFilter()` performs
+ * locally; called from popstate where the URL parse is the source of truth.
+ *
+ * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' }.
+ * @param {object} activeFilters - { [filterKey]: string[] }.
+ * @return {object} Gated logic map.
+ */
+export function pickLogicForActive( filterLogic, activeFilters ) {
+	const out = {};
+	for ( const [ key, value ] of Object.entries( filterLogic ?? {} ) ) {
+		if ( ( activeFilters?.[ key ]?.length ?? 0 ) > 0 ) {
+			out[ key ] = value;
+		}
+	}
+	return out;
+}
+
+/**
+ * Overlay per-filter AND/OR overrides onto each filterConfig's `queryType`.
+ * The override map (`filterLogic`) is its own state slice — kept separate so
+ * a deep-link `?query_type_category=and` survives even if the user toggles
+ * the block attribute in a future edit. Returns the original map untouched
+ * when no overrides apply, to avoid spurious referential changes that would
+ * defeat downstream identity checks.
+ *
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
+ * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' } overrides.
+ * @return {object} Effective filterConfigs.
+ */
+export function overlayFilterLogic( filterConfigs, filterLogic ) {
+	if ( ! filterConfigs || ! filterLogic || Object.keys( filterLogic ).length === 0 ) {
+		return filterConfigs;
+	}
+	let dirty = false;
+	const overlaid = {};
+	for ( const [ key, config ] of Object.entries( filterConfigs ) ) {
+		const override = filterLogic[ key ];
+		if ( override && override !== config?.queryType ) {
+			overlaid[ key ] = { ...config, queryType: override };
+			dirty = true;
+		} else {
+			overlaid[ key ] = config;
+		}
+	}
+	return dirty ? overlaid : filterConfigs;
+}
+
+/**
  * True when a filter key has anything to render: live aggregation buckets,
  * session-retained options, or an active selection. Drives wrapper
  * visibility — without the retained / selection check a narrower query
@@ -353,7 +402,12 @@ function* fetchResults( pageHandle ) {
 		apiRoot: state.apiRoot,
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
-		filterConfigs: state.filterConfigs,
+		// Overlay per-filter `filterLogic` overrides onto each filterConfig's
+		// `queryType` before handing to the URL builder. The override lives
+		// separately in store state so it survives across navigations even
+		// when blocks re-register their configs; merging here keeps the
+		// downstream consumer (`buildFilterClause`) free of the override path.
+		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticPostTypes: state.staticPostTypes,
 	} );
@@ -745,6 +799,14 @@ const { state, actions } = store( NAMESPACE, {
 				if ( next.length === 0 ) {
 					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
 					state.activeFilters = rest;
+					// Drop any logic override for the now-empty filter so the
+					// URL serializer doesn't leave `?query_type_<key>=and`
+					// orphaned in the address bar after the last selection
+					// is cleared.
+					if ( state.filterLogic && filterKey in state.filterLogic ) {
+						const { [ filterKey ]: _droppedLogic, ...restLogic } = state.filterLogic;
+						state.filterLogic = restLogic;
+					}
 				} else {
 					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
 				}
@@ -764,6 +826,7 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			state.activeFilters = {};
+			state.filterLogic = {};
 			state.priceRange = null;
 			yield actions.search();
 		},
@@ -815,6 +878,7 @@ const { state, actions } = store( NAMESPACE, {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
+				filterLogic: state.filterLogic,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
 				isWooCommerceActive: state.isWooCommerceActive,
@@ -827,7 +891,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
+			const { searchQuery, sortOrder, activeFilters, filterLogic, priceRange } = readStateFromUrl(
 				state.filterConfigs,
 				state.searchParamName,
 				state.isWooCommerceActive
@@ -838,7 +902,11 @@ const { state, actions } = store( NAMESPACE, {
 			// re-gate here so popstate matches initialize() and stray URL keys
 			// can't round-trip back into pushStateToUrl on a page with no
 			// registered filters.
-			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
+			const { gated } = gateActiveFilters( activeFilters, state.filterConfigs );
+			state.activeFilters = gated;
+			// Gate filterLogic the same way: drop entries whose filter key
+			// either isn't registered or has no surviving selections.
+			state.filterLogic = pickLogicForActive( filterLogic, gated );
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -1053,6 +1121,15 @@ const { state, actions } = store( NAMESPACE, {
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
+			}
+			// Re-gate filterLogic against the (possibly trimmed) activeFilters
+			// so a `?query_type_<key>=and` whose `<key>` was dropped doesn't
+			// linger in state and re-emit on the next URL push.
+			if ( state.filterLogic && Object.keys( state.filterLogic ).length > 0 ) {
+				const gatedLogic = pickLogicForActive( state.filterLogic, state.activeFilters );
+				if ( Object.keys( gatedLogic ).length !== Object.keys( state.filterLogic ).length ) {
+					state.filterLogic = gatedLogic;
+				}
 			}
 			if ( state.searchQuery || state.hasActiveFilters ) {
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
