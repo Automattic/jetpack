@@ -13,15 +13,15 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { check, link as linkIcon } from '@wordpress/icons';
+import { check } from '@wordpress/icons';
 import {
 	useInvalidatePodcastSettings,
 	usePodcastSettings,
 	useUpdatePodcastSettings,
 } from '../../../hooks/use-podcast-settings';
+import CopyButton from '../../copy-button';
 import {
 	usePocketCastsSubmit,
 	type PocketCastsSubmitResponse,
@@ -29,45 +29,14 @@ import {
 } from './use-submit';
 import type { PodcastAppModalProps } from '../types';
 
-// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
-// validator rejects that shape.
-const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
-const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
-
-interface ShareLinkRowProps {
-	url: string;
-}
-
-const ShareLinkRow = ( { url }: ShareLinkRowProps ) => {
-	const [ hasCopied, setHasCopied ] = useState( false );
-
-	const copyRef = useCopyToClipboard< HTMLButtonElement >( url, () => setHasCopied( true ) );
-
-	useEffect( () => {
-		if ( ! hasCopied ) {
-			return;
-		}
-		const timer = setTimeout( () => setHasCopied( false ), 2000 );
-		return () => clearTimeout( timer );
-	}, [ hasCopied ] );
-
-	return (
-		<HStack alignment="center" spacing={ 2 } className="podcast__pocketcasts-share-row">
-			<Text className="podcast__pocketcasts-share-url" title={ url }>
-				<ExternalLink href={ url }>{ url }</ExternalLink>
-			</Text>
-			<Button
-				ref={ copyRef }
-				variant="secondary"
-				__next40pxDefaultSize
-				icon={ linkIcon }
-				iconPosition="left"
-			>
-				{ hasCopied ? COPIED_LABEL : COPY_LINK_LABEL }
-			</Button>
-		</HStack>
-	);
-};
+const ShareLinkRow = ( { url }: { url: string } ) => (
+	<HStack alignment="center" spacing={ 2 } className="podcast__pocketcasts-share-row">
+		<Text className="podcast__pocketcasts-share-url" title={ url }>
+			<ExternalLink href={ url }>{ url }</ExternalLink>
+		</Text>
+		<CopyButton value={ url } iconPosition="left" />
+	</HStack>
+);
 
 const extractFeedbackErrors = ( response: PocketCastsSubmitResponse | null ): string[] => {
 	const errors = response?.pcc?.feedback?.errors;

@@ -17,12 +17,12 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { check, external, link } from '@wordpress/icons';
+import { check, external } from '@wordpress/icons';
 import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import CopyButton from './copy-button';
 import type { PodcastAppModalProps } from './podcast-apps';
 import type { FormEvent } from 'react';
 
@@ -65,7 +65,6 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 		? Object.values( allStoredUrls ).some( ( url ): url is string => !! url )
 		: null;
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
-	const [ hasCopied, setHasCopied ] = useState( false );
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ saveError, setSaveError ] = useState< string | null >( null );
 	const inputContainerRef = useRef< HTMLDivElement >( null );
@@ -92,16 +91,6 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 		input?.focus();
 		input?.select();
 	}, [ isEditing ] );
-
-	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => setHasCopied( true ) );
-
-	useEffect( () => {
-		if ( ! hasCopied ) {
-			return;
-		}
-		const timer = setTimeout( () => setHasCopied( false ), 2000 );
-		return () => clearTimeout( timer );
-	}, [ hasCopied ] );
 
 	const handleReplace = useCallback( () => {
 		hasInitializedDraft.current = true;
@@ -203,11 +192,6 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 		]
 	);
 
-	// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
-	// validator rejects that shape.
-	const copiedLabel = __( 'Copied!', 'jetpack-podcast' );
-	const copyLinkLabel = __( 'Copy link', 'jetpack-podcast' );
-
 	const titleText = sprintf(
 		/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 		__( 'Submit to %s', 'jetpack-podcast' ),
@@ -239,16 +223,11 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 							  ) }
 					</Text>
 					{ feedUrl && (
-						<Button
-							ref={ copyRef }
+						<CopyButton
+							value={ feedUrl }
 							className="podcast__submit-copy-button"
-							variant="secondary"
-							__next40pxDefaultSize
-							icon={ link }
 							iconPosition="left"
-						>
-							{ hasCopied ? copiedLabel : copyLinkLabel }
-						</Button>
+						/>
 					) }
 				</VStack>
 

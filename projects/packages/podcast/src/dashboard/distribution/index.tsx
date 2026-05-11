@@ -11,14 +11,14 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
 import { useEntityRecord } from '@wordpress/core-data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
 import ConfettiAnimation from './confetti';
+import CopyButton from './copy-button';
 import { PODCAST_APPS } from './podcast-apps';
 import './style.scss';
 import SubmitModal from './submit-modal';
@@ -32,45 +32,19 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 	event.currentTarget.select();
 };
 
-// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
-// validator rejects that shape.
-const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
-const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
-
-const FeedCopyField = ( { value }: { value: string } ) => {
-	const [ copied, setCopied ] = useState( false );
-
-	const copyRef = useCopyToClipboard< HTMLButtonElement >( value, () => setCopied( true ) );
-
-	useEffect( () => {
-		if ( ! copied ) {
-			return;
-		}
-		const timer = setTimeout( () => setCopied( false ), 2000 );
-		return () => clearTimeout( timer );
-	}, [ copied ] );
-
-	return (
-		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
-			<input
-				type="text"
-				className="podcast__feed-copy-input"
-				value={ value }
-				readOnly
-				onFocus={ selectOnFocus }
-				aria-label={ __( 'Podcast RSS feed URL', 'jetpack-podcast' ) }
-			/>
-			<Button
-				ref={ copyRef }
-				variant="secondary"
-				icon={ copied ? check : copy }
-				disabled={ ! value }
-			>
-				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }
-			</Button>
-		</HStack>
-	);
-};
+const FeedCopyField = ( { value }: { value: string } ) => (
+	<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
+		<input
+			type="text"
+			className="podcast__feed-copy-input"
+			value={ value }
+			readOnly
+			onFocus={ selectOnFocus }
+			aria-label={ __( 'Podcast RSS feed URL', 'jetpack-podcast' ) }
+		/>
+		<CopyButton value={ value } icon={ copy } copiedIcon={ check } disabled={ ! value } />
+	</HStack>
+);
 
 interface DistributionTabProps {
 	onEditSettings: () => void;
