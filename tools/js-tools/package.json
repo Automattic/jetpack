@@ -69,7 +69,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"semver": "7.7.3",
-		"storybook": "10.3.5",
+		"storybook": "10.3.6",
 		"stylelint": "17.7.0",
 		"stylelint-scss": "7.0.0",
 		"svelte": "5.53.12",
