@@ -130,21 +130,24 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
-		$body = array(
-			'window'      => $request->get_param( 'window' ),
-			'length'      => $request->get_param( 'length' ),
-			'voicePreset' => $request->get_param( 'voicePreset' ),
+		$query = http_build_query(
+			array(
+				'window'      => $request->get_param( 'window' ),
+				'length'      => $request->get_param( 'length' ),
+				'voicePreset' => $request->get_param( 'voicePreset' ),
+			),
+			'',
+			'&'
 		);
 
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/posts-to-podcast', $blog_id ),
+			sprintf( '/sites/%d/posts-to-podcast?%s', $blog_id, $query ),
 			2,
 			array(
 				'method'  => 'POST',
-				'headers' => array( 'content-type' => 'application/json' ),
 				'timeout' => 30,
 			),
-			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			null,
 			'wpcom'
 		);
 
