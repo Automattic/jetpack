@@ -12,6 +12,8 @@ type Props = {
 	isLoading: boolean;
 	activeMetric: ActiveMetric;
 	onChangeActiveMetric: ( next: ActiveMetric ) => void;
+	tabIds: Record< ActiveMetric, string >;
+	panelId: string;
 };
 
 const NUMBER_FORMATTER = new Intl.NumberFormat();
@@ -29,8 +31,9 @@ function formatNumber( n: number ): string {
 /**
  * Three KPI cards (Views, Visitors, Watch time) in a responsive grid.
  * Each card acts as a tab that selects which metric the Views trends
- * chart plots. Layout grid is owned by the parent `.vp-overview__kpi-row`
- * rule in `routes/overview/style.scss`.
+ * chart plots; together they form a WAI-ARIA tablist. Layout grid is
+ * owned by the parent `.vp-overview__kpi-row` rule in
+ * `routes/overview/style.scss`.
  *
  * @param props                      - Component props.
  * @param props.views                - Views summary.
@@ -39,6 +42,8 @@ function formatNumber( n: number ): string {
  * @param props.isLoading            - When true, KPI values render as em dashes.
  * @param props.activeMetric         - Currently selected chart metric.
  * @param props.onChangeActiveMetric - Called with the next metric when a card is activated.
+ * @param props.tabIds               - Stable DOM ids for each tab, used by the chart's `aria-labelledby`.
+ * @param props.panelId              - Id of the chart tabpanel; each tab points to it via `aria-controls`.
  * @return The row element.
  */
 export default function KpiCardsRow( {
@@ -48,6 +53,8 @@ export default function KpiCardsRow( {
 	isLoading,
 	activeMetric,
 	onChangeActiveMetric,
+	tabIds,
+	panelId,
 }: Props ): ReactElement {
 	const onSelectViews = useCallback(
 		() => onChangeActiveMetric( 'views' ),
@@ -63,7 +70,12 @@ export default function KpiCardsRow( {
 	);
 
 	return (
-		<div className="vp-overview__kpi-row">
+		<div
+			className="vp-overview__kpi-row"
+			role="tablist"
+			aria-orientation="horizontal"
+			aria-label={ __( 'Active metric', 'jetpack-videopress-pkg' ) }
+		>
 			<KpiCard
 				label={ __( 'VIEWS', 'jetpack-videopress-pkg' ) }
 				value={ formatNumber( views.current ) }
@@ -71,6 +83,8 @@ export default function KpiCardsRow( {
 				isLoading={ isLoading }
 				isActive={ activeMetric === 'views' }
 				onSelect={ onSelectViews }
+				id={ tabIds.views }
+				controlsId={ panelId }
 			/>
 			<KpiCard
 				label={ __( 'VISITORS', 'jetpack-videopress-pkg' ) }
@@ -79,6 +93,8 @@ export default function KpiCardsRow( {
 				isLoading={ isLoading }
 				isActive={ activeMetric === 'visitors' }
 				onSelect={ onSelectVisitors }
+				id={ tabIds.visitors }
+				controlsId={ panelId }
 			/>
 			<KpiCard
 				label={ __( 'WATCH TIME', 'jetpack-videopress-pkg' ) }
@@ -87,6 +103,8 @@ export default function KpiCardsRow( {
 				isLoading={ isLoading }
 				isActive={ activeMetric === 'watch_time' }
 				onSelect={ onSelectWatchTime }
+				id={ tabIds.watch_time }
+				controlsId={ panelId }
 			/>
 		</div>
 	);

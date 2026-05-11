@@ -6,6 +6,16 @@ import TopLocationsCard from '../../src/dashboard/components/Overview/top-locati
 import ViewsTrendsCard from '../../src/dashboard/components/Overview/views-trends-card';
 import { useMockStats } from '../../src/dashboard/hooks/use-mock-stats';
 import './style.scss';
+import type { ActiveMetric } from '../../src/dashboard/types/stats';
+
+// Stable ids that wire the KPI tablist to the chart tabpanel via ARIA.
+// Defined here so both children agree without a separate constants file.
+const TRENDS_PANEL_ID = 'vp-overview-trends-panel';
+const KPI_TAB_IDS: Record< ActiveMetric, string > = {
+	views: 'vp-overview-kpi-tab-views',
+	visitors: 'vp-overview-kpi-tab-visitors',
+	watch_time: 'vp-overview-kpi-tab-watch-time',
+};
 
 const Stage = () => {
 	const {
@@ -34,6 +44,8 @@ const Stage = () => {
 					isLoading={ isLoading }
 					activeMetric={ activeMetric }
 					onChangeActiveMetric={ setActiveMetric }
+					tabIds={ KPI_TAB_IDS }
+					panelId={ TRENDS_PANEL_ID }
 				/>
 				<ViewsTrendsCard
 					series={ stats.series }
@@ -43,6 +55,8 @@ const Stage = () => {
 					isLoading={ isLoading }
 					onChangeCompare={ setCompare }
 					onChangeGranularity={ setGranularity }
+					panelId={ TRENDS_PANEL_ID }
+					activeTabId={ KPI_TAB_IDS[ activeMetric ] }
 				/>
 				<div className="vp-overview__row--bottom">
 					<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />

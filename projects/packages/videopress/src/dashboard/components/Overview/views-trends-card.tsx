@@ -16,6 +16,8 @@ type Props = {
 	isLoading: boolean;
 	onChangeCompare: ( next: ChartCompare ) => void;
 	onChangeGranularity: ( next: Granularity ) => void;
+	panelId: string;
+	activeTabId: string;
 };
 
 const CHART_HEIGHT = 240;
@@ -152,6 +154,8 @@ function buildSeriesData(
  * @param props.isLoading           - When true, the chart canvas is left blank but reserves height so the page does not reflow when data arrives.
  * @param props.onChangeCompare     - Called with the next compare value.
  * @param props.onChangeGranularity - Called with the next granularity.
+ * @param props.panelId             - Stable DOM id for the card; KPI tabs reference it via `aria-controls`.
+ * @param props.activeTabId         - Id of the currently active KPI tab; sets the panel's `aria-labelledby`.
  * @return The card element.
  */
 export default function ViewsTrendsCard( {
@@ -162,6 +166,8 @@ export default function ViewsTrendsCard( {
 	isLoading,
 	onChangeCompare,
 	onChangeGranularity,
+	panelId,
+	activeTabId,
 }: Props ): ReactElement {
 	const config = METRIC_CONFIG[ activeMetric ];
 	const compareOptions = COMPARE_OPTIONS_BY_METRIC[ activeMetric ];
@@ -191,7 +197,7 @@ export default function ViewsTrendsCard( {
 	);
 
 	return (
-		<Card.Root>
+		<Card.Root id={ panelId } role="tabpanel" aria-labelledby={ activeTabId } tabIndex={ 0 }>
 			<Card.Header>
 				<Stack direction="row" justify="space-between" align="center" expanded>
 					<Card.Title>{ config.title }</Card.Title>

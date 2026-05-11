@@ -17,6 +17,42 @@
 		grid-template-columns: repeat(3, 1fr);
 		gap: 24px;
 
+		// Cards in this row are tabs (role="tab") that select which
+		// metric the trends chart plots. The active one gets a 3px
+		// bottom indicator matching the @wordpress/ui Tabs default.
+		> [role="tab"] {
+			cursor: pointer;
+			position: relative;
+
+			&::after {
+				content: "";
+				position: absolute;
+				inset-inline: 0;
+				bottom: 0;
+				height: 3px;
+				background: var(--wpds-color-stroke-interactive-neutral-strong, #1d35b4);
+				border-end-start-radius: inherit;
+				border-end-end-radius: inherit;
+				opacity: 0;
+				transition: opacity 0.15s ease;
+			}
+
+			&[aria-selected="true"]::after {
+				opacity: 1;
+			}
+
+			// Subtle preview of the indicator on hover so the affordance
+			// is discoverable.
+			&:not([aria-selected="true"]):hover::after {
+				opacity: 0.3;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--wpds-color-stroke-focus-brand, #1d35b4);
+				outline-offset: -2px;
+			}
+		}
+
 		@media (max-width: 600px) {
 			grid-template-columns: 1fr;
 		}
