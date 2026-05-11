@@ -3,6 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
+import EmbeddedPreview from './previews/embedded-preview';
+import OverlayPreview from './previews/overlay-preview';
 
 // URL constants reused verbatim from the legacy ModuleControl.
 // `sprintf( ..., encodeURIComponent( returnUrl ) )` was a no-op there
@@ -185,90 +187,4 @@ const DetailLink = ( { title, description, linkLabel, href, disabled } ) => (
 			</a>
 		) }
 	</Stack>
-);
-
-// Static visual preview rendered in the Embedded panel: a stylised
-// search-results card showing a category filter list and two highlighted
-// results. Decorative — `aria-hidden` so AT users get the description above
-// instead of a noisy element-by-element read. Strings are intentionally not
-// translated; they're placeholder copy in a mockup, not real content.
-const EmbeddedPreview = () => (
-	<div className="jp-search-feature-selector__embedded-preview" aria-hidden="true">
-		<div className="jp-search-feature-selector__embedded-preview-filters">
-			<div className="jp-search-feature-selector__embedded-preview-filter-title">Category</div>
-			<ul className="jp-search-feature-selector__embedded-preview-filter-list">
-				<li className="is-checked">
-					<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-					Recipes
-				</li>
-				<li>
-					<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-					Travel
-				</li>
-				<li>
-					<span className="jp-search-feature-selector__embedded-preview-checkbox" />
-					Reviews
-				</li>
-			</ul>
-		</div>
-		<div className="jp-search-feature-selector__embedded-preview-results">
-			<div className="jp-search-feature-selector__embedded-preview-search">
-				<span className="jp-search-feature-selector__embedded-preview-search-icon" />
-				pasta
-			</div>
-			<div className="jp-search-feature-selector__embedded-preview-result">
-				<div className="jp-search-feature-selector__embedded-preview-result-title">
-					10 Easy <mark>Pasta</mark> Recipes
-				</div>
-				<div className="jp-search-feature-selector__embedded-preview-result-meta">
-					Recipes · Jan 2026
-				</div>
-			</div>
-			<div className="jp-search-feature-selector__embedded-preview-result">
-				<div className="jp-search-feature-selector__embedded-preview-result-title">
-					Best <mark>Pasta</mark> Sauces
-				</div>
-				<div className="jp-search-feature-selector__embedded-preview-result-meta">
-					Reviews · Mar 2026
-				</div>
-			</div>
-		</div>
-	</div>
-);
-
-// Static visual preview rendered in the Overlay panel: a stylised page with
-// the search overlay popup sitting on top of it. Decorative — `aria-hidden`
-// so AT users get the description above instead of an element-by-element
-// read. Strings are hardcoded; this is a mockup, not real content.
-const OverlayPreview = () => (
-	<div className="jp-search-feature-selector__overlay-preview" aria-hidden="true">
-		<div className="jp-search-feature-selector__overlay-preview-page">
-			<div className="jp-search-feature-selector__overlay-preview-page-bar" />
-			<div className="jp-search-feature-selector__overlay-preview-page-bar is-short" />
-			<div className="jp-search-feature-selector__overlay-preview-popup">
-				<div className="jp-search-feature-selector__overlay-preview-search">
-					<span className="jp-search-feature-selector__overlay-preview-search-icon" />
-					pasta
-				</div>
-				<div className="jp-search-feature-selector__overlay-preview-result">
-					<span className="jp-search-feature-selector__overlay-preview-thumb" />
-					<div>
-						<div className="jp-search-feature-selector__overlay-preview-result-title">
-							10 Easy Pasta Recipes
-						</div>
-						<div className="jp-search-feature-selector__overlay-preview-result-meta">Recipes</div>
-					</div>
-				</div>
-				<div className="jp-search-feature-selector__overlay-preview-result">
-					<span className="jp-search-feature-selector__overlay-preview-thumb" />
-					<div>
-						<div className="jp-search-feature-selector__overlay-preview-result-title">
-							Best Pasta Sauces
-						</div>
-						<div className="jp-search-feature-selector__overlay-preview-result-meta">Reviews</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 );

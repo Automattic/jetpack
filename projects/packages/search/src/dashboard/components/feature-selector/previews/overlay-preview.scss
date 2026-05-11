@@ -1,0 +1,104 @@
+// Decorative overlay-search illustration: a stylised page with the search
+// popup sitting on top of it. Matched in width and min-height to the
+// Embedded preview so switching between experiences doesn't shift the
+// rest of the panel vertically.
+.jp-search-feature-selector__overlay-preview {
+	display: flex;
+	flex: 0 0 auto;
+	width: 360px;
+	max-width: 100%;
+	min-height: 220px;
+	padding: var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-bg-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+// Inner "page" reuses the outer card's grey so the surface reads as one
+// continuous canvas; the popup floats above it without a nested-card look.
+// `flex: 1` lets it stretch to fill the outer's locked height.
+.jp-search-feature-selector__overlay-preview-page {
+	position: relative;
+	flex: 1 1 auto;
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-bg-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+.jp-search-feature-selector__overlay-preview-page-bar {
+	width: 80%;
+	height: 4px;
+	margin-block: 6px;
+	background: var(--wpds-color-stroke-surface-neutral);
+	border-radius: 2px;
+
+	&.is-short {
+		width: 50%;
+	}
+}
+
+.jp-search-feature-selector__overlay-preview-popup {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-xl);
+	inset-inline-start: var(--wpds-dimension-padding-xl);
+	inset-inline-end: var(--wpds-dimension-padding-md);
+	padding: var(--wpds-dimension-padding-sm);
+	background: #fff;
+	border-radius: var(--wpds-border-radius-md);
+	box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+}
+
+.jp-search-feature-selector__overlay-preview-search {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	background: var(--wpds-color-bg-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+	font-size: var(--wpds-typography-font-size-sm);
+	color: var(--wpds-color-fg-content-neutral-weak);
+	margin-block-end: var(--wpds-dimension-gap-sm);
+}
+
+.jp-search-feature-selector__overlay-preview-search-icon {
+	width: 10px;
+	height: 10px;
+	border: var(--wpds-border-width-xs) solid currentColor;
+	border-radius: 50%;
+	flex: 0 0 auto;
+}
+
+.jp-search-feature-selector__overlay-preview-result {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding-block: var(--wpds-dimension-padding-xs);
+
+	&:not(:last-child) {
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+.jp-search-feature-selector__overlay-preview-thumb {
+	flex: 0 0 auto;
+	width: 28px;
+	height: 28px;
+	background: var(--wpds-color-bg-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+.jp-search-feature-selector__overlay-preview-result-title {
+	font-weight: 600;
+	font-size: var(--wpds-typography-font-size-sm);
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+.jp-search-feature-selector__overlay-preview-result-meta {
+	font-size: var(--wpds-typography-font-size-xs);
+	color: var(--wpds-color-fg-content-neutral-weak);
+	margin-block-start: 2px;
+}
