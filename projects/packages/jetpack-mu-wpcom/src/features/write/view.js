@@ -3382,6 +3382,16 @@ window.addEventListener( 'beforeunload', event => {
 	}
 } );
 
+// If the page is restored from bfcache after a publish, redirect to a
+// fresh editor.  On publish the isSaving flag is intentionally left true
+// (buttons stay disabled while the redirect fires), so a bfcache restore
+// would strand the user on a "done" page with grayed-out buttons.
+window.addEventListener( 'pageshow', event => {
+	if ( event.persisted && state.isPublished ) {
+		window.location.replace( state.writeUrl );
+	}
+} );
+
 // Clean up autosave timer on page unload.
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
