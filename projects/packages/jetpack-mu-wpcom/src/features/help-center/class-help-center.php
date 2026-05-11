@@ -642,9 +642,9 @@ class Help_Center {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $force_load Whether to force-load the logged-out Help Center.
+		 * @param bool $should_load Whether to load the logged-out Help Center on this surface.
 		 */
-		$force_load_logged_out = ! is_admin()
+		$should_load_for_logged_out = ! is_admin()
 			&& ! is_user_logged_in()
 			&& ! $this->is_support_site
 			&& (bool) apply_filters( 'wpcom_help_center_logged_out_force_load', false );
@@ -654,12 +654,12 @@ class Help_Center {
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $force_load_logged_out ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_for_logged_out ) {
 			return;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
-		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $force_load_logged_out ) {
+		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $should_load_for_logged_out ) {
 			return;
 		}
 
@@ -667,7 +667,7 @@ class Help_Center {
 
 		if ( $is_next_admin ) {
 			$variant = 'ciab-admin' . $suffix;
-		} elseif ( $force_load_logged_out ) {
+		} elseif ( $should_load_for_logged_out ) {
 			$variant = 'logged-out';
 		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
