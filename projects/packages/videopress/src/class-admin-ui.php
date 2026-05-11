@@ -516,7 +516,7 @@ class Admin_UI {
 	 *
 	 * @return bool
 	 */
-	private static function is_modernized() {
+	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 

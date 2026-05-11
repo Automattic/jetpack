@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comment: Adds a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state.
