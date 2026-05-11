@@ -28,8 +28,7 @@ if ( ! function_exists( 'tracks_record_event' ) ) {
 }
 
 /**
- * Mirror the jetpack-mu-wpcom sticker dispatcher. Tests seed
- * `$GLOBALS['jetpack_podcast_test_stickers']` as `[ blog_id => [ sticker, ... ] ]`.
+ * Mirror the jetpack-mu-wpcom sticker dispatcher.
  */
 if ( ! function_exists( 'wpcom_has_blog_sticker' ) ) {
 	function wpcom_has_blog_sticker( $sticker, $blog_id ) {

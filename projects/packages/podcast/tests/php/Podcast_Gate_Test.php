@@ -14,12 +14,6 @@ use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
 /**
- * The sticker branch is exercised through the `wpcom_has_blog_sticker` stub
- * in `bootstrap.php` — tests seed `$GLOBALS['jetpack_podcast_test_stickers']`
- * keyed by `get_current_blog_id()`. The plan-supports branch is exercised
- * through `Current_Plan::PLAN_OPTION`; with `wpcom_site_has_feature` undefined
- * in tests, `Current_Plan::supports` falls through to plan-data lookup.
- *
  * @covers \Automattic\Jetpack\Podcast\Podcast_Gate
  */
 #[CoversClass( Podcast_Gate::class )]
@@ -39,8 +33,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `Current_Plan::get()` memoizes the resolved plan for the duration of the
-	 * request, so option writes in one test would otherwise leak into the next.
+	 * `Current_Plan::get()` memoizes for the request, leaking option writes between tests.
 	 */
 	private static function reset_active_plan_cache(): void {
 		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
