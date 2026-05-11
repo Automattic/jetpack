@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Episodes stats: detect 402 responses from the episode stats endpoint as a Premium-required state.
