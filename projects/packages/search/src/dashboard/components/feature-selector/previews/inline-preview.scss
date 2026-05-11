@@ -1,0 +1,71 @@
+// Decorative "theme search with faster results" illustration: a search
+// box, a few faint result lines, and a "⚡ 24 ms" badge in the corner.
+// Sized to match the Embedded / Overlay previews so switching between
+// experiences doesn't shift the rest of the panel vertically.
+.jp-search-feature-selector__inline-preview {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	flex: 0 0 auto;
+	width: 360px;
+	max-width: 100%;
+	min-height: 220px;
+	padding: var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-bg-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.jp-search-feature-selector__inline-preview-search {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	background: #fff;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+	font-size: var(--wpds-typography-font-size-sm);
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.jp-search-feature-selector__inline-preview-search-icon {
+	width: 10px;
+	height: 10px;
+	border: var(--wpds-border-width-xs) solid currentColor;
+	border-radius: 50%;
+	flex: 0 0 auto;
+}
+
+.jp-search-feature-selector__inline-preview-lines {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	padding-inline: var(--wpds-dimension-padding-sm);
+}
+
+.jp-search-feature-selector__inline-preview-line {
+	height: 6px;
+	background: var(--wpds-color-stroke-surface-neutral);
+	border-radius: 3px;
+
+	&.is-short {
+		width: 70%;
+	}
+}
+
+.jp-search-feature-selector__inline-preview-timing {
+	position: absolute;
+	inset-block-end: var(--wpds-dimension-padding-md);
+	inset-inline-start: var(--wpds-dimension-padding-md);
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: 600;
+	color: var(--wpds-color-fg-content-caution);
+}
+
+.jp-search-feature-selector__inline-preview-bolt {
+	flex: 0 0 auto;
+}

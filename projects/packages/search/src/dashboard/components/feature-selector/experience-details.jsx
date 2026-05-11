@@ -4,6 +4,7 @@ import { Badge, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
 import EmbeddedPreview from './previews/embedded-preview';
+import InlinePreview from './previews/inline-preview';
 import OverlayPreview from './previews/overlay-preview';
 
 // URL constants reused verbatim from the legacy ModuleControl.
@@ -45,6 +46,7 @@ export default function ExperienceDetails() {
 
 	const isOverlay = selected === EXPERIENCE.OVERLAY;
 	const isEmbedded = selected === EXPERIENCE.EMBEDDED;
+	const isInline = selected === EXPERIENCE.INLINE;
 	const actionsDisabled = isUpdating || active !== selected;
 	const isRecommended = selected === EXPERIENCE.EMBEDDED;
 	const isActive = selected === active;
@@ -57,6 +59,14 @@ export default function ExperienceDetails() {
 		'A custom search page you build with blocks. Filters, sorting, pagination — all themable in the Site Editor.',
 		'jetpack-search-pkg'
 	);
+	const inlineDescription = __(
+		"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes — Elasticsearch under the hood, no UI changes.",
+		'jetpack-search-pkg'
+	);
+	const inlineSetItForgetIt = __(
+		'No additional settings — this mode is set-it-and-forget-it.',
+		'jetpack-search-pkg'
+	);
 
 	return (
 		<section
@@ -67,6 +77,7 @@ export default function ExperienceDetails() {
 			<Stack direction="row" gap="xl" align="start" wrap="wrap">
 				{ isEmbedded && <EmbeddedPreview /> }
 				{ isOverlay && <OverlayPreview /> }
+				{ isInline && <InlinePreview /> }
 				<Stack direction="column" gap="lg" className="jp-search-feature-selector__details-body">
 					<Stack direction="column" gap="xs">
 						<Stack direction="row" gap="md" align="center" wrap="wrap">
@@ -96,6 +107,16 @@ export default function ExperienceDetails() {
 							<p className="jp-search-feature-selector__details-description">
 								{ embeddedDescription }
 							</p>
+						) }
+						{ isInline && (
+							<>
+								<p className="jp-search-feature-selector__details-description">
+									{ inlineDescription }
+								</p>
+								<p className="jp-search-feature-selector__details-description">
+									{ inlineSetItForgetIt }
+								</p>
+							</>
 						) }
 					</Stack>
 					{ isEmbedded && (
