@@ -3388,6 +3388,7 @@ window.addEventListener( 'beforeunload', event => {
 // would strand the user on a "done" page with grayed-out buttons.
 window.addEventListener( 'pageshow', event => {
 	if ( event.persisted && state.isPublished ) {
+		document.documentElement.style.visibility = 'hidden';
 		window.location.replace( state.writeUrl );
 	}
 } );
