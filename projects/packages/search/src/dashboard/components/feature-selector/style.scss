@@ -106,6 +106,34 @@
 		font-size: var(--wpds-typography-font-size-md);
 	}
 
+	// "What you'll lose" list rendered in the Off panel. Each item gets a
+	// red cross-circle icon followed by a bold term and an explanatory tail.
+	&__details-loss-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		font-size: var(--wpds-typography-font-size-md);
+		color: var(--wpds-color-fg-content-neutral-weak);
+
+		li {
+			display: flex;
+			align-items: start;
+			gap: var(--wpds-dimension-gap-sm);
+			padding-block: var(--wpds-dimension-padding-xs);
+
+			strong {
+				color: var(--wpds-color-fg-content-neutral);
+				font-weight: 600;
+			}
+		}
+	}
+
+	&__details-loss-icon {
+		fill: var(--wpds-color-fg-content-error);
+		flex: 0 0 auto;
+		margin-block-start: 2px;
+	}
+
 	// The customization actions sit inside their own subdued surface so
 	// they read as a secondary affordance, not part of the primary copy.
 	// The inline variant (Embedded panel) drops the surface entirely and

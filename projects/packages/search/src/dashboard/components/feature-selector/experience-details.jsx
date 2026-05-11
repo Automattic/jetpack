@@ -1,10 +1,12 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Icon, cancelCircleFilled } from '@wordpress/icons';
 import { Badge, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
 import EmbeddedPreview from './previews/embedded-preview';
 import InlinePreview from './previews/inline-preview';
+import OffPreview from './previews/off-preview';
 import OverlayPreview from './previews/overlay-preview';
 
 // URL constants reused verbatim from the legacy ModuleControl.
@@ -47,6 +49,7 @@ export default function ExperienceDetails() {
 	const isOverlay = selected === EXPERIENCE.OVERLAY;
 	const isEmbedded = selected === EXPERIENCE.EMBEDDED;
 	const isInline = selected === EXPERIENCE.INLINE;
+	const isOff = selected === EXPERIENCE.OFF;
 	const actionsDisabled = isUpdating || active !== selected;
 	const isRecommended = selected === EXPERIENCE.EMBEDDED;
 	const isActive = selected === active;
@@ -67,6 +70,28 @@ export default function ExperienceDetails() {
 		'No additional settings — this mode is set-it-and-forget-it.',
 		'jetpack-search-pkg'
 	);
+	const offDescription = __(
+		"Visitors will use WordPress's default search. Your visitors will lose:",
+		'jetpack-search-pkg'
+	);
+	const offLosses = [
+		{
+			title: __( 'Fast results', 'jetpack-search-pkg' ),
+			detail: __( '— searches will hit your database again', 'jetpack-search-pkg' ),
+		},
+		{
+			title: __( 'Smart ranking', 'jetpack-search-pkg' ),
+			detail: __( '— no typo tolerance or language-aware matching', 'jetpack-search-pkg' ),
+		},
+		{
+			title: __( 'Embedded and Overlay search', 'jetpack-search-pkg' ),
+			detail: __( '— both need the Jetpack engine', 'jetpack-search-pkg' ),
+		},
+		{
+			title: __( 'Search analytics', 'jetpack-search-pkg' ),
+			detail: __( 'and custom relevance rules', 'jetpack-search-pkg' ),
+		},
+	];
 
 	return (
 		<section
@@ -78,6 +103,7 @@ export default function ExperienceDetails() {
 				{ isEmbedded && <EmbeddedPreview /> }
 				{ isOverlay && <OverlayPreview /> }
 				{ isInline && <InlinePreview /> }
+				{ isOff && <OffPreview /> }
 				<Stack direction="column" gap="lg" className="jp-search-feature-selector__details-body">
 					<Stack direction="column" gap="xs">
 						<Stack direction="row" gap="md" align="center" wrap="wrap">
@@ -116,6 +142,27 @@ export default function ExperienceDetails() {
 								<p className="jp-search-feature-selector__details-description">
 									{ inlineSetItForgetIt }
 								</p>
+							</>
+						) }
+						{ isOff && (
+							<>
+								<p className="jp-search-feature-selector__details-description">
+									{ offDescription }
+								</p>
+								<ul className="jp-search-feature-selector__details-loss-list">
+									{ offLosses.map( ( { title, detail } ) => (
+										<li key={ title }>
+											<Icon
+												className="jp-search-feature-selector__details-loss-icon"
+												icon={ cancelCircleFilled }
+												size={ 20 }
+											/>
+											<span>
+												<strong>{ title }</strong> { detail }
+											</span>
+										</li>
+									) ) }
+								</ul>
 							</>
 						) }
 					</Stack>
