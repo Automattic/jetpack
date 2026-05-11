@@ -1337,6 +1337,112 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Postmeta sibling of `test_custom_taxonomy_map_*` — exercises the
+	 * same validation surface for `jetpack_search_custom_meta_map`.
+	 */
+	public function test_custom_meta_map_accepts_valid_entries_and_rejects_garbage() {
+		$callback = static function () {
+			return array(
+				'author_role'  => 'jetpack-search-meta1',  // OK
+				'priority'     => 'jetpack-search-meta2',  // OK
+				'bogus_a'      => 'jetpack-search-meta10', // out of range (single digit).
+				'bogus_b'      => 'category',              // not a reserved slot.
+				'priority_alt' => 'jetpack-search-meta2',  // duplicate slot; first wins.
+			);
+		};
+		add_filter( 'jetpack_search_custom_meta_map', $callback );
+		$prev = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame(
+				array(
+					'author_role' => 'jetpack-search-meta1',
+					'priority'    => 'jetpack-search-meta2',
+				),
+				Search_Blocks::custom_meta_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_meta_map', $callback );
+			$this->restore_doing_it_wrong( $prev );
+		}
+	}
+
+	/**
+	 * Empty map is the default — anchors the no-config behaviour so a site
+	 * that doesn't opt into the meta-mapping feature pays nothing for it.
+	 */
+	public function test_custom_meta_map_empty_by_default() {
+		$this->assertSame( array(), Search_Blocks::custom_meta_map() );
+	}
+
+	/**
+	 * Non-array return must surface a `_doing_it_wrong()` notice so a
+	 * misconfigured callback is visible during development, then fall
+	 * through to an empty map.
+	 */
+	public function test_custom_meta_map_fires_doing_it_wrong_on_non_array_return() {
+		add_filter( 'jetpack_search_custom_meta_map', '__return_null' );
+		$captured = null;
+		$listener = function ( $function, $message ) use ( &$captured ) {
+			if ( 'jetpack_search_custom_meta_map' === $function ) {
+				$captured = $message;
+			}
+		};
+		add_action( 'doing_it_wrong_run', $listener, 10, 3 );
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		try {
+			$this->assertSame( array(), Search_Blocks::custom_meta_map() );
+			$this->assertIsString( $captured, 'Expected _doing_it_wrong() to fire.' );
+			$this->assertStringContainsString( 'must return an array', $captured );
+		} finally {
+			remove_filter( 'jetpack_search_custom_meta_map', '__return_null' );
+			remove_action( 'doing_it_wrong_run', $listener, 10 );
+			remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		}
+	}
+
+	/**
+	 * `resolve_meta_slot()` returns the slot for mapped keys and the key
+	 * verbatim for unmapped ones. No built-in exclusions (unlike taxonomies)
+	 * because there's no built-in meta filter variation today.
+	 */
+	public function test_resolve_meta_slot_routes_mapped_and_unmapped_keys() {
+		$callback = static function ( $map ) {
+			$map['author_role'] = 'jetpack-search-meta1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_meta_map', $callback );
+		try {
+			$this->assertSame( '', Search_Blocks::resolve_meta_slot( '' ) );
+			$this->assertSame( 'jetpack-search-meta1', Search_Blocks::resolve_meta_slot( 'author_role' ) );
+			$this->assertSame( 'unmapped_key', Search_Blocks::resolve_meta_slot( 'unmapped_key' ) );
+		} finally {
+			remove_filter( 'jetpack_search_custom_meta_map', $callback );
+		}
+	}
+
+	/**
+	 * The supported-meta-keys list equals the map's keys — there is no
+	 * public-meta-keys WP API to intersect with, so the map IS the supported
+	 * set.
+	 */
+	public function test_supported_custom_meta_keys_mirrors_map_keys() {
+		$callback = static function ( $map ) {
+			$map['author_role'] = 'jetpack-search-meta1';
+			$map['priority']    = 'jetpack-search-meta2';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_meta_map', $callback );
+		try {
+			$this->assertSame(
+				array( 'author_role', 'priority' ),
+				Search_Blocks::supported_custom_meta_keys()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_meta_map', $callback );
+		}
+	}
+
+	/**
 	 * Silence `_doing_it_wrong()` notices for tests that exercise the
 	 * misconfiguration branches. PHPUnit's deprecation/notice handlers
 	 * would otherwise flip the test red on the very codepath we want to

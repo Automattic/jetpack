@@ -67,6 +67,7 @@ export const VARIATION_PRODUCT_CAT = 'product_cat';
 export const VARIATION_PRODUCT_TAG = 'product_tag';
 export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
+export const VARIATION_FILTER_META = 'filter_meta';
 
 // `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
 // editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
@@ -98,6 +99,18 @@ const supportedCustomTaxonomies = () =>
 const customTaxonomyMap = () =>
 	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.customTaxonomyMap ) || {};
 
+// Postmeta siblings of the two helpers above — power the "Filter by Meta
+// Field" variation's picker. Map keys are the supported set; the picker
+// suffixes every offered key with `(mapped)` because, unlike taxonomies,
+// there's no native indexed-meta path — every meta key in this list reached
+// it via the `jetpack_search_custom_meta_map` filter.
+const supportedCustomMetaKeys = () =>
+	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.supportedCustomMetaKeys ) ||
+	[];
+
+const customMetaMap = () =>
+	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.customMetaMap ) || {};
+
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
  * matches. Any taxonomy-family block whose slug isn't a recognized built-in
@@ -113,6 +126,9 @@ export function deriveVariation( attributes ) {
 	}
 	if ( filterType === 'author' ) {
 		return VARIATION_AUTHOR;
+	}
+	if ( filterType === 'meta' ) {
+		return VARIATION_FILTER_META;
 	}
 	const taxonomy = attributes?.taxonomy || '';
 	if ( taxonomy === 'category' ) {
@@ -170,6 +186,10 @@ export function variationOptions() {
 		value: VARIATION_CUSTOM_TAXONOMY,
 		label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
 	} );
+	options.push( {
+		value: VARIATION_FILTER_META,
+		label: __( 'Meta field', 'jetpack-search-pkg' ),
+	} );
 	return options;
 }
 
@@ -209,6 +229,15 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
 		case VARIATION_AUTHOR:
 			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
+		case VARIATION_FILTER_META:
+			// `taxonomy` is reused as the facet-key carrier for the meta
+			// filterType — see `Filter_Checkbox::derive_filter_key()` for
+			// the rationale. We deliberately CLEAR the carried value when
+			// switching INTO the Meta variation: a taxonomy slug isn't a
+			// valid meta key, and surfacing it as a typed default would
+			// confuse the author. The map-keys whitelist then drives the
+			// picker.
+			return { filterType: 'meta', taxonomy: '' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved = BUILT_IN_TAXONOMY_SLUGS.includes( previousTaxonomy )
@@ -278,8 +307,9 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( { 'data-display-style': displayStyle } );
 	const currentVariation = deriveVariation( attributes );
 	const isCustomTaxonomy = currentVariation === VARIATION_CUSTOM_TAXONOMY;
+	const isFilterMeta = currentVariation === VARIATION_FILTER_META;
 	const taxonomy = attributes?.taxonomy || '';
-	const needsTaxonomyChoice = isCustomTaxonomy && '' === taxonomy;
+	const needsTaxonomyChoice = ( isCustomTaxonomy || isFilterMeta ) && '' === taxonomy;
 
 	// Pull the registered taxonomies for the picker. `getTaxonomies` is the
 	// core-data shortcut for getEntityRecords( 'root', 'taxonomy' ); it
@@ -329,6 +359,31 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	const isLoadingTaxonomies = isCustomTaxonomy && taxonomies === null;
 	const hasNoCustomTaxonomies =
 		isCustomTaxonomy && Array.isArray( taxonomyOptions ) && taxonomyOptions.length === 0;
+
+	// Meta-key picker — sourced entirely from `JetpackSearchBlocksConfig`. No
+	// REST round-trip because the map is the source of truth (no public
+	// post-meta-keys API to intersect with). Every offered key is `(mapped)`
+	// because membership IS the mapping; the suffix stays for visual parity
+	// with the Custom Taxonomy picker.
+	const metaKeyOptions = useMemo( () => {
+		if ( ! isFilterMeta ) {
+			return null;
+		}
+		const supported = supportedCustomMetaKeys();
+		const map = customMetaMap();
+		return supported.map( key => ( {
+			value: key,
+			label: map[ key ]
+				? sprintf(
+						/* translators: %s: meta key. The "(mapped)" suffix flags a meta key routed through a reserved jetpack-search-metaN slot. */
+						__( '%s (mapped)', 'jetpack-search-pkg' ),
+						key
+				  )
+				: key,
+		} ) );
+	}, [ isFilterMeta ] );
+	const hasNoMetaKeys =
+		isFilterMeta && Array.isArray( metaKeyOptions ) && metaKeyOptions.length === 0;
 
 	const rawLabel = attributes?.label || '';
 	const variationLabel = variationDefaultLabel( attributes );
@@ -411,6 +466,36 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 									  )
 									: __(
 											'Pick which registered taxonomy this filter targets. Only taxonomies that Jetpack Search indexes (natively or via a jetpack-search-tagN slot mapping) appear here; "(mapped)" flags a slot-routed entry.',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  )
+							}
+						/>
+					) }
+					{ isFilterMeta && (
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Meta key', 'jetpack-search-pkg' ) }
+							value={ taxonomy }
+							disabled={ hasNoMetaKeys }
+							options={ [
+								{
+									value: '',
+									label: __( 'Select a meta key', 'jetpack-search-pkg' ),
+									disabled: true,
+								},
+								...( metaKeyOptions || [] ),
+							] }
+							onChange={ value => setAttributes( { taxonomy: value } ) }
+							help={
+								hasNoMetaKeys
+									? __(
+											'No meta keys are mapped to Jetpack Search slots on this site. Register one via the jetpack_search_custom_meta_map filter and it will appear here.',
+											'jetpack-search-pkg'
+									  )
+									: __(
+											'Pick which mapped meta key this filter targets. The key must already be routed through a reserved jetpack-search-metaN slot via the jetpack_search_custom_meta_map filter.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
 									  )

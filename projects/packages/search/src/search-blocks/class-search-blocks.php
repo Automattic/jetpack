@@ -105,6 +105,14 @@ class Search_Blocks {
 	private static $supported_custom_taxonomies_cache = null;
 
 	/**
+	 * Per-request memo backing `custom_meta_map()`. Mirror of the taxonomy
+	 * map cache — see that property's docblock for the rationale.
+	 *
+	 * @var array<string, string>|null
+	 */
+	private static $custom_meta_map_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -439,15 +447,130 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Map of user-facing postmeta key → reserved Jetpack Search index slot
+	 * (`jetpack-search-meta0`…`jetpack-search-meta9`). Sibling to
+	 * `custom_taxonomy_map()` for the postmeta side of Jetpack Search's
+	 * reserved-slot mechanism (see
+	 * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+	 * — the FAQ describes the metaN slot pool alongside tagN).
+	 *
+	 * Registered via the `jetpack_search_custom_meta_map` filter:
+	 *
+	 *     add_filter( 'jetpack_search_custom_meta_map', function ( $map ) {
+	 *         $map['author_role'] = 'jetpack-search-meta1';
+	 *         return $map;
+	 *     } );
+	 *
+	 * Validation is identical to the taxonomy map: slot must match
+	 * `jetpack-search-meta[0-9]`, duplicate slot assignments are rejected,
+	 * `_doing_it_wrong()` fires on misconfiguration.
+	 *
+	 * The ES field path for terms aggregations against these slots is
+	 * `meta.<slot>.value.raw` — verified empirically against the v1.3
+	 * Search API. Numeric sub-fields (`meta.<slot>.long`, `.double`)
+	 * are also indexed for use with histogram / range aggs; this map
+	 * only addresses the string/keyword aggregation case used by the
+	 * "Filter by Meta Field" block variation.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function custom_meta_map(): array {
+		if ( null !== self::$custom_meta_map_cache ) {
+			return self::$custom_meta_map_cache;
+		}
+
+		/**
+		 * Map custom postmeta keys to a reserved Jetpack Search index slot.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array<string, string> $map Empty by default; entries shape
+		 *                                   `[ 'user_key' => 'jetpack-search-metaN' ]`.
+		 */
+		$raw = apply_filters( 'jetpack_search_custom_meta_map', array() );
+		if ( ! is_array( $raw ) ) {
+			$msg = esc_html__( 'The jetpack_search_custom_meta_map filter must return an array of user-key => jetpack-search-metaN pairs.', 'jetpack-search-pkg' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is esc_html__() output.
+			_doing_it_wrong( 'jetpack_search_custom_meta_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+			self::$custom_meta_map_cache = array();
+			return self::$custom_meta_map_cache;
+		}
+
+		$map        = array();
+		$slot_owner = array();
+		foreach ( $raw as $user_key => $slot ) {
+			if ( ! is_string( $user_key ) || '' === $user_key || ! is_string( $slot ) ) {
+				continue;
+			}
+			$user_key = sanitize_key( $user_key );
+			if ( '' === $user_key ) {
+				continue;
+			}
+			if ( ! preg_match( '/^jetpack-search-meta[0-9]$/', $slot ) ) {
+				/* translators: 1: invalid slot value, 2: user-facing meta key */
+				$msg = sprintf( esc_html__( 'Invalid Jetpack Search slot "%1$s" for meta key "%2$s"; expected one of jetpack-search-meta0…jetpack-search-meta9.', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $user_key ) );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
+				_doing_it_wrong( 'jetpack_search_custom_meta_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+				continue;
+			}
+			if ( isset( $slot_owner[ $slot ] ) ) {
+				/* translators: 1: slot, 2: first user-facing key that owns the slot, 3: second user-facing key attempting to claim it */
+				$msg = sprintf( esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $slot_owner[ $slot ] ), esc_html( $user_key ) );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
+				_doing_it_wrong( 'jetpack_search_custom_meta_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+				continue;
+			}
+			$map[ $user_key ]    = $slot;
+			$slot_owner[ $slot ] = $user_key;
+		}
+
+		self::$custom_meta_map_cache = $map;
+		return $map;
+	}
+
+	/**
+	 * Resolve a user-facing meta key to the Elasticsearch field slug that
+	 * should be queried for it. Sibling to `resolve_taxonomy_slot()` — see
+	 * that helper's docblock for the architecture. No built-in exclusions:
+	 * unlike taxonomies, there is no built-in meta-key filter variation,
+	 * so any mapped key wins and any unmapped key passes through verbatim.
+	 *
+	 * @param string $meta_key User-facing meta key.
+	 * @return string Effective ES meta-field slug.
+	 */
+	public static function resolve_meta_slot( string $meta_key ): string {
+		if ( '' === $meta_key ) {
+			return '';
+		}
+		$map = self::custom_meta_map();
+		return $map[ $meta_key ] ?? $meta_key;
+	}
+
+	/**
+	 * Supported postmeta keys the "Filter by Meta Field" picker should
+	 * offer. Map keys only: WordPress has no public-meta-keys API
+	 * equivalent to `get_taxonomies( public => true )`, so the contract
+	 * is opt-in by mapping. A site owner who wants to filter by a meta
+	 * key registers the mapping; the picker then shows the key.
+	 *
+	 * @return string[] Distinct, zero-indexed list of supported meta keys.
+	 */
+	public static function supported_custom_meta_keys(): array {
+		return array_values( array_keys( self::custom_meta_map() ) );
+	}
+
+	/**
 	 * Reset the `custom_taxonomy_map()` memo. Tests only — production WP runs
 	 * a single request per process and the map is derived purely from a
-	 * filter hook, so callers should never need to clear the cache.
+	 * filter hook, so callers should never need to clear the cache. Also
+	 * clears the meta-map memo so a single resetter covers both.
 	 *
 	 * @internal
 	 */
 	public static function reset_custom_taxonomy_map_cache(): void {
 		self::$custom_taxonomy_map_cache         = null;
 		self::$supported_custom_taxonomies_cache = null;
+		self::$custom_meta_map_cache             = null;
 	}
 
 	/**
@@ -583,6 +706,14 @@ class Search_Blocks {
 					// suffix to those entries' labels so authors know the
 					// filter routes through a reserved slot.
 					'customTaxonomyMap'         => (object) self::custom_taxonomy_map(),
+					// Postmeta sibling of the two taxonomy keys above —
+					// powers the "Filter by Meta Field" variation's picker.
+					// All map keys are "supported" (no public-meta-keys API
+					// to intersect with); the map and the supported list
+					// are kept as separate config entries so the editor can
+					// flag every entry as `(mapped)` without an extra lookup.
+					'supportedCustomMetaKeys'   => self::supported_custom_meta_keys(),
+					'customMetaMap'             => (object) self::custom_meta_map(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -778,6 +909,27 @@ class Search_Blocks {
 			// WP's most-specific-match resolution still routes those
 			// slugs to their dedicated variations — Custom Taxonomy
 			// claims every other registered taxonomy.
+			'isActive'    => array( 'filterType' ),
+		);
+
+		// "Filter by Meta Field" — sibling of Custom Taxonomy that targets
+		// a postmeta key instead of a taxonomy slug. Reuses the existing
+		// `taxonomy` attribute as the facet-key carrier (the disk shape
+		// stays a single attr; `filterType: 'meta'` disambiguates at
+		// query time). The map registered via `jetpack_search_custom_meta_map`
+		// powers the inspector picker so authors can only pick meta keys
+		// the site has explicitly routed through a reserved
+		// `jetpack-search-metaN` slot. The block renders nothing on the
+		// front end until a key is picked, mirroring Custom Taxonomy.
+		$additions[] = array(
+			'name'        => 'filter_meta',
+			'title'       => __( 'Filter by Meta Field', 'jetpack-search-pkg' ),
+			'description' => __( 'Show checkboxes for a postmeta value mapped to a Jetpack Search slot. Pick which meta key in the block settings after inserting.', 'jetpack-search-pkg' ),
+			'attributes'  => array(
+				'filterType' => 'meta',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
 			'isActive'    => array( 'filterType' ),
 		);
 

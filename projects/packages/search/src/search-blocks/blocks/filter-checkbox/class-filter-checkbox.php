@@ -28,12 +28,21 @@ class Filter_Checkbox {
 		$filter_type = (string) ( $attributes['filterType'] ?? '' );
 		switch ( $filter_type ) {
 			case 'taxonomy':
+			case 'meta':
+				// `taxonomy` is reused as the facet-key carrier for the
+				// `meta` filterType — semantically it holds a meta key in
+				// that case, but the disk shape stays a single attribute
+				// so block.json doesn't grow a parallel `metaKey` field
+				// and the URL serialization stays identical. The
+				// `filterType` switch in JS / SSR disambiguates how the
+				// key is interpreted at query time.
 				$key = sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) );
 				// A custom taxonomy whose slug collides with a reserved URL param
 				// (e.g. `s`, `orderby`) would be dropped by parse_url_filters()
 				// and by store/url-state.js on serialize, so selections could
 				// never round-trip. Reject the filter entirely so the block
-				// renders nothing rather than silently no-oping.
+				// renders nothing rather than silently no-oping. Same constraint
+				// applies to meta keys.
 				if ( '' === $key || in_array( $key, Search_Blocks::RESERVED_QUERY_PARAMS, true ) ) {
 					return '';
 				}
@@ -123,9 +132,7 @@ class Filter_Checkbox {
 			// state, which also makes its unit tests trivial. Empty string
 			// for non-taxonomy filterTypes so JS callers can ignore it
 			// without a type check.
-			'effectiveSlug'   => 'taxonomy' === $filter_type
-				? Search_Blocks::resolve_taxonomy_slot( $taxonomy )
-				: '',
+			'effectiveSlug'   => static::resolve_effective_slug( $filter_type, $taxonomy ),
 			'label'           => $label,
 			'showCount'       => (bool) ( $attributes['showCount'] ?? true ),
 			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
@@ -138,6 +145,28 @@ class Filter_Checkbox {
 			// read "post" instead of "Post"; we seed the singular_name here.
 			'valueLabels'     => static::build_value_labels( $filter_type ),
 		);
+	}
+
+	/**
+	 * Pre-resolve the Elasticsearch field slug for a filterType + key pair.
+	 * For the `taxonomy` filterType this delegates to
+	 * `Search_Blocks::resolve_taxonomy_slot()`; for `meta` to
+	 * `Search_Blocks::resolve_meta_slot()`. Everything else returns empty
+	 * (their `resolveFilterFields` cases use fixed field names that don't
+	 * vary per-config).
+	 *
+	 * @param string $filter_type FilterType attribute.
+	 * @param string $key         Taxonomy slug or meta key (sanitized).
+	 * @return string Effective ES field slug.
+	 */
+	protected static function resolve_effective_slug( string $filter_type, string $key ): string {
+		if ( 'taxonomy' === $filter_type ) {
+			return Search_Blocks::resolve_taxonomy_slot( $key );
+		}
+		if ( 'meta' === $filter_type ) {
+			return Search_Blocks::resolve_meta_slot( $key );
+		}
+		return '';
 	}
 
 	/**

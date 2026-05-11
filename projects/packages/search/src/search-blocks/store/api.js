@@ -146,6 +146,28 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		}
+		case 'meta': {
+			// The site maps a user-facing meta key to a reserved
+			// `jetpack-search-metaN` slot via `jetpack_search_custom_meta_map`.
+			// PHP `Filter_Checkbox::build_config()` pre-resolves the slot into
+			// `effectiveSlug`. ES field shape verified empirically against the
+			// v1.3 Search API: `meta.<slot>.value.raw` is the keyword sub-field
+			// used by terms aggregations. `meta.<slot>.value` / `.keyword` /
+			// `.raw` are rejected by the API as unsupported. The aggregation
+			// key stays user-facing (`filterKey` === the meta key), so no
+			// response normalization is needed — same pattern as taxonomy
+			// slot mapping. Buckets are plain string values (no `slug/Name`
+			// split like taxonomies have on `slug_slash_name`).
+			const metaSlug = config.effectiveSlug || config.taxonomy;
+			if ( ! metaSlug ) {
+				return { aggField: null, filterField: null, bucketFormat: 'plain' };
+			}
+			return {
+				aggField: `meta.${ metaSlug }.value.raw`,
+				filterField: `meta.${ metaSlug }.value.raw`,
+				bucketFormat: 'plain',
+			};
+		}
 		case 'post_type':
 			return { aggField: 'post_type', filterField: 'post_type', bucketFormat: 'plain' };
 		case 'author':

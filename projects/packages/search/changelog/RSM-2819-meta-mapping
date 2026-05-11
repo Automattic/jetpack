@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add Filter by Meta Field variation that routes a postmeta key through one of the reserved jetpack-search-metaN index slots via the new jetpack_search_custom_meta_map filter.

@@ -351,6 +351,51 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
+	it( 'maps meta filters to the meta.<slot>.value.raw field via effectiveSlug', () => {
+		// `meta.<slot>.value.raw` is the keyword sub-field the v1.3 Search
+		// API exposes for terms aggregations against the `jetpack-search-metaN`
+		// slot pool (verified empirically — the bare `.value`, `.keyword`,
+		// and `.raw` siblings all return `unsupported field`). PHP
+		// `Filter_Checkbox::build_config()` pre-resolves the slot into
+		// `effectiveSlug`, same as the taxonomy path.
+		expect(
+			resolveFilterFields( {
+				filterType: 'meta',
+				taxonomy: 'author_role',
+				effectiveSlug: 'jetpack-search-meta1',
+			} )
+		).toEqual( {
+			aggField: 'meta.jetpack-search-meta1.value.raw',
+			filterField: 'meta.jetpack-search-meta1.value.raw',
+			bucketFormat: 'plain',
+		} );
+	} );
+
+	it( 'falls back to the raw meta key when effectiveSlug is absent', () => {
+		// Defensive fallback for saved blocks predating the effectiveSlug
+		// field. The resulting field path won't return buckets against an
+		// unmapped meta key (the field isn't indexed under that name), but
+		// the request shape stays well-formed.
+		expect( resolveFilterFields( { filterType: 'meta', taxonomy: 'author_role' } ) ).toEqual( {
+			aggField: 'meta.author_role.value.raw',
+			filterField: 'meta.author_role.value.raw',
+			bucketFormat: 'plain',
+		} );
+	} );
+
+	it( 'returns null fields for a meta filter with no key', () => {
+		expect( resolveFilterFields( { filterType: 'meta' } ) ).toEqual( {
+			aggField: null,
+			filterField: null,
+			bucketFormat: 'plain',
+		} );
+		expect( resolveFilterFields( { filterType: 'meta', taxonomy: '' } ) ).toEqual( {
+			aggField: null,
+			filterField: null,
+			bucketFormat: 'plain',
+		} );
+	} );
+
 	it( 'maps author filter to author_login_slash_name / author_login', () => {
 		expect( resolveFilterFields( { filterType: 'author' } ) ).toEqual( {
 			aggField: 'author_login_slash_name',

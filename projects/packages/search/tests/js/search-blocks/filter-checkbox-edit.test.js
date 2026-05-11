@@ -20,6 +20,7 @@ import {
 	VARIATION_PRODUCT_TAG,
 	VARIATION_PRODUCT_BRAND,
 	VARIATION_CUSTOM_TAXONOMY,
+	VARIATION_FILTER_META,
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
 
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -196,7 +197,7 @@ describe( 'variationOptions', () => {
 		delete globalThis.JetpackSearchBlocksConfig;
 	} );
 
-	it( 'lists all eight variations when WooCommerce is active', () => {
+	it( 'lists every variation when WooCommerce is active', () => {
 		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
 		expect( variationOptions().map( o => o.value ) ).toEqual( [
 			VARIATION_CATEGORY,
@@ -207,6 +208,7 @@ describe( 'variationOptions', () => {
 			VARIATION_PRODUCT_TAG,
 			VARIATION_PRODUCT_BRAND,
 			VARIATION_CUSTOM_TAXONOMY,
+			VARIATION_FILTER_META,
 		] );
 	} );
 
@@ -217,6 +219,7 @@ describe( 'variationOptions', () => {
 			VARIATION_POST_TYPE,
 			VARIATION_AUTHOR,
 			VARIATION_CUSTOM_TAXONOMY,
+			VARIATION_FILTER_META,
 		] );
 	} );
 
