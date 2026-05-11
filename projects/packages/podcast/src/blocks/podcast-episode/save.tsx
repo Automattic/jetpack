@@ -1,7 +1,13 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
 
-export default function save( { attributes } ) {
+interface SaveProps {
+	attributes: {
+		mediaUrl?: string;
+	};
+}
+
+export default function save( { attributes }: SaveProps ) {
 	const { mediaUrl } = attributes;
 	if ( ! mediaUrl ) {
 		return null;

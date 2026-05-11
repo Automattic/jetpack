@@ -29,7 +29,6 @@ class Podcast_Episode_Block {
 	 */
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_data' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
 	}
 
@@ -53,30 +52,7 @@ class Podcast_Episode_Block {
 			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
-				// Reuse the core media element styles for the audio/video player.
-				'style'           => 'wp-mediaelement',
 			)
-		);
-	}
-
-	/**
-	 * Expose the show-level cover art URL to the editor so the preview can
-	 * fall back to it when no episode-specific cover art is set.
-	 */
-	public static function enqueue_editor_data() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
-		$show_cover_url = (string) get_option( 'podcasting_image', '' );
-		$payload        = wp_json_encode(
-			array( 'showCoverUrl' => $show_cover_url ),
-			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-		);
-		wp_add_inline_script(
-			'wp-blocks',
-			'window.jetpackPodcastEpisodeData = ' . $payload . ';',
-			'before'
 		);
 	}
 
@@ -176,16 +152,17 @@ class Podcast_Episode_Block {
 			}
 		}
 
-		// Pass the slug directly rather than reading it back through block.json:
-		// `Blocks::get_block_feature` resolves the manifest path via JETPACK__PLUGIN_FILE,
-		// which is undefined outside the plugin (e.g. in package PHPUnit tests) and
-		// triggers a deprecation when piped through dirname().
-		$block_classname = Blocks::classes( 'podcast-episode', $attributes );
-		$is_amp          = Blocks::is_amp_request();
+		// `get_block_wrapper_attributes()` reads from `WP_Block_Supports::$block_to_render`,
+		// which is set by WP's block render pipeline. When this render is invoked outside
+		// that pipeline (e.g. unit tests calling render_block() directly), the helper
+		// warns; skip it gracefully and fall back to the minimal block class.
+		$wrapper_attributes = ! empty( \WP_Block_Supports::$block_to_render )
+			? get_block_wrapper_attributes()
+			: 'class="wp-block-jetpack-podcast-episode"';
 
 		ob_start();
 		?>
-		<div class="<?php echo esc_attr( $block_classname ); ?>">
+		<div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
 			<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
 				<?php if ( $image_url ) : ?>
 					<figure class="jetpack-podcast-episode__poster">
@@ -353,11 +330,6 @@ class Podcast_Episode_Block {
 			</article>
 		</div>
 		<?php
-
-		if ( ! $is_amp ) {
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
-		}
 
 		return ob_get_clean();
 	}

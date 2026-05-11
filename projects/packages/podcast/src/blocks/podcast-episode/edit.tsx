@@ -28,6 +28,62 @@ import { microphone } from './icons/index.js';
 import { getValidatedAttributes } from './util/get-validated-attributes.js';
 import { convertSecondsToTimeCode } from './util/time-code.js';
 
+interface Person {
+	name?: string;
+	role?: string;
+	href?: string;
+	img?: string;
+}
+
+interface CoverArt {
+	id?: number;
+	url?: string;
+}
+
+interface PodcastEpisodeAttributes {
+	mediaId?: number;
+	mediaUrl?: string;
+	mediaType?: 'audio' | 'video';
+	mediaMimeType?: string;
+	mediaSize?: number;
+	episodeNumber?: number;
+	seasonNumber?: number;
+	episodeType?: 'full' | 'trailer' | 'bonus';
+	explicit?: boolean;
+	duration?: string;
+	transcriptUrl?: string;
+	transcriptType?: string;
+	chaptersUrl?: string;
+	locationName?: string;
+	license?: string;
+	licenseUrl?: string;
+	people?: Person[];
+	showPoster?: boolean;
+	coverArt?: CoverArt;
+}
+
+interface MediaAttachment {
+	id?: number;
+	url?: string;
+	type?: string;
+	mime?: string;
+	mime_type?: string;
+	fileLength?: string;
+	duration?: number;
+	filesizeInBytes?: number;
+	filesize_in_bytes?: number;
+}
+
+interface EditProps {
+	attributes: PodcastEpisodeAttributes;
+	setAttributes: ( patch: Partial< PodcastEpisodeAttributes > ) => void;
+	context?: {
+		postId?: number;
+		postType?: string;
+		queryId?: number;
+	};
+}
+
 const AUDIO_VIDEO_MIME_TYPES = [ 'audio', 'video' ];
 
 const EPISODE_TYPE_OPTIONS = [
@@ -45,12 +101,17 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 
 const PERSON_ROW_STYLE = { marginBottom: '1em' };
 
-function PeopleEditor( { people, onChange } ) {
-	const updatePerson = ( index, patch ) => {
+interface PeopleEditorProps {
+	people: Person[];
+	onChange: ( next: Person[] ) => void;
+}
+
+function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
+	const updatePerson = ( index: number, patch: Partial< Person > ) => {
 		const next = people.map( ( person, i ) => ( i === index ? { ...person, ...patch } : person ) );
 		onChange( next );
 	};
-	const removePerson = index => onChange( people.filter( ( _, i ) => i !== index ) );
+	const removePerson = ( index: number ) => onChange( people.filter( ( _, i ) => i !== index ) );
 	const addPerson = () => onChange( [ ...people, { name: '', role: '', href: '', img: '' } ] );
 
 	return (
@@ -104,8 +165,11 @@ function PeopleEditor( { people, onChange } ) {
 	);
 }
 
-export default function PodcastEpisodeEdit( { attributes, setAttributes, context } ) {
-	const validated = getValidatedAttributes( metadata.attributes, attributes );
+export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
+	const validated = getValidatedAttributes(
+		metadata.attributes,
+		attributes
+	) as PodcastEpisodeAttributes;
 	const {
 		mediaId,
 		mediaUrl,
@@ -122,7 +186,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		locationName,
 		license,
 		licenseUrl,
-		people,
+		people = [],
 		showPoster,
 		coverArt,
 	} = validated;
@@ -133,26 +197,34 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	const [ postDate ] = useEntityProp( 'postType', postType, 'date', postId );
 	const [ authorId ] = useEntityProp( 'postType', postType, 'author', postId );
 
+	// Source the show-level cover from the same REST surface the dashboard
+	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
+	// class-settings.php). No more localized window globals.
+	const [ siteShowCover ] = useEntityProp< string >( 'root', 'site', 'podcasting_image' );
+	const showCoverUrl = siteShowCover || '';
+
 	const postAuthor = useSelect(
 		select => {
-			const author = authorId ? select( coreStore ).getUser( authorId ) : null;
+			const author = authorId
+				? (
+						select( coreStore ) as { getUser: ( id: number ) => { name?: string } | null }
+				   ).getUser( authorId )
+				: null;
 			return author?.name || '';
 		},
 		[ authorId ]
 	);
 
-	const showCoverUrl =
-		( typeof window !== 'undefined' && window.jetpackPodcastEpisodeData?.showCoverUrl ) || '';
 	const coverArtUrl = coverArt?.url || showCoverUrl;
 
 	const blockProps = useBlockProps();
-	const [ uploadError, setUploadError ] = useState( null );
+	const [ uploadError, setUploadError ] = useState< string | null >( null );
 
-	const onSelectMedia = async media => {
+	const onSelectMedia = async ( media: MediaAttachment | null ) => {
 		if ( ! media || ! media.url ) {
 			return;
 		}
-		const type = media.type === 'video' ? 'video' : 'audio';
+		const type: 'audio' | 'video' = media.type === 'video' ? 'video' : 'audio';
 
 		// `fileLength` on the attachment shim is the ID3 `length_formatted` string
 		// (e.g. "12:00"); fall back to computing from seconds if only a number is
@@ -162,13 +234,13 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			( typeof media.fileLength === 'string' && media.fileLength ) ||
 			( media.duration ? convertSecondsToTimeCode( media.duration ) : '' );
 
-		const immediate = {
+		const immediate: Partial< PodcastEpisodeAttributes > = {
 			mediaId: media.id,
 			mediaUrl: media.url,
 			mediaType: type,
 			mediaMimeType: media.mime || media.mime_type || '',
 			mediaSize: media.filesizeInBytes || media.filesize_in_bytes || undefined,
-			duration: nextDuration,
+			duration: nextDuration || '',
 		};
 		setAttributes( immediate );
 
@@ -179,10 +251,15 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		// Backfill empty audio metadata from the attachment's ID3 data
 		// (parsed by WordPress via wp_read_audio_metadata on upload).
 		try {
-			const attachment = await apiFetch( { path: `/wp/v2/media/${ media.id }` } );
+			const attachment = ( await apiFetch( {
+				path: `/wp/v2/media/${ media.id }`,
+			} ) ) as {
+				media_details?: { length_formatted?: string; length?: number; filesize?: number };
+				mime_type?: string;
+			};
 			const details = attachment?.media_details || {};
 
-			const patch = {};
+			const patch: Partial< PodcastEpisodeAttributes > = {};
 
 			if ( ! immediate.duration && details.length_formatted ) {
 				patch.duration = details.length_formatted;
@@ -236,7 +313,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					accept="audio/*,video/*"
 					allowedTypes={ AUDIO_VIDEO_MIME_TYPES }
 					onSelect={ onSelectMedia }
-					onError={ message => setUploadError( message ) }
+					onError={ ( message: string ) => setUploadError( message ) }
 					notices={
 						uploadError ? <div className="components-notice is-error">{ uploadError }</div> : null
 					}
@@ -257,7 +334,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						allowedTypes={ AUDIO_VIDEO_MIME_TYPES }
 						accept="audio/*,video/*"
 						onSelect={ onSelectMedia }
-						onError={ message => setUploadError( message ) }
+						onError={ ( message: string ) => setUploadError( message ) }
 						name={ __( 'Replace audio/video', 'jetpack-podcast' ) }
 					/>
 				</ToolbarGroup>
@@ -295,7 +372,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						label={ __( 'Episode type', 'jetpack-podcast' ) }
 						value={ episodeType }
 						options={ EPISODE_TYPE_OPTIONS }
-						onChange={ value => setAttributes( { episodeType: value } ) }
+						onChange={ value =>
+							setAttributes( { episodeType: value as 'full' | 'trailer' | 'bonus' } )
+						}
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
@@ -319,14 +398,14 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							</BaseControl.VisualLabel>
 							<MediaUploadCheck>
 								<MediaUpload
-									onSelect={ media =>
+									onSelect={ ( media: MediaAttachment ) =>
 										setAttributes( {
 											coverArt: media?.url ? { id: media.id, url: media.url } : {},
 										} )
 									}
 									allowedTypes={ [ 'image' ] }
 									value={ coverArt?.id }
-									render={ ( { open } ) => (
+									render={ ( { open }: { open: () => void } ) => (
 										<div className="jetpack-podcast-episode__cover-picker">
 											{ coverArtUrl && (
 												<img
