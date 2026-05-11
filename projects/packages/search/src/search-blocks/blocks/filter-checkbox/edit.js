@@ -198,9 +198,15 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 		case VARIATION_PRODUCT_BRAND:
 			return { filterType: 'taxonomy', taxonomy: 'product_brand' };
 		case VARIATION_POST_TYPE:
-			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
+			// Reset queryType so a Category → Post Type → Category round-trip
+			// doesn't carry stale AND semantics from the prior taxonomy. The
+			// Logic toggle is hidden on non-taxonomy variations and ES queries
+			// double-guard via `filterType === 'taxonomy'`, but without this
+			// reset the toggle re-appears showing `All` on return and confuses
+			// the author about what the block will actually do.
+			return { filterType: 'post_type', taxonomy: previousTaxonomy || '', queryType: 'or' };
 		case VARIATION_AUTHOR:
-			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
+			return { filterType: 'author', taxonomy: previousTaxonomy || '', queryType: 'or' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved = BUILT_IN_TAXONOMY_SLUGS.includes( previousTaxonomy )
@@ -457,8 +463,16 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							onChange={ value => setAttributes( { queryType: normalizeQueryType( value ) } ) }
 							help={
 								queryType === 'and'
-									? __( 'Show posts that match all selected options.', 'jetpack-search-pkg' )
-									: __( 'Show posts that match any of the selected options.', 'jetpack-search-pkg' )
+									? __(
+											'Show posts that match all selected options.',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  )
+									: __(
+											'Show posts that match any of the selected options.',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  )
 							}
 						>
 							<ToggleGroupControlOption value="or" label={ __( 'Any', 'jetpack-search-pkg' ) } />

@@ -66,7 +66,12 @@ function parsePriceBound( raw ) {
  * `?query_type_<filterKey>=and` param — mirrors WC's
  * `woocommerce/product-filter-attribute` URL surface. Only emitted when
  * the filter has selections AND the effective logic is `'and'`; `'or'` is
- * the default and never serialized so URLs stay short.
+ * the default and never serialized so URLs stay short. Effective logic is
+ * the union of `filterLogic[key]` (URL-derived) and `filterConfigs[key].queryType`
+ * (the block author's choice) — without the second source, a block configured
+ * with Logic = All would silently never get `query_type_*` into the address
+ * bar on visitor interaction, so cross-page shared links would lose the AND
+ * semantics.
  *
  * @param {object}      state                       - Store state slice.
  * @param {string}      state.searchQuery           - Current search query.
@@ -75,6 +80,10 @@ function parsePriceBound( raw ) {
  * @param {object}      [state.filterLogic]         - { [filterKey]: 'or' | 'and' } per-filter
  *                                                  AND/OR override. Entries without active
  *                                                  selections are dropped on write.
+ * @param {object}      [state.filterConfigs]       - { [filterKey]: FilterConfig } used to
+ *                                                  read the block-author-configured `queryType`
+ *                                                  so the URL also reflects block config when
+ *                                                  `filterLogic` has no override for that key.
  * @param {object|null} [state.priceRange]          - { min, max } price range; either bound may be null.
  * @param {string}      [state.searchParamName]     - URL key the search query is written under
  *                                                  (`s` on the WP search route, `q`
@@ -90,6 +99,7 @@ export function stateToUrlParams( {
 	sortOrder,
 	activeFilters = {},
 	filterLogic = {},
+	filterConfigs = {},
 	priceRange = null,
 	searchParamName = DEFAULT_SEARCH_PARAM,
 	isWooCommerceActive = false,
@@ -113,10 +123,14 @@ export function stateToUrlParams( {
 			continue;
 		}
 		values.forEach( value => params.append( `${ key }[]`, value ) );
-		// Only emit query_type when this filter has selections AND it's set to
-		// 'and'. Without selections the param is meaningless; for 'or' (the
-		// default) we skip the write to keep the URL short.
-		if ( filterLogic?.[ key ] === 'and' ) {
+		// Only emit query_type when this filter has selections AND the
+		// effective logic is 'and'. Effective = URL override (filterLogic)
+		// OR block-author config (filterConfigs[key].queryType). Without the
+		// second source a block saved with Logic = All would never get
+		// query_type_<key>=and into the URL on visitor interaction, so a
+		// shared deep link wouldn't carry the AND semantics.
+		const effective = filterLogic?.[ key ] || filterConfigs?.[ key ]?.queryType;
+		if ( effective === 'and' ) {
 			params.set( `${ QUERY_TYPE_PREFIX }${ key }`, 'and' );
 		}
 	}
@@ -182,6 +196,15 @@ export function urlParamsToState(
 				continue;
 			}
 			if ( hasFilterConfigGate && ! ( filterKey in filterConfigs ) ) {
+				continue;
+			}
+			// AND/OR combination is only meaningful for taxonomy filters —
+			// post_type / author each have one value per document, so
+			// `query_type_post_types=and` is semantically a no-op. Skipping
+			// it here keeps the param from sticking in filterLogic and
+			// re-emitting on every URL push thereafter. Mirrors the
+			// `filterType === 'taxonomy'` gate in `Filter_Checkbox::normalize_query_type()`.
+			if ( hasFilterConfigGate && filterConfigs[ filterKey ]?.filterType !== 'taxonomy' ) {
 				continue;
 			}
 			// 'or' is the default — silently drop it so the gate matches the

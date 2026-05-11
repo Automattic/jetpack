@@ -241,18 +241,32 @@ describe( 'variationToAttributes', () => {
 		// render.php ignores `taxonomy` when filterType isn't 'taxonomy', so
 		// keeping the slug here is purely UI state — but it lets the author
 		// flip Custom → Author → Custom without retyping `genre`.
+		// Author / Post Type also reset queryType to 'or' since AND is
+		// meaningless for single-valued filter types (see below test).
 		expect( variationToAttributes( VARIATION_POST_TYPE, 'genre' ) ).toEqual( {
 			filterType: 'post_type',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, 'genre' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: '',
+			queryType: 'or',
 		} );
+	} );
+
+	it( 'resets queryType to `or` when switching to Author / Post Type so a stale AND from the prior taxonomy doesn’t persist', () => {
+		// Without this reset, setting Logic = All on Category, switching to
+		// Post Type (which hides the Logic toggle), then back to Category,
+		// would re-surface the toggle pre-set to All. The toggle visibility
+		// gate alone isn't enough — the saved attribute travels with the block.
+		expect( variationToAttributes( VARIATION_POST_TYPE, '' ).queryType ).toBe( 'or' );
+		expect( variationToAttributes( VARIATION_AUTHOR, '' ).queryType ).toBe( 'or' );
 	} );
 
 	it( 'pins the slug for the three product variations', () => {

@@ -304,6 +304,23 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
 	} );
 
+	it( 'stateToUrlParams emits query_type_<key>=and when filterConfigs has queryType `and` (block-author config)', () => {
+		// filterLogic is only seeded from the URL; the block-author choice
+		// lives in filterConfigs. Without this source the URL would never
+		// emit query_type_* for a block configured with Logic = All, so a
+		// shared deep link couldn't carry the AND semantics across pages.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: {},
+			filterConfigs: {
+				category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' },
+			},
+		} );
+		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
+	} );
+
 	it( 'stateToUrlParams omits query_type_<key> when logic is the default `or`', () => {
 		// `or` is the default; serializing it would only bloat URLs and
 		// invite encoded-URL diff churn in tests of unrelated features.
@@ -340,6 +357,19 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 		params.append( 'category[]', 'news' );
 		params.append( 'query_type_mystery', 'and' );
 		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when <key> targets a non-taxonomy filter', () => {
+		// post_type / author have one value per document, so AND combination
+		// is semantically meaningless. Without this gate a stray
+		// `query_type_post_types=and` would linger in filterLogic and re-emit
+		// on every URL push.
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'query_type_post_types', 'and' );
+		const state = urlParamsToState( params, { post_types: { filterType: 'post_type' } } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post' ] } );
 		expect( state.filterLogic ).toEqual( {} );
 	} );
 

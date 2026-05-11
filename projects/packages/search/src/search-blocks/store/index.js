@@ -56,20 +56,31 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
- * Drop filterLogic entries whose filter key is missing from `activeFilters`
- * or has an empty selection set. Mirrors the cleanup `setFilter()` performs
- * locally; called from popstate where the URL parse is the source of truth.
+ * Drop filterLogic entries whose filter key is missing from `activeFilters`,
+ * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
+ * cleanup `setFilter()` performs locally; called from popstate and at
+ * hydration where the URL parse is the source of truth and the
+ * taxonomy-only gate (server-side `Filter_Checkbox::normalize_query_type`)
+ * may not have run yet — because PHP `parse_url_filter_logic` runs before
+ * any block has registered its config, so it can't know which keys are
+ * taxonomy filters.
  *
- * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' }.
- * @param {object} activeFilters - { [filterKey]: string[] }.
+ * @param {object} filterLogic     - { [filterKey]: 'or' | 'and' }.
+ * @param {object} activeFilters   - { [filterKey]: string[] }.
+ * @param {object} [filterConfigs] - { [filterKey]: FilterConfig } when available; passing
+ *                                 this enables the taxonomy gate.
  * @return {object} Gated logic map.
  */
-export function pickLogicForActive( filterLogic, activeFilters ) {
+export function pickLogicForActive( filterLogic, activeFilters, filterConfigs = null ) {
 	const out = {};
 	for ( const [ key, value ] of Object.entries( filterLogic ?? {} ) ) {
-		if ( ( activeFilters?.[ key ]?.length ?? 0 ) > 0 ) {
-			out[ key ] = value;
+		if ( ( activeFilters?.[ key ]?.length ?? 0 ) === 0 ) {
+			continue;
 		}
+		if ( filterConfigs && filterConfigs[ key ]?.filterType !== 'taxonomy' ) {
+			continue;
+		}
+		out[ key ] = value;
 	}
 	return out;
 }
@@ -879,6 +890,7 @@ const { state, actions } = store( NAMESPACE, {
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
 				filterLogic: state.filterLogic,
+				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
 				isWooCommerceActive: state.isWooCommerceActive,
@@ -905,8 +917,9 @@ const { state, actions } = store( NAMESPACE, {
 			const { gated } = gateActiveFilters( activeFilters, state.filterConfigs );
 			state.activeFilters = gated;
 			// Gate filterLogic the same way: drop entries whose filter key
-			// either isn't registered or has no surviving selections.
-			state.filterLogic = pickLogicForActive( filterLogic, gated );
+			// either isn't registered, has no surviving selections, or
+			// targets a non-taxonomy filter.
+			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -1123,10 +1136,18 @@ const { state, actions } = store( NAMESPACE, {
 				state.activeFilters = gated;
 			}
 			// Re-gate filterLogic against the (possibly trimmed) activeFilters
-			// so a `?query_type_<key>=and` whose `<key>` was dropped doesn't
-			// linger in state and re-emit on the next URL push.
+			// AND against the just-registered filterConfigs so a
+			// `?query_type_<key>=and` whose `<key>` was dropped or targets a
+			// non-taxonomy filter doesn't linger in state and re-emit on the
+			// next URL push. PHP `parse_url_filter_logic` can't apply the
+			// taxonomy gate itself because it runs before any block render.php
+			// has populated filterConfigs — this is where it lands.
 			if ( state.filterLogic && Object.keys( state.filterLogic ).length > 0 ) {
-				const gatedLogic = pickLogicForActive( state.filterLogic, state.activeFilters );
+				const gatedLogic = pickLogicForActive(
+					state.filterLogic,
+					state.activeFilters,
+					state.filterConfigs
+				);
 				if ( Object.keys( gatedLogic ).length !== Object.keys( state.filterLogic ).length ) {
 					state.filterLogic = gatedLogic;
 				}
