@@ -86,16 +86,6 @@ class Search_Blocks {
 	private static $is_woocommerce_active_cache = null;
 
 	/**
-	 * Per-request memo backing `custom_taxonomy_map()`. The map is validated
-	 * once per request — re-running the validation on every filter-block
-	 * render and on every API request would be wasted work, and the
-	 * `_doing_it_wrong()` notices for a misconfigured map would multiply.
-	 *
-	 * @var array<string, string>|null
-	 */
-	private static $custom_taxonomy_map_cache = null;
-
-	/**
 	 * Per-request memo backing `supported_custom_taxonomies()`. Derived from
 	 * the Sync allowlist intersected with registered taxonomies and unioned
 	 * with the map's user-facing keys; same inputs every request.
@@ -141,6 +131,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		Custom_Taxonomy_Slot_Mapping::init();
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -318,135 +309,38 @@ class Search_Blocks {
 	);
 
 	/**
-	 * Map of user-facing custom taxonomy slug → reserved Jetpack Search
-	 * index slot (`jetpack-search-tag0`…`jetpack-search-tag9`).
-	 *
-	 * Power-user escape hatch for taxonomies that aren't natively indexed
-	 * by Jetpack Search. Site owners storing taxonomy terms in one of the
-	 * reserved slot taxonomies (per Jetpack Search's documentation —
-	 * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax)
-	 * can declare a mapping so blocks authored against the friendly slug
-	 * (e.g. `genre`) still resolve to the right slot field at query time.
-	 * URLs and editor labels stay user-facing; only the inner ES field
-	 * path gets rewritten.
-	 *
-	 * Registered via the `jetpack_search_custom_taxonomy_map` filter:
-	 *
-	 *     add_filter( 'jetpack_search_custom_taxonomy_map', function ( $map ) {
-	 *         $map['genre'] = 'jetpack-search-tag1';
-	 *         $map['mood']  = 'jetpack-search-tag2';
-	 *         return $map;
-	 *     } );
-	 *
-	 * Validation:
-	 *  - Slot value must match `jetpack-search-tag[0-9]` exactly. Anything
-	 *    else is dropped with a `_doing_it_wrong()` notice — silently
-	 *    accepting an arbitrary string would route queries to a field that
-	 *    doesn't exist in the index.
-	 *  - Two user-slugs pointing at the same slot are rejected (only the
-	 *    first wins) — both would merge their term spaces in the index and
-	 *    the second filter would silently return results from the first.
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::get_map()`.
+	 * The slot-mapping logic lives in its own class; this proxy keeps the
+	 * editor enqueue + `supported_custom_taxonomies()` call sites stable.
 	 *
 	 * @return array<string, string>
 	 */
 	public static function custom_taxonomy_map(): array {
-		if ( null !== self::$custom_taxonomy_map_cache ) {
-			return self::$custom_taxonomy_map_cache;
-		}
-
-		/**
-		 * Map custom taxonomy slugs to a reserved Jetpack Search index slot.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array<string, string> $map Empty by default; entries shape
-		 *                                   `[ 'user_slug' => 'jetpack-search-tagN' ]`.
-		 */
-		$raw = apply_filters( 'jetpack_search_custom_taxonomy_map', array() );
-		if ( ! is_array( $raw ) ) {
-			$msg = esc_html__( 'The jetpack_search_custom_taxonomy_map filter must return an array of user-slug => jetpack-search-tagN pairs.', 'jetpack-search-pkg' );
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is esc_html__() output.
-			_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
-			self::$custom_taxonomy_map_cache = array();
-			return self::$custom_taxonomy_map_cache;
-		}
-
-		$map        = array();
-		$slot_owner = array();
-		foreach ( $raw as $user_slug => $slot ) {
-			if ( ! is_string( $user_slug ) || '' === $user_slug || ! is_string( $slot ) ) {
-				continue;
-			}
-			$user_slug = sanitize_key( $user_slug );
-			if ( '' === $user_slug ) {
-				continue;
-			}
-			if ( ! preg_match( '/^jetpack-search-tag[0-9]$/', $slot ) ) {
-				/* translators: 1: invalid slot value, 2: user-facing taxonomy slug */
-				$msg = sprintf( esc_html__( 'Invalid Jetpack Search slot "%1$s" for taxonomy "%2$s"; expected one of jetpack-search-tag0…jetpack-search-tag9.', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $user_slug ) );
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
-				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
-				continue;
-			}
-			if ( isset( $slot_owner[ $slot ] ) ) {
-				/* translators: 1: slot, 2: first user-facing slug that owns the slot, 3: second user-facing slug attempting to claim it */
-				$msg = sprintf( esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $slot_owner[ $slot ] ), esc_html( $user_slug ) );
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
-				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
-				continue;
-			}
-			$map[ $user_slug ]   = $slot;
-			$slot_owner[ $slot ] = $user_slug;
-		}
-
-		self::$custom_taxonomy_map_cache = $map;
-		return $map;
+		return Custom_Taxonomy_Slot_Mapping::get_map();
 	}
 
 	/**
-	 * Resolve a user-facing taxonomy slug to the Elasticsearch field slug
-	 * that should be queried for it. Returns the matching
-	 * `jetpack-search-tagN` slot when the slug has an entry in
-	 * `custom_taxonomy_map()`, otherwise the slug itself.
-	 *
-	 * Called once per filter-block at config-build time
-	 * (`Filter_Checkbox::build_config()`) so the resolved slug travels with
-	 * the filterConfig into the Interactivity store — JS query builders
-	 * never have to re-consult the map. Built-in taxonomies that have
-	 * their own dedicated variations (`category`, `post_tag`, and the WC
-	 * product taxonomies) are returned verbatim so a stray map entry can
-	 * never silently redirect a built-in filter onto a slot.
-	 *
-	 * Empty input returns empty so callers can pass the raw block attribute
-	 * without a guard.
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::resolve_slot()`.
+	 * Used by `Filter_Checkbox::build_config()` to seed `effectiveSlug`
+	 * on each filterConfig at config-build time.
 	 *
 	 * @param string $taxonomy User-facing taxonomy slug.
 	 * @return string Effective ES field slug.
 	 */
 	public static function resolve_taxonomy_slot( string $taxonomy ): string {
-		if ( '' === $taxonomy ) {
-			return '';
-		}
-		// Built-ins are anchored to their canonical field paths regardless
-		// of whether a map entry tries to redirect them. Mirrors the
-		// `BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS` list plus `category` /
-		// `post_tag` which have their own filter variations.
-		if ( in_array( $taxonomy, self::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS, true ) ) {
-			return $taxonomy;
-		}
-		$map = self::custom_taxonomy_map();
-		return $map[ $taxonomy ] ?? $taxonomy;
+		return Custom_Taxonomy_Slot_Mapping::resolve_slot( $taxonomy );
 	}
 
 	/**
-	 * Reset the `custom_taxonomy_map()` memo. Tests only — production WP runs
-	 * a single request per process and the map is derived purely from a
-	 * filter hook, so callers should never need to clear the cache.
+	 * Reset both the slot-mapping memo and the `supported_custom_taxonomies()`
+	 * memo. Tests only — production WP runs a single request per process and
+	 * the map is derived purely from a filter hook, so callers should never
+	 * need to clear the cache.
 	 *
 	 * @internal
 	 */
 	public static function reset_custom_taxonomy_map_cache(): void {
-		self::$custom_taxonomy_map_cache         = null;
+		Custom_Taxonomy_Slot_Mapping::reset_cache_for_testing();
 		self::$supported_custom_taxonomies_cache = null;
 	}
 

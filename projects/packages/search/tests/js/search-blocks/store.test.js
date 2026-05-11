@@ -32,6 +32,7 @@ import {
 	actions,
 	computeResultsCountText,
 	gateActiveFilters,
+	remapAggregationsToFilterKeys,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -637,6 +638,57 @@ describe( 'store getters', () => {
 		expect( state.allBucketsSelected ).toBe( true );
 
 		captured.context = {};
+	} );
+} );
+
+describe( 'remapAggregationsToFilterKeys', () => {
+	// Mirror of `aggregationKeyFor` on the response side: the API returns
+	// buckets under the slot slug for mapped custom taxonomies, but every
+	// downstream consumer (`filterItems`, `retainedFilterOptions`,
+	// wrapper-visibility) reads `aggregations[filterKey]`. This helper
+	// flips the keys back exactly once before the response hits store
+	// state.
+	it( 'rewrites slot-keyed buckets back to the user-facing filterKey', () => {
+		const aggregations = {
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'returns the same object reference when no mapped filters are present', () => {
+		// Built-ins and unmapped customs key by the filterKey already, so
+		// the helper can short-circuit and avoid a needless clone.
+		const aggregations = { category: { buckets: [] } };
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toBe( aggregations );
+	} );
+
+	it( 'leaves non-slot buckets alone when remapping a mapped one', () => {
+		const aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'tolerates missing or invalid input gracefully', () => {
+		expect( remapAggregationsToFilterKeys( undefined, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( null, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( {}, undefined ) ).toEqual( {} );
 	} );
 } );
 

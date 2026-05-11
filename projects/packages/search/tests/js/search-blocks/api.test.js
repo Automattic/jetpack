@@ -1,6 +1,7 @@
 import {
 	SEARCH_FIELDS,
 	WC_RATING_RANGES,
+	aggregationKeyFor,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
@@ -204,12 +205,15 @@ describe( 'buildSearchUrl', () => {
 
 	it( 'rewrites a mapped custom taxonomy onto the slot in both aggregations and the filter clause', () => {
 		// End-to-end pin: a filter-checkbox block authored against `genre`
-		// with a slot mapping must both aggregate against the slot field
-		// and emit a term clause against the slot field. The PHP-side
-		// `Filter_Checkbox::build_config()` puts the resolved slot into
-		// `effectiveSlug` on the filterConfig, so JS just reads it. The
-		// filterKey stays user-facing (`genre`) so URL params, response
-		// keys, and the in-store `activeFilters` shape are all untouched.
+		// with a slot mapping must aggregate against the slot field AND
+		// send the aggregation under the slot key — the WPCOM search proxy
+		// validates the agg name against indexable taxonomies, so
+		// `aggregations[genre]` against a non-indexed slug silently returns
+		// nothing. Filter clauses also target the slot field. The response
+		// is remapped back to `genre` (the filterKey) in `store/index.js`
+		// before downstream consumers see it, so URL params, the in-store
+		// `activeFilters` shape, and the active-filters pill list all stay
+		// user-facing.
 		const url = buildSearchUrl( {
 			siteId: 12345,
 			searchQuery: 'paperback',
@@ -229,16 +233,16 @@ describe( 'buildSearchUrl', () => {
 			activeFilters: { genre: [ 'fiction' ] },
 		} );
 		const decoded = decodeURIComponent( url );
-		// Aggregation key stays user-facing, but the field path swaps.
+		// Aggregation key and field path both swap to the slot.
 		expect( decoded ).toContain(
-			'aggregations[genre][terms][field]=taxonomy.jetpack-search-tag1.slug_slash_name'
+			'aggregations[jetpack-search-tag1][terms][field]=taxonomy.jetpack-search-tag1.slug_slash_name'
 		);
 		// Filter clause similarly targets the slot field rather than `taxonomy.genre.*`.
 		expect( decoded ).toContain(
 			'filter[bool][must][0][term][taxonomy.jetpack-search-tag1.slug]=fiction'
 		);
-		// And we never leak the slot into the user-facing surfaces.
-		expect( decoded ).not.toContain( 'aggregations[jetpack-search-tag1]' );
+		// And we never leak the user-facing slug into the API surface.
+		expect( decoded ).not.toContain( 'aggregations[genre]' );
 		expect( decoded ).not.toContain( 'taxonomy.genre.slug_slash_name' );
 	} );
 
@@ -383,6 +387,53 @@ describe( 'resolveFilterFields', () => {
 			filterField: 'date',
 			bucketFormat: 'date',
 		} );
+	} );
+} );
+
+describe( 'aggregationKeyFor', () => {
+	// Pure-function pin for the request-side agg key. Built-ins and
+	// unmapped customs key by `filterKey`; mapped customs key by the slot
+	// so the WPCOM search proxy's taxonomy-name validation accepts the
+	// aggregation.
+	it( 'returns the slot when effectiveSlug differs from taxonomy', () => {
+		expect(
+			aggregationKeyFor( 'genre', {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toBe( 'jetpack-search-tag1' );
+	} );
+
+	it( 'returns the filterKey for unmapped custom taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'mood', {
+				filterType: 'taxonomy',
+				taxonomy: 'mood',
+				effectiveSlug: 'mood',
+			} )
+		).toBe( 'mood' );
+	} );
+
+	it( 'returns the filterKey for built-in taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'category', {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+			} )
+		).toBe( 'category' );
+	} );
+
+	it( 'returns the filterKey for non-taxonomy filterTypes', () => {
+		// `effectiveSlug` is the empty string for non-taxonomy filterTypes
+		// (per `Filter_Checkbox::build_config()`), and a missing `taxonomy`
+		// must never produce a slot routing — only mapped *taxonomy*
+		// filters get rerouted.
+		expect(
+			aggregationKeyFor( 'post_types', { filterType: 'post_type', effectiveSlug: '' } )
+		).toBe( 'post_types' );
+		expect( aggregationKeyFor( 'authors', { filterType: 'author' } ) ).toBe( 'authors' );
 	} );
 } );
 
