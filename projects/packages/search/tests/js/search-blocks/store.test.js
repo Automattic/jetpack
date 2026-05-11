@@ -575,6 +575,26 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
+		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
+		// so the initial search fires (covered by other tests). If that search
+		// returns zero results (e.g. a site with no indexed posts), the
+		// no-results affordance must still surface; otherwise the page renders
+		// blank with no explanation. Pre-SEARCH-183 the getter gated only on
+		// `!! state.searchQuery` and silently swallowed this case.
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.searchQuery = '';
+		state.hasSearchParam = true;
+		expect( state.showNoResults ).toBe( true );
+
+		// Bare `/search/` page (no `s` in URL, no filters) — message stays
+		// hidden so it doesn't flash before the user types.
+		state.hasSearchParam = false;
+		expect( state.showNoResults ).toBe( false );
+	} );
+
 	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
 		state.activeFilters = {};
 		state.priceRange = null;
@@ -825,5 +845,29 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'syncs `state.hasSearchParam` to the popped URL (SEARCH-183)', async () => {
+		// `initialize()` is the only consumer today, but keeping
+		// state.hasSearchParam in lockstep with the live URL avoids a
+		// footgun for future readers (e.g. `showNoResults`, which now
+		// gates on it). Mirrors how `state.searchQuery` is rewritten on
+		// each popstate.
+		const stub = require( '../../../src/search-blocks/store/url-state' );
+		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
+			searchQuery: '',
+			hasSearchParam: true,
+			sortOrder: 'relevance',
+			activeFilters: {},
+			filterLogic: {},
+			priceRange: null,
+		} );
+		Object.assign( actions, originalActions );
+		jest.spyOn( actions, 'search' ).mockImplementation();
+		state.hasSearchParam = false;
+
+		await runGenerator( actions.handlePopState() );
+
+		expect( state.hasSearchParam ).toBe( true );
 	} );
 } );

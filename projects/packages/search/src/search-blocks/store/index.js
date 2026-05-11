@@ -458,17 +458,22 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
-		 * Gated on `searchQuery` (so the message doesn't flash on a bare
-		 * `/search/` page where the user hasn't typed) and on `!hasError`
-		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — the error region inside `jetpack-search/results-list` owns
-		 * that message instead).
+		 * Gated on `searchQuery || hasSearchParam` (so the message doesn't
+		 * flash on a bare `/search/` page where the user hasn't typed, but
+		 * does surface when an explicit-but-empty `?s=` URL fired the
+		 * initial search and got nothing back — e.g. a site with no indexed
+		 * posts), and on `!hasError` (so "No results found" doesn't display
+		 * when the fetch actually failed — the error region inside
+		 * `jetpack-search/results-list` owns that message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
 			return (
-				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
+				( !! state.searchQuery || !! state.hasSearchParam ) &&
+				! state.isLoading &&
+				! state.hasError &&
+				state.results.length === 0
 			);
 		},
 
@@ -907,12 +912,15 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters, filterLogic, priceRange } = readStateFromUrl(
-				state.filterConfigs,
-				state.searchParamName,
-				state.isWooCommerceActive
-			);
+			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
+				readStateFromUrl( state.filterConfigs, state.searchParamName, state.isWooCommerceActive );
 			state.searchQuery = searchQuery;
+			// Keep `hasSearchParam` in lockstep with the live URL so any future
+			// reader (e.g. `showNoResults`) sees the current state rather than
+			// the PHP-seeded value from first paint. `actions.search()` below
+			// fires unconditionally, so the popstate path doesn't depend on
+			// the flag — this write is for state-consistency only.
+			state.hasSearchParam = hasSearchParam;
 			state.sortOrder = sortOrder;
 			// urlParamsToState bypasses its own gate when filterConfigs is empty;
 			// re-gate here so popstate matches initialize() and stray URL keys
