@@ -156,10 +156,11 @@
 		min-width: 0;
 	}
 
-	// Each action is a flexible item that wraps onto its own row when the
-	// panel is narrow, so titles never truncate against the trailing link.
+	// Each action shares the row width equally; items only wrap onto their
+	// own line at phone-down (see media query at the bottom of the file).
 	&__details-action {
-		flex: 1 1 240px;
+		flex: 1 1 0;
+		min-width: 0;
 	}
 
 	// Inline link variant: subsequent items get a left divider so the row
@@ -242,5 +243,16 @@ input[type="radio"].jp-search-feature-selector__option-radio {
 
 	.jp-search-feature-selector {
 		padding: var(--wpds-dimension-padding-lg);
+	}
+
+	// Inline detail actions stay on one row on desktop / tablet; once we
+	// hit phone widths there isn't enough room for two side-by-side, so
+	// re-enable wrap and let each action take a full-width line.
+	.jp-search-feature-selector__details-actions--inline {
+		flex-wrap: wrap;
+	}
+
+	.jp-search-feature-selector__details-action {
+		flex-basis: 100%;
 	}
 }

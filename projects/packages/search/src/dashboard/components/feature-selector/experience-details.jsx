@@ -171,7 +171,6 @@ export default function ExperienceDetails() {
 							direction="row"
 							gap="xl"
 							align="start"
-							wrap="wrap"
 							className="jp-search-feature-selector__details-actions jp-search-feature-selector__details-actions--inline"
 						>
 							<DetailLink
@@ -198,7 +197,6 @@ export default function ExperienceDetails() {
 							direction="row"
 							gap="xl"
 							align="start"
-							wrap="wrap"
 							className="jp-search-feature-selector__details-actions jp-search-feature-selector__details-actions--inline"
 						>
 							{ supportsInstantSearch && (
