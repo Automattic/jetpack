@@ -22,8 +22,6 @@ import {
 import { __ } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
-export { normalizeDisplayStyle };
-
 const SAMPLE_BUCKETS_YEAR = [
 	{ value: '2024', label: '2024', count: 42 },
 	{ value: '2023', label: '2023', count: 31 },

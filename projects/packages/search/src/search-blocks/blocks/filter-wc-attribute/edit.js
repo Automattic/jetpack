@@ -31,8 +31,6 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
-export { normalizeDisplayStyle };
-
 const ATTRIBUTE_PREFIX = 'pa_';
 
 const SAMPLE_FILTER_ITEMS = [
