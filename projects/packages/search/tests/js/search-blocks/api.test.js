@@ -202,6 +202,41 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'aggregations%5Bauthors%5D%5Bterms%5D%5Border%5D%5B_key%5D=asc' );
 	} );
 
+	it( 'rewrites a mapped custom taxonomy onto the slot in both aggregations and the filter clause', () => {
+		// End-to-end pin: a filter-checkbox block authored against `genre`
+		// with a slot mapping must both aggregate against the slot field
+		// and emit a term clause against the slot field. The filterKey
+		// stays user-facing (`genre`), so URL params, response keys, and
+		// the in-store `activeFilters` shape are all untouched — the
+		// translation is a pure field-path concern.
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'paperback',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			filterConfigs: {
+				genre: { filterType: 'taxonomy', taxonomy: 'genre', maxItems: 10 },
+			},
+			activeFilters: { genre: [ 'fiction' ] },
+			customTaxonomyMap: { genre: 'jetpack-search-tag1' },
+		} );
+		const decoded = decodeURIComponent( url );
+		// Aggregation key stays user-facing, but the field path swaps.
+		expect( decoded ).toContain(
+			'aggregations[genre][terms][field]=taxonomy.jetpack-search-tag1.slug_slash_name'
+		);
+		// Filter clause similarly targets the slot field rather than `taxonomy.genre.*`.
+		expect( decoded ).toContain(
+			'filter[bool][must][0][term][taxonomy.jetpack-search-tag1.slug]=fiction'
+		);
+		// And we never leak the slot into the user-facing surfaces.
+		expect( decoded ).not.toContain( 'aggregations[jetpack-search-tag1]' );
+		expect( decoded ).not.toContain( 'taxonomy.genre.slug_slash_name' );
+	} );
+
 	it( 'omits aggregations and filter when no configs or selections are supplied', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
@@ -238,6 +273,61 @@ describe( 'resolveFilterFields', () => {
 		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
 			aggField: 'taxonomy.genre.slug_slash_name',
 			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'rewrites a mapped custom taxonomy onto the reserved jetpack-search-tagN slot', () => {
+		// `jetpack_search_custom_taxonomy_map` is the supported escape
+		// hatch for taxonomies that aren't natively indexed by Jetpack
+		// Search: the site stores their term data under one of the
+		// `jetpack-search-tagN` slot taxonomies and declares the mapping
+		// from the user-facing slug. The aggregation/filter requests must
+		// rewrite the inner ES field path onto the slot, while the
+		// aggregation KEY (and therefore `state.aggregations[ filterKey ]`)
+		// stays user-facing so no response-side normalization is needed.
+		expect(
+			resolveFilterFields(
+				{ filterType: 'taxonomy', taxonomy: 'genre' },
+				{ genre: 'jetpack-search-tag1' }
+			)
+		).toEqual( {
+			aggField: 'taxonomy.jetpack-search-tag1.slug_slash_name',
+			filterField: 'taxonomy.jetpack-search-tag1.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'falls through to the generic taxonomy fields when the map has no entry for the slug', () => {
+		// Mixed map: `mood` is mapped but `genre` is not. The unmapped
+		// slug must still resolve via the natural `taxonomy.<slug>.*`
+		// path so a site that mixes natively-indexed taxonomies with
+		// slot-mapped ones doesn't accidentally lose the former.
+		expect(
+			resolveFilterFields(
+				{ filterType: 'taxonomy', taxonomy: 'genre' },
+				{ mood: 'jetpack-search-tag2' }
+			)
+		).toEqual( {
+			aggField: 'taxonomy.genre.slug_slash_name',
+			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'leaves built-in category / post_tag fields untouched even when a map is present', () => {
+		// Built-ins have their own dedicated variations and never appear
+		// in the Custom Taxonomy picker, but pin the behavior anyway so
+		// a malicious or accidental map entry can't redirect built-in
+		// filters into a slot.
+		expect(
+			resolveFilterFields(
+				{ filterType: 'taxonomy', taxonomy: 'category' },
+				{ category: 'jetpack-search-tag1' }
+			)
+		).toEqual( {
+			aggField: 'category.slug_slash_name',
+			filterField: 'category.slug',
 			bucketFormat: 'slash',
 		} );
 	} );

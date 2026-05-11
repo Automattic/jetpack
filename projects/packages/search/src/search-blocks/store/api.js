@@ -95,10 +95,24 @@ const DATE_AGG_ORDERS = {
  * both value and label, `date` uses the bucket's `key_as_string` and a
  * locale-aware label from `formatDateBucketLabel`.
  *
- * @param {object} config - FilterConfig entry from the store.
+ * Custom taxonomies route through one of two paths. When the slug has an
+ * entry in `customTaxonomyMap`, the resolved field paths point at the
+ * matching `jetpack-search-tagN` reserved slot — Jetpack Search only
+ * indexes a curated set of taxonomies, and the slot mapping is the
+ * supported escape hatch for site-specific ones (see
+ * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax).
+ * Without a map entry the slug routes through the generic
+ * `taxonomy.<slug>.*` fields, which only return buckets when the slug is
+ * already in Jetpack Search's native allowlist; the editor picker
+ * enforces that membership upstream so authors can't pick something that
+ * would silently return zero results.
+ *
+ * @param {object} config              - FilterConfig entry from the store.
+ * @param {object} [customTaxonomyMap] - User-slug → reserved-slot map, seeded
+ *                                     from `state.customTaxonomyMap`.
  * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved fields.
  */
-export function resolveFilterFields( config ) {
+export function resolveFilterFields( config, customTaxonomyMap = {} ) {
 	if ( ! config ) {
 		return { aggField: null, filterField: null, bucketFormat: 'plain' };
 	}
@@ -122,9 +136,14 @@ export function resolveFilterFields( config ) {
 			if ( ! taxonomy ) {
 				return { aggField: null, filterField: null, bucketFormat: 'slash' };
 			}
+			// Slot mapping wins over the generic field path. The aggregation
+			// key the response is keyed under stays `filterKey` (i.e. the
+			// user-facing slug), so no response normalization is needed —
+			// only the inner ES `field` value changes.
+			const effectiveSlug = customTaxonomyMap?.[ taxonomy ] ?? taxonomy;
 			return {
-				aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
-				filterField: `taxonomy.${ taxonomy }.slug`,
+				aggField: `taxonomy.${ effectiveSlug }.slug_slash_name`,
+				filterField: `taxonomy.${ effectiveSlug }.slug`,
 				bucketFormat: 'slash',
 			};
 		}
@@ -214,10 +233,15 @@ export const WC_RATING_RANGES = [
  * `date_histogram` for filter-date: format request makes `key_as_string`
  * match the URL slug. No `size`; the client slices to `maxItems`.
  *
- * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
+ * @param {object} filterConfigs       - { [filterKey]: FilterConfig } map.
+ * @param {object} [customTaxonomyMap] - User-slug → reserved-slot map; threaded
+ *                                     into `resolveFilterFields` so a mapped
+ *                                     custom taxonomy aggregates against the
+ *                                     reserved slot field instead of the raw
+ *                                     slug.
  * @return {object} Aggregations payload for the v1.3 search API.
  */
-export function buildAggregations( filterConfigs ) {
+export function buildAggregations( filterConfigs, customTaxonomyMap = {} ) {
 	const aggregations = {};
 	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
 		// Rating gets a histogram aggregation. `range` aggs aren't
@@ -225,7 +249,7 @@ export function buildAggregations( filterConfigs ) {
 		// produces buckets keyed at .5 boundaries, mirroring WC's
 		// ROUND(avg_rating) star buckets.
 		if ( config?.filterType === 'wc_rating' ) {
-			const { aggField: ratingField } = resolveFilterFields( config );
+			const { aggField: ratingField } = resolveFilterFields( config, customTaxonomyMap );
 			aggregations[ filterKey ] = {
 				histogram: {
 					field: ratingField,
@@ -243,7 +267,7 @@ export function buildAggregations( filterConfigs ) {
 		// unrelated terms in the taxonomy (`featured`, `rated-N`,
 		// `exclude-from-catalog`) out of the response.
 		if ( config?.filterType === 'wc_stock_status' ) {
-			const { aggField: stockField } = resolveFilterFields( config );
+			const { aggField: stockField } = resolveFilterFields( config, customTaxonomyMap );
 			aggregations[ filterKey ] = {
 				terms: {
 					field: stockField,
@@ -254,7 +278,7 @@ export function buildAggregations( filterConfigs ) {
 			continue;
 		}
 
-		const { aggField } = resolveFilterFields( config );
+		const { aggField } = resolveFilterFields( config, customTaxonomyMap );
 		if ( ! aggField ) {
 			continue;
 		}
@@ -332,11 +356,16 @@ function dateRangeFromSlug( value, interval ) {
  * multi-value selections — Search 3.0 follows the broaden-on-click UX of
  * modern faceted search.
  *
- * @param {object} activeFilters - { [filterKey]: string[] } selections.
- * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
+ * @param {object} activeFilters       - { [filterKey]: string[] } selections.
+ * @param {object} filterConfigs       - { [filterKey]: FilterConfig } map.
+ * @param {object} [customTaxonomyMap] - User-slug → reserved-slot map; threaded
+ *                                     into `resolveFilterFields` so a mapped
+ *                                     custom taxonomy term clause targets the
+ *                                     reserved slot field instead of the raw
+ *                                     slug.
  * @return {object|undefined} `{ bool: { must: [...] } }` or undefined when nothing selected.
  */
-export function buildFilterClause( activeFilters, filterConfigs ) {
+export function buildFilterClause( activeFilters, filterConfigs, customTaxonomyMap = {} ) {
 	const must = [];
 	for ( const [ filterKey, values ] of Object.entries( activeFilters ?? {} ) ) {
 		if ( ! Array.isArray( values ) || values.length === 0 ) {
@@ -357,7 +386,7 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 			if ( wantsOut === wantsIn ) {
 				continue;
 			}
-			const { filterField: stockField } = resolveFilterFields( config );
+			const { filterField: stockField } = resolveFilterFields( config, customTaxonomyMap );
 			const term = { term: { [ stockField ]: 'outofstock' } };
 			must.push( wantsOut ? term : { bool: { must_not: [ term ] } } );
 			continue;
@@ -370,7 +399,7 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		// vs. picking just that one) — harmless and keeps stale deep links
 		// functional.
 		if ( config?.filterType === 'wc_rating' ) {
-			const { filterField: ratingField } = resolveFilterFields( config );
+			const { filterField: ratingField } = resolveFilterFields( config, customTaxonomyMap );
 			const ranges = values
 				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
 				.filter( Boolean )
@@ -382,7 +411,7 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 			continue;
 		}
 
-		const { filterField } = resolveFilterFields( config );
+		const { filterField } = resolveFilterFields( config, customTaxonomyMap );
 		if ( ! filterField ) {
 			continue;
 		}
@@ -512,30 +541,38 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
- * @param {object}      opts                   - Options.
- * @param {number}      opts.siteId            - Site ID.
- * @param {string}      opts.searchQuery       - Search query string.
- * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest', plus
- *                                             'rating_desc' | 'price_asc' | 'price_desc'
- *                                             on WooCommerce sites.
- * @param {string|null} opts.pageHandle        - Cursor for pagination.
- * @param {boolean}     opts.isPrivateSite     - Whether the site is private.
- * @param {boolean}     opts.isWpcom           - Whether the site runs on WordPress.com.
- * @param {string}      opts.apiRoot           - WordPress REST API root URL.
- * @param {object}      [opts.activeFilters]   - { [filterKey]: string[] } selected filters.
- * @param {object}      [opts.filterConfigs]   - { [filterKey]: FilterConfig } registered filters.
- * @param {string}      [opts.homeUrl]         - Home URL; required for private WPcom sites.
- * @param {object|null} [opts.priceRange]      - `{ min, max }` numeric range against the
- *                                             `wc.price` ES field. Either bound may be null
- *                                             for a half-open range. Read by future product
- *                                             filter blocks driven by `min_price` / `max_price`
- *                                             URL params.
- * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
- *                                             contributed by `jetpack-search/filter-post-type`. Folded
- *                                             into the ES filter clause as `bool.should` (include)
- *                                             and `bool.must_not` (exclude). Hidden from visitors —
- *                                             not represented in `activeFilters` and not surfaced
- *                                             in the active-filters pill list.
+ * @param {object}      opts                     - Options.
+ * @param {number}      opts.siteId              - Site ID.
+ * @param {string}      opts.searchQuery         - Search query string.
+ * @param {string}      opts.sortOrder           - 'relevance' | 'newest' | 'oldest', plus
+ *                                               'rating_desc' | 'price_asc' | 'price_desc'
+ *                                               on WooCommerce sites.
+ * @param {string|null} opts.pageHandle          - Cursor for pagination.
+ * @param {boolean}     opts.isPrivateSite       - Whether the site is private.
+ * @param {boolean}     opts.isWpcom             - Whether the site runs on WordPress.com.
+ * @param {string}      opts.apiRoot             - WordPress REST API root URL.
+ * @param {object}      [opts.activeFilters]     - { [filterKey]: string[] } selected filters.
+ * @param {object}      [opts.filterConfigs]     - { [filterKey]: FilterConfig } registered filters.
+ * @param {string}      [opts.homeUrl]           - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]        - `{ min, max }` numeric range against the
+ *                                               `wc.price` ES field. Either bound may be null
+ *                                               for a half-open range. Read by future product
+ *                                               filter blocks driven by `min_price` / `max_price`
+ *                                               URL params.
+ * @param {object|null} [opts.staticPostTypes]   - `{ include, exclude }` post-type slug lists
+ *                                               contributed by `jetpack-search/filter-post-type`. Folded
+ *                                               into the ES filter clause as `bool.should` (include)
+ *                                               and `bool.must_not` (exclude). Hidden from visitors —
+ *                                               not represented in `activeFilters` and not surfaced
+ *                                               in the active-filters pill list.
+ * @param {object}      [opts.customTaxonomyMap] - User-slug → `jetpack-search-tagN` slot map.
+ *                                               Seeded server-side from the
+ *                                               `jetpack_search_custom_taxonomy_map` filter so a custom
+ *                                               taxonomy that isn't natively indexed by Jetpack Search
+ *                                               can still aggregate/filter through a reserved slot.
+ *                                               Threaded into `resolveFilterFields` — URLs and
+ *                                               filterKeys stay user-facing; only ES `field` paths
+ *                                               swap to the slot.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -551,6 +588,7 @@ export function buildSearchUrl( {
 	homeUrl = '',
 	priceRange = null,
 	staticPostTypes = null,
+	customTaxonomyMap = {},
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -565,14 +603,14 @@ export function buildSearchUrl( {
 		highlight_fields: HIGHLIGHT_FIELDS,
 	};
 
-	const aggregations = buildAggregations( filterConfigs );
+	const aggregations = buildAggregations( filterConfigs, customTaxonomyMap );
 	if ( Object.keys( aggregations ).length ) {
 		params.aggregations = aggregations;
 	}
 
 	// `buildFilterClause` returns either `{ bool: { must: [...] } }` or
 	// `undefined` — the spread below relies on that shape contract.
-	let filter = buildFilterClause( activeFilters, filterConfigs );
+	let filter = buildFilterClause( activeFilters, filterConfigs, customTaxonomyMap );
 	const staticPostTypeClauses = buildStaticPostTypeClauses( staticPostTypes );
 	if ( staticPostTypeClauses.length > 0 ) {
 		filter = filter

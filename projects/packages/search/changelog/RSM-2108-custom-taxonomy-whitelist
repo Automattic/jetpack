@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: whitelist supported taxonomies in the Custom Taxonomy filter; add jetpack_search_custom_taxonomy_map filter to route site taxonomies through reserved jetpack-search-tagN slots.

@@ -24,6 +24,7 @@ class Search_Blocks_Test extends TestCase {
 	protected function tearDown(): void {
 		Search_Blocks::reset_initial_loading_cache();
 		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_custom_taxonomy_map_cache();
 		parent::tearDown();
 	}
 
@@ -1075,6 +1076,226 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 'CHIPS' ) );
 		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 0 ) );
 		$this->assertSame( 'chips', Search_Blocks::normalize_display_style( 'chips' ) );
+	}
+
+	/**
+	 * No filter registered → empty map. Anchors the default behavior so a
+	 * site that hasn't opted into the slot-mapping feature pays nothing
+	 * for it (the `Custom Taxonomy` picker still works against the native
+	 * allowlist).
+	 */
+	public function test_custom_taxonomy_map_empty_by_default() {
+		$this->assertSame( array(), Search_Blocks::custom_taxonomy_map() );
+	}
+
+	/**
+	 * Valid mappings round-trip through the filter, including across multiple
+	 * slots — pins both the per-entry shape and the multi-entry support.
+	 */
+	public function test_custom_taxonomy_map_accepts_valid_entries() {
+		$callback = static function () {
+			return array(
+				'genre' => 'jetpack-search-tag1',
+				'mood'  => 'jetpack-search-tag2',
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame(
+				array(
+					'genre' => 'jetpack-search-tag1',
+					'mood'  => 'jetpack-search-tag2',
+				),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * Invalid slot values must be dropped — the slot field path determines
+	 * the ES field name, so an arbitrary string would query a non-existent
+	 * field and the filter would silently return zero buckets. The valid
+	 * sibling entry must still come through so one bad entry doesn't sink
+	 * the entire map.
+	 */
+	public function test_custom_taxonomy_map_rejects_invalid_slot_values() {
+		$callback = static function () {
+			return array(
+				'genre'   => 'jetpack-search-tag1',     // OK.
+				'bogus_a' => 'jetpack-search-tag10',     // out of range (single digit only).
+				'bogus_b' => 'category',                 // not a reserved slot.
+				'bogus_c' => 'jetpack-search-tag',       // missing digit.
+				'bogus_d' => '',                         // empty.
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		// Suppress _doing_it_wrong notices — we're testing that the map
+		// drops bad entries, not the notice channel itself.
+		$prev_doing_it_wrong = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame(
+				array( 'genre' => 'jetpack-search-tag1' ),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev_doing_it_wrong );
+		}
+	}
+
+	/**
+	 * Two user-slugs pointing at the same slot would merge their term
+	 * spaces in the index (they'd both pull from the same `jetpack-search-tagN`
+	 * field) — the second filter would silently return results from the
+	 * first. Reject the duplicate; first-write wins.
+	 */
+	public function test_custom_taxonomy_map_rejects_duplicate_slot_assignment() {
+		$callback = static function () {
+			return array(
+				'genre'   => 'jetpack-search-tag1',
+				'subject' => 'jetpack-search-tag1', // duplicate slot.
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		$prev_doing_it_wrong = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame(
+				array( 'genre' => 'jetpack-search-tag1' ),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev_doing_it_wrong );
+		}
+	}
+
+	/**
+	 * A filter callback that returns something other than an array must not
+	 * crash callers — empty map is the safe fallback.
+	 */
+	public function test_custom_taxonomy_map_handles_non_array_return() {
+		$callback = static function () {
+			return 'not an array';
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame( array(), Search_Blocks::custom_taxonomy_map() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * The map's user-facing keys flow into the editor's whitelist (via
+	 * `supported_custom_taxonomies()`) so a mapped taxonomy appears in the
+	 * picker even if it's not in Jetpack Search's native allowlist. The
+	 * taxonomy must be registered on the site — otherwise the editor's
+	 * `core.getTaxonomies()` won't surface it anyway.
+	 */
+	public function test_supported_custom_taxonomies_includes_map_keys_when_registered() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function () {
+			return array( 'genre' => 'jetpack-search-tag1' );
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertContains( 'genre', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * A map entry whose user-facing slug isn't registered locally must NOT
+	 * surface in the whitelist — the editor picker can't render a label for
+	 * an unregistered taxonomy, so silently dropping it keeps the surface
+	 * consistent with what the editor will actually display.
+	 */
+	public function test_supported_custom_taxonomies_drops_unregistered_map_keys() {
+		$callback = static function () {
+			return array( 'never-registered' => 'jetpack-search-tag3' );
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertNotContains( 'never-registered', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * Built-in taxonomies covered by their own filter variations
+	 * (`category`, `post_tag`, plus the three product taxonomies) must never
+	 * appear in the Custom Taxonomy picker even though they sit on the
+	 * Jetpack Search allowlist — the dedicated variation is the right
+	 * surface for those filters and a duplicate entry would be confusing.
+	 */
+	public function test_supported_custom_taxonomies_excludes_built_in_variations() {
+		// `category` and `post_tag` are registered by core in any WP env.
+		$supported = Search_Blocks::supported_custom_taxonomies();
+		$this->assertNotContains( 'category', $supported );
+		$this->assertNotContains( 'post_tag', $supported );
+	}
+
+	/**
+	 * A taxonomy that's in Jetpack Search's native allowlist must surface
+	 * automatically when registered on the site — without requiring an
+	 * entry in the slot map. This is the case the FAQ's
+	 * `jetpack_search_allowed_taxonomies_for_widget_filters` walkthrough
+	 * covers: pre-allowlisted taxonomies just need to be registered.
+	 *
+	 * `jetpack-search-tag0`…`jetpack-search-tag9` are themselves on the
+	 * Sync allowlist (they're the reserved slot taxonomies), so a site
+	 * that registers one directly gets it in the picker straight away.
+	 */
+	public function test_supported_custom_taxonomies_includes_natively_indexed_when_registered() {
+		register_taxonomy( 'jetpack-search-tag0', 'post', array( 'public' => true ) );
+		try {
+			$this->assertContains( 'jetpack-search-tag0', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			unregister_taxonomy( 'jetpack-search-tag0' );
+		}
+	}
+
+	/**
+	 * The build_initial_state seed and `enqueue_editor_assets` localization
+	 * both expose `customTaxonomyMap` to the client. Pins the contract so
+	 * the JS-side `state.customTaxonomyMap` always has a shape to read,
+	 * even on sites that haven't registered the filter.
+	 */
+	public function test_build_initial_state_seeds_custom_taxonomy_map_slot() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'customTaxonomyMap', $state );
+	}
+
+	/**
+	 * Silence `_doing_it_wrong()` notices for tests that exercise the
+	 * misconfiguration branches. PHPUnit's deprecation/notice handlers
+	 * would otherwise flip the test red on the very codepath we want to
+	 * exercise.
+	 *
+	 * @return callable|null Previous error handler, restored later.
+	 */
+	private function silence_doing_it_wrong(): ?callable {
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		return null;
+	}
+
+	/**
+	 * Restore the previous error handler. Counterpart to
+	 * `silence_doing_it_wrong()`.
+	 *
+	 * @param callable|null $previous Previous handler.
+	 */
+	private function restore_doing_it_wrong( ?callable $previous ): void {
+		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		// $previous unused — handler returned by silence_doing_it_wrong is
+		// reserved for future expansion if a test needs to capture the
+		// notice payload itself.
+		unset( $previous );
 	}
 
 	/**

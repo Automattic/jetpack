@@ -86,6 +86,25 @@ class Search_Blocks {
 	private static $is_woocommerce_active_cache = null;
 
 	/**
+	 * Per-request memo backing `custom_taxonomy_map()`. The map is validated
+	 * once per request — re-running the validation on every filter-block
+	 * render and on every API request would be wasted work, and the
+	 * `_doing_it_wrong()` notices for a misconfigured map would multiply.
+	 *
+	 * @var array<string, string>|null
+	 */
+	private static $custom_taxonomy_map_cache = null;
+
+	/**
+	 * Per-request memo backing `supported_custom_taxonomies()`. Derived from
+	 * the Sync allowlist intersected with registered taxonomies and unioned
+	 * with the map's user-facing keys; same inputs every request.
+	 *
+	 * @var string[]|null
+	 */
+	private static $supported_custom_taxonomies_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -281,6 +300,184 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Built-in taxonomies that have their own dedicated filter-checkbox
+	 * variations — Category / Tag plus the three WooCommerce product
+	 * taxonomies. Excluded from the "Custom Taxonomy" picker (both server
+	 * and editor) so site builders reach for the dedicated variation rather
+	 * than the generic Custom Taxonomy entry. Mirrors `BUILT_IN_TAXONOMY_SLUGS`
+	 * in filter-checkbox/edit.js — must stay in lockstep.
+	 *
+	 * @var string[]
+	 */
+	const BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS = array(
+		'category',
+		'post_tag',
+		'product_cat',
+		'product_tag',
+		'product_brand',
+	);
+
+	/**
+	 * Map of user-facing custom taxonomy slug → reserved Jetpack Search
+	 * index slot (`jetpack-search-tag0`…`jetpack-search-tag9`).
+	 *
+	 * Power-user escape hatch for taxonomies that aren't natively indexed
+	 * by Jetpack Search. Site owners storing taxonomy terms in one of the
+	 * reserved slot taxonomies (per Jetpack Search's documentation —
+	 * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax)
+	 * can declare a mapping so blocks authored against the friendly slug
+	 * (e.g. `genre`) still resolve to the right slot field at query time.
+	 * URLs and editor labels stay user-facing; only the inner ES field
+	 * path gets rewritten.
+	 *
+	 * Registered via the `jetpack_search_custom_taxonomy_map` filter:
+	 *
+	 *     add_filter( 'jetpack_search_custom_taxonomy_map', function ( $map ) {
+	 *         $map['genre'] = 'jetpack-search-tag1';
+	 *         $map['mood']  = 'jetpack-search-tag2';
+	 *         return $map;
+	 *     } );
+	 *
+	 * Validation:
+	 *  - Slot value must match `jetpack-search-tag[0-9]` exactly. Anything
+	 *    else is dropped with a `_doing_it_wrong()` notice — silently
+	 *    accepting an arbitrary string would route queries to a field that
+	 *    doesn't exist in the index.
+	 *  - Two user-slugs pointing at the same slot are rejected (only the
+	 *    first wins) — both would merge their term spaces in the index and
+	 *    the second filter would silently return results from the first.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function custom_taxonomy_map(): array {
+		if ( null !== self::$custom_taxonomy_map_cache ) {
+			return self::$custom_taxonomy_map_cache;
+		}
+
+		/**
+		 * Map custom taxonomy slugs to a reserved Jetpack Search index slot.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array<string, string> $map Empty by default; entries shape
+		 *                                   `[ 'user_slug' => 'jetpack-search-tagN' ]`.
+		 */
+		$raw = apply_filters( 'jetpack_search_custom_taxonomy_map', array() );
+		if ( ! is_array( $raw ) ) {
+			self::$custom_taxonomy_map_cache = array();
+			return self::$custom_taxonomy_map_cache;
+		}
+
+		$map        = array();
+		$slot_owner = array();
+		foreach ( $raw as $user_slug => $slot ) {
+			if ( ! is_string( $user_slug ) || '' === $user_slug || ! is_string( $slot ) ) {
+				continue;
+			}
+			$user_slug = sanitize_key( $user_slug );
+			if ( '' === $user_slug ) {
+				continue;
+			}
+			if ( ! preg_match( '/^jetpack-search-tag[0-9]$/', $slot ) ) {
+				_doing_it_wrong(
+					'jetpack_search_custom_taxonomy_map',
+					sprintf(
+						/* translators: 1: invalid slot value, 2: user-facing taxonomy slug */
+						esc_html__( 'Invalid Jetpack Search slot "%1$s" for taxonomy "%2$s"; expected one of jetpack-search-tag0…jetpack-search-tag9.', 'jetpack-search-pkg' ),
+						esc_html( $slot ),
+						esc_html( $user_slug )
+					),
+					'jetpack-search-pkg $$next-version$$'
+				);
+				continue;
+			}
+			if ( isset( $slot_owner[ $slot ] ) ) {
+				_doing_it_wrong(
+					'jetpack_search_custom_taxonomy_map',
+					sprintf(
+						/* translators: 1: slot, 2: first user-facing slug that owns the slot, 3: second user-facing slug attempting to claim it */
+						esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ),
+						esc_html( $slot ),
+						esc_html( $slot_owner[ $slot ] ),
+						esc_html( $user_slug )
+					),
+					'jetpack-search-pkg $$next-version$$'
+				);
+				continue;
+			}
+			$map[ $user_slug ]   = $slot;
+			$slot_owner[ $slot ] = $user_slug;
+		}
+
+		self::$custom_taxonomy_map_cache = $map;
+		return $map;
+	}
+
+	/**
+	 * Reset the `custom_taxonomy_map()` memo. Tests only — production WP runs
+	 * a single request per process and the map is derived purely from a
+	 * filter hook, so callers should never need to clear the cache.
+	 *
+	 * @internal
+	 */
+	public static function reset_custom_taxonomy_map_cache(): void {
+		self::$custom_taxonomy_map_cache         = null;
+		self::$supported_custom_taxonomies_cache = null;
+	}
+
+	/**
+	 * Custom-taxonomy slugs the "Custom Taxonomy" filter variation should
+	 * offer in the editor picker. A taxonomy is "supported" when:
+	 *
+	 *   1. It's registered locally AND in Jetpack Search's indexable
+	 *      allowlist (`Sync\Modules\Search::get_all_taxonomies()`), so an
+	 *      aggregation against it will actually return buckets; OR
+	 *   2. It's a key in `custom_taxonomy_map()` AND registered locally —
+	 *      the mapping routes its queries through a reserved slot.
+	 *
+	 * Built-in slugs already covered by dedicated filter variations
+	 * (`category`, `post_tag`, `product_cat`, `product_tag`, `product_brand`)
+	 * are stripped so the Custom Taxonomy variation never offers them as
+	 * alternatives.
+	 *
+	 * The Sync allowlist comes from `automattic/jetpack-sync` (a runtime
+	 * dependency of `automattic/jetpack-search`); the class_exists guard is
+	 * defensive for partial installs / isolated tests where the Sync
+	 * package isn't autoloaded — in that case the helper falls back to
+	 * "map keys only", which is the most conservative answer.
+	 *
+	 * @return string[] Distinct, zero-indexed list of supported taxonomy slugs.
+	 */
+	public static function supported_custom_taxonomies(): array {
+		if ( null !== self::$supported_custom_taxonomies_cache ) {
+			return self::$supported_custom_taxonomies_cache;
+		}
+
+		$registered = function_exists( 'get_taxonomies' )
+			? array_values( get_taxonomies( array(), 'names' ) )
+			: array();
+
+		$indexed = class_exists( '\\Automattic\\Jetpack\\Sync\\Modules\\Search' )
+			? \Automattic\Jetpack\Sync\Modules\Search::get_all_taxonomies()
+			: array();
+
+		$map_keys = array_keys( self::custom_taxonomy_map() );
+
+		// A registered taxonomy is supported when it sits in the index
+		// allowlist OR when the site owner has mapped it to a slot.
+		$candidates = array_unique( array_merge( $indexed, $map_keys ) );
+		$supported  = array_values(
+			array_diff(
+				array_values( array_intersect( $registered, $candidates ) ),
+				self::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS
+			)
+		);
+
+		self::$supported_custom_taxonomies_cache = $supported;
+		return $supported;
+	}
+
+	/**
 	 * URL param key the inline search experience uses for the current request.
 	 *
 	 * On WP's search route (`is_search()`) the canonical `s` key is used so
@@ -342,8 +539,21 @@ class Search_Blocks {
 			'jetpack-search-blocks-register',
 			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
 				array(
-					'isWooCommerceActive'   => self::is_woocommerce_active(),
-					'woocommerceOnlyBlocks' => self::woocommerce_only_block_names(),
+					'isWooCommerceActive'       => self::is_woocommerce_active(),
+					'woocommerceOnlyBlocks'     => self::woocommerce_only_block_names(),
+					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
+					// picker in filter-checkbox/edit.js — only taxonomies in
+					// this list (Jetpack-Search-indexed OR mapped to a
+					// reserved slot via `jetpack_search_custom_taxonomy_map`)
+					// are offered. See `supported_custom_taxonomies()` for
+					// the derivation and the FAQ link:
+					// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+					'supportedCustomTaxonomies' => self::supported_custom_taxonomies(),
+					// `customTaxonomyMap` is keyed by the user-facing slug;
+					// the picker uses key membership to append a "(mapped)"
+					// suffix to those entries' labels so authors know the
+					// filter routes through a reserved slot.
+					'customTaxonomyMap'         => (object) self::custom_taxonomy_map(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -904,6 +1114,16 @@ class Search_Blocks {
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
 			'filterConfigs'         => array(),
+
+			// Map of user-facing custom taxonomy slug → reserved Jetpack
+			// Search index slot. Empty by default; populated by the
+			// `jetpack_search_custom_taxonomy_map` filter. Consumed by
+			// store/api.js `resolveFilterFields()` so a filter-checkbox
+			// block authored against `genre` (saved attribute) builds
+			// aggregation/filter requests against
+			// `taxonomy.jetpack-search-tag1.*` instead, while URLs and
+			// editor labels keep the user-facing slug.
+			'customTaxonomyMap'     => (object) self::custom_taxonomy_map(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
