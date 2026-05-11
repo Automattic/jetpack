@@ -33,6 +33,11 @@
 			"type": "string",
 			"default": "count",
 			"enum": [ "count", "alpha" ]
+		},
+		"queryType": {
+			"type": "string",
+			"default": "or",
+			"enum": [ "or", "and" ]
 		}
 	},
 	"render": "file:./render.php",

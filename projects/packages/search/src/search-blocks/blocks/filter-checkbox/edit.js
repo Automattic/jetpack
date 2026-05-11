@@ -38,6 +38,21 @@ import { normalizeDisplayStyle } from '../display-style.js';
 // resolving without churn.
 export { normalizeDisplayStyle };
 
+/**
+ * Coerce a saved `queryType` value to the supported enum. Anything that
+ * isn't the literal string `'and'` collapses to `'or'`, so legacy saves
+ * (missing attribute, `null`, garbage typed in) keep the OR default
+ * rather than dropping out entirely. Mirrors `Filter_Checkbox::normalize_query_type()`
+ * on the PHP side — both must agree or the editor preview and the
+ * server-rendered ES query would disagree on what "All" means.
+ *
+ * @param {unknown} value - Raw attribute value off `attributes.queryType`.
+ * @return {'or' | 'and'} Normalized variant.
+ */
+export function normalizeQueryType( value ) {
+	return value === 'and' ? 'and' : 'or';
+}
+
 const SAMPLE_FILTER_ITEMS = [
 	{ value: 'one', label: __( 'First option', 'jetpack-search-pkg' ), count: 24 },
 	{ value: 'two', label: __( 'Second option', 'jetpack-search-pkg' ), count: 12 },
@@ -183,9 +198,15 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 		case VARIATION_PRODUCT_BRAND:
 			return { filterType: 'taxonomy', taxonomy: 'product_brand' };
 		case VARIATION_POST_TYPE:
-			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
+			// Reset queryType so a Category → Post Type → Category round-trip
+			// doesn't carry stale AND semantics from the prior taxonomy. The
+			// Logic toggle is hidden on non-taxonomy variations and ES queries
+			// double-guard via `filterType === 'taxonomy'`, but without this
+			// reset the toggle re-appears showing `All` on return and confuses
+			// the author about what the block will actually do.
+			return { filterType: 'post_type', taxonomy: previousTaxonomy || '', queryType: 'or' };
 		case VARIATION_AUTHOR:
-			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
+			return { filterType: 'author', taxonomy: previousTaxonomy || '', queryType: 'or' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved = BUILT_IN_TAXONOMY_SLUGS.includes( previousTaxonomy )
@@ -300,6 +321,12 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// Unknown values fall back to `count` so the preview controls always
 	// reflect a valid enum option; render.php normalizes the same way.
 	const bucketSortOrder = attributes?.bucketSortOrder === 'alpha' ? 'alpha' : 'count';
+	const queryType = normalizeQueryType( attributes?.queryType );
+	// Logic toggle is only meaningful for taxonomy filters — each document
+	// has one post_type / author, so an "All" combination with 2+ selections
+	// always returns zero results. Hiding the control on those variations
+	// keeps authors from setting it by mistake.
+	const isTaxonomyFilter = attributes?.filterType === 'taxonomy';
 
 	// Swapping the filter type via the inspector shouldn't wipe an author's
 	// custom label, but when the stored label still matches the prior
@@ -426,6 +453,28 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							setAttributes( { bucketSortOrder: value === 'alpha' ? 'alpha' : 'count' } )
 						}
 					/>
+					{ isTaxonomyFilter && (
+						<ToggleGroupControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							isBlock
+							label={ __( 'Logic', 'jetpack-search-pkg' ) }
+							value={ queryType }
+							onChange={ value => setAttributes( { queryType: normalizeQueryType( value ) } ) }
+							help={
+								queryType === 'and'
+									? __( 'Show posts that match all selected options.', 'jetpack-search-pkg' )
+									: __(
+											'Show posts that match any of the selected options.',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  )
+							}
+						>
+							<ToggleGroupControlOption value="or" label={ __( 'Any', 'jetpack-search-pkg' ) } />
+							<ToggleGroupControlOption value="and" label={ __( 'All', 'jetpack-search-pkg' ) } />
+						</ToggleGroupControl>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

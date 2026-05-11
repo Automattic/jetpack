@@ -327,10 +327,17 @@ function dateRangeFromSlug( value, interval ) {
 /**
  * Build the ES filter clause from active selections.
  *
- * OR within a single filter key (`bool.should`); AND across keys
+ * Default: OR within a single filter key (`bool.should`); AND across keys
  * (`bool.must`). Diverges from the legacy instant-search overlay which ANDs
  * multi-value selections — Search 3.0 follows the broaden-on-click UX of
  * modern faceted search.
+ *
+ * Taxonomy filters can opt into AND semantics via `config.queryType === 'and'`
+ * (set by the filter-checkbox "Logic" inspector toggle). In that case the
+ * per-value `term` clauses are pushed as separate top-level `must` entries
+ * rather than wrapped in `bool.should`, so the post must carry every selected
+ * term. Only honoured for the `taxonomy` filterType — see
+ * `Filter_Checkbox::normalize_query_type()`.
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
@@ -401,7 +408,16 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( clauses.length === 0 ) {
 			continue;
 		}
-		must.push( clauses.length === 1 ? clauses[ 0 ] : { bool: { should: clauses } } );
+		// AND semantics only apply to taxonomy filters — see header docblock.
+		// For a single value the wrapping is irrelevant, so the early single-clause
+		// short-circuit covers both branches.
+		if ( clauses.length === 1 ) {
+			must.push( clauses[ 0 ] );
+		} else if ( config?.queryType === 'and' && config?.filterType === 'taxonomy' ) {
+			must.push( ...clauses );
+		} else {
+			must.push( { bool: { should: clauses } } );
+		}
 	}
 	return must.length ? { bool: { must } } : undefined;
 }
