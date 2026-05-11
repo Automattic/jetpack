@@ -55,9 +55,6 @@ export function getExperienceLabel( experience ) {
 /**
  * Get the human-readable description for an experience.
  *
- * Note: The Overlay description deliberately references "Instant Search" —
- * the older marketing name — so existing users connect the two.
- *
  * @param {string} experience - One of the EXPERIENCE values.
  * @return {string} - Translated description.
  */
@@ -69,7 +66,7 @@ export function getExperienceDescription( experience ) {
 				'jetpack-search-pkg'
 			);
 		case EXPERIENCE.OVERLAY:
-			return __( 'A search-as-you-type overlay (formerly Instant Search).', 'jetpack-search-pkg' );
+			return __( 'A search-as-you-type overlay search.', 'jetpack-search-pkg' );
 		case EXPERIENCE.INLINE:
 			return __( "Your theme's search layout, with faster results.", 'jetpack-search-pkg' );
 		case EXPERIENCE.OFF:

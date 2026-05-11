@@ -69,11 +69,7 @@ export default function ExperienceDetails() {
 					<Stack direction="column" gap="xs">
 						<Stack direction="row" gap="md" align="center" wrap="wrap">
 							<h3 className="jp-search-feature-selector__details-title">
-								{ isOverlay
-									? // The Overlay panel uses the legacy product name for continuity with
-									  // existing documentation, even though the radio row reads "Overlay search".
-									  __( 'Instant Search', 'jetpack-search-pkg' )
-									: getExperienceLabel( selected ) }
+								{ getExperienceLabel( selected ) }
 							</h3>
 							{ isRecommended && (
 								<Badge
