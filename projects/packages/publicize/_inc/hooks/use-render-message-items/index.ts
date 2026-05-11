@@ -80,14 +80,17 @@ export function useRenderMessageItems(): RenderItem[] {
 	// a disabled connection's message must still update the items array. Including
 	// disabled connections also keeps their preview cached for instant display when
 	// the user re-enables them.
-	const connections = useSelect(
-		select => ( templatesEnabled ? select( socialStore ).getConnections() : [] ),
-		[ templatesEnabled ]
-	);
-
-	const messageTemplate = useSelect(
-		select =>
-			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
+	const { connections, siteMessageTemplate } = useSelect(
+		select => {
+			if ( ! templatesEnabled ) {
+				return { connections: [], siteMessageTemplate: '' };
+			}
+			const store = select( socialStore );
+			return {
+				connections: store.getConnections(),
+				siteMessageTemplate: store.getSocialSettings().messageTemplate ?? '',
+			};
+		},
 		[ templatesEnabled ]
 	);
 
@@ -124,29 +127,13 @@ export function useRenderMessageItems(): RenderItem[] {
 
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
-			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
-			// Mirror the rule in `useConnectionPreviewData` exactly — per-connection
-			// message and template only apply in per-network mode. If they leak into
-			// global mode here, the consumer's `baseMessage` (globalMessage) won't
-			// match this items array's message and `isDebouncingRenderedMessage` stays
-			// stuck true after the user toggles per-network → global.
-			// Falls back to the admin-page main template (`messageTemplate`) when no
-			// per-post message is set, so a site-wide template configured on the social
-			// admin page is reflected in the editor preview.
-			const globalFallback = globalMessage || messageTemplate || '';
-
-			let raw: string;
-			if ( ctx.isPerNetworkMode ) {
-				if ( hasConnectionMessage ) {
-					raw = connection.message ?? '';
-				} else if ( templatesEnabled && connection.template ) {
-					raw = connection.template;
-				} else {
-					raw = globalFallback;
-				}
-			} else {
-				raw = globalFallback;
-			}
+			/*
+			 * Mirror the form's rule in `per-network.tsx`: in per-network mode,
+			 * fall back to the saved site template (not `globalMessage` /
+			 * `_wpas_mess`) when the connection has no per-post override and
+			 * no connection-template default.
+			 */
+			const raw = ctx.isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage;
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
@@ -154,7 +141,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, messageTemplate, ctx, templatesEnabled ] );
+	}, [ connections, globalMessage, siteMessageTemplate, ctx ] );
 
 	return useDebouncedItems( items );
 }

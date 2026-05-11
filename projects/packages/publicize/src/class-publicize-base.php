@@ -1173,11 +1173,18 @@ abstract class Publicize_Base {
 	 * Registers for each post type that with `publicize` feature support.
 	 */
 	public function register_post_meta() {
+		/*
+		 * Default the share-message meta to the saved global template
+		 */
+		$message_default = Current_Plan::supports( 'social-message-templates' )
+			? ( new Jetpack_Social_Settings\Settings() )->get_message_template()
+			: '';
+
 		$message_args = array(
 			'type'          => 'string',
 			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => '',
+			'default'       => $message_default,
 			'show_in_rest'  => array(
 				'name' => 'jetpack_publicize_message',
 			),
