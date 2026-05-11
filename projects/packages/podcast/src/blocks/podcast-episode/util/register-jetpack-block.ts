@@ -20,23 +20,33 @@ import { addFilter } from '@wordpress/hooks';
 
 const JETPACK_PREFIX = 'jetpack/';
 
-/**
- * Registers a gutenberg block if the availability requirements are met.
- *
- * @param {string}  nameOrMetadata - Block's name or metadata object. Jetpack blocks must be
- *                                 registered with a `jetpack/`-prefixed name. Both `podcast-episode`
- *                                 and `jetpack/podcast-episode` are accepted.
- * @param {object}  settings       - The block's settings.
- * @param {object}  childBlocks    - The block's child blocks.
- * @param {boolean} prefix         - Should this block be prefixed with `jetpack/`?
- * @return {object|boolean} `false` if the block is unavailable, otherwise `registerBlockType`'s return value.
- */
+interface BlockMetadataLike {
+	name: string;
+	attributes?: Record< string, unknown >;
+	[ key: string ]: unknown;
+}
+
+// Settings is intentionally loose — `@wordpress/blocks`' `BlockConfiguration`
+// is generic over attributes and carries many optional fields; this thin
+// shim just forwards it through to `registerBlockType`.
+type BlockSettings = Record< string, unknown >;
+
+interface ChildBlock {
+	name: string;
+	settings: BlockSettings;
+}
+
+type RegisterBlockArg0 = Parameters< typeof registerBlockType >[ 0 ];
+type RegisterBlockArg1 = Parameters< typeof registerBlockType >[ 1 ];
+type RegisterBlockResult = ReturnType< typeof registerBlockType >;
+
+// Registers a Gutenberg block if the availability requirements are met.
 export default function registerJetpackBlock(
-	nameOrMetadata,
-	settings,
-	childBlocks = [],
-	prefix = true
-) {
+	nameOrMetadata: string | BlockMetadataLike,
+	settings: BlockSettings,
+	childBlocks: ChildBlock[] = [],
+	prefix: boolean = true
+): RegisterBlockResult | false {
 	const name = typeof nameOrMetadata === 'string' ? nameOrMetadata : nameOrMetadata.name;
 	const isNamePrefixed = name.startsWith( JETPACK_PREFIX );
 	const rawName = isNamePrefixed ? name.slice( JETPACK_PREFIX.length ) : name;
@@ -47,7 +57,6 @@ export default function registerJetpackBlock(
 	const jpPrefix = prefix || isNamePrefixed ? JETPACK_PREFIX : '';
 
 	if ( ! available && ! requiredPlan ) {
-		// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -59,8 +68,8 @@ export default function registerJetpackBlock(
 
 	const prefixedName = jpPrefix + rawName;
 	const result = registerBlockType(
-		typeof nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
-		settings
+		( typeof nameOrMetadata === 'object' ? nameOrMetadata : prefixedName ) as RegisterBlockArg0,
+		settings as RegisterBlockArg1
 	);
 
 	if ( requiredPlan ) {
@@ -72,23 +81,23 @@ export default function registerJetpackBlock(
 	}
 
 	childBlocks.forEach( childBlock =>
-		registerBlockType( jpPrefix + childBlock.name, childBlock.settings )
+		registerBlockType(
+			( jpPrefix + childBlock.name ) as RegisterBlockArg0,
+			childBlock.settings as RegisterBlockArg1
+		)
 	);
 
 	return result;
 }
 
-/**
- * Wrapper around registerJetpackBlock that takes a metadata object.
- *
- * @param {object } metadata    - block.json metadata.
- * @param {object}  settings    - See registerJetpackBlock.
- * @param {object}  childBlocks - See registerJetpackBlock.
- * @param {boolean} prefix      - See registerJetpackBlock.
- * @return {object|boolean} See registerJetpackBlock.
- */
-export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
-	const mergedSettings = {
+// Wrapper around registerJetpackBlock that takes a metadata object.
+export function registerJetpackBlockFromMetadata(
+	metadata: BlockMetadataLike,
+	settings: BlockSettings,
+	childBlocks?: ChildBlock[],
+	prefix?: boolean
+): RegisterBlockResult | false {
+	const mergedSettings: BlockSettings = {
 		...settings,
 		icon: getBlockIconProp( metadata ),
 		attributes: metadata.attributes || {},

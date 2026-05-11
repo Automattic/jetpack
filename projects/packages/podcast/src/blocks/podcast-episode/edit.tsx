@@ -24,9 +24,9 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
-import { microphone } from './icons/index.js';
-import { getValidatedAttributes } from './util/get-validated-attributes.js';
-import { convertSecondsToTimeCode } from './util/time-code.js';
+import { microphone } from './icons';
+import { getValidatedAttributes } from './util/get-validated-attributes';
+import { convertSecondsToTimeCode } from './util/time-code';
 
 interface Person {
 	name?: string;
