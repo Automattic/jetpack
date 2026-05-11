@@ -23,6 +23,8 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import {
 	box,
 	calendar,
+	cart,
+	category,
 	chevronUpDown,
 	currencyDollar,
 	customPostType,
@@ -34,11 +36,17 @@ import {
 	listView,
 	pin,
 	plus,
+	postAuthor,
+	postList,
+	postTerms,
+	published,
 	reset,
 	search,
 	starFilled,
 	store,
+	swatch,
 	tag,
+	tool,
 } from '@wordpress/icons';
 
 const BRAND_FOREGROUND = '#069e08';
@@ -73,5 +81,34 @@ const BLOCK_ICONS = {
 	'jetpack-search/powered-by': <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
 };
 
+/**
+ * Per-variation icons for the `jetpack-search/filter-checkbox` block.
+ *
+ * The variations (Filter by Category / Tag / Post Type / Author / Product
+ * Category / Product Tag / Product Brand / Custom Taxonomy) are registered
+ * in PHP via `Search_Blocks::inject_filter_checkbox_variations()`, so they
+ * arrive at the editor preloaded onto the block type's metadata. Each one
+ * needs its own glyph in the inserter card — without it, every variation
+ * would inherit the parent block's `formatListBullets` icon and the
+ * resulting six-or-seven identical cards would all read the same to a
+ * merchant scanning the inserter.
+ *
+ * Applied via a `blocks.registerBlockType` filter in `register-blocks.js`
+ * (the only practical way to brand variation icons when the variations
+ * themselves are PHP-registered). Glyphs are picked from `@wordpress/icons`
+ * and intentionally avoid every name already used in `BLOCK_ICONS` so the
+ * full 19 + 8 set has no duplicates.
+ */
+const FILTER_CHECKBOX_VARIATION_ICONS = {
+	category: greened( category ),
+	post_tag: greened( postTerms ),
+	post_type: greened( postList ),
+	author: greened( postAuthor ),
+	product_cat: greened( cart ),
+	product_tag: greened( published ),
+	product_brand: greened( swatch ),
+	custom_taxonomy: greened( tool ),
+};
+
 export default BLOCK_ICONS;
-export { BRAND_FOREGROUND };
+export { BRAND_FOREGROUND, FILTER_CHECKBOX_VARIATION_ICONS };

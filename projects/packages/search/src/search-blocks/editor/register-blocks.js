@@ -17,6 +17,7 @@
  */
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getCategories, registerBlockType, setCategories } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
@@ -37,7 +38,7 @@ import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
 import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
-import BLOCK_ICONS from './icons';
+import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -105,6 +106,35 @@ const config = ( typeof window !== 'undefined' && window.JetpackSearchBlocksConf
 const isWooCommerceActive = config.isWooCommerceActive === true;
 const wcOnlyBlocks = new Set(
 	Array.isArray( config.woocommerceOnlyBlocks ) ? config.woocommerceOnlyBlocks : []
+);
+
+// `filter-checkbox`'s variations are PHP-registered (see
+// `Search_Blocks::inject_filter_checkbox_variations()`), so by the time
+// `registerBlockType` runs client-side, the editor's preloaded metadata
+// already carries them — but with no `icon` field. Hooking
+// `blocks.registerBlockType` is the documented place to mutate block
+// settings before they land in the registry; we walk the variations
+// array and stamp the matching branded glyph from
+// `FILTER_CHECKBOX_VARIATION_ICONS`. Variations without a mapped icon
+// (e.g. a forward-compat one added later) fall through and inherit the
+// parent block's `formatListBullets` glyph — the same fallback Gutenberg
+// applies when no variation icon is provided.
+addFilter(
+	'blocks.registerBlockType',
+	'jetpack-search/filter-checkbox-variation-icons',
+	( settings, name ) => {
+		if ( name !== 'jetpack-search/filter-checkbox' || ! Array.isArray( settings.variations ) ) {
+			return settings;
+		}
+		return {
+			...settings,
+			variations: settings.variations.map( variation =>
+				FILTER_CHECKBOX_VARIATION_ICONS[ variation.name ]
+					? { ...variation, icon: FILTER_CHECKBOX_VARIATION_ICONS[ variation.name ] }
+					: variation
+			),
+		};
+	}
 );
 
 BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
