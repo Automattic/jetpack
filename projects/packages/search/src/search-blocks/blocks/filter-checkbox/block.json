@@ -5,8 +5,7 @@
 	"version": "0.1.0",
 	"title": "Checkbox Filter",
 	"category": "jetpack-search",
-	"icon": "filter",
-	"description": "Checkbox filter for Jetpack Search. Use a variation (Category, Tag, Post Type, Author, Product Category, Product Tag, Product Brand, Custom Taxonomy) or configure manually.",
+	"description": "Checkbox filter. Use a variation (Category, Tag, Post Type, Author, Product Category, Product Tag, Product Brand, Custom Taxonomy) or configure manually. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
 		"interactivity": true

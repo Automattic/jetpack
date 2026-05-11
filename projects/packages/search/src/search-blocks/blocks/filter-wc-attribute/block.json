@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Filter by Product Attribute",
 	"category": "jetpack-search",
-	"icon": "filter",
 	"description": "Let shoppers filter products by a WooCommerce attribute (color, size, …). Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
