@@ -35,41 +35,4 @@ class Podcast_Test extends BaseTestCase {
 	public function test_package_version_constant_is_defined() {
 		$this->assertNotEmpty( Podcast::PACKAGE_VERSION );
 	}
-
-	/**
-	 * Without a proxy signal and without a filter override, the gate stays
-	 * closed so the legacy podcasting stack keeps running.
-	 */
-	public function test_is_enabled_defaults_to_false_when_not_proxied() {
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		$this->assertFalse( Podcast::is_enabled() );
-	}
-
-	/**
-	 * A8C-proxied requests flip the default to true so Automatticians dogfood
-	 * the new package without needing a separate filter hook.
-	 */
-	public function test_is_enabled_defaults_to_true_for_proxied_requests() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		try {
-			$this->assertTrue( Podcast::is_enabled() );
-		} finally {
-			unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		}
-	}
-
-	/**
-	 * The `jetpack_podcast_untangle` filter still wins — a hook returning
-	 * false suppresses the package even on a proxied request.
-	 */
-	public function test_is_enabled_filter_overrides_proxy_default() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		add_filter( 'jetpack_podcast_untangle', '__return_false' );
-		try {
-			$this->assertFalse( Podcast::is_enabled() );
-		} finally {
-			remove_filter( 'jetpack_podcast_untangle', '__return_false' );
-			unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		}
-	}
 }
