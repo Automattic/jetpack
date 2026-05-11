@@ -7,7 +7,7 @@
  * Copyright 2020 Automattic
  *
  * Date: 01/11/16
- */
+ */15
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
@@ -1497,7 +1497,7 @@ function jetpackcrm_create_zeros_array( $start, $end, $zbs_steps = 86400 ) {
 		$the_month                    = date( 'M y', $the_day );
 		$filled_zeros_m[ $the_month ] = 0;
 
-		$the_week = date( 'o', $the_day ) . ' W' . date( 'W', $the_day );
+		$the_week                    = date( 'o', $the_day ) . ' W' . date( 'W', $the_day );
 		$filled_zeros_w[ $the_week ] = 0;
 
 		$the_day_d                    = date( 'd M y', $the_day );
