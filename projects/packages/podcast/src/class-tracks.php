@@ -374,6 +374,11 @@ class Tracks {
 				),
 				'source'   => 'podcast_show_launched',
 				'severity' => 'success',
+				'extra'    => array(
+					'post_id'    => (int) $post->ID,
+					'post_url'   => (string) get_permalink( $post ),
+					'post_title' => (string) $post->post_title,
+				),
 			)
 		);
 	}
@@ -397,6 +402,11 @@ class Tracks {
 				),
 				'source'   => 'podcast_episode_published',
 				'severity' => 'info',
+				'extra'    => array(
+					'post_id'    => (int) $post->ID,
+					'post_url'   => (string) get_permalink( $post ),
+					'post_title' => (string) $post->post_title,
+				),
 			)
 		);
 	}

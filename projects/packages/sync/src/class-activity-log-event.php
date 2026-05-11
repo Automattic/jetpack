@@ -53,6 +53,22 @@ class Activity_Log_Event {
 	const MAX_SOURCE_LENGTH = 100;
 
 	/**
+	 * Maximum number of entries in the `extra` payload.
+	 */
+	const MAX_EXTRA_ENTRIES = 20;
+
+	/**
+	 * Maximum length of an `extra` key (in characters).
+	 */
+	const MAX_EXTRA_KEY_LENGTH = 64;
+
+	/**
+	 * Maximum length of an `extra` string value (in characters). Numeric and boolean
+	 * values pass through unchanged.
+	 */
+	const MAX_EXTRA_VALUE_LENGTH = 2000;
+
+	/**
 	 * Whether Activity Log custom event hooks have been initialized.
 	 *
 	 * @var bool
@@ -143,6 +159,11 @@ class Activity_Log_Event {
 	 *     @type string $content     Required. Plain-text body, truncated to 5000 chars.
 	 *     @type string $source      Optional. Identifier for the source of the event, e.g. 'mc'.
 	 *     @type string $severity    Optional. 'info', 'success', 'warning', or 'error'. Defaults to 'info'.
+	 *     @type array  $extra       Optional. Flat map of string keys to scalar values
+	 *                               (string, int, float, bool). Used by downstream
+	 *                               consumers to carry structured payload alongside
+	 *                               the human-readable content. Limited to 20 entries,
+	 *                               64-char keys, and 2000-char string values.
 	 * }
 	 * @return int|false Post ID on success, false if validation fails.
 	 */
@@ -412,7 +433,64 @@ class Activity_Log_Event {
 			}
 		}
 
+		if ( isset( $args['extra'] ) ) {
+			$extra = self::sanitize_extra( $args['extra'] );
+			if ( ! empty( $extra ) ) {
+				$payload['extra'] = $extra;
+			}
+		}
+
 		return $payload;
+	}
+
+	/**
+	 * Sanitizes the `extra` sub-payload: flat map of string keys to scalar values.
+	 * Drops non-scalar values, non-string keys, and entries past the cap.
+	 *
+	 * @param mixed $extra Raw extra payload.
+	 * @return array Sanitized extra payload (may be empty).
+	 */
+	private static function sanitize_extra( $extra ) {
+		if ( ! is_array( $extra ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+		$count     = 0;
+
+		foreach ( $extra as $key => $value ) {
+			if ( $count >= self::MAX_EXTRA_ENTRIES ) {
+				break;
+			}
+
+			if ( ! is_string( $key ) ) {
+				continue;
+			}
+
+			$clean_key = self::sanitize_string( $key, self::MAX_EXTRA_KEY_LENGTH );
+			if ( '' === $clean_key ) {
+				continue;
+			}
+
+			if ( is_bool( $value ) || is_int( $value ) || is_float( $value ) ) {
+				$sanitized[ $clean_key ] = $value;
+				++$count;
+				continue;
+			}
+
+			if ( is_string( $value ) ) {
+				$sanitized[ $clean_key ] = self::sanitize_string( $value, self::MAX_EXTRA_VALUE_LENGTH );
+				++$count;
+				continue;
+			}
+
+			if ( null === $value ) {
+				$sanitized[ $clean_key ] = '';
+				++$count;
+			}
+		}
+
+		return $sanitized;
 	}
 
 	/**

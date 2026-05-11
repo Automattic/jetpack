@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Activity_Log_Event::create() accepts an optional `extra` array of scalar key/value pairs, persisted alongside the human-readable content so downstream consumers can read structured payload without parsing translated strings.

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Podcast: write Jetpack Activity Log entries on podcast publish. One per-site `podcast_show_launched` on the first episode, plus a `podcast_episode_published` entry on every episode publish, so WPcom downstream listeners can surface them.
+Podcast: write Jetpack Activity Log entries on podcast publish. One per-site `podcast_show_launched` on the first episode, plus a `podcast_episode_published` entry on every episode publish. Each entry carries an `extra` payload with the post ID, permalink, and raw title so WPcom downstream listeners can consume structured data without parsing translated content.
