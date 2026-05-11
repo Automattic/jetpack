@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Fix SQL error when wp_posts has a column whose name is a reserved SQL keyword.
