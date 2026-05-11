@@ -126,7 +126,7 @@ export default function McpSetup() {
 							</Text>
 
 							{ selectedClient === 'claude' && (
-								<ul className="jetpack-ai-mcp-setup__steps">
+								<ol className="jetpack-ai-mcp-setup__steps">
 									<li>
 										<Text as="p" variant="muted">
 											{ createInterpolateElement( __( 'Open <ClaudeSettings/>.', 'jetpack' ), {
@@ -151,7 +151,7 @@ export default function McpSetup() {
 											{ __( 'Select WordPress.com and follow the prompts.', 'jetpack' ) }
 										</Text>
 									</li>
-								</ul>
+								</ol>
 							) }
 
 							{ selectedClient === 'claude-code' && (

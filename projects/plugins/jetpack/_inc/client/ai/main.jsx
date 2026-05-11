@@ -4,7 +4,7 @@
  * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
  */
 
-import { AdminPage, JetpackLogo } from '@automattic/jetpack-components';
+import { AdminPage } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -59,7 +59,6 @@ function Breadcrumbs( { view, onNavigate } ) {
 						className="jetpack-ai-admin__breadcrumb-link"
 						onClick={ onNavigate }
 					>
-						<JetpackLogo showText={ false } height={ 20 } />
 						{ /** "AI" is a product name and should not be translated. */ }
 						AI
 					</button>

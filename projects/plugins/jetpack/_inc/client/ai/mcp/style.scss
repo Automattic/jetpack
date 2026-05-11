@@ -106,11 +106,11 @@
 		margin: 0;
 	}
 
-	// Tighten the gap between each tool toggle's help text and the next toggle.
-	// WP's BaseControl adds margin-top: 8px on the help text; bump overall
-	// row gap down slightly so the combined visual spacing feels even.
+	// Tool toggle descriptions hug their setting title; override WP's
+	// BaseControl default 8px gap so the help text reads as part of the
+	// row rather than as a separate paragraph.
 	.components-base-control__help {
-		margin-top: 4px;
+		margin-top: 0;
 	}
 
 	&__access-card {
@@ -183,9 +183,15 @@
 	}
 }
 
-// wp-admin resets list-style on ul; restore bullets for the steps list.
+// wp-admin resets list-style on list elements; restore defaults for the
+// setup steps list. Claude uses an ordered list (decimal); Claude Code
+// uses unordered (disc) since some of its steps are "or" alternatives.
 ul.jetpack-ai-mcp-setup__steps {
 	list-style: disc;
+}
+
+ol.jetpack-ai-mcp-setup__steps {
+	list-style: decimal;
 }
 
 .jetpack-ai-mcp-setup {
