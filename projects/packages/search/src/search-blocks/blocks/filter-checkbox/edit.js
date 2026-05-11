@@ -463,11 +463,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							onChange={ value => setAttributes( { queryType: normalizeQueryType( value ) } ) }
 							help={
 								queryType === 'and'
-									? __(
-											'Show posts that match all selected options.',
-											'jetpack-search-pkg',
-											/* dummy arg to avoid bad minification */ 0
-									  )
+									? __( 'Show posts that match all selected options.', 'jetpack-search-pkg' )
 									: __(
 											'Show posts that match any of the selected options.',
 											'jetpack-search-pkg',
