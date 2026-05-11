@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Re-enable Codeception tests on PHP 8.4+; disable `opcache.jit` instead.
+
+
