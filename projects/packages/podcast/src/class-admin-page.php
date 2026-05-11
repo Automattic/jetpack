@@ -145,8 +145,7 @@ class Admin_Page {
 	 * Whether the Podcast untangle is enabled.
 	 */
 	private static function is_enabled() {
-		/** This filter is documented in src/class-podcast.php. */
-		return (bool) apply_filters( 'jetpack_podcast_untangle', false );
+		return Podcast::is_enabled();
 	}
 
 	/**
