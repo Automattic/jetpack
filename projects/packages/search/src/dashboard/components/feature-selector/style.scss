@@ -117,7 +117,7 @@
 
 		li {
 			display: flex;
-			align-items: start;
+			align-items: center;
 			gap: var(--wpds-dimension-gap-sm);
 			padding-block: var(--wpds-dimension-padding-xs);
 
@@ -131,7 +131,6 @@
 	&__details-loss-icon {
 		fill: var(--wpds-color-fg-content-error);
 		flex: 0 0 auto;
-		margin-block-start: 2px;
 	}
 
 	// The customization actions sit inside their own subdued surface so
