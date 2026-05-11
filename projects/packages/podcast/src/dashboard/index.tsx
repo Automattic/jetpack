@@ -16,15 +16,9 @@ const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const Upsell = lazy( () => import( './upsell' ) );
 
-// Server injects `podcast.has_product_access` via the `jetpack_admin_js_script_data`
-// filter in class-admin-page.php. Treat a missing flag as access-granted so a
-// deploy race never locks grandfathered users out of the Episodes tab.
-const hasEpisodeAccess = (): boolean => {
-	const data = getScriptData() as unknown as
-		| { podcast?: { has_product_access?: boolean } }
-		| undefined;
-	return data?.podcast?.has_product_access !== false;
-};
+// Fail-open: a missing flag means access-granted, so a deploy race never locks
+// grandfathered users out of the Episodes tab.
+const hasProductAccess = (): boolean => getScriptData()?.podcast?.has_product_access !== false;
 
 const TabFallback = () => (
 	<div className="podcast__loading">
@@ -49,7 +43,7 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
-	const hasProductAccess = hasEpisodeAccess();
+	const hasAccess = hasProductAccess();
 
 	// `?tab=` owns the active tab; default (no `tab`) is Settings.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
@@ -144,14 +138,14 @@ const App = () => {
 				<Tabs.Panel value="episodes">
 					<div
 						className={
-							hasProductAccess
+							hasAccess
 								? 'podcast__tab-content'
 								: 'podcast__tab-content podcast__tab-content--narrow'
 						}
 					>
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasProductAccess ? <EpisodesTab /> : <Upsell /> }
+								{ hasAccess ? <EpisodesTab /> : <Upsell /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
