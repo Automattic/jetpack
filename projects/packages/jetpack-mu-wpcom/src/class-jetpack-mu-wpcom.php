@@ -327,6 +327,11 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Code_Block::setup();
