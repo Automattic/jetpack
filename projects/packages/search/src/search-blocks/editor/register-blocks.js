@@ -70,11 +70,12 @@ const BLOCKS = [
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
 // Grow headings in the inserter: the Jetpack logo next to a single-word
-// label (the logo carries the branding, so the label drops the "Jetpack"
-// prefix). The category itself is registered server-side via the
-// `block_categories_all` filter (see Search_Blocks::register_block_category);
-// core strips SVG `icon` values at that PHP boundary, so the icon has to be
-// applied client-side with setCategories().
+// label (the logo carries the branding for the whole family, so per-block
+// icons can stay un-branded). The category itself is registered server-
+// side via the `block_categories_all` filter (see
+// Search_Blocks::register_block_category); core strips SVG `icon` values
+// at that PHP boundary, so the icon has to be applied client-side via
+// setCategories().
 setCategories(
 	getCategories().map( category =>
 		category.slug === 'jetpack-search'
@@ -110,8 +111,8 @@ BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
 	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
-	// `icon` here overrides whatever server-side metadata block.json carries,
-	// so the centralized `{ src, foreground, background }` pill renders in
+	// `icon` here overrides whatever server-side metadata block.json carries
+	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
 	registerBlockType( name, { edit, save: blockSave ?? save, icon: BLOCK_ICONS[ name ] } );
 } );
