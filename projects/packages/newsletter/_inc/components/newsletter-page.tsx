@@ -1,3 +1,4 @@
+import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback } from '@wordpress/element';
@@ -19,6 +20,13 @@ type Props = {
 	 * of this prop, so the bar doesn't shift between Subscribers and Settings.
 	 */
 	contentHasPadding?: boolean;
+	/**
+	 * Hide the `JetpackFooter` at the bottom of the page. Mirrors VideoPress's
+	 * `DashboardLayout` prop: cards-style tabs (Settings) keep the footer,
+	 * DataViews-driven tabs (Subscribers) opt out because the wrapper grows
+	 * to fill the viewport and leaves no room beneath it.
+	 */
+	hideFooter?: boolean;
 	/**
 	 * `Tabs.Panel` children. The shell renders one `Tabs.Root` + `Tabs.List`
 	 * shared across both tabs so the animated active-tab indicator slides
@@ -54,6 +62,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * @param props.activeTab         - Which tab the current route represents.
  * @param props.actions           - Optional actions slot (top-right of the Page header).
  * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
+ * @param props.hideFooter        - When true, suppresses the `JetpackFooter` rendered beneath the body slot.
  * @param props.children          - Tab content.
  * @return The unified Newsletter page shell.
  */
@@ -61,6 +70,7 @@ export default function NewsletterPage( {
 	activeTab,
 	actions,
 	contentHasPadding = true,
+	hideFooter = false,
 	children,
 }: Props ): JSX.Element {
 	const navigate = useNavigate();
@@ -127,6 +137,7 @@ export default function NewsletterPage( {
 			) : (
 				<div className={ contentClass }>{ children }</div>
 			) }
+			{ ! hideFooter && <JetpackFooter /> }
 		</Page>
 	);
 }

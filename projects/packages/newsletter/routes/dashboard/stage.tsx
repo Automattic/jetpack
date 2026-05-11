@@ -60,6 +60,7 @@ const Stage = () => {
 						activeTab={ activeTab }
 						actions={ activeTab === 'subscribers' ? actions : undefined }
 						contentHasPadding={ activeTab === 'settings' }
+						hideFooter={ activeTab === 'subscribers' }
 					>
 						{ subscribersEnabled ? (
 							<>
