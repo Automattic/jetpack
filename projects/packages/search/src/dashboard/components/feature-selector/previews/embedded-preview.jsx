@@ -23,7 +23,7 @@ export default function EmbeddedPreview() {
 					icon={ search }
 					size={ 14 }
 				/>
-				block
+				pasta
 			</div>
 			<div className="jp-search-feature-selector__embedded-preview-sort">
 				Sort by
@@ -37,10 +37,10 @@ export default function EmbeddedPreview() {
 					<div className="jp-search-feature-selector__embedded-preview-result">
 						<div className="jp-search-feature-selector__embedded-preview-result-content">
 							<div className="jp-search-feature-selector__embedded-preview-result-title">
-								Building a search <mark>block</mark>
+								10 Easy <mark>Pasta</mark> Recipes
 							</div>
 							<div className="jp-search-feature-selector__embedded-preview-result-meta">
-								2026 › 04 › 20
+								Recipes · Jan 2026
 							</div>
 						</div>
 						<span className="jp-search-feature-selector__embedded-preview-result-thumb" />
@@ -48,19 +48,18 @@ export default function EmbeddedPreview() {
 					<div className="jp-search-feature-selector__embedded-preview-result">
 						<div className="jp-search-feature-selector__embedded-preview-result-content">
 							<div className="jp-search-feature-selector__embedded-preview-result-title">
-								Jetpack Search 3.0 is coming
+								Best <mark>Pasta</mark> Sauces
 							</div>
 							<div className="jp-search-feature-selector__embedded-preview-result-meta">
-								2026 › 04 › 21
+								Reviews · Mar 2026
 							</div>
 						</div>
 						<span className="jp-search-feature-selector__embedded-preview-result-thumb" />
 					</div>
 				</div>
 				<div className="jp-search-feature-selector__embedded-preview-filters">
-					<FilterGroup title="Category" items={ [ 'Development', 'News', 'Tutorials' ] } />
-					<FilterGroup title="Tag" items={ [ 'wordpress', 'blocks', 'css' ] } />
-					<FilterGroup title="Post type" items={ [ 'Post' ] } />
+					<FilterGroup title="Category" items={ [ 'Recipes', 'Travel', 'Reviews' ] } />
+					<FilterGroup title="Tag" items={ [ 'pasta', 'italian', 'dinner' ] } />
 				</div>
 			</div>
 		</div>
