@@ -95,6 +95,20 @@ const DATE_AGG_ORDERS = {
  * both value and label, `date` uses the bucket's `key_as_string` and a
  * locale-aware label from `formatDateBucketLabel`.
  *
+ * Custom taxonomies that the site has routed through a reserved Jetpack
+ * Search index slot (via the `jetpack_search_custom_taxonomy_map` filter)
+ * arrive here with `config.effectiveSlug` already set to the target
+ * `jetpack-search-tagN` slug — the PHP `Filter_Checkbox::build_config()`
+ * resolves that once at config-build time, so this function stays pure.
+ * For unmapped slugs `effectiveSlug` equals `taxonomy`. The aggregation
+ * request key also swaps to the slot (see `aggregationKeyFor`) because
+ * the WPCOM search proxy validates aggregation names against indexable
+ * taxonomies — sending `aggregations[genre]` against a non-indexed slug
+ * silently returns nothing. The response is remapped back to the
+ * user-facing `filterKey` in `store/index.js` before downstream
+ * consumers see it. See
+ * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+ *
  * @param {object} config - FilterConfig entry from the store.
  * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved fields.
  */
@@ -122,9 +136,16 @@ export function resolveFilterFields( config ) {
 			if ( ! taxonomy ) {
 				return { aggField: null, filterField: null, bucketFormat: 'slash' };
 			}
+			// `effectiveSlug` is pre-resolved server-side: equals `taxonomy`
+			// for natively-indexed slugs and the matching
+			// `jetpack-search-tagN` slot when a custom-taxonomy map entry
+			// routes it through one. Falls back to `taxonomy` when the
+			// field is missing (defensive — older saved blocks won't have
+			// it on the filterConfig).
+			const effectiveSlug = config.effectiveSlug || taxonomy;
 			return {
-				aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
-				filterField: `taxonomy.${ taxonomy }.slug`,
+				aggField: `taxonomy.${ effectiveSlug }.slug_slash_name`,
+				filterField: `taxonomy.${ effectiveSlug }.slug`,
 				bucketFormat: 'slash',
 			};
 		}
@@ -204,6 +225,32 @@ export const WC_RATING_RANGES = [
 ];
 
 /**
+ * Resolve the request-side aggregation key for a filter. Mapped custom
+ * taxonomies aggregate under the reserved slot slug (e.g. `jetpack-search-tag1`)
+ * because the WPCOM search proxy validates aggregation names against the
+ * site's indexable taxonomy list — `aggregations[genre]` against a
+ * non-indexed slug comes back empty. Everything else keeps using
+ * `filterKey`: built-ins (`category` / `post_tag`) and unmapped custom
+ * taxonomies have `effectiveSlug === taxonomy`, and non-taxonomy filters
+ * have `effectiveSlug === ''`.
+ *
+ * Mirrored in reverse by `remapAggregationsToFilterKeys` in
+ * `store/index.js` so the response shape downstream consumers see stays
+ * keyed by `filterKey`.
+ *
+ * @param {string} filterKey - The user-facing filter key (URL param name).
+ * @param {object} config    - filterConfigs entry.
+ * @return {string} The agg request key to send to the API.
+ */
+export function aggregationKeyFor( filterKey, config ) {
+	const slug = config?.effectiveSlug;
+	if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+		return slug;
+	}
+	return filterKey;
+}
+
+/**
  * Build ES aggregation requests from the filterConfigs registered by each
  * filter block's render.php.
  *
@@ -220,13 +267,14 @@ export const WC_RATING_RANGES = [
 export function buildAggregations( filterConfigs ) {
 	const aggregations = {};
 	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const aggKey = aggregationKeyFor( filterKey, config );
 		// Rating gets a histogram aggregation. `range` aggs aren't
 		// whitelisted on the v1.3 API; histogram interval=1 with offset=0.5
 		// produces buckets keyed at .5 boundaries, mirroring WC's
 		// ROUND(avg_rating) star buckets.
 		if ( config?.filterType === 'wc_rating' ) {
 			const { aggField: ratingField } = resolveFilterFields( config );
-			aggregations[ filterKey ] = {
+			aggregations[ aggKey ] = {
 				histogram: {
 					field: ratingField,
 					interval: 1,
@@ -244,7 +292,7 @@ export function buildAggregations( filterConfigs ) {
 		// `exclude-from-catalog`) out of the response.
 		if ( config?.filterType === 'wc_stock_status' ) {
 			const { aggField: stockField } = resolveFilterFields( config );
-			aggregations[ filterKey ] = {
+			aggregations[ aggKey ] = {
 				terms: {
 					field: stockField,
 					include: [ 'outofstock' ],
@@ -261,7 +309,7 @@ export function buildAggregations( filterConfigs ) {
 		if ( config?.filterType === 'date' ) {
 			const interval = DATE_HISTOGRAM_FORMATS[ config.interval ] ? config.interval : 'year';
 			const order = DATE_AGG_ORDERS[ config.bucketSortOrder ] ?? DATE_AGG_ORDERS.newest;
-			aggregations[ filterKey ] = {
+			aggregations[ aggKey ] = {
 				date_histogram: {
 					field: aggField,
 					calendar_interval: interval,
@@ -273,7 +321,7 @@ export function buildAggregations( filterConfigs ) {
 			continue;
 		}
 		const order = config?.bucketSortOrder === 'alpha' ? { _key: 'asc' } : { _count: 'desc' };
-		aggregations[ filterKey ] = {
+		aggregations[ aggKey ] = {
 			terms: {
 				field: aggField,
 				size: Math.max( 1, config.maxItems ?? 10 ),
@@ -547,11 +595,11 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  *                                             filter blocks driven by `min_price` / `max_price`
  *                                             URL params.
  * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
- *                                             contributed by `jetpack-search/filter-post-type`. Folded
- *                                             into the ES filter clause as `bool.should` (include)
- *                                             and `bool.must_not` (exclude). Hidden from visitors —
- *                                             not represented in `activeFilters` and not surfaced
- *                                             in the active-filters pill list.
+ *                                             contributed by `jetpack-search/filter-post-type`.
+ *                                             Folded into the ES filter clause as `bool.should`
+ *                                             (include) and `bool.must_not` (exclude). Hidden
+ *                                             from visitors — not represented in `activeFilters`
+ *                                             and not surfaced in the active-filters pill list.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {

@@ -1,6 +1,7 @@
 import {
 	SEARCH_FIELDS,
 	WC_RATING_RANGES,
+	aggregationKeyFor,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
@@ -202,6 +203,49 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'aggregations%5Bauthors%5D%5Bterms%5D%5Border%5D%5B_key%5D=asc' );
 	} );
 
+	it( 'rewrites a mapped custom taxonomy onto the slot in both aggregations and the filter clause', () => {
+		// End-to-end pin: a filter-checkbox block authored against `genre`
+		// with a slot mapping must aggregate against the slot field AND
+		// send the aggregation under the slot key — the WPCOM search proxy
+		// validates the agg name against indexable taxonomies, so
+		// `aggregations[genre]` against a non-indexed slug silently returns
+		// nothing. Filter clauses also target the slot field. The response
+		// is remapped back to `genre` (the filterKey) in `store/index.js`
+		// before downstream consumers see it, so URL params, the in-store
+		// `activeFilters` shape, and the active-filters pill list all stay
+		// user-facing.
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'paperback',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			filterConfigs: {
+				genre: {
+					filterType: 'taxonomy',
+					taxonomy: 'genre',
+					effectiveSlug: 'jetpack-search-tag1',
+					maxItems: 10,
+				},
+			},
+			activeFilters: { genre: [ 'fiction' ] },
+		} );
+		const decoded = decodeURIComponent( url );
+		// Aggregation key and field path both swap to the slot.
+		expect( decoded ).toContain(
+			'aggregations[jetpack-search-tag1][terms][field]=taxonomy.jetpack-search-tag1.slug_slash_name'
+		);
+		// Filter clause similarly targets the slot field rather than `taxonomy.genre.*`.
+		expect( decoded ).toContain(
+			'filter[bool][must][0][term][taxonomy.jetpack-search-tag1.slug]=fiction'
+		);
+		// And we never leak the user-facing slug into the API surface.
+		expect( decoded ).not.toContain( 'aggregations[genre]' );
+		expect( decoded ).not.toContain( 'taxonomy.genre.slug_slash_name' );
+	} );
+
 	it( 'omits aggregations and filter when no configs or selections are supplied', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
@@ -238,6 +282,67 @@ describe( 'resolveFilterFields', () => {
 		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
 			aggField: 'taxonomy.genre.slug_slash_name',
 			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'rewrites a mapped custom taxonomy onto the reserved jetpack-search-tagN slot via effectiveSlug', () => {
+		// `jetpack_search_custom_taxonomy_map` is the supported escape
+		// hatch for taxonomies that aren't natively indexed by Jetpack
+		// Search. PHP `Filter_Checkbox::build_config()` pre-resolves the
+		// slot into the filterConfig's `effectiveSlug` field at config-
+		// build time, so this function stays a pure transform — no global
+		// map argument and no need for response-side normalization.
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toEqual( {
+			aggField: 'taxonomy.jetpack-search-tag1.slug_slash_name',
+			filterField: 'taxonomy.jetpack-search-tag1.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'falls back to the raw taxonomy slug when effectiveSlug is absent', () => {
+		// Older saved filterConfigs may predate the `effectiveSlug` field;
+		// new configs always set it (equal to `taxonomy` for unmapped
+		// slugs). Pin the defensive fallback so the front-end still
+		// renders a working request shape.
+		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
+			aggField: 'taxonomy.genre.slug_slash_name',
+			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'pins built-in taxonomies on their canonical fields regardless of effectiveSlug', () => {
+		// Server-side `Search_Blocks::resolve_taxonomy_slot()` never
+		// returns a slot for a built-in slug. Pin the JS-side defense
+		// anyway so a hand-rolled filterConfig (or a future server-side
+		// bug) can't silently redirect a built-in filter onto a slot.
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toEqual( {
+			aggField: 'category.slug_slash_name',
+			filterField: 'category.slug',
+			bucketFormat: 'slash',
+		} );
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'post_tag',
+				effectiveSlug: 'jetpack-search-tag2',
+			} )
+		).toEqual( {
+			aggField: 'tag.slug_slash_name',
+			filterField: 'tag.slug',
 			bucketFormat: 'slash',
 		} );
 	} );
@@ -282,6 +387,53 @@ describe( 'resolveFilterFields', () => {
 			filterField: 'date',
 			bucketFormat: 'date',
 		} );
+	} );
+} );
+
+describe( 'aggregationKeyFor', () => {
+	// Pure-function pin for the request-side agg key. Built-ins and
+	// unmapped customs key by `filterKey`; mapped customs key by the slot
+	// so the WPCOM search proxy's taxonomy-name validation accepts the
+	// aggregation.
+	it( 'returns the slot when effectiveSlug differs from taxonomy', () => {
+		expect(
+			aggregationKeyFor( 'genre', {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toBe( 'jetpack-search-tag1' );
+	} );
+
+	it( 'returns the filterKey for unmapped custom taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'mood', {
+				filterType: 'taxonomy',
+				taxonomy: 'mood',
+				effectiveSlug: 'mood',
+			} )
+		).toBe( 'mood' );
+	} );
+
+	it( 'returns the filterKey for built-in taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'category', {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+			} )
+		).toBe( 'category' );
+	} );
+
+	it( 'returns the filterKey for non-taxonomy filterTypes', () => {
+		// `effectiveSlug` is the empty string for non-taxonomy filterTypes
+		// (per `Filter_Checkbox::build_config()`), and a missing `taxonomy`
+		// must never produce a slot routing — only mapped *taxonomy*
+		// filters get rerouted.
+		expect(
+			aggregationKeyFor( 'post_types', { filterType: 'post_type', effectiveSlug: '' } )
+		).toBe( 'post_types' );
+		expect( aggregationKeyFor( 'authors', { filterType: 'author' } ) ).toBe( 'authors' );
 	} );
 } );
 

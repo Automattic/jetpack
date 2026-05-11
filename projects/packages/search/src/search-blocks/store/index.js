@@ -116,6 +116,44 @@ export function overlayFilterLogic( filterConfigs, filterLogic ) {
 }
 
 /**
+ * Reverse the slot-keyed aggregation response back onto user-facing filter
+ * keys. The API request keys mapped custom taxonomies under the slot slug
+ * (e.g. `jetpack-search-tag1`) because the WPCOM search proxy validates
+ * aggregation names against indexable taxonomies — see
+ * `aggregationKeyFor` in `store/api.js`. Downstream readers all key off
+ * `filterKey` (`genre`), so we flip back here, once, before the response
+ * hits store state.
+ *
+ * Built-in and unmapped taxonomies pass through untouched: their
+ * `effectiveSlug` equals their `filterKey`, so there's nothing to swap.
+ *
+ * @param {object} aggregations  - Raw `data.aggregations` from the API.
+ * @param {object} filterConfigs - Registered filter configs.
+ * @return {object} Aggregations keyed by user-facing `filterKey`.
+ */
+export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
+	if ( ! aggregations || typeof aggregations !== 'object' ) {
+		return {};
+	}
+	const slotToFilterKey = {};
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const slug = config?.effectiveSlug;
+		if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+			slotToFilterKey[ slug ] = filterKey;
+		}
+	}
+	if ( Object.keys( slotToFilterKey ).length === 0 ) {
+		return aggregations;
+	}
+	const remapped = {};
+	for ( const [ key, value ] of Object.entries( aggregations ) ) {
+		const target = slotToFilterKey[ key ] ?? key;
+		remapped[ target ] = value;
+	}
+	return remapped;
+}
+
+/**
  * True when a filter key has anything to render: live aggregation buckets,
  * session-retained options, or an active selection. Drives wrapper
  * visibility — without the retained / selection check a narrower query
@@ -709,7 +747,10 @@ const { state, actions } = store( NAMESPACE, {
 				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				state.aggregations = data.aggregations ?? {};
+				state.aggregations = remapAggregationsToFilterKeys(
+					data.aggregations,
+					state.filterConfigs
+				);
 				state.retainedFilterOptions = mergeRetainedFilterOptions(
 					state.retainedFilterOptions,
 					state.aggregations,

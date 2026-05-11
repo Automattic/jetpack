@@ -32,6 +32,7 @@ import {
 	actions,
 	computeResultsCountText,
 	gateActiveFilters,
+	remapAggregationsToFilterKeys,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -246,6 +247,57 @@ describe( 'store actions', () => {
 		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
 		// so an empty count string falls out for free — no extra wiring.
 		expect( state.resultsCountText ).toBe( '' );
+	} );
+
+	it( 'remaps slot-keyed aggregations back to the user-facing filterKey when search() resolves', async () => {
+		// End-to-end pin: a mapped custom taxonomy (`genre` →
+		// `jetpack-search-tag1`) sends its aggregation request under the
+		// slot slug because the WPCOM search proxy validates aggregation
+		// names against indexable taxonomies. The API response comes back
+		// keyed by the slot too. Every downstream consumer (`filterItems`,
+		// `retainedFilterOptions`, wrapper-visibility checks) reads
+		// `state.aggregations[filterKey]`, so `actions.search()` must flip
+		// the response key back to `genre` once before persisting to state.
+		// Otherwise the bucket list would never reach the Genre filter UI
+		// despite the API returning data for it.
+		state.filterConfigs = {
+			genre: {
+				filterKey: 'genre',
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+				maxItems: 10,
+			},
+		};
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Genre hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					'jetpack-search-tag1': {
+						buckets: [
+							{ key: 'fantasy/Fantasy', doc_count: 3 },
+							{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+						],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toEqual( {
+			genre: {
+				buckets: [
+					{ key: 'fantasy/Fantasy', doc_count: 3 },
+					{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+				],
+			},
+		} );
+		// Slot key must not leak into state — downstream readers key off
+		// `filterKey`, never `effectiveSlug`.
+		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
@@ -637,6 +689,57 @@ describe( 'store getters', () => {
 		expect( state.allBucketsSelected ).toBe( true );
 
 		captured.context = {};
+	} );
+} );
+
+describe( 'remapAggregationsToFilterKeys', () => {
+	// Mirror of `aggregationKeyFor` on the response side: the API returns
+	// buckets under the slot slug for mapped custom taxonomies, but every
+	// downstream consumer (`filterItems`, `retainedFilterOptions`,
+	// wrapper-visibility) reads `aggregations[filterKey]`. This helper
+	// flips the keys back exactly once before the response hits store
+	// state.
+	it( 'rewrites slot-keyed buckets back to the user-facing filterKey', () => {
+		const aggregations = {
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'returns the same object reference when no mapped filters are present', () => {
+		// Built-ins and unmapped customs key by the filterKey already, so
+		// the helper can short-circuit and avoid a needless clone.
+		const aggregations = { category: { buckets: [] } };
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toBe( aggregations );
+	} );
+
+	it( 'leaves non-slot buckets alone when remapping a mapped one', () => {
+		const aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'tolerates missing or invalid input gracefully', () => {
+		expect( remapAggregationsToFilterKeys( undefined, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( null, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( {}, undefined ) ).toEqual( {} );
 	} );
 } );
 

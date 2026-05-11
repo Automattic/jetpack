@@ -86,6 +86,15 @@ class Search_Blocks {
 	private static $is_woocommerce_active_cache = null;
 
 	/**
+	 * Per-request memo backing `supported_custom_taxonomies()`. Derived from
+	 * the Sync allowlist intersected with registered taxonomies and unioned
+	 * with the map's user-facing keys; same inputs every request.
+	 *
+	 * @var string[]|null
+	 */
+	private static $supported_custom_taxonomies_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -122,6 +131,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		Custom_Taxonomy_Slot_Mapping::init();
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -281,6 +291,116 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Built-in taxonomies that have their own dedicated filter-checkbox
+	 * variations — Category / Tag plus the three WooCommerce product
+	 * taxonomies. Excluded from the "Custom Taxonomy" picker (both server
+	 * and editor) so site builders reach for the dedicated variation rather
+	 * than the generic Custom Taxonomy entry. Mirrors `BUILT_IN_TAXONOMY_SLUGS`
+	 * in filter-checkbox/edit.js — must stay in lockstep.
+	 *
+	 * @var string[]
+	 */
+	const BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS = array(
+		'category',
+		'post_tag',
+		'product_cat',
+		'product_tag',
+		'product_brand',
+	);
+
+	/**
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::get_map()`.
+	 * The slot-mapping logic lives in its own class; this proxy keeps the
+	 * editor enqueue + `supported_custom_taxonomies()` call sites stable.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function custom_taxonomy_map(): array {
+		return Custom_Taxonomy_Slot_Mapping::get_map();
+	}
+
+	/**
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::resolve_slot()`.
+	 * Used by `Filter_Checkbox::build_config()` to seed `effectiveSlug`
+	 * on each filterConfig at config-build time.
+	 *
+	 * @param string $taxonomy User-facing taxonomy slug.
+	 * @return string Effective ES field slug.
+	 */
+	public static function resolve_taxonomy_slot( string $taxonomy ): string {
+		return Custom_Taxonomy_Slot_Mapping::resolve_slot( $taxonomy );
+	}
+
+	/**
+	 * Reset both the slot-mapping memo and the `supported_custom_taxonomies()`
+	 * memo. Tests only — production WP runs a single request per process and
+	 * the map is derived purely from a filter hook, so callers should never
+	 * need to clear the cache.
+	 *
+	 * @internal
+	 */
+	public static function reset_custom_taxonomy_map_cache(): void {
+		Custom_Taxonomy_Slot_Mapping::reset_cache_for_testing();
+		self::$supported_custom_taxonomies_cache = null;
+	}
+
+	/**
+	 * Custom-taxonomy slugs the "Custom Taxonomy" filter variation should
+	 * offer in the editor picker. A taxonomy is "supported" when:
+	 *
+	 *   1. It's registered locally AND in Jetpack Search's indexable
+	 *      allowlist (`Sync\Modules\Search::get_all_taxonomies()`), so an
+	 *      aggregation against it will actually return buckets; OR
+	 *   2. It's a key in `custom_taxonomy_map()` AND registered locally —
+	 *      the mapping routes its queries through a reserved slot.
+	 *
+	 * Built-in slugs already covered by dedicated filter variations
+	 * (`category`, `post_tag`, `product_cat`, `product_tag`, `product_brand`)
+	 * are stripped so the Custom Taxonomy variation never offers them as
+	 * alternatives.
+	 *
+	 * The Sync allowlist comes from `automattic/jetpack-sync` (a runtime
+	 * dependency of `automattic/jetpack-search`); the class_exists guard is
+	 * defensive for partial installs / isolated tests where the Sync
+	 * package isn't autoloaded — in that case the helper falls back to
+	 * "map keys only", which is the most conservative answer.
+	 *
+	 * @return string[] Distinct, zero-indexed list of supported taxonomy slugs.
+	 */
+	public static function supported_custom_taxonomies(): array {
+		if ( null !== self::$supported_custom_taxonomies_cache ) {
+			return self::$supported_custom_taxonomies_cache;
+		}
+
+		// Limit to public taxonomies so the picker stays in lockstep with
+		// the editor's `core.getTaxonomies()` call, which only returns
+		// REST-visible (public) taxonomies. Avoids surfacing a private
+		// taxonomy that happens to be in the Sync allowlist.
+		$registered = function_exists( 'get_taxonomies' )
+			? array_values( get_taxonomies( array( 'public' => true ), 'names' ) )
+			: array();
+
+		$indexed = class_exists( '\\Automattic\\Jetpack\\Sync\\Modules\\Search' )
+			? \Automattic\Jetpack\Sync\Modules\Search::get_all_taxonomies()
+			: array();
+
+		$map_keys = array_keys( self::custom_taxonomy_map() );
+
+		// A registered taxonomy is supported when it sits in the index
+		// allowlist OR when the site owner has mapped it to a slot.
+		$candidates = array_unique( array_merge( $indexed, $map_keys ) );
+		$supported  = array_values(
+			array_diff(
+				array_values( array_intersect( $registered, $candidates ) ),
+				self::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS
+			)
+		);
+
+		self::$supported_custom_taxonomies_cache = $supported;
+		return $supported;
+	}
+
+	/**
 	 * URL param key the inline search experience uses for the current request.
 	 *
 	 * On WP's search route (`is_search()`) the canonical `s` key is used so
@@ -342,8 +462,21 @@ class Search_Blocks {
 			'jetpack-search-blocks-register',
 			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
 				array(
-					'isWooCommerceActive'   => self::is_woocommerce_active(),
-					'woocommerceOnlyBlocks' => self::woocommerce_only_block_names(),
+					'isWooCommerceActive'       => self::is_woocommerce_active(),
+					'woocommerceOnlyBlocks'     => self::woocommerce_only_block_names(),
+					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
+					// picker in filter-checkbox/edit.js — only taxonomies in
+					// this list (Jetpack-Search-indexed OR mapped to a
+					// reserved slot via `jetpack_search_custom_taxonomy_map`)
+					// are offered. See `supported_custom_taxonomies()` for
+					// the derivation and the FAQ link:
+					// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+					'supportedCustomTaxonomies' => self::supported_custom_taxonomies(),
+					// `customTaxonomyMap` is keyed by the user-facing slug;
+					// the picker uses key membership to append a "(mapped)"
+					// suffix to those entries' labels so authors know the
+					// filter routes through a reserved slot.
+					'customTaxonomyMap'         => (object) self::custom_taxonomy_map(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -901,7 +1034,10 @@ class Search_Blocks {
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
-			// taxonomy, label, showCount, maxItems } }.
+			// taxonomy, effectiveSlug, label, showCount, maxItems } }. The
+			// `effectiveSlug` is resolved server-side at config-build time
+			// against `jetpack_search_custom_taxonomy_map`, so JS query
+			// builders never have to consult the global map themselves.
 			'filterConfigs'         => array(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
