@@ -67,6 +67,21 @@ add_action(
 	}
 );
 
+// Hidden submenu pages (empty parent slug) are not found by get_admin_page_title(),
+// so the browser tab shows only the site name. Fix via the admin_title filter.
+add_filter(
+	'admin_title',
+	function ( $admin_title, $title ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		if ( empty( $title ) && isset( $_GET['page'] ) && 'write' === $_GET['page'] ) {
+			return __( 'Write editor', 'jetpack-mu-wpcom' ) . $admin_title;
+		}
+		return $admin_title;
+	},
+	10,
+	2
+);
+
 /**
  * Register the Write admin page.
  *
