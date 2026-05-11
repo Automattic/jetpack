@@ -11,6 +11,8 @@ use Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use PHPUnit\Framework\Attributes\CoversClass;
 
+require_once __DIR__ . '/class-monitor-abilities-test-stub.php';
+
 /**
  * @covers \Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities
  */
@@ -300,7 +302,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'module_active', $result );
 		$this->assertArrayHasKey( 'user_connected', $result );
 		$this->assertArrayHasKey( 'notifications_enabled', $result );
-		$this->assertArrayHasKey( 'last_downtime', $result );
+		$this->assertArrayHasKey( 'last_status_change', $result );
 		$this->assertIsBool( $result['module_active'] );
 		$this->assertIsBool( $result['user_connected'] );
 	}
@@ -314,7 +316,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertFalse( $result['module_active'] );
 		$this->assertFalse( $result['user_connected'] );
 		$this->assertNull( $result['notifications_enabled'] );
-		$this->assertNull( $result['last_downtime'] );
+		$this->assertNull( $result['last_status_change'] );
 	}
 
 	public function test_get_monitor_status_reports_module_active_when_filter_flags_it() {
@@ -366,8 +368,10 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	public function test_set_notifications_errors_when_module_inactive() {
-		// Precondition gate: module inactive → error before any IXR call, with a
-		// message that steers the agent to jetpack-modules/set-module-status.
+		// Precondition gate: module inactive → error before any IXR call.
+		// Belt-and-braces — in practice this branch is unreachable in production
+		// because the ability is only registered while the module is active, but
+		// the callback still checks defensively in case of a race or direct call.
 		wp_set_current_user( $this->admin_id );
 		$result = Monitor_Abilities::set_notifications( array( 'enabled' => true ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -391,5 +395,95 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$result = Monitor_Abilities::set_notifications( array( 'enabled' => true ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_monitor_not_connected', $result->get_error_code() );
+	}
+
+	// -------------------- Success-path coverage via test double --------------------
+
+	/**
+	 * Success-path tests need a seam: the production callback talks to a real
+	 * remote Monitor service via IXR, and a connected Jetpack user. The
+	 * `Monitor_Abilities_Test_Stub` test double (defined below this class) overrides
+	 * the protected seams so we can drive `set_notifications()` through its
+	 * end-to-end logic without standing up a Jetpack token fixture.
+	 */
+	public function test_set_notifications_returns_changed_true_when_state_flips() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset( false );
+
+		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['enabled'] );
+		$this->assertTrue( $result['changed'] );
+		$this->assertSame( 1, Monitor_Abilities_Test_Stub::$apply_calls, 'IXR setNotifications should have been called exactly once.' );
+		$this->assertTrue( Monitor_Abilities_Test_Stub::$last_applied, 'apply_notifications_update should have been called with the desired value.' );
+		// `update_option` stores booleans as '1'/'' through the DB roundtrip; assert truthiness
+		// rather than the exact string so this test is robust to env differences.
+		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'monitor_receive_notifications option should mirror the new state.' );
+	}
+
+	public function test_set_notifications_returns_changed_false_when_state_matches() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset( true );
+
+		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['enabled'] );
+		$this->assertFalse( $result['changed'] );
+		$this->assertSame( 0, Monitor_Abilities_Test_Stub::$apply_calls, 'Idempotent no-op: apply_notifications_update should not run when desired matches current.' );
+		$sentinel = '__monitor_abilities_option_unset__';
+		$this->assertSame( $sentinel, get_option( 'monitor_receive_notifications', $sentinel ), 'No-op: the mirrored option should not be written.' );
+	}
+
+	// -------------------- Real bootstrap path --------------------
+
+	/**
+	 * When the Monitor module is inactive, modules/monitor.php is never loaded
+	 * by Jetpack, so the Monitor_Abilities::init() call inside it never runs and
+	 * the abilities are not registered. This codifies the gated-registration
+	 * contract — discovery of Monitor in the inactive state belongs to a future
+	 * module-management ability category, not here.
+	 */
+	public function test_abilities_are_not_registered_when_monitor_module_is_inactive() {
+		if ( ! function_exists( 'wp_get_abilities' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this WP version.' );
+		}
+
+		// Do NOT fire the lifecycle or call init() — this mirrors the real
+		// bootstrap path when monitor.php has not been included by Jetpack.
+		$registered_slugs = array();
+		foreach ( wp_get_abilities() as $ability ) {
+			$name = $ability->get_name();
+			if ( str_starts_with( $name, 'jetpack-monitor/' ) ) {
+				$registered_slugs[] = $name;
+			}
+		}
+
+		$this->assertSame(
+			array(),
+			$registered_slugs,
+			'Monitor abilities must not be registered while the Monitor module is inactive (modules/monitor.php not loaded).'
+		);
 	}
 }

@@ -52,7 +52,7 @@ class Monitor_Abilities extends Registrar {
 		return array(
 			'jetpack-monitor/get-monitor-status' => array(
 				'label'               => __( 'Get Jetpack Monitor status', 'jetpack' ),
-				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_downtime }. notifications_enabled is a boolean (does the current user receive downtime alerts) and last_downtime is a "YYYY-MM-DD HH:mm:ss" UTC string or null when no downtime has been recorded. Both are null when module_active or user_connected is false, or when the remote service is unreachable — inspect module_active and user_connected to decide the next step. Use this to verify preconditions before calling jetpack-monitor/set-notifications.', 'jetpack' ),
+				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Both notifications_enabled and last_status_change are null when the user is not connected to Jetpack or the remote service is unreachable. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -63,7 +63,7 @@ class Monitor_Abilities extends Registrar {
 						'module_active'         => array( 'type' => 'boolean' ),
 						'user_connected'        => array( 'type' => 'boolean' ),
 						'notifications_enabled' => array( 'type' => array( 'boolean', 'null' ) ),
-						'last_downtime'         => array( 'type' => array( 'string', 'null' ) ),
+						'last_status_change'    => array( 'type' => array( 'string', 'null' ) ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'get_monitor_status' ),
@@ -80,7 +80,7 @@ class Monitor_Abilities extends Registrar {
 
 			'jetpack-monitor/set-notifications'  => array(
 				'label'               => __( 'Set Jetpack Monitor notifications', 'jetpack' ),
-				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Monitor module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify. Fails with jetpack_monitor_module_inactive (call jetpack-modules/set-module-status with slug "monitor" and active true) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
+				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Monitor module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Monitor module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'enabled' ),
@@ -133,28 +133,30 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Execute: overview read. Always returns the same shape; fields that depend
-	 * on the remote service degrade to null when preconditions aren't met or the
-	 * service is unreachable.
+	 * on the remote service degrade to null when the user is not connected to
+	 * Jetpack or the service is unreachable. `module_active` is always true here
+	 * — these abilities are only registered while the Monitor module is active —
+	 * but the field is kept in the output for explicit, self-describing responses.
 	 *
 	 * @param array|null $input Ability input (no parameters accepted).
 	 * @return array
 	 */
 	public static function get_monitor_status( $input = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
 		$module_active  = Jetpack::is_module_active( self::MODULE_SLUG );
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+		$user_connected = static::is_user_connected_to_jetpack();
 
 		$notifications_enabled = null;
-		$last_downtime         = null;
+		$last_status_change    = null;
 
 		if ( $module_active && $user_connected ) {
-			$state = self::fetch_notifications_state();
+			$state = static::fetch_notifications_state();
 			if ( ! is_wp_error( $state ) ) {
 				$notifications_enabled = $state;
 			}
 
-			$downtime = self::fetch_last_downtime();
-			if ( ! is_wp_error( $downtime ) ) {
-				$last_downtime = $downtime;
+			$status_change = static::fetch_last_status_change();
+			if ( ! is_wp_error( $status_change ) ) {
+				$last_status_change = $status_change;
 			}
 		}
 
@@ -162,7 +164,7 @@ class Monitor_Abilities extends Registrar {
 			'module_active'         => $module_active,
 			'user_connected'        => $user_connected,
 			'notifications_enabled' => $notifications_enabled,
-			'last_downtime'         => $last_downtime,
+			'last_status_change'    => $last_status_change,
 		);
 	}
 
@@ -192,11 +194,11 @@ class Monitor_Abilities extends Registrar {
 		if ( ! Jetpack::is_module_active( self::MODULE_SLUG ) ) {
 			return new \WP_Error(
 				'jetpack_monitor_module_inactive',
-				__( 'The Monitor module is not active. Call jetpack-modules/set-module-status with slug "monitor" and active true before configuring notifications.', 'jetpack' )
+				__( 'The Monitor module is not active. Activate it before configuring notifications.', 'jetpack' )
 			);
 		}
 
-		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
+		if ( ! static::is_user_connected_to_jetpack() ) {
 			return new \WP_Error(
 				'jetpack_monitor_not_connected',
 				__( 'The current user is not connected to Jetpack. Connect the user to Jetpack before configuring Monitor notifications.', 'jetpack' )
@@ -204,7 +206,7 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		$desired = $input['enabled'];
-		$current = self::fetch_notifications_state();
+		$current = static::fetch_notifications_state();
 		if ( is_wp_error( $current ) ) {
 			return $current;
 		}
@@ -216,13 +218,9 @@ class Monitor_Abilities extends Registrar {
 			);
 		}
 
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'jetpack.monitor.setNotifications', $desired );
-		if ( $xml->isError() ) {
-			return new \WP_Error(
-				'jetpack_monitor_notifications_update_failed',
-				sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() )
-			);
+		$applied = static::apply_notifications_update( $desired );
+		if ( is_wp_error( $applied ) ) {
+			return $applied;
 		}
 
 		// Mirror the write to the `monitor_receive_notifications` option so the
@@ -237,12 +235,41 @@ class Monitor_Abilities extends Registrar {
 	}
 
 	/**
+	 * Whether the current user is connected to Jetpack.
+	 *
+	 * Extracted as a protected seam so tests can override the connection check
+	 * without standing up a full Jetpack token fixture.
+	 */
+	protected static function is_user_connected_to_jetpack(): bool {
+		return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
+	}
+
+	/**
+	 * Send the IXR `jetpack.monitor.setNotifications` request to apply the
+	 * desired state on the remote Monitor service.
+	 *
+	 * @param bool $enabled Desired notification state.
+	 * @return true|\WP_Error True on success, WP_Error on remote failure.
+	 */
+	protected static function apply_notifications_update( bool $enabled ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.monitor.setNotifications', $enabled );
+		if ( $xml->isError() ) {
+			return new \WP_Error(
+				'jetpack_monitor_notifications_update_failed',
+				sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() )
+			);
+		}
+		return true;
+	}
+
+	/**
 	 * Fetch the current notifications state from the remote Monitor service.
 	 *
 	 * @return bool|\WP_Error Boolean preference when the remote call succeeds,
 	 *                        WP_Error when the remote call fails.
 	 */
-	private static function fetch_notifications_state() {
+	protected static function fetch_notifications_state() {
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
 		$xml->query( 'jetpack.monitor.isUserInNotifications' );
 		if ( $xml->isError() ) {
@@ -255,14 +282,21 @@ class Monitor_Abilities extends Registrar {
 	}
 
 	/**
-	 * Fetch the last downtime timestamp from the remote Monitor service,
-	 * reusing the same transient key and 10-minute TTL written by the legacy module.
+	 * Fetch the last up/down status-change timestamp from the remote Monitor
+	 * service, reusing the same transient key and 10-minute TTL written by the
+	 * legacy module.
+	 *
+	 * The remote `jetpack.monitor.getLastDowntime` XML-RPC method returns the
+	 * legacy `last_status_change` projection — the time of the most recent
+	 * up/down transition, not strictly when downtime began. The transient key
+	 * stays `monitor_last_downtime` because that is what the legacy module
+	 * writes and we share its cache.
 	 *
 	 * @return string|null|\WP_Error YYYY-MM-DD HH:mm:ss string, null when no
-	 *                               downtime has been recorded, or WP_Error on
-	 *                               a remote failure.
+	 *                               transition has been recorded, or WP_Error
+	 *                               on a remote failure.
 	 */
-	private static function fetch_last_downtime() {
+	protected static function fetch_last_status_change() {
 		$cached = get_transient( 'monitor_last_downtime' );
 		if ( false !== $cached ) {
 			return is_string( $cached ) && '' !== $cached ? $cached : null;
