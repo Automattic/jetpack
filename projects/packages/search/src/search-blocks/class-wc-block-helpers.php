@@ -96,11 +96,17 @@ class Wc_Block_Helpers {
 				// table with indexed DECIMAL `min_price` / `max_price` columns. It
 				// is the same source WC's own price-slider, classic widget, and
 				// Store API hit — and scales linearly with product count, unlike a
-				// REGEXP scan of `postmeta`. The phpcs caching warning fires because
-				// the call site doesn't use wp_cache_*; the transient covers that.
+				// REGEXP scan of `postmeta`. Joined to `wp_posts` so draft / pending /
+				// trashed products don't inflate the extents: WC populates the lookup
+				// table on every product save, not only on publish. The phpcs caching
+				// warning fires because the call site doesn't use wp_cache_*; the
+				// transient covers that.
 				$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-					"SELECT MIN(min_price) AS min_price, MAX(max_price) AS max_price
-					FROM {$wpdb->wc_product_meta_lookup}"
+					"SELECT MIN(l.min_price) AS min_price, MAX(l.max_price) AS max_price
+					FROM {$wpdb->wc_product_meta_lookup} l
+					INNER JOIN {$wpdb->posts} p ON p.ID = l.product_id
+					WHERE p.post_status = 'publish'
+						AND p.post_type IN ( 'product', 'product_variation' )"
 				);
 				if ( $row && null !== $row->min_price && null !== $row->max_price ) {
 					$extents = array(
