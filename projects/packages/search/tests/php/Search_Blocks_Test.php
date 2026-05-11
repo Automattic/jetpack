@@ -1296,14 +1296,44 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The build_initial_state seed and `enqueue_editor_assets` localization
-	 * both expose `customTaxonomyMap` to the client. Pins the contract so
-	 * the JS-side `state.customTaxonomyMap` always has a shape to read,
-	 * even on sites that haven't registered the filter.
+	 * The slot map is resolved into each filterConfig's `effectiveSlug` at
+	 * config-build time rather than threaded through the IA state seed,
+	 * so the front-end query builders stay pure. `Filter_Checkbox::build_config()`
+	 * is exercised separately in this suite; this case anchors the
+	 * intentional absence of a global `customTaxonomyMap` on the seed so a
+	 * future refactor doesn't reintroduce the bidirectional plumbing.
 	 */
-	public function test_build_initial_state_seeds_custom_taxonomy_map_slot() {
+	public function test_build_initial_state_does_not_carry_custom_taxonomy_map_globally() {
 		$state = Search_Blocks::build_initial_state();
-		$this->assertArrayHasKey( 'customTaxonomyMap', $state );
+		$this->assertArrayNotHasKey( 'customTaxonomyMap', $state );
+	}
+
+	/**
+	 * The resolver routes mapped slugs to their slot and unmapped slugs to
+	 * themselves. Built-in slugs (covered by their own filter variations)
+	 * always return verbatim regardless of map content, so a stray entry
+	 * can't silently redirect a built-in filter.
+	 */
+	public function test_resolve_taxonomy_slot_routes_mapped_and_built_in_slugs_correctly() {
+		$callback = static function ( $map ) {
+			$map['genre']       = 'jetpack-search-tag1';
+			$map['category']    = 'jetpack-search-tag9'; // Should be ignored.
+			$map['product_cat'] = 'jetpack-search-tag8'; // Should be ignored.
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame( '', Search_Blocks::resolve_taxonomy_slot( '' ) );
+			$this->assertSame( 'jetpack-search-tag1', Search_Blocks::resolve_taxonomy_slot( 'genre' ) );
+			$this->assertSame( 'mood', Search_Blocks::resolve_taxonomy_slot( 'mood' ) );
+			$this->assertSame( 'category', Search_Blocks::resolve_taxonomy_slot( 'category' ) );
+			$this->assertSame( 'post_tag', Search_Blocks::resolve_taxonomy_slot( 'post_tag' ) );
+			$this->assertSame( 'product_cat', Search_Blocks::resolve_taxonomy_slot( 'product_cat' ) );
+			$this->assertSame( 'product_tag', Search_Blocks::resolve_taxonomy_slot( 'product_tag' ) );
+			$this->assertSame( 'product_brand', Search_Blocks::resolve_taxonomy_slot( 'product_brand' ) );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
 	}
 
 	/**

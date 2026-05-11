@@ -356,14 +356,6 @@ function* fetchResults( pageHandle ) {
 		filterConfigs: state.filterConfigs,
 		priceRange: state.priceRange,
 		staticPostTypes: state.staticPostTypes,
-		// Seeded server-side via `Search_Blocks::build_initial_state()` from
-		// the `jetpack_search_custom_taxonomy_map` filter. Empty unless the
-		// site has opted into mapping a custom taxonomy onto one of the
-		// reserved `jetpack-search-tagN` slots — in which case
-		// `resolveFilterFields` rewrites the inner ES field path so this
-		// block's aggregation hits the slot rather than the (unindexed)
-		// raw taxonomy slug.
-		customTaxonomyMap: state.customTaxonomyMap,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},

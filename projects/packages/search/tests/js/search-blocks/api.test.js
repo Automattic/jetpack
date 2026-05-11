@@ -205,10 +205,11 @@ describe( 'buildSearchUrl', () => {
 	it( 'rewrites a mapped custom taxonomy onto the slot in both aggregations and the filter clause', () => {
 		// End-to-end pin: a filter-checkbox block authored against `genre`
 		// with a slot mapping must both aggregate against the slot field
-		// and emit a term clause against the slot field. The filterKey
-		// stays user-facing (`genre`), so URL params, response keys, and
-		// the in-store `activeFilters` shape are all untouched — the
-		// translation is a pure field-path concern.
+		// and emit a term clause against the slot field. The PHP-side
+		// `Filter_Checkbox::build_config()` puts the resolved slot into
+		// `effectiveSlug` on the filterConfig, so JS just reads it. The
+		// filterKey stays user-facing (`genre`) so URL params, response
+		// keys, and the in-store `activeFilters` shape are all untouched.
 		const url = buildSearchUrl( {
 			siteId: 12345,
 			searchQuery: 'paperback',
@@ -218,10 +219,14 @@ describe( 'buildSearchUrl', () => {
 			isWpcom: false,
 			apiRoot: 'https://example.com/wp-json/',
 			filterConfigs: {
-				genre: { filterType: 'taxonomy', taxonomy: 'genre', maxItems: 10 },
+				genre: {
+					filterType: 'taxonomy',
+					taxonomy: 'genre',
+					effectiveSlug: 'jetpack-search-tag1',
+					maxItems: 10,
+				},
 			},
 			activeFilters: { genre: [ 'fiction' ] },
-			customTaxonomyMap: { genre: 'jetpack-search-tag1' },
 		} );
 		const decoded = decodeURIComponent( url );
 		// Aggregation key stays user-facing, but the field path swaps.
@@ -277,20 +282,19 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
-	it( 'rewrites a mapped custom taxonomy onto the reserved jetpack-search-tagN slot', () => {
+	it( 'rewrites a mapped custom taxonomy onto the reserved jetpack-search-tagN slot via effectiveSlug', () => {
 		// `jetpack_search_custom_taxonomy_map` is the supported escape
 		// hatch for taxonomies that aren't natively indexed by Jetpack
-		// Search: the site stores their term data under one of the
-		// `jetpack-search-tagN` slot taxonomies and declares the mapping
-		// from the user-facing slug. The aggregation/filter requests must
-		// rewrite the inner ES field path onto the slot, while the
-		// aggregation KEY (and therefore `state.aggregations[ filterKey ]`)
-		// stays user-facing so no response-side normalization is needed.
+		// Search. PHP `Filter_Checkbox::build_config()` pre-resolves the
+		// slot into the filterConfig's `effectiveSlug` field at config-
+		// build time, so this function stays a pure transform — no global
+		// map argument and no need for response-side normalization.
 		expect(
-			resolveFilterFields(
-				{ filterType: 'taxonomy', taxonomy: 'genre' },
-				{ genre: 'jetpack-search-tag1' }
-			)
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
 		).toEqual( {
 			aggField: 'taxonomy.jetpack-search-tag1.slug_slash_name',
 			filterField: 'taxonomy.jetpack-search-tag1.slug',
@@ -298,59 +302,46 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
-	it( 'falls through to the generic taxonomy fields when the map has no entry for the slug', () => {
-		// Mixed map: `mood` is mapped but `genre` is not. The unmapped
-		// slug must still resolve via the natural `taxonomy.<slug>.*`
-		// path so a site that mixes natively-indexed taxonomies with
-		// slot-mapped ones doesn't accidentally lose the former.
-		expect(
-			resolveFilterFields(
-				{ filterType: 'taxonomy', taxonomy: 'genre' },
-				{ mood: 'jetpack-search-tag2' }
-			)
-		).toEqual( {
+	it( 'falls back to the raw taxonomy slug when effectiveSlug is absent', () => {
+		// Older saved filterConfigs may predate the `effectiveSlug` field;
+		// new configs always set it (equal to `taxonomy` for unmapped
+		// slugs). Pin the defensive fallback so the front-end still
+		// renders a working request shape.
+		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
 			aggField: 'taxonomy.genre.slug_slash_name',
 			filterField: 'taxonomy.genre.slug',
 			bucketFormat: 'slash',
 		} );
 	} );
 
-	it( 'leaves built-in category / post_tag fields untouched even when a map is present', () => {
-		// Built-ins have their own dedicated variations and never appear
-		// in the Custom Taxonomy picker, but pin the behavior anyway so
-		// a malicious or accidental map entry can't redirect built-in
-		// filters into a slot.
+	it( 'pins built-in taxonomies on their canonical fields regardless of effectiveSlug', () => {
+		// Server-side `Search_Blocks::resolve_taxonomy_slot()` never
+		// returns a slot for a built-in slug. Pin the JS-side defense
+		// anyway so a hand-rolled filterConfig (or a future server-side
+		// bug) can't silently redirect a built-in filter onto a slot.
 		expect(
-			resolveFilterFields(
-				{ filterType: 'taxonomy', taxonomy: 'category' },
-				{ category: 'jetpack-search-tag1' }
-			)
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
 		).toEqual( {
 			aggField: 'category.slug_slash_name',
 			filterField: 'category.slug',
 			bucketFormat: 'slash',
 		} );
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'post_tag',
+				effectiveSlug: 'jetpack-search-tag2',
+			} )
+		).toEqual( {
+			aggField: 'tag.slug_slash_name',
+			filterField: 'tag.slug',
+			bucketFormat: 'slash',
+		} );
 	} );
-
-	it.each( [ 'product_cat', 'product_tag', 'product_brand' ] )(
-		'leaves the WC built-in %s on its canonical field even when the map tries to redirect it',
-		taxonomy => {
-			// Same defensive guard as the category / post_tag case above —
-			// the WC product taxonomies have their own dedicated filter
-			// variations, so a saved-block deep link or a stray map entry
-			// must not silently redirect them onto a reserved slot.
-			expect(
-				resolveFilterFields(
-					{ filterType: 'taxonomy', taxonomy },
-					{ [ taxonomy ]: 'jetpack-search-tag5' }
-				)
-			).toEqual( {
-				aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
-				filterField: `taxonomy.${ taxonomy }.slug`,
-				bucketFormat: 'slash',
-			} );
-		}
-	);
 
 	it( 'uses plain `post_type` field for post type filters (no slug_slash_name)', () => {
 		expect( resolveFilterFields( { filterType: 'post_type' } ) ).toEqual( {

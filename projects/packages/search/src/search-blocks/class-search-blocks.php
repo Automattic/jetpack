@@ -404,6 +404,41 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Resolve a user-facing taxonomy slug to the Elasticsearch field slug
+	 * that should be queried for it. Returns the matching
+	 * `jetpack-search-tagN` slot when the slug has an entry in
+	 * `custom_taxonomy_map()`, otherwise the slug itself.
+	 *
+	 * Called once per filter-block at config-build time
+	 * (`Filter_Checkbox::build_config()`) so the resolved slug travels with
+	 * the filterConfig into the Interactivity store — JS query builders
+	 * never have to re-consult the map. Built-in taxonomies that have
+	 * their own dedicated variations (`category`, `post_tag`, and the WC
+	 * product taxonomies) are returned verbatim so a stray map entry can
+	 * never silently redirect a built-in filter onto a slot.
+	 *
+	 * Empty input returns empty so callers can pass the raw block attribute
+	 * without a guard.
+	 *
+	 * @param string $taxonomy User-facing taxonomy slug.
+	 * @return string Effective ES field slug.
+	 */
+	public static function resolve_taxonomy_slot( string $taxonomy ): string {
+		if ( '' === $taxonomy ) {
+			return '';
+		}
+		// Built-ins are anchored to their canonical field paths regardless
+		// of whether a map entry tries to redirect them. Mirrors the
+		// `BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS` list plus `category` /
+		// `post_tag` which have their own filter variations.
+		if ( in_array( $taxonomy, self::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS, true ) ) {
+			return $taxonomy;
+		}
+		$map = self::custom_taxonomy_map();
+		return $map[ $taxonomy ] ?? $taxonomy;
+	}
+
+	/**
 	 * Reset the `custom_taxonomy_map()` memo. Tests only — production WP runs
 	 * a single request per process and the map is derived purely from a
 	 * filter hook, so callers should never need to clear the cache.
@@ -1106,18 +1141,11 @@ class Search_Blocks {
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
-			// taxonomy, label, showCount, maxItems } }.
+			// taxonomy, effectiveSlug, label, showCount, maxItems } }. The
+			// `effectiveSlug` is resolved server-side at config-build time
+			// against `jetpack_search_custom_taxonomy_map`, so JS query
+			// builders never have to consult the global map themselves.
 			'filterConfigs'         => array(),
-
-			// Map of user-facing custom taxonomy slug → reserved Jetpack
-			// Search index slot. Empty by default; populated by the
-			// `jetpack_search_custom_taxonomy_map` filter. Consumed by
-			// store/api.js `resolveFilterFields()` so a filter-checkbox
-			// block authored against `genre` (saved attribute) builds
-			// aggregation/filter requests against
-			// `taxonomy.jetpack-search-tag1.*` instead, while URLs and
-			// editor labels keep the user-facing slug.
-			'customTaxonomyMap'     => (object) self::custom_taxonomy_map(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
