@@ -463,6 +463,53 @@ describe( 'normalizeResult', () => {
 		} );
 	} );
 
+	describe( 'matchHint search-query gating', () => {
+		// "Matches content" / "Matches comments" are only meaningful in response
+		// to a typed query. When the user is browsing with filters only (no
+		// query), every visible result is trivially a "match" — the badge reads
+		// as misleading. The gate also covers whitespace-only queries, which
+		// the API treats as empty.
+		const RAW_WITH_CONTENT_HIGHLIGHT = {
+			fields: { post_id: 1, 'title.default': 'Hello' },
+			highlight: { content: [ 'body <mark>match</mark>' ] },
+		};
+
+		it( 'suppresses matchHint when no search query was provided', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT );
+			expect( r.matchHint ).toBe( '' );
+			expect( r.matchHintIsComments ).toBe( false );
+		} );
+
+		it( 'suppresses matchHint when the search query is empty string', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', '' );
+			expect( r.matchHint ).toBe( '' );
+		} );
+
+		it( 'suppresses matchHint when the search query is whitespace only', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', '   \t  ' );
+			expect( r.matchHint ).toBe( '' );
+		} );
+
+		it( 'preserves matchHint when a real search query was typed', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', 'match' );
+			expect( r.matchHint ).toBe( 'content' );
+			expect( r.matchHintIsComments ).toBe( false );
+		} );
+
+		it( 'preserves comments matchHint when a real search query was typed', () => {
+			const r = normalizeResult(
+				{
+					fields: { post_id: 2, 'title.default': 'Hello' },
+					highlight: { comment: [ 'comment <mark>word</mark>' ] },
+				},
+				'en-US',
+				'word'
+			);
+			expect( r.matchHint ).toBe( 'comments' );
+			expect( r.matchHintIsComments ).toBe( true );
+		} );
+	} );
+
 	it( 'exposes a CSS-ready url() for the product image', () => {
 		const r = normalizeResult( {
 			fields: { 'image.url.raw': 'cdn.example.com/p.jpg' },
@@ -604,24 +651,32 @@ describe( 'normalizeResult', () => {
 	} );
 
 	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {
-		const r = normalizeResult( {
-			fields: { 'title.default': 'Hello' },
-			highlight: {
-				title: 'Hello',
-				content: [ 'some <mark>match</mark>' ],
+		const r = normalizeResult(
+			{
+				fields: { 'title.default': 'Hello' },
+				highlight: {
+					title: 'Hello',
+					content: [ 'some <mark>match</mark>' ],
+				},
 			},
-		} );
+			'en-US',
+			'match'
+		);
 		expect( r.matchHint ).toBe( 'content' );
 		expect( r.matchHintIsComments ).toBe( false );
 	} );
 
 	it( 'exposes matchHint="comments" when the comment field is highlighted but the title is not', () => {
-		const r = normalizeResult( {
-			fields: { 'title.default': 'Hello' },
-			highlight: {
-				comment: [ 'a <mark>match</mark> in comments' ],
+		const r = normalizeResult(
+			{
+				fields: { 'title.default': 'Hello' },
+				highlight: {
+					comment: [ 'a <mark>match</mark> in comments' ],
+				},
 			},
-		} );
+			'en-US',
+			'match'
+		);
 		expect( r.matchHint ).toBe( 'comments' );
 		expect( r.matchHintIsComments ).toBe( true );
 	} );

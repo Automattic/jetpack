@@ -374,11 +374,17 @@ export function deriveMatchHint( highlight, titlePieces ) {
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
- * @param {object} raw      - Raw result from the API.
- * @param {string} [locale] - BCP47 locale for date formatting.
+ * @param {object} raw           - Raw result from the API.
+ * @param {string} [locale]      - BCP47 locale for date formatting.
+ * @param {string} [searchQuery] - The query string the user actually typed. When
+ *                               empty (filter-only browse), the match-hint
+ *                               badge is suppressed — "Matches content" only
+ *                               makes sense in response to a typed query, and
+ *                               reads as misleading when every visible result
+ *                               was returned by a category/tag/price filter.
  * @return {object} Flat result.
  */
-export function normalizeResult( raw, locale = 'en-US' ) {
+export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 	const fields = raw?.fields ?? {};
 	const highlight = raw?.highlight ?? {};
 	const permalink = toSafeUrl( fields[ 'permalink.url.raw' ] );
@@ -392,7 +398,8 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 	const plainTitle = stripTags( String( fields[ 'title.default' ] ?? fields.title ?? '' ) );
 	const titlePieces = tokenizeHighlight( highlight.title );
 	const contentPieces = tokenizeHighlight( highlight.content );
-	const matchHint = deriveMatchHint( highlight, titlePieces );
+	const hasQuery = typeof searchQuery === 'string' && searchQuery.trim() !== '';
+	const matchHint = hasQuery ? deriveMatchHint( highlight, titlePieces ) : '';
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
 		title: plainTitle,
