@@ -8,7 +8,10 @@ export default {
 	title: 'Packages/Search/FeatureSelector',
 	component: FeatureSelector,
 	parameters: {
-		layout: 'centered',
+		// Stretch the form to fill the viewport width — the dashboard renders it
+		// edge-to-edge inside its own wrap, and the new detail panel design needs
+		// horizontal room for the preview + actions to lay out side-by-side.
+		layout: 'padded',
 	},
 	argTypes: {
 		isWpcom: {
