@@ -52,8 +52,6 @@ const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	return out;
 };
 
-// The wpcom relay only persists `pending`/`active`; anything else is treated as
-// absent so the modal can fall back to the initial CTA without a re-submit.
 const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
 	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
 	const out: PodcastShowStates = {};
@@ -113,9 +111,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
-	// Skip the snackbar when the save is a server-state sync (e.g. the Pocket
-	// Casts relay writing `share_link` back to `podcasting_show_urls`) rather
-	// than a user-initiated form submit.
+	// Suppress the snackbar for server-state syncs (e.g. relay → show_urls).
 	silent?: boolean;
 }
 
@@ -138,12 +134,10 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 }
 
 /**
- * Drop the cached `root/site` record so the next `usePodcastSettings()` read
- * refetches. Use after side-effect endpoints (e.g. the Pocket Casts relay)
- * that mutate `podcasting_*` options without going through core-data's save
- * path.
+ * Force a refetch after side-effect endpoints (e.g. the Pocket Casts relay)
+ * write podcasting_* options outside core-data's save path.
  *
- * @return Stable callback that invalidates the cached `root/site` entity.
+ * @return Stable invalidation callback.
  */
 export function useInvalidatePodcastSettings(): () => void {
 	const { invalidateResolution } = useDispatch( coreStore );

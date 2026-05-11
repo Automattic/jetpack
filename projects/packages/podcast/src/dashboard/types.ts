@@ -8,10 +8,7 @@ export type PodcatcherId =
 
 export type PodcastShowUrls = Record< PodcatcherId, string >;
 
-// Server-managed; populated by the Pocket Casts relay endpoint and (in future)
-// any other one-click submission flows. Mirrors `SHOW_STATES` in
-// src/class-settings.php — `pending` once submitted, `active` once the
-// directory confirms ingestion, absent when cleared.
+// Mirrors SHOW_STATES in src/class-settings.php.
 export type PodcastShowState = 'pending' | 'active';
 export type PodcastShowStates = Partial< Record< PodcatcherId, PodcastShowState > >;
 
@@ -34,8 +31,6 @@ export interface PodcastSettings {
 
 // `podcasting_show_urls` is Partial because the server merges patches into the
 // stored map — callers can send `{ apple: 'url' }` without touching siblings.
-// `podcasting_show_states` is omitted: it's server-managed by the Pocket Casts
-// relay endpoint, never client-set.
 export type PodcastSettingsUpdate = Partial<
 	Omit< PodcastSettings, 'podcasting_show_urls' | 'podcasting_show_states' >
 > & {

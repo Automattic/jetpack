@@ -1,17 +1,3 @@
-// One-click submit flow for Pocket Casts. Replaces the default 3-step modal
-// for this directory only — `pocketcasts.tsx` sets `Modal: PocketCastsModal`.
-//
-// The wpcom relay endpoint is idempotent: re-calling it for a known feed
-// returns the current state. So:
-//
-//   - On mount, if the stored state is `pending`, refresh by re-submitting
-//     (silent — no Tracks "started" event, since the user didn't click).
-//   - User-clicked submits emit `jetpack_podcast_pocketcasts_submit_started`.
-//   - Every response emits `jetpack_podcast_pocketcasts_submit_completed`.
-//   - On `active`, sync `share_link` into `podcasting_show_urls.pocketcasts`
-//     (silent save) so the public site's share buttons and the saved-URL UX
-//     in other modals work without a manual paste.
-
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	Button,
@@ -114,19 +100,12 @@ const PocketCastsModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppMod
 		? Object.values( allStoredUrls ).some( ( url ): url is string => !! url )
 		: null;
 
-	// Track whether the active state shown right now came from this modal session
-	// (so we fire the confetti) or from a prior session (so we don't).
-	const sessionEnteredActiveRef = useRef( false );
-	// Pending → idempotent auto-refresh on mount, exactly once. Without the
-	// guard React Strict-Mode re-mounts would double-fire the relay POST.
+	// Strict-Mode re-mounts would otherwise double-fire the relay POST.
 	const autoRefreshedRef = useRef( false );
 
 	useEffect( () => {
-		if ( autoRefreshedRef.current ) {
+		if ( autoRefreshedRef.current || ! settings ) {
 			return;
-		}
-		if ( ! settings ) {
-			return; // Wait for settings hydration so storedState is trustworthy.
 		}
 		autoRefreshedRef.current = true;
 		if ( storedState === 'pending' ) {
@@ -134,7 +113,6 @@ const PocketCastsModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppMod
 		}
 	}, [ settings, storedState, submit ] );
 
-	// Sync `share_link` back into the show URL map when we land on `active`.
 	const lastSavedShareLinkRef = useRef< string | null >( null );
 	useEffect( () => {
 		if ( response?.state !== 'active' ) {
@@ -162,26 +140,15 @@ const PocketCastsModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppMod
 		);
 	}, [ response, storedShareLink, hadAnyStoredUrl, onFirstSave, saveSettings ] );
 
-	// Reload the settings cache so a re-open (or a sibling tab) sees the latest
-	// server-persisted `podcasting_show_states`.
 	useEffect( () => {
 		if ( ! response ) {
 			return;
 		}
 		invalidateSettings();
-	}, [ response, invalidateSettings ] );
-
-	useEffect( () => {
-		if ( ! response ) {
-			return;
-		}
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_pocketcasts_submit_completed', {
 			state: response.state,
 		} );
-		if ( response.state === 'active' ) {
-			sessionEnteredActiveRef.current = true;
-		}
-	}, [ response ] );
+	}, [ response, invalidateSettings ] );
 
 	const handleSubmit = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_pocketcasts_submit_started', {
@@ -195,9 +162,6 @@ const PocketCastsModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppMod
 		handleSubmit();
 	}, [ reset, handleSubmit ] );
 
-	// Resolve "what should we render right now" off the response if we have
-	// one, otherwise off the stored state. `idle` means we have nothing to
-	// show yet and should render the initial CTA.
 	const resolved: ResolvedState = ( () => {
 		if ( response ) {
 			return {
@@ -385,7 +349,6 @@ const PocketCastsModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppMod
 			);
 		}
 
-		// Idle — first-time CTA.
 		return (
 			<VStack spacing={ 4 }>
 				<Text>

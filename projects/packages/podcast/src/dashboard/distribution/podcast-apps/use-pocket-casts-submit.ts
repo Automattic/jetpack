@@ -2,14 +2,7 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 
-/**
- * Mirrors the response shape documented on
- * `WPCOM_REST_API_V2_Endpoint_Podcast_Distribution::build_response()`.
- *
- * `state` is the discriminator: `active` ships a `share_link`, `pending` is the
- * in-flight intermediate, `rejected` and `unreachable` are terminal failures
- * (`pcc.feedback.errors` carries upstream details on `rejected`).
- */
+// Mirrors WPCOM_REST_API_V2_Endpoint_Podcast_Distribution::build_response().
 export type PocketCastsSubmitState = 'active' | 'pending' | 'rejected' | 'unreachable';
 
 export interface PocketCastsFeedbackError {
@@ -40,14 +33,10 @@ interface SubmitOptions {
 }
 
 /**
- * POST the Pocket Casts relay. The endpoint is idempotent: re-calling for a
- * known feed returns the current state, so the modal can call this on open to
- * refresh `pending` → `active` without a polling loop.
+ * Idempotent on the wpcom side; feed URL is derived server-side from the
+ * configured podcasting category.
  *
- * Feed URL is derived server-side from the configured podcasting category, so
- * the caller passes no body.
- *
- * @return `{ submit, isPending, response, error, reset }` — `submit()` resolves to the typed response (or `null` on error / missing blog id); the other fields are local React state so the modal can drive rendering without holding the response itself.
+ * @return Submit handler plus mutation state.
  */
 export function usePocketCastsSubmit(): {
 	submit: ( options?: SubmitOptions ) => Promise< PocketCastsSubmitResponse | null >;
@@ -60,8 +49,6 @@ export function usePocketCastsSubmit(): {
 	const [ response, setResponse ] = useState< PocketCastsSubmitResponse | null >( null );
 	const [ error, setError ] = useState< unknown >( null );
 
-	// Guards against late `setState` after unmount when the user closes the
-	// modal mid-flight.
 	const isMountedRef = useRef( true );
 	useEffect( () => {
 		isMountedRef.current = true;
