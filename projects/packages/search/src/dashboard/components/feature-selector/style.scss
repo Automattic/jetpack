@@ -18,7 +18,13 @@
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-lg);
-	padding: var(--wpds-dimension-padding-3xl);
+
+	// Detail panel and options sit side-by-side as siblings inside the
+	// card; each gets its own padding, and the panel's bottom border is
+	// what visually separates them.
+	&__body {
+		padding: var(--wpds-dimension-padding-3xl);
+	}
 
 	&__fieldset {
 		border: 0;
@@ -79,18 +85,12 @@
 		font-size: var(--wpds-typography-font-size-md);
 	}
 
-	// Detail panel rendered above the option rows. Extends edge-to-edge with
-	// the form by reversing the form's padding via negative margins, so it
-	// reads as a banner/header rather than a nested card. Top corners follow
-	// the form's radius; a single bottom border separates it from the radios.
+	// Detail panel rendered above the option rows. Sibling of `__body`
+	// inside the card; its bottom border is the divider between the two
+	// sections. Top corners are clipped by the card's `border-radius`.
 	&__details {
-		margin-block-start: calc(-1 * var(--wpds-dimension-padding-3xl));
-		margin-block-end: var(--wpds-dimension-padding-3xl);
-		margin-inline: calc(-1 * var(--wpds-dimension-padding-3xl));
 		padding: var(--wpds-dimension-padding-3xl);
 		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-		border-start-start-radius: var(--wpds-border-radius-lg);
-		border-start-end-radius: var(--wpds-border-radius-lg);
 	}
 
 	&__details-title {
@@ -241,17 +241,8 @@ input[type="radio"].jp-search-feature-selector__option-radio {
 
 @include variables.for-phone-down {
 
-	.jp-search-feature-selector {
-		padding: var(--wpds-dimension-padding-lg);
-	}
-
-	// The form padding shrinks at phone-down; the detail panel's negative
-	// margins (which reverse that padding to reach the card edges) need to
-	// follow, otherwise the panel overshoots the form by the difference
-	// and its bottom border draws outside the card border.
-	.jp-search-feature-selector__details {
-		margin-block-start: calc(-1 * var(--wpds-dimension-padding-lg));
-		margin-inline: calc(-1 * var(--wpds-dimension-padding-lg));
+	.jp-search-feature-selector__details,
+	.jp-search-feature-selector__body {
 		padding: var(--wpds-dimension-padding-lg);
 	}
 
