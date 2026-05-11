@@ -245,6 +245,16 @@ input[type="radio"].jp-search-feature-selector__option-radio {
 		padding: var(--wpds-dimension-padding-lg);
 	}
 
+	// The form padding shrinks at phone-down; the detail panel's negative
+	// margins (which reverse that padding to reach the card edges) need to
+	// follow, otherwise the panel overshoots the form by the difference
+	// and its bottom border draws outside the card border.
+	.jp-search-feature-selector__details {
+		margin-block-start: calc(-1 * var(--wpds-dimension-padding-lg));
+		margin-inline: calc(-1 * var(--wpds-dimension-padding-lg));
+		padding: var(--wpds-dimension-padding-lg);
+	}
+
 	// Inline detail actions stay on one row on desktop / tablet; once we
 	// hit phone widths there isn't enough room for two side-by-side, so
 	// re-enable wrap and let each action take a full-width line.
