@@ -10,13 +10,6 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: 900 } }>
-				<Story />
-			</div>
-		),
-	],
 	argTypes: {
 		isWpcom: {
 			control: 'boolean',

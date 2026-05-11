@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
 
@@ -64,11 +64,16 @@ export default function ExperienceDetails() {
 		>
 			<Stack direction="row" gap="xl" align="start" wrap="wrap">
 				{ isEmbedded && <EmbeddedPreview /> }
+				{ isOverlay && <OverlayPreview /> }
 				<Stack direction="column" gap="lg" className="jp-search-feature-selector__details-body">
 					<Stack direction="column" gap="xs">
 						<Stack direction="row" gap="md" align="center" wrap="wrap">
 							<h3 className="jp-search-feature-selector__details-title">
-								{ getExperienceLabel( selected ) }
+								{ isOverlay
+									? // The Overlay panel uses the legacy product name for continuity with
+									  // existing documentation, even though the radio row reads "Overlay search".
+									  __( 'Instant Search', 'jetpack-search-pkg' )
+									: getExperienceLabel( selected ) }
 							</h3>
 							{ isRecommended && (
 								<Badge
@@ -126,12 +131,12 @@ export default function ExperienceDetails() {
 						<Stack
 							direction="row"
 							gap="xl"
-							align="center"
+							align="start"
 							wrap="wrap"
-							className="jp-search-feature-selector__details-actions"
+							className="jp-search-feature-selector__details-actions jp-search-feature-selector__details-actions--inline"
 						>
 							{ supportsInstantSearch && (
-								<DetailAction
+								<DetailLink
 									title={ __( 'Overlay appearance', 'jetpack-search-pkg' ) }
 									description={ __(
 										'Colors, layout, sort options, sidebar.',
@@ -142,7 +147,7 @@ export default function ExperienceDetails() {
 									disabled={ actionsDisabled }
 								/>
 							) }
-							<DetailAction
+							<DetailLink
 								title={ __( 'Sidebar widgets', 'jetpack-search-pkg' ) }
 								description={ __(
 									'Choose which filters appear in the overlay.',
@@ -160,45 +165,10 @@ export default function ExperienceDetails() {
 	);
 }
 
-const DetailAction = ( { title, description, linkLabel, href, disabled } ) => (
-	<Stack
-		direction="row"
-		gap="md"
-		align="center"
-		justify="space-between"
-		wrap="wrap"
-		className="jp-search-feature-selector__details-action"
-	>
-		<Stack direction="column" gap="xs">
-			<span className="jp-search-feature-selector__details-action-title">{ title }</span>
-			<span className="jp-search-feature-selector__details-action-description">
-				{ description }
-			</span>
-		</Stack>
-		<Button
-			variant="outline"
-			tone="brand"
-			disabled={ disabled }
-			// When enabled, render as <a> so cmd/middle-click work and the URL is
-			// visible on hover. wp-admin sets a global `a { color }` rule that
-			// would clobber a `tone="neutral"` Button rendered as <a>, but the
-			// brand-blue admin colour happens to match outline+brand's text
-			// colour, so there's no visible leak. When disabled we fall back to
-			// the default <button> render — the library's data-disabled styling
-			// only lands correctly on a real <button>.
-			render={ disabled ? undefined : <a href={ href } /> }
-			nativeButton={ disabled }
-			className="jp-search-feature-selector__details-action-link"
-		>
-			{ linkLabel }
-		</Button>
-	</Stack>
-);
-
-// Inline link variant used for the Embedded panel: title + description on the
-// left, a brand-blue text link with a trailing arrow on the right. Disabled
-// state drops the `href` and adds `aria-disabled` so screen readers don't
-// announce a non-functional link.
+// Inline action used for the Embedded / Overlay panels: title +
+// description stacked, then a brand-blue text link with a trailing arrow.
+// Disabled state drops the `href` and adds `aria-disabled` so screen readers
+// don't announce a non-functional link.
 const DetailLink = ( { title, description, linkLabel, href, disabled } ) => (
 	<Stack
 		direction="column"
@@ -264,6 +234,43 @@ const EmbeddedPreview = () => (
 				</div>
 				<div className="jp-search-feature-selector__embedded-preview-result-meta">
 					Reviews · Mar 2026
+				</div>
+			</div>
+		</div>
+	</div>
+);
+
+// Static visual preview rendered in the Overlay panel: a stylised page with
+// the search overlay popup sitting on top of it. Decorative — `aria-hidden`
+// so AT users get the description above instead of an element-by-element
+// read. Strings are hardcoded; this is a mockup, not real content.
+const OverlayPreview = () => (
+	<div className="jp-search-feature-selector__overlay-preview" aria-hidden="true">
+		<div className="jp-search-feature-selector__overlay-preview-page">
+			<div className="jp-search-feature-selector__overlay-preview-page-bar" />
+			<div className="jp-search-feature-selector__overlay-preview-page-bar is-short" />
+			<div className="jp-search-feature-selector__overlay-preview-popup">
+				<div className="jp-search-feature-selector__overlay-preview-search">
+					<span className="jp-search-feature-selector__overlay-preview-search-icon" />
+					pasta
+				</div>
+				<div className="jp-search-feature-selector__overlay-preview-result">
+					<span className="jp-search-feature-selector__overlay-preview-thumb" />
+					<div>
+						<div className="jp-search-feature-selector__overlay-preview-result-title">
+							10 Easy Pasta Recipes
+						</div>
+						<div className="jp-search-feature-selector__overlay-preview-result-meta">Recipes</div>
+					</div>
+				</div>
+				<div className="jp-search-feature-selector__overlay-preview-result">
+					<span className="jp-search-feature-selector__overlay-preview-thumb" />
+					<div>
+						<div className="jp-search-feature-selector__overlay-preview-result-title">
+							Best Pasta Sauces
+						</div>
+						<div className="jp-search-feature-selector__overlay-preview-result-meta">Reviews</div>
+					</div>
 				</div>
 			</div>
 		</div>
