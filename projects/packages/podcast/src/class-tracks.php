@@ -110,6 +110,8 @@ class Tracks {
 				self::identity_for_post( $post )
 			);
 
+			self::record_episode_published_activity( $post );
+
 			// Atomic INSERT — only one concurrent caller per site wins, so
 			// `show_launched` fires exactly once per site.
 			if ( $is_first && add_option( 'podcast_show_launched_tracked', time(), '', false ) ) {
@@ -372,6 +374,29 @@ class Tracks {
 				),
 				'source'   => 'podcast_show_launched',
 				'severity' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Write a `podcast_episode_published` entry to the Jetpack Activity Log.
+	 * Fires for every podcast episode publish (after all the same gates as
+	 * the `wpcom_podcast_episode_published` tracks event).
+	 *
+	 * @param WP_Post $post Episode that triggered the event.
+	 */
+	private static function record_episode_published_activity( WP_Post $post ): void {
+		Activity_Log_Event::create(
+			array(
+				'title'    => __( 'Podcast episode published', 'jetpack-podcast' ),
+				'content'  => sprintf(
+					/* translators: 1: episode post ID, 2: episode title. */
+					__( 'Episode published (post %1$d): %2$s', 'jetpack-podcast' ),
+					(int) $post->ID,
+					$post->post_title
+				),
+				'source'   => 'podcast_episode_published',
+				'severity' => 'info',
 			)
 		);
 	}
