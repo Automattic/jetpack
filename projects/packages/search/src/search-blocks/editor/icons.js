@@ -14,6 +14,7 @@
  * JS-side override is the single source of truth, so the 19 sibling JSON
  * files can't drift from each other.
  */
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import {
 	archive,
 	box,
@@ -33,7 +34,6 @@ import {
 	search,
 	starFilled,
 	tag,
-	wordpress,
 } from '@wordpress/icons';
 
 const BLOCK_ICONS = {
@@ -55,7 +55,11 @@ const BLOCK_ICONS = {
 	'jetpack-search/filters-product': archive,
 	'jetpack-search/active-filters': pin,
 	'jetpack-search/clear-filters': reset,
-	'jetpack-search/powered-by': wordpress,
+	// The "Powered by Jetpack Search" block specifically advertises Jetpack
+	// ownership in the post footer — the Jetpack logo is the right glyph here,
+	// even though every other Search block uses a neutral @wordpress/icons
+	// glyph. WordPress's `wordpress` (the W mark) would mis-read as Core.
+	'jetpack-search/powered-by': <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
 };
 
 export default BLOCK_ICONS;

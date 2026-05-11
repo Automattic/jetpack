@@ -111,6 +111,19 @@ BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
 	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
+	// Dev-only safety net: since `block.json` no longer carries an `icon`
+	// field, a future contributor who appends to `BLOCKS` but forgets to
+	// add the matching entry in `editor/icons.js` would silently ship a
+	// generic gray-grid placeholder. Warning at registration time turns
+	// that into a noisy console message during local dev / CI builds; the
+	// guard is stripped in production bundles where `NODE_ENV` is set.
+	// eslint-disable-next-line no-undef -- webpack DefinePlugin substitutes process.env.NODE_ENV at build time.
+	if ( process.env.NODE_ENV !== 'production' && ! BLOCK_ICONS[ name ] ) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Jetpack Search: no icon registered for block "${ name }" — add an entry in editor/icons.js`
+		);
+	}
 	// `icon` here overrides whatever server-side metadata block.json carries
 	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
