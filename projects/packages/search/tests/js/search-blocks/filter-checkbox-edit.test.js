@@ -9,6 +9,7 @@ import {
 	default as FilterCheckboxEdit,
 	deriveVariation,
 	normalizeDisplayStyle,
+	normalizeQueryType,
 	variationToAttributes,
 	variationDefaultLabel,
 	variationOptions,
@@ -248,18 +249,32 @@ describe( 'variationToAttributes', () => {
 		// render.php ignores `taxonomy` when filterType isn't 'taxonomy', so
 		// keeping the slug here is purely UI state — but it lets the author
 		// flip Custom → Author → Custom without retyping `genre`.
+		// Author / Post Type also reset queryType to 'or' since AND is
+		// meaningless for single-valued filter types (see below test).
 		expect( variationToAttributes( VARIATION_POST_TYPE, 'genre' ) ).toEqual( {
 			filterType: 'post_type',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, 'genre' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: '',
+			queryType: 'or',
 		} );
+	} );
+
+	it( 'resets queryType to `or` when switching to Author / Post Type so a stale AND from the prior taxonomy doesn’t persist', () => {
+		// Without this reset, setting Logic = All on Category, switching to
+		// Post Type (which hides the Logic toggle), then back to Category,
+		// would re-surface the toggle pre-set to All. The toggle visibility
+		// gate alone isn't enough — the saved attribute travels with the block.
+		expect( variationToAttributes( VARIATION_POST_TYPE, '' ).queryType ).toBe( 'or' );
+		expect( variationToAttributes( VARIATION_AUTHOR, '' ).queryType ).toBe( 'or' );
 	} );
 
 	it( 'pins the slug for the three product variations', () => {
@@ -478,6 +493,60 @@ describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
 		);
 
 		expect( screen.getByText( /jetpack_search_custom_taxonomy_map/ ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'normalizeQueryType', () => {
+	it( 'defaults to `or` for missing or unknown values', () => {
+		expect( normalizeQueryType() ).toBe( 'or' );
+		expect( normalizeQueryType( null ) ).toBe( 'or' );
+		expect( normalizeQueryType( '' ) ).toBe( 'or' );
+		expect( normalizeQueryType( 'banana' ) ).toBe( 'or' );
+	} );
+
+	it( 'accepts the literal `and`', () => {
+		expect( normalizeQueryType( 'and' ) ).toBe( 'and' );
+	} );
+
+	it( 'accepts the literal `or` (idempotent)', () => {
+		expect( normalizeQueryType( 'or' ) ).toBe( 'or' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit Logic toggle', () => {
+	it( 'renders the Any/All toggle when filterType is taxonomy', () => {
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'category',
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+		// The ToggleGroupControl mock renders a fieldset with the label as
+		// aria-label and a <legend>. Look for the legend text since fieldsets
+		// don't expose a role.
+		expect( screen.getByText( 'Logic' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Any' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'All' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the Logic toggle for post_type filters', () => {
+		// post_type / author are single-valued per document, so "All" with
+		// 2+ selections is guaranteed empty. The inspector hides the option
+		// rather than serving an obvious footgun.
+		render(
+			<FilterCheckboxEdit attributes={ { filterType: 'post_type' } } setAttributes={ jest.fn() } />
+		);
+		expect( screen.queryByText( 'Logic' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the Logic toggle for author filters', () => {
+		render(
+			<FilterCheckboxEdit attributes={ { filterType: 'author' } } setAttributes={ jest.fn() } />
+		);
+		expect( screen.queryByText( 'Logic' ) ).not.toBeInTheDocument();
 	} );
 } );
 

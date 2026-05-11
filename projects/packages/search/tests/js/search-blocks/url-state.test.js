@@ -291,6 +291,112 @@ describe( 'urlParamsToState', () => {
 	} );
 } );
 
+describe( 'filterLogic round-trip (RSM-2815)', () => {
+	const taxonomyConfig = { filterType: 'taxonomy', taxonomy: 'category' };
+
+	it( 'stateToUrlParams emits query_type_<key>=and when the filter has selections and logic is `and`', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: { category: 'and' },
+		} );
+		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
+	} );
+
+	it( 'stateToUrlParams emits query_type_<key>=and when filterConfigs has queryType `and` (block-author config)', () => {
+		// filterLogic is only seeded from the URL; the block-author choice
+		// lives in filterConfigs. Without this source the URL would never
+		// emit query_type_* for a block configured with Logic = All, so a
+		// shared deep link couldn't carry the AND semantics across pages.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: {},
+			filterConfigs: {
+				category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' },
+			},
+		} );
+		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
+	} );
+
+	it( 'stateToUrlParams omits query_type_<key> when logic is the default `or`', () => {
+		// `or` is the default; serializing it would only bloat URLs and
+		// invite encoded-URL diff churn in tests of unrelated features.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: { category: 'or' },
+		} );
+		expect( params.has( 'query_type_category' ) ).toBe( false );
+	} );
+
+	it( 'stateToUrlParams omits query_type_<key> when the filter has no active selections', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: {},
+			filterLogic: { category: 'and' },
+		} );
+		expect( params.has( 'query_type_category' ) ).toBe( false );
+	} );
+
+	it( 'urlParamsToState parses ?category[]=…&query_type_category=and into both slices', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_category', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.activeFilters ).toEqual( { category: [ 'news' ] } );
+		expect( state.filterLogic ).toEqual( { category: 'and' } );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when <key> is not registered', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_mystery', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when <key> targets a non-taxonomy filter', () => {
+		// post_type / author have one value per document, so AND combination
+		// is semantically meaningless. Without this gate a stray
+		// `query_type_post_types=and` would linger in filterLogic and re-emit
+		// on every URL push.
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'query_type_post_types', 'and' );
+		const state = urlParamsToState( params, { post_types: { filterType: 'post_type' } } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post' ] } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> with a non-`and` value (only `and` is honoured)', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_category', 'banana' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when its filter has no surviving active selections', () => {
+		// Without this gate a `?query_type_category=and` without `?category[]=…`
+		// would leak through and re-emit on the next URL push.
+		const params = new URLSearchParams();
+		params.append( 'query_type_category', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState ignores query_type_<key> targeting a reserved param', () => {
+		const params = new URLSearchParams( 'query_type_orderby=and' );
+		const state = urlParamsToState( params );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+} );
+
 describe( 'urlParamsToState: priceRange', () => {
 	// All priceRange-parsing tests opt into `isWooCommerceActive=true` to
 	// exercise the parsing logic; the WC-off behaviour (price params are

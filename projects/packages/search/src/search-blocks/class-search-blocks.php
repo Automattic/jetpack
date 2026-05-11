@@ -556,7 +556,7 @@ class Search_Blocks {
 	 * @return string[] Distinct, zero-indexed list of supported meta keys.
 	 */
 	public static function supported_custom_meta_keys(): array {
-		return array_values( array_keys( self::custom_meta_map() ) );
+		return array_keys( self::custom_meta_map() );
 	}
 
 	/**
@@ -859,7 +859,6 @@ class Search_Blocks {
 				'name'        => 'product_cat',
 				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'category',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_cat',
@@ -871,7 +870,6 @@ class Search_Blocks {
 				'name'        => 'product_tag',
 				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'tag',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_tag',
@@ -884,7 +882,6 @@ class Search_Blocks {
 					'name'        => 'product_brand',
 					'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
 					'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
-					'icon'        => 'awards',
 					'attributes'  => array(
 						'filterType' => 'taxonomy',
 						'taxonomy'   => 'product_brand',
@@ -1252,6 +1249,7 @@ class Search_Blocks {
 		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$search_query       = static::parse_url_search_query();
 		$active_filters     = static::parse_url_filters();
+		$filter_logic       = static::parse_url_filter_logic( $active_filters );
 		$price_range        = static::parse_url_price_range();
 		$is_initial_loading = static::is_initial_loading();
 		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
@@ -1291,6 +1289,7 @@ class Search_Blocks {
 			'searchParamName'       => static::get_search_param_name(),
 			'sortOrder'             => static::parse_url_sort(),
 			'activeFilters'         => $active_filters,
+			'filterLogic'           => $filter_logic,
 			'priceRange'            => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
@@ -1732,6 +1731,46 @@ class Search_Blocks {
 			if ( $clean ) {
 				$out[ $filter_key ] = $clean;
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Parse the per-filter AND/OR override params (`?query_type_<key>=and`)
+	 * from the current request URL. Returns `{ [filterKey]: 'and' }` —
+	 * matches the JS-side parser in `store/url-state.js`. Only the literal
+	 * value `'and'` is honoured; anything else collapses to the default and
+	 * is omitted so it can never round-trip back through `pushStateToUrl`.
+	 *
+	 * Filter keys for which no active selection exists are dropped because
+	 * they'd otherwise hang around in state and re-emit on the next URL push.
+	 *
+	 * @param array<string, string[]> $active_filters Result of parse_url_filters().
+	 * @return array<string, string>
+	 */
+	protected static function parse_url_filter_logic( array $active_filters ): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
+		$raw = wp_unslash( $_GET );
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $raw as $key => $value ) {
+			if ( ! is_string( $key ) || 0 !== strpos( $key, 'query_type_' ) ) {
+				continue;
+			}
+			if ( ! is_string( $value ) || 'and' !== $value ) {
+				continue;
+			}
+			$filter_key = sanitize_key( substr( $key, strlen( 'query_type_' ) ) );
+			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
+				continue;
+			}
+			if ( empty( $active_filters[ $filter_key ] ) ) {
+				continue;
+			}
+			$out[ $filter_key ] = 'and';
 		}
 		return $out;
 	}

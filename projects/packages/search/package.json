@@ -56,6 +56,7 @@
 		"@wordpress/core-data": "7.44.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/element": "6.44.0",
+		"@wordpress/hooks": "4.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
 		"@wordpress/interactivity": "6.44.0",

@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Clear Filters",
 	"category": "jetpack-search",
-	"icon": "trash",
 	"description": "A button that clears every active filter. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
