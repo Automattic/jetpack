@@ -453,6 +453,7 @@ class WPCOM_Features {
 	public const PAYPAL_PAYMENT_BUTTONS            = 'paypal-payment-buttons';
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
+	public const PODCASTING                        = 'podcasting';
 	public const POLLDADDY                         = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
 	public const PERSONAL_THEMES                   = 'personal-themes';
@@ -1089,6 +1090,10 @@ class WPCOM_Features {
 		self::PERFORMANCE_HISTORY               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::PODCASTING                        => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::POLLDADDY                         => array(
 			self::JETPACK_BUSINESS_PLANS,
