@@ -125,6 +125,8 @@ add_action(
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
+			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -292,8 +294,11 @@ function wpcom_write_render_admin_page() {
 		);
 	}
 
-	// Build categories list for the UI.
-	$all_cats        = get_categories( array( 'hide_empty' => false ) );
+	// Fetch existing tag IDs so JS can merge them with any #hashtag-extracted tags on save.
+	$existing_tag_ids = $edit_post_id ? wp_get_post_tags( $edit_post_id, array( 'fields' => 'ids' ) ) : array();
+
+	// Build categories list for the UI (only categories that have posts).
+	$all_cats        = get_categories( array( 'hide_empty' => true ) );
 	$selected_cats   = $edit_post_id ? wp_get_post_categories( $edit_post_id ) : array();
 	$categories_data = array();
 	foreach ( $all_cats as $cat ) {
@@ -303,6 +308,34 @@ function wpcom_write_render_admin_page() {
 			'selected' => in_array( $cat->term_id, $selected_cats, true ),
 		);
 	}
+
+	// For new posts, pre-select the default category if it's in the used-categories list,
+	// otherwise the first available used category, so the label is never empty.
+	if ( ! $edit_post_id && ! empty( $categories_data ) ) {
+		$has_selection = ! empty( array_filter( $categories_data, fn( $c ) => $c['selected'] ) );
+		if ( ! $has_selection ) {
+			$default_id                                 = (int) get_option( 'default_category' );
+			$default_idx                                = array_search( $default_id, array_column( $categories_data, 'id' ), true );
+			$select_idx                                 = false !== $default_idx ? $default_idx : 0;
+			$categories_data[ $select_idx ]['selected'] = true;
+		}
+	}
+
+	// Show the category row only when the site has 2+ used categories.
+	$show_cat_row = count( $categories_data ) >= 2;
+
+	// Compute the initial "Writing in …" label from any pre-selected categories.
+	$selected_cat_names = array_values(
+		array_map(
+			fn( $c ) => $c['name'],
+			array_filter( $categories_data, fn( $c ) => $c['selected'] )
+		)
+	);
+	// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+	$writing_in_fmt = __( 'Writing in %s', 'jetpack-mu-wpcom' );
+	$cat_label      = empty( $selected_cat_names )
+		? ''
+		: sprintf( $writing_in_fmt, implode( ', ', $selected_cat_names ) );
 
 	// Seed Interactivity API state.
 	wp_interactivity_state(
@@ -330,7 +363,9 @@ function wpcom_write_render_admin_page() {
 			'featuredMediaId'     => $edit_featured_id,
 			'isUploading'         => false,
 			'categories'          => $categories_data,
-			'showCatPicker'       => false,
+			'catLabel'            => $cat_label,
+			'existingTagIds'      => $existing_tag_ids,
+			'showCatDropdown'     => false,
 			'showHelp'            => false,
 			'showSlashMenu'       => false,
 			'slashActiveId'       => '',
@@ -351,7 +386,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label );
 }
 
 /**
@@ -366,8 +401,10 @@ function wpcom_write_render_admin_page() {
  * @param array  $categories_data     Array of category data for the picker.
  * @param string $post_status         The post status ('new', 'draft', 'publish', etc.).
  * @param array  $video_placeholders  Map of comment tokens to iframe HTML for video embeds.
+ * @param bool   $show_cat_row        Whether to show the category row (2+ used categories).
+ * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array() ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -384,6 +421,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Shift+Tab</kbd><span><?php echo esc_html__( 'Focus formatting toolbar', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.message"></span>
@@ -483,6 +521,50 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<!-- Writing area -->
 	<main class="bw-main" data-wp-on--click="actions.handleMainClick">
 		<div class="bw-editor">
+
+			<?php if ( $show_cat_row ) : ?>
+			<!-- Category selector — only shown when site has 2+ used categories -->
+			<div class="bw-meta" data-wp-on--focusout="actions.handleCatFocusOut">
+				<button
+					class="bw-meta-cat-btn"
+					aria-haspopup="listbox"
+					aria-expanded="false"
+					aria-controls="bw-cat-dropdown"
+					data-wp-bind--aria-expanded="state.showCatDropdown"
+					data-wp-on--click="actions.toggleCatDropdown"
+					data-wp-on--keydown="actions.handleCatBtnKeyDown"
+				>
+					<span
+						class="bw-meta-cat-label"
+						data-placeholder="<?php echo esc_attr__( 'Select a category', 'jetpack-mu-wpcom' ); ?>"
+						data-wp-text="state.catLabel"
+					><?php echo esc_html( $cat_label ); ?></span>
+					<span class="bw-meta-cat-caret" aria-hidden="true">&#9662;</span>
+				</button>
+				<div
+					class="bw-meta-dropdown"
+					id="bw-cat-dropdown"
+					role="listbox"
+					aria-multiselectable="true"
+					hidden
+					data-wp-bind--hidden="!state.showCatDropdown"
+					data-wp-on--keydown="actions.handleCatDropdownKeyDown"
+				>
+					<?php foreach ( $categories_data as $i => $cat ) : ?>
+					<button
+						class="bw-meta-dropdown-item<?php echo $cat['selected'] ? ' bw-meta-dropdown-item--selected' : ''; ?>"
+						role="option"
+						aria-selected="<?php echo $cat['selected'] ? 'true' : 'false'; ?>"
+						tabindex="-1"
+						data-cat-index="<?php echo (int) $i; ?>"
+						data-cat-name="<?php echo esc_attr( $cat['name'] ); ?>"
+						data-wp-on--click="actions.handleCatDropdownClick"
+					><?php echo esc_html( $cat['name'] ); ?></button>
+					<?php endforeach; ?>
+				</div>
+			</div><!-- /.bw-meta -->
+			<?php endif; ?>
+
 			<textarea
 				class="bw-title"
 				placeholder="<?php echo esc_attr__( 'Title', 'jetpack-mu-wpcom' ); ?>"
@@ -622,36 +704,6 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</div>
 
-	<!-- Floating category picker -->
-	<div class="bw-cat-wrap" data-wp-on--keydown="actions.handleCatKeyDown" data-wp-on--focusout="actions.handleCatFocusOut">
-	<button class="bw-cat-fab" aria-label="<?php echo esc_attr__( 'Categories', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.toggleCatPicker">
-		<span class="bw-cat-fab-icon dashicons dashicons-tag" aria-hidden="true"></span>
-	</button>
-	<div class="bw-cat-popover" hidden data-wp-bind--hidden="!state.showCatPicker">
-		<div class="bw-cat-popover-header"><?php echo esc_html__( 'Categories', 'jetpack-mu-wpcom' ); ?></div>
-		<div class="bw-cat-popover-list">
-			<?php
-			foreach ( $categories_data as $i => $cat ) :
-				$cat_context = esc_attr(
-					wp_json_encode(
-						array(
-							'catIndex'    => $i,
-							'catSelected' => $cat['selected'],
-						),
-						JSON_HEX_TAG | JSON_HEX_AMP
-					)
-				);
-				?>
-			<button
-				class="bw-cat<?php echo $cat['selected'] ? ' bw-cat-selected' : ''; ?>"
-				data-wp-on--click="actions.toggleCategory"
-				data-wp-context='<?php echo $cat_context; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>'
-				data-wp-class--bw-cat-selected="context.catSelected"
-			><?php echo esc_html( $cat['name'] ); ?></button>
-			<?php endforeach; ?>
-		</div>
-	</div>
-	</div><!-- /.bw-cat-wrap -->
 
 </div>
 	<?php
