@@ -18,10 +18,10 @@ const subtractUtcDays = ( date: Date, days: number ) => {
 };
 
 /**
- * Inclusive UTC date range for a given stats period.
+ * Inclusive UTC date range for a period.
  *
- * @param period - Period selector.
- * @return       Range with ISO `from` and `to` date strings.
+ * @param period - Period.
+ * @return       From/to range.
  */
 export function getStatsDateRange( period: PodcastStatsPeriod ): PodcastStatsRange {
 	const toDate = new Date();
@@ -34,13 +34,11 @@ export function getStatsDateRange( period: PodcastStatsPeriod ): PodcastStatsRan
 const MS_PER_DAY = 86400000;
 
 /**
- * Inclusive day count for a stats period. Prefers the API-reported range so
- * 'all' reflects the actual returned span (not the 365-day chart cap); falls
- * back to the static period length when `range` is missing or unparseable.
+ * Inclusive day count. Prefer API range so 'all' reflects actual span, not the 365 cap.
  *
- * @param period - Selected period.
- * @param range  - Optional range from the API response.
- * @return       Inclusive day count, minimum 1.
+ * @param period - Period.
+ * @param range  - Optional API-reported range.
+ * @return       Day count.
  */
 export function getPeriodDayCount( period: PodcastStatsPeriod, range?: PodcastStatsRange ): number {
 	if ( range?.from && range?.to ) {

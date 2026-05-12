@@ -12,8 +12,6 @@ type SummaryTilesProps = {
 	byCountry?: PodcastStatsCountryRow[];
 	topDay?: PodcastStatsTopDay | null;
 	isLoading?: boolean;
-	// When 'chart', tiles render as a flat divided row inside the Downloads
-	// card. When 'standalone', each tile is its own Card.
 	layout?: 'standalone' | 'chart';
 };
 

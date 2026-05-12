@@ -10,12 +10,11 @@ import type {
 } from './types';
 
 /**
- * Per-episode stats: total plays, by-day, by-app, by-country breakdowns.
- * Server caches 5 minutes; refetching on remount is cheap.
+ * Per-episode stats query.
  *
  * @param postId - Episode post ID, or null when no episode is selected.
  * @param period - Stats period.
- * @return       Query result with the merged episode detail and selected period.
+ * @return       Query result.
  */
 export function useEpisodeDetailStatsQuery(
 	postId: number | null,

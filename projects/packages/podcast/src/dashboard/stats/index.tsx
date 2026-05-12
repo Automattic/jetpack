@@ -24,9 +24,7 @@ const Stats = () => {
 
 	const handleBack = useCallback( () => setSelected( null ), [] );
 
-	// Return focus to the show heading when leaving the episode drilldown —
-	// the "Back to stats" button has unmounted and would otherwise drop focus
-	// to the document.
+	// Return focus to the heading after leaving the drilldown; the back button has unmounted.
 	useEffect( () => {
 		if ( prevSelectedRef.current !== null && selected === null ) {
 			headingRef.current?.focus();

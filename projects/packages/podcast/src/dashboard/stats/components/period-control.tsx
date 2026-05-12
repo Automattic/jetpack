@@ -5,14 +5,13 @@ import type { PodcastStatsPeriod } from '../types';
 
 const PERIOD_OPTIONS: PodcastStatsPeriod[] = [ '7d', '30d', '90d', 'all' ];
 
-// Episode endpoint has no all-time variant — render "Last year" instead of
-// "All time" in the episode scope.
+// Episode endpoint has no all-time variant — show "Last year" in that scope.
 export type PeriodScope = 'show' | 'episode';
 
 /**
  * Type guard for `PodcastStatsPeriod`.
  *
- * @param value - Candidate period string.
+ * @param value - Candidate string.
  * @return      Whether the value is a recognized period.
  */
 export function isPeriod( value: string ): value is PodcastStatsPeriod {
@@ -20,11 +19,11 @@ export function isPeriod( value: string ): value is PodcastStatsPeriod {
 }
 
 /**
- * Translated heading for a given period.
+ * Translated heading for a period.
  *
- * @param value - Selected period.
- * @param scope - Show or episode scope; episode renames "All time" to "Last year".
- * @return      Translated heading.
+ * @param value - Period.
+ * @param scope - Show or episode scope.
+ * @return      Heading.
  */
 export function getPeriodHeading( value: PodcastStatsPeriod, scope: PeriodScope = 'show' ): string {
 	if ( value === '7d' ) {

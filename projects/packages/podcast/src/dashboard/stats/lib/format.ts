@@ -11,10 +11,10 @@ const APP_LABELS: Record< string, string > = {
 };
 
 /**
- * Map an app slug to a display label.
+ * Display label for an app slug.
  *
- * @param app - App slug from the stats API.
- * @return    Display label for the app.
+ * @param app - App slug.
+ * @return    Display label.
  */
 export function formatAppName( app: string ): string {
 	return (
@@ -33,10 +33,10 @@ const PCT_FORMATTER = new Intl.NumberFormat( undefined, {
 } );
 
 /**
- * Format a percentage with at most one fractional digit.
+ * Format a percentage value (25 → "25%"), not a fraction.
  *
- * @param pct - Percentage as a number (25 → "25%"), not a fraction.
- * @return    Localized percentage string.
+ * @param pct - Percentage value.
+ * @return    Localized percentage.
  */
 export function formatPct( pct: number ): string {
 	return PCT_FORMATTER.format( pct / 100 );
@@ -49,12 +49,10 @@ const DATE_FORMATTER = new Intl.DateTimeFormat( undefined, {
 } );
 
 /**
- * Format a YYYY-MM-DD date string in the user's locale. Parse and format in
- * local time to match `@automattic/charts`' parseAsLocalDate; UTC anchoring
- * would shift the label by a day for users east of UTC.
+ * Format a YYYY-MM-DD date in local time (matches `@automattic/charts`; UTC would shift east of UTC).
  *
- * @param date - ISO date string.
- * @return     Localized "MMM D, YYYY" date string.
+ * @param date - ISO date.
+ * @return     Localized date.
  */
 export function formatPodcastDate( date: string ): string {
 	return DATE_FORMATTER.format( new Date( `${ date }T00:00:00` ) );
@@ -88,12 +86,11 @@ const getRegionNames = () => {
 };
 
 /**
- * Resolve an ISO 3166-1 country code to a localized name, with a fallback for
- * unknown or missing codes.
+ * Localize an ISO 3166-1 country code.
  *
- * @param country  - ISO country code.
- * @param fallback - Label returned when the code is empty.
- * @return         Localized country name, or the uppercased code on environments without Intl.DisplayNames.
+ * @param country  - Country code.
+ * @param fallback - Label when empty.
+ * @return         Localized name.
  */
 export function getCountryName( country: string, fallback: string ): string {
 	if ( ! country ) {

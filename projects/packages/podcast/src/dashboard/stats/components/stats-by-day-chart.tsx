@@ -1,9 +1,4 @@
 import { BarChart } from '@automattic/charts';
-// @wordpress/build only extracts the CSS-module class-name map from third-
-// party .module.scss; the chart's own `chart-layout__content { flex: 1;
-// min-height: 0 }` lives in the prebuilt CSS bundle (mirrors how publicize
-// imports @automattic/ui/style.css).
-import '@automattic/charts/style.css';
 import { formatNumber } from '@automattic/number-formatters';
 import { Card, CardBody, Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -31,8 +26,7 @@ const AXIS_DATE_FORMATTER = new Intl.DateTimeFormat( undefined, {
 	day: 'numeric',
 } );
 
-// @automattic/charts parses YYYY-MM-DD as local-midnight; format ticks in the
-// same local zone so labels don't shift a day for users east of UTC.
+// Parse in local time to match @automattic/charts; UTC would shift labels east of UTC.
 const formatAxisTick = ( value: unknown ) => {
 	let date: Date;
 	if ( value instanceof Date ) {
