@@ -45,6 +45,27 @@ namespace Automattic\Jetpack\Search;
 class Custom_Taxonomy_Slot_Mapping {
 
 	/**
+	 * Backfill modes accepted by `backfill()`.
+	 *
+	 * - `mirror`: default. Per-post replacement only. For each post that
+	 *   currently has at least one user-side term, `wp_set_object_terms()`
+	 *   resets the slot's post-set for that post to match the current
+	 *   user-side names. **Posts that lost every user-side term during a
+	 *   gap when the auto-mirror was inactive are *not* visited** — their
+	 *   stale slot relationships orphan. Suitable for the common case:
+	 *   one-time initialization on a site that has data predating the
+	 *   mapping.
+	 * - `rebuild`: full sweep. Every term in the slot taxonomy is deleted
+	 *   first (which cascades to drop every slot term-relationship), then
+	 *   the per-post mirror runs over the current user-side state. The
+	 *   resulting slot is byte-for-byte a fresh projection of the user-side
+	 *   taxonomy with no orphans. Use when a site has had the mapping
+	 *   toggle on and off, changed slot, or otherwise believes the slot has
+	 *   drifted. Costly on large sites — runs N deletes for N slot terms.
+	 */
+	const BACKFILL_MODES = array( 'mirror', 'rebuild' );
+
+	/**
 	 * Per-request memo backing `get_map()`. The map is validated once per
 	 * request — re-running the validation on every filter-block render and
 	 * on every API request would be wasted work, and the
@@ -359,27 +380,6 @@ class Custom_Taxonomy_Slot_Mapping {
 			wp_delete_term( (int) $slot_term->term_id, $slot );
 		}
 	}
-
-	/**
-	 * Backfill modes accepted by `backfill()`.
-	 *
-	 * - `mirror`: default. Per-post replacement only. For each post that
-	 *   currently has at least one user-side term, `wp_set_object_terms()`
-	 *   resets the slot's post-set for that post to match the current
-	 *   user-side names. **Posts that lost every user-side term during a
-	 *   gap when the auto-mirror was inactive are *not* visited** — their
-	 *   stale slot relationships orphan. Suitable for the common case:
-	 *   one-time initialization on a site that has data predating the
-	 *   mapping.
-	 * - `rebuild`: full sweep. Every term in the slot taxonomy is deleted
-	 *   first (which cascades to drop every slot term-relationship), then
-	 *   the per-post mirror runs over the current user-side state. The
-	 *   resulting slot is byte-for-byte a fresh projection of the user-side
-	 *   taxonomy with no orphans. Use when a site has had the mapping
-	 *   toggle on and off, changed slot, or otherwise believes the slot has
-	 *   drifted. Costly on large sites — runs N deletes for N slot terms.
-	 */
-	const BACKFILL_MODES = array( 'mirror', 'rebuild' );
 
 	/**
 	 * One-shot backfill: walk every post that carries a term in a mapped
