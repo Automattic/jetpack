@@ -235,7 +235,7 @@ describe( 'Social store actions: connectionData', () => {
 			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
 		} );
 
-		it( 'should skip updating tracking when trackUpdating is false', async () => {
+		it( 'should skip updating tracking when silent is true', async () => {
 			let resolveFetch;
 
 			apiFetch.setFetchHandler(
@@ -253,8 +253,7 @@ describe( 'Social store actions: connectionData', () => {
 					template: 'Custom template',
 				},
 				{
-					trackUpdating: false,
-					showSuccessNotice: false,
+					silent: true,
 				}
 			);
 

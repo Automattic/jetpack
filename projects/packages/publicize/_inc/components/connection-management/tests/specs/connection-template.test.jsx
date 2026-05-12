@@ -52,10 +52,7 @@ describe( 'ConnectionTemplateEditor', () => {
 		expect( stubUpdateConnectionById ).toHaveBeenCalledWith(
 			'2',
 			{ template: 'Custom template' },
-			{
-				trackUpdating: false,
-				showSuccessNotice: false,
-			}
+			{ silent: true }
 		);
 	} );
 

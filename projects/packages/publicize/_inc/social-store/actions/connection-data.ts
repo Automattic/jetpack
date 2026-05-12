@@ -25,8 +25,11 @@ import {
 } from './constants';
 
 type UpdateConnectionOptions = {
-	trackUpdating?: boolean;
-	showSuccessNotice?: boolean;
+	/**
+	 * Skip transient UI side effects for background saves. This suppresses the
+	 * row-level updating state and generic success notice; errors are still shown.
+	 */
+	silent?: boolean;
 };
 
 /**
@@ -515,9 +518,10 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 /**
  * Updates a connection.
  *
- * @param connectionId - Connection ID to update.
- * @param data         - The data for API call.
- * @param options      - Options for update UI side-effects.
+ * @param connectionId   - Connection ID to update.
+ * @param data           - The data for API call.
+ * @param options        - Options for update UI side-effects.
+ * @param options.silent - Whether to skip row-level updating state and the generic success notice.
  * @return A thunk to update a connection.
  */
 export function updateConnectionById(
@@ -527,7 +531,7 @@ export function updateConnectionById(
 ) {
 	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
-		const { trackUpdating = true, showSuccessNotice = true } = options;
+		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );
 
@@ -540,13 +544,13 @@ export function updateConnectionById(
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
 
-			if ( trackUpdating ) {
+			if ( ! silent ) {
 				dispatch( updatingConnection( connectionId ) );
 			}
 
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
-			if ( connection && showSuccessNotice ) {
+			if ( connection && ! silent ) {
 				createSuccessNotice( __( 'Account updated successfully.', 'jetpack-publicize-pkg' ), {
 					type: 'snackbar',
 					isDismissible: true,
@@ -564,7 +568,7 @@ export function updateConnectionById(
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			if ( trackUpdating ) {
+			if ( ! silent ) {
 				dispatch( updatingConnection( connectionId, false ) );
 			}
 		}
