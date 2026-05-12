@@ -162,7 +162,7 @@
 		"jest": "30.3.0",
 		"jquery": "3.7.1",
 		"lodash": "4.18.1",
-		"postcss": "8.5.10",
+		"postcss": "8.5.14",
 		"postcss-loader": "8.2.0",
 		"sass-loader": "16.0.5"
 	},

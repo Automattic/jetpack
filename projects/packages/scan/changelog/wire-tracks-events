@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 7: wire `jetpack_scan_*` Tracks events for the Scan-now CTA, the Auto-fix N header CTA, and the bulk-fix modal lifecycle (`_open` / `_click` / `_success` / `_failed` with `threat_count` / `fixed_count` / `failed_count` properties). Switches `data/use-track-event.ts` from a hand-rolled `_tkq` shim to `@automattic/jetpack-analytics`, the canonical Jetpack tracking client used by Forms / Backup / Activity Log.

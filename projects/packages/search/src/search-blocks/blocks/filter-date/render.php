@@ -30,22 +30,27 @@ wp_interactivity_state(
 	)
 );
 
-$label = $config['label'];
+$view          = Search_Blocks::pre_hydration_filter_view( $filter_key );
+$label         = $config['label'];
+$display_style = Search_Blocks::normalize_display_style( $attributes['displayStyle'] ?? null );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'data-display-style' => $display_style ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	hidden
+	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<ul
-		class="jetpack-search-filter__list"
-		data-wp-bind--hidden="state.allBucketsSelected"
-	>
+	<?php
+	if ( $view['is_initial_loading'] ) {
+		require __DIR__ . '/../filter-skeleton-partial.php';
+	}
+	?>
+	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -57,6 +62,7 @@ $label = $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
@@ -72,11 +78,4 @@ $label = $config['label'];
 			</li>
 		</template>
 	</ul>
-	<p
-		class="jetpack-search-filter__all-selected"
-		data-wp-bind--hidden="!state.allBucketsSelected"
-		hidden
-	>
-		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
-	</p>
 </div>

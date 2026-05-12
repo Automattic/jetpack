@@ -55,7 +55,8 @@ jest.mock( '../../use-sig-preview', () => ( {
 
 import { act, renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
-import { useRenderMessageItems } from '../';
+import { store as editorStore } from '@wordpress/editor';
+import { useRenderMessageInputs, useRenderMessageItems } from '../';
 import useFeaturedImage from '../../use-featured-image';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
@@ -63,6 +64,7 @@ import { usePostMeta } from '../../use-post-meta';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
+import { store as socialStore } from '../../../social-store';
 import type { Connection } from '../../../social-store/types';
 
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
@@ -93,15 +95,72 @@ const conn = ( overrides: Partial< Connection > = {} ): Connection =>
 		...overrides,
 	} ) as Connection;
 
+/**
+ * The hook reads `connections` and `siteMessageTemplate` from a single
+ * `useSelect` call that returns an object. Tests pass `connections` here;
+ * `siteMessageTemplate` defaults to `''` so per-network items fall back to
+ * empty when no override.
+ *
+ * @param {Array<Connection>} connections         - The connections returned to the hook.
+ * @param {string}            siteMessageTemplate - The saved site message template.
+ */
+const mockSelect = ( connections: Connection[], siteMessageTemplate = '' ) => {
+	mockConnections = connections;
+	mockMessageTemplate = siteMessageTemplate;
+};
+
 const allFeaturesOn = ( feature: string ) =>
 	[ 'social-message-templates', 'social-image-generator', 'social-enhanced-publishing' ].includes(
 		feature
 	);
 
+let mockConnections: Connection[];
+let mockPostIntent: {
+	title: string;
+	excerpt: string;
+	content: string;
+};
+let mockMessageTemplate: string;
+
 describe( 'useRenderMessageItems', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.useFakeTimers();
+
+		mockConnections = [];
+		mockPostIntent = {
+			title: 'Edited title',
+			excerpt: 'Edited excerpt',
+			content: 'Edited content',
+		};
+		mockMessageTemplate = '';
+		mockUseSelect.mockImplementation( mapSelect => {
+			const result = mapSelect( store => {
+				if ( store === socialStore ) {
+					return {
+						getConnections: () => mockConnections,
+						getSocialSettings: () => ( { messageTemplate: mockMessageTemplate } ),
+					};
+				}
+
+				if ( store === editorStore ) {
+					return {
+						getEditedPostAttribute: ( attribute: string ) =>
+							mockPostIntent[ attribute as keyof typeof mockPostIntent ],
+					};
+				}
+
+				return {};
+			} );
+
+			return result &&
+				typeof result === 'object' &&
+				'title' in result &&
+				'excerpt' in result &&
+				'content' in result
+				? mockPostIntent
+				: result;
+		} );
 
 		mockSiteHasFeature.mockImplementation( allFeaturesOn );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
@@ -127,42 +186,57 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'returns empty items when MESSAGE_TEMPLATES is off', () => {
 		mockSiteHasFeature.mockReturnValue( false );
-		mockUseSelect.mockReturnValue( [] );
+		mockSelect( [] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
 		expect( result.current ).toEqual( [] );
 	} );
 
-	it( 'builds one item per enabled connection, keyed by connection_id', () => {
-		mockUseSelect.mockReturnValue( [
-			conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
+	it( 'builds one item per connection in global mode, keyed by connection_id', () => {
+		mockSelect( [
+			conn( { connection_id: 'a', service_name: 'x' } ),
 			conn( { connection_id: 'b', service_name: 'facebook' } ),
 		] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
 		expect( result.current ).toEqual( [
-			{ id: 'a', network: 'x', message: 'A', is_social_post: false },
-			{ id: 'b', network: 'facebook', message: 'Global', is_social_post: false },
+			{
+				id: 'a',
+				network: 'x',
+				message: 'Global',
+				is_social_post: false,
+			},
+			{
+				id: 'b',
+				network: 'facebook',
+				message: 'Global',
+				is_social_post: false,
+			},
 		] );
 	} );
 
-	it( 'falls back to the global message when a connection has none', () => {
-		mockUseSelect.mockReturnValue( [ conn( { connection_id: 'a', message: undefined } ) ] );
-		mockUseSocialMediaMessage.mockReturnValue( {
-			message: 'Global only',
-			updateMessage: jest.fn(),
-			maxLength: 280,
-		} );
+	it( 'in per-network mode, uses the connection message and falls back to the site template', () => {
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
+		mockSelect(
+			[
+				conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
+				conn( { connection_id: 'b', service_name: 'facebook' } ),
+			],
+			'Site template'
+		);
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
-		expect( result.current[ 0 ].message ).toBe( 'Global only' );
+		expect( result.current ).toEqual( [
+			{ id: 'a', network: 'x', message: 'A', is_social_post: false },
+			{ id: 'b', network: 'facebook', message: 'Site template', is_social_post: false },
+		] );
 	} );
 
 	it( 'sets is_social_post=true in global mode when there is global media', () => {
-		mockUseSelect.mockReturnValue( [ conn() ] );
+		mockSelect( [ conn() ] );
 		mockUseSocialPreviewPostData.mockReturnValue( {
 			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
 		} );
@@ -179,7 +253,7 @@ describe( 'useRenderMessageItems', () => {
 			{ mediaData: { sourceUrl: 'https://example.com/feat.jpg' } },
 			false,
 		] );
-		mockUseSelect.mockReturnValue( [ conn( { media_source: 'featured-image' } ) ] );
+		mockSelect( [ conn( { media_source: 'featured-image' } ) ] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -188,7 +262,7 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'in per-network mode, returns false for media_source = none', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
-		mockUseSelect.mockReturnValue( [ conn( { media_source: 'none' } ) ] );
+		mockSelect( [ conn( { media_source: 'none' } ) ] );
 
 		const { result } = renderHook( () => useRenderMessageItems() );
 
@@ -196,7 +270,12 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'debounces 1500ms when a message string changes', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'first' } ) ] );
+		mockSelect( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'first',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 
 		const { result, rerender } = renderHook( () => useRenderMessageItems() );
 
@@ -206,7 +285,11 @@ describe( 'useRenderMessageItems', () => {
 		} );
 		expect( result.current[ 0 ].message ).toBe( 'first' );
 
-		mockUseSelect.mockReturnValue( [ conn( { message: 'second' } ) ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'second',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 		rerender();
 
 		// Still showing the previous value — change is in-flight.
@@ -219,8 +302,92 @@ describe( 'useRenderMessageItems', () => {
 		expect( result.current[ 0 ].message ).toBe( 'second' );
 	} );
 
+	it( 'debounces 1500ms when edited post intent changes', () => {
+		mockSelect( [ conn() ] );
+
+		const { result, rerender } = renderHook( () => useRenderMessageInputs() );
+
+		act( () => {
+			jest.runOnlyPendingTimers();
+		} );
+		expect( result.current.postIntent ).toEqual( {
+			title: 'Edited title',
+			excerpt: 'Edited excerpt',
+			content: 'Edited content',
+		} );
+
+		mockPostIntent = {
+			title: 'Updated title',
+			excerpt: 'Updated excerpt',
+			content: 'Updated content',
+		};
+		rerender();
+
+		expect( result.current.postIntent ).toEqual( {
+			title: 'Edited title',
+			excerpt: 'Edited excerpt',
+			content: 'Edited content',
+		} );
+
+		act( () => {
+			jest.advanceTimersByTime( 1500 );
+		} );
+
+		expect( result.current.postIntent ).toEqual( {
+			title: 'Updated title',
+			excerpt: 'Updated excerpt',
+			content: 'Updated content',
+		} );
+	} );
+
+	it( 'does not flush a pending message change on unrelated re-renders', () => {
+		mockSelect( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'first',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const { result, rerender } = renderHook( () => useRenderMessageItems() );
+
+		act( () => {
+			jest.runOnlyPendingTimers();
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'second',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+		rerender();
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
+		} );
+		rerender();
+
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1499 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'second' );
+	} );
+
 	it( 'updates immediately when only non-message inputs change', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'same' } ) ] );
+		mockSelect( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'same',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 
 		const { result, rerender } = renderHook( () => useRenderMessageItems() );
 
@@ -232,7 +399,6 @@ describe( 'useRenderMessageItems', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( {
 			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
 		} );
-		mockUseSelect.mockReturnValue( [ conn( { message: 'same' } ) ] );
 		rerender();
 
 		// Effects run synchronously inside act() with fake timers — no advance needed.

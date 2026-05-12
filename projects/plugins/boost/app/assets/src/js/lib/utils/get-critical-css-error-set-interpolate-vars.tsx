@@ -1,4 +1,3 @@
-import { ExternalLink } from '@wordpress/components';
 import { useNavigate } from 'react-router';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { InterpolateVars } from '$lib/utils/interplate-vars-types';
@@ -7,6 +6,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import { suggestion } from '$features/critical-css/lib/describe-critical-css-recommendations';
 import { ErrorSet } from '$features/critical-css/lib/critical-css-errors';
 import { recordBoostEvent } from './analytics';
+import { Link } from '@wordpress/ui';
 
 function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
@@ -31,7 +31,7 @@ function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 	};
 
 	if ( 'listLink' in suggestion( errorSet ) ) {
-		interpolateVars.link = <ExternalLink href={ suggestion( errorSet ).listLink } />;
+		interpolateVars.link = <Link openInNewTab href={ suggestion( errorSet ).listLink } />;
 	}
 
 	return interpolateVars;

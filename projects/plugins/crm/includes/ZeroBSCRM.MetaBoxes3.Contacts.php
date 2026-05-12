@@ -203,7 +203,7 @@ class zeroBS__Metabox_Contact extends zeroBS__Metabox {
 		}
 		?>
 
-<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 
 		<?php
 		if ( gettype( $customer ) !== 'array' ) {
@@ -344,7 +344,7 @@ class zeroBS__Metabox_Contact extends zeroBS__Metabox {
 
 					if ( isset( $_POST['zerobscrm-owner'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
 
-						$potential_owner = (int) sanitize_text_field( wp_unslash( $_POST['zerobscrm-owner'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
+						$potential_owner = (int) $_POST['zerobscrm-owner']; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
 						if ( $potential_owner > 0 ) {
 							$owner = $potential_owner;
 						}
@@ -723,9 +723,7 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox {
 		if ( ! $is_new_contact ) {
 			?>
 		<script type="text/javascript">
-			var zbsContactAvatarLang = {
-				'upload': '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
-			};
+			var zbsContactAvatarLang = <?php echo wp_json_encode( array( 'upload' => __( 'Upload Image', 'zero-bs-crm' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<div class="action-wrap">
 			<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
@@ -1259,15 +1257,16 @@ class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox {
 				// PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox');
 				// PerfTest: zeroBSCRM_performanceTest_debugOut();
 
+				$jpcrm_metabox_files_lang = array(
+					'error'          => __( 'Error', 'zero-bs-crm' ),
+					'unabletodelete' => __( 'Unable to delete this file.', 'zero-bs-crm' ),
+				);
+
 				?>
 				<script type="text/javascript">
 
 					var zbsCustomerCurrentlyDeleting = false;
-					var zbsMetaboxFilesLang = {
-
-						'error': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-						'unabletodelete': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file.', 'zero-bs-crm' ) ) ); ?>'
-					};
+					var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 					jQuery(function(){
 
@@ -1291,15 +1290,7 @@ class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox {
 										'action': 'delFile',
 										'zbsfType': 'customer',
 										'zbsDel':  delUrl, // could be csv, never used though
-										'zbsCID': 
-										<?php
-										if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-											echo esc_html( $contact['id'] );
-										} else {
-											echo -1;
-										}
-										?>
-													,
+										'zbsCID': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 										'sec': window.zbscrmjs_secToken
 										};
 
@@ -1648,15 +1639,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					var t = {
 						action: "zbsPortalAction",
 						portalAction: action,
-						cid: 
-						<?php
-						if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-							echo esc_html( $contact['id'] );
-						} else {
-							echo -1;
-						}
-						?>
-							,
+						cid: <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 						security: jQuery( '#zbsportalaction-ajax-nonce' ).val()
 					}
 					i = jQuery.ajax({
@@ -1704,15 +1687,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					var t = {
 						action: "zbsPortalAction",
 						portalAction: 'resetpw',
-						cid: 
-						<?php
-						if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-							echo esc_html( $contact['id'] );
-						} else {
-							echo -1;
-						}
-						?>
-							,
+						cid: <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 						security: jQuery( '#zbsportalaction-ajax-nonce' ).val()
 					}
 					i = jQuery.ajax({
@@ -1724,19 +1699,19 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					i.done(function(e) {
 						if ( e && e.success ) {
 
-							swal(
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ) ); ?>',
-								'info'
-							);
+							swal({
+								titleText: <?php echo wp_json_encode( __( 'Client Portal Password Reset', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								text: <?php echo wp_json_encode( __( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								type: 'info',
+							});
 
 						} else {
 
-							swal(
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
-								'info'
-							);
+							swal({
+								titleText: <?php echo wp_json_encode( __( 'Client Portal Password Reset Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								text: <?php echo wp_json_encode( __( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								type: 'info',
+							});
 
 						}
 					}), i.fail(function(e) {
@@ -1749,15 +1724,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 				// bind create
 				jQuery('.wp-user-generate').off("click").on('click',function(e){
 					email = jQuery('#email').val();
-					customerid = 
-					<?php
-					if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-						echo esc_html( $contact['id'] );
-					} else {
-						echo -1;
-					}
-					?>
-								;
+					customerid = <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>;
 					if(email == ''){
 						alert("The email field is blank. Please fill in the email and save");
 						return false;
@@ -2024,18 +1991,10 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 										// postbag!
 										var data = {
-										'action': 'addAlias',
-										'cid': 
-										<?php
-										if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-											echo esc_html( $contact['id'] );
-										} else {
-											echo -1;
-										}
-										?>
-												,
-										'aka': v,
-										'sec': window.zbscrmjs_secToken
+											'action': 'addAlias',
+											'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
+											'aka': v,
+											'sec': window.zbscrmjs_secToken,
 										};
 
 										// Send it Pat :D
@@ -2080,22 +2039,22 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 														if (response.fail == 'existing'){
 
 															// already in use err
-															swal(
-																'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-																'<?php esc_html_e( 'This Alias is already in use by another contact.', 'zero-bs-crm' ); ?>',
-																'warning'
-															);
+															swal({
+																titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+																text: <?php echo wp_json_encode( __( 'This Alias is already in use by another contact.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+																type: 'warning',
+															});
 
 														}
 
 													} else {
 
 														// general err
-														swal(
-															'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-															'<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
-															'warning'
-														);
+														swal({
+															titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+															text: <?php echo wp_json_encode( __( 'There was an error adding this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+															type: 'warning',
+														});
 
 													}
 													//unblock
@@ -2107,11 +2066,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 												error: function(response){
 
 													// err
-													swal(
-														'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-														'<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
-														'warning'
-													);
+													swal({
+														titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+														text: <?php echo wp_json_encode( __( 'There was an error adding this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+														type: 'warning'
+													});
 													//unblock
 													window.zbsAliasAKABlocker = false;
 													jQuery('#zbs-aka-alias-loader').hide();
@@ -2175,15 +2134,7 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 								// postbag!
 								var data = {
 								'action': 'removeAlias',
-								'cid': 
-								<?php
-								if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-									echo esc_html( $contact['id'] );
-								} else {
-									echo -1;
-								}
-								?>
-										,
+								'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 								'akaid': akaID,
 								'sec': window.zbscrmjs_secToken
 								};
@@ -2213,11 +2164,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 										} else {
 
 											// err
-											swal(
-												'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												'<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
-												'warning'
-											);
+											swal({
+												titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												text: <?php echo wp_json_encode( __( 'There was an error removing this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												type: 'warning',
+											});
 											//unblock
 											window.zbsAliasAKABlocker = false;
 											jQuery('#zbs-aka-alias-loader').hide();
@@ -2227,11 +2178,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 										error: function(response){
 
 											// err
-											swal(
-												'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												'<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
-												'warning'
-											);
+											swal({
+												titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												text: <?php echo wp_json_encode( __( 'There was an error removing this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												type: 'warning',
+											});
 											//unblock
 											window.zbsAliasAKABlocker = false;
 											jQuery('#zbs-aka-alias-loader').hide();

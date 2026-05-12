@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded.

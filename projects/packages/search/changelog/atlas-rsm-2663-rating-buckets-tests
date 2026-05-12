@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search 3.0: extract the rating filter's cumulative bucket projection into its own module + add unit tests pinning the threshold semantics. Also tightens type symmetry (string keys throughout the count map) and mirrors the `!filterKey` defensive guard across the block's three context consumers. Internal-only; no behavior change.

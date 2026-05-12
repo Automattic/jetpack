@@ -3,7 +3,6 @@
  */
 import {
 	AdminPage,
-	Button,
 	Col,
 	Container,
 	PricingTable,
@@ -14,8 +13,9 @@ import {
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { Button as WPButton, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -388,14 +388,15 @@ export default function PricingInterstitial( { slug } ) {
 				/>
 			}
 			actions={
-				<WPButton
+				<Button
 					size="compact"
-					variant="secondary"
-					href={ getMyJetpackUrl( '#/add-license' ) }
+					variant="outline"
+					nativeButton={ false }
+					render={ <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</WPButton>
+				</Button>
 			}
 		>
 			<Container
@@ -421,10 +422,10 @@ export default function PricingInterstitial( { slug } ) {
 										variant="simple"
 									/>
 									<Button
-										fullWidth
-										variant="secondary"
+										className={ styles[ 'tier-cta' ] }
+										variant="outline"
 										onClick={ handleFreeActivation }
-										isLoading={ loadingButton === 'free' }
+										loading={ loadingButton === 'free' }
 										disabled={ buttonsDisabled }
 									>
 										{ config.tiers.free.cta }
@@ -458,9 +459,9 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
+									className={ styles[ 'tier-cta' ] }
 									onClick={ handleGetProduct }
-									isLoading={ loadingButton === 'paid' }
+									loading={ loadingButton === 'paid' }
 									disabled={ buttonsDisabled }
 								>
 									{ config.tiers.paid.cta }
@@ -489,10 +490,10 @@ export default function PricingInterstitial( { slug } ) {
 									<Spinner className={ styles.spinner } />
 								) }
 								<Button
-									fullWidth
-									variant="secondary"
+									className={ styles[ 'tier-cta' ] }
+									variant="outline"
 									onClick={ handleGetBundle }
-									isLoading={ loadingButton === 'bundle' }
+									loading={ loadingButton === 'bundle' }
 									disabled={ buttonsDisabled || isBundleLoading }
 								>
 									{ config.tiers.bundle.cta }

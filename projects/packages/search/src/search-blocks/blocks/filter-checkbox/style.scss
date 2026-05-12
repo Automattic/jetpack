@@ -1,8 +1,14 @@
-.wp-block-jetpack-filter-checkbox {
+@use "../skeleton" as skeleton;
+@use "../chip" as chip;
+
+.wp-block-jetpack-search-filter-checkbox {
 
 	&[hidden] {
 		display: none;
 	}
+
+	@include skeleton.shimmer;
+	@include skeleton.filter-rows;
 
 	.jetpack-search-filter__title {
 		font-size: 0.85rem;
@@ -52,17 +58,8 @@
 		}
 	}
 
-	.jetpack-search-filter__all-selected {
-		margin: 0;
-		font-size: 0.75rem;
-		// Inherit the theme's text color; opacity keeps the muted look
-		// across light and dark themes.
-		color: inherit;
-		opacity: 0.7;
-		font-style: italic;
+	&[data-display-style="chips"] {
 
-		&[hidden] {
-			display: none;
-		}
+		@include chip.checkbox-filter-chips;
 	}
 }

@@ -8,14 +8,13 @@ import {
 	getSiteType,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import {
 	Button,
 	Card,
 	CardHeader,
 	CardBody,
 	CardFooter,
-	ExternalLink,
 	Notice,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -23,6 +22,7 @@ import {
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -162,7 +162,7 @@ export function NewsletterCategoriesSection( {
 	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
 	) : (
-		<ExternalLink href={ subscribeBlockUrl } children={ null } />
+		<Link openInNewTab href={ subscribeBlockUrl } children={ null } />
 	);
 
 	return (
@@ -200,13 +200,14 @@ export function NewsletterCategoriesSection( {
 
 					{ data.wpcom_newsletter_categories_enabled && (
 						<p>
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getAdminUrl(
 									'edit-tags.php?taxonomy=category&referer=newsletter-categories'
 								) }
 							>
 								{ __( 'Add new category', 'jetpack-newsletter' ) }
-							</ExternalLink>
+							</Link>
 						</p>
 					) }
 				</fieldset>

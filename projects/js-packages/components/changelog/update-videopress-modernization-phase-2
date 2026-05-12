@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add global-notices sub-path export for use in wp-build dashboards.

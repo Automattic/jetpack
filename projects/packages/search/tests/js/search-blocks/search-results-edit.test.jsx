@@ -1,22 +1,39 @@
 import { render, screen } from '@testing-library/react';
+import { InnerBlocks } from '@wordpress/block-editor';
 import SearchResultsEdit from '../../../src/search-blocks/blocks/search-results/edit';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: props => ( { ...props, className: props?.className } ),
-} ) );
-
-jest.mock( '@wordpress/i18n', () => ( {
-	__: text => text,
+	InnerBlocks: jest.fn( () => <div data-testid="search-results-inner-blocks" /> ),
 } ) );
 
 describe( 'SearchResultsEdit', () => {
-	it( 'does not show author names in the compact preview', () => {
-		render( <SearchResultsEdit attributes={ { layout: 'compact' } } /> );
+	beforeEach( () => {
+		InnerBlocks.mockClear();
+	} );
 
-		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Apr 1, 2026' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Grace Hopper' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Katherine Johnson' ) ).not.toBeInTheDocument();
+	it( 'renders InnerBlocks with the default result-stack template + allowedBlocks contract', () => {
+		render( <SearchResultsEdit /> );
+
+		expect( screen.getByTestId( 'search-results-inner-blocks' ) ).toBeInTheDocument();
+		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
+		expect( props.template ).toEqual( [
+			[
+				'core/group',
+				{ layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' } },
+				[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
+			],
+			[ 'jetpack-search/results-list' ],
+			[ 'jetpack-search/results-load-more' ],
+			[ 'jetpack-search/powered-by' ],
+		] );
+		expect( props.allowedBlocks ).toEqual( [
+			'core/group',
+			'jetpack-search/results-count',
+			'jetpack-search/results-sort',
+			'jetpack-search/results-list',
+			'jetpack-search/results-load-more',
+			'jetpack-search/powered-by',
+		] );
 	} );
 } );

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add admin abilities for form CRUD (list-forms, get-form, create-form, delete-form) and bulk-update-responses.

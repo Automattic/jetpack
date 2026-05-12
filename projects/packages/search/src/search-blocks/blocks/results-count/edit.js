@@ -1,12 +1,11 @@
 /**
- * Editor preview for jetpack/results-count.
+ * Editor preview for jetpack-search/results-count.
  *
  * Matches the copy the live store emits via `state.resultsCountText`
  * (see store/index.js) so the preview reflects the same string designers
  * style on the front end.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,5 +15,5 @@ import { __ } from '@wordpress/i18n';
  */
 export default function ResultsCountEdit() {
 	const blockProps = useBlockProps();
-	return h( 'p', blockProps, __( '42 results', 'jetpack-search-pkg' ) );
+	return <p { ...blockProps }>{ __( '42 results', 'jetpack-search-pkg' ) }</p>;
 }

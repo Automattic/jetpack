@@ -83,14 +83,11 @@ const sbconfig = {
 					name: 'search-dashboard-modules',
 					async resolveId( id, importer ) {
 						if (
-							id.startsWith( 'components/' ) &&
+							( id.startsWith( 'components/' ) || id === 'store' || id.startsWith( 'store/' ) ) &&
 							importer?.includes( '/search/src/dashboard/' )
 						) {
-							const dummyFile = path.join(
-								__dirname,
-								'../../../packages/search/src/dashboard/dummy.js'
-							);
-							return this.resolve( './' + id, dummyFile, {
+							const dashboardDir = path.join( __dirname, '../../../packages/search/src/dashboard' );
+							return this.resolve( path.join( dashboardDir, id ), importer, {
 								skipSelf: true,
 							} );
 						}

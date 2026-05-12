@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Social: batch-render all enabled connection previews in a single request via the new /publicize/render-messages endpoint.

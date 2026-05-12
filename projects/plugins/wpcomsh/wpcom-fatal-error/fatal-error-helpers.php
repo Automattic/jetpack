@@ -134,20 +134,84 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
 }
 
 /**
- * Emit a fatal-error event via WPCOMSH_Log::unsafe_direct_log_logstash(),
- * alongside the decoded signature parts so consumers don't have to decode
- * the signature themselves.
+ * Bucket the in-flight HTTP request into a coarse kind for telemetry,
+ * along with the path and method. Kind drives dedup; path and method
+ * ride on the row for drill-down.
  *
- * Callable from both the fatal-screen render path and the deactivator
- * endpoint at mu-plugin load time. The deactivator path runs before
- * constants.php, so we resolve the wpcomsh root via `dirname(__DIR__)`
- * rather than WPCOMSH__PLUGIN_DIR_PATH.
+ * Buckets, in priority order: `cron`, `ajax`, `rest`, `wp-login`,
+ * `wp-admin`, `home`, `other`. Order matters because `admin-ajax.php`
+ * lives under `/wp-admin/`, so the more-specific buckets win first.
  *
- * Manual require with `class_exists( …, false )` skips the autoloader during
- * fatal handling, where its filesystem reads could compound a bad state.
+ * Best-effort: option lookups (`admin_url()`, `home_url()`) are wrapped
+ * in try/catch so a misbehaving filter can't bubble out of the fatal
+ * handler.
  *
- * Best-effort: silently no-ops if either dependency is unreachable. A logging
- * failure must never escalate into a second fatal.
+ * @return array{kind:string,path:string,method:string}
+ */
+function wpcomsh_fatal_request_context() {
+	static $cached = null;
+	if ( null !== $cached ) {
+		return $cached;
+	}
+
+	// REQUEST_URI is fed only to wp_parse_url for path extraction; the raw
+	// value is never echoed, rendered, or stored. sanitize_text_field would
+	// drop legitimate path bytes via wp_check_invalid_utf8.
+	$req_uri  = wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path-only extraction; see comment.
+	$raw_path = (string) wp_parse_url( $req_uri, PHP_URL_PATH );
+	$path     = rtrim( $raw_path, '/' );
+
+	static $allowed_methods = array( 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' );
+	$method_raw             = strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- whitelisted below.
+	$method                 = in_array( $method_raw, $allowed_methods, true ) ? $method_raw : 'UNKNOWN';
+
+	// Bucket priority: cron / ajax / rest / wp-login win before wp-admin
+	// because admin-ajax.php lives under /wp-admin/. Constants (not the
+	// `wp_doing_cron` / `wp_doing_ajax` wrappers) are checked because the
+	// wrappers run filters — a callback registered by the fataling code, or
+	// by a plugin coincidentally loaded on this request, must not bubble out
+	// of the fatal handler and prevent the recovery screen from rendering.
+	// Path suffixes catch the early-fatal case where the constant hasn't
+	// been defined yet (e.g. a plugin-load fatal on /wp-cron.php before
+	// wp-cron.php sets DOING_CRON).
+	$kind = 'other';
+	if ( ( defined( 'DOING_CRON' ) && DOING_CRON ) || str_ends_with( $path, '/wp-cron.php' ) ) {
+		$kind = 'cron';
+	} elseif ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || str_ends_with( $path, '/admin-ajax.php' ) ) {
+		$kind = 'ajax';
+	} elseif ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || str_contains( $path, '/wp-json/' ) || str_ends_with( $path, '/wp-json' ) ) {
+		$kind = 'rest';
+	} elseif ( str_ends_with( $path, '/wp-login.php' ) ) {
+		$kind = 'wp-login';
+	} else {
+		try {
+			$admin_path = rtrim( (string) wp_parse_url( admin_url(), PHP_URL_PATH ), '/' );
+			if ( '' !== $admin_path && str_starts_with( $path . '/', $admin_path . '/' ) ) {
+				$kind = 'wp-admin';
+			} else {
+				$home_path = rtrim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+				if ( $home_path === $path ) {
+					$kind = 'home';
+				}
+			}
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: option lookup must not bubble during fatal handling.
+			// Fall through with $kind = 'other'.
+		}
+	}
+
+	$cached = array(
+		'kind'   => $kind,
+		'path'   => '' === $path ? '/' : $path,
+		'method' => $method,
+	);
+	return $cached;
+}
+
+/**
+ * Emit a fatal-error event keyed on a suspected extension. Builds the
+ * signature, dedups per (message, signature, request_kind) for 1 hour,
+ * and routes through `wpcomsh_fatal_emit_logstash` so the recovery-login
+ * event can share the same dispatch tail.
  *
  * @param array|null $plugin  Extension metadata from wpcomsh_fatal_identify_plugin().
  * @param string     $message Event message slug (e.g. `wpcomsh_fatal_signature`, `wpcomsh_fatal_deactivate`).
@@ -158,10 +222,8 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		return;
 	}
 
-	$wpcomsh_root = dirname( __DIR__ );
-
 	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
-		$helper = $wpcomsh_root . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
+		$helper = dirname( __DIR__ ) . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
 		if ( is_readable( $helper ) ) {
 			require_once $helper;
 		}
@@ -181,56 +243,24 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		return;
 	}
 
-	// Dedup per (message, signature) for 5 min so a persistent fatal doesn't
-	// emit one log row + one outbound HTTP per visitor. $message is part of
-	// the key so a deactivate event isn't suppressed by a recent signature
-	// event for the same extension.
-	$cache_key = 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature );
-	try {
-		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
-			return;
-		}
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not block telemetry.
-		// Fall through and log.
-	}
+	$context = wpcomsh_fatal_request_context();
 
-	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
-		$log_file = $wpcomsh_root . '/class-wpcomsh-log.php';
-		if ( is_readable( $log_file ) ) {
-			require_once $log_file;
-		}
-	}
-	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+	// Dedup per (message, signature, request_kind) for 1 hour. $message keeps
+	// a deactivate event from being suppressed by a recent signature event for
+	// the same extension. request_kind splits site-wide breakage (multiple
+	// kinds per signature) from a single broken endpoint (one kind), which the
+	// in-request handler can't otherwise tell. TTL stays short of core's 24h
+	// `recovery_mode_email_rate_limit` so a legitimate re-send surfaces.
+	if ( ! wpcomsh_fatal_dedup_acquire( 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature . '|' . $context['kind'] ), HOUR_IN_SECONDS ) ) {
 		return;
 	}
 
-	$properties = array( 'signature' => $signature );
-
-	// `get_site_url()` runs the `site_url` / `option_siteurl` filters, so a
-	// misbehaving filter could throw — keep the lookup in its own guard so
-	// the rest of the signature still makes it to logstash.
-	try {
-		$properties['site_url'] = get_site_url();
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit site_url if a filter misbehaves.
-		// Fall through.
-	}
-
-	// Prefer the constant: it's set on Atomic and avoids the apply_filters()
-	// dispatch inside wpcomsh_get_atomic_site_id(). Fall back to the helper
-	// only when the constant isn't defined; guard the call because the helper
-	// runs the `wpcomsh_get_atomic_site_id` filter, and a misbehaving callback
-	// must not bubble out of this best-effort logger.
-	$atomic_site_id = defined( 'ATOMIC_SITE_ID' ) ? (int) ATOMIC_SITE_ID : 0;
-	if ( 0 === $atomic_site_id && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
-		try {
-			$atomic_site_id = (int) wpcomsh_get_atomic_site_id();
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit atomic_site_id if a filter misbehaves.
-			// Fall through.
-		}
-	}
-	if ( $atomic_site_id > 0 ) {
-		$properties['atomic_site_id'] = $atomic_site_id;
-	}
+	$properties = array(
+		'signature'      => $signature,
+		'request_kind'   => $context['kind'],
+		'request_path'   => $context['path'],
+		'request_method' => $context['method'],
+	);
 
 	// Round-trip through the decoder so the logged parts always agree
 	// with the signature.
@@ -242,6 +272,69 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 			$properties['extension_version'] = $parts['version'];
 			$properties['wp_version']        = $parts['wp'];
 			$properties['php_version']       = $parts['php'];
+		}
+	}
+
+	wpcomsh_fatal_emit_logstash( $message, $properties );
+}
+
+/**
+ * Dispatch a fatal-flow event to the `atomic_extension_conflict` logstash
+ * bucket, after merging in the shared site identifiers (`site_url`,
+ * `atomic_site_id`) callers always want attached.
+ *
+ * Manual require with `class_exists( …, false )` skips the autoloader
+ * during fatal handling, where its filesystem reads could compound a bad
+ * state. Resolves the wpcomsh root via `dirname(__DIR__)` so the
+ * deactivator endpoint can call this at mu-plugin file-load time, before
+ * constants.php has run.
+ *
+ * Best-effort: silently no-ops when WPCOMSH_Log is unreachable, and never
+ * lets a dispatch failure bubble out — telemetry must not escalate a
+ * recovery flow into a second fatal.
+ *
+ * @param string                    $message    Event message slug.
+ * @param array<string,scalar|null> $properties Event-specific properties; site_url + atomic_site_id are added when missing.
+ * @return void
+ */
+function wpcomsh_fatal_emit_logstash( $message, $properties = array() ) {
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		$log_file = dirname( __DIR__ ) . '/class-wpcomsh-log.php';
+		if ( is_readable( $log_file ) ) {
+			require_once $log_file;
+		}
+	}
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		return;
+	}
+
+	// `get_site_url()` runs the `site_url` / `option_siteurl` filters, so a
+	// misbehaving filter could throw — keep the lookup in its own guard so
+	// the rest of the event still makes it to logstash.
+	if ( ! isset( $properties['site_url'] ) ) {
+		try {
+			$properties['site_url'] = get_site_url();
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit site_url if a filter misbehaves.
+			// Fall through.
+		}
+	}
+
+	// Prefer the constant: it's set on Atomic and avoids the apply_filters()
+	// dispatch inside wpcomsh_get_atomic_site_id(). Fall back to the helper
+	// only when the constant isn't defined; guard the call because the helper
+	// runs the `wpcomsh_get_atomic_site_id` filter, and a misbehaving callback
+	// must not bubble out.
+	if ( ! isset( $properties['atomic_site_id'] ) ) {
+		$atomic_site_id = defined( 'ATOMIC_SITE_ID' ) ? (int) ATOMIC_SITE_ID : 0;
+		if ( 0 === $atomic_site_id && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			try {
+				$atomic_site_id = (int) wpcomsh_get_atomic_site_id();
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit atomic_site_id if a filter misbehaves.
+				// Fall through.
+			}
+		}
+		if ( $atomic_site_id > 0 ) {
+			$properties['atomic_site_id'] = $atomic_site_id;
 		}
 	}
 
@@ -299,12 +392,114 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
 }
 
 /**
+ * Mint a `(exp, sig)` payload that the deactivator endpoint verifies
+ * before acting.
+ *
+ * Signature: HMAC over (`$payload_prefix`, expiry, logged_in cookie) using
+ * AUTH_SALT. Binding to the cookie means the payload is tied to the admin's
+ * active session — it can't be replayed after logout, can't be replayed by
+ * another user, and can't be forged without AUTH_SALT. Nonces aren't usable
+ * here because the verifying endpoint runs before pluggable.php loads.
+ *
+ * `$payload_prefix` is a domain separator so a signature minted for one
+ * action can't be replayed against another.
+ *
+ * Default TTL is short (five minutes) because the deactivator action is
+ * destructive and we want fresh intent.
+ *
+ * @param string $payload_prefix Action-specific prefix mixed into the HMAC.
+ * @param int    $ttl            Validity window in seconds.
+ * @return array{exp:int,sig:string}|null Signed payload, or null when prerequisites are missing.
+ */
+function wpcomsh_fatal_sign_payload( $payload_prefix, $ttl = 5 * MINUTE_IN_SECONDS ) {
+	if ( ! defined( 'AUTH_SALT' ) || ! defined( 'LOGGED_IN_COOKIE' ) ) {
+		return null;
+	}
+	if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+		return null;
+	}
+	// The cookie is used only as a per-session secret inside an HMAC we
+	// never output, so sanitization is irrelevant — we need its exact
+	// byte-for-byte value to match at verification time.
+	$cookie_value = (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$exp          = time() + $ttl;
+	return array(
+		'exp' => $exp,
+		'sig' => hash_hmac( 'sha256', $payload_prefix . '|' . $exp . '|' . $cookie_value, (string) AUTH_SALT ),
+	);
+}
+
+/**
+ * Counterpart to `wpcomsh_fatal_sign_payload()`: validate that the supplied
+ * `$exp` / `$sig` came from this site (HMAC over the same payload prefix
+ * keyed on AUTH_SALT) and the same authenticated session (logged_in cookie
+ * mixed into the HMAC), and that the payload hasn't expired.
+ *
+ * Bootstraps cookie constants on demand so the helper is callable from
+ * mu-plugin-time endpoints, before wp-settings.php's cookie_constants()
+ * runs. Returns false on any prerequisite or comparison failure — callers
+ * treat that as "reject the request."
+ *
+ * @param string $payload_prefix Action-specific prefix mixed into the HMAC.
+ * @param int    $exp            Expiry timestamp from the signed payload.
+ * @param string $sig            Signature presented by the request.
+ * @return bool
+ */
+function wpcomsh_fatal_verify_payload( $payload_prefix, $exp, $sig ) {
+	if ( ! defined( 'AUTH_SALT' ) ) {
+		return false;
+	}
+	// Cookie constants (LOGGED_IN_COOKIE etc.) are defined later in
+	// wp-settings.php — between muplugins_loaded and active_plugins
+	// iteration. At mu-plugin load time they don't exist yet, but
+	// wp_cookie_constants() is already available.
+	if ( ! defined( 'LOGGED_IN_COOKIE' ) && function_exists( 'wp_cookie_constants' ) ) {
+		wp_cookie_constants();
+	}
+	if ( ! defined( 'LOGGED_IN_COOKIE' ) ) {
+		return false;
+	}
+	if ( $exp < time() ) {
+		return false;
+	}
+	// Cookie is the per-session secret; sanitization would destroy the
+	// byte-for-byte match against the value present at sign time.
+	$cookie_value = isset( $_COOKIE[ LOGGED_IN_COOKIE ] )
+		? (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		: '';
+	if ( '' === $cookie_value ) {
+		return false;
+	}
+	$expected = hash_hmac( 'sha256', $payload_prefix . '|' . $exp . '|' . $cookie_value, (string) AUTH_SALT );
+	return hash_equals( $expected, (string) $sig );
+}
+
+/**
+ * Try to claim a 5-minute (by default) cache lock so the same event /
+ * action proceeds at most once per TTL window. Wraps `wp_cache_add()` in
+ * a try/catch because object-cache backends can throw on unreachable
+ * upstreams; a cache outage MUST fail open (return true) so telemetry and
+ * recovery actions don't silently disappear during an incident.
+ *
+ * Caller is responsible for namespacing the key. Returns true when the
+ * caller acquired the lock — proceed; false when another caller already
+ * did within the window — short-circuit.
+ *
+ * @param string $key Cache key.
+ * @param int    $ttl Lock TTL in seconds.
+ * @return bool
+ */
+function wpcomsh_fatal_dedup_acquire( $key, $ttl = 5 * MINUTE_IN_SECONDS ) {
+	try {
+		return (bool) wp_cache_add( $key, 1, 'wpcomsh', $ttl );
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache outage shouldn't silence telemetry or block real actions.
+		return true;
+	}
+}
+
+/**
  * Build the form action + signed fields the fatal-plugin-deactivator endpoint
  * validates, without relying on pluggable functions or WP nonces.
- *
- * Signature: HMAC over (plugin, expiry, logged_in cookie) using AUTH_SALT.
- * Binding to the cookie ensures the request can't be replayed by another
- * user or after the admin logs out, and can't be forged without AUTH_SALT.
  *
  * Returned as form fields (rather than a signed URL) so the screen can submit
  * via POST — destructive actions should not live in a GET-able link.
@@ -313,30 +508,109 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
  * @return array{action:string,fields:array<string,string>}|null Form data, or null when prerequisites are missing.
  */
 function wpcomsh_fatal_build_deactivate_form( $plugin_basename ) {
-	if ( ! defined( 'AUTH_SALT' ) || ! defined( 'LOGGED_IN_COOKIE' ) ) {
+	$signed = wpcomsh_fatal_sign_payload( $plugin_basename );
+	if ( null === $signed ) {
 		return null;
 	}
-	if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-		return null;
-	}
-	// The cookie is used only as a per-session secret inside an HMAC we
-	// never output, so sanitization is irrelevant here — we need its exact
-	// byte-for-byte value to match at verification time.
-	$cookie_value = (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$exp          = time() + 5 * MINUTE_IN_SECONDS;
-	$sig          = hash_hmac(
-		'sha256',
-		$plugin_basename . '|' . $exp . '|' . $cookie_value,
-		(string) AUTH_SALT
-	);
 	return array(
 		'action' => home_url( '/' ),
 		'fields' => array(
 			'wpcomsh_deactivate' => $plugin_basename,
-			'wpcomsh_exp'        => (string) $exp,
-			'wpcomsh_sig'        => $sig,
+			'wpcomsh_exp'        => (string) $signed['exp'],
+			'wpcomsh_sig'        => $signed['sig'],
 		),
 	);
+}
+
+/**
+ * Build the URL the fatal-error screen renders behind its "Enter
+ * recovery mode" link. The endpoint at fatal-recovery-redirect.php
+ * verifies the nonce + capability, then 302s to a freshly-generated
+ * core recovery URL — so the recovery key store doesn't pick up a row
+ * per fatal-screen pageview, only per actual click.
+ *
+ * The nonce binds the URL to (action, user_id, session_token, tick)
+ * via `wp_create_nonce()`, so a CSRF-style navigation can't reach the
+ * endpoint without first extracting the nonce from the rendered
+ * screen. The deactivator endpoint keeps its custom HMAC because it
+ * runs at mu-plugin file-load time, before pluggable.php loads and
+ * `wp_create_nonce` / `wp_verify_nonce` are callable.
+ *
+ * @param int $user_id Cookie-resolved user the link is being rendered for. Pinning
+ *                     `$current_user` to this id before minting the nonce makes
+ *                     sure verification (which sets the same id) sees a
+ *                     matching signature — without it, an ambient `$current_user`
+ *                     that differs from the cookie-bound admin (e.g. a request
+ *                     that called `wp_set_current_user( 0 )` earlier) would mint
+ *                     a nonce for the wrong user and the click would silently
+ *                     no-op.
+ * @return string Redirect URL, or '' when prerequisites are missing.
+ */
+function wpcomsh_fatal_build_recovery_redirect_url( $user_id ) {
+	if ( is_multisite() || ! $user_id ) {
+		return '';
+	}
+	// Build on `site_url()` rather than `home_url()`: the recovery flow
+	// requires LOGGED_IN_COOKIE, which on host-only cookie setups (no
+	// COOKIE_DOMAIN) is bound to the host where wp-login.php ran — i.e.
+	// `site_url()`'s host. A wrapper URL on `home_url()` would arrive
+	// without the cookie on installs where the two hosts differ, and the
+	// endpoint would silently reject the click.
+	//
+	// `site_url()` runs the `site_url` / `option_siteurl` filters and
+	// `wp_set_current_user()` fires the `set_current_user` action; a
+	// callback belonging to the fataling extension could throw and
+	// re-fatal the screen — drop the link rather than escalate.
+	try {
+		wp_set_current_user( $user_id );
+		wpcomsh_fatal_pin_recover_nonce_life();
+		return add_query_arg(
+			array(
+				'wpcomsh_recover' => '1',
+				'_wpnonce'        => wp_create_nonce( 'wpcomsh_recover' ),
+			),
+			site_url( '/' )
+		);
+	} catch ( \Throwable $e ) {
+		return '';
+	}
+}
+
+/**
+ * Register a `nonce_life` filter at `PHP_INT_MAX` that pins `DAY_IN_SECONDS`
+ * for the `wpcomsh_recover` action only, so the tick used at mint time
+ * (screen render, after plugins load) and verify time (mu-plugin file load,
+ * before plugins iterate) always agrees. Without this, a regular plugin
+ * that unconditionally filters `nonce_life` at default priority would
+ * shift the mint-side tick but not the verify-side tick (its callback
+ * isn't registered yet at mu-plugin time), and the click would silently
+ * fail verification.
+ *
+ * Idempotent (named callback) so call sites can invoke this lazily, just
+ * before `wp_create_nonce` / `wp_verify_nonce` — keeps the filter out of
+ * `nonce_life` dispatch on requests that don't touch the recovery flow.
+ *
+ * @return void
+ */
+function wpcomsh_fatal_pin_recover_nonce_life() {
+	add_filter( 'nonce_life', '_wpcomsh_fatal_recover_nonce_life', PHP_INT_MAX, 2 );
+}
+
+/**
+ * Filter callback for `wpcomsh_fatal_pin_recover_nonce_life()`. Returns
+ * `DAY_IN_SECONDS` for the `wpcomsh_recover` action and the upstream
+ * value for everything else.
+ *
+ * `$action = null` so a one-arg `apply_filters( 'nonce_life', $life )` from
+ * plugin code (allowed by the public filter contract) doesn't trip an
+ * ArgumentCountError under PHP 8+.
+ *
+ * @param int         $life   Upstream nonce lifetime.
+ * @param string|null $action Action passed to `wp_nonce_tick()`.
+ * @return int
+ */
+function _wpcomsh_fatal_recover_nonce_life( $life, $action = null ) {
+	return 'wpcomsh_recover' === $action ? DAY_IN_SECONDS : $life;
 }
 
 /**

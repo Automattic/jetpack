@@ -263,25 +263,29 @@ class zeroBSCRM_TagManager {
 		<script type="text/javascript">
 		<?php
 
-			// make simpler
-			$tags = $zbs->DAL->getTagsForObjType(
-				array(
+		// make simpler
+		$tags = $zbs->DAL->getTagsForObjType(
+			array(
 
-					'objtypeid'    => $zbs->DAL->objTypeID( $this->objType ), // ZBS_TYPE_CONTACT in place of 'contact'=>1, 'transaction'=> etc.
-					'excludeEmpty' => false,
-					'withCount'    => false,
-					'ignoreowner'  => true,
+				'objtypeid'    => $zbs->DAL->objTypeID( $this->objType ), // ZBS_TYPE_CONTACT in place of 'contact'=>1, 'transaction'=> etc.
+				'excludeEmpty' => false,
+				'withCount'    => false,
+				'ignoreowner'  => true,
 
-				)
-			);
-			$tagsArr = array(); if ( is_array( $tags ) && count( $tags ) > 0 ) {
+			)
+		);
+		$tagsArr = array(); if ( is_array( $tags ) && count( $tags ) > 0 ) {
 			foreach ( $tags as $t ) {
 				$tagsArr[] = $t['name'];
 			}
-			}
-			$tags = $tagsArr;
+		}
+		$tags = $tagsArr;
 
-			?>
+		$jpcrm_edit_view_lang_labels = array_merge(
+			array( 'today' => __( 'Today', 'zero-bs-crm' ) ),
+			is_array( $this->langLabels ) ? $this->langLabels : array(),
+		);
+		?>
 
 			// this forces firing of our custom init in admin.tags.metabox.js
 			var zbsCustomTagInitFunc = 'zbsJS_bindTagManagerInit';
@@ -298,44 +302,20 @@ class zeroBSCRM_TagManager {
 			// General options for listview
 			var zbsEditSettings = {
 
-				<?php /*objid: <?php echo $this->objID; ?>,*/ ?>
-				objdbname: '<?php echo esc_html( $this->objType ); ?>'
+				objdbname: <?php echo wp_json_encode( $this->objType, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 
 			};
 			var zbsDrawEditViewBlocker = false;
 			var zbsDrawEditAJAXBlocker = false;
-			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
-			var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
-			var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
-			var zbsEditViewLangLabels = {
+			var zbsObjectViewLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsListViewLink = <?php echo wp_json_encode( jpcrm_esc_link( $this->listViewSlug ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
+			var zbsEditViewLangLabels = <?php echo wp_json_encode( $jpcrm_edit_view_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-					'today': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Today', 'zero-bs-crm' ) ) ); ?>',
-
-					<?php
-					$labelCount = 0;
-					if ( is_array( $this->langLabels ) && count( $this->langLabels ) > 0 ) {
-						foreach ( $this->langLabels as $labelK => $labelV ) {
-
-							if ( $labelCount > 0 ) {
-								echo ',';
-							}
-
-							echo esc_html( $labelK ) . ":'" . esc_html( zeroBSCRM_slashOut( $labelV ) ) . "'";
-
-							++$labelCount;
-
-						}
-					}
-					?>
-
-			};
-			<?php
-			#} Nonce for AJAX
-					echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';";
-			?>
-					</script>
-					<?php
+			var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+		</script>
+		<?php
 	} // /draw func
 } // class

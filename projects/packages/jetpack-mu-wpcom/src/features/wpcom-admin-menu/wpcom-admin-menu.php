@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
+use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
@@ -275,11 +276,13 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
+	// Re-add submenu items in the desired order. Dedupe because slugs in
+	// $desired_order can be substrings of one another (e.g. 'podcast' /
+	// 'podcasting'), which would otherwise match the same item twice.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
 			$clean_url = str_replace( $domain, '', $item[2] );
-			if ( str_contains( $clean_url, $submenu_slug ) ) {
+			if ( str_contains( $clean_url, $submenu_slug ) && ! in_array( $item, $ordered_submenu, true ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
@@ -401,15 +404,21 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
-	// Jetpack > Podcasting
-	add_submenu_page(
-		'jetpack',
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/settings/podcasting/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// When the `jetpack_podcast_untangle` filter is on, register the new
+	// "Jetpack > Podcast" in-admin page from the jetpack-podcast package.
+	// Otherwise keep the legacy "Jetpack > Podcasting" Calypso link unchanged.
+	if ( apply_filters( 'jetpack_podcast_untangle', false ) ) {
+		Podcast_Admin_Page::add_wp_admin_submenu();
+	} else {
+		add_submenu_page(
+			'jetpack',
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/podcasting/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
@@ -459,6 +468,7 @@ function wpcom_add_jetpack_submenu() {
 			'search',
 			'subscribers',
 			'newsletter',
+			'podcast',
 			'podcasting',
 			'traffic',
 			'jetpack#/settings',

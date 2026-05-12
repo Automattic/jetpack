@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-paypal-payments",
-	"version": "0.6.17",
+	"version": "0.6.18",
 	"private": true,
 	"description": "Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/paypal-payments/#readme",
@@ -38,6 +38,7 @@
 		"@wordpress/element": "6.44.0",
 		"@wordpress/hooks": "4.44.0",
 		"@wordpress/i18n": "6.17.0",
+		"@wordpress/ui": "0.11.0",
 		"@wordpress/widgets": "4.44.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "14.0.0",
@@ -63,7 +64,7 @@
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.3.0",
 		"jest": "30.3.0",
-		"postcss": "8.5.10",
+		"postcss": "8.5.14",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5"

@@ -104,13 +104,16 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 
 		</div>
 		<div style="clear:both"></div>
+		<?php
+		$jpcrm_proposal_data = array(
+			'quote_id'       => (int) $quote_id,
+			'quote_hash'     => $quote_hash,
+			'proposal_nonce' => wp_create_nonce( 'zbscrmquo-nonce' ),
+			'ajax_url'       => admin_url( 'admin-ajax.php' ),
+		);
+		?>
 		<script type="text/javascript">
-			var jpcrm_proposal_data = {
-				'quote_id': '<?php echo esc_js( $quote_id ); ?>',
-				'quote_hash': '<?php echo esc_js( $quote_hash ); ?>',
-				'proposal_nonce': '<?php echo esc_js( wp_create_nonce( 'zbscrmquo-nonce' ) ); ?>',
-				'ajax_url': '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>'
-			};
+			var jpcrm_proposal_data = <?php echo wp_json_encode( $jpcrm_proposal_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<?php
 		wp_enqueue_script( 'jpcrm_public_proposal_js', plugins_url( '/js/ZeroBSCRM.public.proposals' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter

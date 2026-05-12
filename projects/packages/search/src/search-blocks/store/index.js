@@ -11,7 +11,7 @@ import {
 	focusSortTrigger,
 	getSortMenuOptionKeysFromItem,
 	getSortMenuOptionKeysFromTrigger,
-} from './sort-menu-dom';
+} from './results-sort-menu-dom';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
@@ -56,6 +56,134 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
+ * Drop filterLogic entries whose filter key is missing from `activeFilters`,
+ * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
+ * cleanup `setFilter()` performs locally; called from popstate and at
+ * hydration where the URL parse is the source of truth and the
+ * taxonomy-only gate (server-side `Filter_Checkbox::normalize_query_type`)
+ * may not have run yet — because PHP `parse_url_filter_logic` runs before
+ * any block has registered its config, so it can't know which keys are
+ * taxonomy filters.
+ *
+ * @param {object} filterLogic     - { [filterKey]: 'or' | 'and' }.
+ * @param {object} activeFilters   - { [filterKey]: string[] }.
+ * @param {object} [filterConfigs] - { [filterKey]: FilterConfig } when available; passing
+ *                                 this enables the taxonomy gate.
+ * @return {object} Gated logic map.
+ */
+export function pickLogicForActive( filterLogic, activeFilters, filterConfigs = null ) {
+	const out = {};
+	for ( const [ key, value ] of Object.entries( filterLogic ?? {} ) ) {
+		if ( ( activeFilters?.[ key ]?.length ?? 0 ) === 0 ) {
+			continue;
+		}
+		if ( filterConfigs && filterConfigs[ key ]?.filterType !== 'taxonomy' ) {
+			continue;
+		}
+		out[ key ] = value;
+	}
+	return out;
+}
+
+/**
+ * Overlay per-filter AND/OR overrides onto each filterConfig's `queryType`.
+ * The override map (`filterLogic`) is its own state slice — kept separate so
+ * a deep-link `?query_type_category=and` survives even if the user toggles
+ * the block attribute in a future edit. Returns the original map untouched
+ * when no overrides apply, to avoid spurious referential changes that would
+ * defeat downstream identity checks.
+ *
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
+ * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' } overrides.
+ * @return {object} Effective filterConfigs.
+ */
+export function overlayFilterLogic( filterConfigs, filterLogic ) {
+	if ( ! filterConfigs || ! filterLogic || Object.keys( filterLogic ).length === 0 ) {
+		return filterConfigs;
+	}
+	let dirty = false;
+	const overlaid = {};
+	for ( const [ key, config ] of Object.entries( filterConfigs ) ) {
+		const override = filterLogic[ key ];
+		if ( override && override !== config?.queryType ) {
+			overlaid[ key ] = { ...config, queryType: override };
+			dirty = true;
+		} else {
+			overlaid[ key ] = config;
+		}
+	}
+	return dirty ? overlaid : filterConfigs;
+}
+
+/**
+ * Reverse the slot-keyed aggregation response back onto user-facing filter
+ * keys. The API request keys mapped custom taxonomies under the slot slug
+ * (e.g. `jetpack-search-tag1`) because the WPCOM search proxy validates
+ * aggregation names against indexable taxonomies — see
+ * `aggregationKeyFor` in `store/api.js`. Downstream readers all key off
+ * `filterKey` (`genre`), so we flip back here, once, before the response
+ * hits store state.
+ *
+ * Built-in and unmapped taxonomies pass through untouched: their
+ * `effectiveSlug` equals their `filterKey`, so there's nothing to swap.
+ *
+ * @param {object} aggregations  - Raw `data.aggregations` from the API.
+ * @param {object} filterConfigs - Registered filter configs.
+ * @return {object} Aggregations keyed by user-facing `filterKey`.
+ */
+export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
+	if ( ! aggregations || typeof aggregations !== 'object' ) {
+		return {};
+	}
+	const slotToFilterKey = {};
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const slug = config?.effectiveSlug;
+		if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+			slotToFilterKey[ slug ] = filterKey;
+		}
+	}
+	if ( Object.keys( slotToFilterKey ).length === 0 ) {
+		return aggregations;
+	}
+	const remapped = {};
+	for ( const [ key, value ] of Object.entries( aggregations ) ) {
+		const target = slotToFilterKey[ key ] ?? key;
+		remapped[ target ] = value;
+	}
+	return remapped;
+}
+
+/**
+ * True when a filter key has anything to render: live aggregation buckets,
+ * session-retained options, or an active selection. Drives wrapper
+ * visibility — without the retained / selection check a narrower query
+ * could hide the section that holds the user's own selection.
+ *
+ * Date filters bail out before the retention / selection clauses: they
+ * don't accumulate retained options (mergeRetainedFilterOptions skips
+ * them) and dateFilterItems doesn't render selected values that aren't
+ * in the current aggregation, so an empty bucket list means an empty
+ * <ul> and the wrapper should hide. Selections still surface via the
+ * active-filters pills.
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Filter key.
+ * @return {boolean} True when the wrapper has something to show.
+ */
+function filterHasContent( sharedState, filterKey ) {
+	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
+		return true;
+	}
+	if ( sharedState.filterConfigs?.[ filterKey ]?.filterType === 'date' ) {
+		return false;
+	}
+	return (
+		( sharedState.retainedFilterOptions?.[ filterKey ]?.length ?? 0 ) > 0 ||
+		( sharedState.activeFilters?.[ filterKey ]?.length ?? 0 ) > 0
+	);
+}
+
+/**
  * Slug for a date_histogram bucket. Falls back to the numeric key when
  * `key_as_string` is missing.
  *
@@ -73,9 +201,23 @@ function dateBucketSlug( bucket ) {
 /**
  * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
  * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
- * Drops selected buckets — those appear in the active-filters block.
- * Resorts by visible label when `bucketSortOrder === 'alpha'` since the
- * ES `_key: asc` order is by slug, not display label.
+ *
+ * Three sources are merged:
+ * 1. The current aggregation's buckets — authoritative for label and count.
+ * 2. `retainedFilterOptions[filterKey]` — values seen in earlier responses
+ * whose buckets dropped out of the latest result set; rendered with count
+ * `0` so the list stays stable across searches.
+ * 3. Selected values not yet seen in any aggregation (URL-seeded deep links
+ * that arrive before the first fetch resolves) — rendered as checked, count
+ * `0`, label falling back to the value itself when no `valueLabels` mapping
+ * exists.
+ *
+ * Sort order: unchecked, zero-count items sink to the bottom; the rest follow
+ * the configured `bucketSortOrder` (count desc or alpha by visible label).
+ * A checked option keeps its normal sort position even if its current count
+ * is `0`, so users always see what they've selected. The `count` sort uses
+ * the visible label as a tiebreaker so two buckets with the same count don't
+ * swap positions across re-renders — ES bucket order is unstable on ties.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -83,36 +225,137 @@ function dateBucketSlug( bucket ) {
  * @return {Array<object>} Item descriptors.
  */
 function checkboxFilterItems( sharedState, filterKey, config ) {
-	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
-	if ( ! Array.isArray( buckets ) ) {
-		return [];
-	}
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets ?? [];
+	const retained = sharedState.retainedFilterOptions?.[ filterKey ] ?? [];
 	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const selectedSet = new Set( selected );
 	const showCount = config.showCount !== false;
 	const valueLabels = config.valueLabels;
-	const items = buckets.reduce( ( acc, bucket ) => {
-		const value = bucketValue( bucket.key );
-		if ( selected.includes( value ) ) {
-			return acc;
+
+	const seen = new Set();
+	const items = [];
+	const add = ( value, label, count ) => {
+		if ( seen.has( value ) ) {
+			return;
 		}
-		acc.push( {
+		seen.add( value );
+		items.push( {
 			value,
-			label: bucketLabel( bucket.key, valueLabels ),
+			label,
 			showCount,
-			countLabel: String( bucket.doc_count ?? 0 ),
+			countLabel: String( count ),
+			count,
+			checked: selectedSet.has( value ),
 		} );
-		return acc;
-	}, [] );
-	if ( config.bucketSortOrder === 'alpha' ) {
-		const locale = sharedState.locale || 'en-US';
-		items.sort( ( a, b ) => a.label.localeCompare( b.label, locale, { sensitivity: 'base' } ) );
+	};
+
+	for ( const bucket of buckets ) {
+		add( bucketValue( bucket.key ), bucketLabel( bucket.key, valueLabels ), bucket.doc_count ?? 0 );
 	}
-	return items;
+	for ( const option of retained ) {
+		add( option.value, option.label, 0 );
+	}
+	for ( const value of selected ) {
+		add( value, bucketLabel( value, valueLabels ), 0 );
+	}
+
+	return sortFilterItems( items, config, sharedState.locale );
 }
 
 /**
- * filterItems for a `date` filter. Drops empty + selected buckets, then
- * slices to `maxItems` (date_histogram has no ES `size`).
+ * Apply the configured bucket sort order with one global rule layered on top:
+ * unchecked options whose count is `0` sink to the bottom. Checked items keep
+ * their normal sort position even at count `0`.
+ *
+ * @param {Array<object>} items  - Items as built by `checkboxFilterItems`.
+ * @param {object}        config - filterConfigs entry (`bucketSortOrder`).
+ * @param {string}        locale - Locale tag for `localeCompare`.
+ * @return {Array<object>} The same array, sorted in place.
+ */
+function sortFilterItems( items, config, locale ) {
+	const lc = locale || 'en-US';
+	const byLabel = ( a, b ) => a.label.localeCompare( b.label, lc, { sensitivity: 'base' } );
+	const compareConfigured =
+		config.bucketSortOrder === 'alpha'
+			? byLabel
+			: ( a, b ) => ( a.count !== b.count ? b.count - a.count : byLabel( a, b ) );
+	const sinkRank = item => ( ! item.checked && item.count === 0 ? 1 : 0 );
+	return items.sort( ( a, b ) => sinkRank( a ) - sinkRank( b ) || compareConfigured( a, b ) );
+}
+
+/**
+ * Merge fresh aggregation buckets into `retainedFilterOptions` so the
+ * filter-checkbox list keeps options that have appeared at any point in
+ * the session, even after a narrower query drops them from ES results.
+ * Returns the original object when nothing is added so reactive subscribers
+ * don't re-run on no-op merges.
+ *
+ * Date filters are skipped — their bucket set is dense by interval and the
+ * `dateFilterItems` reader hides empty buckets for its own reasons.
+ *
+ * Tradeoffs intentionally left in: labels are set on first sight and never
+ * refreshed (a taxonomy term renamed mid-session keeps the original label
+ * until reload), and the map grows monotonically across the session — it's
+ * bounded only by tab lifetime, with no `sessionStorage` persistence today.
+ * `loadMore()` does not call this helper because it doesn't refresh
+ * aggregations either, so retention only advances when a fresh search runs.
+ *
+ * @param {object} prev          - Existing `retainedFilterOptions` map.
+ * @param {object} aggregations  - Latest API aggregations response.
+ * @param {object} filterConfigs - Registered filter configs (for valueLabels + filterType gate).
+ * @return {object} Possibly-new map; reference equality preserved when unchanged.
+ */
+export function mergeRetainedFilterOptions( prev, aggregations, filterConfigs ) {
+	let next = prev;
+	for ( const [ filterKey, agg ] of Object.entries( aggregations ?? {} ) ) {
+		const config = filterConfigs?.[ filterKey ];
+		if ( ! config || config.filterType === 'date' ) {
+			continue;
+		}
+		const buckets = agg?.buckets;
+		if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+			continue;
+		}
+		const existing = next?.[ filterKey ] ?? [];
+		const merged = mergeNewBucketsIntoOptions( existing, buckets, config.valueLabels );
+		if ( merged !== existing ) {
+			next = { ...( next ?? {} ), [ filterKey ]: merged };
+		}
+	}
+	return next;
+}
+
+/**
+ * Append any not-yet-seen bucket values to `existing`. Returns the same
+ * array reference when nothing new lands so the caller can use reference
+ * equality to skip a parent-object clone.
+ *
+ * @param {Array<object>} existing    - Prior `[{value, label}]` list.
+ * @param {Array<object>} buckets     - Aggregation buckets for this filter.
+ * @param {object|null}   valueLabels - Optional slug→label map (post_type).
+ * @return {Array<object>} Original or appended-to list.
+ */
+function mergeNewBucketsIntoOptions( existing, buckets, valueLabels ) {
+	const seen = new Set( existing.map( option => option.value ) );
+	let merged = existing;
+	for ( const bucket of buckets ) {
+		const value = bucketValue( bucket.key );
+		if ( seen.has( value ) ) {
+			continue;
+		}
+		seen.add( value );
+		if ( merged === existing ) {
+			merged = [ ...existing ];
+		}
+		merged.push( { value, label: bucketLabel( bucket.key, valueLabels ) } );
+	}
+	return merged;
+}
+
+/**
+ * filterItems for a `date` filter. Drops empty buckets, then slices to
+ * `maxItems` (date_histogram has no ES `size`). Selected buckets stay in
+ * the list and surface their state via `checked`.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -138,12 +381,13 @@ function dateFilterItems( sharedState, filterKey, config ) {
 			continue;
 		}
 		const value = dateBucketSlug( bucket );
-		if ( ! value || selected.includes( value ) ) {
+		if ( ! value ) {
 			continue;
 		}
 		items.push( {
 			value,
 			label: formatDateBucketLabel( value, interval, locale ),
+			checked: selected.includes( value ),
 			showCount,
 			countLabel: String( bucket.doc_count ),
 		} );
@@ -155,6 +399,37 @@ function dateFilterItems( sharedState, filterKey, config ) {
 // latest before touching store state, so a slow request for an older query
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
 let searchToken = 0;
+
+/**
+ * Build the human-readable results-count string from the live store state.
+ * Returns "Searching…" while a search is in flight, "Found 42 results" once
+ * a query resolves with hits, or an empty string in every other case
+ * (pre-search, error, or zero hits — the empty-state region inside
+ * `jetpack-search/results-list` owns that copy). Called by every action that mutates `isLoading` or
+ * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
+ * with the counters; SSR resolves `data-wp-text` against that seeded value
+ * directly, so the string can't live on a JS getter.
+ *
+ * Exported so tests can verify the formatting in isolation without driving
+ * the full `actions.search()` lifecycle.
+ *
+ * @param {object} liveState - The IA store state.
+ * @return {string} Localized results-count or status string.
+ */
+export function computeResultsCountText( liveState ) {
+	if ( liveState.isLoading ) {
+		return liveState.strings?.searching ?? 'Searching…';
+	}
+	const total = liveState.totalResults;
+	if ( total === 0 ) {
+		return '';
+	}
+	const template =
+		total === 1
+			? liveState.strings?.resultsCountSingle ?? 'Found %d result'
+			: liveState.strings?.resultsCountPlural ?? 'Found %d results';
+	return template.replace( '%d', total );
+}
 
 /**
  * Request a page of results. Shared between the initial search and
@@ -176,8 +451,14 @@ function* fetchResults( pageHandle ) {
 		apiRoot: state.apiRoot,
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
-		filterConfigs: state.filterConfigs,
+		// Overlay per-filter `filterLogic` overrides onto each filterConfig's
+		// `queryType` before handing to the URL builder. The override lives
+		// separately in store state so it survives across navigations even
+		// when blocks re-register their configs; merging here keeps the
+		// downstream consumer (`buildFilterClause`) free of the override path.
+		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
+		staticPostTypes: state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -201,42 +482,12 @@ const { state, actions } = store( NAMESPACE, {
 		// the currently checked option becomes the implicit default.
 		sortMenuFocusedKey: null,
 
-		/**
-		 * Short human-readable results count for display blocks. Doubles
-		 * as the loading indicator: returning the "searching" string
-		 * in-place keeps the results-count element populated across the
-		 * transition from one query to the next, so the flex row
-		 * containing it doesn't collapse and re-expand on every
-		 * keystroke-triggered search. There is no separate
-		 * spinner/skeleton — this text is the loading state, and the
-		 * search-results wrapper carries `aria-busy` for assistive tech.
-		 *
-		 * Strings are seeded from PHP via `wp_interactivity_state()`
-		 * (see `Search_Blocks::build_initial_strings()`) because the
-		 * view bundle can't import `@wordpress/i18n` — WP only registers
-		 * `@wordpress/interactivity` as a script module. Languages with
-		 * more than two plural forms degrade to "plural for all count
-		 * > 1" since the count is dynamic on the client.
-		 *
-		 * @return {string} Translated "Searching…" while a search is in
-		 * flight, "Found 42 results" once a query resolves with hits,
-		 * or an empty string in every other case — pre-search, error,
-		 * or zero hits. The no-results block owns the empty-state copy.
-		 */
-		get resultsCountText() {
-			if ( state.isLoading ) {
-				return state.strings?.searching ?? 'Searching…';
-			}
-			const total = state.totalResults;
-			if ( total === 0 ) {
-				return '';
-			}
-			const template =
-				total === 1
-					? state.strings?.resultsCountSingle ?? 'Found %d result'
-					: state.strings?.resultsCountPlural ?? 'Found %d results';
-			return template.replace( '%d', total );
-		},
+		// `resultsCountText` lives on the seeded state (PHP-side), not as a
+		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
+		// to the right initial string on a deep-link load. See
+		// `computeResultsCountText()` below for the full string-selection logic;
+		// every action that mutates `isLoading` / `totalResults` calls it to
+		// keep this value in lockstep with the underlying counters.
 
 		/**
 		 * `data-wp-bind` only evaluates simple property paths (with an
@@ -245,24 +496,29 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
-		 * Gated on `searchQuery` (so the message doesn't flash on a bare
-		 * `/search/` page where the user hasn't typed) and on `!hasError`
-		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — the dedicated `jetpack/search-error` block owns that
-		 * message instead).
+		 * Gated on `searchQuery || hasSearchParam` (so the message doesn't
+		 * flash on a bare `/search/` page where the user hasn't typed, but
+		 * does surface when an explicit-but-empty `?s=` URL fired the
+		 * initial search and got nothing back — e.g. a site with no indexed
+		 * posts), and on `!hasError` (so "No results found" doesn't display
+		 * when the fetch actually failed — the error region inside
+		 * `jetpack-search/results-list` owns that message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
 			return (
-				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
+				( !! state.searchQuery || !! state.hasSearchParam ) &&
+				! state.isLoading &&
+				! state.hasError &&
+				state.results.length === 0
 			);
 		},
 
 		/**
-		 * Visibility flag for the `jetpack/search-error` block. Gated on
-		 * both `!isLoading` and `!isLoadingMore` so the message hides the
-		 * moment the user retries — covering the `loadMore()` failure path
+		 * Visibility flag for the error region inside `jetpack-search/results-list`.
+		 * Gated on both `!isLoading` and `!isLoadingMore` so the message hides
+		 * the moment the user retries — covering the `loadMore()` failure path
 		 * (where `isLoading` stays false but `isLoadingMore` toggles)
 		 * symmetrically with the `search()` path. `hasError` itself is also
 		 * cleared at the start of each action, but binding through a single
@@ -290,20 +546,29 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any filter has at least one selected value. Used by
-		 * active-filters to decide whether to render the pills wrapper.
+		 * True when any facet is active — selected filter values or a
+		 * price range. Drives the active-filters pill wrapper, the standalone
+		 * clear-filters block, and the filter-popover trigger. priceRange
+		 * counts as a filter here so a price-only selection (including a
+		 * half-open range like `?min_price=10`) doesn't leave the pill
+		 * wrapper hidden when the user has a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
 		get hasActiveFilters() {
-			return Object.values( state.activeFilters ?? {} ).some(
+			const hasSelections = Object.values( state.activeFilters ?? {} ).some(
 				v => Array.isArray( v ) && v.length > 0
 			);
+			if ( hasSelections ) {
+				return true;
+			}
+			const range = state.priceRange;
+			return !! range && ( range.min != null || range.max != null );
 		},
 
 		/**
 		 * Total selected filter values across all filter keys. Used by the
-		 * filter-popover trigger to render a count badge.
+		 * filters-popover trigger to render a count badge.
 		 *
 		 * @return {number} Count of selected filter values.
 		 */
@@ -312,12 +577,14 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when the filter-popover trigger should be disabled: there are
+		 * True when the filters-popover trigger should be disabled: there are
 		 * no aggregation buckets to filter on AND no active filters to clear.
 		 * Opening the popover in that state would show an empty panel, so we
-		 * gate the affordance itself. Remains enabled while any filter is
-		 * active so users can still open the popover to remove pills even
-		 * when the current query returns no results.
+		 * gate the affordance itself. Remains enabled whenever
+		 * `hasActiveFilters` is true (which now includes a `priceRange`
+		 * selection) so users can still open the popover to layer additional
+		 * facets on top of a price-only deep link, even when the current
+		 * query returns no results.
 		 *
 		 * @return {boolean} Whether the filter trigger is disabled.
 		 */
@@ -400,10 +667,11 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when every bucket is in activeFilters — block then shows
-		 * the "All filters applied" message instead of an empty list.
+		 * True when every aggregation bucket for the current filter block is
+		 * already selected. Used by the `filter-wc-attribute` block to hide
+		 * the list and show an "All filters applied" message.
 		 *
-		 * @return {boolean} True when nothing is left to offer.
+		 * @return {boolean} True when all buckets are selected.
 		 */
 		get allBucketsSelected() {
 			const { filterKey } = getContext();
@@ -415,21 +683,16 @@ const { state, actions } = store( NAMESPACE, {
 			if ( selected.length === 0 ) {
 				return false;
 			}
-			const config = state.filterConfigs?.[ filterKey ] ?? {};
-			if ( config.filterType === 'date' ) {
-				const populated = buckets.filter( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
-				if ( populated.length === 0 ) {
-					return false;
-				}
-				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
-			}
 			return buckets.every( bucket => selected.includes( bucketValue( bucket.key ) ) );
 		},
 
 		/**
-		 * `{ value, label, showCount, countLabel }` items for the current
-		 * filter block. Dispatches on `filterType`. Lives on the shared
-		 * namespace so per-block view bundles don't clobber siblings.
+		 * Item descriptors for the current filter block. Dispatches on
+		 * `filterType`. Lives on the shared namespace so per-block view
+		 * bundles don't clobber siblings. Each item carries `value`,
+		 * `label`, `count`, `countLabel`, `showCount`, and `checked`;
+		 * `checkboxFilterItems` also folds retained options and URL-seeded
+		 * selections into the list (see its JSDoc).
 		 *
 		 * @return {Array<object>} Item descriptors.
 		 */
@@ -475,6 +738,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.isLoading = true;
 			state.isLoadingMore = false;
 			state.hasError = false;
+			state.resultsCountText = computeResultsCountText( state );
 			try {
 				const data = yield* fetchResults( null );
 				// A newer `search()` started while this one was in-flight — its
@@ -483,20 +747,51 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) );
+				state.results = ( data.results ?? [] ).map( r =>
+					normalizeResult( r, state.locale, state.searchQuery )
+				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				state.aggregations = data.aggregations ?? {};
+				state.aggregations = remapAggregationsToFilterKeys(
+					data.aggregations,
+					state.filterConfigs
+				);
+				state.retainedFilterOptions = mergeRetainedFilterOptions(
+					state.retainedFilterOptions,
+					state.aggregations,
+					state.filterConfigs
+				);
 				if ( syncUrl ) {
 					actions.syncToUrl();
 				}
 			} catch {
 				if ( myToken === searchToken ) {
+					// Clear the result-shape fields alongside `hasError` so a
+					// failed query doesn't leave the previous query's results,
+					// total count, or aggregation buckets visible underneath
+					// the error message — the page would otherwise show a
+					// "Found N results" count and stale filter buckets next to
+					// a `role="alert"` "Something went wrong" message, which
+					// reads as both successful and broken at the same time.
+					// `loadMore()` deliberately does NOT do this — its catch
+					// block leaves the existing pages alone since they're
+					// still valid; only the next page failed to fetch.
 					state.hasError = true;
+					state.results = [];
+					state.totalResults = 0;
+					state.pageHandle = null;
+					state.aggregations = {};
 				}
 			} finally {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
+					state.resultsCountText = computeResultsCountText( state );
+					// First fetch (success or error) ends the pre-hydration window —
+					// guard the write so subsequent re-searches don't trigger an IA
+					// re-render of every skeleton-bound element.
+					if ( ! state.skeletonHidden ) {
+						state.skeletonHidden = true;
+					}
 				}
 			}
 		},
@@ -523,7 +818,9 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				state.results = [
 					...state.results,
-					...( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) ),
+					...( data.results ?? [] ).map( r =>
+						normalizeResult( r, state.locale, state.searchQuery )
+					),
 				];
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
@@ -563,6 +860,14 @@ const { state, actions } = store( NAMESPACE, {
 				if ( next.length === 0 ) {
 					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
 					state.activeFilters = rest;
+					// Drop any logic override for the now-empty filter so the
+					// URL serializer doesn't leave `?query_type_<key>=and`
+					// orphaned in the address bar after the last selection
+					// is cleared.
+					if ( state.filterLogic && filterKey in state.filterLogic ) {
+						const { [ filterKey ]: _droppedLogic, ...restLogic } = state.filterLogic;
+						state.filterLogic = restLogic;
+					}
 				} else {
 					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
 				}
@@ -571,15 +876,58 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Clear all active filters and re-run the search.
+		 * Clear every facet and re-run the search. Resets `activeFilters`
+		 * AND `priceRange` so a single clear-all affordance wipes both
+		 * checkbox-shaped selections and the half-open price range.
 		 *
 		 * @yield {Promise} search action.
 		 */
 		*clearFilters() {
-			if ( Object.keys( state.activeFilters ?? {} ).length === 0 ) {
+			if ( ! state.hasActiveFilters ) {
 				return;
 			}
 			state.activeFilters = {};
+			state.filterLogic = {};
+			state.priceRange = null;
+			yield actions.search();
+		},
+
+		/**
+		 * Update the price range and re-run the search if it changed. Either
+		 * bound may be null for a half-open range; passing both as null clears
+		 * the range. No-ops when the new range matches the current one so a
+		 * blur from an unchanged input doesn't trigger an identical re-fetch.
+		 *
+		 * @param {number|null} min - Lower bound, inclusive.
+		 * @param {number|null} max - Upper bound, inclusive.
+		 * @yield {Promise} search action.
+		 */
+		*setPriceRange( min, max ) {
+			const normalize = v => ( v === null || v === undefined || v === '' ? null : Number( v ) );
+			const nextMin = normalize( min );
+			const nextMax = normalize( max );
+			// Reject NaN bounds so a typo'd input doesn't poison the ES range
+			// clause. Mirrors the parsePriceBound() guard in url-state.js so
+			// the action and the URL reader agree on what "no bound" means.
+			const validMin = nextMin === null || ( Number.isFinite( nextMin ) && nextMin >= 0 );
+			const validMax = nextMax === null || ( Number.isFinite( nextMax ) && nextMax >= 0 );
+			if ( ! validMin || ! validMax ) {
+				return;
+			}
+			// Inverted bounds (min > max) build a guaranteed-empty ES clause.
+			// Drop the call rather than pushing a bad URL or zeroing results.
+			if ( nextMin !== null && nextMax !== null && nextMin > nextMax ) {
+				return;
+			}
+			const next = nextMin === null && nextMax === null ? null : { min: nextMin, max: nextMax };
+			const prev = state.priceRange;
+			const same =
+				( prev === null && next === null ) ||
+				( prev !== null && next !== null && prev.min === next.min && prev.max === next.max );
+			if ( same ) {
+				return;
+			}
+			state.priceRange = next;
 			yield actions.search();
 		},
 
@@ -591,7 +939,11 @@ const { state, actions } = store( NAMESPACE, {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
+				filterLogic: state.filterLogic,
+				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
+				searchParamName: state.searchParamName,
+				isWooCommerceActive: state.isWooCommerceActive,
 			} );
 		},
 
@@ -601,16 +953,26 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
-				state.filterConfigs
-			);
+			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
+				readStateFromUrl( state.filterConfigs, state.searchParamName, state.isWooCommerceActive );
 			state.searchQuery = searchQuery;
+			// Keep `hasSearchParam` in lockstep with the live URL so any future
+			// reader (e.g. `showNoResults`) sees the current state rather than
+			// the PHP-seeded value from first paint. `actions.search()` below
+			// fires unconditionally, so the popstate path doesn't depend on
+			// the flag — this write is for state-consistency only.
+			state.hasSearchParam = hasSearchParam;
 			state.sortOrder = sortOrder;
 			// urlParamsToState bypasses its own gate when filterConfigs is empty;
 			// re-gate here so popstate matches initialize() and stray URL keys
 			// can't round-trip back into pushStateToUrl on a page with no
 			// registered filters.
-			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
+			const { gated } = gateActiveFilters( activeFilters, state.filterConfigs );
+			state.activeFilters = gated;
+			// Gate filterLogic the same way: drop entries whose filter key
+			// either isn't registered, has no surviving selections, or
+			// targets a non-taxonomy filter.
+			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -826,14 +1188,47 @@ const { state, actions } = store( NAMESPACE, {
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}
-			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
+			// Re-gate filterLogic against the (possibly trimmed) activeFilters
+			// AND against the just-registered filterConfigs so a
+			// `?query_type_<key>=and` whose `<key>` was dropped or targets a
+			// non-taxonomy filter doesn't linger in state and re-emit on the
+			// next URL push. PHP `parse_url_filter_logic` can't apply the
+			// taxonomy gate itself because it runs before any block render.php
+			// has populated filterConfigs — this is where it lands.
+			if ( state.filterLogic && Object.keys( state.filterLogic ).length > 0 ) {
+				const gatedLogic = pickLogicForActive(
+					state.filterLogic,
+					state.activeFilters,
+					state.filterConfigs
+				);
+				if ( Object.keys( gatedLogic ).length !== Object.keys( state.filterLogic ).length ) {
+					state.filterLogic = gatedLogic;
+				}
+			}
+			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
+				// `hasSearchParam` catches `?s=` (empty value) — the param is
+				// present so the visitor expects a search to run, but
+				// `searchQuery` alone is `''` and indistinguishable from a
+				// URL that omits `s`. Seeded from PHP via build_initial_state().
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
-				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
-				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded spinner.
+				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
+				// spinner and also drop the skeleton, since no fetch is coming.
 				state.isLoading = false;
+				state.skeletonHidden = true;
 			}
+		},
+
+		/**
+		 * Reactively syncs `context.wrapperHidden` for each filter-checkbox
+		 * block. The wrapper stays visible while the pre-hydration skeleton
+		 * is up; afterwards it hides only when the filter has nothing to
+		 * show (no buckets, no retained options, no active selection).
+		 */
+		syncFilterWrapperVisibility() {
+			const ctx = getContext();
+			ctx.wrapperHidden = state.skeletonHidden && ! filterHasContent( state, ctx.filterKey );
 		},
 	},
 } );

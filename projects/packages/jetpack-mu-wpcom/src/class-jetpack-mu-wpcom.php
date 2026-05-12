@@ -91,6 +91,11 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
+		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
+		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
+			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
+		}
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -322,6 +327,11 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Code_Block::setup();
@@ -377,6 +387,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
@@ -384,6 +395,12 @@ class Jetpack_Mu_Wpcom {
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
 		\Automattic\Jetpack\Newsletter\Settings::init();
+
+		// Initialize the Podcast package on Simple sites (where late_initialization
+		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
+		// inside Podcast::init() so the legacy podcasting code keeps running
+		// until the flag flips.
+		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -780,5 +797,64 @@ class Jetpack_Mu_Wpcom {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
+	 *
+	 * @param string $feature Logstash `feature` bucket (e.g. "plugin-conflicts-guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => \get_wpcom_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			wp_remote_post(
+				'https://public-api.wordpress.com/rest/v1.1/logstash',
+				array(
+					'body'     => array( 'params' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) ),
+					'blocking' => false,
+					'timeout'  => 1,
+				)
+			);
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+			unset( $e );
+		}
 	}
 }

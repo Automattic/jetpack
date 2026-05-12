@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search 3.0: hide WooCommerce-only blocks, filter variations, layouts, and price-range URL params on sites that don't have WooCommerce active.

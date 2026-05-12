@@ -379,7 +379,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
 	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
 	4. Configure Actions settings:
-		* Set "Allow all actions and reusable workflows", click "Save" button. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
+		* Set "Allow all actions and reusable workflows", click "Save" button. The build process may copy workflows from `.github/files/mirror-.github` and `.github/files/gh-*` into the mirror.
 		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
 		* Set "Workflow permissions" to "Read repository contents and packages permissions".
 		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo, click "Save" button.

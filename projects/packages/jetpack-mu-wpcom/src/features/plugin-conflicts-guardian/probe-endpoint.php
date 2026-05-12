@@ -19,9 +19,6 @@ function pcg_maybe_handle_probe() {
 	if ( '1' !== $probe_flag ) {
 		return;
 	}
-	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
-		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
-	}
 
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.
@@ -31,15 +28,45 @@ function pcg_maybe_handle_probe() {
 		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
 	}
 
-	$key         = PCG_Load_Tester::transient_key( $token );
-	$plugin_main = (string) get_transient( $key );
+	$key     = PCG_Load_Tester::transient_key( $token );
+	$payload = get_transient( $key );
 	delete_transient( $key );
 
-	if ( '' === $plugin_main ) {
+	if ( ! is_array( $payload ) || ! isset( $payload['plugins'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
-	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
-		pcg_probe_bail_error( 'Probe target is no longer readable.', 404 );
+	$plugin_mains = is_array( $payload['plugins'] ) ? array_values(
+		array_filter(
+			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
+			static fn( $p ) => '' !== $p
+		)
+	) : array();
+	$mode         = (string) $payload['mode'];
+	if ( empty( $plugin_mains ) || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
+		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+	}
+
+	// Gate per mode: activation probes need pcg_guard_activation, update
+	// probes need pcg_guard_updates. Otherwise enabling either flow would
+	// pull in the other as an unintended dependency.
+	$is_update_mode = PCG_Load_Tester::MODE_UPDATE === $mode;
+	$gate_filter    = $is_update_mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
+	if ( ! apply_filters( $gate_filter, true ) ) {
+		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
+	}
+
+	// Drop unreadable entries instead of bailing on the first one. Bailing
+	// would emit `error`, which the activation guard treats as a non-block
+	// and lets the activation through — masking a fatal in a later
+	// readable plugin. Only bail when nothing readable remains.
+	$plugin_mains = array_values(
+		array_filter(
+			$plugin_mains,
+			static fn( $p ) => is_file( $p ) && is_readable( $p )
+		)
+	);
+	if ( empty( $plugin_mains ) ) {
+		pcg_probe_bail_error( 'No probe targets are readable.', 404 );
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
@@ -52,18 +79,26 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	try {
-		require $plugin_main;
-	} catch ( \Throwable $t ) {
-		pcg_probe_respond(
-			array(
-				'status'  => 'throwable',
-				'class'   => get_class( $t ),
-				'message' => $t->getMessage(),
-				'file'    => basename( $t->getFile() ),
-				'line'    => $t->getLine(),
-			)
-		);
+	// Activation: load each plugin to exercise its load path. Update: skip;
+	// re-requiring an already-loaded plugin would fatal with
+	// "Cannot redeclare". The shutdown handler catches either way.
+	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
+		foreach ( $plugin_mains as $plugin_main ) {
+			try {
+				require_once $plugin_main;
+			} catch ( \Throwable $t ) {
+				pcg_probe_respond(
+					array(
+						'status'  => 'throwable',
+						'plugin'  => $plugin_main,
+						'class'   => get_class( $t ),
+						'message' => $t->getMessage(),
+						'file'    => $t->getFile(),
+						'line'    => $t->getLine(),
+					)
+				);
+			}
+		}
 	}
 
 	// Admin probe: defer until admin_init has fired so admin-time hook fatals
@@ -96,7 +131,7 @@ function pcg_probe_shutdown() {
 			'status'  => 'fatal',
 			'errno'   => (int) $error['type'],
 			'message' => (string) $error['message'],
-			'file'    => basename( (string) $error['file'] ),
+			'file'    => (string) $error['file'],
 			'line'    => (int) $error['line'],
 		)
 	);

@@ -48,7 +48,7 @@ jest.mock( '../../use-sig-preview', () => ( {
 } ) );
 
 jest.mock( '../../use-render-message-items', () => ( {
-	useRenderMessageItems: jest.fn(),
+	useRenderMessageInputs: jest.fn(),
 } ) );
 
 jest.mock( '../../use-post-meta', () => ( {
@@ -61,7 +61,7 @@ import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
 import { usePostMeta } from '../../use-post-meta';
-import { useRenderMessageItems } from '../../use-render-message-items';
+import { useRenderMessageInputs } from '../../use-render-message-items';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -81,8 +81,8 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
-const mockUseRenderMessageItems = useRenderMessageItems as jest.MockedFunction<
-	typeof useRenderMessageItems
+const mockUseRenderMessageInputs = useRenderMessageInputs as jest.MockedFunction<
+	typeof useRenderMessageInputs
 >;
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
@@ -115,18 +115,28 @@ const defaultPostData = {
 
 /**
  * Mock the chained useSelect calls inside the hook so each one returns its expected
- * shape: postId, featuredImageId, then the rendered slice.
+ * shape: postId, featuredImageId, messageTemplate, then the rendered slice.
  *
- * @param opts          - Per-test overrides.
- * @param opts.postId   - Post id returned to the editor-store useSelect.
- * @param opts.rendered - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts                   - Per-test overrides.
+ * @param opts.postId            - Post id returned to the editor-store useSelect.
+ * @param opts.messageTemplate   - Saved site message template.
+ * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
  */
-function mockSelectCalls( opts: { postId?: number; rendered?: string | null } = {} ) {
-	const { postId = 42, rendered = null } = opts;
+function mockSelectCalls(
+	opts: {
+		postId?: number;
+		messageTemplate?: string;
+		rendered?: string | null;
+		isLoadingRendered?: boolean;
+	} = {}
+) {
+	const { postId = 42, messageTemplate = '', rendered = null, isLoadingRendered = false } = opts;
 	mockUseSelect
 		.mockReturnValueOnce( postId )
 		.mockReturnValueOnce( 0 )
-		.mockReturnValueOnce( rendered );
+		.mockReturnValueOnce( messageTemplate )
+		.mockReturnValueOnce( { rendered, isLoadingRendered } );
 }
 
 describe( 'useConnectionPreviewData', () => {
@@ -143,7 +153,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
 		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
-		mockUseRenderMessageItems.mockReturnValue( [] );
+		mockUseRenderMessageInputs.mockReturnValue( { items: [], postIntent: {} } );
 		mockUsePostMeta.mockReturnValue( {
 			mediaSource: undefined,
 		} as ReturnType< typeof usePostMeta > );
@@ -161,6 +171,7 @@ describe( 'useConnectionPreviewData', () => {
 
 		expect( result.current ).toEqual( {
 			...defaultPostData,
+			isLoading: false,
 			message: 'Global message',
 		} );
 	} );
@@ -306,15 +317,101 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.message ).toBe( 'Global message' );
 	} );
 
+	it( 'shows loading while the live template message is waiting for debounce', () => {
+		mockSelectCalls( { rendered: null } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Old template',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'New template {excerpt}',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'does not show loading in global mode when the render item matches the global message', () => {
+		mockSelectCalls( { rendered: 'Rendered global template' } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Global message',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
+
+		const connection = createMockConnection( { message: 'Per-network message' } );
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Rendered global template' );
+		expect( result.current.isLoading ).toBe( false );
+	} );
+
+	it( 'keeps loading after debounce until the render request finishes', () => {
+		mockSelectCalls( { rendered: null, isLoadingRendered: true } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'New template {excerpt}',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'New template {excerpt}',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
 	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
-		mockSelectCalls( { rendered: 'Should not be used' } );
+		mockSelectCalls( { rendered: 'Should not be used', isLoadingRendered: true } );
 		mockSiteHasFeature.mockImplementation(
 			( feature: string ) => feature !== 'social-message-templates'
 		);
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Different debounced template',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.message ).toBe( 'Global message' );
+		expect( result.current.isLoading ).toBe( false );
 	} );
 } );

@@ -5,7 +5,6 @@ import {
 	PanelRow,
 	SelectControl,
 	TextControl,
-	ExternalLink,
 	Placeholder,
 	Spinner,
 	ToggleControl,
@@ -14,6 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import { CURRENCY_OPTIONS } from '../../currencies';
@@ -90,9 +90,9 @@ export default function ProductManagementInspectorControl() {
 		<InspectorControls>
 			{ siteSlug && (
 				<PanelBody>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
+					<Link openInNewTab href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
 						{ getMessageByProductType( 'manage your products', productType ) }
-					</ExternalLink>
+					</Link>
 				</PanelBody>
 			) }
 			<PanelBody
@@ -160,9 +160,12 @@ export default function ProductManagementInspectorControl() {
 							/>
 						</PanelRow>
 						<PanelRow>
-							<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+							<Link
+								openInNewTab
+								href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees"
+							>
 								{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</PanelRow>
 						<PanelRow>
 							<Button onClick={ handleSubmit } variant="secondary">

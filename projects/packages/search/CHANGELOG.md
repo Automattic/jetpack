@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.58.0] - 2026-05-04
+### Added
+- Search 3.0: Add common-filters block — Group-like container for stacking filter blocks (active filters, taxonomy/author/post-type checkboxes, date). [#48478]
+- Search 3.0: Add Compact Search block pattern with inline filter and sort popover controls. [#48288]
+- Search 3.0: Add filter-date block for filtering search results by year or month. [#48439]
+- Search 3.0: Introduce product-shaped filter support to store/api helpers — `wc_stock_status` (terms agg + term clause on `meta._stock_status.value.raw`), `wc_rating` (histogram agg + range-OR clauses on `meta._wc_average_rating.double`), `priceRange` (range clause on `wc.price`), scalar comma-joined URL parsing, and first-paint URL seeding for `min_price`/`max_price`. Infrastructure only; no new blocks ship in this change. [#48397]
+- Search: Render a visible error message when a search or load-more request fails. [#48477]
+- Search Blocks: Add inspector Filter type control so authors can swap a filter-checkbox between Category, Tag, Post Type, Author, and Custom Taxonomy variations without re-inserting the block. [#48291]
+- Search Blocks: Add Inspector panel to the no-results block so block authors can customize the empty-state message. [#48279]
+- Search Blocks: Introduce defaultSort, availableSortOptions, label, and displayAs attributes to sort-control. [#48282]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Search: Restyle sort-control radio variant as text-only links with a bullet separator. [#48367]
+
+### Fixed
+- Search 3.0: Add ARIA menu keyboard navigation to compact sort popover. [#48371]
+- Search 3.0: Surface a Taxonomy picker so the Custom Taxonomy filter variation actually targets a registered taxonomy. [#48428]
+- Search: Change search overlay heading from h1 to h2 to fix heading hierarchy on pages that already have an h1. [#48245]
+- Search: Disable the "Edit sidebar widgets" button when Instant Search is disabled, preventing a fatal error on block themes that do not register classic sidebars. [#48430]
+- Search: Fix dashboard hero section being crushed under shared admin page layout mixin. [#48437]
+- Search Blocks: Gate URL-seeded activeFilters on the client instead of at PHP seed time, so deep links work for filter blocks placed in templates / template parts (not just post content). [#48475]
+- Search Blocks: Keep `s=` in the URL when the search query is empty so a refresh stays on the search template instead of falling back to the front-page route. [#48370]
+- Search Blocks: Render human-readable labels in active-filter pills and resort `bucketSortOrder=alpha` filter lists by visible label client-side. [#48426]
+
 ## [0.57.0] - 2026-04-27
 ### Added
 - Search 3.0: Add icons for the Jetpack Search blocks and improve Blog Search pattern keywords. [#48232]
@@ -1537,6 +1562,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.58.0]: https://github.com/Automattic/jetpack-search/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-search/compare/v0.56.10...v0.57.0
 [0.56.10]: https://github.com/Automattic/jetpack-search/compare/v0.56.9...v0.56.10
 [0.56.9]: https://github.com/Automattic/jetpack-search/compare/v0.56.8...v0.56.9

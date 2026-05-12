@@ -250,6 +250,37 @@ class Render_Messages_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Edited post intent is accepted by the request schema.
+	 */
+	public function test_render_messages_accepts_post_intent() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
+			array(
+				'post_id'     => $this->post_id,
+				'items'       => array(
+					array(
+						'id'      => 'conn_a',
+						'network' => 'x',
+					),
+				),
+				'post_intent' => array(
+					'title'   => 'Updated title',
+					'excerpt' => 'Updated excerpt',
+					'content' => 'Updated content',
+				),
+			)
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
 	 * The is_social_post arg rejects values that aren't boolean-coercible.
 	 */
 	public function test_render_messages_rejects_invalid_is_social_post() {

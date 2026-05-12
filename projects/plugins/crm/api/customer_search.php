@@ -38,9 +38,9 @@ $args = array(
 
 global $zbs;
 
-if ( isset( $_GET['email'] ) ) {
-	// searching email, so lets use that to override - should only be ONE match - return financial data (performant)
-	$email            = sanitize_text_field( $_GET['email'] );
+if ( isset( $_GET['email'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This uses an API key.
+	// searching email, so let's use that to override - should only be ONE match - return financial data (performant)
+	$email            = sanitize_email( wp_unslash( $_GET['email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This uses an API key.
 	$customer_matches = $zbs->DAL->contacts->getContact(
 		-1,
 		array(

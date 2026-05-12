@@ -1,9 +1,7 @@
 import { IndeterminateProgressBar, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
+import { Notice } from '@wordpress/ui';
 import PlanSummary from './plan-summary';
-
-// import './first-run-section.scss';
 
 const FirstRunSection = ( { planInfo, siteTitle } ) => {
 	return (
@@ -21,9 +19,6 @@ const FirstRunSection = ( { planInfo, siteTitle } ) => {
 	);
 };
 
-// TODO: Move this back inline.
-// Per Jason's feedback, doesn't think we should break this out.
-// https://github.com/Automattic/jetpack/pull/26639#discussion_r989592860
 const ProgressWrapper = ( { siteTitle } ) => {
 	return (
 		<div>
@@ -41,28 +36,16 @@ const ProgressWrapper = ( { siteTitle } ) => {
 	);
 };
 
-// TODO: Remove const variables.
-// Per Jason's feedback, thinks we should put these inline.
-// https://github.com/Automattic/jetpack/pull/26639#discussion_r989593312
-const NoticeWrapper = () => {
-	const noticeBoxClassName = 'jp-search-notice-box';
-	const header = __( "We're gathering your usage data.", 'jetpack-search-pkg' );
-	const message = __(
-		'If you have recently set up Search, please allow a little time for indexing to complete.',
-		'jetpack-search-pkg'
-	);
-	return (
-		<SimpleNotice
-			isCompact={ false }
-			status={ 'is-info' }
-			className={ noticeBoxClassName }
-			icon={ 'info-outline' }
-			showDismiss={ false }
-		>
-			<h3 className="dops-notice__header">{ header }</h3>
-			<span className="dops-notice__body">{ message }</span>
-		</SimpleNotice>
-	);
-};
+const NoticeWrapper = () => (
+	<Notice.Root intent="info">
+		<Notice.Title>{ __( "We're gathering your usage data.", 'jetpack-search-pkg' ) }</Notice.Title>
+		<Notice.Description>
+			{ __(
+				'If you have recently set up Search, please allow a little time for indexing to complete.',
+				'jetpack-search-pkg'
+			) }
+		</Notice.Description>
+	</Notice.Root>
+);
 
 export default FirstRunSection;

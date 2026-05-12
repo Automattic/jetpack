@@ -1,4 +1,4 @@
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -35,14 +35,15 @@ const ResourceSummaryComponent = props => {
 			</Button>
 			<div className="jp-recommendations-feature-summary__actions">
 				<div className="jp-recommendations-feature-summary__cta">
-					<ExternalLink
+					<Link
+						openInNewTab
 						type="button"
 						className="dops-button is-rna"
 						href={ ctaLink }
 						onClick={ onLearnMoreClick }
 					>
 						{ ctaLabel }
-					</ExternalLink>
+					</Link>
 				</div>
 			</div>
 		</div>

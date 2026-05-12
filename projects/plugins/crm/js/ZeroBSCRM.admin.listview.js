@@ -322,6 +322,17 @@ function zeroBSCRMJS_retrieveListViewData( successcb, errcb ) {
 						window.zbsListViewCount = 0;
 					}
 
+					// Backend may change the page number (e.g. when a bulk
+					// action emptied the last page), so reflect that.
+					if ( response.paged > 0 && response.paged < window.zbsListViewParams.paged ) {
+						window.zbsListViewParams.paged = response.paged;
+						history.replaceState(
+							null,
+							null,
+							jpcrm_listview_generate_current_filter_url() + '&paged=' + response.paged
+						);
+					}
+
 					// store totals data
 					if ( typeof response.totals !== 'undefined' ) {
 						window.jpcrm_totals_table = response.totals;
@@ -872,7 +883,12 @@ function zeroBSCRMJS_listView_bulkActionsUpdate() {
 			}
 		}
 
-		opt_html += '<option value="' + action_name + '">' + optnamehtml + '</option>';
+		opt_html +=
+			'<option value="' +
+			jpcrm.esc_attr( action_name ) +
+			'">' +
+			jpcrm.esc_html( optnamehtml ) +
+			'</option>';
 	} );
 
 	jQuery( '.bulk-actions-dropdown' ).html( opt_html );
@@ -976,11 +992,11 @@ function zeroBSCRMJS_enactBulkAction( actionstr, idList, extraParams, successcb,
 			error: function ( response ) {
 				if ( response.status === 403 ) {
 					// permissions error
-					swal(
-						zeroBSCRMJS_listViewLang( 'badperms' ),
-						zeroBSCRMJS_listViewLang( 'badperms_desc' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'badperms' ),
+						text: zeroBSCRMJS_listViewLang( 'badperms_desc' ),
+						type: 'warning',
+					} );
 				} else if ( typeof errcb === 'function' ) {
 					errcb( response );
 				}
@@ -1232,22 +1248,28 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -1285,29 +1307,29 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -1340,21 +1362,27 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -1393,29 +1421,29 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -1525,10 +1553,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) ) +
 			'</div>' +
 			status_selector_html,
 		//text: "Are you sure you want to delete these?",
@@ -1537,7 +1565,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesupdate' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -1552,11 +1580,19 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal( zeroBSCRMJS_listViewLang( 'statusupdated' ), '', 'success' );
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusupdated' ),
+						text: '',
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal( zeroBSCRMJS_listViewLang( 'statusnotupdated' ), '', 'warning' );
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
+						text: '',
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -1572,16 +1608,16 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'andthese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'andthese' ) ) +
 			'</label></div><select id="zbsbulkactiondeleteleaveorphans"><option value="1" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'noleave' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'noleave' ) ) +
 			'</option><option value="0">' +
-			zeroBSCRMJS_listViewLang( 'yesthose' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesthose' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
@@ -1605,7 +1641,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				function () {
 					// success ? SWAL?
 					swal( {
-						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
 						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
 						confirmButtonColor: '#000',
 						type: 'success',
@@ -1613,11 +1649,11 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notcontactsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notcontactsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -1642,12 +1678,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethesemerge' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethesemerge' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'whichdominant' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichdominant' ) ) +
 			'</label></div>' +
 			selectHTML +
 			'</div>',
@@ -1657,7 +1693,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesmerge' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesmerge' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -1672,19 +1708,19 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'merged' ),
-						zeroBSCRMJS_listViewLang( 'contactsmerged' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'merged' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsmerged' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notmerged' ),
-						zeroBSCRMJS_listViewLang( 'contactsnotmerged' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notmerged' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsnotmerged' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -2773,8 +2809,8 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
@@ -2793,19 +2829,19 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'segmentsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'segmentsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notsegmentsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notsegmentsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3295,23 +3331,23 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'andthese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'andthese' ) ) +
 			'</label></div><select id="zbsbulkactiondeleteleaveorphans"><option value="1" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'noleave' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'noleave' ) ) +
 			'</option><option value="0">' +
-			zeroBSCRMJS_listViewLang( 'yesthose' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesthose' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3327,19 +3363,19 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'companysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'companysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3381,22 +3417,28 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -3434,29 +3476,29 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -3497,21 +3539,27 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -3550,29 +3598,29 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -3707,15 +3755,16 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'acceptareyousurequotes' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptareyousurequotes' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3730,19 +3779,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'acceptdeleted' ),
-						zeroBSCRMJS_listViewLang( 'acceptcompanysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'acceptdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'acceptcompanysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'acceptnotdeleted' ),
-						zeroBSCRMJS_listViewLang( 'acceptnotcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'acceptnotdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'acceptnotcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3757,15 +3806,16 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'unacceptareyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'unacceptareyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesproceed' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesproceed' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3780,19 +3830,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'unacceptdeleted' ),
-						zeroBSCRMJS_listViewLang( 'unacceptcompanysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'unacceptdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'unacceptcompanysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'unacceptnotdeleted' ),
-						zeroBSCRMJS_listViewLang( 'unacceptnotcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'unacceptnotdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'unacceptnotcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3807,14 +3857,14 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3827,19 +3877,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'quotesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'quotesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notquotesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notquotesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3871,14 +3921,14 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3891,19 +3941,19 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'quotetemplatesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'quotetemplatesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notquotetemplatesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notquotetemplatesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4111,18 +4161,18 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) ) +
 			'</div><select id="zbsbulkactionnewstatus"><option value="Draft" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'statusdraft' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusdraft' ) ) +
 			'</option><option value="Unpaid">' +
-			zeroBSCRMJS_listViewLang( 'statusunpaid' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusunpaid' ) ) +
 			'</option><option value="Paid">' +
-			zeroBSCRMJS_listViewLang( 'statuspaid' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statuspaid' ) ) +
 			'</option><option value="Overdue">' +
-			zeroBSCRMJS_listViewLang( 'statusoverdue' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusoverdue' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
@@ -4130,7 +4180,7 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesupdate' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4145,19 +4195,19 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'statusupdated' ),
-						zeroBSCRMJS_listViewLang( 'statuscompanysupdated' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusupdated' ),
+						text: zeroBSCRMJS_listViewLang( 'statuscompanysupdated' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
-						zeroBSCRMJS_listViewLang( 'statusnotcompanysupdated' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
+						text: zeroBSCRMJS_listViewLang( 'statusnotcompanysupdated' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4172,14 +4222,14 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4192,19 +4242,19 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'invoicesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'invoicesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notinvoicesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notinvoicesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4445,14 +4495,14 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4465,19 +4515,19 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'transactionsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'transactionsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'nottransactionsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'nottransactionsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4519,22 +4569,28 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -4572,29 +4628,29 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -4635,21 +4691,27 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -4688,29 +4750,29 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -4814,14 +4876,14 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4834,19 +4896,19 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'formsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'formsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notformsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notformsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5074,14 +5136,14 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5094,19 +5156,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'tasks_deleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_deleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'tasks_not_deleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_not_deleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5121,15 +5183,18 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 	const extraParams = {};
 
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_completed' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousure_tasks_completed' ) ) +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5144,19 +5209,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
-						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'tasks_marked' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_marked' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
-						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5171,15 +5236,18 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 	const extraParams = {};
 
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_incomplete' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousure_tasks_incomplete' ) ) +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5194,19 +5262,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'eventsmarked' ),
+						text: zeroBSCRMJS_listViewLang( 'eventsmarked' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
+						text: zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5381,11 +5449,11 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 						},
 						function () {
 							// err
-							swal(
-								zeroBSCRMJS_listViewLang( 'couldntupdate' ),
-								zeroBSCRMJS_listViewLang( 'couldntupdatedeets' ),
-								'warning'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_listViewLang( 'couldntupdate' ),
+								text: zeroBSCRMJS_listViewLang( 'couldntupdatedeets' ),
+								type: 'warning',
+							} );
 						}
 					);
 				}

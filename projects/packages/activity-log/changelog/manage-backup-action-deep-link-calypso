@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activity Log: the "Manage backup" row action now opens the Jetpack Cloud Backup restore flow for that point in time, instead of being a disabled placeholder.

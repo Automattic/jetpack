@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Search Blocks: add inspector Filter type control so authors can swap a filter-checkbox between Category, Tag, Post Type, Author, and Custom Taxonomy variations without re-inserting the block.

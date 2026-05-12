@@ -95,18 +95,22 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * Render the Write template with wp_head/wp_footer hooks removed to avoid
 	 * side effects from other features (e.g. missing build assets).
 	 *
-	 * @param string $title      Post title.
-	 * @param string $content    Post content.
-	 * @param int    $post_id    Post ID (0 for new).
-	 * @param array  $categories Categories data.
+	 * @param string $title             Post title.
+	 * @param string $content           Post content.
+	 * @param int    $post_id           Post ID (0 for new).
+	 * @param array  $categories        Categories data.
+	 * @param string $post_status       Post status.
+	 * @param array  $video_placeholders Video placeholder tokens.
+	 * @param bool   $show_cat_row      Whether to show the category row.
+	 * @param string $cat_label         Initial category label text.
 	 * @return string The rendered HTML.
 	 */
-	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new' ) {
+	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 
 		ob_start();
-		wpcom_write_template( $title, $content, $post_id, $categories, $post_status );
+		wpcom_write_template( $title, $content, $post_id, $categories, $post_status, $video_placeholders, $show_cat_row, $cat_label );
 		return ob_get_clean();
 	}
 
@@ -308,6 +312,62 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayHasKey( 'formatAlignRight', $state );
 		$this->assertArrayHasKey( 'formatOList', $state );
 		$this->assertArrayHasKey( 'formatUList', $state );
+
+		// Category selector state.
+		$this->assertArrayHasKey( 'catLabel', $state );
+		$this->assertArrayHasKey( 'showCatDropdown', $state );
+		$this->assertFalse( $state['showCatDropdown'] );
+
+		// Old category picker key should not exist.
+		$this->assertArrayNotHasKey( 'showCatPicker', $state );
+	}
+
+	/**
+	 * Test that the category row is not rendered when show_cat_row is false.
+	 */
+	public function test_category_row_hidden_when_show_cat_row_false() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), false, '' );
+
+		$this->assertStringNotContainsString( 'bw-meta-cat-btn', $output );
+		$this->assertStringNotContainsString( 'Writing in', $output );
+	}
+
+	/**
+	 * Test that the category row is rendered when show_cat_row is true.
+	 */
+	public function test_category_row_shown_when_show_cat_row_true() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Writing in Uncategorized' );
+
+		$this->assertStringContainsString( 'bw-meta-cat-btn', $output );
+		$this->assertStringContainsString( 'Writing in Uncategorized', $output );
+		$this->assertStringContainsString( 'bw-meta-cat-label', $output );
+	}
+
+	/**
+	 * Test that the category label is seeded into the template output.
+	 */
+	public function test_cat_label_seeded_in_template() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Writing in Travel' );
+
+		$this->assertStringContainsString( 'Writing in Travel', $output );
+	}
+
+	/**
+	 * Test that the help modal contains the #tag tip.
+	 */
+	public function test_help_modal_contains_hashtag_tip() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( '#tag', $output );
+		$this->assertStringContainsString( 'assigns them to the post on save', $output );
 	}
 
 	/**
@@ -353,6 +413,30 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the template contains the beta disclaimer banner markup.
+	 */
+	public function test_template_contains_disclaimer_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-disclaimer-banner"', $output );
+		$this->assertStringContainsString( 'actions.dismissDisclaimer', $output );
+		$this->assertStringContainsString( 'Data loss is possible', $output );
+	}
+
+	/**
+	 * Test that the disclaimer banner is hidden by default (shown via JS after localStorage check).
+	 */
+	public function test_disclaimer_banner_hidden_by_default() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'bw-disclaimer-banner" hidden', $output );
+	}
+
+	/**
 	 * Test that autosave i18n strings are included in the rendered page state.
 	 */
 	public function test_autosave_i18n_strings_registered() {
@@ -367,5 +451,185 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		// The showRecoveryBanner field confirms autosave state is registered.
 		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
+	}
+
+	/**
+	 * Helper: build a wp:embed block string.
+	 *
+	 * @param string $url  The embed URL.
+	 * @param string $type The embed type attribute (default "video").
+	 * @return string Block markup.
+	 */
+	private function embed_block( $url, $type = 'video' ) {
+		$attrs = wp_json_encode(
+			array(
+				'url'              => $url,
+				'type'             => $type,
+				'providerNameSlug' => 'youtube',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		return '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"><div class="wp-block-embed__wrapper">' . esc_url( $url ) . '</div></figure><!-- /wp:embed -->';
+	}
+
+	/**
+	 * Test YouTube standard URL is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_youtube_standard() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertArrayHasKey( 'content', $result );
+		$this->assertArrayHasKey( 'placeholders', $result );
+		$this->assertCount( 1, $result['placeholders'] );
+		$this->assertStringContainsString( '<!--WRITE_VIDEO_', $result['content'] );
+
+		$html = array_values( $result['placeholders'] )[0];
+		$this->assertStringContainsString( 'class="bw-video-figure"', $html );
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $html );
+		$this->assertStringContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'title="YouTube video"', $html );
+	}
+
+	/**
+	 * Test YouTube short URL (youtu.be) is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_youtube_short() {
+		$content = $this->embed_block( 'https://youtu.be/dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$html = array_values( $result['placeholders'] )[0];
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $html );
+		$this->assertStringContainsString( 'title="YouTube video"', $html );
+	}
+
+	/**
+	 * Test YouTube URL with v= not as the first query parameter.
+	 */
+	public function test_convert_video_embeds_youtube_v_not_first_param() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?feature=share&v=dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$html = array_values( $result['placeholders'] )[0];
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $html );
+	}
+
+	/**
+	 * Test Vimeo URL is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_vimeo() {
+		$content = $this->embed_block( 'https://vimeo.com/123456789' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$html = array_values( $result['placeholders'] )[0];
+		$this->assertStringContainsString( 'class="bw-video-figure"', $html );
+		$this->assertStringContainsString( 'https://player.vimeo.com/video/123456789', $html );
+		$this->assertStringContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'title="Vimeo video"', $html );
+	}
+
+	/**
+	 * Test that non-video embed blocks are left unchanged.
+	 */
+	public function test_convert_video_embeds_skips_non_video() {
+		$content = $this->embed_block( 'https://twitter.com/example/status/123', 'rich' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertEmpty( $result['placeholders'] );
+		$this->assertSame( $content, $result['content'] );
+	}
+
+	/**
+	 * Test that embed blocks with missing URL are left unchanged.
+	 */
+	public function test_convert_video_embeds_skips_missing_url() {
+		$attrs   = wp_json_encode(
+			array(
+				'type'             => 'video',
+				'providerNameSlug' => 'youtube',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"><div class="wp-block-embed__wrapper"></div></figure><!-- /wp:embed -->';
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertEmpty( $result['placeholders'] );
+		$this->assertSame( $content, $result['content'] );
+	}
+
+	/**
+	 * Test that plain content without embed blocks passes through unchanged.
+	 */
+	public function test_convert_video_embeds_plain_content() {
+		$content = '<p>Hello world</p>';
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertEmpty( $result['placeholders'] );
+		$this->assertSame( $content, $result['content'] );
+	}
+
+	/**
+	 * Test that multiple video embeds in one string are all converted.
+	 */
+	public function test_convert_video_embeds_multiple() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' )
+			. "\n"
+			. $this->embed_block( 'https://vimeo.com/987654321' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertCount( 2, $result['placeholders'] );
+		$all_html = implode( "\n", array_values( $result['placeholders'] ) );
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $all_html );
+		$this->assertStringContainsString( 'https://player.vimeo.com/video/987654321', $all_html );
+		$this->assertSame( 2, substr_count( $all_html, 'bw-video-figure' ) );
+	}
+
+	/**
+	 * Test that editing a post with a video embed renders an iframe in the template.
+	 */
+	public function test_template_renders_video_embed_iframe() {
+		wp_set_current_user( $this->admin_id );
+
+		$video_block = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' );
+		$post_id     = wp_insert_post(
+			array(
+				'post_title'   => 'Video Post',
+				'post_content' => $video_block,
+				'post_status'  => 'draft',
+				'post_author'  => $this->admin_id,
+			)
+		);
+
+		// Simulate the render path: convert embeds to tokens, run the_content,
+		// then pass placeholders to the template for post-kses replacement.
+		$post         = get_post( $post_id );
+		$video_result = wpcom_write_convert_video_embeds( $post->post_content );
+		$rendered     = apply_filters( 'the_content', $video_result['content'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$output       = $this->render_template( 'Video Post', $rendered, $post_id, array(), 'draft', $video_result['placeholders'] );
+
+		$this->assertStringContainsString( '<iframe', $output );
+		$this->assertStringContainsString( 'youtube.com/embed/dQw4w9WgXcQ', $output );
+		$this->assertStringContainsString( 'bw-video-figure', $output );
+	}
+
+	/**
+	 * Test that the admin_title filter sets the browser tab title on the Write page.
+	 */
+	public function test_admin_title_filter_sets_title_on_write_page() {
+		$_GET['page'] = 'write';
+		$result       = apply_filters( 'admin_title', ' &#8249; Test Site &#8212; WordPress', '' );
+		unset( $_GET['page'] );
+
+		$this->assertStringStartsWith( 'Write editor ', $result );
+	}
+
+	/**
+	 * Test that the admin_title filter does not affect other admin pages.
+	 */
+	public function test_admin_title_filter_does_not_affect_other_pages() {
+		$original = 'Dashboard &#8249; Test Site &#8212; WordPress';
+		$result   = apply_filters( 'admin_title', $original, 'Dashboard' );
+
+		$this->assertSame( $original, $result );
 	}
 }

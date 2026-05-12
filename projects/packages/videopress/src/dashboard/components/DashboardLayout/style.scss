@@ -1,0 +1,49 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
+// the full content area (fixed header, scrollable middle, pinned footer) and
+// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
+// header-aligned inline padding. The legacy entry that used to invoke this
+// (`src/client/admin/style.module.scss`) is intentionally skipped on the
+// wp-build path, so the shared chrome owns the invocation here.
+body.jetpack_page_jetpack-videopress {
+
+	@include jetpack-admin-page-layout;
+
+	// Propagate the admin page's flex column through @wordpress/ui's Tabs
+	// primitives, which default to display:block and break the chain. Lets
+	// DataViews-based tabs (Library) flex-grow into the available area and
+	// pin their pagination to the visible bottom. Targeted via stable ARIA
+	// roles, not Base UI's obfuscated CSS-in-JS classnames.
+	:has(> [role="tabpanel"]) { // Tabs.Root
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-height: 0;
+	}
+
+	[role="tabpanel"] {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-height: 0;
+	}
+
+	// Match the design-system default-variant Tabs (Storybook reference).
+	// We pair `<Tabs.List>` (no variant) with the canonical 16px per-tab inline
+	// padding — `admin-page-layout` would otherwise bump it to 24px to line the
+	// first tab up with the page-title edge. To keep that alignment, offset the
+	// tablist itself by the missing 8px so the first tab's text still starts at
+	// the page-header inline padding (8px tablist + 16px tab = 24px). The
+	// hairline lives on `.jp-admin-page-tabs` and still spans the full width.
+	.jp-admin-page-tabs {
+
+		[role="tablist"] {
+			padding-inline-start: 8px;
+		}
+
+		[role="tab"] {
+			padding-inline: var(--wpds-dimension-padding-lg);
+		}
+	}
+}

@@ -305,10 +305,10 @@ describe( 'usePageHeaderDetails', () => {
 	} );
 
 	describe( 'title and breadcrumbs', () => {
-		it( 'returns null title and breadcrumbs for single form screen', () => {
+		it( 'returns undefined title and non-null breadcrumbs for single form screen', () => {
 			const { result } = renderHook( () => usePageHeaderDetails( defaultProps ) );
 
-			expect( result.current.title ).toBeNull();
+			expect( result.current.title ).toBeUndefined();
 			expect( result.current.breadcrumbs ).not.toBeNull();
 		} );
 
@@ -317,7 +317,7 @@ describe( 'usePageHeaderDetails', () => {
 				usePageHeaderDetails( { ...defaultProps, screen: 'forms', sourceId: undefined } )
 			);
 
-			expect( result.current.title ).not.toBeNull();
+			expect( result.current.title ).toBeDefined();
 			expect( result.current.breadcrumbs ).toBeNull();
 		} );
 	} );

@@ -9,9 +9,10 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Button, Card, ExternalLink } from '@wordpress/components';
+import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, shield, login } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -294,12 +295,12 @@ export default function ProtectProductPage() {
 						</div>
 
 						<p>
-							<ExternalLink href={ scanVsProtectUrl }>
+							<Link openInNewTab href={ scanVsProtectUrl }>
 								{ __(
 									'Learn more about the difference between Protect and Scan',
 									'jetpack-my-jetpack'
 								) }
-							</ExternalLink>
+							</Link>
 						</p>
 					</div>
 				</Col>
@@ -321,9 +322,9 @@ export default function ProtectProductPage() {
 								<Button variant="primary" onClick={ handleUpgradeClick }>
 									{ __( 'Secure your site', 'jetpack-my-jetpack' ) }
 								</Button>
-								<ExternalLink href={ securityFeaturesUrl }>
+								<Link openInNewTab href={ securityFeaturesUrl }>
 									{ __( 'Learn more about Jetpack Security', 'jetpack-my-jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</div>
 						</div>
 					</Col>

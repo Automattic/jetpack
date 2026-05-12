@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack/filter-checkbox block.
+ * Helper methods for the jetpack-search/filter-checkbox block.
  *
  * Keeps filter-key derivation and default labels out of render.php so both
  * the SSR fetch (which needs to know the filterKey to read the URL-seeded
@@ -70,6 +70,22 @@ class Filter_Checkbox {
 			if ( 'post_tag' === $taxonomy ) {
 				return __( 'Tag', 'jetpack-search-pkg' );
 			}
+			// Product taxonomies get distinct, prefixed defaults so an author
+			// using both "Filter by Category" (post taxonomy) and "Filter by
+			// Product Category" on the same page sees two clearly different
+			// headings. Skipping `get_taxonomy()->labels->singular_name`
+			// here is intentional — that lookup would collapse the product
+			// label back to the same "Category" / "Tag" / "Brand" string WC
+			// uses for its own admin and break the differentiation.
+			if ( 'product_cat' === $taxonomy ) {
+				return __( 'Product Category', 'jetpack-search-pkg' );
+			}
+			if ( 'product_tag' === $taxonomy ) {
+				return __( 'Product Tag', 'jetpack-search-pkg' );
+			}
+			if ( 'product_brand' === $taxonomy ) {
+				return __( 'Product Brand', 'jetpack-search-pkg' );
+			}
 		}
 		return '';
 	}
@@ -91,14 +107,32 @@ class Filter_Checkbox {
 			$label = static::default_label( $attributes );
 		}
 
+		$taxonomy = sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) );
+
 		return array(
 			'filterKey'       => $filter_key,
 			'filterType'      => $filter_type,
-			'taxonomy'        => sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) ),
+			'taxonomy'        => $taxonomy,
+			// Pre-resolved Elasticsearch field slug for the taxonomy. Equals
+			// `$taxonomy` for natively-indexed taxonomies and the matching
+			// `jetpack-search-tagN` slot when a `jetpack_search_custom_taxonomy_map`
+			// entry routes the user-facing slug through one. Resolving here
+			// (rather than threading the map through every JS helper) keeps
+			// the JS query builders pure: `resolveFilterFields` reads
+			// `config.effectiveSlug` directly without consulting any global
+			// state, which also makes its unit tests trivial. Empty string
+			// for non-taxonomy filterTypes so JS callers can ignore it
+			// without a type check.
+			'effectiveSlug'   => 'taxonomy' === $filter_type
+				? Search_Blocks::resolve_taxonomy_slot( $taxonomy )
+				: '',
 			'label'           => $label,
 			'showCount'       => (bool) ( $attributes['showCount'] ?? true ),
 			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
 			'bucketSortOrder' => static::normalize_bucket_sort_order( $attributes['bucketSortOrder'] ?? null ),
+			// AND vs. OR combination across multi-value selections. Only
+			// honoured for taxonomy filters — see normalize_query_type().
+			'queryType'       => static::normalize_query_type( $attributes['queryType'] ?? null, $filter_type ),
 			// Pre-resolved value→label map used by the active-filters pill list
 			// and the checkbox list. Taxonomy and author aggregations use
 			// `slug_slash_name` keys, so the bucket already carries the label
@@ -148,5 +182,40 @@ class Filter_Checkbox {
 	 */
 	public static function normalize_bucket_sort_order( $value ): string {
 		return 'alpha' === $value ? 'alpha' : 'count';
+	}
+
+	/**
+	 * Normalize the queryType attribute. Returns 'and' only when the literal
+	 * string is 'and' AND the filter targets a taxonomy — post_type and
+	 * author are single-valued per document, so an AND combination with 2+
+	 * selections is guaranteed to return zero results. Gating here means
+	 * tampered saved data can never reach the ES query builder with a
+	 * value that would silently zero out the result set.
+	 *
+	 * @param mixed  $value       Raw attribute value.
+	 * @param string $filter_type Block `filterType` attribute.
+	 * @return string Either 'or' or 'and'.
+	 */
+	public static function normalize_query_type( $value, string $filter_type ): string {
+		return ( 'and' === $value && 'taxonomy' === $filter_type ) ? 'and' : 'or';
+	}
+
+	/**
+	 * Normalize display style attribute so render wrappers always emit one of
+	 * the supported CSS variants. Thin pass-through to the shared
+	 * `Search_Blocks::normalize_display_style()` so the four sibling filter
+	 * blocks (`filter-date`, `filter-wc-attribute`, `filter-wc-rating`,
+	 * `filter-wc-stock-status`) and this one all share one implementation.
+	 *
+	 * Kept as a delegating wrapper rather than dropped so older
+	 * `Filter_Checkbox::normalize_display_style()` callers (and the existing
+	 * unit test that pins the contract) keep working — the API surface is
+	 * identical to before, just sourced from the shared helper.
+	 *
+	 * @param mixed $value Raw attribute value.
+	 * @return string Either 'checkbox-list' or 'chips'.
+	 */
+	public static function normalize_display_style( $value ): string {
+		return Search_Blocks::normalize_display_style( $value );
 	}
 }

@@ -143,7 +143,7 @@ function jpcrm_export_process_file_export() {
 			// check obj type
 		if ( isset( $_POST['jpcrm-export-request-objtype'] ) ) {
 
-			$potentialObjTypeID = (int) sanitize_text_field( $_POST['jpcrm-export-request-objtype'] );
+			$potentialObjTypeID = (int) $_POST['jpcrm-export-request-objtype'];
 			if ( $zbs->DAL->isValidObjTypeID( $potentialObjTypeID ) ) {
 				$obj_type_id = $potentialObjTypeID;
 			}

@@ -5,6 +5,7 @@ const captured = {
 	state: {},
 	actions: {},
 	callbacks: {},
+	context: {},
 };
 const originalFetch = global.fetch;
 
@@ -22,11 +23,18 @@ jest.mock(
 			}
 			return { state: captured.state, actions: captured.actions };
 		},
+		getContext: () => captured.context,
 	} ),
 	{ virtual: true }
 );
 
-import { actions, gateActiveFilters, state } from '../../../src/search-blocks/store';
+import {
+	actions,
+	computeResultsCountText,
+	gateActiveFilters,
+	remapAggregationsToFilterKeys,
+	state,
+} from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
 const originalActions = { ...actions };
@@ -166,6 +174,35 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
+	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
+		// `skeletonHidden` gates the pre-hydration placeholders. Once the
+		// first fetch completes, JS owns the DOM and the skeleton must
+		// disappear for the rest of the session — both the success path
+		// and the error path of `search()` need to flip the flag.
+		state.skeletonHidden = false;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.isLoading ).toBe( false );
+
+		// Reset and confirm the error path also closes the skeleton —
+		// otherwise a connection failure would leave placeholders on screen
+		// indefinitely with no visible loading indicator.
+		state.skeletonHidden = false;
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.hasError ).toBe( true );
+		expect( state.isLoading ).toBe( false );
+	} );
+
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
 		state.pageHandle = 'next-page';
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) ).mockResolvedValueOnce(
@@ -186,6 +223,101 @@ describe( 'store actions', () => {
 		await runGenerator( actions.loadMore() );
 		expect( state.hasError ).toBe( false );
 		expect( state.results.map( r => r.title ) ).toContain( 'Recovered result' );
+	} );
+
+	it( 'clears the previous query results when search() errors out', async () => {
+		// Seed the store as if a successful query had just resolved, so we
+		// can prove the error path tears that data down. Without this, a
+		// subsequent failed search would render its `role="alert"` message
+		// underneath stale results and a stale "Found N results" count.
+		state.results = [ { id: 'old-1', title: 'Stale result' } ];
+		state.totalResults = 5;
+		state.pageHandle = 'old-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+		state.hasError = false;
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toEqual( [] );
+		expect( state.totalResults ).toBe( 0 );
+		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toEqual( {} );
+		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
+		// so an empty count string falls out for free — no extra wiring.
+		expect( state.resultsCountText ).toBe( '' );
+	} );
+
+	it( 'remaps slot-keyed aggregations back to the user-facing filterKey when search() resolves', async () => {
+		// End-to-end pin: a mapped custom taxonomy (`genre` →
+		// `jetpack-search-tag1`) sends its aggregation request under the
+		// slot slug because the WPCOM search proxy validates aggregation
+		// names against indexable taxonomies. The API response comes back
+		// keyed by the slot too. Every downstream consumer (`filterItems`,
+		// `retainedFilterOptions`, wrapper-visibility checks) reads
+		// `state.aggregations[filterKey]`, so `actions.search()` must flip
+		// the response key back to `genre` once before persisting to state.
+		// Otherwise the bucket list would never reach the Genre filter UI
+		// despite the API returning data for it.
+		state.filterConfigs = {
+			genre: {
+				filterKey: 'genre',
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+				maxItems: 10,
+			},
+		};
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Genre hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {
+					'jetpack-search-tag1': {
+						buckets: [
+							{ key: 'fantasy/Fantasy', doc_count: 3 },
+							{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+						],
+					},
+				},
+			} )
+		);
+
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.aggregations ).toEqual( {
+			genre: {
+				buckets: [
+					{ key: 'fantasy/Fantasy', doc_count: 3 },
+					{ key: 'sci-fi/Sci-Fi', doc_count: 2 },
+				],
+			},
+		} );
+		// Slot key must not leak into state — downstream readers key off
+		// `filterKey`, never `effectiveSlug`.
+		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'leaves the existing results in place when loadMore() errors out', async () => {
+		// loadMore failures must not clear the first-page results — they're
+		// still valid; only the *next* page failed to fetch. The success
+		// path of the first search seeded the list; loadMore's catch must
+		// not regress that.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result' } ];
+		state.totalResults = 50;
+		state.pageHandle = 'next-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.loadMore() );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.totalResults ).toBe( 50 );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news' );
 	} );
 
 	it( 'drops load-more responses superseded by a new search', async () => {
@@ -236,7 +368,7 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
-	it( 'clears filters only when filters are active', async () => {
+	it( 'clears every facet only when something is active', async () => {
 		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
 
 		await runGenerator( actions.clearFilters() );
@@ -244,9 +376,66 @@ describe( 'store actions', () => {
 
 		state.activeFilters = { tag: [ 'react' ] };
 		await runGenerator( actions.clearFilters() );
-
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Price-only state still triggers a clear — covers half-open ranges
+		// like `{ min: 10, max: null }` so a "clear all" affordance wipes
+		// every facet, not just the checkbox-shaped ones.
+		state.priceRange = { min: 10, max: null };
+		await runGenerator( actions.clearFilters() );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 2 );
+		// Combined state — both checkbox selections and a price range — must
+		// reset in a single call, since the standalone clear-filters button
+		// is the only affordance that wipes price selections in one click.
+		state.activeFilters = { tag: [ 'react' ] };
+		state.priceRange = { min: 10, max: 50 };
+		await runGenerator( actions.clearFilters() );
+		expect( state.activeFilters ).toEqual( {} );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 3 );
+	} );
+
+	it( 'setPriceRange validates bounds, no-ops on identity, and clears on null/null', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		// NaN / negative bounds drop the call rather than poisoning ES.
+		await runGenerator( actions.setPriceRange( 'abc', 50 ) );
+		await runGenerator( actions.setPriceRange( -1, 50 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Inverted bounds (min > max) build an empty clause — drop too.
+		await runGenerator( actions.setPriceRange( 100, 10 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Closed range writes and searches.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Identity no-op — same bounds shouldn't refetch.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Half-open range (one bound null) is allowed — both min-only and
+		// max-only shapes round-trip the matching null through to state so the
+		// URL writer and ES range clause see the same "no bound" sentinel.
+		await runGenerator( actions.setPriceRange( 25, null ) );
+		expect( state.priceRange ).toEqual( { min: 25, max: null } );
+		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		await runGenerator( actions.setPriceRange( null, 50 ) );
+		expect( state.priceRange ).toEqual( { min: null, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 3 );
+
+		// Both null clears the range.
+		await runGenerator( actions.setPriceRange( null, null ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
@@ -314,9 +503,12 @@ describe( 'store actions', () => {
 		// Regression: omitting priceRange from pushStateToUrl meant the
 		// first search after JS hydrated rewrote `?min_price=10` away,
 		// breaking shareable URLs and back-button behavior.
+		// `isWooCommerceActive` must be true — `min_price`/`max_price` are
+		// WC-only and `pushStateToUrl` drops them otherwise (RSM-2805).
 		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
 		state.searchQuery = 'shoes';
 		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = true;
 
 		actions.syncToUrl();
 
@@ -324,6 +516,24 @@ describe( 'store actions', () => {
 		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
 		expect( writtenUrl ).toContain( 'min_price=10' );
 		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
+	it( 'syncToUrl drops priceRange on non-Woo sites so a stray range cannot leak into the URL (RSM-2805)', () => {
+		// `filter-wc-price` isn't registered on non-Woo sites, but a stale
+		// `state.priceRange` (e.g. seeded from a deep link before the JS
+		// gate caught up, or set by an unrelated callback) must never round-
+		// trip into the URL — the next API request would otherwise carry a
+		// `range` clause for a field the index doesn't have.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'shoes';
+		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = false;
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).not.toContain( 'min_price' );
+		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
 	it( 'closes open popovers on Escape only', () => {
@@ -361,18 +571,24 @@ describe( 'store getters', () => {
 	} );
 
 	it( 'formats the results count for loading, singular, plural, and empty states', () => {
+		// `resultsCountText` is now a regular state value updated by
+		// `actions.search()` rather than a getter — the SSR pass needs to
+		// read a literal string off the seeded state, and JS getters don't
+		// resolve server-side. Exercising `computeResultsCountText` directly
+		// keeps the formatting contract under test without driving the full
+		// fetch lifecycle.
 		state.isLoading = true;
-		expect( state.resultsCountText ).toBe( 'Looking…' );
+		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
 
 		state.isLoading = false;
 		state.totalResults = 1;
-		expect( state.resultsCountText ).toBe( 'Found 1 item' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 1 item' );
 
 		state.totalResults = 3;
-		expect( state.resultsCountText ).toBe( 'Found 3 items' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 3 items' );
 
 		state.totalResults = 0;
-		expect( state.resultsCountText ).toBe( '' );
+		expect( computeResultsCountText( state ) ).toBe( '' );
 	} );
 
 	it( 'derives result, load-more, and filter visibility flags', () => {
@@ -411,6 +627,47 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'surfaces showNoResults for an explicit-but-empty `?s=` deep link (SEARCH-183)', () => {
+		// Empty `?s=` URL — `searchQuery` is `''` but `hasSearchParam` is true,
+		// so the initial search fires (covered by other tests). If that search
+		// returns zero results (e.g. a site with no indexed posts), the
+		// no-results affordance must still surface; otherwise the page renders
+		// blank with no explanation. Pre-SEARCH-183 the getter gated only on
+		// `!! state.searchQuery` and silently swallowed this case.
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.searchQuery = '';
+		state.hasSearchParam = true;
+		expect( state.showNoResults ).toBe( true );
+
+		// Bare `/search/` page (no `s` in URL, no filters) — message stays
+		// hidden so it doesn't flash before the user types.
+		state.hasSearchParam = false;
+		expect( state.showNoResults ).toBe( false );
+	} );
+
+	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		// Half-open range still counts — without this branch a price-only
+		// deep link leaves the active-filters wrapper hidden after hydration.
+		state.priceRange = { min: null, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
 		expect( state.isFilterTriggerDisabled ).toBe( true );
 
@@ -432,6 +689,77 @@ describe( 'store getters', () => {
 
 		state.sortOrder = 'oldest';
 		expect( state.isSortByOldest ).toBe( true );
+	} );
+
+	it( 'allBucketsSelected returns true only when every bucket is in activeFilters', () => {
+		captured.context = { filterKey: 'pa_color' };
+
+		state.aggregations = {};
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.aggregations = { pa_color: { buckets: [ { key: 'red' }, { key: 'blue' } ] } };
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red' ] };
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red', 'blue' ] };
+		expect( state.allBucketsSelected ).toBe( true );
+
+		captured.context = {};
+	} );
+} );
+
+describe( 'remapAggregationsToFilterKeys', () => {
+	// Mirror of `aggregationKeyFor` on the response side: the API returns
+	// buckets under the slot slug for mapped custom taxonomies, but every
+	// downstream consumer (`filterItems`, `retainedFilterOptions`,
+	// wrapper-visibility) reads `aggregations[filterKey]`. This helper
+	// flips the keys back exactly once before the response hits store
+	// state.
+	it( 'rewrites slot-keyed buckets back to the user-facing filterKey', () => {
+		const aggregations = {
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'returns the same object reference when no mapped filters are present', () => {
+		// Built-ins and unmapped customs key by the filterKey already, so
+		// the helper can short-circuit and avoid a needless clone.
+		const aggregations = { category: { buckets: [] } };
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toBe( aggregations );
+	} );
+
+	it( 'leaves non-slot buckets alone when remapping a mapped one', () => {
+		const aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			'jetpack-search-tag1': { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		};
+		const filterConfigs = {
+			category: { filterType: 'taxonomy', taxonomy: 'category', effectiveSlug: 'category' },
+			genre: { filterType: 'taxonomy', taxonomy: 'genre', effectiveSlug: 'jetpack-search-tag1' },
+		};
+		expect( remapAggregationsToFilterKeys( aggregations, filterConfigs ) ).toEqual( {
+			category: { buckets: [ { key: 'news/News', doc_count: 1 } ] },
+			genre: { buckets: [ { key: 'fantasy/Fantasy', doc_count: 3 } ] },
+		} );
+	} );
+
+	it( 'tolerates missing or invalid input gracefully', () => {
+		expect( remapAggregationsToFilterKeys( undefined, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( null, {} ) ).toEqual( {} );
+		expect( remapAggregationsToFilterKeys( {}, undefined ) ).toEqual( {} );
 	} );
 } );
 
@@ -505,8 +833,9 @@ describe( 'store callbacks', () => {
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
 		// Also covers the price-only URL case: `?min_price=10` with no text
 		// query and no checkbox filters seeds isLoading=true on the PHP side,
-		// so initialize() must fire a fetch for `priceRange` alone, not just
-		// for `searchQuery || hasActiveFilters`.
+		// so initialize() must fire a fetch — hasActiveFilters counts the
+		// priceRange, so the existing `searchQuery || hasActiveFilters` gate
+		// is enough.
 		const addEventListener = jest.spyOn( window, 'addEventListener' );
 		Object.assign( actions, originalActions );
 		jest.spyOn( actions, 'handlePopState' ).mockImplementation();
@@ -554,12 +883,44 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
+			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
+			// Skeleton flips closed even though no fetch fires — otherwise the
+			// pre-hydration placeholders would linger forever on a deep link
+			// whose only filter keys are stale and get gated out.
+			expect( fresh.state.skeletonHidden ).toBe( true );
+		} );
+	} );
+
+	it( 'runs the URL-seeded search for `?s=` (empty value) via hasSearchParam (SEARCH-183)', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			// Visitor landed on `?s=` — searchQuery is `''` and no filters are
+			// selected. Without hasSearchParam the legacy guard `searchQuery ||
+			// hasActiveFilters` would skip the initial fetch and leave the
+			// results region empty until the visitor types.
+			fresh.state.searchQuery = '';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = {};
+			fresh.state.activeFilters = {};
+			fresh.state.hasSearchParam = true;
+
+			captured.callbacks.initialize();
+
+			expect( search ).toHaveBeenCalledTimes( 1 );
+			expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+			// Drop the flag so it doesn't leak into the `handlePopState` describe
+			// below — captured.state is a singleton across the mocked module.
+			fresh.state.hasSearchParam = false;
 		} );
 	} );
 } );
@@ -576,8 +937,10 @@ describe( 'handlePopState gating', () => {
 		const stub = require( '../../../src/search-blocks/store/url-state' );
 		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
 			searchQuery: 'hello',
+			hasSearchParam: true,
 			sortOrder: 'relevance',
 			activeFilters: { foo: [ 'bar' ] },
+			filterLogic: {},
 			priceRange: null,
 		} );
 		Object.assign( actions, originalActions );
@@ -587,5 +950,29 @@ describe( 'handlePopState gating', () => {
 		await runGenerator( actions.handlePopState() );
 
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'syncs `state.hasSearchParam` to the popped URL (SEARCH-183)', async () => {
+		// `initialize()` is the only consumer today, but keeping
+		// state.hasSearchParam in lockstep with the live URL avoids a
+		// footgun for future readers (e.g. `showNoResults`, which now
+		// gates on it). Mirrors how `state.searchQuery` is rewritten on
+		// each popstate.
+		const stub = require( '../../../src/search-blocks/store/url-state' );
+		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
+			searchQuery: '',
+			hasSearchParam: true,
+			sortOrder: 'relevance',
+			activeFilters: {},
+			filterLogic: {},
+			priceRange: null,
+		} );
+		Object.assign( actions, originalActions );
+		jest.spyOn( actions, 'search' ).mockImplementation();
+		state.hasSearchParam = false;
+
+		await runGenerator( actions.handlePopState() );
+
+		expect( state.hasSearchParam ).toBe( true );
 	} );
 } );

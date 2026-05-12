@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search blocks: render skeleton placeholders pre-hydration so deep-linked search pages don't flash blank columns before the JS view bundle loads.

@@ -10,6 +10,11 @@ import { encode } from 'qss';
  * decorative (the surrounding anchor is `aria-hidden` with the title link as
  * the accessible target), so `alt=""` is correct and requesting alt text
  * would only add response bytes.
+ *
+ * The `wc.*` and `meta._wc_*` entries hydrate the product layout. Always
+ * requested rather than gated on layout because the store fetches once per
+ * page and any block can render a different layout — the response delta is
+ * a few hundred bytes per result.
  */
 export const SEARCH_FIELDS = [
 	'date',
@@ -18,6 +23,11 @@ export const SEARCH_FIELDS = [
 	'title.default',
 	'has.image',
 	'image.url.raw',
+	'wc.formatted_price',
+	'wc.formatted_regular_price',
+	'wc.formatted_sale_price',
+	'meta._wc_average_rating.double',
+	'meta._wc_review_count.long',
 ];
 
 export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
@@ -26,12 +36,37 @@ export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
  * Maps Search 3.0 sort UI values to the v1.3 API `sort` parameter. Keep the
  * UI keys aligned with src/instant-search/lib/constants.js SORT_OPTIONS so
  * the two surfaces stay interoperable.
+ *
+ * Only contains the keys the API expects under a *different* name. The
+ * product-format keys (`rating_desc`, `price_asc`, `price_desc`) are passed
+ * through as-is by `mapSortToApiValue()` because the API accepts them
+ * verbatim — same contract as instant-search's `mapSortToApiValue` in
+ * src/instant-search/lib/api.js.
  */
 const SORT_QUERY_MAP = {
 	newest: 'date_desc',
 	oldest: 'date_asc',
 	relevance: 'score_default',
 };
+
+/**
+ * Sort keys the v1.3 API accepts unchanged. Mirrors the early-return pool in
+ * src/instant-search/lib/api.js → `mapSortToApiValue`.
+ */
+const SORT_PASSTHROUGH = new Set( [ 'rating_desc', 'price_asc', 'price_desc' ] );
+
+/**
+ * Translate a Search 3.0 store `sortOrder` to the API's `sort` value.
+ *
+ * @param {string} sortOrder - UI-side sort key.
+ * @return {string} API-side sort value.
+ */
+function mapSortToApiValue( sortOrder ) {
+	if ( SORT_PASSTHROUGH.has( sortOrder ) ) {
+		return sortOrder;
+	}
+	return SORT_QUERY_MAP[ sortOrder ] ?? 'score_default';
+}
 
 // Mirrors Filter_Date::ALLOWED_INTERVALS. Doubles as the gate in
 // buildAggregations — ES 400s on unknown intervals.
@@ -60,6 +95,20 @@ const DATE_AGG_ORDERS = {
  * both value and label, `date` uses the bucket's `key_as_string` and a
  * locale-aware label from `formatDateBucketLabel`.
  *
+ * Custom taxonomies that the site has routed through a reserved Jetpack
+ * Search index slot (via the `jetpack_search_custom_taxonomy_map` filter)
+ * arrive here with `config.effectiveSlug` already set to the target
+ * `jetpack-search-tagN` slug — the PHP `Filter_Checkbox::build_config()`
+ * resolves that once at config-build time, so this function stays pure.
+ * For unmapped slugs `effectiveSlug` equals `taxonomy`. The aggregation
+ * request key also swaps to the slot (see `aggregationKeyFor`) because
+ * the WPCOM search proxy validates aggregation names against indexable
+ * taxonomies — sending `aggregations[genre]` against a non-indexed slug
+ * silently returns nothing. The response is remapped back to the
+ * user-facing `filterKey` in `store/index.js` before downstream
+ * consumers see it. See
+ * https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+ *
  * @param {object} config - FilterConfig entry from the store.
  * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved fields.
  */
@@ -87,9 +136,16 @@ export function resolveFilterFields( config ) {
 			if ( ! taxonomy ) {
 				return { aggField: null, filterField: null, bucketFormat: 'slash' };
 			}
+			// `effectiveSlug` is pre-resolved server-side: equals `taxonomy`
+			// for natively-indexed slugs and the matching
+			// `jetpack-search-tagN` slot when a custom-taxonomy map entry
+			// routes it through one. Falls back to `taxonomy` when the
+			// field is missing (defensive — older saved blocks won't have
+			// it on the filterConfig).
+			const effectiveSlug = config.effectiveSlug || taxonomy;
 			return {
-				aggField: `taxonomy.${ taxonomy }.slug_slash_name`,
-				filterField: `taxonomy.${ taxonomy }.slug`,
+				aggField: `taxonomy.${ effectiveSlug }.slug_slash_name`,
+				filterField: `taxonomy.${ effectiveSlug }.slug`,
 				bucketFormat: 'slash',
 			};
 		}
@@ -102,17 +158,22 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'wc_stock_status':
-			// Reads WooCommerce-populated postmeta indexed under
-			// `meta._stock_status.value` with a `.raw` keyword subfield via
-			// the `meta_str_template` dynamic mapping. The terms-aggs
-			// whitelist (`meta\..*\.value\.raw` in
-			// class-wpcom-search-engine.php) admits this exact path. The
-			// `wc_*` prefix on the filterType marks the dependency on
-			// WC-populated meta even though no WC-side code is involved at
-			// query time.
+			// Stock status reads from the WC `product_visibility` taxonomy:
+			// WC tags out-of-stock products with the `outofstock` term;
+			// absence of that term means in-stock. The taxonomy has no
+			// `instock` or `onbackorder` term, so this filter is two-state
+			// only — backorder lives exclusively in the `_stock_status`
+			// postmeta which the WPCOM-side ES indexer doesn't currently
+			// carry (sync sends it, the indexer drops it; tracked as a
+			// separate followup). `buildAggregations` and `buildFilterClause`
+			// special-case this filterType because the agg needs an
+			// `include: ['outofstock']` filter (the taxonomy holds many
+			// unrelated terms — `featured`, `rated-N`, etc.) and the
+			// in-stock selection emits a `must_not` clause rather than a
+			// `term`.
 			return {
-				aggField: 'meta._stock_status.value.raw',
-				filterField: 'meta._stock_status.value.raw',
+				aggField: 'taxonomy.product_visibility.slug',
+				filterField: 'taxonomy.product_visibility.slug',
 				bucketFormat: 'plain',
 			};
 		case 'wc_rating':
@@ -139,31 +200,55 @@ export function resolveFilterFields( config ) {
 }
 
 /**
- * Star buckets for `wc_rating` filter clauses. Mirrors WC's
- * `ROUND(avg_rating, 0)` semantics: star=5 covers avg ∈ [4.5, ∞),
- * star=4 covers [3.5, 4.5), down to star=1 covering [0.5, 1.5).
+ * Threshold lower bounds for the `wc_rating` filter — `?rating_filter[]=N`
+ * matches `_wc_average_rating ≥ N - 0.5`, i.e. avg values that round to
+ * N stars or higher under WC's `ROUND(avg_rating, 0)` rule. Half-integer
+ * boundaries are deliberate: `4★ & up` includes products with avg ≥ 3.5
+ * (which round to 4 or 5), so the row is a true "and up" superset of the
+ * higher-star rows.
+ *
+ * Single-bound by design — there is no upper cap, mirroring the dominant
+ * shopper-facing rating filter on Amazon/Etsy/Wayfair/Walmart/eBay where
+ * picking "3★ & up" returns everything from 3 stars to perfect.
  *
  * Products with `_wc_average_rating` < 0.5 fall into a histogram
  * bucket at -0.5 with no corresponding star entry — they're returned
- * in unfiltered results but cannot be selected via the rating filter.
- * This matches WC's own `ROUND(avg_rating, 0)` filter UI which has
- * no "0-star" option either; when the front-end filter block lands
- * (DSGWOO-equivalent on the Search 3.0 side) it will surface only the
- * 1–5 entries here.
- *
- * Aggregation uses a histogram (range aggs aren't whitelisted on the
- * WPCOM v1.3 search API). `histogramKey` is the bucket key the
- * histogram emits for that star band when called with `interval: 1`
- * and `offset: 0.5` — useful for response-side bucket → star
- * projection.
+ * in unfiltered results but cannot be selected via the rating filter,
+ * matching WC's own filter UI which has no "0-star" option.
  */
 export const WC_RATING_RANGES = [
-	{ key: '1', from: 0.5, to: 1.5, histogramKey: 0.5 },
-	{ key: '2', from: 1.5, to: 2.5, histogramKey: 1.5 },
-	{ key: '3', from: 2.5, to: 3.5, histogramKey: 2.5 },
-	{ key: '4', from: 3.5, to: 4.5, histogramKey: 3.5 },
-	{ key: '5', from: 4.5, histogramKey: 4.5 },
+	{ key: '1', from: 0.5 },
+	{ key: '2', from: 1.5 },
+	{ key: '3', from: 2.5 },
+	{ key: '4', from: 3.5 },
+	{ key: '5', from: 4.5 },
 ];
+
+/**
+ * Resolve the request-side aggregation key for a filter. Mapped custom
+ * taxonomies aggregate under the reserved slot slug (e.g. `jetpack-search-tag1`)
+ * because the WPCOM search proxy validates aggregation names against the
+ * site's indexable taxonomy list — `aggregations[genre]` against a
+ * non-indexed slug comes back empty. Everything else keeps using
+ * `filterKey`: built-ins (`category` / `post_tag`) and unmapped custom
+ * taxonomies have `effectiveSlug === taxonomy`, and non-taxonomy filters
+ * have `effectiveSlug === ''`.
+ *
+ * Mirrored in reverse by `remapAggregationsToFilterKeys` in
+ * `store/index.js` so the response shape downstream consumers see stays
+ * keyed by `filterKey`.
+ *
+ * @param {string} filterKey - The user-facing filter key (URL param name).
+ * @param {object} config    - filterConfigs entry.
+ * @return {string} The agg request key to send to the API.
+ */
+export function aggregationKeyFor( filterKey, config ) {
+	const slug = config?.effectiveSlug;
+	if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+		return slug;
+	}
+	return filterKey;
+}
 
 /**
  * Build ES aggregation requests from the filterConfigs registered by each
@@ -182,18 +267,36 @@ export const WC_RATING_RANGES = [
 export function buildAggregations( filterConfigs ) {
 	const aggregations = {};
 	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const aggKey = aggregationKeyFor( filterKey, config );
 		// Rating gets a histogram aggregation. `range` aggs aren't
 		// whitelisted on the v1.3 API; histogram interval=1 with offset=0.5
 		// produces buckets keyed at .5 boundaries, mirroring WC's
 		// ROUND(avg_rating) star buckets.
 		if ( config?.filterType === 'wc_rating' ) {
 			const { aggField: ratingField } = resolveFilterFields( config );
-			aggregations[ filterKey ] = {
+			aggregations[ aggKey ] = {
 				histogram: {
 					field: ratingField,
 					interval: 1,
 					offset: 0.5,
 					min_doc_count: 0,
+				},
+			};
+			continue;
+		}
+
+		// Stock status: probe only the `outofstock` term on
+		// `product_visibility` — the in-stock count is derived as
+		// `total - outofstock` on the read side. The `include` keeps
+		// unrelated terms in the taxonomy (`featured`, `rated-N`,
+		// `exclude-from-catalog`) out of the response.
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const { aggField: stockField } = resolveFilterFields( config );
+			aggregations[ aggKey ] = {
+				terms: {
+					field: stockField,
+					include: [ 'outofstock' ],
+					size: 1,
 				},
 			};
 			continue;
@@ -206,7 +309,7 @@ export function buildAggregations( filterConfigs ) {
 		if ( config?.filterType === 'date' ) {
 			const interval = DATE_HISTOGRAM_FORMATS[ config.interval ] ? config.interval : 'year';
 			const order = DATE_AGG_ORDERS[ config.bucketSortOrder ] ?? DATE_AGG_ORDERS.newest;
-			aggregations[ filterKey ] = {
+			aggregations[ aggKey ] = {
 				date_histogram: {
 					field: aggField,
 					calendar_interval: interval,
@@ -218,7 +321,7 @@ export function buildAggregations( filterConfigs ) {
 			continue;
 		}
 		const order = config?.bucketSortOrder === 'alpha' ? { _key: 'asc' } : { _count: 'desc' };
-		aggregations[ filterKey ] = {
+		aggregations[ aggKey ] = {
 			terms: {
 				field: aggField,
 				size: Math.max( 1, config.maxItems ?? 10 ),
@@ -272,10 +375,17 @@ function dateRangeFromSlug( value, interval ) {
 /**
  * Build the ES filter clause from active selections.
  *
- * OR within a single filter key (`bool.should`); AND across keys
+ * Default: OR within a single filter key (`bool.should`); AND across keys
  * (`bool.must`). Diverges from the legacy instant-search overlay which ANDs
  * multi-value selections — Search 3.0 follows the broaden-on-click UX of
  * modern faceted search.
+ *
+ * Taxonomy filters can opt into AND semantics via `config.queryType === 'and'`
+ * (set by the filter-checkbox "Logic" inspector toggle). In that case the
+ * per-value `term` clauses are pushed as separate top-level `must` entries
+ * rather than wrapped in `bool.should`, so the post must carry every selected
+ * term. Only honoured for the `taxonomy` filterType — see
+ * `Filter_Checkbox::normalize_query_type()`.
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
@@ -289,20 +399,37 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		}
 		const config = filterConfigs?.[ filterKey ];
 
-		// Rating: each selected star level maps to a range clause on
-		// the rating field resolved from the config; multiple selections OR.
+		// Stock status: two-state filter against the `outofstock` term on
+		// `product_visibility`. `outofstock` selection narrows to products
+		// carrying that term; `instock` excludes them via `must_not`;
+		// selecting both is equivalent to no constraint, so the clause is
+		// dropped (otherwise the term + must_not term contradict and ES
+		// would return zero results).
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const set = new Set( values.map( v => String( v ) ) );
+			const wantsOut = set.has( 'outofstock' );
+			const wantsIn = set.has( 'instock' );
+			if ( wantsOut === wantsIn ) {
+				continue;
+			}
+			const { filterField: stockField } = resolveFilterFields( config );
+			const term = { term: { [ stockField ]: 'outofstock' } };
+			must.push( wantsOut ? term : { bool: { must_not: [ term ] } } );
+			continue;
+		}
+
+		// Rating: each selected star level maps to a `≥ N - 0.5` range
+		// clause. The block is single-select so `values` is normally one
+		// entry; tolerate multi-value URLs by OR-ing, which under threshold
+		// semantics collapses to the lowest selected threshold (a no-op
+		// vs. picking just that one) — harmless and keeps stale deep links
+		// functional.
 		if ( config?.filterType === 'wc_rating' ) {
 			const { filterField: ratingField } = resolveFilterFields( config );
 			const ranges = values
 				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
 				.filter( Boolean )
-				.map( r => {
-					const range = { gte: r.from };
-					if ( r.to !== undefined ) {
-						range.lt = r.to;
-					}
-					return { range: { [ ratingField ]: range } };
-				} );
+				.map( r => ( { range: { [ ratingField ]: { gte: r.from } } } ) );
 			if ( ranges.length === 0 ) {
 				continue;
 			}
@@ -329,7 +456,16 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( clauses.length === 0 ) {
 			continue;
 		}
-		must.push( clauses.length === 1 ? clauses[ 0 ] : { bool: { should: clauses } } );
+		// AND semantics only apply to taxonomy filters — see header docblock.
+		// For a single value the wrapping is irrelevant, so the early single-clause
+		// short-circuit covers both branches.
+		if ( clauses.length === 1 ) {
+			must.push( clauses[ 0 ] );
+		} else if ( config?.queryType === 'and' && config?.filterType === 'taxonomy' ) {
+			must.push( ...clauses );
+		} else {
+			must.push( { bool: { should: clauses } } );
+		}
 	}
 	return must.length ? { bool: { must } } : undefined;
 }
@@ -395,25 +531,75 @@ function getMonthLabelFormatter( locale ) {
 }
 
 /**
+ * Build the ES `bool.must` clauses contributed by the hidden
+ * `jetpack-search/filter-post-type` block. Returns an empty array when no constraint
+ * is configured so callers can spread the result unconditionally.
+ *
+ * Includes are wrapped in `bool.should` (OR within the include set), excludes
+ * in `bool.must_not` (negate every excluded slug). Both wrappers are pushed
+ * as separate `must` entries so the include and exclude semantics stay
+ * orthogonal in ES — same shape used by instant-search's `excludedPostTypes`.
+ *
+ * Asymmetry: a single-slug include emits a bare `{ term: { post_type: T } }`
+ * rather than wrapping it in `{ bool: { should: [...] } }`. Inside the outer
+ * `bool.must` array those are semantically identical (a single-clause
+ * `should` behaves like `must`), and the bare form keeps the URL shorter and
+ * the test assertions readable. A single-slug exclude *always* wraps in
+ * `bool.must_not` because ES has no bare-term equivalent for negation.
+ *
+ * @param {object|null} staticPostTypes - `{ include, exclude }` slug lists.
+ * @return {Array<object>} ES filter clauses, possibly empty.
+ */
+export function buildStaticPostTypeClauses( staticPostTypes ) {
+	if ( ! staticPostTypes ) {
+		return [];
+	}
+	const clauses = [];
+	const include = Array.isArray( staticPostTypes.include ) ? staticPostTypes.include : [];
+	const exclude = Array.isArray( staticPostTypes.exclude ) ? staticPostTypes.exclude : [];
+
+	if ( include.length > 0 ) {
+		const should = include.map( slug => ( { term: { post_type: slug } } ) );
+		clauses.push( should.length === 1 ? should[ 0 ] : { bool: { should } } );
+	}
+	if ( exclude.length > 0 ) {
+		clauses.push( {
+			bool: {
+				must_not: exclude.map( slug => ( { term: { post_type: slug } } ) ),
+			},
+		} );
+	}
+	return clauses;
+}
+
+/**
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
- * @param {object}      opts                 - Options.
- * @param {number}      opts.siteId          - Site ID.
- * @param {string}      opts.searchQuery     - Search query string.
- * @param {string}      opts.sortOrder       - 'relevance' | 'newest' | 'oldest'.
- * @param {string|null} opts.pageHandle      - Cursor for pagination.
- * @param {boolean}     opts.isPrivateSite   - Whether the site is private.
- * @param {boolean}     opts.isWpcom         - Whether the site runs on WordPress.com.
- * @param {string}      opts.apiRoot         - WordPress REST API root URL.
- * @param {object}      [opts.activeFilters] - { [filterKey]: string[] } selected filters.
- * @param {object}      [opts.filterConfigs] - { [filterKey]: FilterConfig } registered filters.
- * @param {string}      [opts.homeUrl]       - Home URL; required for private WPcom sites.
- * @param {object|null} [opts.priceRange]    - `{ min, max }` numeric range against the
- *                                           `wc.price` ES field. Either bound may be null
- *                                           for a half-open range. Read by future product
- *                                           filter blocks driven by `min_price` / `max_price`
- *                                           URL params.
+ * @param {object}      opts                   - Options.
+ * @param {number}      opts.siteId            - Site ID.
+ * @param {string}      opts.searchQuery       - Search query string.
+ * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest', plus
+ *                                             'rating_desc' | 'price_asc' | 'price_desc'
+ *                                             on WooCommerce sites.
+ * @param {string|null} opts.pageHandle        - Cursor for pagination.
+ * @param {boolean}     opts.isPrivateSite     - Whether the site is private.
+ * @param {boolean}     opts.isWpcom           - Whether the site runs on WordPress.com.
+ * @param {string}      opts.apiRoot           - WordPress REST API root URL.
+ * @param {object}      [opts.activeFilters]   - { [filterKey]: string[] } selected filters.
+ * @param {object}      [opts.filterConfigs]   - { [filterKey]: FilterConfig } registered filters.
+ * @param {string}      [opts.homeUrl]         - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]      - `{ min, max }` numeric range against the
+ *                                             `wc.price` ES field. Either bound may be null
+ *                                             for a half-open range. Read by future product
+ *                                             filter blocks driven by `min_price` / `max_price`
+ *                                             URL params.
+ * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
+ *                                             contributed by `jetpack-search/filter-post-type`.
+ *                                             Folded into the ES filter clause as `bool.should`
+ *                                             (include) and `bool.must_not` (exclude). Hidden
+ *                                             from visitors — not represented in `activeFilters`
+ *                                             and not surfaced in the active-filters pill list.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -428,6 +614,7 @@ export function buildSearchUrl( {
 	filterConfigs = {},
 	homeUrl = '',
 	priceRange = null,
+	staticPostTypes = null,
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -436,7 +623,7 @@ export function buildSearchUrl( {
 	// would otherwise search for the wrong string.
 	const params = {
 		query: searchQuery || '',
-		sort: SORT_QUERY_MAP[ sortOrder ] ?? 'score_default',
+		sort: mapSortToApiValue( sortOrder ),
 		size: 10,
 		fields: SEARCH_FIELDS,
 		highlight_fields: HIGHLIGHT_FIELDS,
@@ -450,6 +637,12 @@ export function buildSearchUrl( {
 	// `buildFilterClause` returns either `{ bool: { must: [...] } }` or
 	// `undefined` — the spread below relies on that shape contract.
 	let filter = buildFilterClause( activeFilters, filterConfigs );
+	const staticPostTypeClauses = buildStaticPostTypeClauses( staticPostTypes );
+	if ( staticPostTypeClauses.length > 0 ) {
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, ...staticPostTypeClauses ] } }
+			: { bool: { must: [ ...staticPostTypeClauses ] } };
+	}
 	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
 		const range = {};
 		if ( priceRange.min != null ) {
