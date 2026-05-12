@@ -102,6 +102,11 @@ class Initializer {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
+		// Keep `instant_search_enabled` (legacy boolean) in lockstep with the
+		// canonical `jetpack_search_experience` option, so direct writes that
+		// bypass Module_Control::update_experience() still update both.
+		add_action( 'add_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_added' ), 10, 2 );
+		add_action( 'update_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_updated' ), 10, 3 );
 		// Register the Interactivity API search blocks. These register
 		// server-side (block types, patterns, variations) regardless of
 		// connection/plan/module state so the blocks appear in the editor on
