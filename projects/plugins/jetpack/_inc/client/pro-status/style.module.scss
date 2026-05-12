@@ -6,48 +6,48 @@
 	white-space: nowrap;
 
 	&.is-active {
-		color: var(--jp-green-50);
+		color: var(--wpds-color-fg-content-success);
 
 		.indicator {
-			background-color: var(--jp-green-50);
+			background-color: var(--wpds-color-fg-content-success);
 		}
 	}
 
 	&.is-inactive {
-		color: var(--jp-gray-50);
+		color: var(--wpds-color-fg-content-neutral-weak);
 
 		.indicator {
-			background-color: var(--jp-gray-50);
+			background-color: var(--wpds-color-fg-content-neutral-weak);
 		}
 	}
 
 	&.is-error {
-		color: var(--jp-red-50);
+		color: var(--wpds-color-fg-content-error);
 
 		.indicator {
-			background-color: var(--jp-red-50);
+			background-color: var(--wpds-color-fg-content-error);
 		}
 	}
 
 	&.is-action {
-		color: var(--jp-yellow-30);
+		color: var(--wpds-color-fg-content-warning);
 
 		.indicator {
-			background-color: var(--jp-yellow-30);
+			background-color: var(--wpds-color-fg-content-warning);
 		}
 	}
 
 	&.is-initializing {
-		color: var(--jp-blue-40);
+		color: var(--wpds-color-fg-content-info);
 
 		.indicator {
-			background-color: var(--jp-blue-40);
+			background-color: var(--wpds-color-fg-content-info);
 		}
 	}
 }
 
 .indicator {
-	background-color: var(--jp-gray-50);
+	background-color: var(--wpds-color-fg-content-neutral-weak);
 	border-radius: 50%;
 	flex-shrink: 0;
 	height: 0.666em;

@@ -206,28 +206,8 @@ export const Waf = class extends Component {
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
 				{ this.props.settings?.standaloneMode && (
-					<Text
-						variant="body-sm"
-						className="waf__standalone__mode"
-						style={ {
-							alignItems: 'center',
-							color: 'var(--jp-green-50)',
-							display: 'inline-flex',
-							fontWeight: 600,
-							lineHeight: 1.666,
-							whiteSpace: 'nowrap',
-						} }
-					>
-						<span
-							style={ {
-								backgroundColor: 'var(--jp-green-50)',
-								borderRadius: '50%',
-								flexShrink: 0,
-								height: '0.666em',
-								marginRight: '4px',
-								width: '0.666em',
-							} }
-						/>
+					<Text variant="body-sm" className="waf__standalone__mode">
+						<span className="waf__standalone__mode__indicator" />
 						<span>{ __( 'Standalone mode', 'jetpack' ) }</span>
 					</Text>
 				) }

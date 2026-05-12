@@ -13,7 +13,7 @@ export interface StatusProps {
 /**
  * Status component.
  *
- * @deprecated Inline the equivalent JSX using `Text` from `@wordpress/ui` and a small color-coded indicator span. The wrapper renders a flex container at `body-extra-small` size with `font-weight: 600` and a `0.666em` round indicator coloured by status (`var(--jp-green-50)` for `active`, `--jp-red-50` for `error`, `--jp-gray-50` for `inactive`, `--jp-yellow-30` for `action`, `--jp-blue-40` for `initializing`).
+ * @deprecated Inline the equivalent JSX using `Text` from `@wordpress/ui` and a small color-coded indicator span. The wrapper renders a flex container at `body-sm` size with `font-weight: 600` and a `0.666em` round indicator coloured by status using WPDS design tokens (`var(--wpds-color-fg-content-success)` for `active`, `--wpds-color-fg-content-error` for `error`, `--wpds-color-fg-content-neutral-weak` for `inactive`, `--wpds-color-fg-content-warning` for `action`, `--wpds-color-fg-content-info` for `initializing`).
  *
  * @param {StatusProps} props           - The component properties.
  * @param {string}      props.className - Optional className forwarded to the outer element.

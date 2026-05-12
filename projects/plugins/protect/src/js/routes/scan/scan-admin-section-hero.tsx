@@ -1,7 +1,6 @@
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import { Text as UIText } from '@wordpress/ui';
 import { useState } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
@@ -52,29 +51,10 @@ const ScanAdminSectionHero: FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<UIText
-						variant="body-sm"
-						style={ {
-							alignItems: 'center',
-							color: 'var(--jp-green-50)',
-							display: 'inline-flex',
-							fontWeight: 600,
-							lineHeight: 1.666,
-							whiteSpace: 'nowrap',
-						} }
-					>
-						<span
-							style={ {
-								backgroundColor: 'var(--jp-green-50)',
-								borderRadius: '50%',
-								flexShrink: 0,
-								height: '0.666em',
-								marginRight: '4px',
-								width: '0.666em',
-							} }
-						/>
-						<span>{ __( 'Active', 'jetpack-protect' ) }</span>
-					</UIText>
+					<AdminSectionHero.StatusIndicator
+						status="active"
+						label={ __( 'Active', 'jetpack-protect' ) }
+					/>
 					<AdminSectionHero.Heading showIcon>
 						{ numThreats > 0
 							? sprintf(
