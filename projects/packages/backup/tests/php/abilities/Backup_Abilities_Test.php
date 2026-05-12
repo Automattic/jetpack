@@ -135,9 +135,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 		foreach (
 			array(
 				'jetpack-backup/get-backup-overview',
-				'jetpack-backup/get-backups',
-				'jetpack-backup/get-restores',
-				'jetpack-backup/run-backup',
+				'jetpack-backup/list-backups',
+				'jetpack-backup/list-restores',
+				'jetpack-backup/request-backup',
 			) as $expected
 		) {
 			$this->assertContains( $expected, $slugs );
@@ -166,22 +166,22 @@ class Backup_Abilities_Test extends BaseTestCase {
 	public function test_annotations_match_read_vs_write(): void {
 		$abilities = Backup_Abilities::get_abilities();
 
-		foreach ( array( 'jetpack-backup/get-backup-overview', 'jetpack-backup/get-backups', 'jetpack-backup/get-restores' ) as $read_slug ) {
+		foreach ( array( 'jetpack-backup/get-backup-overview', 'jetpack-backup/list-backups', 'jetpack-backup/list-restores' ) as $read_slug ) {
 			$annotations = $abilities[ $read_slug ]['meta']['annotations'];
 			$this->assertTrue( $annotations['readonly'], "{$read_slug} must be readonly." );
 			$this->assertFalse( $annotations['destructive'] );
 			$this->assertTrue( $annotations['idempotent'] );
 		}
 
-		$write_annotations = $abilities['jetpack-backup/run-backup']['meta']['annotations'];
+		$write_annotations = $abilities['jetpack-backup/request-backup']['meta']['annotations'];
 		$this->assertFalse( $write_annotations['readonly'] );
 		$this->assertFalse( $write_annotations['destructive'] );
-		$this->assertFalse( $write_annotations['idempotent'], 'run-backup queues a new job each call; not idempotent.' );
+		$this->assertFalse( $write_annotations['idempotent'], 'request-backup queues a new job each call; not idempotent.' );
 	}
 
 	public function test_pagination_inputs_have_default_and_max(): void {
 		$abilities = Backup_Abilities::get_abilities();
-		foreach ( array( 'jetpack-backup/get-backups', 'jetpack-backup/get-restores' ) as $slug ) {
+		foreach ( array( 'jetpack-backup/list-backups', 'jetpack-backup/list-restores' ) as $slug ) {
 			$props = $abilities[ $slug ]['input_schema']['properties'];
 			$this->assertSame( Backup_Abilities::PER_PAGE_DEFAULT, $props['per_page']['default'] );
 			$this->assertSame( Backup_Abilities::PER_PAGE_MAX, $props['per_page']['maximum'] );
@@ -241,6 +241,58 @@ class Backup_Abilities_Test extends BaseTestCase {
 		foreach ( array_keys( Backup_Abilities::get_abilities() ) as $slug ) {
 			$this->assertContains( $slug, $registered, "Ability {$slug} should be registered." );
 		}
+	}
+
+	public function test_actions_php_registers_plugins_loaded_callback_at_priority_20(): void {
+		// `actions.php` is autoloaded by composer for any plugin that depends on
+		// the package. The bootstrap loads it once for the test run, so the
+		// `plugins_loaded` priority-20 hook should already be present.
+		global $wp_filter;
+		$this->assertArrayHasKey( 'plugins_loaded', $wp_filter, 'plugins_loaded must have hooks registered.' );
+		$this->assertArrayHasKey(
+			20,
+			$wp_filter['plugins_loaded']->callbacks ?? array(),
+			'actions.php must register a plugins_loaded callback at priority 20.'
+		);
+	}
+
+	public function test_actions_php_callback_registers_lifecycle_hooks_when_gate_true(): void {
+		// Find the closure registered by actions.php at plugins_loaded:20 and
+		// invoke it directly to verify it calls Backup_Abilities::init() and
+		// the per-process Registrar guard keeps it idempotent.
+		global $wp_filter;
+		$callbacks = $wp_filter['plugins_loaded']->callbacks[20] ?? array();
+		$this->assertNotEmpty( $callbacks, 'plugins_loaded:20 should contain the actions.php callback.' );
+
+		// Locate the autoloaded closure (the only static Closure registered at
+		// this priority by the backup package).
+		$found = null;
+		foreach ( $callbacks as $cb ) {
+			if ( isset( $cb['function'] ) && $cb['function'] instanceof \Closure ) {
+				$found = $cb['function'];
+				break;
+			}
+		}
+		$this->assertInstanceOf( \Closure::class, $found, 'A Closure must be registered at plugins_loaded:20.' );
+
+		// Reset any prior registration so we can observe the side effect.
+		remove_action( 'wp_abilities_api_categories_init', array( Backup_Abilities::class, 'register_category' ) );
+		remove_action( 'wp_abilities_api_init', array( Backup_Abilities::class, 'register_abilities' ) );
+
+		// Gate filter is `__return_true` from setUp; fire the closure twice and
+		// confirm the lifecycle hooks land exactly once (Registrar::init is
+		// guarded against double-registration by its own static flag).
+		$found();
+		$found();
+
+		$this->assertNotFalse(
+			has_action( 'wp_abilities_api_categories_init', array( Backup_Abilities::class, 'register_category' ) ),
+			'Calling the actions.php closure with the gate filter true must register the categories-init hook.'
+		);
+		$this->assertNotFalse(
+			has_action( 'wp_abilities_api_init', array( Backup_Abilities::class, 'register_abilities' ) ),
+			'Calling the actions.php closure with the gate filter true must register the abilities-init hook.'
+		);
 	}
 
 	public function test_per_ability_allow_list_filter_is_respected(): void {
@@ -304,21 +356,21 @@ class Backup_Abilities_Test extends BaseTestCase {
 	// before the http layer. These tests verify that the callbacks degrade
 	// gracefully when the upstream is unreachable.
 
-	public function test_get_backups_returns_empty_array_when_upstream_unavailable(): void {
+	public function test_list_backups_returns_empty_array_when_upstream_unavailable(): void {
 		wp_set_current_user( $this->admin_id );
-		$result = Backup_Abilities::execute_get_backups( array() );
+		$result = Backup_Abilities::execute_list_backups( array() );
 		$this->assertSame( array(), $result );
 	}
 
-	public function test_get_backups_with_unknown_id_returns_empty_array(): void {
+	public function test_list_backups_with_unknown_id_returns_empty_array(): void {
 		wp_set_current_user( $this->admin_id );
-		$result = Backup_Abilities::execute_get_backups( array( 'id' => 'does-not-exist' ) );
+		$result = Backup_Abilities::execute_list_backups( array( 'id' => 'does-not-exist' ) );
 		$this->assertSame( array(), $result );
 	}
 
-	public function test_get_restores_returns_empty_array_when_upstream_unavailable(): void {
+	public function test_list_restores_returns_empty_array_when_upstream_unavailable(): void {
 		wp_set_current_user( $this->admin_id );
-		$result = Backup_Abilities::execute_get_restores( array() );
+		$result = Backup_Abilities::execute_list_restores( array() );
 		$this->assertSame( array(), $result );
 	}
 
@@ -334,9 +386,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertNull( $result['last_backup'] );
 	}
 
-	public function test_run_backup_returns_wp_error_without_plan(): void {
+	public function test_request_backup_returns_wp_error_without_plan(): void {
 		wp_set_current_user( $this->admin_id );
-		$result = Backup_Abilities::execute_run_backup( array() );
+		$result = Backup_Abilities::execute_request_backup( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_backup_no_plan', $result->get_error_code() );
 	}

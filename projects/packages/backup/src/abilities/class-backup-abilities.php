@@ -24,9 +24,9 @@ use WP_REST_Response;
  * Exposes a small, agent-friendly surface for site backups:
  *
  * - `jetpack-backup/get-backup-overview` — single-call site backup health snapshot.
- * - `jetpack-backup/get-backups` — recent backups with optional id/pagination filters.
- * - `jetpack-backup/get-restores` — recent restores with optional id/pagination filters.
- * - `jetpack-backup/run-backup` — enqueue an on-demand backup.
+ * - `jetpack-backup/list-backups` — recent backups with optional id/pagination filters.
+ * - `jetpack-backup/list-restores` — recent restores with optional id/pagination filters.
+ * - `jetpack-backup/request-backup` — enqueue an on-demand backup.
  */
 class Backup_Abilities extends Registrar {
 
@@ -76,7 +76,7 @@ class Backup_Abilities extends Registrar {
 			'jetpack-backup/get-backup-overview' => array(
 				'label'               => __( 'Get backup overview', 'jetpack-backup-pkg' ),
 				'description'         => __(
-					'Return a single-call snapshot of the site backup state: { has_plan, last_backup, recent_backup_count, schedule, storage }. Use this to answer "is my site protected?" before deciding whether to call get-backups, get-restores, or run-backup. Read-only and idempotent. Fields whose backing service is unreachable come back as null rather than failing the call. Requires a Jetpack Backup plan and the manage_options capability; sites without a plan return has_plan=false and the rest of the fields null.',
+					'Return a single-call snapshot of the site backup state: { has_plan, last_backup, recent_backup_count, schedule, storage }. Use this to answer "is my site protected?" before deciding whether to call list-backups, list-restores, or request-backup. Read-only and idempotent. Fields whose backing service is unreachable come back as null rather than failing the call. Requires a Jetpack Backup plan and the manage_options capability; sites without a plan return has_plan=false and the rest of the fields null.',
 					'jetpack-backup-pkg'
 				),
 				'input_schema'        => array(
@@ -129,8 +129,8 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/get-backups' => array(
-				'label'               => __( 'Get backups', 'jetpack-backup-pkg' ),
+			'jetpack-backup/list-backups' => array(
+				'label'               => __( 'List backups', 'jetpack-backup-pkg' ),
 				'description'         => __(
 					'Return zero or more recent backups as an array. Each item summarises one backup: { id, rewind_id, started, last_updated, status, period, is_rewindable, has_warnings }. Pass id to fetch a single backup (returns 0- or 1-element array; unknown ids yield an empty array). Otherwise paginate with page (default 1) and per_page (default 20, max 100). Read-only and idempotent. Requires a Jetpack Backup plan; sites without a plan return an empty array.',
 					'jetpack-backup-pkg'
@@ -164,7 +164,7 @@ class Backup_Abilities extends Registrar {
 					'type'  => 'array',
 					'items' => $backup_item_schema,
 				),
-				'execute_callback'    => array( __CLASS__, 'execute_get_backups' ),
+				'execute_callback'    => array( __CLASS__, 'execute_list_backups' ),
 				'permission_callback' => array( __CLASS__, 'can_view_backups' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -176,8 +176,8 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/get-restores' => array(
-				'label'               => __( 'Get restores', 'jetpack-backup-pkg' ),
+			'jetpack-backup/list-restores' => array(
+				'label'               => __( 'List restores', 'jetpack-backup-pkg' ),
 				'description'         => __(
 					'Return zero or more recent restore operations as an array. Each item: { id, rewind_id, started, last_updated, status, progress }. Pass id to fetch a single restore (returns 0- or 1-element array). Otherwise paginate with page and per_page (default 20, max 100). Read-only and idempotent. Requires a Jetpack Backup plan; sites without a plan return an empty array.',
 					'jetpack-backup-pkg'
@@ -211,7 +211,7 @@ class Backup_Abilities extends Registrar {
 					'type'  => 'array',
 					'items' => $restore_item_schema,
 				),
-				'execute_callback'    => array( __CLASS__, 'execute_get_restores' ),
+				'execute_callback'    => array( __CLASS__, 'execute_list_restores' ),
 				'permission_callback' => array( __CLASS__, 'can_view_backups' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -223,10 +223,10 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/run-backup' => array(
-				'label'               => __( 'Run a backup', 'jetpack-backup-pkg' ),
+			'jetpack-backup/request-backup' => array(
+				'label'               => __( 'Request a backup', 'jetpack-backup-pkg' ),
 				'description'         => __(
-					'Enqueue an on-demand backup of this site. Returns { enqueued: bool, message: string }. Each successful call queues a new backup job; this is a state-changing write, not idempotent. Use get-backup-overview or get-backups afterwards to track progress. Requires a Jetpack Backup plan and the manage_options capability. Returns jetpack_backup_no_plan when the site has no active backup plan.',
+					'Enqueue an on-demand backup of this site. Returns { enqueued: bool, message: string }. Each successful call queues a new backup job; this is a state-changing write, not idempotent. Use get-backup-overview or list-backups afterwards to track progress. Requires a Jetpack Backup plan and the manage_options capability. Returns jetpack_backup_no_plan when the site has no active backup plan.',
 					'jetpack-backup-pkg'
 				),
 				'input_schema'        => array(
@@ -242,7 +242,7 @@ class Backup_Abilities extends Registrar {
 						'message'  => array( 'type' => 'string' ),
 					),
 				),
-				'execute_callback'    => array( __CLASS__, 'execute_run_backup' ),
+				'execute_callback'    => array( __CLASS__, 'execute_request_backup' ),
 				'permission_callback' => array( __CLASS__, 'can_manage_backups' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -303,7 +303,7 @@ class Backup_Abilities extends Registrar {
 		);
 	}
 
-	public static function execute_get_backups( ?array $input = null ): array {
+	public static function execute_list_backups( ?array $input = null ): array {
 		$backups = self::unwrap_response( Jetpack_Backup::get_recent_backups() );
 		if ( ! is_array( $backups ) ) {
 			return array();
@@ -313,7 +313,7 @@ class Backup_Abilities extends Registrar {
 		return self::apply_id_or_pagination( $summarized, $input ?? array() );
 	}
 
-	public static function execute_get_restores( ?array $input = null ): array {
+	public static function execute_list_restores( ?array $input = null ): array {
 		$restores = self::unwrap_response( Jetpack_Backup::get_recent_restores() );
 		if ( ! is_array( $restores ) ) {
 			return array();
@@ -330,7 +330,7 @@ class Backup_Abilities extends Registrar {
 	 * @param array|null $input Unused.
 	 * @return array|WP_Error
 	 */
-	public static function execute_run_backup( ?array $input = null ) {
+	public static function execute_request_backup( ?array $input = null ) {
 		unset( $input );
 
 		if ( ! Jetpack_Backup::has_backup_plan() ) {
@@ -350,7 +350,7 @@ class Backup_Abilities extends Registrar {
 
 		return array(
 			'enqueued' => true,
-			'message'  => __( 'Backup enqueued. Use jetpack-backup/get-backups to monitor progress.', 'jetpack-backup-pkg' ),
+			'message'  => __( 'Backup enqueued. Use jetpack-backup/list-backups to monitor progress.', 'jetpack-backup-pkg' ),
 		);
 	}
 

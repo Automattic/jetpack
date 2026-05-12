@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup abilities: rename slugs to list-*/request-* and register via package actions.php for cross-consumer support
