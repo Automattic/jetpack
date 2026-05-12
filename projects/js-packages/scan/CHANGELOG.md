@@ -19,11 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
 - Scan Package: Switch the package to source exports so consumers resolve `@automattic/jetpack-scan` directly to `./src/index.ts`. [#48458]
 - ThreatsDataViews: Anchor the DataViews empty body to `calc(100vh - 320px)` so consumers get a full-height empty state without wiring a custom flex chain. [#48458]
-- Update package dependencies. [#47907]
-- Update package dependencies. [#48106]
-- Update package dependencies. [#48126]
-- Update package dependencies. [#48141]
-- Update package dependencies. [#48346]
+- Update package dependencies. [#47907] [#48106] [#48126] [#48141] [#48346]
 
 ## [1.3.0] - 2026-04-11
 ### Changed

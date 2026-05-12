@@ -328,13 +328,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.9-a.1 - 2026-05-11
 #### Enhancements
-- AI Page: Adopt the shared `jetpack-admin-page-layout` mixin so its layout matches the rest of the Jetpack admin pages that use the AdminPage component.
-- AI Sidebar: Surface a Review Mediator UI feature flag and an extension filter for the agentsManagerData payload.
+- AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component.
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
 - Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos.
 - Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it.
-- Reader Chat: Add a reader-chat loader that mounts the Agents Manager chat UI on public blog frontends, passing site and current-post context to the AI agent. Gated by the jetpack_reader_chat_has_ai_features filter (defaults to the standard AI connection check). Loads on every public frontend page, not just singular views. Registers the reader_chat site option in the REST API so Reader Chat can be toggled from the wp-admin UI without writing PHP.
-- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
-- Scan: Register the new Scan wp-admin page package. No user-visible behaviour change yet.
 
 #### Improved compatibility
 - Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
@@ -342,10 +339,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Bug fixes
 - AI Page: Update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout applies again.
 - Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles.
-- Shortcodes: Google Maps shortcode now preserves URL-encoded ampersands (%26) in place names.
-- Shortcodes: Google Maps shortcode now preserves URL-encoded reserved characters (`#`, `%`, `+`) and HTML-entity-encoded ampersands inside place names.
+- Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names.
 - Social: Fall back to the site-wide social message template when no per-post share message is set.
-- VideoPress: Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded.
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded.
 
 --------
 

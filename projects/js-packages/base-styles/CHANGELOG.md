@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1] - 2026-05-11
 ### Changed
-- Admin Page Layout: Explicitly set `overflow: visible` on `.jp-admin-page` so consumers that drop a className with `overflow-x: hidden` on the `<AdminPage>` root don't silently turn it into a scroll container (browsers promote unset `overflow-y: visible` to `auto` when the other axis is `hidden`/`scroll`/`clip`, which would shift the entire page under the fixed `#wpbody-content` once the inner middle reaches its scroll end). [#48578]
+- Admin Page Layout: Explicitly set `overflow: visible` on `.jp-admin-page` so consumers can't accidentally turn the AdminPage root into a scroll container. [#48578]
 
 ### Fixed
-- Admin Page Layout: Anchor selectors to the new `.jp-admin-page__page` className and the rendered `<header>` element, replacing the `.admin-ui-page*` global classes that admin-ui 2.0.0 dropped when it moved to CSS Modules. Restores the viewport-fitted scroll chain on every consumer (Boost, Protect, VideoPress, Search, Newsletter, Publicize, Backup, Jetpack network admin). [#48410]
+- Admin Page Layout: Restore page-layout selectors after admin-ui 2.0.0 moved its `.admin-ui-page*` classes to CSS Modules. [#48410]
 
 ## [1.2.0] - 2026-05-04
 ### Added

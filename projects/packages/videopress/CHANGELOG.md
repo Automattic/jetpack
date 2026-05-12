@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Remove translation wrappers from the "VideoPress" product name. [#48519]
 
 ### Fixed
-- VideoPress: Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded. [#48690]
 
 ## [0.36.7] - 2026-05-04
 ### Changed

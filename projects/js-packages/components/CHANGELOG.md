@@ -13,7 +13,7 @@
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
 
 ### Removed
-- Components: Remove Gridicon component. Use Icon and named icon exports from `@wordpress/icons` instead. [#48537]
+- Components: Remove Gridicon component. [#48537]
 
 ### Fixed
 - AdminPage: Pass a stable `jp-admin-page__page` className to admin-ui's Page so layout overrides survive admin-ui 2.0.0's switch to CSS Modules; pin the header heading level to `<h2>` and center the new `visual` slot to keep the Jetpack logo aligned with the title. [#48410]

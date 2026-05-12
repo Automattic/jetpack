@@ -8,8 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.38.0] - 2026-05-11
 ### Added
 - Activity Log: Add custom event support with a non-public custom post type, guarded REST route, and class API for creating entries. [#48567]
-- Sync: Whitelist the jetpack_social_message_template option so it propagates to WPCOM. [#48638]
-- Sync: Whitelist the new jetpack_search_experience option so it propagates to WPcom. [#48540]
+- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48638] [#48540]
 
 ## [4.37.0] - 2026-05-04
 ### Added
