@@ -10,7 +10,7 @@
 
 .jp-search-feature-selector__inline-preview-search {
 	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
-	background: #fff;
+	background: var(--wpds-color-bg-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
 	font-size: var(--wpds-typography-font-size-sm);
@@ -29,7 +29,7 @@
 .jp-search-feature-selector__inline-preview-line {
 	height: 6px;
 	background: var(--wpds-color-stroke-surface-neutral);
-	border-radius: 3px;
+	border-radius: var(--wpds-border-radius-sm);
 
 	&.is-short {
 		width: 70%;

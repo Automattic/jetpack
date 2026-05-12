@@ -20,7 +20,7 @@
 	height: 4px;
 	margin-block: 6px;
 	background: var(--wpds-color-stroke-surface-neutral);
-	border-radius: 2px;
+	border-radius: var(--wpds-border-radius-sm);
 
 	&.is-short {
 		width: 50%;
@@ -33,9 +33,9 @@
 	inset-inline-start: var(--wpds-dimension-padding-xl);
 	inset-inline-end: var(--wpds-dimension-padding-md);
 	padding: var(--wpds-dimension-padding-sm);
-	background: #fff;
+	background: var(--wpds-color-bg-surface-neutral-strong);
 	border-radius: var(--wpds-border-radius-md);
-	box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+	box-shadow: var(--wpds-elevation-sm);
 }
 
 .jp-search-feature-selector__overlay-preview-search {
