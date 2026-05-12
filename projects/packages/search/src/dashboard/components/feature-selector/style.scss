@@ -10,9 +10,7 @@
 .jp-search-feature-selector__heading {
 	margin-block-start: 0;
 	margin-block-end: var(--wpds-dimension-gap-lg);
-	// 24px sits between the xl (20px) and 2xl (32px) font-size tokens —
-	// no matching font-size token exists, so we use the literal value.
-	font-size: 24px;
+	font-size: var(--wpds-typography-font-size-xl);
 	line-height: var(--wpds-typography-line-height-md);
 }
 
