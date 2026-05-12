@@ -183,15 +183,17 @@ $bar-fill: #2271b1;
 	}
 }
 
-// Centered empty-state inside the stats panel. The shared
-// .podcast__empty-state is `text-align: center` but at 1280px the body
-// line stretches; constrain width and tighten the title/body spacing so
-// it reads as a deliberate placeholder, not two floating lines.
+// Self-contained empty-state for the stats panel. The shared
+// .podcast__empty-state base rule from src/dashboard/style.scss isn't
+// loaded into the lazy stats chunk (text-align/color/centering missing),
+// so define everything we need here.
 .podcast-stats .podcast__empty-state {
 	padding: 64px 16px;
+	text-align: center;
+	color: $muted;
 
 	.podcast__section-heading {
-		margin-bottom: 8px;
+		margin: 0 0 8px;
 		font-weight: 500;
 	}
 
