@@ -99,7 +99,7 @@ const Stats = () => {
 							totalPlays={ stats?.total_plays }
 							byApp={ stats?.by_app }
 							byCountry={ stats?.by_country }
-							episodesPublished={ stats?.episodes_published }
+							topDay={ stats?.top_day }
 							isLoading={ isLoading }
 							layout="chart"
 						/>

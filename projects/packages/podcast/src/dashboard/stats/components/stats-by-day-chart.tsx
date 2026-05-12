@@ -134,14 +134,16 @@ const StatsByDayChart = ( {
 					data={ seriesData }
 					height={ 280 }
 					withTooltips
+					showLegend={ false }
 					gridVisibility="y"
+					margin={ { top: 10, right: 16, bottom: 24, left: 32 } }
+					renderTooltip={ renderTooltip }
 					options={ {
 						axis: {
 							x: { tickFormat: formatAxisTick },
 						},
-						yScale: { zero: true },
+						yScale: { type: 'linear', zero: true },
 					} }
-					renderTooltip={ renderTooltip }
 				/>
 			</div>
 		);

@@ -115,9 +115,15 @@ export function useShowStatsQuery(
 		};
 	}, [ period, limit ] );
 
-	let data: PodcastShowStats | undefined = summary ? { ...summary, period } : undefined;
+	let data: PodcastShowStats | undefined = summary
+		? { ...summary, period, top_day: null }
+		: undefined;
 	if ( data && overview ) {
-		data = { ...data, total_plays: getOverviewTotal( overview, period ) };
+		data = {
+			...data,
+			total_plays: getOverviewTotal( overview, period ),
+			top_day: overview.top_day,
+		};
 		// 'all' breakdowns must come from the overview: the summary's range is
 		// capped at 1 year for chart rendering, so it would otherwise drop
 		// episodes/apps/countries with downloads older than a year.

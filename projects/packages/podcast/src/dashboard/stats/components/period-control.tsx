@@ -68,6 +68,7 @@ const PeriodControl = ( { value, onChange, scope = 'show' }: PeriodControlProps 
 	return (
 		<SelectControl
 			__nextHasNoMarginBottom
+			__next40pxDefaultSize
 			label={ __( 'Period', 'jetpack-podcast' ) }
 			value={ value }
 			options={ options }

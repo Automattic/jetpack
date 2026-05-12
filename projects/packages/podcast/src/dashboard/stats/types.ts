@@ -52,7 +52,7 @@ export type PodcastStatsOverviewResponse = {
 
 export type PodcastShowStats = PodcastStatsSummaryResponse & {
 	period: PodcastStatsPeriod;
-	episodes_published?: number;
+	top_day: PodcastStatsTopDay | null;
 };
 
 export type PodcastEpisodeDetailStatsResponse = {

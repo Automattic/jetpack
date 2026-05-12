@@ -10,10 +10,8 @@ type SummaryTilesProps = {
 	totalPlays?: number | null;
 	byApp?: PodcastStatsAppRow[];
 	byCountry?: PodcastStatsCountryRow[];
-	episodesPublished?: number | null;
 	topDay?: PodcastStatsTopDay | null;
 	isLoading?: boolean;
-	variant?: 'show' | 'episode';
 	layout?: 'standalone' | 'chart';
 };
 
@@ -48,10 +46,8 @@ const SummaryTiles = ( {
 	totalPlays,
 	byApp = [],
 	byCountry = [],
-	episodesPublished,
 	topDay,
 	isLoading = false,
-	variant = 'show',
 	layout = 'standalone',
 }: SummaryTilesProps ) => {
 	const topApp = byApp[ 0 ];
@@ -67,7 +63,7 @@ const SummaryTiles = ( {
 			formatPct( pct )
 		);
 
-	const sharedTiles = [
+	const tiles = [
 		{
 			heading: __( 'Total downloads', 'jetpack-podcast' ),
 			value: loadingValue ?? formatNumber( totalPlays ?? 0 ),
@@ -86,28 +82,20 @@ const SummaryTiles = ( {
 					? formatNameAndPct( getCountryName( topCountry.country, unknownCountry ), topCountry.pct )
 					: EMPTY_VALUE ),
 		},
+		{
+			heading: __( 'Top day', 'jetpack-podcast' ),
+			value: loadingValue ?? ( topDay ? formatPodcastDate( topDay.date ) : EMPTY_VALUE ),
+			note:
+				! loadingValue && topDay
+					? sprintf(
+							/* translators: %s is the localized download count. */
+							_n( '%s download', '%s downloads', topDay.plays, 'jetpack-podcast' ),
+							formatNumber( topDay.plays )
+					  )
+					: undefined,
+		},
 	];
 
-	const variantTile =
-		variant === 'episode'
-			? {
-					heading: __( 'Top day', 'jetpack-podcast' ),
-					value: loadingValue ?? ( topDay ? formatPodcastDate( topDay.date ) : EMPTY_VALUE ),
-					note:
-						! loadingValue && topDay
-							? sprintf(
-									/* translators: %s is the localized download count. */
-									_n( '%s download', '%s downloads', topDay.plays, 'jetpack-podcast' ),
-									formatNumber( topDay.plays )
-							  )
-							: undefined,
-			  }
-			: {
-					heading: __( 'Episodes published', 'jetpack-podcast' ),
-					value: loadingValue ?? formatNumber( episodesPublished ?? 0 ),
-			  };
-
-	const tiles = [ ...sharedTiles, variantTile ];
 	const sectionClass = [
 		'podcast-stats-summary',
 		layout === 'standalone' ? 'highlight-cards' : 'podcast-stats-summary--chart',

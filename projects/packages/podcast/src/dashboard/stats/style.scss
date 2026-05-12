@@ -111,8 +111,11 @@
 		margin-bottom: 8px;
 	}
 
+	// No min-height: @automattic/charts BarChart sizes itself via its
+	// responsive wrapper when `height={280}` is passed. A parent
+	// min-height feeds back through the chart's ResizeObserver.
 	&__chart {
-		min-height: 280px;
+		position: relative;
 	}
 
 	&__loading {
