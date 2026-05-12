@@ -1,0 +1,67 @@
+// Page-shell layout for the modernized Boost dashboard. Mirrors the
+// Newsletter shell: the body slot becomes the scroll container so the
+// `Page` header and the tab row stay pinned to the viewport while only
+// the active tab's content scrolls underneath. `@wordpress/admin-ui`
+// already paints `.admin-ui-page` and `.admin-ui-page__header` with the
+// neutral surface tokens, so this file only overrides what's specific to
+// the unified Boost layout.
+
+$jetpack-boost-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+body.jetpack_page_jetpack-boost,
+body.toplevel_page_jetpack-boost {
+
+	// Anchor the page to the stage's height so the body slot below has a
+	// bounded box to fill — see the body-slot rule for the rest of the
+	// app-shell scroll model.
+	.admin-ui-page {
+		block-size: 100%;
+		min-block-size: 0;
+	}
+
+	// The body slot — `Tabs.Root` in tabbed mode — owns the scrolling so
+	// the sticky header and the `JetpackFooter` stay pinned while the
+	// active tab's content scrolls inside.
+	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		min-block-size: 0;
+		overflow: auto;
+	}
+
+	// Page header keeps admin-ui's sticky behaviour but drops its bottom
+	// rule — the tab row owns the separator so the two never double-border.
+	// Locking the title row to the action-button height keeps the header
+	// the same size whether the active tab supplies actions or not, so the
+	// tab bar doesn't jump when switching between them.
+	.admin-ui-page__header {
+		border-bottom: 0;
+		padding-block-end: var(--wpds-dimension-padding-xs, 4px);
+
+		> *:first-child {
+			min-block-size: 36px;
+		}
+	}
+
+	// Tabs row: sticks at the top of the body wrapper so the bar stays in
+	// view while the panel content scrolls underneath. The wrapper carries
+	// the full-width separator + inline padding; the nested `Tabs.List`
+	// keeps its native `width: fit-content` so the animated active-tab
+	// indicator slides smoothly between tabs.
+	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > .jetpack-boost-page__tabs-row {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+		box-sizing: border-box;
+		flex: 0 0 auto;
+		padding-inline: $jetpack-boost-inset;
+		position: sticky;
+		top: 0;
+		width: 100%;
+		z-index: 9;
+	}
+
+	.jetpack-boost-page__content--padded {
+		padding: $jetpack-boost-inset;
+	}
+}

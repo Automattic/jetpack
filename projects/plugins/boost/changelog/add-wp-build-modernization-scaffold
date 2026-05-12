@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Empty wp-build dashboard scaffold (Overview + Settings tabs) gated behind a feature flag; no user-visible change unless the flag is enabled.
