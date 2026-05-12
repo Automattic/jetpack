@@ -99,8 +99,8 @@ function jetpackcrm_dash_refresh() {
 	}
 
 	foreach ( $weekly as $v ) {
-		$yearweek = str_pad( (int) $v->yearweek, 6, '0', STR_PAD_LEFT );
-		$the_week = substr( $yearweek, 0, 4 ) . ' W' . substr( $yearweek, 4, 2 );
+		$yearweek                   = str_pad( $v->yearweek, 6, '0', STR_PAD_LEFT );
+		$the_week                   = substr( $yearweek, 0, 4 ) . ' W' . substr( $yearweek, 4, 2 );
 		$zeros['week'][ $the_week ] = $v->count;
 	}
 
