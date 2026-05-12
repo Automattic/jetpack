@@ -8,9 +8,6 @@ export default {
 	title: 'Packages/Search/FeatureSelector',
 	component: FeatureSelector,
 	parameters: {
-		// Stretch the form to fill the viewport width — the dashboard renders it
-		// edge-to-edge inside its own wrap, and the new detail panel design needs
-		// horizontal room for the preview + actions to lay out side-by-side.
 		layout: 'padded',
 	},
 	argTypes: {
@@ -55,9 +52,8 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} 
 		initialState: {
 			...( storeConfig.initialState || {} ),
 			jetpackSettings,
-			// Default `supports_instant_search: true` so the Overlay detail panel
-			// renders both customization actions ("Customize" + "Edit widgets").
-			// Stories that need a plan without instant search override via the arg.
+			// Default `supports_instant_search: true` so the Overlay card renders
+			// both customization actions; stories override via the arg.
 			sitePlan: { supports_instant_search: true, ...sitePlan },
 			siteData,
 		},
