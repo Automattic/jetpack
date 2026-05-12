@@ -32,6 +32,17 @@ body.jetpack_page_jetpack-ai {
 			display: flex;
 			align-items: center;
 			margin-bottom: 0;
+
+		}
+
+		// Render a "/" separator between adjacent breadcrumb items.
+		// Mirrors @wordpress/admin-ui's Breadcrumbs component, which we
+		// can't drop in directly because it requires @wordpress/route
+		// for navigation — we use hash-based routing here.
+		li + li::before {
+			content: "/";
+			margin: 0 8px;
+			color: var(--wpds-color-stroke-surface-neutral, #c3c4c7);
 		}
 	}
 
