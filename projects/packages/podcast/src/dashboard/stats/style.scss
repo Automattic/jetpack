@@ -183,6 +183,25 @@ $bar-fill: #2271b1;
 	}
 }
 
+// Centered empty-state inside the stats panel. The shared
+// .podcast__empty-state is `text-align: center` but at 1280px the body
+// line stretches; constrain width and tighten the title/body spacing so
+// it reads as a deliberate placeholder, not two floating lines.
+.podcast-stats .podcast__empty-state {
+	padding: 64px 16px;
+
+	.podcast__section-heading {
+		margin-bottom: 8px;
+		font-weight: 500;
+	}
+
+	p {
+		margin: 0 auto;
+		max-width: 420px;
+		color: $muted;
+	}
+}
+
 .podcast-stats-locations {
 
 	&__grid {
