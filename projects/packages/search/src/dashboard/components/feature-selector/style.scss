@@ -38,7 +38,7 @@
 	&__grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: var(--wpds-dimension-gap-2xl);
+		gap: var(--wpds-dimension-gap-xl);
 	}
 
 	// Each card is the clickable surface that selects an experience. A
@@ -50,7 +50,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-md);
-		padding: var(--wpds-dimension-padding-3xl);
+		padding: var(--wpds-dimension-padding-2xl);
 		background: var(--wpds-color-bg-surface-neutral-strong);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: var(--wpds-border-radius-lg);
