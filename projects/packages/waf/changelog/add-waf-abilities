@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register WAF reads (get-mode, get-rules-status)
