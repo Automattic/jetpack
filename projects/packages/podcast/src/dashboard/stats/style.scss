@@ -157,14 +157,6 @@ $bar-fill: #2271b1;
 
 .podcast-stats-chart {
 
-	&__body {
-		padding: 16px;
-	}
-
-	&__header {
-		margin-bottom: 8px;
-	}
-
 	// No min-height — fights the chart's ResizeObserver.
 	&__chart {
 		position: relative;
