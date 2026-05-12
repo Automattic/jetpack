@@ -60,7 +60,7 @@ export function buildJetpackCrmCard( {
 								'jetpack-forms'
 							),
 							{
-								a: <Link href={ settingsUrl } openInNewTab />,
+								a: <Link openInNewTab href={ settingsUrl } />,
 							}
 						) }
 					</p>
@@ -93,7 +93,7 @@ export function buildJetpackCrmCard( {
 					{ context === 'block-editor' ? connectedMsgEditor : connectedMsgDashboard }
 				</p>
 				{ settingsUrl && (
-					<Link href={ settingsUrl } openInNewTab>
+					<Link openInNewTab href={ settingsUrl }>
 						{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
 					</Link>
 				) }
@@ -124,7 +124,7 @@ export function buildJetpackCrmCard( {
 					'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
 					'jetpack-forms'
 				),
-				{ a: <Link href={ marketingUrl } openInNewTab children={ null } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',

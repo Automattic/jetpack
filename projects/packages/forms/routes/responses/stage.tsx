@@ -547,7 +547,7 @@ function StageInner() {
 						const previewLabel = __( 'Form preview', 'jetpack-forms' );
 						if ( item.preview_url ) {
 							return styleUnreadValue(
-								<Link href={ item.preview_url } openInNewTab>
+								<Link openInNewTab href={ item.preview_url }>
 									{ previewLabel }
 								</Link>,
 								item.is_unread
@@ -561,7 +561,7 @@ function StageInner() {
 						__( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
-							<Link href={ item.entry_permalink } openInNewTab>
+							<Link openInNewTab href={ item.entry_permalink }>
 								{ source }
 							</Link>,
 							item.is_unread

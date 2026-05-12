@@ -61,7 +61,7 @@ export function buildGoogleDriveCard( {
 							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Button>
 					) : (
-						<Link href={ responsesUrl } openInNewTab>
+						<Link openInNewTab href={ responsesUrl }>
 							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Link>
 					) }

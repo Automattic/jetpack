@@ -39,7 +39,7 @@ export function buildAkismetCard( {
 					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 					'jetpack-forms'
 				),
-				{ a: <Link href={ marketingUrl } openInNewTab children={ null } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Akismet is installed. Just activate the plugin to start blocking spam.',
@@ -59,9 +59,9 @@ export function buildAkismetCard( {
 						{
 							a: (
 								<Link
-									children={ null }
-									href={ settingsUrl }
 									openInNewTab={ context === 'block-editor' }
+									href={ settingsUrl }
+									children={ null }
 								/>
 							),
 						}
@@ -86,21 +86,20 @@ export function buildAkismetCard( {
 					{ context === 'dashboard' && handlers?.goToSpam ? (
 						<Link onClick={ handlers.goToSpam }>{ __( 'View spam', 'jetpack-forms' ) }</Link>
 					) : (
-						<Link href={ spamUrl } openInNewTab={ context === 'block-editor' }>
+						<Link openInNewTab={ context === 'block-editor' } href={ spamUrl }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Link>
 					) }
-					{ context }
 					<span>|</span>
 					{ settingsUrl && (
 						<>
-							<Link href={ settingsUrl } openInNewTab={ context === 'block-editor' }>
+							<Link openInNewTab={ context === 'block-editor' } href={ settingsUrl }>
 								{ __( 'View stats and settings', 'jetpack-forms' ) }
 							</Link>
 							<span>|</span>
 						</>
 					) }
-					<Link href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } openInNewTab>
+					<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 					</Link>
 				</HStack>

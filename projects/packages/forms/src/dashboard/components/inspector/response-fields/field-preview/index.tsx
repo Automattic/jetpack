@@ -107,7 +107,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
 			return (
-				<Link href={ stringValue } openInNewTab>
+				<Link openInNewTab href={ stringValue }>
 					{ stringValue }
 				</Link>
 			);

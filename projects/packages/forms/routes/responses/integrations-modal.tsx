@@ -138,7 +138,7 @@ const IntegrationCardComponent = ( {
 			return (
 				<p style={ { color: '#50575e', margin: 0 } }>
 					{ createInterpolateElement( message, {
-						a: <Link href={ marketingUrl } openInNewTab />,
+						a: <Link openInNewTab href={ marketingUrl } />,
 					} ) }
 				</p>
 			);
@@ -177,7 +177,7 @@ const IntegrationCardComponent = ( {
 										'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 										'jetpack-forms'
 									),
-									{ a: <Link href={ settingsUrl } openInNewTab /> }
+									{ a: <Link openInNewTab href={ settingsUrl } /> }
 							  )
 							: __( 'Setup is required to complete the integration.', 'jetpack-forms' ) }
 					</p>
@@ -214,13 +214,13 @@ const IntegrationCardComponent = ( {
 			<VStack spacing="3">
 				<p style={ { color: '#50575e', margin: 0 } }>{ message }</p>
 				<HStack spacing="2" justify="start">
-					<Link href={ settingsUrl } openInNewTab>
+					<Link openInNewTab href={ settingsUrl }>
 						{ __( 'View settings', 'jetpack-forms' ) }
 					</Link>
 					{ id === 'akismet' && (
 						<>
 							<span>|</span>
-							<Link href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } openInNewTab>
+							<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 								{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 							</Link>
 						</>

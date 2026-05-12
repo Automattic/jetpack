@@ -71,7 +71,7 @@ const FieldFile = ( { file, onClick } ) => {
 						</Button>
 					) }
 					{ ! file.is_previewable && (
-						<Link href={ file.url + '&preview=true' } openInNewTab>
+						<Link openInNewTab href={ file.url + '&preview=true' }>
 							{ decodeEntities( file.name ) }
 						</Link>
 					) }

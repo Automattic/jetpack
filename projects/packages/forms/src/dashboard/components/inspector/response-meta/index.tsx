@@ -42,7 +42,7 @@ const SourceCell = ( { response }: { response: FormResponse } ) => {
 		const label = __( 'Form preview', 'jetpack-forms' );
 		if ( response.preview_url ) {
 			return (
-				<Link href={ response.preview_url } openInNewTab>
+				<Link openInNewTab href={ response.preview_url }>
 					{ label }
 				</Link>
 			);
@@ -52,7 +52,7 @@ const SourceCell = ( { response }: { response: FormResponse } ) => {
 
 	if ( response.entry_permalink ) {
 		return (
-			<Link href={ response.entry_permalink } openInNewTab>
+			<Link openInNewTab href={ response.entry_permalink }>
 				{ decodeEntities( response.entry_title ) || getPath( response ) }
 			</Link>
 		);
@@ -159,10 +159,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 							<TextWithFlag countryCode={ response.country_code }>
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
 									<Link
+										openInNewTab
 										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
 											response.ip
 										) }` }
-										openInNewTab
 									>
 										{ response.ip }
 									</Link>
