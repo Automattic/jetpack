@@ -1,3 +1,5 @@
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Grid is the easiest way to express the responsive 1→2 column card grid; reassess when it's promoted out of experimental.
+import { __experimentalGrid as Grid } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
@@ -75,7 +77,7 @@ export default function FeatureSelector() {
 					className="jp-search-feature-selector__fieldset"
 					aria-labelledby="jp-search-feature-selector-heading"
 				>
-					<div className="jp-search-feature-selector__grid">
+					<Grid columns={ [ 1, 2 ] } gap={ 6 }>
 						{ visibleExperiences.map( experience => (
 							<ExperienceOption
 								key={ experience }
@@ -83,7 +85,7 @@ export default function FeatureSelector() {
 								disabled={ isExperienceDisabled( experience ) }
 							/>
 						) ) }
-					</div>
+					</Grid>
 				</fieldset>
 				<Stack
 					gap="md"

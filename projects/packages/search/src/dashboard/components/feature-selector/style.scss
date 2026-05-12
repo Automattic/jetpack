@@ -29,12 +29,6 @@
 		padding: 0;
 	}
 
-	&__grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: var(--wpds-dimension-gap-xl);
-	}
-
 	&__card {
 		position: relative;
 		padding: var(--wpds-dimension-padding-2xl);
@@ -204,10 +198,6 @@
 }
 
 @include variables.for-phone-down {
-
-	.jp-search-feature-selector__grid {
-		grid-template-columns: 1fr;
-	}
 
 	.jp-search-feature-selector__card-actions {
 		flex-wrap: wrap;
