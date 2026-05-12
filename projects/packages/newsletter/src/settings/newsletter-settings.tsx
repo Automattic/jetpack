@@ -26,7 +26,9 @@ import {
 	EmailDefaultsSection,
 	EmailSenderSettingsSection,
 	EmailReplyToSettingsSection,
+	LegacySubscriptionsSection,
 	NewsletterCategoriesSection,
+	NewsletterSection,
 	PaidNewsletterSection,
 	SubscriptionsSection,
 	WelcomeEmailSection,
@@ -67,6 +69,17 @@ export type NewsletterSettingsBodyProps = {
 	 * default-true case never reads it.
 	 */
 	connectUrl?: string;
+	/**
+	 * When true, render the modernized IA (Paid first, placement-card grid
+	 * inside Subscriptions, split-out Email defaults card, dropped master
+	 * toggle). Defaults to false so the legacy
+	 * `wp-admin/admin.php?page=jetpack-newsletter` surface — which mounts
+	 * this body without the modernization flag — keeps its pre-modernization
+	 * composition (master `NewsletterSection`, flat
+	 * `LegacySubscriptionsSection`, trunk's section order). Both legacy
+	 * branches retire together with the legacy chrome in #48613.
+	 */
+	isModernized?: boolean;
 };
 
 /**
@@ -89,11 +102,13 @@ export type NewsletterSettingsBodyProps = {
  * @param props                   - Component props.
  * @param props.hasConnectedOwner - Whether the active user has a connected WordPress.com owner account.
  * @param props.connectUrl        - URL the user is sent to when they need to connect.
+ * @param props.isModernized      - When true, render the modernized IA; defaults to false (legacy layout).
  * @return The settings body.
  */
 export function NewsletterSettingsBody( {
 	hasConnectedOwner = true,
 	connectUrl,
+	isModernized = false,
 }: NewsletterSettingsBodyProps ): JSX.Element | null {
 	const [ data, setData ] = useState< NewsletterSettings | null >( null );
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -422,78 +437,150 @@ export function NewsletterSettingsBody( {
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
 				<Stack gap="xl" direction="column" className="newsletter-settings">
-					<Disabled isDisabled={ ! data.subscriptions }>
-						<Stack gap="xl" direction="column">
-							<PaidNewsletterSection
-								isNewsletterEnabled={ data.subscriptions }
-								hasActivePlan={ data.newsletter_has_active_plan }
-							/>
+					{ isModernized ? (
+						<Disabled isDisabled={ ! data.subscriptions }>
+							<Stack gap="xl" direction="column">
+								<PaidNewsletterSection
+									isNewsletterEnabled={ data.subscriptions }
+									hasActivePlan={ data.newsletter_has_active_plan }
+								/>
 
-							<SubscriptionsSection
-								data={ data }
-								onChange={ handleSubscriptionChange }
-								onSave={ saveSubscriptionSettings }
-								isSaving={ isSavingSubscriptions }
-								hasChanges={ hasSubscriptionChanges }
-								changedKeys={ Object.keys( subscriptionChanges ) }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<SubscriptionsSection
+									data={ data }
+									onChange={ handleSubscriptionChange }
+									onSave={ saveSubscriptionSettings }
+									isSaving={ isSavingSubscriptions }
+									hasChanges={ hasSubscriptionChanges }
+									changedKeys={ Object.keys( subscriptionChanges ) }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<EmailDefaultsSection
-								data={ data }
-								onChange={ handleAutoSave }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<EmailDefaultsSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<EmailContentSection
-								data={ data }
-								onChange={ handleAutoSave }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<EmailContentSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<EmailBylineSection
-								data={ data }
-								onChange={ handleAutoSave }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<EmailBylineSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<EmailSenderSettingsSection
-								data={ data }
-								onChange={ handleSenderNameChange }
-								onSave={ saveSenderName }
-								isSaving={ isSavingSenderName }
-								hasChanges={ hasSenderNameChanges }
-								changedKeys={ Object.keys( senderNameChanges ) }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<EmailSenderSettingsSection
+									data={ data }
+									onChange={ handleSenderNameChange }
+									onSave={ saveSenderName }
+									isSaving={ isSavingSenderName }
+									hasChanges={ hasSenderNameChanges }
+									changedKeys={ Object.keys( senderNameChanges ) }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<EmailReplyToSettingsSection
-								data={ data }
-								onChange={ handleAutoSave }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<EmailReplyToSettingsSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<WelcomeEmailSection
-								data={ data }
-								onChange={ handleWelcomeEmailChange }
-								onSave={ saveWelcomeEmail }
-								isSaving={ isSavingWelcomeEmail }
-								hasChanges={ hasWelcomeEmailChanges }
-								changedKeys={ Object.keys( welcomeEmailChanges ) }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
+								<WelcomeEmailSection
+									data={ data }
+									onChange={ handleWelcomeEmailChange }
+									onSave={ saveWelcomeEmail }
+									isSaving={ isSavingWelcomeEmail }
+									hasChanges={ hasWelcomeEmailChanges }
+									changedKeys={ Object.keys( welcomeEmailChanges ) }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-							<NewsletterCategoriesSection
-								data={ data }
-								onChange={ handleNewsletterCategoriesChange }
-								onSave={ saveNewsletterCategories }
-								isSaving={ isSavingNewsletterCategories }
-								hasChanges={ hasNewsletterCategoriesChanges }
-								changedKeys={ Object.keys( newsletterCategoriesChanges ) }
-								isNewsletterEnabled={ data.subscriptions }
-							/>
-						</Stack>
-					</Disabled>
+								<NewsletterCategoriesSection
+									data={ data }
+									onChange={ handleNewsletterCategoriesChange }
+									onSave={ saveNewsletterCategories }
+									isSaving={ isSavingNewsletterCategories }
+									hasChanges={ hasNewsletterCategoriesChanges }
+									changedKeys={ Object.keys( newsletterCategoriesChanges ) }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
+							</Stack>
+						</Disabled>
+					) : (
+						<>
+							<NewsletterSection data={ data } onChange={ handleAutoSave } />
+
+							<Disabled isDisabled={ ! data.subscriptions }>
+								<Stack gap="xl" direction="column">
+									<LegacySubscriptionsSection
+										data={ data }
+										onChange={ handleSubscriptionChange }
+										onSave={ saveSubscriptionSettings }
+										isSaving={ isSavingSubscriptions }
+										hasChanges={ hasSubscriptionChanges }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<PaidNewsletterSection
+										isNewsletterEnabled={ data.subscriptions }
+										hasActivePlan={ data.newsletter_has_active_plan }
+									/>
+
+									<NewsletterCategoriesSection
+										data={ data }
+										onChange={ handleNewsletterCategoriesChange }
+										onSave={ saveNewsletterCategories }
+										isSaving={ isSavingNewsletterCategories }
+										hasChanges={ hasNewsletterCategoriesChanges }
+										changedKeys={ Object.keys( newsletterCategoriesChanges ) }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<EmailContentSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<EmailBylineSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<EmailSenderSettingsSection
+										data={ data }
+										onChange={ handleSenderNameChange }
+										onSave={ saveSenderName }
+										isSaving={ isSavingSenderName }
+										hasChanges={ hasSenderNameChanges }
+										changedKeys={ Object.keys( senderNameChanges ) }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<EmailReplyToSettingsSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+
+									<WelcomeEmailSection
+										data={ data }
+										onChange={ handleWelcomeEmailChange }
+										onSave={ saveWelcomeEmail }
+										isSaving={ isSavingWelcomeEmail }
+										hasChanges={ hasWelcomeEmailChanges }
+										changedKeys={ Object.keys( welcomeEmailChanges ) }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+								</Stack>
+							</Disabled>
+						</>
+					) }
 				</Stack>
 			</Disabled>
 		</>
