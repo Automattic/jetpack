@@ -44,14 +44,6 @@ const SummaryTiles = ( {
 	const loadingValue = isLoading ? EMPTY_VALUE : null;
 	const unknownCountry = __( 'Unknown', 'jetpack-podcast' );
 
-	const formatNameAndPct = ( name: string, pct: number ) =>
-		sprintf(
-			/* translators: 1: app or country name, 2: localized percentage. */
-			__( '%1$s %2$s', 'jetpack-podcast' ),
-			name,
-			formatPct( pct )
-		);
-
 	const tiles: Tile[] = [
 		{
 			heading: __( 'Total downloads', 'jetpack-podcast' ),
@@ -59,17 +51,15 @@ const SummaryTiles = ( {
 		},
 		{
 			heading: __( 'Top app', 'jetpack-podcast' ),
-			value:
-				loadingValue ??
-				( topApp ? formatNameAndPct( formatAppName( topApp.app ), topApp.pct ) : EMPTY_VALUE ),
+			value: loadingValue ?? ( topApp ? formatAppName( topApp.app ) : EMPTY_VALUE ),
+			note: ! loadingValue && topApp ? formatPct( topApp.pct ) : undefined,
 		},
 		{
 			heading: __( 'Top country', 'jetpack-podcast' ),
 			value:
 				loadingValue ??
-				( topCountry
-					? formatNameAndPct( getCountryName( topCountry.country, unknownCountry ), topCountry.pct )
-					: EMPTY_VALUE ),
+				( topCountry ? getCountryName( topCountry.country, unknownCountry ) : EMPTY_VALUE ),
+			note: ! loadingValue && topCountry ? formatPct( topCountry.pct ) : undefined,
 		},
 		{
 			heading: __( 'Top day', 'jetpack-podcast' ),

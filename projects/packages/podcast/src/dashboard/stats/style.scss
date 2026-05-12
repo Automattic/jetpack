@@ -134,9 +134,15 @@ $bar-fill: #2271b1;
 		color: $text;
 	}
 
+	// Match the heading aesthetic so secondary values (percentages,
+	// "4 downloads") sit quietly under the main value rather than
+	// competing with it.
 	&__note {
-		font-size: 12px;
+		font-size: 11px;
+		font-weight: 500;
 		color: $muted;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
 		margin-top: 4px;
 	}
 
