@@ -71,15 +71,20 @@ export default function useAiAnswersSettings() {
 		} else {
 			const path = postId ? `${ GUIDELINES_REST }/${ postId }` : GUIDELINES_REST;
 			const method = postId ? 'PATCH' : 'POST';
+			const data = {
+				status: 'publish',
+				guideline_categories: {
+					blocks: { 'jetpack/search-ai-summary': { guidelines: content || DEFAULT_PERSONALITY } },
+				},
+			};
+			// WordPress requires at least a title when creating a post.
+			if ( ! postId ) {
+				data.title = __( 'Jetpack Search AI Answers', 'jetpack-search-pkg' );
+			}
 			promise = apiFetch( {
 				path,
 				method,
-				data: {
-					status: 'publish',
-					guideline_categories: {
-						blocks: { 'jetpack/search-ai-summary': { guidelines: content || DEFAULT_PERSONALITY } },
-					},
-				},
+				data,
 			} ).then( post => {
 				setPostId( post.id );
 			} );
