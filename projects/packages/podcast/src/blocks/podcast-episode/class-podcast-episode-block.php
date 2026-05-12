@@ -22,12 +22,18 @@ use Automattic\Jetpack\Status\Request;
 class Podcast_Episode_Block {
 
 	/**
+	 * Editor script handle.
+	 */
+	const EDITOR_HANDLE = 'jetpack-podcast-episode-editor';
+
+	/**
 	 * Wire the block's actions. Hooks are added unconditionally; each
 	 * callback re-checks the untangle filter and short-circuits when off.
 	 */
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );
 	}
 
 	/**
@@ -62,10 +68,8 @@ class Podcast_Episode_Block {
 			return;
 		}
 
-		$handle = 'jetpack-podcast-episode-editor';
-
 		Assets::register_script(
-			$handle,
+			self::EDITOR_HANDLE,
 			'../../../dist/blocks/podcast-episode/editor.js',
 			__FILE__,
 			array(
@@ -74,36 +78,33 @@ class Podcast_Episode_Block {
 				'textdomain' => 'jetpack-podcast',
 			)
 		);
-
-		self::force_admin_scheme( $handle );
 	}
 
 	/**
-	 * Coerce a registered script's URL to match the admin scheme.
+	 * Rewrite the editor script src to match the admin scheme.
 	 *
 	 * On WPCOM sites with a custom domain mapping that lacks SSL, `home_url()`
 	 * (and therefore `plugins_url()`) returns `http://mapped-domain.test` even
 	 * though wp-admin is served from `.wordpress.com` over HTTPS. The script
-	 * URL then trips the browser's mixed-content block. Rewriting to the
-	 * admin's own scheme keeps the URL valid for both cases.
+	 * URL then trips the browser's mixed-content block. Routing through the
+	 * canonical `script_loader_src` filter keeps the URL valid in both cases
+	 * without mutating `$wp_scripts->registered` directly.
 	 *
-	 * @param string $handle Registered script handle.
+	 * @param string $src    Script source URL.
+	 * @param string $handle Script handle.
+	 * @return string
 	 */
-	private static function force_admin_scheme( $handle ) {
-		global $wp_scripts;
-		if ( ! isset( $wp_scripts->registered[ $handle ] ) ) {
-			return;
+	public static function filter_editor_script_src( $src, $handle ) {
+		if ( self::EDITOR_HANDLE !== $handle ) {
+			return $src;
 		}
 
 		$admin_scheme = wp_parse_url( admin_url(), PHP_URL_SCHEME );
 		if ( ! $admin_scheme ) {
-			return;
+			return $src;
 		}
 
-		$wp_scripts->registered[ $handle ]->src = set_url_scheme(
-			$wp_scripts->registered[ $handle ]->src,
-			$admin_scheme
-		);
+		return set_url_scheme( $src, $admin_scheme );
 	}
 
 	/**

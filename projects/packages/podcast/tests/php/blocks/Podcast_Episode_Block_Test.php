@@ -403,4 +403,34 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'CC-BY-4.0', $result );
 		$this->assertStringContainsString( 'https://creativecommons.org/licenses/by/4.0/', $result );
 	}
+
+	/**
+	 * `filter_editor_script_src` rewrites the editor handle's URL scheme to
+	 * match the admin scheme, leaving the rest of the URL untouched.
+	 */
+	public function test_filter_editor_script_src_rewrites_scheme_for_editor_handle() {
+		$result = Podcast_Episode_Block::filter_editor_script_src(
+			'http://mapped-domain.test/wp-content/plugins/foo/editor.js',
+			Podcast_Episode_Block::EDITOR_HANDLE
+		);
+
+		$admin_scheme = wp_parse_url( admin_url(), PHP_URL_SCHEME );
+		$this->assertSame(
+			$admin_scheme . '://mapped-domain.test/wp-content/plugins/foo/editor.js',
+			$result
+		);
+	}
+
+	/**
+	 * Other script handles must pass through unchanged so the filter can't
+	 * accidentally rewrite unrelated scripts on the page.
+	 */
+	public function test_filter_editor_script_src_leaves_other_handles_unchanged() {
+		$src = 'http://example.com/some-other-script.js';
+
+		$this->assertSame(
+			$src,
+			Podcast_Episode_Block::filter_editor_script_src( $src, 'some-other-handle' )
+		);
+	}
 }
