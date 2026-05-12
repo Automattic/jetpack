@@ -233,6 +233,7 @@ $bar-fill: #2271b1;
 	// HStack wrapper — sits above the bar so the fill renders behind text.
 	&__content {
 		position: relative;
+		z-index: 1;
 	}
 
 	&__leading {
@@ -254,6 +255,7 @@ $bar-fill: #2271b1;
 		position: absolute;
 		inset-block: 0;
 		inset-inline-start: 0;
+		z-index: 0;
 		background: $bar-fill;
 		opacity: 0.08;
 		border-radius: 4px;
