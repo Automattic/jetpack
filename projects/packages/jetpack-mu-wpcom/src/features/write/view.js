@@ -17,6 +17,7 @@ const i18n = window.wpcomWriteStrings || {};
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -3134,6 +3135,11 @@ const { state } = store( 'wpcom-write', {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			state.showRecoveryBanner = false;
 		},
+
+		dismissDisclaimer() {
+			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
+			state.showDisclaimer = false;
+		},
 	},
 } );
 
@@ -3359,6 +3365,11 @@ const autosaveReady = setInterval( () => {
 	autosaveTimer = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
+
+	// Show the beta disclaimer unless previously dismissed.
+	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+		state.showDisclaimer = true;
+	}
 
 	// Check for a recoverable autosaved draft (only for new posts).
 	if ( ! state.editPostId ) {
