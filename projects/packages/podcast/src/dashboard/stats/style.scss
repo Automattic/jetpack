@@ -10,6 +10,7 @@ $bar-bg-hover: #e5e5e5;
 $bar-fill: #2271b1;
 
 .podcast-stats {
+	padding-top: 16px;
 
 	&--stack {
 		display: flex;
@@ -99,21 +100,54 @@ $bar-fill: #2271b1;
 }
 
 .podcast-stats-summary {
-
-	&__list {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-		gap: 12px;
-	}
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 0;
 
 	&__tile {
-		padding: 12px 16px;
+		padding: 12px 20px;
+		min-width: 0;
+
+		// Subtle vertical dividers between tiles in the chart-embedded row.
+		// Hidden on the first tile and when items wrap to a new row.
+		&:not(:first-child) {
+			border-inline-start: 1px solid #e0e0e0;
+		}
+	}
+
+	&__heading {
+		font-size: 11px;
+		font-weight: 500;
+		color: $muted;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-bottom: 6px;
+	}
+
+	&__value {
+		font-size: 24px;
+		font-weight: 500;
+		line-height: 1.2;
+		color: $text;
 	}
 
 	&__note {
 		font-size: 12px;
 		color: $muted;
 		margin-top: 4px;
+	}
+
+	// Standalone variant: each tile is its own Card. Keep them as a row of
+	// cards rather than the flat divided look.
+	&--standalone {
+		gap: 12px;
+
+		.podcast-stats-summary__tile {
+			border-inline-start: 0;
+		}
 	}
 }
 
@@ -159,8 +193,28 @@ $bar-fill: #2271b1;
 
 .podcast-stats-locations {
 
+	&__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+		gap: 24px;
+		align-items: start;
+
+		@media (max-width: 720px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
 	&__map {
 		min-height: 320px;
+	}
+
+	&__list-title {
+		margin: 0 0 8px;
+		font-size: 12px;
+		font-weight: 500;
+		color: $muted;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
 	}
 }
 

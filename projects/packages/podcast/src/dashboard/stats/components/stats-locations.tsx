@@ -1,5 +1,8 @@
 import { GeoChart } from '@automattic/charts';
-import { __ } from '@wordpress/i18n';
+import { formatNumber } from '@automattic/number-formatters';
+import { __, sprintf } from '@wordpress/i18n';
+import { formatPct, getCountryName } from '../lib/format';
+import HorizontalBarList from './horizontal-bar-list';
 import SectionCard from './section-card';
 import type { PodcastStatsCountryRow } from '../types';
 import type { GeoData } from '@automattic/charts';
@@ -10,7 +13,7 @@ type StatsLocationsProps = {
 };
 
 const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps ) => {
-	const title = __( 'Locations', 'jetpack-podcast' );
+	const title = __( 'By location', 'jetpack-podcast' );
 	const metricLabel = __( 'Downloads', 'jetpack-podcast' );
 
 	if ( isLoading ) {
@@ -30,15 +33,42 @@ const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps )
 		);
 	}
 
-	const data: GeoData = [
+	const unknown = __( 'Unknown', 'jetpack-podcast' );
+	const mapData: GeoData = [
 		[ __( 'Country', 'jetpack-podcast' ), __( 'Downloads', 'jetpack-podcast' ) ],
 		...rows.map( row => [ row.country, row.plays ] as [ string, number ] ),
 	];
 
+	const maxValue = rows.reduce( ( max, row ) => Math.max( max, row.plays ), 0 );
+	const barData = rows.map( row => {
+		const labelText = getCountryName( row.country, unknown );
+		return {
+			id: row.country || 'unknown',
+			label: labelText,
+			labelText,
+			value: row.plays,
+			maxValue,
+			formattedValue: sprintf(
+				/* translators: 1: localized download count, 2: localized percentage. */
+				__( '%1$s · %2$s', 'jetpack-podcast' ),
+				formatNumber( row.plays ),
+				formatPct( row.pct )
+			),
+		};
+	} );
+
 	return (
 		<SectionCard title={ title } metricLabel={ metricLabel } className="podcast-stats-locations">
-			<div className="podcast-stats-locations__map">
-				<GeoChart data={ data } region="world" height={ 320 } />
+			<div className="podcast-stats-locations__grid">
+				<div className="podcast-stats-locations__map">
+					<GeoChart data={ mapData } region="world" height={ 320 } />
+				</div>
+				<div className="podcast-stats-locations__list">
+					<h4 className="podcast-stats-locations__list-title">
+						{ __( 'Top countries', 'jetpack-podcast' ) }
+					</h4>
+					<HorizontalBarList rows={ barData } />
+				</div>
 			</div>
 		</SectionCard>
 	);

@@ -12,35 +12,24 @@ type SummaryTilesProps = {
 	byCountry?: PodcastStatsCountryRow[];
 	topDay?: PodcastStatsTopDay | null;
 	isLoading?: boolean;
+	// When 'chart', tiles render as a flat divided row inside the Downloads
+	// card. When 'standalone', each tile is its own Card.
 	layout?: 'standalone' | 'chart';
 };
 
-type SummaryTileProps = {
+type Tile = {
 	heading: string;
 	value: string;
 	note?: string;
-	asCard?: boolean;
 };
 
-const SummaryTile = ( { heading, value, note, asCard = true }: SummaryTileProps ) => {
-	const content = (
-		<>
-			<div className="highlight-card-heading">{ heading }</div>
-			<div className="highlight-card-count">
-				<span className="highlight-card-count-value">{ value }</span>
-			</div>
-			{ note && <div className="podcast-stats-summary__note">{ note }</div> }
-		</>
-	);
-	const className = 'highlight-card podcast-stats-summary__tile';
-	return asCard ? (
-		<Card className={ className }>
-			<CardBody>{ content }</CardBody>
-		</Card>
-	) : (
-		<div className={ className }>{ content }</div>
-	);
-};
+const TileContent = ( { heading, value, note }: Tile ) => (
+	<>
+		<div className="podcast-stats-summary__heading">{ heading }</div>
+		<div className="podcast-stats-summary__value">{ value }</div>
+		{ note && <div className="podcast-stats-summary__note">{ note }</div> }
+	</>
+);
 
 const SummaryTiles = ( {
 	totalPlays,
@@ -63,7 +52,7 @@ const SummaryTiles = ( {
 			formatPct( pct )
 		);
 
-	const tiles = [
+	const tiles: Tile[] = [
 		{
 			heading: __( 'Total downloads', 'jetpack-podcast' ),
 			value: loadingValue ?? formatNumber( totalPlays ?? 0 ),
@@ -96,24 +85,27 @@ const SummaryTiles = ( {
 		},
 	];
 
-	const sectionClass = [
-		'podcast-stats-summary',
-		layout === 'standalone' ? 'highlight-cards' : 'podcast-stats-summary--chart',
-	].join( ' ' );
+	if ( layout === 'chart' ) {
+		return (
+			<ul className="podcast-stats-summary podcast-stats-summary--chart">
+				{ tiles.map( tile => (
+					<li key={ tile.heading } className="podcast-stats-summary__tile">
+						<TileContent { ...tile } />
+					</li>
+				) ) }
+			</ul>
+		);
+	}
 
 	return (
-		<section className={ sectionClass }>
-			<div className="highlight-cards-list podcast-stats-summary__list">
-				{ tiles.map( tile => (
-					<SummaryTile
-						key={ tile.heading }
-						heading={ tile.heading }
-						value={ tile.value }
-						note={ tile.note }
-						asCard={ layout === 'standalone' }
-					/>
-				) ) }
-			</div>
+		<section className="podcast-stats-summary podcast-stats-summary--standalone">
+			{ tiles.map( tile => (
+				<Card key={ tile.heading } className="podcast-stats-summary__tile">
+					<CardBody>
+						<TileContent { ...tile } />
+					</CardBody>
+				</Card>
+			) ) }
 		</section>
 	);
 };
