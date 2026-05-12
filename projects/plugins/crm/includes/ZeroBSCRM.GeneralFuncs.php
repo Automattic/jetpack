@@ -1491,16 +1491,16 @@ function jetpackcrm_create_zeros_array( $start, $end, $zbs_steps = 86400 ) {
 
 	$the_day = $start;
 	while ( $the_day <= $end ) {
-		$the_year                    = date( 'Y', $the_day );
+		$the_year                    = gmdate( 'Y', $the_day );
 		$filled_zeros_y[ $the_year ] = 0;
 
-		$the_month                    = date( 'M y', $the_day );
+		$the_month                    = gmdate( 'M y', $the_day );
 		$filled_zeros_m[ $the_month ] = 0;
 
-		$the_week                    = date( 'o', $the_day ) . ' W' . date( 'W', $the_day );
+		$the_week                    = gmdate( 'o', $the_day ) . ' W' . gmdate( 'W', $the_day );
 		$filled_zeros_w[ $the_week ] = 0;
 
-		$the_day_d                    = date( 'd M y', $the_day );
+		$the_day_d                    = gmdate( 'd M y', $the_day );
 		$filled_zeros_d[ $the_day_d ] = 0;
 
 		$the_day += $zbs_steps;
