@@ -3,12 +3,9 @@ import { Stack } from '@wordpress/ui';
 import './overlay-preview.scss';
 
 /**
- * Static visual preview rendered in the Overlay panel: a stylised page with
- * the search overlay popup sitting on top of it. Decorative — `aria-hidden`
- * so AT users get the description above instead of an element-by-element
- * read. Strings are hardcoded; this is a mockup, not real content.
+ * Decorative Overlay mockup — `aria-hidden`, strings intentionally not translated.
  *
- * @return {import('react').Element} - The preview illustration.
+ * @return {import('react').Element} - The preview.
  */
 export default function OverlayPreview() {
 	return (

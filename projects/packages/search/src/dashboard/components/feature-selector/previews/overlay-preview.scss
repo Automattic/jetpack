@@ -1,5 +1,3 @@
-// Decorative overlay-search illustration shown at the top of the Overlay
-// card: a stylised page with the search popup sitting on top of it.
 .jp-search-feature-selector__overlay-preview {
 	width: 100%;
 	height: 200px;
@@ -9,8 +7,6 @@
 	border-radius: var(--wpds-border-radius-md);
 }
 
-// Inner "page" reuses the outer card's grey so the surface reads as one
-// continuous canvas; the popup floats above it without a nested-card look.
 .jp-search-feature-selector__overlay-preview-page {
 	position: relative;
 	flex: 1 1 auto;

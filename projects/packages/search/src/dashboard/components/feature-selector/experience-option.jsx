@@ -12,7 +12,7 @@ import OverlayPreview from './previews/overlay-preview';
 
 // URL constants reused verbatim from the legacy ModuleControl.
 // `sprintf( ..., encodeURIComponent( returnUrl ) )` was a no-op there
-// (the format strings have no `%s`), so we drop it here.
+// (the format strings had no `%s`), so we drop it here.
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
 const SEARCH_TEMPLATE_URL = 'site-editor.php?postType=wp_template&postId=search';
@@ -26,28 +26,20 @@ const PREVIEWS = {
 };
 
 /**
- * One card in the 2×2 feature-selector grid.
+ * One card in the feature-selector grid.
  *
- * The whole card is a click target that selects a (visually-hidden but real)
- * radio input — clicking anywhere on the card body picks that experience.
- * We achieve this with a transparent `<label htmlFor>` element positioned
- * `inset: 0` over the card; action links inside the card are lifted above
- * the overlay via `z-index` so they remain clickable and tabbable.
+ * The whole card is a click target — a transparent `<label htmlFor>`
+ * positioned `inset: 0` catches clicks, and the underlying radio is
+ * visually hidden but real (so keyboard nav and screen-reader semantics
+ * come from native HTML). Action links sit above the label via z-index
+ * to stay clickable, and they're gated on the card being the *active*
+ * (saved) experience — when not, they render as a `<span aria-disabled>`
+ * so AT users aren't told a non-functional element is a link.
  *
- * Native radio + label preserves keyboard nav (arrow keys cycle within the
- * radiogroup, Tab moves to the action links) and screen-reader semantics
- * with no extra ARIA. `:has(.radio:focus-visible)` mirrors the radio's
- * keyboard focus state onto the whole card so the focus ring is visible.
- *
- * Action links (Embedded / Overlay) are gated on the row being the *active*
- * (saved) experience — they link to live configuration that would be
- * misleading on a site that hasn't actually saved that experience yet.
- * While disabled they render as `<span aria-disabled="true">` (no `href`).
- *
- * @param {object}  props            - Component props.
+ * @param {object}  props            - Props.
  * @param {string}  props.experience - One of the EXPERIENCE values.
  * @param {boolean} props.disabled   - True if the user's plan doesn't support this experience.
- * @return {import('react').Element} - The option card.
+ * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
 	const { selected, active, isUpdating, supportsInstantSearch } = useSelect(
@@ -89,8 +81,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				disabled={ disabled }
 				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
 			/>
-			{ /* Transparent click-catcher over the whole card. Action links
-			   are lifted above it via z-index so they remain clickable. */ }
 			<label
 				htmlFor={ inputId }
 				className="jp-search-feature-selector__card-overlay"
@@ -166,15 +156,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	);
 }
 
-// Per-experience copy under the title. Embedded / Overlay get a single
-// description line; Inline adds a "no settings" note; Off renders the
-// "what visitors lose" list with cross-circle icons.
 const CardCopy = ( { experience } ) => {
 	if ( experience === EXPERIENCE.EMBEDDED ) {
 		return (
 			<p className="jp-search-feature-selector__card-description">
 				{ __(
-					'A custom search page you build with blocks. Filters, sorting, pagination — all themable in the Site Editor.',
+					'A search-as-you-type customizable search page built with blocks. Filters, sorting, pagination — all themable in the Site Editor.',
 					'jetpack-search-pkg'
 				) }
 			</p>
@@ -184,7 +171,7 @@ const CardCopy = ( { experience } ) => {
 		return (
 			<p className="jp-search-feature-selector__card-description">
 				{ __(
-					'A search-as-you-type overlay that opens from any search box on your site. No page reload.',
+					'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
 					'jetpack-search-pkg'
 				) }
 			</p>
@@ -195,7 +182,7 @@ const CardCopy = ( { experience } ) => {
 			<>
 				<p className="jp-search-feature-selector__card-description">
 					{ __(
-						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes — Elasticsearch under the hood, no UI changes.",
+						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes.",
 						'jetpack-search-pkg'
 					) }
 				</p>
@@ -208,7 +195,6 @@ const CardCopy = ( { experience } ) => {
 			</>
 		);
 	}
-	// EXPERIENCE.OFF
 	const offLosses = [
 		{
 			title: __( 'Fast results', 'jetpack-search-pkg' ),
@@ -224,7 +210,7 @@ const CardCopy = ( { experience } ) => {
 		},
 		{
 			title: __( 'Search analytics', 'jetpack-search-pkg' ),
-			detail: __( 'and custom relevance rules', 'jetpack-search-pkg' ),
+			detail: __( '— and custom relevance rules', 'jetpack-search-pkg' ),
 		},
 	];
 	return (
@@ -250,10 +236,6 @@ const CardCopy = ( { experience } ) => {
 	);
 };
 
-// Inline action used for the Embedded / Overlay cards: title stacked over
-// a brand-blue text link with a trailing arrow. Disabled state drops the
-// `href` and adds `aria-disabled` so screen readers don't announce a
-// non-functional link.
 const CardLink = ( { title, linkLabel, href, disabled } ) => (
 	<Stack direction="column" gap="sm" className="jp-search-feature-selector__card-action">
 		<span className="jp-search-feature-selector__card-action-title">{ title }</span>

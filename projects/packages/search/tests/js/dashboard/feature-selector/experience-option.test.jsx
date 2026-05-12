@@ -33,7 +33,9 @@ describe( '<ExperienceOption>', () => {
 	test( 'renders title and description', () => {
 		renderWith( baseSettings, { experience: 'embedded' } );
 		expect( screen.getByText( 'Embedded search' ) ).toBeInTheDocument();
-		expect( screen.getByText( /A custom search page you build with blocks/i ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( /A search-as-you-type customizable search page built with blocks/i )
+		).toBeInTheDocument();
 	} );
 
 	test( 'shows RECOMMENDED badge only on Embedded', () => {
@@ -94,9 +96,6 @@ describe( '<ExperienceOption>', () => {
 	} );
 } );
 
-// Action-link branches on the Overlay card — anchor when the card is the
-// active (saved) experience, aria-disabled span otherwise. The Customize
-// action also drops out entirely on classic-only plans.
 describe( '<ExperienceOption> Overlay action links', () => {
 	const overlayActive = {
 		module_active: true,
@@ -132,10 +131,7 @@ describe( '<ExperienceOption> Overlay action links', () => {
 	} );
 
 	test( 'renders actions as aria-disabled spans (no href) when Overlay is selected but not yet active', () => {
-		// Active is 'inline'; pending_experience='overlay' → selected = overlay,
-		// active = inline. Actions still render so users see what's coming, but
-		// they fall back to a span with aria-disabled so AT users aren't told a
-		// non-functional element is a link.
+		// selected = overlay (from pending_experience), active = inline.
 		renderWith(
 			{ ...inlineActive, pending_experience: 'overlay' },
 			{ experience: 'overlay' },
@@ -143,10 +139,6 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		);
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
-		// The disabled action renders as `<span aria-disabled="true">Customize<span aria-hidden> →</span></span>`,
-		// so `getByText('Customize')` lands on the outer wrapper itself (its
-		// only direct text node is the linkLabel; the arrow lives in a
-		// separate aria-hidden child).
 		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( 'Edit widgets' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );

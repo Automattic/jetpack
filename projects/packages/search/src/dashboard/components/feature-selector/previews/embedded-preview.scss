@@ -1,5 +1,3 @@
-// Decorative search-results illustration shown at the top of the Embedded
-// card.
 .jp-search-feature-selector__embedded-preview {
 	width: 100%;
 	height: 200px;
@@ -9,8 +7,6 @@
 	border-radius: var(--wpds-border-radius-md);
 }
 
-// Top search input — full-width row with the magnifier icon and the
-// current query text.
 .jp-search-feature-selector__embedded-preview-search {
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	background: #fff;
@@ -24,7 +20,6 @@
 	flex: 0 0 auto;
 }
 
-// "Sort by [Relevance ▾]" row — sits at the top of the results column.
 .jp-search-feature-selector__embedded-preview-sort {
 	font-size: var(--wpds-typography-font-size-xs);
 	color: var(--wpds-color-fg-content-neutral-weak);
@@ -42,8 +37,6 @@
 	}
 }
 
-// Two-column body: results on the left (wider, 2/3), filters on the
-// right (1/3).
 .jp-search-feature-selector__embedded-preview-results {
 	flex: 2 1 0;
 	min-width: 0;
@@ -73,7 +66,6 @@
 	margin-block-start: 2px;
 }
 
-// Square placeholder thumbnail next to each result.
 .jp-search-feature-selector__embedded-preview-result-thumb {
 	flex: 0 0 auto;
 	width: 36px;
@@ -83,7 +75,6 @@
 	border-radius: var(--wpds-border-radius-sm);
 }
 
-// Right-hand filter rail. Narrower than the results column.
 .jp-search-feature-selector__embedded-preview-filters {
 	flex: 1 1 0;
 	min-width: 0;

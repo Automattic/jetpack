@@ -51,8 +51,6 @@ describe( '<FeatureSelector>', () => {
 	test( 'Save button enables once a different option is selected', () => {
 		renderWith( baseSettings );
 		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		// Once dirty, the submit button switches from generic "Save" to a
-		// label that reflects what hitting it will do.
 		const save = screen.getByRole( 'button', { name: /use theme search/i } );
 		expect( save ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );

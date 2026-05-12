@@ -3,17 +3,9 @@ import { Stack } from '@wordpress/ui';
 import './embedded-preview.scss';
 
 /**
- * Static visual preview rendered in the Embedded panel: a stylised search
- * results page mirroring what the embedded experience actually looks like —
- * a full-width search input, a sort-by control on the right, a results
- * column with title / breadcrumb / thumbnail rows on the left, and a
- * narrower filter sidebar with multiple facet groups on the right.
+ * Decorative Embedded mockup — `aria-hidden`, strings intentionally not translated.
  *
- * Decorative — `aria-hidden` so AT users get the description above instead
- * of an element-by-element read. Strings are intentionally not translated;
- * they're placeholder copy in a mockup, not real content.
- *
- * @return {import('react').Element} - The preview illustration.
+ * @return {import('react').Element} - The preview.
  */
 export default function EmbeddedPreview() {
 	return (

@@ -3,13 +3,9 @@ import { Stack } from '@wordpress/ui';
 import './inline-preview.scss';
 
 /**
- * Static visual preview rendered in the Theme search (inline) panel: a
- * stylised search box with a few faint result lines below it and a small
- * "24 ms" timing indicator in the corner, hinting at the speed-improvement
- * pitch of this experience. Decorative — `aria-hidden` so AT users get the
- * description above instead of an element-by-element read.
+ * Decorative Theme-search mockup — `aria-hidden`, strings intentionally not translated.
  *
- * @return {import('react').Element} - The preview illustration.
+ * @return {import('react').Element} - The preview.
  */
 export default function InlinePreview() {
 	return (

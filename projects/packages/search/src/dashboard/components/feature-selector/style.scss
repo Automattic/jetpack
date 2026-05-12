@@ -1,12 +1,9 @@
 @use "scss/variables";
 
-// Vertical breathing room around the selector. Matches the pattern of
-// `.jp-search-dashboard-meter-wrap` above, without the divider border.
 .jp-search-feature-selector-wrap {
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
-// Section heading rendered above the form.
 .jp-search-feature-selector__heading {
 	margin-block-start: 0;
 	margin-block-end: var(--wpds-dimension-gap-xl);
@@ -19,8 +16,6 @@
 	// WP admin has no global `box-sizing: border-box` reset, so children that
 	// use `width: 100%` plus padding/border (like the previews) end up wider
 	// than their parent's content box and bleed into the card's right padding.
-	// Storybook *does* apply that reset, which is why this only showed up on
-	// the live admin page. Scope the fix to descendants of the form.
 	&,
 	*,
 	*::before,
@@ -34,18 +29,12 @@
 		padding: 0;
 	}
 
-	// 2×2 grid of cards on desktop / tablet; collapses to a single column
-	// at phone-down (see media query at the bottom of the file).
 	&__grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: var(--wpds-dimension-gap-xl);
 	}
 
-	// Each card is the clickable surface that selects an experience. A
-	// transparent `<label>` child catches clicks anywhere on the card body
-	// (see `&__card-overlay` below); action links inside the card are
-	// lifted above that overlay via z-index so they remain clickable.
 	&__card {
 		position: relative;
 		padding: var(--wpds-dimension-padding-2xl);
@@ -72,17 +61,13 @@
 		}
 
 		// Mirror the radio's keyboard focus onto the whole card so users
-		// see *which* card is focused rather than nothing (the radio
-		// itself is visually hidden).
+		// see *which* card is focused — the radio itself is visually hidden.
 		&:has(.jp-search-feature-selector__card-radio:focus-visible) {
 			outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
 			outline-offset: 2px;
 		}
 	}
 
-	// The radio stays in the DOM (and the tab order, for the checked one)
-	// so keyboard nav + screen-reader semantics work for free, but it
-	// isn't drawn — the card itself plays the role of the visual control.
 	&__card-radio {
 		position: absolute;
 		width: 1px;
@@ -95,14 +80,11 @@
 		border: 0;
 	}
 
-	// Transparent click-catcher covering the entire card. An explicit
-	// z-index keeps it above any positioned descendants of the card —
-	// the inline preview is `position: relative` for its timing badge,
-	// and the overlay preview's popup is `position: absolute`; without
-	// this z-index those would paint over the overlay (DOM order rule
-	// for same-z positioned elements) and swallow the click. Action
-	// links and the active badge then sit above the overlay via their
-	// own higher z-index.
+	// Explicit z-index keeps the click-catcher above any positioned descendants
+	// of the card — the inline preview is `position: relative` for its timing
+	// badge, and the overlay preview's popup is `position: absolute`; without
+	// this z-index those would paint over the overlay (DOM order rule for
+	// same-z positioned elements) and swallow the click.
 	&__card-overlay {
 		position: absolute;
 		inset: 0;
@@ -115,9 +97,6 @@
 		cursor: not-allowed;
 	}
 
-	// Active badge sits in the top-right corner above the overlay so the
-	// badge stays clickable-through (the overlay underneath still catches
-	// the click and selects the card).
 	&__card-active-badge {
 		position: absolute;
 		inset-block-start: var(--wpds-dimension-padding-md);
@@ -140,15 +119,13 @@
 		line-height: var(--wpds-typography-line-height-sm);
 	}
 
-	// Pushes the action row to the bottom of the card so the two cards in
-	// a row align along their action baseline even when descriptions
+	// Pushes the action row to the bottom of the card so cards in the same
+	// grid row align along their action baseline even when descriptions
 	// differ in length.
 	&__card-content {
 		flex: 1 1 auto;
 	}
 
-	// "What you'll lose" list rendered in the Off card. Each item gets a
-	// red cross-circle icon followed by a bold term and an explanatory tail.
 	&__card-loss-list {
 		list-style: none;
 		margin: var(--wpds-dimension-gap-xs) 0 0;
@@ -175,9 +152,8 @@
 		flex: 0 0 auto;
 	}
 
-	// Lift the action row above the transparent card overlay so the links
-	// inside it remain clickable and tabbable. Items share the row width
-	// equally; on phone-down the row wraps onto stacked lines.
+	// Lift above the transparent card overlay so the action links remain
+	// clickable and tabbable.
 	&__card-actions {
 		position: relative;
 		z-index: 2;
@@ -194,9 +170,6 @@
 		color: var(--wpds-color-fg-content-neutral);
 	}
 
-	// Brand-blue text link with trailing arrow used for card actions.
-	// Disabled state renders as a plain <span> (no href) so AT users aren't
-	// told a non-functional link is a link.
 	&__card-action-link {
 		color: var(--wpds-color-fg-interactive-brand);
 		font-size: var(--wpds-typography-font-size-md);
@@ -232,14 +205,10 @@
 
 @include variables.for-phone-down {
 
-	// Single-column stack on phone so each card has enough width for its
-	// preview and action row.
 	.jp-search-feature-selector__grid {
 		grid-template-columns: 1fr;
 	}
 
-	// Once card width is narrow, let the action row wrap and drop the
-	// equal-flex constraint so each action takes a full-width line.
 	.jp-search-feature-selector__card-actions {
 		flex-wrap: wrap;
 	}

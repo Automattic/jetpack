@@ -7,21 +7,14 @@ import ExperienceOption from './experience-option';
 import './style.scss';
 
 /**
- * Top-level dashboard control: a fieldset of four radio rows plus a Save
- * button. Subscribes to the store for `isDirty` and `is_updating`; dispatches
- * `saveExperience` with the user's selection on submit.
+ * Top-level dashboard control: a fieldset of four cards plus a Save button.
  *
- * The Save button uses `@wordpress/ui` Button's `disabled` prop, which (with
- * `focusableWhenDisabled` true by default) renders `aria-disabled="true"`
+ * `@wordpress/ui` Button's `disabled` prop renders `aria-disabled="true"`
  * rather than the native `disabled` attribute, so focus order is preserved.
  *
  * @return {import('react').Element} - The selector.
  */
 export default function FeatureSelector() {
-	// On WordPress.com Simple sites (where `IS_WPCOM` is defined), search
-	// activation is managed from the .com side, so we hide the Off row here to
-	// mirror the legacy `<ModuleControl>`'s `! isWpcom` gate around the
-	// "Enable Jetpack Search" toggle.
 	const { isDirty, isUpdating, pendingExperience, supportsOnlyClassicSearch, isWpcom } = useSelect(
 		select => ( {
 			isDirty: select( STORE_ID ).isDirty(),
@@ -34,22 +27,18 @@ export default function FeatureSelector() {
 	);
 	const { saveExperience } = useDispatch( STORE_ID );
 
+	// On WordPress.com Simple sites, Off is managed from the .com side, so
+	// hide the row here.
 	const visibleExperiences = isWpcom
 		? EXPERIENCE_ORDER.filter( experience => experience !== EXPERIENCE.OFF )
 		: EXPERIENCE_ORDER;
 
-	// While a save is in flight, freeze every radio so the user can't queue up a
-	// second change before the first one resolves. Plan-gating still disables
-	// Embedded / Overlay on classic-only plans regardless of save state.
 	const isExperienceDisabled = experience =>
 		isUpdating ||
 		( supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' ) );
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 
-	// Contextual label for the submit button: while the form is clean we show
-	// the neutral "Save", and as soon as the user picks a different row we
-	// reflect what hitting the button will actually do.
 	const getSaveLabel = () => {
 		if ( ! isDirty ) {
 			return __( 'Save', 'jetpack-search-pkg' );

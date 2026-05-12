@@ -4,11 +4,9 @@ import { Stack } from '@wordpress/ui';
 import './off-preview.scss';
 
 /**
- * Static visual preview rendered in the Off panel: the same "notAllowed"
- * icon used in the option row, with a one-line label. Sized to match the
- * other previews so switching between rows doesn't shift the panel.
+ * Decorative Off mockup — `aria-hidden`.
  *
- * @return {import('react').Element} - The preview illustration.
+ * @return {import('react').Element} - The preview.
  */
 export default function OffPreview() {
 	return (
