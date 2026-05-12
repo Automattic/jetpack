@@ -2,10 +2,10 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 
-const GUIDELINES_REST = '/wp/v2/guidelines';
+const GUIDELINES_REST = '/wp/v2/content-guidelines';
 const SETTINGS_REST = '/wp/v2/settings';
 const SETTINGS_KEY = 'jetpack_search_ai_behavior_instructions';
-const BEHAVIOR_META_KEY = '_guideline_block_jetpack_search-ai-summary';
+const BLOCK_NAME = 'jetpack/search-ai-summary';
 
 export const DEFAULT_PERSONALITY = __(
 	'You are a search results summarizer for Jetpack Search. Your job is to summarize the best available successful search results in a succinct manner.',
@@ -36,7 +36,7 @@ export default function useAiAnswersSettings() {
 				const post = Array.isArray( posts ) ? posts[ 0 ] : posts;
 				if ( post && post.id ) {
 					setPostId( post.id );
-					setContent( post.meta?.[ BEHAVIOR_META_KEY ] ?? '' );
+					setContent( post.guideline_categories?.blocks?.[ BLOCK_NAME ]?.guidelines ?? '' );
 				}
 			} )
 			.catch( err => {
@@ -70,18 +70,15 @@ export default function useAiAnswersSettings() {
 		} else {
 			const path = postId ? `${ GUIDELINES_REST }/${ postId }` : GUIDELINES_REST;
 			const method = postId ? 'PATCH' : 'POST';
-			const data = {
-				status: 'publish',
-				meta: { [ BEHAVIOR_META_KEY ]: content || DEFAULT_PERSONALITY },
-			};
-			// WordPress requires at least a title when creating a post.
-			if ( ! postId ) {
-				data.title = __( 'Jetpack Search AI Answers', 'jetpack-search-pkg' );
-			}
 			promise = apiFetch( {
 				path,
 				method,
-				data,
+				data: {
+					status: 'publish',
+					guideline_categories: {
+						blocks: { [ BLOCK_NAME ]: { guidelines: content || DEFAULT_PERSONALITY } },
+					},
+				},
 			} ).then( post => {
 				setPostId( post.id );
 			} );

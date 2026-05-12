@@ -6,11 +6,13 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const SETTINGS_KEY = 'jetpack_search_ai_behavior_instructions';
 
-const BEHAVIOR_META_KEY = '_guideline_block_jetpack_search-ai-summary';
+const BLOCK_NAME = 'jetpack/search-ai-summary';
 
 const makePost = ( overrides = {} ) => ( {
 	id: 42,
-	meta: { [ BEHAVIOR_META_KEY ]: 'Be concise.' },
+	guideline_categories: {
+		blocks: { [ BLOCK_NAME ]: { guidelines: 'Be concise.' } },
+	},
 	...overrides,
 } );
 
@@ -46,14 +48,14 @@ describe( 'useAiAnswersSettings', () => {
 		} );
 
 		it( 'leaves content empty when post has no guidelines', async () => {
-			apiFetch.mockResolvedValue( [ makePost( { meta: {} } ) ] );
+			apiFetch.mockResolvedValue( [ makePost( { guideline_categories: { blocks: {} } } ) ] );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 			expect( result.current.content ).toBe( '' );
 		} );
 
-		it( 'leaves content empty when no posts returned', async () => {
-			apiFetch.mockResolvedValue( [] );
+		it( 'leaves content empty when no guidelines post exists', async () => {
+			apiFetch.mockResolvedValue( { id: 0, guideline_categories: {} } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 			expect( result.current.content ).toBe( '' );
@@ -110,7 +112,7 @@ describe( 'useAiAnswersSettings', () => {
 
 	describe( 'savePersonality — guidelines path', () => {
 		it( 'POSTs when postId is null', async () => {
-			apiFetch.mockResolvedValueOnce( [] ).mockResolvedValueOnce( { id: 99 } );
+			apiFetch.mockResolvedValueOnce( { id: 0 } ).mockResolvedValueOnce( { id: 99 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
@@ -118,11 +120,11 @@ describe( 'useAiAnswersSettings', () => {
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
 			expect( saveCall.method ).toBe( 'POST' );
-			expect( saveCall.path ).toBe( '/wp/v2/guidelines' );
+			expect( saveCall.path ).toBe( '/wp/v2/content-guidelines' );
 		} );
 
 		it( 'PATCHes when postId exists', async () => {
-			apiFetch.mockResolvedValueOnce( [ makePost() ] ).mockResolvedValueOnce( { id: 42 } );
+			apiFetch.mockResolvedValueOnce( makePost() ).mockResolvedValueOnce( { id: 42 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
@@ -130,11 +132,11 @@ describe( 'useAiAnswersSettings', () => {
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
 			expect( saveCall.method ).toBe( 'PATCH' );
-			expect( saveCall.path ).toBe( '/wp/v2/guidelines/42' );
+			expect( saveCall.path ).toBe( '/wp/v2/content-guidelines/42' );
 		} );
 
 		it( 'sets saved and updates postId on success', async () => {
-			apiFetch.mockResolvedValueOnce( [] ).mockResolvedValueOnce( { id: 55 } );
+			apiFetch.mockResolvedValueOnce( { id: 0 } ).mockResolvedValueOnce( { id: 55 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
@@ -146,7 +148,9 @@ describe( 'useAiAnswersSettings', () => {
 		} );
 
 		it( 'sets error on save failure', async () => {
-			apiFetch.mockResolvedValueOnce( [] ).mockRejectedValueOnce( { message: 'Save failed' } );
+			apiFetch
+				.mockResolvedValueOnce( { id: 0 } )
+				.mockRejectedValueOnce( { message: 'Save failed' } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
@@ -158,18 +162,20 @@ describe( 'useAiAnswersSettings', () => {
 		} );
 
 		it( 'sends DEFAULT_PERSONALITY when content is empty', async () => {
-			apiFetch.mockResolvedValueOnce( [] ).mockResolvedValueOnce( { id: 1 } );
+			apiFetch.mockResolvedValueOnce( { id: 0 } ).mockResolvedValueOnce( { id: 1 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
 			await act( async () => result.current.savePersonality() );
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
-			expect( saveCall.data.meta[ BEHAVIOR_META_KEY ] ).toBe( DEFAULT_PERSONALITY );
+			expect( saveCall.data.guideline_categories.blocks[ BLOCK_NAME ].guidelines ).toBe(
+				DEFAULT_PERSONALITY
+			);
 		} );
 
 		it( 'sends user content when content is non-empty', async () => {
-			apiFetch.mockResolvedValueOnce( [ makePost() ] ).mockResolvedValueOnce( { id: 42 } );
+			apiFetch.mockResolvedValueOnce( makePost() ).mockResolvedValueOnce( { id: 42 } );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
@@ -177,7 +183,9 @@ describe( 'useAiAnswersSettings', () => {
 			await act( async () => result.current.savePersonality() );
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
-			expect( saveCall.data.meta[ BEHAVIOR_META_KEY ] ).toBe( 'Custom instructions.' );
+			expect( saveCall.data.guideline_categories.blocks[ BLOCK_NAME ].guidelines ).toBe(
+				'Custom instructions.'
+			);
 		} );
 	} );
 
