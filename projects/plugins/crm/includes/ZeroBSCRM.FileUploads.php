@@ -414,30 +414,40 @@ function jpcrm_get_hash_for_object( $object_id, $object_hash_string ) {
 	return $zbs->encryption->hash( $object_id . $zbs->encryption->get_encryption_key( $object_hash_string ) );
 }
 
-/*
+/**
  * Returns the 'dir info' for the storage folder.
- * dir info =
- * [
- *      'path' => 'path for the physical file',
- *      'url'  => 'public facing url'
- * ]
  *
+ * Defaults to `wp-content/jpcrm-storage`, but can be modified by the `jpcrm_storage_dir_info` filter.
+ *
+ * @return array|false {
+ *     Directory info, or false if filtered to an empty value.
+ *
+ *     @type string $path Absolute filesystem path for storing files.
+ *     @type string $url  Public-facing URL for the same location.
+ * }
  */
 function jpcrm_storage_dir_info() {
-	$uploads_dir      = WP_CONTENT_DIR;
-	$uploads_url      = content_url();
 	$private_dir_name = 'jpcrm-storage';
 
-	if ( ! empty( $uploads_dir ) && ! empty( $uploads_url ) ) {
-		$full_dir_path = $uploads_dir . '/' . $private_dir_name;
-		$full_url      = $uploads_url . '/' . $private_dir_name;
-		return array(
-			'path' => $full_dir_path,
-			'url'  => $full_url,
-		);
+	$dir_info = array(
+		'path' => trailingslashit( WP_CONTENT_DIR ) . $private_dir_name,
+		'url'  => trailingslashit( content_url() ) . $private_dir_name,
+	);
+
+	/**
+	 * Filters the CRM private storage directory location.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $dir_info
+	 */
+	$dir_info = apply_filters( 'jpcrm_storage_dir_info', $dir_info );
+
+	if ( empty( $dir_info['path'] ) || empty( $dir_info['url'] ) ) {
+		return false;
 	}
 
-	return false;
+	return $dir_info;
 }
 
 /**
