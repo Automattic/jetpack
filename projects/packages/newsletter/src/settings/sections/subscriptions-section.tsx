@@ -3,10 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, getSiteType } from '@automattic/jetpack-script-data';
-import { Button, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
@@ -222,10 +222,7 @@ export function SubscriptionsSection( {
 							'jetpack-newsletter'
 						) }
 					</Text>
-					<fieldset
-						className="jetpack-newsletter-section__fieldset"
-						disabled={ ! isNewsletterEnabled }
-					>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 						<Stack gap="lg" direction="column">
 							<div className="jetpack-newsletter-placements-grid">
 								{ placements.map( placement => (
@@ -244,10 +241,10 @@ export function SubscriptionsSection( {
 								) ) }
 							</div>
 
-							<div className="jetpack-newsletter-subgroup">
-								<h3 className="jetpack-newsletter-subgroup__title">
+							<Stack gap="sm" direction="column">
+								<Text variant="heading-sm" render={ <h3 /> }>
 									{ __( 'Navigation', 'jetpack-newsletter' ) }
-								</h3>
+								</Text>
 								<Stack gap="md" direction="column">
 									<ToggleControl
 										__nextHasNoMarginBottom
@@ -289,12 +286,12 @@ export function SubscriptionsSection( {
 										}
 									/>
 								</Stack>
-							</div>
+							</Stack>
 
-							<div className="jetpack-newsletter-subgroup">
-								<h3 className="jetpack-newsletter-subgroup__title">
+							<Stack gap="sm" direction="column">
+								<Text variant="heading-sm" render={ <h3 /> }>
 									{ __( 'Comments', 'jetpack-newsletter' ) }
-								</h3>
+								</Text>
 								<Stack gap="md" direction="column">
 									<ToggleControl
 										__nextHasNoMarginBottom
@@ -315,19 +312,18 @@ export function SubscriptionsSection( {
 										) }
 									/>
 								</Stack>
-							</div>
+							</Stack>
 						</Stack>
-					</fieldset>
+					</Fieldset.Root>
 				</Stack>
 				<div className="newsletter-card-footer">
 					<Button
-						__next40pxDefaultSize
-						variant="primary"
 						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
 					>
-						{ isSaving ? savingText : saveText }
+						{ saveText }
 					</Button>
 				</div>
 			</Card.Content>

@@ -1,7 +1,7 @@
 import { CheckboxControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Card, Link, Stack, Text } from '@wordpress/ui';
 import './placement-card.scss';
 import type { ReactNode } from 'react';
 
@@ -44,13 +44,12 @@ interface PlacementCardProps {
 }
 
 /**
- * Selectable card for a subscribe-placement option (Image #5). Composed from
- * WPDS primitives — there is no dedicated "selectable card" component:
- * `Card.Root`-style surface for the visual, `CheckboxControl` for the boolean
- * + a11y semantics, native `<label htmlFor>` to make the whole illustration
- * a click target, `aria-labelledby` so the visible title (which sits OUTSIDE
- * the label, beneath the card) is the checkbox's accessible name. Selected-
- * state border is driven by `:has(input:checked)` in CSS.
+ * Selectable card for a subscribe-placement option (Image #5). Built on the
+ * WPDS `Card.Root` primitive: the card surface + border + radius + background
+ * come from Card; selected/hover/focus states are layered on via a small SCSS
+ * file. `<label htmlFor>` makes the illustration a click target and
+ * `aria-labelledby` borrows the visible title (rendered outside the label, in
+ * the caption Stack) as the checkbox's accessible name.
  *
  * @param props                - Component props.
  * @param props.id             - Stable id used to bind the checkbox to the visual surface.
@@ -87,8 +86,8 @@ export function PlacementCard( {
 	}, [ name, onPreviewClick ] );
 
 	return (
-		<div className="jetpack-newsletter-placement">
-			<div className="jetpack-newsletter-placement__card" data-checked={ checked }>
+		<Stack gap="sm" direction="column">
+			<Card.Root className="jetpack-newsletter-placement__card" data-checked={ checked }>
 				{ /* The label wraps only the preview surface so clicking
 				     anywhere on the illustration toggles the checkbox.
 				     The title and link sit OUTSIDE so they don't toggle on
@@ -110,17 +109,17 @@ export function PlacementCard( {
 						label=""
 					/>
 				</div>
-			</div>
-			<div className="jetpack-newsletter-placement__caption">
-				<span id={ titleId } className="jetpack-newsletter-placement__title">
+			</Card.Root>
+			<Stack gap="xs" direction="column">
+				<Text id={ titleId } variant="body-sm">
 					{ title }
-				</span>
+				</Text>
 				{ previewUrl && (
 					<Link href={ previewUrl } onClick={ handlePreviewClick }>
 						{ __( 'Preview and edit', 'jetpack-newsletter' ) }
 					</Link>
 				) }
-			</div>
-		</div>
+			</Stack>
+		</Stack>
 	);
 }

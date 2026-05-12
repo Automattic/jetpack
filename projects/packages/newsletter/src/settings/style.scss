@@ -76,31 +76,4 @@ body.jetpack_page_jetpack-newsletter {
 			justify-content: space-between;
 		}
 	}
-
-	// Sub-grouped controls inside a section card (Subscriptions: Navigation +
-	// Comments). Each subgroup carries a small heading and a vertical Stack
-	// of toggles; the heading sits on its own row so multi-line toggle labels
-	// stay aligned.
-	.jetpack-newsletter-subgroup {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-sm, 8px);
-	}
-
-	.jetpack-newsletter-subgroup__title {
-		font-size: var(--wpds-typography-font-size-sm, 14px);
-		font-weight: var(--wpds-typography-font-weight-medium, 500);
-		line-height: var(--wpds-typography-line-height-md, 1.4);
-		margin: 0;
-	}
-
-	// Reset the native `<fieldset>` border / padding so the visual cluster
-	// inside Card.Content is driven by the inner Stacks alone — the fieldset
-	// only carries the `disabled` semantic for assistive tech.
-	.jetpack-newsletter-section__fieldset {
-		border: 0;
-		margin: 0;
-		min-inline-size: 0;
-		padding: 0;
-	}
 }

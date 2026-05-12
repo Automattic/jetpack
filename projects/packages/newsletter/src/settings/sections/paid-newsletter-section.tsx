@@ -20,6 +20,13 @@ interface PaidNewsletterSectionProps {
 /**
  * Paid Newsletter Section Component
  *
+ * Uses `@wordpress/components` Button + a native `<fieldset>` because this is
+ * the one button-as-link case in the dashboard. WP UI's Button rendered as
+ * `<a>` (`render={ <a /> }`) inherits wp-admin's global `a { color: #2271b1 }`
+ * — that rule is unlayered, while WP UI's button color sits in
+ * `@layer wp-ui-components`, and unlayered always wins over layered. Worth a
+ * Gutenberg-side fix; out of scope for this PR.
+ *
  * @param {PaidNewsletterSectionProps} props - Component props
  * @return {JSX.Element | null} The paid newsletter section or null if URL not available
  */

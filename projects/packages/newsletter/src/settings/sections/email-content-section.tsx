@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { Notice } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, Fieldset, Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -66,14 +65,16 @@ export function EmailContentSection( {
 				<Card.Title>{ __( 'Email content', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					{ ! isSitePublic && (
-						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
-								'jetpack-newsletter'
-							) }
-						</Notice>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
+									'jetpack-newsletter'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 
 					<DataForm
@@ -88,7 +89,7 @@ export function EmailContentSection( {
 						} }
 						onChange={ onChange }
 					/>
-				</fieldset>
+				</Fieldset.Root>
 			</Card.Content>
 		</Card.Root>
 	);

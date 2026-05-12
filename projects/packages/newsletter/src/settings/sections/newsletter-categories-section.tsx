@@ -9,11 +9,10 @@ import {
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
-import { Button, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -181,11 +180,11 @@ export function NewsletterCategoriesSection( {
 					</Text>
 				</p>
 				{ categoriesError && (
-					<Notice status="error" isDismissible={ false }>
-						{ categoriesError }
-					</Notice>
+					<Notice.Root intent="error">
+						<Notice.Description>{ categoriesError }</Notice.Description>
+					</Notice.Root>
 				) }
-				<fieldset disabled={ ! isNewsletterEnabled || !! categoriesError }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
 					<DataForm
 						data={ data }
 						fields={ newsletterCategoriesFields }
@@ -206,11 +205,9 @@ export function NewsletterCategoriesSection( {
 							</Link>
 						</p>
 					) }
-				</fieldset>
+				</Fieldset.Root>
 				<div className="newsletter-card-footer">
 					<Button
-						__next40pxDefaultSize
-						variant="primary"
 						onClick={ handleSave }
 						disabled={
 							! isNewsletterEnabled ||
@@ -219,9 +216,10 @@ export function NewsletterCategoriesSection( {
 							isFetchingCategories ||
 							( data.wpcom_newsletter_categories_enabled && ! isValid )
 						}
-						isBusy={ isSaving }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
 					>
-						{ isSaving ? savingText : saveText }
+						{ saveText }
 					</Button>
 				</div>
 			</Card.Content>

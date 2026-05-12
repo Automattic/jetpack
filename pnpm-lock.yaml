@@ -3374,6 +3374,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/primitives':
+        specifier: 4.44.0
+        version: 4.44.0(react@18.3.1)
       '@wordpress/route':
         specifier: 0.10.0
         version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

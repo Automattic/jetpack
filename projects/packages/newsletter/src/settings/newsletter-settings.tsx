@@ -3,7 +3,7 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Notice, Disabled, Spinner } from '@wordpress/components';
+import { Disabled, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import {
 	createInterpolateElement,
@@ -14,7 +14,7 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { Stack } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -382,9 +382,9 @@ export function NewsletterSettingsBody( {
 	if ( error ) {
 		return (
 			<div className="newsletter-settings newsletter-settings--error">
-				<Notice status="error" isDismissible={ false }>
-					{ error }
-				</Notice>
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+				</Notice.Root>
 			</div>
 		);
 	}
@@ -402,17 +402,19 @@ export function NewsletterSettingsBody( {
 		<>
 			{ ! hasConnectedOwner && (
 				<div className="newsletter-settings-connect-notice">
-					<Notice status="warning" isDismissible={ false }>
-						{ createInterpolateElement(
-							__(
-								'Connect your WordPress.com account to enable and set up your newsletter. <a>Connect now</a>',
-								'jetpack-newsletter'
-							),
-							{
-								a: connectUrl ? <a href={ connectUrl } /> : <span />,
-							}
-						) }
-					</Notice>
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ createInterpolateElement(
+								__(
+									'Connect your WordPress.com account to enable and set up your newsletter. <a>Connect now</a>',
+									'jetpack-newsletter'
+								),
+								{
+									a: connectUrl ? <a href={ connectUrl } /> : <span />,
+								}
+							) }
+						</Notice.Description>
+					</Notice.Root>
 				</div>
 			) }
 			<Disabled

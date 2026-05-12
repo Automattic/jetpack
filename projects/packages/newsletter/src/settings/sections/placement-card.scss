@@ -1,8 +1,7 @@
-// PlacementCard — selectable card composed from `<label htmlFor>` +
-// `CheckboxControl`. Selected state is driven by `[data-checked="true"]` set
-// by the React component (no `:has()` dependency for this state). Focus ring
-// uses `:has(input:focus-visible)` so the visual ring lives on the card
-// surface, matching the actual click target.
+// PlacementCard — selected / hover / focus states layered on top of the
+// `Card.Root` primitive. The card surface itself (border, radius, background,
+// overflow:clip, flex column) comes from `Card.Root`; this file only carries
+// the interactive-state colours and the absolute checkbox positioning.
 
 .jetpack-newsletter-placements-grid {
 	display: grid;
@@ -17,22 +16,9 @@
 	}
 }
 
-.jetpack-newsletter-placement {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm, 8px);
-}
-
 .jetpack-newsletter-placement__card {
+	// Position context for the absolute-positioned checkbox below.
 	position: relative;
-	// Thinner card border per WPDS — `border-width-sm` is the closest token.
-	border:
-		var(--wpds-border-width-sm, 1.5px) solid
-		var(--wpds-color-stroke-surface-neutral, #e0e0e0);
-	border-radius: var(--wpds-border-radius-md, 8px);
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-	overflow: hidden;
-	transition: border-color 0.15s ease-out;
 
 	// Selected state: brand-toned active stroke (the WPDS primary blue).
 	&[data-checked="true"] {
@@ -51,11 +37,17 @@
 			var(--wpds-color-stroke-focus-brand);
 		outline-offset: 2px;
 	}
+
+	// Only animate the border-color when the user hasn't asked to reduce
+	// motion — respects `prefers-reduced-motion: reduce`.
+	@media (prefers-reduced-motion: no-preference) {
+		transition: border-color 0.15s ease-out;
+	}
 }
 
 .jetpack-newsletter-placement__surface {
 	display: block;
-	cursor: pointer;
+	cursor: var(--wpds-cursor-control, pointer);
 }
 
 .jetpack-newsletter-placement__illustration {
@@ -80,12 +72,10 @@
 	inset-block-start: var(--wpds-dimension-padding-md, 12px);
 	inset-inline-start: var(--wpds-dimension-padding-md, 12px);
 
-	// `CheckboxControl` wraps the native input in `BaseControl` +
-	// `__field` + `__input-container`. Each carries its own
-	// margin/padding that pushes the visible square off-center inside the
-	// 12px-from-edges absolute wrapper. Zero them out so the visible
-	// checkbox box is exactly equidistant from the card's top and inline
-	// end edges.
+	// CheckboxControl from `@wordpress/components` wraps the native input in
+	// BaseControl chrome (margin/padding from `__field` + `__input-container`).
+	// `@wordpress/ui` doesn't yet ship a Form.Checkbox primitive, so until it
+	// does we zero the chrome here. Revisit once WP UI exposes a checkbox.
 	.components-base-control,
 	.components-base-control__field,
 	.components-checkbox-control,
@@ -103,16 +93,4 @@
 	.components-checkbox-control__label {
 		display: none;
 	}
-}
-
-.jetpack-newsletter-placement__caption {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-.jetpack-newsletter-placement__title {
-	font-size: var(--wpds-typography-font-size-sm, 14px);
-	font-weight: var(--wpds-typography-font-weight-regular, 400);
-	line-height: var(--wpds-typography-line-height-md, 1.4);
 }

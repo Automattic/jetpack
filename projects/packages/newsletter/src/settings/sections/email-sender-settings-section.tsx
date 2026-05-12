@@ -3,11 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -82,7 +81,7 @@ export function EmailSenderSettingsSection( {
 				<Card.Title>{ __( 'Sender settings', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					<DataForm
 						data={ data }
 						fields={ fields }
@@ -112,16 +111,15 @@ export function EmailSenderSettingsSection( {
 							) }
 						</Text>
 					</p>
-				</fieldset>
+				</Fieldset.Root>
 				<div className="newsletter-card-footer">
 					<Button
-						__next40pxDefaultSize
-						variant="primary"
 						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
 					>
-						{ isSaving ? savingText : saveText }
+						{ saveText }
 					</Button>
 				</div>
 			</Card.Content>

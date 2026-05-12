@@ -3,11 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -114,7 +113,7 @@ export function WelcomeEmailSection( {
 						) }
 					</Text>
 				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
 					<DataForm
 						data={ formData }
 						fields={ fields }
@@ -127,16 +126,15 @@ export function WelcomeEmailSection( {
 						} }
 						onChange={ handleDataFormChange }
 					/>
-				</fieldset>
+				</Fieldset.Root>
 				<div className="newsletter-card-footer">
 					<Button
-						__next40pxDefaultSize
-						variant="primary"
 						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
 					>
-						{ isSaving ? savingText : saveText }
+						{ saveText }
 					</Button>
 				</div>
 			</Card.Content>
