@@ -10,7 +10,6 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
-use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Throwable;
 use WP_Post;
 use WP_Query;
@@ -44,6 +43,21 @@ class Tracks {
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
+
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'allow_show_launched_option_sync' ) );
+	}
+
+	/**
+	 * Whitelist `podcast_show_launched_tracked` for Jetpack Sync so its
+	 * `added_option` event reaches WPcom, where a listener surfaces the
+	 * launch in the customer's Activity Log UI.
+	 *
+	 * @param array $options Whitelisted option names.
+	 * @return array
+	 */
+	public static function allow_show_launched_option_sync( $options ): array {
+		$options[] = 'podcast_show_launched_tracked';
+		return $options;
 	}
 
 	/**
@@ -110,8 +124,6 @@ class Tracks {
 				self::identity_for_post( $post )
 			);
 
-			self::record_episode_published_activity( $post );
-
 			// Atomic INSERT — only one concurrent caller per site wins, so
 			// `show_launched` fires exactly once per site.
 			if ( $is_first && add_option( 'podcast_show_launched_tracked', time(), '', false ) ) {
@@ -120,8 +132,6 @@ class Tracks {
 					array( 'post_id' => (int) $post->ID ),
 					self::identity_for_post( $post )
 				);
-
-				self::record_show_launched_activity( $post );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort — never break a publish.
@@ -355,63 +365,6 @@ class Tracks {
 	}
 
 	/**
-	 * Write a `podcast_show_launched` entry to the Jetpack Activity Log. The
-	 * entry syncs to WPcom as a `jp_act_log_event` post, which downstream
-	 * listeners (e.g. the `#podcast-alerts` Slack notifier in the wpcom
-	 * podcasting mu-plugin) hook to surface the launch.
-	 *
-	 * @param WP_Post $post First episode that triggered the launch.
-	 */
-	private static function record_show_launched_activity( WP_Post $post ): void {
-		Activity_Log_Event::create(
-			array(
-				'title'    => __( 'Podcast show launched', 'jetpack-podcast' ),
-				'content'  => sprintf(
-					/* translators: 1: episode post ID, 2: episode title. */
-					__( 'First episode published (post %1$d): %2$s', 'jetpack-podcast' ),
-					(int) $post->ID,
-					$post->post_title
-				),
-				'source'   => 'podcast_show_launched',
-				'severity' => 'success',
-				'extra'    => array(
-					'post_id'    => (int) $post->ID,
-					'post_url'   => (string) get_permalink( $post ),
-					'post_title' => (string) $post->post_title,
-				),
-			)
-		);
-	}
-
-	/**
-	 * Write a `podcast_episode_published` entry to the Jetpack Activity Log.
-	 * Fires for every podcast episode publish (after all the same gates as
-	 * the `wpcom_podcast_episode_published` tracks event).
-	 *
-	 * @param WP_Post $post Episode that triggered the event.
-	 */
-	private static function record_episode_published_activity( WP_Post $post ): void {
-		Activity_Log_Event::create(
-			array(
-				'title'    => __( 'Podcast episode published', 'jetpack-podcast' ),
-				'content'  => sprintf(
-					/* translators: 1: episode post ID, 2: episode title. */
-					__( 'Episode published (post %1$d): %2$s', 'jetpack-podcast' ),
-					(int) $post->ID,
-					$post->post_title
-				),
-				'source'   => 'podcast_episode_published',
-				'severity' => 'info',
-				'extra'    => array(
-					'post_id'    => (int) $post->ID,
-					'post_url'   => (string) get_permalink( $post ),
-					'post_title' => (string) $post->post_title,
-				),
-			)
-		);
-	}
-
-	/**
 	 * Identity for the publish event. Scheduled/cron publishes have no
 	 * logged-in user — fall back to the post author.
 	 *
@@ -485,6 +438,7 @@ class Tracks {
 			}
 
 			if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 				return ( new \Automattic\Jetpack\Tracking() )->tracks_record_event( $user, $event_name, $properties );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
