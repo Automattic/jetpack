@@ -32,12 +32,14 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
+		"@automattic/ui": "1.0.2",
 		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/compose": "7.44.0",
 		"@wordpress/core-data": "7.44.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/html-entities": "4.44.0",
 		"@wordpress/i18n": "6.17.0",
@@ -47,7 +49,8 @@
 		"@wordpress/route": "0.10.0",
 		"@wordpress/ui": "0.11.0",
 		"@wordpress/url": "4.44.0",
-		"canvas-confetti": "1.9.4"
+		"canvas-confetti": "1.9.4",
+		"date-fns": "4.1.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",

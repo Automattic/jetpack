@@ -1,0 +1,86 @@
+// Mirrors the activity-log port of Calypso's
+// `date-range-picker/style.scss`.
+
+.daterange-popover .components-popover__content {
+	overflow: visible;
+	width: auto;
+	max-width: calc(100vw - 48px);
+}
+
+.daterange-inputs {
+	margin-bottom: 12px;
+}
+
+.daterange-input {
+
+	&__field {
+
+		&.components-button {
+			background: #fff;
+			padding: 4px 4px 4px 8px;
+			box-shadow: none;
+			border-radius: 2px;
+			border: 1px solid #949494;
+		}
+
+		svg {
+			color: #1e1e1e;
+			padding: 4px;
+		}
+	}
+
+	&__text {
+		color: #1e1e1e;
+		padding: 0 4px;
+	}
+}
+
+@media (max-width: 600px) {
+
+	.daterange-calendar {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+	}
+}
+
+@media (min-width: 601px) and (max-width: 899px) {
+
+	.daterange-body {
+		justify-content: space-between !important;
+	}
+}
+
+@media (min-width: 601px) {
+
+	.daterange-presets {
+		min-width: 240px;
+	}
+}
+
+.preset-listbox__item .components-button {
+	width: 100%;
+	justify-content: flex-start;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.daterange-inputs input[type="date"]::-webkit-calendar-picker-indicator {
+	display: none;
+}
+
+.daterange-inputs input[type="date"]::-webkit-clear-button {
+	display: none;
+}
+
+// Hide the disabled forward/back navigation chevrons when the calendar
+// reaches its start/end month bound. The podcast Stats endpoint never
+// serves dates beyond today or older than a year, so the arrows are
+// non-functional and visually confusing if rendered.
+// @automattic/ui's calendar uses react-day-picker v9, which marks bounded
+// nav buttons with `aria-disabled="true"` (day buttons use the native
+// `disabled` attribute instead, so this only matches the month chevrons).
+.daterange-calendar button[aria-disabled="true"] {
+	visibility: hidden;
+}

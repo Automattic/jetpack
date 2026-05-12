@@ -14,7 +14,7 @@ type StatsByDayChartProps = {
 	range?: PodcastStatsRange;
 	period: PodcastStatsPeriod;
 	isLoading?: boolean;
-	children?: ReactNode;
+	summary?: ReactNode;
 };
 
 type DownloadDatum = {
@@ -67,7 +67,7 @@ const StatsByDayChart = ( {
 	range,
 	period,
 	isLoading = false,
-	children,
+	summary,
 }: StatsByDayChartProps ) => {
 	const downloadsLabel = __( 'Downloads', 'jetpack-podcast' );
 
@@ -177,12 +177,10 @@ const StatsByDayChart = ( {
 		);
 	}
 
-	// Render the SummaryTiles (passed via children) regardless of loading/empty
-	// so the user sees per-tile loading skeletons rather than a single page-wide spinner.
 	return (
 		<SectionCard className="podcast-stats-chart" title={ downloadsLabel } metric={ rangeLabel }>
 			{ chartContent }
-			{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
+			{ summary }
 		</SectionCard>
 	);
 };

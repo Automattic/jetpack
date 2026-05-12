@@ -1,8 +1,13 @@
-export type PodcastStatsPeriod = '7d' | '30d' | '90d' | 'all';
+export type PodcastStatsPeriod = '7d' | '30d' | '90d' | 'all' | 'custom';
 
 export type PodcastStatsRange = {
 	from: string;
 	to: string;
+};
+
+export type PodcastStatsSelection = {
+	period: PodcastStatsPeriod;
+	range: PodcastStatsRange;
 };
 
 export type PodcastStatsAppRow = {

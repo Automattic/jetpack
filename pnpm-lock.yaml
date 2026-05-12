@@ -3634,6 +3634,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@automattic/ui':
+        specifier: 1.0.2
+        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
@@ -3652,6 +3655,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 14.1.0
         version: 14.1.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.44.0
+        version: 5.44.0
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
@@ -3682,6 +3688,9 @@ importers:
       canvas-confetti:
         specifier: 1.9.4
         version: 1.9.4
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*

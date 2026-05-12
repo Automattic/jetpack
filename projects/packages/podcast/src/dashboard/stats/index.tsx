@@ -9,18 +9,21 @@ import StatsByDayChart from './components/stats-by-day-chart';
 import StatsLocations from './components/stats-locations';
 import StatsTopEpisodes from './components/stats-top-episodes';
 import SummaryTiles from './components/summary-tiles';
+import { getDefaultSelection } from './range';
 import './style.scss';
 import { useShowStatsQuery } from './use-show-stats-query';
-import type { PodcastStatsPeriod, PodcastStatsTopEpisode } from './types';
+import type { PodcastStatsSelection, PodcastStatsTopEpisode } from './types';
 
 const Stats = () => {
 	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( '30d' );
+	const [ selection, setSelection ] = useState< PodcastStatsSelection >( () =>
+		getDefaultSelection()
+	);
 	const [ selected, setSelected ] = useState< PodcastStatsTopEpisode | null >( null );
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
 	const prevSelectedRef = useRef< PodcastStatsTopEpisode | null >( null );
 
-	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
+	const { data: stats, isLoading, isError } = useShowStatsQuery( selection );
 
 	const handleBack = useCallback( () => setSelected( null ), [] );
 
@@ -51,7 +54,7 @@ const Stats = () => {
 				postId={ selected.post_id }
 				title={ selected.title || __( '(Untitled)', 'jetpack-podcast' ) }
 				onBack={ handleBack }
-				initialPeriod={ period }
+				initialSelection={ selection }
 			/>
 		);
 	}
@@ -64,7 +67,7 @@ const Stats = () => {
 			<div className="podcast-stats__header">
 				<header className="podcast-stats__section-header">
 					<h2 ref={ headingRef } tabIndex={ -1 } className="podcast-stats__period-heading">
-						{ getPeriodHeading( period ) }
+						{ getPeriodHeading( selection ) }
 					</h2>
 					<p className="podcast-stats__section-description">
 						{ __(
@@ -73,7 +76,7 @@ const Stats = () => {
 						) }
 					</p>
 				</header>
-				<PeriodControl value={ period } onChange={ setPeriod } />
+				<PeriodControl value={ selection } onChange={ setSelection } />
 			</div>
 
 			{ isError && (
@@ -104,18 +107,18 @@ const Stats = () => {
 					<StatsByDayChart
 						byDay={ stats?.by_day }
 						range={ stats?.range }
-						period={ period }
+						period={ selection.period }
 						isLoading={ isLoading }
-					>
-						<SummaryTiles
-							totalPlays={ stats?.total_plays }
-							byApp={ stats?.by_app }
-							byCountry={ stats?.by_country }
-							topDay={ stats?.top_day }
-							isLoading={ isLoading }
-							layout="chart"
-						/>
-					</StatsByDayChart>
+						summary={
+							<SummaryTiles
+								totalPlays={ stats?.total_plays }
+								byApp={ stats?.by_app }
+								byCountry={ stats?.by_country }
+								topDay={ stats?.top_day }
+								isLoading={ isLoading }
+							/>
+						}
+					/>
 					<div className="podcast-stats__module-grid">
 						<StatsTopEpisodes
 							episodes={ stats?.top_episodes }
