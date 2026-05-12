@@ -46,6 +46,9 @@ body.jetpack_page_jetpack-ai {
 		}
 	}
 
+	// Both pieces of the breadcrumb match the page-heading weight so the
+	// header on sub-views reads as "AI / Read" with the same visual heft as
+	// the hub's "AI" h1 title.
 	&__breadcrumb-link {
 		display: inline-flex;
 		align-items: center;
@@ -56,7 +59,7 @@ body.jetpack_page_jetpack-ai {
 		cursor: pointer;
 		color: inherit;
 		font-size: inherit;
-		font-weight: inherit;
+		font-weight: 600;
 		line-height: inherit;
 		text-decoration: none;
 
@@ -67,7 +70,7 @@ body.jetpack_page_jetpack-ai {
 
 	&__breadcrumb-current {
 		font-size: inherit;
-		font-weight: inherit;
+		font-weight: 600;
 		line-height: inherit;
 		margin: 0;
 	}
