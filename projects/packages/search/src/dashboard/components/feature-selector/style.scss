@@ -15,6 +15,18 @@
 
 .jp-search-feature-selector {
 
+	// WP admin has no global `box-sizing: border-box` reset, so children that
+	// use `width: 100%` plus padding/border (like the previews) end up wider
+	// than their parent's content box and bleed into the card's right padding.
+	// Storybook *does* apply that reset, which is why this only showed up on
+	// the live admin page. Scope the fix to descendants of the form.
+	&,
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
 	&__fieldset {
 		border: 0;
 		margin: 0;
