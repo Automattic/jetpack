@@ -322,6 +322,11 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
+	/**
+	 * Explicit tick values for the axis. When set, takes precedence over `numTicks`
+	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
+	 */
+	tickValues?: number[];
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -352,6 +357,11 @@ export type AxisOptions = {
 export type ScaleOptions = {
 	type?: ScaleType;
 	zero?: boolean;
+	/**
+	 * Extends the scale's domain to nice round values. Pass `false` together with
+	 * an explicit `domain` to keep the tick values you set exactly.
+	 */
+	nice?: boolean;
 	domain?: [ number, number ];
 	range?: [ number, number ];
 	/**

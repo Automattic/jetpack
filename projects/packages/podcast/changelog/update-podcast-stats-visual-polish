@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: visual polish on the Stats tab — keep horizontal padding at narrow widths, lighter card headers, and integer-only axis ticks on the Downloads chart.

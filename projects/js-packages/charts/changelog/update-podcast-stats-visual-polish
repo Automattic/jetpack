@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks.
