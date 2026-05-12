@@ -121,12 +121,13 @@ class Shortlinks_Abilities extends Registrar {
 	}
 
 	/**
-	 * Permission check: any authenticated user may request shortlinks. Per-post
-	 * read capability is enforced inside the execute callback so that
-	 * unreadable IDs are silently omitted rather than failing the whole call.
+	 * Permission check: require edit_posts so only users with content-management
+	 * rights may enumerate shortlinks. Per-post read capability is still
+	 * enforced inside the execute callback so unreadable IDs are silently
+	 * omitted rather than failing the whole call.
 	 */
 	public static function can_view_shortlinks(): bool {
-		return is_user_logged_in();
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**

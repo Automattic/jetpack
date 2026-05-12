@@ -26,6 +26,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 	private static $admin_id;
 
 	/** @var int */
+	private static $author_id;
+
+	/** @var int */
 	private static $subscriber_id;
 
 	/** @var int */
@@ -42,6 +45,13 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 				'user_login' => 'shortlinks_admin_' . wp_generate_password( 8, false ),
 				'user_pass'  => 'pw',
 				'role'       => 'administrator',
+			)
+		);
+		self::$author_id     = wp_insert_user(
+			array(
+				'user_login' => 'shortlinks_author_' . wp_generate_password( 8, false ),
+				'user_pass'  => 'pw',
+				'role'       => 'author',
 			)
 		);
 		self::$subscriber_id = wp_insert_user(
@@ -208,11 +218,27 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Authenticated users may call the read permission_callback.
+	 * Authors (who have edit_posts) may call the read permission_callback.
 	 */
-	public function test_can_view_allows_authenticated_user() {
-		wp_set_current_user( self::$subscriber_id );
+	public function test_can_view_allows_author() {
+		wp_set_current_user( self::$author_id );
 		$this->assertTrue( Shortlinks_Abilities::can_view_shortlinks() );
+	}
+
+	/**
+	 * Administrators (who have edit_posts) may call the read permission_callback.
+	 */
+	public function test_can_view_allows_administrator() {
+		wp_set_current_user( self::$admin_id );
+		$this->assertTrue( Shortlinks_Abilities::can_view_shortlinks() );
+	}
+
+	/**
+	 * Subscribers (who lack edit_posts) are denied by the read permission_callback.
+	 */
+	public function test_can_view_denies_subscriber() {
+		wp_set_current_user( self::$subscriber_id );
+		$this->assertFalse( Shortlinks_Abilities::can_view_shortlinks() );
 	}
 
 	/**
