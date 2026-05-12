@@ -32,9 +32,15 @@ const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps )
 	}
 
 	const unknown = __( 'Unknown', 'jetpack-podcast' );
+	// Drop rows with a missing country code from the map — GeoChart can't
+	// place them on a region and an empty key trips up its color scale. The
+	// bar list keeps them under "Unknown" via the `id: row.country || 'unknown'`
+	// fallback below.
 	const mapData: GeoData = [
 		[ __( 'Country', 'jetpack-podcast' ), __( 'Downloads', 'jetpack-podcast' ) ],
-		...rows.map( row => [ row.country, row.plays ] as [ string, number ] ),
+		...rows
+			.filter( row => row.country )
+			.map( row => [ row.country, row.plays ] as [ string, number ] ),
 	];
 
 	const maxValue = rows.reduce( ( max, row ) => Math.max( max, row.plays ), 0 );
