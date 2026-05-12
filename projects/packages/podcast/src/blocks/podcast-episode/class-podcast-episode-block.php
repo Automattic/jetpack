@@ -62,8 +62,10 @@ class Podcast_Episode_Block {
 			return;
 		}
 
+		$handle = 'jetpack-podcast-episode-editor';
+
 		Assets::register_script(
-			'jetpack-podcast-episode-editor',
+			$handle,
 			'../../../dist/blocks/podcast-episode/editor.js',
 			__FILE__,
 			array(
@@ -71,6 +73,36 @@ class Podcast_Episode_Block {
 				'enqueue'    => true,
 				'textdomain' => 'jetpack-podcast',
 			)
+		);
+
+		self::force_admin_scheme( $handle );
+	}
+
+	/**
+	 * Coerce a registered script's URL to match the admin scheme.
+	 *
+	 * On WPCOM sites with a custom domain mapping that lacks SSL, `home_url()`
+	 * (and therefore `plugins_url()`) returns `http://mapped-domain.test` even
+	 * though wp-admin is served from `.wordpress.com` over HTTPS. The script
+	 * URL then trips the browser's mixed-content block. Rewriting to the
+	 * admin's own scheme keeps the URL valid for both cases.
+	 *
+	 * @param string $handle Registered script handle.
+	 */
+	private static function force_admin_scheme( $handle ) {
+		global $wp_scripts;
+		if ( ! isset( $wp_scripts->registered[ $handle ] ) ) {
+			return;
+		}
+
+		$admin_scheme = wp_parse_url( admin_url(), PHP_URL_SCHEME );
+		if ( ! $admin_scheme ) {
+			return;
+		}
+
+		$wp_scripts->registered[ $handle ]->src = set_url_scheme(
+			$wp_scripts->registered[ $handle ]->src,
+			$admin_scheme
 		);
 	}
 
@@ -150,13 +182,7 @@ class Podcast_Episode_Block {
 			}
 		}
 
-		// `get_block_wrapper_attributes()` reads from `WP_Block_Supports::$block_to_render`,
-		// which is set by WP's block render pipeline. When this render is invoked outside
-		// that pipeline (e.g. unit tests calling render_block() directly), the helper
-		// warns; skip it gracefully and fall back to the minimal block class.
-		$wrapper_attributes = ! empty( \WP_Block_Supports::$block_to_render )
-			? get_block_wrapper_attributes()
-			: 'class="wp-block-jetpack-podcast-episode"';
+		$wrapper_attributes = get_block_wrapper_attributes();
 
 		ob_start();
 		?>
@@ -174,7 +200,7 @@ class Podcast_Episode_Block {
 				<?php endif; ?>
 
 				<div class="jetpack-podcast-episode__body">
-					<?php if ( $season_number || $episode_number || 'full' !== $episode_type ) : ?>
+					<?php if ( $season_number || $episode_number || 'full' !== $episode_type || $is_explicit ) : ?>
 						<p class="jetpack-podcast-episode__meta-line">
 							<?php if ( $season_number ) : ?>
 								<span class="jetpack-podcast-episode__season">
@@ -210,7 +236,9 @@ class Podcast_Episode_Block {
 					<?php if ( $author_name || $publish_date || $duration ) : ?>
 						<p class="jetpack-podcast-episode__byline">
 							<?php if ( $author_name ) : ?>
-								<span class="jetpack-podcast-episode__author" itemprop="author"><?php echo esc_html( $author_name ); ?></span>
+								<span class="jetpack-podcast-episode__author" itemprop="author" itemscope itemtype="https://schema.org/Person">
+									<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+								</span>
 							<?php endif; ?>
 							<?php if ( $publish_date ) : ?>
 								<time

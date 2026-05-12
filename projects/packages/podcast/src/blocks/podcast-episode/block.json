@@ -36,9 +36,6 @@
 		"mediaMimeType": {
 			"type": "string"
 		},
-		"mediaSize": {
-			"type": "integer"
-		},
 		"episodeNumber": {
 			"type": "integer"
 		},

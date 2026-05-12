@@ -45,7 +45,6 @@ interface PodcastEpisodeAttributes {
 	mediaUrl?: string;
 	mediaType?: 'audio' | 'video';
 	mediaMimeType?: string;
-	mediaSize?: number;
 	episodeNumber?: number;
 	seasonNumber?: number;
 	episodeType?: 'full' | 'trailer' | 'bonus';
@@ -70,8 +69,6 @@ interface MediaAttachment {
 	mime_type?: string;
 	fileLength?: string;
 	duration?: number;
-	filesizeInBytes?: number;
-	filesize_in_bytes?: number;
 }
 
 interface EditProps {
@@ -239,7 +236,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			mediaUrl: media.url,
 			mediaType: type,
 			mediaMimeType: media.mime || media.mime_type || '',
-			mediaSize: media.filesizeInBytes || media.filesize_in_bytes || undefined,
 			duration: nextDuration || '',
 		};
 		setAttributes( immediate );
@@ -254,7 +250,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			const attachment = ( await apiFetch( {
 				path: `/wp/v2/media/${ media.id }`,
 			} ) ) as {
-				media_details?: { length_formatted?: string; length?: number; filesize?: number };
+				media_details?: { length_formatted?: string; length?: number };
 				mime_type?: string;
 			};
 			const details = attachment?.media_details || {};
@@ -265,10 +261,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 				patch.duration = details.length_formatted;
 			} else if ( ! immediate.duration && details.length ) {
 				patch.duration = convertSecondsToTimeCode( details.length );
-			}
-
-			if ( ! immediate.mediaSize && details.filesize ) {
-				patch.mediaSize = Number( details.filesize );
 			}
 
 			if ( ! immediate.mediaMimeType && attachment?.mime_type ) {
