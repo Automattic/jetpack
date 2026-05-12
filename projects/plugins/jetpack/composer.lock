@@ -616,7 +616,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "f600123b4b3ab650ab4f927971069b83f52d8ef6"
+                "reference": "07ecff35c9e4445f454e0b2d2977ffd4433e52ef"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -626,6 +626,7 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

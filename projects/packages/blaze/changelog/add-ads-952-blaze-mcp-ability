@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Blaze: register a read-only `blaze-ads/list-campaigns` ability and opt it into WooCommerce's MCP server tool whitelist when Woo 10.7+ MCP is present.
