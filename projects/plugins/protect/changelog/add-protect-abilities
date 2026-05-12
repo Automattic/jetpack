@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register Protect reads (get-status, list-threats, get-threat) and Account Protection get/set.

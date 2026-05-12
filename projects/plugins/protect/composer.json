@@ -18,11 +18,13 @@
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-protect-status": "@dev",
-		"automattic/jetpack-account-protection": "@dev"
+		"automattic/jetpack-account-protection": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"autoload": {
 		"classmap": [

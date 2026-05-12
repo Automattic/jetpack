@@ -143,6 +143,10 @@ class Jetpack_Protect {
 
 		// Sets up JITMS.
 		JITM::configure();
+
+		// Register Jetpack Protect abilities with the WP Abilities API.
+		// Registrar::init() handles the jetpack_wp_abilities_enabled gate.
+		\Automattic\Jetpack\Protect\Abilities\Protect_Abilities::init();
 	}
 
 	/**
