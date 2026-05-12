@@ -125,8 +125,11 @@ class Initializer {
 		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
 			// Phase 1 ships without WooCommerce-only Search blocks. Hook
 			// the gate to false at default priority so a site can opt
-			// back in by adding its own filter at a later priority (or
-			// at the same priority — its callback runs after ours).
+			// back in by registering its own callback at a higher
+			// priority number (priority > 10). A site that adds its
+			// callback at the same priority must also ensure it runs
+			// *after* this `add_filter` call, since WordPress fires
+			// equal-priority callbacks in FIFO order.
 			add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 			Search_Blocks::init();
 		}
