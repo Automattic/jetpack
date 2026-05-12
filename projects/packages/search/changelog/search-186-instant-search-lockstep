@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: Mirror jetpack_search_experience writes onto the legacy instant_search_enabled boolean, so direct option writes that bypass update_experience() still keep legacy readers in sync.

@@ -252,48 +252,6 @@ class Module_Control {
 	}
 
 	/**
-	 * Keep `instant_search_enabled` in lockstep with `jetpack_search_experience`.
-	 *
-	 * Legacy readers (Initializer, Options, sidebar registration) still check
-	 * `instant_search_enabled`. Whenever the canonical experience option is
-	 * written — through `update_experience()` *or* a direct `update_option()` —
-	 * mirror the change so those readers see the right state. Skipped on
-	 * Jetpack-connected sites running in offline / safe mode (Sync wouldn't
-	 * replicate the change anyway, and the local site state is whatever the
-	 * caller already wrote).
-	 *
-	 * @param string $experience The value just written to `jetpack_search_experience`.
-	 */
-	public static function sync_instant_search_with_experience( $experience ) {
-		$should_be_enabled = ( self::EXPERIENCE_OVERLAY === $experience );
-		$current           = (bool) get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
-		if ( $should_be_enabled !== $current ) {
-			update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, $should_be_enabled );
-		}
-	}
-
-	/**
-	 * Action adapter for `add_option_jetpack_search_experience` — args are `($option, $value)`.
-	 *
-	 * @param string $option Option name.
-	 * @param mixed  $value  Option value just added.
-	 */
-	public static function on_search_experience_added( $option, $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		self::sync_instant_search_with_experience( (string) $value );
-	}
-
-	/**
-	 * Action adapter for `update_option_jetpack_search_experience` — args are `($old, $new, $option)`.
-	 *
-	 * @param mixed  $old_value Previous option value.
-	 * @param mixed  $new_value New option value.
-	 * @param string $option    Option name.
-	 */
-	public static function on_search_experience_updated( $old_value, $new_value, $option ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		self::sync_instant_search_with_experience( (string) $new_value );
-	}
-
-	/**
 	 * Get a list of activated modules as an array of module slugs.
 	 *
 	 * @deprecated 0.12.3

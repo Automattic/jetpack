@@ -415,38 +415,6 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Direct writes to `jetpack_search_experience` keep `instant_search_enabled`
-	 * in lockstep, so legacy readers (and code paths that bypass
-	 * `Module_Control::update_experience()`) still see the right state.
-	 *
-	 * @param string $experience       Value written to `jetpack_search_experience`.
-	 * @param bool   $expected_instant Expected `instant_search_enabled` after the write.
-	 * @testWith
-	 *  ["overlay",true]
-	 *  ["embedded",false]
-	 *  ["",false]
-	 */
-	#[\PHPUnit\Framework\Attributes\TestWith( array( 'overlay', true ) )]
-	#[\PHPUnit\Framework\Attributes\TestWith( array( 'embedded', false ) )]
-	#[\PHPUnit\Framework\Attributes\TestWith( array( '', false ) )]
-	public function test_direct_write_to_experience_keeps_instant_search_in_lockstep( $experience, $expected_instant ) {
-		add_action( 'add_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_added' ), 10, 2 );
-		add_action( 'update_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_updated' ), 10, 3 );
-
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, ! $expected_instant );
-
-		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, $experience );
-
-		$this->assertSame( $expected_instant, (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false ) );
-
-		remove_action( 'add_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_added' ), 10 );
-		remove_action( 'update_option_' . Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, array( Module_Control::class, 'on_search_experience_updated' ), 10 );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
-	}
-
-	/**
 	 * Returns an empty array
 	 */
 	public function return_empty_array() {
