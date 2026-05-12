@@ -49,9 +49,8 @@ export function useShowStatsQuery(
 ): { data?: PodcastShowStats; isLoading: boolean; isError: boolean } {
 	const [ overview, setOverview ] = useState< PodcastStatsOverviewResponse | undefined >();
 	const [ summary, setSummary ] = useState< PodcastStatsSummaryResponse | undefined >();
-	const [ overviewLoading, setOverviewLoading ] = useState( false );
-	const [ summaryLoading, setSummaryLoading ] = useState( false );
-	const [ isError, setIsError ] = useState( false );
+	const [ overviewError, setOverviewError ] = useState( false );
+	const [ summaryError, setSummaryError ] = useState( false );
 
 	useEffect( () => {
 		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
@@ -59,7 +58,7 @@ export function useShowStatsQuery(
 			return;
 		}
 		let cancelled = false;
-		setOverviewLoading( true );
+		setOverviewError( false );
 		apiFetch< PodcastStatsOverviewResponse >( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/overview`, { limit } ),
 			method: 'GET',
@@ -67,13 +66,11 @@ export function useShowStatsQuery(
 			.then( response => {
 				if ( ! cancelled ) {
 					setOverview( response );
-					setOverviewLoading( false );
 				}
 			} )
 			.catch( () => {
 				if ( ! cancelled ) {
-					setIsError( true );
-					setOverviewLoading( false );
+					setOverviewError( true );
 				}
 			} );
 		return () => {
@@ -88,8 +85,7 @@ export function useShowStatsQuery(
 		}
 		const range = getStatsDateRange( period );
 		let cancelled = false;
-		setSummaryLoading( true );
-		setIsError( false );
+		setSummaryError( false );
 		apiFetch< PodcastStatsSummaryResponse >( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats`, {
 				from: range.from,
@@ -101,13 +97,11 @@ export function useShowStatsQuery(
 			.then( response => {
 				if ( ! cancelled ) {
 					setSummary( response );
-					setSummaryLoading( false );
 				}
 			} )
 			.catch( () => {
 				if ( ! cancelled ) {
-					setIsError( true );
-					setSummaryLoading( false );
+					setSummaryError( true );
 				}
 			} );
 		return () => {
@@ -115,12 +109,17 @@ export function useShowStatsQuery(
 		};
 	}, [ period, limit ] );
 
-	let data: PodcastShowStats | undefined = summary
-		? { ...summary, period, top_day: null }
-		: undefined;
-	if ( data && overview ) {
+	const isError = overviewError || summaryError;
+
+	// Build data only once both queries have landed, so the UI never shows a
+	// transient state where total_plays is the summary's value and top_day is
+	// null. After first load, period changes keep the previous summary on
+	// screen until the new one arrives — no skeleton flash.
+	let data: PodcastShowStats | undefined;
+	if ( summary && overview ) {
 		data = {
-			...data,
+			...summary,
+			period,
 			total_plays: getOverviewTotal( overview, period ),
 			top_day: overview.top_day,
 		};
@@ -136,7 +135,7 @@ export function useShowStatsQuery(
 
 	return {
 		data,
-		isLoading: overviewLoading || summaryLoading,
+		isLoading: ! data && ! isError,
 		isError,
 	};
 }
