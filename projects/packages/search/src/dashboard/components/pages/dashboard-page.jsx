@@ -10,7 +10,6 @@ import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
-import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -158,13 +157,6 @@ export default function DashboardPage( { isLoading = false } ) {
 									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 								/>
 							) }
-							<ReaderChatControl
-								isAvailable={ isReaderChatAvailable }
-								isEnabled={ isReaderChatEnabled }
-								isSaving={ isSavingEitherOption }
-								guidelinesUrl={ readerChatGuidelinesUrl }
-								updateOptions={ updateOptions }
-							/>
 						</div>
 						{ ! isPageLoading && (
 							<>
@@ -206,6 +198,8 @@ export default function DashboardPage( { isLoading = false } ) {
 											domain={ domain }
 											isDisabledFromOverLimit={ isOverLimit }
 											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isReaderChatAvailable={ isReaderChatAvailable }
+											isReaderChatEnabled={ isReaderChatEnabled }
 											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 											supportsSearch={ supportsSearch }
 											supportsInstantSearch={ supportsInstantSearch }
@@ -214,6 +208,7 @@ export default function DashboardPage( { isLoading = false } ) {
 											isSavingEitherOption={ isSavingEitherOption }
 											isTogglingModule={ isTogglingModule }
 											isTogglingInstantSearch={ isTogglingInstantSearch }
+											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
 										/>
 									) }
 								</div>
