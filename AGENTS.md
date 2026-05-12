@@ -43,6 +43,8 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
+# Parallel instances on a second worktree: `jp docker up -d --name <slug> --port <n> [--port-phpmy/-inbox/-smtp/-sftp <n>]`.
+# See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```
 
@@ -88,7 +90,7 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 ### JavaScript & React Standards
 
 - Write modern ES6+ code following WordPress JS standards
-- Use `@wordpress/element` instead of importing React directly
+- Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
 - Follow WordPress component lifecycle patterns and accessibility guidelines
@@ -131,6 +133,7 @@ jp test coverage <project>      # Generate coverage report (optional)
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) use `jp docker phpunit` instead.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)

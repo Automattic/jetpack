@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Prevent editing post content while image or video modal is open

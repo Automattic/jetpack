@@ -79,27 +79,6 @@ function getLegacyWelcomeZBSCSSEntries() {
 	return entries;
 }
 
-/**
- * Return object with React component view file mapping.
- *
- * We look for "view.{js,jsx,ts,tsx}" files in React component directories to determine
- * if we should build the component or not. This is useful for bootstrap/app components
- * that import other components.
- *
- * @return {object} An object with a build path and a corresponding file path.
- */
-function getReactComponentViewMapping() {
-	const entries = {};
-
-	glob.sync( 'src/js/components/**/view.{js,jsx,ts,tsx}' ).forEach( file => {
-		const pathDetails = path.parse( file );
-		const directoryName = pathDetails.dir.substring( pathDetails.dir.lastIndexOf( '/' ) + 1 );
-		entries[ `${ directoryName }/index` ] = './' + file;
-	} );
-
-	return entries;
-}
-
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: false,
@@ -113,10 +92,6 @@ const crmWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
-		alias: {
-			...jetpackWebpackConfig.resolve.alias,
-			crm: path.resolve( __dirname, 'src/js/' ),
-		},
 	},
 	node: false,
 	plugins: [
@@ -267,47 +242,6 @@ module.exports = [
 				assets: /\.js(\.map)?$/,
 			} ),
 		],
-	},
-	{
-		...crmWebpackConfig,
-		entry: getReactComponentViewMapping(),
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.resolve( './build' ),
-		},
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
-		module: {
-			...crmWebpackConfig.module,
-			rules: [
-				...crmWebpackConfig.module.rules,
-
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'sass-loader',
-							options: {
-								api: 'modern-compiler',
-								sassOptions: {
-									style: 'expanded',
-								},
-							},
-						},
-					],
-					CssLoader: {
-						modules: ! jetpackWebpackConfig.isProduction
-							? {
-									localIdentName: '[name]__[local]--[hash:base64:5]',
-							  }
-							: {},
-					},
-				} ),
-
-				// Handle images.
-				jetpackWebpackConfig.FileRule(),
-			],
-		},
 	},
 	// Copy third-party libraries into build dir.
 	{

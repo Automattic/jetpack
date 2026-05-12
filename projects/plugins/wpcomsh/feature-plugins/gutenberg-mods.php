@@ -52,6 +52,7 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
 function wpcomsh_filter_gutenberg_experiments() {
 	return array(
 		'gutenberg-content-guidelines' => true,
+		'gutenberg-guidelines'         => true,
 	);
 }
 
@@ -191,3 +192,40 @@ function wpcom_safecss_allow_additional_css_properties( $css_properties ) {
 	return $css_properties;
 }
 add_filter( 'safe_style_css', 'wpcom_safecss_allow_additional_css_properties', 10, 1 );
+
+/**
+ * Add guideline meta keys to the Jetpack sync post meta whitelist.
+ *
+ * @param array $whitelist Current post meta whitelist.
+ * @return array
+ */
+function wpcomsh_add_guideline_sync_meta_whitelist( $whitelist ) {
+	$guideline_meta_keys = array(
+		'_guideline_copy',
+		'_guideline_images',
+		'_guideline_site',
+		'_guideline_additional',
+		'_guideline_block_core_paragraph',
+		'_guideline_block_core_image',
+		'_guideline_block_core_heading',
+		'_guideline_block_core_list',
+		'_guideline_block_core_list_item',
+		'_guideline_block_core_quote',
+		'_guideline_block_core_code',
+		'_guideline_block_core_table',
+		'_guideline_block_core_video',
+		'_guideline_block_core_audio',
+		'_guideline_block_core_gallery',
+		'_guideline_block_core_cover',
+		'_guideline_block_core_pullquote',
+		'_guideline_block_core_preformatted',
+		'_guideline_block_core_verse',
+		'_guideline_block_core_button',
+		'_guideline_block_core_media_text',
+		'_guideline_block_core_freeform',
+		'_guideline_block_core_html',
+		'_guideline_block_core_embed',
+	);
+	return array_merge( $whitelist, $guideline_meta_keys );
+}
+add_filter( 'jetpack_sync_post_meta_whitelist', 'wpcomsh_add_guideline_sync_meta_whitelist' );

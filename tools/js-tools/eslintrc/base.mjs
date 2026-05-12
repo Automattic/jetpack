@@ -13,11 +13,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
+import { fixupPluginRules } from '@eslint/compat';
 import eslintJs from '@eslint/js';
 import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
+import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import {
@@ -34,6 +34,7 @@ import eslintPluginN from 'eslint-plugin-n';
 import eslintPluginPackageJson from 'eslint-plugin-package-json';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginStorybook from 'eslint-plugin-storybook';
 import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
 import { glob } from 'glob';
 import globals from 'globals';
@@ -72,11 +73,6 @@ const restrictedPaths = [
  */
 export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
-
-	const compat = new FlatCompat( {
-		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
-	} );
 
 	let m;
 	if (
@@ -146,26 +142,61 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	} );
 
+	const storybookMainJs = path.relative(
+		basedir,
+		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
+	);
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
-
-		// Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
-		globalIgnores( [ '**/*.native.[jt]s' ] ),
 
 		// Extended configs.
 		{
 			files: javascriptFiles,
 			extends: [
 				eslintJs.configs.recommended,
-				// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-				fixupConfigRules(
-					compat.extends(
-						'plugin:@wordpress/jsx-a11y',
-						'plugin:@wordpress/custom',
-						'plugin:@wordpress/esnext',
-						'plugin:@wordpress/i18n'
-					)
-				),
+
+				eslintPluginStorybook.configs[ 'flat/recommended' ].map( v => {
+					// We don't have a `.storybook/` dir at the repo root like the config expects.
+					if ( Array.isArray( v.files ) ) {
+						v.files = v.files.map( s =>
+							s.startsWith( '.storybook/main.' ) ? storybookMainJs : s
+						);
+					}
+					return v;
+				} ),
+				{
+					name: 'Storybook overrides',
+					files: [ '**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)' ],
+					rules: {
+						'storybook/csf-component': 'warn',
+
+						// Our Storybook uses vite while our builds use webpack. Easier to stick with the generic package.
+						'storybook/no-renderer-packages': 'off',
+					},
+				},
+				{
+					name: 'Storybook config overrides',
+					files: [ storybookMainJs ],
+					rules: {
+						'storybook/no-uninstalled-addons': [
+							'error',
+							{
+								packageJsonLocation: path.join(
+									rootdir,
+									'projects/js-packages/storybook/package.json'
+								),
+							},
+						],
+					},
+				},
+
+				// Can't just `wordpressEslintPlugin.configs["recommended-with-formatting"]` because that includes React too and we only want that with opts.react.
+				wordpressEslintPlugin.configs[ 'jsx-a11y' ],
+				wordpressEslintPlugin.configs.custom,
+				wordpressEslintPlugin.configs.esnext,
+				wordpressEslintPlugin.configs.i18n,
+
 				{
 					plugins: {
 						'you-dont-need-lodash-underscore': fixupPluginRules(

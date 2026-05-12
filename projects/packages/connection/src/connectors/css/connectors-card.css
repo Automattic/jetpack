@@ -1,0 +1,180 @@
+/**
+ * Styles for the Jetpack connector card on the
+ * WP core Settings > Connectors page (WP 7.0+).
+ *
+ * Enqueued by Jetpack_Connector::enqueue_script_module().
+ * Uses CSS logical properties for RTL support.
+ *
+ * ConnectorItem renders inside .components-item which has
+ * 20px padding (12px on <=480px screens). The divider uses
+ * negative inline margins to span the full card width.
+ */
+
+.jetpack-connector__description-padded {
+	display: block;
+	padding-inline-end: 40px;
+}
+
+.jetpack-connector__expanded {
+	margin-inline: -20px;
+	margin-block-start: 4px;
+	border-block-start: 1px solid #ddd;
+	padding-block-start: 20px;
+	padding-inline: 20px;
+}
+
+.jetpack-connector__status-badge {
+	padding-block: 4px;
+	padding-inline: 12px;
+	border-radius: 2px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.jetpack-connector__status-badge--connected {
+	color: #345b37;
+	background-color: #eff8f0;
+}
+
+.jetpack-connector__status-badge--site-registered {
+	color: #1e4c5e;
+	background-color: #e9f0f5;
+}
+
+.jetpack-connector__section {
+	padding-block-end: 20px;
+}
+
+.jetpack-connector__owner-avatar {
+	border-radius: 50%;
+}
+
+.jetpack-connector__user-link {
+	text-decoration: underline;
+	color: inherit;
+}
+
+.jetpack-connector__plugin-icon {
+	inline-size: 20px;
+	block-size: 20px;
+	flex-shrink: 0;
+}
+
+.jetpack-connector__plugin-icon--fallback {
+	font-size: 20px;
+}
+
+.jetpack-connector__divider {
+	border: none;
+	border-block-start: 1px solid #ddd;
+	margin: 0;
+}
+
+.jetpack-connector__details-link:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
+}
+
+.jetpack-connector__disconnect-site {
+	margin-inline-start: auto;
+}
+
+.jetpack-connector__modal .components-button:focus:not(:focus-visible),
+.jetpack-connector__confirm-modal .components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
+}
+
+.jetpack-connector__modal.components-modal__frame,
+.jetpack-connector__modal {
+	max-inline-size: 480px;
+}
+
+.jetpack-connector__details-modal {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 10px;
+	align-items: baseline;
+}
+
+.jetpack-connector__details-label {
+	white-space: nowrap;
+}
+
+.jetpack-connector__details-value {
+	overflow-wrap: break-word;
+	min-inline-size: 0;
+	text-align: end;
+}
+
+.jetpack-connector__connect-prompt-text {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.jetpack-connector__inline-action {
+	margin-inline-start: auto;
+	white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+
+	.jetpack-connector__expanded {
+		margin-inline: -12px;
+		padding-block-start: 12px;
+		padding-inline: 12px;
+	}
+
+	.jetpack-connector__section.components-h-stack,
+	.jetpack-connector__section > .components-h-stack {
+		flex-wrap: wrap;
+	}
+
+	.jetpack-connector__connect-prompt-text {
+		min-inline-size: 100%;
+	}
+
+	.jetpack-connector__inline-action {
+		margin-inline-start: 0;
+	}
+
+	.jetpack-connector__details-modal {
+		grid-template-columns: 1fr;
+		row-gap: 4px;
+	}
+
+	.jetpack-connector__details-label:not(:first-child) {
+		margin-block-start: 8px;
+	}
+
+	.jetpack-connector__details-value {
+		text-align: start;
+	}
+}
+
+.jetpack-connector__error {
+	color: #cc1818;
+	font-size: 13px;
+	margin-block-start: 8px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-inline-start: 4px solid #cc1818;
+	background-color: #fcecec;
+	border-radius: 2px;
+	align-items: center;
+}
+
+.jetpack-connector__error .components-button {
+	color: #cc1818;
+	flex-shrink: 0;
+}
+
+.jetpack-connector__tos-notice {
+	margin-block-start: 8px;
+}
+
+.jetpack-connector__tos-notice a {
+	color: inherit;
+}

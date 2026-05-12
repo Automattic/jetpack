@@ -127,7 +127,7 @@ function zeroBSCRM_cjson() {
 		$ret = zeroBS_getCustomers( true, 10000, 0, false, false, '', false, false, false );
 	}
 
-	wp_send_json( $ret );
+	wp_send_json( $ret, 200, JSON_UNESCAPED_SLASHES );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
@@ -152,7 +152,7 @@ function zeroBSCRM_cojson() {
 
 	}
 
-	wp_send_json( $ret );
+	wp_send_json( $ret, 200, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -270,7 +270,7 @@ function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = fal
 						if ( ! empty( $srcArr[ $fieldPrefix . $key ] ) ) {
 
 							// } Cast
-							$no = (int) sanitize_text_field( $srcArr[ $fieldPrefix . $key ] );
+							$no = (int) $srcArr[ $fieldPrefix . $key ];
 
 							// } add
 							$appliedFilters[ $key ] = $no;

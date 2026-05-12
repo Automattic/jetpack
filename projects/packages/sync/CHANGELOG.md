@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.37.0] - 2026-05-04
+### Added
+- Sync: Add project_collection taxonomy to taxonomy allowlist. [#48392]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [4.36.0] - 2026-04-15
+### Added
+- Add WooCommerce Accounts and Privacy settings page options to sync whitelist, as part of activity log improvements. [#48041]
+
+### Fixed
+- Tests: Increase lock time tolerance. [#48054]
+
+## [4.35.0] - 2026-04-06
+### Added
+- Sync: Add documentation_category to taxonomy allowlist. [#47951]
+
+## [4.34.0] - 2026-03-30
+### Added
+- Add 'note' to the default whitelisted comment types and centralize the list in the Defaults class. [#47746]
+
+### Fixed
+- Users: Use the effective role when the role-change payload is empty, and avoid syncing empty roles. [#47754]
+
 ## [4.33.0] - 2026-03-23
 ### Added
 - Add a filter to customize the actor. [#47634]
@@ -1706,6 +1731,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.37.0]: https://github.com/Automattic/jetpack-sync/compare/v4.36.0...v4.37.0
+[4.36.0]: https://github.com/Automattic/jetpack-sync/compare/v4.35.0...v4.36.0
+[4.35.0]: https://github.com/Automattic/jetpack-sync/compare/v4.34.0...v4.35.0
+[4.34.0]: https://github.com/Automattic/jetpack-sync/compare/v4.33.0...v4.34.0
 [4.33.0]: https://github.com/Automattic/jetpack-sync/compare/v4.32.1...v4.33.0
 [4.32.1]: https://github.com/Automattic/jetpack-sync/compare/v4.32.0...v4.32.1
 [4.32.0]: https://github.com/Automattic/jetpack-sync/compare/v4.31.0...v4.32.0

@@ -68,7 +68,7 @@ export function getActiveFeatures() {
  * @return {boolean} Whether the site has the feature.
  */
 export function siteHasFeature( feature: string ) {
-	return getActiveFeatures().includes( feature );
+	return getActiveFeatures().indexOf( feature ) !== -1;
 }
 
 /**

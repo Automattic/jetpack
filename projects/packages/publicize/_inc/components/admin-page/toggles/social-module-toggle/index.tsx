@@ -5,15 +5,16 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
-import { getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
+import { getRefreshPlanQuery, getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
 import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
+import { MessageTemplateSection } from '../../message-template-section';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
@@ -79,7 +80,8 @@ const SocialModuleToggle: FC = () => {
 							'jetpack-publicize-pkg'
 					  ) }
 				&nbsp;
-				<ExternalLink
+				<Link
+					openInNewTab
 					href={
 						is_wpcom
 							? getRedirectUrl( 'wpcom-social-plugin-publicize-support-admin-page' )
@@ -88,7 +90,7 @@ const SocialModuleToggle: FC = () => {
 					className={ styles.learn }
 				>
 					{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-				</ExternalLink>
+				</Link>
 			</Text>
 			{ ! isWpcomPlatformSite() && ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
@@ -97,7 +99,7 @@ const SocialModuleToggle: FC = () => {
 					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-pkg' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
 						site: `${ wpcom.blog_id ?? siteSuffix }`,
-						query: 'redirect_to=admin.php?page=jetpack-social&refresh_plan_data=1',
+						query: getRefreshPlanQuery(),
 					} ) }
 					tooltipText={ __(
 						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
@@ -105,6 +107,7 @@ const SocialModuleToggle: FC = () => {
 					) }
 				/>
 			) : null }
+			{ isModuleEnabled && <MessageTemplateSection disabled={ isUpdating } /> }
 			{ renderConnectionManagement() }
 		</ToggleSection>
 	);

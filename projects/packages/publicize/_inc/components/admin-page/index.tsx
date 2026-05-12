@@ -18,7 +18,6 @@ import {
 	siteHasFeature,
 	currentUserCan,
 } from '@automattic/jetpack-script-data';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -30,7 +29,6 @@ import Header from './header';
 import InfoSection from './info-section';
 import PricingPage from './pricing-page';
 import styles from './styles.module.scss';
-import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
 import SocialNotesToggle from './toggles/social-notes-toggle';
@@ -60,22 +58,16 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const { social, jetpack } = getSocialScriptData().plugin_info;
-
-	const moduleName = social.version
-		? `Jetpack Social ${ social.version }`
-		: `Jetpack ${ jetpack.version }`;
+	const { social } = getSocialScriptData().plugin_info;
 
 	const canManageOptions = currentUserCan( 'manage_options' );
 
 	if ( showConnectionCard ) {
 		return (
 			<AdminPage
-				moduleName={ moduleName }
 				title={ 'Social' /** "Social" is a product name, do not translate. */ }
 				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
 				showBackground={ false }
-				useInternalLinks={ shouldUseInternalLinks() }
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
@@ -96,62 +88,61 @@ export const SocialAdminPage = () => {
 
 	return (
 		<AdminPage
-			moduleName={ moduleName }
 			title={ 'Social' /** "Social" is a product name, do not translate. */ }
 			subTitle={ subTitle }
 			actions={ licenseAction }
-			showFooter={ isJetpackSite }
-			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<GlobalNotices />
-			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 0 }>
-						{ hasConnectionError && (
-							<Col className={ styles[ 'connection-error-col' ] }>
-								<ConnectionError />
+			<div className={ styles.content }>
+				{ isJetpackSite &&
+				! hasSocialPaidFeatures() &&
+				showPricingPage &&
+				! pricingPageDismissed ? (
+					<AdminSectionHero>
+						<Container horizontalSpacing={ 0 }>
+							{ hasConnectionError && (
+								<Col className={ styles[ 'connection-error-col' ] }>
+									<ConnectionError />
+								</Col>
+							) }
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 							</Col>
-						) }
-						<Col>
-							<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
-						</Col>
-					</Container>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col>
-							<PricingPage onDismiss={ onPricingPageDismiss } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) : (
-				<>
-					<AdminSectionHero>
-						<Header />
+						</Container>
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col>
+								<PricingPage onDismiss={ onPricingPageDismiss } />
+							</Col>
+						</Container>
 					</AdminSectionHero>
-					<AdminSection>
-						<SocialModuleToggle />
-						{ canManageOptions && (
-							<>
-								{ isModuleEnabled && <UtmToggle /> }
-								{
-									// Only show the Social Notes toggle if Social plugin is active
-									social.version && isModuleEnabled && (
-										<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
-									)
-								}
-								{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
-									<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
-								) }
-							</>
-						) }
-					</AdminSection>
-					<AdminSectionHero>
-						<InfoSection />
-					</AdminSectionHero>
-					<AdminSection>
-						<SupportSection />
-					</AdminSection>
-				</>
-			) }
+				) : (
+					<>
+						<AdminSectionHero>
+							<Header />
+						</AdminSectionHero>
+						<AdminSection>
+							<SocialModuleToggle />
+							{ canManageOptions && (
+								<>
+									{ isModuleEnabled && <UtmToggle /> }
+									{
+										// Only show the Social Notes toggle if Social plugin is active
+										social.version && isModuleEnabled && (
+											<SocialNotesToggle disabled={ isUpdatingJetpackSettings } />
+										)
+									}
+									{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
+										<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+									) }
+								</>
+							) }
+						</AdminSection>
+						<AdminSectionHero>
+							<InfoSection />
+						</AdminSectionHero>
+					</>
+				) }
+			</div>
 		</AdminPage>
 	);
 };

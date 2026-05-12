@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search: migrate dashboard notices to the @wordpress/ui Notice component. Removes the local SimpleNotice and NoticeAction wrappers along with their stylesheets.

@@ -54,10 +54,7 @@ describe( 'useConnectionMediaValidation', () => {
 			// @ts-expect-error -- partial mock, only isEnabled is used by the hook
 			{ isEnabled: false }
 		);
-		mockUseMediaDetails.mockReturnValue( [
-			// @ts-expect-error -- empty object to simulate no media details
-			{},
-		] );
+		mockUseMediaDetails.mockReturnValue( [ {}, false ] );
 		mockGetValidationError.mockReturnValue( null );
 		mockIsMediaConvertible.mockReturnValue( false );
 	} );

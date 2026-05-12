@@ -25,6 +25,9 @@ $breakpoints: (
 	xxlarge: $break-xxl,
 );
 
+// Border radii
+$border-radius-panel: 6px;
+
 // Side margins for search results container
 $results-margin-sm: 20px;
 $results-margin-md: 40px;
@@ -43,6 +46,10 @@ $color-layout-borders: studio.$studio-wordpress-blue-0;
 $color-mark-background-default: #ffc;
 $color-modal-background: studio.$studio-white;
 $color-modal-backdrop-background: rgba(studio.$studio-gray-90, 0.7);
+$color-border: studio.$studio-gray-5;
+$color-error: studio.$studio-red-50;
+$color-error-border: studio.$studio-red-5;
+$color-surface-alt: studio.$studio-gray-0;
 
 $color-dark-text: studio.$studio-wordpress-blue-0;
 $color-dark-text-light: studio.$studio-gray-20;

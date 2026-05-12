@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.58.0] - 2026-05-04
+### Added
+- Search 3.0: Add common-filters block — Group-like container for stacking filter blocks (active filters, taxonomy/author/post-type checkboxes, date). [#48478]
+- Search 3.0: Add Compact Search block pattern with inline filter and sort popover controls. [#48288]
+- Search 3.0: Add filter-date block for filtering search results by year or month. [#48439]
+- Search 3.0: Introduce product-shaped filter support to store/api helpers — `wc_stock_status` (terms agg + term clause on `meta._stock_status.value.raw`), `wc_rating` (histogram agg + range-OR clauses on `meta._wc_average_rating.double`), `priceRange` (range clause on `wc.price`), scalar comma-joined URL parsing, and first-paint URL seeding for `min_price`/`max_price`. Infrastructure only; no new blocks ship in this change. [#48397]
+- Search: Render a visible error message when a search or load-more request fails. [#48477]
+- Search Blocks: Add inspector Filter type control so authors can swap a filter-checkbox between Category, Tag, Post Type, Author, and Custom Taxonomy variations without re-inserting the block. [#48291]
+- Search Blocks: Add Inspector panel to the no-results block so block authors can customize the empty-state message. [#48279]
+- Search Blocks: Introduce defaultSort, availableSortOptions, label, and displayAs attributes to sort-control. [#48282]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Search: Restyle sort-control radio variant as text-only links with a bullet separator. [#48367]
+
+### Fixed
+- Search 3.0: Add ARIA menu keyboard navigation to compact sort popover. [#48371]
+- Search 3.0: Surface a Taxonomy picker so the Custom Taxonomy filter variation actually targets a registered taxonomy. [#48428]
+- Search: Change search overlay heading from h1 to h2 to fix heading hierarchy on pages that already have an h1. [#48245]
+- Search: Disable the "Edit sidebar widgets" button when Instant Search is disabled, preventing a fatal error on block themes that do not register classic sidebars. [#48430]
+- Search: Fix dashboard hero section being crushed under shared admin page layout mixin. [#48437]
+- Search Blocks: Gate URL-seeded activeFilters on the client instead of at PHP seed time, so deep links work for filter blocks placed in templates / template parts (not just post content). [#48475]
+- Search Blocks: Keep `s=` in the URL when the search query is empty so a refresh stays on the search template instead of falling back to the front-page route. [#48370]
+- Search Blocks: Render human-readable labels in active-filter pills and resort `bucketSortOrder=alpha` filter lists by visible label client-side. [#48426]
+
+## [0.57.0] - 2026-04-27
+### Added
+- Search 3.0: Add icons for the Jetpack Search blocks and improve Blog Search pattern keywords. [#48232]
+- Search 3.0: Add `filter-checkbox` and `active-filters` blocks with instant-search-aligned field conventions, aggregation-driven item lists, and flat URL state (?category[]=news). [#48227]
+- Search 3.0: Use Interactivity API block foundation — composable search blocks, shared reactive store, and Blog Search Page pattern (Phase 1). [#48198]
+- Search 3.0: Expose buttonLabel attribute on `load-more` block (editor inspector text input, translated default fallback) and adopt the active theme's button styles via the wp-element-button class. [#48253]
+- Search 3.0: Render sample data in the Site Editor preview for each search block so designers see a real DOM shape instead of an empty ServerSideRender shell. [#48233]
+- Search: Add fallback image capability in expanded search. [#44657]
+- Search: Register a plugin-origin block template so the Jetpack Search layout takes over the theme's search results page. [#48252]
+- Search Blocks: Add inspector controls for label, showCount, and maxItems, plus a bucketSortOrder attribute (count | alpha, default count) to filter-checkbox. [#48281]
+- Search Blocks: Add authoring controls to `search-input`, including placeholder (declared), showIcon, and submitOnly attributes, with matching inspector controls. [#48280]
+
+### Changed
+- Remove redundant @wordpress/interactivity imports from display-only block views. [#48229]
+- Search 3.0: Rename the block inserter category to "Search" with the Jetpack logo so it matches the Forms, Monetize, and Grow headings. [#48256]
+- Search 3.0: Split editor-side block preview Edit components out of register-blocks.js into per-block edit.js files so changes to one block do not conflict with others. [#48255]
+- Search 3.0: Swap hardcoded colors in block styles for theme-aware tokens so the search blocks adapt to the active theme palette and dark backgrounds. [#48259]
+- Update package dependencies. [#48302]
+
+### Fixed
+- Search 3.0: Hide the `load-more` wrapper while a first-page search is in flight, and swap the button for a spinner while paginating. [#48231]
+- Search 3.0: Keep the search results list in the DOM so screen readers announce updates from the ARIA live region. [#48230]
+- Search 3.0: Localize Interactivity API view-bundle strings (results count, loading indicator, and active-filter pill aria labels) via wp_interactivity_state. [#48257]
+- Search 3.0: Reuse the results-count block as the loading indicator ("Searching…") so the control row doesn't flicker between queries. [#48234]
+
+## [0.56.10] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Search admin page. Drops the inline JetpackFooter render and `showFooter={false}` override so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Align Search dashboard toggle to its label baseline so wrapped labels on mobile no longer push the toggle into the middle of the row. [#48178]
+- Drop the local `#screen-meta`/`#screen-meta-links` hide rule now that the shared admin-page-layout mixin handles it. [#48195]
+- Remove custom toggle color overrides to use native WordPress admin theme colors. [#47317]
+- Swap the custom FormToggle on the Search admin dashboard for WordPress ToggleControl, restoring native rendering of the Enable Jetpack Search and Enable instant search toggles. [#48178]
+- Update package dependencies. [#48106] [#48141]
+
+### Removed
+- Remove the unused custom FormToggle component; all call sites now use WordPress ToggleControl. [#48178]
+
+### Fixed
+- Fix mobile overflow on the upsell/pricing page so cards no longer get clipped. [#48194]
+
+## [0.56.9] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+### Fixed
+- Dashboard: Avoid forcing a white background in the upsell pricing grid view. [#48088]
+
+## [0.56.8] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [0.56.7] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+
+## [0.56.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
 ## [0.56.5] - 2026-03-23
 ### Changed
 - Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
@@ -1478,6 +1562,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.58.0]: https://github.com/Automattic/jetpack-search/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/Automattic/jetpack-search/compare/v0.56.10...v0.57.0
+[0.56.10]: https://github.com/Automattic/jetpack-search/compare/v0.56.9...v0.56.10
+[0.56.9]: https://github.com/Automattic/jetpack-search/compare/v0.56.8...v0.56.9
+[0.56.8]: https://github.com/Automattic/jetpack-search/compare/v0.56.7...v0.56.8
+[0.56.7]: https://github.com/Automattic/jetpack-search/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/jetpack-search/compare/v0.56.5...v0.56.6
 [0.56.5]: https://github.com/Automattic/jetpack-search/compare/v0.56.4...v0.56.5
 [0.56.4]: https://github.com/Automattic/jetpack-search/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3

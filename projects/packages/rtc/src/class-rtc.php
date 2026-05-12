@@ -10,14 +10,16 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\RTC\REST_Connection_Log;
 use Automattic\Jetpack\RTC\REST_Pinghub_Token;
+use Automattic\Jetpack\RTC\REST_RTC_Notices;
 
 /**
  * Main RTC class.
  */
 class RTC {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Option names for the RTC setting.
@@ -46,7 +48,8 @@ class RTC {
 		self::$initialized = true;
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'register_providers' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_notices' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'unregister_rtc_setting' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'override_rtc_setting_default' ) );
 
@@ -54,24 +57,41 @@ class RTC {
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
 			add_filter( 'option_' . $option, array( __CLASS__, 'filter_rtc_option' ), 10 );
 			add_filter( 'default_option_' . $option, array( __CLASS__, 'default_rtc_option' ), 20, 2 );
+			add_filter( 'pre_option_' . $option, array( __CLASS__, 'pre_rtc_option' ) );
 		}
+	}
+
+	/**
+	 * Determine whether RTC is allowed.
+	 *
+	 * @return bool
+	 */
+	public static function is_allowed() {
+		/**
+		 * Filter whether RTC can be enabled.
+		 *
+		 * @param bool $is_enabled Whether RTC can be enabled.
+		 */
+		return apply_filters( 'jetpack_rtc_enabled', false );
 	}
 
 	/**
 	 * Determine whether RTC is enabled.
 	 *
-	 * Disabled by default until the PingHub provider is ready
-	 * and we are confident in proceeding with the rollout.
-	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/**
-		 * Filter whether RTC is enabled.
-		 *
-		 * @param bool $is_enabled Whether RTC is enabled.
-		 */
-		return apply_filters( 'jetpack_rtc_enabled', false );
+		global $pagenow;
+
+		// Real-time collaboration is not enabled in the site editor.
+		if (
+			'site-editor.php' === $pagenow ||
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			return false;
+		}
+
+		return self::is_allowed() && (bool) get_option( 'wp_collaboration_enabled' );
 	}
 
 	/**
@@ -113,21 +133,20 @@ class RTC {
 	 */
 	public static function register_rest_routes() {
 		( new REST_Pinghub_Token() )->register_routes();
+		( new REST_RTC_Notices() )->register_routes();
+
+		if ( function_exists( 'log2logstash' ) ) {
+			( new REST_Connection_Log() )->register_routes();
+		}
 	}
 
 	/**
-	 * Enqueue block editor assets for RTC.
+	 * Enqueue the assets that extend the RTC providers.
 	 *
 	 * @return void
 	 */
-	public static function enqueue_assets() {
-		global $pagenow;
-
-		// Real-time collaboration is not enabled in the site editor.
-		if (
-			'site-editor.php' === $pagenow ||
-			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		) {
+	public static function register_providers() {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
@@ -140,11 +159,11 @@ class RTC {
 			return;
 		}
 
-		$handle = 'jetpack-rtc';
+		$handle = 'jetpack-rtc-providers';
 
 		Assets::register_script(
 			$handle,
-			'../build/rtc.js',
+			'../build/rtc-providers.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
@@ -155,7 +174,10 @@ class RTC {
 
 		$data = wp_json_encode(
 			array(
-				'providers' => $providers,
+				'providers'         => $providers,
+				'connectionLogging' => function_exists( 'log2logstash' ),
+				'currentPostType'   => get_post_type() ? get_post_type() : null,
+				'currentPostId'     => get_the_ID() ? get_the_ID() : null,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
@@ -168,13 +190,12 @@ class RTC {
 	}
 
 	/**
-	 * Unregister the RTC setting field on the Writing page.
+	 * Unregister the RTC setting field on the Writing page if RTC is not allowed.
 	 *
 	 * @return void
 	 */
 	public static function unregister_rtc_setting() {
-		$providers = self::get_providers();
-		if ( count( $providers ) > 0 ) {
+		if ( self::is_allowed() ) {
 			return;
 		}
 
@@ -188,24 +209,24 @@ class RTC {
 	}
 
 	/**
-	 * When there are no providers, always force the option off.
-	 * When there are providers, respect the stored option value.
+	 * When RTC is not allowed, always force the option off.
+	 * When RTC is allowed, respect the stored option value.
 	 *
 	 * @param mixed $value  The value of the option.
 	 * @return mixed
 	 */
 	public static function filter_rtc_option( $value ) {
-		$providers = self::get_providers();
-		// No providers: force the option off, regardless of what's in the DB.
-		if ( count( $providers ) === 0 ) {
+		// RTC not allowed: force the option off, regardless of what's in the DB.
+		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-		// Providers exist: respect whatever is stored.
+
+		// RTC allowed: respect whatever is stored.
 		return $value;
 	}
 
 	/**
-	 * When there ARE providers and the option is NOT stored yet,
+	 * When RTC is allowed and the option is NOT stored yet,
 	 * default the option to enabled (1), unless the old option
 	 * has a stored value to migrate from.
 	 *
@@ -218,18 +239,35 @@ class RTC {
 	 * @return mixed
 	 */
 	public static function default_rtc_option( $default = '', $option = '' ) {
-		$providers = self::get_providers();
-		// No providers: keep default disabled.
-		if ( count( $providers ) === 0 ) {
+		// RTC not allowed: keep default disabled.
+		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-		// Providers exist and option is not stored yet
+		// RTC allowed and option is not stored yet
 		if ( $option === self::OPTION_NEW ) {
 			// If the old option is set, use that.
 			return get_option( self::OPTION_OLD );
 		}
 		// Default to enabled.
 		return '1';
+	}
+
+	/**
+	 * Disable RTC for super admins that are not members of the blog to avoid
+	 * accidentally exposing their presence to site users (e.g. during support).
+	 * Skip this on the Writing settings page so they can still toggle the option.
+	 *
+	 * @return mixed
+	 */
+	public static function pre_rtc_option() {
+		global $pagenow;
+
+		if ( 'options-writing.php' !== $pagenow && is_super_admin() && ! is_user_member_of_blog() ) {
+			return '0';
+		}
+
+		// Returning false to let `get_option` proceed normally.
+		return false;
 	}
 
 	/**
@@ -240,8 +278,11 @@ class RTC {
 	public static function override_rtc_setting_default() {
 		global $wp_registered_settings;
 
-		$providers = self::get_providers();
-		$default   = count( $providers ) > 0;
+		// No need to override the setting when RTC is not allowed, since we unregister it
+		// in `unregister_rtc_setting`.
+		if ( ! self::is_allowed() ) {
+			return;
+		}
 
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
 			// Only re-register the option if Gutenberg already registered it.
@@ -258,11 +299,124 @@ class RTC {
 					'type'              => 'boolean',
 					'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
 					'sanitize_callback' => 'rest_sanitize_boolean',
-					// Dynamic default: true when providers exist, false otherwise.
-					'default'           => $default,
+					'default'           => true,
 					'show_in_rest'      => true,
 				)
 			);
 		}
+	}
+
+	/**
+	 * Get the maximum number of peers allowed per room.
+	 *
+	 * @return int Max peers per room.
+	 */
+	public static function get_max_peers_per_room() {
+		return (int) apply_filters( 'jetpack_rtc_max_peers_per_room', 3 );
+	}
+
+	/**
+	 * Check if the current user is the plan owner for this site.
+	 * Works on Simple sites (via wpcom_get_blog_owner) and Atomic sites
+	 * (via Jetpack connection master_user). Returns false on self-hosted
+	 * since there is no WP.com plan to upgrade.
+	 *
+	 * @return bool
+	 */
+	public static function is_plan_owner() {
+		$current_user_id = get_current_user_id();
+
+		// Simple sites: wpcom_get_blog_owner is the canonical source.
+		if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+			$owner_id = wpcom_get_blog_owner( get_wpcom_blog_id() );
+			return (int) $current_user_id === (int) $owner_id;
+		}
+
+		// Atomic sites: the Jetpack connection master_user is the plan owner.
+		if ( class_exists( 'Jetpack_Options' ) ) {
+			$master_user = \Jetpack_Options::get_option( 'master_user' );
+			if ( $master_user ) {
+				return (int) $current_user_id === (int) $master_user;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the site slug for use in WP.com URLs.
+	 *
+	 * @return string
+	 */
+	private static function get_site_slug() {
+		if ( function_exists( 'wpcom_get_site_slug' ) ) {
+			return wpcom_get_site_slug();
+		}
+
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$jetpack_status = new \Automattic\Jetpack\Status();
+			return $jetpack_status->get_site_suffix();
+		}
+
+		return '';
+	}
+
+	/**
+	 * Enqueue the assets that handle the RTC notices.
+	 *
+	 * @return void
+	 */
+	public static function load_notices() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
+		$editors = new \WP_User_Query(
+			array(
+				'capability' => 'edit_posts',
+				'number'     => 2,
+				'fields'     => 'ID',
+			)
+		);
+
+		$handle = 'jetpack-rtc-notices';
+
+		Assets::register_script(
+			$handle,
+			'../build/rtc-notices.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-rtc',
+				'enqueue'    => true,
+			)
+		);
+
+		$is_admin_user = current_user_can( 'manage_options' );
+		$is_plan_owner = self::is_plan_owner();
+
+		$data = wp_json_encode(
+			array(
+				'assetsUrl'           => plugins_url( '../build/', __FILE__ ),
+				'isAdmin'             => $is_admin_user,
+				'isPlanOwner'         => $is_plan_owner,
+				'welcomeDismissed'    => REST_RTC_Notices::is_dismissed(),
+				'postId'              => get_the_ID(),
+				'postTitle'           => get_the_title(),
+				'postEditUrl'         => get_edit_post_link( get_the_ID(), 'raw' ),
+				'postsListUrl'        => admin_url( 'edit.php' ),
+				'siteSlug'            => self::get_site_slug(),
+				'maxPeersPerRoom'     => self::get_max_peers_per_room(),
+				'enableWelcomeNotice' => apply_filters( 'jetpack_rtc_enable_welcome_notice', $editors->get_total() >= 2 ),
+				'enableLimitNotices'  => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var jetpackRtcNotices = $data;",
+			'before'
+		);
 	}
 }

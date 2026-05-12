@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.3.0] - 2026-04-11
+### Added
+- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email. [#48003]
+
 ## [0.2.12] - 2026-02-23
 ### Changed
 - Update dependencies.
@@ -69,6 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use jetpack-config package for Account Protection initialization. [#40925]
 - Use jetpack-logo package for Account Protection logos. [#40925]
 
+[0.3.1]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.12...v0.3.0
 [0.2.12]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.9...v0.2.10

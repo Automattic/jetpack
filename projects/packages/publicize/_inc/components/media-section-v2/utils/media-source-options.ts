@@ -2,10 +2,10 @@
  * Media source options and helper functions
  */
 
-import { AiSVG } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
-import { image, starEmpty, media as mediaIcon } from '@wordpress/icons';
+import { postFeaturedImage, mediaAndText, media as mediaIcon, link } from '@wordpress/icons';
 import { getSocialScriptData } from '../../../utils';
+import sparkle from '../icons/sparkle';
 import { MediaSourceOption, MediaSourceType } from '../types';
 
 /**
@@ -19,10 +19,20 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 
 	return [
 		{
+			id: null,
+			label: __( 'Default', 'jetpack-publicize-pkg' ),
+			description: __(
+				"You are using the post's Open Graph image for the link preview.",
+				'jetpack-publicize-pkg'
+			),
+			icon: link,
+			group: 'link-preview',
+		},
+		{
 			id: 'sig',
-			label: __( 'Use template', 'jetpack-publicize-pkg' ),
+			label: __( 'Social image template', 'jetpack-publicize-pkg' ),
 			description: __( 'You are using the template.', 'jetpack-publicize-pkg' ),
-			icon: starEmpty,
+			icon: mediaAndText,
 			group: 'link-preview',
 			attachmentDescription: __(
 				'Shares your template as an attached image, without a link preview card, for higher engagement.',
@@ -31,9 +41,9 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		},
 		{
 			id: 'featured-image',
-			label: __( 'Use featured image', 'jetpack-publicize-pkg' ),
+			label: __( 'Featured image', 'jetpack-publicize-pkg' ),
 			description: __( 'You are using your post featured image.', 'jetpack-publicize-pkg' ),
-			icon: image,
+			icon: postFeaturedImage,
 			group: 'link-preview',
 			attachmentDescription: __(
 				'Shares your image as a regular post, without a link preview card, for higher engagement.',
@@ -45,7 +55,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 					id: 'ai-image',
 					label: __( 'Generate image', 'jetpack-publicize-pkg' ),
 					description: __( 'You are using an AI-generated image.', 'jetpack-publicize-pkg' ),
-					icon: AiSVG,
+					icon: sparkle,
 					group: 'attachment',
 					attachmentDescription: __(
 						'Shares your AI-generated image as an attachment for higher engagement.',
@@ -65,6 +75,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 
 interface MediaSourceContext {
 	featuredImageId?: number;
+	sigEnabled?: boolean;
 }
 
 /**
@@ -80,12 +91,29 @@ export function getMediaSourceDescription(
 ): string {
 	const noImageMessage = __( "Your post won't show an image.", 'jetpack-publicize-pkg' );
 
-	if ( ! sourceType ) {
+	// If featured image is selected but doesn't exist, show "no image" message
+	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
 		return noImageMessage;
 	}
 
-	// If featured image is selected but doesn't exist, show "no image" message
-	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
+	/*
+	 * Default mode (sourceType === null): describe what the link preview will actually
+	 * resolve to, mirroring the OG resolution priority — SIG (if globally enabled) →
+	 * featured image → no image.
+	 */
+	if ( sourceType === null ) {
+		if ( context?.sigEnabled ) {
+			return __(
+				'You are using the social image template for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
+		if ( context?.featuredImageId ) {
+			return __(
+				'You are using the featured image for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
 		return noImageMessage;
 	}
 

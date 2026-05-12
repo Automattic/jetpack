@@ -859,16 +859,6 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
 }
 
 /**
- * Returns true if the wp-admin Newsletter settings page is enabled.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if the Newsletter settings page is enabled.
- */
-export function isWpAdminNewsletterSettingsEnabled( state ) {
-	return !! state.jetpack.initialState.isWpAdminNewsletterSettingsEnabled;
-}
-
-/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.

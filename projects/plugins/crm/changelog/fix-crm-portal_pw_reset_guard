@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Client Portal: Restrict various contact functions to admins.

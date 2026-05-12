@@ -16,6 +16,7 @@ type ValueOf< T > = T[ keyof T ];
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 export type ChartType =
+	| 'area'
 	| 'bar'
 	| 'conversion-funnel'
 	| 'leaderboard'
@@ -243,6 +244,8 @@ export type ChartTheme = {
 	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
+	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {

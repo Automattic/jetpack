@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add admin-page and jetpack-footer sub-path exports for use in wp-build dashboards.

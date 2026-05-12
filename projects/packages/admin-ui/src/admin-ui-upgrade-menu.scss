@@ -1,0 +1,21 @@
+@use "@automattic/jetpack-base-styles/root-variables";
+
+// Keep the slug in sync with `UPGRADE_MENU_SLUG` at class-admin-menu.php
+#adminmenu li.jetpack-wpadmin-sidebar-free-plan-upsell-menu-item > a {
+
+	&,
+	&:hover {
+		background: var(--jp-green-40) !important;
+		border-radius: var(--jp-border-radius) !important;
+		box-shadow: none !important;
+		color: var(--jp-white) !important;
+		margin: 2px 4px;
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	&:hover {
+		background: var(--jp-green-30) !important;
+	}
+
+}

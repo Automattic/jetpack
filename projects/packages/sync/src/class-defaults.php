@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_message_template',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_utm_settings',
@@ -845,6 +846,32 @@ class Defaults {
 		 * @param array The default list of comment meta data keys.
 		 */
 		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
+	}
+
+	/**
+	 * Comment types whitelist.
+	 *
+	 * @var array Comment types that are synced.
+	 */
+	public static $comment_types_whitelist = array( '', 'comment', 'trackback', 'pingback', 'review', 'note' );
+
+	/**
+	 * Get the comment types whitelist.
+	 *
+	 * @return array
+	 */
+	public static function get_comment_types_whitelist() {
+		/**
+		 * Comment types present in this list will be synced to WordPress.com.
+		 *
+		 * @module sync
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 7.6.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters( 'jetpack_sync_whitelisted_comment_types', self::$comment_types_whitelist );
 	}
 
 	/**

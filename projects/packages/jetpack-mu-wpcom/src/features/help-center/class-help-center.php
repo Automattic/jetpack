@@ -186,7 +186,7 @@ class Help_Center {
 	public function enqueue_script( $variant, $dependencies, $version ) {
 		$script_dependencies = $dependencies ?? array();
 
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) {
@@ -256,6 +256,17 @@ class Help_Center {
 			$version
 		);
 
+		// In the block editor the Help Center is already present in the editor toolbar
+		// via SlotFill at viewports >= 600px. Hide the admin bar item at those widths
+		// to avoid showing it in two places; keep it visible on mobile where the admin
+		// bar is the primary navigation and the SlotFill button is hidden.
+		if ( $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
+			wp_add_inline_style(
+				'help-center-' . $variant . '-style',
+				'@media (min-width:600px){#wpadminbar #wp-admin-bar-help-center{display:none!important;}}'
+			);
+		}
+
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
 			$user_id            = get_current_user_id();
@@ -289,6 +300,7 @@ class Help_Center {
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
+							'is_a11n'      => function_exists( '\is_automattician' ) && \is_automattician( $user_id ),
 						),
 						'site'             => $this->get_current_site(),
 						'locale'           => self::determine_iso_639_locale(),
@@ -630,26 +642,9 @@ class Help_Center {
 			return;
 		}
 
-		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() ) {
-			if ( ! $this->is_support_site ) {
-				return;
-			}
-
-			$experiment_variation = null;
-			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v3' );
-			} else {
-				log2logstash(
-					array(
-						'feature' => 'help-center',
-						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
-					)
-				);
-			}
-			if ( $experiment_variation !== 'treatment' ) {
-				return;
-			}
+		// Do not load Help Center for logged-out users if we are not on support sites.
+		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+			return;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';

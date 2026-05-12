@@ -10,12 +10,16 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once __DIR__ . '/../../shared/cdn-locale.php';
+
 const FEATURE_NAME           = 'image-studio';
+const FEATURE_CLIP_META_KEY  = '_jetpack_feature_clip_id';
 const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
 const ASSET_JS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
 const ASSET_CSS_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
@@ -42,7 +46,7 @@ function is_image_studio_enabled() {
 		return false;
 	}
 
-	return is_dev_mode();
+	return true;
 }
 
 /**
@@ -103,54 +107,38 @@ function has_jetpack_ai_features() {
 }
 
 /**
- * Check if the current request is from a development environment.
+ * Check whether the video clip generation flow can run on the current site.
  *
- * Matches the same checks as Agents_Manager::is_dev_mode():
- * - Known local environments (localhost, jurassic.tube, jurassic.ninja)
- * - Proxied A8C requests
- * - Allowed Atomic client IDs
- *
- * IMPORTANT: Only use for feature gating, not authorization.
+ * Mirrors the WordPress.com server-side gate: defers to
+ * `wpcom_site_can_upload_videos()` when available so the client and server
+ * agree on capability. Off-WPCOM (self-hosted Jetpack, standalone VideoPress,
+ * dev environments) the helper isn't loaded; we don't gate the entry point in
+ * those contexts and let the server respond if generation is unsupported.
  *
  * @return bool
  */
-function is_dev_mode() {
-	// Known local environments.
-	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
-	if (
-		$domain === 'localhost' ||
-		'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
-		'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
-	) {
-		return true;
+function image_studio_can_generate_video_clips() {
+	/**
+	 * Filter the video clip generation capability determination.
+	 *
+	 * Return null to fall through to the default capability detection;
+	 * return a boolean to override. Useful for environments that need to
+	 * force the answer (custom hosts, integration tests, etc.).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool|null $override Override value, or null to use default detection.
+	 */
+	$override = apply_filters( 'jetpack_image_studio_can_generate_video_clips', null );
+	if ( null !== $override ) {
+		return (bool) $override;
 	}
 
-	// Proxied A8C request via function.
-	if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
-		return true;
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+		return (bool) wpcom_site_can_upload_videos();
 	}
 
-	// Proxied A8C request via server variable or constant.
-	if (
-		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-	) {
-		return true;
-	}
-
-	// Allowed Atomic client IDs.
-	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
-		switch ( ATOMIC_CLIENT_ID ) {
-			case 1:
-			case 2:
-			case 3: // Pressable
-			case 32:
-			case 118: // Commerce garden client (ciab)
-				return true;
-		}
-	}
-
-	return false;
+	return true;
 }
 
 /**
@@ -182,19 +170,6 @@ function is_media_library() {
 }
 
 /**
- * Determine if Image Studio should load on the current screen.
- *
- * - Media Library: load if either filter is true.
- * - Block editors (Post/Site Editor): load if either filter is true.
- * - Other screens: don't load.
- *
- * @return bool
- */
-function should_load_on_current_screen() {
-	return is_media_library() || is_block_editor();
-}
-
-/**
  * Register the Image Studio plugin.
  *
  * Registers unconditionally when either filter is true. Screen-level gating
@@ -210,6 +185,51 @@ function register_plugin() {
 	\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
+
+/**
+ * Permission check for reading or writing the feature clip meta on a given
+ * post. WordPress runs `auth_callback` for both REST GET and POST against the
+ * meta key, so this gate determines visibility as well as mutability.
+ *
+ * @param bool   $allowed   Whether the user is allowed (unused — recomputed here).
+ * @param string $meta_key  Meta key being checked.
+ * @param int    $object_id Post ID.
+ * @return bool
+ */
+function feature_clip_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+	unset( $allowed, $meta_key );
+	return current_user_can( 'edit_post', (int) $object_id );
+}
+
+/**
+ * Register the post meta that links a generated video clip to a post.
+ *
+ * Stored as the attachment ID; the URL is resolved client-side via the
+ * Media Library so deletes/replacements stay consistent. Registered for
+ * `post` only — pages can be added later if there's a use case.
+ *
+ * @return void
+ */
+function register_feature_clip_post_meta() {
+	if ( ! is_image_studio_enabled() ) {
+		return;
+	}
+
+	register_post_meta(
+		'post',
+		FEATURE_CLIP_META_KEY,
+		array(
+			'type'              => 'integer',
+			'description'       => 'Attachment ID of the generated video clip designated as this post\'s feature clip.',
+			'single'            => true,
+			'default'           => 0,
+			'show_in_rest'      => true,
+			'sanitize_callback' => 'absint',
+			'auth_callback'     => __NAMESPACE__ . '\feature_clip_meta_auth_callback',
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_feature_clip_post_meta' );
 
 /**
  * Fetch and cache the remote asset manifest.
@@ -296,28 +316,6 @@ function get_asset_data_from_remote() {
 }
 
 /**
- * Determine the ISO 639 locale code for the current user.
- *
- * @return string The ISO 639 language code, defaulting to 'en'.
- */
-function determine_iso_639_locale() {
-	$language = get_user_locale();
-	$language = strtolower( $language );
-
-	if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
-		$language = str_replace( '_', '-', $language );
-	} else {
-		$language = preg_replace( '/([-_].*)$/i', '', $language );
-	}
-
-	if ( empty( $language ) ) {
-		return 'en';
-	}
-
-	return $language;
-}
-
-/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -357,9 +355,16 @@ function do_enqueue_assets() {
 		true
 	);
 
+	$image_studio_data = array(
+		'enabled'               => true,
+		'version'               => '1.0',
+		'isDevMode'             => jetpack_is_internal_testing_environment(),
+		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
+	);
+
 	wp_add_inline_script(
 		FEATURE_NAME,
-		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
+		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( $image_studio_data, JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
 		'before'
 	);
 

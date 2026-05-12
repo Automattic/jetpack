@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -8,23 +9,21 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
-import { dateI18n } from '@wordpress/date';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -41,11 +40,6 @@ import './style.scss';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
-type FeedbackFilterDate = {
-	month: number;
-	year: number;
-};
-
 type FeedbackFilterSource = {
 	id: number;
 	title: string;
@@ -53,11 +47,14 @@ type FeedbackFilterSource = {
 };
 
 type FeedbackFilters = {
-	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
 
 const EMPTY_ARRAY = [];
+
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
 
 const defaultLayouts = {
 	table: {},
@@ -71,10 +68,13 @@ type QueryParams = {
 	orderby?: string;
 	order?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	parent?: string;
+	source?: string;
 	before?: string;
 	after?: string;
 	search?: string;
+	fields_format?: string;
 };
 
 const DEFAULT_VIEW: View = {
@@ -154,6 +154,7 @@ function StageInner() {
 	const navigate = useNavigate();
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
+	const dateSettings = getDateSettings();
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -175,7 +176,6 @@ function StageInner() {
 	} ) );
 
 	const selection = useMemo( () => searchParams?.responseIds ?? [], [ searchParams?.responseIds ] );
-
 	const {
 		setCurrentQuery,
 		setSelectedResponses,
@@ -187,6 +187,7 @@ function StageInner() {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
+		currentQuery,
 	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
@@ -287,6 +288,7 @@ function StageInner() {
 			page: view.page || 1,
 			orderby: view.sort?.field || 'date',
 			order: view.sort?.direction || 'desc',
+			fields_format: 'collection',
 		};
 
 		if ( view.search ) {
@@ -305,12 +307,75 @@ function StageInner() {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
 			if ( ! isSingleFormView && filter.field === 'source' ) {
-				queryArgs.parent = filter.value;
+				if ( filter.value === FORM_PREVIEW_SOURCE_VALUE ) {
+					queryArgs.is_test = true;
+				} else {
+					queryArgs.source = filter.value;
+				}
 			}
 			if ( filter.field === 'date' ) {
-				const [ year, month ] = filter.value.split( '/' ).map( Number );
-				queryArgs.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
-				queryArgs.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
+				const filterValue: unknown = filter.value;
+				const operator = filter.operator ?? 'is';
+
+				if ( filterValue ) {
+					let startDate: Date;
+					let endDate: Date;
+
+					if ( Array.isArray( filterValue ) ) {
+						const firstValue: unknown = filterValue[ 0 ];
+						const secondValue: unknown = filterValue[ 1 ];
+						startDate = new Date(
+							typeof firstValue === 'string' ||
+							typeof firstValue === 'number' ||
+							firstValue instanceof Date
+								? firstValue
+								: ''
+						);
+						endDate = new Date(
+							typeof secondValue === 'string' ||
+							typeof secondValue === 'number' ||
+							secondValue instanceof Date
+								? secondValue
+								: ''
+						);
+					} else {
+						const dateValue =
+							typeof filterValue === 'string' ||
+							typeof filterValue === 'number' ||
+							filterValue instanceof Date
+								? filterValue
+								: '';
+						startDate = new Date( dateValue );
+						endDate = new Date( dateValue );
+					}
+
+					// Validate dates before processing
+					if ( ! isNaN( startDate.getTime() ) && ! isNaN( endDate.getTime() ) ) {
+						startDate.setUTCHours( 0, 0, 0, 0 );
+						endDate.setUTCHours( 23, 59, 59, 999 );
+
+						const startOfDayISO = startDate.toISOString();
+						const endOfDayISO = endDate.toISOString();
+
+						// Convert operator to REST API operator. Note, before and after are treated as inclusive.
+						switch ( operator ) {
+							case 'on':
+								queryArgs.after = startOfDayISO;
+								queryArgs.before = endOfDayISO;
+								break;
+							case 'before':
+								queryArgs.before = endOfDayISO;
+								break;
+							case 'after':
+								queryArgs.after = startOfDayISO;
+								break;
+							case 'between':
+								queryArgs.after = startOfDayISO;
+								queryArgs.before = endOfDayISO;
+								break;
+						}
+					}
+				}
 			}
 		} );
 
@@ -321,6 +386,22 @@ function StageInner() {
 	useEffect( () => {
 		setCurrentQuery( queryParams );
 	}, [ queryParams, setCurrentQuery ] );
+
+	// Detect when the store's query hasn't caught up to the locally computed queryParams.
+	// setCurrentQuery runs in a useEffect (after paint), so for one render cycle the store
+	// still holds the previous query and useEntityRecords returns stale cached data.
+	// Force a loading state during that gap to avoid flashing old results.
+	const isQueryStale = useMemo( () => {
+		if ( ! currentQuery ) {
+			return true;
+		}
+
+		const allKeys = new Set( [ ...Object.keys( currentQuery ), ...Object.keys( queryParams ) ] );
+
+		return Array.from( allKeys ).some(
+			key => currentQuery[ key ] !== queryParams[ key as keyof QueryParams ]
+		);
+	}, [ currentQuery, queryParams ] );
 
 	// Keep selected responses in store for shared dashboard behavior (e.g., export).
 	useEffect( () => {
@@ -383,7 +464,10 @@ function StageInner() {
 					);
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const gravatarName = item.author_name
+						? decodeEntities( item.author_name )
+						: item.author_email?.split( '@' )[ 0 ];
+					const defaultImage = gravatarName ? 'initials' : 'mp';
 
 					return (
 						<Stack align="center" gap="sm">
@@ -403,15 +487,22 @@ function StageInner() {
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ displayName }
+								displayName={ gravatarName }
 								size={ 32 }
 								useHovercard={ false }
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									<Text ellipsizeMode="tail" limit={ 50 } truncate>
-										{ displayName }
-									</Text>
+									<Stack direction="row" align="center" gap="xs">
+										<Text ellipsizeMode="tail" limit={ 50 } truncate>
+											{ displayName }
+										</Text>
+										{ item.is_test && (
+											<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+												{ __( 'Test', 'jetpack-forms' ) }
+											</Badge>
+										) }
+									</Stack>
 									{ showEmail && (
 										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
@@ -430,53 +521,67 @@ function StageInner() {
 			},
 			{
 				id: 'date',
+				type: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => {
-					const dateStr = new Date( item.date ).toLocaleDateString( undefined, {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric',
-					} );
-					return styleUnreadValue( dateStr, item.is_unread );
+				filterBy: {
+					operators: [ 'on', 'between', 'before', 'after' ] as Operator[],
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
-					const date = new Date();
-					date.setDate( 1 );
-					date.setMonth( filter.month - 1 );
-					date.setFullYear( filter.year );
-					return {
-						label: dateI18n( __( 'F Y', 'jetpack-forms' ), date ),
-						value: `${ filter.year }/${ filter.month }`,
-					};
-				} ),
-				filterBy: { operators: [ 'is' ] as Operator[] },
-				enableSorting: false,
+				render: ( { item } ) => {
+					const datetime = dateI18n( dateSettings.formats.datetime, item.date );
+					return styleUnreadValue( datetime, item.is_unread );
+				},
+				getValue: ( { item } ) => {
+					if ( typeof item.date !== 'string' ) {
+						return '';
+					}
+					return item.date;
+				},
 			},
 			{
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					// Test responses point at the regenerated preview URL instead of
+					// the hosting page, and always surface as "Form preview".
+					if ( item.is_test ) {
+						const previewLabel = __( 'Form preview', 'jetpack-forms' );
+						if ( item.preview_url ) {
+							return styleUnreadValue(
+								<Link openInNewTab href={ item.preview_url }>
+									{ previewLabel }
+								</Link>,
+								item.is_unread
+							);
+						}
+						return styleUnreadValue( previewLabel, item.is_unread );
+					}
 					const source =
 						item.entry_title ||
 						getUrlPath( item.entry_permalink ) ||
 						__( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							<Link openInNewTab href={ item.entry_permalink }>
+								{ source }
+							</Link>,
 							item.is_unread
 						);
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-					source => ( {
+				elements: [
+					{
+						value: FORM_PREVIEW_SOURCE_VALUE,
+						label: __( 'Form preview', 'jetpack-forms' ),
+					},
+					...( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map( source => ( {
 						value: source.id.toString(),
 						label:
 							decodeEntities( source.title ) ||
 							getUrlPath( source.url ) ||
 							__( '(no title)', 'jetpack-forms' ),
-					} )
-				),
+					} ) ),
+				],
 				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
@@ -513,7 +618,14 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ filterOptions, isSingleFormView, totalItemsInbox, totalItemsSpam, totalItemsTrash ]
+		[
+			dateSettings.formats.datetime,
+			filterOptions,
+			isSingleFormView,
+			totalItemsInbox,
+			totalItemsSpam,
+			totalItemsTrash,
+		]
 	);
 
 	const actions = useMemo(
@@ -548,6 +660,7 @@ function StageInner() {
 		badges,
 		subtitle,
 		title,
+		visual,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -570,7 +683,7 @@ function StageInner() {
 
 	return (
 		<Page
-			showSidebarToggle={ false }
+			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }
@@ -588,12 +701,12 @@ function StageInner() {
 						status={ statusView }
 					/>
 				}
-				data={ records || EMPTY_ARRAY }
+				data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
 				fields={ fields as Field< unknown >[] }
 				view={ view }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
-				isLoading={ isLoadingData }
+				isLoading={ isLoadingData || isQueryStale }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				selection={ selection }

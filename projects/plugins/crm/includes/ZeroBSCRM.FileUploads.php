@@ -414,30 +414,40 @@ function jpcrm_get_hash_for_object( $object_id, $object_hash_string ) {
 	return $zbs->encryption->hash( $object_id . $zbs->encryption->get_encryption_key( $object_hash_string ) );
 }
 
-/*
+/**
  * Returns the 'dir info' for the storage folder.
- * dir info =
- * [
- *      'path' => 'path for the physical file',
- *      'url'  => 'public facing url'
- * ]
  *
+ * Defaults to `wp-content/jpcrm-storage`, but can be modified by the `jpcrm_storage_dir_info` filter.
+ *
+ * @return array|false {
+ *     Directory info, or false if filtered to an empty value.
+ *
+ *     @type string $path Absolute filesystem path for storing files.
+ *     @type string $url  Public-facing URL for the same location.
+ * }
  */
 function jpcrm_storage_dir_info() {
-	$uploads_dir      = WP_CONTENT_DIR;
-	$uploads_url      = content_url();
 	$private_dir_name = 'jpcrm-storage';
 
-	if ( ! empty( $uploads_dir ) && ! empty( $uploads_url ) ) {
-		$full_dir_path = $uploads_dir . '/' . $private_dir_name;
-		$full_url      = $uploads_url . '/' . $private_dir_name;
-		return array(
-			'path' => $full_dir_path,
-			'url'  => $full_url,
-		);
+	$dir_info = array(
+		'path' => trailingslashit( WP_CONTENT_DIR ) . $private_dir_name,
+		'url'  => trailingslashit( content_url() ) . $private_dir_name,
+	);
+
+	/**
+	 * Filters the CRM private storage directory location.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $dir_info
+	 */
+	$dir_info = apply_filters( 'jpcrm_storage_dir_info', $dir_info );
+
+	if ( empty( $dir_info['path'] ) || empty( $dir_info['url'] ) ) {
+		return false;
 	}
 
-	return false;
+	return $dir_info;
 }
 
 /**
@@ -604,39 +614,56 @@ function jpcrm_storage_dir_info_for_quotes( $quote_id ) {
  * of success.
  */
 function jpcrm_save_admin_upload_to_folder( $param_name, $target_dir_info ) {
-	$upload = wp_upload_bits( $_FILES[ $param_name ]['name'], null, file_get_contents( $_FILES[ $param_name ]['tmp_name'] ) );
-
-	if ( isset( $upload['error'] ) && $upload['error'] != 0 ) {
-		return $upload;
+	if ( ! $target_dir_info ) {
+		return array( 'error' => 'Could not prepare upload directory.' );
 	}
-	// change this to return a custom error in the future if needed
-	if ( $target_dir_info === false ) {
-		return $upload;
+
+	// Note that `tmp_name` is a server-generated path, so sanitize_text_field() isn't helpful. Instead, `is_uploaded_file()` ensures this is an actual uploaded file.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- nonce verification is handled by the caller.
+	if ( empty( $_FILES[ $param_name ]['name'] ) || empty( $_FILES[ $param_name ]['tmp_name'] || ! is_uploaded_file( $_FILES[ $param_name ]['tmp_name'] ) ) ) {
+		return array( 'error' => 'No file uploaded.' );
+	}
+
+	$file_name = sanitize_file_name( wp_unslash( $_FILES[ $param_name ]['name'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by the caller.
+
+	// Match the `wp_upload_bits()` filter logic while skipping the public upload.
+	$filetype = wp_check_filetype( $file_name );
+	if ( ! $filetype['ext'] && ! current_user_can( 'unfiltered_upload' ) ) {
+		return array( 'error' => __( 'Sorry, this file type is not permitted for security reasons.', 'zero-bs-crm' ) );
 	}
 
 	global $zbs;
 	$zbs->load_encryption();
 
-	$upload_path          = $target_dir_info['path'];
-	$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $upload_path, false );
-	if ( $upload_folder_exists ) {
-		$upload_filename = sanitize_file_name(
-			sprintf(
-				'%s-%s',
-				$zbs->encryption->get_rand_hex( 16 ),
-				$_FILES[ $param_name ]['name'] // for admins we are accepting "filename.ext" as provided by $_FILES
-			)
-		);
-
-		if ( move_uploaded_file( $_FILES[ $param_name ]['tmp_name'], $upload_path . '/' . $upload_filename ) ) {
-			$upload['file'] = $upload_path . '/' . $upload_filename;
-			$upload['url']  = $target_dir_info['url'] . '/' . $upload_filename;
-			// add this extra identifier if in privatised sys
-			$upload['priv'] = true;
-		}
+	$upload_path = $target_dir_info['path'];
+	if ( ! jpcrm_create_and_secure_dir_from_external_access( $upload_path, false ) ) {
+		return array( 'error' => 'Could not prepare upload directory.' );
 	}
 
-	return $upload;
+	$upload_filename = sanitize_file_name(
+		sprintf(
+			'%s-%s',
+			$zbs->encryption->get_rand_hex( 16 ),
+			$file_name
+		)
+	);
+
+	$private_path = $upload_path . '/' . $upload_filename;
+
+	// Move uploaded file from PHP's tmp dir directly into the private storage dir.
+	// Again, `tmp_name` is a server-generated path, so sanitize_text_field() isn't helpful.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- nonce verification is handled by the caller.
+	if ( ! move_uploaded_file( $_FILES[ $param_name ]['tmp_name'], $private_path ) ) {
+		return array( 'error' => 'Could not save uploaded file.' );
+	}
+
+	return array(
+		'file'  => $private_path,
+		'url'   => $target_dir_info['url'] . '/' . $upload_filename,
+		'type'  => $filetype['type'],
+		'priv'  => true,
+		'error' => false,
+	);
 }
 
 // 2.95.5+ we also add a subdir for 'work' (this is used by CPP when making thumbs, for example)

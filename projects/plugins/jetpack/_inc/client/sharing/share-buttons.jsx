@@ -68,8 +68,8 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				const toggle = (
 					<ModuleToggle
 						slug="sharedaddy"
+						disabled={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 						activated={ isActive }
-						toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

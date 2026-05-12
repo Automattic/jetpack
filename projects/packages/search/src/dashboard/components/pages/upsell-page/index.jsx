@@ -16,7 +16,6 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -30,8 +29,6 @@ import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
 
 import './styles.scss';
-
-const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
  * defines UpsellPage.
@@ -110,19 +107,30 @@ export default function UpsellPage( { isLoading = false } ) {
 							</Button>
 						)
 					}
-					moduleNameHref={ JETPACK_SEARCH__LINK }
-					useInternalLinks={ shouldUseInternalLinks() }
 				>
-					<AdminSectionHero>
-						{ isNewPricing ? (
-							<NewPricingComponent
-								sendToCartPaid={ sendToCartPaid }
-								sendToCartFree={ sendToCartFree }
-							/>
-						) : (
-							<OldPricingComponent sendToCart={ sendToCartPaid } />
-						) }
-					</AdminSectionHero>
+					{ /*
+					 * `<AdminSectionHero>` has `overflow: hidden` (BFC for margin
+					 * collapse), which under the shared admin-page-layout mixin's
+					 * flex chain resolves its `min-height: auto` to 0 and lets
+					 * flex shrink it past its content — clipping the pricing rows
+					 * at the footer line and starving the middle's `overflow:
+					 * auto` of any overflow to engage. The block-level wrapper
+					 * exits the flex chain so the inner content sizes to its
+					 * natural height. See `.jp-search-upsell-page-content` rule
+					 * + comment in styles.scss for full reasoning.
+					 */ }
+					<div className="jp-search-upsell-page-content">
+						<AdminSectionHero>
+							{ isNewPricing ? (
+								<NewPricingComponent
+									sendToCartPaid={ sendToCartPaid }
+									sendToCartFree={ sendToCartFree }
+								/>
+							) : (
+								<OldPricingComponent sendToCart={ sendToCartPaid } />
+							) }
+						</AdminSectionHero>
+					</div>
 				</AdminPage>
 			) }
 		</>
@@ -205,7 +213,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	} ).format( unitQuantityRaw );
 
 	return (
-		<Container horizontalSpacing={ 8 }>
+		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
 					<ConnectionError />

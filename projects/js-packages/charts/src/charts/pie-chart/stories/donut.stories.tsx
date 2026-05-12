@@ -1,8 +1,4 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	__experimentalText as WPText,
-	__experimentalHStack as HStack,
-} from '@wordpress/components';
+import { Stack, Text } from '@wordpress/ui';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
 import {
@@ -16,7 +12,7 @@ import {
 } from '../../../stories';
 import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
-import { Text } from '../../../visx/text';
+import { Text as SvgText } from '../../../visx/text';
 import { PieChart, PieChartUnresponsive } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -108,12 +104,12 @@ export const Default: Story = {
 		data,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 					User Activity
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
 					Total: 100K Users
-				</Text>
+				</SvgText>
 			</Group>
 		),
 	},
@@ -127,12 +123,12 @@ export const WithSize: Story = {
 		showLabels: false,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -16 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -16 }>
 					User Activity
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 16 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 16 }>
 					Total: 100K Users
-				</Text>
+				</SvgText>
 			</Group>
 		),
 	},
@@ -168,12 +164,12 @@ export const Thin: Story = {
 		showLabels: false,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 					Thin Donut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
 					Thickness: 20%
-				</Text>
+				</SvgText>
 			</Group>
 		),
 	},
@@ -193,12 +189,12 @@ export const WithTooltips: Story = {
 		withTooltips: true,
 		children: (
 			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
 					Hover over segments
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+				</SvgText>
+				<SvgText textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
 					to see tooltips
-				</Text>
+				</SvgText>
 			</Group>
 		),
 	},
@@ -269,7 +265,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" spacing={ 2 }>
+					<Stack direction="row" justify="flex-start" align="center" gap="sm">
 						<div
 							style={ {
 								width: '8px',
@@ -279,14 +275,14 @@ const CustomPieLegend = ( {
 								backgroundColor: color,
 							} }
 						/>
-						<WPText size="small">{ item.label }</WPText>
-					</HStack>
-					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+						<Text variant="body-sm">{ item.label }</Text>
+					</Stack>
+					<Text variant="body-sm" style={ { fontWeight: 600, textAlign: 'right' } }>
 						{ item.formattedValue }
-					</WPText>
-					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+					</Text>
+					<Text variant="body-sm" style={ { textAlign: 'right', color: '#008a20' } }>
 						{ withComparison && item.comparison }
-					</WPText>
+					</Text>
 				</Fragment>
 			);
 		} ) }

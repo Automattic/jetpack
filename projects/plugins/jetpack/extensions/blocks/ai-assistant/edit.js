@@ -21,17 +21,12 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import {
-	Notice,
-	PanelBody,
-	PanelRow,
-	KeyboardShortcuts,
-	ExternalLink,
-} from '@wordpress/components';
+import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -384,9 +379,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					{ /* Mock BlockCard component styles to keep alignment */ }
 					<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
 						<span className="block-editor-block-icon"></span>
-						<ExternalLink href={ productPageUrl }>
+						<Link openInNewTab href={ productPageUrl }>
 							{ __( 'Discover all features', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</div>
 					{ ( planType === PLAN_TYPE_FREE ||
 						( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED ) ) && (

@@ -1,6 +1,6 @@
 import { ProductPrice, TermsOfService } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
@@ -68,7 +68,6 @@ const JetpackProductCard = props => {
 					<Gridicon icon="star" /> { callToAction }
 				</div>
 			) }
-
 			<div className="jp-product-card__inner">
 				{ !! icon && <div className="jp-product-card__icon">{ icon }</div> }
 
@@ -105,18 +104,18 @@ const JetpackProductCard = props => {
 				{ disclaimer && (
 					<p className="jp-product-card__disclaimer">
 						{ `${ disclaimer.text } ` }
-						<ExternalLink
+						<Link
+							openInNewTab
 							onClick={ onDisclaimerClick }
 							href={ disclaimer.url }
 							target="_blank"
 							rel="noopener noreferrer"
 						>
 							{ disclaimer.link_text }
-						</ExternalLink>
+						</Link>
 					</p>
 				) }
 			</div>
-
 			{ hasMedia && (
 				<img
 					className="jp-product-card__media"

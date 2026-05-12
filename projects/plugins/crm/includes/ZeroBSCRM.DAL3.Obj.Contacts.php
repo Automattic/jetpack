@@ -543,7 +543,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 	 * @param array                    $args   Associative array of arguments
 	 *                                         withQuotes, withInvoices, withTransactions, withLogs
 	 *
-	 * @return array result
+	 * @return array|int|false result
 	 */
 	public function getContact( $id = -1, $args = array() ) {
 
@@ -5020,7 +5020,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 	 *
 	 * @param int id Contact ID
 	 *
-	 * @return int Contact wp id
+	 * @return int|false Contact wp id
 	 */
 	public function getContactWPID( $id = -1 ) {
 
@@ -5203,10 +5203,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 			$avatarMode = zeroBSCRM_getSetting( 'avatarmode' );
 			switch ( $avatarMode ) {
 
-				case 1: // gravitar
+				case 1: // Gravatar
 					$potentialEmail = $this->getContactEmail( $id );
 					if ( ! empty( $potentialEmail ) ) {
-						return '<img src="' . zeroBSCRM_getGravatarURLfromEmail( $potentialEmail, $size ) . '" class="' . $extraClasses . ' zbs-gravatar" alt="" />';
+						return '<img src="' . esc_url( zeroBSCRM_getGravatarURLfromEmail( $potentialEmail, $size ) ) . '" class="' . esc_attr( $extraClasses ) . ' zbs-gravatar" alt="" />';
 					}
 
 					// default
@@ -5217,7 +5217,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				case 2: // custom img
 					$dbURL = $this->getContactAvatarURL( $id );
 					if ( ! empty( $dbURL ) ) {
-						return '<img src="' . $dbURL . '" class="' . $extraClasses . ' zbs-custom-avatar" alt="" />';
+						return '<img src="' . esc_url( $dbURL ) . '" class="' . esc_attr( $extraClasses ) . ' zbs-custom-avatar" alt="" />';
 					}
 
 					// default

@@ -8,7 +8,6 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
-import { useTooltipPortalRelocator } from '../../hooks/use-tooltip-portal-relocator';
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
@@ -27,22 +26,9 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
 	theme?: Partial< ChartTheme >;
-	/**
-	 * Optional ref to an element that chart tooltip portals should be relocated into.
-	 * When provided, visx tooltip portals (normally appended to document.body) will be
-	 * moved into this container so they participate in the same effective CSS stacking context.
-	 * The element referenced here, or one of its ancestors, should establish the desired
-	 * stacking context (for example by using `position` and `z-index`) so that tooltips
-	 * appear above the relevant chart content.
-	 */
-	portalContainer?: React.RefObject< HTMLElement | null >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
-	children,
-	theme,
-	portalContainer,
-} ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 	// Track hidden series per chart: chartId -> Set<seriesLabel>
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
@@ -51,9 +37,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
-
-	// Relocate tooltip portals into the wrapper (or a consumer-provided container) for z-index control.
-	useTooltipPortalRelocator( portalContainer ?? wrapperRef );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
@@ -70,11 +53,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		maxHue: 0,
 	} ) );
 
+	// Track if the color palette has been resolved from the DOM
+	// Useful for animations that should only run after the color palette is resolved
+	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
+
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
 	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
 	useLayoutEffect( () => {
+		setIsColorPaletteResolved( false );
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
@@ -86,25 +74,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		if ( Array.isArray( colors ) ) {
 			for ( const color of colors ) {
 				if ( color && typeof color === 'string' ) {
-					let colorValue = color;
+					// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
+					// This uses normalizeColorToHex which resolves CSS variables and converts
+					// rgb(), rgba(), hsl() formats to hex
+					const normalizedColor = normalizeColorToHex(
+						color,
+						wrapperRef.current,
+						resolveCssVariable
+					);
 
-					// Handle CSS custom properties - resolve them to actual values
-					// Supports both '--var-name' and 'var(--var-name)' formats
-					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
-						const resolved = resolveCssVariable( color, wrapperRef.current );
-
-						if ( resolved === null || resolved === '' ) {
-							continue;
-						}
-
-						colorValue = resolved;
-					}
-
-					// Process hex colors
-					if ( colorValue.startsWith( '#' ) ) {
-						resolvedColors.push( colorValue );
-						const hslColor = d3Hsl( colorValue );
+					// Only process valid hex colors
+					if ( normalizedColor.startsWith( '#' ) ) {
+						resolvedColors.push( normalizedColor );
+						const hslColor = d3Hsl( normalizedColor );
 						// d3Hsl returns NaN values for invalid colors
 						if ( ! isNaN( hslColor.h ) ) {
 							const hslTuple: [ number, number, number ] = [
@@ -130,6 +112,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			maxHue,
 		} );
 	}, [ providerTheme ] );
+
+	useEffect( () => {
+		if ( colorCache.colors.length > 0 ) {
+			setIsColorPaletteResolved( true );
+		}
+	}, [ colorCache ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()
@@ -277,6 +265,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		} ),
 		[
 			charts,
@@ -288,6 +277,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		]
 	);
 

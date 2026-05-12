@@ -79,7 +79,7 @@ function jetpackcrm_dash_refresh() {
 	$sql     = $wpdb->prepare( 'SELECT count(ID) as count, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY month, year ORDER BY year, month', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$monthly = $wpdb->get_results( $sql );
 
-	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, WEEK(FROM_UNIXTIME(zbsc_created), 1) as week, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY week, year ORDER BY year, week', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, YEARWEEK(FROM_UNIXTIME(zbsc_created), 1) as yearweek FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY yearweek ORDER BY yearweek', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$weekly = $wpdb->get_results( $sql );
 
 	$sql   = $wpdb->prepare( 'SELECT count(ID) as count, DAY(FROM_UNIXTIME(zbsc_created)) as day, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY day, month, year ORDER BY year, month, day', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -99,7 +99,8 @@ function jetpackcrm_dash_refresh() {
 	}
 
 	foreach ( $weekly as $v ) {
-		$the_week                   = str_pad( $v->week, 2, '0', STR_PAD_LEFT ) . ' ' . $v->year;
+		$yearweek                   = str_pad( $v->yearweek, 6, '0', STR_PAD_LEFT );
+		$the_week                   = substr( $yearweek, 0, 4 ) . ' W' . substr( $yearweek, 4, 2 );
 		$zeros['week'][ $the_week ] = $v->count;
 	}
 
@@ -140,7 +141,7 @@ function jetpackcrm_dash_refresh() {
 		'chart'   => $chart,
 	);
 
-	wp_send_json( $r );
+	wp_send_json( $r, 200, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_jetpackcrm_dash_refresh', 'jetpackcrm_dash_refresh' );
 
@@ -160,7 +161,7 @@ function jpcrm_dash_setting() {
 		if ( in_array( $setting_key, $acceptable_setting_keys, true ) ) {
 
 			// default to checked
-			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) sanitize_text_field( $_POST['is_checked'] ) : 1 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) $_POST['is_checked'] : 1 );
 
 			// retrieve
 			$current_user_id = get_current_user_id();
@@ -169,11 +170,11 @@ function jpcrm_dash_setting() {
 			update_user_meta( $current_user_id, $setting_key, $is_checked );
 
 			// No rights or failed key match
-			wp_send_json( array( 'fini' => 1 ) );
+			wp_send_json( array( 'fini' => 1 ), 200, JSON_UNESCAPED_SLASHES );
 		}
 	}
 
 	// No rights or failed key match
-	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_zbs_dash_setting', 'jpcrm_dash_setting' );

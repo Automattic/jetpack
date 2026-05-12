@@ -23,12 +23,17 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY_EXISTING_SITE ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY ) ) {
 		return false;
 	}
 
 	// Don't show on Big Sky sites.
 	if ( wpcom_has_blog_sticker( 'big-sky-enabled', get_wpcom_blog_id() ) ) {
+		return false;
+	}
+
+	// Don't show if AI assistant is already enabled.
+	if ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) {
 		return false;
 	}
 

@@ -385,7 +385,6 @@ class WPCOM_Features {
 	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BIG_SKY                           = 'big-sky';
-	public const BIG_SKY_EXISTING_SITE             = 'big-sky-existing-site';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -644,16 +643,9 @@ class WPCOM_Features {
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
 		),
-		// Free trials can upgrade to any plan level.
+		// Plans that grant unlimited Big Sky usage and exit the Big Sky free trial.
 		self::BIG_SKY                           => array(
-			self::WPCOM_PERSONAL_PLANS,
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_PREMIUM_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
-		),
-		// Existing sites can only enable it if they have a business or higher plan.
-		self::BIG_SKY_EXISTING_SITE             => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
@@ -870,6 +862,7 @@ class WPCOM_Features {
 		),
 		self::GLOBAL_STYLES                     => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_STARTER_PLANS,
 		),
 		self::GOOGLE_ANALYTICS                  => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -1446,6 +1439,8 @@ class WPCOM_Features {
 			self::A4A_JETPACK_STATS_YEARLY,
 		),
 		self::STUDIO_SYNC                       => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),

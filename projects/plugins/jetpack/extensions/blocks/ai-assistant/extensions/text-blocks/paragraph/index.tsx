@@ -7,6 +7,7 @@ import { getBlockContent } from '@wordpress/blocks';
  * Types
  */
 import { BlockHandler } from '../block-handler';
+import type { Block as WPBlock } from '@wordpress/blocks';
 
 const HTMLConverter = new HTMLToMarkdown( { fixes: [ 'paragraph' ] } );
 
@@ -22,6 +23,6 @@ export class ParagraphHandler extends BlockHandler {
 	public getContent() {
 		const block = this.getBlock();
 
-		return getParagraphMarkdown( getBlockContent( block ) );
+		return getParagraphMarkdown( getBlockContent( block as WPBlock ) );
 	}
 }

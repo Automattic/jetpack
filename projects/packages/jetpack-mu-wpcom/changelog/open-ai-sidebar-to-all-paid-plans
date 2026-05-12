@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+ai-assistant-banner: gate on WPCOM_Features::BIG_SKY instead of the removed BIG_SKY_EXISTING_SITE.

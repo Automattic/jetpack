@@ -1,6 +1,7 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Placeholder, ExternalLink } from '@wordpress/components';
+import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import metadata from '../block.json';
 
 const icon = getBlockIconComponent( metadata );
@@ -26,9 +27,9 @@ export const WordAdsPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 					: __( 'Activate WordAds', 'jetpack', 0 ) }
 			</Button>
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://jetpack.com/support/ads/">
+				<Link openInNewTab href="https://jetpack.com/support/ads/">
 					{ __( 'Learn more about the WordAds feature.', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</div>
 		</Placeholder>
 	);

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -916,6 +917,95 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Test Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		// Clear the Feedback static cache so repeat calls in one test see fresh data.
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Preview ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * By default, the export excludes feedback flagged as test submissions.
+	 */
+	public function test_export_excludes_test_feedback_by_default() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ) );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEquals(
+			array( $real_id ),
+			$result[' ID'],
+			'The default export should only return the non-test feedback row.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
+	/**
+	 * Callers that pass an explicit selection (e.g. the dashboard's selected
+	 * row IDs) include the test responses in that selection — the user
+	 * deliberately picked them.
+	 */
+	public function test_export_includes_test_feedback_when_explicitly_requested() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ), true );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEqualsCanonicalizing(
+			array( $real_id, $test_id ),
+			$result[' ID'],
+			'When include_test_responses is true, both rows should be present in the export.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
 	public function test_interpersonal_data_exporter() {
 
 		$post_id = Utility::create_legacy_feedback(
@@ -1036,6 +1126,226 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Clean up menu globals and options after each unread_count test.
+	 */
+	public function tearDown(): void {
+		global $menu, $submenu;
+		if ( isset( $menu ) || isset( $submenu ) ) {
+			$menu    = array();
+			$submenu = array();
+		}
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+		delete_option( 'jetpack_feedback_unread_count' );
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/**
+	 * Helper: set up $menu and $submenu globals for unread_count() tests.
+	 *
+	 * @param string $jetpack_title The title for the Jetpack menu item.
+	 * @return array { menu_index: int, submenu_index: int } Indices of the Jetpack and Forms entries.
+	 */
+	private function setup_menu_globals( $jetpack_title = 'Jetpack' ) {
+		global $menu, $submenu;
+
+		$menu    = array();
+		$submenu = array();
+
+		// Jetpack top-level menu entry at index 2.
+		$menu[2] = array( $jetpack_title, 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
+
+		// Forms submenu entry.
+		$admin_slug             = Dashboard::ADMIN_SLUG;
+		$submenu['jetpack']     = array();
+		$submenu['jetpack'][0]  = array( 'Dashboard', 'manage_options', 'jetpack' );
+		$submenu['jetpack'][10] = array( 'Form Responses', 'edit_pages', $admin_slug );
+
+		// Ensure the alpha filter returns false so ADMIN_SLUG is used.
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		return array(
+			'menu_index'    => 2,
+			'submenu_index' => 10,
+		);
+	}
+
+	/**
+	 * Helper: create an admin user and set as current user.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_admin_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'editor', // editors have edit_pages capability.
+			)
+		);
+		wp_set_current_user( $user_id );
+		return $user_id;
+	}
+
+	/**
+	 * When Forms unread count is 0 and the Jetpack menu has no existing badge,
+	 * unread_count() should not add a jp-feedback-unread-counter badge.
+	 */
+	public function test_unread_count_zero_does_not_add_forms_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu, $submenu;
+
+		$this->assertSame( 'Jetpack', $menu[ $indices['menu_index'] ][0], 'Menu title should remain unchanged.' );
+		$this->assertSame( 'Form Responses', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu title should remain unchanged.' );
+	}
+
+	/**
+	 * When Forms unread count is 0 but the Jetpack menu already has a My Jetpack
+	 * awaiting-mod badge, unread_count() should leave it untouched and not wrap it
+	 * in a jp-feedback-unread-counter span.
+	 */
+	public function test_unread_count_zero_preserves_existing_my_jetpack_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack <span class="awaiting-mod">1</span>' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'awaiting-mod', $menu[ $indices['menu_index'] ][0], 'My Jetpack badge should be preserved.' );
+		$this->assertStringNotContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Forms should not re-wrap the badge.' );
+	}
+
+	/**
+	 * When Forms has unread submissions and no existing Jetpack badge,
+	 * unread_count() should add a jp-feedback-unread-counter badge to the menu.
+	 */
+	public function test_unread_count_nonzero_adds_forms_badge_to_menu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 3 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
+		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show count of 3.' );
+		$this->assertStringContainsString( "data-unread-diff='0'", $menu[ $indices['menu_index'] ][0], 'Diff should be 0 when no other badges exist.' );
+	}
+
+	/**
+	 * When Forms has unread submissions and the Jetpack menu already has a My Jetpack
+	 * awaiting-mod badge, unread_count() should combine both counts.
+	 */
+	public function test_unread_count_nonzero_combines_with_existing_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack <span class="awaiting-mod">1</span>' );
+		update_option( 'jetpack_feedback_unread_count', 2 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
+		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show combined count of 3 (2 unread + 1 existing).' );
+		$this->assertStringContainsString( "data-unread-diff='1'", $menu[ $indices['menu_index'] ][0], 'Diff should be 1 (3 - 2).' );
+	}
+
+	/**
+	 * When Forms has unread submissions, the Forms submenu item should get a badge.
+	 */
+	public function test_unread_count_nonzero_adds_badge_to_submenu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 5 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $submenu;
+
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should contain Forms badge.' );
+		$this->assertStringContainsString( 'count-5', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu badge should show count of 5.' );
+	}
+
+	/**
+	 * When Forms has 0 unread submissions, the Forms submenu item should not get a badge.
+	 */
+	public function test_unread_count_zero_does_not_add_badge_to_submenu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $submenu;
+
+		$this->assertStringNotContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should not contain Forms badge when unread is 0.' );
+	}
+
+	/**
+	 * When the current user lacks edit_pages capability, unread_count() should
+	 * not modify the menu globals at all.
+	 */
+	public function test_unread_count_skips_for_user_without_edit_pages() {
+		// Create a subscriber (no edit_pages capability).
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_subscriber_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 5 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu, $submenu;
+
+		$this->assertSame( 'Jetpack', $menu[ $indices['menu_index'] ][0], 'Menu title should remain unchanged for users without edit_pages.' );
+		$this->assertSame( 'Form Responses', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu title should remain unchanged for users without edit_pages.' );
+	}
+
+	/**
+	 * When $submenu['jetpack'] is not set, unread_count() should not modify the
+	 * menu and should complete without errors.
+	 */
+	public function test_unread_count_handles_missing_submenu() {
+		$this->create_admin_user();
+
+		global $menu, $submenu;
+		$menu    = array();
+		$submenu = array();
+
+		// Set up only the main menu, no submenu.
+		$menu[2] = array( 'Jetpack', 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		update_option( 'jetpack_feedback_unread_count', 3 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		$this->assertSame( 'Jetpack', $menu[2][0], 'Menu title should remain unchanged when submenu is missing.' );
 	}
 
 	/**
@@ -1677,5 +1987,124 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
 		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Creates a user and grants the `export` cap via the `user_has_cap`
+	 * filter so tests don't depend on role/option state (which WorDBless
+	 * can clear between tests).
+	 *
+	 * Returns a cleanup closure that removes the cap filter.
+	 *
+	 * @param string $login The user login.
+	 * @return array{0:int,1:callable} [ user_id, cleanup callback ]
+	 */
+	private static function create_export_capable_user( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$grant   = function ( $allcaps ) {
+			$allcaps['export'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+		$cleanup = function () use ( $grant ) {
+			remove_filter( 'user_has_cap', $grant );
+		};
+		return array( $user_id, $cleanup );
+	}
+
+	/**
+	 * Regression test: the response export must apply the Source filter so the
+	 * downloaded CSV matches the filtered inbox view — the export handler must
+	 * read $_POST[source] and apply the same JOIN/WHERE the list view uses.
+	 */
+	public function test_export_applies_source_filter_when_source_post_param_is_set() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+		$_POST['source']                       = '42';
+
+		try {
+			$plugin->get_feedback_entries_from_post();
+
+			$this->assertNotNull( $captured_query, 'Export query should include the source filter SQL when $_POST[source] is set' );
+			$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Export query should reference the source meta key' );
+			$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Export query should filter by source meta value' );
+			$this->assertStringContainsString( 'post_parent', $captured_query, 'Export query should include the post_parent fallback' );
+		} finally {
+			remove_all_filters( 'wordbless_wpdb_query_results' );
+			$cleanup_cap();
+			unset(
+				$_POST['feedback_export_nonce_csv'],
+				$_REQUEST['feedback_export_nonce_csv'],
+				$_POST['source']
+			);
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * Regression test: without `$_POST['source']`, the export must not inject
+	 * source-filter SQL (so unfiltered exports stay unfiltered).
+	 */
+	public function test_export_without_source_post_param_does_not_include_source_sql() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_no_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+
+		try {
+			$plugin->get_feedback_entries_from_post();
+
+			$this->assertFalse( $found_source_sql, 'Export query should not include source filter SQL when $_POST[source] is absent' );
+		} finally {
+			remove_all_filters( 'wordbless_wpdb_query_results' );
+			$cleanup_cap();
+			unset(
+				$_POST['feedback_export_nonce_csv'],
+				$_REQUEST['feedback_export_nonce_csv']
+			);
+			wp_set_current_user( 0 );
+		}
 	}
 }

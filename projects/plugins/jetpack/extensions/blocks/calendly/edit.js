@@ -1,10 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
+import { Button, Placeholder, Spinner, withNotices } from '@wordpress/components';
 import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -134,9 +135,12 @@ export function CalendlyEdit( props ) {
 				</div>
 			</form>
 			<div className={ `${ defaultClassName }-learn-more` }>
-				<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
+				<Link
+					openInNewTab
+					href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview"
+				>
 					{ __( 'Need help finding your embed code?', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</div>
 		</Placeholder>
 	);

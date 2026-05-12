@@ -1,0 +1,116 @@
+// Layout notes — `@wordpress/admin-ui`'s `Page` lays out `.admin-ui-page`
+// as a flex column whose direct children are the sticky header and a
+// single body slot. There is no `.admin-ui-page__body` wrapper — whatever
+// we pass as children sits directly under `.admin-ui-page` (Tabs.Root in
+// tabbed mode, the content `div` in Settings-only mode).
+
+// Scroll model — app shell. We anchor `.admin-ui-page` to the stage
+// height and make the body slot itself the scroll container
+// (`overflow: auto`), keeping the page header, the tab row, and the
+// `JetpackFooter` pinned to the viewport while only the active tab's
+// content scrolls. Without this, the stage scrolls the whole page and
+// both the header and the tab row try to stick at `top: 0` of the same
+// container — the tab row (higher z-index) covers the header and the
+// header's subtitle peeks through below it as you scroll.
+
+$jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+body.jetpack_page_jetpack-newsletter {
+
+	// Off-white page surface so the white settings cards stand out against
+	// the page background. Matches the "Jetpack page surface" value used by
+	// Jetpack settings, the Forms inspector, and My Jetpack interstitials.
+	// `block-size: 100%` anchors the page to the stage's height so the body
+	// slot below has a bounded box to fill — see the body-slot rule for the
+	// rest of the app-shell scroll model.
+	.admin-ui-page {
+		background: #fcfcfc;
+		block-size: 100%;
+		min-block-size: 0;
+	}
+
+	// The body slot — Tabs.Root in tabbed mode, the bare content `div` in
+	// Settings-only mode — is the page's scroll container. It fills the
+	// space between the sticky header and the `JetpackFooter` and lets the
+	// active tab's content scroll inside while the chrome stays pinned.
+	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		min-block-size: 0;
+		overflow: auto;
+	}
+
+	// Page header keeps its existing sticky behaviour but drops its bottom
+	// rule — the tab row owns the separator now, so the two never stack a
+	// double border. Pin the title row to the action-button height so the
+	// header stays the same size whether the active tab supplies actions
+	// (Subscribers ships an "Add subscribers" button) or not (Settings); the
+	// tab bar would otherwise jump 8px when switching between them.
+	.admin-ui-page__header {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 0;
+		padding-block-end: var(--wpds-dimension-padding-xs, 4px);
+
+		> *:first-child {
+			min-block-size: 36px;
+		}
+	}
+
+	// Tabs row: sticks at the top of the body wrapper (which itself starts
+	// directly below the sticky page header), so the bar stays in view while
+	// the panel content scrolls underneath. The wrapper carries the
+	// full-width separator + inline padding while the nested `Tabs.List`
+	// keeps its native `width: fit-content` so the animated active-tab
+	// indicator slides smoothly between tabs.
+	// The selector mirrors admin-ui's
+	// `.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > *`
+	// rule so the `flex: 0 0 auto` here outweighs the `flex: 1 1 auto`
+	// admin-ui sprays across body-wrapper children. Without that boost the
+	// tabs row collapses to ~24px and the tab buttons clip out of view.
+	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > .jetpack-newsletter-page__tabs-row {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+		box-sizing: border-box;
+		flex: 0 0 auto;
+		padding-inline: $jetpack-newsletter-inset;
+		position: sticky;
+		top: 0;
+		width: 100%;
+		z-index: 9;
+	}
+
+	.jetpack-newsletter-page__content--padded {
+		padding: $jetpack-newsletter-inset;
+	}
+
+	// On the Subscribers tab, let the DataViews surface fill the body slot
+	// instead of collapsing to its content height. Walk the inner flex
+	// chain from `.jetpack-newsletter-page__content` down to
+	// `.dataviews-wrapper`: every link needs `display: flex` +
+	// `flex-grow: 1` + a zeroed min-block-size so the leaf can absorb the
+	// leftover space the body slot hands down.
+	.admin-ui-page:has(.dataviews-wrapper) {
+
+		.jetpack-newsletter-page__content,
+		.jetpack-newsletter-page__content > [class*="__tabpanel"] {
+			display: flex;
+			flex: 1 1 auto;
+			flex-direction: column;
+			min-block-size: 0;
+		}
+
+		.dataviews-wrapper {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
+
+		// The dataviews "no results" message centres within the area below
+		// the search / filters / view-options chrome. That chrome adds
+		// visual weight pulling the optical centre down — pad the bottom
+		// to rebalance. 4× the page inset keeps it tied to the 24px rhythm.
+		.dataviews-no-results {
+			padding-block-end: calc(#{$jetpack-newsletter-inset} * 4);
+		}
+	}
+}

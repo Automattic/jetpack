@@ -122,7 +122,7 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 			// Debug echo 'Quote:<pre>'.print_r($quote,1).'</pre>';
 
 		?>                
-				<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+				<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 				<?php
 
 				#} retrieve
@@ -319,7 +319,7 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 												jQuery('#zbs-customer-title').prepend(html); */
 
 												// ALSO show in header bar, if so
-																var navButton = '<a target="_blank" style="margin-left:6px;" class="zbs-quote-quicknav-contact ui icon button black mini labeled" href="<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>' + contactID + '"><i class="user icon"></i> <?php zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) ); ?></a>';
+																var navButton = '<a target="_blank" style="margin-left:6px;" class="zbs-quote-quicknav-contact ui icon button black mini labeled" href="<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>' + contactID + '"><i class="user icon"></i> ' + <?php echo wp_json_encode( __( 'Contact', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> + '</a>';
 												jQuery('#zbs-quote-learn-nav').append(navButton);
 
 												// bind
@@ -831,7 +831,7 @@ class zeroBS__Metabox_QuoteNextStep extends zeroBS__Metabox {
 								<div class="zbs-move-on-wrap" style="padding-top:30px;">
 								<?php
 									#} Add nonce
-									echo '<script type="text/javascript">var zbscrmjs_secToken = \'' . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . '\';</script>';
+									echo '<script type="text/javascript">var zbscrmjs_secToken = ' . wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';</script>';
 								?>
 
 									<!-- infoz -->
@@ -1043,14 +1043,16 @@ class zeroBS__Metabox_QuoteFiles extends zeroBS__Metabox {
 					</td></tr>
 		
 			</table>
+			<?php
+			$jpcrm_metabox_files_lang = array(
+				'err'         => __( 'Error', 'zero-bs-crm' ),
+				'unabletodel' => __( 'Unable to delete this file', 'zero-bs-crm' ),
+			);
+			?>
 			<script type="text/javascript">
 
 				var zbsQuotesCurrentlyDeleting = false;
-				var zbsMetaboxFilesLang = {
-					'err': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-					'unabletodel' : '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file', 'zero-bs-crm' ) ) ); ?>',
-
-				}
+				var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				jQuery(function(){
 
@@ -1073,7 +1075,7 @@ class zeroBS__Metabox_QuoteFiles extends zeroBS__Metabox {
 									'action': 'delFile',
 									'zbsfType': 'quotes',
 									'zbsDel':  delUrl, // could be csv, never used though
-									'zbsCID': <?php echo esc_html( $quoteID ); ?>,
+									'zbsCID': <?php echo (int) $quoteID; ?>,
 									'sec': window.zbscrmjs_secToken
 									};
 
@@ -1157,8 +1159,11 @@ class zeroBS__Metabox_QuoteFiles extends zeroBS__Metabox {
 			if ( jpcrm_file_check_mime_extension( $_FILES['zbsobj_file_attachment'] ) ) {
 
 				$quote_dir_info = jpcrm_storage_dir_info_for_quotes( $quoteID );
-				$upload         = jpcrm_save_admin_upload_to_folder( 'zbsobj_file_attachment', $quote_dir_info['files'] );
+				if ( ! $quote_dir_info ) {
+					wp_die( 'Could not prepare upload directory.' );
+				}
 
+				$upload = jpcrm_save_admin_upload_to_folder( 'zbsobj_file_attachment', $quote_dir_info['files'] );
 				if ( isset( $upload['error'] ) && $upload['error'] != 0 ) {
 					wp_die( 'There was an error uploading your file. The error is: ' . esc_html( $upload['error'] ) );
 				} else {

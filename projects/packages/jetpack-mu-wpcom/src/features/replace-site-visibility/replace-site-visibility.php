@@ -112,7 +112,11 @@ function wpcom_get_site_preview_link() {
 function replace_site_visibility_load_assets() {
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-replace-site-visibility', array( 'js', 'css' ) );
 
+	$bundles      = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
+	$current_plan = array_pop( $bundles );
+
 	$data = array(
+		'blogId'                 => get_current_blog_id(),
 		'homeUrl'                => home_url( '/' ),
 		'siteTitle'              => get_bloginfo( 'name' ),
 		'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
@@ -124,6 +128,9 @@ function replace_site_visibility_load_assets() {
 		'wpcomComingSoon'        => get_option( 'wpcom_coming_soon' ),
 		'wpcomPublicComingSoon'  => get_option( 'wpcom_public_coming_soon' ),
 		'wpcomDataSharingOptOut' => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
+		'siteDomain'             => wp_parse_url( home_url(), PHP_URL_HOST ),
+		'sitePlan'               => $current_plan,
+		'hasCustomDomain'        => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
 	);
 
 	// If the site is launched, replace the option value with the actual site visibility.

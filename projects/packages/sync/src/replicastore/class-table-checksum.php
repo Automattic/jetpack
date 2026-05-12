@@ -213,18 +213,14 @@ class Table_Checksum {
 				'range_field'               => 'comment_ID',
 				'key_fields'                => array( 'comment_ID' ),
 				'checksum_fields'           => array( 'comment_date_gmt' ),
-				'filter_values'             => array(
-					'comment_type'     => array(
-						'operator' => 'IN',
-						'values'   => apply_filters(
-							'jetpack_sync_whitelisted_comment_types',
-							array( '', 'comment', 'trackback', 'pingback', 'review' )
+				'filter_values'             => array_merge(
+					Sync\Settings::get_allowed_comment_types_structured(),
+					array(
+						'comment_approved' => array(
+							'operator' => 'NOT IN',
+							'values'   => array( 'spam' ),
 						),
-					),
-					'comment_approved' => array(
-						'operator' => 'NOT IN',
-						'values'   => array( 'spam' ),
-					),
+					)
 				),
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'comments' );

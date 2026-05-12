@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Migrate the Scan package's build pipeline from webpack + `@automattic/jetpack-webpack-config` to `@wordpress/build` (mirrors Newsletter / Forms). The page now ships as a wp-build route at `routes/index/` (route.tsx + stage.tsx + route.scss + package.json), with the page chrome moved to `_inc/components/scan-page.{tsx,scss}`. URL routing switches from `react-router`'s `useSearchParams` to `@wordpress/route`'s `useSearch` / `useNavigate`; the active tab is read from `?tab=` and tab-changes call `navigate({ search })`. PHP-side, `Jetpack_Scan` now loads `build/build.php`, registers polyfills via `WP_Build_Polyfills`, bridges the user-facing `?page=jetpack-scan` slug onto wp-build's auto-generated `jetpack-scan-wp-admin` enqueue, and applies the import-map ordering fix Newsletter uses. Drops `react-router`, `@automattic/jetpack-webpack-config`, and the standalone `shell.tsx` / `admin.tsx` / `providers.tsx` / `routes.ts` / `index.js`.

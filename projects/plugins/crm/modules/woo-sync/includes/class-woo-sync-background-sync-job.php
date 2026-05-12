@@ -514,7 +514,9 @@ class Woo_Sync_Background_Sync_Job {
 						'page_no'              => $page_no,
 						'orders_imported'      => 0,
 						'percentage_completed' => 0,
-					)
+					),
+					200,
+					JSON_UNESCAPED_SLASHES
 				);
 			}
 
@@ -789,13 +791,15 @@ class Woo_Sync_Background_Sync_Job {
 
 			$this->debug( 'Contact added/updated #' . $contact_id );
 
-			$zbs->DAL->contacts->addUpdateContactTags( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				array(
-					'id'        => $contact_id,
-					'tag_input' => $crm_object_data['contact']['tags'],
-					'mode'      => 'append',
-				)
-			);
+			if ( ! empty( $crm_object_data['contact']['tags'] ) ) {
+				$zbs->DAL->contacts->addUpdateContactTags( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					array(
+						'id'        => $contact_id,
+						'tag_input' => $crm_object_data['contact']['tags'],
+						'mode'      => 'append',
+					)
+				);
+			}
 
 			// contact logs
 			if ( is_array( $crm_object_data['contact_logs'] ) ) {
@@ -876,14 +880,14 @@ class Woo_Sync_Background_Sync_Job {
 
 				} else {
 
-						$this->debug( 'Company import failed: <code>' . json_encode( $crm_object_data['company'] ) . '</code>' );
+						$this->debug( 'Company import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['company'], JSON_UNESCAPED_SLASHES ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) . '</code>' );
 
 				}
 			}
 		} else {
 
 			// failed to add contact?
-			$this->debug( 'Contact import failed, or there was no contact to import. Contact Data: <code>' . json_encode( $crm_object_data['contact'] ) . '</code>' );
+			$this->debug( 'Contact import failed, or there was no contact to import. Contact Data: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['contact'], JSON_UNESCAPED_SLASHES ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) . '</code>' );
 
 		}
 
@@ -924,7 +928,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			} else {
 
-				$this->debug( 'invoice import failed: <code>' . json_encode( $crm_object_data['invoice'] ) . '</code>' );
+				$this->debug( 'invoice import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['invoice'], JSON_UNESCAPED_SLASHES ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) . '</code>' );
 
 			}
 		}
@@ -971,7 +975,7 @@ class Woo_Sync_Background_Sync_Job {
 			}
 		} else {
 
-			$this->debug( 'Transaction import failed: <code>' . json_encode( $crm_object_data['transaction'] ) . '</code>' );
+			$this->debug( 'Transaction import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['transaction'], JSON_UNESCAPED_SLASHES ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) . '</code>' );
 
 		}
 
@@ -1261,16 +1265,16 @@ class Woo_Sync_Background_Sync_Job {
 			// then we have an existing user. Get the WP email
 				$user = get_user_by( 'id', $order_data['customer_id'] );
 			if ( $user ) {
-				$contact_email = $user->user_email;
+				$contact_email = sanitize_email( $user->user_email );
 			}
 			if ( isset( $order_data['billing']['email'] ) ) {
-				$billing_email = $order_data['billing']['email'];
+				$billing_email = sanitize_email( $order_data['billing']['email'] );
 			}
 
 			// pass WP ID to contact
 			$data['contact']['wpid'] = $order_data['customer_id'];
 		} elseif ( isset( $order_data['billing']['email'] ) ) {
-			$billing_email = $order_data['billing']['email'];
+			$billing_email = sanitize_email( $order_data['billing']['email'] );
 			$contact_email = $billing_email;
 		}
 
@@ -1296,11 +1300,11 @@ class Woo_Sync_Background_Sync_Job {
 			);
 
 			if ( isset( $order_data['billing']['first_name'] ) ) {
-				$data['contact']['fname'] = $order_data['billing']['first_name'];
+				$data['contact']['fname'] = sanitize_text_field( $order_data['billing']['first_name'] );
 			}
 
 			if ( isset( $order_data['billing']['last_name'] ) ) {
-				$data['contact']['lname'] = $order_data['billing']['last_name'];
+				$data['contact']['lname'] = sanitize_text_field( $order_data['billing']['last_name'] );
 			}
 
 			// if we've not got any fname/lname and we do have 'customer_id' attribute (wp user id)
@@ -1317,7 +1321,7 @@ class Woo_Sync_Background_Sync_Job {
 					( ! isset( $data['contact']['fname'] ) || empty( $data['contact']['fname'] ) )
 				) {
 
-					$data['contact']['fname'] = $woo_customer_meta['first_name'][0];
+					$data['contact']['fname'] = sanitize_text_field( $woo_customer_meta['first_name'][0] );
 
 				}
 
@@ -1328,63 +1332,63 @@ class Woo_Sync_Background_Sync_Job {
 					( ! isset( $data['contact']['lname'] ) || empty( $data['contact']['lname'] ) )
 				) {
 
-					$data['contact']['lname'] = $woo_customer_meta['last_name'][0];
+					$data['contact']['lname'] = sanitize_text_field( $woo_customer_meta['last_name'][0] );
 
 				}
 			}
 
 			if ( isset( $order_data['billing']['address_1'] ) ) {
-				$data['contact']['addr1'] = $order_data['billing']['address_1'];
+				$data['contact']['addr1'] = sanitize_text_field( $order_data['billing']['address_1'] );
 			}
 
 			if ( isset( $order_data['billing']['address_2'] ) ) {
-				$data['contact']['addr2'] = $order_data['billing']['address_2'];
+				$data['contact']['addr2'] = sanitize_text_field( $order_data['billing']['address_2'] );
 			}
 
 			if ( isset( $order_data['billing']['city'] ) ) {
-				$data['contact']['city'] = $order_data['billing']['city'];
+				$data['contact']['city'] = sanitize_text_field( $order_data['billing']['city'] );
 			}
 
 			if ( isset( $order_data['billing']['state'] ) ) {
-				$data['contact']['county'] = $order_data['billing']['state'];
+				$data['contact']['county'] = sanitize_text_field( $order_data['billing']['state'] );
 			}
 
 			if ( isset( $order_data['billing']['postcode'] ) ) {
-				$data['contact']['postcode'] = $order_data['billing']['postcode'];
+				$data['contact']['postcode'] = sanitize_text_field( $order_data['billing']['postcode'] );
 			}
 
 			if ( isset( $order_data['billing']['country'] ) ) {
-				$data['contact']['country'] = $order_data['billing']['country'];
+				$data['contact']['country'] = sanitize_text_field( $order_data['billing']['country'] );
 			}
 
 			if ( isset( $order_data['billing']['phone'] ) ) {
-				$data['contact']['hometel'] = $order_data['billing']['phone'];
+				$data['contact']['hometel'] = sanitize_text_field( $order_data['billing']['phone'] );
 			}
 
 			// if setting: copy shipping address
 			if ( $settings['wccopyship'] ) {
 				if ( isset( $order_data['shipping']['address_1'] ) ) {
-					$data['contact']['secaddr1'] = $order_data['shipping']['address_1'];
+					$data['contact']['secaddr1'] = sanitize_text_field( $order_data['shipping']['address_1'] );
 				}
 
 				if ( isset( $order_data['shipping']['address_2'] ) ) {
-					$data['contact']['secaddr2'] = $order_data['shipping']['address_2'];
+					$data['contact']['secaddr2'] = sanitize_text_field( $order_data['shipping']['address_2'] );
 				}
 
 				if ( isset( $order_data['shipping']['city'] ) ) {
-					$data['contact']['seccity'] = $order_data['shipping']['city'];
+					$data['contact']['seccity'] = sanitize_text_field( $order_data['shipping']['city'] );
 				}
 
 				if ( isset( $order_data['shipping']['state'] ) ) {
-					$data['contact']['seccounty'] = $order_data['shipping']['state'];
+					$data['contact']['seccounty'] = sanitize_text_field( $order_data['shipping']['state'] );
 				}
 
 				if ( isset( $order_data['shipping']['postcode'] ) ) {
-					$data['contact']['secpostcode'] = $order_data['shipping']['postcode'];
+					$data['contact']['secpostcode'] = sanitize_text_field( $order_data['shipping']['postcode'] );
 				}
 
 				if ( isset( $order_data['shipping']['country'] ) ) {
-					$data['contact']['seccountry'] = $order_data['shipping']['country'];
+					$data['contact']['seccountry'] = sanitize_text_field( $order_data['shipping']['country'] );
 				}
 			}
 
@@ -1623,8 +1627,8 @@ class Woo_Sync_Background_Sync_Job {
 					'quantity' => $item_data['quantity'],
 					'price'    => $price,
 					'total'    => $item_data['total'],
-					'title'    => $item_data['name'],
-					'desc'     => $line_item_description,
+					'title'    => sanitize_text_field( $item_data['name'] ),
+					'desc'     => sanitize_text_field( $line_item_description ),
 					'tax'      => $item_data['total_tax'],
 					'shipping' => 0,
 				);
@@ -1639,7 +1643,7 @@ class Woo_Sync_Background_Sync_Job {
 
 				// add to tags where not alreday present
 				if ( ! in_array( $item_data['name'], $order_tags ) ) {
-					$order_tags[] = $tag_product_prefix . $item_data['name'];
+					$order_tags[] = sanitize_text_field( $tag_product_prefix . $item_data['name'] );
 				}
 			}
 
@@ -1665,7 +1669,7 @@ class Woo_Sync_Background_Sync_Job {
 							'fee'      => $value,
 							'total'    => $value,
 							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
-							'desc'     => $fee->get_name(),
+							'desc'     => sanitize_text_field( $fee->get_name() ),
 							'tax'      => $fee->get_total_tax(),
 							'taxes'    => -1,
 							'shipping' => 0.0,
@@ -1688,7 +1692,7 @@ class Woo_Sync_Background_Sync_Job {
 			if ( $tag_with_coupon ) {
 
 				foreach ( $order->get_coupon_codes() as $coupon_code ) {
-					$order_tags[] = $tag_coupon_prefix . $coupon_code;
+					$order_tags[] = sanitize_text_field( $tag_coupon_prefix . $coupon_code );
 				}
 			}
 		} else {
@@ -1939,7 +1943,7 @@ class Woo_Sync_Background_Sync_Job {
 			'customer_id'    => 0, // will be 0 from the API.
 			'billing'        => array(
 				'company'    => $order->billing->company,
-				'email'      => $order->billing->email,
+				'email'      => sanitize_email( $order->billing->email ),
 				'first_name' => $order->billing->first_name,
 				'last_name'  => $order->billing->last_name,
 				'address_1'  => $order->billing->address_1,
@@ -1975,7 +1979,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			if ( empty( $item_title ) ) {
 
-				$item_title = $line_item->name;
+				$item_title = sanitize_text_field( $line_item->name );
 
 			} else {
 
@@ -1989,15 +1993,15 @@ class Woo_Sync_Background_Sync_Job {
 				'price'    => $line_item->price,
 				'currency' => $order_data['currency'],
 				'total'    => $line_item->subtotal,
-				'title'    => $line_item->name,
-				'desc'     => $line_item->name . ' (#' . $line_item->product_id . ')',
+				'title'    => sanitize_text_field( $line_item->name ),
+				'desc'     => sanitize_text_field( $line_item->name . ' (#' . $line_item->product_id . ')' ),
 				'tax'      => $line_item->total_tax,
 				'shipping' => 0,
 			);
 
 			if ( ! in_array( $line_item->name, $order_tags ) ) {
 
-				$order_tags[] = $tag_product_prefix . $line_item->name;
+				$order_tags[] = sanitize_text_field( $tag_product_prefix . $line_item->name );
 
 			}
 		}
@@ -2008,7 +2012,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			foreach ( $order->coupon_lines as $coupon_line ) {
 
-				$order_tags[] = $tag_coupon_prefix . $coupon_line->code;
+				$order_tags[] = sanitize_text_field( $tag_coupon_prefix . $coupon_line->code );
 
 			}
 		}

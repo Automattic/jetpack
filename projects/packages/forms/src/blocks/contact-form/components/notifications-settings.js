@@ -1,11 +1,12 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { FormTokenField, ToggleControl, ExternalLink } from '@wordpress/components';
+import { FormTokenField, ToggleControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import JetpackEmailConnectionSettings from './jetpack-email-connection-settings.js';
 
 const NotificationsSettings = ( {
@@ -84,7 +85,7 @@ const NotificationsSettings = ( {
 							pushNotificationsLink: isWpcom ? (
 								<WpcomSupportLink supportLink={ wpcomSupportLink } />
 							) : (
-								<ExternalLink href={ jetpackSupportLink } />
+								<Link openInNewTab href={ jetpackSupportLink } />
 							),
 						}
 					) }

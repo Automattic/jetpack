@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.9.0';
+	const PACKAGE_VERSION = '6.10.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -29,6 +29,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
 		// Load features that don't need any special loading considerations.
@@ -86,6 +87,14 @@ class Jetpack_Mu_Wpcom {
 
 		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
 		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
+
+		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
+
+		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
+		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
+			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
+		}
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -284,7 +293,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
+		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
@@ -297,6 +308,11 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+
+		// Write: distraction-free front-end editor. Gated by blog sticker for gradual rollout.
+		if ( wpcom_has_blog_sticker( 'wpcom-write-editor', get_wpcom_blog_id() ) ) {
+			require_once __DIR__ . '/features/write/write.php';
+		}
 
 		/*
 		 * Temporarily disable client-side media processing.
@@ -311,6 +327,11 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Code_Block::setup();
@@ -366,16 +387,20 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
-		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
-		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
-
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
 		\Automattic\Jetpack\Newsletter\Settings::init();
+
+		// Initialize the Podcast package on Simple sites (where late_initialization
+		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
+		// inside Podcast::init() so the legacy podcasting code keeps running
+		// until the flag flips.
+		\Automattic\Jetpack\Podcast\Podcast::init();
 
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -393,15 +418,7 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
-
-		/**
-		 * Load features for the editor and the frontend pages.
-		 */
-		global $pagenow;
-		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
-		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
-			require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
-		}
+		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
 	}
 
 	/**
@@ -747,6 +764,20 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function set_wpcom_blog_id_script_data( $data ) {
+		$blog_id = get_wpcom_blog_id();
+		if ( $blog_id ) {
+			$data['site']['wpcom']['blog_id'] = $blog_id;
+		}
+		return $data;
+	}
+
+	/**
 	 * Add Jetpack script data with host information on P2
 	 *
 	 * @param array $data - The Jetpack script data.
@@ -766,5 +797,64 @@ class Jetpack_Mu_Wpcom {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
+	 *
+	 * @param string $feature Logstash `feature` bucket (e.g. "plugin-conflicts-guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => \get_wpcom_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			wp_remote_post(
+				'https://public-api.wordpress.com/rest/v1.1/logstash',
+				array(
+					'body'     => array( 'params' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) ),
+					'blocking' => false,
+					'timeout'  => 1,
+				)
+			);
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+			unset( $e );
+		}
 	}
 }

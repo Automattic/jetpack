@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defer empty-state rendering on the Active threats / Scan history panels to `ThreatsDataViews` itself — passing `data={ [] }` shows DataViews' built-in "no items" body inside the table chrome, so reviewers always see the column headers + filter controls instead of a bare paragraph.

@@ -10,8 +10,7 @@ import {
 	Notice,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -36,6 +35,7 @@ import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
+import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -83,10 +83,11 @@ export default function MyJetpackScreen() {
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
+		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -162,17 +163,16 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const resetOptionsMenuItem = {
-		label: _x(
-			'Reset Options (dev only)',
-			'Button for option to reset Jetpack Options',
-			'jetpack-my-jetpack'
-		),
-		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
-		role: 'button',
-		onClick: () => resetJetpackOptions(),
-		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
-	};
+	const optionalMenuItems = buildOptionalMenuItems( {
+		adminUrl,
+		isDevVersion,
+		userIsAdmin,
+		isSiteConnected,
+		isJetpackPluginActive,
+		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+		onResetClick: () => resetJetpackOptions(),
+		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	} );
 
 	return (
 		<AdminPage
@@ -181,8 +181,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
-			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
-			useInternalLinks={ shouldUseInternalLinks() }
+			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>

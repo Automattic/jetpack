@@ -11,17 +11,16 @@ Instructions:
    - Significance level (patch for bug fixes, minor for features, major for breaking changes)
    - Type based on the nature of changes and project type
    - Description by summarizing the changes
-3. Navigate to the project directory
-4. Run the changelogger command:
+3. Run the changelogger command via the Jetpack CLI:
    ```bash
-   vendor/bin/changelogger add \
+   jetpack changelog add <project> \
      --no-interaction \
      --significance={significance} \
      --type={type} \
      --entry="{description}"
    ```
-5. Navigate back to root repo directory
-6. Stage the generated changelog file with `git add`
+   Where `<project>` is the slug, e.g. `plugins/jetpack`.
+4. Stage the generated changelog file with `git add`
 
 Project types reference:
 - Jetpack Plugin (projects/plugins/jetpack): major, enhancement, compat, bugfix, other

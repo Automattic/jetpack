@@ -16,7 +16,6 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
-	ExternalLink,
 	Notice,
 	PanelBody,
 	TextareaControl,
@@ -30,6 +29,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -63,6 +63,7 @@ import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import { getEditorContext } from './util/get-editor-context.ts';
 import VariationPicker from './variation-picker.js';
+
 import './util/form-styles.js';
 
 const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.js' ) );
@@ -720,11 +721,15 @@ function JetpackContactFormEdit( {
 				},
 				button
 					? [
-							createBlock( ...PREVIOUS_BUTTON_TEMPLATE ),
-							createBlock( ...NEXT_BUTTON_TEMPLATE ),
+							createBlock(
+								...( PREVIOUS_BUTTON_TEMPLATE as [ string, Record< string, unknown > ] )
+							),
+							createBlock( ...( NEXT_BUTTON_TEMPLATE as [ string, Record< string, unknown > ] ) ),
 							button,
 					  ]
-					: NAVIGATION_TEMPLATE.map( template => createBlock( ...template ) )
+					: NAVIGATION_TEMPLATE.map( template =>
+							createBlock( ...( template as [ string, Record< string, unknown > ] ) )
+					  )
 			);
 		};
 
@@ -1244,9 +1249,9 @@ function JetpackContactFormEdit( {
 						__next40pxDefaultSize={ true }
 					/>
 					<p>
-						<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
+						<Link openInNewTab href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
 							{ __( 'Read more.', 'jetpack-forms' ) }
-						</ExternalLink>
+						</Link>
 					</p>
 				</InspectorAdvancedControls>
 				<BlockContextProvider

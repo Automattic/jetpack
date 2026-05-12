@@ -8,11 +8,6 @@ export type AdminPageProps = {
 	children: ReactNode;
 
 	/**
-	 * Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer.
-	 */
-	moduleName?: string;
-
-	/**
 	 * Whether or not to display the Header
 	 */
 	showHeader?: boolean;
@@ -60,16 +55,6 @@ export type AdminPageProps = {
 	showFooter?: boolean;
 
 	/**
-	 * Whether or not to link to Jetpack plugin admin pages.
-	 */
-	useInternalLinks?: boolean;
-
-	/**
-	 * Link that the Footer Module name will link to (optional).
-	 */
-	moduleNameHref?: string;
-
-	/**
 	 * Whether or not to display the Background Color
 	 */
 	showBackground?: boolean;
@@ -109,4 +94,13 @@ export type AdminPageProps = {
 	 * Hidden when `tabs` is used.
 	 */
 	showBottomBorder?: boolean;
+
+	/**
+	 * Render `children` directly inside the admin-ui Page, skipping the
+	 * default `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
+	 * wrap. Use for full-bleed pages (DataViews-based admin surfaces, full-app
+	 * dashboards) that own their own scroll/layout model and don't want the
+	 * outer Container's grid to break their flex chain. Defaults to `false`.
+	 */
+	unwrapped?: boolean;
 };

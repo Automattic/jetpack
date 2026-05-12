@@ -13,6 +13,7 @@ import {
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
+	SET_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -22,6 +23,14 @@ import {
 	REMOVE_ABORT_CONTROLLERS,
 	CUSTOMIZE_CONNECTION,
 } from './constants';
+
+type UpdateConnectionOptions = {
+	/**
+	 * Skip transient UI side effects for background saves. This suppresses the
+	 * row-level updating state and generic success notice; errors are still shown.
+	 */
+	silent?: boolean;
+};
 
 /**
  * Set connections list
@@ -227,13 +236,48 @@ export function syncConnectionsToPostMeta() {
 }
 
 /**
+ * Sets whether the sidebar single-X info notice should surface.
+ *
+ * @param show - Whether the notice should be visible.
+ * @return An action object.
+ */
+export function setShouldShowSingleXNotice( show: boolean ) {
+	return {
+		type: SET_SHOW_SINGLE_X_NOTICE,
+		show,
+	};
+}
+
+/**
  * Toggles the connection enable-status.
  *
  * @param connectionId - Connection ID to switch.
  * @return A thunk to switch connection enable-status.
  */
 export function toggleConnectionById( connectionId: string ) {
-	return function ( { registry, dispatch } ) {
+	return function ( { registry, dispatch, select } ) {
+		const target = select.getConnectionById( connectionId );
+
+		// X Developer Policy forbids posting the same content to more than one
+		// X account. When the user turns ON an X connection, turn OFF any other
+		// X connection that is currently enabled so only one remains selected.
+		if ( target && target.service_name === 'x' && ! target.enabled ) {
+			let autoDisabledAny = false;
+			for ( const connection of select.getConnections() ) {
+				if (
+					connection.service_name === 'x' &&
+					connection.enabled &&
+					connection.connection_id !== connectionId
+				) {
+					dispatch( toggleConnection( connection.connection_id ) );
+					autoDisabledAny = true;
+				}
+			}
+			if ( autoDisabledAny ) {
+				dispatch( setShouldShowSingleXNotice( true ) );
+			}
+		}
+
 		dispatch( toggleConnection( connectionId ) );
 
 		const customizingPerNetwork = Boolean(
@@ -474,13 +518,20 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 /**
  * Updates a connection.
  *
- * @param connectionId - Connection ID to update.
- * @param data         - The data for API call.
+ * @param connectionId   - Connection ID to update.
+ * @param data           - The data for API call.
+ * @param options        - Options for update UI side-effects.
+ * @param options.silent - Whether to skip row-level updating state and the generic success notice.
  * @return A thunk to update a connection.
  */
-export function updateConnectionById( connectionId: string, data: Partial< Connection > ) {
+export function updateConnectionById(
+	connectionId: string,
+	data: Partial< Connection >,
+	options: UpdateConnectionOptions = {}
+) {
 	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );
 
@@ -493,11 +544,13 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
 
-			dispatch( updatingConnection( connectionId ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId ) );
+			}
 
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
-			if ( connection ) {
+			if ( connection && ! silent ) {
 				createSuccessNotice( __( 'Account updated successfully.', 'jetpack-publicize-pkg' ), {
 					type: 'snackbar',
 					isDismissible: true,
@@ -515,7 +568,9 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( updatingConnection( connectionId, false ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId, false ) );
+			}
 		}
 	};
 }

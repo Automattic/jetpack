@@ -249,7 +249,7 @@ class WordAds {
 			 */
 			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
 
-			http_response_code( 200 );
+			status_header( 200 );
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
 			die( 0 );
@@ -328,6 +328,11 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public function enqueue_scripts() {
+		// Ads are never shown on 404 pages.
+		if ( is_404() ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'wordads',
 			WORDADS_URL . 'css/style.css',
@@ -347,7 +352,7 @@ class WordAds {
 	 * @return array Domains for hinting.
 	 */
 	public function resource_hints( $hints, $relation_type ) {
-		if ( 'dns-prefetch' === $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type && ! is_404() ) {
 			$hints[] = '//s.pubmine.com';
 			$hints[] = '//x.bidswitch.net';
 			$hints[] = '//static.criteo.net';
@@ -374,7 +379,7 @@ class WordAds {
 	 * IPONWEB metadata used by the various scripts
 	 */
 	public function insert_head_meta() {
-		if ( self::is_amp() ) {
+		if ( self::is_amp() || is_404() ) {
 			return;
 		}
 		$hosting_type = ( new Host() )->is_woa_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.

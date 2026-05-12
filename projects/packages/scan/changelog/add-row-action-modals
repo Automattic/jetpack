@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Phase 3: port the per-threat fix / ignore / unignore confirmation modals from Calypso. The row-action variants of these flows now open a `RenderModal` inside the DataViews shell (mirrors `client/dashboard/sites/scan/components/{fix,ignore,unignore}-threat-modal.tsx`), giving the user a chance to review the threat + see a destructive-action warning before committing. The fix modal also polls `useFixThreatsStatusQuery` and waits for a terminal state before closing, surfacing fixed / not_fixed in a snackbar. The inline auto-fix button keeps its existing fire-and-forget snackbar behaviour, since DataViews offers no programmatic way to trigger a row action's modal from a custom field renderer.

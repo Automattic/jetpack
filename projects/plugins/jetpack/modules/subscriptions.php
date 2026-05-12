@@ -968,6 +968,11 @@ class Jetpack_Subscriptions {
 	 * @param object $post obj The post object.
 	 */
 	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		// Subscriptions are only available for posts so far.
+		if ( ! $post instanceof \WP_Post || 'post' !== $post->post_type ) {
+			return;
+		}
+
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
@@ -1001,14 +1006,15 @@ class Jetpack_Subscriptions {
 	 */
 	public function register_post_meta() {
 		$jetpack_post_was_ever_published = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
+			'type'           => 'boolean',
+			'description'    => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'         => true,
+			'default'        => false,
+			'show_in_rest'   => array(
 				'name' => 'jetpack_post_was_ever_published',
 			),
-			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+			'auth_callback'  => array( $this, 'first_published_status_meta_auth_callback' ),
+			'object_subtype' => 'post', // Subscriptions are only for the post post type so far, so we can limit this meta to posts only.
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
@@ -1110,3 +1116,6 @@ require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
 require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
+
+require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities::init();

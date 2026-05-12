@@ -18,7 +18,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -43,6 +43,7 @@ import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
+import { useRenameForm } from './use-rename-form';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -61,7 +62,8 @@ type UsePageHeaderDetailsProps = {
 type UsePageHeaderDetailsReturn = {
 	ariaLabel: string;
 	breadcrumbs: ReactNode;
-	title?: ReactNode;
+	title?: string;
+	visual: ReactNode;
 	badges?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
@@ -136,13 +138,8 @@ export default function usePageHeaderDetails(
 	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
 	const permanentDeleteItemRef = useRef< { id: number } | null >( null );
 
-	// Rename form state
-	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
-		null
-	);
-	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
-		null
-	);
+	// Rename form
+	const { renameFormItem, openRenameModal, closeRenameModal, handleRename } = useRenameForm();
 	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
 		saveEntityRecord: (
 			kind: string,
@@ -180,52 +177,6 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
-
-	const closeRenameModal = useCallback( () => {
-		setRenameFormItem( null );
-		renameRetryRef.current = null;
-	}, [] );
-
-	const handleRename = useCallback(
-		async ( newTitle: string ) => {
-			if ( ! renameFormItem ) {
-				return;
-			}
-			try {
-				await saveEntityRecord(
-					'postType',
-					FORM_POST_TYPE,
-					{
-						id: renameFormItem.id,
-						title: newTitle,
-					},
-					{ throwOnError: true }
-				);
-
-				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-				renameRetryRef.current = null;
-			} catch ( error ) {
-				const retryItem = renameFormItem;
-				const retryTitle = newTitle;
-
-				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-forms' ),
-							onClick: () => {
-								renameRetryRef.current = { item: retryItem, title: retryTitle };
-								setRenameFormItem( retryItem );
-							},
-						},
-					],
-				} );
-				// eslint-disable-next-line no-console
-				console.error( 'Failed to rename form:', error );
-			}
-		},
-		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
-	);
 
 	const trashForm = useCallback(
 		async ( item: { id: number } ) => {
@@ -393,7 +344,7 @@ export default function usePageHeaderDetails(
 			return [];
 		}
 
-		const formItem = { id: sourceIdNumber, title: formTitle };
+		const formItem = { id: sourceIdNumber, title: formTitle, status: formRecord?.status };
 
 		if ( formRecord?.status === 'trash' ) {
 			return [
@@ -470,7 +421,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Rename', 'jetpack-forms' ),
 				onClick: () => {
 					trackAction( 'jetpack_forms_form_rename_click' );
-					setRenameFormItem( formItem );
+					openRenameModal( formItem );
 				},
 			},
 			{
@@ -504,15 +455,11 @@ export default function usePageHeaderDetails(
 		previewForm,
 		setFormsToDraft,
 		sourceIdNumber,
+		openRenameModal,
 		trackAction,
 	] );
 
-	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
-		<Stack align="center" gap="xs">
-			<JetpackLogo showText={ false } width={ 20 } />
-			{ children }
-		</Stack>
-	);
+	const visual = <JetpackLogo showText={ false } width={ 20 } />;
 
 	const ariaLabel = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -524,10 +471,10 @@ export default function usePageHeaderDetails(
 
 	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
-			return null;
+			return undefined;
 		}
 		// "Forms" is a product name, do not translate.
-		return <WrapWithJetpackLogo>Forms</WrapWithJetpackLogo>;
+		return 'Forms';
 	}, [ isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
@@ -536,14 +483,12 @@ export default function usePageHeaderDetails(
 		}
 
 		return (
-			<WrapWithJetpackLogo>
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-					] }
-				/>
-			</WrapWithJetpackLogo>
+			<Breadcrumbs
+				items={ [
+					{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+					{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+				] }
+			/>
 		);
 	}, [ isSingleFormScreen, formTitle ] );
 
@@ -757,7 +702,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -831,7 +776,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -933,5 +878,5 @@ export default function usePageHeaderDetails(
 		trackExportClickResponsesList,
 	] );
 
-	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
+	return { ariaLabel, breadcrumbs, title, visual, badges, subtitle, actions };
 }
