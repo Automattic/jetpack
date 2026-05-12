@@ -4929,9 +4929,15 @@ importers:
 
   projects/plugins/boost:
     dependencies:
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -4959,6 +4965,9 @@ importers:
       '@wordpress/admin-ui':
         specifier: 1.12.0
         version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.44.0
+        version: 7.44.0
       '@wordpress/base-styles':
         specifier: 6.20.0
         version: 6.20.0
@@ -5008,9 +5017,6 @@ importers:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
-      '@automattic/jetpack-boost-score-api':
-        specifier: workspace:*
-        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-critical-css-gen':
         specifier: workspace:*
         version: link:../../js-packages/critical-css-gen

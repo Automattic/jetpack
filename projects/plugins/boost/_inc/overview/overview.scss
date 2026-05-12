@@ -1,0 +1,131 @@
+// Overview tab layout. Page content caps at 720px (centered) so the score
+// row + chart sit at a comfortable reading width. The Performance scores
+// card sets its three sections flush to the card edges — the title sits
+// in its own header, then the section row spans corner-to-corner with
+// vertical strokes between sections.
+
+$jetpack-boost-overview-max-inline: 720px;
+$jetpack-boost-overview-gap: var(--wpds-dimension-gap-xl, 16px);
+
+.jetpack-boost-overview {
+	display: flex;
+	flex-direction: column;
+	gap: $jetpack-boost-overview-gap;
+	margin-inline: auto;
+	max-inline-size: $jetpack-boost-overview-max-inline;
+	width: 100%;
+}
+
+// Score row sits directly inside Card.Root (not inside Card.Content) so
+// the sections run flush to the card edges. Three equal columns; no
+// vertical dividers — the grid gap and the section padding give enough
+// visual separation without the extra strokes.
+.jetpack-boost-overview__score-row {
+	display: grid;
+	gap: 0;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.jetpack-boost-overview__score-section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding: var(--wpds-dimension-padding-xl, 16px) var(--wpds-dimension-padding-2xl, 24px);
+}
+
+// Info indicator beside the "Overall grade" label. A `<span role="img">`
+// instead of a Button so the icon doesn't pick up the brand-blue
+// interactive colour from the tertiary-button styles. Inherits its tone
+// from the neutral foreground token so it reads as informational
+// chrome, not a call-to-action.
+.jetpack-boost-overview__info-trigger {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	cursor: help;
+	display: inline-flex;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+// `@wordpress/components` `ProgressBar` renders an emotion-styled Track
+// (carries our class) with a single Indicator `<div>` child. The Track
+// height is tied to the focus-ring width (~2px) by default, which is too
+// thin for a stand-alone score bar — bump it to 4px and round the
+// indicator to match. The variant classes override that indicator
+// background so the bar tone matches its accompanying badge: success →
+// green, warning → orange, error → red.
+.jetpack-boost-overview__progress {
+	block-size: 4px;
+	inline-size: 100%;
+	margin-block-start: var(--wpds-dimension-gap-xs, 4px);
+
+	> div {
+		block-size: 100%;
+	}
+
+	&.jetpack-boost-overview__progress--success > div {
+		background-color: var(--wpds-color-stroke-surface-success-strong, #008a20);
+	}
+
+	&.jetpack-boost-overview__progress--warning > div {
+		background-color: var(--wpds-color-stroke-surface-warning-strong, #cc6e00);
+	}
+
+	&.jetpack-boost-overview__progress--error > div {
+		background-color: var(--wpds-color-stroke-surface-error-strong, #cc1818);
+	}
+}
+
+// Delta colour mirrors the tier colour so a green badge sits above a
+// green "+10 points" delta. The `--wpds-color-fg-content-success/error`
+// tokens render quite dark in the Jetpack chrome theme — the
+// `*-stroke-surface-*-strong` variant lands on the vibrant tone shown in
+// the design without breaking contrast on the neutral card surface.
+.jetpack-boost-overview__delta {
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+
+	&.jetpack-boost-overview__delta--up {
+		color: var(--wpds-color-stroke-surface-success-strong, #008a20);
+	}
+
+	&.jetpack-boost-overview__delta--down {
+		color: var(--wpds-color-stroke-surface-error-strong, #cc1818);
+	}
+
+	&.jetpack-boost-overview__delta--neutral {
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	}
+}
+
+// Historical performance card — owns the dummy-chart treatment used on
+// free plans. The chart canvas blurs and locks out pointer events; an
+// upgrade Notice sits on top, centred over the chart.
+.jetpack-boost-overview__chart-wrapper {
+	position: relative;
+}
+
+.jetpack-boost-overview__chart-canvas--locked {
+	filter: blur(3px);
+	pointer-events: none;
+	user-select: none;
+}
+
+.jetpack-boost-overview__chart-overlay {
+	align-items: center;
+	display: flex;
+	inset: 0;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-2xl, 24px);
+	pointer-events: none;
+	position: absolute;
+}
+
+.jetpack-boost-overview__upgrade-notice {
+	inline-size: min(360px, 100%);
+	pointer-events: auto;
+}

@@ -13,8 +13,13 @@ body.toplevel_page_jetpack-boost {
 
 	// Anchor the page to the stage's height so the body slot below has a
 	// bounded box to fill — see the body-slot rule for the rest of the
-	// app-shell scroll model.
+	// app-shell scroll model. The off-white surface is hard-coded to
+	// `#fcfcfc` — `--wpds-color-bg-surface-neutral` resolves to `#fff` in
+	// the Jetpack wp-admin chrome (no contrast against the white cards)
+	// and `--wpds-color-bg-surface-neutral-weak` lands on `#f7f7f7` (too
+	// dark). When WPDS exposes a token in the `#fcfcfc` range, swap to it.
 	.admin-ui-page {
+		background: #fcfcfc;
 		block-size: 100%;
 		min-block-size: 0;
 	}

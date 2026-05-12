@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Boost dashboard Overview tab on the modernization chassis: Performance scores card (Overall grade, Desktop, Mobile with deltas) and a Historical performance chart. Still behind the modernization feature flag.

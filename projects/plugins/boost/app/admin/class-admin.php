@@ -120,8 +120,24 @@ class Admin {
 		// no need to re-check the page here.
 		if ( self::is_modernized() ) {
 			// wp-build manages its own enqueue pipeline. The legacy Boost
-			// script, localized config, and My Jetpack dependency are
-			// intentionally skipped for the wp-build dashboard.
+			// script and My Jetpack dependency are intentionally skipped
+			// for the wp-build dashboard. The shared plugin constants
+			// (site URL, asset paths, etc.) still ride along on wp-build's
+			// prerequisites handle so the modernized Overview can read
+			// them the same way the legacy app did.
+			wp_localize_script(
+				'jetpack-boost-dashboard-wp-admin-prerequisites',
+				'Jetpack_Boost',
+				( new Config() )->constants()
+			);
+			wp_localize_script(
+				'jetpack-boost-dashboard-wp-admin-prerequisites',
+				'wpApiSettings',
+				array(
+					'root'  => esc_url_raw( rest_url() ),
+					'nonce' => wp_create_nonce( 'wp_rest' ),
+				)
+			);
 			return;
 		}
 

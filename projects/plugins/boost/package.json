@@ -38,7 +38,9 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
@@ -48,6 +50,7 @@
 		"@tanstack/react-query": "5.90.8",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.12.0",
+		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/base-styles": "6.20.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/element": "6.44.0",
@@ -66,7 +69,6 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
-		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-critical-css-gen": "workspace:*",
 		"@automattic/jetpack-image-guide": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
