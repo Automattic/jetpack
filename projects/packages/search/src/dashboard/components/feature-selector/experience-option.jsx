@@ -121,7 +121,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			{ experience === EXPERIENCE.EMBEDDED && (
 				<Stack
 					direction="row"
-					gap="lg"
+					gap="sm"
 					align="start"
 					className="jp-search-feature-selector__card-actions"
 				>
@@ -142,7 +142,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			{ experience === EXPERIENCE.OVERLAY && (
 				<Stack
 					direction="row"
-					gap="lg"
+					gap="sm"
 					align="start"
 					className="jp-search-feature-selector__card-actions"
 				>
@@ -255,7 +255,7 @@ const CardCopy = ( { experience } ) => {
 // `href` and adds `aria-disabled` so screen readers don't announce a
 // non-functional link.
 const CardLink = ( { title, linkLabel, href, disabled } ) => (
-	<Stack direction="column" gap="xs" className="jp-search-feature-selector__card-action">
+	<Stack direction="column" gap="sm" className="jp-search-feature-selector__card-action">
 		<span className="jp-search-feature-selector__card-action-title">{ title }</span>
 		{ disabled ? (
 			<span className="jp-search-feature-selector__card-action-link" aria-disabled="true">
