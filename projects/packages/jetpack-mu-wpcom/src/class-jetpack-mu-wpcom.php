@@ -806,8 +806,7 @@ class Jetpack_Mu_Wpcom {
 	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
 	 * Atomic, where `log2logstash()` isn't available.
 	 *
-	 * Best-effort: a logging failure must never escalate into a fatal,
-	 * since callers may run on activation / install / update request paths.
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
 	 *
 	 * @param string $feature Logstash `feature` bucket (e.g. "plugin-conflicts-guardian").
 	 * @param string $message Event message slug.
@@ -850,7 +849,7 @@ class Jetpack_Mu_Wpcom {
 					'timeout'  => 1,
 				)
 			);
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must not escalate on activation / install / update request paths.
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
 	}
