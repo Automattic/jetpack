@@ -107,6 +107,12 @@ class Initializer {
 		// Add "Jetpack Manage" menu item.
 		Jetpack_Manage::init();
 
+		// Register My Jetpack abilities with the WordPress Abilities API.
+		// Registration is gated internally by the `jetpack_wp_abilities_enabled`
+		// filter (default false) so consumers opt in explicitly. The Registrar
+		// also handles lifecycle-hook timing and the WP < 6.9 fallback.
+		Abilities\My_Jetpack_Abilities::init();
+
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *

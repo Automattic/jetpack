@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register My Jetpack reads (list-products, get-feedback-prompt-state)
