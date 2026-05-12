@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 const GUIDELINES_REST = '/wp/v2/guidelines';
 const SETTINGS_REST = '/wp/v2/settings';
 const SETTINGS_KEY = 'jetpack_search_ai_behavior_instructions';
+const BEHAVIOR_META_KEY = '_guideline_block_jetpack_search-ai-summary';
 
 export const DEFAULT_PERSONALITY = __(
 	'You are a search results summarizer for Jetpack Search. Your job is to summarize the best available successful search results in a succinct manner.',
@@ -35,9 +36,7 @@ export default function useAiAnswersSettings() {
 				const post = Array.isArray( posts ) ? posts[ 0 ] : posts;
 				if ( post && post.id ) {
 					setPostId( post.id );
-					setContent(
-						post.guideline_categories?.blocks?.[ 'jetpack/search-ai-summary' ]?.guidelines ?? ''
-					);
+					setContent( post.meta?.[ BEHAVIOR_META_KEY ] ?? '' );
 				}
 			} )
 			.catch( err => {
@@ -73,9 +72,7 @@ export default function useAiAnswersSettings() {
 			const method = postId ? 'PATCH' : 'POST';
 			const data = {
 				status: 'publish',
-				guideline_categories: {
-					blocks: { 'jetpack/search-ai-summary': { guidelines: content || DEFAULT_PERSONALITY } },
-				},
+				meta: { [ BEHAVIOR_META_KEY ]: content || DEFAULT_PERSONALITY },
 			};
 			// WordPress requires at least a title when creating a post.
 			if ( ! postId ) {

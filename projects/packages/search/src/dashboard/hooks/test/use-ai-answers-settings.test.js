@@ -6,13 +6,11 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const SETTINGS_KEY = 'jetpack_search_ai_behavior_instructions';
 
+const BEHAVIOR_META_KEY = '_guideline_block_jetpack_search-ai-summary';
+
 const makePost = ( overrides = {} ) => ( {
 	id: 42,
-	guideline_categories: {
-		blocks: {
-			'jetpack/search-ai-summary': { guidelines: 'Be concise.' },
-		},
-	},
+	meta: { [ BEHAVIOR_META_KEY ]: 'Be concise.' },
 	...overrides,
 } );
 
@@ -48,9 +46,7 @@ describe( 'useAiAnswersSettings', () => {
 		} );
 
 		it( 'leaves content empty when post has no guidelines', async () => {
-			apiFetch.mockResolvedValue( [
-				makePost( { guideline_categories: { blocks: { 'jetpack/search-ai-summary': {} } } } ),
-			] );
+			apiFetch.mockResolvedValue( [ makePost( { meta: {} } ) ] );
 			const { result } = renderHook( () => useAiAnswersSettings() );
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 			expect( result.current.content ).toBe( '' );
@@ -169,9 +165,7 @@ describe( 'useAiAnswersSettings', () => {
 			await act( async () => result.current.savePersonality() );
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
-			expect(
-				saveCall.data.guideline_categories.blocks[ 'jetpack/search-ai-summary' ].guidelines
-			).toBe( DEFAULT_PERSONALITY );
+			expect( saveCall.data.meta[ BEHAVIOR_META_KEY ] ).toBe( DEFAULT_PERSONALITY );
 		} );
 
 		it( 'sends user content when content is non-empty', async () => {
@@ -183,9 +177,7 @@ describe( 'useAiAnswersSettings', () => {
 			await act( async () => result.current.savePersonality() );
 
 			const saveCall = apiFetch.mock.calls[ 1 ][ 0 ];
-			expect(
-				saveCall.data.guideline_categories.blocks[ 'jetpack/search-ai-summary' ].guidelines
-			).toBe( 'Custom instructions.' );
+			expect( saveCall.data.meta[ BEHAVIOR_META_KEY ] ).toBe( 'Custom instructions.' );
 		} );
 	} );
 
