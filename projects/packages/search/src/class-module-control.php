@@ -182,11 +182,10 @@ class Module_Control {
 	/**
 	 * Get the active search experience.
 	 *
-	 * The wire format always resolves to one of the four values, but storage is narrower:
-	 * `'off'` is read from the global Jetpack module-active state (not stored in this
-	 * package's option), and `'inline'` is the absence of an affirmative opt-in (the
-	 * option is either missing or written as the empty string `''`). Only `'embedded'`
-	 * and `'overlay'` are written as affirmative values.
+	 * `'off'` is read from the global Jetpack module-active state (not stored in
+	 * this package's option). `'inline'`, `'embedded'`, and `'overlay'` are each
+	 * written as their literal value to `jetpack_search_experience` whenever the
+	 * experience changes, and read straight back here.
 	 *
 	 * @return string One of 'embedded', 'overlay', 'inline', 'off'.
 	 */
@@ -196,39 +195,23 @@ class Module_Control {
 		}
 
 		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
-		if ( self::EXPERIENCE_EMBEDDED === $saved ) {
-			return self::EXPERIENCE_EMBEDDED;
-		}
-		if ( self::EXPERIENCE_OVERLAY === $saved ) {
-			return self::EXPERIENCE_OVERLAY;
+		if ( in_array( $saved, array( self::EXPERIENCE_INLINE, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_OVERLAY ), true ) ) {
+			return $saved;
 		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
 		// `instant_search_enabled` boolean reads as overlay; otherwise inline.
-		if ( $this->is_instant_search_enabled() ) {
-			return self::EXPERIENCE_OVERLAY;
-		}
-
-		return self::EXPERIENCE_INLINE;
+		return $this->is_instant_search_enabled() ? self::EXPERIENCE_OVERLAY : self::EXPERIENCE_INLINE;
 	}
 
 	/**
 	 * Update the search experience.
 	 *
-	 * Storage is narrower than the wire format: `'off'` only deactivates the global
-	 * module (no write to the experience option), and `'inline'` writes the empty
-	 * string (the absence of an affirmative opt-in *is* inline). Only `'embedded'`
-	 * and `'overlay'` write affirmative values.
-	 *
-	 * Inline writes `''` rather than deleting the option so the change always fires
-	 * `added_option` / `updated_option` (Sync's option whitelist hooks `add`/`update`
-	 * but `delete_option` is also a no-op when the option doesn't exist, which would
-	 * leave a stale `'overlay'` / `'embedded'` on the WPcom cache site after a
-	 * subsequent inline write on a fresh site).
-	 *
-	 * Legacy `module_active` / `instant_search_enabled` are kept in lockstep so
-	 * unmigrated readers (Initializer, Options, sidebar registration) continue to
-	 * see the right state until they're migrated to consult get_experience().
+	 * `'off'` only deactivates the global module — it does not touch the
+	 * experience option or `instant_search_enabled`, so re-enabling later
+	 * restores the user's prior preference. The other three branches each
+	 * write `instant_search_enabled` and `jetpack_search_experience` to the
+	 * correct values for the chosen experience.
 	 *
 	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
 	 * @return bool|WP_Error WP_Error on failure; true on success for the affirmative
@@ -246,44 +229,26 @@ class Module_Control {
 			);
 		}
 
-		switch ( $experience ) {
-			case self::EXPERIENCE_OFF:
-				// Off lives in the global jetpack_active_modules option, not in this
-				// package's experience option. Leave instant_search_enabled and the
-				// experience option untouched so re-enabling later restores the user's
-				// prior preference (matches legacy ModuleControl behaviour).
-				return ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
-
-			case self::EXPERIENCE_INLINE:
-				$result = $this->activate();
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-				$this->disable_instant_search();
-				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, '' );
-				return true;
-
-			case self::EXPERIENCE_EMBEDDED:
-				$result = $this->activate();
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-				$this->disable_instant_search();
-				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_EMBEDDED );
-				return true;
-
-			case self::EXPERIENCE_OVERLAY:
-				$result = $this->activate();
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-				$result = $this->enable_instant_search();
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
-				return true;
+		if ( self::EXPERIENCE_OFF === $experience ) {
+			return ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
 		}
+
+		$result = $this->activate();
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( self::EXPERIENCE_OVERLAY === $experience ) {
+			$result = $this->enable_instant_search();
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		} else {
+			$this->disable_instant_search();
+		}
+
+		update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, $experience );
+		return true;
 	}
 
 	/**

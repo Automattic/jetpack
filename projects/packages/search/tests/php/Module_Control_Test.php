@@ -257,13 +257,12 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Inline activates the module, disables instant search, and writes the empty
-	 * string to the experience option (inline is the absence of an affirmative
-	 * opt-in). Writing `''` rather than deleting ensures the change always fires
-	 * `updated_option` / `added_option`, so Sync replicates it to the cache site.
+	 * Inline activates the module, disables instant search, and writes 'inline'
+	 * to the experience option. Reads the value back through get_experience()
+	 * unchanged.
 	 */
-	public function test_update_experience_inline_writes_empty_string() {
-		// Seed an existing 'embedded' to prove the switch to inline clears it.
+	public function test_update_experience_inline() {
+		// Seed an existing 'embedded' to prove the switch to inline overwrites it.
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
 		static::$search_module->update_experience( Module_Control::EXPERIENCE_INLINE );
@@ -272,7 +271,7 @@ class Module_Control_Test extends Search_TestCase {
 
 		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
 		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
-		$this->assertSame( '', get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		$this->assertSame( Module_Control::EXPERIENCE_INLINE, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
 		$this->assertSame( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
 	}
 

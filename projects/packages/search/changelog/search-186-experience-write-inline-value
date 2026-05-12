@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Write 'inline' to jetpack_search_experience when the experience picker switches to inline (instead of leaving the option absent), so the change always fires an option-write that Sync can replicate.
