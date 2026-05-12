@@ -867,10 +867,16 @@ class Actions {
 	 * Initializes sync for Jetpack Search.
 	 *
 	 * The Search sync module owns the option-whitelist entries for
-	 * `instant_search_enabled` and `jetpack_search_experience`; gating
-	 * registration on `is_instant_search_enabled()` would drop the very
-	 * request that flips that flag, so registration is unconditional whenever
-	 * the Search package is present.
+	 * `instant_search_enabled` and `jetpack_search_experience`. Registration
+	 * is unconditional whenever the Search package is present — gating on
+	 * either `is_instant_search_enabled()` or `is_active()` reintroduces a
+	 * chicken-and-egg, because the very request that flips Search on (or
+	 * flips Instant Search on) must already have the option whitelist in
+	 * place to enqueue the write.
+	 *
+	 * The `class_exists()` guard below tracks package presence (autoloader
+	 * concern), not module activation — `Module_Control` is autoloaded as
+	 * long as the Search package is installed, even when the module is off.
 	 *
 	 * @access public
 	 * @static
