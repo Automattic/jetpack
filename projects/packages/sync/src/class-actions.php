@@ -864,7 +864,13 @@ class Actions {
 	}
 
 	/**
-	 * Initializes sync for Instant Search.
+	 * Initializes sync for Jetpack Search.
+	 *
+	 * The Search sync module owns the option-whitelist entries for
+	 * `instant_search_enabled` and `jetpack_search_experience`; gating
+	 * registration on `is_instant_search_enabled()` would drop the very
+	 * request that flips that flag, so registration is unconditional whenever
+	 * the Search package is present.
 	 *
 	 * @access public
 	 * @static
@@ -873,10 +879,7 @@ class Actions {
 		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
 			return;
 		}
-		$search_module = new \Automattic\Jetpack\Search\Module_Control();
-		if ( $search_module->is_instant_search_enabled() ) {
-			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
-		}
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
 	}
 
 	/**
