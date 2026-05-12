@@ -1,10 +1,11 @@
 import { BarChart, parseAsLocalDate } from '@automattic/charts';
 import { formatNumber } from '@automattic/number-formatters';
-import { Card, CardBody, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { formatPodcastDate } from '../lib/format';
 import { getPeriodDayCount } from '../range';
+import SectionCard from './section-card';
 import type { PodcastStatsPeriod, PodcastStatsRange } from '../types';
 import type { ReactNode } from 'react';
 
@@ -40,31 +41,20 @@ const formatAxisTick = ( value: unknown ) => {
 
 // Pick a step that yields integer ticks at roughly 5 stops, so the axis reads
 // like wpcom Stats (0, 5, 10) instead of visx's default fractional ticks
-// (0, 0.2, 0.4) when daily downloads are small.
+// (0, 0.2, 0.4) when daily downloads are small. Walks the 1-2-5 ladder across
+// magnitudes so the cadence stays consistent past 500 too.
 const computeIntegerTicks = (
 	max: number
 ): { domain: [ number, number ]; tickValues: number[] } => {
-	let step: number;
-	if ( max <= 5 ) {
-		step = 1;
-	} else if ( max <= 10 ) {
-		step = 2;
-	} else if ( max <= 25 ) {
-		step = 5;
-	} else if ( max <= 50 ) {
-		step = 10;
-	} else if ( max <= 100 ) {
-		step = 20;
-	} else if ( max <= 250 ) {
-		step = 50;
-	} else if ( max <= 500 ) {
-		step = 100;
-	} else {
-		const magnitude = Math.pow( 10, Math.floor( Math.log10( max ) ) );
-		step = magnitude / 2;
+	const niceSteps: number[] = [];
+	for ( let n = 0; n < 9; n++ ) {
+		const magnitude = Math.pow( 10, n );
+		niceSteps.push( magnitude, 2 * magnitude, 5 * magnitude );
 	}
-	const minDomainMax = step * 5;
-	const domainMax = Math.max( Math.ceil( max / step ) * step, minDomainMax );
+	const target = Math.max( max, 1 );
+	const step =
+		niceSteps.find( s => Math.ceil( target / s ) <= 5 ) ?? niceSteps[ niceSteps.length - 1 ];
+	const domainMax = Math.max( Math.ceil( max / step ) * step, step * 5 );
 	const tickValues: number[] = [];
 	for ( let tick = 0; tick <= domainMax; tick += step ) {
 		tickValues.push( tick );
@@ -187,17 +177,13 @@ const StatsByDayChart = ( {
 		);
 	}
 
+	// Render the SummaryTiles (passed via children) regardless of loading/empty
+	// so the user sees per-tile loading skeletons rather than a single page-wide spinner.
 	return (
-		<Card className="podcast-stats__section-card podcast-stats-chart">
-			<CardBody className="podcast-stats-chart__body">
-				<div className="podcast-stats-chart__header">
-					<h3 className="podcast-stats__section-title">{ downloadsLabel }</h3>
-					{ rangeLabel && <p className="podcast-stats__section-metric">{ rangeLabel }</p> }
-				</div>
-				{ chartContent }
-				{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
-			</CardBody>
-		</Card>
+		<SectionCard className="podcast-stats-chart" title={ downloadsLabel } metric={ rangeLabel }>
+			{ chartContent }
+			{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
+		</SectionCard>
 	);
 };
 
