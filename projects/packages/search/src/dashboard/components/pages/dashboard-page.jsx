@@ -131,6 +131,10 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
+				<NoticesList
+					notices={ notices }
+					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+				/>
 				<Tabs.Root value={ activeTab } onValueChange={ setActiveTab }>
 					<Tabs.List>
 						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
@@ -183,10 +187,6 @@ export default function DashboardPage( { isLoading = false } ) {
 										postTypes={ postTypes }
 									/>
 								) }
-								<NoticesList
-									notices={ notices }
-									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-								/>
 							</>
 						) }
 					</Tabs.Panel>
