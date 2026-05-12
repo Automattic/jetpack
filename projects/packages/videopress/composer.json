@@ -11,6 +11,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
@@ -25,6 +26,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"actions.php"
 		]
 	},
 	"scripts": {

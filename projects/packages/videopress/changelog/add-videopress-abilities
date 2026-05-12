@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register list-videos, get-storage-quota, and get-upload-token abilities for Jetpack VideoPress (WP 6.9+, gated by the jetpack_wp_abilities_enabled filter).
