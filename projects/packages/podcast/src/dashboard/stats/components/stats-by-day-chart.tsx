@@ -46,15 +46,21 @@ const formatAxisTick = ( value: unknown ) => {
 const computeIntegerTicks = (
 	max: number
 ): { domain: [ number, number ]; tickValues: number[] } => {
-	const niceSteps: number[] = [];
-	for ( let n = 0; n < 9; n++ ) {
-		const magnitude = Math.pow( 10, n );
-		niceSteps.push( magnitude, 2 * magnitude, 5 * magnitude );
+	const normalizedMax = Number.isFinite( max ) ? Math.max( max, 0 ) : 0;
+	const target = Math.max( normalizedMax, 1 );
+	const roughStep = Math.max( target / 5, 1 );
+	const magnitude = Math.pow( 10, Math.floor( Math.log10( roughStep ) ) );
+	const normalizedStep = roughStep / magnitude;
+	let stepMultiplier = 10;
+	if ( normalizedStep <= 1 ) {
+		stepMultiplier = 1;
+	} else if ( normalizedStep <= 2 ) {
+		stepMultiplier = 2;
+	} else if ( normalizedStep <= 5 ) {
+		stepMultiplier = 5;
 	}
-	const target = Math.max( max, 1 );
-	const step =
-		niceSteps.find( s => Math.ceil( target / s ) <= 5 ) ?? niceSteps[ niceSteps.length - 1 ];
-	const domainMax = Math.max( Math.ceil( max / step ) * step, step * 5 );
+	const step = magnitude * stepMultiplier;
+	const domainMax = Math.max( Math.ceil( normalizedMax / step ) * step, step * 5 );
 	const tickValues: number[] = [];
 	for ( let tick = 0; tick <= domainMax; tick += step ) {
 		tickValues.push( tick );
