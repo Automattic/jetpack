@@ -4,8 +4,8 @@ import { __ } from '@wordpress/i18n';
 import { useEpisodeDetailStatsQuery } from '../use-episode-detail-stats-query';
 import PeriodControl, { getPeriodHeading } from './period-control';
 import StatsByApp from './stats-by-app';
-import StatsByCountry from './stats-by-country';
 import StatsByDayChart from './stats-by-day-chart';
+import StatsLocations from './stats-locations';
 import SummaryTiles from './summary-tiles';
 import type { PodcastStatsPeriod } from '../types';
 
@@ -88,8 +88,8 @@ const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: Episode
 					</StatsByDayChart>
 					<div className="podcast-stats__module-grid">
 						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
-						<StatsByCountry rows={ stats?.by_country } isLoading={ isLoading } />
 					</div>
+					<StatsLocations rows={ stats?.by_country } isLoading={ isLoading } />
 				</>
 			) }
 		</div>

@@ -1,3 +1,14 @@
+// Match the rest of the dashboard:
+//   - $text: #1e1e1e for primary text (settings/distribution/style.scss)
+//   - $muted: #757575 for secondary text (settings/episodes/style.scss)
+// `--wp-admin-theme-color-darker-20` resolves to the admin theme color (blue
+// by default) — wrong for muted body copy.
+$text: #1e1e1e;
+$muted: #757575;
+$bar-bg: #f0f0f0;
+$bar-bg-hover: #e5e5e5;
+$bar-fill: #2271b1;
+
 .podcast-stats {
 
 	&--stack {
@@ -21,10 +32,14 @@
 		gap: 4px;
 	}
 
+	// Match .podcast__section-heading from src/dashboard/style.scss
+	// (24px / weight 400 / #1e1e1e).
 	&__period-heading {
 		margin: 0;
-		font-size: 20px;
-		font-weight: 600;
+		font-size: 24px;
+		font-weight: 400;
+		line-height: 1.2;
+		color: $text;
 	}
 
 	&__episode-heading {
@@ -33,7 +48,7 @@
 
 	&__section-description {
 		margin: 0;
-		color: var(--wp-admin-theme-color-darker-20, #50575e);
+		color: $muted;
 	}
 
 	&__back-link {
@@ -54,6 +69,7 @@
 		margin: 0;
 		font-size: 14px;
 		font-weight: 600;
+		color: $text;
 	}
 
 	&__section-card-header {
@@ -65,7 +81,7 @@
 
 	&__section-metric {
 		font-size: 12px;
-		color: var(--wp-admin-theme-color-darker-20, #50575e);
+		color: $muted;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
@@ -78,7 +94,7 @@
 
 	&__section-empty {
 		margin: 0;
-		color: var(--wp-admin-theme-color-darker-20, #50575e);
+		color: $muted;
 	}
 }
 
@@ -96,7 +112,7 @@
 
 	&__note {
 		font-size: 12px;
-		color: var(--wp-admin-theme-color-darker-20, #50575e);
+		color: $muted;
 		margin-top: 4px;
 	}
 }
@@ -141,6 +157,13 @@
 	}
 }
 
+.podcast-stats-locations {
+
+	&__map {
+		min-height: 320px;
+	}
+}
+
 .podcast-stats-bar-list {
 	list-style: none;
 	margin: 0;
@@ -161,7 +184,7 @@
 		gap: 8px;
 		padding: 6px 8px;
 		border-radius: 4px;
-		background: var(--wp-admin-theme-color-lighter-40, #f6f7f7);
+		background: $bar-bg;
 		width: 100%;
 		text-align: start;
 		border: 0;
@@ -171,12 +194,12 @@
 			cursor: pointer;
 
 			&:hover {
-				background: var(--wp-admin-theme-color-lighter-30, #e8eaef);
+				background: $bar-bg-hover;
 			}
 
 			&:focus-visible {
-				background: var(--wp-admin-theme-color-lighter-30, #e8eaef);
-				outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+				background: $bar-bg-hover;
+				outline: 2px solid $bar-fill;
 				outline-offset: 2px;
 			}
 		}
@@ -192,20 +215,21 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		color: $text;
 	}
 
 	&__value {
 		grid-column: 3;
 		font-variant-numeric: tabular-nums;
 		font-size: 12px;
-		color: var(--wp-admin-theme-color-darker-20, #50575e);
+		color: $muted;
 	}
 
 	&__bar {
 		position: absolute;
 		inset-block: 0;
 		inset-inline-start: 0;
-		background: var(--wp-admin-theme-color, #2271b1);
+		background: $bar-fill;
 		opacity: 0.08;
 		border-radius: 4px;
 		pointer-events: none;

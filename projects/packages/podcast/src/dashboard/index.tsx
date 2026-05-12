@@ -152,7 +152,7 @@ const App = () => {
 					</div>
 				</Tabs.Panel>
 				<Tabs.Panel value="stats">
-					<div className="podcast__tab-content">
+					<div className="podcast__tab-content podcast__tab-content--wide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
 								<StatsTab />

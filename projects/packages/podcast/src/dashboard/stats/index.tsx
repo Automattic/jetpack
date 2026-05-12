@@ -5,8 +5,8 @@ import { __ } from '@wordpress/i18n';
 import EpisodeStats from './components/episode-stats';
 import PeriodControl, { getPeriodHeading } from './components/period-control';
 import StatsByApp from './components/stats-by-app';
-import StatsByCountry from './components/stats-by-country';
 import StatsByDayChart from './components/stats-by-day-chart';
+import StatsLocations from './components/stats-locations';
 import StatsTopEpisodes from './components/stats-top-episodes';
 import SummaryTiles from './components/summary-tiles';
 import './style.scss';
@@ -118,8 +118,8 @@ const Stats = () => {
 							onSelect={ setSelected }
 						/>
 						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
-						<StatsByCountry rows={ stats?.by_country } isLoading={ isLoading } />
 					</div>
+					<StatsLocations rows={ stats?.by_country } isLoading={ isLoading } />
 				</>
 			) }
 		</div>
