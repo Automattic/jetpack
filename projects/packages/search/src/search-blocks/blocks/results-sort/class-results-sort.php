@@ -34,13 +34,13 @@ class Results_Sort {
 	 * rows come out in this sequence. Product-format keys append to the base
 	 * set when WooCommerce is active so non-Woo sites never expose a sort
 	 * the API would silently fall back to relevance on. Reads through to
-	 * `Search_Blocks::is_woocommerce_active()` so block-registration gates
+	 * `Search_Blocks::woocommerce_blocks_enabled()` so block-registration gates
 	 * for `filter-wc-*` and the sort-key gate share one memoized probe.
 	 *
 	 * @return string[]
 	 */
 	public static function get_all_option_keys(): array {
-		if ( Search_Blocks::is_woocommerce_active() ) {
+		if ( Search_Blocks::woocommerce_blocks_enabled() ) {
 			return array_merge( self::BASE_SORT_KEYS, self::PRODUCT_SORT_KEYS );
 		}
 		return self::BASE_SORT_KEYS;

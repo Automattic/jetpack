@@ -22,11 +22,11 @@ class Results_Sort_Test extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 	}
 
 	protected function tearDown(): void {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		parent::tearDown();
 	}
 
@@ -38,11 +38,11 @@ class Results_Sort_Test extends TestCase {
 	 * @param callable $body Test body.
 	 */
 	private function withWooCommerceActive( callable $body ): void {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			$body();
 		} finally {
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
@@ -65,7 +65,7 @@ class Results_Sort_Test extends TestCase {
 	/**
 	 * Product-format keys must collapse to `relevance` on non-WooCommerce
 	 * sites so a saved attribute can't render an option the API can't honour.
-	 * `Search_Blocks::is_woocommerce_active()` returns false in PHPUnit (no
+	 * `Search_Blocks::woocommerce_blocks_enabled()` returns false in PHPUnit (no
 	 * WooCommerce class is loaded), so this is the unmocked default path.
 	 */
 	public function test_normalize_default_sort_rejects_product_key_when_woocommerce_inactive() {

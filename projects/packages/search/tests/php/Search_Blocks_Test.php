@@ -23,7 +23,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	protected function tearDown(): void {
 		Search_Blocks::reset_initial_loading_cache();
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		Search_Blocks::reset_custom_taxonomy_map_cache();
 		parent::tearDown();
 	}
@@ -136,7 +136,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_build_initial_state_accepts_product_sort_when_woocommerce_active() {
 		$original_get = $_GET;
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
 				$_GET  = array( 'orderby' => $key );
@@ -146,7 +146,7 @@ class Search_Blocks_Test extends TestCase {
 			}
 		} finally {
 			$_GET = $original_get;
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
@@ -157,11 +157,11 @@ class Search_Blocks_Test extends TestCase {
 	 * subsequent call returns the override even after the filter is
 	 * removed.
 	 */
-	public function test_is_woocommerce_active_filter_can_force_true() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_can_force_true() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		try {
-			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+			$this->assertTrue( Search_Blocks::woocommerce_blocks_enabled() );
 		} finally {
 			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		}
@@ -176,8 +176,8 @@ class Search_Blocks_Test extends TestCase {
 	 * test below covers the related "filter result wins over probe" path
 	 * for non-bool returns.
 	 */
-	public function test_is_woocommerce_active_filter_receives_probe_and_return_wins() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_receives_probe_and_return_wins() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$received_value = null;
 		$callback       = function ( $value ) use ( &$received_value ) {
 			$received_value = $value;
@@ -185,7 +185,7 @@ class Search_Blocks_Test extends TestCase {
 		};
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
-			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
+			$this->assertFalse( Search_Blocks::woocommerce_blocks_enabled() );
 			$this->assertIsBool( $received_value, 'Filter received a bool from the probe.' );
 		} finally {
 			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
@@ -197,8 +197,8 @@ class Search_Blocks_Test extends TestCase {
 	 * the result is cached, so a callback that probes the database or
 	 * reads an option pays its cost once even on a hot path.
 	 */
-	public function test_is_woocommerce_active_filter_only_fires_once_per_request() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_only_fires_once_per_request() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$call_count = 0;
 		$callback   = function ( $value ) use ( &$call_count ) {
 			++$call_count;
@@ -207,7 +207,7 @@ class Search_Blocks_Test extends TestCase {
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
 			for ( $i = 0; $i < 3; $i++ ) {
-				Search_Blocks::is_woocommerce_active();
+				Search_Blocks::woocommerce_blocks_enabled();
 			}
 			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
 		} finally {
@@ -220,14 +220,14 @@ class Search_Blocks_Test extends TestCase {
 	 * must not poison the strictly-typed `bool` cache. The function casts
 	 * before storing so callers using `===` against `true` still match.
 	 */
-	public function test_is_woocommerce_active_filter_casts_truthy_non_bool_to_true() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_casts_truthy_non_bool_to_true() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$callback = static function () {
 			return '1';
 		};
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
-			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+			$this->assertTrue( Search_Blocks::woocommerce_blocks_enabled() );
 		} finally {
 			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
@@ -714,7 +714,7 @@ class Search_Blocks_Test extends TestCase {
 		// Product variations are WC-gated; flip the probe so this matrix
 		// can assert their full shape. The non-Woo case is covered by
 		// `test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive`.
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$variations = Search_Blocks::inject_filter_checkbox_variations(
 			array(
 				array(
@@ -811,7 +811,7 @@ class Search_Blocks_Test extends TestCase {
 	 * a silently-empty filter on sites without a brands extension.
 	 */
 	public function test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		register_taxonomy( 'product_brand', 'post' );
 
 		$variations         = Search_Blocks::inject_filter_checkbox_variations(
@@ -852,7 +852,7 @@ class Search_Blocks_Test extends TestCase {
 	 * render silently-empty filters. The non-WC variations stay registered.
 	 */
 	public function test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		register_taxonomy( 'product_brand', 'post' );
 		try {
 			$variations         = Search_Blocks::inject_filter_checkbox_variations(
@@ -925,7 +925,7 @@ class Search_Blocks_Test extends TestCase {
 	 * offered.
 	 */
 	public function test_filter_block_helpers_drops_wc_helpers_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		$helpers = $this->invoke_protected( 'filter_block_helpers' );
 
 		$this->assertArrayHasKey( 'jetpack-search/filter-checkbox', $helpers );
@@ -940,7 +940,7 @@ class Search_Blocks_Test extends TestCase {
 	 * filter-config collection covers the full filter surface.
 	 */
 	public function test_filter_block_helpers_includes_wc_helpers_when_woocommerce_active() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$helpers = $this->invoke_protected( 'filter_block_helpers' );
 
 		$this->assertArrayHasKey( 'jetpack-search/filter-wc-rating', $helpers );
@@ -956,7 +956,7 @@ class Search_Blocks_Test extends TestCase {
 	 * for a field the index doesn't have.
 	 */
 	public function test_build_initial_state_drops_price_range_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		$original_get = $_GET;
 		$_GET         = array(
 			'min_price' => '10',
@@ -982,7 +982,7 @@ class Search_Blocks_Test extends TestCase {
 	 * paint — this is the same contract `filter-wc-price` writes to URL.
 	 */
 	public function test_build_initial_state_seeds_price_range_when_woocommerce_active() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$original_get = $_GET;
 		$_GET         = array(
 			'min_price' => '10',
