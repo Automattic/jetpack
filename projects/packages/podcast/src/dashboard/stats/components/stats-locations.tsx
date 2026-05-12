@@ -64,7 +64,7 @@ const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps )
 				<div className="podcast-stats-locations__map">
 					<GeoChart data={ mapData } region="world" height={ 480 } />
 				</div>
-				<div className="podcast-stats-locations__list">
+				<div>
 					<h4 className="podcast-stats-locations__list-title">
 						{ __( 'Top countries', 'jetpack-podcast' ) }
 					</h4>

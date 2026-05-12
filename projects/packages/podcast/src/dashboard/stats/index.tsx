@@ -72,9 +72,7 @@ const Stats = () => {
 						) }
 					</p>
 				</header>
-				<div className="podcast-stats__period-control">
-					<PeriodControl value={ period } onChange={ setPeriod } />
-				</div>
+				<PeriodControl value={ period } onChange={ setPeriod } />
 			</div>
 
 			{ isError && (

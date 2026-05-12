@@ -75,7 +75,7 @@ const SummaryTiles = ( {
 
 	if ( layout === 'chart' ) {
 		return (
-			<ul className="podcast-stats-summary podcast-stats-summary--chart">
+			<ul className="podcast-stats-summary">
 				{ tiles.map( tile => (
 					<li key={ tile.heading } className="podcast-stats-summary__tile">
 						<TileContent { ...tile } />

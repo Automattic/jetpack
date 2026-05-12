@@ -7,6 +7,14 @@ $bar-bg: #f0f0f0;
 $bar-bg-hover: #e5e5e5;
 $bar-fill: #2271b1;
 
+%eyebrow {
+	font-size: 11px;
+	font-weight: 500;
+	color: $muted;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
 .podcast-stats {
 	padding-top: 16px;
 
@@ -79,6 +87,12 @@ $bar-fill: #2271b1;
 		margin: 0;
 		color: $muted;
 	}
+
+	&__section-metric {
+		margin: 0;
+		color: $muted;
+		font-size: 12px;
+	}
 }
 
 .podcast-stats-summary {
@@ -99,11 +113,9 @@ $bar-fill: #2271b1;
 	}
 
 	&__heading {
-		font-size: 11px;
-		font-weight: 500;
-		color: $muted;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
+
+		@extend %eyebrow;
+
 		margin-bottom: 6px;
 	}
 
@@ -115,11 +127,9 @@ $bar-fill: #2271b1;
 	}
 
 	&__note {
-		font-size: 11px;
-		font-weight: 500;
-		color: $muted;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
+
+		@extend %eyebrow;
+
 		margin-top: 4px;
 	}
 
@@ -156,7 +166,7 @@ $bar-fill: #2271b1;
 
 	&__tooltip {
 		padding: 8px 10px;
-		background: #1e1e1e;
+		background: $text;
 		color: #fff;
 		border-radius: 4px;
 	}
@@ -207,12 +217,11 @@ $bar-fill: #2271b1;
 	}
 
 	&__list-title {
+
+		@extend %eyebrow;
+
 		margin: 0 0 8px;
 		font-size: 12px;
-		font-weight: 500;
-		color: $muted;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
 	}
 }
 

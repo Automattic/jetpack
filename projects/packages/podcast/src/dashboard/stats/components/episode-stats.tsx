@@ -46,9 +46,7 @@ const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: Episode
 						{ getPeriodHeading( period, 'episode' ) }
 					</p>
 				</header>
-				<div className="podcast-stats__period-control">
-					<PeriodControl value={ period } onChange={ setPeriod } scope="episode" />
-				</div>
+				<PeriodControl value={ period } onChange={ setPeriod } scope="episode" />
 			</div>
 
 			{ isError && (
