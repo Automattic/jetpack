@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
-import { buildMockHistory, isMockMode } from './mock-mode';
 
 declare global {
 	// Localized by the Boost wp-js-data-sync wiring; carries each entry's
@@ -55,9 +54,6 @@ export function usePerformanceHistory() {
 	return useQuery( {
 		queryKey: [ 'performance_history' ],
 		queryFn: async (): Promise< PerformanceHistoryData > => {
-			if ( isMockMode() ) {
-				return buildMockHistory();
-			}
 			// Data-sync sanitizes underscores to hyphens for both the
 			// namespace (`jetpack_boost_ds` → `jetpack-boost-ds`) and the
 			// entry key (`performance_history` → `performance-history`).

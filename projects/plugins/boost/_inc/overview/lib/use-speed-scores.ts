@@ -1,7 +1,6 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { useCallback, useEffect, useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { MOCK_SCORES, isMockMode } from './mock-mode';
 
 export type SpeedScores = {
 	mobile: number;
@@ -64,22 +63,14 @@ export function useSpeedScores( siteUrl?: string ): [ SpeedScoreState, RefreshSp
 	);
 
 	const refresh = useCallback< RefreshSpeedScores >(
-		async ( _regenerate = false ) => {
-			if ( isMockMode() ) {
-				// Short fake loading state so the Refresh button still
-				// feels alive in mock mode, then settle on the canned set.
-				updateState( { status: 'loading', error: undefined } );
-				await new Promise( resolve => setTimeout( resolve, 400 ) );
-				updateState( { status: 'loaded', scores: { ...MOCK_SCORES } } );
-				return;
-			}
+		async ( regenerate = false ) => {
 			if ( ! targetUrl ) {
 				return;
 			}
 			updateState( { status: 'loading', error: undefined } );
 			try {
 				const next = await requestSpeedScores(
-					_regenerate,
+					regenerate,
 					wpApiSettings.root,
 					targetUrl,
 					wpApiSettings.nonce

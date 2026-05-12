@@ -4,7 +4,7 @@ import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Notice, Text } from '@wordpress/ui';
-import { buildDummyHistory } from './lib/mock-mode';
+import { buildDummyHistory } from './lib/dummy-history';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
 // Series accent colours. Desktop reads as the canonical brand blue

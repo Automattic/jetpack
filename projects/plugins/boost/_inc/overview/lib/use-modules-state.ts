@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
-import { getMockMode } from './mock-mode';
 
 const moduleStateSchema = z.object( {
 	available: z.boolean(),
@@ -34,21 +33,12 @@ declare global {
  * intentionally narrows to what the Overview needs so downstream PRs can
  * extend without colliding.
  *
- * In mock mode the hook returns a fake free-tier shape so the upgrade
- * prompt renders without needing a free site to test against.
- *
  * @return React Query state for the module availability map.
  */
 export function useModulesState() {
 	return useQuery( {
 		queryKey: [ 'jetpack_boost_modules_state' ],
 		queryFn: async (): Promise< ModulesState > => {
-			const mock = getMockMode();
-			if ( mock !== null ) {
-				return {
-					performance_history: { available: mock === 'paid' },
-				};
-			}
 			const nonce = jetpack_boost_ds?.modules_state?.nonce ?? '';
 			const raw = await apiFetch( {
 				path: '/jetpack-boost-ds/modules-state',
