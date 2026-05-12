@@ -12,17 +12,15 @@ type StatsByAppProps = {
 
 const StatsByApp = ( { rows = [], isLoading = false }: StatsByAppProps ) => {
 	const title = __( 'By app', 'jetpack-podcast' );
-	const metricLabel = __( 'Downloads', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } metricLabel={ metricLabel } isLoading />;
+		return <SectionCard title={ title } isLoading />;
 	}
 
 	if ( rows.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
-				metricLabel={ metricLabel }
 				isEmpty
 				emptyMessage={ __( 'No app data in this period.', 'jetpack-podcast' ) }
 			>
@@ -50,7 +48,7 @@ const StatsByApp = ( { rows = [], isLoading = false }: StatsByAppProps ) => {
 	} );
 
 	return (
-		<SectionCard title={ title } metricLabel={ metricLabel }>
+		<SectionCard title={ title }>
 			<HorizontalBarList rows={ data } />
 		</SectionCard>
 	);

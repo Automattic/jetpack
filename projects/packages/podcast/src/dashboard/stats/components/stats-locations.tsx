@@ -14,17 +14,15 @@ type StatsLocationsProps = {
 
 const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps ) => {
 	const title = __( 'By location', 'jetpack-podcast' );
-	const metricLabel = __( 'Downloads', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } metricLabel={ metricLabel } isLoading />;
+		return <SectionCard title={ title } isLoading />;
 	}
 
 	if ( rows.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
-				metricLabel={ metricLabel }
 				isEmpty
 				emptyMessage={ __( 'No country data in this period.', 'jetpack-podcast' ) }
 			>
@@ -58,10 +56,10 @@ const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps )
 	} );
 
 	return (
-		<SectionCard title={ title } metricLabel={ metricLabel } className="podcast-stats-locations">
+		<SectionCard title={ title } className="podcast-stats-locations">
 			<div className="podcast-stats-locations__grid">
 				<div className="podcast-stats-locations__map">
-					<GeoChart data={ mapData } region="world" height={ 320 } />
+					<GeoChart data={ mapData } region="world" height={ 480 } />
 				</div>
 				<div className="podcast-stats-locations__list">
 					<h4 className="podcast-stats-locations__list-title">

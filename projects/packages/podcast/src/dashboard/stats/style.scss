@@ -73,20 +73,6 @@ $bar-fill: #2271b1;
 		color: $text;
 	}
 
-	&__section-card-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: 8px;
-	}
-
-	&__section-metric {
-		font-size: 12px;
-		color: $muted;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-	}
-
 	&__section-loading {
 		display: flex;
 		justify-content: center;
@@ -210,8 +196,11 @@ $bar-fill: #2271b1;
 		}
 	}
 
+	// No min-height: same lesson as the bar chart. The GeoChart's responsive
+	// wrapper applies the `height={480}` prop directly; a parent min-height
+	// fights the resize observer.
 	&__map {
-		min-height: 320px;
+		position: relative;
 	}
 
 	&__list-title {

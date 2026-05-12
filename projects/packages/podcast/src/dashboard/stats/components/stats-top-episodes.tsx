@@ -16,17 +16,15 @@ const StatsTopEpisodes = ( {
 	onSelect,
 }: StatsTopEpisodesProps ) => {
 	const title = __( 'Top episodes', 'jetpack-podcast' );
-	const metricLabel = __( 'Downloads', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } metricLabel={ metricLabel } isLoading />;
+		return <SectionCard title={ title } isLoading />;
 	}
 
 	if ( episodes.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
-				metricLabel={ metricLabel }
 				isEmpty
 				emptyMessage={ __( 'No episode downloads in this period.', 'jetpack-podcast' ) }
 			>
@@ -50,7 +48,7 @@ const StatsTopEpisodes = ( {
 	} );
 
 	return (
-		<SectionCard title={ title } metricLabel={ metricLabel }>
+		<SectionCard title={ title }>
 			<HorizontalBarList rows={ data } />
 		</SectionCard>
 	);

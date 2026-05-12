@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 
 type SectionCardProps = {
 	title: string;
-	metricLabel?: string;
 	isLoading?: boolean;
 	isEmpty?: boolean;
 	emptyMessage?: string;
@@ -32,7 +31,6 @@ const renderBody = ( { isLoading, isEmpty, emptyMessage, children }: SectionCard
 
 const SectionCard = ( {
 	title,
-	metricLabel,
 	isLoading = false,
 	isEmpty = false,
 	emptyMessage,
@@ -43,10 +41,7 @@ const SectionCard = ( {
 	return (
 		<Card className={ cardClass }>
 			<CardHeader>
-				<div className="podcast-stats__section-card-header">
-					<h3 className="podcast-stats__section-title">{ title }</h3>
-					{ metricLabel && <span className="podcast-stats__section-metric">{ metricLabel }</span> }
-				</div>
+				<h3 className="podcast-stats__section-title">{ title }</h3>
 			</CardHeader>
 			<CardBody>{ renderBody( { isLoading, isEmpty, emptyMessage, children } ) }</CardBody>
 		</Card>
