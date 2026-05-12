@@ -233,6 +233,27 @@ function clearHighlight() {
 }
 
 /**
+ * Apply a link to the current selection. When the selection is collapsed
+ * (no text selected), insert the URL as visible text first so the link
+ * is created consistently across browsers — Firefox's createLink is a
+ * no-op on collapsed selections, while Chrome inserts the URL as text.
+ *
+ * @param {string} url - The URL to link to.
+ */
+function createLinkFromUrl( url ) {
+	const sel = window.getSelection();
+	if ( sel.isCollapsed ) {
+		// Insert the URL as text, then select it so createLink can wrap it.
+		document.execCommand( 'insertText', false, url );
+		const r = sel.getRangeAt( 0 );
+		r.setStart( r.startContainer, r.startOffset - url.length );
+		sel.removeAllRanges();
+		sel.addRange( r );
+	}
+	document.execCommand( 'createLink', false, url );
+}
+
+/**
  * Focus the first visible input inside a modal after it becomes visible.
  * Uses requestAnimationFrame so the element is no longer hidden.
  */
@@ -2632,7 +2653,7 @@ const { state } = store( 'wpcom-write', {
 				clearHighlight();
 				restoreSelection();
 				if ( state.linkUrl ) {
-					document.execCommand( 'createLink', false, state.linkUrl );
+					createLinkFromUrl( state.linkUrl );
 				}
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
@@ -2660,7 +2681,7 @@ const { state } = store( 'wpcom-write', {
 			clearHighlight();
 			restoreSelection();
 			if ( state.linkUrl ) {
-				document.execCommand( 'createLink', false, state.linkUrl );
+				createLinkFromUrl( state.linkUrl );
 			}
 			state.showLinkInput = false;
 			if ( linkPopoverCloseHandler ) {
