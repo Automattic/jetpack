@@ -38,6 +38,40 @@ const formatAxisTick = ( value: unknown ) => {
 	return Number.isNaN( date.getTime() ) ? String( value ) : AXIS_DATE_FORMATTER.format( date );
 };
 
+// Pick a step that yields integer ticks at roughly 5 stops, so the axis reads
+// like wpcom Stats (0, 5, 10) instead of visx's default fractional ticks
+// (0, 0.2, 0.4) when daily downloads are small.
+const computeIntegerTicks = (
+	max: number
+): { domain: [ number, number ]; tickValues: number[] } => {
+	let step: number;
+	if ( max <= 5 ) {
+		step = 1;
+	} else if ( max <= 10 ) {
+		step = 2;
+	} else if ( max <= 25 ) {
+		step = 5;
+	} else if ( max <= 50 ) {
+		step = 10;
+	} else if ( max <= 100 ) {
+		step = 20;
+	} else if ( max <= 250 ) {
+		step = 50;
+	} else if ( max <= 500 ) {
+		step = 100;
+	} else {
+		const magnitude = Math.pow( 10, Math.floor( Math.log10( max ) ) );
+		step = magnitude / 2;
+	}
+	const minDomainMax = step * 5;
+	const domainMax = Math.max( Math.ceil( max / step ) * step, minDomainMax );
+	const tickValues: number[] = [];
+	for ( let tick = 0; tick <= domainMax; tick += step ) {
+		tickValues.push( tick );
+	}
+	return { domain: [ 0, domainMax ], tickValues };
+};
+
 const StatsByDayChart = ( {
 	byDay = {},
 	range,
@@ -67,6 +101,11 @@ const StatsByDayChart = ( {
 		() => chartData.reduce( ( sum, datum ) => sum + datum.value, 0 ),
 		[ chartData ]
 	);
+
+	const { domain: yDomain, tickValues: yTickValues } = useMemo( () => {
+		const max = chartData.reduce( ( m, datum ) => Math.max( m, datum.value ), 0 );
+		return computeIntegerTicks( max );
+	}, [ chartData ] );
 
 	const rangeDays = getPeriodDayCount( period, range );
 	const rangeLabel =
@@ -139,8 +178,9 @@ const StatsByDayChart = ( {
 					options={ {
 						axis: {
 							x: { tickFormat: formatAxisTick },
+							y: { tickValues: yTickValues },
 						},
-						yScale: { type: 'linear', zero: true },
+						yScale: { type: 'linear', zero: true, nice: false, domain: yDomain },
 					} }
 				/>
 			</div>

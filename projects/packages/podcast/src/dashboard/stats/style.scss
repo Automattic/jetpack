@@ -16,7 +16,12 @@ $bar-fill: #2271b1;
 }
 
 .podcast-stats {
-	padding-top: 16px;
+	padding-block-start: 16px;
+	padding-inline: 16px;
+
+	@media (min-width: 783px) {
+		padding-inline: 24px;
+	}
 
 	&--stack {
 		display: flex;
@@ -68,12 +73,20 @@ $bar-fill: #2271b1;
 
 	&__section-card {
 		min-width: 0;
+
+		// Match Calypso Stats modules: compact header, no heavy divider.
+		.components-card__header {
+			border-block-end: 0;
+			padding-block: 10px;
+			min-height: 0;
+		}
 	}
 
 	&__section-title {
 		margin: 0;
-		font-size: 14px;
+		font-size: 15px;
 		font-weight: 600;
+		line-height: 1.3;
 		color: $text;
 	}
 
