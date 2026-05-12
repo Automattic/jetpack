@@ -5,8 +5,8 @@
 ## [1.11.0] - 2026-05-11
 ### Added
 - AdminPage: Add admin-page and jetpack-footer sub-path exports for use in wp-build dashboards. [#48510]
-- Gravatar: Add a component with hovercard support at the `./gravatar` subpath, shared across products that render subscriber or response avatars. [#48581]
 - Global Notices: Add global-notices sub-path export for use in wp-build dashboards. [#48586]
+- Gravatar: Add a component with hovercard support at the `./gravatar` subpath, shared across products that render subscriber or response avatars. [#48581]
 
 ### Changed
 - AdminPage: Update to @wordpress/admin-ui 2.0.0 and use the new `visual` prop to render the Jetpack logo alongside the page title. [#48410]

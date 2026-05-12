@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.80.0] - 2026-05-11
 ### Added
-- Social: Add support for global and per-connection message templates via REST API. [#48522]
 - Social: Add a global message template editor to the Social admin page. [#48560]
 - Social: Add a per-connection message template editor in the connections list and the connection-confirmation modal. [#48564]
+- Social: Add support for global and per-connection message templates via REST API. [#48522]
 
 ### Changed
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]

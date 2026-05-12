@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.37.0] - 2026-05-11
 ### Changed
-- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
-- My Jetpack: Migrate interstitial Buttons from `@automattic/jetpack-components` and `@wordpress/components` to `@wordpress/ui`. [#48489]
-- My Jetpack: Adopt the shared `jetpack-admin-page-layout` mixin on the main dashboard page so its layout matches the rest of the Jetpack admin pages. [#48503]
 - Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- My Jetpack: Adopt the shared `jetpack-admin-page-layout` mixin on the main dashboard page so its layout matches the rest of the Jetpack admin pages. [#48503]
+- My Jetpack: Migrate interstitial Buttons from `@automattic/jetpack-components` and `@wordpress/components` to `@wordpress/ui`. [#48489]
 
 ### Fixed
 - My Jetpack: Drop `overflow-x: hidden` on the `<AdminPage>` root so the page no longer becomes its own scroll container. [#48578]

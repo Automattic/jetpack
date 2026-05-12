@@ -6,10 +6,10 @@
 ### Enhancements
 - AI Page: Adopt the shared `jetpack-admin-page-layout` mixin so its layout matches the rest of the Jetpack admin pages that use the AdminPage component. [#48471]
 - AI Sidebar: Surface a Review Mediator UI feature flag and an extension filter for the agentsManagerData payload. [#48409]
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
 - Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos. [#48486]
 - Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it. [#48640]
 - Reader Chat: Add a reader-chat loader that mounts the Agents Manager chat UI on public blog frontends, passing site and current-post context to the AI agent. Gated by the jetpack_reader_chat_has_ai_features filter (defaults to the standard AI connection check). Loads on every public frontend page, not just singular views. Registers the reader_chat site option in the REST API so Reader Chat can be toggled from the wp-admin UI without writing PHP. [#48144]
-- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
 - Scan: Register the new Scan wp-admin page package. No user-visible behaviour change yet. [#48458]
 
 ### Improved compatibility
@@ -24,10 +24,10 @@
 - VideoPress: Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded. [#48690]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Podcast: Add the new Jetpack Podcast package as a dependency. [#48556]
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
-- Podcast Dashboard: Pull in the wp-build dashboard scaffold from the jetpack-podcast package. [#48557]
 - Dashboard: Remove translation wrappers from "Boost" and "CRM" product names in the at-a-glance dashboard. [#48520]
+- Podcast: Add the new Jetpack Podcast package as a dependency. [#48556]
+- Podcast Dashboard: Pull in the wp-build dashboard scaffold from the jetpack-podcast package. [#48557]
 - Sync: Whitelist the jetpack_social_message_template option so it propagates to WPCOM. [#48638]
 - Update package dependencies. [#48689]
 
