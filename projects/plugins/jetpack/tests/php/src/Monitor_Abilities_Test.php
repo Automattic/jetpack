@@ -289,37 +289,25 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 	// -------------------- Execute callbacks --------------------
 
 	/**
-	 * Get_monitor_status() always returns the full four-key shape.
+	 * With the module inactive, get_monitor_status() short-circuits with a
+	 * `jetpack_monitor_module_inactive` WP_Error before hitting any remote read.
 	 */
-	public function test_get_monitor_status_returns_full_shape() {
-		wp_set_current_user( $this->admin_id );
-
-		// Default test env: module not in active modules filter, user not connected.
-		// Both fields should degrade to null; shape must still contain all four keys.
-		$result = Monitor_Abilities::get_monitor_status();
-
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'module_active', $result );
-		$this->assertArrayHasKey( 'user_connected', $result );
-		$this->assertArrayHasKey( 'notifications_enabled', $result );
-		$this->assertArrayHasKey( 'last_status_change', $result );
-		$this->assertIsBool( $result['module_active'] );
-		$this->assertIsBool( $result['user_connected'] );
-	}
-
-	public function test_get_monitor_status_returns_nulls_when_preconditions_unmet() {
+	public function test_get_monitor_status_errors_when_module_inactive() {
 		wp_set_current_user( $this->admin_id );
 
 		$result = Monitor_Abilities::get_monitor_status();
 
-		// Without an active module + user connection, both remote-derived fields are null.
-		$this->assertFalse( $result['module_active'] );
-		$this->assertFalse( $result['user_connected'] );
-		$this->assertNull( $result['notifications_enabled'] );
-		$this->assertNull( $result['last_status_change'] );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_monitor_module_inactive', $result->get_error_code() );
 	}
 
-	public function test_get_monitor_status_reports_module_active_when_filter_flags_it() {
+	/**
+	 * With the module active but no Jetpack user connection, get_monitor_status()
+	 * returns a `jetpack_monitor_not_connected` WP_Error with a message that
+	 * steers the caller to the My Jetpack admin page — agents need an actionable
+	 * next step, not opaque null fields.
+	 */
+	public function test_get_monitor_status_errors_when_user_not_connected() {
 		wp_set_current_user( $this->admin_id );
 
 		add_filter(
@@ -333,7 +321,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 		$result = Monitor_Abilities::get_monitor_status();
 
-		$this->assertTrue( $result['module_active'] );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_monitor_not_connected', $result->get_error_code() );
+		$this->assertStringContainsString( 'My Jetpack', $result->get_error_message() );
 	}
 
 	public function test_set_notifications_rejects_missing_enabled() {
@@ -454,6 +444,117 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( 0, Monitor_Abilities_Test_Stub::$apply_calls, 'Idempotent no-op: apply_notifications_update should not run when desired matches current.' );
 		$sentinel = '__monitor_abilities_option_unset__';
 		$this->assertSame( $sentinel, get_option( 'monitor_receive_notifications', $sentinel ), 'No-op: the mirrored option should not be written.' );
+	}
+
+	/**
+	 * Happy-path: module active, user connected, both remote reads succeed.
+	 * The returned shape is the documented four-key contract with no nulls
+	 * except the (legitimate) `last_status_change=null` "no transition recorded
+	 * yet" signal.
+	 */
+	public function test_get_monitor_status_returns_full_shape_on_success() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset( true, '2024-01-15 12:34:56' );
+
+		$result = Monitor_Abilities_Test_Stub::get_monitor_status();
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['module_active'] );
+		$this->assertTrue( $result['user_connected'] );
+		$this->assertTrue( $result['notifications_enabled'] );
+		$this->assertSame( '2024-01-15 12:34:56', $result['last_status_change'] );
+	}
+
+	/**
+	 * Module active, user connected, no transition recorded yet — null is a
+	 * legitimate signal (not a failure), so the happy-path shape still applies.
+	 */
+	public function test_get_monitor_status_allows_null_last_status_change_when_no_transition() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset( false, null );
+
+		$result = Monitor_Abilities_Test_Stub::get_monitor_status();
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( $result['notifications_enabled'] );
+		$this->assertNull( $result['last_status_change'] );
+	}
+
+	/**
+	 * Remote `isUserInNotifications` fails → surface as
+	 * `jetpack_monitor_service_unreachable` so callers know to retry rather than
+	 * misread a null field as "notifications are off".
+	 */
+	public function test_get_monitor_status_errors_when_notifications_fetch_fails() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset(
+			new \WP_Error( 'jetpack_monitor_notifications_data_unavailable', 'remote down' ),
+			'2024-01-15 12:34:56'
+		);
+
+		$result = Monitor_Abilities_Test_Stub::get_monitor_status();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_monitor_service_unreachable', $result->get_error_code() );
+	}
+
+	/**
+	 * Remote `getLastDowntime` fails → also surfaces as
+	 * `jetpack_monitor_service_unreachable`. We deliberately do not split this
+	 * into a per-call error code — both reads back the same Monitor service, so
+	 * one unreachable code is the right level of granularity for callers.
+	 */
+	public function test_get_monitor_status_errors_when_last_status_change_fetch_fails() {
+		wp_set_current_user( $this->admin_id );
+
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $mods ) {
+				$mods   = is_array( $mods ) ? $mods : array();
+				$mods[] = 'monitor';
+				return array_values( array_unique( $mods ) );
+			}
+		);
+
+		Monitor_Abilities_Test_Stub::reset(
+			true,
+			new \WP_Error( 'jetpack_monitor_downtime_data_unavailable', 'remote down' )
+		);
+
+		$result = Monitor_Abilities_Test_Stub::get_monitor_status();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_monitor_service_unreachable', $result->get_error_code() );
 	}
 
 	// -------------------- Real bootstrap path --------------------

@@ -52,7 +52,7 @@ class Monitor_Abilities extends Registrar {
 		return array(
 			'jetpack-monitor/get-monitor-status' => array(
 				'label'               => __( 'Get Jetpack Monitor status', 'jetpack' ),
-				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Both notifications_enabled and last_status_change are null when the user is not connected to Jetpack or the remote service is unreachable. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
+				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote Monitor service cannot be reached. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -62,7 +62,7 @@ class Monitor_Abilities extends Registrar {
 					'properties' => array(
 						'module_active'         => array( 'type' => 'boolean' ),
 						'user_connected'        => array( 'type' => 'boolean' ),
-						'notifications_enabled' => array( 'type' => array( 'boolean', 'null' ) ),
+						'notifications_enabled' => array( 'type' => 'boolean' ),
 						'last_status_change'    => array( 'type' => array( 'string', 'null' ) ),
 					),
 				),
@@ -132,39 +132,70 @@ class Monitor_Abilities extends Registrar {
 	}
 
 	/**
-	 * Execute: overview read. Always returns the same shape; fields that depend
-	 * on the remote service degrade to null when the user is not connected to
-	 * Jetpack or the service is unreachable. `module_active` is always true here
-	 * — these abilities are only registered while the Monitor module is active —
-	 * but the field is kept in the output for explicit, self-describing responses.
+	 * Execute: overview read. Returns the full
+	 * `{ module_active, user_connected, notifications_enabled, last_status_change }`
+	 * shape on the happy path. Surfaces precondition and transport failures as
+	 * `WP_Error` so callers (especially AI agents) get an actionable next step
+	 * instead of opaque null fields:
+	 *
+	 * - `jetpack_monitor_module_inactive` — Monitor module is not active.
+	 *   Defensive: in practice this is unreachable because the abilities are
+	 *   only registered while the module is active.
+	 * - `jetpack_monitor_not_connected` — the current user is not connected to
+	 *   Jetpack; the remote read needs the user's token. Steers the caller to
+	 *   the My Jetpack admin page to connect.
+	 * - `jetpack_monitor_service_unreachable` — the remote Monitor service
+	 *   returned an error for one of the two underlying XML-RPC reads
+	 *   (`isUserInNotifications` or `getLastDowntime`). Transient — retry later.
+	 *
+	 * `last_status_change` remains `null` on the happy path when no up/down
+	 * transition has been recorded yet; that is the documented "no data yet"
+	 * signal, not a failure.
 	 *
 	 * @param array|null $input Ability input (no parameters accepted).
-	 * @return array
+	 * @return array|\WP_Error
 	 */
 	public static function get_monitor_status( $input = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
 		$module_active  = Jetpack::is_module_active( self::MODULE_SLUG );
 		$user_connected = static::is_user_connected_to_jetpack();
 
-		$notifications_enabled = null;
-		$last_status_change    = null;
+		if ( ! $module_active ) {
+			return new \WP_Error(
+				'jetpack_monitor_module_inactive',
+				__( 'The Monitor module is not active. Activate it before reading Monitor status.', 'jetpack' )
+			);
+		}
 
-		if ( $module_active && $user_connected ) {
-			$state = static::fetch_notifications_state();
-			if ( ! is_wp_error( $state ) ) {
-				$notifications_enabled = $state;
-			}
+		if ( ! $user_connected ) {
+			return new \WP_Error(
+				'jetpack_monitor_not_connected',
+				__( 'User is not connected to Jetpack. Connect first via the My Jetpack admin page, then retry this ability.', 'jetpack' )
+			);
+		}
 
-			$status_change = static::fetch_last_status_change();
-			if ( ! is_wp_error( $status_change ) ) {
-				$last_status_change = $status_change;
-			}
+		$state = static::fetch_notifications_state();
+		if ( is_wp_error( $state ) ) {
+			return new \WP_Error(
+				'jetpack_monitor_service_unreachable',
+				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				array( 'underlying' => $state->get_error_code() )
+			);
+		}
+
+		$status_change = static::fetch_last_status_change();
+		if ( is_wp_error( $status_change ) ) {
+			return new \WP_Error(
+				'jetpack_monitor_service_unreachable',
+				__( 'The remote Jetpack Monitor service is unreachable. Retry shortly; this is typically transient.', 'jetpack' ),
+				array( 'underlying' => $status_change->get_error_code() )
+			);
 		}
 
 		return array(
 			'module_active'         => $module_active,
 			'user_connected'        => $user_connected,
-			'notifications_enabled' => $notifications_enabled,
-			'last_status_change'    => $last_status_change,
+			'notifications_enabled' => (bool) $state,
+			'last_status_change'    => $status_change,
 		);
 	}
 

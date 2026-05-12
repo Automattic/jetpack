@@ -14,7 +14,8 @@ use Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities;
  * Test-only subclass overriding Monitor_Abilities's protected seams.
  *
  * - is_user_connected_to_jetpack(): always true.
- * - fetch_notifications_state(): returns the seeded value from ::reset().
+ * - fetch_notifications_state(): returns the seeded value (bool or WP_Error).
+ * - fetch_last_status_change(): returns the seeded value (string|null|WP_Error).
  * - apply_notifications_update(): records each call instead of hitting IXR.
  */
 class Monitor_Abilities_Test_Stub extends Monitor_Abilities {
@@ -22,9 +23,18 @@ class Monitor_Abilities_Test_Stub extends Monitor_Abilities {
 	/**
 	 * Seeded remote state for fetch_notifications_state().
 	 *
-	 * @var bool
+	 * @var bool|\WP_Error
 	 */
 	public static $current_state = false;
+
+	/**
+	 * Seeded remote response for fetch_last_status_change(). When `false`, the
+	 * stub falls through to a default `null` (no transition recorded) to keep
+	 * the legacy set_notifications tests working without a manual seed.
+	 *
+	 * @var string|null|false|\WP_Error
+	 */
+	public static $last_status_change = null;
 
 	/**
 	 * Number of apply_notifications_update() calls in the current test.
@@ -43,12 +53,14 @@ class Monitor_Abilities_Test_Stub extends Monitor_Abilities {
 	/**
 	 * Reset test-double state and seed the simulated remote state.
 	 *
-	 * @param bool $current_state Simulated current notifications state.
+	 * @param bool|\WP_Error              $current_state      Simulated current notifications state.
+	 * @param string|null|\WP_Error|false $last_status_change Simulated last status change.
 	 */
-	public static function reset( bool $current_state ): void {
-		self::$current_state = $current_state;
-		self::$apply_calls   = 0;
-		self::$last_applied  = null;
+	public static function reset( $current_state, $last_status_change = null ): void {
+		self::$current_state      = $current_state;
+		self::$last_status_change = $last_status_change;
+		self::$apply_calls        = 0;
+		self::$last_applied       = null;
 	}
 
 	/**
@@ -61,10 +73,19 @@ class Monitor_Abilities_Test_Stub extends Monitor_Abilities {
 	/**
 	 * Return the seeded simulated remote state.
 	 *
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
 	protected static function fetch_notifications_state() {
 		return self::$current_state;
+	}
+
+	/**
+	 * Return the seeded simulated last-status-change response.
+	 *
+	 * @return string|null|\WP_Error
+	 */
+	protected static function fetch_last_status_change() {
+		return self::$last_status_change;
 	}
 
 	/**
