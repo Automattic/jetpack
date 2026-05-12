@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register Scheduled Updates schedule CRUD + run-now via the Registrar (list-schedules, create-schedule, update-schedule, delete-schedule, run-schedule-now).

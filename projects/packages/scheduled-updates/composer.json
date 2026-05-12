@@ -9,7 +9,8 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-connection": "@dev"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -22,6 +23,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"actions.php"
 		]
 	},
 	"scripts": {
