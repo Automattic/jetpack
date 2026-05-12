@@ -154,11 +154,12 @@
 		margin: var(--wpds-dimension-gap-xs) 0 0;
 		padding: 0;
 		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-sm);
 		color: var(--wpds-color-fg-content-neutral-weak);
 
 		li {
 			display: flex;
-			align-items: center;
+			align-items: baseline;
 			gap: var(--wpds-dimension-gap-sm);
 			padding-block: var(--wpds-dimension-padding-xs);
 
