@@ -819,18 +819,22 @@ class Jetpack_Mu_Wpcom {
 		// doesn't change mid-request.
 		static $dispatch = null;
 		if ( null === $dispatch ) {
-			if ( ! function_exists( 'log2logstash' ) ) {
-				$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-				if ( is_readable( $log2logstash_path ) ) {
-					require_once $log2logstash_path;
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
 				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
 			}
 			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
 		}
 
 		try {
 			$payload = array(
-				'blog_id' => get_current_blog_id(),
+				'blog_id' => \get_wpcom_blog_id(),
 				'feature' => (string) $feature,
 				'message' => (string) $message,
 				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
