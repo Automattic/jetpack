@@ -108,6 +108,28 @@ class Podcast_Episode_Block {
 	}
 
 	/**
+	 * Format a seconds value as a MM:SS or HH:MM:SS label.
+	 *
+	 * @param float|int|string $seconds Seconds value (Podcasting 2.0 soundbite startTime/duration are floats).
+	 * @return string Formatted label, or empty string for non-positive input.
+	 */
+	private static function format_seconds_label( $seconds ) {
+		$total = (int) floor( max( 0, (float) $seconds ) );
+		if ( $total <= 0 ) {
+			return '';
+		}
+
+		$hours   = (int) floor( $total / 3600 );
+		$minutes = (int) floor( ( $total % 3600 ) / 60 );
+		$secs    = $total % 60;
+
+		if ( $hours > 0 ) {
+			return sprintf( '%d:%02d:%02d', $hours, $minutes, $secs );
+		}
+		return sprintf( '%d:%02d', $minutes, $secs );
+	}
+
+	/**
 	 * Render callback.
 	 *
 	 * Pulls title, author, and date from the surrounding post — the post is
@@ -167,6 +189,9 @@ class Podcast_Episode_Block {
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
 		$license_url    = isset( $attributes['licenseUrl'] ) ? esc_url_raw( $attributes['licenseUrl'] ) : '';
 		$people         = isset( $attributes['people'] ) && is_array( $attributes['people'] ) ? $attributes['people'] : array();
+
+		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
+		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
 		$title            = get_the_title( $post );
 		$author_name      = get_the_author_meta( 'display_name', (int) $post->post_author );
@@ -287,6 +312,70 @@ class Podcast_Episode_Block {
 							></audio>
 						<?php endif; ?>
 					</div>
+
+					<?php if ( ! empty( $soundbites ) ) : ?>
+						<ul class="jetpack-podcast-episode__soundbites">
+							<?php
+							foreach ( $soundbites as $soundbite ) :
+								if ( ! is_array( $soundbite ) ) {
+									continue;
+								}
+								$start_label = self::format_seconds_label( $soundbite['startTime'] ?? 0 );
+								if ( '' === $start_label ) {
+									continue;
+								}
+								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
+								?>
+								<li class="jetpack-podcast-episode__soundbite">
+									<time class="jetpack-podcast-episode__soundbite-time"><?php echo esc_html( $start_label ); ?></time>
+									<?php if ( '' !== $soundbite_title ) : ?>
+										<span class="jetpack-podcast-episode__soundbite-title"><?php echo esc_html( $soundbite_title ); ?></span>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+
+					<?php if ( ! empty( $alternate_enclosures ) ) : ?>
+						<ul class="jetpack-podcast-episode__alternates">
+							<?php
+							foreach ( $alternate_enclosures as $alt ) :
+								if ( ! is_array( $alt ) || empty( $alt['url'] ) ) {
+									continue;
+								}
+								$alt_url = esc_url_raw( (string) $alt['url'] );
+								if ( ! wp_http_validate_url( $alt_url ) ) {
+									continue;
+								}
+								$alt_type    = isset( $alt['type'] ) ? (string) $alt['type'] : '';
+								$alt_title   = isset( $alt['title'] ) ? trim( (string) $alt['title'] ) : '';
+								$alt_lang    = isset( $alt['lang'] ) ? (string) $alt['lang'] : '';
+								$alt_bitrate = isset( $alt['bitrate'] ) ? (int) $alt['bitrate'] : 0;
+								$details     = array();
+								if ( '' !== $alt_lang ) {
+									$details[] = $alt_lang;
+								}
+								if ( $alt_bitrate > 0 ) {
+									$details[] = sprintf(
+										/* translators: %d: bitrate in kilobits per second. */
+										__( '%d kbps', 'jetpack-podcast' ),
+										(int) round( $alt_bitrate / 1000 )
+									);
+								}
+								if ( '' !== $alt_type ) {
+									$details[] = $alt_type;
+								}
+								$details_label = $details ? ' (' . implode( ', ', $details ) . ')' : '';
+								$display_label = '' !== $alt_title ? $alt_title : __( 'Alternative version', 'jetpack-podcast' );
+								?>
+								<li class="jetpack-podcast-episode__alternate">
+									<a href="<?php echo esc_url( $alt_url ); ?>"<?php echo '' !== $alt_lang ? ' hreflang="' . esc_attr( $alt_lang ) . '"' : ''; ?>>
+										<?php echo esc_html( $display_label . $details_label ); ?>
+									</a>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
 
 					<?php if ( ! empty( $people ) ) : ?>
 						<ul class="jetpack-podcast-episode__people">

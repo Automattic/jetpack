@@ -13,39 +13,23 @@ use WorDBless\BaseTestCase;
 use WP_Block_Supports;
 
 /**
- * Render-path coverage for Podcast_Episode_Block::render_block.
- *
- * Exercises the key branching paths: non-frontend passthrough, empty/invalid
- * mediaUrl, missing post context, the cover art fallback chain, and the
- * happy-path markup (title/author/date, badges, video vs audio, people).
+ * Render-path coverage for Podcast_Episode_Block.
  *
  * @covers \Automattic\Jetpack\Podcast\Podcast_Episode_Block
  */
 #[CoversClass( Podcast_Episode_Block::class )]
 class Podcast_Episode_Block_Test extends BaseTestCase {
 
-	/**
-	 * Default valid attributes used across multiple tests.
-	 *
-	 * @var array
-	 */
-	private $default_attrs = array(
-		'mediaUrl' => 'https://example.com/episode.mp3',
-	);
+	private $default_attrs = array( 'mediaUrl' => 'https://example.com/episode.mp3' );
 
 	/**
-	 * Force the is_frontend check to return true and prime WP_Block_Supports so
-	 * `get_block_wrapper_attributes()` in the render callback doesn't warn when
-	 * tests invoke render_block() directly (outside WP's block render pipeline).
+	 * Force is_frontend true and prime WP_Block_Supports so direct render_block
+	 * calls don't warn from get_block_wrapper_attributes().
 	 */
 	public function set_up() {
 		parent::set_up();
 		add_filter( 'jetpack_is_frontend', '__return_true' );
-
-		// WorDBless leaves `date_format` unset; restore the WP default so
-		// `get_the_date( '', $post )` returns a non-empty string.
 		update_option( 'date_format', 'F j, Y' );
-
 		WP_Block_Supports::$block_to_render = array(
 			'blockName' => 'jetpack/podcast-episode',
 			'attrs'     => array(),
@@ -53,7 +37,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Remove the frontend filter and reset any global state touched by tests.
+	 * Tear down filters/options/block-supports state set in set_up.
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
@@ -63,12 +47,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * Create a published post and return its ID for use as episode context.
-	 *
-	 * @param string $title Optional post title.
-	 * @return int
-	 */
 	private function create_episode_post( $title = 'Test Episode' ) {
 		return wp_insert_post(
 			array(
@@ -78,158 +56,85 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * Build a minimal WP_Block-like object carrying just enough context for the
-	 * render callback to resolve the post ID from.
-	 *
-	 * @param int $post_id Post ID to embed in the context.
-	 * @return object
-	 */
-	private function make_block_context( $post_id ) {
-		return (object) array(
-			'context' => array( 'postId' => $post_id ),
-		);
+	private function block_ctx( $post_id ) {
+		return (object) array( 'context' => array( 'postId' => $post_id ) );
 	}
 
 	/**
-	 * When the request is not a frontend request (e.g. REST export, RSS, email),
-	 * render_block must return the raw $content unchanged.
+	 * Render with default_attrs merged with $extra and post context. Cleans up the post.
+	 *
+	 * @param array $extra Attributes to merge over default_attrs.
+	 * @return string
 	 */
+	private function render( $extra ) {
+		$post_id = $this->create_episode_post();
+		$result  = Podcast_Episode_Block::render_block(
+			array_merge( $this->default_attrs, $extra ),
+			'',
+			$this->block_ctx( $post_id )
+		);
+		wp_delete_post( $post_id, true );
+		return $result;
+	}
+
 	public function test_non_frontend_returns_content_unchanged() {
-		// Override the filter added in set_up to simulate a non-frontend context.
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		add_filter( 'jetpack_is_frontend', '__return_false' );
 
-		$result = Podcast_Episode_Block::render_block(
-			array(),
-			'<a href="https://example.com/episode.mp3">Listen</a>'
-		);
+		$result = Podcast_Episode_Block::render_block( array(), '<a href="x">Listen</a>' );
 
 		remove_filter( 'jetpack_is_frontend', '__return_false' );
 		add_filter( 'jetpack_is_frontend', '__return_true' );
 
-		$this->assertSame( '<a href="https://example.com/episode.mp3">Listen</a>', $result );
+		$this->assertSame( '<a href="x">Listen</a>', $result );
 	}
 
-	/**
-	 * An empty mediaUrl should short-circuit to an empty string on the frontend.
-	 */
 	public function test_empty_media_url_returns_empty_string() {
-		$result = Podcast_Episode_Block::render_block(
-			array( 'mediaUrl' => '' ),
-			'fallback'
-		);
-
-		$this->assertSame( '', $result );
+		$this->assertSame( '', Podcast_Episode_Block::render_block( array( 'mediaUrl' => '' ), 'fallback' ) );
 	}
 
-	/**
-	 * A mediaUrl that is not a valid HTTP(S) URL (fails wp_http_validate_url)
-	 * should return an empty string even when a post context is available.
-	 */
 	public function test_invalid_media_url_returns_empty_string() {
-		$post_id = $this->create_episode_post();
-
-		$result = Podcast_Episode_Block::render_block(
-			array( 'mediaUrl' => 'not-a-valid-url' ),
-			'fallback',
-			$this->make_block_context( $post_id )
-		);
-
-		wp_delete_post( $post_id, true );
-
-		$this->assertSame( '', $result );
+		$this->assertSame( '', $this->render( array( 'mediaUrl' => 'not-a-valid-url' ) ) );
 	}
 
-	/**
-	 * Without a block context and without a global post, render_block should
-	 * return an empty string rather than crash.
-	 */
 	public function test_no_post_context_returns_empty_string() {
-		$original_post   = $GLOBALS['post'] ?? null;
+		$original        = $GLOBALS['post'] ?? null;
 		$GLOBALS['post'] = null;
-
-		$result = Podcast_Episode_Block::render_block(
-			$this->default_attrs,
-			'fallback'
-		);
-
-		$GLOBALS['post'] = $original_post;
+		$result          = Podcast_Episode_Block::render_block( $this->default_attrs, 'fallback' );
+		$GLOBALS['post'] = $original;
 
 		$this->assertSame( '', $result );
 	}
 
-	/**
-	 * When coverArt has a URL, that URL should appear in the rendered markup and
-	 * the show-level cover should not.
-	 */
 	public function test_episode_cover_art_takes_precedence_over_show_cover() {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
 
-		$post_id = $this->create_episode_post();
-		$result  = Podcast_Episode_Block::render_block(
-			array_merge(
-				$this->default_attrs,
-				array(
-					'coverArt' => array(
-						'id'  => 42,
-						'url' => 'https://example.com/episode-cover.jpg',
-					),
-				)
-			),
-			'',
-			$this->make_block_context( $post_id )
+		$result = $this->render(
+			array(
+				'coverArt' => array(
+					'id'  => 42,
+					'url' => 'https://example.com/episode-cover.jpg',
+				),
+			)
 		);
-		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString( 'https://example.com/episode-cover.jpg', $result );
 		$this->assertStringNotContainsString( 'https://example.com/show-cover.jpg', $result );
 	}
 
-	/**
-	 * When no episode cover art is set, the show-level podcasting_image option
-	 * should be used as the fallback.
-	 */
 	public function test_show_cover_used_when_no_episode_cover_art() {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
-
-		$post_id = $this->create_episode_post();
-		$result  = Podcast_Episode_Block::render_block(
-			$this->default_attrs,
-			'',
-			$this->make_block_context( $post_id )
-		);
-		wp_delete_post( $post_id, true );
-
-		$this->assertStringContainsString( 'https://example.com/show-cover.jpg', $result );
+		$this->assertStringContainsString( 'https://example.com/show-cover.jpg', $this->render( array() ) );
 	}
 
-	/**
-	 * A malformed coverArt attribute (e.g. a string from older serialised content
-	 * or a manual block edit) must not raise PHP warnings and must fall back to
-	 * the show-level cover art.
-	 */
 	public function test_malformed_cover_art_attribute_falls_back_to_show_cover() {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
-
-		$post_id = $this->create_episode_post();
-		$result  = Podcast_Episode_Block::render_block(
-			array_merge(
-				$this->default_attrs,
-				array( 'coverArt' => 'malformed-string-value' )
-			),
-			'',
-			$this->make_block_context( $post_id )
+		$this->assertStringContainsString(
+			'https://example.com/show-cover.jpg',
+			$this->render( array( 'coverArt' => 'malformed-string-value' ) )
 		);
-		wp_delete_post( $post_id, true );
-
-		$this->assertStringContainsString( 'https://example.com/show-cover.jpg', $result );
 	}
 
-	/**
-	 * Happy-path render emits the post title, author display name, and a
-	 * machine-readable datetime for the publish date.
-	 */
 	public function test_renders_post_title_author_and_date() {
 		$user_id = wp_insert_user(
 			array(
@@ -239,7 +144,6 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 				'display_name' => 'Jane Host',
 			)
 		);
-
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Episode 7: The Renderer',
@@ -249,11 +153,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 			)
 		);
 
-		$result = Podcast_Episode_Block::render_block(
-			$this->default_attrs,
-			'',
-			$this->make_block_context( $post_id )
-		);
+		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
 
 		wp_delete_post( $post_id, true );
 		wp_delete_user( $user_id );
@@ -264,107 +164,48 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'datetime="2026-04-15', $result );
 	}
 
-	/**
-	 * Video mediaType renders a <video> element with the source URL,
-	 * not the <audio> branch.
-	 */
 	public function test_video_media_type_renders_video_element() {
-		$post_id = $this->create_episode_post();
-
-		$result = Podcast_Episode_Block::render_block(
+		$result = $this->render(
 			array(
 				'mediaUrl'  => 'https://example.com/episode.mp4',
 				'mediaType' => 'video',
-			),
-			'',
-			$this->make_block_context( $post_id )
+			)
 		);
-
-		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString( '<video', $result );
 		$this->assertStringContainsString( 'https://example.com/episode.mp4', $result );
 		$this->assertStringNotContainsString( '<audio', $result );
 	}
 
-	/**
-	 * Default mediaType (or any non-video value) should render an <audio>
-	 * element rather than <video>.
-	 */
 	public function test_audio_media_type_renders_audio_element() {
-		$post_id = $this->create_episode_post();
-
-		$result = Podcast_Episode_Block::render_block(
-			$this->default_attrs,
-			'',
-			$this->make_block_context( $post_id )
-		);
-
-		wp_delete_post( $post_id, true );
-
+		$result = $this->render( array() );
 		$this->assertStringContainsString( '<audio', $result );
 		$this->assertStringNotContainsString( '<video', $result );
 	}
 
-	/**
-	 * Trailer/bonus/explicit attributes each surface a badge in the meta line.
-	 */
 	public function test_renders_trailer_bonus_and_explicit_badges() {
-		$post_id = $this->create_episode_post();
-
-		$trailer = Podcast_Episode_Block::render_block(
-			array_merge( $this->default_attrs, array( 'episodeType' => 'trailer' ) ),
-			'',
-			$this->make_block_context( $post_id )
-		);
-		$bonus   = Podcast_Episode_Block::render_block(
-			array_merge( $this->default_attrs, array( 'episodeType' => 'bonus' ) ),
-			'',
-			$this->make_block_context( $post_id )
-		);
-		$adult   = Podcast_Episode_Block::render_block(
-			array_merge( $this->default_attrs, array( 'explicit' => true ) ),
-			'',
-			$this->make_block_context( $post_id )
-		);
-
-		wp_delete_post( $post_id, true );
-
-		$this->assertStringContainsString( 'jetpack-podcast-episode__badge--trailer', $trailer );
-		$this->assertStringContainsString( 'jetpack-podcast-episode__badge--bonus', $bonus );
-		$this->assertStringContainsString( 'jetpack-podcast-episode__badge--explicit', $adult );
+		$this->assertStringContainsString( '__badge--trailer', $this->render( array( 'episodeType' => 'trailer' ) ) );
+		$this->assertStringContainsString( '__badge--bonus', $this->render( array( 'episodeType' => 'bonus' ) ) );
+		$this->assertStringContainsString( '__badge--explicit', $this->render( array( 'explicit' => true ) ) );
 	}
 
-	/**
-	 * The people array should render one <li> per person with name/role and
-	 * skip entries that lack a name (defensive against partial input).
-	 */
 	public function test_renders_people_and_skips_nameless_entries() {
-		$post_id = $this->create_episode_post();
-
-		$result = Podcast_Episode_Block::render_block(
-			array_merge(
-				$this->default_attrs,
-				array(
-					'people' => array(
-						array(
-							'name' => 'Alex',
-							'role' => 'host',
-							'href' => 'https://example.com/alex',
-						),
-						array( 'role' => 'guest' ),
-						array(
-							'name' => 'Sam',
-							'role' => 'producer',
-						),
+		$result = $this->render(
+			array(
+				'people' => array(
+					array(
+						'name' => 'Alex',
+						'role' => 'host',
+						'href' => 'https://example.com/alex',
 					),
-				)
-			),
-			'',
-			$this->make_block_context( $post_id )
+					array( 'role' => 'guest' ),
+					array(
+						'name' => 'Sam',
+						'role' => 'producer',
+					),
+				),
+			)
 		);
-
-		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString( 'Alex', $result );
 		$this->assertStringContainsString( 'Sam', $result );
@@ -373,29 +214,16 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertSame( 2, substr_count( $result, 'jetpack-podcast-episode__person"' ) );
 	}
 
-	/**
-	 * Transcript URL, chapters URL, location, and license each surface a
-	 * dedicated link/entry in the links list.
-	 */
 	public function test_renders_transcript_chapters_location_and_license_links() {
-		$post_id = $this->create_episode_post();
-
-		$result = Podcast_Episode_Block::render_block(
-			array_merge(
-				$this->default_attrs,
-				array(
-					'transcriptUrl' => 'https://example.com/transcript.vtt',
-					'chaptersUrl'   => 'https://example.com/chapters.json',
-					'locationName'  => 'Brooklyn, NY',
-					'license'       => 'CC-BY-4.0',
-					'licenseUrl'    => 'https://creativecommons.org/licenses/by/4.0/',
-				)
-			),
-			'',
-			$this->make_block_context( $post_id )
+		$result = $this->render(
+			array(
+				'transcriptUrl' => 'https://example.com/transcript.vtt',
+				'chaptersUrl'   => 'https://example.com/chapters.json',
+				'locationName'  => 'Brooklyn, NY',
+				'license'       => 'CC-BY-4.0',
+				'licenseUrl'    => 'https://creativecommons.org/licenses/by/4.0/',
+			)
 		);
-
-		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString( 'https://example.com/transcript.vtt', $result );
 		$this->assertStringContainsString( 'https://example.com/chapters.json', $result );
@@ -404,10 +232,55 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'https://creativecommons.org/licenses/by/4.0/', $result );
 	}
 
-	/**
-	 * `filter_editor_script_src` rewrites the editor handle's URL scheme to
-	 * match the admin scheme, leaving the rest of the URL untouched.
-	 */
+	public function test_renders_soundbites_with_timestamp_and_title() {
+		$result = $this->render(
+			array(
+				'soundbites' => array(
+					array(
+						'startTime' => 73,
+						'title'     => 'Best moment',
+					),
+					array(
+						'startTime' => 3661.5,
+						'title'     => 'Hour-long mark',
+					),
+					array( 'title' => 'No timestamp, skipped' ),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__soundbite-time">1:13</time>', $result );
+		$this->assertStringContainsString( 'Best moment', $result );
+		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__soundbite-time">1:01:01</time>', $result );
+		$this->assertStringContainsString( 'Hour-long mark', $result );
+		$this->assertStringNotContainsString( 'No timestamp, skipped', $result );
+	}
+
+	public function test_renders_alternate_enclosures_with_details() {
+		$result = $this->render(
+			array(
+				'alternateEnclosures' => array(
+					array(
+						'url'     => 'https://example.com/episode-es.mp3',
+						'type'    => 'audio/mpeg',
+						'bitrate' => 128000,
+						'lang'    => 'es',
+						'title'   => 'Spanish dub',
+					),
+					array(
+						'url'  => 'not-a-url',
+						'type' => 'audio/mpeg',
+					),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'https://example.com/episode-es.mp3', $result );
+		$this->assertStringContainsString( 'Spanish dub (es, 128 kbps, audio/mpeg)', $result );
+		$this->assertStringContainsString( 'hreflang="es"', $result );
+		$this->assertStringNotContainsString( 'not-a-url', $result );
+	}
+
 	public function test_filter_editor_script_src_rewrites_scheme_for_editor_handle() {
 		$result = Podcast_Episode_Block::filter_editor_script_src(
 			'http://mapped-domain.test/wp-content/plugins/foo/editor.js',
@@ -421,16 +294,8 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * Other script handles must pass through unchanged so the filter can't
-	 * accidentally rewrite unrelated scripts on the page.
-	 */
 	public function test_filter_editor_script_src_leaves_other_handles_unchanged() {
 		$src = 'http://example.com/some-other-script.js';
-
-		$this->assertSame(
-			$src,
-			Podcast_Episode_Block::filter_editor_script_src( $src, 'some-other-handle' )
-		);
+		$this->assertSame( $src, Podcast_Episode_Block::filter_editor_script_src( $src, 'some-other-handle' ) );
 	}
 }

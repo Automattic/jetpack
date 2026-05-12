@@ -91,6 +91,14 @@
 		"coverArt": {
 			"type": "object",
 			"default": {}
+		},
+		"soundbites": {
+			"type": "array",
+			"default": []
+		},
+		"alternateEnclosures": {
+			"type": "array",
+			"default": []
 		}
 	},
 	"example": {
