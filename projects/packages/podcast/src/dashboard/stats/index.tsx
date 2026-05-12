@@ -11,28 +11,28 @@ import StatsTopEpisodes from './components/stats-top-episodes';
 import SummaryTiles from './components/summary-tiles';
 import './style.scss';
 import { useShowStatsQuery } from './use-show-stats-query';
-import type { PodcastStatsPeriod } from './types';
+import type { PodcastStatsPeriod, PodcastStatsTopEpisode } from './types';
 
 const Stats = () => {
 	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
 	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( '30d' );
-	const [ episodeId, setEpisodeId ] = useState< number | null >( null );
+	const [ selected, setSelected ] = useState< PodcastStatsTopEpisode | null >( null );
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
-	const prevEpisodeIdRef = useRef< number | null >( null );
+	const prevSelectedRef = useRef< PodcastStatsTopEpisode | null >( null );
 
 	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
 
-	const handleBack = useCallback( () => setEpisodeId( null ), [] );
+	const handleBack = useCallback( () => setSelected( null ), [] );
 
 	// Return focus to the show heading when leaving the episode drilldown —
 	// the "Back to stats" button has unmounted and would otherwise drop focus
 	// to the document.
 	useEffect( () => {
-		if ( prevEpisodeIdRef.current !== null && episodeId === null ) {
+		if ( prevSelectedRef.current !== null && selected === null ) {
 			headingRef.current?.focus();
 		}
-		prevEpisodeIdRef.current = episodeId;
-	}, [ episodeId ] );
+		prevSelectedRef.current = selected;
+	}, [ selected ] );
 
 	if ( ! blogId ) {
 		return (
@@ -47,8 +47,15 @@ const Stats = () => {
 		);
 	}
 
-	if ( episodeId !== null ) {
-		return <EpisodeStats postId={ episodeId } onBack={ handleBack } initialPeriod={ period } />;
+	if ( selected ) {
+		return (
+			<EpisodeStats
+				postId={ selected.post_id }
+				title={ selected.title || __( '(Untitled)', 'jetpack-podcast' ) }
+				onBack={ handleBack }
+				initialPeriod={ period }
+			/>
+		);
 	}
 
 	const isEmpty = ! isLoading && ! isError && stats?.total_plays === 0;
@@ -108,7 +115,7 @@ const Stats = () => {
 						<StatsTopEpisodes
 							episodes={ stats?.top_episodes }
 							isLoading={ isLoading }
-							onSelect={ setEpisodeId }
+							onSelect={ setSelected }
 						/>
 						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
 						<StatsByCountry rows={ stats?.by_country } isLoading={ isLoading } />

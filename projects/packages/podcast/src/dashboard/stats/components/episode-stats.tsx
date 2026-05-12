@@ -1,8 +1,7 @@
 import { Button, Notice } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useEpisodeDetailStatsQuery } from '../use-episode-detail-stats-query';
-import { useEpisodeTitleQuery } from '../use-episode-title-query';
 import PeriodControl, { getPeriodHeading } from './period-control';
 import StatsByApp from './stats-by-app';
 import StatsByCountry from './stats-by-country';
@@ -12,24 +11,17 @@ import type { PodcastStatsPeriod } from '../types';
 
 type EpisodeStatsProps = {
 	postId: number;
+	title: string;
 	onBack: () => void;
 	initialPeriod?: PodcastStatsPeriod;
 };
 
-const EpisodeStats = ( { postId, onBack, initialPeriod = '30d' }: EpisodeStatsProps ) => {
+const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: EpisodeStatsProps ) => {
 	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( initialPeriod );
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
 
 	const { data: stats, isLoading, isError } = useEpisodeDetailStatsQuery( postId, period );
-	const { data: episodeTitle } = useEpisodeTitleQuery( postId );
 
-	const heading =
-		episodeTitle ||
-		sprintf(
-			/* translators: %d is the episode post id. */
-			__( 'Episode ID %d', 'jetpack-podcast' ),
-			postId
-		);
 	const isEmpty = ! isLoading && ! isError && stats?.total_plays === 0;
 
 	useEffect( () => {
@@ -48,7 +40,7 @@ const EpisodeStats = ( { postId, onBack, initialPeriod = '30d' }: EpisodeStatsPr
 						tabIndex={ -1 }
 						className="podcast-stats__period-heading podcast-stats__episode-heading"
 					>
-						{ heading }
+						{ title }
 					</h2>
 					<p className="podcast-stats__section-description">
 						{ getPeriodHeading( period, 'episode' ) }
@@ -91,7 +83,6 @@ const EpisodeStats = ( { postId, onBack, initialPeriod = '30d' }: EpisodeStatsPr
 							byCountry={ stats?.by_country }
 							topDay={ stats?.top_day }
 							isLoading={ isLoading }
-							variant="episode"
 							layout="chart"
 						/>
 					</StatsByDayChart>

@@ -7,7 +7,7 @@ import type { PodcastStatsTopEpisode } from '../types';
 type StatsTopEpisodesProps = {
 	episodes?: PodcastStatsTopEpisode[];
 	isLoading?: boolean;
-	onSelect?: ( postId: number ) => void;
+	onSelect?: ( episode: PodcastStatsTopEpisode ) => void;
 };
 
 const StatsTopEpisodes = ( {
@@ -45,7 +45,7 @@ const StatsTopEpisodes = ( {
 			value: ep.plays,
 			maxValue,
 			formattedValue: formatNumber( ep.plays ),
-			onClick: onSelect ? () => onSelect( ep.post_id ) : undefined,
+			onClick: onSelect ? () => onSelect( ep ) : undefined,
 		};
 	} );
 
