@@ -27,13 +27,6 @@ jest.mock( 'store', () => ( {
 } ) );
 
 jest.mock( 'components/global-notices', () => () => <div data-testid="notices-list" /> );
-jest.mock( 'components/ai-agent-access-control', () => props => (
-	<div
-		data-guidelines-url={ props.guidelinesUrl }
-		data-is-available={ props.isAvailable }
-		data-testid="ai-agent-access-control"
-	/>
-) );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
@@ -123,7 +116,7 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
-	test( 'passes Reader Chat settings to the Search settings control', () => {
+	test( 'passes Reader Chat and AI Agent Access settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 
 		// The settings control lives in the Settings tab, which isn't visible until selected.
@@ -132,6 +125,9 @@ describe( 'DashboardPage', () => {
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 		expect( mockModuleControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
+				aiAgentAccessGuidelinesUrl:
+					'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				isAIAgentAccessAvailable: true,
 				isReaderChatAvailable: true,
 				isReaderChatEnabled: true,
 				readerChatGuidelinesUrl:
@@ -139,6 +135,8 @@ describe( 'DashboardPage', () => {
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
+		expect( mockSelectMethods.getAIAgentAccessGuidelinesUrl ).toHaveBeenCalled();
+		expect( mockSelectMethods.isAIAgentAccessAvailable ).toHaveBeenCalled();
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
 	} );
 

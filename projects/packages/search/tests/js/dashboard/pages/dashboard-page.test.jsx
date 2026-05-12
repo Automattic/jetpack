@@ -41,15 +41,18 @@ jest.mock(
 );
 
 // Stub heavy sub-components that aren't relevant to the branching test.
-jest.mock( 'components/ai-agent-access-control', () => ( { guidelinesUrl, isAvailable } ) => (
-	<div
-		data-guidelines-url={ guidelinesUrl }
-		data-is-available={ isAvailable }
-		data-testid="ai-agent-access-control"
-	/>
-) );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
-jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
+jest.mock(
+	'components/module-control',
+	() =>
+		( { aiAgentAccessGuidelinesUrl, isAIAgentAccessAvailable } ) => (
+			<div
+				data-ai-agent-access-guidelines-url={ aiAgentAccessGuidelinesUrl }
+				data-is-ai-agent-access-available={ isAIAgentAccessAvailable }
+				data-testid="module-control"
+			/>
+		)
+);
 jest.mock( 'components/experience-selector', () => () => (
 	<div data-testid="experience-selector" />
 ) );
@@ -125,7 +128,7 @@ describe( '<DashboardPage> branch', () => {
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 	} );
 
-	test( 'passes the AI Agent Access guidelines URL to the AI Agent Access control', () => {
+	test( 'passes the AI Agent Access guidelines URL to the Search settings control', () => {
 		const aiAgentAccessGuidelinesUrl =
 			'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin';
 
@@ -135,21 +138,21 @@ describe( '<DashboardPage> branch', () => {
 			jetpackSettings: settings,
 		} );
 
-		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveAttribute(
-			'data-guidelines-url',
+		expect( screen.getByTestId( 'module-control' ) ).toHaveAttribute(
+			'data-ai-agent-access-guidelines-url',
 			aiAgentAccessGuidelinesUrl
 		);
 	} );
 
-	test( 'passes the AI Agent Access availability to the AI Agent Access control', () => {
+	test( 'passes the AI Agent Access availability to the Search settings control', () => {
 		renderWith( {
 			aiAgentAccessAvailable: false,
 			searchBlocksEnabled: false,
 			jetpackSettings: settings,
 		} );
 
-		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveAttribute(
-			'data-is-available',
+		expect( screen.getByTestId( 'module-control' ) ).toHaveAttribute(
+			'data-is-ai-agent-access-available',
 			'false'
 		);
 	} );

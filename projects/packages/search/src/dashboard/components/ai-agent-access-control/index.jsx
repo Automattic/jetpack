@@ -4,7 +4,6 @@ import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
-import Card from 'components/card';
 import { STORE_ID } from 'store';
 
 const AI_AGENT_ACCESS_DESCRIPTION = __(
@@ -17,12 +16,17 @@ const WPCOM_AI_AGENTS_SETTINGS_PATH = '/wpcom/v2/ai-agents-settings';
 /**
  * AI Agent Access opt-in control.
  *
- * @param {object}  props               - Component properties.
- * @param {string}  props.guidelinesUrl - Guidelines admin URL, when available.
- * @param {boolean} props.isAvailable   - Whether the control is available in this rollout context.
+ * @param {object}  props                    - Component properties.
+ * @param {string}  props.guidelinesUrl      - Guidelines admin URL, when available.
+ * @param {boolean} props.isAvailable        - Whether the control is available in this rollout context.
+ * @param {boolean} props.showGuidelinesLink - Whether to show the guidelines link.
  * @return {import('react').Component} AI Agent Access settings component.
  */
-export default function AIAgentAccessControl( { guidelinesUrl, isAvailable = true } ) {
+export default function AIAgentAccessControl( {
+	guidelinesUrl,
+	isAvailable = true,
+	showGuidelinesLink = true,
+} ) {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -98,37 +102,31 @@ export default function AIAgentAccessControl( { guidelinesUrl, isAvailable = tru
 	}
 
 	return (
-		<div className="jp-form-settings-group jp-form-search-settings-group">
-			<Card className="jp-form-has-child">
-				<div className="jp-form-search-settings-group-inside">
-					<div className="jp-form-search-settings-group__toggle jp-search-dashboard-wrap">
-						<div className="jp-search-dashboard-row">
-							<ToggleControl
-								checked={ isEnabled }
-								disabled={ isLoading || isSaving }
-								onChange={ toggle }
-								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-								label={ __( 'Enable AI Agent Access', 'jetpack-search-pkg' ) }
-								__nextHasNoMarginBottom
-							/>
-						</div>
-						<div className="jp-search-dashboard-row">
-							<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
-								<p className="jp-form-search-settings-group__toggle-explanation">
-									{ AI_AGENT_ACCESS_DESCRIPTION }
-								</p>
-								{ isEnabled && guidelinesUrl && (
-									<p className="jp-form-search-settings-group__toggle-explanation">
-										<ExternalLink href={ guidelinesUrl }>
-											{ __( 'Set guidelines', 'jetpack-search-pkg' ) }
-										</ExternalLink>
-									</p>
-								) }
-							</div>
-						</div>
-					</div>
+		<div className="jp-form-search-settings-group__toggle is-ai-agent-access jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<ToggleControl
+					checked={ isEnabled }
+					disabled={ isLoading || isSaving }
+					onChange={ toggle }
+					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+					label={ __( 'Enable AI Agent Access', 'jetpack-search-pkg' ) }
+					__nextHasNoMarginBottom
+				/>
+			</div>
+			<div className="jp-search-dashboard-row">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
+					<p className="jp-form-search-settings-group__toggle-explanation">
+						{ AI_AGENT_ACCESS_DESCRIPTION }
+					</p>
+					{ isEnabled && guidelinesUrl && showGuidelinesLink && (
+						<p className="jp-form-search-settings-group__toggle-explanation">
+							<ExternalLink href={ guidelinesUrl }>
+								{ __( 'Set guidelines', 'jetpack-search-pkg' ) }
+							</ExternalLink>
+						</p>
+					) }
 				</div>
-			</Card>
+			</div>
 		</div>
 	);
 }

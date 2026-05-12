@@ -42,12 +42,6 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin-test' } ), { virtual: true } );
 
-jest.mock(
-	'components/card',
-	() => ( { __esModule: true, default: ( { children } ) => <div>{ children }</div> } ),
-	{ virtual: true }
-);
-
 /* eslint-disable import/order -- mocks above must hoist before imports */
 import analytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
@@ -149,6 +143,23 @@ describe( 'AIAgentAccessControl', () => {
 		apiFetch.mockResolvedValueOnce( { jetpack_ai_agents_enabled: true } );
 
 		render( <AIAgentAccessControl guidelinesUrl="" /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', {
+				name: /Enable AI Agent Access/i,
+			} )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', {
+				name: /Set guidelines/i,
+			} )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'does not render the guidelines link when it would duplicate another control', async () => {
+		apiFetch.mockResolvedValueOnce( { jetpack_ai_agents_enabled: true } );
+
+		render( <AIAgentAccessControl guidelinesUrl={ guidelinesUrl } showGuidelinesLink={ false } /> );
 
 		await expect(
 			screen.findByRole( 'checkbox', {
