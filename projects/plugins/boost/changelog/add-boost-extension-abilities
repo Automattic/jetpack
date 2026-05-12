@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register critical-CSS regenerate, critical-CSS status, and page-cache status reads

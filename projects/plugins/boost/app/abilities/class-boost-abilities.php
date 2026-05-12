@@ -15,20 +15,26 @@ namespace Automattic\Jetpack_Boost\Abilities;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\WP_Abilities\Registrar;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Modules\Features_Index;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 
 /**
  * Registers Jetpack Boost abilities with the WordPress Abilities API.
  *
- * Surface (4 abilities, all under the `jetpack-boost/` namespace):
+ * Surface (7 abilities, all under the `jetpack-boost/` namespace):
  *
- * - get-modules        — filtered read of every Boost module + submodule.
- * - set-module-status  — declarative toggle, idempotent.
- * - get-speed-score    — latest mobile/desktop scores from history.
- * - clear-page-cache   — flush the Boost page cache for the home URL.
+ * - get-modules                — filtered read of every Boost module + submodule.
+ * - set-module-status          — declarative toggle, idempotent.
+ * - get-speed-score            — latest mobile/desktop scores from history.
+ * - clear-page-cache           — flush the Boost page cache for the home URL.
+ * - regenerate-critical-css    — dispatch Critical CSS regeneration; idempotent when one is already running.
+ * - get-critical-css-status    — read the last Critical CSS generation result and per-provider outcomes.
+ * - get-page-cache-status      — read page-cache state (active flag, bypass cookies, size, file count).
  *
  * @since $$next-version$$
  */
@@ -67,7 +73,7 @@ class Boost_Abilities extends Registrar {
 		);
 
 		return array(
-			'jetpack-boost/get-modules'       => array(
+			'jetpack-boost/get-modules'             => array(
 				'label'               => __( 'Get Boost modules', 'jetpack-boost' ),
 				'description'         => __( 'List Jetpack Boost performance modules and submodules. Returns an array of { slug, active, available, optimizing }. Slugs use underscores (e.g. "critical_css", "page_cache", "image_cdn"). Pass slug to fetch a single module (returns a 0- or 1-element array; unknown slugs yield an empty array, never an error). Pass status to filter by active/inactive/available/optimizing. Use the returned slugs as input to jetpack-boost/set-module-status.', 'jetpack-boost' ),
 				'input_schema'        => array(
@@ -112,7 +118,7 @@ class Boost_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-boost/set-module-status' => array(
+			'jetpack-boost/set-module-status'       => array(
 				'label'               => __( 'Set Boost module status', 'jetpack-boost' ),
 				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules not loadable on this site return jetpack_boost_module_unavailable; always-on modules cannot be disabled and return jetpack_boost_module_always_on — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
 				'input_schema'        => array(
@@ -155,7 +161,7 @@ class Boost_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-boost/get-speed-score'   => array(
+			'jetpack-boost/get-speed-score'         => array(
 				'label'               => __( 'Get latest speed score', 'jetpack-boost' ),
 				'description'         => __( 'Return the most recent Jetpack Boost speed score for the home URL. Returns { mobile, desktop, timestamp, is_stale, has_history }. mobile/desktop are integers 0-100 (Google PageSpeed scale) or null when no score has been recorded. timestamp is a Unix epoch in seconds. is_stale=true means the latest score is older than 24 hours or invalidated by a site change; agents should request a refresh from the Boost UI before quoting it. has_history=false means no scores have been recorded yet.', 'jetpack-boost' ),
 				'input_schema'        => array(
@@ -190,7 +196,7 @@ class Boost_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-boost/clear-page-cache'  => array(
+			'jetpack-boost/clear-page-cache'        => array(
 				'label'               => __( 'Clear page cache', 'jetpack-boost' ),
 				'description'         => __( 'Clear every cached page under the site home URL. Idempotent: re-running on an empty cache is a no-op. Returns { cleared, message }. cleared=true means the clear request was dispatched against an active page_cache module; it does not promise that cached files actually existed (the underlying API does not surface a count). Requires the page_cache module to be active; if it is not, returns jetpack_boost_page_cache_inactive — enable it first via jetpack-boost/set-module-status with slug="page_cache".', 'jetpack-boost' ),
 				'input_schema'        => array(
@@ -211,6 +217,128 @@ class Boost_Abilities extends Registrar {
 				'meta'                => array(
 					'annotations'  => array(
 						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
+				),
+			),
+
+			'jetpack-boost/regenerate-critical-css' => array(
+				'label'               => __( 'Regenerate Critical CSS', 'jetpack-boost' ),
+				'description'         => __( 'Dispatch a Critical CSS regeneration for every configured provider. Returns { dispatched, job_id, status }. status is one of "queued" (new run started), "running" (this call started or re-confirmed an in-flight run), or "already_running" (a generation was already in flight; this call did not enqueue a second one — safe to re-call, the existing run continues). job_id is a stable identifier for the active generation (or null when none could be determined). Requires the critical_css module to be active; if it is not, returns jetpack_boost_critical_css_inactive — enable it first via jetpack-boost/set-module-status with slug="critical_css".', 'jetpack-boost' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'       => 'object',
+					'properties' => array(
+						'dispatched' => array( 'type' => 'boolean' ),
+						'job_id'     => array( 'type' => array( 'string', 'null' ) ),
+						'status'     => array(
+							'type' => 'string',
+							'enum' => array( 'queued', 'running', 'already_running' ),
+						),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'regenerate_critical_css' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_modules' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
+				),
+			),
+
+			'jetpack-boost/get-critical-css-status' => array(
+				'label'               => __( 'Get Critical CSS status', 'jetpack-boost' ),
+				'description'         => __( 'Return the last Critical CSS generation result. Returns { status, generated_at, provider_count, providers, stale }. status is one of "not_generated" (no run yet), "pending" (currently running), "generated" (successful), or "error" (last run failed). generated_at is a Unix epoch in seconds (the most recent state update) or null when nothing has been recorded. providers is an array of { provider_id, success, error_message } — error_message is null when success=true. stale=true means Boost has flagged the existing Critical CSS as needing regeneration (theme change, post saved, plugin change, etc.); call jetpack-boost/regenerate-critical-css to refresh.', 'jetpack-boost' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'       => 'object',
+					'properties' => array(
+						'status'         => array(
+							'type' => 'string',
+							'enum' => array( 'not_generated', 'pending', 'generated', 'error' ),
+						),
+						'generated_at'   => array( 'type' => array( 'integer', 'null' ) ),
+						'provider_count' => array( 'type' => 'integer' ),
+						'providers'      => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'provider_id'   => array( 'type' => 'string' ),
+									'success'       => array( 'type' => 'boolean' ),
+									'error_message' => array( 'type' => array( 'string', 'null' ) ),
+								),
+							),
+						),
+						'stale'          => array( 'type' => 'boolean' ),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'get_critical_css_status' ),
+				'permission_callback' => array( __CLASS__, 'can_view_modules' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
+				),
+			),
+
+			'jetpack-boost/get-page-cache-status'   => array(
+				'label'               => __( 'Get page cache status', 'jetpack-boost' ),
+				'description'         => __( 'Return the current state of the Boost page cache. Returns { active, bypass_cookies, cache_size_bytes, file_count, last_cleared_at }. active=true means the page_cache module is enabled, available, and configured to cache. bypass_cookies is an array of regex patterns that opt requests out of caching (configured via Boost settings). cache_size_bytes is the total bytes on disk under the boost-cache directory for the current host, or null when the cache directory does not exist. file_count is the number of cached files (excluding boilerplate index.html files) or null when the cache directory does not exist. last_cleared_at is reserved for a future field and is currently always null — Boost does not yet record explicit clear timestamps.', 'jetpack-boost' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'       => 'object',
+					'properties' => array(
+						'active'           => array( 'type' => 'boolean' ),
+						'bypass_cookies'   => array(
+							'type'  => 'array',
+							'items' => array( 'type' => 'string' ),
+						),
+						'cache_size_bytes' => array( 'type' => array( 'integer', 'null' ) ),
+						'file_count'       => array( 'type' => array( 'integer', 'null' ) ),
+						'last_cleared_at'  => array( 'type' => array( 'integer', 'null' ) ),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'get_page_cache_status' ),
+				'permission_callback' => array( __CLASS__, 'can_view_modules' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
 						'destructive' => false,
 						'idempotent'  => true,
 					),
@@ -533,5 +661,257 @@ class Boost_Abilities extends Registrar {
 			'cleared' => true,
 			'message' => __( 'Page cache cleared.', 'jetpack-boost' ),
 		);
+	}
+
+	/**
+	 * Execute: dispatch Critical CSS regeneration. Idempotent — re-runs while a
+	 * generation is already in flight return status='already_running' without
+	 * starting a second one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $input Unused; ability has no inputs.
+	 * @return array|\WP_Error
+	 */
+	public static function regenerate_critical_css( $input = null ) {
+		unset( $input );
+
+		// Gate on either critical_css OR cloud_css being active. Both routes share
+		// the same Critical_CSS_State storage; users on the paid Cloud CSS plan
+		// would never have classic critical_css active, so checking only the
+		// classic slug would lock them out.
+		$index   = self::build_module_index();
+		$classic = isset( $index['critical_css'] ) ? $index['critical_css'] : null;
+		$cloud   = isset( $index['cloud_css'] ) ? $index['cloud_css'] : null;
+
+		$classic_on = $classic && $classic->is_available() && $classic->is_enabled();
+		$cloud_on   = $cloud && $cloud->is_available() && $cloud->is_enabled();
+
+		if ( ! $classic_on && ! $cloud_on ) {
+			return new \WP_Error(
+				'jetpack_boost_critical_css_inactive',
+				__( 'The critical_css module is not active. Enable it first via jetpack-boost/set-module-status with slug="critical_css" and active=true.', 'jetpack-boost' )
+			);
+		}
+
+		// Idempotency gate: if a generation is already in flight, return without
+		// re-dispatching. Regenerate::start() would otherwise reset the state and
+		// double-clear stored CSS, which is wasteful and confusing for the agent.
+		$state = new Critical_CSS_State();
+		if ( $state->is_requesting() ) {
+			return array(
+				'dispatched' => false,
+				'job_id'     => self::critical_css_job_id( $state->get() ),
+				'status'     => 'already_running',
+			);
+		}
+
+		$regenerate = new Regenerate();
+		$regenerate->start();
+		$new_state = $regenerate->get_state();
+
+		$data   = $new_state ? $new_state->get() : null;
+		$status = ( is_array( $data ) && isset( $data['status'] ) && 'pending' === $data['status'] )
+			? 'running'
+			: 'queued';
+
+		return array(
+			'dispatched' => true,
+			'job_id'     => self::critical_css_job_id( $data ),
+			'status'     => $status,
+		);
+	}
+
+	/**
+	 * Derive a stable job id from a Critical CSS state payload.
+	 *
+	 * Boost's state object stores `created` as a microtime float; we hash it so
+	 * the id is short, opaque, and changes when a new generation starts.
+	 *
+	 * @param array|null $state The state array as returned by Critical_CSS_State::get().
+	 * @return string|null
+	 */
+	private static function critical_css_job_id( $state ): ?string {
+		if ( ! is_array( $state ) || empty( $state['created'] ) ) {
+			return null;
+		}
+		return substr( md5( (string) $state['created'] ), 0, 12 );
+	}
+
+	/**
+	 * Execute: read the last Critical CSS generation result.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $input Unused; ability has no inputs.
+	 * @return array
+	 */
+	public static function get_critical_css_status( $input = null ) {
+		unset( $input );
+
+		$state_obj = new Critical_CSS_State();
+		$state     = $state_obj->get();
+
+		if ( ! is_array( $state ) || empty( $state ) ) {
+			return array(
+				'status'         => 'not_generated',
+				'generated_at'   => null,
+				'provider_count' => 0,
+				'providers'      => array(),
+				'stale'          => false,
+			);
+		}
+
+		$status = isset( $state['status'] ) && is_string( $state['status'] )
+			? $state['status']
+			: 'not_generated';
+
+		// `updated` is microtime(true). Casting to int yields a Unix-epoch second.
+		$generated_at = null;
+		if ( isset( $state['updated'] ) && is_numeric( $state['updated'] ) ) {
+			$generated_at = (int) $state['updated'];
+		}
+
+		$providers       = array();
+		$state_providers = isset( $state['providers'] ) && is_array( $state['providers'] ) ? $state['providers'] : array();
+		foreach ( $state_providers as $provider ) {
+			if ( ! is_array( $provider ) ) {
+				continue;
+			}
+			$provider_id     = isset( $provider['key'] ) && is_string( $provider['key'] ) ? $provider['key'] : '';
+			$provider_status = isset( $provider['status'] ) && is_string( $provider['status'] ) ? $provider['status'] : '';
+			$success         = 'success' === $provider_status;
+
+			// Boost stores per-provider errors as an array of { url, message, type }.
+			// Surface the first message; richer detail lives in the data-sync state for the UI.
+			$error_message = null;
+			if ( ! $success && ! empty( $provider['errors'] ) && is_array( $provider['errors'] ) ) {
+				$first = reset( $provider['errors'] );
+				if ( is_array( $first ) && isset( $first['message'] ) && is_string( $first['message'] ) && '' !== $first['message'] ) {
+					$error_message = $first['message'];
+				}
+			}
+
+			$providers[] = array(
+				'provider_id'   => $provider_id,
+				'success'       => $success,
+				'error_message' => $error_message,
+			);
+		}
+
+		// "stale" tracks Boost's own suggest-regenerate flag, set by the invalidator
+		// when themes/posts/plugins change. Anything truthy means Boost wants a refresh.
+		$suggest = function_exists( 'jetpack_boost_ds_get' )
+			? jetpack_boost_ds_get( 'critical_css_suggest_regenerate' )
+			: null;
+		$stale   = ! empty( $suggest );
+
+		return array(
+			'status'         => $status,
+			'generated_at'   => $generated_at,
+			'provider_count' => count( $providers ),
+			'providers'      => $providers,
+			'stale'          => $stale,
+		);
+	}
+
+	/**
+	 * Execute: read current page-cache state (config + on-disk size).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $input Unused; ability has no inputs.
+	 * @return array
+	 */
+	public static function get_page_cache_status( $input = null ) {
+		unset( $input );
+
+		$page_cache = new Module( new Page_Cache() );
+		$active     = $page_cache->is_available() && $page_cache->is_enabled();
+
+		// Bypass cookies live in the boost-cache settings file (NOT a WP option).
+		// We cannot call Boost_Cache_Settings::get_instance() unconditionally
+		// from autoloaded code without risking side effects, but reading it here
+		// is safe — get_instance() is idempotent and just memoises the file read.
+		$bypass_cookies = array();
+		if ( class_exists( Boost_Cache_Settings::class ) ) {
+			$settings = Boost_Cache_Settings::get_instance();
+			$patterns = $settings->get_bypass_patterns();
+			if ( is_array( $patterns ) ) {
+				foreach ( $patterns as $pattern ) {
+					if ( is_string( $pattern ) && '' !== $pattern ) {
+						$bypass_cookies[] = $pattern;
+					}
+				}
+			}
+		}
+
+		list( $size_bytes, $file_count ) = self::measure_page_cache_dir();
+
+		return array(
+			'active'           => $active,
+			'bypass_cookies'   => $bypass_cookies,
+			'cache_size_bytes' => $size_bytes,
+			'file_count'       => $file_count,
+			// Boost does not yet record an explicit "last cleared" timestamp;
+			// reserved here so consumers can rely on the field's presence.
+			'last_cleared_at'  => null,
+		);
+	}
+
+	/**
+	 * Walk the boost-cache directory for the current host and return [bytes, files].
+	 *
+	 * Returns [null, null] when the directory does not exist (cache empty / never
+	 * created) so callers can distinguish "no cache" from "cache of zero bytes".
+	 * Boilerplate index.html files used to block directory listing are excluded
+	 * from the file count.
+	 *
+	 * @return array{0:?int,1:?int}
+	 */
+	private static function measure_page_cache_dir(): array {
+		if ( ! defined( 'WP_CONTENT_DIR' ) ) {
+			return array( null, null );
+		}
+		$host = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
+		if ( '' === $host ) {
+			// Fall back to the parsed home_url host so CLI / cron requests still measure something useful.
+			$parsed = wp_parse_url( home_url(), PHP_URL_HOST );
+			$host   = is_string( $parsed ) ? strtolower( $parsed ) : '';
+		}
+		if ( '' === $host ) {
+			return array( null, null );
+		}
+
+		$root = WP_CONTENT_DIR . '/boost-cache/cache/' . $host;
+		if ( ! is_dir( $root ) ) {
+			return array( null, null );
+		}
+
+		$size  = 0;
+		$count = 0;
+		try {
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::LEAVES_ONLY
+			);
+			foreach ( $iterator as $file ) {
+				/** @var \SplFileInfo $file */
+				if ( ! $file->isFile() ) {
+					continue;
+				}
+				$size += (int) $file->getSize();
+				// The boilerplate index.html guards against directory listing and is not a cached page.
+				if ( 'index.html' !== $file->getFilename() ) {
+					++$count;
+				}
+			}
+		} catch ( \UnexpectedValueException $e ) {
+			// Directory disappeared mid-walk (concurrent clear, permissions flip).
+			// Honest signal: we can't measure right now.
+			return array( null, null );
+		}
+
+		return array( $size, $count );
 	}
 }

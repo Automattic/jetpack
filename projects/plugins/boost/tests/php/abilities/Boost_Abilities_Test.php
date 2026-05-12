@@ -598,4 +598,222 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_boost_page_cache_inactive', $result->get_error_code() );
 	}
+
+	/** -------------------- New ability surface -------------------- */
+	public function test_new_abilities_are_in_get_abilities_map(): void {
+		$abilities = Boost_Abilities::get_abilities();
+		$this->assertArrayHasKey( 'jetpack-boost/regenerate-critical-css', $abilities );
+		$this->assertArrayHasKey( 'jetpack-boost/get-critical-css-status', $abilities );
+		$this->assertArrayHasKey( 'jetpack-boost/get-page-cache-status', $abilities );
+	}
+
+	public function test_new_status_abilities_are_marked_readonly_and_idempotent(): void {
+		$abilities = Boost_Abilities::get_abilities();
+		foreach ( array( 'jetpack-boost/get-critical-css-status', 'jetpack-boost/get-page-cache-status' ) as $slug ) {
+			$this->assertTrue( $abilities[ $slug ]['meta']['annotations']['readonly'], "{$slug} must be readonly." );
+			$this->assertTrue( $abilities[ $slug ]['meta']['annotations']['idempotent'], "{$slug} must be idempotent." );
+			$this->assertFalse( $abilities[ $slug ]['meta']['annotations']['destructive'], "{$slug} must not be destructive." );
+		}
+	}
+
+	public function test_regenerate_critical_css_annotations(): void {
+		$abilities   = Boost_Abilities::get_abilities();
+		$annotations = $abilities['jetpack-boost/regenerate-critical-css']['meta']['annotations'];
+		$this->assertFalse( $annotations['readonly'], 'regenerate-critical-css is a write surface.' );
+		$this->assertFalse( $annotations['destructive'], 'No user data is destroyed.' );
+		// Idempotency is contractual — re-dispatch while running must return already_running, not queue a 2nd run.
+		$this->assertTrue( $annotations['idempotent'] );
+	}
+
+	/** -------------------- regenerate_critical_css -------------------- */
+	public function test_regenerate_critical_css_requires_module_active(): void {
+		// Neither critical_css nor cloud_css is enabled by default; default status options should be missing.
+		delete_option( 'jetpack_boost_status_critical-css' );
+		delete_option( 'jetpack_boost_status_cloud-css' );
+
+		$result = Boost_Abilities::regenerate_critical_css();
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_critical_css_inactive', $result->get_error_code() );
+	}
+
+	public function test_regenerate_critical_css_is_idempotent_while_running(): void {
+		// Enable critical_css so the activation gate passes.
+		update_option( 'jetpack_boost_status_critical-css', true );
+
+		// Make sure the DS registry knows about critical_css_state so the state object can read it.
+		self::ensure_critical_css_state_registered();
+		jetpack_boost_ds_set(
+			'critical_css_state',
+			array(
+				'status'    => 'pending',
+				'providers' => array(
+					array(
+						'key'           => 'core_front_page',
+						'label'         => 'Front Page',
+						'urls'          => array( home_url() ),
+						'success_ratio' => 0.0,
+						'status'        => 'pending',
+					),
+				),
+				'created'   => microtime( true ),
+				'updated'   => microtime( true ),
+			)
+		);
+
+		$result = Boost_Abilities::regenerate_critical_css();
+
+		// Cleanup before assertions so a failure mid-test doesn't leak state.
+		jetpack_boost_ds_delete( 'critical_css_state' );
+		delete_option( 'jetpack_boost_status_critical-css' );
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( $result['dispatched'], 'A second dispatch while running must not re-queue.' );
+		$this->assertSame( 'already_running', $result['status'] );
+		$this->assertIsString( $result['job_id'], 'job_id must be a stable string when a run is in flight.' );
+	}
+
+	/** -------------------- get_critical_css_status -------------------- */
+	public function test_get_critical_css_status_returns_not_generated_when_no_state(): void {
+		// Without DS registration the state read returns null; that's the "no run yet" shape.
+		$result = Boost_Abilities::get_critical_css_status();
+		$this->assertSame( 'not_generated', $result['status'] );
+		$this->assertNull( $result['generated_at'] );
+		$this->assertSame( 0, $result['provider_count'] );
+		$this->assertSame( array(), $result['providers'] );
+		$this->assertFalse( $result['stale'] );
+	}
+
+	public function test_get_critical_css_status_returns_per_provider_outcomes(): void {
+		self::ensure_critical_css_state_registered();
+
+		$now = microtime( true );
+		jetpack_boost_ds_set(
+			'critical_css_state',
+			array(
+				'status'    => 'generated',
+				'providers' => array(
+					array(
+						'key'           => 'core_front_page',
+						'label'         => 'Front Page',
+						'urls'          => array( home_url() ),
+						'success_ratio' => 1.0,
+						'status'        => 'success',
+					),
+					array(
+						'key'           => 'singular_page',
+						'label'         => 'Singular Page',
+						'urls'          => array( home_url( '/about' ) ),
+						'success_ratio' => 0.0,
+						'status'        => 'error',
+						'errors'        => array(
+							array(
+								'url'     => home_url( '/about' ),
+								'message' => 'Timeout while loading page',
+								'type'    => 'HttpError',
+							),
+						),
+					),
+				),
+				'created'   => $now - 5,
+				'updated'   => $now,
+			)
+		);
+
+		$result = Boost_Abilities::get_critical_css_status();
+
+		jetpack_boost_ds_delete( 'critical_css_state' );
+
+		$this->assertSame( 'generated', $result['status'] );
+		$this->assertIsInt( $result['generated_at'] );
+		$this->assertSame( 2, $result['provider_count'] );
+		$this->assertCount( 2, $result['providers'] );
+
+		// Index by provider_id for stable assertions independent of array order.
+		$by_id = array();
+		foreach ( $result['providers'] as $entry ) {
+			$by_id[ $entry['provider_id'] ] = $entry;
+		}
+		$this->assertTrue( $by_id['core_front_page']['success'] );
+		$this->assertNull( $by_id['core_front_page']['error_message'] );
+		$this->assertFalse( $by_id['singular_page']['success'] );
+		$this->assertSame( 'Timeout while loading page', $by_id['singular_page']['error_message'] );
+	}
+
+	public function test_get_critical_css_status_reports_stale_when_suggest_regenerate_set(): void {
+		self::ensure_critical_css_state_registered();
+		self::ensure_suggest_regenerate_registered();
+
+		jetpack_boost_ds_set(
+			'critical_css_state',
+			array(
+				'status'    => 'generated',
+				'providers' => array(),
+				'created'   => microtime( true ),
+				'updated'   => microtime( true ),
+			)
+		);
+		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', 'switched_theme' );
+
+		$result = Boost_Abilities::get_critical_css_status();
+
+		jetpack_boost_ds_delete( 'critical_css_state' );
+		jetpack_boost_ds_delete( 'critical_css_suggest_regenerate' );
+
+		$this->assertTrue( $result['stale'], 'When suggest_regenerate is set, stale must be true.' );
+	}
+
+	/** -------------------- get_page_cache_status -------------------- */
+	public function test_get_page_cache_status_inactive_when_module_disabled(): void {
+		delete_option( 'jetpack_boost_status_page-cache' );
+
+		$result = Boost_Abilities::get_page_cache_status();
+		$this->assertIsArray( $result );
+		$this->assertFalse( $result['active'], 'Page cache must report inactive when the module is disabled.' );
+		$this->assertIsArray( $result['bypass_cookies'] );
+		// last_cleared_at is a reserved field — always null until Boost tracks it.
+		$this->assertNull( $result['last_cleared_at'] );
+	}
+
+	public function test_get_page_cache_status_returns_null_size_when_cache_dir_missing(): void {
+		// When the boost-cache directory doesn't exist for this host, size/count are null
+		// (distinct from "0" — the consumer can tell "no cache" from "empty cache").
+		$result = Boost_Abilities::get_page_cache_status();
+		$this->assertNull( $result['cache_size_bytes'] );
+		$this->assertNull( $result['file_count'] );
+	}
+
+	public function test_get_page_cache_status_output_matches_schema_keys(): void {
+		$result   = Boost_Abilities::get_page_cache_status();
+		$expected = array( 'active', 'bypass_cookies', 'cache_size_bytes', 'file_count', 'last_cleared_at' );
+		$this->assertSame( $expected, array_keys( $result ), 'Page-cache status payload keys must match the documented order.' );
+	}
+
+	/** -------------------- helpers -------------------- */
+
+	/**
+	 * Lazy-register the `critical_css_state` DS entry so tests that need to seed it
+	 * via jetpack_boost_ds_set() can do so without booting the full plugin.
+	 */
+	private static function ensure_critical_css_state_registered(): void {
+		if ( null !== jetpack_boost_ds_entry( 'critical_css_state' ) ) {
+			return;
+		}
+		jetpack_boost_register_option(
+			'critical_css_state',
+			\Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync\Data_Sync_Schema::critical_css_state()
+		);
+	}
+
+	/**
+	 * Lazy-register `critical_css_suggest_regenerate` for the stale-flag tests.
+	 */
+	private static function ensure_suggest_regenerate_registered(): void {
+		if ( null !== jetpack_boost_ds_entry( 'critical_css_suggest_regenerate' ) ) {
+			return;
+		}
+		jetpack_boost_register_option(
+			'critical_css_suggest_regenerate',
+			\Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync\Data_Sync_Schema::critical_css_suggest_regenerate()
+		);
+	}
 }
