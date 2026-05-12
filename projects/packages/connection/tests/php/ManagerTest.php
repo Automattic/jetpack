@@ -1111,9 +1111,7 @@ class ManagerTest extends TestCase {
 		$manager->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
 
 		// No plugins seeded yet -> no `plugins` arg.
-		$reflection = new \ReflectionClass( Plugin_Storage::class );
-		$reflection->setStaticPropertyValue( 'configured', false );
-		$reflection->setStaticPropertyValue( 'plugins', array() );
+		$this->reset_plugin_storage();
 		Plugin_Storage::configure();
 
 		$url = $manager->get_authorization_url();
@@ -1121,7 +1119,7 @@ class ManagerTest extends TestCase {
 
 		// Seed two plugins -> URL should carry them as a single-encoded
 		// comma-separated list.
-		$reflection->setStaticPropertyValue( 'configured', false );
+		$this->set_plugin_storage_configured( false );
 		( new Plugin( 'jetpack' ) )->add( 'Jetpack' );
 		( new Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
 		Plugin_Storage::configure();
@@ -1130,8 +1128,48 @@ class ManagerTest extends TestCase {
 		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $url );
 
 		// Cleanup.
-		$reflection->setStaticPropertyValue( 'configured', false );
-		$reflection->setStaticPropertyValue( 'plugins', array() );
+		$this->reset_plugin_storage();
 		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Reset the private static state of `Plugin_Storage` so a test can start
+	 * from a clean slate. Compatible with PHP <8.1 where `setStaticPropertyValue()`
+	 * cannot reach private static properties without `setAccessible(true)`.
+	 */
+	private function reset_plugin_storage() {
+		$this->set_plugin_storage_property( 'configured', false );
+		$this->set_plugin_storage_property( 'plugins', array() );
+	}
+
+	/**
+	 * Flip the `configured` flag without touching the cached `$plugins` array.
+	 * Lets the test seed plugins after a successful first `configure()` and
+	 * then call `configure()` again to pick them up.
+	 *
+	 * @param bool $value New value for the flag.
+	 */
+	private function set_plugin_storage_configured( $value ) {
+		$this->set_plugin_storage_property( 'configured', $value );
+	}
+
+	/**
+	 * Set a private static property on `Plugin_Storage` via reflection.
+	 *
+	 * @param string $name  Property name.
+	 * @param mixed  $value New value.
+	 */
+	private function set_plugin_storage_property( $name, $value ) {
+		$reflection = new \ReflectionClass( Plugin_Storage::class );
+		try {
+			$reflection->setStaticPropertyValue( $name, $value );
+		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+			$prop = $reflection->getProperty( $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( null, $value );
+		}
 	}
 }
