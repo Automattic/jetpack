@@ -534,12 +534,12 @@ class Search_Blocks {
 			return;
 		}
 
-		$is_wc = self::woocommerce_blocks_enabled();
+		$wc_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $block_dirs as $block_dir ) {
 			if ( ! file_exists( $block_dir . '/block.json' ) ) {
 				continue;
 			}
-			if ( ! $is_wc && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+			if ( ! $wc_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
 				continue;
 			}
 			register_block_type( $block_dir );
@@ -714,9 +714,9 @@ class Search_Blocks {
 		if ( ! $pattern_files ) {
 			return;
 		}
-		$is_wc = self::woocommerce_blocks_enabled();
+		$wc_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $pattern_files as $pattern_file ) {
-			if ( ! $is_wc && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
+			if ( ! $wc_enabled && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
 				continue;
 			}
 			require_once $pattern_file;

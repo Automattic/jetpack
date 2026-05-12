@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 class Results_Sort_Test extends TestCase {
 
 	/**
-	 * Reset the central WC-active memo between tests so a case that flipped
-	 * the gate doesn't leak the answer into the next one.
+	 * Reset the central WC-blocks-enabled memo between tests so a case
+	 * that flipped the gate doesn't leak the answer into the next one.
 	 */
 	protected function setUp(): void {
 		parent::setUp();

@@ -69,7 +69,7 @@ class Results_Sort_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Reset `$_GET` and the WC-active memo between tests so URL parsing
+	 * Reset `$_GET` and the WC-blocks-enabled memo between tests so URL parsing
 	 * and the gate state never leak across cases. Interactivity state
 	 * carries across tests, but render.php always writes `sortOrder`
 	 * deterministically from attrs + URL, so each render overwrites
