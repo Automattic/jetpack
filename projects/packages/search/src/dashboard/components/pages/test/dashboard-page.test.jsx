@@ -1,4 +1,4 @@
-const mockReaderChatControl = jest.fn();
+const mockModuleControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -28,10 +28,9 @@ jest.mock( 'components/global-notices', () => () => <div data-testid="notices-li
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
-jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
-jest.mock( 'components/reader-chat-control', () => props => {
-	mockReaderChatControl( props );
-	return <div data-testid="reader-chat-control" />;
+jest.mock( 'components/module-control', () => props => {
+	mockModuleControl( props );
+	return <div data-testid="module-control" />;
 } );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
@@ -84,7 +83,7 @@ const createSelectMethods = () => ( {
 
 describe( 'DashboardPage', () => {
 	beforeEach( () => {
-		mockReaderChatControl.mockClear();
+		mockModuleControl.mockClear();
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -92,16 +91,16 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
-	test( 'passes the Reader Chat guidelines URL to the Reader Chat control', () => {
+	test( 'passes Reader Chat settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 
-		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
-		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
+		expect( mockModuleControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
-				isAvailable: true,
-				isEnabled: true,
-				isSaving: false,
+				isReaderChatAvailable: true,
+				isReaderChatEnabled: true,
+				readerChatGuidelinesUrl:
+					'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
