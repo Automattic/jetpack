@@ -1,4 +1,3 @@
-Significance: minor
-Type: enhancement
-
-Podcast: pull in the Podcast Episode block from the jetpack-podcast package. Has no runtime effect unless the `jetpack_podcast_untangle` filter is enabled.
+Significance: patch
+Type: other
+Comment: Podcast: register podcast-episode block in extensions manifest (gated; no behavior change while jetpack_podcast_untangle filter is off).
