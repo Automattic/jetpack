@@ -184,9 +184,9 @@ class Module_Control {
 	 *
 	 * The wire format always resolves to one of the four values, but storage is narrower:
 	 * `'off'` is read from the global Jetpack module-active state (not stored in this
-	 * package's option), and `'inline'` is the absence of an opt-in (the option is
-	 * deleted, not written as `'inline'`). Only `'embedded'` and `'overlay'` are
-	 * actually written to `jetpack_search_experience`.
+	 * package's option), and `'inline'` is the absence of an affirmative opt-in (the
+	 * option is either missing or written as the empty string `''`). Only `'embedded'`
+	 * and `'overlay'` are written as affirmative values.
 	 *
 	 * @return string One of 'embedded', 'overlay', 'inline', 'off'.
 	 */
@@ -216,9 +216,15 @@ class Module_Control {
 	 * Update the search experience.
 	 *
 	 * Storage is narrower than the wire format: `'off'` only deactivates the global
-	 * module (no write to the experience option), and `'inline'` deletes the
-	 * experience option (the absence of an opt-in *is* inline). Only `'embedded'`
+	 * module (no write to the experience option), and `'inline'` writes the empty
+	 * string (the absence of an affirmative opt-in *is* inline). Only `'embedded'`
 	 * and `'overlay'` write affirmative values.
+	 *
+	 * Inline writes `''` rather than deleting the option so the change always fires
+	 * `added_option` / `updated_option` (Sync's option whitelist hooks `add`/`update`
+	 * but `delete_option` is also a no-op when the option doesn't exist, which would
+	 * leave a stale `'overlay'` / `'embedded'` on the WPcom cache site after a
+	 * subsequent inline write on a fresh site).
 	 *
 	 * Legacy `module_active` / `instant_search_enabled` are kept in lockstep so
 	 * unmigrated readers (Initializer, Options, sidebar registration) continue to
@@ -254,10 +260,7 @@ class Module_Control {
 					return $result;
 				}
 				$this->disable_instant_search();
-				// Inline is the absence of an opt-in — delete the option rather than
-				// writing 'inline'. Pre-existing sites that have never saved are
-				// already in this state, so this also normalises after a switch.
-				delete_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, '' );
 				return true;
 
 			case self::EXPERIENCE_EMBEDDED:

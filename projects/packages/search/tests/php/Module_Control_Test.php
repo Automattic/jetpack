@@ -257,10 +257,12 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Inline activates the module, disables instant search, and deletes the
-	 * experience option (inline is the absence of an opt-in).
+	 * Inline activates the module, disables instant search, and writes the empty
+	 * string to the experience option (inline is the absence of an affirmative
+	 * opt-in). Writing `''` rather than deleting ensures the change always fires
+	 * `updated_option` / `added_option`, so Sync replicates it to the cache site.
 	 */
-	public function test_update_experience_inline_deletes_option() {
+	public function test_update_experience_inline_writes_empty_string() {
 		// Seed an existing 'embedded' to prove the switch to inline clears it.
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
@@ -270,7 +272,36 @@ class Module_Control_Test extends Search_TestCase {
 
 		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
 		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
-		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false ) );
+		$this->assertSame( '', get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		$this->assertSame( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
+	}
+
+	/**
+	 * Switching to inline must fire an option-write action even when the
+	 * experience option doesn't yet exist on the site — otherwise the WPcom
+	 * cache site can be stuck with a stale `'overlay'` / `'embedded'` after a
+	 * site that has never written the option toggles to inline.
+	 */
+	public function test_update_experience_inline_fires_action_when_option_missing() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
+
+		$fired = 0;
+		$cb    = function ( $name ) use ( &$fired ) {
+			if ( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY === $name ) {
+				++$fired;
+			}
+		};
+		add_action( 'added_option', $cb );
+		add_action( 'updated_option', $cb );
+
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_INLINE );
+
+		remove_action( 'added_option', $cb );
+		remove_action( 'updated_option', $cb );
+		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+
+		$this->assertSame( 1, $fired, 'Switching a fresh site to inline must fire an option-write so Sync queues the change.' );
 	}
 
 	/**

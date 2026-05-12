@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: When the experience picker switches to 'inline', write the empty string to jetpack_search_experience instead of deleting it, so the change always fires an option-write that Sync can replicate.
