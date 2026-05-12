@@ -22,5 +22,8 @@
 		<testsuite name="pdf">
 			<directory suffix="Test.php">tests/php/pdf</directory>
 		</testsuite>
+		<testsuite name="abilities">
+			<directory suffix="Test.php">tests/php/abilities</directory>
+		</testsuite>
 	</testsuites>
 </phpunit>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register read-only abilities for CRM contacts, deals, and invoices.

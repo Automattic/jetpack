@@ -402,6 +402,20 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 		0
 	);
 
+	// Register Jetpack CRM abilities once the CRM core has booted.
+	// Runs at `init` priority 20 so that `$zbs->DAL` is available before
+	// any ability is invoked, and the Abilities API is ready to receive
+	// our category and ability registrations.
+	add_action(
+		'init',
+		function () {
+			if ( class_exists( \Automattic\Jetpack\CRM\Abilities\CRM_Abilities::class ) ) {
+				\Automattic\Jetpack\CRM\Abilities\CRM_Abilities::init();
+			}
+		},
+		20
+	);
+
 	add_action(
 		'plugins_loaded',
 		function () {

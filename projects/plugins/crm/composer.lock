@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ec26d779e5614655d8c4563c32dc12f",
+    "content-hash": "089af8b508facdf91f8b9a12e839d4ec",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -318,6 +318,64 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-wp-abilities",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-abilities",
+                "reference": "e71e43ab54aaf244b0cb2e29999da393164021f5"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-abilities",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-wp-abilities",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-registrar.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering abilities with the WordPress Abilities API from Jetpack packages and plugins.",
             "transport-options": {
                 "relative": true
             }
@@ -5494,6 +5552,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
+        "automattic/jetpack-wp-abilities": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,
