@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: rename the WooCommerce gate filter to `jetpack_search_woocommerce_blocks_enabled` so the hook name reflects what it controls (WC-only blocks) rather than its default (the WC plugin probe). Disable WC-only blocks by default in Phase 1 — sites can opt back in by hooking the same filter.

@@ -151,7 +151,7 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `jetpack_search_blocks_is_woocommerce_active` lets a site force the
+	 * `jetpack_search_woocommerce_blocks_enabled` lets a site force the
 	 * gate true on a non-Woo install — useful for staging previews of
 	 * WC-only Search blocks. The filter result must be cached, so a
 	 * subsequent call returns the override even after the filter is
@@ -159,11 +159,11 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_is_woocommerce_active_filter_can_force_true() {
 		Search_Blocks::reset_is_woocommerce_active_cache();
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		try {
 			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		}
 	}
 
@@ -183,12 +183,12 @@ class Search_Blocks_Test extends TestCase {
 			$received_value = $value;
 			return false;
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
 			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
 			$this->assertIsBool( $received_value, 'Filter received a bool from the probe.' );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 
@@ -204,14 +204,14 @@ class Search_Blocks_Test extends TestCase {
 			++$call_count;
 			return $value;
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
 			for ( $i = 0; $i < 3; $i++ ) {
 				Search_Blocks::is_woocommerce_active();
 			}
 			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 
@@ -225,11 +225,11 @@ class Search_Blocks_Test extends TestCase {
 		$callback = static function () {
 			return '1';
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
 			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 

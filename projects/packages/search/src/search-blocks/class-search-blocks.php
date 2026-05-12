@@ -188,14 +188,17 @@ class Search_Blocks {
 	 * satisfied. New callers earlier in the request lifecycle should defer
 	 * the probe to a `plugins_loaded`-or-later hook.
 	 *
-	 * **Filter:** `jetpack_search_blocks_is_woocommerce_active` lets a site
+	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
 	 * force the gate either way — e.g. a WC site that wants to hide
 	 * WC-only Search blocks from a non-shop content area, or a non-Woo
 	 * site that wants to render WC-only blocks for a staging preview.
-	 * Filter fires once per request, before the result is memoized, so a
-	 * filter that probes the database or another expensive condition pays
-	 * its cost once and is then served from the cache for the remainder
-	 * of the request.
+	 * The filter name describes intent (whether WC-only Search blocks
+	 * are enabled) rather than its default value (the WooCommerce class
+	 * probe), so a site can flip it for reasons unrelated to whether
+	 * WooCommerce is actually loaded. Filter fires once per request,
+	 * before the result is memoized, so a filter that probes the database
+	 * or another expensive condition pays its cost once and is then
+	 * served from the cache for the remainder of the request.
 	 *
 	 * @return bool
 	 */
@@ -207,17 +210,20 @@ class Search_Blocks {
 			$probed = class_exists( 'WooCommerce', false );
 
 			/**
-			 * Override whether Jetpack Search treats WooCommerce as active.
+			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
+			 * filter variations, and render paths. Defaults to whether
+			 * the `WooCommerce` class is loaded, but a site can flip the
+			 * gate either way regardless of WC's actual plugin state.
 			 *
 			 * Cast to bool before caching so a filter returning a truthy
 			 * non-bool (e.g. `1`) doesn't poison strictly-typed callers.
 			 *
 			 * @since $$next-version$$
 			 *
-			 * @param bool $is_active Result of the WooCommerce class probe.
+			 * @param bool $enabled Defaults to the WooCommerce class probe.
 			 */
 			self::$is_woocommerce_active_cache = (bool) apply_filters(
-				'jetpack_search_blocks_is_woocommerce_active',
+				'jetpack_search_woocommerce_blocks_enabled',
 				$probed
 			);
 		}
