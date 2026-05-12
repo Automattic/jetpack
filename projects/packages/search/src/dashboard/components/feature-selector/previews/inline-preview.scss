@@ -1,8 +1,6 @@
 // Decorative "theme search with faster results" illustration shown at
 // the top of the Theme search card: a search box, a few faint result
-// lines, and a "⚡ 24 ms" badge in the corner. Flex layout (direction /
-// gap / alignment) lives on `<Stack>` props in the JSX; this file only
-// carries visual styling.
+// lines, and a "⚡ 24 ms" badge in the corner.
 .jp-search-feature-selector__inline-preview {
 	position: relative;
 	width: 100%;

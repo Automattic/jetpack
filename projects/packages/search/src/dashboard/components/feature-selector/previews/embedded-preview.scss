@@ -1,8 +1,5 @@
 // Decorative search-results illustration shown at the top of the Embedded
-// card. Layout (direction / gap / alignment) lives on `<Stack>` props in
-// the JSX; this file only carries visual styling (backgrounds, borders,
-// radii) and flex *weighting* (`flex: 2 1 0` etc.) that Stack doesn't
-// know how to express.
+// card.
 .jp-search-feature-selector__embedded-preview {
 	width: 100%;
 	min-height: 180px;
@@ -46,7 +43,7 @@
 }
 
 // Two-column body: results on the left (wider, 2/3), filters on the
-// right (1/3). Stack handles direction + gap; the weights live here.
+// right (1/3).
 .jp-search-feature-selector__embedded-preview-results {
 	flex: 2 1 0;
 	min-width: 0;

@@ -1,7 +1,6 @@
 // Decorative "search is off" illustration shown at the top of the Off
 // card: the same notAllowed icon used elsewhere, centred with a one-line
-// label. Flex layout (direction / gap / centring) lives on `<Stack>`
-// props in the JSX; this file only carries visual styling.
+// label.
 .jp-search-feature-selector__off-preview {
 	width: 100%;
 	min-height: 180px;
