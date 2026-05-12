@@ -7,6 +7,8 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class Content_Research
  *
@@ -144,14 +146,31 @@ class Content_Research {
 	}
 
 	/**
+	 * Returns whether the current request is coming from the a8c proxy.
+	 */
+	private static function is_proxied() {
+		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+	}
+
+	/**
 	 * Check if the feature is enabled.
+	 *
+	 * Restricted to automatticians proxied through a8c on WPCOM Simple sites.
 	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// Only @alshakero and @ebuccelli.
-		$user_id = get_current_user_id();
-		if ( 115118448 !== $user_id && 128962475 !== $user_id ) {
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		if ( ! self::is_proxied() ) {
+			return false;
+		}
+
+		if ( ! function_exists( '\is_automattician' ) || ! \is_automattician() ) {
 			return false;
 		}
 
