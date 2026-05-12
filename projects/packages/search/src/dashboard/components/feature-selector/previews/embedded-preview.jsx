@@ -98,8 +98,8 @@ export default function EmbeddedPreview() {
 					gap="sm"
 					className="jp-search-feature-selector__embedded-preview-filters"
 				>
-					<FilterGroup title="Category" items={ [ 'Recipes', 'Travel', 'Reviews' ] } />
-					<FilterGroup title="Tag" items={ [ 'pasta', 'italian', 'dinner' ] } />
+					<FilterGroup title="Category" items={ [ 'Recipes', 'Travel' ] } />
+					<FilterGroup title="Tag" items={ [ 'pasta', 'italian' ] } />
 				</Stack>
 			</Stack>
 		</Stack>
