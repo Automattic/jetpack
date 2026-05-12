@@ -159,7 +159,13 @@
 
 		li {
 			display: flex;
-			align-items: baseline;
+			// `baseline` aligns the icon's synthesized baseline (its bottom
+			// edge, since SVGs are block-level and have no text baseline) with
+			// the text baseline, but the cross-circle's visual mass is centred
+			// in its bounding box, so the icon ends up sitting visibly above
+			// the text. Centring the box gives the on-screen "on the same
+			// line" appearance the design is after.
+			align-items: center;
 			gap: var(--wpds-dimension-gap-sm);
 			padding-block: var(--wpds-dimension-padding-xs);
 
