@@ -64,13 +64,13 @@ export default function FeatureSelector() {
 	const getPendingNotice = () => {
 		switch ( pendingExperience ) {
 			case EXPERIENCE.EMBEDDED:
-				return __( 'Embedded search selected, save to apply.', 'jetpack-search-pkg' );
+				return __( 'Embedded search selected, save to apply', 'jetpack-search-pkg' );
 			case EXPERIENCE.OVERLAY:
-				return __( 'Overlay search selected, save to apply.', 'jetpack-search-pkg' );
+				return __( 'Overlay search selected, save to apply', 'jetpack-search-pkg' );
 			case EXPERIENCE.INLINE:
-				return __( 'Theme search selected, save to apply.', 'jetpack-search-pkg' );
+				return __( 'Theme search selected, save to apply', 'jetpack-search-pkg' );
 			case EXPERIENCE.OFF:
-				return __( 'Off selected, save to apply.', 'jetpack-search-pkg' );
+				return __( 'Off selected, save to apply', 'jetpack-search-pkg' );
 			default:
 				return '';
 		}
