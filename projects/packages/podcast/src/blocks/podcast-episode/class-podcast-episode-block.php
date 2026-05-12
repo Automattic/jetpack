@@ -108,17 +108,13 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Format a seconds value as a MM:SS or HH:MM:SS label.
+	 * Format a seconds value as a MM:SS or HH:MM:SS label. Negative input clamps to 0.
 	 *
 	 * @param float|int|string $seconds Seconds value (Podcasting 2.0 soundbite startTime/duration are floats).
-	 * @return string Formatted label, or empty string for non-positive input.
+	 * @return string Formatted label (always non-empty; "0:00" for zero input).
 	 */
 	private static function format_seconds_label( $seconds ) {
-		$total = (int) floor( max( 0, (float) $seconds ) );
-		if ( $total <= 0 ) {
-			return '';
-		}
-
+		$total   = (int) floor( max( 0, (float) $seconds ) );
 		$hours   = (int) floor( $total / 3600 );
 		$minutes = (int) floor( ( $total % 3600 ) / 60 );
 		$secs    = $total % 60;
@@ -317,13 +313,10 @@ class Podcast_Episode_Block {
 						<ul class="jetpack-podcast-episode__soundbites">
 							<?php
 							foreach ( $soundbites as $soundbite ) :
-								if ( ! is_array( $soundbite ) ) {
+								if ( ! is_array( $soundbite ) || ! isset( $soundbite['startTime'] ) ) {
 									continue;
 								}
-								$start_label = self::format_seconds_label( $soundbite['startTime'] ?? 0 );
-								if ( '' === $start_label ) {
-									continue;
-								}
+								$start_label     = self::format_seconds_label( $soundbite['startTime'] );
 								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
 								?>
 								<li class="jetpack-podcast-episode__soundbite">
