@@ -61,12 +61,17 @@ const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: Episode
 			) }
 
 			{ ! isError && isEmpty && (
-				<Notice status="info" isDismissible={ false }>
-					{ __(
-						'No downloads yet. Share this episode to start collecting downloads.',
-						'jetpack-podcast'
-					) }
-				</Notice>
+				<div className="podcast__empty-state">
+					<h2 className="podcast__section-heading">
+						{ __( 'No downloads yet.', 'jetpack-podcast' ) }
+					</h2>
+					<p>
+						{ __(
+							'Share this episode on your favorite podcast apps to start collecting downloads here.',
+							'jetpack-podcast'
+						) }
+					</p>
+				</div>
 			) }
 
 			{ ! isError && ! isEmpty && (

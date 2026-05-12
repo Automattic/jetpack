@@ -89,9 +89,17 @@ const Stats = () => {
 			) }
 
 			{ ! isError && isEmpty && (
-				<Notice status="info" isDismissible={ false }>
-					{ __( 'No downloads yet. Share your show to start collecting data.', 'jetpack-podcast' ) }
-				</Notice>
+				<div className="podcast__empty-state">
+					<h2 className="podcast__section-heading">
+						{ __( 'No downloads yet.', 'jetpack-podcast' ) }
+					</h2>
+					<p>
+						{ __(
+							'Share your show on your favorite podcast apps to start collecting data here.',
+							'jetpack-podcast'
+						) }
+					</p>
+				</div>
 			) }
 
 			{ ! isError && ! isEmpty && (
