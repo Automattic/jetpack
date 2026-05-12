@@ -60,25 +60,24 @@ class Content_Research {
 	 * @return array|null The asset file data or null on failure.
 	 */
 	private static function get_asset_file() {
-		$cache_key = 'content-research-gutenberg.asset.json';
-		$cached    = get_transient( $cache_key );
-
-		if ( false !== $cached ) {
-			return $cached;
-		}
-
 		$filepath = 'widgets.wp.com/content-research/content-research-gutenberg.asset.json';
 
-		// Try filesystem first (Simple sites).
+		// Try filesystem first (Simple sites). Failures are not cached.
 		if ( file_exists( ABSPATH . $filepath ) ) {
 			$contents = file_get_contents( ABSPATH . $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			if ( false !== $contents ) {
 				$data = json_decode( $contents, true );
 				if ( is_array( $data ) ) {
-					set_transient( $cache_key, $data, HOUR_IN_SECONDS );
 					return $data;
 				}
 			}
+		}
+
+		$cache_key = 'jetpack_mu_wpcom_cr_asset_' . md5( $filepath );
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
 		}
 
 		// Fall back to HTTP (Atomic sites).
@@ -95,7 +94,7 @@ class Content_Research {
 
 		$data = json_decode( wp_remote_retrieve_body( $request ), true );
 		if ( is_array( $data ) ) {
-			set_transient( $cache_key, $data, HOUR_IN_SECONDS );
+			set_transient( $cache_key, $data, 12 * HOUR_IN_SECONDS );
 			return $data;
 		}
 
