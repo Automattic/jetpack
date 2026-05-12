@@ -37,10 +37,10 @@ return [
     // PhanTypeArraySuspicious : 40+ occurrences
     // PhanUndeclaredMethod : 40+ occurrences
     // PhanDeprecatedFunction : 35+ occurrences
-    // PhanPluginSimplifyExpressionBool : 35+ occurrences
     // PhanTypeMismatchDimFetch : 35+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
+    // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanTypeComparisonFromArray : 25+ occurrences
     // PhanTypeConversionFromArray : 25+ occurrences
     // PhanCommentParamWithoutRealParam : 20+ occurrences
@@ -145,11 +145,9 @@ return [
         'admin/support/main.page.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgumentNullable'],
         'admin/system/partials/title.block.php' => ['PhanUndeclaredGlobalVariable'],
         'admin/system/system-status.page.php' => ['PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypePossiblyInvalidDimOffset'],
-        'api/companies.php' => ['PhanPluginSimplifyExpressionBool'],
         'api/create_company.php' => ['PhanPossiblyUndeclaredGlobalVariable'],
         'api/create_customer.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypePossiblyInvalidDimOffset'],
         'api/create_transaction.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgumentNullableInternal'],
-        'api/customers.php' => ['PhanPluginSimplifyExpressionBool'],
         'api/status.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'includes/ZeroBSCRM.AJAX.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginNeverReturnFunction', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.API.php' => ['PhanCommentParamWithoutRealParam', 'PhanRedefineFunctionInternal', 'PhanRedundantCondition'],
