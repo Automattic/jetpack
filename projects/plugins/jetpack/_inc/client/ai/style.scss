@@ -46,9 +46,18 @@ body.jetpack_page_jetpack-ai {
 		}
 	}
 
-	// Both pieces of the breadcrumb match the page-heading weight so the
-	// header on sub-views reads as "AI / Read" with the same visual heft as
-	// the hub's "AI" h1 title.
+	// Both pieces of the breadcrumb match the wpds `heading-lg` type token
+	// (the same one admin-ui's Page uses for the hub's "AI" h1 title), so
+	// the header on sub-views reads as "AI / Read" with the same size and
+	// weight as the hub heading.
+	&__breadcrumb-link,
+	&__breadcrumb-current {
+		font-family: var(--wpds-typography-font-family-heading, inherit);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-medium, 500);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
+	}
+
 	&__breadcrumb-link {
 		display: inline-flex;
 		align-items: center;
@@ -58,9 +67,6 @@ body.jetpack_page_jetpack-ai {
 		padding: 0;
 		cursor: pointer;
 		color: inherit;
-		font-size: inherit;
-		font-weight: 600;
-		line-height: inherit;
 		text-decoration: none;
 
 		&:hover {
@@ -69,9 +75,6 @@ body.jetpack_page_jetpack-ai {
 	}
 
 	&__breadcrumb-current {
-		font-size: inherit;
-		font-weight: 600;
-		line-height: inherit;
 		margin: 0;
 	}
 
