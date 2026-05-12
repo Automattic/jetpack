@@ -1080,7 +1080,7 @@ class ManagerTest extends TestCase {
 	 * arg should be omitted entirely.
 	 *
 	 * The flow runs end-to-end: `Plugin::add()` -> `Plugin_Storage::upsert()` ->
-	 * `Plugin_Storage::configure()` -> `get_authorization_url()`.
+	 * `get_authorization_url()` -> `Plugin_Storage::get_all()`.
 	 */
 	public function test_get_authorization_url_includes_plugins_from_storage() {
 		$user_id = wp_insert_user(
@@ -1110,19 +1110,16 @@ class ManagerTest extends TestCase {
 		$manager->method( 'has_connected_owner' )->willReturn( true );
 		$manager->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
 
-		// No plugins seeded yet -> no `plugins` arg.
+		// No plugins seeded -> no `plugins` arg.
 		$this->reset_plugin_storage();
-		Plugin_Storage::configure();
 
 		$url = $manager->get_authorization_url();
 		$this->assertStringNotContainsString( 'plugins=', $url );
 
 		// Seed two plugins -> URL should carry them as a single-encoded
 		// comma-separated list.
-		$this->set_plugin_storage_configured( false );
 		( new Plugin( 'jetpack' ) )->add( 'Jetpack' );
 		( new Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
-		Plugin_Storage::configure();
 
 		$url = $manager->get_authorization_url();
 		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $url );
@@ -1133,43 +1130,34 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Reset the private static state of `Plugin_Storage` so a test can start
-	 * from a clean slate. Compatible with PHP <8.1 where `setStaticPropertyValue()`
-	 * cannot reach private static properties without `setAccessible(true)`.
+	 * Reset `Plugin_Storage` to a clean, "post-`plugins_loaded`" state for
+	 * tests: `configured = true`, no cached plugins. Setting `configured`
+	 * to `false` here would make `Plugin_Storage::get_all()` hand back a
+	 * `WP_Error` object, which on PHP 8.5 trips the deprecated
+	 * `ArrayIterator::__construct()` object-backing notice once that error
+	 * object is iterated by the WP HTTP Requests library downstream.
+	 *
+	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * private static properties without `setAccessible(true)`.
 	 */
 	private function reset_plugin_storage() {
-		$this->set_plugin_storage_property( 'configured', false );
-		$this->set_plugin_storage_property( 'plugins', array() );
-	}
-
-	/**
-	 * Flip the `configured` flag without touching the cached `$plugins` array.
-	 * Lets the test seed plugins after a successful first `configure()` and
-	 * then call `configure()` again to pick them up.
-	 *
-	 * @param bool $value New value for the flag.
-	 */
-	private function set_plugin_storage_configured( $value ) {
-		$this->set_plugin_storage_property( 'configured', $value );
-	}
-
-	/**
-	 * Set a private static property on `Plugin_Storage` via reflection.
-	 *
-	 * @param string $name  Property name.
-	 * @param mixed  $value New value.
-	 */
-	private function set_plugin_storage_property( $name, $value ) {
 		$reflection = new \ReflectionClass( Plugin_Storage::class );
 		try {
-			$reflection->setStaticPropertyValue( $name, $value );
+			$reflection->setStaticPropertyValue( 'configured', true );
+			$reflection->setStaticPropertyValue( 'plugins', array() );
 		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
-			$prop = $reflection->getProperty( $name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$prop->setAccessible( true );
+			$values = array(
+				'configured' => true,
+				'plugins'    => array(),
+			);
+			foreach ( $values as $name => $value ) {
+				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( null, $value );
 			}
-			$prop->setValue( null, $value );
 		}
 	}
 }

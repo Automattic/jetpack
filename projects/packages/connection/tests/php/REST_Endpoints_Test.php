@@ -224,23 +224,28 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Reset the private static state of `Plugin_Storage` so tests that seed it
-	 * (or don't) start from a clean slate. The class refuses to return data
-	 * unless it has been `configure()`d, so we also flip the `configured` flag
-	 * back to false.
+	 * (or don't) start from a clean slate. We deliberately keep `configured`
+	 * set to `true` here: in production it flips to `true` once on
+	 * `plugins_loaded` and stays that way, and leaving it `false` would make
+	 * `Plugin_Storage::get_all()` return a `WP_Error` object that downstream
+	 * code (e.g. `Manager::register()` on PHP 8.5) feeds into the WP HTTP
+	 * Requests library, where iterating an object backing for `ArrayIterator`
+	 * is now deprecated and trips `failOnDeprecation` in PHPUnit.
 	 */
 	public function reset_plugin_storage() {
 		$reflection = new ReflectionClass( Connection_Plugin_Storage::class );
 		try {
-			$reflection->setStaticPropertyValue( 'configured', false );
+			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
 			$reflection->setStaticPropertyValue( 'current_blog_id', null );
 		} catch ( \ReflectionException $e ) { // PHP 7 compat fallback.
 			foreach ( array( 'configured', 'plugins', 'current_blog_id' ) as $name ) {
 				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
 				if ( PHP_VERSION_ID < 80100 ) {
 					$prop->setAccessible( true );
 				}
-				$prop->setValue( null, 'plugins' === $name ? array() : ( 'configured' === $name ? false : null ) );
+				$prop->setValue( null, 'plugins' === $name ? array() : ( 'configured' === $name ? true : null ) );
 			}
 		}
 	}
