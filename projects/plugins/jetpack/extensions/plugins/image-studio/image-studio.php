@@ -109,13 +109,13 @@ function has_jetpack_ai_features() {
 /**
  * Check whether the video clip generation flow can run on the current site.
  *
- * Requires that Image Studio itself is enabled on this site, so video clip
- * generation is only offered on the same plans/environments that surface
- * Image Studio. Also mirrors the WordPress.com server-side gate: defers to
- * `wpcom_site_can_upload_videos()` when available so the client and server
- * agree on capability. Off-WPCOM (self-hosted Jetpack, standalone VideoPress,
- * dev environments) the helper isn't loaded; we don't gate the entry point in
- * those contexts and let the server respond if generation is unsupported.
+ * Image Studio enablement is always required — video clip generation is only
+ * offered on the same plans/environments that surface Image Studio itself,
+ * on WPCOM and off. On WPCOM the helper also mirrors the server-side
+ * `wpcom_site_can_upload_videos()` capability check so the client and server
+ * agree. Off-WPCOM (self-hosted Jetpack, standalone VideoPress, dev
+ * environments) that helper isn't loaded, so only the Image Studio gate
+ * applies; the server is the source of truth if generation is unsupported.
  *
  * @return bool
  */
