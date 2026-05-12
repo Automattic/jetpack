@@ -56,7 +56,8 @@ const Stats = () => {
 		);
 	}
 
-	const isEmpty = ! isLoading && ! isError && stats?.total_plays === 0;
+	// Gate the full empty state on all-time plays so a quiet period doesn't masquerade as a new show.
+	const isEmpty = ! isLoading && ! isError && stats?.all_time_plays === 0;
 
 	return (
 		<div className="podcast-stats podcast-stats--stack">

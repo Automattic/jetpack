@@ -23,16 +23,20 @@ function getOverviewTotal(
 	overview: PodcastStatsOverviewResponse,
 	period: PodcastStatsPeriod
 ): number {
-	if ( period === '7d' ) {
-		return overview.totals.last_7_days.plays;
+	switch ( period ) {
+		case '7d':
+			return overview.totals.last_7_days.plays;
+		case '30d':
+			return overview.totals.last_30_days.plays;
+		case '90d':
+			return overview.totals.last_90_days.plays;
+		case 'all':
+			return overview.totals.all_time.plays;
+		default: {
+			const exhaustive: never = period;
+			return exhaustive;
+		}
 	}
-	if ( period === '30d' ) {
-		return overview.totals.last_30_days.plays;
-	}
-	if ( period === '90d' ) {
-		return overview.totals.last_90_days.plays;
-	}
-	return overview.totals.all_time.plays;
 }
 
 /**
@@ -118,6 +122,7 @@ export function useShowStatsQuery(
 			period,
 			total_plays: getOverviewTotal( overview, period ),
 			top_day: overview.top_day,
+			all_time_plays: overview.totals.all_time.plays,
 		};
 		// 'all' breakdowns come from overview: summary range is capped at 1 year.
 		if ( period === 'all' ) {
