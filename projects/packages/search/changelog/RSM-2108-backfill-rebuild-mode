@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search Blocks: add a `rebuild` mode to Custom_Taxonomy_Slot_Mapping::backfill() that wipes the slot taxonomy before re-mirroring so orphan slot rows from posts that lost their user-side terms get cleaned up. The default `mirror` mode keeps the existing per-post replacement behavior.
+Search Blocks: Add a `rebuild` mode to Custom_Taxonomy_Slot_Mapping::backfill() that wipes the slot taxonomy before re-mirroring so orphan slot rows from posts that lost their user-side terms get cleaned up. The default `mirror` mode keeps the existing per-post replacement behavior.
