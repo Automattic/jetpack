@@ -80,7 +80,8 @@ class Admin_Page {
 	 * Wire admin-init actions once we know the Podcast page is loading.
 	 */
 	public static function admin_init() {
-		// Intentionally empty for now.
+		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
+		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 	}
 
 	/**
