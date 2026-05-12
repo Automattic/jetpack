@@ -74,11 +74,12 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 	const rejectedMessage = result?.state === 'rejected' ? result.message : null;
 
 	const handleSubmit = useCallback( () => {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_pocketcasts_submit_clicked', {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_clicked', {
+			directory: app.id,
 			prior_state: storedState || 'none',
 		} );
 		submit();
-	}, [ submit, storedState ] );
+	}, [ submit, storedState, app.id ] );
 
 	// Fire confetti once when this Pocket Casts submission is the user's first
 	// distribution activity. Ref guard so `result` staying set across renders
