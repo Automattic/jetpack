@@ -74,7 +74,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 }
 
 /**
- * Log a refused install/update to logstash. Best-effort; no-op off WordPress.com.
+ * Log a refused install/update to logstash. Best-effort.
  *
  * @param string $action     `install` or `update`.
  * @param array  $hook_extra Hook payload from `upgrader_source_selection`.

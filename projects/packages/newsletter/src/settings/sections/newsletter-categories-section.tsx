@@ -8,7 +8,7 @@ import {
 	getSiteType,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import {
 	Button,
 	Card,

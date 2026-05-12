@@ -18,8 +18,6 @@ export function createNotice( status, text, options = {} ) {
 		id: options.id || ++createNoticeCounter,
 		duration: options.duration ?? 2000,
 		showDismiss: typeof options.showDismiss === 'boolean' ? options.showDismiss : true,
-		isPersistent: options.isPersistent || false,
-		displayOnNextPage: options.displayOnNextPage || false,
 		status: status,
 		text: text,
 	};

@@ -41,7 +41,7 @@ beforeEach( () => {
 jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( { children } ) => <div>{ children }</div>,
 	Placeholder: ( { children } ) => <div>{ children }</div>,
-	SelectControl: ( { label, value, options = [], onChange } ) => {
+	SelectControl: ( { label, value, options = [], onChange, help } ) => {
 		const id = nextControlId();
 		return (
 			<>
@@ -57,6 +57,7 @@ jest.mock( '@wordpress/components', () => ( {
 						</option>
 					) ) }
 				</select>
+				{ help ? <p>{ help }</p> : null }
 			</>
 		);
 	},
@@ -126,6 +127,10 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
+	sprintf: ( fmt, ...args ) => {
+		let i = 0;
+		return fmt.replace( /%s/g, () => args[ i++ ] );
+	},
 } ) );
 
 describe( 'deriveVariation', () => {
@@ -385,6 +390,91 @@ describe( 'normalizeDisplayStyle', () => {
 
 	it( 'accepts chips', () => {
 		expect( normalizeDisplayStyle( 'chips' ) ).toBe( 'chips' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
+	const useSelectMock = jest.requireMock( '@wordpress/data' ).useSelect;
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+		useSelectMock.mockReset();
+		useSelectMock.mockImplementation( () => null );
+	} );
+
+	const taxonomyEntities = [
+		{ slug: 'genre', name: 'Genre', visibility: { public: true } },
+		{ slug: 'mood', name: 'Mood', visibility: { public: true } },
+		{ slug: 'private-thing', name: 'Private Thing', visibility: { public: true } },
+	];
+
+	it( 'restricts the picker to taxonomies present in supportedCustomTaxonomies', () => {
+		// The picker used to list every public taxonomy from core-data, but
+		// Jetpack Search only indexes a curated set — non-indexed taxonomies
+		// would build a filter that silently returns zero buckets. The new
+		// whitelist (server-derived from the index allowlist + map keys)
+		// drops `private-thing` because it's not in either set.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Private Thing' );
+	} );
+
+	it( 'appends "(mapped)" to taxonomies routed through a reserved slot', () => {
+		// The map's user-facing keys still surface in the picker, but with
+		// a label suffix so authors know the filter routes through a
+		// `jetpack-search-tagN` slot rather than the taxonomy itself.
+		// `mood` is supported via the native allowlist, `genre` only via
+		// the map — both appear; only `genre` gets the suffix.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: { genre: 'jetpack-search-tag1' },
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre (mapped)' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Genre' );
+	} );
+
+	it( 'shows the empty-state help text when no supported taxonomies exist on the site', () => {
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => [] );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( /jetpack_search_custom_taxonomy_map/ ) ).toBeInTheDocument();
 	} );
 } );
 

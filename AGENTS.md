@@ -43,6 +43,8 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
+# Parallel instances on a second worktree: `jp docker up -d --name <slug> --port <n> [--port-phpmy/-inbox/-smtp/-sftp <n>]`.
+# See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```
 

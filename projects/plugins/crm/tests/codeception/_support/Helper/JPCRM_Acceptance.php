@@ -56,7 +56,8 @@ class JPCRM_Acceptance extends WPBrowser {
 		$wp_version = '-';
 		include_once "$wp_path/wp-includes/version.php"; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
-		$serverCmd = "php -S $server_host -t $wp_path";
+		// PHP 8.4.19+ and 8.5.5+ inconsistently segfault here. Turning off opcache.jit seems to fix it. p1773618372849869-slack-C034JEXD1RD
+		$serverCmd = "php -dopcache.jit=off -S $server_host -t $wp_path";
 
 		$this->serverProcess = new RunProcess( $serverCmd, $this->server_output_path );
 		echo "\e[33mPHP version:\e[96m " . PHP_VERSION;
