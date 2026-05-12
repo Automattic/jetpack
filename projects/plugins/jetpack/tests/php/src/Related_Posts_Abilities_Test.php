@@ -357,6 +357,114 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( 'standard', $summary['format'] );
 	}
 
+	/**
+	 * Capture the size arg the Related Posts backend receives, regardless of
+	 * whether the ES backend returns anything. This exercises the clamp the
+	 * execute callback applies before delegating to get_for_post_id().
+	 *
+	 * @param array $input Ability input.
+	 * @return int|null Captured size, or null if the args filter did not fire.
+	 */
+	private function capture_size_arg( array $input ): ?int {
+		$captured = null;
+		$capture  = static function ( $args ) use ( &$captured ) {
+			$captured = isset( $args['size'] ) ? (int) $args['size'] : null;
+			return $args;
+		};
+		add_filter( 'jetpack_relatedposts_filter_args', $capture );
+		try {
+			Related_Posts_Abilities::get_related_posts( $input );
+		} finally {
+			remove_filter( 'jetpack_relatedposts_filter_args', $capture );
+		}
+		return $captured;
+	}
+
+	public function test_get_related_posts_respects_per_page_below_cap() {
+		wp_set_current_user( self::$admin_id );
+		$source_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		$captured = $this->capture_size_arg(
+			array(
+				'post_id'  => $source_id,
+				'per_page' => 5,
+			)
+		);
+
+		$this->assertSame( 5, $captured, 'per_page=5 must propagate to size=5 in the backend args.' );
+	}
+
+	public function test_get_related_posts_respects_per_page_at_cap() {
+		wp_set_current_user( self::$admin_id );
+		$source_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		$captured = $this->capture_size_arg(
+			array(
+				'post_id'  => $source_id,
+				'per_page' => 20,
+			)
+		);
+
+		$this->assertSame( 20, $captured, 'per_page=20 must propagate to size=20 in the backend args.' );
+	}
+
+	public function test_get_related_posts_schema_rejects_per_page_above_cap() {
+		if ( ! function_exists( 'wp_get_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+
+		$this->trigger_registration();
+		wp_set_current_user( self::$admin_id );
+		$source_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		$ability = wp_get_ability( 'jetpack-related-posts/get-related-posts' );
+		$this->assertNotNull( $ability );
+
+		$result = $ability->execute(
+			array(
+				'post_id'  => $source_id,
+				'per_page' => 21,
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result, 'per_page=21 must be rejected by schema validation.' );
+		$this->assertSame( 'ability_invalid_input', $result->get_error_code() );
+	}
+
+	public function test_get_related_posts_schema_rejects_per_page_zero() {
+		if ( ! function_exists( 'wp_get_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+
+		$this->trigger_registration();
+		wp_set_current_user( self::$admin_id );
+		$source_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		$ability = wp_get_ability( 'jetpack-related-posts/get-related-posts' );
+		$this->assertNotNull( $ability );
+
+		$result = $ability->execute(
+			array(
+				'post_id'  => $source_id,
+				'per_page' => 0,
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result, 'per_page=0 must be rejected by schema validation.' );
+		$this->assertSame( 'ability_invalid_input', $result->get_error_code() );
+	}
+
+	public function test_get_related_posts_defaults_when_per_page_omitted() {
+		wp_set_current_user( self::$admin_id );
+		$source_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		// When neither per_page nor size is supplied to the execute callback
+		// directly, the existing default (3) wins so prior callers see no change.
+		$captured = $this->capture_size_arg( array( 'post_id' => $source_id ) );
+
+		$this->assertSame( 3, $captured, 'Omitted per_page must fall back to the legacy default of 3 so pre-existing callers see identical behavior.' );
+	}
+
 	public function test_get_related_posts_summary_format_is_null_when_missing() {
 		wp_set_current_user( self::$admin_id );
 		$source_id  = self::factory()->post->create( array( 'post_status' => 'publish' ) );

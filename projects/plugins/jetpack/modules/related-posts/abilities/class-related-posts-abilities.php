@@ -101,7 +101,7 @@ class Related_Posts_Abilities extends Registrar {
 		return array(
 			'jetpack-related-posts/get-related-posts' => array(
 				'label'               => __( 'Get related posts', 'jetpack' ),
-				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
+				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Use per_page to control the result count (1..20, default 20); the underlying Elasticsearch query is hard-capped at 20, so values above 20 are rejected by the input schema and pagination beyond the first 20 results is not supported. The legacy "size" alias is accepted for backward compatibility and defaults to 3 when no per_page is supplied. Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'post_id' ),
@@ -111,9 +111,16 @@ class Related_Posts_Abilities extends Registrar {
 							'description' => __( 'WordPress post ID to find related posts for. Must reference an existing post.', 'jetpack' ),
 							'minimum'     => 1,
 						),
+						'per_page'         => array(
+							'type'        => 'integer',
+							'description' => __( 'Maximum number of related posts to return per call. Must be between 1 and 20 — the Elasticsearch backend hard-caps results at 20, so larger values are not supported and pagination past the first 20 results is unavailable. Defaults to 20.', 'jetpack' ),
+							'minimum'     => 1,
+							'maximum'     => self::MAX_SIZE,
+							'default'     => self::MAX_SIZE,
+						),
 						'size'             => array(
 							'type'        => 'integer',
-							'description' => __( 'Maximum number of related posts to return. Defaults to 3, capped at 20.', 'jetpack' ),
+							'description' => __( 'Deprecated alias for per_page. Defaults to 3 when per_page is omitted. Capped at 20.', 'jetpack' ),
 							'minimum'     => 1,
 							'maximum'     => self::MAX_SIZE,
 							'default'     => self::DEFAULT_SIZE,
@@ -304,8 +311,16 @@ class Related_Posts_Abilities extends Registrar {
 			);
 		}
 
-		$size = isset( $input['size'] ) && is_int( $input['size'] ) ? $input['size'] : self::DEFAULT_SIZE;
-		$size = max( 1, min( self::MAX_SIZE, $size ) );
+		if ( isset( $input['per_page'] ) && is_int( $input['per_page'] ) ) {
+			// per_page wins when both are supplied; schema enforces the 1..MAX_SIZE
+			// range, the clamp here is defense in depth for direct callers that
+			// bypass schema validation.
+			$size = max( 1, min( self::MAX_SIZE, $input['per_page'] ) );
+		} elseif ( isset( $input['size'] ) && is_int( $input['size'] ) ) {
+			$size = max( 1, min( self::MAX_SIZE, $input['size'] ) );
+		} else {
+			$size = self::DEFAULT_SIZE;
+		}
 
 		$args = array( 'size' => $size );
 
