@@ -798,4 +798,60 @@ class Jetpack_Mu_Wpcom {
 		}
 		return $data;
 	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal,
+	 * since callers may run on activation / install / update request paths.
+	 *
+	 * @param string $feature Logstash `feature` bucket (e.g. "plugin-conflicts-guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			if ( ! function_exists( 'log2logstash' ) ) {
+				$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+				if ( is_readable( $log2logstash_path ) ) {
+					require_once $log2logstash_path;
+				}
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => get_current_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			wp_remote_post(
+				'https://public-api.wordpress.com/rest/v1.1/logstash',
+				array(
+					'body'     => array( 'params' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) ),
+					'blocking' => false,
+					'timeout'  => 1,
+				)
+			);
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must not escalate on activation / install / update request paths.
+			unset( $e );
+		}
+	}
 }
