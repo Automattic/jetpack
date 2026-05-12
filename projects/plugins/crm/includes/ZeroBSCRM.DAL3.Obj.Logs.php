@@ -1119,7 +1119,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
 			$res['type']      = $this->stripSlashes( $obj->zbsl_type );
 			$res['shortdesc'] = $this->stripSlashes( $obj->zbsl_shortdesc );
 			$res['longdesc']  = $this->stripSlashes( $obj->zbsl_longdesc );
-			$res['pinned']    = ( (int) $obj->zbsl_pinned === 1 );
+			$res['pinned']    = ( isset( $obj->zbsl_pinned ) && (int) $obj->zbsl_pinned === 1 );
 
 			// to maintain old obj more easily, here we refine created into datestamp
 			$res['created']    = zeroBSCRM_locale_utsToDatetime( $obj->zbsl_created );
