@@ -1,8 +1,3 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-package.json      export-ignore
-
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
@@ -10,16 +5,7 @@ build/**         production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-changelog/**      production-exclude
-.phpcs.dir.xml    production-exclude
 src/client/**     production-exclude
-tests/**          production-exclude
 declarations.d.ts production-exclude
 global.d.ts       production-exclude
-babel.config.js   production-exclude
-eslint.config.js  production-exclude
-jest.config.cjs   production-exclude
 postcss.config.js production-exclude
-tsconfig.json     production-exclude
-webpack.config.js production-exclude

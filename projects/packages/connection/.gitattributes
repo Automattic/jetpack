@@ -1,19 +1,11 @@
 # Files not needed to be distributed in the package.
-.gitattributes   export-ignore
-.github/         export-ignore
-package.json     export-ignore
 docs/            export-ignore
 
 # Files to include in the mirror repo
 /dist/**         production-include
 
 # Files not needed in the production build.
-.phpcs.dir.xml    production-exclude
-/changelog/**     production-exclude
-/tests/**         production-exclude
-.gitignore        production-exclude
 src/js/**         production-exclude
-webpack.config.js production-exclude
 /dist/*.css.map   production-exclude
 /dist/*.js.map    production-exclude
 src/identity-crisis/_inc/*.scss production-exclude

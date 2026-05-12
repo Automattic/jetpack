@@ -20,22 +20,12 @@ vendor/wikimedia/aho-corasick/**                production-include
 # Remember to end all directories with `/**` to properly tag every file.
 /app/assets/src/**                              production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
-/changelog/**                                   production-exclude
 /docs/**                                        production-exclude
-/node_modules/**                                production-exclude
-/tests/**                                       production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
 /vendor/automattic/jetpack-test-environment/**  production-exclude
 /.editorconfig                                  production-exclude
-/.gitattributes                                 production-exclude
-/.gitignore                                     production-exclude
-/.phpcs.dir.xml                                 production-exclude
 /.prettierrc.js                                 production-exclude
-/babel.config.js                                production-exclude
-/composer.lock                                  production-exclude
-/package.json                                   production-exclude
 /README.md                                      production-exclude
 /rollup.config.js                               production-exclude
 /rollup-tsconfig.json                           production-exclude
-/tsconfig.json                                  production-exclude

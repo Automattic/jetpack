@@ -9,16 +9,7 @@ vendor/jetpack-autoloader/**                    production-include
 vendor/wikimedia/aho-corasick/**                production-include
 
 # Files to exclude from mirror repo: Automattic/jetpack-search-plugin
-.babelrc                                        production-exclude
-.gitattributes                                  production-exclude
-.gitignore                                      production-exclude
-.phpcs.dir.xml                                  production-exclude
-babel.config.js                                 production-exclude
 build/**/*.js.map                               production-exclude
-changelog/**                                    production-exclude
-composer.lock                                   production-exclude
-package.json                                    production-exclude
 README.md                                       production-exclude
-tests/**                                        production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
