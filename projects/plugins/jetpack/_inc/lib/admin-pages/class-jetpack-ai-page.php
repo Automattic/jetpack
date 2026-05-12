@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
