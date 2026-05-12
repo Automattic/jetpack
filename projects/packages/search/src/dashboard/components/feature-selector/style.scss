@@ -47,9 +47,6 @@
 	// lifted above that overlay via z-index so they remain clickable.
 	&__card {
 		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-md);
 		padding: var(--wpds-dimension-padding-2xl);
 		background: var(--wpds-color-bg-surface-neutral-strong);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);

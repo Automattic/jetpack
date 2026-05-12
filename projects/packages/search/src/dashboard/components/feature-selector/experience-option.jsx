@@ -78,7 +78,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
 	return (
-		<div className={ className }>
+		<Stack direction="column" gap="md" className={ className }>
 			<input
 				id={ inputId }
 				type="radio"
@@ -162,7 +162,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					/>
 				</Stack>
 			) }
-		</div>
+		</Stack>
 	);
 }
 

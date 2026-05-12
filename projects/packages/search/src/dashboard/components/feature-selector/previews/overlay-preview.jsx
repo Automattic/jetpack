@@ -1,4 +1,5 @@
 import { Icon, search } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import './overlay-preview.scss';
 
 /**
@@ -11,20 +12,30 @@ import './overlay-preview.scss';
  */
 export default function OverlayPreview() {
 	return (
-		<div className="jp-search-feature-selector__overlay-preview" aria-hidden="true">
+		<Stack className="jp-search-feature-selector__overlay-preview" aria-hidden="true">
 			<div className="jp-search-feature-selector__overlay-preview-page">
 				<div className="jp-search-feature-selector__overlay-preview-page-bar" />
 				<div className="jp-search-feature-selector__overlay-preview-page-bar is-short" />
 				<div className="jp-search-feature-selector__overlay-preview-popup">
-					<div className="jp-search-feature-selector__overlay-preview-search">
+					<Stack
+						direction="row"
+						gap="sm"
+						align="center"
+						className="jp-search-feature-selector__overlay-preview-search"
+					>
 						<Icon
 							className="jp-search-feature-selector__overlay-preview-search-icon"
 							icon={ search }
 							size={ 16 }
 						/>
 						pasta
-					</div>
-					<div className="jp-search-feature-selector__overlay-preview-result">
+					</Stack>
+					<Stack
+						direction="row"
+						gap="sm"
+						align="center"
+						className="jp-search-feature-selector__overlay-preview-result"
+					>
 						<span className="jp-search-feature-selector__overlay-preview-thumb" />
 						<div>
 							<div className="jp-search-feature-selector__overlay-preview-result-title">
@@ -32,8 +43,13 @@ export default function OverlayPreview() {
 							</div>
 							<div className="jp-search-feature-selector__overlay-preview-result-meta">Recipes</div>
 						</div>
-					</div>
-					<div className="jp-search-feature-selector__overlay-preview-result">
+					</Stack>
+					<Stack
+						direction="row"
+						gap="sm"
+						align="center"
+						className="jp-search-feature-selector__overlay-preview-result"
+					>
 						<span className="jp-search-feature-selector__overlay-preview-thumb" />
 						<div>
 							<div className="jp-search-feature-selector__overlay-preview-result-title">
@@ -41,9 +57,9 @@ export default function OverlayPreview() {
 							</div>
 							<div className="jp-search-feature-selector__overlay-preview-result-meta">Reviews</div>
 						</div>
-					</div>
+					</Stack>
 				</div>
 			</div>
-		</div>
+		</Stack>
 	);
 }

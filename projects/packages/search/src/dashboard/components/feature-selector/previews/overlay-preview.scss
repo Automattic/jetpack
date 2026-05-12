@@ -1,9 +1,8 @@
 // Decorative overlay-search illustration shown at the top of the Overlay
-// card: a stylised page with the search popup sitting on top of it.
-// Matched in min-height to the other previews so each card's preview row
-// reads the same size in the grid.
+// card: a stylised page with the search popup sitting on top of it. Flex
+// layout (single child filling the available height) is provided by
+// `<Stack>` in the JSX; this file only carries visual styling.
 .jp-search-feature-selector__overlay-preview {
-	display: flex;
 	width: 100%;
 	min-height: 180px;
 	padding: var(--wpds-dimension-padding-md);
@@ -14,7 +13,7 @@
 
 // Inner "page" reuses the outer card's grey so the surface reads as one
 // continuous canvas; the popup floats above it without a nested-card look.
-// `flex: 1` lets it stretch to fill the outer's locked height.
+// `flex: 1` lets it stretch to fill the Stack's row.
 .jp-search-feature-selector__overlay-preview-page {
 	position: relative;
 	flex: 1 1 auto;
@@ -47,9 +46,6 @@
 }
 
 .jp-search-feature-selector__overlay-preview-search {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	background: var(--wpds-color-bg-surface-neutral-weak);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
@@ -65,9 +61,6 @@
 }
 
 .jp-search-feature-selector__overlay-preview-result {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
 	padding-block: var(--wpds-dimension-padding-xs);
 
 	&:not(:last-child) {
