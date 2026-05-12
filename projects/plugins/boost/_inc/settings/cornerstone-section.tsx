@@ -1,19 +1,22 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { createInterpolateElement, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Card, CollapsibleCard, Link } from '@wordpress/ui';
+import { Link } from '@wordpress/ui';
 import {
 	useCornerstonePagesList,
 	useCornerstonePagesProperties,
 	useSetCornerstonePagesList,
 } from '../lib/use-cornerstone-pages';
-import { useModulesState, useSetModuleState } from '../lib/use-modules-state';
 import { useRegenerateCriticalCss } from '../lib/use-critical-css-state';
+import { useLcpState, useRequestLcpAnalyze } from '../lib/use-lcp-state';
+import { useModulesState, useSetModuleState } from '../lib/use-modules-state';
 import { usePremiumFeatures } from '../lib/use-premium-features';
+import ModuleRow from './module-row';
+import ModuleSubrow from './module-subrow';
+import SectionCard from './section-card';
 import UpgradeCTA from './upgrade-cta';
-import './cornerstone-pages-card.scss';
 
 declare global {
 	const Jetpack_Boost: { site: { url: string; online?: boolean } };
@@ -27,19 +30,11 @@ function parseTextareaToList( raw: string ): string[] {
 }
 
 /**
- * Validate the textarea input against the legacy URL rules:
- *
- * - Each non-empty line must be a URL whose origin matches the
- *   Boost-localized site URL.
- * - The homepage path can't be added explicitly — it's already
- *   covered by the predefined list.
- * - The total line count must not exceed the plan's `max_pages`.
- *
- * Returns an error message on failure, `null` on success.
+ * Validate the textarea input against the legacy URL rules.
  *
  * @param raw      - Textarea value.
  * @param maxItems - Plan's max custom page count.
- * @return Error message string or null.
+ * @return Error message string, or null on success.
  */
 function validateInput( raw: string, maxItems: number ): string | null {
 	const lines = parseTextareaToList( raw );
@@ -85,32 +80,73 @@ function validateInput( raw: string, maxItems: number ): string | null {
 	return null;
 }
 
+function formatTimeSince( ts: number | null | undefined ): string {
+	if ( ! ts ) {
+		return '';
+	}
+	const seconds = Math.max( 0, Math.floor( Date.now() / 1000 - ts ) );
+	if ( seconds < 60 ) {
+		return __( 'just now', 'jetpack-boost' );
+	}
+	const minutes = Math.floor( seconds / 60 );
+	if ( minutes < 60 ) {
+		return sprintf(
+			/* translators: %d minutes ago. */
+			_n( '%d minute ago', '%d minutes ago', minutes, 'jetpack-boost' ),
+			minutes
+		);
+	}
+	const hours = Math.floor( minutes / 60 );
+	if ( hours < 24 ) {
+		return sprintf(
+			/* translators: %d hours ago. */
+			_n( '%d hour ago', '%d hours ago', hours, 'jetpack-boost' ),
+			hours
+		);
+	}
+	const days = Math.floor( hours / 24 );
+	return sprintf(
+		/* translators: %d days ago. */
+		_n( '%d day ago', '%d days ago', days, 'jetpack-boost' ),
+		days
+	);
+}
+
+type Props = {
+	modulesState: ReturnType< typeof useModulesState >[ 'data' ];
+	isLoading: boolean;
+};
+
 /**
- * Cornerstone Pages settings card. Collapsible so it doesn't dominate
- * the Settings list. Surfaces the legacy editor's full feature set:
- * URL textarea with plan-aware validation, "Include default pages"
- * action that hydrates from the server's curated `default_pages` list
- * (plan-aware truncation), Save button (enabled only when dirty +
- * valid), Prerender Cornerstone Pages toggle, and a free-plan upgrade
- * Notice that funnels into My Jetpack's Boost add-on flow.
+ * Cornerstone pages section — the top section of the Settings tab
+ * per the new IA. Contains the description, the **Edit pages**
+ * subrow (URL editor expands inline with plan-aware validation +
+ * Include defaults), the **Pre-render cornerstone pages** toggle,
+ * and the **Optimize LCP Images for smoother experience** toggle
+ * with its **Regenerate** subrow.
  *
- * Side effects on save mirror legacy behavior: invalidate the
- * Critical CSS state query so the Status card flips into `pending`,
- * fire a Cloud CSS regenerate when applicable, and invalidate LCP
- * state so the LCP card re-runs after the page list changes.
+ * LCP is grouped here rather than under "Image loading
+ * optimization" because LCP optimization is keyed off the
+ * cornerstone-pages list — both pieces are conceptually about the
+ * site's important pages.
  *
- * @return The Cornerstone Pages card element.
+ * @param props              - See `Props`.
+ * @param props.modulesState
+ * @param props.isLoading
+ * @return The Cornerstone section card.
  */
-export default function CornerstonePagesCard(): JSX.Element {
+export default function CornerstoneSection( { modulesState, isLoading }: Props ): JSX.Element {
 	const supportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const listQuery = useCornerstonePagesList();
 	const propertiesQuery = useCornerstonePagesProperties();
 	const setListMutation = useSetCornerstonePagesList();
-	const modulesQuery = useModulesState();
-	const [ setModuleState, moduleMutation ] = useSetModuleState();
+	const [ , moduleMutation ] = useSetModuleState();
 	const regenerateCss = useRegenerateCriticalCss();
 	const premium = usePremiumFeatures();
 	const client = useQueryClient();
+
+	const lcpStateQuery = useLcpState();
+	const analyze = useRequestLcpAnalyze();
 
 	const savedList = useMemo( () => listQuery.data ?? [], [ listQuery.data ] );
 	const properties = propertiesQuery.data ?? null;
@@ -118,7 +154,6 @@ export default function CornerstonePagesCard(): JSX.Element {
 	const maxItems = isPremium ? properties?.max_pages_premium ?? 10 : properties?.max_pages ?? 1;
 
 	const [ draft, setDraft ] = useState( '' );
-
 	const savedJoined = savedList.join( '\n' );
 	useEffect( () => {
 		setDraft( current => ( current === '' || current === savedJoined ? savedJoined : current ) );
@@ -140,23 +175,16 @@ export default function CornerstonePagesCard(): JSX.Element {
 
 	const isDirty = draft !== savedJoined;
 	const isSaving = setListMutation.isPending;
-	const speculation = modulesQuery.data?.speculation_rules;
-	const isSpeculationAvailable = speculation?.available ?? false;
-	const isPrerenderOn = speculation?.active ?? false;
-	const isPrerenderBusy = modulesQuery.isLoading || moduleMutation.isPending;
 
-	const cloudCssState = modulesQuery.data?.cloud_css;
-	const isCloudCssActive = cloudCssState?.active ?? false;
+	const speculation = modulesState?.speculation_rules;
+	const isSpeculationAvailable = speculation?.available ?? false;
+	const lcpModuleState = modulesState?.lcp;
 
 	const onSave = () => {
 		const next = parseTextareaToList( draft );
 		setListMutation.mutate( next, {
 			onSuccess: () => {
-				// Match legacy side effects: regenerate Cloud CSS if it
-				// owns the Critical CSS generation, and invalidate the
-				// LCP state so the LCP card re-runs against the new
-				// cornerstone page list.
-				if ( isCloudCssActive ) {
+				if ( modulesState?.cloud_css?.active ) {
 					regenerateCss.mutate( undefined as never );
 				}
 				client.invalidateQueries( {
@@ -166,13 +194,6 @@ export default function CornerstonePagesCard(): JSX.Element {
 		} );
 	};
 
-	const onTogglePrerender = () => {
-		setModuleState( 'speculation_rules', ! isPrerenderOn );
-	};
-
-	// "Include default pages" — additive merge of the server-side
-	// curated list (Yoast, WooCommerce, etc.) into the current draft,
-	// truncated to the plan's free slot count.
 	const defaultPages = useMemo(
 		() => properties?.default_pages ?? [],
 		[ properties?.default_pages ]
@@ -185,79 +206,54 @@ export default function CornerstonePagesCard(): JSX.Element {
 	const availableSlots = Math.max( 0, maxItems - currentPages.length );
 	const includeDisabled =
 		defaultPages.length === 0 || missingDefaults.length === 0 || availableSlots === 0 || isSaving;
-	const includeTooltip = ( () => {
-		if ( defaultPages.length === 0 ) {
-			return __( 'No default pages available. Add pages manually.', 'jetpack-boost' );
-		}
-		if ( missingDefaults.length === 0 ) {
-			return __( 'Default pages are already included.', 'jetpack-boost' );
-		}
-		if ( availableSlots === 0 ) {
-			return __( 'Cannot include defaults. Plan limit reached.', 'jetpack-boost' );
-		}
-		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
-		if ( pagesToLoad < missingDefaults.length ) {
-			return sprintf(
-				/* translators: %1$d is the count that will be loaded; %2$d is the total available. */
-				__( 'Include %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
-				pagesToLoad,
-				missingDefaults.length
-			);
-		}
-		return sprintf(
-			/* translators: %d is the number of pages that will be included. */
-			_n(
-				'Include %d default page from compatible plugins.',
-				'Include %d default pages from compatible plugins.',
-				pagesToLoad,
-				'jetpack-boost'
-			),
-			pagesToLoad
-		);
-	} )();
 	const onIncludeDefaults = () => {
 		const slice = missingDefaults.slice( 0, availableSlots );
-		const next = [ ...currentPages, ...slice ].join( '\n' );
-		setDraft( next );
+		setDraft( [ ...currentPages, ...slice ].join( '\n' ) );
 	};
 
+	const lcpUpdatedLabel = formatTimeSince( lcpStateQuery.data?.updated );
+	const isLcpPending = lcpStateQuery.data?.status === 'pending';
+	const isLcpBusy = isLcpPending || analyze.isPending;
+	const lcpSummary = isLcpPending
+		? __( 'Analyzing your cornerstone pages…', 'jetpack-boost' )
+		: lcpUpdatedLabel
+		? sprintf(
+				/* translators: %s is the time since the last LCP optimization. */
+				__( 'Last optimized %s', 'jetpack-boost' ),
+				lcpUpdatedLabel
+		  )
+		: __( 'Not optimized yet', 'jetpack-boost' );
+	const onRegenerateLcp = () => analyze.mutate( undefined as never );
+
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
-			<CollapsibleCard.Header>
-				<div className="jetpack-boost-cornerstone__header">
-					<Card.Title>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</Card.Title>
-					<span className="jetpack-boost-cornerstone__summary">{ summary }</span>
-				</div>
-			</CollapsibleCard.Header>
-			<CollapsibleCard.Content>
-				<p className="jetpack-boost-cornerstone__description">
-					{ createInterpolateElement(
+		<SectionCard title={ __( 'Cornerstone pages', 'jetpack-boost' ) }>
+			<p className="jetpack-boost-cornerstone__description">
+				{ createInterpolateElement(
+					__(
+						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <link>Learn more</link>',
+						'jetpack-boost'
+					),
+					{ link: <Link openInNewTab href={ supportLink } /> }
+				) }
+			</p>
+
+			{ ! isPremium && (
+				<UpgradeCTA
+					identifier="cornerstone-10-pages"
+					description={ sprintf(
+						/* translators: %d is the premium page limit. */
 						__(
-							'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <link>Learn more</link>',
+							'Free plans can list one cornerstone page on top of the homepage. Upgrade to add up to %d.',
 							'jetpack-boost'
 						),
-						{ link: <Link openInNewTab href={ supportLink } /> }
+						properties?.max_pages_premium ?? 10
 					) }
-				</p>
+				/>
+			) }
 
-				{ ! isPremium && (
-					<UpgradeCTA
-						identifier="cornerstone-10-pages"
-						description={ sprintf(
-							/* translators: %d is the premium page limit. */
-							__(
-								'Free plans can list one cornerstone page on top of the homepage. Upgrade to add up to %d.',
-								'jetpack-boost'
-							),
-							properties?.max_pages_premium ?? 10
-						) }
-					/>
-				) }
-
+			<ModuleSubrow summary={ summary } actionLabel={ __( 'Edit pages', 'jetpack-boost' ) }>
 				{ propertiesQuery.isLoading && ! properties ? (
-					<div className="jetpack-boost-cornerstone__loading">
-						<Spinner />
-					</div>
+					<Spinner />
 				) : (
 					<div className="jetpack-boost-cornerstone__editor">
 						<p className="jetpack-boost-cornerstone__label">
@@ -290,7 +286,7 @@ export default function CornerstonePagesCard(): JSX.Element {
 								sprintf(
 									/* translators: %s is the site URL. */
 									__(
-										'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
+										'Add one URL per line. Only URLs starting with <b>%s</b> will be included.',
 										'jetpack-boost'
 									),
 									Jetpack_Boost.site.url
@@ -298,7 +294,6 @@ export default function CornerstonePagesCard(): JSX.Element {
 								{ b: <strong /> }
 							) }
 						</p>
-
 						<div className="jetpack-boost-cornerstone__actions">
 							<Button
 								variant="primary"
@@ -308,42 +303,44 @@ export default function CornerstonePagesCard(): JSX.Element {
 							>
 								{ __( 'Save', 'jetpack-boost' ) }
 							</Button>
-							{ /*
-							   Native `title` attribute carries the same plan-aware
-							   copy the legacy `Tooltip` exposes. `Tooltip` from
-							   `@wordpress/ui` requires its `Trigger` to BE the
-							   button (it renders one); wrapping our own Button
-							   would double-up the element. The native title is
-							   the lowest-friction port.
-							*/ }
-							<Button
-								variant="link"
-								disabled={ includeDisabled }
-								onClick={ onIncludeDefaults }
-								title={ includeTooltip }
-							>
+							<Button variant="link" disabled={ includeDisabled } onClick={ onIncludeDefaults }>
 								{ __( 'Include default pages', 'jetpack-boost' ) }
 							</Button>
 						</div>
 					</div>
 				) }
+			</ModuleSubrow>
 
-				{ isSpeculationAvailable && (
-					<div className="jetpack-boost-cornerstone__prerender">
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }
-							help={ __(
-								'Prerender these pages to improve their loading performance, but be mindful of potential drawbacks.',
-								'jetpack-boost'
-							) }
-							checked={ isPrerenderOn }
-							disabled={ isPrerenderBusy }
-							onChange={ onTogglePrerender }
-						/>
-					</div>
+			{ isSpeculationAvailable && (
+				<ModuleRow
+					slug="speculation_rules"
+					state={ speculation }
+					isLoading={ isLoading || moduleMutation.isPending }
+					label={ __( 'Pre-render cornerstone pages', 'jetpack-boost' ) }
+					description={ __(
+						'Prerender these pages to improve their loading performance, but be mindful of potential drawbacks.',
+						'jetpack-boost'
+					) }
+				/>
+			) }
+
+			<ModuleRow
+				slug="lcp"
+				state={ lcpModuleState }
+				isLoading={ isLoading }
+				label={ __( 'Optimize LCP Images for smoother experience', 'jetpack-boost' ) }
+				description={ __(
+					'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
+					'jetpack-boost'
 				) }
-			</CollapsibleCard.Content>
-		</CollapsibleCard.Root>
+			>
+				<ModuleSubrow
+					summary={ lcpSummary }
+					actionLabel={ __( 'Regenerate', 'jetpack-boost' ) }
+					onAction={ onRegenerateLcp }
+					disabled={ isLcpBusy }
+				/>
+			</ModuleRow>
+		</SectionCard>
 	);
 }

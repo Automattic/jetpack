@@ -1,8 +1,8 @@
-// Settings tab layout. Page content caps at 660px so the card column
-// reads as a focused settings list (designed alongside the Overview's
-// 720px cap — the narrower line gives the toggle + label row a more
-// natural rhythm). Cards stack vertically with a comfortable gap so
-// each module reads as its own surface.
+// Settings tab layout. Page content caps at 660px so the section
+// stack reads as a focused settings column. Each design "section"
+// (Cornerstone pages, Code loading optimization, Image CDN
+// configuration, Image guide) renders as its own `Card.Root` with a
+// title in the header and one or more `ModuleRow`s in the content.
 
 $jetpack-boost-settings-max-inline: 660px;
 
@@ -19,33 +19,208 @@ $jetpack-boost-settings-max-inline: 660px;
 	min-block-size: 240px;
 }
 
-// Regular body-text description rendered below the toggle row. Kept
-// out of `ToggleControl`'s `help` slot so the copy reads as the
-// module's primary supporting text, not muted helper text under the
-// label.
-.jetpack-boost-settings__module-description {
+// One module entry inside a section card — toggle + label row, then
+// the body-md description below, then optional persistent and
+// children slots. The row owns no card chrome; the parent section
+// card provides the surface.
+.jetpack-boost-module-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.jetpack-boost-module-row__description {
 	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
-	margin: var(--wpds-dimension-gap-sm, 8px) 0 0;
+	margin: 0;
+	// Indent the description so it lines up with the toggle's label,
+	// matching the visual rhythm in the design.
+	padding-inline-start: 38px;
 }
 
-// Persistent slot inside a `ModuleCard`. Renders regardless of toggle
-// state — used for upgrade Notices that need to stay visible whether
-// or not the user has the module enabled.
-.jetpack-boost-settings__module-persistent {
-	margin-block-start: var(--wpds-dimension-gap-md, 12px);
+.jetpack-boost-module-row__persistent {
+	margin-block-start: var(--wpds-dimension-gap-sm, 8px);
 }
 
-// Sub-controls slot inside a `ModuleCard`. Rendered below the
-// description only while the module is active — Critical CSS Status,
-// LCP Optimize button, Page Cache options, Minify exclude lists,
-// Image CDN quality + auto-resize sub-controls.
-.jetpack-boost-settings__module-children {
-	margin-block-start: var(--wpds-dimension-gap-md, 12px);
+.jetpack-boost-module-row__children {
+	margin-block-start: var(--wpds-dimension-gap-sm, 8px);
 }
 
-// Upgrade Notice surface used by `UpgradeCTA`. Inherits the
+// "Summary | action link" row. Soft gray surface inside a thin
+// border so it reads as a sub-pane within the module row. Matches
+// the design's "Except: jquery, …" / "Adjust quality" / "Edit
+// pages" / "Last optimized X" subrow chrome.
+.jetpack-boost-subrow {
+	background-color: var(--wpds-color-bg-surface-neutral-weak, #f6f7f7);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #ebebeb);
+	border-radius: var(--wpds-border-radius-md, 6px);
+}
+
+.jetpack-boost-subrow__row {
+	align-items: center;
+	display: flex;
+	gap: var(--wpds-dimension-gap-md, 12px);
+	justify-content: space-between;
+	padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-lg, 16px);
+}
+
+.jetpack-boost-subrow__summary {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	font-size: var(--wpds-typography-font-size-sm, 13px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Link-style action on the trailing edge. Suppresses the default
+// WP Button padding so it sits visually flush with the summary text.
+.jetpack-boost-subrow__action {
+	flex-shrink: 0;
+}
+
+// Inline panel revealed when the subrow's action is clicked
+// (only for action-with-editor subrows; action-only subrows don't
+// render this).
+.jetpack-boost-subrow__panel {
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #ebebeb);
+	padding: var(--wpds-dimension-padding-lg, 16px);
+}
+
+// Shared chrome for any inline editor that lives inside a subrow
+// panel — Cornerstone URL textarea, Minify exclude handles, Image
+// CDN quality sliders, Page Cache bypass patterns.
+.jetpack-boost-inline-editor {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-boost-inline-editor__label {
+	display: block;
+}
+
+.jetpack-boost-inline-editor__textarea {
+	border: 1px solid var(--wpds-color-stroke-surface-neutral, #c7c7c7);
+	border-radius: var(--wpds-border-radius-sm, 4px);
+	font-family: var(--wpds-typography-font-family-mono, monospace);
+	font-size: var(--wpds-typography-font-size-sm, 13px);
+	line-height: var(--wpds-typography-line-height-md, 1.5);
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	resize: vertical;
+	width: 100%;
+}
+
+.jetpack-boost-inline-editor__input {
+	border: 1px solid var(--wpds-color-stroke-surface-neutral, #c7c7c7);
+	border-radius: var(--wpds-border-radius-sm, 4px);
+	font-family: var(--wpds-typography-font-family-mono, monospace);
+	font-size: var(--wpds-typography-font-size-sm, 13px);
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	width: 100%;
+}
+
+.jetpack-boost-inline-editor__helper {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: var(--wpds-typography-font-size-xs, 12px);
+	margin: 0;
+}
+
+.jetpack-boost-inline-editor__actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Cornerstone-specific bits — the predefined-pages list, the
+// validation-error copy, and the bordered chrome around the URL
+// editor. Lives here rather than in its own file because everything
+// outside this single editor is now standard `inline-editor` chrome.
+.jetpack-boost-cornerstone__description {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	margin: 0 0 var(--wpds-dimension-gap-md, 12px) 0;
+}
+
+.jetpack-boost-cornerstone__label {
+	margin: 0;
+}
+
+.jetpack-boost-cornerstone__predefined {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	> li {
+		font-family: var(--wpds-typography-font-family-mono, monospace);
+		font-size: var(--wpds-typography-font-size-sm, 13px);
+	}
+}
+
+.jetpack-boost-cornerstone__textarea {
+	border: 1px solid var(--wpds-color-stroke-surface-neutral, #c7c7c7);
+	border-radius: var(--wpds-border-radius-sm, 4px);
+	font-family: var(--wpds-typography-font-family-mono, monospace);
+	font-size: var(--wpds-typography-font-size-sm, 13px);
+	line-height: var(--wpds-typography-line-height-md, 1.5);
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	resize: vertical;
+	width: 100%;
+}
+
+.jetpack-boost-cornerstone__editor {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-boost-cornerstone__error {
+	color: var(--wpds-color-fg-content-error, #cc1818);
+	font-size: var(--wpds-typography-font-size-sm, 13px);
+	margin: var(--wpds-dimension-gap-xs, 4px) 0 0;
+}
+
+.jetpack-boost-cornerstone__helper {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: var(--wpds-typography-font-size-xs, 12px);
+	margin: 0;
+}
+
+.jetpack-boost-cornerstone__actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Page Cache error row rendered into the module row's `persistent`
+// slot. Lays out the error message + retry/dismiss links inline
+// since they need to stay reachable when the toggle is off.
+.jetpack-boost-page-cache__error {
+	align-items: center;
+	color: var(--wpds-color-fg-content-error, #cc1818);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md, 12px);
+}
+
+// One quality-slider row inside the Adjust quality subrow editor.
+// Borrows the divider treatment from the previous standalone panel
+// so each format reads as its own block.
+.jetpack-boost-image-cdn-quality__format {
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #ebebeb);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding-block-start: var(--wpds-dimension-gap-md, 12px);
+
+	&:first-child {
+		border-top: 0;
+		padding-block-start: 0;
+	}
+}
+
+// Upgrade Notice surface used inside section cards. Inherits the
 // `intent="info"` token palette from `@wordpress/ui` `Notice.Root`;
-// only the layout glue lives here.
+// only the alignment glue lives here.
 .jetpack-boost-settings__upgrade {
 	margin: 0;
 }
