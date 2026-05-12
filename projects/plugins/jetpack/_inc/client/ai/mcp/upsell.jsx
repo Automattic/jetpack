@@ -8,7 +8,8 @@
  * `wordpress.com/plans/<host>`, which 403'd for non-.com sites (AIINT-404).
  *
  * Visual layout mirrors Activity Log's `UpsellCallout` (copy on the left,
- * illustration on the right; column-reverse on mobile).
+ * illustration on the right on viewports wider than 600px; stacks
+ * vertically below that with the copy on top and the illustration below).
  */
 
 import { Button } from '@wordpress/components';
