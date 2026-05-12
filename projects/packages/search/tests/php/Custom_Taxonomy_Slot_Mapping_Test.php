@@ -313,6 +313,100 @@ class Custom_Taxonomy_Slot_Mapping_Test extends TestCase {
 	}
 
 	/**
+	 * `backfill( 'rebuild' )` runs the slot-taxonomy enumeration query
+	 * before the per-post mirror — that's the wipe step. Observe the
+	 * `pre_get_terms` action: in rebuild mode it fires with the slot
+	 * taxonomy in `$query->query_vars['taxonomy']`; in mirror mode it
+	 * never does.
+	 *
+	 * The actual `wp_delete_term()` calls and the resulting empty-slot
+	 * state are verified in a live dev env — WorDBless's `get_terms()`
+	 * doesn't enumerate freshly-inserted terms, so we can't observe the
+	 * delete loop from this harness.
+	 */
+	public function test_backfill_rebuild_mode_runs_slot_enumeration() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function ( $map ) {
+			$map['genre'] = 'jetpack-search-tag1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		Custom_Taxonomy_Slot_Mapping::register_slot_taxonomies();
+
+		$slot_enumerations = array();
+		$listener          = static function ( $query ) use ( &$slot_enumerations ) {
+			$taxes = (array) ( $query->query_vars['taxonomy'] ?? array() );
+			foreach ( $taxes as $tax ) {
+				if ( 'jetpack-search-tag1' === $tax ) {
+					$slot_enumerations[] = $tax;
+				}
+			}
+		};
+		add_action( 'pre_get_terms', $listener, 5 );
+
+		try {
+			Custom_Taxonomy_Slot_Mapping::backfill( 'rebuild' );
+			$this->assertNotEmpty( $slot_enumerations, 'rebuild mode must enumerate the slot taxonomy before re-mirroring.' );
+		} finally {
+			remove_action( 'pre_get_terms', $listener, 5 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'jetpack-search-tag1' );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * The default `mirror` mode must NOT enumerate the slot taxonomy —
+	 * that's the cheap path that skips the wipe. If the enumeration ever
+	 * leaks into the default path it'd silently double the runtime cost.
+	 */
+	public function test_backfill_default_mode_skips_slot_enumeration() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function ( $map ) {
+			$map['genre'] = 'jetpack-search-tag1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		Custom_Taxonomy_Slot_Mapping::register_slot_taxonomies();
+
+		$slot_enumerations = array();
+		$listener          = static function ( $query ) use ( &$slot_enumerations ) {
+			$taxes = (array) ( $query->query_vars['taxonomy'] ?? array() );
+			foreach ( $taxes as $tax ) {
+				if ( 'jetpack-search-tag1' === $tax ) {
+					$slot_enumerations[] = $tax;
+				}
+			}
+		};
+		add_action( 'pre_get_terms', $listener, 5 );
+
+		try {
+			Custom_Taxonomy_Slot_Mapping::backfill();
+			Custom_Taxonomy_Slot_Mapping::backfill( 'mirror' );
+			$this->assertSame( array(), $slot_enumerations, 'mirror mode must never enumerate slot taxonomies.' );
+		} finally {
+			remove_action( 'pre_get_terms', $listener, 5 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'jetpack-search-tag1' );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * An unknown mode string falls back to `mirror` (with a
+	 * `_doing_it_wrong` notice) rather than crashing — defensive guard
+	 * against typos in one-off scripts.
+	 */
+	public function test_backfill_falls_back_to_mirror_on_unknown_mode() {
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		try {
+			$this->assertSame( 0, Custom_Taxonomy_Slot_Mapping::backfill( 'wipe-and-pray' ) );
+		} finally {
+			remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		}
+	}
+
+	/**
 	 * `get_map()` is the single source of truth. The feature is off by
 	 * default — the filter returns an empty array unless a site adds an
 	 * entry.

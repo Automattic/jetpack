@@ -45,6 +45,27 @@ namespace Automattic\Jetpack\Search;
 class Custom_Taxonomy_Slot_Mapping {
 
 	/**
+	 * Backfill modes accepted by `backfill()`.
+	 *
+	 * - `mirror`: default. Per-post replacement only. For each post that
+	 *   currently has at least one user-side term, `wp_set_object_terms()`
+	 *   resets the slot's post-set for that post to match the current
+	 *   user-side names. **Posts that lost every user-side term during a
+	 *   gap when the auto-mirror was inactive are *not* visited** — their
+	 *   stale slot relationships orphan. Suitable for the common case:
+	 *   one-time initialization on a site that has data predating the
+	 *   mapping.
+	 * - `rebuild`: full sweep. Every term in the slot taxonomy is deleted
+	 *   first (which cascades to drop every slot term-relationship), then
+	 *   the per-post mirror runs over the current user-side state. The
+	 *   resulting slot is byte-for-byte a fresh projection of the user-side
+	 *   taxonomy with no orphans. Use when a site has had the mapping
+	 *   toggle on and off, changed slot, or otherwise believes the slot has
+	 *   drifted. Costly on large sites — runs N deletes for N slot terms.
+	 */
+	const BACKFILL_MODES = array( 'mirror', 'rebuild' );
+
+	/**
 	 * Per-request memo backing `get_map()`. The map is validated once per
 	 * request — re-running the validation on every filter-block render and
 	 * on every API request would be wasted work, and the
@@ -371,9 +392,25 @@ class Custom_Taxonomy_Slot_Mapping {
 	 * automatically; sites with millions of posts shouldn't pay this cost on
 	 * every request. Call from a one-off script or `wp eval`.
 	 *
-	 * @return int Number of (post, taxonomy) pairs mirrored.
+	 * The default `mirror` mode walks user-side terms only and won't clean
+	 * up orphan slot rows from posts that have lost all their user-side
+	 * terms. Pass `rebuild` to wipe the slot taxonomy first and re-project
+	 * from scratch — slower but guarantees no drift survives.
+	 *
+	 * @param string $mode One of `self::BACKFILL_MODES` — `mirror` (default) or `rebuild`.
+	 * @return int Number of (post, taxonomy) pairs mirrored. Slot wipes in
+	 *             `rebuild` mode are not counted; the return value is the
+	 *             count of fresh per-post writes either way.
 	 */
-	public static function backfill(): int {
+	public static function backfill( string $mode = 'mirror' ): int {
+		if ( ! in_array( $mode, self::BACKFILL_MODES, true ) ) {
+			/* translators: %s: invalid mode value passed to backfill(). */
+			$msg = sprintf( esc_html__( 'Unknown backfill mode "%s"; expected one of mirror | rebuild.', 'jetpack-search-pkg' ), esc_html( $mode ) );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
+			_doing_it_wrong( __METHOD__, $msg, 'jetpack-search-pkg $$next-version$$' );
+			$mode = 'mirror';
+		}
+
 		$map = self::get_map();
 		if ( empty( $map ) ) {
 			return 0;
@@ -382,6 +419,29 @@ class Custom_Taxonomy_Slot_Mapping {
 		foreach ( $map as $user_slug => $slot ) {
 			if ( ! taxonomy_exists( $user_slug ) || ! taxonomy_exists( $slot ) ) {
 				continue;
+			}
+			// Rebuild mode: drop every term in the slot taxonomy *before*
+			// the user-side walk. `wp_delete_term()` cascades to remove
+			// each term's term_relationship rows, leaving the slot
+			// post-set empty so the mirror loop projects a fresh copy of
+			// the current user-side state with no orphans. The inner
+			// deletes fire `delete_term` on slot taxonomies; the mirror
+			// handler's `isset( $map[ $taxonomy ] )` gate (map keys are
+			// user-side slugs, never slot slugs) prevents recursion.
+			if ( 'rebuild' === $mode ) {
+				// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
+				$existing_slot_terms = get_terms(
+					array(
+						'taxonomy'   => $slot,
+						'hide_empty' => false,
+						'fields'     => 'ids',
+					)
+				);
+				if ( ! is_wp_error( $existing_slot_terms ) ) {
+					foreach ( (array) $existing_slot_terms as $slot_term_id ) {
+						wp_delete_term( (int) $slot_term_id, $slot );
+					}
+				}
 			}
 			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			$terms = get_terms(
