@@ -1,6 +1,7 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { Text as UIText } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { useParams } from 'react-router';
 import AdminSectionHero from '../../../components/admin-section-hero';
@@ -49,7 +50,29 @@ const HistoryAdminSectionHero: FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
+					<UIText
+						variant="body-sm"
+						style={ {
+							alignItems: 'center',
+							color: 'var(--jp-green-50)',
+							display: 'inline-flex',
+							fontWeight: 600,
+							lineHeight: 1.666,
+							whiteSpace: 'nowrap',
+						} }
+					>
+						<span
+							style={ {
+								backgroundColor: 'var(--jp-green-50)',
+								borderRadius: '50%',
+								flexShrink: 0,
+								height: '0.666em',
+								marginRight: '4px',
+								width: '0.666em',
+							} }
+						/>
+						<span>{ __( 'Active', 'jetpack-protect' ) }</span>
+					</UIText>
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(

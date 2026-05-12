@@ -1,5 +1,6 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import { Text as UIText } from '@wordpress/ui';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import useWafData from '../../hooks/use-waf-data';
@@ -83,11 +84,35 @@ const FirewallAdminSectionHero = () => {
 		return <FirewallSubheading />;
 	}, [ status ] );
 
+	const statusColor = 'on' === status ? 'var(--jp-green-50)' : 'var(--jp-gray-50)';
+
 	return (
 		<AdminSectionHero
 			main={
 				<>
-					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
+					<UIText
+						variant="body-sm"
+						style={ {
+							alignItems: 'center',
+							color: statusColor,
+							display: 'inline-flex',
+							fontWeight: 600,
+							lineHeight: 1.666,
+							whiteSpace: 'nowrap',
+						} }
+					>
+						<span
+							style={ {
+								backgroundColor: statusColor,
+								borderRadius: '50%',
+								flexShrink: 0,
+								height: '0.666em',
+								marginRight: '4px',
+								width: '0.666em',
+							} }
+						/>
+						<span>{ statusLabel }</span>
+					</UIText>
 					<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
 				</>

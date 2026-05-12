@@ -10,6 +10,17 @@ export interface StatusProps {
 	className?: string;
 }
 
+/**
+ * Status component.
+ *
+ * @deprecated Inline the equivalent JSX using `Text` from `@wordpress/ui` and a small color-coded indicator span. The wrapper renders a flex container at `body-extra-small` size with `font-weight: 600` and a `0.666em` round indicator coloured by status (`var(--jp-green-50)` for `active`, `--jp-red-50` for `error`, `--jp-gray-50` for `inactive`, `--jp-yellow-30` for `action`, `--jp-blue-40` for `initializing`).
+ *
+ * @param {StatusProps} props           - The component properties.
+ * @param {string}      props.className - Optional className forwarded to the outer element.
+ * @param {string}      props.label     - Status label. Defaults to a status-derived string.
+ * @param {string}      props.status    - Status key: `active | error | inactive | action | initializing`.
+ * @return {JSX.Element} The `Status` component.
+ */
 const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack-components' ),

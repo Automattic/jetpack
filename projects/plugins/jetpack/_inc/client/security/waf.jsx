@@ -1,8 +1,8 @@
-import { getRedirectUrl, Status } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -206,11 +206,30 @@ export const Waf = class extends Component {
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
 				{ this.props.settings?.standaloneMode && (
-					<Status
+					<Text
+						variant="body-sm"
 						className="waf__standalone__mode"
-						status="active"
-						label={ __( 'Standalone mode', 'jetpack' ) }
-					/>
+						style={ {
+							alignItems: 'center',
+							color: 'var(--jp-green-50)',
+							display: 'inline-flex',
+							fontWeight: 600,
+							lineHeight: 1.666,
+							whiteSpace: 'nowrap',
+						} }
+					>
+						<span
+							style={ {
+								backgroundColor: 'var(--jp-green-50)',
+								borderRadius: '50%',
+								flexShrink: 0,
+								height: '0.666em',
+								marginRight: '4px',
+								width: '0.666em',
+							} }
+						/>
+						<span>{ __( 'Standalone mode', 'jetpack' ) }</span>
+					</Text>
 				) }
 			</div>
 		);

@@ -1,0 +1,56 @@
+.status {
+	align-items: center;
+	display: inline-flex;
+	font-weight: 600;
+	line-height: 1.666;
+	white-space: nowrap;
+
+	&.is-active {
+		color: var(--jp-green-50);
+
+		.indicator {
+			background-color: var(--jp-green-50);
+		}
+	}
+
+	&.is-inactive {
+		color: var(--jp-gray-50);
+
+		.indicator {
+			background-color: var(--jp-gray-50);
+		}
+	}
+
+	&.is-error {
+		color: var(--jp-red-50);
+
+		.indicator {
+			background-color: var(--jp-red-50);
+		}
+	}
+
+	&.is-action {
+		color: var(--jp-yellow-30);
+
+		.indicator {
+			background-color: var(--jp-yellow-30);
+		}
+	}
+
+	&.is-initializing {
+		color: var(--jp-blue-40);
+
+		.indicator {
+			background-color: var(--jp-blue-40);
+		}
+	}
+}
+
+.indicator {
+	background-color: var(--jp-gray-50);
+	border-radius: 50%;
+	flex-shrink: 0;
+	height: 0.666em;
+	margin-right: 4px;
+	width: 0.666em;
+}
