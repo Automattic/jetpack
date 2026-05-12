@@ -59,6 +59,23 @@ export default function FeatureSelector() {
 		}
 	};
 
+	// Inline reminder rendered next to the heading once the form is dirty, so
+	// users on shorter screens know they still need to scroll down to save.
+	const getPendingNotice = () => {
+		switch ( pendingExperience ) {
+			case EXPERIENCE.EMBEDDED:
+				return __( 'Embedded search selected, save to apply.', 'jetpack-search-pkg' );
+			case EXPERIENCE.OVERLAY:
+				return __( 'Overlay search selected, save to apply.', 'jetpack-search-pkg' );
+			case EXPERIENCE.INLINE:
+				return __( 'Theme search selected, save to apply.', 'jetpack-search-pkg' );
+			case EXPERIENCE.OFF:
+				return __( 'Off selected, save to apply.', 'jetpack-search-pkg' );
+			default:
+				return '';
+		}
+	};
+
 	const onSubmit = event => {
 		event.preventDefault();
 		if ( isSaveDisabled ) {
@@ -69,9 +86,22 @@ export default function FeatureSelector() {
 
 	return (
 		<>
-			<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
-				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
-			</h2>
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				gap="md"
+				wrap="wrap"
+				className="jp-search-feature-selector__heading-row"
+				aria-live="polite"
+			>
+				<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
+					{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
+				</h2>
+				{ isDirty && (
+					<p className="jp-search-feature-selector__pending-notice">{ getPendingNotice() }</p>
+				) }
+			</Stack>
 			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
 				<fieldset
 					className="jp-search-feature-selector__fieldset"
