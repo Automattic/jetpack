@@ -78,7 +78,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
 	return (
-		<Stack direction="column" gap="md" className={ className }>
+		<Stack direction="column" gap="lg" className={ className }>
 			<input
 				id={ inputId }
 				type="radio"
@@ -105,7 +105,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</span>
 			) }
 			<Preview />
-			<Stack direction="column" gap="xs" className="jp-search-feature-selector__card-content">
+			<Stack direction="column" gap="lg" className="jp-search-feature-selector__card-content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
 					<h3 className="jp-search-feature-selector__card-title">
 						{ getExperienceLabel( experience ) }
@@ -121,7 +121,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			{ experience === EXPERIENCE.EMBEDDED && (
 				<Stack
 					direction="row"
-					gap="xl"
+					gap="lg"
 					align="start"
 					className="jp-search-feature-selector__card-actions"
 				>
@@ -142,7 +142,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			{ experience === EXPERIENCE.OVERLAY && (
 				<Stack
 					direction="row"
-					gap="xl"
+					gap="lg"
 					align="start"
 					className="jp-search-feature-selector__card-actions"
 				>
