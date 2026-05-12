@@ -41,6 +41,10 @@ class Automattic_For_Agencies_Client {
 		if ( $manager->is_connected() ) {
 			Deactivation_Handler::init( AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, __DIR__ . '/admin/deactivation-dialog.php' );
 		}
+
+		// Register WordPress Abilities API surface (gated behind the
+		// `jetpack_wp_abilities_enabled` filter inside Registrar::init()).
+		\Automattic\Jetpack\A4A_Client\Abilities\A4A_Client_Abilities::init();
 	}
 
 	/**

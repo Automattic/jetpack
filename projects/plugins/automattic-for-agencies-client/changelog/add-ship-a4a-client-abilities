@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register the Automattic for Agencies Client abilities surface (`jetpack-a4a-client/get-status`) via the WordPress Abilities API for AI agents on WordPress 6.9+. Gated behind the `jetpack_wp_abilities_enabled` filter (default off).
