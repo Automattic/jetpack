@@ -195,23 +195,33 @@ class Module_Control {
 		}
 
 		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
-		if ( in_array( $saved, array( self::EXPERIENCE_INLINE, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_OVERLAY ), true ) ) {
-			return $saved;
+		if ( self::EXPERIENCE_EMBEDDED === $saved ) {
+			return self::EXPERIENCE_EMBEDDED;
+		}
+		if ( self::EXPERIENCE_OVERLAY === $saved ) {
+			return self::EXPERIENCE_OVERLAY;
+		}
+		if ( self::EXPERIENCE_INLINE === $saved ) {
+			return self::EXPERIENCE_INLINE;
 		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
 		// `instant_search_enabled` boolean reads as overlay; otherwise inline.
-		return $this->is_instant_search_enabled() ? self::EXPERIENCE_OVERLAY : self::EXPERIENCE_INLINE;
+		if ( $this->is_instant_search_enabled() ) {
+			return self::EXPERIENCE_OVERLAY;
+		}
+
+		return self::EXPERIENCE_INLINE;
 	}
 
 	/**
 	 * Update the search experience.
 	 *
-	 * `'off'` only deactivates the global module — it does not touch the
-	 * experience option or `instant_search_enabled`, so re-enabling later
-	 * restores the user's prior preference. The other three branches each
-	 * write `instant_search_enabled` and `jetpack_search_experience` to the
-	 * correct values for the chosen experience.
+	 * Each active experience writes its literal value to
+	 * `jetpack_search_experience`. `'off'` deactivates the module and disables
+	 * `instant_search_enabled`; `'overlay'` enables it. `'inline'` and
+	 * `'embedded'` leave `instant_search_enabled` alone — they neither need
+	 * Instant Search nor have a reason to flip the legacy boolean.
 	 *
 	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
 	 * @return bool|WP_Error WP_Error on failure; true on success for the affirmative
@@ -229,26 +239,39 @@ class Module_Control {
 			);
 		}
 
-		if ( self::EXPERIENCE_OFF === $experience ) {
-			return ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
-		}
+		switch ( $experience ) {
+			case self::EXPERIENCE_OFF:
+				$this->disable_instant_search();
+				return ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
 
-		$result = $this->activate();
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
+			case self::EXPERIENCE_INLINE:
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_INLINE );
+				return true;
 
-		if ( self::EXPERIENCE_OVERLAY === $experience ) {
-			$result = $this->enable_instant_search();
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-		} else {
-			$this->disable_instant_search();
-		}
+			case self::EXPERIENCE_EMBEDDED:
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_EMBEDDED );
+				return true;
 
-		update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, $experience );
-		return true;
+			case self::EXPERIENCE_OVERLAY:
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				$result = $this->enable_instant_search();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
+				return true;
+		}
 	}
 
 	/**

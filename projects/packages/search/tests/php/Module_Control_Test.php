@@ -304,11 +304,12 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Off deactivates the module and leaves the experience option and
-	 * instant_search_enabled untouched, so re-enabling later restores the user's
-	 * prior preference.
+	 * Off deactivates the module and disables `instant_search_enabled`, so the
+	 * legacy boolean doesn't drift from a re-enabled, non-overlay experience.
+	 * The experience option itself is left untouched so re-enabling later
+	 * restores the user's prior preference.
 	 */
-	public function test_update_experience_off_preserves_other_state() {
+	public function test_update_experience_off_disables_instant_search_and_preserves_experience() {
 		// Start with module active, overlay saved, instant search on. The filter
 		// has to stay active across update_experience() so deactivate() has a
 		// real active-modules option to remove 'search' from — see test_deactivate_module
@@ -328,8 +329,8 @@ class Module_Control_Test extends Search_TestCase {
 		$this->assertNotContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
 		// experience option preserved (still 'overlay' for later re-enable).
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
-		// instant_search_enabled preserved.
-		$this->assertTrue( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		// instant_search_enabled disabled.
+		$this->assertFalse( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
