@@ -114,7 +114,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					'apiRoot'        => esc_url_raw( rest_url() ),
 					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
 					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					'upgradeUrl'     => 'https://wordpress.com/plans/' . rawurlencode( wp_parse_url( home_url(), PHP_URL_HOST ) ?? '' ),
+					// Route through the Jetpack redirect service so the upgrade
+					// destination for the MCP upsell can be retargeted without
+					// shipping a code change.
+					'upgradeUrl'     => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
