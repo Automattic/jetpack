@@ -210,16 +210,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// Trigger a build if the classifier hasn't run yet on this request.
 		// The classifier short-circuits when `wp_admin_sidebar_enabled` is
 		// false, which is the default for any host that hasn't opted in.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by class_exists() above.
 		if ( null === Sidebar_Classifier::get_nav_model() ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is provided by WPCOM's wp-admin-sidebar mu-plugin.
 			Sidebar_Classifier::build_nav_model();
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is provided by WPCOM's wp-admin-sidebar mu-plugin.
 		$nav_model = Sidebar_Classifier::get_nav_model();
 		if ( ! is_array( $nav_model ) ) {
 			return;
 		}
 
-		$index = array();
+		$index   = array();
 		$collect = static function ( array $items ) use ( &$index, &$collect ) {
 			foreach ( $items as $item ) {
 				if ( isset( $item['menuSlug'] ) && '' !== $item['menuSlug'] ) {
@@ -258,7 +261,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( null === $this->sidebar_nav_index || '' === $menu_slug ) {
 			return null;
 		}
-		return isset( $this->sidebar_nav_index[ $menu_slug ] ) ? $this->sidebar_nav_index[ $menu_slug ] : null;
+		return $this->sidebar_nav_index[ $menu_slug ] ?? null;
 	}
 
 	/**
@@ -277,11 +280,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 		$signal = $nav_entry['signal'];
 		return array(
-			'count'         => isset( $signal['count'] ) ? $signal['count'] : null,
-			'numeric_badge' => isset( $signal['numeric_badge'] ) ? $signal['numeric_badge'] : null,
-			'badge'         => isset( $signal['badge'] ) ? $signal['badge'] : null,
-			'inline_text'   => isset( $signal['inline_text'] ) ? $signal['inline_text'] : null,
-			'inline_icon'   => isset( $signal['inline_icon'] ) ? $signal['inline_icon'] : null,
+			'count'         => $signal['count'] ?? null,
+			'numeric_badge' => $signal['numeric_badge'] ?? null,
+			'badge'         => $signal['badge'] ?? null,
+			'inline_text'   => $signal['inline_text'] ?? null,
+			'inline_icon'   => $signal['inline_icon'] ?? null,
 			'attention'     => ! empty( $signal['attention'] ),
 		);
 	}
@@ -301,7 +304,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// `default_group` in the classifier maps to `group_id` on the wire.
-		$item['group_id'] = isset( $nav_entry['default_group'] ) ? $nav_entry['default_group'] : null;
+		$item['group_id'] = $nav_entry['default_group'] ?? null;
 		$item['signal']   = $this->map_signal_from_nav_entry( $nav_entry );
 
 		return $item;
@@ -326,7 +329,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( empty( $group['id'] ) ) {
 				continue;
 			}
-			$signal = isset( $group['signal'] ) && is_array( $group['signal'] ) ? $group['signal'] : array();
+			$signal   = isset( $group['signal'] ) && is_array( $group['signal'] ) ? $group['signal'] : array();
 			$groups[] = array(
 				'id'               => (string) $group['id'],
 				'label'            => isset( $group['title'] ) ? (string) $group['title'] : '',

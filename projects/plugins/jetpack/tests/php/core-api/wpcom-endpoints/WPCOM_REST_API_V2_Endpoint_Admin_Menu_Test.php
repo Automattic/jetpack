@@ -741,7 +741,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_response_carries_group_fields_when_classifier_is_loaded() {
 		if ( ! class_exists( 'Sidebar_Classifier' ) ) {
-			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
 				'class Sidebar_Classifier {
 					private static $model = null;
 					public static function set_model( $model ) { self::$model = $model; }
@@ -751,17 +751,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			);
 		}
 		if ( ! class_exists( 'Sidebar_Signals' ) ) {
-			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
 				'class Sidebar_Signals {}'
 			);
 		}
 
 		// Skip when a real classifier is present — we don't want to clobber
 		// the host's classifier state from a Jetpack unit test.
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Sidebar_Classifier is the stub eval'd above or the real WPCOM mu-plugin class.
 		if ( ! method_exists( 'Sidebar_Classifier', 'set_model' ) ) {
 			$this->markTestSkipped( 'Real Sidebar_Classifier is loaded; stub-driven test is not applicable.' );
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model(
 			array(
 				'version'      => 1,
@@ -825,6 +827,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$response = $endpoint->prepare_menu_for_response( $menu );
 
 		// Reset stub state for any subsequent tests.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model( null );
 
 		$this->assertIsArray( $response );
