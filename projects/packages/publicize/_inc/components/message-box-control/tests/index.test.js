@@ -6,6 +6,7 @@ import MessageBoxControl, {
 	getPlaceholderText,
 	getTemplatesPlaceholderText,
 } from '../';
+import * as messageTemplatePlaceholders from '../../../hooks/use-message-template-placeholders';
 
 const mockRecordEvent = jest.fn();
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -16,7 +17,16 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	siteHasFeature: jest.fn().mockReturnValue( false ),
+	getScriptData: jest.fn().mockReturnValue( {} ),
 } ) );
+
+jest.spyOn( messageTemplatePlaceholders, 'useMessageTemplatePlaceholders' ).mockImplementation();
+
+const mockPlaceholders = [
+	{ id: '{title}', label: 'Post title' },
+	{ id: '{url}', label: 'Permalink to the post' },
+	{ id: '{tags}', label: 'Post tags as hashtags' },
+];
 
 describe( 'MessageBoxControl', () => {
 	const mockOnChange = jest.fn();
@@ -27,6 +37,10 @@ describe( 'MessageBoxControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		siteHasFeature.mockReturnValue( false );
+		messageTemplatePlaceholders.useMessageTemplatePlaceholders.mockReturnValue( {
+			placeholders: mockPlaceholders,
+			isLoading: false,
+		} );
 	} );
 
 	it( 'renders with the provided message', () => {

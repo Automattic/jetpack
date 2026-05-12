@@ -78,6 +78,19 @@ export async function hydrateStores() {
 		] );
 	}
 
+	if (
+		! wpcomEntities.some( ( { name } ) => name === 'publicize/message-templates/placeholders' )
+	) {
+		await addEntities( [
+			{
+				kind: 'wpcom/v2',
+				name: 'publicize/message-templates/placeholders',
+				baseURL: '/wpcom/v2/publicize/message-templates/placeholders',
+				label: __( 'Publicize message-template placeholders', 'jetpack-publicize-pkg' ),
+			},
+		] );
+	}
+
 	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/x-usage' ) ) {
 		await addEntities( [
 			{

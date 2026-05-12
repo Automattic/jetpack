@@ -1,4 +1,5 @@
 import * as connectionDataSelectors from './connection-data';
+import * as messageTemplatesSelectors from './message-templates';
 import * as renderedMessagesSelectors from './rendered-messages';
 import * as scheduledSharesSelectors from './scheduled-shares';
 import * as servicesSelectors from './services';
@@ -12,6 +13,7 @@ import * as xUsageSelectors from './x-usage';
 
 const selectors = {
 	...connectionDataSelectors,
+	...messageTemplatesSelectors,
 	...renderedMessagesSelectors,
 	...shareStatusSelectors,
 	...sharepostSelectors,

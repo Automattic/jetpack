@@ -207,3 +207,8 @@ export type SocialImageFontOption = {
 	id: string;
 	label: string;
 };
+
+export type MessageTemplatePlaceholder = {
+	id: string;
+	label: string;
+};
