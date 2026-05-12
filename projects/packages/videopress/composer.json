@@ -39,7 +39,7 @@
 			"pnpm run test"
 		],
 		"build-production": [
-			"NODE_ENV=production BABEL_ENV=production pnpm run build"
+			"pnpm run build-production"
 		],
 		"build-development": [
 			"pnpm run build"

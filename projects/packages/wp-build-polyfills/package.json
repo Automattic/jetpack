@@ -12,7 +12,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"bin": {
-		"provide-boot-asset-file": "bin/provide-boot-asset-file.js"
+		"provide-boot-asset-file": "bin/provide-boot-asset-file.js",
+		"strip-unminified-prod": "bin/strip-unminified-prod.js"
 	},
 	"scripts": {
 		"build": "pnpm run clean && webpack && node bin/validate-boot-asset.js",
