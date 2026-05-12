@@ -101,6 +101,19 @@ class Publicize_Setup {
 			 */
 			add_action( 'plugins_loaded', array( self::class, 'on_jetpack_feature_publicize_enabled' ) );
 		}
+
+		/**
+		 * Register Jetpack Publicize abilities with the WordPress Abilities API.
+		 *
+		 * Gated behind the `jetpack_wp_abilities_enabled` filter (default false).
+		 * Wired from `pre_initialization()` so the surface is available in both
+		 * the Social plugin and the Jetpack plugin (publicize module) consumers
+		 * — both load this package and call `Publicize_Setup::pre_initialization()`
+		 * via the Config package.
+		 */
+		if ( apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+			\Automattic\Jetpack\Publicize\Abilities\Publicize_Abilities::init();
+		}
 	}
 
 	/**

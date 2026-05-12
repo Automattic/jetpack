@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register publicize reads + delete-connection write
