@@ -3312,6 +3312,10 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
+				// Hide the page before navigating so the bfcache snapshot
+				// stores it hidden — prevents a flash of stale content if
+				// the user later presses Back.
+				document.documentElement.style.visibility = 'hidden';
 				window.location.href = post.link;
 			}, 800 );
 		} else {
@@ -3392,14 +3396,9 @@ window.addEventListener( 'pageshow', event => {
 	}
 } );
 
-// Clean up autosave timer on page unload.  When leaving after a publish,
-// also hide the page so bfcache stores it already hidden — prevents a
-// flash of stale content if the browser restores the snapshot.
+// Clean up autosave timer on page unload.
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
-	}
-	if ( state.isPublished ) {
-		document.documentElement.style.visibility = 'hidden';
 	}
 } );
