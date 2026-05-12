@@ -340,4 +340,13 @@ class Tracks_Test extends BaseTestCase {
 			Tracks::allow_show_launched_option_sync( array( 'blogname' ) )
 		);
 	}
+
+	public function test_init_registers_sync_whitelist_filter() {
+		Tracks::init();
+
+		$this->assertContains(
+			'podcast_show_launched_tracked',
+			apply_filters( 'jetpack_sync_options_whitelist', array() )
+		);
+	}
 }

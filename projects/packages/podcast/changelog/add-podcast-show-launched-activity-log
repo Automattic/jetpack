@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Podcast: whitelist `podcast_show_launched_tracked` for Jetpack Sync so its `added_option` event reaches WPcom, where a downstream listener surfaces the launch in the customer's Activity Log UI.
+Podcast: Whitelist `podcast_show_launched_tracked` for Jetpack Sync so its `added_option` event reaches WPcom, where a downstream listener surfaces the launch in the customer's Activity Log UI.
