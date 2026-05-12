@@ -94,14 +94,18 @@
 		border: 0;
 	}
 
-	// Transparent click-catcher covering the entire card. Sits between
-	// the static preview / title / description (painted below it) and the
-	// action links (painted above it via z-index). Clicks on empty card
-	// space hit this label and toggle the associated radio; clicks on the
-	// lifted action links go to the links instead.
+	// Transparent click-catcher covering the entire card. An explicit
+	// z-index keeps it above any positioned descendants of the card —
+	// the inline preview is `position: relative` for its timing badge,
+	// and the overlay preview's popup is `position: absolute`; without
+	// this z-index those would paint over the overlay (DOM order rule
+	// for same-z positioned elements) and swallow the click. Action
+	// links and the active badge then sit above the overlay via their
+	// own higher z-index.
 	&__card-overlay {
 		position: absolute;
 		inset: 0;
+		z-index: 1;
 		cursor: pointer;
 		border-radius: inherit;
 	}
@@ -117,7 +121,7 @@
 		position: absolute;
 		inset-block-start: var(--wpds-dimension-padding-md);
 		inset-inline-end: var(--wpds-dimension-padding-md);
-		z-index: 2;
+		z-index: 3;
 		pointer-events: none;
 	}
 
@@ -173,7 +177,7 @@
 	// equally; on phone-down the row wraps onto stacked lines.
 	&__card-actions {
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 	}
 
 	&__card-action {
