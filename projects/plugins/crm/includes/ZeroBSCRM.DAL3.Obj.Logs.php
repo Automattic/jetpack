@@ -1093,9 +1093,9 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
 	}
 
 	/**
-	 * tidy's the object from wp db into clean array
+	 * Tidies the object from WP database into clean array.
 	 *
-	 * @param array $obj (DB obj)
+	 * @param object $obj (DB obj).
 	 *
 	 * @return array (clean obj)
 	 */
