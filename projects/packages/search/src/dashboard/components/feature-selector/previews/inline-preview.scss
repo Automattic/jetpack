@@ -1,16 +1,14 @@
-// Decorative "theme search with faster results" illustration: a search
-// box, a few faint result lines, and a "⚡ 24 ms" badge in the corner.
-// Sized to match the Embedded / Overlay previews so switching between
-// experiences doesn't shift the rest of the panel vertically.
+// Decorative "theme search with faster results" illustration shown at
+// the top of the Theme search card: a search box, a few faint result
+// lines, and a "⚡ 24 ms" badge in the corner. Matched in min-height to
+// the other previews for a consistent preview row across the grid.
 .jp-search-feature-selector__inline-preview {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
-	flex: 0 0 auto;
-	width: 360px;
-	max-width: 100%;
-	min-height: 220px;
+	width: 100%;
+	min-height: 180px;
 	padding: var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);

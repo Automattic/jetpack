@@ -1,16 +1,12 @@
-// Decorative search-results illustration shown in the Embedded panel.
-// Sized to match the design (~360px) and kept rigid so the right-hand
-// content column is what flexes when the panel is narrow. The shared
-// min-height with the Overlay preview keeps the panel from shifting
-// vertically as the user tabs between experiences.
+// Decorative search-results illustration shown at the top of the Embedded
+// card. Fills the card width; a shared min-height across all four previews
+// keeps each card's preview row a consistent visual size in the grid.
 .jp-search-feature-selector__embedded-preview {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
-	flex: 0 0 auto;
-	width: 360px;
-	max-width: 100%;
-	min-height: 220px;
+	width: 100%;
+	min-height: 180px;
 	padding: var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);

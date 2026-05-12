@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, EXPERIENCE_ORDER } from './constants';
-import ExperienceDetails from './experience-details';
 import ExperienceOption from './experience-option';
 import './style.scss';
 
@@ -83,37 +82,34 @@ export default function FeatureSelector() {
 				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 			</h2>
 			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
-				<ExperienceDetails />
-				<div className="jp-search-feature-selector__body">
-					<fieldset
-						className="jp-search-feature-selector__fieldset"
-						aria-labelledby="jp-search-feature-selector-heading"
-					>
-						<Stack direction="column" gap="sm">
-							{ visibleExperiences.map( experience => (
-								<ExperienceOption
-									key={ experience }
-									experience={ experience }
-									disabled={ isExperienceDisabled( experience ) }
-								/>
-							) ) }
-						</Stack>
-					</fieldset>
-					<Stack
-						gap="md"
-						align="center"
-						justify="space-between"
-						className="jp-search-feature-selector__footer"
-						aria-live="polite"
-					>
-						<p className="jp-search-feature-selector__status">
-							{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
-						</p>
-						<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
-							{ getSaveLabel() }
-						</Button>
-					</Stack>
-				</div>
+				<fieldset
+					className="jp-search-feature-selector__fieldset"
+					aria-labelledby="jp-search-feature-selector-heading"
+				>
+					<div className="jp-search-feature-selector__grid">
+						{ visibleExperiences.map( experience => (
+							<ExperienceOption
+								key={ experience }
+								experience={ experience }
+								disabled={ isExperienceDisabled( experience ) }
+							/>
+						) ) }
+					</div>
+				</fieldset>
+				<Stack
+					gap="md"
+					align="center"
+					justify="space-between"
+					className="jp-search-feature-selector__footer"
+					aria-live="polite"
+				>
+					<p className="jp-search-feature-selector__status">
+						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
+					</p>
+					<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
+						{ getSaveLabel() }
+					</Button>
+				</Stack>
 			</form>
 		</>
 	);

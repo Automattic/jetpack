@@ -1,13 +1,11 @@
-// Decorative overlay-search illustration: a stylised page with the search
-// popup sitting on top of it. Matched in width and min-height to the
-// Embedded preview so switching between experiences doesn't shift the
-// rest of the panel vertically.
+// Decorative overlay-search illustration shown at the top of the Overlay
+// card: a stylised page with the search popup sitting on top of it.
+// Matched in min-height to the other previews so each card's preview row
+// reads the same size in the grid.
 .jp-search-feature-selector__overlay-preview {
 	display: flex;
-	flex: 0 0 auto;
-	width: 360px;
-	max-width: 100%;
-	min-height: 220px;
+	width: 100%;
+	min-height: 180px;
 	padding: var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);

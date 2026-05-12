@@ -1,16 +1,15 @@
-// Decorative "search is off" illustration: the same notAllowed icon as
-// the radio row, centred with a one-line label. Sized to match the
-// other previews so switching rows doesn't shift the panel vertically.
+// Decorative "search is off" illustration shown at the top of the Off
+// card: the same notAllowed icon used elsewhere, centred with a one-line
+// label. Matched in min-height to the other previews for a consistent
+// preview row across the grid.
 .jp-search-feature-selector__off-preview {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: var(--wpds-dimension-gap-sm);
-	flex: 0 0 auto;
-	width: 360px;
-	max-width: 100%;
-	min-height: 220px;
+	width: 100%;
+	min-height: 180px;
 	padding: var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);

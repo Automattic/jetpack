@@ -1,13 +1,12 @@
 @use "scss/variables";
 
-// Vertical breathing room around the selector card. Matches the pattern of
+// Vertical breathing room around the selector. Matches the pattern of
 // `.jp-search-dashboard-meter-wrap` above, without the divider border.
 .jp-search-feature-selector-wrap {
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
-// Section heading rendered above the form. Reset top margin so it doesn't
-// double-up on the wrap's padding, and add bottom spacing before the card.
+// Section heading rendered above the form.
 .jp-search-feature-selector__heading {
 	margin-block-start: 0;
 	margin-block-end: var(--wpds-dimension-gap-lg);
@@ -15,16 +14,6 @@
 }
 
 .jp-search-feature-selector {
-	background: var(--wpds-color-bg-surface-neutral-strong);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
-
-	// Detail panel and options sit side-by-side as siblings inside the
-	// card; each gets its own padding, and the panel's bottom border is
-	// what visually separates them.
-	&__body {
-		padding: var(--wpds-dimension-padding-3xl);
-	}
 
 	&__fieldset {
 		border: 0;
@@ -32,16 +21,27 @@
 		padding: 0;
 	}
 
-	// Layout is handled by the outer `@wordpress/ui` Stack (radio | content
-	// | trailing badge). The middle child grows to fill remaining width
-	// (see `&__option-content` below); the radio and active badge stay
-	// vertically centred against the whole content block via Stack's
-	// `align="center"`.
-	&__option {
-		padding: var(--wpds-dimension-padding-lg);
+	// 2×2 grid of cards on desktop / tablet; collapses to a single column
+	// at phone-down (see media query at the bottom of the file).
+	&__grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	// Each card is the clickable surface that selects an experience. A
+	// transparent `<label>` child catches clicks anywhere on the card body
+	// (see `&__card-overlay` below); action links inside the card are
+	// lifted above that overlay via z-index so they remain clickable.
+	&__card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		padding: var(--wpds-dimension-padding-xl);
+		background: var(--wpds-color-bg-surface-neutral-strong);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: var(--wpds-border-radius-lg);
-		cursor: pointer;
 		transition: border-color 120ms ease, box-shadow 120ms ease;
 
 		&:hover {
@@ -54,63 +54,89 @@
 		}
 
 		&.is-disabled {
-			cursor: not-allowed;
 			opacity: 0.55;
 
 			&:hover {
 				border-color: var(--wpds-color-stroke-surface-neutral);
 			}
 		}
+
+		// Mirror the radio's keyboard focus onto the whole card so users
+		// see *which* card is focused rather than nothing (the radio
+		// itself is visually hidden).
+		&:has(.jp-search-feature-selector__card-radio:focus-visible) {
+			outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
+			outline-offset: 2px;
+		}
 	}
 
-	// Fill the remaining horizontal space inside the option Stack so the
-	// description wraps full-width and the trailing Active badge sits at the
-	// far edge.
-	&__option-content {
+	// The radio stays in the DOM (and the tab order, for the checked one)
+	// so keyboard nav + screen-reader semantics work for free, but it
+	// isn't drawn — the card itself plays the role of the visual control.
+	&__card-radio {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	// Transparent click-catcher covering the entire card. Sits between
+	// the static preview / title / description (painted below it) and the
+	// action links (painted above it via z-index). Clicks on empty card
+	// space hit this label and toggle the associated radio; clicks on the
+	// lifted action links go to the links instead.
+	&__card-overlay {
+		position: absolute;
+		inset: 0;
+		cursor: pointer;
+		border-radius: inherit;
+	}
+
+	&__card.is-disabled &__card-overlay {
+		cursor: not-allowed;
+	}
+
+	// Active badge sits in the top-right corner above the overlay so the
+	// badge stays clickable-through (the overlay underneath still catches
+	// the click and selects the card).
+	&__card-active-badge {
+		position: absolute;
+		inset-block-start: var(--wpds-dimension-padding-md);
+		inset-inline-end: var(--wpds-dimension-padding-md);
+		z-index: 2;
+		pointer-events: none;
+	}
+
+	&__card-title {
+		margin: 0;
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-lg);
+		color: var(--wpds-color-fg-content-neutral);
+	}
+
+	&__card-description {
+		margin: 0;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
+	}
+
+	// Pushes the action row to the bottom of the card so the two cards in
+	// a row align along their action baseline even when descriptions
+	// differ in length.
+	&__card-content {
 		flex: 1 1 auto;
 	}
 
-	&__option-icon {
-		fill: var(--wpds-color-fg-content-neutral);
-	}
-
-	&__option-title {
-		font-weight: 600;
-		font-size: var(--wpds-typography-font-size-lg);
-		color: var(--wpds-color-fg-content-neutral);
-	}
-
-	&__option-description {
-		color: var(--wpds-color-fg-content-neutral-weak);
-		font-size: var(--wpds-typography-font-size-md);
-	}
-
-	// Detail panel rendered above the option rows. Sibling of `__body`
-	// inside the card; its bottom border is the divider between the two
-	// sections. Top corners are clipped by the card's `border-radius`.
-	&__details {
-		padding: var(--wpds-dimension-padding-3xl);
-		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	}
-
-	&__details-title {
-		margin: 0;
-		font-size: var(--wpds-typography-font-size-xl);
-		line-height: var(--wpds-typography-line-height-xl);
-		color: var(--wpds-color-fg-content-neutral);
-	}
-
-	&__details-description {
-		margin: 0;
-		color: var(--wpds-color-fg-content-neutral-weak);
-		font-size: var(--wpds-typography-font-size-md);
-	}
-
-	// "What you'll lose" list rendered in the Off panel. Each item gets a
+	// "What you'll lose" list rendered in the Off card. Each item gets a
 	// red cross-circle icon followed by a bold term and an explanatory tail.
-	&__details-loss-list {
+	&__card-loss-list {
 		list-style: none;
-		margin: 0;
+		margin: var(--wpds-dimension-gap-xs) 0 0;
 		padding: 0;
 		font-size: var(--wpds-typography-font-size-md);
 		color: var(--wpds-color-fg-content-neutral-weak);
@@ -128,72 +154,34 @@
 		}
 	}
 
-	&__details-loss-icon {
+	&__card-loss-icon {
 		fill: var(--wpds-color-fg-content-error);
 		flex: 0 0 auto;
 	}
 
-	// The customization actions sit inside their own subdued surface so
-	// they read as a secondary affordance, not part of the primary copy.
-	// The inline variant (Embedded panel) drops the surface entirely and
-	// just lays the actions out as text links separated by a divider.
-	&__details-actions {
-		padding: var(--wpds-dimension-padding-lg);
-		background: var(--wpds-color-bg-surface-neutral-strong);
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-		border-radius: var(--wpds-border-radius-md);
+	// Lift the action row above the transparent card overlay so the links
+	// inside it remain clickable and tabbable. Items share the row width
+	// equally; on phone-down the row wraps onto stacked lines.
+	&__card-actions {
+		position: relative;
+		z-index: 1;
 	}
 
-	&__details-actions--inline {
-		padding: 0;
-		background: transparent;
-		border: 0;
-		border-radius: 0;
-	}
-
-	&__details-body {
-		flex: 1 1 320px;
-		min-width: 0;
-	}
-
-	// Each action shares the row width equally; items only wrap onto their
-	// own line at phone-down (see media query at the bottom of the file).
-	&__details-action {
+	&__card-action {
 		flex: 1 1 0;
 		min-width: 0;
 	}
 
-	// Inline link variant: subsequent items get a left divider so the row
-	// reads as a list of related actions rather than a free-floating column.
-	&__details-action--inline {
-		padding-inline-start: var(--wpds-dimension-padding-xl);
-
-		&:not(:first-child) {
-			border-inline-start:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-		}
-
-		&:first-child {
-			padding-inline-start: 0;
-		}
-	}
-
-	&__details-action-title {
+	&__card-action-title {
 		font-weight: 600;
-		font-size: var(--wpds-typography-font-size-lg);
+		font-size: var(--wpds-typography-font-size-sm);
 		color: var(--wpds-color-fg-content-neutral);
 	}
 
-	&__details-action-description {
-		color: var(--wpds-color-fg-content-neutral-weak);
-		font-size: var(--wpds-typography-font-size-sm);
-	}
-
-	// Brand-blue text link with trailing arrow used for Embedded actions.
+	// Brand-blue text link with trailing arrow used for card actions.
 	// Disabled state renders as a plain <span> (no href) so AT users aren't
 	// told a non-functional link is a link.
-	&__details-action-inline-link {
+	&__card-action-link {
 		color: var(--wpds-color-fg-interactive-brand);
 		font-size: var(--wpds-typography-font-size-md);
 		font-weight: 500;
@@ -226,42 +214,21 @@
 	}
 }
 
-// WP Admin's forms.css sets `margin: -4px 4px 0 0` on `input[type=radio]`
-// (a quirk to align with adjacent label baselines in classic forms) at
-// specificity (0,1,1). Qualify our reset with `input[type="radio"]` so it
-// lands at (0,2,1) and reliably wins, letting the option grid's
-// `align-items: center` keep the radio vertically centred against the
-// option's full content block. `flex-shrink: 0` keeps the radio at its
-// intrinsic width on narrow viewports — without it the description's
-// wrapping content squashed the radio inside the row Stack.
-input[type="radio"].jp-search-feature-selector__option-radio {
-	margin: 0;
-	flex-shrink: 0;
-}
-
 @include variables.for-phone-down {
 
-	.jp-search-feature-selector__details,
-	.jp-search-feature-selector__body {
-		padding: var(--wpds-dimension-padding-lg);
+	// Single-column stack on phone so each card has enough width for its
+	// preview and action row.
+	.jp-search-feature-selector__grid {
+		grid-template-columns: 1fr;
 	}
 
-	// Inline detail actions stay on one row on desktop / tablet; once we
-	// hit phone widths there isn't enough room for two side-by-side, so
-	// re-enable wrap and let each action take a full-width line.
-	.jp-search-feature-selector__details-actions--inline {
+	// Once card width is narrow, let the action row wrap and drop the
+	// equal-flex constraint so each action takes a full-width line.
+	.jp-search-feature-selector__card-actions {
 		flex-wrap: wrap;
 	}
 
-	.jp-search-feature-selector__details-action {
+	.jp-search-feature-selector__card-action {
 		flex-basis: 100%;
-	}
-
-	// The vertical divider + left padding only make sense when actions sit
-	// in a row; once they stack we drop both so the second action lines up
-	// with the first and the divider doesn't overshoot the card edge.
-	.jp-search-feature-selector__details-action--inline:not(:first-child) {
-		padding-inline-start: 0;
-		border-inline-start: 0;
 	}
 }
