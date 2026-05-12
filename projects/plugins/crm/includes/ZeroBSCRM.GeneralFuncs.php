@@ -7,7 +7,7 @@
  * Copyright 2020 Automattic
  *
  * Date: 01/11/16
- */15
+ */
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
