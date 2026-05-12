@@ -24,6 +24,7 @@ namespace Automattic\Jetpack\Blaze\Abilities;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Blaze\Campaign_Preparer;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_REST_Request;
 
@@ -863,16 +864,29 @@ class Blaze_Abilities extends Registrar {
 			return $args;
 		}
 
-		$args['execute_callback'] = static function ( $input = array() ) use ( $original_callback ) {
+		$args['execute_callback'] = static function ( $input = array() ) use ( $ability_name, $original_callback ) {
+			if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
+				self::record_prepare_campaign_event( 'called', is_array( $input ) ? $input : array() );
+			}
+
 			$tos_check = self::check_tos_and_payment();
 			if ( is_wp_error( $tos_check ) ) {
+				if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
+					self::record_prepare_campaign_event( 'failed', is_array( $input ) ? $input : array(), $tos_check );
+				}
 				return $tos_check;
 			}
 
 			// Future write-path guardrails (per-session spend ceiling, Picard
 			// moderation gating) plug in here. Tracked separately as ADS-989.
 
-			return call_user_func( $original_callback, $input );
+			$result = call_user_func( $original_callback, $input );
+
+			if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
+				self::record_prepare_campaign_event( is_wp_error( $result ) ? 'failed' : 'succeeded', is_array( $input ) ? $input : array(), $result );
+			}
+
+			return $result;
 		};
 
 		return $args;
@@ -927,6 +941,99 @@ class Blaze_Abilities extends Registrar {
 				'fix_label' => __( 'Set up Blaze', 'jetpack-blaze' ),
 			)
 		);
+	}
+
+	/**
+	 * Record safe server-side telemetry for prepare-campaign.
+	 *
+	 * Never records caller prompts, ad copy, URLs, or the full prefill payload.
+	 * Keep properties deliberately low-cardinality so MCP and direct REST calls
+	 * are useful in aggregate without carrying merchant-sensitive data.
+	 *
+	 * @param string          $result  called|succeeded|failed.
+	 * @param array           $input   Ability input.
+	 * @param array|\WP_Error $outcome Optional callback result.
+	 * @return void
+	 */
+	private static function record_prepare_campaign_event( string $result, array $input, $outcome = null ): void {
+		$props = array(
+			'result'            => in_array( $result, array( 'called', 'succeeded', 'failed' ), true ) ? $result : 'unknown',
+			'target_type'       => self::get_prepare_campaign_target_type( $outcome ),
+			'inferred_intent'   => self::get_prepare_campaign_intent( $outcome ),
+			'budget_provided'   => array_key_exists( 'budget_total', $input ),
+			'duration_provided' => array_key_exists( 'duration_days', $input ),
+		);
+
+		if ( is_wp_error( $outcome ) ) {
+			$props['failure_category'] = self::get_prepare_campaign_failure_category( $outcome );
+		}
+
+		$event = array(
+			'name'  => 'blaze_prepare_campaign_' . $props['result'],
+			'props' => $props,
+		);
+
+		/**
+		 * Filters the prepare-campaign Tracks event before it is emitted.
+		 *
+		 * Returning false prevents emission. Primarily useful for tests and for
+		 * emergency suppression if the event contract ever needs to be disabled.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|false     $event   Event name and safe props, or false to suppress.
+		 * @param string          $result  called|succeeded|failed.
+		 * @param array           $input   Ability input.
+		 * @param array|\WP_Error $outcome Optional callback result.
+		 */
+		$event = apply_filters( 'jetpack_blaze_prepare_campaign_tracks_event', $event, $result, $input, $outcome );
+		if ( false === $event || ! is_array( $event ) || empty( $event['name'] ) || ! isset( $event['props'] ) || ! is_array( $event['props'] ) ) {
+			return;
+		}
+
+		$tracking = new Tracking( 'jetpack' );
+		$tracking->record_user_event( (string) $event['name'], $event['props'] );
+	}
+
+	/**
+	 * Get the safe target type from a successful prepare outcome.
+	 *
+	 * @param mixed $outcome Callback result.
+	 * @return string
+	 */
+	private static function get_prepare_campaign_target_type( $outcome ): string {
+		$target_type = is_array( $outcome ) && isset( $outcome['prefill']['type'] ) ? (string) $outcome['prefill']['type'] : 'unknown';
+		return in_array( $target_type, array( 'post', 'page', 'product' ), true ) ? $target_type : 'unknown';
+	}
+
+	/**
+	 * Get the safe inferred intent from a successful prepare outcome.
+	 *
+	 * @param mixed $outcome Callback result.
+	 * @return string
+	 */
+	private static function get_prepare_campaign_intent( $outcome ): string {
+		$intent = is_array( $outcome ) && isset( $outcome['intent'] ) ? (string) $outcome['intent'] : 'unknown';
+		return in_array( $intent, array( 'ecommerce', 'content', 'unknown' ), true ) ? $intent : 'unknown';
+	}
+
+	/**
+	 * Map error codes to low-cardinality failure categories.
+	 *
+	 * @param \WP_Error $error Error returned by the prepare path.
+	 * @return string
+	 */
+	private static function get_prepare_campaign_failure_category( \WP_Error $error ): string {
+		switch ( $error->get_error_code() ) {
+			case 'blaze_invalid_target_urn':
+				return 'invalid_target';
+			case 'blaze_post_not_found':
+				return 'target_not_found';
+			case 'blaze_setup_required':
+				return 'setup_required';
+			default:
+				return 'prepare_failed';
+		}
 	}
 
 	/**
