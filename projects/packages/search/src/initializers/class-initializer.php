@@ -123,6 +123,11 @@ class Initializer {
 		 * @param bool $enabled Default false.
 		 */
 		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
+			// Phase 1 ships without WooCommerce-only Search blocks. Hook
+			// the gate to false at default priority so a site can opt
+			// back in by adding its own filter at a later priority (or
+			// at the same priority — its callback runs after ours).
+			add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 			Search_Blocks::init();
 		}
 
