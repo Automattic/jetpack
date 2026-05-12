@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle a local `keyedReducer` helper so the notices polyfill keeps working with newer `@wordpress/notices` on WordPress versions that ship an older `@wordpress/data`.

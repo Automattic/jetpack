@@ -94,6 +94,32 @@ function resolveEntry( packageName, subEntry = null ) {
 
 // ── Shared config ───────────────────────────────────────────────────────────
 
+// Files inside upstream @wordpress packages that import a helper from
+// `@wordpress/data` that is not guaranteed to exist on the runtime
+// `window.wp.data` (i.e. older WordPress Core's bundled `@wordpress/data`).
+// For these specific files, rewrite the `keyedReducer` named import to come
+// from a local copy bundled with the polyfill, so the helper resolves
+// against the inlined implementation instead of the external global. Other
+// `@wordpress/data` symbols (`createReduxStore`, `register`, `useSelect`,
+// `useDispatch`) remain externalized via the DEP plugin's standard path so
+// the notices store registers in the shared `window.wp.data` registry.
+//
+// A custom loader (rather than `Rule.resolve.alias`) is required because the
+// DEP plugin's `externals` callback runs before module resolution, so an
+// alias on `@wordpress/data` is bypassed for the externalized request.
+//
+// Currently only `keyedReducer` is affected — added to `@wordpress/data`
+// 10.45.0 alongside a `@wordpress/notices` 5.45.0 refactor that consolidated
+// a local copy (see WordPress/gutenberg#77364).
+const wpDataKeyedReducerRule = {
+	test: [
+		// `@wordpress/notices` >= 5.45.0 `store/reducer.{mjs,cjs}`.
+		/[\\/]@wordpress[\\/]notices[\\/](?:build|build-module)[\\/]store[\\/]reducer\.(?:m?js|cjs)$/,
+	],
+	enforce: 'pre',
+	loader: path.resolve( packageRoot, 'wp-data-keyed-reducer-loader.js' ),
+};
+
 const sharedConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -106,6 +132,7 @@ const sharedConfig = {
 	},
 	module: {
 		rules: [
+			wpDataKeyedReducerRule,
 			// Transpile @wordpress/* packages from node_modules.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@wordpress/' ],
