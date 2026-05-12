@@ -3,37 +3,11 @@
 .jetpack-instant-search__search-form-controls {
 	display: flex;
 	align-items: center;
-
+	flex-shrink: 0;
 	line-height: 1.3;
-	margin-top: 16px;
 	z-index: 1;
 
-	margin-left: helper.$results-margin-lg;
-	margin-right: helper.$results-margin-lg;
-
 	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
-		margin-left: helper.$results-margin-md;
-		margin-right: helper.$results-margin-md;
-
-		position: relative;
-		left: 0;
-		right: 0;
-
 		flex-direction: row-reverse;
-		justify-content: space-between;
-	}
-
-	@include helper.break-medium-down() {
-		margin-left: helper.$results-margin-sm;
-		margin-right: helper.$results-margin-sm;
-	}
-
-	@include helper.multiple-breaks-for-customberg( ">l", ">xl" ) {
-		position: absolute;
-		right: helper.$sidebar-width;
-	}
-
-	.jetpack-instant-search__overlay--no-sidebar & {
-		right: 0;
 	}
 }

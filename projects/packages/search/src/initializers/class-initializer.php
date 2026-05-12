@@ -125,6 +125,8 @@ class Initializer {
 		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
 			Search_Blocks::init();
 		}
+
+		( new AI_Answers() )->init();
 	}
 
 	/**
