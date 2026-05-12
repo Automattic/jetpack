@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import HistoryChartCard from './history-chart-card';
 import ScoreCards from './score-cards';
-import { useModulesState } from './lib/use-modules-state';
+import { useModulesState } from '../lib/use-modules-state';
 import { usePerformanceHistory } from './lib/use-performance-history';
 import { useSpeedScores } from './lib/use-speed-scores';
 import './overview.scss';

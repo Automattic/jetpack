@@ -1,0 +1,96 @@
+// Cornerstone Pages card. Lives inside a `CollapsibleCard.Root` so the
+// section is dismissible — keeps the Settings list scannable when the
+// user isn't editing the page collection.
+
+.jetpack-boost-cornerstone__header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 2px);
+}
+
+// "Added: Homepage + N pages" summary that sits below the title.
+// Reads as supporting copy, not part of the heading row.
+.jetpack-boost-cornerstone__summary {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.jetpack-boost-cornerstone__description {
+	margin: 0 0 var(--wpds-dimension-gap-md, 12px) 0;
+}
+
+.jetpack-boost-cornerstone__loading {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-block-size: 80px;
+}
+
+// Inner panel that houses the URL editor — soft gray fill so it reads
+// as a sub-surface within the collapsible card, matching the legacy
+// treatment for this configuration block.
+.jetpack-boost-cornerstone__editor {
+	background-color: var(--wpds-color-bg-surface-neutral-weak, #f6f7f7);
+	border-radius: var(--wpds-border-radius-md, 6px);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding: var(--wpds-dimension-padding-xl, 16px);
+}
+
+.jetpack-boost-cornerstone__label {
+	margin: 0;
+}
+
+.jetpack-boost-cornerstone__predefined {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	> li {
+		font-family: var(--wpds-typography-font-family-mono, monospace);
+		font-size: 13px;
+	}
+}
+
+.jetpack-boost-cornerstone__textarea {
+	border: 1px solid var(--wpds-color-stroke-surface-neutral, #c7c7c7);
+	border-radius: var(--wpds-border-radius-sm, 4px);
+	font-family: var(--wpds-typography-font-family-mono, monospace);
+	font-size: 13px;
+	line-height: 1.5;
+	padding: var(--wpds-dimension-padding-sm, 8px);
+	resize: vertical;
+	width: 100%;
+}
+
+.jetpack-boost-cornerstone__helper {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: 12px;
+	line-height: 1.4;
+	margin: 0;
+}
+
+// Validation error shown beneath the textarea — surfaces same-site
+// checks, "homepage already included" guards, and plan-limit overruns
+// that the legacy `<List />` validation enforces.
+.jetpack-boost-cornerstone__error {
+	color: var(--wpds-color-fg-content-error, #cc1818);
+	font-size: 13px;
+	margin: var(--wpds-dimension-gap-xs, 4px) 0 0;
+}
+
+.jetpack-boost-cornerstone__actions {
+	display: flex;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+// Prerender toggle row — sits below the editor with a thin divider
+// stroke so it reads as a related-but-separate control, matching the
+// legacy `PanelRow` separator above the prerender section.
+.jetpack-boost-cornerstone__prerender {
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #ebebeb);
+	margin-block-start: var(--wpds-dimension-gap-md, 12px);
+	padding-block-start: var(--wpds-dimension-gap-md, 12px);
+}

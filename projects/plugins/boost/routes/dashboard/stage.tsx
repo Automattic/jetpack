@@ -3,6 +3,7 @@ import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage, { type BoostTab } from '../../_inc/components/boost-page';
 import Overview from '../../_inc/overview/overview';
+import Settings from '../../_inc/settings/settings';
 import './route.scss';
 
 type StageSearch = Record< string, unknown > & {
@@ -39,7 +40,7 @@ const Stage = () => {
 					{ activeTab === 'overview' ? <Overview /> : null }
 				</Tabs.Panel>
 				<Tabs.Panel value="settings" focusable={ false }>
-					{ activeTab === 'settings' ? <div /> : null }
+					{ activeTab === 'settings' ? <Settings /> : null }
 				</Tabs.Panel>
 			</BoostPage>
 		</QueryClientProvider>

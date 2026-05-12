@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Adds a refreshed Settings tab to the Boost dashboard, with full parity for every module's advanced controls. Still behind the modernization feature flag.

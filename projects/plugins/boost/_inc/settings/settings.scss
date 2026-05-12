@@ -1,0 +1,51 @@
+// Settings tab layout. Page content caps at 660px so the card column
+// reads as a focused settings list (designed alongside the Overview's
+// 720px cap — the narrower line gives the toggle + label row a more
+// natural rhythm). Cards stack vertically with a comfortable gap so
+// each module reads as its own surface.
+
+$jetpack-boost-settings-max-inline: 660px;
+
+.jetpack-boost-settings {
+	margin-inline: auto;
+	max-inline-size: $jetpack-boost-settings-max-inline;
+	width: 100%;
+}
+
+.jetpack-boost-settings__loading {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-block-size: 240px;
+}
+
+// Regular body-text description rendered below the toggle row. Kept
+// out of `ToggleControl`'s `help` slot so the copy reads as the
+// module's primary supporting text, not muted helper text under the
+// label.
+.jetpack-boost-settings__module-description {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	margin: var(--wpds-dimension-gap-sm, 8px) 0 0;
+}
+
+// Persistent slot inside a `ModuleCard`. Renders regardless of toggle
+// state — used for upgrade Notices that need to stay visible whether
+// or not the user has the module enabled.
+.jetpack-boost-settings__module-persistent {
+	margin-block-start: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Sub-controls slot inside a `ModuleCard`. Rendered below the
+// description only while the module is active — Critical CSS Status,
+// LCP Optimize button, Page Cache options, Minify exclude lists,
+// Image CDN quality + auto-resize sub-controls.
+.jetpack-boost-settings__module-children {
+	margin-block-start: var(--wpds-dimension-gap-md, 12px);
+}
+
+// Upgrade Notice surface used by `UpgradeCTA`. Inherits the
+// `intent="info"` token palette from `@wordpress/ui` `Notice.Root`;
+// only the layout glue lives here.
+.jetpack-boost-settings__upgrade {
+	margin: 0;
+}

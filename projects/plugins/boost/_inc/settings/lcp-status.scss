@@ -1,0 +1,11 @@
+// LCP status panel — short status line + Optimize button. Layout
+// piggybacks on WPDS Stack; styles here only cover the action row's
+// alignment.
+
+.jetpack-boost-lcp-status {
+	margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-boost-lcp-status__actions {
+	display: flex;
+}
