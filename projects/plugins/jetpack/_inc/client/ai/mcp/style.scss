@@ -83,6 +83,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 4px;
+		vertical-align: center;
 	}
 
 	&__category-header-row {
@@ -91,10 +92,25 @@
 		justify-content: space-between;
 		align-items: center;
 		width: 100%;
+
+		// The ToggleControl label uses line-height equal to the toggle height for
+		// vertical alignment, but the FlexBlock wrapper defaults to align-items:
+		// stretch. Force center so the "Enable all" text sits mid-toggle.
+		.components-toggle-control__label {
+			display: flex;
+			align-items: center;
+		}
 	}
 
 	&__tool-group-divider {
 		margin: 0;
+	}
+
+	// Tool toggle descriptions hug their setting title; override WP's
+	// BaseControl default 8px gap so the help text reads as part of the
+	// row rather than as a separate paragraph.
+	.components-base-control__help {
+		margin-top: 0;
 	}
 
 	&__access-card {
@@ -165,6 +181,17 @@
 		flex-shrink: 0;
 		align-self: center;
 	}
+}
+
+// wp-admin resets list-style on list elements; restore defaults for the
+// setup steps list. Claude uses an ordered list (decimal); Claude Code
+// uses unordered (disc) since some of its steps are "or" alternatives.
+ul.jetpack-ai-mcp-setup__steps {
+	list-style: disc;
+}
+
+ol.jetpack-ai-mcp-setup__steps {
+	list-style: decimal;
 }
 
 .jetpack-ai-mcp-setup {
