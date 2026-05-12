@@ -121,15 +121,23 @@ function is_automattic_proxied_request(): bool {
 	if (
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
 		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+		Constants::is_true( 'A8C_PROXIED_REQUEST' )
 	) {
 		return true;
 	}
 
-	return defined( 'AT_PROXIED_REQUEST' ) &&
-		AT_PROXIED_REQUEST &&
-		defined( 'ATOMIC_CLIENT_ID' ) &&
-		in_array( (int) ATOMIC_CLIENT_ID, array( 1, 2, 3, 32, 118 ), true );
+	if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
+		switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
+			case 1:
+			case 2:
+			case 3: // Pressable.
+			case 32:
+			case 118: // Commerce garden client (ciab).
+				return true;
+		}
+	}
+
+	return false;
 }
 
 /**

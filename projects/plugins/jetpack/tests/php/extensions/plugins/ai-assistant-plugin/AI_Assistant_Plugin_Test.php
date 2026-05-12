@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
 
@@ -26,6 +28,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		unset( $GLOBALS['jetpack_test_is_automattician'], $GLOBALS['jetpack_test_wpcom_is_proxied_request'] );
 
 		parent::tear_down();
 	}
@@ -82,6 +85,46 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function test_is_proxied_request_accepts_a8c_proxy_constant() {
 		Constants::set_constant( 'A8C_PROXIED_REQUEST', true );
+
+		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
+	}
+
+	/**
+	 * Test that the AI Agent Access proxy check accepts Automattician requests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_proxied_request_accepts_automattician() {
+		require_once __DIR__ . '/proxy-test-functions.php';
+
+		if ( empty( $GLOBALS['jetpack_test_controls_is_automattician'] ) ) {
+			$this->markTestSkipped( 'The is_automattician() helper is already defined.' );
+		}
+
+		$GLOBALS['jetpack_test_is_automattician'] = true;
+
+		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
+	}
+
+	/**
+	 * Test that the AI Agent Access proxy check accepts the WPCOM proxied request helper.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_proxied_request_accepts_wpcom_proxy_helper() {
+		require_once __DIR__ . '/proxy-test-functions.php';
+
+		if ( empty( $GLOBALS['jetpack_test_controls_wpcom_is_proxied_request'] ) ) {
+			$this->markTestSkipped( 'The wpcom_is_proxied_request() helper is already defined.' );
+		}
+
+		$GLOBALS['jetpack_test_wpcom_is_proxied_request'] = true;
 
 		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
 	}

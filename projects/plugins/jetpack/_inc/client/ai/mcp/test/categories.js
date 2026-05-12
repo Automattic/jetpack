@@ -7,11 +7,20 @@ import {
 } from '../categories';
 
 describe( 'MCP category mapping', () => {
-	test.each( [ 'jetpack', 'wpcom', 'wpcom-mcp', 'developer-testing' ] )(
+	test.each( [ 'wpcom-mcp', 'developer-testing' ] )(
 		'maps %s API category to Developer & testing',
 		category => {
 			expect( getDisplayCategory( 'tool-id', { category } ) ).toBe(
 				DISPLAY_CATEGORIES.DEVELOPER_TESTING
+			);
+		}
+	);
+
+	test.each( [ 'jetpack', 'wpcom' ] )(
+		'does not map the entire %s API category to Developer & testing',
+		category => {
+			expect( getDisplayCategory( 'tool-id', { category } ) ).toBe(
+				DISPLAY_CATEGORIES.UNCATEGORIZED
 			);
 		}
 	);
