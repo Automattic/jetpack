@@ -159,11 +159,6 @@
 
 		li {
 			display: flex;
-			// Anchor the icon to the top of the row so it stays parked next
-			// to the first line of text when the right-hand text wraps onto
-			// multiple lines. With `center`, the icon would drift to the
-			// vertical midpoint of the wrapped block. Icon and first-line
-			// text vertical centres line up at the top by ~1px.
 			align-items: flex-start;
 			gap: var(--wpds-dimension-gap-sm);
 			padding-block: var(--wpds-dimension-padding-xs);
