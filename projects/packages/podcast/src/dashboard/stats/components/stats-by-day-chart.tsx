@@ -1,8 +1,8 @@
 import { BarChart } from '@automattic/charts';
 // @wordpress/build only extracts the CSS-module class-name map from third-
-// party .module.scss; without this explicit import, the chart's own
-// `chart-layout__content { flex: 1; min-height: 0 }` never reaches the page
-// and the SVG grows unbounded inside the column-flex Stack.
+// party .module.scss; the chart's own `chart-layout__content { flex: 1;
+// min-height: 0 }` lives in the prebuilt CSS bundle (mirrors how publicize
+// imports @automattic/ui/style.css).
 import '@automattic/charts/style.css';
 import { formatNumber } from '@automattic/number-formatters';
 import { Card, CardBody, Spinner } from '@wordpress/components';
