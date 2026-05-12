@@ -4,6 +4,8 @@
 		"app/assets/src/js/**/*",
 		"app/modules/image-guide/src/**/*",
 		"app/modules/optimizations/image-cdn/src/**/*",
+		"_inc/**/*",
+		"routes/**/*",
 		"../../js-packages/image-guide/src/boost-ui/stores"
 	],
 	"exclude": [

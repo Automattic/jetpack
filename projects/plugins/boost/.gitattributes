@@ -5,6 +5,7 @@
 app/assets/dist/**                              production-include
 app/modules/image-guide/dist/**                 production-include
 app/modules/optimizations/image-cdn/dist/**     production-include
+/build/**                                       production-include
 jetpack_vendor/**                               production-include
 vendor/autoload.php                             production-include
 vendor/autoload_functions.php                   production-include
@@ -21,6 +22,8 @@ vendor/wikimedia/aho-corasick/**                production-include
 # Remember to end all directories with `/**` to properly tag every file.
 /app/assets/src/**                              production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
+/_inc/**                                        production-exclude
+/routes/**                                      production-exclude
 /docs/**                                        production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
