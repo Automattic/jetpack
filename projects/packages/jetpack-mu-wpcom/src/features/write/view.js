@@ -3388,14 +3388,18 @@ window.addEventListener( 'beforeunload', event => {
 // would strand the user on a "done" page with grayed-out buttons.
 window.addEventListener( 'pageshow', event => {
 	if ( event.persisted && state.isPublished ) {
-		document.documentElement.style.visibility = 'hidden';
 		window.location.replace( state.writeUrl );
 	}
 } );
 
-// Clean up autosave timer on page unload.
+// Clean up autosave timer on page unload.  When leaving after a publish,
+// also hide the page so bfcache stores it already hidden — prevents a
+// flash of stale content if the browser restores the snapshot.
 window.addEventListener( 'pagehide', () => {
 	if ( autosaveTimer ) {
 		clearInterval( autosaveTimer );
+	}
+	if ( state.isPublished ) {
+		document.documentElement.style.visibility = 'hidden';
 	}
 } );
