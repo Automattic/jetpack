@@ -165,8 +165,8 @@ class Initial_State {
 	/**
 	 * Check whether the AI Agent Access toggle should be available.
 	 *
-	 * The feature is rollout-gated to proxied Automattic contexts so regular
-	 * site owners and non-proxied staff do not see unfinished controls.
+	 * The feature is rollout-gated to Automattic contexts so regular site owners
+	 * do not see unfinished controls.
 	 *
 	 * IMPORTANT: Only use for feature gating, not for authorization.
 	 *
