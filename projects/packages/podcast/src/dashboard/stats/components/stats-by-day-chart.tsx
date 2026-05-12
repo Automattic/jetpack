@@ -1,4 +1,4 @@
-import { BarChart } from '@automattic/charts';
+import { BarChart, parseAsLocalDate } from '@automattic/charts';
 import { formatNumber } from '@automattic/number-formatters';
 import { Card, CardBody, Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -26,7 +26,6 @@ const AXIS_DATE_FORMATTER = new Intl.DateTimeFormat( undefined, {
 	day: 'numeric',
 } );
 
-// Parse in local time to match @automattic/charts; UTC would shift labels east of UTC.
 const formatAxisTick = ( value: unknown ) => {
 	let date: Date;
 	if ( value instanceof Date ) {
@@ -34,7 +33,7 @@ const formatAxisTick = ( value: unknown ) => {
 	} else if ( typeof value === 'number' ) {
 		date = new Date( value );
 	} else {
-		date = new Date( `${ String( value ) }T00:00:00` );
+		date = parseAsLocalDate( String( value ) );
 	}
 	return Number.isNaN( date.getTime() ) ? String( value ) : AXIS_DATE_FORMATTER.format( date );
 };

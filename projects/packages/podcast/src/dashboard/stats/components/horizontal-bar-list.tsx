@@ -1,5 +1,7 @@
-import { sprintf, __ } from '@wordpress/i18n';
 import type { ReactNode, MouseEventHandler } from 'react';
+
+// Not @automattic/charts BarListChart — that's SVG/visx with no per-row onClick (Top episodes needs drilldown).
+// LeaderboardChart is HTML but its data model is currentValue/previousValue/currentShare, wrong shape here.
 
 export type HorizontalBarRow = {
 	id: string;
@@ -23,14 +25,7 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 			{ rows.map( row => {
 				const pct = row.maxValue > 0 ? Math.max( 1, ( row.value / row.maxValue ) * 100 ) : 0;
 				const accessibleLabel =
-					row.labelText !== undefined
-						? sprintf(
-								/* translators: 1: row label (app, country, episode title), 2: localized value. */
-								__( '%1$s: %2$s', 'jetpack-podcast' ),
-								row.labelText,
-								row.formattedValue
-						  )
-						: undefined;
+					row.labelText !== undefined ? `${ row.labelText }: ${ row.formattedValue }` : undefined;
 				const inner = (
 					<>
 						{ row.leftSideItem && (

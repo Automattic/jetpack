@@ -1,3 +1,7 @@
+import { parseAsLocalDate } from '@automattic/charts';
+
+export { formatPercentage as formatPct } from '@automattic/charts';
+
 const APP_LABELS: Record< string, string > = {
 	apple: 'Apple',
 	castbox: 'Castbox',
@@ -27,21 +31,6 @@ export function formatAppName( app: string ): string {
 	);
 }
 
-const PCT_FORMATTER = new Intl.NumberFormat( undefined, {
-	style: 'percent',
-	maximumFractionDigits: 1,
-} );
-
-/**
- * Format a percentage value (25 → "25%"), not a fraction.
- *
- * @param pct - Percentage value.
- * @return    Localized percentage.
- */
-export function formatPct( pct: number ): string {
-	return PCT_FORMATTER.format( pct / 100 );
-}
-
 const DATE_FORMATTER = new Intl.DateTimeFormat( undefined, {
 	month: 'short',
 	day: 'numeric',
@@ -49,13 +38,13 @@ const DATE_FORMATTER = new Intl.DateTimeFormat( undefined, {
 } );
 
 /**
- * Format a YYYY-MM-DD date in local time (matches `@automattic/charts`; UTC would shift east of UTC).
+ * Format a YYYY-MM-DD date in local time (matches `@automattic/charts` axis ticks).
  *
  * @param date - ISO date.
  * @return     Localized date.
  */
 export function formatPodcastDate( date: string ): string {
-	return DATE_FORMATTER.format( new Date( `${ date }T00:00:00` ) );
+	return DATE_FORMATTER.format( parseAsLocalDate( date ) );
 }
 
 type DisplayNamesConstructor = new (
