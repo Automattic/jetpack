@@ -61,6 +61,10 @@ module.exports = {
 			// prettier-ignore
 			`${ state.baseUrl }${ locationAndDomain }-${ state.locale }-${ hash }.json${ query }`
 		);
+		if ( res.status === 404 ) {
+			// No translation file exists for this locale/domain — not an error.
+			return;
+		}
 		if ( ! res.ok ) {
 			throw new Error( `HTTP request failed: ${ res.status } ${ res.statusText }` );
 		}

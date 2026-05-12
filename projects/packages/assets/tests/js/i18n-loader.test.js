@@ -122,18 +122,28 @@ test.each( [
 	);
 } );
 
-test( 'Failed fetch', async () => {
+test( 'Missing translation file (404)', async () => {
 	fetch.mockFetchResponse( 'The specified document was not found.', {
 		status: 404,
 		statusText: 'Not found',
 	} );
-	await expect( loader.downloadI18n( 'foo.js', 'bar', 'plugin' ) ).rejects.toThrow(
-		'HTTP request failed: 404 Not found'
-	);
+	await expect( loader.downloadI18n( 'foo.js', 'bar', 'plugin' ) ).resolves.not.toThrow();
 	expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	expect( global.fetch ).toHaveBeenCalledWith(
 		'http://example.com/wp-content/languages/plugins/bar-en_piglatin-c30102c2bcf57c992ba3491b22e1e4d0.json'
 	);
+	expect( mockSetLocaleData ).not.toHaveBeenCalled();
+} );
+
+test( 'Failed fetch (500)', async () => {
+	fetch.mockFetchResponse( 'Internal Server Error', {
+		status: 500,
+		statusText: 'Internal Server Error',
+	} );
+	await expect( loader.downloadI18n( 'foo.js', 'bar', 'plugin' ) ).rejects.toThrow(
+		'HTTP request failed: 500 Internal Server Error'
+	);
+	expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	expect( mockSetLocaleData ).not.toHaveBeenCalled();
 } );
 
