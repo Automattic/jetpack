@@ -2,7 +2,7 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
 import { features, hasSocialPaidFeatures } from '../../utils';
@@ -23,24 +23,44 @@ export function usePerNetworkCustomization() {
 	const { editPost } = useDispatch( editorStore );
 	const { customizeConnectionById } = useDispatch( socialStore );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
+	const [ templateDefaultDisabled, setTemplateDefaultDisabled ] = useState( false );
 
 	// Get featured image details for syncing to connections
 	const featuredImageId = useFeaturedImage();
 	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
 	const featuredImageUrl = featuredImageDetails?.mediaData?.sourceUrl;
 	const featuredImageMime = featuredImageDetails?.metaData?.mime ?? 'image/jpeg';
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const hasConnectionTemplate = connections.some(
+		connection => typeof connection.template === 'string' && connection.template.trim() !== ''
+	);
 
-	const isEnabled = useSelect( select => {
+	const isMetaEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
 		return Boolean( meta?.[ CUSTOMIZE_PER_NETWORK_KEY ] );
 	}, [] );
+	const shouldUseTemplateDefault =
+		templatesEnabled && hasConnectionTemplate && ! isMetaEnabled && ! templateDefaultDisabled;
+	const isEnabled = isMetaEnabled || shouldUseTemplateDefault;
+
+	useEffect( () => {
+		if ( ! shouldUseTemplateDefault || ! hasSocialPaidFeatures() ) {
+			return;
+		}
+
+		editPost( {
+			meta: {
+				[ CUSTOMIZE_PER_NETWORK_KEY ]: true,
+			},
+		} );
+	}, [ shouldUseTemplateDefault, editPost ] );
 
 	const syncConnections = useCallback( () => {
 		/*
 		 * Don't sync when the message-templates feature is on. Server-side defaults
 		 */
-		if ( siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+		if ( templatesEnabled ) {
 			return;
 		}
 
@@ -72,6 +92,7 @@ export function usePerNetworkCustomization() {
 		featuredImageId,
 		featuredImageUrl,
 		featuredImageMime,
+		templatesEnabled,
 	] );
 
 	const toggle = useCallback( () => {
@@ -80,6 +101,8 @@ export function usePerNetworkCustomization() {
 		recordEvent( 'jetpack_social_per_network_customization_toggled', {
 			enabled: isNowEnabled,
 		} );
+
+		setTemplateDefaultDisabled( ! isNowEnabled && templatesEnabled && hasConnectionTemplate );
 
 		// Update post metadata.
 		editPost( {
@@ -91,7 +114,14 @@ export function usePerNetworkCustomization() {
 		if ( isNowEnabled ) {
 			syncConnections();
 		}
-	}, [ isEnabled, recordEvent, editPost, syncConnections ] );
+	}, [
+		isEnabled,
+		recordEvent,
+		templatesEnabled,
+		hasConnectionTemplate,
+		editPost,
+		syncConnections,
+	] );
 
 	return useMemo(
 		() => ( {

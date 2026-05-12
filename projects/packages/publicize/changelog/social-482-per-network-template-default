@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Default per-network customization to on only when a custom connection template exists.
