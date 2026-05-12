@@ -18,6 +18,12 @@ export type RenderItem = {
 	is_social_post?: boolean;
 };
 
+export type RenderPostIntent = {
+	title?: string;
+	excerpt?: string;
+	content?: string;
+};
+
 export type RenderResult = {
 	id: string;
 	rendered_message?: string;
@@ -25,16 +31,40 @@ export type RenderResult = {
 };
 
 /**
+ * Small deterministic fingerprint for long render-input strings.
+ *
+ * @param value - Value to fingerprint.
+ * @return Length-prefixed hash.
+ */
+function hashString( value: string ): string {
+	let hash = 2166136261;
+
+	for ( let i = 0; i < value.length; i++ ) {
+		hash = ( Math.imul( hash, 16777619 ) + value.charCodeAt( i ) ) % 4294967291;
+	}
+
+	return `${ value.length }:${ hash.toString( 36 ) }`;
+}
+
+/**
  * Stable hash of the items array — used as the cache key in the rendered-messages
  * store slice so each unique render-input batch gets its own slot.
  *
- * @param items - The render items being sent to the server.
+ * @param items      - The render items being sent to the server.
+ * @param postIntent - Edited post fields being sent to the server.
  * @return A stable string fingerprint of the items array.
  */
-export function hashRenderItems( items: RenderItem[] ): string {
-	return JSON.stringify(
-		items.map( i => [ i.id, i.network, i.message ?? '', Boolean( i.is_social_post ) ] )
-	);
+export function hashRenderItems( items: RenderItem[], postIntent: RenderPostIntent = {} ): string {
+	if ( items.length === 0 && ! postIntent.title && ! postIntent.excerpt && ! postIntent.content ) {
+		return '[]';
+	}
+
+	return JSON.stringify( [
+		items.map( i => [ i.id, i.network, i.message ?? '', Boolean( i.is_social_post ) ] ),
+		postIntent.title ?? '',
+		postIntent.excerpt ?? '',
+		hashString( postIntent.content ?? '' ),
+	] );
 }
 
 /**
@@ -42,10 +72,15 @@ export function hashRenderItems( items: RenderItem[] ): string {
  * action creators, the resolver, and selectors so they all agree on which slot
  * a request maps to.
  *
- * @param postId - Post being previewed.
- * @param items  - The render items.
+ * @param postId     - Post being previewed.
+ * @param items      - The render items.
+ * @param postIntent - Edited post fields being sent to the server.
  * @return Cache key string of the form `${postId}|${hashRenderItems(items)}`.
  */
-export function renderMessagesCacheKey( postId: number, items: RenderItem[] ): string {
-	return `${ postId }|${ hashRenderItems( items ) }`;
+export function renderMessagesCacheKey(
+	postId: number,
+	items: RenderItem[],
+	postIntent: RenderPostIntent = {}
+): string {
+	return `${ postId }|${ hashRenderItems( items, postIntent ) }`;
 }

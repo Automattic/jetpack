@@ -25,6 +25,12 @@ describe( 'hashRenderItems', () => {
 		expect( hashRenderItems( a ) ).not.toBe( hashRenderItems( b ) );
 	} );
 
+	it( 'differs when edited post intent changes', () => {
+		expect( hashRenderItems( [ item() ], { title: 'First title' } ) ).not.toBe(
+			hashRenderItems( [ item() ], { title: 'Updated title' } )
+		);
+	} );
+
 	it( 'differs when items are reordered', () => {
 		const ab = [ item( { id: 'a' } ), item( { id: 'b' } ) ];
 		const ba = [ item( { id: 'b' } ), item( { id: 'a' } ) ];
