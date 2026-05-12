@@ -326,7 +326,7 @@ export type AxisOptions = {
 	 * Explicit tick values for the axis. When set, takes precedence over `numTicks`
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
-	tickValues?: number[];
+	tickValues?: ScaleInput< AxisScale >[];
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
