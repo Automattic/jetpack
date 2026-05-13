@@ -268,11 +268,17 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 	};
 };
 
+export interface QuotaInfo {
+	quota: number;
+	used: number;
+	remaining: number;
+	resetsAt: string | null;
+	unlimited?: boolean;
+}
+
 export interface FeatureInfo {
-	remainingCredits?: number;
-	totalCredits?: number;
-	plan?: string;
-	[ key: string ]: unknown;
+	quota: QuotaInfo;
+	activeJobId: number | null;
 }
 
 export interface UsePostsToPodcastInfoReturn {
@@ -283,11 +289,11 @@ export interface UsePostsToPodcastInfoReturn {
 }
 
 /**
- * Reads feature info (including remaining credits) from the same path as the
- * Generate POST, using GET. Refetches on demand after a successful generation
- * so the credit counter reflects consumption.
+ * Reads the site's Posts to Podcast usage snapshot
+ * (`GET /wpcom/v2/posts-to-podcast`). Refetches on demand after a successful
+ * generation so the counter reflects consumption.
  *
- * @return The current FeatureInfo, loading + error state, and a refetch trigger.
+ * @return The current snapshot, loading + error state, and a refetch trigger.
  */
 export const usePostsToPodcastInfo = (): UsePostsToPodcastInfoReturn => {
 	const [ data, setData ] = useState< FeatureInfo | null >( null );

@@ -33,6 +33,21 @@ type SourceMode = 'window' | 'posts';
 const editPostUrl = ( postId: number ): string =>
 	`${ getAdminUrl( 'post.php' ) }?action=edit&post=${ postId }`;
 
+const formatResetDate = ( iso: string | null ): string => {
+	if ( ! iso ) {
+		return '';
+	}
+	const parsed = new Date( iso );
+	if ( Number.isNaN( parsed.getTime() ) ) {
+		return '';
+	}
+	return parsed.toLocaleDateString( undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	} );
+};
+
 const PostsToPodcastSection = () => {
 	const [ sourceMode, setSourceMode ] = useState< SourceMode >( 'window' );
 	const [ windowId, setWindowId ] = useState( WINDOW_PRESETS[ 0 ].id );
@@ -58,9 +73,12 @@ const PostsToPodcastSection = () => {
 		}
 	}, [ succeeded, refetchFeatureInfo ] );
 
-	const remaining = featureInfo?.remainingCredits;
-	const total = featureInfo?.totalCredits;
-	const hasCredits = remaining === undefined ? true : remaining > 0;
+	const quota = featureInfo?.quota;
+	const remaining = quota?.remaining;
+	const total = quota?.quota;
+	const unlimited = quota?.unlimited === true;
+	const resetsAt = quota?.resetsAt ?? null;
+	const hasCredits = unlimited || remaining === undefined || remaining > 0;
 
 	const sourceReady =
 		sourceMode === 'window' || ( sourceMode === 'posts' && selectedPostIds.length > 0 );
@@ -193,19 +211,15 @@ const PostsToPodcastSection = () => {
 								? __( 'Generating…', 'jetpack-podcast' )
 								: __( 'Generate', 'jetpack-podcast' ) }
 						</Button>
-						{ ! featureInfoLoading && remaining !== undefined && (
+						{ ! featureInfoLoading && quota && (
 							<Text variant="muted">
-								{ total !== undefined
-									? sprintf(
+								{ unlimited
+									? __( 'Unlimited generations available.', 'jetpack-podcast' )
+									: sprintf(
 											/* translators: 1: remaining credits, 2: monthly cap. */
 											__( '%1$d of %2$d generations remaining this month.', 'jetpack-podcast' ),
-											remaining,
-											total
-									  )
-									: sprintf(
-											/* translators: %d: remaining credits. */
-											__( '%d generations remaining this month.', 'jetpack-podcast' ),
-											remaining
+											remaining ?? 0,
+											total ?? 0
 									  ) }
 							</Text>
 						) }
@@ -213,10 +227,19 @@ const PostsToPodcastSection = () => {
 
 					{ ! hasCredits && (
 						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								"You've used all generations for this billing period. New credits unlock at the next reset.",
-								'jetpack-podcast'
-							) }
+							{ resetsAt
+								? sprintf(
+										/* translators: %s: localized date string. */
+										__(
+											"You've used all generations for this period. A new credit unlocks on %s.",
+											'jetpack-podcast'
+										),
+										formatResetDate( resetsAt )
+								  )
+								: __(
+										"You've used all generations for this period. New credits unlock at the next reset.",
+										'jetpack-podcast'
+								  ) }
 						</Notice>
 					) }
 
