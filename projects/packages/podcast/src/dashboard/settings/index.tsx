@@ -215,11 +215,25 @@ const SettingsTab = () => {
 	}, [ commit ] );
 
 	const openCreateCategory = useCallback( () => setCreateCategoryOpen( true ), [] );
-	const closeCreateCategory = useCallback( () => {
-		setCreateCategoryOpen( false );
-		setNewCategoryName( '' );
-		setCreateError( null );
-	}, [] );
+	// `force` skips the in-flight guard so the success path can reset state
+	// while the finally block still has `creating === true`. The Cancel
+	// button and `onRequestClose` always pass `false` so the user can't
+	// dismiss mid-create and leave the promise to mutate settings after.
+	const closeCreateCategory = useCallback(
+		( force = false ) => {
+			if ( ! force && creating ) {
+				return;
+			}
+			setCreateCategoryOpen( false );
+			setNewCategoryName( '' );
+			setCreateError( null );
+		},
+		[ creating ]
+	);
+	const requestCloseCreateCategory = useCallback(
+		() => closeCreateCategory(),
+		[ closeCreateCategory ]
+	);
 
 	const onCreateCategory = useCallback( async () => {
 		const name = newCategoryName.trim();
@@ -245,7 +259,7 @@ const SettingsTab = () => {
 				);
 			}
 			commit( { podcasting_category_id: Number( result.id ) } );
-			closeCreateCategory();
+			closeCreateCategory( true );
 		} catch ( error ) {
 			// REST failures throw the raw response object (`{ code, message, data }`),
 			// not an Error instance, so check both shapes.
@@ -468,7 +482,7 @@ const SettingsTab = () => {
 			{ createCategoryOpen && (
 				<Modal
 					title={ __( 'Create a new category', 'jetpack-podcast' ) }
-					onRequestClose={ closeCreateCategory }
+					onRequestClose={ requestCloseCreateCategory }
 				>
 					<VStack spacing={ 4 }>
 						{ createError && (
@@ -484,7 +498,11 @@ const SettingsTab = () => {
 							onChange={ setNewCategoryName }
 						/>
 						<HStack justify="flex-end" spacing={ 3 }>
-							<Button variant="tertiary" onClick={ closeCreateCategory }>
+							<Button
+								variant="tertiary"
+								onClick={ requestCloseCreateCategory }
+								disabled={ creating }
+							>
 								{ __( 'Cancel', 'jetpack-podcast' ) }
 							</Button>
 							<Button
