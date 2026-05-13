@@ -297,6 +297,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
+		require_once __DIR__ . '/features/wpcom-activitypub-reader-auth/wpcom-activitypub-reader-auth.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';

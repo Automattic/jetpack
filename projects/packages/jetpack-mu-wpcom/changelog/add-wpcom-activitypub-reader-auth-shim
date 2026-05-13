@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the WordPress.com Reader Fediverse pane, without an OAuth bearer.
