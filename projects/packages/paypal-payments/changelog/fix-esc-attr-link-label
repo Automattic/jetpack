@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use esc_attr__() for attribute-context strings and fix double-escape on LINK format fallback label.
