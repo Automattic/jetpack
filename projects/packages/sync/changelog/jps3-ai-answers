@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync: sync wp_guideline CPT when Jetpack Search AI Answers is enabled.

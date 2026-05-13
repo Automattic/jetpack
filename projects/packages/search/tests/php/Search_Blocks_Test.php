@@ -23,7 +23,8 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	protected function tearDown(): void {
 		Search_Blocks::reset_initial_loading_cache();
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
+		Search_Blocks::reset_custom_taxonomy_map_cache();
 		parent::tearDown();
 	}
 
@@ -37,10 +38,11 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
-			'isWooCommerceActive',
+			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
 			'searchQuery',
+			'hasSearchParam',
 			'searchParamName',
 			'sortOrder',
 			'results',
@@ -121,7 +123,7 @@ class Search_Blocks_Test extends TestCase {
 		try {
 			$state = Search_Blocks::build_initial_state();
 			$this->assertSame( 'relevance', $state['sortOrder'] );
-			$this->assertFalse( $state['isWooCommerceActive'] );
+			$this->assertFalse( $state['isWooCommerceBlocksEnabled'] );
 		} finally {
 			$_GET = $original_get;
 		}
@@ -129,39 +131,39 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * On Woo sites the same product-format `?orderby` values must seed the
-	 * matching sort and surface `isWooCommerceActive=true` on the IA store
+	 * matching sort and surface `isWooCommerceBlocksEnabled=true` on the IA store
 	 * so the JS-side url-state gate accepts them too (RSM-1082).
 	 */
 	public function test_build_initial_state_accepts_product_sort_when_woocommerce_active() {
 		$original_get = $_GET;
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
 				$_GET  = array( 'orderby' => $key );
 				$state = Search_Blocks::build_initial_state();
 				$this->assertSame( $key, $state['sortOrder'], "Expected $key to seed sortOrder when WC is active." );
-				$this->assertTrue( $state['isWooCommerceActive'] );
+				$this->assertTrue( $state['isWooCommerceBlocksEnabled'] );
 			}
 		} finally {
 			$_GET = $original_get;
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
 	/**
-	 * `jetpack_search_blocks_is_woocommerce_active` lets a site force the
+	 * `jetpack_search_woocommerce_blocks_enabled` lets a site force the
 	 * gate true on a non-Woo install — useful for staging previews of
 	 * WC-only Search blocks. The filter result must be cached, so a
 	 * subsequent call returns the override even after the filter is
 	 * removed.
 	 */
-	public function test_is_woocommerce_active_filter_can_force_true() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+	public function test_woocommerce_blocks_enabled_filter_can_force_true() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		try {
-			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+			$this->assertTrue( Search_Blocks::woocommerce_blocks_enabled() );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_true' );
 		}
 	}
 
@@ -174,19 +176,19 @@ class Search_Blocks_Test extends TestCase {
 	 * test below covers the related "filter result wins over probe" path
 	 * for non-bool returns.
 	 */
-	public function test_is_woocommerce_active_filter_receives_probe_and_return_wins() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_receives_probe_and_return_wins() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$received_value = null;
 		$callback       = function ( $value ) use ( &$received_value ) {
 			$received_value = $value;
 			return false;
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
-			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
+			$this->assertFalse( Search_Blocks::woocommerce_blocks_enabled() );
 			$this->assertIsBool( $received_value, 'Filter received a bool from the probe.' );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 
@@ -195,21 +197,21 @@ class Search_Blocks_Test extends TestCase {
 	 * the result is cached, so a callback that probes the database or
 	 * reads an option pays its cost once even on a hot path.
 	 */
-	public function test_is_woocommerce_active_filter_only_fires_once_per_request() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_only_fires_once_per_request() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$call_count = 0;
 		$callback   = function ( $value ) use ( &$call_count ) {
 			++$call_count;
 			return $value;
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
 			for ( $i = 0; $i < 3; $i++ ) {
-				Search_Blocks::is_woocommerce_active();
+				Search_Blocks::woocommerce_blocks_enabled();
 			}
 			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 
@@ -218,16 +220,16 @@ class Search_Blocks_Test extends TestCase {
 	 * must not poison the strictly-typed `bool` cache. The function casts
 	 * before storing so callers using `===` against `true` still match.
 	 */
-	public function test_is_woocommerce_active_filter_casts_truthy_non_bool_to_true() {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+	public function test_woocommerce_blocks_enabled_filter_casts_truthy_non_bool_to_true() {
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		$callback = static function () {
 			return '1';
 		};
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		try {
-			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+			$this->assertTrue( Search_Blocks::woocommerce_blocks_enabled() );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
 	}
 
@@ -712,7 +714,7 @@ class Search_Blocks_Test extends TestCase {
 		// Product variations are WC-gated; flip the probe so this matrix
 		// can assert their full shape. The non-Woo case is covered by
 		// `test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive`.
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$variations = Search_Blocks::inject_filter_checkbox_variations(
 			array(
 				array(
@@ -809,7 +811,7 @@ class Search_Blocks_Test extends TestCase {
 	 * a silently-empty filter on sites without a brands extension.
 	 */
 	public function test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		register_taxonomy( 'product_brand', 'post' );
 
 		$variations         = Search_Blocks::inject_filter_checkbox_variations(
@@ -850,7 +852,7 @@ class Search_Blocks_Test extends TestCase {
 	 * render silently-empty filters. The non-WC variations stay registered.
 	 */
 	public function test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		register_taxonomy( 'product_brand', 'post' );
 		try {
 			$variations         = Search_Blocks::inject_filter_checkbox_variations(
@@ -923,7 +925,7 @@ class Search_Blocks_Test extends TestCase {
 	 * offered.
 	 */
 	public function test_filter_block_helpers_drops_wc_helpers_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		$helpers = $this->invoke_protected( 'filter_block_helpers' );
 
 		$this->assertArrayHasKey( 'jetpack-search/filter-checkbox', $helpers );
@@ -938,7 +940,7 @@ class Search_Blocks_Test extends TestCase {
 	 * filter-config collection covers the full filter surface.
 	 */
 	public function test_filter_block_helpers_includes_wc_helpers_when_woocommerce_active() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$helpers = $this->invoke_protected( 'filter_block_helpers' );
 
 		$this->assertArrayHasKey( 'jetpack-search/filter-wc-rating', $helpers );
@@ -954,7 +956,7 @@ class Search_Blocks_Test extends TestCase {
 	 * for a field the index doesn't have.
 	 */
 	public function test_build_initial_state_drops_price_range_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 		$original_get = $_GET;
 		$_GET         = array(
 			'min_price' => '10',
@@ -980,7 +982,7 @@ class Search_Blocks_Test extends TestCase {
 	 * paint — this is the same contract `filter-wc-price` writes to URL.
 	 */
 	public function test_build_initial_state_seeds_price_range_when_woocommerce_active() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$original_get = $_GET;
 		$_GET         = array(
 			'min_price' => '10',
@@ -997,6 +999,117 @@ class Search_Blocks_Test extends TestCase {
 			);
 		} finally {
 			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * `?s=foo` is the established case: param present and non-empty. The
+	 * initial-loading gate must keep firing so `results-list/render.php`
+	 * paints the skeleton during the JS-side hydration round-trip.
+	 */
+	public function test_is_initial_loading_with_non_empty_search_query() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+		try {
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['hasSearchParam'] );
+			$this->assertTrue( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * `?s=` (param present, value empty) is the SEARCH-183 case — visitor
+	 * submitted a blank search and expects an unfiltered result set. Both
+	 * the presence helper and the loading gate must flip true even though
+	 * `parse_url_search_query()` trims to `''`. The `wp_query` is primed
+	 * with a non-empty `s` so `is_search()` reports the search route and
+	 * `get_search_param_name()` picks the `s` key — the empty URL value
+	 * rides on `$_GET`.
+	 */
+	public function test_is_initial_loading_with_empty_search_query_string() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'placeholder' ) );
+		try {
+			$this->assertSame( '', Search_Blocks::parse_url_search_query() );
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['hasSearchParam'] );
+			$this->assertTrue( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Off the search route the active key is `q`. `?q=` (empty value) must
+	 * still trigger initial loading so an inline-search page on a singular
+	 * post matches the search-route behavior — visitor submitted a blank
+	 * inline search, expects the unfiltered result set.
+	 */
+	public function test_is_initial_loading_with_empty_q_param_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'q' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertTrue( Search_Blocks::has_search_param() );
+			$this->assertTrue( Search_Blocks::is_initial_loading() );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * A URL with no search param at all (homepage, archive, etc.) must not
+	 * flip into the loading state — there's no fetch to wait on, and a
+	 * seeded spinner would render placeholders that never resolve.
+	 */
+	public function test_is_initial_loading_with_no_search_param_present() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array();
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertFalse( Search_Blocks::has_search_param() );
+			$this->assertFalse( Search_Blocks::is_initial_loading() );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertFalse( $state['hasSearchParam'] );
+			$this->assertFalse( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Array-shaped `?q[]=foo` is malformed input — `parse_url_search_query()`
+	 * bails to `''` via its `is_scalar()` guard, so `has_search_param()`
+	 * matches that contract and treats it as "not present" rather than
+	 * flipping the page into a loading state with no usable query.
+	 */
+	public function test_has_search_param_rejects_non_scalar_input() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'q' => array( 'foo' ) );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$this->assertFalse( Search_Blocks::has_search_param() );
+			$this->assertFalse( Search_Blocks::is_initial_loading() );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
 		}
 	}
 
@@ -1072,6 +1185,291 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 'CHIPS' ) );
 		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 0 ) );
 		$this->assertSame( 'chips', Search_Blocks::normalize_display_style( 'chips' ) );
+	}
+
+	/**
+	 * No filter registered → empty map. Anchors the default behavior so a
+	 * site that hasn't opted into the slot-mapping feature pays nothing
+	 * for it (the `Custom Taxonomy` picker still works against the native
+	 * allowlist).
+	 */
+	public function test_custom_taxonomy_map_empty_by_default() {
+		$this->assertSame( array(), Search_Blocks::custom_taxonomy_map() );
+	}
+
+	/**
+	 * Valid mappings round-trip through the filter, including across multiple
+	 * slots — pins both the per-entry shape and the multi-entry support.
+	 */
+	public function test_custom_taxonomy_map_accepts_valid_entries() {
+		$callback = static function () {
+			return array(
+				'genre' => 'jetpack-search-tag1',
+				'mood'  => 'jetpack-search-tag2',
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame(
+				array(
+					'genre' => 'jetpack-search-tag1',
+					'mood'  => 'jetpack-search-tag2',
+				),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * Invalid slot values must be dropped — the slot field path determines
+	 * the ES field name, so an arbitrary string would query a non-existent
+	 * field and the filter would silently return zero buckets. The valid
+	 * sibling entry must still come through so one bad entry doesn't sink
+	 * the entire map.
+	 */
+	public function test_custom_taxonomy_map_rejects_invalid_slot_values() {
+		$callback = static function () {
+			return array(
+				'genre'   => 'jetpack-search-tag1',     // OK.
+				'bogus_a' => 'jetpack-search-tag10',     // out of range (single digit only).
+				'bogus_b' => 'category',                 // not a reserved slot.
+				'bogus_c' => 'jetpack-search-tag',       // missing digit.
+				'bogus_d' => '',                         // empty.
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		// Suppress _doing_it_wrong notices — we're testing that the map
+		// drops bad entries, not the notice channel itself.
+		$prev_doing_it_wrong = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame(
+				array( 'genre' => 'jetpack-search-tag1' ),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev_doing_it_wrong );
+		}
+	}
+
+	/**
+	 * Two user-slugs pointing at the same slot would merge their term
+	 * spaces in the index (they'd both pull from the same `jetpack-search-tagN`
+	 * field) — the second filter would silently return results from the
+	 * first. Reject the duplicate; first-write wins.
+	 */
+	public function test_custom_taxonomy_map_rejects_duplicate_slot_assignment() {
+		$callback = static function () {
+			return array(
+				'genre'   => 'jetpack-search-tag1',
+				'subject' => 'jetpack-search-tag1', // duplicate slot.
+			);
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		$prev_doing_it_wrong = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame(
+				array( 'genre' => 'jetpack-search-tag1' ),
+				Search_Blocks::custom_taxonomy_map()
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev_doing_it_wrong );
+		}
+	}
+
+	/**
+	 * A filter callback that returns something other than an array must not
+	 * crash callers — empty map is the safe fallback. `_doing_it_wrong()` is
+	 * fired so a misconfiguration is visible during development; tested
+	 * separately below.
+	 */
+	public function test_custom_taxonomy_map_handles_non_array_return() {
+		$callback = static function () {
+			return 'not an array';
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		$prev = $this->silence_doing_it_wrong();
+		try {
+			$this->assertSame( array(), Search_Blocks::custom_taxonomy_map() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			$this->restore_doing_it_wrong( $prev );
+		}
+	}
+
+	/**
+	 * Pins the docblock promise that a non-array filter return fires a
+	 * `_doing_it_wrong()` notice, so site owners notice misconfiguration
+	 * during development rather than silently getting an empty picker.
+	 */
+	public function test_custom_taxonomy_map_fires_doing_it_wrong_on_non_array_return() {
+		$callback = static function () {
+			return null;
+		};
+		$captured = null;
+		$listener = function ( $function, $message, $version ) use ( &$captured ) {
+			if ( 'jetpack_search_custom_taxonomy_map' === $function ) {
+				$captured = compact( 'message', 'version' );
+			}
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		add_action( 'doing_it_wrong_run', $listener, 10, 3 );
+		// Keep the actual error suppressed so PHPUnit's deprecation handler
+		// doesn't flip the test red on the codepath we're exercising.
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		try {
+			Search_Blocks::custom_taxonomy_map();
+			$this->assertIsArray( $captured, 'Expected _doing_it_wrong() to have fired.' );
+			$this->assertStringContainsString( 'must return an array', $captured['message'] );
+		} finally {
+			remove_action( 'doing_it_wrong_run', $listener, 10 );
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		}
+	}
+
+	/**
+	 * The map's user-facing keys flow into the editor's whitelist (via
+	 * `supported_custom_taxonomies()`) so a mapped taxonomy appears in the
+	 * picker even if it's not in Jetpack Search's native allowlist. The
+	 * taxonomy must be registered on the site — otherwise the editor's
+	 * `core.getTaxonomies()` won't surface it anyway.
+	 */
+	public function test_supported_custom_taxonomies_includes_map_keys_when_registered() {
+		register_taxonomy( 'genre', 'post', array( 'public' => true ) );
+		$callback = static function () {
+			return array( 'genre' => 'jetpack-search-tag1' );
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertContains( 'genre', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+			unregister_taxonomy( 'genre' );
+		}
+	}
+
+	/**
+	 * A map entry whose user-facing slug isn't registered locally must NOT
+	 * surface in the whitelist — the editor picker can't render a label for
+	 * an unregistered taxonomy, so silently dropping it keeps the surface
+	 * consistent with what the editor will actually display.
+	 */
+	public function test_supported_custom_taxonomies_drops_unregistered_map_keys() {
+		$callback = static function () {
+			return array( 'never-registered' => 'jetpack-search-tag3' );
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertNotContains( 'never-registered', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * Built-in taxonomies covered by their own filter variations
+	 * (`category`, `post_tag`, plus the three product taxonomies) must never
+	 * appear in the Custom Taxonomy picker even though they sit on the
+	 * Jetpack Search allowlist — the dedicated variation is the right
+	 * surface for those filters and a duplicate entry would be confusing.
+	 */
+	public function test_supported_custom_taxonomies_excludes_built_in_variations() {
+		// `category` and `post_tag` are registered by core in any WP env.
+		$supported = Search_Blocks::supported_custom_taxonomies();
+		$this->assertNotContains( 'category', $supported );
+		$this->assertNotContains( 'post_tag', $supported );
+	}
+
+	/**
+	 * A taxonomy that's in Jetpack Search's native allowlist must surface
+	 * automatically when registered on the site — without requiring an
+	 * entry in the slot map. This is the case the FAQ's
+	 * `jetpack_search_allowed_taxonomies_for_widget_filters` walkthrough
+	 * covers: pre-allowlisted taxonomies just need to be registered.
+	 *
+	 * `jetpack-search-tag0`…`jetpack-search-tag9` are themselves on the
+	 * Sync allowlist (they're the reserved slot taxonomies), so a site
+	 * that registers one directly gets it in the picker straight away.
+	 */
+	public function test_supported_custom_taxonomies_includes_natively_indexed_when_registered() {
+		register_taxonomy( 'jetpack-search-tag0', 'post', array( 'public' => true ) );
+		try {
+			$this->assertContains( 'jetpack-search-tag0', Search_Blocks::supported_custom_taxonomies() );
+		} finally {
+			unregister_taxonomy( 'jetpack-search-tag0' );
+		}
+	}
+
+	/**
+	 * The slot map is resolved into each filterConfig's `effectiveSlug` at
+	 * config-build time rather than threaded through the IA state seed,
+	 * so the front-end query builders stay pure. `Filter_Checkbox::build_config()`
+	 * is exercised separately in this suite; this case anchors the
+	 * intentional absence of a global `customTaxonomyMap` on the seed so a
+	 * future refactor doesn't reintroduce the bidirectional plumbing.
+	 */
+	public function test_build_initial_state_does_not_carry_custom_taxonomy_map_globally() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayNotHasKey( 'customTaxonomyMap', $state );
+	}
+
+	/**
+	 * The resolver routes mapped slugs to their slot and unmapped slugs to
+	 * themselves. Built-in slugs (covered by their own filter variations)
+	 * always return verbatim regardless of map content, so a stray entry
+	 * can't silently redirect a built-in filter.
+	 */
+	public function test_resolve_taxonomy_slot_routes_mapped_and_built_in_slugs_correctly() {
+		$callback = static function ( $map ) {
+			$map['genre']       = 'jetpack-search-tag1';
+			$map['category']    = 'jetpack-search-tag9'; // Should be ignored.
+			$map['product_cat'] = 'jetpack-search-tag8'; // Should be ignored.
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		try {
+			$this->assertSame( '', Search_Blocks::resolve_taxonomy_slot( '' ) );
+			$this->assertSame( 'jetpack-search-tag1', Search_Blocks::resolve_taxonomy_slot( 'genre' ) );
+			$this->assertSame( 'mood', Search_Blocks::resolve_taxonomy_slot( 'mood' ) );
+			$this->assertSame( 'category', Search_Blocks::resolve_taxonomy_slot( 'category' ) );
+			$this->assertSame( 'post_tag', Search_Blocks::resolve_taxonomy_slot( 'post_tag' ) );
+			$this->assertSame( 'product_cat', Search_Blocks::resolve_taxonomy_slot( 'product_cat' ) );
+			$this->assertSame( 'product_tag', Search_Blocks::resolve_taxonomy_slot( 'product_tag' ) );
+			$this->assertSame( 'product_brand', Search_Blocks::resolve_taxonomy_slot( 'product_brand' ) );
+		} finally {
+			remove_filter( 'jetpack_search_custom_taxonomy_map', $callback );
+		}
+	}
+
+	/**
+	 * Silence `_doing_it_wrong()` notices for tests that exercise the
+	 * misconfiguration branches. PHPUnit's deprecation/notice handlers
+	 * would otherwise flip the test red on the very codepath we want to
+	 * exercise.
+	 *
+	 * @return callable|null Previous error handler, restored later.
+	 */
+	private function silence_doing_it_wrong(): ?callable {
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		return null;
+	}
+
+	/**
+	 * Restore the previous error handler. Counterpart to
+	 * `silence_doing_it_wrong()`.
+	 *
+	 * @param callable|null $previous Previous handler.
+	 */
+	private function restore_doing_it_wrong( ?callable $previous ): void {
+		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		// $previous unused — handler returned by silence_doing_it_wrong is
+		// reserved for future expansion if a test needs to capture the
+		// notice payload itself.
+		unset( $previous );
 	}
 
 	/**

@@ -116,6 +116,44 @@ export function overlayFilterLogic( filterConfigs, filterLogic ) {
 }
 
 /**
+ * Reverse the slot-keyed aggregation response back onto user-facing filter
+ * keys. The API request keys mapped custom taxonomies under the slot slug
+ * (e.g. `jetpack-search-tag1`) because the WPCOM search proxy validates
+ * aggregation names against indexable taxonomies — see
+ * `aggregationKeyFor` in `store/api.js`. Downstream readers all key off
+ * `filterKey` (`genre`), so we flip back here, once, before the response
+ * hits store state.
+ *
+ * Built-in and unmapped taxonomies pass through untouched: their
+ * `effectiveSlug` equals their `filterKey`, so there's nothing to swap.
+ *
+ * @param {object} aggregations  - Raw `data.aggregations` from the API.
+ * @param {object} filterConfigs - Registered filter configs.
+ * @return {object} Aggregations keyed by user-facing `filterKey`.
+ */
+export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
+	if ( ! aggregations || typeof aggregations !== 'object' ) {
+		return {};
+	}
+	const slotToFilterKey = {};
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const slug = config?.effectiveSlug;
+		if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+			slotToFilterKey[ slug ] = filterKey;
+		}
+	}
+	if ( Object.keys( slotToFilterKey ).length === 0 ) {
+		return aggregations;
+	}
+	const remapped = {};
+	for ( const [ key, value ] of Object.entries( aggregations ) ) {
+		const target = slotToFilterKey[ key ] ?? key;
+		remapped[ target ] = value;
+	}
+	return remapped;
+}
+
+/**
  * True when a filter key has anything to render: live aggregation buckets,
  * session-retained options, or an active selection. Drives wrapper
  * visibility — without the retained / selection check a narrower query
@@ -458,17 +496,22 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
-		 * Gated on `searchQuery` (so the message doesn't flash on a bare
-		 * `/search/` page where the user hasn't typed) and on `!hasError`
-		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — the error region inside `jetpack-search/results-list` owns
-		 * that message instead).
+		 * Gated on `searchQuery || hasSearchParam` (so the message doesn't
+		 * flash on a bare `/search/` page where the user hasn't typed, but
+		 * does surface when an explicit-but-empty `?s=` URL fired the
+		 * initial search and got nothing back — e.g. a site with no indexed
+		 * posts), and on `!hasError` (so "No results found" doesn't display
+		 * when the fetch actually failed — the error region inside
+		 * `jetpack-search/results-list` owns that message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
 			return (
-				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
+				( !! state.searchQuery || !! state.hasSearchParam ) &&
+				! state.isLoading &&
+				! state.hasError &&
+				state.results.length === 0
 			);
 		},
 
@@ -709,7 +752,10 @@ const { state, actions } = store( NAMESPACE, {
 				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				state.aggregations = data.aggregations ?? {};
+				state.aggregations = remapAggregationsToFilterKeys(
+					data.aggregations,
+					state.filterConfigs
+				);
 				state.retainedFilterOptions = mergeRetainedFilterOptions(
 					state.retainedFilterOptions,
 					state.aggregations,
@@ -897,7 +943,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
-				isWooCommerceActive: state.isWooCommerceActive,
+				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
 		},
 
@@ -907,12 +953,19 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters, filterLogic, priceRange } = readStateFromUrl(
-				state.filterConfigs,
-				state.searchParamName,
-				state.isWooCommerceActive
-			);
+			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
+				readStateFromUrl(
+					state.filterConfigs,
+					state.searchParamName,
+					state.isWooCommerceBlocksEnabled
+				);
 			state.searchQuery = searchQuery;
+			// Keep `hasSearchParam` in lockstep with the live URL so any future
+			// reader (e.g. `showNoResults`) sees the current state rather than
+			// the PHP-seeded value from first paint. `actions.search()` below
+			// fires unconditionally, so the popstate path doesn't depend on
+			// the flag — this write is for state-consistency only.
+			state.hasSearchParam = hasSearchParam;
 			state.sortOrder = sortOrder;
 			// urlParamsToState bypasses its own gate when filterConfigs is empty;
 			// re-gate here so popstate matches initialize() and stray URL keys
@@ -1156,7 +1209,11 @@ const { state, actions } = store( NAMESPACE, {
 					state.filterLogic = gatedLogic;
 				}
 			}
-			if ( state.searchQuery || state.hasActiveFilters ) {
+			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
+				// `hasSearchParam` catches `?s=` (empty value) — the param is
+				// present so the visitor expects a search to run, but
+				// `searchQuery` alone is `''` and indistinguishable from a
+				// URL that omits `s`. Seeded from PHP via build_initial_state().
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {

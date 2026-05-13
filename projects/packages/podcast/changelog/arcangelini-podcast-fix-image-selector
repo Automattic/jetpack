@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: enqueue WP media library so the cover image selector loads.

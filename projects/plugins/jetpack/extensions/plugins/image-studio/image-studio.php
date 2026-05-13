@@ -109,21 +109,28 @@ function has_jetpack_ai_features() {
 /**
  * Check whether the video clip generation flow can run on the current site.
  *
- * Mirrors the WordPress.com server-side gate: defers to
- * `wpcom_site_can_upload_videos()` when available so the client and server
- * agree on capability. Off-WPCOM (self-hosted Jetpack, standalone VideoPress,
- * dev environments) the helper isn't loaded; we don't gate the entry point in
- * those contexts and let the server respond if generation is unsupported.
+ * Image Studio enablement is always required — video clip generation is only
+ * offered on the same plans/environments that surface Image Studio itself,
+ * on WPCOM and off. On WPCOM the helper also mirrors the server-side
+ * `wpcom_site_can_upload_videos()` capability check so the client and server
+ * agree. Off-WPCOM (self-hosted Jetpack, standalone VideoPress, dev
+ * environments) that helper isn't loaded, so only the Image Studio gate
+ * applies; the server is the source of truth if generation is unsupported.
  *
  * @return bool
  */
 function image_studio_can_generate_video_clips() {
+	if ( ! is_image_studio_enabled() ) {
+		return false;
+	}
+
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) && ! wpcom_site_can_upload_videos() ) {
+		return false;
+	}
+
 	/**
-	 * Filter the video clip generation capability determination.
-	 *
-	 * Return null to fall through to the default capability detection;
-	 * return a boolean to override. Useful for environments that need to
-	 * force the answer (custom hosts, integration tests, etc.).
+	 * Filter the video clip generation capability. Consulted only after the
+	 * Image Studio and `wpcom_site_can_upload_videos()` hard gates pass.
 	 *
 	 * @since 15.9
 	 *
@@ -132,10 +139,6 @@ function image_studio_can_generate_video_clips() {
 	$override = apply_filters( 'jetpack_image_studio_can_generate_video_clips', null );
 	if ( null !== $override ) {
 		return (bool) $override;
-	}
-
-	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-		return (bool) wpcom_site_can_upload_videos();
 	}
 
 	return true;

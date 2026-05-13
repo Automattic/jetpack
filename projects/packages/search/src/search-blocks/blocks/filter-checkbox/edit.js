@@ -30,7 +30,7 @@ import {
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
 // Re-export the shared helper under the same name this module has always
@@ -83,12 +83,36 @@ export const VARIATION_PRODUCT_TAG = 'product_tag';
 export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
-// `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
+// `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` is the canonical
 // editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
 // Read at call time (not module init) so tests can flip the gate per case
 // and the editor responds to a runtime change in the localized config.
-const isWooCommerceActive = () =>
-	typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.isWooCommerceActive === true;
+const isWooCommerceBlocksEnabled = () =>
+	typeof window !== 'undefined' &&
+	window.JetpackSearchBlocksConfig?.isWooCommerceBlocksEnabled === true;
+
+// `JetpackSearchBlocksConfig.supportedCustomTaxonomies` is the editor-side
+// whitelist of taxonomy slugs the "Custom Taxonomy" picker may offer.
+// Derived server-side by `Search_Blocks::supported_custom_taxonomies()` —
+// the intersection of registered taxonomies with Jetpack Search's index
+// allowlist, unioned with keys of the `jetpack_search_custom_taxonomy_map`
+// filter. Without this whitelist the picker would happily accept a slug
+// that Jetpack Search never indexes, and the filter would silently return
+// zero buckets on the front end. See:
+// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+const supportedCustomTaxonomies = () =>
+	( typeof window !== 'undefined' &&
+		window.JetpackSearchBlocksConfig?.supportedCustomTaxonomies ) ||
+	[];
+
+// `JetpackSearchBlocksConfig.customTaxonomyMap` is the user-slug → reserved
+// slot map (`{ genre: 'jetpack-search-tag1', ... }`). The picker reads only
+// its keys here to append a "(mapped)" suffix in the label so authors know
+// the filter routes through a Jetpack Search slot rather than the taxonomy
+// itself — and a missing entry in the map means the slug must instead live
+// in Jetpack Search's standard index allowlist.
+const customTaxonomyMap = () =>
+	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.customTaxonomyMap ) || {};
 
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
@@ -113,19 +137,13 @@ export function deriveVariation( attributes ) {
 	if ( taxonomy === 'post_tag' ) {
 		return VARIATION_POST_TAG;
 	}
-	// Product taxonomies map to their dedicated variations only when WC is
-	// active. On non-Woo sites the dedicated variations don't exist in the
-	// inspector picker, so a saved `product_cat` block surfaces as Custom
-	// Taxonomy with the slug preserved — author can still edit the block,
-	// and re-activating WC restores the dedicated variation on the next
-	// render. Mirrors the dormant-attribute pattern used by results-list.
-	if ( taxonomy === 'product_cat' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_cat' ) {
 		return VARIATION_PRODUCT_CAT;
 	}
-	if ( taxonomy === 'product_tag' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_tag' ) {
 		return VARIATION_PRODUCT_TAG;
 	}
-	if ( taxonomy === 'product_brand' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_brand' ) {
 		return VARIATION_PRODUCT_BRAND;
 	}
 	return VARIATION_CUSTOM_TAXONOMY;
@@ -151,7 +169,7 @@ export function variationOptions() {
 		{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
 		{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
 	];
-	if ( isWooCommerceActive() ) {
+	if ( isWooCommerceBlocksEnabled() ) {
 		options.push(
 			{ value: VARIATION_PRODUCT_CAT, label: __( 'Product Category', 'jetpack-search-pkg' ) },
 			{ value: VARIATION_PRODUCT_TAG, label: __( 'Product Tag', 'jetpack-search-pkg' ) },
@@ -294,16 +312,35 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// Derive options separately so the filter/map only re-runs when the
 	// underlying records change, not on every store update that re-runs the
 	// useSelect callback.
+	//
+	// Each option is intersected with `supportedCustomTaxonomies()` (the
+	// server-derived whitelist of taxonomies that Jetpack Search will
+	// actually return buckets for) so authors can't pick a slug that
+	// silently fails at query time. Taxonomies that route through a
+	// reserved Jetpack Search slot via `jetpack_search_custom_taxonomy_map`
+	// get a "(mapped)" suffix so the editor surface communicates the
+	// indirection — the saved attribute value remains the user-facing slug.
 	const taxonomyOptions = useMemo( () => {
 		if ( ! Array.isArray( taxonomies ) ) {
 			return null;
 		}
+		const supported = new Set( supportedCustomTaxonomies() );
+		const map = customTaxonomyMap();
 		return taxonomies
 			.filter(
-				t =>
-					t?.slug && ! BUILT_IN_TAXONOMY_SLUGS.includes( t.slug ) && t?.visibility?.public !== false
+				t => t?.slug && ! BUILT_IN_TAXONOMY_SLUGS.includes( t.slug ) && supported.has( t.slug )
 			)
-			.map( t => ( { value: t.slug, label: t.name || t.slug } ) );
+			.map( t => {
+				const baseLabel = t.name || t.slug;
+				const label = map[ t.slug ]
+					? sprintf(
+							/* translators: %s: taxonomy display name. The "(mapped)" suffix flags a taxonomy that routes through a reserved jetpack-search-tagN slot rather than being natively indexed. */
+							__( '%s (mapped)', 'jetpack-search-pkg' ),
+							baseLabel
+					  )
+					: baseLabel;
+				return { value: t.slug, label };
+			} );
 	}, [ taxonomies ] );
 	const isLoadingTaxonomies = isCustomTaxonomy && taxonomies === null;
 	const hasNoCustomTaxonomies =
@@ -391,11 +428,11 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							help={
 								hasNoCustomTaxonomies
 									? __(
-											'No custom taxonomies registered on this site. Register one with register_taxonomy() and it will appear here.',
+											"Jetpack Search doesn't index any custom taxonomies on this site. Map one to a reserved jetpack-search-tagN slot via the jetpack_search_custom_taxonomy_map filter, or add it to Jetpack Search's allowlist, and it will appear here.",
 											'jetpack-search-pkg'
 									  )
 									: __(
-											'Pick which registered taxonomy this filter targets. Built-in Category, Tag, and the WooCommerce product taxonomies have their own dedicated filters in the inserter.',
+											'Pick which registered taxonomy this filter targets. Only taxonomies that Jetpack Search indexes (natively or via a jetpack-search-tagN slot mapping) appear here; "(mapped)" flags a slot-routed entry.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
 									  )

@@ -47,19 +47,7 @@ class Podcast {
 			return;
 		}
 
-		/**
-		 * Master switch for the Podcast untangle.
-		 *
-		 * While the legacy podcasting code is still the source of truth on
-		 * Simple and Atomic sites, this filter stays false. Subsequent PRs
-		 * layer the new wp-admin SPA, REST integration, and feed
-		 * customization on top of this gate.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param bool $enabled Whether to enable the new Podcast package.
-		 */
-		if ( ! apply_filters( 'jetpack_podcast_untangle', false ) ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
@@ -81,5 +69,45 @@ class Podcast {
 		if ( is_admin() ) {
 			Admin_Page::init();
 		}
+	}
+
+	/**
+	 * Whether the Podcast untangle is enabled for the current request.
+	 *
+	 * Defaults to true for A8C-proxied requests so Automatticians dogfood
+	 * the new package; everyone else stays on the legacy stack until the
+	 * `jetpack_podcast_untangle` filter is flipped globally.
+	 */
+	public static function is_enabled() {
+		/**
+		 * Master switch for the Podcast untangle.
+		 *
+		 * While the legacy podcasting code is still the source of truth on
+		 * Simple and Atomic sites, this filter stays false for non-proxied
+		 * requests. Subsequent PRs layer the new wp-admin SPA, REST
+		 * integration, and feed customization on top of this gate.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable the new Podcast package.
+		 */
+		return (bool) apply_filters( 'jetpack_podcast_untangle', self::is_proxied_request() );
+	}
+
+	/**
+	 * Whether the current request is coming from the A8C proxy.
+	 */
+	private static function is_proxied_request() {
+		// Simple sites: use the wpcom helper when available.
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			return wpcom_is_proxied_request();
+		}
+
+		// Atomic/WoA: fall back to the server variable or constant.
+		if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) ) {
+			return (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
+		}
+
+		return defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 }

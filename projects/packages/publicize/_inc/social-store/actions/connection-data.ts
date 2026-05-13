@@ -24,6 +24,14 @@ import {
 	CUSTOMIZE_CONNECTION,
 } from './constants';
 
+type UpdateConnectionOptions = {
+	/**
+	 * Skip transient UI side effects for background saves. This suppresses the
+	 * row-level updating state and generic success notice; errors are still shown.
+	 */
+	silent?: boolean;
+};
+
 /**
  * Set connections list
  * @param connections - list of connections
@@ -510,13 +518,20 @@ export function setReconnectingAccount( reconnectingAccount: Connection ) {
 /**
  * Updates a connection.
  *
- * @param connectionId - Connection ID to update.
- * @param data         - The data for API call.
+ * @param connectionId   - Connection ID to update.
+ * @param data           - The data for API call.
+ * @param options        - Options for update UI side-effects.
+ * @param options.silent - Whether to skip row-level updating state and the generic success notice.
  * @return A thunk to update a connection.
  */
-export function updateConnectionById( connectionId: string, data: Partial< Connection > ) {
+export function updateConnectionById(
+	connectionId: string,
+	data: Partial< Connection >,
+	options: UpdateConnectionOptions = {}
+) {
 	return async function ( { dispatch, select } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );
 
@@ -529,11 +544,13 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
 
-			dispatch( updatingConnection( connectionId ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId ) );
+			}
 
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
-			if ( connection ) {
+			if ( connection && ! silent ) {
 				createSuccessNotice( __( 'Account updated successfully.', 'jetpack-publicize-pkg' ), {
 					type: 'snackbar',
 					isDismissible: true,
@@ -551,7 +568,9 @@ export function updateConnectionById( connectionId: string, data: Partial< Conne
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( updatingConnection( connectionId, false ) );
+			if ( ! silent ) {
+				dispatch( updatingConnection( connectionId, false ) );
+			}
 		}
 	};
 }

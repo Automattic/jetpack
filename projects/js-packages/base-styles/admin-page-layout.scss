@@ -301,15 +301,13 @@ $jp-breakpoint-mobile: 782px;
 		background: var(--wpds-color-bg-surface-neutral-strong);
 		border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 
-		// Align tab buttons' inline padding with the page header's
-		// horizontal padding (admin-ui ships its page header at
-		// `padding-inline: var(--wpds-dimension-padding-2xl)`).
-		// `@wordpress/ui` Tabs default the buttons to `padding-inline:
-		// var(--wpds-dimension-padding-lg)`; bump them to 2xl so the
-		// first tab's start edge lines up under the page title.
-		[role="tab"] {
-			padding-inline: var(--wpds-dimension-padding-2xl, 24px);
-		}
+		// Align the first tab's start edge with the page header's title.
+		// admin-ui's page header sits at `padding-inline: 2xl` (24px); the
+		// `@wordpress/ui` tab buttons ship with their own `padding-inline:
+		// lg` (16px). Add the `sm` (8px) difference here on the wrapper so
+		// `lg + sm = 2xl` at the button's content edge — without touching
+		// the tab button's own padding.
+		padding-inline: var(--wpds-dimension-padding-sm, 8px);
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────

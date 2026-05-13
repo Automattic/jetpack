@@ -267,6 +267,7 @@ class Settings {
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_raw_url, $blog_id ),
+			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),

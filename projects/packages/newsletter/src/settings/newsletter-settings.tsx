@@ -1,0 +1,491 @@
+/**
+ * External dependencies
+ */
+import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
+import { Notice, Disabled, Spinner } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { Stack } from '@wordpress/ui';
+/**
+ * Internal dependencies
+ */
+import { fetchSettings, updateSettings } from './api';
+import { getNewsletterScriptData } from './script-data';
+import {
+	EmailContentSection,
+	EmailBylineSection,
+	EmailSenderSettingsSection,
+	EmailReplyToSettingsSection,
+	NewsletterSection,
+	NewsletterCategoriesSection,
+	PaidNewsletterSection,
+	SubscriptionsSection,
+	WelcomeEmailSection,
+} from './sections';
+import type { NewsletterSettings } from './types';
+
+/**
+ * Normalize settings from API response.
+ *
+ * @param settings - Raw settings from API.
+ * @return Normalized settings.
+ */
+function normalizeSettings( settings: Record< string, unknown > ): NewsletterSettings {
+	return {
+		...( settings as NewsletterSettings ),
+		wpcom_newsletter_categories: ( ( settings.wpcom_newsletter_categories as number[] ) || [] ).map(
+			String
+		),
+		// Ensure wpcom_subscription_emails_use_excerpt is a string ('0' or '1').
+		wpcom_subscription_emails_use_excerpt: String(
+			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
+		),
+	};
+}
+
+export type NewsletterSettingsBodyProps = {
+	/**
+	 * Whether the active user has a connected WordPress.com owner account.
+	 * When false, the body shows a connect notice and disables the form.
+	 * Defaults to true so the new wp-build chassis — which doesn't pull in
+	 * the SCSS-laden `@automattic/jetpack-connection` package just to read
+	 * this — gets a working form by default.
+	 */
+	hasConnectedOwner?: boolean;
+	/**
+	 * URL to send the user to when they need to connect their account. Only
+	 * surfaced when `hasConnectedOwner` is false. Optional because the
+	 * default-true case never reads it.
+	 */
+	connectUrl?: string;
+};
+
+/**
+ * Newsletter settings body — every section, every save handler, no chrome.
+ *
+ * Lifted out of the legacy `NewsletterSettingsApp` (which still wraps this
+ * with `AdminPage` / `Container` / `Col` for the standalone wp-admin route)
+ * so the modernized dashboard can mount the same body inside its
+ * `Tabs.Panel` without dragging the SCSS-laden chrome packages
+ * (`@automattic/jetpack-components`, `@automattic/jetpack-connection`)
+ * through the wp-build pipeline. The 9 sections themselves stay
+ * byte-for-byte identical.
+ *
+ * Snackbar dispatch goes straight to `@wordpress/notices`'s
+ * `noticesStore` — the wp-build polyfills already render a `SnackbarList`
+ * for us, and the legacy app wraps the body with its own `<GlobalNotices />`
+ * surface, so both paths see the same snackbars without a shared rendering
+ * primitive.
+ *
+ * @param props                   - Component props.
+ * @param props.hasConnectedOwner - Whether the active user has a connected WordPress.com owner account.
+ * @param props.connectUrl        - URL the user is sent to when they need to connect.
+ * @return The settings body.
+ */
+export function NewsletterSettingsBody( {
+	hasConnectedOwner = true,
+	connectUrl,
+}: NewsletterSettingsBodyProps ): JSX.Element | null {
+	const [ data, setData ] = useState< NewsletterSettings | null >( null );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ error, setError ] = useState< string | null >( null );
+
+	// Subscription settings state (for manual save).
+	const [ subscriptionChanges, setSubscriptionChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingSubscriptions, setIsSavingSubscriptions ] = useState( false );
+
+	// Sender name state (for manual save).
+	const [ senderNameChanges, setSenderNameChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
+
+	// Newsletter categories state (for manual save).
+	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
+		Partial< NewsletterSettings >
+	>( {} );
+	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
+
+	// Welcome email state (for manual save).
+	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
+
+	// Get newsletter script data.
+	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
+
+	// Snackbar notices via core data — `type: 'snackbar'` matches what the
+	// legacy `useGlobalNotices` defaulted to, so both legacy and modernized
+	// surfaces render the same snackbars.
+	const { createNotice } = useDispatch( noticesStore );
+	const createSuccessNotice = useCallback(
+		( content: string ) => createNotice( 'success', content, { type: 'snackbar' } ),
+		[ createNotice ]
+	);
+	const createErrorNotice = useCallback(
+		( content: string ) =>
+			createNotice( 'error', content, { type: 'snackbar', explicitDismiss: true } ),
+		[ createNotice ]
+	);
+
+	// Get site type for analytics.
+	const siteType = useMemo( () => getSiteType(), [] );
+
+	// Initialize analytics with user data.
+	useEffect( () => {
+		const tracksUserData = newsletterScriptData?.tracksUserData;
+		if ( tracksUserData && typeof tracksUserData === 'object' ) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
+		}
+	}, [ newsletterScriptData ] );
+
+	// Load settings on mount.
+	useEffect( () => {
+		fetchSettings()
+			.then( ( settings: Record< string, unknown > ) => {
+				setData( normalizeSettings( settings ) );
+				setIsLoading( false );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter settings load error:', err );
+				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
+				setIsLoading( false );
+			} );
+	}, [] );
+
+	// Handle auto-save for newsletter toggle and email settings.
+	const handleAutoSave = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			if ( ! data ) {
+				return;
+			}
+
+			// Track setting changes for analytics.
+			for ( const key of Object.keys( updates ) as Array< keyof NewsletterSettings > ) {
+				const newValue = updates[ key ];
+				const oldValue = data[ key ];
+
+				// Skip if value hasn't changed.
+				if ( newValue === oldValue ) {
+					continue;
+				}
+
+				// Track based on value type — no manual lists to maintain.
+				if ( typeof newValue === 'boolean' ) {
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_toggle', {
+						site_type: siteType,
+						setting: String( key ),
+						enabled: newValue,
+					} );
+				} else if ( typeof newValue === 'string' ) {
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_change', {
+						site_type: siteType,
+						setting: String( key ),
+						value: newValue,
+					} );
+				}
+			}
+
+			// Update local state optimistically.
+			setData( prev => ( { ...prev, ...updates } ) );
+
+			// Save to backend.
+			updateSettings( updates )
+				.then( () => {
+					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+				} )
+				.catch( ( err: Error ) => {
+					// eslint-disable-next-line no-console
+					console.error( 'Newsletter settings auto-save error:', err );
+					createErrorNotice( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
+					// Revert optimistic update on error.
+					setData( data );
+				} );
+		},
+		[ createErrorNotice, createSuccessNotice, data, siteType ]
+	);
+
+	// Handle sender name changes (staged, not auto-saved).
+	const handleSenderNameChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save).
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state.
+		setSenderNameChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save sender name.
+	const saveSenderName = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingSenderName( true );
+
+		updateSettings( senderNameChanges )
+			.then( () => {
+				setSenderNameChanges( {} );
+				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter sender name save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save sender name', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingSenderName( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, senderNameChanges, data ] );
+
+	// Handle subscription settings changes (staged, not auto-saved).
+	const handleSubscriptionChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save).
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state.
+		setSubscriptionChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save subscription settings.
+	const saveSubscriptionSettings = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingSubscriptions( true );
+
+		updateSettings( subscriptionChanges )
+			.then( () => {
+				setSubscriptionChanges( {} );
+				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter subscription settings save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save subscription settings', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingSubscriptions( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, subscriptionChanges, data ] );
+
+	// Handle newsletter categories changes (staged, not auto-saved).
+	const handleNewsletterCategoriesChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			// Update local state immediately (like auto-save).
+			setData( prev => ( { ...prev, ...updates } ) );
+			// Track changes for save button state.
+			setNewsletterCategoriesChanges( prev => ( { ...prev, ...updates } ) );
+		},
+		[]
+	);
+
+	// Save newsletter categories settings.
+	const saveNewsletterCategories = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingNewsletterCategories( true );
+
+		// Convert categories from strings to numbers for API.
+		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
+
+		// Only include categories if they exist AND are not empty.
+		if (
+			apiUpdates.wpcom_newsletter_categories &&
+			Array.isArray( apiUpdates.wpcom_newsletter_categories )
+		) {
+			if ( ( apiUpdates.wpcom_newsletter_categories as string[] ).length > 0 ) {
+				apiUpdates.wpcom_newsletter_categories = (
+					apiUpdates.wpcom_newsletter_categories as string[]
+				 ).map( Number );
+			} else {
+				// Remove empty categories from the update payload to avoid API error.
+				delete apiUpdates.wpcom_newsletter_categories;
+			}
+		}
+
+		updateSettings( apiUpdates )
+			.then( () => {
+				setNewsletterCategoriesChanges( {} );
+				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter categories save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save newsletter categories', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingNewsletterCategories( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, newsletterCategoriesChanges, data ] );
+
+	// Handle welcome email changes (staged, not auto-saved).
+	const handleWelcomeEmailChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
+		// Update local state immediately (like auto-save).
+		setData( prev => ( { ...prev, ...updates } ) );
+		// Track changes for save button state.
+		setWelcomeEmailChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save welcome email settings.
+	const saveWelcomeEmail = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingWelcomeEmail( true );
+
+		updateSettings( welcomeEmailChanges )
+			.then( () => {
+				setWelcomeEmailChanges( {} );
+				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter welcome email save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save welcome email message', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingWelcomeEmail( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data ] );
+
+	if ( isLoading ) {
+		return (
+			<div className="newsletter-settings">
+				<Spinner />
+			</div>
+		);
+	}
+
+	if ( error ) {
+		return (
+			<div className="newsletter-settings newsletter-settings--error">
+				<Notice status="error" isDismissible={ false }>
+					{ error }
+				</Notice>
+			</div>
+		);
+	}
+
+	if ( ! data ) {
+		return null;
+	}
+
+	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
+	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
+
+	return (
+		<>
+			{ ! hasConnectedOwner && (
+				<div className="newsletter-settings-connect-notice">
+					<Notice status="warning" isDismissible={ false }>
+						{ createInterpolateElement(
+							__(
+								'Connect your WordPress.com account to enable and set up your newsletter. <a>Connect now</a>',
+								'jetpack-newsletter'
+							),
+							{
+								a: connectUrl ? <a href={ connectUrl } /> : <span />,
+							}
+						) }
+					</Notice>
+				</div>
+			) }
+			<Disabled
+				isDisabled={ ! hasConnectedOwner }
+				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
+			>
+				<Stack gap="md" direction="column" className="newsletter-settings">
+					<NewsletterSection data={ data } onChange={ handleAutoSave } />
+
+					<Disabled isDisabled={ ! data.subscriptions }>
+						<Stack gap="md" direction="column">
+							<SubscriptionsSection
+								data={ data }
+								onChange={ handleSubscriptionChange }
+								onSave={ saveSubscriptionSettings }
+								isSaving={ isSavingSubscriptions }
+								hasChanges={ hasSubscriptionChanges }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<PaidNewsletterSection
+								isNewsletterEnabled={ data.subscriptions }
+								hasActivePlan={ data.newsletter_has_active_plan }
+							/>
+
+							<NewsletterCategoriesSection
+								data={ data }
+								onChange={ handleNewsletterCategoriesChange }
+								onSave={ saveNewsletterCategories }
+								isSaving={ isSavingNewsletterCategories }
+								hasChanges={ hasNewsletterCategoriesChanges }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<EmailContentSection
+								data={ data }
+								onChange={ handleAutoSave }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<EmailBylineSection
+								data={ data }
+								onChange={ handleAutoSave }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<EmailSenderSettingsSection
+								data={ data }
+								onChange={ handleSenderNameChange }
+								onSave={ saveSenderName }
+								isSaving={ isSavingSenderName }
+								hasChanges={ hasSenderNameChanges }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<EmailReplyToSettingsSection
+								data={ data }
+								onChange={ handleAutoSave }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<WelcomeEmailSection
+								data={ data }
+								onChange={ handleWelcomeEmailChange }
+								onSave={ saveWelcomeEmail }
+								isSaving={ isSavingWelcomeEmail }
+								hasChanges={ hasWelcomeEmailChanges }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+						</Stack>
+					</Disabled>
+				</Stack>
+			</Disabled>
+		</>
+	);
+}

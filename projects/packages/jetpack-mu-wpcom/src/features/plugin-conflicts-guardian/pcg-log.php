@@ -8,35 +8,20 @@
 /**
  * Emit an event to the `plugin-conflicts-guardian` logstash bucket.
  *
- * Best-effort: a logging failure must never escalate into a fatal,
- * since callers run on activation / install / update request paths.
- * No-op outside WordPress.com (no `log2logstash` available).
+ * Thin wrapper around `Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash()`
+ * that pins the feature bucket and redacts ABSPATH/WP_CONTENT_DIR prefixes
+ * from any string values in `$extra` so log lines don't leak the install layout.
  *
  * @param string $message Event message slug (e.g. "Activation blocked").
  * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
  * @return void
  */
 function pcg_log_event( $message, array $extra ) {
-	try {
-		if ( ! function_exists( 'log2logstash' ) ) {
-			$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-			if ( ! is_readable( $log2logstash_path ) ) {
-				return;
-			}
-			require_once $log2logstash_path;
-		}
-
-		log2logstash(
-			array(
-				'blog_id' => get_current_blog_id(),
-				'feature' => 'plugin-conflicts-guardian',
-				'message' => (string) $message,
-				'extra'   => wp_json_encode( pcg_log_redact_paths( $extra ), JSON_UNESCAPED_SLASHES ),
-			)
-		);
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must not escalate on activation / install / update request paths.
-		unset( $e );
-	}
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
+		'plugin-conflicts-guardian',
+		$message,
+		pcg_log_redact_paths( $extra )
+	);
 }
 
 /**

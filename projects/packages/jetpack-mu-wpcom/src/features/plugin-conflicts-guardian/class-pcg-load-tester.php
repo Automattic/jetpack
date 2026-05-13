@@ -123,8 +123,7 @@ class PCG_Load_Tester {
 	 * Log a probe transport error to logstash whenever either probe came
 	 * back as `error` (timeout at PROBE_TIMEOUT, connection failure,
 	 * non-JSON body). Lets us measure timeout frequency vs. batch size
-	 * before deciding whether to scale `PROBE_TIMEOUT` with N. No-op
-	 * outside WordPress.com (no `log2logstash` available).
+	 * before deciding whether to scale `PROBE_TIMEOUT` with N.
 	 *
 	 * @param string   $mode         Probe mode constant.
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.

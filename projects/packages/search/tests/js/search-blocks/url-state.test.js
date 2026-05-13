@@ -41,12 +41,12 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
-	it( 'serializes product-format sort orders when isWooCommerceActive is true (RSM-1082)', () => {
+	it( 'serializes product-format sort orders when isWooCommerceBlocksEnabled is true (RSM-1082)', () => {
 		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
 			const params = stateToUrlParams( {
 				searchQuery: '',
 				sortOrder: key,
-				isWooCommerceActive: true,
+				isWooCommerceBlocksEnabled: true,
 			} );
 			expect( params.get( 'orderby' ) ).toBe( key );
 		}
@@ -57,11 +57,11 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
-	it( 'still rejects unknown sort orders even when isWooCommerceActive is true', () => {
+	it( 'still rejects unknown sort orders even when isWooCommerceBlocksEnabled is true', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
 			sortOrder: 'bogus',
-			isWooCommerceActive: true,
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
@@ -91,7 +91,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: 'shoes',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: 50 },
-			isWooCommerceActive: true,
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.get( 'max_price' ) ).toBe( '50' );
@@ -102,7 +102,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: null },
-			isWooCommerceActive: true,
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -113,7 +113,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: null,
-			isWooCommerceActive: true,
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -129,7 +129,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: 50 },
-			isWooCommerceActive: false,
+			isWooCommerceBlocksEnabled: false,
 		} );
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -166,6 +166,27 @@ describe( 'urlParamsToState', () => {
 	it( 'reads search query from URL', () => {
 		const state = urlParamsToState( new URLSearchParams( 's=cats' ) );
 		expect( state.searchQuery ).toBe( 'cats' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=true for `?s=` (empty value) — distinguishes a blank search from a missing param (SEARCH-183)', () => {
+		const state = urlParamsToState( new URLSearchParams( 's=' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=false when the search key is absent', () => {
+		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( false );
+	} );
+
+	it( 'reads hasSearchParam against the threaded `searchParamName` (`q` off the search route)', () => {
+		const present = urlParamsToState( new URLSearchParams( 'q=' ), {}, 'q' );
+		expect( present.hasSearchParam ).toBe( true );
+		// Stray `s` on a non-search route doesn't satisfy the `q` gate.
+		const absent = urlParamsToState( new URLSearchParams( 's=stray' ), {}, 'q' );
+		expect( absent.hasSearchParam ).toBe( false );
 	} );
 
 	it( 'reads sort order from URL', () => {
@@ -183,14 +204,14 @@ describe( 'urlParamsToState', () => {
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
-	it( 'admits product-format URL sort when isWooCommerceActive is true (RSM-1082)', () => {
+	it( 'admits product-format URL sort when isWooCommerceBlocksEnabled is true (RSM-1082)', () => {
 		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
 			const state = urlParamsToState( new URLSearchParams( `orderby=${ key }` ), {}, 's', true );
 			expect( state.sortOrder ).toBe( key );
 		}
 	} );
 
-	it( 'still collapses unknown sort to relevance even when isWooCommerceActive is true', () => {
+	it( 'still collapses unknown sort to relevance even when isWooCommerceBlocksEnabled is true', () => {
 		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ), {}, 's', true );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
@@ -398,7 +419,7 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 } );
 
 describe( 'urlParamsToState: priceRange', () => {
-	// All priceRange-parsing tests opt into `isWooCommerceActive=true` to
+	// All priceRange-parsing tests opt into `isWooCommerceBlocksEnabled=true` to
 	// exercise the parsing logic; the WC-off behaviour (price params are
 	// dropped entirely) is covered separately in the next describe block.
 	const wcOn = ( params, filterConfigs = {} ) =>
@@ -467,7 +488,7 @@ describe( 'urlParamsToState: priceRange WooCommerce gate (RSM-2805)', () => {
 		expect( state.priceRange ).toBeNull();
 	} );
 
-	it( 'still admits price params when isWooCommerceActive is true', () => {
+	it( 'still admits price params when isWooCommerceBlocksEnabled is true', () => {
 		const state = urlParamsToState(
 			new URLSearchParams( '?min_price=10&max_price=50' ),
 			{},

@@ -14,6 +14,7 @@ const Welcome = lazy( () => import( './welcome' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
+const StatsTab = lazy( () => import( './stats' ) );
 
 const TabFallback = () => (
 	<div className="podcast__loading">
@@ -21,7 +22,7 @@ const TabFallback = () => (
 	</div>
 );
 
-const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution' ];
+const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution', 'stats' ];
 
 const isValidTab = ( value: unknown ): value is TabName =>
 	typeof value === 'string' && ( VALID_TABS as readonly string[] ).includes( value );
@@ -118,6 +119,9 @@ const App = () => {
 						<Tabs.Tab value="distribution" disabled={ ! isSetUp }>
 							{ __( 'Distribution', 'jetpack-podcast' ) }
 						</Tabs.Tab>
+						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
+							{ __( 'Stats', 'jetpack-podcast' ) }
+						</Tabs.Tab>
 					</Tabs.List>
 				</div>
 				<Tabs.Panel value="settings">
@@ -143,6 +147,15 @@ const App = () => {
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
 								<DistributionTab onEditSettings={ goToSettings } />
+							</Suspense>
+						</ErrorBoundary>
+					</div>
+				</Tabs.Panel>
+				<Tabs.Panel value="stats">
+					<div className="podcast__tab-content podcast__tab-content--xwide">
+						<ErrorBoundary>
+							<Suspense fallback={ <TabFallback /> }>
+								<StatsTab />
 							</Suspense>
 						</ErrorBoundary>
 					</div>

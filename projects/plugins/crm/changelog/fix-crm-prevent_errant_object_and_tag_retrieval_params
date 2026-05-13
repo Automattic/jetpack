@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+API: Fix object and tag retrieval.

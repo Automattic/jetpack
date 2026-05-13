@@ -142,6 +142,7 @@ add_action(
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
+			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -439,7 +440,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		</div><!-- /.bw-help-wrap -->
-		<span class="bw-status" data-wp-text="state.message"></span>
+		<span class="bw-status" data-wp-text="state.displayStatus"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"
@@ -455,6 +456,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			><?php echo 'publish' === $post_status ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</header>
+
+	<!-- Beta disclaimer banner -->
+	<div class="bw-disclaimer-banner" hidden data-wp-bind--hidden="!state.showDisclaimer">
+		<span class="bw-disclaimer-text"><?php echo esc_html__( 'Beta: This is an early-access feature. Data loss is possible.', 'jetpack-mu-wpcom' ); ?></span>
+		<button class="bw-disclaimer-dismiss" data-wp-on--click="actions.dismissDisclaimer" aria-label="<?php echo esc_attr__( 'Dismiss beta disclaimer', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
 
 	<!-- Recovery banner -->
 	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
