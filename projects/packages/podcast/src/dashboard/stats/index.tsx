@@ -6,7 +6,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import EpisodeStats from './components/episode-stats';
-import PeriodControl, { getPeriodHeading } from './components/period-control';
+import PeriodControl, { getPeriodHeading, isPeriod } from './components/period-control';
 import StatsByApp from './components/stats-by-app';
 import StatsByDayChart from './components/stats-by-day-chart';
 import StatsLocations from './components/stats-locations';
@@ -16,7 +16,10 @@ import './style.scss';
 import { useShowStatsQuery } from './use-show-stats-query';
 import type { PodcastStatsPeriod, PodcastStatsTopEpisode } from './types';
 
-type StatsSearch = Record< string, unknown > & { episode?: string | number };
+type StatsSearch = Record< string, unknown > & {
+	episode?: string | number;
+	period?: string;
+};
 
 const Stats = () => {
 	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
@@ -29,6 +32,11 @@ const Stats = () => {
 
 	const rawEpisode = Number( search.episode );
 	const selectedPostId = rawEpisode > 0 ? rawEpisode : null;
+
+	// `?period=` lets the Episodes-tab plays-click open the drilldown at the
+	// widest window. The show-level period is still owned by local state.
+	const urlPeriod =
+		typeof search.period === 'string' && isPeriod( search.period ) ? search.period : null;
 
 	// Episodes-tab plays-clicks deep-link with only the id, so the title is
 	// hydrated client-side via core-data.
@@ -44,6 +52,9 @@ const Stats = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					episode: item.post_id,
+					// Top Episodes click inherits the show-level period via local state,
+					// so no `?period=` deep-link override is needed.
+					period: undefined,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
@@ -55,6 +66,7 @@ const Stats = () => {
 			search: ( prev: Record< string, unknown > ) => ( {
 				...prev,
 				episode: undefined,
+				period: undefined,
 			} ),
 		} as unknown as Parameters< typeof navigate >[ 0 ] );
 	}, [ navigate ] );
@@ -90,7 +102,7 @@ const Stats = () => {
 				postId={ selectedPostId }
 				title={ title || __( '(Untitled)', 'jetpack-podcast' ) }
 				onBack={ handleBack }
-				initialPeriod={ period }
+				initialPeriod={ urlPeriod ?? period }
 			/>
 		);
 	}

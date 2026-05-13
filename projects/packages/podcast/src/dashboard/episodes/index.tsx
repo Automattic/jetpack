@@ -107,6 +107,9 @@ const EpisodesTab = () => {
 					...prev,
 					tab,
 					episode: episodeId,
+					// Episodes tab shows all-time plays, so open the drilldown at the
+					// widest window the episode endpoint supports ("Last year").
+					period: 'all',
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
