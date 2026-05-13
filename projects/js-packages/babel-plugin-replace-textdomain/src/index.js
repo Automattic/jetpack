@@ -8,15 +8,16 @@ const defaultFunctions = Object.freeze( {
 	_nx: 4,
 } );
 
-const I18N_MODULE = '@wordpress/i18n';
+const defaultI18nModule = '@wordpress/i18n';
 
 /**
- * Checks whether a given function name is an alias for an `@wordpress/i18n` import.
- * @param {object} path - The Babel path object.
- * @param {string} name - The function name to check.
+ * Checks whether a given function name is an alias for an i18n module import.
+ * @param {object} path       - The Babel path object.
+ * @param {string} name       - The function name to check.
+ * @param {string} i18nModule - The module name to match against.
  * @return {string|null} The resolved function name, or null if the function name is not an alias.
  */
-function resolveI18nAlias( path, name ) {
+function resolveI18nAlias( path, name, i18nModule ) {
 	const binding = path.scope.getBinding( name );
 	if ( ! binding ) {
 		return null;
@@ -26,7 +27,7 @@ function resolveI18nAlias( path, name ) {
 		return null;
 	}
 	const importDecl = bindingPath.parentPath;
-	if ( ! importDecl.isImportDeclaration() || importDecl.node.source.value !== I18N_MODULE ) {
+	if ( ! importDecl.isImportDeclaration() || importDecl.node.source.value !== i18nModule ) {
 		return null;
 	}
 	return bindingPath.node.imported.name;
@@ -37,6 +38,7 @@ module.exports = ( babel, opts ) => {
 	const seenDomains = {};
 
 	let functions = defaultFunctions;
+	let i18nModule = defaultI18nModule;
 	let replacementDomain;
 
 	if ( typeof opts.textdomain === 'undefined' ) {
@@ -65,6 +67,13 @@ module.exports = ( babel, opts ) => {
 		functions = opts.functions;
 	}
 
+	if ( opts.i18nModule !== undefined ) {
+		if ( typeof opts.i18nModule !== 'string' ) {
+			throw new Error( `${ pluginName }: The \`i18nModule\` option must be a string.` );
+		}
+		i18nModule = opts.i18nModule;
+	}
+
 	return {
 		name: pluginName,
 		visitor: {
@@ -80,7 +89,7 @@ module.exports = ( babel, opts ) => {
 					if ( t.isMemberExpression( callee ) ) {
 						return;
 					}
-					funcName = resolveI18nAlias( path, calleeName );
+					funcName = resolveI18nAlias( path, calleeName, i18nModule );
 					if ( ! funcName || ! Object.hasOwn( functions, funcName ) ) {
 						return;
 					}

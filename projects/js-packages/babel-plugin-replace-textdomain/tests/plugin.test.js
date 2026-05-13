@@ -174,6 +174,15 @@ pluginTester( {
 			},
 		},
 		{
+			title: 'Import alias: custom i18nModule',
+			setup,
+			code: `import { __ as __alias } from 'my-i18n';\n__alias( 'Hello', 'old-domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				i18nModule: 'my-i18n',
+			},
+		},
+		{
 			title: 'Import alias: ignores non-i18n imports',
 			setup,
 			code: `import { __ as __alias } from 'other-module';\n__alias( 'Hello', 'old-domain' );`,
@@ -230,6 +239,16 @@ pluginTester( {
 			},
 			snapshot: false,
 			error: 'The `textdomain` option is set to an invalid value.',
+		},
+		{
+			title: 'Bad options: bad i18nModule',
+			fixture: 'fixtures/simple.js',
+			pluginOptions: {
+				textdomain: 'foo',
+				i18nModule: 123,
+			},
+			snapshot: false,
+			error: 'The `i18nModule` option must be a string.',
 		},
 		{
 			title: 'Bad options: bad functions',
