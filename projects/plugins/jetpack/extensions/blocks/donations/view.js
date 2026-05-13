@@ -3,6 +3,7 @@ import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
+import { checkAmountRange as checkRange } from './utils';
 
 import './view.scss';
 
@@ -18,6 +19,11 @@ class JetpackDonations {
 		this.amount = null;
 		this.isCustomAmount = false;
 		this.interval = block.dataset.defaultInterval || 'one-time';
+		this.minAmount = block.dataset.minAmount ? parseFloat( block.dataset.minAmount ) : null;
+		this.maxAmount = block.dataset.maxAmount ? parseFloat( block.dataset.maxAmount ) : null;
+		this.minError = block.dataset.minError || '';
+		this.maxError = block.dataset.maxError || '';
+		this.stripeMinError = block.dataset.stripeMinError || '';
 
 		// Initialize block.
 		this.initNavigation();
@@ -29,7 +35,7 @@ class JetpackDonations {
 		this.block.querySelector( '.donations__container' ).classList.add( 'loaded' );
 	}
 
-	applyDefaultAmount( interval ) {
+	applyDefaultAmount( interval, isUserInitiated = false ) {
 		const amountClass = INTERVAL_TO_AMOUNT_CLASS[ interval ];
 		if ( ! amountClass ) {
 			return;
@@ -50,7 +56,15 @@ class JetpackDonations {
 		this.amount = tile.dataset.amount;
 		this.isCustomAmount = false;
 		this.updateUrl();
-		this.toggleDonateButton( true );
+		const defaultRangeError = this.checkAmountRange( parseFloat( tile.dataset.amount ) );
+		if ( defaultRangeError ) {
+			if ( isUserInitiated ) {
+				this.showRangeError( defaultRangeError );
+			}
+			this.toggleDonateButton( false );
+		} else {
+			this.toggleDonateButton( true );
+		}
 	}
 
 	getNavItem( interval ) {
@@ -77,9 +91,15 @@ class JetpackDonations {
 
 	toggleDonateButton( enable ) {
 		const donateButton = this.getDonateButton();
-		enable
-			? donateButton.classList.remove( 'is-disabled' )
-			: donateButton.classList.add( 'is-disabled' );
+		if ( enable ) {
+			donateButton.classList.remove( 'is-disabled' );
+			donateButton.removeAttribute( 'aria-disabled' );
+			donateButton.removeAttribute( 'tabindex' );
+		} else {
+			donateButton.classList.add( 'is-disabled' );
+			donateButton.setAttribute( 'aria-disabled', 'true' );
+			donateButton.setAttribute( 'tabindex', '-1' );
+		}
 	}
 
 	updateUrl() {
@@ -115,9 +135,21 @@ class JetpackDonations {
 		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 			wrapper.classList.remove( 'has-error' );
 			this.amount = parsedAmount;
-			this.toggleDonateButton( true );
+			const customRangeError = this.checkAmountRange( parsedAmount );
+			if ( customRangeError ) {
+				this.showRangeError( customRangeError );
+				this.toggleDonateButton( false );
+			} else {
+				this.clearRangeError();
+				this.toggleDonateButton( true );
+			}
 		} else {
 			wrapper.classList.add( 'has-error' );
+			if ( parsedAmount && parsedAmount > 0 ) {
+				this.showRangeError( this.stripeMinError );
+			} else {
+				this.clearRangeError();
+			}
 			this.amount = null;
 			this.toggleDonateButton( false );
 		}
@@ -158,12 +190,13 @@ class JetpackDonations {
 			this.isCustomAmount = false;
 			this.resetSelectedAmount();
 			this.updateUrl();
+			this.clearRangeError();
 
 			// Disable donate button.
 			this.toggleDonateButton( false );
 
 			// Apply the new tab's default amount, if one is configured.
-			this.applyDefaultAmount( newInterval );
+			this.applyDefaultAmount( newInterval, true );
 		};
 
 		navItems.forEach( navItem => {
@@ -240,16 +273,53 @@ class JetpackDonations {
 				}
 				this.updateUrl();
 
-				// Enables the donate button.
-				const donateButton = this.getDonateButton();
-				donateButton.classList.remove( 'is-disabled' );
+				const rangeError = this.checkAmountRange( parseFloat( event.target.dataset.amount ) );
+				if ( rangeError ) {
+					this.showRangeError( rangeError );
+					this.toggleDonateButton( false );
+				} else {
+					this.clearRangeError();
+					this.toggleDonateButton( true );
+				}
 			} );
 		} );
 
 		// Disable all buttons on init since no amount has been chosen yet.
-		this.block
-			.querySelectorAll( '.donations__donate-button' )
-			.forEach( button => button.classList.add( 'is-disabled' ) );
+		// Also attach a click guard before memberships.js adds its handler, so
+		// keyboard and AT users cannot activate a disabled button.
+		this.block.querySelectorAll( '.donations__donate-button' ).forEach( button => {
+			button.classList.add( 'is-disabled' );
+			button.setAttribute( 'aria-disabled', 'true' );
+			button.setAttribute( 'tabindex', '-1' );
+			button.addEventListener( 'click', event => {
+				if ( button.getAttribute( 'aria-disabled' ) === 'true' ) {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+				}
+			} );
+		} );
+	}
+
+	checkAmountRange( amount ) {
+		return checkRange( amount, this.minAmount, this.maxAmount, this.minError, this.maxError );
+	}
+
+	showRangeError( message ) {
+		const el = this.block.querySelector( '.donations__range-error' );
+		if ( el ) {
+			el.setAttribute( 'role', 'alert' );
+			el.textContent = message;
+			el.classList.add( 'is-visible' );
+		}
+	}
+
+	clearRangeError() {
+		const el = this.block.querySelector( '.donations__range-error' );
+		if ( el ) {
+			el.removeAttribute( 'role' );
+			el.textContent = '';
+			el.classList.remove( 'is-visible' );
+		}
 	}
 }
 

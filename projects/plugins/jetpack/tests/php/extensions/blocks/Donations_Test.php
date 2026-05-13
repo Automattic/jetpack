@@ -9,15 +9,18 @@ use Automattic\Jetpack\Extensions\Donations;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/donations/donations.php';
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 
 /**
  * Donations block tests.
  *
  * @covers ::Automattic\Jetpack\Extensions\Donations\build_custom_styles
  * @covers ::Automattic\Jetpack\Extensions\Donations\sanitize_css_value
+ * @covers ::Automattic\Jetpack\Extensions\Donations\build_security_data_attrs
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\sanitize_css_value' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_custom_styles' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_security_data_attrs' )]
 class Donations_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -339,5 +342,89 @@ class Donations_Test extends \WP_UnitTestCase {
 	public function test_build_custom_styles_drops_unknown_alignment() {
 		$css = Donations\build_custom_styles( array( 'buttonAlignment' => 'wat' ), '.jp-donations-1' );
 		$this->assertStringNotContainsString( 'donate-button-wrapper', $css );
+	}
+
+	/**
+	 * No min/max set: only data-stripe-min-error is present.
+	 */
+	public function test_build_security_data_attrs_no_limits() {
+		$attrs = Donations\build_security_data_attrs( array(), 'USD' );
+
+		$this->assertArrayNotHasKey( 'data-min-amount', $attrs );
+		$this->assertArrayNotHasKey( 'data-min-error', $attrs );
+		$this->assertArrayNotHasKey( 'data-max-amount', $attrs );
+		$this->assertArrayNotHasKey( 'data-max-error', $attrs );
+		$this->assertArrayHasKey( 'data-stripe-min-error', $attrs );
+		$this->assertStringContainsString( '$0.50', $attrs['data-stripe-min-error'] );
+	}
+
+	/**
+	 * Minimum set: data-min-amount and data-min-error are present with correct values.
+	 */
+	public function test_build_security_data_attrs_with_minimum() {
+		$attrs = Donations\build_security_data_attrs( array( 'minimumAmount' => 10 ), 'USD' );
+
+		$this->assertSame( 10.0, $attrs['data-min-amount'] );
+		$this->assertStringContainsString( '$10.00', $attrs['data-min-error'] );
+		$this->assertArrayNotHasKey( 'data-max-amount', $attrs );
+	}
+
+	/**
+	 * Maximum set: data-max-amount and data-max-error are present with correct values.
+	 */
+	public function test_build_security_data_attrs_with_maximum() {
+		$attrs = Donations\build_security_data_attrs( array( 'maximumAmount' => 500 ), 'USD' );
+
+		$this->assertSame( 500.0, $attrs['data-max-amount'] );
+		$this->assertStringContainsString( '$500.00', $attrs['data-max-error'] );
+		$this->assertArrayNotHasKey( 'data-min-amount', $attrs );
+	}
+
+	/**
+	 * Stripe floor message reflects the currency — GBP minimum is £0.30, not $0.50.
+	 */
+	public function test_build_security_data_attrs_stripe_min_is_currency_aware() {
+		$usd_attrs = Donations\build_security_data_attrs( array(), 'USD' );
+		$gbp_attrs = Donations\build_security_data_attrs( array(), 'GBP' );
+
+		$this->assertStringContainsString( '$0.50', $usd_attrs['data-stripe-min-error'] );
+		// GBP symbol is stored as an HTML entity in CURRENCIES, so format_price returns '&#163;'.
+		$this->assertStringContainsString( '&#163;0.30', $gbp_attrs['data-stripe-min-error'] );
+	}
+
+	/**
+	 * Both min and max set: all four data attributes are present with correct values.
+	 */
+	public function test_build_security_data_attrs_with_both_limits() {
+		$attrs = Donations\build_security_data_attrs(
+			array(
+				'minimumAmount' => 5,
+				'maximumAmount' => 250,
+			),
+			'USD'
+		);
+
+		$this->assertSame( 5.0, $attrs['data-min-amount'] );
+		$this->assertStringContainsString( '$5.00', $attrs['data-min-error'] );
+		$this->assertSame( 250.0, $attrs['data-max-amount'] );
+		$this->assertStringContainsString( '$250.00', $attrs['data-max-error'] );
+		$this->assertArrayHasKey( 'data-stripe-min-error', $attrs );
+	}
+
+	/**
+	 * Inverted config (max < min): both data attributes are still emitted.
+	 * The editor shows a warning; the PHP layer does not silently discard either value.
+	 */
+	public function test_build_security_data_attrs_inverted_limits_both_emitted() {
+		$attrs = Donations\build_security_data_attrs(
+			array(
+				'minimumAmount' => 100,
+				'maximumAmount' => 10,
+			),
+			'USD'
+		);
+
+		$this->assertSame( 100.0, $attrs['data-min-amount'] );
+		$this->assertSame( 10.0, $attrs['data-max-amount'] );
 	}
 }
