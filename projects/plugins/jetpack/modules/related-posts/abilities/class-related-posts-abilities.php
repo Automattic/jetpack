@@ -109,7 +109,7 @@ class Related_Posts_Abilities extends Registrar {
 			),
 		);
 
-		return array(
+		$abilities = array(
 			'jetpack-related-posts/get-related-posts' => array(
 				'label'               => __( 'Get related posts', 'jetpack' ),
 				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Use per_page to control the result count (1..20, default 20); the underlying Elasticsearch query is hard-capped at 20, so values above 20 are rejected by the input schema and pagination beyond the first 20 results is not supported. The legacy "size" alias is accepted for backward compatibility and defaults to 3 when no per_page is supplied. Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
@@ -171,7 +171,7 @@ class Related_Posts_Abilities extends Registrar {
 
 			'jetpack-related-posts/get-settings'      => array(
 				'label'               => __( 'Get Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Return the Related Posts settings relevant to the active theme. Always includes theme_type ("classic" or "block"). On classic themes, also returns enabled, show_headline, show_thumbnails, show_date, show_context, layout ("grid"|"list"), headline, and size — the values that drive auto-injection after the post content. On block themes those fields are omitted because the option is not consumed at render time; a "notice" string is returned instead, pointing toward editing the Jetpack Related Posts block in the active template (each block instance carries its own display attributes). Read-only and idempotent. Pair with jetpack-related-posts/update-settings to change values; module activation itself is managed via jetpack-modules/set-module-status.', 'jetpack' ),
+				'description'         => __( 'Return the Related Posts display settings: theme_type ("classic"), enabled, show_headline, show_thumbnails, show_date, show_context, layout ("grid"|"list"), headline, and size — the values that drive auto-injection after the post content. Only registered on classic themes; block themes ignore the underlying option (rendering is controlled per-instance by the Jetpack Related Posts block in templates), so this ability is omitted there. Read-only and idempotent. Pair with jetpack-related-posts/update-settings to change values; module activation itself is managed via jetpack-modules/set-module-status.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(),
@@ -192,7 +192,7 @@ class Related_Posts_Abilities extends Registrar {
 
 			'jetpack-related-posts/update-settings'   => array(
 				'label'               => __( 'Update Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Update one or more Related Posts display settings. Pass any subset of enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size — omitted fields keep their current value. Only available on classic themes: block themes ignore this option at render time, so the ability returns jetpack_related_posts_block_theme_not_supported and the agent must edit the Jetpack Related Posts block in the active template via the Site Editor instead. Idempotent: when no field differs from the current value, the call is a no-op and returns changed=false with an empty changed_fields array. Returns { settings, changed, changed_fields }. Does not toggle the related-posts module itself; use jetpack-modules/set-module-status for that.', 'jetpack' ),
+				'description'         => __( 'Update one or more Related Posts display settings. Pass any subset of enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size — omitted fields keep their current value. Only registered on classic themes; on block themes the ability is omitted entirely because the option is not consumed at render time — agents must edit the Jetpack Related Posts block inside the active template via the Site Editor instead. Idempotent: when no field differs from the current value, the call is a no-op and returns changed=false with an empty changed_fields array. Returns { settings, changed, changed_fields }. Does not toggle the related-posts module itself; use jetpack-modules/set-module-status for that.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
@@ -258,6 +258,21 @@ class Related_Posts_Abilities extends Registrar {
 				),
 			),
 		);
+
+		// Block themes render Related Posts through the jetpack/related-posts
+		// block placed in templates, so the `relatedposts` option is not consumed
+		// at render time. Exposing settings abilities there would let agents
+		// write data nothing reads — drop them from the registered surface
+		// entirely. The lookup ability (get-related-posts) is unaffected; it
+		// still works regardless of theme type.
+		if ( self::is_block_theme() ) {
+			unset(
+				$abilities['jetpack-related-posts/get-settings'],
+				$abilities['jetpack-related-posts/update-settings']
+			);
+		}
+
+		return $abilities;
 	}
 
 	/**

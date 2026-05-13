@@ -297,28 +297,89 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		$this->assertGreaterThanOrEqual( 1, $settings['size'] );
 	}
 
-	public function test_get_settings_on_block_theme_omits_display_fields() {
+	public function test_block_theme_omits_settings_abilities_from_map() {
+		$this->force_block_theme();
+
+		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
+
+		$this->assertContains(
+			'jetpack-related-posts/get-related-posts',
+			$slugs,
+			'The lookup ability must remain available on block themes — it does not depend on the option.'
+		);
+		$this->assertNotContains(
+			'jetpack-related-posts/get-settings',
+			$slugs,
+			'Block themes do not consume the relatedposts option at render time; get-settings must be omitted.'
+		);
+		$this->assertNotContains(
+			'jetpack-related-posts/update-settings',
+			$slugs,
+			'Block themes do not consume the relatedposts option at render time; update-settings must be omitted.'
+		);
+	}
+
+	public function test_classic_theme_keeps_full_abilities_map() {
+		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
+
+		$this->assertContains( 'jetpack-related-posts/get-related-posts', $slugs );
+		$this->assertContains( 'jetpack-related-posts/get-settings', $slugs );
+		$this->assertContains( 'jetpack-related-posts/update-settings', $slugs );
+	}
+
+	public function test_block_theme_does_not_register_settings_abilities() {
+		if ( ! function_exists( 'wp_get_abilities' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+
+		// Re-firing the Abilities API actions also re-fires WP core's own
+		// registration callbacks, which then raise "already registered"
+		// doing-it-wrong notices for the core site category and get-site-info
+		// ability. Whitelist those so the test asserts on its own behavior.
+		$this->setExpectedIncorrectUsage( 'WP_Ability_Categories_Registry::register' );
+		$this->setExpectedIncorrectUsage( 'WP_Abilities_Registry::register' );
+
+		$this->force_block_theme();
+		$this->trigger_registration();
+
+		$registered_slugs = array_keys( wp_get_abilities() );
+
+		$this->assertContains(
+			'jetpack-related-posts/get-related-posts',
+			$registered_slugs,
+			'Lookup ability must register on block themes.'
+		);
+		$this->assertNotContains(
+			'jetpack-related-posts/get-settings',
+			$registered_slugs,
+			'get-settings must not register on block themes.'
+		);
+		$this->assertNotContains(
+			'jetpack-related-posts/update-settings',
+			$registered_slugs,
+			'update-settings must not register on block themes.'
+		);
+	}
+
+	public function test_get_settings_on_block_theme_returns_minimal_shape_defensively() {
+		// The ability isn't registered on block themes, but the static method
+		// remains PHP-reachable. Direct callers should still get a sensible
+		// shape that does not mislead by listing irrelevant fields.
 		$this->force_block_theme();
 
 		$settings = Related_Posts_Abilities::get_settings();
 
-		$this->assertSame( 'block', $settings['theme_type'], 'Block theme path must announce theme_type=block.' );
-		$this->assertArrayHasKey( 'notice', $settings, 'Block-theme response must carry a notice pointing at the block.' );
-		$this->assertIsString( $settings['notice'] );
-		$this->assertNotSame( '', $settings['notice'] );
-
-		// The display fields are render-time no-ops on block themes; the response
-		// must omit them so agents don't think writing to them will change anything.
+		$this->assertSame( 'block', $settings['theme_type'] );
+		$this->assertArrayHasKey( 'notice', $settings );
 		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context', 'layout', 'headline', 'size' ) as $field ) {
-			$this->assertArrayNotHasKey(
-				$field,
-				$settings,
-				"Block-theme get-settings response must omit {$field} — the option is not consumed at render time."
-			);
+			$this->assertArrayNotHasKey( $field, $settings );
 		}
 	}
 
-	public function test_update_settings_on_block_theme_is_rejected() {
+	public function test_update_settings_on_block_theme_is_rejected_defensively() {
+		// Even though the ability is not registered on block themes, the static
+		// execute callback is still PHP-reachable from direct callers — make
+		// sure it refuses to write so a misused call cannot corrupt the option.
 		$this->force_block_theme();
 		$this->seed_default_settings();
 		$before = Jetpack_Options::get_option( 'relatedposts' );
@@ -327,9 +388,6 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'jetpack_related_posts_block_theme_not_supported', $result->get_error_code() );
-
-		// The stored option must not have been touched — block-theme rejection
-		// runs before any merge or save.
 		$this->assertSame( $before, Jetpack_Options::get_option( 'relatedposts' ) );
 	}
 

@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Related Posts: register Abilities API surface (get-related-posts, get-settings, update-settings) on WP 6.9+. The settings abilities are theme-aware: get-settings returns only the display fields the active theme actually consumes (classic themes get the full shape; block themes get theme_type and a notice pointing at the Related Posts block), and update-settings rejects writes on block themes since the option is not consumed at render time there.
+Related Posts: register Abilities API surface (get-related-posts, get-settings, update-settings) on WP 6.9+. The two settings abilities are only registered on classic themes; block themes do not consume the relatedposts option at render time (display is controlled per-instance by the Jetpack Related Posts block placed in templates), so registering settings abilities there would let agents write data nothing reads — they are omitted instead. The lookup ability remains available regardless of theme.
