@@ -3,7 +3,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
@@ -101,6 +101,18 @@ export default function DashboardPage( { isLoading = false } ) {
 	const postTypes = useSelect( select => select( STORE_ID ).getPostTypes() );
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
+
+	// TEMPORARY: sticky inspection notice so we can investigate why
+	// `width: max-content` collapses the `@wordpress/ui` Notice. Remove
+	// before merge.
+	const { createNotice } = useDispatch( STORE_ID );
+	useEffect( () => {
+		createNotice( 'is-info', 'Inspect me — sticky notice for layout debugging.', {
+			id: 'inspect-notice',
+			duration: 0,
+			showDismiss: false,
+		} );
+	}, [ createNotice ] );
 
 	// Plan Info data
 	const recordMeterInfo = {
