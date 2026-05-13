@@ -104,15 +104,9 @@ const StatsByDayChart = ( {
 	}, [ chartData ] );
 
 	// BarChart's default numTicks: 4 leaves the x-axis sparse for 30/90-day
-	// ranges; pick ~15 evenly spaced dates so the cadence reads like wpcom Stats.
-	const xTickValues = useMemo( () => {
-		const target = 15;
-		if ( chartData.length <= target ) {
-			return chartData.map( datum => datum.dateString );
-		}
-		const step = Math.ceil( chartData.length / target );
-		return chartData.filter( ( _, idx ) => idx % step === 0 ).map( datum => datum.dateString );
-	}, [ chartData ] );
+	// ranges; bump toward 15 so the cadence reads like wpcom Stats. Cap at the
+	// number of bars to avoid duplicates on short ranges.
+	const xNumTicks = Math.min( chartData.length || 1, 15 );
 
 	const rangeDays = getPeriodDayCount( period, range );
 	const rangeLabel =
@@ -184,7 +178,7 @@ const StatsByDayChart = ( {
 					renderTooltip={ renderTooltip }
 					options={ {
 						axis: {
-							x: { tickFormat: formatAxisTick, tickValues: xTickValues },
+							x: { tickFormat: formatAxisTick, numTicks: xNumTicks },
 							y: { tickValues: yTickValues },
 						},
 						yScale: { type: 'linear', zero: true, nice: false, domain: yDomain },
