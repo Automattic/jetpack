@@ -56,7 +56,7 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 								className="podcast-stats-bar-list__value"
 								size={ 12 }
 								variant="muted"
-								numberOfLines={ 1 }
+								truncate
 							>
 								{ row.formattedValue }
 							</Text>
