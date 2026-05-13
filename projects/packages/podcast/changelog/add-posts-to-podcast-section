@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Settings: add a "Generate episode from recent posts" section that calls the wpcom/v2/posts-to-podcast proxy, polls the job, and links to the resulting draft.
