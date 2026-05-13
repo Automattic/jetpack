@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import Status from '../status/status';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
@@ -32,7 +33,7 @@ export default function CriticalCssMeta() {
 	}
 
 	return (
-		<>
+		<Stack direction="column" gap="lg">
 			<Status
 				cssState={ cssState }
 				isCloud={ false }
@@ -43,10 +44,9 @@ export default function CriticalCssMeta() {
 					'jetpack-boost'
 				) }
 			/>
-
 			{ ! showFatalError && (
 				<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
 			) }
-		</>
+		</Stack>
 	);
 }

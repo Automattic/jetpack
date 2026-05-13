@@ -39,10 +39,7 @@ export default function UpgradeNotice( {
 		<Notice.Root intent="info">
 			<Notice.Description>{ description }</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionLink
-					href={ `admin.php?page=my-jetpack#/add-boost-${ identifier }` }
-					onClick={ handleClick }
-				>
+				<Notice.ActionLink href="admin.php?page=my-jetpack#/add-boost" onClick={ handleClick }>
 					{ actionLabel ?? __( 'Upgrade now', 'jetpack-boost' ) }
 				</Notice.ActionLink>
 			</Notice.Actions>

@@ -46,14 +46,10 @@ const Lcp = ( { inline = false }: LcpProps = {} ) => {
 			title={ __( 'Optimize LCP Images for smoother experience', 'jetpack-boost' ) }
 			worksOffline={ false }
 			inline={ inline }
-			description={
-				<p>
-					{ __(
-						'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
-						'jetpack-boost'
-					) }
-				</p>
-			}
+			description={ __(
+				'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
+				'jetpack-boost'
+			) }
 			onEnable={ handleEnable }
 			onBeforeToggle={ handleBeforeToggle }
 		>

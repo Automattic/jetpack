@@ -13,14 +13,10 @@ const MinifyCss = () => {
 		<Module
 			slug="minify_css"
 			title={ __( 'Concatenate CSS', 'jetpack-boost' ) }
-			description={
-				<p>
-					{ __(
-						'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-						'jetpack-boost'
-					) }
-				</p>
-			}
+			description={ __(
+				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			) }
 			onEnable={ showMinifyLegacy.refetch }
 		>
 			<MinifyMeta

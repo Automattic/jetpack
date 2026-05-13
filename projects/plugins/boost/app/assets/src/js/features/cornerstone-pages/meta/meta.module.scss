@@ -23,16 +23,8 @@
 	}
 
 	.body {
-		margin-top: 16px;
 
 		.section {
-			padding: 16px;
-			border-radius: 4px;
-			background-color: var(--gray-0);
-
-			~ .section {
-				margin-top: 16px;
-			}
 
 			.has-error {
 
@@ -91,11 +83,7 @@
 			}
 
 			.buttonGroup {
-				margin-top: 16px;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				gap: 20px;
+				margin-top: var(--wpds-dimension-gap-md, 16px);
 			}
 		}
 	}

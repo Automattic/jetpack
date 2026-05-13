@@ -1,20 +1,16 @@
-import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, TextareaControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link as WPLink } from '@wordpress/ui';
-import Lightning from '$svg/lightning';
-import styles from './meta.module.scss';
+import { Badge, Button, Card, CollapsibleCard, Link as WPLink, Notice, Stack } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
-import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router';
-import clsx from 'clsx';
+import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
-import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
 	const pageCache = usePageCache();
@@ -36,37 +32,10 @@ const Meta = () => {
 		window.scrollTo( 0, 0 );
 	};
 
-	const totalBypassPatterns = bypassPatterns?.length || 0;
-
-	const getSummary = () => {
-		if ( runClearPageCacheAction.isPending ) {
-			return __( 'Clearing cache…', 'jetpack-boost' );
-		}
-
-		if ( totalBypassPatterns === 0 && ! logging ) {
-			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
-		}
-
-		let loggingMessage;
-		if ( logging ) {
-			loggingMessage = __( 'Logging activated.', 'jetpack-boost' );
-		}
-
-		if ( ! logging ) {
-			loggingMessage = __( 'No logging.', 'jetpack-boost' );
-		}
-
-		return (
-			( totalBypassPatterns > 0
-				? sprintf(
-						/* translators: %d is the number of cache bypass patterns. */
-						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
-						totalBypassPatterns
-				  )
-				: __( 'No exceptions.', 'jetpack-boost' ) ) +
-			' ' +
-			loggingMessage
-		);
+	const handlePanelToggle = ( open: boolean ) => {
+		recordBoostEvent( 'page_cache_exceptions_panel_toggle', {
+			status: open ? 'open' : 'close',
+		} );
 	};
 
 	const updatePatterns = ( newValue: string ) => {
@@ -78,9 +47,9 @@ const Meta = () => {
 		mutateBypassPatterns.mutate( newPatterns );
 	};
 
-	const toggleLogging = ( event: ChangeEvent< HTMLInputElement > ) => {
-		recordBoostEvent( 'page_cache_toggle_logging', {} );
-		mutateLogging.mutate( event.target.checked );
+	const toggleLogging = ( value: boolean ) => {
+		recordBoostEvent( 'page_cache_toggle_logging', { enabled: Number( value ) } );
+		mutateLogging.mutate( value );
 	};
 
 	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
@@ -89,72 +58,79 @@ const Meta = () => {
 	useMutationNotice( 'update-logging', mutateLogging, {
 		successMessage: logging ? loggingEnabledMessage : loggingDisabledMessage,
 	} );
-
 	useMutationNotice( 'clear-page-cache', runClearPageCacheAction, {
 		savingMessage: __( 'Clearing cache…', 'jetpack-boost' ),
 		errorMessage: __( 'Unable to clear cache.', 'jetpack-boost' ),
 		successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
 	} );
 
-	const extraButtons = (
-		<Button
-			variant="link"
-			size="small"
-			weight="regular"
-			iconSize={ 16 }
-			icon={ <Lightning /> }
-			onClick={ clearPageCache }
-			disabled={ runClearPageCacheAction.isPending }
-		>
-			{ __( 'Clear Cache', 'jetpack-boost' ) }
-		</Button>
-	);
+	if ( ! pageCache ) {
+		return null;
+	}
 
-	const content = (
-		<div className={ styles.body }>
-			<BypassPatterns
-				patterns={ bypassPatterns.join( '\n' ) }
-				setPatterns={ updatePatterns }
-				showErrorNotice={ mutateBypassPatterns.isError }
-			/>
-			<div className={ styles.section }>
-				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-				<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
-					<input
-						type="checkbox"
-						id="cache-logging"
-						checked={ logging }
-						onChange={ toggleLogging }
-					/>{ ' ' }
-					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-				</label>
-				{ logging && (
-					<Link
-						onClick={ handleSeeLogsClick }
-						className={ styles[ 'see-logs-link' ] }
-						to="/cache-debug-log"
-					>
-						{ __( 'See Logs', 'jetpack-boost' ) }
-					</Link>
-				) }
-				<div className={ styles.clearfix } />
-			</div>
-		</div>
-	);
+	const totalBypassPatterns = bypassPatterns?.length || 0;
+	const summary = ( () => {
+		if ( runClearPageCacheAction.isPending ) {
+			return __( 'Clearing cache…', 'jetpack-boost' );
+		}
+		const exceptionsLine =
+			totalBypassPatterns > 0
+				? sprintf(
+						/* translators: %d is the number of cache bypass patterns. */
+						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
+						totalBypassPatterns
+				  )
+				: __( 'No exceptions.', 'jetpack-boost' );
+		const loggingLine = logging
+			? __( 'Logging activated.', 'jetpack-boost' )
+			: __( 'No logging.', 'jetpack-boost' );
+		return `${ exceptionsLine } ${ loggingLine }`;
+	} )();
 
 	return (
-		pageCache && (
-			<div className={ styles.wrapper } data-testid="page-cache-meta">
-				<CollapsibleMeta
-					headerText={ getSummary() }
-					extraButtons={ extraButtons }
-					toggleText={ __( 'Show Options', 'jetpack-boost' ) }
-					tracksEvent={ 'page_cache_exceptions_panel_toggle' }
-				>
-					{ content }
-				</CollapsibleMeta>
-			</div>
-		)
+		<Stack direction="column" gap="md" data-testid="page-cache-meta">
+			<CollapsibleCard.Root onOpenChange={ handlePanelToggle }>
+				<CollapsibleCard.Header>
+					<Stack direction="row" justify="space-between" align="center">
+						<Card.Title>{ __( 'Cache options', 'jetpack-boost' ) }</Card.Title>
+						{ summary && <Badge intent="none">{ summary }</Badge> }
+					</Stack>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<Stack direction="column" gap="lg">
+						<BypassPatterns
+							patterns={ bypassPatterns.join( '\n' ) }
+							setPatterns={ updatePatterns }
+							showErrorNotice={ mutateBypassPatterns.isError }
+						/>
+						<Stack direction="column" gap="xs">
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+								checked={ !! logging }
+								onChange={ toggleLogging }
+							/>
+							{ logging && (
+								<Link onClick={ handleSeeLogsClick } to="/cache-debug-log">
+									{ __( 'See Logs', 'jetpack-boost' ) }
+								</Link>
+							) }
+						</Stack>
+						<Stack direction="row">
+							<Button
+								variant="outline"
+								tone="neutral"
+								size="compact"
+								onClick={ clearPageCache }
+								disabled={ runClearPageCacheAction.isPending }
+							>
+								{ __( 'Clear cache', 'jetpack-boost' ) }
+							</Button>
+						</Stack>
+					</Stack>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
+		</Stack>
 	);
 };
 
@@ -186,13 +162,11 @@ const BypassPatterns = ( {
 			.map( line => line.trim() )
 			.filter( line => line.trim() !== '' );
 
-		// check if it's a valid regex
 		try {
 			lines.forEach( line => new RegExp( line ) );
 		} catch {
 			return false;
 		}
-
 		return true;
 	};
 
@@ -210,41 +184,31 @@ const BypassPatterns = ( {
 	}
 
 	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-			<label htmlFor="jb-cache-exceptions">
-				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
-			</label>
-			<textarea
-				value={ inputValue }
-				rows={ 3 }
-				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-cache-exceptions"
-			/>
-			<p className={ clsx( styles.description, styles[ 'error-message' ] ) }>
-				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
-			</p>
-			<div className={ styles.description }>
-				{ __(
-					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
-					'jetpack-boost'
-				) }
-				<br />
-				{ createInterpolateElement(
-					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
+		<Stack direction="column" gap="md">
+			<TextareaControl
+				__nextHasNoMarginBottom
+				label={ __( 'Exceptions', 'jetpack-boost' ) }
+				help={ createInterpolateElement(
+					__(
+						'URLs of pages and posts that will never be cached. Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line. <link>Learn more</link>.',
+						'jetpack-boost'
+					),
 					{
-						help: <BypassPatternsExample />, // children are passed after the interpolation.
 						link: <WPLink openInNewTab href={ exclusionsLink } />,
 					}
 				) }
-			</div>
+				value={ inputValue }
+				rows={ 3 }
+				onChange={ validateInputValue }
+			/>
+			{ inputInvalid && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ __( 'Invalid format', 'jetpack-boost' ) }</Notice.Description>
+				</Notice.Root>
+			) }
 			{ showNotice && (
 				<Notice.Root intent="error">
-					<Notice.Title>{ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Title>{ __( 'Unable to save changes', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>
 						{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 					</Notice.Description>
@@ -254,56 +218,16 @@ const BypassPatterns = ( {
 					/>
 				</Notice.Root>
 			) }
-			<Button
-				disabled={ patterns === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-		</div>
-	);
-};
-
-type BypassPatternsExampleProps = {
-	children?: ReactNode;
-};
-
-const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
-	const [ show, setShow ] = useState( false );
-
-	return (
-		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'page_cache_see_example_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-start"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					className={ styles.tooltip }
+			<Stack direction="row" gap="sm" align="center">
+				<Button
+					size="compact"
+					disabled={ patterns === inputValue || inputInvalid }
+					onClick={ save }
 				>
-					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
-					<br />
-					checkout
-					<br />
-					gallery/.*
-					<br />
-					specific-page
-				</IconTooltip>
-			</div>
-		</div>
+					{ __( 'Save', 'jetpack-boost' ) }
+				</Button>
+			</Stack>
+		</Stack>
 	);
 };
 

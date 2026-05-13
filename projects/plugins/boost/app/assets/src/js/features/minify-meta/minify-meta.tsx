@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
-import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { TextControl } from '@wordpress/components';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { Badge, Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import styles from './minify-meta.module.scss';
 import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
@@ -51,22 +50,21 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		updateValues( inputValue );
 	}
 
-	const htmlId = `jb-minify-meta-${ datasyncKey }`;
-
-	let summary;
-	if ( values.length > 0 ) {
-		/* Translators: %s refers to the list of excluded items. */
-		summary = sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) );
-	} else {
-		summary = __( 'No exceptions.', 'jetpack-boost' );
-	}
+	const summary =
+		values.length > 0
+			? sprintf(
+					/* translators: %d is the number of exception handles configured. */
+					_n( '%d exception', '%d exceptions', values.length, 'jetpack-boost' ),
+					values.length
+			  )
+			: __( 'No exceptions', 'jetpack-boost' );
 
 	let subHeaderText = '';
 	if ( datasyncKey === 'minify_js_excludes' ) {
-		subHeaderText = __( 'Exclude JS handles:', 'jetpack-boost' );
+		subHeaderText = __( 'Exclude JS handles', 'jetpack-boost' );
 	}
 	if ( datasyncKey === 'minify_css_excludes' ) {
-		subHeaderText = __( 'Exclude CSS handles:', 'jetpack-boost' );
+		subHeaderText = __( 'Exclude CSS handles', 'jetpack-boost' );
 	}
 
 	function loadDefaultValue() {
@@ -77,44 +75,41 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<CollapsibleCard.Root onOpenChange={ handleOpenChange } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleCard.Header>
-				<Stack direction="column" gap="xs">
+				<Stack direction="row" justify="space-between" align="center">
 					<Card.Title>{ buttonText }</Card.Title>
-					<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
+					<Badge intent="none">{ summary }</Badge>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<div className={ styles[ 'manage-excludes' ] }>
-					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-						{ subHeaderText }
-					</label>
-					<input
-						type="text"
+				<Stack direction="column" gap="md">
+					<TextControl
+						__next40pxDefaultSize
+						label={ subHeaderText }
+						help={ __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' ) }
 						value={ inputValue }
 						placeholder={ placeholder }
-						id={ htmlId }
-						onChange={ e => setInputValue( e.target.value ) }
-						onKeyDown={ e => {
+						onChange={ setInputValue }
+						onKeyDown={ ( e: React.KeyboardEvent< HTMLInputElement > ) => {
 							if ( e.key === 'Enter' || e.key === 'NumpadEnter' ) {
 								save();
 							}
 						} }
 					/>
-					<div className={ styles.description }>
-						{ __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' ) }
-					</div>
-					<div className={ styles.buttons }>
-						<Button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
+					<Stack direction="row" gap="sm" align="center">
+						<Button size="compact" disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</Button>
 						<Button
+							variant="minimal"
+							tone="neutral"
+							size="compact"
 							disabled={ inputValue === defaultValue }
 							onClick={ loadDefaultValue }
-							variant="link"
 						>
 							{ __( 'Load default handles', 'jetpack-boost' ) }
 						</Button>
-					</div>
-				</div>
+					</Stack>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

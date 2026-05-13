@@ -1,16 +1,12 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import clsx from 'clsx';
+import { createInterpolateElement } from '@wordpress/element';
+import { Notice } from '@wordpress/ui';
+import { Link } from 'react-router';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
-import InfoIcon from '$svg/info';
-import RefreshIcon from '$svg/refresh';
-import { createInterpolateElement } from '@wordpress/element';
-import { Link } from 'react-router';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
-import { Button } from '@automattic/jetpack-components';
-import styles from './status.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { FC } from 'react';
 
@@ -45,7 +41,6 @@ const Status: FC< StatusTypes > = ( {
 		recordBoostEvent( 'critical_css_advanced_link_clicked', {} );
 	};
 
-	// If there has been a fatal error, show it.
 	if ( showFatalError ) {
 		return (
 			<ShowStopperError
@@ -55,67 +50,62 @@ const Status: FC< StatusTypes > = ( {
 		);
 	}
 
+	const hasErrors = cssState.status !== 'pending' && providersWithErrors.length > 0;
+	const successText = overrideText || (
+		<>
+			{ sprintf(
+				/* translators: %d is a number of CSS Files which were successfully generated */
+				_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+				successCount
+			) }
+			{ !! cssState.updated && (
+				<>
+					{ ' ' }
+					<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+				</>
+			) }
+			{ '. ' }
+			{ extraText }
+		</>
+	);
+
 	return (
-		<div className={ styles.status } data-testid="critical-css-meta">
-			<div className={ styles.summary }>
-				{ overrideText || (
-					<div className={ styles.successes }>
-						{ sprintf(
-							/* translators: %d is a number of CSS Files which were successfully generated */
-							_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-							successCount
-						) }
+		<>
+			<Notice.Root intent="success">
+				<Notice.Description>{ successText }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton
+						variant={ highlightRegenerateButton ? 'solid' : 'minimal' }
+						onClick={ handleClickRegenerate }
+						disabled={ cssState.status === 'pending' }
+					>
+						{ __( 'Regenerate', 'jetpack-boost' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
 
-						{ !! cssState.updated && (
-							<>
-								{ ' ' }
-								<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-							</>
-						) }
-
-						{ '. ' }
-
-						{ extraText }
-					</div>
-				) }
-
-				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
-					<div className={ clsx( 'failures', styles.failures ) }>
-						<InfoIcon />
-
-						<>
-							{ createInterpolateElement(
-								sprintf(
-									// translators: %d is a number of CSS Files which failed to generate
-									_n(
-										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
-										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-										providersWithErrors.length,
-										'jetpack-boost'
-									),
-									providersWithErrors.length
+			{ hasErrors && (
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %d is a number of CSS Files which failed to generate */
+								_n(
+									'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
+									'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
+									providersWithErrors.length,
+									'jetpack-boost'
 								),
-								{
-									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
-								}
-							) }
-						</>
-					</div>
-				) }
-			</div>
-
-			<Button
-				className={ styles[ 'regenerate-button' ] }
-				variant={ highlightRegenerateButton ? 'primary' : 'link' }
-				size="small"
-				weight="regular"
-				onClick={ handleClickRegenerate }
-				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
-				disabled={ cssState.status === 'pending' }
-			>
-				{ __( 'Regenerate', 'jetpack-boost' ) }
-			</Button>
-		</div>
+								providersWithErrors.length
+							),
+							{
+								advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
+							}
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+		</>
 	);
 };
 

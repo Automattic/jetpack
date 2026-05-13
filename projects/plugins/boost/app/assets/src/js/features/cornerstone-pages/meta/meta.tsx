@@ -9,11 +9,10 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link } from '@wordpress/ui';
+import { Button, Notice, Link, Stack } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -127,31 +126,10 @@ const CornerstonePagesContent = () => {
 };
 
 const Meta = () => {
-	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-			<p>
-				{ createInterpolateElement(
-					__(
-						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-						'jetpack-boost'
-					),
-					{
-						link: (
-							<Link
-								openInNewTab
-								href={ cornerstonePagesSupportLink }
-								onClick={ () => {
-									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
-								} }
-							/>
-						),
-						b: <b />,
-					}
-				) }
-			</p>
 			<div className={ styles.body }>
 				{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 			</div>
@@ -348,12 +326,13 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 
 	return (
 		<Tooltip text={ buttonState.title } delay={ 0 }>
-			<div>
+			<div className={ className }>
 				<Button
+					variant="minimal"
+					tone="neutral"
+					size="compact"
 					disabled={ buttonState.disabled }
 					onClick={ loadDefaultValue }
-					className={ className }
-					variant="link"
 				>
 					{ __( 'Include default pages', 'jetpack-boost' ) }
 				</Button>
@@ -484,8 +463,8 @@ const List: FC< ListProps > = ( {
 			/>
 			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
-			<div className={ styles.buttonGroup }>
-				<Button disabled={ items === inputValue || inputInvalid } onClick={ save }>
+			<Stack direction="row" gap="sm" align="center" className={ styles.buttonGroup }>
+				<Button size="compact" disabled={ items === inputValue || inputInvalid } onClick={ save }>
 					{ __( 'Save', 'jetpack-boost' ) }
 				</Button>
 				<LoadDefaultsButton
@@ -494,7 +473,7 @@ const List: FC< ListProps > = ( {
 					maxPages={ maxItems }
 					onValueChange={ handleValueChange }
 				/>
-			</div>
+			</Stack>
 		</div>
 	);
 };

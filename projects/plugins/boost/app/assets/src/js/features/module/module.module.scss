@@ -1,30 +1,9 @@
-// Indent everything below the toggle so descriptions, notices, sub-features
-// and child buttons line up with the toggle's label (40px ≈ toggle width
-// + ToggleControl's internal gap).
-.toggle-inset {
-	padding-left: 40px;
-}
-
-// Used when one Module renders inside another card (e.g. LCP nested
-// inside Cornerstone Pages). Skips the inner Card.Root so the toggle
-// reads as a row inside the parent card, with a hairline to separate it
-// from the content above.
-.inline {
-	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, hsl(0, 0%, 90%));
-	padding-top: var(--wpds-dimension-gap-md, 16px);
+// Indent any children rendered below the toggle (status text, notices,
+// sub-feature CollapsibleCards) so they line up with the toggle's label /
+// help text (40px ≈ toggle width + ToggleControl's internal gap).
+.inline-extras {
 	margin-top: var(--wpds-dimension-gap-md, 16px);
-}
-
-.description {
-	margin-top: var(--wpds-dimension-gap-xs, 4px);
-
-	p {
-		margin: 0 0 var(--wpds-dimension-gap-xs, 8px);
-	}
-
-	p:last-child {
-		margin-bottom: 0;
-	}
+	padding-left: 40px;
 }
 
 .no-toggle-title {

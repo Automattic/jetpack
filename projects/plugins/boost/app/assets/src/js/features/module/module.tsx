@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Notice } from '@wordpress/ui';
+import { Card, Link, Notice, Stack } from '@wordpress/ui';
 import { useEffect } from 'react';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { useNotices } from '$features/notice/context';
@@ -117,38 +117,37 @@ const Module = ( {
 	) : (
 		title
 	);
-	const bodyContent = (
-		<>
-			<div className={ styles.description }>{ description }</div>
-			{ showOfflineMessage ? offlineMessage : isModuleActive && children }
-		</>
-	);
 
+	const extras = showOfflineMessage ? offlineMessage : isModuleActive ? children : null;
 	const body = toggle ? (
 		<>
 			<ToggleControl
 				__nextHasNoMarginBottom
 				className={ `jb-feature-toggle-${ slug }` }
 				label={ toggleLabel }
+				help={ description }
 				checked={ isModuleActive || isFakeActive }
 				disabled={ ! isModuleAvailable }
 				onChange={ handleToggle }
 			/>
-			<div className={ styles[ 'toggle-inset' ] }>{ bodyContent }</div>
+			{ extras && (
+				<div className={ styles[ 'inline-extras' ] }>
+					<Stack direction="column" gap="lg">
+						{ extras }
+					</Stack>
+				</div>
+			) }
 		</>
 	) : (
 		<>
 			<h3 className={ styles[ 'no-toggle-title' ] }>{ toggleLabel }</h3>
-			{ bodyContent }
+			<div>{ description }</div>
+			{ extras }
 		</>
 	);
 
 	if ( inline ) {
-		return (
-			<div data-testid={ `module-${ slug }` } className={ styles.inline }>
-				{ body }
-			</div>
-		);
+		return <div data-testid={ `module-${ slug }` }>{ body }</div>;
 	}
 
 	return (
@@ -163,22 +162,20 @@ export default ( props: ModuleProps ) => {
 		<Notice.Root intent="error">
 			<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
 			<Notice.Description>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
-							'jetpack-boost'
+				{ createInterpolateElement(
+					__(
+						'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+						'jetpack-boost'
+					),
+					{
+						link: (
+							<Link
+								openInNewTab
+								href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+							/>
 						),
-						{
-							link: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
-								/>
-							),
-						}
-					) }
-				</p>
+					}
+				) }{ ' ' }
 				<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
 			</Notice.Description>
 		</Notice.Root>

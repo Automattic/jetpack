@@ -96,58 +96,43 @@ const PageCache = () => {
 				setRunningFreshSetup( true );
 				pageCacheSetup.mutate();
 			} }
-			description={
-				<>
-					<p>
-						{ __(
-							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-							'jetpack-boost'
-						) }
-					</p>
-					{ showCacheFromHostingNotice &&
-						( isWoaHosting() ? (
-							<Notice.Root intent="success">
-								<Notice.Title>{ __( 'Page Cache is running', 'jetpack-boost' ) }</Notice.Title>
-								<Notice.Description>
-									<p>
-										{ __(
-											'Your website already has a page cache running on it powered by WordPress.com.',
-											'jetpack-boost'
-										) }
-									</p>
-								</Notice.Description>
-							</Notice.Root>
-						) : (
-							<Notice.Root intent="info">
-								<Notice.Title>{ __( 'Page Cache is unavailable', 'jetpack-boost' ) }</Notice.Title>
-								<Notice.Description>
-									<p>
-										{ __(
-											'Your hosting provider already provides page caching.',
-											'jetpack-boost'
-										) }
-									</p>
-								</Notice.Description>
-							</Notice.Root>
-						) ) }
-					<Health
-						error={ pageCacheError.data }
-						setError={ pageCacheErrorMutation.mutate }
-						cacheSetup={ pageCacheSetup }
-					/>
-				</>
-			}
+			description={ __(
+				'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+				'jetpack-boost'
+			) }
 		>
+			{ showCacheFromHostingNotice &&
+				( isWoaHosting() ? (
+					<Notice.Root intent="success">
+						<Notice.Title>{ __( 'Page Cache is running', 'jetpack-boost' ) }</Notice.Title>
+						<Notice.Description>
+							{ __(
+								'Your website already has a page cache running on it powered by WordPress.com.',
+								'jetpack-boost'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				) : (
+					<Notice.Root intent="info">
+						<Notice.Title>{ __( 'Page Cache is unavailable', 'jetpack-boost' ) }</Notice.Title>
+						<Notice.Description>
+							{ __( 'Your hosting provider already provides page caching.', 'jetpack-boost' ) }
+						</Notice.Description>
+					</Notice.Root>
+				) ) }
+			<Health
+				error={ pageCacheError.data }
+				setError={ pageCacheErrorMutation.mutate }
+				cacheSetup={ pageCacheSetup }
+			/>
 			{ showCacheEngineErrorNotice && (
 				<Notice.Root intent="warning">
 					<Notice.Title>{ __( 'Page Cache is not working', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>
-						<p>
-							{ __(
-								'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
-								'jetpack-boost'
-							) }
-						</p>
+						{ __(
+							'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
+							'jetpack-boost'
+						) }
 					</Notice.Description>
 				</Notice.Root>
 			) }

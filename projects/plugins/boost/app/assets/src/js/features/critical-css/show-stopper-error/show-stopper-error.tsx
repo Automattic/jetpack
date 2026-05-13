@@ -46,7 +46,9 @@ const ShowStopperError: FC< ShowStopperErrorTypes > = ( {
 							} }
 						>
 							<div className="raw-error">
-								<p>{ __( 'Please follow the troubleshooting steps below', 'jetpack-boost' ) }</p>
+								<div>
+									{ __( 'Please follow the troubleshooting steps below', 'jetpack-boost' ) }
+								</div>
 								<Steps errorSet={ primaryErrorSet } />
 								<DocumentationSection errorType={ primaryErrorSet.type.toString() } />
 							</div>
@@ -65,12 +67,12 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 
 	return (
 		<>
-			<p>
+			<div>
 				{ createInterpolateElement( describeErrorSet( errorSet ), {
 					b: <b />,
 				} ) }
-			</p>
-			<p className={ styles.errorLinks }>
+			</div>
+			<div className={ styles.errorLinks }>
 				{ displayUrls.map( ( { href, label }, index ) => (
 					<a
 						onClick={ () => {
@@ -84,7 +86,7 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 						{ label }
 					</a>
 				) ) }
-			</p>
+			</div>
 		</>
 	);
 };
@@ -115,7 +117,7 @@ const DocumentationSection = ( {
 	}
 
 	return (
-		<p>
+		<div>
 			{ createInterpolateElement( message, {
 				link: (
 					<Link
@@ -127,7 +129,7 @@ const DocumentationSection = ( {
 					/>
 				),
 			} ) }
-		</p>
+		</div>
 	);
 };
 
@@ -148,12 +150,12 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 		<>
 			{ cssState.status_error === 'css-gen-library-failure' ? (
 				<>
-					<p>
+					<div>
 						{ __(
 							'Critical CSS Generator library is either not found or invalid.',
 							'jetpack-boost'
 						) }
-					</p>
+					</div>
 					<DocumentationSection
 						message={ __(
 							'<link>Learn how</link> to fix this by visiting our documentation.',
@@ -161,7 +163,7 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 						) }
 						errorType={ cssState.status_error }
 					/>
-					<p>
+					<div>
 						{ createInterpolateElement(
 							__(
 								'If the problem has been resolved, refresh the page and click <retry>here</retry> to try regenerating critical css.',
@@ -177,18 +179,18 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 								}, 'retry' ),
 							}
 						) }
-					</p>
+					</div>
 				</>
 			) : (
 				<>
-					<p>{ ! hasRetried ? firstTimeError : secondTimeError }</p>
-					<p>
+					<div>{ ! hasRetried ? firstTimeError : secondTimeError }</div>
+					<div>
 						{ sprintf(
 							/* translators: %s: error message */
 							__( `Error: %s`, 'jetpack-boost' ),
 							cssState.status_error
 						) }
-					</p>
+					</div>
 					{ ! hasRetried ? (
 						<button
 							className="secondary"

@@ -47,16 +47,14 @@ export const RegenerateCriticalCssSuggestion = ( { regenerateReason }: Props ) =
 	}
 
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent="warning">
 			<Notice.Title>{ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }</Notice.Title>
 			<Notice.Description>
-				<p>{ getSuggestionMessage( regenerateReason ) }</p>
-				<p>
-					{ __(
-						'Please regenerate your Critical CSS to maintain optimal site performance.',
-						'jetpack-boost'
-					) }
-				</p>
+				{ getSuggestionMessage( regenerateReason ) }{ ' ' }
+				{ __(
+					'Please regenerate your Critical CSS to maintain optimal site performance.',
+					'jetpack-boost'
+				) }
 			</Notice.Description>
 		</Notice.Root>
 	);

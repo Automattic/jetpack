@@ -1,13 +1,7 @@
 @use "$css/main/mixins";
-@use "$css/main/variables";
-
-// TODO: This is a copy of the styles from the critical-css/status component.
-// We should move this to a shared location.
 
 .status {
-	margin-bottom: 16px;
-	font-size: 14px;
-	line-height: 22px;
+	margin-top: var(--wpds-dimension-gap-md, 16px);
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
@@ -21,17 +15,23 @@
 	}
 
 	.summary {
-		margin-right: 5px;
 		flex-grow: 1;
+		margin-right: 5px;
 		position: relative;
 
 		.successes,
 		.generating {
-			color: variables.$gray_40;
+			color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+			font-size: var(--wpds-typography-font-size-md, 13px);
 
 			@include mixins.breakpoint( md ) {
-				margin-right: 115px;
+				margin-right: 84px;
 			}
+		}
+
+		.failures {
+			color: var(--wpds-color-fg-content-error, #cc1818);
+			font-size: var(--wpds-typography-font-size-md, 13px);
 		}
 	}
 

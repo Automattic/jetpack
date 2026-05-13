@@ -14,12 +14,10 @@ const MinifyLegacyNotice = () => {
 					{ __( 'You are not taking full advantage of Concatenate JS or CSS', 'jetpack-boost' ) }
 				</Notice.Title>
 				<Notice.Description>
-					<p>
-						{ __(
-							'You can improve the speed of concatenated files, and reduce the load on WordPress.',
-							'jetpack-boost'
-						) }
-					</p>
+					{ __(
+						'You can improve the speed of concatenated files, and reduce the load on WordPress.',
+						'jetpack-boost'
+					) }
 				</Notice.Description>
 				<Notice.Actions>
 					<Notice.ActionLink

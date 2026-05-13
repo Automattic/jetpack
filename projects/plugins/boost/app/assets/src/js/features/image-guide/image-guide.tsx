@@ -18,39 +18,19 @@ const ImageGuide = () => {
 			slug="image_guide"
 			title={ __( 'Activate overlay guide on site', 'jetpack-boost' ) }
 			onDisable={ resetImageGuideState }
-			description={
-				<>
-					<p>
-						{ __(
-							`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
-							'jetpack-boost'
-						) }
-					</p>
-				</>
-			}
+			description={ __(
+				`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
+				'jetpack-boost'
+			) }
 		>
 			{ false === canResizeImages && (
 				<Notice.Root intent="warning">
 					<Notice.Title>{ __( 'Image resizing is unavailable', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>
-						<p>
-							{ __(
-								"It looks like your server doesn't have Imagick or GD extensions installed.",
-								'jetpack-boost'
-							) }
-						</p>
-						<p>
-							{ __(
-								"Jetpack Boost is able to work without these extensions, but it's likely that it's going to be difficult for you to optimize the images that the Image Guide will identify without one of these extensions.",
-								'jetpack-boost'
-							) }
-						</p>
-						<p>
-							{ __(
-								'Please contact your hosting provider or system administrator and ask them to install or activate one of these extensions.',
-								'jetpack-boost'
-							) }
-						</p>
+						{ __(
+							"It looks like your server doesn't have Imagick or GD extensions installed. Jetpack Boost is able to work without these extensions, but it's likely that it's going to be difficult for you to optimize the images that the Image Guide will identify without one of these extensions. Please contact your hosting provider or system administrator and ask them to install or activate one of these extensions.",
+							'jetpack-boost'
+						) }
 					</Notice.Description>
 				</Notice.Root>
 			) }

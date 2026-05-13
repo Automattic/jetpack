@@ -9,7 +9,6 @@ import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
-import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -47,33 +46,17 @@ const Index = () => {
 				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
-									'jetpack-boost'
+						{ createInterpolateElement(
+							__(
+								`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>. Regenerate your Critical CSS whenever you make changes to the HTML or CSS structure of your site.`,
+								'jetpack-boost'
+							),
+							{
+								link: (
+									<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
 								),
-								{
-									link: (
-										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
-									),
-								}
-							) }
-						</p>
-						<div className={ styles[ 'tooltip-wrapper' ] }>
-							<p>
-								{ createInterpolateElement(
-									__(
-										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-										'jetpack-boost'
-									),
-									{
-										b: <b />,
-									}
-								) }
-							</p>
-							<PremiumTooltip />
-						</div>
+							}
+						) }
 					</>
 				}
 			>
@@ -97,34 +80,15 @@ const Index = () => {
 				}
 				worksOffline={ false }
 				onEnable={ requestRegenerateCriticalCss }
-				description={
-					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
-									'jetpack-boost'
-								),
-								{
-									link: (
-										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
-									),
-								}
-							) }
-						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <strong />,
-								}
-							) }
-						</p>
-					</>
-				}
+				description={ createInterpolateElement(
+					__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>. Boost will automatically generate your Critical CSS whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					),
+					{
+						link: <Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+					}
+				) }
 			>
 				<CloudCssMeta />
 			</Module>
@@ -132,25 +96,21 @@ const Index = () => {
 			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
-				description={
-					<p>
-						{ createInterpolateElement(
-							__(
-								`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
-								'jetpack-boost'
-							),
-							{
-								link: (
-									<Link
-										openInNewTab
-										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
-										href={ deferJsLink }
-									/>
-								),
-							}
-						) }
-					</p>
-				}
+				description={ createInterpolateElement(
+					__(
+						`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
+						'jetpack-boost'
+					),
+					{
+						link: (
+							<Link
+								openInNewTab
+								onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+								href={ deferJsLink }
+							/>
+						),
+					}
+				) }
 			></Module>
 			<MinifyJs />
 			<MinifyCss />
@@ -163,14 +123,10 @@ const Index = () => {
 					</>
 				}
 				worksOffline={ false }
-				description={
-					<p>
-						{ __(
-							`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
-							'jetpack-boost'
-						) }
-					</p>
-				}
+				description={ __(
+					`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+					'jetpack-boost'
+				) }
 			>
 				{ ! hasPremiumCdnFeatures && (
 					<UpgradeNotice
