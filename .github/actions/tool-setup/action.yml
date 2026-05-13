@@ -62,6 +62,14 @@ runs:
         extensions: mysql, imagick
         coverage: ${{ inputs.coverage }}
 
+    # Composer doesn't need this token (we use git clone via `use-github-api=false`),
+    # and a malformed token can trip composer's validation and leak the token in the error.
+    # See: https://github.com/composer/composer/issues/12849
+    - name: Unset GITHUB_TOKEN
+      if: steps.versions.outputs.php-version != 'false'
+      shell: bash
+      run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
     - name: Configure composer
       if: steps.versions.outputs.php-version != 'false'
       shell: bash
