@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Performance settings: simplify the Search section to a short intro and a link to the Search dashboard, so the experience picker (embedded, overlay, theme search) lives in one place instead of being partially duplicated under Performance.
