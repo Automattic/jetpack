@@ -311,7 +311,8 @@ class Jetpack_Mu_Wpcom {
 
 		// Write: distraction-free front-end editor. Enabled for sites with the sticker or for a12s.
 		$is_a12s = ( function_exists( 'is_automattician' ) && is_automattician() )
-			|| ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) );
+			|| ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) )
+			|| ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
 		if ( wpcom_has_blog_sticker( 'wpcom-write-editor', get_wpcom_blog_id() ) || $is_a12s ) {
 			require_once __DIR__ . '/features/write/write.php';
 		}
