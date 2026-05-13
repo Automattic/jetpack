@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Adopt the `jetpack-admin-page-layout` mixin from `@automattic/jetpack-base-styles` so the Scan page fills the full wp-admin viewport, the JetpackFooter pins to the bottom, and the tabs strip uses the canonical `.jp-admin-page-tabs` wrapper. Same convention Activity Log uses — replaces the hand-rolled tab/content scaffolding from earlier phases.

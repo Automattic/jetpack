@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: restore the product-format sort keys (Rating, Price: low to high, Price: high to low) on the results-sort block when WooCommerce is active. Non-WooCommerce sites are unchanged.

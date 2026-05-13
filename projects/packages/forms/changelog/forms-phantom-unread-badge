@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix phantom unread counter badge appearing when there are no unread form submissions.

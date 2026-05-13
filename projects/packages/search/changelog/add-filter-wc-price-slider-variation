@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: adds a "Slider" variation to `jetpack-search/filter-wc-price`. Toggling `showSlider` reveals a dual-thumb single-track slider above the existing min/max inputs — mirroring WooCommerce Blocks' `product-filter-price-slider` pattern (one block, layout toggles, no separate inputs-only block). Slider bounds default to the published catalog's `_price` extents via WC's `wc_product_meta_lookup` table (transient-cached); authors can opt out via the "Auto-detect range" toggle and supply `min` / `max` / `step` manually. Drag fires `input` (state-only, no search) and `change` on release commits via `setPriceRange` — the watcher then syncs the colored fill, the range thumbs, `aria-valuetext`, and the paired number inputs (via `data-wp-bind--value`). Tracked under epic [RSM-1929].

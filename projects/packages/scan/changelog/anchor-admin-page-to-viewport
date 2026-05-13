@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Anchor `.admin-ui-page` to `calc(100vh - var(--wp-admin-bar-height, 32px))` so the page chain has a viewport-tall floor (was `min-block-size: 100%`, which collapses against `#wpbody-content`'s content-driven height). Together with the `flex-grow: 1` chain through `[role="tabpanel"]` → `ThreatsDataViews`, this pins the JetpackFooter to the bottom of the viewport and lets the DataViews empty body fill the area above it. Mobile (≤ 782px) bumps the admin-bar reservation to 46px to match wp-admin's mobile bar height.

@@ -132,7 +132,7 @@ function image_studio_can_generate_video_clips() {
 	 * Filter the video clip generation capability. Consulted only after the
 	 * Image Studio and `wpcom_site_can_upload_videos()` hard gates pass.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @param bool|null $override Override value, or null to use default detection.
 	 */

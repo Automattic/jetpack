@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI page: adopt the shared `jetpack-admin-page-layout` mixin so its layout (sticky header, scrollable middle, pinned JetpackFooter) matches the rest of the Jetpack admin pages that use the AdminPage component.
