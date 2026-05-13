@@ -32,7 +32,9 @@ jest.mock( 'components/module-control', () => props => {
 	mockModuleControl( props );
 	return <div data-testid="module-control" />;
 } );
-jest.mock( 'components/feature-selector', () => () => <div data-testid="feature-selector" /> );
+jest.mock( 'components/experience-selector', () => () => (
+	<div data-testid="experience-selector" />
+) );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );

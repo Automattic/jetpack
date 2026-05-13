@@ -2,11 +2,11 @@ import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/d
 import { action } from 'storybook/actions';
 import { storeConfig, STORE_ID } from '../../../store';
 import { EXPERIENCE } from '../constants';
-import FeatureSelector from '../index';
+import ExperienceSelector from '../index';
 
 export default {
-	title: 'Packages/Search/FeatureSelector',
-	component: FeatureSelector,
+	title: 'Packages/Search/ExperienceSelector',
+	component: ExperienceSelector,
 	parameters: {
 		layout: 'padded',
 	},
@@ -68,7 +68,7 @@ const renderWithStoryArgs = ( settings, args ) => {
 	const registry = createStoreWithSettings( settings, sitePlan, siteData );
 	return (
 		<RegistryProvider value={ registry }>
-			<FeatureSelector />
+			<ExperienceSelector />
 		</RegistryProvider>
 	);
 };

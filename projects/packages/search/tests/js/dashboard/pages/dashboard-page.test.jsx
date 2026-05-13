@@ -22,7 +22,9 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 // Stub heavy sub-components that aren't relevant to the branching test.
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
-jest.mock( 'components/feature-selector', () => () => <div data-testid="feature-selector" /> );
+jest.mock( 'components/experience-selector', () => () => (
+	<div data-testid="experience-selector" />
+) );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( 'components/global-notices', () => () => null );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
@@ -73,18 +75,18 @@ describe( '<DashboardPage> branch', () => {
 		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders FeatureSelector when searchBlocksEnabled is true', () => {
+	test( 'renders ExperienceSelector when searchBlocksEnabled is true', () => {
 		renderWith( { searchBlocksEnabled: true, jetpackSettings: settings } );
 		// The selector lives in the Settings tab, which isn't visible until selected.
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
-		expect( screen.getByTestId( 'feature-selector' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'renders ModuleControl when searchBlocksEnabled is false', () => {
 		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
-		expect( screen.queryByTestId( 'feature-selector' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'experience-selector' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 	} );
 } );

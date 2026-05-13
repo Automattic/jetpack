@@ -1,6 +1,6 @@
 @use "scss/variables";
 
-.jp-search-feature-selector__card {
+.jp-search-experience-option {
 	position: relative;
 	padding: var(--wpds-dimension-padding-2xl);
 	background: var(--wpds-color-bg-surface-neutral-strong);
@@ -37,13 +37,13 @@
 
 	// Mirror the radio's keyboard focus onto the whole card so users
 	// see *which* card is focused — the radio itself is visually hidden.
-	&:has(.jp-search-feature-selector__card-radio:focus-visible) {
+	&:has(.jp-search-experience-option__radio:focus-visible) {
 		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
 		outline-offset: 2px;
 	}
 }
 
-.jp-search-feature-selector__card-radio {
+.jp-search-experience-option__radio {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -60,7 +60,7 @@
 // badge, and the overlay preview's popup is `position: absolute`; without
 // this z-index those would paint over the overlay (DOM order rule for
 // same-z positioned elements) and swallow the click.
-.jp-search-feature-selector__card-overlay {
+.jp-search-experience-option__overlay {
 	position: absolute;
 	inset: 0;
 	z-index: 1;
@@ -68,11 +68,11 @@
 	border-radius: inherit;
 }
 
-.jp-search-feature-selector__card.is-disabled .jp-search-feature-selector__card-overlay {
+.jp-search-experience-option.is-disabled .jp-search-experience-option__overlay {
 	cursor: not-allowed;
 }
 
-.jp-search-feature-selector__card-active-badge {
+.jp-search-experience-option__active-badge {
 	position: absolute;
 	inset-block-start: var(--wpds-dimension-padding-md);
 	inset-inline-end: var(--wpds-dimension-padding-md);
@@ -80,14 +80,14 @@
 	pointer-events: none;
 }
 
-.jp-search-feature-selector__card-title {
+.jp-search-experience-option__title {
 	margin: 0;
 	font-size: var(--wpds-typography-font-size-lg);
 	line-height: var(--wpds-typography-line-height-lg);
 	color: var(--wpds-color-fg-content-neutral);
 }
 
-.jp-search-feature-selector__card-description {
+.jp-search-experience-option__description {
 	margin: 0;
 	color: var(--wpds-color-fg-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-md);
@@ -97,11 +97,11 @@
 // Pushes the action row to the bottom of the card so cards in the same
 // grid row align along their action baseline even when descriptions
 // differ in length.
-.jp-search-feature-selector__card-content {
+.jp-search-experience-option__content {
 	flex: 1 1 auto;
 }
 
-.jp-search-feature-selector__card-loss-list {
+.jp-search-experience-option__loss-list {
 	list-style: none;
 	margin: var(--wpds-dimension-gap-xs) 0 0;
 	padding: 0;
@@ -122,30 +122,30 @@
 	}
 }
 
-.jp-search-feature-selector__card-loss-icon {
+.jp-search-experience-option__loss-icon {
 	fill: var(--wpds-color-fg-content-error);
 	flex: 0 0 auto;
 }
 
 // Lift above the transparent card overlay so the action links remain
 // clickable and tabbable.
-.jp-search-feature-selector__card-actions {
+.jp-search-experience-option__actions {
 	position: relative;
 	z-index: 2;
 }
 
-.jp-search-feature-selector__card-action {
+.jp-search-experience-option__action {
 	flex: 1 1 0;
 	min-width: 0;
 }
 
-.jp-search-feature-selector__card-action-title {
+.jp-search-experience-option__action-title {
 	font-weight: 600;
 	font-size: var(--wpds-typography-font-size-sm);
 	color: var(--wpds-color-fg-content-neutral);
 }
 
-.jp-search-feature-selector__card-action-link {
+.jp-search-experience-option__action-link {
 	color: var(--wpds-color-fg-interactive-brand);
 	font-size: var(--wpds-typography-font-size-md);
 	font-weight: 500;
@@ -169,11 +169,11 @@
 
 @include variables.for-phone-down {
 
-	.jp-search-feature-selector__card-actions {
+	.jp-search-experience-option__actions {
 		flex-wrap: wrap;
 	}
 
-	.jp-search-feature-selector__card-action {
+	.jp-search-experience-option__action {
 		flex-basis: 100%;
 	}
 }

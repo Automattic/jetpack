@@ -15,15 +15,11 @@ export default function OffPreview() {
 			gap="sm"
 			align="center"
 			justify="center"
-			className="jp-search-feature-selector__off-preview"
+			className="jp-search-off-preview"
 			aria-hidden="true"
 		>
-			<Icon
-				className="jp-search-feature-selector__off-preview-icon"
-				icon={ notAllowed }
-				size={ 48 }
-			/>
-			<div className="jp-search-feature-selector__off-preview-label">
+			<Icon className="jp-search-off-preview__icon" icon={ notAllowed } size={ 48 } />
+			<div className="jp-search-off-preview__label">
 				{ __( 'Jetpack Search is off', 'jetpack-search-pkg' ) }
 			</div>
 		</Stack>

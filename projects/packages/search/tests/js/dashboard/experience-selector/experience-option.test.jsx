@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
-import ExperienceOption from '../../../../src/dashboard/components/feature-selector/experience-option';
+import ExperienceOption from '../../../../src/dashboard/components/experience-selector/experience-option';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
 const renderWith = ( jetpackSettings, props, sitePlan = {} ) => {

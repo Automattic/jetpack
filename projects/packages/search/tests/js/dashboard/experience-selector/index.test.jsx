@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
-import FeatureSelector from '../../../../src/dashboard/components/feature-selector';
+import ExperienceSelector from '../../../../src/dashboard/components/experience-selector';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
 const renderWith = ( jetpackSettings, sitePlan = { supports_instant_search: true } ) => {
@@ -13,7 +13,7 @@ const renderWith = ( jetpackSettings, sitePlan = { supports_instant_search: true
 	registry.register( store );
 	return render(
 		<RegistryProvider value={ registry }>
-			<FeatureSelector />
+			<ExperienceSelector />
 		</RegistryProvider>
 	);
 };
@@ -26,7 +26,7 @@ const baseSettings = {
 	is_updating: false,
 };
 
-describe( '<FeatureSelector>', () => {
+describe( '<ExperienceSelector>', () => {
 	test( 'renders four radio rows in display order', () => {
 		renderWith( baseSettings );
 		const radios = screen.getAllByRole( 'radio' );
@@ -112,7 +112,7 @@ describe( '<FeatureSelector>', () => {
 		registry.register( store );
 		render(
 			<RegistryProvider value={ registry }>
-				<FeatureSelector />
+				<ExperienceSelector />
 			</RegistryProvider>
 		);
 		const radios = screen.getAllByRole( 'radio' );

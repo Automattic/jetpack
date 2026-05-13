@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
 import AiAnswersTab from 'components/ai-answers-tab';
-import FeatureSelector from 'components/feature-selector';
+import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -195,10 +195,10 @@ export default function DashboardPage( { isLoading = false } ) {
 						{ ! isPageLoading && (
 							<div className="jp-search-dashboard-bottom">
 								{ isSearchBlocksEnabled ? (
-									<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
+									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
 										<div className="jp-search-dashboard-row">
 											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-												<FeatureSelector />
+												<ExperienceSelector />
 											</div>
 										</div>
 									</div>

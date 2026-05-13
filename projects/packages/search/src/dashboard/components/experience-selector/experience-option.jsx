@@ -28,7 +28,7 @@ const PREVIEWS = {
 };
 
 /**
- * One card in the feature-selector grid.
+ * One card in the experience-selector grid.
  *
  * The whole card is a click target — a transparent `<label htmlFor>`
  * positioned `inset: 0` catches clicks, and the underlying radio is
@@ -62,7 +62,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const inputId = `jp-search-experience-${ experience }`;
 	const Preview = PREVIEWS[ experience ];
 
-	const className = clsx( 'jp-search-feature-selector__card', {
+	const className = clsx( 'jp-search-experience-option', {
 		'is-selected': isSelected,
 		'is-active': isActive,
 		'is-disabled': disabled,
@@ -76,7 +76,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				id={ inputId }
 				type="radio"
 				name="jp-search-experience"
-				className="jp-search-feature-selector__card-radio"
+				className="jp-search-experience-option__radio"
 				value={ experience }
 				checked={ isSelected }
 				disabled={ disabled }
@@ -84,7 +84,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			/>
 			<label
 				htmlFor={ inputId }
-				className="jp-search-feature-selector__card-overlay"
+				className="jp-search-experience-option__overlay"
 				aria-label={
 					disabled
 						? `${ getExperienceLabel( experience ) }. ${ upsellHint }`
@@ -92,14 +92,14 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				}
 			/>
 			{ isActive && (
-				<span className="jp-search-feature-selector__card-active-badge">
+				<span className="jp-search-experience-option__active-badge">
 					<Badge intent="stable">{ __( 'Active', 'jetpack-search-pkg' ) }</Badge>
 				</span>
 			) }
 			<Preview />
-			<Stack direction="column" gap="lg" className="jp-search-feature-selector__card-content">
+			<Stack direction="column" gap="lg" className="jp-search-experience-option__content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
-					<h3 className="jp-search-feature-selector__card-title">
+					<h3 className="jp-search-experience-option__title">
 						{ getExperienceLabel( experience ) }
 					</h3>
 					{ isRecommended && (
@@ -113,7 +113,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					direction="row"
 					gap="sm"
 					align="start"
-					className="jp-search-feature-selector__card-actions"
+					className="jp-search-experience-option__actions"
 				>
 					<CardLink
 						title={ __( 'Search template', 'jetpack-search-pkg' ) }
@@ -134,7 +134,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					direction="row"
 					gap="sm"
 					align="start"
-					className="jp-search-feature-selector__card-actions"
+					className="jp-search-experience-option__actions"
 				>
 					<CardLink
 						title={ __( 'Overlay appearance', 'jetpack-search-pkg' ) }
@@ -157,7 +157,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 const CardCopy = ( { experience } ) => {
 	if ( experience === EXPERIENCE.EMBEDDED ) {
 		return (
-			<p className="jp-search-feature-selector__card-description">
+			<p className="jp-search-experience-option__description">
 				{ __(
 					'A search-as-you-type customizable search page built with blocks. Filters, sorting, pagination — all themable in the Site Editor.',
 					'jetpack-search-pkg'
@@ -167,7 +167,7 @@ const CardCopy = ( { experience } ) => {
 	}
 	if ( experience === EXPERIENCE.OVERLAY ) {
 		return (
-			<p className="jp-search-feature-selector__card-description">
+			<p className="jp-search-experience-option__description">
 				{ __(
 					'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
 					'jetpack-search-pkg'
@@ -178,13 +178,13 @@ const CardCopy = ( { experience } ) => {
 	if ( experience === EXPERIENCE.INLINE ) {
 		return (
 			<>
-				<p className="jp-search-feature-selector__card-description">
+				<p className="jp-search-experience-option__description">
 					{ __(
 						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes.",
 						'jetpack-search-pkg'
 					) }
 				</p>
-				<p className="jp-search-feature-selector__card-description">
+				<p className="jp-search-experience-option__description">
 					{ __(
 						'No additional settings — this mode is set-it-and-forget-it.',
 						'jetpack-search-pkg'
@@ -207,14 +207,14 @@ const CardCopy = ( { experience } ) => {
 	];
 	return (
 		<>
-			<p className="jp-search-feature-selector__card-description">
+			<p className="jp-search-experience-option__description">
 				{ __( 'Visitors use WordPress default search, and miss out on:', 'jetpack-search-pkg' ) }
 			</p>
-			<ul className="jp-search-feature-selector__card-loss-list">
+			<ul className="jp-search-experience-option__loss-list">
 				{ offLosses.map( loss => (
 					<li key={ loss }>
 						<Icon
-							className="jp-search-feature-selector__card-loss-icon"
+							className="jp-search-experience-option__loss-icon"
 							icon={ cancelCircleFilled }
 							size={ 18 }
 						/>
@@ -227,13 +227,13 @@ const CardCopy = ( { experience } ) => {
 };
 
 const CardLink = ( { title, linkLabel, href, disabled } ) => (
-	<Stack direction="column" gap="sm" className="jp-search-feature-selector__card-action">
-		<span className="jp-search-feature-selector__card-action-title">{ title }</span>
+	<Stack direction="column" gap="sm" className="jp-search-experience-option__action">
+		<span className="jp-search-experience-option__action-title">{ title }</span>
 		{ disabled ? (
 			// `aria-disabled` on a plain <span> is silently ignored by AT, so we
 			// also append a screen-reader-only suffix that explains why this
 			// action isn't usable.
-			<span className="jp-search-feature-selector__card-action-link" aria-disabled="true">
+			<span className="jp-search-experience-option__action-link" aria-disabled="true">
 				{ linkLabel }
 				<span aria-hidden="true"> →</span>
 				<span className="screen-reader-text">
@@ -242,7 +242,7 @@ const CardLink = ( { title, linkLabel, href, disabled } ) => (
 				</span>
 			</span>
 		) : (
-			<a className="jp-search-feature-selector__card-action-link" href={ href }>
+			<a className="jp-search-experience-option__action-link" href={ href }>
 				{ linkLabel }
 				<span aria-hidden="true"> →</span>
 			</a>

@@ -16,7 +16,7 @@ import './style.scss';
  *
  * @return {import('react').Element} - The selector.
  */
-export default function FeatureSelector() {
+export default function ExperienceSelector() {
 	const { isDirty, isUpdating, pendingExperience, supportsInstantSearch, isWpcom } = useSelect(
 		select => ( {
 			isDirty: select( STORE_ID ).isDirty(),
@@ -124,20 +124,23 @@ export default function FeatureSelector() {
 				justify="space-between"
 				gap="md"
 				wrap="wrap"
-				className="jp-search-feature-selector__heading-row"
+				className="jp-search-experience-selector__heading-row"
 				aria-live="polite"
 			>
-				<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
+				<h2
+					id="jp-search-experience-selector-heading"
+					className="jp-search-experience-selector__heading"
+				>
 					{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 				</h2>
 				{ isDirty && (
-					<p className="jp-search-feature-selector__pending-notice">{ getPendingNotice() }</p>
+					<p className="jp-search-experience-selector__pending-notice">{ getPendingNotice() }</p>
 				) }
 			</Stack>
-			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
+			<form className="jp-search-experience-selector" onSubmit={ onSubmit }>
 				<fieldset
-					className="jp-search-feature-selector__fieldset"
-					aria-labelledby="jp-search-feature-selector-heading"
+					className="jp-search-experience-selector__fieldset"
+					aria-labelledby="jp-search-experience-selector-heading"
 				>
 					{ /* Grid's `gap` is a unitless multiplier of its internal
 					   gridBase (4px), so `gap={ 6 }` → 24px. This bypasses
@@ -157,10 +160,10 @@ export default function FeatureSelector() {
 					gap="md"
 					align="center"
 					justify="space-between"
-					className="jp-search-feature-selector__footer"
+					className="jp-search-experience-selector__footer"
 					aria-live="polite"
 				>
-					<p className="jp-search-feature-selector__status">
+					<p className="jp-search-experience-selector__status">
 						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
 					</p>
 					<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
