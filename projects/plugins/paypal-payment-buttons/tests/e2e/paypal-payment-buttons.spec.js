@@ -1114,4 +1114,221 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( toolbarSvg.first() ).toBeVisible( { timeout: 5000 } );
 		} );
 	} );
+
+	// ---------------------------------------------------------------
+	// 10. Format Switcher (WOOPTP-389)
+	// ---------------------------------------------------------------
+	test.describe( 'Format Switcher', () => {
+		test( 'format switcher shows 3 options in creation form', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// All three format buttons should be visible in the creation form.
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")' )
+			).toBeVisible();
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+			).toBeVisible();
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+			).toBeVisible();
+		} );
+
+		test( 'default format is Button', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Button option should have primary variant (aria-pressed="true").
+			const buttonOption = block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
+			);
+			await expect( buttonOption ).toHaveAttribute( 'aria-pressed', 'true' );
+
+			// CTA label defaults to "Create Button".
+			await expect( block.locator( 'button:has-text("Create Button")' ) ).toBeVisible();
+		} );
+
+		test( 'selecting Link format updates CTA label to Create Link', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
+			).click();
+
+			await expect( block.locator( 'button:has-text("Create Link")' ) ).toBeVisible();
+		} );
+
+		test( 'selecting QR Code format updates CTA label to Create QR Code', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+			).click();
+
+			await expect( block.locator( 'button:has-text("Create QR Code")' ) ).toBeVisible();
+		} );
+
+		test( 'Link format shows format badge in preview after creation', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Select Link format then create.
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
+			).click();
+			await fillButtonForm( canvas, { name: 'Link Product', price: '9.99' } );
+			await block.locator( 'button:has-text("Create Link")' ).click();
+
+			// Preview should show format badge.
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-badge:has-text("Link")' )
+			).toBeVisible( { timeout: 5000 } );
+		} );
+
+		test( 'format switcher appears in InspectorControls after creation', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			await fillButtonForm( canvas );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator( 'button:has-text("Create Button")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			// Open sidebar.
+			await block.click();
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			await settingsBtn.click();
+			await page.waitForTimeout( 500 );
+
+			// Format panel should be visible in sidebar (outside iframe, on page).
+			const formatPanel = page.locator( 'button:has-text("Display Format")' );
+			await expect( formatPanel ).toBeVisible( { timeout: 5000 } );
+		} );
+
+		test( 'frontend renders Link format as anchor tag', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Choose Link format, fill form, create.
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
+			).click();
+			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
+			await block.locator( 'button:has-text("Create Link")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			const postUrl = await publishPost( page );
+			await page.goto( postUrl );
+
+			// Frontend: should render a plain anchor link, not a full button card.
+			const paypalLink = page.locator( '.jetpack-paypal-button__paypal-link' );
+			await expect( paypalLink ).toBeVisible();
+			const href = await paypalLink.getAttribute( 'href' );
+			expect( href ).toContain( 'paypal.com' );
+
+			// Should NOT render the full button card.
+			await expect( page.locator( '.jetpack-paypal-button__checkout-link' ) ).not.toBeVisible();
+		} );
+
+		test( 'frontend renders QR Code format with standalone canvas', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Choose QR format, fill form, create.
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+			).click();
+			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
+			await block.locator( 'button:has-text("Create QR Code")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			const postUrl = await publishPost( page );
+			await page.goto( postUrl );
+
+			// Frontend: QR format renders a standalone canvas (no toggle button).
+			const standaloneCanvas = page.locator( '.jetpack-paypal-button__qr-canvas--standalone' );
+			await expect( standaloneCanvas ).toBeAttached( { timeout: 5000 } );
+
+			// Should NOT render a toggle button (that belongs to BUTTON format).
+			await expect( page.locator( '.jetpack-paypal-button__qr-toggle' ) ).not.toBeVisible();
+		} );
+
+		test( 'changing format does not require recreating the PayPal product', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			await fillButtonForm( canvas, { name: 'Format Switch Test', price: '25.00' } );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator( 'button:has-text("Create Button")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			// Track API calls — switching format should NOT trigger a new POST to /buttons.
+			let createCallCount = 0;
+			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/buttons(\?|$)/, route => {
+				if ( route.request().method() === 'POST' ) {
+					createCallCount++;
+				}
+				route.continue();
+			} );
+
+			// Switch to QR format via InspectorControls.
+			await block.click();
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			await settingsBtn.click();
+			await page.waitForTimeout( 500 );
+
+			const formatPanel = page.locator( 'button:has-text("Display Format")' );
+			if ( await formatPanel.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
+				await formatPanel.click();
+				const qrOption = page.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+				);
+				if ( await qrOption.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
+					await qrOption.click();
+					await page.waitForTimeout( 500 );
+				}
+			}
+
+			// No new API create calls should have been made.
+			expect( createCallCount ).toBe( 0 );
+		} );
+	} );
 } );

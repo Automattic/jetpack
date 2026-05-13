@@ -1004,4 +1004,67 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( toolbarSvg.first() ).toBeVisible( { timeout: 5000 } );
 		} );
 	} );
+
+	// ---------------------------------------------------------------
+	// 10. Format Switcher (WOOPTP-389)
+	// ---------------------------------------------------------------
+	test.describe( 'Format Switcher', () => {
+		test( 'format switcher shows 3 options in creation form', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")' )
+			).toBeVisible();
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+			).toBeVisible();
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
+			).toBeVisible();
+		} );
+
+		test( 'default format is Button (aria-pressed=true)', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await expect(
+				block.locator(
+					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
+				)
+			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		test( 'selecting Link format updates CTA to Create Link', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")'
+			).click();
+
+			await expect( block.locator( 'button:has-text("Create Link")' ) ).toBeVisible();
+		} );
+
+		test( 'selecting QR Code format updates CTA to Create QR Code', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator(
+				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
+			).click();
+
+			await expect( block.locator( 'button:has-text("Create QR Code")' ) ).toBeVisible();
+		} );
+	} );
 } );
