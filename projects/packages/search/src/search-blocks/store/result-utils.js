@@ -111,12 +111,17 @@ export function formatPath( permalink ) {
  * entries, and for >3 keep the first three and append an ellipsis so the
  * meta row doesn't run away on heavily co-authored posts.
  *
+ * Each name is run through `decodeEntities` because the API HTML-encodes
+ * punctuation in display names (`O&#8217;Brien`, `Jane &amp; John`). The meta
+ * row binds via `data-wp-text` (textContent, not innerHTML), so without
+ * decoding the raw entity would render literally on the card.
+ *
  * @param {*} value - `fields.author` from the v1.3 API response.
  * @return {string} Display string, or '' when no author is present.
  */
 export function formatAuthor( value ) {
 	if ( Array.isArray( value ) ) {
-		const names = value.map( v => String( v ?? '' ).trim() ).filter( Boolean );
+		const names = value.map( v => decodeEntities( String( v ?? '' ).trim() ) ).filter( Boolean );
 		if ( names.length === 0 ) {
 			return '';
 		}
@@ -128,7 +133,7 @@ export function formatAuthor( value ) {
 	if ( typeof value !== 'string' ) {
 		return '';
 	}
-	return value.trim();
+	return decodeEntities( value.trim() );
 }
 
 /**

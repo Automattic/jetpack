@@ -341,6 +341,14 @@ describe( 'formatAuthor', () => {
 		expect( formatAuthor( [ 'Ada', '', '   ', 'Bob' ] ) ).toBe( 'Ada, Bob' );
 		expect( formatAuthor( [ '', '   ' ] ) ).toBe( '' );
 	} );
+
+	it( 'decodes HTML entities in author names', () => {
+		// The v1.3 API HTML-encodes punctuation in display names, and the meta
+		// row binds via `data-wp-text` (textContent). Without entity decoding,
+		// `O&#8217;Brien` would render as the literal string.
+		expect( formatAuthor( 'O&#8217;Brien' ) ).toBe( 'O’Brien' );
+		expect( formatAuthor( [ 'Jane &amp; John', 'Ada' ] ) ).toBe( 'Jane & John, Ada' );
+	} );
 } );
 
 describe( 'normalizeResult', () => {
