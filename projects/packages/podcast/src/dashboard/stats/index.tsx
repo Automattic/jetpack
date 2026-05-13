@@ -52,13 +52,13 @@ const Stats = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					episode: item.post_id,
-					// Top Episodes click inherits the show-level period via local state,
-					// so no `?period=` deep-link override is needed.
-					period: undefined,
+					// Carry the show-level period into the URL so refresh/share
+					// reopens the drilldown at the same window the user selected.
+					period,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ navigate, period ]
 	);
 
 	const handleBack = useCallback( () => {
