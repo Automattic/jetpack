@@ -17,7 +17,6 @@
 		"build:boot-asset": "provide-boot-asset-file",
 		"build:wp-build": "wp-build",
 		"build-client": "webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' 'pnpm:build:wp-build' && pnpm run build:boot-asset && pnpm run validate",
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.js",
