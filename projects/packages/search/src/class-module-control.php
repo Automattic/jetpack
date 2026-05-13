@@ -246,13 +246,16 @@ class Module_Control {
 	/**
 	 * Update the search experience.
 	 *
-	 * Each active experience writes its literal value to
-	 * `jetpack_search_experience`, and keeps `instant_search_enabled` in
-	 * lockstep on the write side: `'overlay'` enables it; `'off'`, `'inline'`,
-	 * and `'embedded'` disable it. The lockstep makes legacy readers correct
-	 * even though `is_instant_search_enabled()` would also resolve correctly
-	 * via the experience option alone — belt-and-suspenders for any caller
-	 * that reads the boolean directly.
+	 * Storage is narrower than the wire format: `'off'` only deactivates the global
+	 * module (no write to the experience option) and disables
+	 * `instant_search_enabled` so the legacy boolean doesn't drift true after
+	 * a non-overlay re-enable. `'inline'` deletes the experience option (the
+	 * absence of an opt-in *is* inline). Only `'embedded'` and `'overlay'`
+	 * write affirmative values.
+	 *
+	 * Legacy `module_active` / `instant_search_enabled` are kept in lockstep so
+	 * unmigrated readers (Initializer, Options, sidebar registration) continue to
+	 * see the right state until they're migrated to consult get_experience().
 	 *
 	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
 	 * @return bool|WP_Error WP_Error on failure; true on success for the affirmative
@@ -281,7 +284,10 @@ class Module_Control {
 					return $result;
 				}
 				$this->disable_instant_search();
-				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_INLINE );
+				// Inline is the absence of an opt-in — delete the option rather than
+				// writing 'inline'. Pre-existing sites that have never saved are
+				// already in this state, so this also normalises after a switch.
+				delete_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 				return true;
 
 			case self::EXPERIENCE_EMBEDDED:
