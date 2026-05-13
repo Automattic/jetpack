@@ -31,39 +31,77 @@ Each of these blocks has a dedicated README in its folder. Open them for setup, 
 
 These blocks ship on every site that uses Jetpack Search. They render perfectly well without WooCommerce, but expose extra options when it's active.
 
-### Checkbox Filter — Product Category, Product Tag, Product Brand
+### Filter by Product Category
 
-The base **Checkbox Filter** block has a single setting — **Filter type** — that decides what dimension it groups results by. On a WooCommerce site, three product-specific values appear in that dropdown alongside Post Type, Category, Tag, Author, and Custom Taxonomy:
-
-- **Product Category** (`product_cat`)
-- **Product Tag** (`product_tag`)
-- **Product Brand** (`product_brand`) — only shown when your store has the Product Brand taxonomy registered (built into recent WooCommerce, or installed via an extension like WC Brands or Perfect Brands)
-
-Each one is also a separate card in the inserter, so authors who know they want to filter by category can pick **Filter by Product Category** directly.
+Lets shoppers narrow product results by WooCommerce product category. Categories typically form your store's primary department hierarchy ("Clothing → Tshirts", "Decor → Wall art") — this is the filter most shoppers reach for first.
 
 **Editor preview:**
 
 ![Filter by Product Category block in the editor with sample buckets and result counts.](./.docs-assets/filter-checkbox-product-cat.png)
 
-**Settings panel:**
+**When to use it:** any shop page that surfaces products from more than one department. It's the single most-clicked filter on most stores, so place it near the top of your filter sidebar.
 
-![Inspector for a Checkbox Filter set to Product Category — shows the Filter type dropdown, Label, Show result counts, Display style, Maximum items, Sort order, and Logic settings.](./.docs-assets/editor-filter-checkbox-product-cat-inspector.png)
-
-The settings panel is shared with the rest of the Checkbox Filter variations — so everything you can tune for a Category filter (Display style, Maximum items, Sort order, Logic) applies to the product variations too. The differences are entirely in the data source:
-
-| Setting | What changes for product variations |
-|---------|--------------------------------------|
-| **Filter type** | Set to **Product Category**, **Product Tag**, or **Product Brand**. Switching between any two doesn't lose your other settings. |
-| **Label** | Defaults to *Product Category*, *Product Tag*, or *Product Brand*. Override with your store's voice (e.g. "Shop by Department"). |
-| **Display style** | **Chips** reads beautifully for short brand names and tags. **Checkbox list** is the right default for longer category trees. |
-| **Maximum items** | Same behavior — limits how many buckets are shown, with the remainder collapsed under a "Show more" link. |
+**Settings:** opens the shared **Checkbox Filter** inspector (see [Shared settings inspector](#shared-settings-inspector) below). The defaults are sensible: **Label** is *Product Category*, **Display style** is *Checkbox list*, **Show result counts** is on.
 
 **Tips:**
 
-- Use **Filter by Product Category** in any shop sidebar where shoppers browse by department. It's the single most-clicked filter on most stores.
-- Use **Filter by Product Tag** sparingly — tags work better as a discovery surface (related-products carousel, footer cloud) than as a primary filter, because shoppers don't usually think in tags.
-- Use **Filter by Product Brand** when you sell multiple brands and your shoppers already know which ones they trust. Skip it for a single-brand store.
-- All three pair naturally with [Filter by Price](./filter-wc-price/README.md), [Filter by Rating](./filter-wc-rating/README.md), and [Filter by Stock Status](./filter-wc-stock-status/README.md) inside a [Product Filters](./filters-product/README.md) container.
+- Sort order **By count (most matches first)** keeps the most-stocked departments at the top, which usually matches what shoppers expect.
+- For deep category hierarchies, leave **Display style** on **Checkbox list** — chips break visually when labels are long.
+- Pair with [Filter by Price](./filter-wc-price/README.md), [Filter by Rating](./filter-wc-rating/README.md), and [Filter by Stock Status](./filter-wc-stock-status/README.md) inside a [Product Filters](./filters-product/README.md) container.
+
+### Filter by Product Tag
+
+Lets shoppers narrow product results by WooCommerce product tag. Tags are looser, faceted labels that cut across categories — typical examples are *Sale*, *New*, *Limited Edition*, or attribute-like tags ("Eco-friendly", "Gift").
+
+**Editor preview:**
+
+![Filter by Product Tag block in the editor — heading reads "Product Tag" with sample option rows.](./.docs-assets/filter-checkbox-product-tag.png)
+
+**When to use it:** when your store uses tags for shopper-meaningful labels and you want to expose them as a filter alongside the primary category browse. Skip it if your tags are mostly internal/SEO bookkeeping — they'll confuse rather than help.
+
+**Settings:** opens the shared **Checkbox Filter** inspector (see [Shared settings inspector](#shared-settings-inspector) below). The defaults are sensible: **Label** is *Product Tag*, **Display style** is *Checkbox list*, **Show result counts** is on.
+
+**Tips:**
+
+- Tags often have short labels — switch **Display style** to **Chips** to read them as a tighter, tag-cloud-style row.
+- Use sparingly. Two or three filters in the sidebar convert better than a stack of marginally useful ones; tags are a strong candidate for the cut if shoppers don't actually think in your tag taxonomy.
+- Pair with [Filter by Price](./filter-wc-price/README.md), [Filter by Rating](./filter-wc-rating/README.md), and [Filter by Stock Status](./filter-wc-stock-status/README.md) inside a [Product Filters](./filters-product/README.md) container.
+
+### Filter by Product Brand
+
+Lets shoppers narrow product results by brand. Brand is its own WooCommerce taxonomy (built into recent WooCommerce versions, or registered by an extension like WC Brands or Perfect Brands).
+
+**Editor preview:**
+
+![Filter by Product Brand block in the editor — heading reads "Product Brand" with sample option rows.](./.docs-assets/filter-checkbox-product-brand.png)
+
+**When to use it:** when you carry multiple brands and your shoppers already know which ones they trust. Skip it for single-brand stores — the filter would always show just one option.
+
+This block only appears in the inserter when WooCommerce **and** the Product Brand taxonomy are both available on your site. If you don't see it, open **WooCommerce → Products → Brands** in your admin and create one — once a brand exists, the filter becomes available.
+
+**Settings:** opens the shared **Checkbox Filter** inspector (see [Shared settings inspector](#shared-settings-inspector) below). The defaults are sensible: **Label** is *Product Brand*, **Display style** is *Checkbox list*, **Show result counts** is on.
+
+**Tips:**
+
+- Brand names are usually short — switch **Display style** to **Chips** for a more compact, "tag cloud" feel.
+- Place the brand filter below category filters in the sidebar, since most shoppers browse by department first and only filter by brand once the category is set.
+- Pair with [Filter by Price](./filter-wc-price/README.md), [Filter by Rating](./filter-wc-rating/README.md), and [Filter by Stock Status](./filter-wc-stock-status/README.md) inside a [Product Filters](./filters-product/README.md) container.
+
+### Shared settings inspector
+
+The three Product Category / Tag / Brand variations are all configured through the **Checkbox Filter** block's inspector — same set of settings, same UI, just preset to a different **Filter type**:
+
+![Inspector for a Checkbox Filter set to Product Category — shows the Filter type dropdown, Label, Show result counts, Display style (Checkbox list / Chips), Maximum items, Sort order, and Logic settings.](./.docs-assets/editor-filter-checkbox-product-cat-inspector.png)
+
+| Setting | What it does |
+|---------|--------------|
+| **Filter type** | Which taxonomy this filter groups results by. Inherited from the variation you inserted — switch it to convert a Brand filter into a Tag filter without losing other settings. |
+| **Label** | The heading shown above the options. Defaults to the variation's name (*Product Category*, *Product Tag*, *Product Brand*). |
+| **Show result counts** | Shows the number of matching products next to each option (e.g. *Clothing (19)*). On by default. |
+| **Display style** | **Checkbox list** for clarity and longer labels (default); **Chips** for compact, short-label sets. |
+| **Maximum items** | How many options to show before collapsing the rest under a *Show more* link. Defaults to 10. |
+| **Sort order** | **By count (most matches first)** by default, or **Alphabetical** when you need predictable A–Z. |
+| **Logic** | **Any** (default) shows products matching at least one selection; **All** requires every selected option to match — useful for narrowing down with multiple tags. |
 
 ### Results List — Product layout
 
