@@ -277,7 +277,7 @@ function get_css_vars( $attrs ) {
  */
 function render( $name, $template_props = array(), $print = true ) {
 	if ( ! strpos( $name, '.php' ) ) {
-		$name = $name . '.php';
+		$name .= '.php';
 	}
 
 	$template_path = __DIR__ . '/templates/' . $name;
