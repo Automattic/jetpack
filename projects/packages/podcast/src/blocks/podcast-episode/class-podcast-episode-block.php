@@ -441,7 +441,7 @@ class Podcast_Episode_Block {
 								$person_href = isset( $person['href'] ) ? esc_url_raw( $person['href'] ) : '';
 								$person_img  = isset( $person['img'] ) ? esc_url_raw( $person['img'] ) : '';
 								?>
-								<li class="jetpack-podcast-episode__person" itemprop="actor" itemscope itemtype="https://schema.org/Person">
+								<li class="jetpack-podcast-episode__person" itemprop="contributor" itemscope itemtype="https://schema.org/Person">
 									<?php if ( $person_img ) : ?>
 										<img src="<?php echo esc_url( $person_img ); ?>" alt="" loading="lazy" />
 									<?php endif; ?>
