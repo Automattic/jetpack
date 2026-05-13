@@ -40,18 +40,24 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// Stats/Episodes/Distribution are disabled until a category is picked, so the
-	// pre-set-up default has to be Settings.
-	const defaultTab: TabName = isSetUp ? 'stats' : 'settings';
-
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
 
 	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
 	const [ setupModalOpen, setSetupModalOpen ] = useState( false );
+	// Tracks the initial-setup flow that started at the Welcome screen, so
+	// `defaultTab` stays on Settings after the user saves their category and
+	// `isSetUp` flips true mid-edit. Without this, the post-save reflow would
+	// yank the user to Stats while they still have show fields to fill in.
+	const [ inWelcomeSetup, setInWelcomeSetup ] = useState( false );
 	const showWelcome = ! isSetUp && ! hasEnabled;
+
+	// Stats/Episodes/Distribution are disabled until a category is picked, so the
+	// pre-set-up default has to be Settings. Returning, set-up users land on Stats.
+	const defaultTab: TabName = isSetUp && ! inWelcomeSetup ? 'stats' : 'settings';
+
+	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
 
 	const navigate = useNavigate();
 
@@ -60,6 +66,9 @@ const App = () => {
 			if ( ! isValidTab( next ) ) {
 				return;
 			}
+			// Any explicit tab move ends the Welcome-setup pin so the URL/default
+			// switches to the returning-user shape.
+			setInWelcomeSetup( false );
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
@@ -84,8 +93,8 @@ const App = () => {
 	const handleSetupSuccess = useCallback( () => {
 		setSetupModalOpen( false );
 		setHasEnabled( true );
-		handleTabChange( 'settings' );
-	}, [ handleTabChange ] );
+		setInWelcomeSetup( true );
+	}, [] );
 
 	const goToSettings = useCallback( () => {
 		handleTabChange( 'settings' );
