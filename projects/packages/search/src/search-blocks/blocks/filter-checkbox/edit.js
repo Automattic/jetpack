@@ -137,19 +137,13 @@ export function deriveVariation( attributes ) {
 	if ( taxonomy === 'post_tag' ) {
 		return VARIATION_POST_TAG;
 	}
-	// Product taxonomies map to their dedicated variations only when WC is
-	// active. On non-Woo sites the dedicated variations don't exist in the
-	// inspector picker, so a saved `product_cat` block surfaces as Custom
-	// Taxonomy with the slug preserved — author can still edit the block,
-	// and re-activating WC restores the dedicated variation on the next
-	// render. Mirrors the dormant-attribute pattern used by results-list.
-	if ( taxonomy === 'product_cat' && isWooCommerceBlocksEnabled() ) {
+	if ( taxonomy === 'product_cat' ) {
 		return VARIATION_PRODUCT_CAT;
 	}
-	if ( taxonomy === 'product_tag' && isWooCommerceBlocksEnabled() ) {
+	if ( taxonomy === 'product_tag' ) {
 		return VARIATION_PRODUCT_TAG;
 	}
-	if ( taxonomy === 'product_brand' && isWooCommerceBlocksEnabled() ) {
+	if ( taxonomy === 'product_brand' ) {
 		return VARIATION_PRODUCT_BRAND;
 	}
 	return VARIATION_CUSTOM_TAXONOMY;

@@ -134,10 +134,6 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 describe( 'deriveVariation', () => {
-	afterEach( () => {
-		delete globalThis.JetpackSearchBlocksConfig;
-	} );
-
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
 			VARIATION_CATEGORY
@@ -149,8 +145,7 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
 	} );
 
-	it( 'maps the WC product taxonomy slugs to their dedicated variations on Woo sites', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
+	it( 'maps the WC product taxonomy slugs to their dedicated variations', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_PRODUCT_CAT
 		);
@@ -160,19 +155,6 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
 			VARIATION_PRODUCT_BRAND
 		);
-	} );
-
-	it( 'collapses saved WC product slugs to Custom Taxonomy when WooCommerce is inactive', () => {
-		// Mirrors the dormant-attribute pattern in results-list: the saved
-		// attribute stays (re-activating WC restores the dedicated variation
-		// next render), but the inspector picker collapses to a value that
-		// still exists in `variationOptions()` so the SelectControl doesn't
-		// try to render an option that isn't there.
-		[ 'product_cat', 'product_tag', 'product_brand' ].forEach( taxonomy => {
-			expect( deriveVariation( { filterType: 'taxonomy', taxonomy } ) ).toBe(
-				VARIATION_CUSTOM_TAXONOMY
-			);
-		} );
 	} );
 
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
