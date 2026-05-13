@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register list-providers, search-media, and import-media abilities for external media (Google Photos, Pexels, Openverse) on WP 6.9+.
