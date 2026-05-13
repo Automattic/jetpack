@@ -12,11 +12,13 @@
 	bottom: 0;
 	left: 0;
 
-	// Sit just below the wpadminbar (32px, the only `position: fixed` chrome).
-	// The AdminPage header and tabs are `position: relative` and scroll away,
-	// so we don't compensate for them.
+	// Sit just below the chrome that never scrolls: the wpadminbar (32px) plus
+	// the AdminPage header (89px). The header is technically `position:
+	// relative`, but scrolling happens inside an inner Container element, not
+	// on the window — so the header stays put at the top of the viewport.
+	// The tabs row scrolls with the panel and is not compensated for.
 	@include calypso-mixins.breakpoint( ">660px" ) {
-		top: 32px + 16px;
+		top: 32px + 89px + 16px;
 		right: 16px;
 		bottom: auto;
 		left: auto;
@@ -34,7 +36,7 @@
 	}
 
 	@include calypso-mixins.breakpoint( ">960px" ) {
-		top: 32px + 24px;
+		top: 32px + 89px + 24px;
 		right: 24px;
 
 		/* `160px` being the width of the WP-admin sidebar */
