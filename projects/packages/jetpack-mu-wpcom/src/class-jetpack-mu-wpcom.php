@@ -848,16 +848,50 @@ class Jetpack_Mu_Wpcom {
 				return;
 			}
 
-			wp_remote_post(
-				'https://public-api.wordpress.com/rest/v1.1/logstash',
-				array(
-					'body'     => array( 'params' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) ),
-					'blocking' => false,
-					'timeout'  => 1,
-				)
-			);
+			// Defer the HTTP POST to shutdown. Dispatching inline as a
+			// non-blocking request loses the event when the caller `exit`s
+			// or `wp_safe_redirect`s right after (e.g. the activation-guard
+			// block path), because the cURL handle is torn down before the
+			// TLS handshake completes. Draining at shutdown with a blocking
+			// POST guarantees delivery without adding latency to the
+			// user-visible response.
+			self::queue_logstash_http( $payload );
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
 			unset( $e );
 		}
+	}
+
+	/**
+	 * Append a logstash payload to the shutdown drain queue, registering
+	 * the drain hook on first enqueue. See `log2logstash()` for why
+	 * dispatch is deferred.
+	 *
+	 * @param array $payload Logstash record (`blog_id`, `feature`, `message`, `extra`).
+	 * @return void
+	 */
+	private static function queue_logstash_http( array $payload ) {
+		static $queue = null;
+		if ( null === $queue ) {
+			$queue = array();
+			register_shutdown_function(
+				static function () use ( &$queue ) {
+					foreach ( $queue as $entry ) {
+						try {
+							wp_remote_post(
+								'https://public-api.wordpress.com/rest/v1.1/logstash',
+								array(
+									'body'    => array( 'params' => wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ),
+									'timeout' => 5,
+								)
+							);
+						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+							unset( $e );
+						}
+					}
+					$queue = array();
+				}
+			);
+		}
+		$queue[] = $payload;
 	}
 }
