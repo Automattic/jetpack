@@ -454,9 +454,6 @@ class WPCOM_Features {
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
-	// Posts-to-podcast monthly-quota tiers. The lib's quota helper picks the
-	// highest tier the site has; a Business site holds all three but is read
-	// as TIER_3 (20/mo). TIER_1 doubles as the access gate.
 	public const POSTS_TO_PODCAST_TIER_1           = 'posts-to-podcast-tier-1';
 	public const POSTS_TO_PODCAST_TIER_2           = 'posts-to-podcast-tier-2';
 	public const POSTS_TO_PODCAST_TIER_3           = 'posts-to-podcast-tier-3';
