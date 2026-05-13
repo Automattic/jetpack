@@ -90,7 +90,6 @@ describe( 'DashboardPage', () => {
 		mockModuleControl.mockClear();
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
-			createNotice: jest.fn(),
 			removeNotice: jest.fn(),
 			updateJetpackSettings: jest.fn(),
 		};

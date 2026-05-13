@@ -23,12 +23,11 @@
 		bottom: auto;
 		left: auto;
 
-		// `width: auto` collapses the `@wordpress/ui` Notice's grid template
-		// to just its icons (~26px) instead of laying out the text. Use
-		// `max-content` so the box sizes to whatever the message needs on
-		// one line — short toasts ("Settings saved.") stay compact, long
-		// ones stretch up to the max-width cap below before wrapping.
-		width: max-content;
+		// `width: auto` and `max-content` both collapse the `@wordpress/ui`
+		// Notice's grid template down to just its icons (~26px) instead of
+		// laying out the text. Pin an explicit width so the Notice always
+		// renders with room for its message.
+		width: 220px;
 
 		/* `36px` being the width of the collapsed WP-admin sidebar */
 		max-width: calc(100% - 32px - 36px);
