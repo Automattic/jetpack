@@ -69,9 +69,22 @@ const Status: FC< StatusTypes > = ( {
 		</>
 	);
 
+	// Provide a stable, string-valued spokenMessage so WPDS Notice's internal
+	// `useSpokenMessage` skips `renderToString( children )` — that path's hook
+	// order shifts when children contain `<TimeAgo>` mid-mutation, which
+	// throws "Rendered fewer hooks than expected" inside the Notice.
+	const successSpokenMessage =
+		typeof overrideText === 'string'
+			? overrideText
+			: sprintf(
+					/* translators: %d is a number of CSS Files which were successfully generated */
+					_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+					successCount
+			  );
+
 	return (
 		<>
-			<Notice.Root intent="success">
+			<Notice.Root intent="success" spokenMessage={ successSpokenMessage }>
 				<Notice.Description>{ successText }</Notice.Description>
 				<Notice.Actions>
 					<Notice.ActionButton

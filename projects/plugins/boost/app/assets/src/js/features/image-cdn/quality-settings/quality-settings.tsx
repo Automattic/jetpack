@@ -1,22 +1,16 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
-import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import styles from './quality-settings.module.scss';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
 };
 
 const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
-	if ( ! isPremium ) {
-		return;
-	}
-
 	const [ query, mutation ] = useImageCdnQuality();
 	const imageCdnQuality = query?.data;
 	const setImageCdnQuality = mutation.mutate;
@@ -29,10 +23,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		}
 		setImageCdnQuality( {
 			...imageCdnQuality,
-			[ format ]: {
-				...imageCdnQuality[ format ],
-				quality: newValue,
-			},
+			[ format ]: { ...imageCdnQuality[ format ], quality: newValue },
 		} );
 	};
 
@@ -42,10 +33,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		}
 		setImageCdnQuality( {
 			...imageCdnQuality,
-			[ format ]: {
-				...imageCdnQuality[ format ],
-				lossless: newValue,
-			},
+			[ format ]: { ...imageCdnQuality[ format ], lossless: newValue },
 		} );
 	};
 
@@ -53,37 +41,22 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		recordBoostEvent( 'image_cdn_panel_toggle', { status: open ? 'open' : 'close' } );
 	};
 
-	if ( ! imageCdnQuality ) {
+	if ( ! isPremium || ! imageCdnQuality ) {
 		return null;
 	}
 
 	return (
 		<CollapsibleCard.Root onOpenChange={ handleOpenChange }>
 			<CollapsibleCard.Header>
-				<Stack direction="column" gap="xs">
-					<Card.Title>
-						<span className={ styles[ 'title-wrap' ] }>
-							{ __( 'Image Quality', 'jetpack-boost' ) }
-							<IconTooltip
-								offset={ 12 }
-								placement="bottom"
-								title={ __( 'Image Quality', 'jetpack-boost' ) }
-								iconSize={ 18 }
-							>
-								{ __(
-									'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',
-									'jetpack-boost'
-								) }
-							</IconTooltip>
-						</span>
-					</Card.Title>
+				<Stack direction="row" justify="space-between" align="center">
+					<Card.Title>{ __( 'Image quality', 'jetpack-boost' ) }</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<Summary imageCdnQuality={ imageCdnQuality } />
 					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<div className={ styles[ 'quality-controls' ] }>
+				<Stack direction="column" gap="lg">
 					<QualityControl
 						label={ __( 'JPEG', 'jetpack-boost' ) }
 						maxValue={ 89 }
@@ -108,7 +81,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 						setQuality={ value => setQuality( 'webp', value ) }
 						setLossless={ value => setLossless( 'webp', value ) }
 					/>
-				</div>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);
@@ -122,7 +95,7 @@ const Summary = ( {
 	<>
 		{ sprintf(
 			/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
-			__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
+			__( 'JPEG: %1$s · PNG: %2$s · WEBP: %3$s', 'jetpack-boost' ),
 			imageCdnQuality.jpg.lossless
 				? __( 'lossless', 'jetpack-boost' )
 				: imageCdnQuality.jpg.quality.toString(),

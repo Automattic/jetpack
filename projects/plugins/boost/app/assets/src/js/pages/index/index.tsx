@@ -137,8 +137,8 @@ const Index = () => {
 						) }
 					/>
 				) }
-				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
+				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 			</Module>
 			<ImageGuide />
 		</Stack>
