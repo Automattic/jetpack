@@ -42,15 +42,10 @@ export default {
 			options: EXPERIENCE_ORDER,
 			labels: experienceLabels,
 		},
-		supportsInstantSearch: {
-			control: 'boolean',
-			description:
-				'Seed `sitePlan.supports_instant_search` — gates the Overlay card’s Customize action.',
-		},
 	},
 };
 
-const createStoreWithSettings = ( jetpackSettings, sitePlan ) => {
+const createStoreWithSettings = jetpackSettings => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
@@ -64,7 +59,7 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan ) => {
 				return storeConfig.actions.setPendingExperience( experience );
 			},
 		},
-		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings, sitePlan },
+		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings },
 	} );
 	registry.register( store );
 	return registry;
@@ -85,8 +80,7 @@ const Template = args => {
 		pending_experience: args.pendingExperience ?? null,
 		experience: args.activeExperience ?? defaultActiveFor( args.experience ),
 	};
-	const sitePlan = { supports_instant_search: args.supportsInstantSearch ?? true };
-	const registry = createStoreWithSettings( baseSettings, sitePlan );
+	const registry = createStoreWithSettings( baseSettings );
 	return (
 		<RegistryProvider value={ registry }>
 			<ExperienceOption experience={ args.experience } disabled={ args.disabled } />

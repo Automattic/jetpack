@@ -43,12 +43,11 @@ const PREVIEWS = {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { selected, active, isUpdating, supportsInstantSearch } = useSelect(
+	const { selected, active, isUpdating } = useSelect(
 		select => ( {
 			selected: select( STORE_ID ).getSelectedExperience(),
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
-			supportsInstantSearch: select( STORE_ID ).supportsInstantSearch(),
 		} ),
 		[]
 	);
@@ -136,14 +135,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					align="start"
 					className="jp-search-feature-selector__card-actions"
 				>
-					{ supportsInstantSearch && (
-						<CardLink
-							title={ __( 'Overlay appearance', 'jetpack-search-pkg' ) }
-							linkLabel={ __( 'Customize', 'jetpack-search-pkg' ) }
-							href={ SEARCH_CUSTOMIZE_URL }
-							disabled={ actionsDisabled }
-						/>
-					) }
+					<CardLink
+						title={ __( 'Overlay appearance', 'jetpack-search-pkg' ) }
+						linkLabel={ __( 'Customize', 'jetpack-search-pkg' ) }
+						href={ SEARCH_CUSTOMIZE_URL }
+						disabled={ actionsDisabled }
+					/>
 					<CardLink
 						title={ __( 'Sidebar widgets', 'jetpack-search-pkg' ) }
 						linkLabel={ __( 'Edit widgets', 'jetpack-search-pkg' ) }

@@ -17,12 +17,12 @@ import './style.scss';
  * @return {import('react').Element} - The selector.
  */
 export default function FeatureSelector() {
-	const { isDirty, isUpdating, pendingExperience, supportsOnlyClassicSearch, isWpcom } = useSelect(
+	const { isDirty, isUpdating, pendingExperience, supportsInstantSearch, isWpcom } = useSelect(
 		select => ( {
 			isDirty: select( STORE_ID ).isDirty(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			pendingExperience: select( STORE_ID ).getPendingExperience(),
-			supportsOnlyClassicSearch: select( STORE_ID ).supportsOnlyClassicSearch(),
+			supportsInstantSearch: select( STORE_ID ).supportsInstantSearch(),
 			isWpcom: select( STORE_ID ).isWpcom(),
 		} ),
 		[]
@@ -37,7 +37,7 @@ export default function FeatureSelector() {
 
 	const isExperienceDisabled = experience =>
 		isUpdating ||
-		( supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' ) );
+		( ! supportsInstantSearch && ( experience === 'embedded' || experience === 'overlay' ) );
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 

@@ -108,11 +108,8 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		pending_experience: null,
 		experience: null,
 	};
-	const withInstantSearch = { supports_instant_search: true };
-	const withClassicOnly = { supports_instant_search: false };
-
 	test( 'renders Customize and Edit widgets as anchors with the correct hrefs when Overlay is active', () => {
-		renderWith( overlayActive, { experience: 'overlay' }, withInstantSearch );
+		renderWith( overlayActive, { experience: 'overlay' } );
 		expect( screen.getByRole( 'link', { name: /customize/i } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=jetpack-search-configure'
@@ -123,19 +120,9 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		);
 	} );
 
-	test( 'hides Customize action when supports_instant_search is false', () => {
-		renderWith( overlayActive, { experience: 'overlay' }, withClassicOnly );
-		expect( screen.queryByText( 'Customize' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /edit widgets/i } ) ).toBeInTheDocument();
-	} );
-
 	test( 'renders actions as aria-disabled spans (no href) when Overlay is selected but not yet active', () => {
 		// selected = overlay (from pending_experience), active = inline.
-		renderWith(
-			{ ...inlineActive, pending_experience: 'overlay' },
-			{ experience: 'overlay' },
-			withInstantSearch
-		);
+		renderWith( { ...inlineActive, pending_experience: 'overlay' }, { experience: 'overlay' } );
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -143,11 +130,7 @@ describe( '<ExperienceOption> Overlay action links', () => {
 	} );
 
 	test( 'actions are aria-disabled while settings are saving', () => {
-		renderWith(
-			{ ...overlayActive, is_updating: true },
-			{ experience: 'overlay' },
-			withInstantSearch
-		);
+		renderWith( { ...overlayActive, is_updating: true }, { experience: 'overlay' } );
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
