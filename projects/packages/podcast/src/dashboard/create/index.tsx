@@ -21,6 +21,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import PostsPicker from './posts-picker';
 import { LENGTH_PRESETS, VOICE_PRESETS, WINDOW_PRESETS } from './presets';
+import './style.scss';
 import {
 	usePostsToPodcastInfo,
 	usePostsToPodcastJob,

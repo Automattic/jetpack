@@ -1,20 +1,16 @@
+import {
+	CheckboxControl,
+	SearchControl,
+	Spinner,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
-import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-
-const formatDate = ( iso: string ): string => {
-	if ( ! iso ) {
-		return '—';
-	}
-	const datePart = iso.split( 'T' )[ 0 ];
-	const [ year, month, day ] = datePart.split( '-' );
-	if ( ! year || ! month || ! day ) {
-		return iso;
-	}
-	return `${ year }-${ month }-${ day }`;
-};
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 interface PostRecord {
 	id: number;
@@ -36,33 +32,48 @@ interface PostsPickerProps {
 	maxSelection?: number;
 }
 
-const POSTS_PER_PAGE = 20;
+interface PostsPickerRowProps {
+	row: PostRow;
+	isChecked: boolean;
+	disabled: boolean;
+	onToggle: ( id: number ) => void;
+}
 
-const defaultView: ViewTable = {
-	type: 'table',
-	titleField: 'title',
-	showTitle: true,
-	fields: [ 'date' ],
-	page: 1,
-	perPage: POSTS_PER_PAGE,
-	sort: { field: 'date', direction: 'desc' },
-	layout: {
-		styles: {
-			title: { minWidth: '260px' },
-			date: { width: '160px' },
-		},
-	},
+const PostsPickerRow = ( { row, isChecked, disabled, onToggle }: PostsPickerRowProps ) => {
+	const handleChange = useCallback( () => {
+		onToggle( row.id );
+	}, [ onToggle, row.id ] );
+
+	return (
+		<div className="podcast__posts-picker-row">
+			<CheckboxControl
+				__nextHasNoMarginBottom
+				checked={ isChecked }
+				disabled={ disabled }
+				onChange={ handleChange }
+				label={ row.title }
+				help={ formatDate( row.date ) }
+			/>
+		</div>
+	);
 };
 
-const getItemId = ( item: PostRow ) => String( item.id );
+const FETCH_LIMIT = 100;
+
+const formatDate = ( iso: string ): string => {
+	if ( ! iso ) {
+		return '';
+	}
+	const [ datePart ] = iso.split( 'T' );
+	return datePart || iso;
+};
 
 const PostsPicker = ( { selectedIds, onChange, disabled, maxSelection }: PostsPickerProps ) => {
-	const [ view, setView ] = useState< View >( defaultView );
+	const [ search, setSearch ] = useState( '' );
 
-	// Fetch a generous page of recent published posts. The DataView paginates client-side.
 	const { records, hasResolved } = useEntityRecords< PostRecord >( 'postType', 'post', {
 		status: 'publish',
-		per_page: 100,
+		per_page: FETCH_LIMIT,
 		orderby: 'date',
 		order: 'desc',
 		_fields: 'id,title,date',
@@ -77,62 +88,91 @@ const PostsPicker = ( { selectedIds, onChange, disabled, maxSelection }: PostsPi
 		} ) );
 	}, [ records ] );
 
-	const fields = useMemo(
-		() => [
-			{
-				id: 'title',
-				label: __( 'Title', 'jetpack-podcast' ),
-				enableHiding: false,
-				enableSorting: false,
-				render: ( { item }: { item: PostRow } ) => item.title,
-			},
-			{
-				id: 'date',
-				label: __( 'Date', 'jetpack-podcast' ),
-				render: ( { item }: { item: PostRow } ) => formatDate( item.date ),
-			},
-		],
-		[]
-	);
+	const visible = useMemo( () => {
+		const needle = search.trim().toLowerCase();
+		if ( ! needle ) {
+			return rows;
+		}
+		return rows.filter( row => row.title.toLowerCase().includes( needle ) );
+	}, [ rows, search ] );
 
-	// Empty action list keeps the DataView in selection-only mode (no per-row actions).
-	const actions = useMemo< Action< PostRow >[] >( () => [], [] );
+	const selectedSet = useMemo( () => new Set( selectedIds ), [ selectedIds ] );
 
-	const selection = useMemo( () => selectedIds.map( String ), [ selectedIds ] );
-
-	const handleChangeSelection = useCallback(
-		( ids: string[] ) => {
-			const next = ids.map( Number ).filter( id => Number.isFinite( id ) );
-			const capped = maxSelection ? next.slice( 0, maxSelection ) : next;
-			onChange( capped );
+	const toggle = useCallback(
+		( id: number ) => {
+			if ( selectedSet.has( id ) ) {
+				onChange( selectedIds.filter( current => current !== id ) );
+				return;
+			}
+			if ( maxSelection && selectedIds.length >= maxSelection ) {
+				return;
+			}
+			onChange( [ ...selectedIds, id ] );
 		},
-		[ onChange, maxSelection ]
+		[ onChange, selectedIds, selectedSet, maxSelection ]
 	);
 
-	const paginationInfo = useMemo(
-		() => ( {
-			totalItems: rows.length,
-			totalPages: Math.max( 1, Math.ceil( rows.length / POSTS_PER_PAGE ) ),
-		} ),
-		[ rows.length ]
-	);
+	const clearAll = useCallback( () => onChange( [] ), [ onChange ] );
+
+	if ( ! hasResolved ) {
+		return (
+			<div className="podcast__posts-picker podcast__posts-picker--loading">
+				<Spinner />
+			</div>
+		);
+	}
+
+	const atCap = !! maxSelection && selectedIds.length >= maxSelection;
+	const helpText = maxSelection
+		? sprintf(
+				/* translators: 1: selected count, 2: maximum allowed. */
+				__( '%1$d of %2$d selected.', 'jetpack-podcast' ),
+				selectedIds.length,
+				maxSelection
+		  )
+		: sprintf(
+				/* translators: %d: selected count. */
+				_n( '%d post selected.', '%d posts selected.', selectedIds.length, 'jetpack-podcast' ),
+				selectedIds.length
+		  );
 
 	return (
-		<div className={ disabled ? 'podcast__posts-picker--disabled' : undefined }>
-			<DataViews
-				data={ rows }
-				fields={ fields }
-				view={ view }
-				onChangeView={ setView }
-				defaultLayouts={ { table: {} } }
-				getItemId={ getItemId }
-				selection={ selection }
-				onChangeSelection={ handleChangeSelection }
-				isLoading={ ! hasResolved }
-				actions={ actions }
-				paginationInfo={ paginationInfo }
+		<VStack spacing={ 2 } className="podcast__posts-picker">
+			<SearchControl
+				__nextHasNoMarginBottom
+				label={ __( 'Search posts', 'jetpack-podcast' ) }
+				value={ search }
+				onChange={ setSearch }
+				disabled={ disabled }
 			/>
-		</div>
+			<div className="podcast__posts-picker-list" aria-busy={ disabled }>
+				{ visible.length === 0 && (
+					<div className="podcast__posts-picker-empty">
+						<Text variant="muted">{ __( 'No matching posts.', 'jetpack-podcast' ) }</Text>
+					</div>
+				) }
+				{ visible.map( row => {
+					const isChecked = selectedSet.has( row.id );
+					return (
+						<PostsPickerRow
+							key={ row.id }
+							row={ row }
+							isChecked={ isChecked }
+							disabled={ !! disabled || ( atCap && ! isChecked ) }
+							onToggle={ toggle }
+						/>
+					);
+				} ) }
+			</div>
+			<div className="podcast__posts-picker-footer">
+				<Text variant="muted">{ helpText }</Text>
+				{ selectedIds.length > 0 && ! disabled && (
+					<button type="button" className="podcast__posts-picker-clear" onClick={ clearAll }>
+						{ __( 'Clear selection', 'jetpack-podcast' ) }
+					</button>
+				) }
+			</div>
+		</VStack>
 	);
 };
 

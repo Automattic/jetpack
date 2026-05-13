@@ -1,0 +1,50 @@
+.podcast__posts-picker-list {
+	max-block-size: 320px;
+	overflow-y: auto;
+	border: 1px solid var(--wp-admin-theme-color-darker-10, #ddd);
+	border-radius: 4px;
+	padding-block: 4px;
+}
+
+.podcast__posts-picker-row {
+	padding-block: 6px;
+	padding-inline: 12px;
+
+	+ .podcast__posts-picker-row {
+		border-block-start: 1px solid var(--wp-admin-theme-color-darker-10, #eee);
+	}
+}
+
+.podcast__posts-picker-empty {
+	padding-block: 12px;
+	padding-inline: 12px;
+	text-align: center;
+}
+
+.podcast__posts-picker-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.podcast__posts-picker-clear {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--wp-admin-theme-color, #2271b1);
+	cursor: pointer;
+	font: inherit;
+	text-decoration: underline;
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+		outline-offset: 2px;
+	}
+}
+
+.podcast__posts-picker--loading {
+	display: flex;
+	justify-content: center;
+	padding-block: 24px;
+}
