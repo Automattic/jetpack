@@ -3,8 +3,6 @@
 // Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
 $text: #1e1e1e;
 $muted: #757575;
-$bar-bg: #f0f0f0;
-$bar-bg-hover: #e5e5e5;
 $bar-fill: #2271b1;
 
 %eyebrow {
@@ -272,7 +270,6 @@ $bar-fill: #2271b1;
 		gap: 8px;
 		padding: 6px 8px;
 		border-radius: 4px;
-		background: $bar-bg;
 		width: 100%;
 		text-align: start;
 		border: 0;
@@ -282,11 +279,11 @@ $bar-fill: #2271b1;
 			cursor: pointer;
 
 			&:hover {
-				background: $bar-bg-hover;
+				background: rgba(34, 113, 177, 0.06);
 			}
 
 			&:focus-visible {
-				background: $bar-bg-hover;
+				background: rgba(34, 113, 177, 0.06);
 				outline: 2px solid $bar-fill;
 				outline-offset: 2px;
 			}
@@ -318,7 +315,7 @@ $bar-fill: #2271b1;
 		inset-block: 0;
 		inset-inline-start: 0;
 		background: $bar-fill;
-		opacity: 0.08;
+		opacity: 0.18;
 		border-radius: 4px;
 		pointer-events: none;
 	}
