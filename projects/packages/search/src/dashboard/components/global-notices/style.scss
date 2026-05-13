@@ -23,13 +23,12 @@
 		bottom: auto;
 		left: auto;
 
-		// With `left: auto` and no width, the fixed element shrinks to its
-		// content — and the `@wordpress/ui` Notice's grid template collapses
-		// to just its icons (~26px) instead of laying out the text. Pin a
-		// width that fits the longest message we surface here
-		// ("Error fetching search plan…") on one line, with a little
-		// translation headroom.
-		width: 280px;
+		// `width: auto` collapses the `@wordpress/ui` Notice's grid template
+		// to just its icons (~26px) instead of laying out the text. Use
+		// `max-content` so the box sizes to whatever the message needs on
+		// one line — short toasts ("Settings saved.") stay compact, long
+		// ones stretch up to the max-width cap below before wrapping.
+		width: max-content;
 
 		/* `36px` being the width of the collapsed WP-admin sidebar */
 		max-width: calc(100% - 32px - 36px);
