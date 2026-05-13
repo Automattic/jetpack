@@ -796,12 +796,14 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				} );
 			} );
 
-			// Accept the confirm() dialog that handleDisconnect triggers.
-			page.on( 'dialog', dialog => dialog.accept() );
-
 			const disconnectBtn = page.locator( 'button:has-text("Disconnect PayPal")' );
 			await expect( disconnectBtn ).toBeVisible( { timeout: 5000 } );
 			await disconnectBtn.click();
+
+			// ConfirmDialog replaces window.confirm — confirm the disconnect action.
+			const disconnectConfirmDialog = page.locator( '[role="dialog"]' );
+			await expect( disconnectConfirmDialog ).toBeVisible( { timeout: 3000 } );
+			await disconnectConfirmDialog.locator( 'button:has-text("Disconnect")' ).first().click();
 
 			// Block content (wizard) is inside the iframe.
 			await expect( block.locator( 'h3:has-text("Connect PayPal")' ) ).toBeVisible( {
@@ -861,17 +863,74 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await connectionPanel.waitFor( { state: 'visible', timeout: 5000 } );
 			await connectionPanel.click( { force: true } );
 
-			// Accept the confirm() dialog that handleDeleteButton triggers.
-			page.on( 'dialog', dialog => dialog.accept() );
-
 			const deleteBtn = page.locator( 'button:has-text("Delete Button")' );
 			await expect( deleteBtn ).toBeVisible( { timeout: 3000 } );
 			await deleteBtn.click();
+
+			// ConfirmDialog replaces window.confirm — confirm the destructive action.
+			const deleteConfirmDialog = page.locator( '[role="dialog"]' );
+			await expect( deleteConfirmDialog ).toBeVisible( { timeout: 3000 } );
+			await deleteConfirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
 
 			// Block content returns to create form inside the iframe.
 			await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
+		} );
+
+		test( 'delete button via toolbar clears block state and returns to edit mode', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			await fillButtonForm( canvas );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator( 'button:has-text("Create Button")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			// Use the toolbar trash button (WOOPTP-391: delete accessible from block toolbar).
+			await block.click();
+			const toolbar = page.locator( '.block-editor-block-toolbar' );
+			const toolbarDeleteBtn = toolbar.locator( 'button[aria-label="Delete Payment Button"]' );
+			if ( await toolbarDeleteBtn.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
+				await toolbarDeleteBtn.click();
+
+				// ConfirmDialog — confirm the destructive action.
+				const confirmDialog = page.locator( '[role="dialog"]' );
+				await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
+				await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+
+				// Should return to create form.
+				await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {
+					timeout: 5000,
+				} );
+			}
+		} );
+
+		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Fill some fields in the create form.
+			await block.locator( 'input[placeholder="e.g., Premium Widget"]' ).fill( 'Test Product' );
+			await block.locator( 'input[placeholder="29.99"]' ).fill( '49.99' );
+
+			// Cancel — no button has been saved yet.
+			await block.locator( 'button:has-text("Cancel")' ).click();
+
+			// No ConfirmDialog should appear.
+			await expect( page.locator( '[role="dialog"]' ) ).not.toBeVisible( { timeout: 1000 } );
+
+			// Fields should be cleared (form reset to empty state).
+			await expect(
+				block.locator( 'input[placeholder="e.g., Premium Widget"]' )
+			).toHaveValue( '' );
 		} );
 	} );
 

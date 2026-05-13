@@ -726,6 +726,11 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			if ( await disconnectBtn.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
 				await disconnectBtn.click();
 
+				// ConfirmDialog replaces window.confirm — confirm the disconnect action.
+				const confirmDialog = page.locator( '[role="dialog"]' );
+				await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
+				await confirmDialog.locator( 'button:has-text("Disconnect")' ).click();
+
 				// Block should now show the wizard Welcome step.
 				await expect( block.locator( 'button:has-text("Get Started")' ) ).toBeVisible( {
 					timeout: 5000,
@@ -758,11 +763,71 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			if ( await deleteBtn.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
 				await deleteBtn.click();
 
+				// ConfirmDialog replaces window.confirm — confirm the destructive action.
+				const confirmDialog = page.locator( '[role="dialog"]' );
+				await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
+				await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+
 				// Should return to create form.
 				await expect( block.locator( 'h3:has-text("Create PayPal Button")' ) ).toBeVisible( {
 					timeout: 5000,
 				} );
 			}
+		} );
+
+		test( 'delete button via toolbar clears block state and returns to edit mode', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+			await fillButtonForm( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await block.locator( 'button:has-text("Create Button")' ).click();
+
+			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+
+			// Use the toolbar trash button (WOOPTP-391: delete accessible from block toolbar).
+			await block.click();
+			const toolbar = page.locator( '.block-editor-block-toolbar' );
+			const toolbarDeleteBtn = toolbar.locator( 'button[aria-label="Delete Payment Button"]' );
+			if ( await toolbarDeleteBtn.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
+				await toolbarDeleteBtn.click();
+
+				// ConfirmDialog — confirm the destructive action.
+				const confirmDialog = page.locator( '[role="dialog"]' );
+				await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
+				await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+
+				// Should return to create form.
+				await expect( block.locator( 'h3:has-text("Create PayPal Button")' ) ).toBeVisible( {
+					timeout: 5000,
+				} );
+			}
+		} );
+
+		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			// Fill some fields in the create form.
+			await block.locator( 'input[placeholder="e.g., Premium Widget"]' ).fill( 'Test Product' );
+			await block.locator( 'input[placeholder="29.99"]' ).fill( '49.99' );
+
+			// Cancel — no button has been saved yet.
+			await block.locator( 'button:has-text("Cancel")' ).click();
+
+			// No ConfirmDialog should appear.
+			await expect( page.locator( '[role="dialog"]' ) ).not.toBeVisible( { timeout: 1000 } );
+
+			// Fields should be cleared (form reset to empty state).
+			await expect(
+				block.locator( 'input[placeholder="e.g., Premium Widget"]' )
+			).toHaveValue( '' );
 		} );
 	} );
 
