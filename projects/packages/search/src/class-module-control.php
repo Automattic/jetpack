@@ -84,10 +84,39 @@ class Module_Control {
 	/**
 	 * Returns a boolean for whether instant search is enabled.
 	 *
+	 * Reads the canonical `jetpack_search_experience` option first — only the
+	 * `'overlay'` experience enables Instant Search, and an explicit `'inline'`
+	 * or `'embedded'` value means the user opted out regardless of the legacy
+	 * boolean. Falls back to the legacy `instant_search_enabled` option only
+	 * when the experience option has never been written (pre-existing sites
+	 * that haven't saved via the new UI).
+	 *
+	 * Module-inactive sites always return false: when Search is off the
+	 * experience option may still hold the user's prior preference (preserved
+	 * for re-enable), and we don't want a stale `'overlay'` to read as
+	 * "Instant Search is on" while the module isn't loaded.
+	 *
+	 * Keeps callers that still read the legacy boolean (debug-bar, AI Chat
+	 * editor state, etc.) correct without each having to migrate to
+	 * `get_experience()` individually.
+	 *
 	 * @return bool
 	 */
 	public function is_instant_search_enabled() {
-		return (bool) $this->plan->supports_instant_search() && get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+		if ( ! $this->plan->supports_instant_search() || ! $this->is_active() ) {
+			return false;
+		}
+
+		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
+		if ( self::EXPERIENCE_OVERLAY === $saved ) {
+			return true;
+		}
+		if ( self::EXPERIENCE_INLINE === $saved || self::EXPERIENCE_EMBEDDED === $saved ) {
+			return false;
+		}
+
+		// Legacy fallback: experience never written, trust the legacy boolean.
+		return (bool) get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**
@@ -218,10 +247,12 @@ class Module_Control {
 	 * Update the search experience.
 	 *
 	 * Each active experience writes its literal value to
-	 * `jetpack_search_experience`. `'off'` deactivates the module and disables
-	 * `instant_search_enabled`; `'overlay'` enables it. `'inline'` and
-	 * `'embedded'` leave `instant_search_enabled` alone — they neither need
-	 * Instant Search nor have a reason to flip the legacy boolean.
+	 * `jetpack_search_experience`, and keeps `instant_search_enabled` in
+	 * lockstep on the write side: `'overlay'` enables it; `'off'`, `'inline'`,
+	 * and `'embedded'` disable it. The lockstep makes legacy readers correct
+	 * even though `is_instant_search_enabled()` would also resolve correctly
+	 * via the experience option alone — belt-and-suspenders for any caller
+	 * that reads the boolean directly.
 	 *
 	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
 	 * @return bool|WP_Error WP_Error on failure; true on success for the affirmative
@@ -249,6 +280,7 @@ class Module_Control {
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
+				$this->disable_instant_search();
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_INLINE );
 				return true;
 
@@ -257,6 +289,7 @@ class Module_Control {
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
+				$this->disable_instant_search();
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_EMBEDDED );
 				return true;
 
