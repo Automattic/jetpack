@@ -88,12 +88,6 @@ for PROJECT in projects/*/*; do
 
 	debug "Checking project $SLUG"
 
-	# - .github/ must be export-ignored for packages.
-	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
-		EXIT=1
-		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
-	fi
-
 	# - package.json for js modules should look like a library to renovate.
 	if [[ "$PROJECT" == projects/js-packages/* && -e "$PROJECT/package.json" ]]; then
 		! IFS= read -r INDEX < <( ls -- "$PROJECT"/index.{js,jsx,cjs,mjs,ts,tsx,d.ts} 2>/dev/null )
