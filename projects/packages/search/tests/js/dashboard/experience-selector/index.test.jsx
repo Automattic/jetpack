@@ -2,6 +2,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import ExperienceSelector from '../../../../src/dashboard/components/experience-selector';
+import { EXPERIENCE } from '../../../../src/dashboard/components/experience-selector/constants';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
 const renderWith = jetpackSettings => {
@@ -111,6 +112,18 @@ describe( '<ExperienceSelector>', () => {
 		expect( screen.getByText( /theme search selected, save to apply/i ) ).toBeInTheDocument();
 		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
 		expect( screen.getByText( /off selected, save to apply/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'hides the pending notice while a save is in flight', () => {
+		// `is_updating: true` simulates the in-flight window after Save was
+		// clicked — the global "Updating settings…" toast covers status, so
+		// the heading-row pending notice should disappear.
+		renderWith( {
+			...baseSettings,
+			pending_experience: EXPERIENCE.INLINE,
+			is_updating: true,
+		} );
+		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
