@@ -47,6 +47,11 @@ class Podcast {
 			return;
 		}
 
+		// Wire the Podcast Episode block actions before the filter check below:
+		// each callback re-checks `jetpack_podcast_untangle` at hook time so a
+		// late-registered filter callback still takes effect.
+		Podcast_Episode_Block::register_hooks();
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}
