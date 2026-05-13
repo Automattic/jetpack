@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Search: legacy ModuleControl Instant Search toggle now syncs the canonical `jetpack_search_experience` option, so it works again on sites where the experience option is set to `'embedded'` or `'inline'`.
+
+
