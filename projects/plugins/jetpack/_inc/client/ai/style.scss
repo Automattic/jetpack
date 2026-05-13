@@ -1,0 +1,86 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.jetpack_page_jetpack-ai {
+
+	@include jetpack-admin-page-layout;
+}
+
+.jetpack-ai-admin {
+
+	// Content wrapper inside AdminPage's fluid container.
+	// Use border-box so the 24px padding is included in the 100% width,
+	// preventing horizontal overflow from content-box sizing.
+	// max-width matches the Figma design constraint.
+	&__content {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 660px;
+		margin: 0 auto;
+		padding: 24px;
+	}
+
+	&__breadcrumbs {
+		// admin-ui sets list-style:none but no flex layout — add it here.
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		min-height: auto;
+		padding: 0;
+		margin: 0;
+
+		li {
+			display: flex;
+			align-items: center;
+			margin-bottom: 0;
+
+		}
+
+		// Render a "/" separator between adjacent breadcrumb items.
+		// Mirrors @wordpress/admin-ui's Breadcrumbs component, which we
+		// can't drop in directly because it requires @wordpress/route
+		// for navigation — we use hash-based routing here.
+		li + li::before {
+			content: "/";
+			margin: 0 8px;
+			color: var(--wpds-color-stroke-surface-neutral, #c3c4c7);
+		}
+	}
+
+	// Both pieces of the breadcrumb match the wpds `heading-lg` type token
+	// (the same one admin-ui's Page uses for the hub's "AI" h1 title), so
+	// the header on sub-views reads as "AI / Read" with the same size and
+	// weight as the hub heading.
+	&__breadcrumb-link,
+	&__breadcrumb-current {
+		font-family: var(--wpds-typography-font-family-heading, inherit);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-medium, 500);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
+	}
+
+	&__breadcrumb-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&__breadcrumb-current {
+		margin: 0;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		padding: 48px 0;
+	}
+}

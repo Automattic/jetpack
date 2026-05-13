@@ -1,58 +1,39 @@
 
-.header-wrapper {
+.breadcrumbs :global(.admin-ui-breadcrumbs__list) {
+	min-height: auto;
 
-	&:not(.small) {
+	li {
 		display: flex;
 		align-items: center;
+		margin-bottom: 0;
 	}
+}
 
-	&.small .header-content {
-		align-items: flex-end;
-	}
+.breadcrumb-current {
+	display: inline;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	margin: 0;
+}
 
-	.logo-button {
-		all: unset;
-		cursor: pointer;
-	}
+.breadcrumb-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: inherit;
+	text-decoration: none;
 
-	.header-content {
-		display: flex;
-		justify-content: space-between;
-		flex-grow: 1;
-	}
-
-	.breadcrumb {
-		display: flex;
-		gap: var(--spacing-base);
-		align-items: center;
-		color: var(--jp-gray-40);
-
-		&:not(.small) {
-			margin-left: var(--spacing-base);
-		}
+	&:hover,
+	&:focus,
+	&:active {
+		color: inherit;
+		text-decoration: underline;
 	}
 }
 
 .input {
 	margin-top: calc(var(--spacing-base) * 3); // 24px
-}
-
-.back-link {
-	display: flex;
-
-	.icon {
-		width: 16px;
-		margin-right: 4px;
-	}
-
-	.link {
-		margin-bottom: calc(var(--spacing-base) * 3);
-		font-size: 14px;
-		color: var(--jp-gray-70);
-		display: flex;
-		text-decoration: none;
-		align-items: center;
-	}
 }
 
 .side-fields {
@@ -69,6 +50,10 @@
 	margin-left: var(--spacing-base); // 8px
 }
 
+.actions {
+	margin-top: calc(var(--spacing-base) * 3); // 24px
+}
+
 .rating {
 
 	:global {
@@ -76,18 +61,6 @@
 		.components-base-control__field div {
 			flex-direction: row;
 			justify-content: flex-start;
-
-			.components-radio-control__input[type="radio"] {
-
-				&:checked {
-					background: var(--jp-green-40);
-					border-color: var(--jp-green-40);
-				}
-
-				&:focus {
-					box-shadow: 0 0 0 2px var(--jp-white), 0 0 0 4px var(--jp-green-40);
-				}
-			}
 
 			.components-radio-control__option + .components-radio-control__option {
 				margin-left: calc(var(--spacing-base) * 2); // 16px
@@ -128,14 +101,6 @@
 	}
 }
 
-.buttons {
-	display: flex;
-
-	> * + * {
-		margin-left: calc(var(--spacing-base) * 2); // 16px
-	}
-}
-
 // JITM
 :global {
 
@@ -146,9 +111,6 @@
 		}
 	}
 
-	#jetpack-videopress-root .jp-admin-page-header {
-		display: block;
-	}
 }
 
 .jetpack-videopress-jitm-card {

@@ -1,11 +1,12 @@
 /**
  * Mock for `@visx/tooltip`'s useTooltipInPortal hook to provide valid containerBounds in tests.
  *
- * In JSDOM, getBoundingClientRect() returns zeros since there's no real layout.
- * This causes our tooltip positioning guard (which checks containerBounds.width/height > 0)
- * to prevent tooltips from showing in tests.
+ * In JSDOM, react-use-measure (used internally by useTooltipInPortal) cannot update
+ * bounds because its ResizeObserver callback fires synchronously before the component
+ * is mounted, failing the internal `mounted.current` guard. This leaves containerBounds
+ * at {0, 0, ...}, which causes tooltip positioning guards to suppress tooltips.
  *
- * This mock wraps the real hook and overrides containerBounds with non-zero values.
+ * This mock wraps the real hook and ensures containerBounds always has non-zero values.
  */
 
 jest.mock( '@visx/tooltip', () => {

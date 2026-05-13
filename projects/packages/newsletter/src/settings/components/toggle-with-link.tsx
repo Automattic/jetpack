@@ -3,12 +3,12 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-import './toggle-with-link.scss';
 
 interface ToggleWithLinkProps {
 	data: Record< string, unknown >;
@@ -52,12 +52,12 @@ export function ToggleWithLink( {
 			checked={ !! data[ field.id ] }
 			onChange={ handleChange }
 			label={
-				<span className="toggle-with-link__label">
-					{ field.label }
+				<span>
+					{ field.label }{ ' ' }
 					{ isExternal ? (
-						<ExternalLink href={ url } onClick={ onLinkClick }>
+						<Link openInNewTab href={ url } onClick={ onLinkClick }>
 							{ linkText }
-						</ExternalLink>
+						</Link>
 					) : (
 						<a href={ url } onClick={ onLinkClick }>
 							{ linkText }

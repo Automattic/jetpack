@@ -1,8 +1,6 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { dispatch } from '@wordpress/data';
 import { store as interfaceStore } from '@wordpress/interface';
 import { store as socialStore } from '../social-store';
-import { features } from './constants';
 
 /**
  * Handle a particular Jetpack Editor action.
@@ -23,13 +21,9 @@ export function handleSharePostAction(
 	// First open the sidebar
 	enableComplementaryArea( 'core', sidebarToOpen );
 
-	const { openSharePostModal, openUnifiedModal } = dispatch( socialStore );
+	const { openUnifiedModal } = dispatch( socialStore );
 	// Then open the share post modal
-	if ( siteHasFeature( features.UNIFIED_UI_V1 ) ) {
-		openUnifiedModal();
-	} else {
-		openSharePostModal();
-	}
+	openUnifiedModal();
 
 	return removeQueryArg;
 }

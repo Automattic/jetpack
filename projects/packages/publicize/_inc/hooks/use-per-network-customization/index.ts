@@ -1,10 +1,11 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
-import { hasSocialPaidFeatures } from '../../utils';
+import { features, hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
@@ -22,20 +23,56 @@ export function usePerNetworkCustomization() {
 	const { editPost } = useDispatch( editorStore );
 	const { customizeConnectionById } = useDispatch( socialStore );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
+	const [ templateDefaultDisabled, setTemplateDefaultDisabled ] = useState( false );
 
 	// Get featured image details for syncing to connections
 	const featuredImageId = useFeaturedImage();
 	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
 	const featuredImageUrl = featuredImageDetails?.mediaData?.sourceUrl;
 	const featuredImageMime = featuredImageDetails?.metaData?.mime ?? 'image/jpeg';
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const hasConnectionTemplate = connections.some(
+		connection => typeof connection.template === 'string' && connection.template.trim() !== ''
+	);
+	const hasUserSetCustomizePerNetwork = Boolean(
+		postMeta.jetpackSocialOptions.customize_per_network_user_set
+	);
 
-	const isEnabled = useSelect( select => {
+	const isMetaEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
 		return Boolean( meta?.[ CUSTOMIZE_PER_NETWORK_KEY ] );
 	}, [] );
+	const shouldUseTemplateDefault =
+		templatesEnabled &&
+		hasConnectionTemplate &&
+		! isMetaEnabled &&
+		! hasUserSetCustomizePerNetwork &&
+		! templateDefaultDisabled;
+	const isEnabled = hasUserSetCustomizePerNetwork
+		? isMetaEnabled
+		: isMetaEnabled || shouldUseTemplateDefault;
+
+	useEffect( () => {
+		if ( ! shouldUseTemplateDefault || ! hasSocialPaidFeatures() ) {
+			return;
+		}
+
+		editPost( {
+			meta: {
+				[ CUSTOMIZE_PER_NETWORK_KEY ]: true,
+			},
+		} );
+	}, [ shouldUseTemplateDefault, editPost ] );
 
 	const syncConnections = useCallback( () => {
+		/*
+		 * Don't sync when the message-templates feature is on. Server-side defaults
+		 */
+		if ( templatesEnabled ) {
+			return;
+		}
+
 		// Copy global settings to each connection.
 		// Per-network mode forces attachment, so we need to populate attached_media for all sources.
 		connections.forEach( connection => {
@@ -64,6 +101,7 @@ export function usePerNetworkCustomization() {
 		featuredImageId,
 		featuredImageUrl,
 		featuredImageMime,
+		templatesEnabled,
 	] );
 
 	const toggle = useCallback( () => {
@@ -73,17 +111,32 @@ export function usePerNetworkCustomization() {
 			enabled: isNowEnabled,
 		} );
 
+		setTemplateDefaultDisabled( ! isNowEnabled && templatesEnabled && hasConnectionTemplate );
+
 		// Update post metadata.
 		editPost( {
 			meta: {
 				[ CUSTOMIZE_PER_NETWORK_KEY ]: isNowEnabled,
+				jetpack_social_options: {
+					...postMeta.jetpackSocialOptions,
+					customize_per_network_user_set: true,
+					version: 2,
+				},
 			},
 		} );
 
 		if ( isNowEnabled ) {
 			syncConnections();
 		}
-	}, [ isEnabled, recordEvent, editPost, syncConnections ] );
+	}, [
+		isEnabled,
+		recordEvent,
+		templatesEnabled,
+		hasConnectionTemplate,
+		editPost,
+		postMeta.jetpackSocialOptions,
+		syncConnections,
+	] );
 
 	return useMemo(
 		() => ( {

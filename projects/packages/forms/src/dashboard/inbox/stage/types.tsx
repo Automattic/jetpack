@@ -8,9 +8,11 @@ import type { StoreDescriptor } from '@wordpress/data';
 export type QueryParams = {
 	search?: string;
 	parent?: string;
+	source?: string;
 	before?: string;
 	after?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	per_page?: number;
 	page?: number;
 	status?: string;
@@ -63,6 +65,7 @@ export type DispatchActions = {
 		invalidateCache?: boolean
 	) => void;
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
+	invalidateResolutionForStoreSelector: ( selector: string ) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (

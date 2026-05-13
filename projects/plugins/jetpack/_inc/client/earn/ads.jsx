@@ -1,8 +1,9 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLegend } from 'components/forms';
@@ -60,13 +61,13 @@ export const Ads = withModuleSettingsFormHelpers(
 					} }
 				>
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						checked={ wordads_custom_adstxt_enabled }
 						disabled={
 							! isAdsActive ||
 							unavailableInOfflineMode ||
-							this.props.isSavingAnyOption( [ 'wordads' ] )
+							this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
 						}
-						toggling={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt_enabled' ] ) }
 						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
 						label={ __( 'Customize your ads.txt file', 'jetpack' ) }
 					/>
@@ -181,7 +182,8 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 												target="_blank"
 												rel="noopener noreferrer"
@@ -195,9 +197,8 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'wordads' ) }
 							activated={ isAdsActive }
-							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
@@ -207,46 +208,46 @@ export const Ads = withModuleSettingsFormHelpers(
 						<FormFieldset>
 							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_front_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
 								label={ __( 'Front page', 'jetpack' ) }
 							/>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_post' ] ) }
 								onChange={ this.handleChange( 'wordads_display_post' ) }
 								label={ __( 'Posts', 'jetpack' ) }
 							/>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_page' ) }
 								label={ __( 'Pages', 'jetpack' ) }
 							/>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_archive' ] ) }
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
 								label={ __( 'Archives', 'jetpack' ) }
 							/>
@@ -254,35 +255,35 @@ export const Ads = withModuleSettingsFormHelpers(
 						<FormFieldset>
 							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'enable_header_ad' ] ) }
 								onChange={ this.handleChange( 'enable_header_ad' ) }
 								label={ __( 'Top of each page', 'jetpack' ) }
 							/>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
 								label={ __( 'Second ad below post', 'jetpack' ) }
 							/>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ wordads_inline_enabled }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_inline_enabled' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_inline_enabled' ] ) }
 								onChange={ this.handleChange( 'wordads_inline_enabled' ) }
 								label={ __( 'Inline within post content', 'jetpack' ) }
 							/>
@@ -301,13 +302,13 @@ export const Ads = withModuleSettingsFormHelpers(
 						} }
 					>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads' ] )
+								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'wordads_ccpa_enabled' ] ) }
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
 							label={ __(
 								'Enable targeted advertising to site visitors in all US states.',
@@ -384,13 +385,13 @@ export const Ads = withModuleSettingsFormHelpers(
 						} }
 					>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ wordads_cmp_enabled }
 							disabled={
 								! isAdsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads' ] )
+								this.props.isSavingAnyOption( [ 'wordads', 'wordads_cmp_enabled' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'wordads_cmp_enabled' ] ) }
 							onChange={ this.handleChange( 'wordads_cmp_enabled' ) }
 							label={ __( 'Enable GDPR Consent Banner', 'jetpack' ) }
 						/>

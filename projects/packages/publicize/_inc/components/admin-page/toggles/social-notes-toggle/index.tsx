@@ -1,13 +1,15 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
+import { SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Link } from '@wordpress/ui';
 import { useState } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { SocialNotesConfig } from '../../../../social-store/types';
 import type { Dispatch, FC, SetStateAction } from 'react';
 
 type SocialNotesToggleProps = {
@@ -32,12 +34,15 @@ const handleStateUpdating = async (
 };
 
 const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled, notesConfig, isUpdating } = useSelect( select => {
+	const { isEnabled, isUpdating, appendLink, linkFormat } = useSelect( select => {
 		const store = select( socialStore );
 
+		const { socialNotes } = store.getSocialSettings();
+
 		return {
-			isEnabled: store.getSocialSettings().socialNotes.enabled,
-			notesConfig: store.getSocialSettings().socialNotes.config,
+			isEnabled: socialNotes.enabled,
+			appendLink: socialNotes.config.append_link ?? true,
+			linkFormat: socialNotes.config.link_format,
 			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
@@ -47,26 +52,27 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
 	const [ isLinkFormatUpdating, setIsLinkFormatUpdating ] = useState( false );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
 	const { toggleSocialNotes, updateSocialNotesConfig } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( async () => {
 		handleStateUpdating( () => toggleSocialNotes( ! isEnabled ) );
 	}, [ isEnabled, toggleSocialNotes ] );
 
+	const onCreateNoteClick = useCallback( () => {
+		window.location.href = newNoteUrl;
+	}, [ newNoteUrl ] );
+
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
 			handleStateUpdating(
 				() =>
 					updateSocialNotesConfig( {
-						...notesConfig,
 						append_link,
 					} ),
 				setIsAppendLinkToggleUpdating
 			);
 		},
-		[ notesConfig, updateSocialNotesConfig ]
+		[ updateSocialNotesConfig ]
 	);
 
 	const onChangeLinkFormat = useCallback(
@@ -74,21 +80,17 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			handleStateUpdating(
 				() =>
 					updateSocialNotesConfig( {
-						...notesConfig,
-						link_format: link_format as ( typeof notesConfig )[ 'link_format' ],
+						link_format: link_format as SocialNotesConfig[ 'link_format' ],
 					} ),
 				setIsLinkFormatUpdating
 			);
 		},
-		[ notesConfig, updateSocialNotesConfig ]
+		[ updateSocialNotesConfig ]
 	);
-
-	const appendLink = notesConfig.append_link ?? true;
 
 	return (
 		<ToggleSection
 			title={ __( 'Enable Social Notes', 'jetpack-publicize-pkg' ) }
-			beta
 			disabled={ isUpdating || disabled }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
@@ -103,17 +105,14 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 					'jetpack-publicize-pkg'
 				) }
 			</Text>
-
 			<Button
 				className={ styles.button }
-				fullWidth={ isSmall }
-				variant="secondary"
+				variant="outline"
 				disabled={ isUpdating || ! isEnabled }
-				href={ newNoteUrl }
+				onClick={ onCreateNoteClick }
 			>
 				{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
 			</Button>
-
 			{ isEnabled ? (
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
@@ -131,7 +130,7 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 					{ appendLink ? (
 						<SelectControl
 							label={ __( 'Link format', 'jetpack-publicize-pkg' ) }
-							value={ notesConfig.link_format ?? 'full_url' }
+							value={ linkFormat ?? 'full_url' }
 							onChange={ onChangeLinkFormat }
 							disabled={ isLinkFormatUpdating || isUpdating || isAppendLinkToggleUpdating }
 							options={ [
@@ -149,9 +148,12 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 										'jetpack-publicize-pkg'
 									) }
 									&nbsp;
-									<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format">
+									<Link
+										openInNewTab
+										href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format"
+									>
 										{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-									</ExternalLink>
+									</Link>
 								</span>
 							}
 							__nextHasNoMarginBottom={ true }

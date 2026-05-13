@@ -1,6 +1,0 @@
-# Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
-
-# @todo: Files below ignored as part of Automattic/jetpack/pull/25449
-# They can be removed here as lint errors are addressed.
-/inc/delete-cache-button.js
-/inc/preload-notification.js

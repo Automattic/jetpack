@@ -1,15 +1,11 @@
-import {
-	AdminPage,
-	JetpackFooter,
-	Button,
-	Container,
-	Col,
-	getProductCheckoutUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Stack, Tabs } from '@wordpress/ui';
+import { useState } from 'react';
+import AiAnswersTab from 'components/ai-answers-tab';
+import FeatureSelector from 'components/feature-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -29,13 +25,20 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
+	const [ activeTab, setActiveTab ] = useState( 'plan-usage' );
+
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const apiRoot = useSelect( select => select( STORE_ID ).getAPIRootUrl() );
+	const apiNonce = useSelect( select => select( STORE_ID ).getAPINonce() );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const readerChatGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -79,6 +82,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isReaderChatAvailable = useSelect( select => select( STORE_ID ).isReaderChatAvailable() );
+	const isReaderChatEnabled = useSelect( select => select( STORE_ID ).isReaderChatEnabled() );
 	const isSavingEitherOption = useSelect( select =>
 		select( STORE_ID ).isUpdatingJetpackSettings()
 	);
@@ -86,6 +91,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isTogglingInstantSearch = useSelect( select =>
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
+	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -106,83 +112,119 @@ export default function DashboardPage( { isLoading = false } ) {
 	};
 
 	return (
-		<>
-			{ isPageLoading && <Loading /> }
-			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-page">
-					<AdminPage
-						title={ 'Search' /** "Search" is a product name, do not translate. */ }
-						subTitle={ __(
-							'Help your visitors find exactly what they are looking for.',
-							'jetpack-search-pkg'
-						) }
-						actions={
-							( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-								<Button variant="link" onClick={ sendPaidPlanToCart }>
-									{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
-								</Button>
-							)
-						}
-						className="uses-new-admin-ui"
-						showFooter={ false }
-					>
-						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-							{ hasConnectionError && (
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
+		<div className="jp-search-dashboard-page">
+			<AdminPage
+				title={ 'Search' /** "Search" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Help your visitors find exactly what they are looking for.',
+					'jetpack-search-pkg'
+				) }
+				actions={
+					! isPageLoading &&
+					( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
+						<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
+							{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+						</Button>
+					)
+				}
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				className="uses-new-admin-ui"
+			>
+				<Tabs.Root value={ activeTab } onValueChange={ setActiveTab }>
+					<Tabs.List>
+						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+						<Tabs.Tab value="ai-answers">
+							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
+							<span className="jp-search-dashboard-tabs__tab-preview-label">
+								{ __( '(Preview)', 'jetpack-search-pkg' ) }
+							</span>
+						</Tabs.Tab>
+					</Tabs.List>
+					<Tabs.Panel value="plan-usage">
+						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+							<div className="jp-search-dashboard-row">
+								<div
+									id="jp-admin-notices"
+									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
+								/>
+							</div>
+							{ isPageLoading && <Loading /> }
+							{ ! isPageLoading && (
+								<MockedSearchContent
+									supportsInstantSearch={ supportsInstantSearch }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+								/>
 							) }
-							<Col>
-								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-							</Col>
-						</Container>
-						<MockedSearchInterface
-							supportsInstantSearch={ supportsInstantSearch }
-							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						/>
-						{ isNewPricing && supportsInstantSearch && (
-							<PlanInfo
-								hasIndex={ postCount !== 0 }
-								recordMeterInfo={ recordMeterInfo }
-								isFreePlan={ isFreePlan }
-								sendPaidPlanToCart={ sendPaidPlanToCart }
-							/>
-						) }
-						{ ! isNewPricing && supportsInstantSearch && (
-							<RecordMeter
-								postCount={ postCount }
-								postTypeBreakdown={ postTypeBreakdown }
-								tierMaximumRecords={ tierMaximumRecords }
-								lastIndexedDate={ lastIndexedDate }
-								postTypes={ postTypes }
-							/>
-						) }
-						<div className="jp-search-dashboard-bottom">
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
-								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
-							/>
 						</div>
-						<Footer />
-						<NoticesList
-							notices={ notices }
-							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-						/>
-					</AdminPage>
-				</div>
-			) }
-		</>
+						{ ! isPageLoading && (
+							<>
+								{ hasConnectionError && (
+									<Stack direction="column">
+										<ConnectionError />
+									</Stack>
+								) }
+								{ isNewPricing && supportsInstantSearch && (
+									<PlanInfo
+										hasIndex={ postCount !== 0 }
+										recordMeterInfo={ recordMeterInfo }
+										isFreePlan={ isFreePlan }
+										sendPaidPlanToCart={ sendPaidPlanToCart }
+									/>
+								) }
+								{ ! isNewPricing && supportsInstantSearch && (
+									<RecordMeter
+										postCount={ postCount }
+										postTypeBreakdown={ postTypeBreakdown }
+										tierMaximumRecords={ tierMaximumRecords }
+										lastIndexedDate={ lastIndexedDate }
+										postTypes={ postTypes }
+									/>
+								) }
+								<div className="jp-search-dashboard-bottom">
+									{ isSearchBlocksEnabled ? (
+										<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
+											<div className="jp-search-dashboard-row">
+												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+													<FeatureSelector />
+												</div>
+											</div>
+										</div>
+									) : (
+										<ModuleControl
+											siteAdminUrl={ siteAdminUrl }
+											updateOptions={ updateOptions }
+											domain={ domain }
+											isDisabledFromOverLimit={ isOverLimit }
+											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isReaderChatAvailable={ isReaderChatAvailable }
+											isReaderChatEnabled={ isReaderChatEnabled }
+											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+											supportsSearch={ supportsSearch }
+											supportsInstantSearch={ supportsInstantSearch }
+											isModuleEnabled={ isModuleEnabled }
+											isInstantSearchEnabled={ isInstantSearchEnabled }
+											isSavingEitherOption={ isSavingEitherOption }
+											isTogglingModule={ isTogglingModule }
+											isTogglingInstantSearch={ isTogglingInstantSearch }
+											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+										/>
+									) }
+								</div>
+								<NoticesList
+									notices={ notices }
+									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+								/>
+							</>
+						) }
+					</Tabs.Panel>
+					<Tabs.Panel value="ai-answers">
+						<AiAnswersTab />
+					</Tabs.Panel>
+				</Tabs.Root>
+			</AdminPage>
+		</div>
 	);
 }
 
@@ -222,9 +264,9 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 	);
 };
 
-const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
+const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (
-		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+		<>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 					<h1>
@@ -244,19 +286,6 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 					/>
 				</div>
 			</div>
-		</div>
-	);
-};
-
-const Footer = () => {
-	return (
-		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
-			<div className="jp-search-dashboard-row">
-				<JetpackFooter
-					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
-			</div>
-		</div>
+		</>
 	);
 };

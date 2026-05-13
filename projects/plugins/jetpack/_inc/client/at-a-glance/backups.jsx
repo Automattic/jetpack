@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
@@ -256,7 +256,8 @@ class DashBackups extends Component {
 		return (
 			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 				<div className="jp-dash-item__action-links">
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={
 							isWoASite()
 								? getRedirectUrl( 'calypso-backups', {
@@ -271,8 +272,9 @@ class DashBackups extends Component {
 						onClick={ this.trackBackupsClick( 'backups-link' ) }
 					>
 						{ __( "View your site's backups", 'jetpack' ) }
-					</ExternalLink>
-					<ExternalLink
+					</Link>
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'calypso-activity-log', {
 							site: siteRawUrl,
 							query: 'group=rewind',
@@ -282,7 +284,7 @@ class DashBackups extends Component {
 						onClick={ this.trackBackupsClick( 'restore-points-link' ) }
 					>
 						{ __( 'View your most recent restore points', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</div>
 			</Card>
 		);
@@ -344,17 +346,18 @@ class DashBackups extends Component {
 				if ( hasRealTimeBackups ) {
 					message = createInterpolateElement(
 						__(
-							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
+							'Every change you make will be backed up, in real-time, as you edit your site. <Link>Learn More</Link>',
 							'jetpack'
 						),
 						{
-							ExternalLink: (
-								<ExternalLink
+							Link: (
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
 									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
-								></ExternalLink>
+								></Link>
 							),
 						}
 					);
@@ -418,6 +421,8 @@ class DashBackups extends Component {
 			actorName,
 			actorRole,
 			actorAvatarUrl,
+			isMcpAgent,
+			mcpClient,
 			undoBackupId,
 		} = backupUndoEvent;
 
@@ -440,7 +445,14 @@ class DashBackups extends Component {
 						</div>
 						<div className="dash-backup-undo__activity-log-user-meta-name">
 							{ actorName }
-							{ actorRole && ' - ' + actorRole }
+							{ isMcpAgent
+								? ' - ' +
+								  sprintf(
+										/* translators: %s: The name of the MCP client application. */
+										__( 'via %s (MCP)', 'jetpack' ),
+										mcpClient || __( 'MCP client', 'jetpack' )
+								  )
+								: actorRole && ' - ' + actorRole }
 						</div>
 					</div>
 				</div>

@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.6 - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## 0.5.5 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 0.5.4 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106] [#48141]
+
+## 0.5.3 - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## 0.5.2 - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## 0.5.1 - 2026-04-06
+### Changed
+- Internal updates.
+
+## 0.5.0 - 2026-03-30
+### Changed
+- Update DataViews dependency. [#46973]
+- Update package dependencies. [#47799]
+
+## 0.4.23 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 0.4.22 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
 ## 0.4.21 - 2026-03-09
 ### Changed
 - Switch to Native TypeScript compiler based on Go. [#47375]

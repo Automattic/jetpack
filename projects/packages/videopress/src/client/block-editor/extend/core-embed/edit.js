@@ -4,11 +4,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Warning, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -64,7 +65,9 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 				'jetpack-videopress-pkg'
 			),
 			{
-				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
+				moreAboutVideoPressLink: (
+					<Link openInNewTab href={ getRedirectUrl( 'jetpack-videopress' ) } />
+				),
 			}
 		);
 

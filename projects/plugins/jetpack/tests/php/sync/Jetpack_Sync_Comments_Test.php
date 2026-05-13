@@ -406,6 +406,39 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 	}
 
+	/**
+	 * Test that 'note' is in the whitelisted comment types by default.
+	 */
+	public function test_note_comment_type_is_whitelisted() {
+		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
+
+		$this->assertContains( 'note', $comments_sync_module->get_whitelisted_comment_types() );
+	}
+
+	/**
+	 * Test that a comment with comment_type 'note' is synced without needing a filter.
+	 */
+	public function test_do_sync_comment_with_note_type() {
+		$this->server_event_storage->reset();
+
+		$comment_data = array(
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'Test Author',
+			'comment_content'  => 'This is a note comment.',
+			'comment_agent'    => 'Test Agent',
+			'comment_type'     => 'note',
+		);
+		wp_insert_comment( $comment_data );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertNotFalse( $event );
+		$this->assertEquals( 'note', $event->args[1]->comment_type );
+	}
+
 	public function add_custom_comment_type( $comment_types ) {
 		$comment_types[] = 'product_feedback';
 		return $comment_types;

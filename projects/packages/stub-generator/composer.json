@@ -19,7 +19,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
@@ -57,7 +56,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "2.1.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-stub-generator/compare/v${old}...v${new}"

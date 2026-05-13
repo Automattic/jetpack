@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.8.5 - 2026-05-13
+### Changed
+- Remove the generateI18nVariants helper from replace-textdomain Babel config. [#48355]
+
+## 3.8.4 - 2026-05-11
+### Changed
+- Build: Remove the @wordpress/admin-ui CSS bundle workaround from the default request map. [#48410]
+
+## 3.8.3 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 3.8.2 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## 3.8.1 - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## 3.8.0 - 2026-04-06
+### Added
+- Add `BundledWpPkgsTranspileRules` to centralize the hacks needed for non-extracted `@wordpress/*` packages. [#47840]
+
+### Changed
+- Update package dependencies. [#47941]
+
+## 3.7.30 - 2026-03-30
+### Changed
+- Update dependencies.
+
+## 3.7.29 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 3.7.28 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
 ## 3.7.27 - 2026-03-09
 ### Changed
 - Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
@@ -27,9 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 3.7.23 - 2026-02-12
 ### Changed
 - Added WebP to default file extensions handled by FileRule. [#47082]
-- Update package dependencies. [#47095]
-- Update package dependencies. [#47099]
-- Update package dependencies. [#47101]
+- Update package dependencies. [#47095] [#47099] [#47101]
 
 ## 3.7.22 - 2026-02-10
 ### Changed

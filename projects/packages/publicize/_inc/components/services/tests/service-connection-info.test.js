@@ -8,6 +8,9 @@ jest.mock( '../../connection-management/connection-name', () => ( {
 jest.mock( '../../connection-management/connection-status', () => ( {
 	ConnectionStatus: ( { connection } ) => <div>Status: { connection.status }</div>,
 } ) );
+jest.mock( '../../connection-management/connection-template', () => ( {
+	ConnectionTemplateEditor: () => null,
+} ) );
 jest.mock( '../../connection-management/disconnect', () => ( {
 	Disconnect: ( { connection } ) => <button>Disconnect { connection.display_name }</button>,
 } ) );

@@ -158,7 +158,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 		// } AJAX nonce, rest is dealt with in the admin global js :)
 		?>
-			<script type="text/javascript">var zbscrmjs_topMenuSecToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce-topmenu' ) ); ?>';</script>
+			<script type="text/javascript">var zbscrmjs_topMenuSecToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce-topmenu' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 			<?php
 
 			// } Menu hidden? - maybe we can cookie this? for now this is slick.
@@ -276,10 +276,20 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 	<div id="jpcrm-top-menu">
 		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
 			<div class="cube-side side1">
-				<img alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>">
+				<?php
+				$header_icon = '<img alt="" src="' . esc_url( jpcrm_get_logo( false ) ) . '" width="20" height="20" class="jpcrm-header-logo__icon" />';
+				##WLREMOVE
+				// Jetpack logo
+				$header_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" class="jpcrm-header-logo__icon" aria-hidden="true" focusable="false"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"/></svg>';
+				##/WLREMOVE
+				echo $header_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Hardcoded HTML with pre-escaped attributes.
+				?>
+				<?php ##WLREMOVE ?>
+				<span class="jpcrm-header-logo__text">CRM</span>
+				<?php ##/WLREMOVE ?>
 			</div>
 			<div class="cube-side side2">
-				<i class="expand icon fa-flip-horizontal"></i>
+				<i class="expand icon jpcrm-fullscreen-toggle" title="<?php esc_attr_e( 'Toggle full screen', 'zero-bs-crm' ); ?>"></i>
 			</div>
 		</div>
 

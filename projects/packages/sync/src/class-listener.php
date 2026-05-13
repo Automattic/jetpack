@@ -526,6 +526,31 @@ class Listener {
 			}
 		}
 
+		/**
+		 * Filters the actor data attached to sync events.
+		 *
+		 * Actor data identifies who or what triggered a sync event (user info,
+		 * request context, MCP client details, etc.) and is sent alongside every
+		 * event to WordPress.com.
+		 *
+		 * @since 4.33.0
+		 *
+		 * @param array $actor Associative array of actor information.
+		 */
+		$actor = apply_filters( 'jetpack_sync_actor_data', $actor );
+
+		// Ensure the filter returns a valid array.
+		if ( ! is_array( $actor ) ) {
+			$actor = array();
+		}
+
+		// Sanitize string values added via the filter.
+		foreach ( $actor as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$actor[ $key ] = sanitize_text_field( $value );
+			}
+		}
+
 		return $actor;
 	}
 

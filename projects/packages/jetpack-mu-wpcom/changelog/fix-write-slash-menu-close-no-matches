@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: close slash menu when no items match the filter or when trailing spaces are typed

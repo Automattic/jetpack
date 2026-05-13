@@ -5,7 +5,7 @@
  *
  * @return an array of colors
  */
-/* global zbs_root */
+/* global zbs_root, jpcrm */
 function jpcrm_get_segment_colors( num_segments ) {
 	const COLORS = [
 		zbs_root.jp_green[ '20' ],
@@ -76,15 +76,19 @@ function jpcrm_build_funnel( funnel_data, funnel_element ) {
 	for ( let i = 0; i < NUM_FUNNEL_SECTIONS; i++ ) {
 		const section_color = SEGMENT_COLORS[ i ];
 		funnel_html += `<a
-			${ funnel_data[ i ].link ? 'href=' + funnel_data[ i ].link : '' }
+			${ funnel_data[ i ].link ? 'href="' + jpcrm.esc_attr( funnel_data[ i ].link ) + '"' : '' }
 			class="funnel_section"
-			data-hover="${ funnel_data[ i ].contact_status + ': \u00a0' }"
-			alt="${ funnel_data[ i ].contact_status }: ${ funnel_data[ i ].backfill_count }"
+			data-hover="${ jpcrm.esc_attr( funnel_data[ i ].contact_status + ': \u00a0' ) }"
+			alt="${ jpcrm.esc_attr(
+				funnel_data[ i ].contact_status + ': ' + funnel_data[ i ].backfill_count
+			) }"
 			style="background-color: ${ section_color };"
-			>${ funnel_data[ i ].backfill_count }</a>`;
+			>${ jpcrm.esc_html( funnel_data[ i ].backfill_count ) }</a>`;
 
 		if ( SHOW_FUNNEL_LEGEND ) {
-			legend_html += `<div class="legend-color" style="background-color: ${ section_color }"></div><div class="legend-label">${ funnel_data[ i ].contact_status }</div>`;
+			legend_html += `<div class="legend-color" style="background-color: ${ section_color }"></div><div class="legend-label">${ jpcrm.esc_html(
+				funnel_data[ i ].contact_status
+			) }</div>`;
 		}
 	}
 	funnel_html += '</div>';

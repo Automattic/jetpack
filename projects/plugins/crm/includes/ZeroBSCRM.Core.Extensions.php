@@ -1176,54 +1176,25 @@ function zeroBSCRM_extension_name_b2bmode() {
 // } Settings page for PDF Invoicing (needs writing)
 // } function zeroBSCRM_html_settings_pdfinv
 
-// hard deletes any extracted repo (e.g. dompdf)
-function zeroBSCRM_extension_remove_dl_repo( $repoName = '' ) {
-
-	if ( in_array( $repoName, array( 'dompdf' ) ) ) {
-
-		// this is here to stop us ever accidentally using zeroBSCRM_del
-		define( 'ZBS_OKAY_TO_PROCEED', time() );
-		zeroBSCRM_del( ZEROBSCRM_INCLUDE_PATH . $repoName );
-
-	}
-}
-
 // } WH 2.0.6 - added to check installed pre-use, auto-installs if not present (or marks uninstalled + returns false)
 // } $checkInstallFonts allows you to just check dompdf, not the piggy-backed pdf fonts installer too (as PDFBuilder needs this)
 function zeroBSCRM_extension_checkinstall_pdfinv( $checkInstallFonts = true ) {
 
 	global $zbs;
 
-	// retrieve lib path
-	$includeFile = $zbs->libInclude( 'dompdf' );
-
 	$shouldBeInstalled = zeroBSCRM_getSetting( 'feat_pdfinv' );
 
-	if ( $shouldBeInstalled == '1' && ! empty( $includeFile ) && ! file_exists( $includeFile ) ) {
-
-		// } Brutal really, just set the setting
-		global $zbs;
-		$zbs->settings->update( 'feat_pdfinv', 0 );
-
-		// } Returns true/false
-		zeroBSCRM_extension_install_pdfinv();
-
-	}
-
 	$fontsInstalled = zeroBSCRM_getSetting( 'pdf_fonts_installed' );
-	if ( $checkInstallFonts && $shouldBeInstalled == '1' && $fontsInstalled !== 1 ) {
-
-		// check fonts
+	if ( $checkInstallFonts && $shouldBeInstalled === 1 && $fontsInstalled !== 1 ) {
 		$fonts = $zbs->get_fonts();
 		$fonts->extract_and_install_default_fonts();
-
 	}
 }
 
 // } Install funcs for free exts
 function zeroBSCRM_extension_install_pdfinv() {
 
-	global $zbs;
+	global $zbs, $zeroBSCRM_extensionsInstalledList;
 
 	if ( ! zeroBSCRM_checkSystemFeat_mb_internal_encoding() ) {
 		global $zbsExtensionInstallError;
@@ -1231,105 +1202,15 @@ function zeroBSCRM_extension_install_pdfinv() {
 		return false;
 	}
 
-	// retrieve lib path
-	$includeFilePath = $zbs->libPath( 'dompdf' );
-	$includeFile     = $zbs->libInclude( 'dompdf' );
+	$zbs->settings->update( 'feat_pdfinv', 1 );
 
-	// } Check if already downloaded libs:
-	if ( ! empty( $includeFile ) && ! file_exists( $includeFile ) ) {
-
-		global $zbs;
-
-		// } Libs appear to need downloading..
-
-			// } dirs
-			$workingDir = ZEROBSCRM_PATH . 'temp' . time();
-		if ( ! file_exists( $workingDir ) ) {
-			wp_mkdir_p( $workingDir );
-		}
-			$endingDir = $includeFilePath;
-		if ( ! file_exists( $endingDir ) ) {
-			wp_mkdir_p( $endingDir );
-		}
-
-		if ( file_exists( $endingDir ) && file_exists( $workingDir ) ) {
-
-			// } Retrieve zip
-			$libs = zeroBSCRM_retrieveFile( $zbs->urls['extdlrepo'] . 'pdfinv.zip', $workingDir . '/pdfinv.zip' );
-
-			// } Expand
-			if ( file_exists( $workingDir . '/pdfinv.zip' ) ) {
-
-				// } Should checksum?
-
-				// } For now, expand zip
-				$expanded = zeroBSCRM_expandArchive( $workingDir . '/pdfinv.zip', $endingDir . '/' );
-
-				// } Check success?
-				if ( file_exists( $includeFile ) ) {
-
-					// } All appears good, clean up
-					if ( file_exists( $workingDir . '/pdfinv.zip' ) ) {
-						unlink( $workingDir . '/pdfinv.zip' );
-					}
-					if ( file_exists( $workingDir ) ) {
-						rmdir( $workingDir );
-					}
-
-					jpcrm_install_core_extension( 'pdfinv' );
-
-					// Also install pdf fonts
-					$fonts = $zbs->get_fonts();
-					$fonts->extract_and_install_default_fonts();
-
-					return true;
-
-				} else {
-
-					// } Add error msg
-					global $zbsExtensionInstallError;
-					$zbsExtensionInstallError = __( 'Jetpack CRM was not able to extract the libraries it needs to in order to install PDF Engine.', 'zero-bs-crm' );
-
-				}
-			} else {
-
-				// } Add error msg
-				global $zbsExtensionInstallError;
-				$zbsExtensionInstallError = __( 'Jetpack CRM was not able to download the libraries it needs to in order to install PDF Engine.', 'zero-bs-crm' );
-
-			}
-		} else {
-
-			// } Add error msg
-			global $zbsExtensionInstallError;
-			$zbsExtensionInstallError = __( 'Jetpack CRM was not able to create the directories it needs to in order to install PDF Engine.', 'zero-bs-crm' );
-
-		}
-	} else {
-
-		// } Already exists...
-
-		// } Brutal really, just set the setting
-		global $zbs;
-		$zbs->settings->update( 'feat_pdfinv', 1 );
-
-		// } Make it show up in the array again
-		global $zeroBSCRM_extensionsInstalledList;
-		if ( ! is_array( $zeroBSCRM_extensionsInstalledList ) ) {
-			$zeroBSCRM_extensionsInstalledList = array();
-		}
-		$zeroBSCRM_extensionsInstalledList[] = 'pdfinv';
-
-		// Also install pdf fonts
-		$fonts = $zbs->get_fonts();
-		$fonts->extract_and_install_default_fonts();
-
-		return true;
-
+	if ( ! is_array( $zeroBSCRM_extensionsInstalledList ) ) {
+		$zeroBSCRM_extensionsInstalledList = array();
 	}
+	$zeroBSCRM_extensionsInstalledList[] = 'pdfinv';
 
-	// } Return fail
-	return false;
+	$fonts = $zbs->get_fonts();
+	return $fonts->extract_and_install_default_fonts();
 }
 
 // } Uninstall funcs for free exts

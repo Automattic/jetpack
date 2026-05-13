@@ -36,6 +36,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	if ( currentQuery?.parent ) {
 		queryParams.parent = currentQuery.parent;
 	}
+	if ( currentQuery?.source ) {
+		queryParams.source = currentQuery.source;
+	}
 	if ( currentQuery?.before ) {
 		queryParams.before = currentQuery.before;
 	}
@@ -44,6 +47,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	}
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
+	}
+	if ( currentQuery?.is_test !== undefined ) {
+		queryParams.is_test = currentQuery.is_test;
 	}
 
 	return queryParams;
@@ -70,6 +76,9 @@ const invalidateCacheAndNavigate = (
 ): void => {
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
+
+	// Invalidate all entity record resolutions so the Forms list entries_count is refreshed.
+	registry.dispatch( coreStore ).invalidateResolutionForStoreSelector( 'getEntityRecords' );
 
 	// Navigate to correct page if current page will be invalid
 	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );

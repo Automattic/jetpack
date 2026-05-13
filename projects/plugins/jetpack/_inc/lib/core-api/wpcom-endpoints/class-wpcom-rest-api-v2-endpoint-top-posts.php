@@ -18,10 +18,6 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-
-		if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-top-posts-helper.php';
-		}
 	}
 
 	/**
@@ -96,6 +92,10 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 * @return array Data on top posts.
 	 */
 	public function get_top_posts( $request ) {
+		if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-top-posts-helper.php';
+		}
+
 		$period = $request->get_param( 'period' );
 		return Jetpack_Top_Posts_Helper::get_top_posts( $period );
 	}

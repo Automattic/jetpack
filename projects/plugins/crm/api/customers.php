@@ -40,21 +40,21 @@ $page = 0;
 if ( isset( $customer_params['page'] ) ) {
 	$page = sanitize_text_field( $customer_params['page'] );
 }
-$withInvoices = -1;
+$withInvoices = false;
 if ( isset( $customer_params['invoices'] ) ) {
-	$withInvoices = sanitize_text_field( $customer_params['invoices'] );
+	$withInvoices = filter_var( $customer_params['invoices'], FILTER_VALIDATE_BOOLEAN );
 }
-$withQuotes = -1;
+$withQuotes = false;
 if ( isset( $customer_params['quotes'] ) ) {
-	$withQuotes = sanitize_text_field( $customer_params['quotes'] );
+	$withQuotes = filter_var( $customer_params['quotes'], FILTER_VALIDATE_BOOLEAN );
 }
 $searchPhrase = '';
 if ( isset( $customer_params['search'] ) ) {
 	$searchPhrase = sanitize_text_field( $customer_params['search'] );
 }
-$withTransactions = -1;
+$withTransactions = false;
 if ( isset( $customer_params['transactions'] ) ) {
-	$withTransactions = sanitize_text_field( $customer_params['transactions'] );
+	$withTransactions = filter_var( $customer_params['transactions'], FILTER_VALIDATE_BOOLEAN );
 }
 $isOwned = -1;
 if ( isset( $customer_params['owned'] ) ) {
@@ -68,15 +68,8 @@ if ( isset( $customer_params['company'] ) ) {
 
 $withTags = false;
 if ( isset( $customer_params['tags'] ) ) {
-	$withTags = (bool) $customer_params['tags'];
+	$withTags = filter_var( $customer_params['tags'], FILTER_VALIDATE_BOOLEAN );
 }
-
-// #FORMIKENOTES -
-// These should be Bools - see https://stackoverflow.com/questions/7336861/how-to-convert-string-to-boolean-php
-// ... this forces them from string of "true" or "false" into a bool
-$withInvoices     = $withInvoices === 'true' ? true : false;
-$withQuotes       = $withQuotes === 'true' ? true : false;
-$withTransactions = $withTransactions === 'true' ? true : false;
 
 $args = array(
 	// Search/Filtering (leave as false to ignore)
@@ -95,7 +88,7 @@ $args = array(
 
 $customers = $zbs->DAL->contacts->getContacts( $args );
 
-wp_send_json( $customers );
+wp_send_json( $customers, 200, JSON_UNESCAPED_SLASHES );
 
 // phpcs:enabled WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 

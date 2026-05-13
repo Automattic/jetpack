@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: composer.lock update for internal admin-ui dependency changes; no user-facing impact
+

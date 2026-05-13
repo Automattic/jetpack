@@ -1,0 +1,31 @@
+{
+	"name": "_@jetpack-scan/index-route",
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-scan": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@types/react": "18.3.28",
+		"@wordpress/admin-ui": "2.0.0",
+		"@wordpress/api-fetch": "7.44.0",
+		"@wordpress/components": "32.6.0",
+		"@wordpress/data": "10.44.0",
+		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.44.0",
+		"@wordpress/element": "6.44.0",
+		"@wordpress/i18n": "6.17.0",
+		"@wordpress/icons": "12.2.0",
+		"@wordpress/notices": "5.44.0",
+		"@wordpress/route": "0.10.0",
+		"@wordpress/theme": "0.11.0",
+		"@wordpress/ui": "0.11.0"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-scan"
+	}
+}

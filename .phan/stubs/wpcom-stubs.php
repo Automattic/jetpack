@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit db1aa088c939a38aec20f32b91748de1223e3e55.
+ * Stubs automatically generated from WordPress.com commit 93d6f2abc729372855db93b0a5f77140ac687a62.
  */
 
 namespace {
@@ -125,7 +125,8 @@ namespace {
      * @param string $message
      * @param string|null $docker_image_tag
      * @param string|null $guid
-     * @param array|null $job
+     * @param string|null $format
+     * @param object|null $job
      * @param array $additional_params
      */
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
@@ -1689,6 +1690,44 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_message_templates_enabled($blog_id = 0)
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function can_use_per_connection_templates($blog_id = 0): bool
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param array $items
+     * @param array $post_intent
+     * @return array<int, array<string, mixed>>
+     */
+    function render_messages_for_networks(\WP_Post $post, array $items, array $post_intent = array()): array
+    {
+    }
+    /**
+     * @return array<string, array{title:string}>
+     */
+    function get_supported_placeholders(): array
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @return array
+     */
+    function get_x_usage(int $blog_id = 0): array
     {
     }
 }

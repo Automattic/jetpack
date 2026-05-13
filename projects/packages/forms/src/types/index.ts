@@ -136,6 +136,12 @@ export interface FormResponse {
 	country_code: string;
 	/** The browser and platform used to submit the form. */
 	browser?: string;
+	/** The logged-in user who submitted the form, if any. */
+	logged_in_user?: {
+		display_name: string;
+		username: string;
+		id: number;
+	} | null;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
@@ -144,6 +150,10 @@ export interface FormResponse {
 	has_file: boolean;
 	/** Whether the response is unread. */
 	is_unread: boolean;
+	/** Whether the response is a test submission from form preview. */
+	is_test?: boolean;
+	/** URL to the form preview that produced this response, when the response is a test submission. */
+	preview_url?: string | null;
 	/** The fields of the response (can be new collection format or legacy format). */
 	fields: ResponseFields;
 	/** The URL to edit the form that the response was submitted to. */
@@ -322,6 +332,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether the site has classic (non-synced) form submissions. */
+	hasClassicForms?: boolean;
 	/** Whether form notes are enabled. */
 	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */

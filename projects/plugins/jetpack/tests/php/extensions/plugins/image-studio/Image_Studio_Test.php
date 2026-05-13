@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -50,6 +52,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_wp_styles;
 
 	/**
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string
+	 */
+	private $saved_siteurl;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -61,8 +70,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
-		unset( $_GET['enable_image_studio'] );
-		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
+		// Ensure Big Sky is disabled by default so tests aren't affected by the
+		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
+		update_option( 'big_sky_enable', '0' );
+		$this->saved_screen  = $GLOBALS['current_screen'] ?? null;
+		$this->saved_siteurl = get_option( 'siteurl' );
 	}
 
 	/**
@@ -71,13 +83,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
-		remove_all_filters( 'agents_manager_use_unified_experience' );
-		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
-		unset( $_GET['enable_image_studio'] );
+		delete_option( 'big_sky_enable' );
+		update_option( 'siteurl', $this->saved_siteurl );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -95,7 +107,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate a connected Jetpack owner so has_ai_features() returns true.
+	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
 	 * Called in set_up() so every test starts with AI features available.
 	 * Tests that need AI features off should use disable_ai_features() instead.
@@ -108,13 +120,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio via jetpack_image_studio_enabled filter.
-	 */
-	private function enable_image_studio() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
-	}
-
-	/**
 	 * Disable AI features via the jetpack_ai_enabled kill switch.
 	 */
 	private function disable_ai_features() {
@@ -122,17 +127,25 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Disable Image Studio via filter.
+	 * Simulate the Big_Sky class existing (as if the Big Sky plugin were active).
+	 *
+	 * The class is declared in the global namespace once and persists for the
+	 * rest of the PHP process, but test isolation is achieved through the
+	 * big_sky_enable option, which is cleaned up in tear_down().
 	 */
-	private function disable_image_studio() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_false' );
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
 	}
 
 	/**
-	 * Enable unified chat experience filter.
+	 * Enable Big Sky by simulating the class and setting the option.
 	 */
-	private function enable_unified_experience() {
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+	private function enable_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
 	}
 
 	/**
@@ -160,9 +173,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio, cache asset data, and enqueue via block editor path.
-	 *
-	 * Sets up block editor screen before enqueuing.
+	 * Cache asset data, set block editor screen, register plugin, and enqueue.
 	 *
 	 * @param array|null $asset_data The asset data to cache.
 	 */
@@ -173,7 +184,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -181,7 +192,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio, cache asset data, and enqueue via Media Library path.
+	 * Cache asset data, set Media Library screen, register plugin, and enqueue.
 	 *
 	 * @param array|null $asset_data The asset data to cache.
 	 */
@@ -192,7 +203,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -234,7 +245,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * @param string $body         The response body.
 	 * @param string $content_type The Content-Type header value.
 	 */
-	private function mock_remote_asset_with_status( $status_code, $body = '', $content_type = 'application/json' ) {
+	private function mock_remote_asset_with_status( $status_code, $body, $content_type = 'application/json' ) {
 		add_filter(
 			'pre_http_request',
 			function () use ( $status_code, $body, $content_type ) {
@@ -248,22 +259,22 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// has_ai_features() tests
+	// has_jetpack_ai_features() tests
 	// -------------------------------------------------------------------------
 
 	/**
 	 * AI features available by default in the test environment.
 	 */
-	public function test_has_ai_features_true_by_default() {
-		$this->assertTrue( ImageStudio\has_ai_features() );
+	public function test_has_jetpack_ai_features_true_by_default() {
+		$this->assertTrue( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	/**
 	 * AI features disabled via jetpack_ai_enabled kill switch.
 	 */
-	public function test_has_ai_features_false_when_ai_disabled() {
+	public function test_has_jetpack_ai_features_false_when_ai_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\has_ai_features() );
+		$this->assertFalse( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -271,68 +282,33 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Enabled when jetpack_image_studio_enabled filter is true and AI features exist.
+	 * Not enabled when AI features are disabled and no Big Sky/CIAB override.
 	 */
-	public function test_is_enabled_via_jetpack_filter() {
-		$this->enable_image_studio();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when unified experience is true and AI features exist.
-	 */
-	public function test_is_enabled_via_unified_experience() {
-		$this->enable_unified_experience();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled when neither filter is set.
-	 */
-	public function test_is_not_enabled_when_both_filters_false() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when both filters are true.
-	 */
-	public function test_is_enabled_when_both_filters_true() {
-		$this->enable_image_studio();
-		$this->enable_unified_experience();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * AI features alone aren't enough; a filter must also be set.
-	 */
-	public function test_is_not_enabled_with_ai_features_but_no_filter() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled via filter with AI features available.
-	 */
-	public function test_is_enabled_via_filter_with_ai_features() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Unified experience alone isn't enough; AI features must also exist.
-	 */
-	public function test_is_not_enabled_via_unified_experience_without_ai_features() {
-		$this->enable_unified_experience();
+	public function test_is_not_enabled_when_ai_features_disabled() {
 		$this->disable_ai_features();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
+	// -------------------------------------------------------------------------
+	// signal_image_studio_active() tests
+	// -------------------------------------------------------------------------
+
 	/**
-	 * Filter alone isn't enough; AI features must also exist.
+	 * Test signal_image_studio_active adds the jetpack_image_studio_enabled filter when enabled.
 	 */
-	public function test_is_not_enabled_via_filter_without_ai_features() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+	public function test_signal_adds_filter_when_enabled() {
+		$this->enable_big_sky();
+		ImageStudio\signal_image_studio_active();
+		$this->assertTrue( apply_filters( 'jetpack_image_studio_enabled', false ) );
+	}
+
+	/**
+	 * Test signal_image_studio_active does NOT add filter when AI features are disabled.
+	 */
+	public function test_signal_does_not_add_filter_when_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		ImageStudio\signal_image_studio_active();
+		$this->assertFalse( apply_filters( 'jetpack_image_studio_enabled', false ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -408,68 +384,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// should_load_on_current_screen() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test should_load_on_current_screen returns true on Media Library.
-	 */
-	public function test_should_load_on_media_library() {
-		$this->set_media_library_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns true on block editor.
-	 */
-	public function test_should_load_on_block_editor() {
-		$this->set_block_editor_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false on dashboard.
-	 */
-	public function test_should_not_load_on_dashboard() {
-		set_current_screen( 'dashboard' );
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false when no screen.
-	 */
-	public function test_should_not_load_when_no_screen() {
-		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	// -------------------------------------------------------------------------
 	// register_plugin() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_plugin sets extension available when jetpack_image_studio_enabled is true.
+	 * Test that register_plugin sets extension available when enabled via Big Sky.
 	 */
 	public function test_register_plugin_sets_available_when_enabled() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin sets extension available when unified experience is true.
-	 */
-	public function test_register_plugin_sets_available_when_unified_experience() {
-		$this->enable_unified_experience();
-		ImageStudio\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * Test that register_plugin does not set extension available when both filters are false.
+	 * Test that register_plugin does not set extension available when AI features are disabled.
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -480,7 +411,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Screen-level gating happens at enqueue time, not registration.
 	 */
 	public function test_register_plugin_available_regardless_of_screen() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 
 		// Block editor - still registers.
 		$this->set_block_editor_screen();
@@ -525,10 +456,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test block editor enqueue does not require query param.
+	 * Test block editor enqueue works without any special query param.
 	 */
 	public function test_block_editor_enqueued_without_query_param() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -550,7 +481,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when not on block editor screen.
 	 */
 	public function test_nothing_enqueued_on_non_block_editor() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -586,6 +517,294 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test inline script includes isDevMode property.
+	 */
+	public function test_inline_script_includes_is_dev_mode() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"isDevMode":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes canGenerateVideoClips property.
+	 */
+	public function test_inline_script_includes_can_generate_video_clips() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised — mirrors the pattern used by
+	 * test_can_generate_video_clips_true_when_wpcom_helper_true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_inline_script_can_generate_video_clips_true_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":true', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so both hard gates pass — otherwise the wpcom gate could
+	 * short-circuit to false and the assertion would succeed without actually
+	 * exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_inline_script_can_generate_video_clips_false_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":false', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to false. The filter is consulted between the hard
+	 * gates and the default `true`.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()`
+	 * to return true so both hard gates pass — otherwise the wpcom gate
+	 * could short-circuit to false and the assertion would succeed without
+	 * actually exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_false() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to true once both hard gates pass.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_true() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the helper returns false when Image Studio itself is not
+	 * enabled, regardless of the underlying video-upload capability. Ensures
+	 * video clip generation is only surfaced on plans/environments that
+	 * already support Image Studio.
+	 */
+	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
+	 * before the filter so accidental usage on unsupported environments still
+	 * reports false.
+	 */
+	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
+		$this->disable_ai_features();
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * `wpcom_site_can_upload_videos()` capability check. Both hard gates must
+	 * pass before the filter is consulted, so a plan that doesn't support
+	 * video uploads always reports false even with the filter forcing true.
+	 *
+	 * Runs in a separate process so we can stub the global helper without
+	 * leaking the definition into the main test process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_cannot_override_no_video_upload() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the helper returns true when wpcom_site_can_upload_videos() reports true.
+	 *
+	 * Runs in a separate process so we can stub wpcom_site_can_upload_videos
+	 * without leaking the definition into the main test process. Skipped in
+	 * environments where the helper is already defined (e.g. WPCOMSH job)
+	 * since we cannot redefine an existing function.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_true_when_wpcom_helper_true() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the helper returns false when wpcom_site_can_upload_videos() reports false.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_false_when_wpcom_helper_false() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that off WPCOM (no wpcom_site_can_upload_videos) the helper returns
+	 * true so the entry point is not gated on environments where we have no
+	 * way to determine capability up-front. The server is the source of truth
+	 * in that case.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_true_off_wpcom() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos defined; cannot exercise off-WPCOM branch.' );
+		}
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {
@@ -601,7 +820,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when asset file is unavailable.
 	 */
 	public function test_nothing_enqueued_when_asset_unavailable() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		$this->mock_remote_asset( false );
@@ -631,10 +850,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued when extension is not available (disabled).
+	 * Test nothing enqueued when AI features are disabled.
 	 */
-	public function test_nothing_enqueued_when_extension_not_available() {
-		$this->disable_image_studio();
+	public function test_nothing_enqueued_when_ai_features_disabled() {
+		$this->disable_ai_features();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -734,7 +953,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on non-Media Library screen via admin hook.
 	 */
 	public function test_media_library_nothing_enqueued_on_other_screen() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -752,10 +971,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued on Media Library when Image Studio is disabled.
+	 * Test nothing enqueued on Media Library when AI features are disabled.
 	 */
 	public function test_media_library_nothing_enqueued_when_disabled() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -931,7 +1150,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are disabled when Image Studio is available.
 	 */
 	public function test_ai_extensions_disabled_when_available() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
@@ -947,29 +1166,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI image extensions are disabled when unified experience is enabled.
-	 */
-	public function test_ai_extensions_disabled_when_unified_experience() {
-		$this->enable_unified_experience();
-		ImageStudio\register_plugin();
-		$this->make_ai_extensions_available();
-		$this->set_block_editor_screen();
-
-		ImageStudio\disable_jetpack_ai_image_extensions();
-
-		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertFalse(
-				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be unavailable when unified experience is enabled."
-			);
-		}
-	}
-
-	/**
 	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
 	public function test_ai_extensions_not_disabled_when_not_available() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -991,7 +1191,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on block editor.
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1010,7 +1210,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on Media Library.
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1028,11 +1228,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test AI extensions ARE disabled on dashboard when Image Studio is available.
 	 *
-	 * Since the screen guard was removed, AI extensions are disabled globally
-	 * when Image Studio is available, regardless of screen.
+	 * AI extensions are disabled globally when Image Studio is available,
+	 * regardless of screen.
 	 */
 	public function test_ai_extensions_disabled_on_dashboard() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1050,11 +1250,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test AI extensions ARE disabled when no screen is available.
 	 *
-	 * Since the screen guard was removed, AI extensions are disabled globally
-	 * when Image Studio is available, regardless of screen availability.
+	 * AI extensions are disabled globally when Image Studio is available,
+	 * regardless of screen availability.
 	 */
 	public function test_ai_extensions_disabled_when_no_screen() {
-		$this->enable_image_studio();
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1308,7 +1508,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			}
 		);
 
-		$this->assertSame( $expected_code, ImageStudio\determine_iso_639_locale() );
+		$this->assertSame( $expected_code, \Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale() );
 	}
 
 	/**
@@ -1573,6 +1773,76 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// is_big_sky_enabled() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class does not exist.
+	 */
+	public function test_is_big_sky_enabled_false_when_class_missing() {
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option defaults to '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_default_option() {
+		$this->simulate_big_sky_class();
+		// Remove the option so get_option falls back to the default '1'.
+		delete_option( 'big_sky_enable' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option is '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_option_enabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is empty string.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_empty() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is '0'.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_zero() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_image_studio_enabled() + Big Sky integration tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * AI extensions disabled when Image Studio enabled via Big Sky.
+	 */
+	public function test_ai_extensions_disabled_when_enabled_via_big_sky() {
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertFalse(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should be unavailable when Image Studio is enabled via Big Sky."
+			);
+		}
+	}
+
+	// -------------------------------------------------------------------------
 	// Constants tests
 	// -------------------------------------------------------------------------
 
@@ -1621,6 +1891,114 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Feature clip post meta tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that the feature clip meta key constant is defined correctly.
+	 */
+	public function test_feature_clip_meta_key_constant() {
+		$this->assertEquals( '_jetpack_feature_clip_id', ImageStudio\FEATURE_CLIP_META_KEY );
+	}
+
+	/**
+	 * Test that the feature clip meta is registered for the 'post' object type
+	 * with the expected schema (integer, single, exposed in REST).
+	 */
+	public function test_feature_clip_post_meta_registered_when_enabled() {
+		// The plugin's `init` hook should have registered the meta during bootstrap.
+		// Re-run the registration explicitly so the test isn't sensitive to setup order.
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		$schema = $registered[ ImageStudio\FEATURE_CLIP_META_KEY ];
+		$this->assertSame( 'integer', $schema['type'] );
+		$this->assertTrue( $schema['single'] );
+		$this->assertTrue( $schema['show_in_rest'] );
+		$this->assertSame( 0, $schema['default'] );
+		$this->assertSame( 'absint', $schema['sanitize_callback'] );
+		$this->assertIsCallable( $schema['auth_callback'] );
+	}
+
+	/**
+	 * Test that the registered default surfaces as `0` from `get_post_meta()`
+	 * for posts without an explicit value, so REST clients always see a
+	 * deterministic integer instead of `null` or an empty string.
+	 */
+	public function test_feature_clip_meta_default_value_is_zero() {
+		ImageStudio\register_feature_clip_post_meta();
+
+		$post_id = self::factory()->post->create();
+		$value   = get_post_meta( $post_id, ImageStudio\FEATURE_CLIP_META_KEY, true );
+
+		$this->assertSame( 0, $value );
+	}
+
+	/**
+	 * Test that the meta auth callback grants access when the user can edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_grants_when_user_can_edit_post() {
+		$user_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue(
+			ImageStudio\feature_clip_meta_auth_callback( false, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access when the user cannot edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_when_user_cannot_edit_post() {
+		$post_id       = self::factory()->post->create();
+		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( $subscriber_id );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access for an anonymous user.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_anonymous_user() {
+		$post_id = self::factory()->post->create();
+		wp_set_current_user( 0 );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the registration is gated on `is_image_studio_enabled()`. When
+	 * Image Studio is disabled, calling the registration helper directly is a no-op.
+	 */
+	public function test_feature_clip_post_meta_skipped_when_disabled() {
+		// Force the gate to false by disabling AI features and Big Sky.
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Unregister any prior registration so we can detect a no-op.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayNotHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
 	}
 
 	// -------------------------------------------------------------------------

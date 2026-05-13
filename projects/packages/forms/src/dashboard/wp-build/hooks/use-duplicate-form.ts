@@ -10,6 +10,8 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { FORM_SOURCE_META_KEY } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
+import { store as dashboardStore } from '../../store/index.js';
+import { getFormEditUrl } from '../../utils.ts';
 /**
  * Types
  */
@@ -28,6 +30,7 @@ type CoreDispatch = {
 
 type JetpackFormEntityRecord = {
 	content?: { raw?: unknown };
+	status?: string;
 };
 
 type UseDuplicateFormReturn = {
@@ -44,6 +47,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 	const [ isDuplicating, setIsDuplicating ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { saveEntityRecord } = useDispatch( 'core' ) as unknown as CoreDispatch;
+	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 	const adminUrl = useConfigValue( 'adminUrl' ) || '';
 
 	const duplicateForm = useCallback(
@@ -72,9 +76,9 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 					);
 					return;
 				}
-				const raw = ( original as JetpackFormEntityRecord ).content?.raw;
+				const typedOriginal = original as JetpackFormEntityRecord;
+				const raw = typedOriginal.content?.raw;
 				const originalContentRaw = typeof raw === 'string' ? raw : '';
-
 				const originalTitle = item.title || __( 'Untitled Form', 'jetpack-forms' );
 				const newTitle = sprintf(
 					/* translators: %s: original form title */
@@ -89,7 +93,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 						title: newTitle,
 						// Duplicate the raw block content so the form is an exact copy.
 						content: originalContentRaw,
-						status: 'publish',
+						status: typedOriginal.status === 'publish' ? 'draft' : typedOriginal.status,
 						meta: {
 							[ FORM_SOURCE_META_KEY ]: item.id,
 						},
@@ -112,7 +116,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 							label: __( 'Edit', 'jetpack-forms' ),
 							onClick: () => {
 								if ( adminUrl ) {
-									window.location.href = `${ adminUrl }post.php?post=${ createdId }&action=edit&post_type=jetpack_form`;
+									window.location.href = getFormEditUrl( createdId, adminUrl );
 								}
 							},
 						},
@@ -124,9 +128,17 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 				} );
 			} finally {
 				setIsDuplicating( false );
+				invalidateFormStatusCounts();
 			}
 		},
-		[ createErrorNotice, createSuccessNotice, adminUrl, isDuplicating, saveEntityRecord ]
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			adminUrl,
+			invalidateFormStatusCounts,
+			isDuplicating,
+			saveEntityRecord,
+		]
 	);
 
 	return { duplicateForm, isDuplicating };

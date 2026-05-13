@@ -371,7 +371,6 @@ export const OverlayLabelWithImage: Story = {
 		loading: false,
 		style: {
 			'--a8c--charts--leaderboard--bar--border-radius': '4px',
-			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
@@ -384,9 +383,17 @@ export const WithLegend: Story = {
 		loading: false,
 		showLegend: true,
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
 };
 
-export const CustomLegendLabels: Story = {
+export const WithLegendLabels: Story = {
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -397,13 +404,25 @@ export const CustomLegendLabels: Story = {
 			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend`, the `legend` config object, and the `legendLabels` prop to customize primary and comparison labels. Other legend options (position, alignment, orientation, shape, interactivity) can be adjusted via Storybook controls.',
+			},
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<LeaderboardChart { ...args } chartId="composition-leaderboard-chart">
+			<LeaderboardChart
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-leaderboard-chart"
+			>
 				<LeaderboardChart.Legend
 					{ ...legend }
 					shapeStyles={ { width: 8, height: 8, ...legend?.shapeStyles } }
@@ -415,38 +434,12 @@ export const WithCompositionLegend: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		legendLabels: {
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
-			},
-		},
-	},
-};
-
-export const InteractiveLegend: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-		showLegend: true,
-		legendInteractive: true,
-		legendLabels: {
-			primary: 'Current period',
-			comparison: 'Previous period',
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Interactive legend allows users to click legend items to toggle the visibility of current and previous period data. Click on the legend items to show/hide the corresponding bars and values. When all series are hidden, a message is displayed.',
+					'Composition API using `<LeaderboardChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},

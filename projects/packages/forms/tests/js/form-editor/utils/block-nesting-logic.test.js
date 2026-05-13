@@ -29,7 +29,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 0,
-					addSubmitButton: true,
+					targetWasEmpty: true,
 				} );
 			} );
 
@@ -51,7 +51,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 0,
-					addSubmitButton: true,
+					targetWasEmpty: true,
 				} );
 			} );
 
@@ -76,7 +76,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 0,
-					addSubmitButton: true,
+					targetWasEmpty: true,
 				} );
 			} );
 		} );
@@ -358,7 +358,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 2, // Before button at index 2
-					addSubmitButton: false,
+					targetWasEmpty: false,
 				} );
 			} );
 
@@ -381,7 +381,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 1, // Before button at index 1
-					addSubmitButton: false,
+					targetWasEmpty: false,
 				} );
 			} );
 
@@ -404,7 +404,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 2, // At the end
-					addSubmitButton: false,
+					targetWasEmpty: false,
 				} );
 			} );
 
@@ -428,7 +428,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 1, // Before first button
-					addSubmitButton: false,
+					targetWasEmpty: false,
 				} );
 			} );
 
@@ -451,7 +451,7 @@ describe( 'block-nesting-logic', () => {
 				expect( result ).toEqual( {
 					type: 'move-blocks',
 					insertionIndex: 0, // Before button at beginning
-					addSubmitButton: false,
+					targetWasEmpty: false,
 				} );
 			} );
 		} );

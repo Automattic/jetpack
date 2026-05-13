@@ -23,6 +23,8 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
+import SettingsAdminPage from 'components/settings-admin-page';
+import SettingsNavTabs from 'components/settings-nav-tabs';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
@@ -70,7 +72,6 @@ import {
 	isWooCommerceActive,
 	userIsSubscriber,
 	getJetpackManageInfo,
-	isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -143,7 +144,6 @@ const settingsRoutes = [
 	'/sharing',
 	'/discussion',
 	'/earn',
-	'/newsletter',
 	'/reader',
 	'/traffic',
 	'/privacy',
@@ -330,7 +330,6 @@ class Main extends Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
-			case '/newsletter':
 			case '/reader':
 			case '/traffic':
 			case '/privacy':
@@ -538,20 +537,7 @@ class Main extends Component {
 				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
 			case '/newsletter':
-				if ( this.props.isWpAdminNewsletterSettingsEnabled ) {
-					window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
-					break;
-				}
-				pageComponent = (
-					<SearchableSettings
-						siteAdminUrl={ this.props.siteAdminUrl }
-						siteRawUrl={ this.props.siteRawUrl }
-						blogID={ this.props.blogID }
-						searchTerm={ this.props.searchTerm }
-						rewindStatus={ this.props.rewindStatus }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
-				);
+				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
 			case '/settings':
 			case '/security':
@@ -835,6 +821,10 @@ class Main extends Component {
 		this.props.fetchSettings();
 	}
 
+	isSettingsRoute() {
+		return settingsRoutes.includes( this.props.location.pathname );
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -850,7 +840,29 @@ class Main extends Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
-		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const pathname = this.props.location.pathname;
+		const mainNav = this.renderMainNav( pathname );
+
+		// Settings routes use the shared AdminPage component for header and footer.
+		if ( this.isSettingsRoute() ) {
+			return (
+				<div>
+					{ this.shouldShowReconnectModal() && (
+						<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+					) }
+					<SettingsAdminPage location={ this.props.location } tabs={ <SettingsNavTabs /> }>
+						<div className={ jpClasses.join( ' ' ) }>
+							<AdminNotices />
+							<JetpackNotices />
+							{ this.shouldConnectUser() && this.connectUser() }
+							{ this.renderMainContent( pathname ) }
+						</div>
+					</SettingsAdminPage>
+					<Tracker analytics={ analytics } />
+				</div>
+			);
+		}
+
 		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
 
 		return (
@@ -874,14 +886,14 @@ class Main extends Component {
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
 
-					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.renderMainContent( pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
 						<JetpackManageBanner
-							path={ this.props.location.pathname }
+							path={ pathname }
 							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
 						/>
 					) }
-					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
+					{ this.shouldShowSupportCard() && <SupportCard path={ pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
@@ -929,7 +941,6 @@ export default connect(
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
 			jetpackManage: getJetpackManageInfo( state ),
-			isWpAdminNewsletterSettingsEnabled: isWpAdminNewsletterSettingsEnabled( state ),
 		};
 	},
 	dispatch => ( {

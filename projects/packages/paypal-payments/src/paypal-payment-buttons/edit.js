@@ -47,6 +47,7 @@ import {
 } from './validation';
 import VariantBuilder, { validateVariants } from './variant-builder';
 
+
 /**
  * Supported currencies for the currency selector.
  * Matches PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES on the server.

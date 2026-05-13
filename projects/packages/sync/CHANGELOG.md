@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.38.0] - 2026-05-11
+### Added
+- Activity Log: Add custom event support with a non-public custom post type, guarded REST route, and class API for creating entries. [#48567]
+- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48638] [#48540]
+
+## [4.37.0] - 2026-05-04
+### Added
+- Sync: Add project_collection taxonomy to taxonomy allowlist. [#48392]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [4.36.0] - 2026-04-15
+### Added
+- Add WooCommerce Accounts and Privacy settings page options to sync whitelist, as part of activity log improvements. [#48041]
+
+### Fixed
+- Tests: Increase lock time tolerance. [#48054]
+
+## [4.35.0] - 2026-04-06
+### Added
+- Sync: Add documentation_category to taxonomy allowlist. [#47951]
+
+## [4.34.0] - 2026-03-30
+### Added
+- Add 'note' to the default whitelisted comment types and centralize the list in the Defaults class. [#47746]
+
+### Fixed
+- Users: Use the effective role when the role-change payload is empty, and avoid syncing empty roles. [#47754]
+
+## [4.33.0] - 2026-03-23
+### Added
+- Add a filter to customize the actor. [#47634]
+- Instant Search: Add article-type taxonomy. [#47595]
+- Jetpack Sync: Add page_condition taxonomy to approved sync list. [#47691]
+
+### Changed
+- Reduce debug_backtrace overhead in Users sync module. [#47658]
+- Sync: Improve checksum performance for meta tables. [#47579]
+
+### Fixed
+- Prevent incremental sync for posts with unregistered post types. [#47580]
+
+## [4.32.1] - 2026-03-16
+### Changed
+- Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
+
 ## [4.32.0] - 2026-03-09
 ### Added
 - `REST_Endpoints`: Add `use_memory_limit` argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation. [#47338]
@@ -1689,6 +1736,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.38.0]: https://github.com/Automattic/jetpack-sync/compare/v4.37.0...v4.38.0
+[4.37.0]: https://github.com/Automattic/jetpack-sync/compare/v4.36.0...v4.37.0
+[4.36.0]: https://github.com/Automattic/jetpack-sync/compare/v4.35.0...v4.36.0
+[4.35.0]: https://github.com/Automattic/jetpack-sync/compare/v4.34.0...v4.35.0
+[4.34.0]: https://github.com/Automattic/jetpack-sync/compare/v4.33.0...v4.34.0
+[4.33.0]: https://github.com/Automattic/jetpack-sync/compare/v4.32.1...v4.33.0
+[4.32.1]: https://github.com/Automattic/jetpack-sync/compare/v4.32.0...v4.32.1
 [4.32.0]: https://github.com/Automattic/jetpack-sync/compare/v4.31.0...v4.32.0
 [4.31.0]: https://github.com/Automattic/jetpack-sync/compare/v4.30.0...v4.31.0
 [4.30.0]: https://github.com/Automattic/jetpack-sync/compare/v4.29.0...v4.30.0

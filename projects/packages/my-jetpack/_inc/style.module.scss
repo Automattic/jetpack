@@ -1,25 +1,28 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
 
-	// Hello Dolly compatibility fix
-	body.jetpack_page_my-jetpack p#dolly {
-		position: absolute;
-		inset-inline-end: 0;
-		z-index: 2;
+	// Apply the shared admin-page-layout mixin so the main My Jetpack page
+	// (sticky header, internally scrollable middle, JetpackFooter pinned at
+	// viewport bottom) matches Boost / Protect / VideoPress / Search /
+	// Newsletter / Publicize / Backup / Jetpack network admin / AI.
 
-		@media (max-width: 782px) {
-			padding-inline-end: 10px;
-		}
+	// Excluded: My Jetpack's `.jetpack-admin-full-screen` interstitial mode
+	// (e.g. the `step=onboarding` "Supercharge my site" screen), which hides
+	// the admin bar and takes over the whole viewport; its existing rules
+	// (further down in this file) override wp-admin chrome directly and
+	// should keep doing so. The class lives on `<body>` itself — added
+	// server-side via `admin_body_class` for `step=onboarding` and
+	// client-side by the `useFullScreen` hook for other full-screen routes —
+	// so the opt-out matches it as a sibling class on `<body>`, not as a
+	// descendant via `:has()`.
+	body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
+
+		@include jetpack-admin-page-layout;
 	}
 
 	#my-jetpack-container {
-		--wp-admin-theme-color: var(--jp-black);
-		--wp-admin-theme-color-darker-10: var(--jp-black-80);
-		--wp-admin-theme-color-darker-20: var(--jp-black-80);
 		height: 100%;
-
-		.jp-dashboard-footer__jetpack-symbol {
-			height: 16px;
-		}
 
 		&:has(.my-jetpack-deprecate-notice-title) {
 

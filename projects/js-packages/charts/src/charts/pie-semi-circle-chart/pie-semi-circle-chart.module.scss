@@ -5,23 +5,17 @@
 		width: 100%;
 	}
 
-	// Flex wrapper that fills remaining Stack space and measures the SVG area
-	&__svg-wrapper {
-		flex: 1;
-		min-height: 0; // Required for flex shrinking
-		min-width: 0; // Required for flex shrinking
+	&__centering {
 		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		height: 100%;
 	}
 
 	.label {
-		font-weight: 600;
-		font-size: 16px;
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-size: var(--wpds-typography-font-size-lg, 16px);
 	}
 
 	.note {
-		font-size: 14px;
+		font-size: var(--wpds-typography-font-size-md, 13px);
 	}
 }

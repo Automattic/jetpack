@@ -23,7 +23,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplflistview'] ) ) {
 
 	if ( isset( $_POST['wpzbscrm_notcontactedinx'] ) ) {
 
-		$potentialNotContactedInX = (int) sanitize_text_field( $_POST['wpzbscrm_notcontactedinx'] );
+		$potentialNotContactedInX = (int) $_POST['wpzbscrm_notcontactedinx'];
 		if ( $potentialNotContactedInX > 0 ) {
 			$existingSettings['notcontactedinx'] = $potentialNotContactedInX;
 		}
@@ -31,7 +31,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplflistview'] ) ) {
 
 	if ( isset( $_POST['wpzbscrm_olderthanx'] ) ) {
 
-		$potentialOlderThanX = (int) sanitize_text_field( $_POST['wpzbscrm_olderthanx'] );
+		$potentialOlderThanX = (int) $_POST['wpzbscrm_olderthanx'];
 		if ( $potentialOlderThanX > 0 ) {
 			$existingSettings['olderthanx'] = $potentialOlderThanX;
 		}

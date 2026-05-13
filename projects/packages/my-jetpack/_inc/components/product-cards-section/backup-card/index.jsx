@@ -1,7 +1,7 @@
 import { Text, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { PRODUCT_STATUSES } from '../../../constants';
@@ -122,7 +122,7 @@ const BackupCard = props => {
 									'jetpack-my-jetpack'
 								),
 								{
-									a: <ExternalLink href={ supportUrl } />,
+									a: <Link openInNewTab href={ supportUrl } />,
 								}
 							) }
 						</Text>
@@ -222,7 +222,23 @@ const WithBackupsValueSection = props => {
 			{ lastRewindableEvent ? (
 				<div className={ styles.activity }>
 					<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
-					<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
+					<p className={ styles.summary }>
+						{ lastRewindableEvent.summary }
+						{ lastRewindableEvent.actor?.is_mcp_agent && (
+							<>
+								{ ' ' }
+								<span className={ styles.mcpBadge }>
+									{ sprintf(
+										/* translators: %s: The name of the MCP client application. */
+										__( 'via %s (MCP)', 'jetpack-my-jetpack' ),
+										lastRewindableEvent.actor?.mcp_client ||
+											lastRewindableEvent.actor?.mcp_client_name ||
+											__( 'MCP client', 'jetpack-my-jetpack' )
+									) }
+								</span>
+							</>
+						) }
+					</p>
 				</div>
 			) : null }
 		</ProductCard>

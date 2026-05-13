@@ -1,3 +1,18 @@
+## [3.3.14] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.3.13] - 2026-04-27
+### Changed
+- Internal updates.
+
+## [3.3.12] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+### Fixed
+- Build: Adjust CSS output to be compliant with Stylelint rules. [#47745]
+
 ## [3.3.11] - 2026-03-09
 ### Changed
 - Switch to Native TypeScript compiler based on Go. [#47375]
@@ -317,6 +332,9 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.14]: https://github.com/Automattic/social-logos/compare/v3.3.13...v3.3.14
+[3.3.13]: https://github.com/Automattic/social-logos/compare/v3.3.12...v3.3.13
+[3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12
 [3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
 [3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10
 [3.3.9]: https://github.com/Automattic/social-logos/compare/v3.3.8...v3.3.9

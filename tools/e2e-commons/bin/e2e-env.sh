@@ -13,7 +13,6 @@ usage() {
 	echo "  reset [--activate-plugins plugin1 plugin2 ...]    Reset the containers state (reset db, re-installs WordPress) and optionally activate additional plugins"
 	echo "  clean                                             Completely resets the environment (remove docker volumes, MySql and WordPress data and logs)"
 	echo "  new [--activate-plugins plugin1 plugin2 ...]      Completely resets the running environment and starts a new fresh one"
-	echo "  gb-setup                                          Setup Gutenberg plugin"
 	echo "  -h | usage                                        Output this message"
 	exit 1
 }
@@ -45,13 +44,6 @@ clean_env() {
 new_env() {
 	clean_env
 	start_env "$@"
-}
-
-gb_setup() {
-	GB_ZIP="wp-content/gutenberg.zip"
-	$BASE_CMD exec-silent -- /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/container-setup.sh gb-setup $GB_ZIP
-	$BASE_CMD wp plugin install $GB_ZIP
-	$BASE_CMD wp plugin activate gutenberg
 }
 
 # Exports E2E WP password from config file.
@@ -111,8 +103,6 @@ elif [ "${1}" == "clean" ]; then
 	clean_env
 elif [ "${1}" == "new" ]; then
 	new_env "${@:2}"
-elif [ "${1}" == "gb-setup" ]; then
-	gb_setup
 elif [ "${1}" == "usage" ]; then
 	usage
 else

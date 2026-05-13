@@ -17,6 +17,9 @@ const mockOnNavigateToEntityRecord = jest.fn();
 const mockAddQueryArgs = jest.fn(
 	( base, args ) => `${ base }?post=${ args.post }&action=${ args.action }`
 );
+const mockGetFormEditUrl = jest.fn(
+	( formId, adminUrl ) => `${ adminUrl ?? '' }post.php?post=${ formId }&action=edit`
+);
 
 let mockIsLocked = false;
 let mockEditorContext = 'post';
@@ -38,6 +41,9 @@ await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 await jest.unstable_mockModule( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 await jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 await jest.unstable_mockModule( '@wordpress/url', () => ( { addQueryArgs: mockAddQueryArgs } ) );
+await jest.unstable_mockModule( '../../../../src/dashboard/utils', () => ( {
+	getFormEditUrl: mockGetFormEditUrl,
+} ) );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: jest.fn( callback =>
@@ -175,10 +181,7 @@ describe( 'ConvertFormToolbar', () => {
 			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
 			await userEvent.click( screen.getByRole( 'button' ) );
 
-			expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-				post: 456,
-				action: 'edit',
-			} );
+			expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 456 );
 			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
 			// jsdom logs an error for unimplemented navigation
 			expect( console ).toHaveErrored();
@@ -191,10 +194,7 @@ describe( 'ConvertFormToolbar', () => {
 			await userEvent.click( screen.getByRole( 'button' ) );
 
 			await waitFor( () => {
-				expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-					post: 789,
-					action: 'edit',
-				} );
+				expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 789 );
 			} );
 
 			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
@@ -214,10 +214,7 @@ describe( 'ConvertFormToolbar', () => {
 			render( <ConvertFormToolbar clientId="test-id" attributes={ { ref: 456 } } /> );
 			await userEvent.click( screen.getByRole( 'button' ) );
 
-			expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-				post: 456,
-				action: 'edit',
-			} );
+			expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 456 );
 			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
 			// jsdom logs an error for unimplemented navigation
 			expect( console ).toHaveErrored();
@@ -230,10 +227,7 @@ describe( 'ConvertFormToolbar', () => {
 			await userEvent.click( screen.getByRole( 'button' ) );
 
 			await waitFor( () => {
-				expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-					post: 789,
-					action: 'edit',
-				} );
+				expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 789 );
 			} );
 
 			expect( mockOnNavigateToEntityRecord ).not.toHaveBeenCalled();
@@ -283,23 +277,20 @@ describe( 'navigateToForm', () => {
 			postId: 123,
 			postType: 'jetpack_form',
 		} );
-		expect( mockAddQueryArgs ).not.toHaveBeenCalled();
+		expect( mockGetFormEditUrl ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does nothing in post context when onNavigateToEntityRecord is not available', () => {
 		navigateToForm( 123, 'post', undefined );
 
-		expect( mockAddQueryArgs ).not.toHaveBeenCalled();
+		expect( mockGetFormEditUrl ).not.toHaveBeenCalled();
 	} );
 
 	it( 'navigates via URL in site editor context', () => {
 		const mockNavigate = jest.fn();
 		navigateToForm( 123, 'site', mockNavigate );
 
-		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-			post: 123,
-			action: 'edit',
-		} );
+		expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 123 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		// jsdom logs an error for unimplemented navigation
 		expect( console ).toHaveErrored();
@@ -309,10 +300,7 @@ describe( 'navigateToForm', () => {
 		const mockNavigate = jest.fn();
 		navigateToForm( 123, 'widget', mockNavigate );
 
-		expect( mockAddQueryArgs ).toHaveBeenCalledWith( 'post.php', {
-			post: 123,
-			action: 'edit',
-		} );
+		expect( mockGetFormEditUrl ).toHaveBeenCalledWith( 123 );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		// jsdom logs an error for unimplemented navigation
 		expect( console ).toHaveErrored();

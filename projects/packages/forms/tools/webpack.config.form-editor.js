@@ -3,11 +3,9 @@
  */
 
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 export default {
 	mode: jetpackWebpackConfig.mode,
@@ -27,15 +25,6 @@ export default {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
-			'@wordpress/admin-ui/build-style/style.css': path.join(
-				__dirname,
-				'..',
-				'node_modules',
-				'@wordpress',
-				'admin-ui',
-				'build-style',
-				'style.css'
-			),
 		},
 	},
 	externals: {
@@ -55,6 +44,9 @@ export default {
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

@@ -39,12 +39,6 @@
 		align-items: center;
 	}
 
-	.badges {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-
 	.title {
 		font-size: 16px;
 		line-height: 24px;
@@ -143,6 +137,12 @@
 	}
 }
 
+.service-connection-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
 .service-connection {
 	display: flex;
 	gap: 1rem;
@@ -165,14 +165,6 @@
 	}
 
 
-	.disconnect {
-
-		&:global(.components-button.is-tertiary) {
-			font-size: 1rem;
-			font-weight: 400;
-			color: var(--jp-gray-50);
-		}
-	}
 }
 
 .connect-form-wrapper {
@@ -187,16 +179,6 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	width: 100%;
-
-	.connect-button {
-
-		&:global(.components-button) {
-			padding: 6px 16px;
-			font-size: 14px;
-			font-weight: 500;
-			line-height: 20px;
-		}
-	}
 
 	.fields-wrapper {
 		display: flex;

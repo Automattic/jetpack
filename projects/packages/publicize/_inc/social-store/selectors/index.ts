@@ -1,4 +1,5 @@
 import * as connectionDataSelectors from './connection-data';
+import * as renderedMessagesSelectors from './rendered-messages';
 import * as scheduledSharesSelectors from './scheduled-shares';
 import * as servicesSelectors from './services';
 import * as sharepostSelectors from './share-post';
@@ -7,9 +8,11 @@ import * as socialImageGeneratorSelectors from './social-image-generator';
 import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
 import * as unifiedModalSelectors from './unified-modal';
+import * as xUsageSelectors from './x-usage';
 
 const selectors = {
 	...connectionDataSelectors,
+	...renderedMessagesSelectors,
 	...shareStatusSelectors,
 	...sharepostSelectors,
 	...socialImageGeneratorSelectors,
@@ -18,6 +21,7 @@ const selectors = {
 	...servicesSelectors,
 	...scheduledSharesSelectors,
 	...unifiedModalSelectors,
+	...xUsageSelectors,
 };
 
 export default selectors;

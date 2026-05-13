@@ -108,6 +108,12 @@ This plugin is designed for standalone PayPal payment buttons on posts and pages
 * **Improved:** User-friendly error messages for all PayPal API errors
 * **Improved:** Backward compatibility with v0.4.0-alpha paste-code blocks via deprecated.js
 
+= 0.4.0 - 2026-04-11 =
+* Fixed escaping issue for stacked payments buttons.
+* Restore border on header component.
+* Update minimum WordPress version to 6.8.
+* Update package dependencies.
+
 = 0.3.2 - 2025-11-20 =
 * Tested up to WordPress 6.9.
 * Update package dependencies.

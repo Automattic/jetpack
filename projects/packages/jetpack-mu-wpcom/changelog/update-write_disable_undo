@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Write: Disable undo/redo actions from keyboard shortcuts and browser Edit menu.

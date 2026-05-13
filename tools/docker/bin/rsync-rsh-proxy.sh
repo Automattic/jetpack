@@ -18,8 +18,12 @@ if [[ -z "${RSYNC_PROXY_SOCKET:-}" ]]; then
     echo "Error: RSYNC_PROXY_SOCKET not set" >&2
     exit 1
 fi
+if [[ -z "${RSYNC_PROXY_SECRET:-}" ]]; then
+    echo "Error: RSYNC_PROXY_SECRET not set" >&2
+    exit 1
+fi
 
 exec socat STDIO "UNIX-CONNECT:$RSYNC_PROXY_SOCKET" < <(
-    jq -nc '$ARGS.positional' --args -- ssh "$@"
+    jq -nc '$ARGS.positional' --args -- "$RSYNC_PROXY_SECRET" ssh "$@"
     cat
 )

@@ -1,0 +1,72 @@
+// Browsers clip margin-bottom on the last child of a scroll container,
+// so a `margin: 24px auto` here loses the bottom 24px gap when the page
+// scrolls all the way down (Rating card ends up flush against the
+// JetpackFooter). Using vertical padding instead keeps that 24px inside
+// `.vp-video-details`'s clientHeight, which the scroll container honors.
+.vp-video-details {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 880px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 24px;
+}
+
+.vp-video-details__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}
+
+.vp-video-details__thumbnail {
+	width: 240px;
+	height: 135px;
+	object-fit: cover;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.vp-video-details__thumbnail-meta {
+	flex: 1;
+	min-width: 0;
+}
+
+// Outlined "Add video to new post" should size to its content,
+// not stretch across the column flex parent.
+.vp-video-details__primary-action {
+	align-self: flex-start;
+}
+
+// "FILE NAME" / "UPLOADED ON" caption labels (Figma uses uppercase
+// with subdued color so they read as field labels, not body text).
+.vp-video-details__meta-label {
+	color: var(--jp-gray-50, #646970);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 11px;
+}
+
+// Chapters helper hint reads as supporting copy, not body text.
+.vp-video-details__chapters-hint {
+	color: var(--jp-gray-50, #646970);
+	margin: 0;
+}
+
+// Mobile: stack the Thumbnail card's two columns vertically. With the
+// thumbnail fixed at 240px and the meta column hosting full-width copy
+// fields + the primary action, anything narrower than ~600px squashes
+// the meta into a barely-readable strip. The thumbnail goes full-width
+// with a 16/9 aspect ratio so it stays the right shape for any column
+// width below the desktop layout.
+@media (max-width: 600px) {
+
+	.vp-video-details__thumbnail-row {
+		flex-direction: column !important;
+	}
+
+	.vp-video-details__thumbnail {
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+	}
+}

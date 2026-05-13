@@ -199,8 +199,9 @@ function zbscrm_JS_adminMenuDropdown() {
 
 		// if calypso, loading on an embed page, already full screen, need to run this to re-adjust/hide:
 		setTimeout( function () {
-			if ( ! jQuery( '#jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
-				zbscrm_JS_fullscreenModeOn( jQuery( '#jpcrm-top-menu .logo-cube' ) );
+			const $logoCube = jQuery( '#jpcrm-top-menu .logo-cube' );
+			if ( $logoCube.length && ! $logoCube.hasClass( 'menu-open' ) ) {
+				zbscrm_JS_fullscreenModeOn( $logoCube );
 			}
 		}, 0 );
 	}
@@ -1597,10 +1598,12 @@ function zeroBSCRMJS_telLinkFromNo( telno, internalHTML, extraClasses ) {
  * @param telno
  */
 function zeroBSCRMJS_telURLFromNo( telno ) {
-	if ( typeof window.zbsClick2CallType !== 'undefined' ) {
-		// eslint-disable-next-line eqeqeq
-		if ( window.zbsClick2CallType == 2 ) {
+	if ( window.zbsClick2CallType ) {
+		if ( window.zbsClick2CallType === 2 ) {
 			return 'callto:' + telno;
+		}
+		if ( window.zbsClick2CallType === 3 ) {
+			return 'sip:' + telno;
 		}
 	}
 
@@ -1950,12 +1953,22 @@ function zeroBSCRMJS_genericLoaded() {
  */
 function zeroBSCRMJS_genericPostData( actionUrl, method, data ) {
 	const mapForm = jQuery(
-		'<form id="mapform" action="' + actionUrl + '" method="' + method.toLowerCase() + '"></form>'
+		'<form id="mapform" action="' +
+			jpcrm.esc_attr( actionUrl ) +
+			'" method="' +
+			jpcrm.esc_attr( method.toLowerCase() ) +
+			'"></form>'
 	);
 	for ( const key in data ) {
 		if ( Object.prototype.hasOwnProperty.call( data, key ) ) {
 			mapForm.append(
-				'<input type="hidden" name="' + key + '" id="' + key + '" value="' + data[ key ] + '" />'
+				'<input type="hidden" name="' +
+					jpcrm.esc_attr( key ) +
+					'" id="' +
+					jpcrm.esc_attr( key ) +
+					'" value="' +
+					jpcrm.esc_attr( data[ key ] ) +
+					'" />'
 			);
 		}
 	}
@@ -2287,14 +2300,15 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 			// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 			swal( {
 				title:
-					'<i class="envelope outline icon"></i> ' + zeroBSCRMJS_globViewLang( 'sendstatement' ),
+					'<i class="envelope outline icon"></i> ' +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'sendstatement' ) ),
 				html:
 					'<div style="font-size: 1.2em;padding: 0.3em;">' +
-					zeroBSCRMJS_globViewLang( 'sendstatementaddr' ) +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'sendstatementaddr' ) ) +
 					'<br /><div class="ui input"><input type="text" name="zbs-send-pdf-statement-to-email" id="zbs-send-pdf-statement-to-email" value="' +
-					emailToSendTo +
+					jpcrm.esc_attr( emailToSendTo ) +
 					'" placeholder="' +
-					zeroBSCRMJS_globViewLang( 'enteremail' ) +
+					jpcrm.esc_attr( zeroBSCRMJS_globViewLang( 'enteremail' ) ) +
 					'" /></div></div>',
 				//text: "Are you sure you want to delete these?",
 				type: '',
@@ -2302,8 +2316,10 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 				confirmButtonColor: '#000',
 				cancelButtonColor: '#fff',
 				cancelButtonText:
-					'<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
-				confirmButtonText: zeroBSCRMJS_globViewLang( 'send' ),
+					'<span style="color: #000">' +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'cancel' ) ) +
+					'</span>',
+				confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'send' ) ),
 			} ).then( function ( result ) {
 				// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 				if ( result.value ) {
@@ -2328,21 +2344,21 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 							// blocker
 							window.zbscrmjs_adminMenuBlocker = false;
 							// success ? SWAL?
-							swal(
-								zeroBSCRMJS_globViewLang( 'sent' ),
-								zeroBSCRMJS_globViewLang( 'statementsent' ),
-								'success'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_globViewLang( 'sent' ),
+								text: zeroBSCRMJS_globViewLang( 'statementsent' ),
+								type: 'success',
+							} );
 						},
 						error: function () {
 							// blocker
 							window.zbscrmjs_adminMenuBlocker = false;
 							// fail ? SWAL?
-							swal(
-								zeroBSCRMJS_globViewLang( 'notsent' ),
-								zeroBSCRMJS_globViewLang( 'statementnotsent' ),
-								'warning'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_globViewLang( 'notsent' ),
+								text: zeroBSCRMJS_globViewLang( 'statementnotsent' ),
+								type: 'warning',
+							} );
 						},
 					} );
 				}

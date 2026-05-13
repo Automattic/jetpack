@@ -16,8 +16,9 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
-		"automattic/jetpack-newsletter": "@dev",
+		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
@@ -28,7 +29,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"brain/monkey": "^2.6.2",
 		"automattic/phpunit-select-config": "@dev"
@@ -76,7 +76,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.9.x-dev"
+			"dev-trunk": "6.10.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

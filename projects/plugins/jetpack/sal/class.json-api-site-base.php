@@ -1696,6 +1696,18 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns whether APM (Application Performance Monitoring) is enabled for the site.
+	 *
+	 * APM is an Atomic-only hosting feature. Non-Atomic site types (Simple wpcom, real
+	 * Jetpack) return false; Jetpack_Shadow_Site overrides with the actual read.
+	 *
+	 * @return bool
+	 **/
+	public function get_apm_enabled() {
+		return false;
+	}
+
+	/**
 	 * Get Zendesk site meta.
 	 *
 	 * @return array|null
@@ -1755,5 +1767,24 @@ abstract class SAL_Site {
 			return has_blog_sticker( 'flex-cache-site' );
 		}
 		return false;
+	}
+
+	/**
+	 * Detect whether Big Sky AI assistant is enabled for this site.
+	 *
+	 * @return bool
+	 */
+	public function is_big_sky_enabled() {
+		return false;
+	}
+
+	/**
+	 * Get Jetpack recovery mode status.
+	 *
+	 * @return array|null
+	 */
+	public function get_jetpack_recovery_mode_status() {
+		$status = get_option( 'jetpack_recovery_mode_status' );
+		return is_array( $status ) ? $status : null;
 	}
 }

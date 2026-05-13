@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -474,6 +475,16 @@ class Posts extends Module {
 			return false;
 		}
 
+		// During incremental sync, skip posts whose type is not registered (e.g. CPT unregistered before sync).
+		// Full sync may have already sent them; we simply don't enqueue incremental updates for them.
+		if ( ! get_post_type_object( $post->post_type ) ) {
+			return false;
+		}
+
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
@@ -494,6 +505,11 @@ class Posts extends Module {
 		}
 
 		list( $post_id, $flags, $post ) = $args;
+
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 

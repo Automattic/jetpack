@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Event_Manager\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 use Automattic\Jetpack\CRM\Entities\Factories\Invoice_Factory;
@@ -16,7 +15,7 @@ use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 
-require_once __DIR__ . '/../automation/tools/class-automation-faker.php';
+require_once __DIR__ . '/class-event-manager-faker.php';
 
 /**
  * Test Event Manager system.
@@ -37,7 +36,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	public function test_notify_on_contact_created() {
 
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		add_action(
 			'jpcrm_contact_created',
@@ -60,7 +59,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that contact status updated event is fired' )]
 	public function test_notify_on_contact_status_updated() {
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		$contact_updated         = clone $contact;
 		$contact_updated->status = 'Customer';
@@ -86,7 +85,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that contact multi fields updated event is fired' )]
 	public function test_notify_on_contact_multi_fields_updated() {
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		$contact_updated         = clone $contact;
 		$contact_updated->status = 'Customer';
@@ -133,7 +132,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that contact updated event is fired' )]
 	public function test_notify_on_contact_updated() {
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		$contact_updated         = clone $contact;
 		$contact_updated->status = 'Customer';
@@ -156,7 +155,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that contact deleted event is fired' )]
 	public function test_notify_on_contact_deleted() {
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		add_action(
 			'jpcrm_contact_deleted',
@@ -176,7 +175,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test contact is about to be deleted event is fired' )]
 	public function test_notify_on_contact_before_delete() {
 		/** @var Contact $contact */
-		$contact = Automation_Faker::instance()->contact();
+		$contact = Event_Manager_Faker::instance()->contact();
 
 		add_action(
 			'jpcrm_contact_before_delete',
@@ -196,7 +195,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that invoice created event is fired' )]
 	public function test_notify_on_invoice_created() {
 		/** @var Invoice $invoice */
-		$invoice = Automation_Faker::instance()->invoice();
+		$invoice = Event_Manager_Faker::instance()->invoice();
 
 		$invoice_data = Invoice_Factory::tidy_data( $invoice );
 
@@ -219,7 +218,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that invoice updated event is fired' )]
 	public function test_notify_on_invoice_updated() {
 		/** @var Invoice $invoice */
-		$invoice          = Automation_Faker::instance()->invoice();
+		$invoice          = Event_Manager_Faker::instance()->invoice();
 		$previous_invoice = clone $invoice;
 
 		$invoice->currency          = 'EUR';
@@ -248,7 +247,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that transaction created event is fired' )]
 	public function test_notify_on_transaction_created() {
 		/** @var Transaction $transaction */
-		$transaction = Automation_Faker::instance()->transaction();
+		$transaction = Event_Manager_Faker::instance()->transaction();
 
 		$transaction_data = Transaction_Factory::tidy_data( $transaction );
 
@@ -273,7 +272,7 @@ class Event_Manager_Test extends JPCRM_Base_TestCase {
 	#[TestDox( 'Test that transaction created event is fired' )]
 	public function test_notify_on_transaction_updated() {
 		/** @var Transaction $transaction */
-		$transaction = Automation_Faker::instance()->transaction();
+		$transaction = Event_Manager_Faker::instance()->transaction();
 
 		$transaction_data = Transaction_Factory::tidy_data( $transaction );
 

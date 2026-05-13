@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+wpcom-features: make BIG_SKY the single paid-plan eligibility gate for Big Sky / AI sidebar; remove BIG_SKY_EXISTING_SITE; add Starter to GLOBAL_STYLES.

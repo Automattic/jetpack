@@ -100,6 +100,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_partner'              => '(string) The partner of the Garden site.',
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
+		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
 	);
 
 	/**
@@ -138,6 +139,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_a4a_client',
 		'is_a4a_dev_site',
 		'is_garden',
+		'big_sky_enabled',
+		'garden_name',
 	);
 
 	/**
@@ -236,6 +239,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
+		'jetpack_recovery_mode_status',
+		'apm_enabled',
 	);
 
 	/**
@@ -259,6 +264,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_partner',
 		'garden_is_provisioned',
 		'is_wpcom_flex',
+		'big_sky_enabled',
 	);
 
 	/**
@@ -305,6 +311,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_commercial_reasons',
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
+		'jetpack_recovery_mode_status',
+		'apm_enabled',
 	);
 
 	/**
@@ -662,6 +670,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_wpcom_flex':
 				$response[ $key ] = $this->site->is_wpcom_flex();
 				break;
+			case 'big_sky_enabled':
+				$response[ $key ] = $this->site->is_big_sky_enabled();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -975,6 +986,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'wpcom_classic_early_release':
 					$options[ $key ] = $site->get_wpcom_classic_early_release();
 					break;
+				case 'jetpack_recovery_mode_status':
+					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
+					break;
+				case 'apm_enabled':
+					$options[ $key ] = $site->get_apm_enabled();
+					break;
 			}
 		}
 
@@ -1013,6 +1030,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function decorate_jetpack_response( &$response ) {
 		$this->site = $this->get_platform()->get_site( $response->ID );
 		switch_to_blog( $this->site->get_id() );
+
+		// Allow the SAL site to apply its own overrides to the proxied response.
+		if ( method_exists( $this->site, 'decorate_jetpack_response' ) ) {
+			$this->site->decorate_jetpack_response( $response ); // @phan-suppress-current-line PhanUndeclaredMethod -- checked via method_exists().
+		}
 
 		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
 

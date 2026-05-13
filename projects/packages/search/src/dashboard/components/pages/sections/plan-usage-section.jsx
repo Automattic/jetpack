@@ -1,7 +1,7 @@
 import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
@@ -16,7 +16,7 @@ const usageInfoFromAPIData = apiData => {
 		recordCount: apiData?.currentUsage?.num_records || 0,
 		recordMax: apiData?.currentPlan?.record_limit || 0,
 		requestCount: apiData?.latestMonthRequests?.num_requests || 0,
-		requestMax: apiData?.currentPlan.monthly_search_request_limit || 0,
+		requestMax: apiData?.currentPlan?.monthly_search_request_limit || 0,
 	};
 };
 
@@ -207,6 +207,9 @@ const upgradeMessageFromAPIData = apiData => {
 	// apiData.currentUsage.upgrade_reason.requests
 	// apiData.currentUsage.months_over_plan_records_limit
 	// apiData.currentUsage.months_over_plan_requests_limit
+	if ( ! apiData.currentUsage ) {
+		return null;
+	}
 	if ( apiData.currentUsage.must_upgrade ) {
 		return upgradeMessageSearchDisabled();
 	}
@@ -237,7 +240,9 @@ const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJus
 	// For complete plan, we only show the final CTA once search is already disabled.
 	// It's just because it was added later, and we didn't want to redesign existing CTAs at the time.
 	const upgradeMessage =
-		isFreePlan || planInfo.currentUsage.must_upgrade ? upgradeMessageFromAPIData( planInfo ) : null;
+		isFreePlan || planInfo.currentUsage?.must_upgrade
+			? upgradeMessageFromAPIData( planInfo )
+			: null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
 
 	return (
@@ -405,7 +410,8 @@ const AboutPlanLimits = () => {
 				),
 				{
 					jpPlanLimits: (
-						<ExternalLink
+						<Link
+							openInNewTab
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
 							target="_blank"

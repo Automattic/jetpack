@@ -36,6 +36,15 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: true,
+				// Match Boost / Jetpack AI admin: @wordpress/ui pulls these in transitively;
+				// they are not reliably registered as WP script handles in all contexts, so
+				// bundle them together instead of externalizing. Both must be bundled jointly
+				// so @wordpress/theme's module-init lock() lands on the same private-apis
+				// consent map. See PR #48173.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
 			},
 		} ),
 	],
@@ -56,6 +65,9 @@ module.exports = {
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

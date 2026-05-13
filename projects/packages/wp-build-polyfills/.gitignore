@@ -1,0 +1,4 @@
+/node_modules
+/build
+/.cache
+/tests/fixtures/wp-build-source/**/build

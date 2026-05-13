@@ -1,7 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import AkismetIcon from '../../../../../icons/akismet.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 
@@ -38,7 +39,7 @@ export function buildAkismetCard( {
 					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } children={ null } /> }
+				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Akismet is installed. Just activate the plugin to start blocking spam.',
@@ -55,7 +56,7 @@ export function buildAkismetCard( {
 							'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } children={ null } /> }
+						{ a: <Link openInNewTab href={ settingsUrl } children={ null } /> }
 					) }
 				</p>
 				<Button
@@ -92,9 +93,9 @@ export function buildAkismetCard( {
 							<span>|</span>
 						</>
 					) }
-					<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+					<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
-					</ExternalLink>
+					</Link>
 				</HStack>
 			</div>
 		),

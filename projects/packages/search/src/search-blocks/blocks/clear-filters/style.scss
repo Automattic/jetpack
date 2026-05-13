@@ -1,0 +1,7 @@
+.jetpack-search-clear-filters {
+	display: flex;
+
+	&[hidden] {
+		display: none;
+	}
+}

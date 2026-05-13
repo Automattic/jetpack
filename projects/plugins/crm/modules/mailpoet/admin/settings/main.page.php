@@ -108,12 +108,16 @@ function jpcrm_settings_page_html_mailpoet_main() {
 
 			<tr>
 				<td class="wfieldname"><label for="jpcrm_tag_list_prefix"><?php esc_html_e( 'List tag prefix', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter a tag prefix for List tags (e.g. MailPoet List: )', 'zero-bs-crm' ); ?></td>
-				<td style='width:540px'><input type="text" class="winput form-control" name="jpcrm_tag_list_prefix" id="jpcrm_tag_list_prefix" value="
-				<?php
-				if ( isset( $settings['tag_list_prefix'] ) && ! empty( $settings['tag_list_prefix'] ) ) {
-					echo esc_attr( $settings['tag_list_prefix'] );}
-				?>
-				" placeholder="<?php esc_html_e( "e.g. 'MailPoet List: '", 'zero-bs-crm' ); ?>" /></td>
+				<td style='width:540px'>
+					<input
+						type="text"
+						class="winput form-control"
+						name="jpcrm_tag_list_prefix"
+						id="jpcrm_tag_list_prefix"
+						value="<?php echo ! empty( $settings['tag_list_prefix'] ) ? esc_attr( $settings['tag_list_prefix'] ) : ''; ?>"
+						placeholder="<?php esc_html_e( "e.g. 'MailPoet List: '", 'zero-bs-crm' ); ?>"
+					/>
+				</td>
 			</tr>
 			
 			<?php
@@ -131,12 +135,16 @@ function jpcrm_settings_page_html_mailpoet_main() {
 
 			<tr>
 				<td class="wfieldname"><label for="jpcrm_tag_tag_prefix"><?php esc_html_e( 'List tag prefix', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter a tag prefix for Subscriber tags (e.g. MailPoet Tag: )', 'zero-bs-crm' ); ?></td>
-				<td style='width:540px'><input type="text" class="winput form-control" name="jpcrm_tag_tag_prefix" id="jpcrm_tag_tag_prefix" value="
-				<?php
-				if ( isset( $settings['tag_tag_prefix'] ) && ! empty( $settings['tag_tag_prefix'] ) ) {
-					echo esc_attr( $settings['tag_tag_prefix'] );}
-				?>
-				" placeholder="<?php esc_attr_e( "e.g. 'MailPoet Tag: '", 'zero-bs-crm' ); ?>" /></td>
+				<td style='width:540px'>
+					<input
+						type="text"
+						class="winput form-control"
+						name="jpcrm_tag_tag_prefix"
+						id="jpcrm_tag_tag_prefix"
+						value="<?php echo ! empty( $settings['tag_tag_prefix'] ) ? esc_attr( $settings['tag_tag_prefix'] ) : ''; ?>"
+						placeholder="<?php esc_attr_e( "e.g. 'MailPoet Tag: '", 'zero-bs-crm' ); ?>"
+					/>
+				</td>
 			</tr>
 
 			<tr>

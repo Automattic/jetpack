@@ -1,7 +1,8 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink, Placeholder } from '@wordpress/components';
+import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import metadata from './block.json';
 
 export const InactiveStatsPlaceholder = ( { className, isLoading, changeStatus } ) => {
@@ -33,9 +34,9 @@ export const InactiveStatsPlaceholder = ( { className, isLoading, changeStatus }
 					{ isLoading ? __( 'Activating Stats', 'jetpack' ) : __( 'Activate Stats', 'jetpack', 0 ) }
 				</Button>
 				<div>
-					<ExternalLink href={ supportLink }>
+					<Link openInNewTab href={ supportLink }>
 						{ __( 'Learn more about the Stats module.', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</div>
 			</Placeholder>
 		</div>

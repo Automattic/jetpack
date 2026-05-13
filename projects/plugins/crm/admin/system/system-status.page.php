@@ -14,7 +14,7 @@ function zeroBSCRM_render_systemstatus_page() {
 	global $wpdb, $zbs;  // } Req
 
 		// catch tools:
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetuserroleszerobscrm' ) ) {
+	if ( jpcrm_perms_manage_options() && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'resetuserroleszerobscrm' ) ) {
 
 		// roles
 		zeroBSCRM_clearUserRoles();
@@ -41,11 +41,11 @@ function zeroBSCRM_render_systemstatus_page() {
 
 		// hard-check database tables & report
 
-		global $ZBSCRM_t, $wpdb;
+		global $ZBSCRM_t;
 		$missingTables = array();
 
 		// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
-	foreach ( $ZBSCRM_t as $tableKey => $tableName ) {
+	foreach ( $ZBSCRM_t as $tableName ) {
 		$tablesExist = $wpdb->get_results( "SHOW TABLES LIKE '" . $tableName . "'" );
 		if ( count( $tablesExist ) < 1 ) {
 			$missingTables[] = $tableName;

@@ -1,6 +1,16 @@
 @use "../scss/mixins/breakpoints";
 @use "../scss/functions/rem";
 
+.jp-settings-admin-page .jp-admin-page__page {
+	background-color: #fcfcfc;
+}
+
+.jp-settings-admin-page .jp-lower {
+	max-width: 660px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .jp-settings-container {
 
 	a,
@@ -31,6 +41,10 @@
 
 	.dops-banner.dops-card {
 		border-left: none;
+		border-top: none;
+	}
+
+	.jp-form-settings-group + .dops-banner.dops-card {
 		border-top: 1px solid var(--jp-gray);
 	}
 
@@ -89,21 +103,15 @@
 	}
 
 	.jp-form-settings-group + .jp-form-settings-group {
-		border-top: 1px solid var(--jp-gray);
+		border-top: none;
 	}
 
 	.dops-search__input[type="search"] {
 		width: 100%;
 	}
 
-	.jp-no-results {
-		display: none;
-		font-size: rem.convert(14px);
-		line-height: 1.5;
-
-		&:last-of-type {
-			display: inherit;
-		}
+	.jp-settings__empty-search-results {
+		margin-block: rem.convert(64px);
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {
@@ -128,6 +136,10 @@
 		color: #23282d;
 		margin-top: rem.convert(48px);
 		margin-bottom: rem.convert(24px);
+
+		@include breakpoints.breakpoint( "<480px" ) {
+			padding-inline: rem.convert(24px);
+		}
 	}
 
 	.dops-info-popover-button,

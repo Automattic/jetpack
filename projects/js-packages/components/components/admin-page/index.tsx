@@ -1,10 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { Page } from '@wordpress/admin-ui';
-import '@wordpress/admin-ui/build-style/style.css';
-import {
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
@@ -27,11 +22,8 @@ import type { FC, ReactNode } from 'react';
 const AdminPage: FC< AdminPageProps > = ( {
 	children,
 	className,
-	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
-	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
-	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
@@ -42,15 +34,20 @@ const AdminPage: FC< AdminPageProps > = ( {
 	subTitle,
 	logo,
 	actions,
+	breadcrumbs,
 	tabs,
 	showBottomBorder = true,
+	unwrapped = false,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const rootClassName = clsx( styles[ 'admin-page' ], className, {
+	// `jp-admin-page` is a stable, non-hashed hook for global stylesheets and
+	// shared SCSS mixins (notably `jetpack-admin-page-layout` in
+	// @automattic/jetpack-base-styles). Do not rename.
+	const rootClassName = clsx( styles[ 'admin-page' ], 'jp-admin-page', className, {
 		[ styles.background ]: showBackground,
 		[ styles[ 'without-bottom-border' ] ]: tabs || ! showBottomBorder,
 	} );
@@ -73,50 +70,28 @@ const AdminPage: FC< AdminPageProps > = ( {
 		}
 	}, [] );
 
-	// Compose the title with logo for the admin-ui Page header.
-	// Note: The inner Heading causes a double h2 wrapping because Page's Header
-	// also wraps title in a Heading. This is a known issue — the inner Heading is
-	// needed until https://github.com/WordPress/gutenberg/pull/75899 fixes
-	// non-string title rendering in admin-ui. Once that lands, remove the Heading
-	// here and pass the plain HStack with a string child.
-	const composedTitle = title ? (
-		<HStack spacing={ 2 } justify="left">
-			{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
-			<Heading as="h2" level={ 3 } weight={ 500 } truncate>
-				{ title }
-			</Heading>
-		</HStack>
-	) : undefined;
-
-	const footer = showFooter && (
-		<Container horizontalSpacing={ 5 }>
-			<Col>
-				<JetpackFooter
-					moduleName={ moduleName }
-					moduleNameHref={ moduleNameHref }
-					menu={ optionalMenuItems }
-					useInternalLinks={ useInternalLinks }
-				/>
-			</Col>
-		</Container>
-	);
-
-	// When title is provided, use admin-ui Page for the full page layout.
-	if ( showHeader && composedTitle ) {
+	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
+	if ( showHeader && ( title || breadcrumbs ) ) {
 		return (
 			<div className={ rootClassName }>
 				<Page
-					ariaLabel={ title }
-					title={ composedTitle }
+					className="jp-admin-page__page"
+					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
+					breadcrumbs={ breadcrumbs }
+					title={ title }
 					subTitle={ subTitle }
 					actions={ actions }
 					showSidebarToggle={ false }
 				>
 					{ tabs }
-					<Container fluid horizontalSpacing={ 0 }>
-						<Col>{ children }</Col>
-					</Container>
-					{ footer }
+					{ unwrapped ? (
+						children
+					) : (
+						<Container fluid horizontalSpacing={ 0 }>
+							<Col>{ children }</Col>
+						</Container>
+					) }
+					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 				</Page>
 			</div>
 		);
@@ -148,7 +123,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
 			</Container>
-			{ footer }
+			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 		</div>
 	);
 };

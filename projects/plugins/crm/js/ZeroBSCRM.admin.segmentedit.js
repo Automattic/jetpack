@@ -189,10 +189,10 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 	// for existing
 	if ( typeof rule !== 'undefined' && rule !== false ) {
 		if ( typeof rule.id !== 'undefined' ) {
-			html += ' id="zbs-segment-edit-condition-' + rule.id + '"';
+			html += ' id="zbs-segment-edit-condition-' + jpcrm.esc_attr( rule.id ) + '"';
 		}
 		if ( typeof rule.operator !== 'undefined' ) {
-			html += ' data-orig-operator="' + rule.operator + '"';
+			html += ' data-orig-operator="' + jpcrm.esc_attr( rule.operator ) + '"';
 		}
 
 		// these are 'parsed' (e.g. dates)
@@ -394,13 +394,16 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 				jQuery.each(
 					window.jpcrm_available_conditions[ selected ].operators,
 					function ( ind2, ele2 ) {
-						html += '<option value="' + ele2 + '"';
+						html += '<option value="' + jpcrm.esc_attr( ele2 ) + '"';
 						// needs to check if setting
 						//if (typeof rule != "undefined" && rule !== false && typeof rule.type != "undefined" && rule.type == ind) html += ' selected="selected"';
 						if ( ele2 == origVal ) {
 							html += ' selected="selected"';
 						}
-						html += '>' + window.zbsAvailableConditionOperators[ ele2 ].name + '</option>';
+						html +=
+							'>' +
+							jpcrm.esc_html( window.zbsAvailableConditionOperators[ ele2 ].name ) +
+							'</option>';
 					}
 				);
 				html += '</select>';
@@ -413,7 +416,7 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 			) {
 				html +=
 					'<input type="hidden" class="zbs-segment-edit-var-condition-operator" value="' +
-					window.jpcrm_available_conditions[ selected ].operators[ 0 ] +
+					jpcrm.esc_attr( window.jpcrm_available_conditions[ selected ].operators[ 0 ] ) +
 					'" />';
 			}
 		} else {
@@ -505,11 +508,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 							window.zbsAvailableStatuses.length > 0
 						) {
 							jQuery.each( window.zbsAvailableStatuses, function ( ind2, ele2 ) {
-								html += '<option value="' + ele2 + '"';
+								html += '<option value="' + jpcrm.esc_attr( ele2 ) + '"';
 								if ( v == ele2 ) {
 									html += ' selected="selected"';
 								}
-								html += '>' + ele2 + '</option>';
+								html += '>' + jpcrm.esc_html( ele2 ) + '</option>';
 							} );
 						} else {
 							html += '<option value="">' + zeroBSCRMJS_segmentLang( 'nostatuses' ) + '</option>';
@@ -626,11 +629,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						window.jpcrm_available_contact_tags.length > 0
 					) {
 						jQuery.each( window.jpcrm_available_contact_tags, function ( ind2, ele2 ) {
-							html += '<option value="' + ele2.id + '"';
+							html += '<option value="' + jpcrm.esc_attr( ele2.id ) + '"';
 							if ( v == ele2.id ) {
 								html += ' selected="selected"';
 							}
-							html += '>' + ele2.name + '</option>';
+							html += '>' + jpcrm.esc_html( ele2.name ) + '</option>';
 						} );
 					} else {
 						html += '<option value="">' + zeroBSCRMJS_segmentLang( 'notags' ) + '</option>';
@@ -649,11 +652,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						window.jpcrm_available_transaction_tags.length > 0
 					) {
 						jQuery.each( window.jpcrm_available_transaction_tags, function ( ind2, ele2 ) {
-							html += '<option value="' + ele2.id + '"';
+							html += '<option value="' + jpcrm.esc_attr( ele2.id ) + '"';
 							if ( v == ele2.id ) {
 								html += ' selected="selected"';
 							}
-							html += '>' + ele2.name + '</option>';
+							html += '>' + jpcrm.esc_html( ele2.name ) + '</option>';
 						} );
 					} else {
 						html += '<option value="">' + zeroBSCRMJS_segmentLang( 'notags' ) + '</option>';
@@ -671,11 +674,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						window.jpcrm_external_source_list.length > 0
 					) {
 						jQuery.each( window.jpcrm_external_source_list, function ( ind2, ele2 ) {
-							html += '<option value="' + ele2.key + '"';
+							html += '<option value="' + jpcrm.esc_attr( ele2.key ) + '"';
 							if ( v == ele2.key ) {
 								html += ' selected="selected"';
 							}
-							html += '>' + ele2.name + '</option>';
+							html += '>' + jpcrm.esc_html( ele2.name ) + '</option>';
 						} );
 					} else {
 						html += '<option value="">' + zeroBSCRMJS_segmentLang( 'noextsources' ) + '</option>';
@@ -693,11 +696,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 							const cur_status = window.jpcrm_mailpoet_status_list[ i ];
 							html +=
 								'<option value="' +
-								cur_status.key +
+								jpcrm.esc_attr( cur_status.key ) +
 								'"' +
 								( v === cur_status.key ? ' selected="selected"' : '' ) +
 								'>' +
-								cur_status.name +
+								jpcrm.esc_html( cur_status.name ) +
 								'</option>';
 						}
 					} else {
@@ -713,10 +716,12 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 			if ( typeof window.jpcrm_available_conditions[ typeselected ] === 'undefined' ) {
 				// add in as hidden values (so saving doesn't remove it, but user can remove it/not edit it)
 				html =
-					'<input type="hidden" class="zbs-segment-edit-var-condition-value" value="' + v + '" />';
+					'<input type="hidden" class="zbs-segment-edit-var-condition-value" value="' +
+					jpcrm.esc_attr( v ) +
+					'" />';
 				html +=
 					'<input type="hidden" class="zbs-segment-edit-var-condition-value-2" value="' +
-					v2 +
+					jpcrm.esc_attr( v2 ) +
 					'" />';
 
 				// display a namesake
@@ -726,7 +731,7 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 				}
 				html +=
 					'<input type="text" disabled="disabled" class="segment-condition-errored" value="' +
-					original_value +
+					jpcrm.esc_attr( original_value ) +
 					'" />';
 			}
 
@@ -922,11 +927,11 @@ function zeroBSCRMJS_segment_previewAudience() {
 						.prop( 'disabled', false );
 
 					// err
-					swal(
-						zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #219',
-						zeroBSCRMJS_segmentLang( 'generalerror' ),
-						'error'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #219',
+						text: zeroBSCRMJS_segmentLang( 'generalerror' ),
+						type: 'error',
+					} );
 				}
 			);
 		} else {
@@ -1090,11 +1095,11 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
 						.prop( 'disabled', false );
 
 					// err
-					swal(
-						zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #221',
-						zeroBSCRMJS_segmentLang( 'generalerror' ),
-						'error'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #221',
+						text: zeroBSCRMJS_segmentLang( 'generalerror' ),
+						type: 'error',
+					} );
 				}
 			);
 		} else {

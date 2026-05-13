@@ -210,7 +210,8 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 		$this->assertEquals( $email, $saved_response->get_author_email(), 'Author email should match the legacy feedback post author email' );
 		$avatar_url = $saved_response->get_author_avatar();
 		$this->assertStringContainsString( 'gravatar.com/avatar/', $avatar_url, 'Author avatar should be a Gravatar URL' );
-		$this->assertStringContainsString( 'd=initials', $avatar_url, 'Author avatar should use initials default' );
+		$this->assertStringContainsString( 'd=initials', $avatar_url, 'Author avatar should use initials default with email prefix when no name is set' );
+		$this->assertStringContainsString( 'name=', $avatar_url, 'Author avatar should include name parameter derived from email prefix' );
 	}
 
 	public function test_computed_email() {

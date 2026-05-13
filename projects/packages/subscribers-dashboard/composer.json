@@ -14,7 +14,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -67,7 +66,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-subscribers-dashboard",
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"textdomain": "jetpack-subscribers-dashboard",
 		"version-constants": {

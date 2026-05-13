@@ -103,6 +103,7 @@ class Feedback_Email_Renderer {
 		$comment_author_email = $context_data['comment_author_email'];
 		$comment_author_ip    = $context_data['comment_author_ip'];
 		$is_spam              = $context_data['is_spam'];
+		$is_test              = ! empty( $context_data['is_test'] );
 		$feedback_status      = $context_data['feedback_status'];
 
 		/**
@@ -114,9 +115,9 @@ class Feedback_Email_Renderer {
 		 *
 		 * @param string the title of the email
 		 */
-		$default_email_title = __( 'Hey, a new form response just came in!', 'jetpack-forms' );
-		$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
-		$message             = self::get_compiled_form_for_email( $post_id, $form );
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
+		$title   = ! empty( $title ) ? sprintf( '<h1 class="email-header">%s</h1>', esc_html( $title ) ) : '';
+		$message = self::get_compiled_form_for_email( $post_id, $form );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -167,14 +168,30 @@ class Feedback_Email_Renderer {
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
 
-		if ( $feedback_status !== 'jp-temp-feedback' ) {
-			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
-			$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
-			$footer_mark_as_spam_url = sprintf(
-				'<a href="%1$s">%2$s</a>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' )
-			);
+		/**
+		 * Filters whether to show action buttons in notification emails.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 7.20.0
+		 *
+		 * @param bool $show Whether to show the action buttons. Default true.
+		 */
+		$show_email_actions = apply_filters( 'jetpack_forms_email_show_actions', true );
+
+		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
+			$dashboard_url = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
+			// Test responses don't get a Mark-as-spam link in the email — marking
+			// a test entry as spam from email is confusing and the form owner can
+			// always do it from the dashboard if they want.
+			if ( ! $is_test ) {
+				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
+				$footer_mark_as_spam_url = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url( $mark_as_spam_url ),
+					__( 'Mark as spam', 'jetpack-forms' )
+				);
+			}
 		}
 
 		$footer = implode(
@@ -209,23 +226,39 @@ class Feedback_Email_Renderer {
 		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
-			$actions = sprintf(
-				'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
-					<tr>
-						<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
-						</td>
-						<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
-						</td>
-					</tr>
-				</table>',
-				esc_url( $mark_as_spam_url ),
-				__( 'Mark as spam', 'jetpack-forms' ),
-				esc_url( $dashboard_url ),
-				__( 'View in dashboard', 'jetpack-forms' ),
-				self::LINK_COLOR
-			);
+			if ( $is_test ) {
+				// For test submissions, only show the "View in dashboard" button
+				// centered — we deliberately drop the Mark-as-spam shortcut.
+				$actions = sprintf(
+					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
+						<tr>
+							<td class="button-cell" style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%1$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							</td>
+						</tr>
+					</table>',
+					esc_url( $dashboard_url ),
+					__( 'View in dashboard', 'jetpack-forms' )
+				);
+			} else {
+				$actions = sprintf(
+					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
+						<tr>
+							<td class="button-cell" width="50%%" style="text-align: right; padding-right: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%1$s" class="action-button action-button-secondary" style="display: inline-block; background-color: transparent; color: %5$s; border: 1px solid #1e1e1e; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%2$s</a>
+							</td>
+							<td class="button-cell" width="50%%" style="text-align: left; padding-left: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+								<a href="%3$s" class="action-button action-button-primary" style="display: inline-block; background-color: #3858e9; color: #ffffff; border-radius: 4px; font-size: ' . self::FONT_SIZE_BUTTON . '; font-weight: 500; text-decoration: none; padding: 12px 24px; text-align: center; mso-padding-alt: 0;">%4$s</a>
+							</td>
+						</tr>
+					</table>',
+					esc_url( $mark_as_spam_url ),
+					__( 'Mark as spam', 'jetpack-forms' ),
+					esc_url( $dashboard_url ),
+					__( 'View in dashboard', 'jetpack-forms' ),
+					self::LINK_COLOR
+				);
+			}
 		}
 
 		// Build respondent info for the new email template.
@@ -241,14 +274,25 @@ class Feedback_Email_Renderer {
 			$form_title = Contact_Form::get_post_property( $form->current_post, 'post_title' );
 		}
 
+		// Test responses don't have a real source page; surface them as
+		// "Form preview" in the metadata table to match the dashboard.
+		if ( $is_test ) {
+			$source_label = __( 'Form preview', 'jetpack-forms' );
+			$source_url   = '';
+		} else {
+			$source_label = $form_title;
+			$source_url   = $url;
+		}
+
 		// Build metadata for the new email template.
 		$metadata = array(
-			'date'       => $time,
-			'source'     => $form_title,
-			'source_url' => $url,
-			'device'     => $response->get_browser(),
-			'ip'         => $comment_author_ip,
-			'ip_flag'    => $response->get_country_flag(),
+			'date'           => $time,
+			'source'         => $source_label,
+			'source_url'     => $source_url,
+			'device'         => $response->get_browser(),
+			'ip'             => $comment_author_ip,
+			'ip_flag'        => $response->get_country_flag(),
+			'logged_in_user' => $response->get_logged_in_user(),
 		);
 
 		/**
@@ -263,12 +307,38 @@ class Feedback_Email_Renderer {
 		 */
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
+		// Render a prominent TEST SUBMISSION banner when this came from a form
+		// preview, so the form owner can immediately tell that this response is
+		// a synthetic test. It is injected at the very top of the email so the
+		// rest of the body still looks like a normal submission email.
+		$banner = $is_test ? self::build_test_submission_banner() : '';
+
 		// This is called after `contact_form_message`, in order to preserve back-compat.
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata, $banner );
 
 		return array(
 			'title'   => $title,
 			'message' => $message,
+		);
+	}
+
+	/**
+	 * Build the HTML banner inserted at the top of a test-submission email body.
+	 *
+	 * Uses inline styles and a nested table layout for email-client compatibility.
+	 * Mirrors the @wordpress/ui Notice component (warning intent): warm amber fill,
+	 * 1px amber border with 8px radius, decorative info icon, 13px/20px body copy.
+	 *
+	 * @return string
+	 */
+	private static function build_test_submission_banner() {
+		return sprintf(
+			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" class="test-submission-banner" style="border-collapse: collapse; margin: 0 0 24px 0;">
+				<tr>
+					<td class="test-submission-banner-cell" style="padding: 12px; background-color: #fff7e0; border: 1px solid #d0b381; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; color: #2e1900; font-size: 13px; line-height: 20px;">%s</td>
+				</tr>
+			</table>',
+			esc_html__( 'Test response via form preview.', 'jetpack-forms' )
 		);
 	}
 
@@ -527,11 +597,12 @@ class Feedback_Email_Renderer {
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
 	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
-	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag'.
+	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id).
+	 * @param string $banner - Optional. HTML banner inserted at the very top of the email body (above the title).
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array(), $banner = '' ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters.
 		if ( str_contains( $body, '<html' ) ) {
@@ -616,7 +687,7 @@ class Feedback_Email_Renderer {
 				'',
 				$template
 			),
-			esc_html( $title ),
+			$title,
 			$body,
 			'',
 			'',
@@ -626,7 +697,8 @@ class Feedback_Email_Renderer {
 			$actions,
 			$powered_by_html,
 			$respondent_html,
-			$metadata_html
+			$metadata_html,
+			$banner
 		);
 
 		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
@@ -709,7 +781,7 @@ class Feedback_Email_Renderer {
 	/**
 	 * Generate HTML for metadata section in email.
 	 *
-	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag' keys.
+	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id) keys.
 	 * @return string HTML for metadata section.
 	 */
 	private static function generate_metadata_html( $metadata ) {
@@ -746,6 +818,18 @@ class Feedback_Email_Renderer {
 			}
 			$ip_value .= esc_html( $metadata['ip'] );
 			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
+		}
+
+		// Logged in user row.
+		if ( ! empty( $metadata['logged_in_user'] ) && isset( $metadata['logged_in_user']['id'] ) ) {
+			$user_id    = $metadata['logged_in_user']['id'];
+			$user_value = '#' . $user_id;
+			if ( ! empty( $metadata['logged_in_user']['display_name'] ) ) {
+				$user_value = $metadata['logged_in_user']['display_name'] . ' (#' . $user_id . ')';
+			} elseif ( ! empty( $metadata['logged_in_user']['username'] ) ) {
+				$user_value = $metadata['logged_in_user']['username'] . ' (#' . $user_id . ')';
+			}
+			$rows[] = self::generate_metadata_row( __( 'Logged-in user', 'jetpack-forms' ), esc_html( $user_value ) );
 		}
 
 		if ( empty( $rows ) ) {
