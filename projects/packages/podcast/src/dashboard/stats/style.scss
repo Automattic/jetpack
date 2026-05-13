@@ -3,7 +3,6 @@
 // Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
 $text: #1e1e1e;
 $muted: #757575;
-$bar-bg: #f0f0f0;
 $bar-bg-hover: #e5e5e5;
 $bar-fill: #2271b1;
 
@@ -209,7 +208,6 @@ $bar-fill: #2271b1;
 		position: relative;
 		padding: 6px 8px;
 		border-radius: 4px;
-		background: $bar-bg;
 		width: 100%;
 		text-align: start;
 		border: 0;
