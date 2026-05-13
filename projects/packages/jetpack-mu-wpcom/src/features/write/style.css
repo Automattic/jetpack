@@ -27,7 +27,7 @@
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 100000;
+	z-index: 100002;
 	height: 56px;
 	background: #fff;
 	border-bottom: 1px solid #f0f0f0;
@@ -56,6 +56,13 @@
 	font-family: inherit;
 }
 
+.bw-help-i {
+	font-style: italic;
+	font-size: 15px;
+	font-family: Georgia, serif;
+	line-height: 1;
+}
+
 .bw-help-toggle:hover {
 	border-color: #999;
 	color: #666;
@@ -65,7 +72,7 @@
 	position: absolute;
 	top: 48px;
 	left: 60px;
-	z-index: 200;
+	z-index: 100002;
 	background: #fff;
 	border-radius: 10px;
 	padding: 16px 20px;
