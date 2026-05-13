@@ -2,6 +2,7 @@ import {
 	countActiveFilters,
 	decodeEntities,
 	deriveMatchHint,
+	formatAuthor,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -310,6 +311,38 @@ describe( 'deriveMatchHint', () => {
 	} );
 } );
 
+describe( 'formatAuthor', () => {
+	it( 'returns a single-author string trimmed', () => {
+		expect( formatAuthor( '  Sample Author  ' ) ).toBe( 'Sample Author' );
+	} );
+
+	it( 'joins two authors with a comma', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+	} );
+
+	it( 'joins three authors with commas, no ellipsis', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris' ] ) ).toBe( 'Ada, Bob, Cris' );
+	} );
+
+	it( 'truncates after the first three when the array has more than three entries', () => {
+		// Mirrors instant-search behavior so co-authored posts don't blow out
+		// the meta row. The ellipsis is three dots, not the U+2026 character.
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris', 'Dee', 'Eve' ] ) ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'returns empty string for missing or empty input', () => {
+		expect( formatAuthor( undefined ) ).toBe( '' );
+		expect( formatAuthor( null ) ).toBe( '' );
+		expect( formatAuthor( '' ) ).toBe( '' );
+		expect( formatAuthor( [] ) ).toBe( '' );
+	} );
+
+	it( 'drops empty entries from an array before joining or truncating', () => {
+		expect( formatAuthor( [ 'Ada', '', '   ', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+		expect( formatAuthor( [ '', '   ' ] ) ).toBe( '' );
+	} );
+} );
+
 describe( 'normalizeResult', () => {
 	const RAW = {
 		result_id: 'r-42',
@@ -433,6 +466,22 @@ describe( 'normalizeResult', () => {
 		expect( r.dateLabel ).toMatch( /20 avr/ );
 	} );
 
+	it( 'exposes authorLabel for a single-author result', () => {
+		const r = normalizeResult( { fields: { author: 'Ada' } } );
+		expect( r.authorLabel ).toBe( 'Ada' );
+	} );
+
+	it( 'joins and truncates authorLabel for co-authored results', () => {
+		const r = normalizeResult( {
+			fields: { author: [ 'Ada', 'Bob', 'Cris', 'Dee' ] },
+		} );
+		expect( r.authorLabel ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'authorLabel is empty when the field is absent', () => {
+		expect( normalizeResult( { fields: {} } ).authorLabel ).toBe( '' );
+	} );
+
 	it( 'returns a usable object for a fully empty raw result', () => {
 		const r = normalizeResult( {} );
 		expect( r ).toEqual( {
@@ -445,6 +494,7 @@ describe( 'normalizeResult', () => {
 			permalink: '',
 			path: '',
 			dateLabel: '',
+			authorLabel: '',
 			imageUrl: '',
 			imageBackgroundImage: '',
 			matchHint: '',
