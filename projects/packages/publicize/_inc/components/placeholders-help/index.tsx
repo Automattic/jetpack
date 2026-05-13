@@ -1,7 +1,7 @@
 import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useMessageTemplatePlaceholders } from '../../hooks/use-message-template-placeholders';
+import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
 
 type DropdownProps = React.ComponentProps< typeof Dropdown >;
@@ -9,14 +9,15 @@ type DropdownProps = React.ComponentProps< typeof Dropdown >;
 /**
  * Toggle that reveals the list of placeholders supported in the custom message field.
  *
- * Sources its list from WPCOM via `@wordpress/core-data`, so the tokens and
- * labels never drift from the resolver. Renders nothing while the catalogue
- * is loading or if the fetch failed.
+ * Reads the catalogue from the social script-data payload that PHP renders
+ * into the page, so the tokens and labels stay in lock-step with WPCOM's
+ * resolver without a round-trip on editor mount.
  *
- * @return Element rendered next to the textarea help text.
+ * @return Element rendered next to the textarea help text, or null when the
+ * catalogue is empty.
  */
 export default function PlaceholdersHelp() {
-	const { placeholders, isLoading } = useMessageTemplatePlaceholders();
+	const placeholders = getSocialScriptData()?.message_templates?.placeholders;
 
 	const renderToggle = useCallback< DropdownProps[ 'renderToggle' ] >(
 		( { onToggle, isOpen } ) => (
@@ -37,7 +38,7 @@ export default function PlaceholdersHelp() {
 					) }
 				</p>
 				<ul>
-					{ placeholders.map( ( { id, label } ) => (
+					{ placeholders?.map( ( { id, label } ) => (
 						<li key={ id }>
 							<code>{ id }</code>
 							<span>{ label }</span>
@@ -49,7 +50,7 @@ export default function PlaceholdersHelp() {
 		[ placeholders ]
 	);
 
-	if ( isLoading || placeholders.length === 0 ) {
+	if ( ! placeholders?.length ) {
 		return null;
 	}
 

@@ -1,4 +1,4 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MessageBoxControl, {
@@ -6,7 +6,6 @@ import MessageBoxControl, {
 	getPlaceholderText,
 	getTemplatesPlaceholderText,
 } from '../';
-import * as messageTemplatePlaceholders from '../../../hooks/use-message-template-placeholders';
 
 const mockRecordEvent = jest.fn();
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -19,8 +18,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	siteHasFeature: jest.fn().mockReturnValue( false ),
 	getScriptData: jest.fn().mockReturnValue( {} ),
 } ) );
-
-jest.spyOn( messageTemplatePlaceholders, 'useMessageTemplatePlaceholders' ).mockImplementation();
 
 const mockPlaceholders = [
 	{ id: '{title}', label: 'Post title' },
@@ -37,9 +34,8 @@ describe( 'MessageBoxControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		siteHasFeature.mockReturnValue( false );
-		messageTemplatePlaceholders.useMessageTemplatePlaceholders.mockReturnValue( {
-			placeholders: mockPlaceholders,
-			isLoading: false,
+		getScriptData.mockReturnValue( {
+			social: { message_templates: { placeholders: mockPlaceholders } },
 		} );
 	} );
 
