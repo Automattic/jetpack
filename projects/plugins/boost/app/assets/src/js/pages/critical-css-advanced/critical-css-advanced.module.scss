@@ -10,12 +10,17 @@
 		var(--wpds-dimension-gap-xl, 24px);
 }
 
-:global(body.jb-subpage-active) .header {
+:global(body.jb-subpage-active) .header:global(.admin-ui-page__header) {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 	padding-block-end: var(--wpds-dimension-padding-lg, 16px);
 
 	h1 {
 		margin: 0;
+	}
+
+	li {
+		display: flex;
+		align-items: center;
 	}
 }
 

@@ -17,17 +17,28 @@
 		var(--wpds-dimension-gap-xl, 24px);
 }
 
-// Same specificity as boost-page.scss's `body.x .admin-ui-page__header`
-// rule, so we win on source order (legacy bundle loads after chassis).
-// Restores the bottom border with the same token the tabs row uses, and
-// resets the browser-default <h1> margin so the breadcrumb link and
-// the current-page heading sit on the same baseline.
-:global(body.jb-subpage-active) .header {
+// boost-page.scss strips `.admin-ui-page__header`'s border via an
+// `:is(body.jetpack_page_jetpack-boost, body.toplevel_page_jetpack-boost)
+// .admin-ui-page__header` selector (specificity 0,2,1). We compound
+// `.header.admin-ui-page__header` on top of the body class to land at
+// 0,3,1 — beats the chassis override on specificity instead of relying
+// on source order.
+// Same block fixes the breadcrumb alignment: the link `<li>` is taller
+// than the heading `<li>` because the `inline-flex` anchor adds a
+// line-box descender to its `<li>`'s natural height. Promoting every
+// `<li>` to a flex container drops that descender and lines both items
+// up on a true center.
+:global(body.jb-subpage-active) .header:global(.admin-ui-page__header) {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 	padding-block-end: var(--wpds-dimension-padding-lg, 16px);
 
 	h1 {
 		margin: 0;
+	}
+
+	li {
+		display: flex;
+		align-items: center;
 	}
 }
 
