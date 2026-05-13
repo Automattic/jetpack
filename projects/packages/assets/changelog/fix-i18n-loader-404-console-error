@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-i18n-loader: treat 404 responses for missing translation files as expected, avoiding console errors.
+I18n-loader: treat 404 responses for missing translation files as expected, avoiding console errors.
