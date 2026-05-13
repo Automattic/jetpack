@@ -39,6 +39,9 @@
 	li {
 		display: flex;
 		align-items: center;
+		// wp-admin's common.css applies `li, dd { margin-bottom: 6px }`
+		// globally; reset it inside the breadcrumb so siblings align.
+		margin-bottom: 0;
 	}
 }
 
