@@ -11,18 +11,19 @@
 
 namespace Automattic\Jetpack\Plugin\Abilities;
 
-use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\WP_Abilities\Registrar;
-use Jetpack_Options;
 use Jetpack_RelatedPosts;
 use WP_Error;
 
 /**
  * Registers Jetpack Related Posts abilities with the WordPress Abilities API.
  *
- * Exposes related-post lookups and the display-settings surface so AI agents
- * can read and update Related Posts through the standard `wp-abilities/v1`
- * REST surface.
+ * Exposes related-post lookups through the standard `wp-abilities/v1` REST
+ * surface. Display-settings management is intentionally not exposed: classic
+ * themes consume the `relatedposts` option only when an off-by-default filter
+ * is enabled, and block themes ignore it altogether (rendering is controlled
+ * per-instance by the Jetpack Related Posts block in templates) — so an agent
+ * editing those values would be writing data nothing reads.
  */
 class Related_Posts_Abilities extends Registrar {
 
@@ -31,21 +32,6 @@ class Related_Posts_Abilities extends Registrar {
 	private const MAX_SIZE = 20;
 
 	private const DEFAULT_SIZE = 3;
-
-	private const OPTION_KEY = 'relatedposts';
-
-	private const LAYOUTS = array( 'grid', 'list' );
-
-	private const EDITABLE_FIELDS = array(
-		'enabled',
-		'show_headline',
-		'show_thumbnails',
-		'show_date',
-		'show_context',
-		'layout',
-		'headline',
-		'size',
-	);
 
 	/**
 	 * Returns the category slug this registrar owns.
@@ -61,7 +47,7 @@ class Related_Posts_Abilities extends Registrar {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack Related Posts',
-			'description' => __( 'Abilities for reading related posts and managing Related Posts display settings.', 'jetpack' ),
+			'description' => __( 'Abilities for reading related posts.', 'jetpack' ),
 		);
 	}
 
@@ -82,37 +68,10 @@ class Related_Posts_Abilities extends Registrar {
 			),
 		);
 
-		$settings_schema = array(
-			'type'       => 'object',
-			'required'   => array( 'theme_type' ),
-			'properties' => array(
-				'theme_type'      => array(
-					'type'        => 'string',
-					'enum'        => array( 'classic', 'block' ),
-					'description' => __( 'Active theme rendering model. "classic" themes consume these display settings via auto-injection after the post content; "block" themes ignore them — the Jetpack Related Posts block placed in the active template carries its own per-instance attributes.', 'jetpack' ),
-				),
-				'notice'          => array(
-					'type'        => 'string',
-					'description' => __( 'Present only when theme_type is "block". Human-readable pointer toward editing the Related Posts block in the Site Editor, since this option is not consumed at render time on block themes.', 'jetpack' ),
-				),
-				'enabled'         => array( 'type' => 'boolean' ),
-				'show_headline'   => array( 'type' => 'boolean' ),
-				'show_thumbnails' => array( 'type' => 'boolean' ),
-				'show_date'       => array( 'type' => 'boolean' ),
-				'show_context'    => array( 'type' => 'boolean' ),
-				'layout'          => array(
-					'type' => 'string',
-					'enum' => self::LAYOUTS,
-				),
-				'headline'        => array( 'type' => 'string' ),
-				'size'            => array( 'type' => 'integer' ),
-			),
-		);
-
-		$abilities = array(
+		return array(
 			'jetpack-related-posts/get-related-posts' => array(
 				'label'               => __( 'Get related posts', 'jetpack' ),
-				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Use per_page to control the result count (1..20, default 20); the underlying Elasticsearch query is hard-capped at 20, so values above 20 are rejected by the input schema and pagination beyond the first 20 results is not supported. The legacy "size" alias is accepted for backward compatibility and defaults to 3 when no per_page is supplied. Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
+				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Use per_page to control the result count (1..20, default 20); the underlying Elasticsearch query is hard-capped at 20, so values above 20 are rejected by the input schema and pagination beyond the first 20 results is not supported. The legacy "size" alias is accepted for backward compatibility and defaults to 3 when no per_page is supplied. Read-only and idempotent. Use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'post_id' ),
@@ -168,111 +127,7 @@ class Related_Posts_Abilities extends Registrar {
 					'show_in_rest' => true,
 				),
 			),
-
-			'jetpack-related-posts/get-settings'      => array(
-				'label'               => __( 'Get Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Return the Related Posts display settings: theme_type ("classic"), enabled, show_headline, show_thumbnails, show_date, show_context, layout ("grid"|"list"), headline, and size — the values that drive auto-injection after the post content. Only registered on classic themes; block themes ignore the underlying option (rendering is controlled per-instance by the Jetpack Related Posts block in templates), so this ability is omitted there. Read-only and idempotent. Pair with jetpack-related-posts/update-settings to change values; module activation itself is managed via jetpack-modules/set-module-status.', 'jetpack' ),
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'properties'           => array(),
-					'additionalProperties' => false,
-				),
-				'output_schema'       => $settings_schema,
-				'execute_callback'    => array( __CLASS__, 'get_settings' ),
-				'permission_callback' => array( __CLASS__, 'can_view_settings' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
-					),
-					'show_in_rest' => true,
-				),
-			),
-
-			'jetpack-related-posts/update-settings'   => array(
-				'label'               => __( 'Update Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Update one or more Related Posts display settings. Pass any subset of enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size — omitted fields keep their current value. Only registered on classic themes; on block themes the ability is omitted entirely because the option is not consumed at render time — agents must edit the Jetpack Related Posts block inside the active template via the Site Editor instead. Idempotent: when no field differs from the current value, the call is a no-op and returns changed=false with an empty changed_fields array. Returns { settings, changed, changed_fields }. Does not toggle the related-posts module itself; use jetpack-modules/set-module-status for that.', 'jetpack' ),
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'properties'           => array(
-						'enabled'         => array(
-							'type'        => 'boolean',
-							'description' => __( 'Whether to display related posts after single-post content.', 'jetpack' ),
-						),
-						'show_headline'   => array(
-							'type'        => 'boolean',
-							'description' => __( 'Whether to render a headline above the related-posts list.', 'jetpack' ),
-						),
-						'show_thumbnails' => array(
-							'type'        => 'boolean',
-							'description' => __( 'Whether to render a thumbnail image for each related post.', 'jetpack' ),
-						),
-						'show_date'       => array(
-							'type'        => 'boolean',
-							'description' => __( 'Whether to render the publish date for each related post.', 'jetpack' ),
-						),
-						'show_context'    => array(
-							'type'        => 'boolean',
-							'description' => __( 'Whether to render category/tag context for each related post.', 'jetpack' ),
-						),
-						'layout'          => array(
-							'type'        => 'string',
-							'description' => __( 'Layout used to render the related-posts list.', 'jetpack' ),
-							'enum'        => self::LAYOUTS,
-						),
-						'headline'        => array(
-							'type'        => 'string',
-							'description' => __( 'Headline rendered above the related-posts list when show_headline is true.', 'jetpack' ),
-							'maxLength'   => 200,
-						),
-						'size'            => array(
-							'type'        => 'integer',
-							'description' => __( 'Default number of related posts to render. Must be between 1 and 20.', 'jetpack' ),
-							'minimum'     => 1,
-							'maximum'     => self::MAX_SIZE,
-						),
-					),
-					'additionalProperties' => false,
-				),
-				'output_schema'       => array(
-					'type'       => 'object',
-					'properties' => array(
-						'settings'       => $settings_schema,
-						'changed'        => array( 'type' => 'boolean' ),
-						'changed_fields' => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'string' ),
-						),
-					),
-				),
-				'execute_callback'    => array( __CLASS__, 'update_settings' ),
-				'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => false,
-						'idempotent'  => true,
-					),
-					'show_in_rest' => true,
-				),
-			),
 		);
-
-		// Block themes render Related Posts through the jetpack/related-posts
-		// block placed in templates, so the `relatedposts` option is not consumed
-		// at render time. Exposing settings abilities there would let agents
-		// write data nothing reads — drop them from the registered surface
-		// entirely. The lookup ability (get-related-posts) is unaffected; it
-		// still works regardless of theme type.
-		if ( self::is_block_theme() ) {
-			unset(
-				$abilities['jetpack-related-posts/get-settings'],
-				$abilities['jetpack-related-posts/update-settings']
-			);
-		}
-
-		return $abilities;
 	}
 
 	/**
@@ -285,20 +140,6 @@ class Related_Posts_Abilities extends Registrar {
 	 */
 	public static function can_view_related_posts(): bool {
 		return current_user_can( 'edit_posts' );
-	}
-
-	/**
-	 * Permission check for reading the settings overview.
-	 */
-	public static function can_view_settings(): bool {
-		return current_user_can( 'edit_posts' );
-	}
-
-	/**
-	 * Permission check for updating the settings overview.
-	 */
-	public static function can_manage_settings(): bool {
-		return current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -382,149 +223,6 @@ class Related_Posts_Abilities extends Registrar {
 	}
 
 	/**
-	 * Execute: return the current Related Posts settings.
-	 *
-	 * On classic themes the full display-settings shape is returned. On block
-	 * themes the option is not consumed at render time, so we return only the
-	 * theme_type and a notice pointing the caller at the block — listing the
-	 * other fields would imply they have an effect they do not.
-	 *
-	 * @param array|null $input Unused.
-	 * @return array
-	 */
-	public static function get_settings( $input = null ) {
-		unset( $input );
-
-		if ( self::is_block_theme() ) {
-			return array(
-				'theme_type' => 'block',
-				'notice'     => __( 'Related Posts on block themes is rendered via the Jetpack Related Posts block placed in the active template or template part. Display settings live on each block instance, so this option is not consumed at render time — open the Site Editor and edit the block directly to change appearance or visibility.', 'jetpack' ),
-			);
-		}
-
-		$settings               = self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
-		$settings['theme_type'] = 'classic';
-		return $settings;
-	}
-
-	/**
-	 * Execute: declarative settings update. Idempotent.
-	 *
-	 * @param array|null $input Input matching the ability's input_schema.
-	 * @return array|WP_Error
-	 */
-	public static function update_settings( $input = null ) {
-		if ( self::is_block_theme() ) {
-			return new WP_Error(
-				'jetpack_related_posts_block_theme_not_supported',
-				__( 'Related Posts display settings are not editable on block themes — this option is not consumed at render time. Open the Site Editor and edit the Jetpack Related Posts block inside the active template or template part; each block instance carries its own display attributes.', 'jetpack' ),
-				array( 'status' => 409 )
-			);
-		}
-
-		$input = is_array( $input ) ? $input : array();
-
-		$updates = array_intersect_key( $input, array_flip( self::EDITABLE_FIELDS ) );
-		if ( array() === $updates ) {
-			return new WP_Error(
-				'jetpack_related_posts_missing_field',
-				__( 'Provide at least one editable field (enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size).', 'jetpack' )
-			);
-		}
-
-		if ( isset( $updates['layout'] )
-			&& ! ( is_string( $updates['layout'] ) && in_array( $updates['layout'], self::LAYOUTS, true ) )
-		) {
-			return new WP_Error(
-				'jetpack_related_posts_invalid_layout',
-				__( 'The "layout" field must be either "grid" or "list".', 'jetpack' )
-			);
-		}
-
-		if ( isset( $updates['size'] )
-			&& ( ! is_int( $updates['size'] ) || $updates['size'] < 1 || $updates['size'] > self::MAX_SIZE )
-		) {
-			return new WP_Error(
-				'jetpack_related_posts_invalid_size',
-				sprintf(
-					/* translators: %d: maximum size value. */
-					__( 'The "size" field must be an integer between 1 and %d.', 'jetpack' ),
-					self::MAX_SIZE
-				)
-			);
-		}
-
-		if ( isset( $updates['headline'] ) && ! is_string( $updates['headline'] ) ) {
-			return new WP_Error(
-				'jetpack_related_posts_invalid_headline',
-				__( 'The "headline" field must be a string.', 'jetpack' )
-			);
-		}
-
-		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context' ) as $bool_field ) {
-			if ( isset( $updates[ $bool_field ] ) ) {
-				if ( ! is_bool( $updates[ $bool_field ] ) ) {
-					return new WP_Error(
-						'jetpack_related_posts_invalid_' . $bool_field,
-						sprintf(
-							/* translators: %s: input field name. */
-							__( 'The "%s" field must be a boolean.', 'jetpack' ),
-							$bool_field
-						)
-					);
-				}
-			}
-		}
-
-		$current = self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
-		$merged  = array_merge( $current, $updates );
-
-		$changed_fields = array();
-		foreach ( $updates as $field => $value ) {
-			if ( ! array_key_exists( $field, $current ) || $current[ $field ] !== $value ) {
-				$changed_fields[] = $field;
-			}
-		}
-
-		if ( array() === $changed_fields ) {
-			return array(
-				'settings'       => array_merge( $current, array( 'theme_type' => 'classic' ) ),
-				'changed'        => false,
-				'changed_fields' => array(),
-			);
-		}
-
-		$saved = Jetpack_Options::update_option( self::OPTION_KEY, $merged );
-		if ( ! $saved ) {
-			return new WP_Error(
-				'jetpack_related_posts_data_unavailable',
-				__( 'Unable to save Related Posts settings. Try again or verify the site is connected to Jetpack.', 'jetpack' )
-			);
-		}
-
-		return array(
-			'settings'       => array_merge( $merged, array( 'theme_type' => 'classic' ) ),
-			'changed'        => true,
-			'changed_fields' => $changed_fields,
-		);
-	}
-
-	/**
-	 * Whether the active theme is a block (FSE) theme for Related Posts purposes.
-	 *
-	 * Delegates to `Blocks::is_fse_theme()` so the ability's branching tracks the
-	 * exact same signal the module itself uses to skip auto-injection (see
-	 * `filter_add_target_to_dom()` in jetpack-related-posts.php). Going through
-	 * Jetpack's `jetpack_is_fse_theme` filter also lets tests flip the branch
-	 * without swapping the active theme on disk.
-	 *
-	 * @return bool
-	 */
-	private static function is_block_theme(): bool {
-		return Blocks::is_fse_theme();
-	}
-
-	/**
 	 * Returns the Jetpack Related Posts raw instance, loading the class file lazily
 	 * when it has not been included by the module's own load action yet.
 	 *
@@ -554,39 +252,6 @@ class Related_Posts_Abilities extends Registrar {
 			'date'      => isset( $related['date'] ) ? (string) $related['date'] : '',
 			'post_type' => $id > 0 ? (string) get_post_type( $id ) : '',
 			'format'    => isset( $related['format'] ) && '' !== $related['format'] ? (string) $related['format'] : null,
-		);
-	}
-
-	/**
-	 * Coerce a raw Related Posts options array into the canonical
-	 * agent-facing shape with stable types and sensible defaults.
-	 *
-	 * Mirrors the defaulting in `Jetpack_RelatedPosts::get_options()` without
-	 * instantiating the full module class (which would attach admin/frontend
-	 * hooks) and without using `init_raw()` (whose `get_options()` is a stub
-	 * that only exposes `enabled`).
-	 *
-	 * @param array|mixed $options Raw options array (possibly from the DB).
-	 * @return array
-	 */
-	private static function normalize_settings( $options ): array {
-		$options = is_array( $options ) ? $options : array();
-
-		$layout = isset( $options['layout'] ) && in_array( $options['layout'], self::LAYOUTS, true )
-			? $options['layout']
-			: 'grid';
-
-		$size = isset( $options['size'] ) && (int) $options['size'] >= 1 ? (int) $options['size'] : self::DEFAULT_SIZE;
-
-		return array(
-			'enabled'         => ! empty( $options['enabled'] ),
-			'show_headline'   => ! empty( $options['show_headline'] ),
-			'show_thumbnails' => ! empty( $options['show_thumbnails'] ),
-			'show_date'       => ! empty( $options['show_date'] ),
-			'show_context'    => ! empty( $options['show_context'] ),
-			'layout'          => $layout,
-			'headline'        => isset( $options['headline'] ) ? (string) $options['headline'] : __( 'Related', 'jetpack' ),
-			'size'            => $size,
 		);
 	}
 }

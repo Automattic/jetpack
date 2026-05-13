@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Related Posts: register Abilities API surface (get-related-posts, get-settings, update-settings) on WP 6.9+. The two settings abilities are only registered on classic themes; block themes do not consume the relatedposts option at render time (display is controlled per-instance by the Jetpack Related Posts block placed in templates), so registering settings abilities there would let agents write data nothing reads — they are omitted instead. The lookup ability remains available regardless of theme.
+Related Posts: register a get-related-posts ability with the WordPress Abilities API on WP 6.9+ so agents can fetch related posts for a single post through the standard wp-abilities/v1 REST surface.

@@ -28,9 +28,6 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	/** @var int */
 	private static $subscriber_id;
 
-	/** @var array|null */
-	private $saved_relatedposts_option;
-
 	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
 		self::$admin_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		self::$author_id     = $factory->user->create( array( 'role' => 'author' ) );
@@ -40,48 +37,17 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->saved_relatedposts_option = Jetpack_Options::get_option( 'relatedposts', null );
-
 		$this->reset_registry_state();
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
-		// Default every test to a classic theme so theme-type branches stay
-		// deterministic regardless of which theme the WP test bootstrap chose.
-		$this->force_classic_theme();
 	}
 
 	public function tear_down() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
-		remove_all_filters( 'jetpack_is_fse_theme' );
 		$this->reset_registry_state();
 		wp_set_current_user( 0 );
 
-		if ( null === $this->saved_relatedposts_option ) {
-			Jetpack_Options::delete_option( 'relatedposts' );
-		} else {
-			Jetpack_Options::update_option( 'relatedposts', $this->saved_relatedposts_option );
-		}
-
 		parent::tear_down();
-	}
-
-	/**
-	 * Pin the ability's theme-type check to "classic" by intercepting the same
-	 * filter the related-posts module itself consults. Avoids depending on the
-	 * test runner's active theme.
-	 */
-	private function force_classic_theme(): void {
-		remove_all_filters( 'jetpack_is_fse_theme' );
-		add_filter( 'jetpack_is_fse_theme', '__return_false' );
-	}
-
-	/**
-	 * Pin the ability's theme-type check to "block" without swapping the active
-	 * theme on disk.
-	 */
-	private function force_block_theme(): void {
-		remove_all_filters( 'jetpack_is_fse_theme' );
-		add_filter( 'jetpack_is_fse_theme', '__return_true' );
 	}
 
 	/**
@@ -123,6 +89,16 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		foreach ( array_keys( $abilities ) as $slug ) {
 			$this->assertStringStartsWith( 'jetpack-related-posts/', $slug );
 		}
+	}
+
+	public function test_abilities_map_only_exposes_the_lookup_ability() {
+		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
+
+		$this->assertSame(
+			array( 'jetpack-related-posts/get-related-posts' ),
+			$slugs,
+			'The settings abilities were intentionally removed — only the lookup ability should remain.'
+		);
 	}
 
 	public function test_no_spec_sets_category_explicitly() {
@@ -187,8 +163,16 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	/**
 	 * Drive registration through the lifecycle actions so WordPress 6.9's
 	 * doing-it-wrong check sees the callbacks fire inside the proper action.
+	 *
+	 * Re-firing the actions also re-invokes WP core's own listeners, which
+	 * raise "already registered" notices for the core site category and
+	 * get-site-info ability. Those notices are unrelated to this test's
+	 * intent, so the helper whitelists them up-front for the calling test.
 	 */
 	private function trigger_registration() {
+		$this->setExpectedIncorrectUsage( 'WP_Ability_Categories_Registry::register' );
+		$this->setExpectedIncorrectUsage( 'WP_Abilities_Registry::register' );
+
 		add_action( 'wp_abilities_api_categories_init', array( Related_Posts_Abilities::class, 'register_category' ) );
 		add_action( 'wp_abilities_api_init', array( Related_Posts_Abilities::class, 'register_abilities' ) );
 		do_action( 'wp_abilities_api_categories_init' );
@@ -267,144 +251,6 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	public function test_can_view_related_posts_denies_anonymous() {
 		wp_set_current_user( 0 );
 		$this->assertFalse( Related_Posts_Abilities::can_view_related_posts() );
-	}
-
-	public function test_can_view_settings_allows_author() {
-		wp_set_current_user( self::$author_id );
-		$this->assertTrue( Related_Posts_Abilities::can_view_settings() );
-	}
-
-	public function test_can_manage_settings_denies_author() {
-		wp_set_current_user( self::$author_id );
-		$this->assertFalse( Related_Posts_Abilities::can_manage_settings() );
-	}
-
-	public function test_can_manage_settings_allows_admin() {
-		wp_set_current_user( self::$admin_id );
-		$this->assertTrue( Related_Posts_Abilities::can_manage_settings() );
-	}
-
-	public function test_get_settings_returns_normalized_shape() {
-		$settings = Related_Posts_Abilities::get_settings();
-		$this->assertIsArray( $settings );
-		$this->assertSame( 'classic', $settings['theme_type'], 'Classic theme path must announce theme_type=classic.' );
-		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context', 'layout', 'headline', 'size' ) as $field ) {
-			$this->assertArrayHasKey( $field, $settings, "Settings shape must include {$field}." );
-		}
-		$this->assertContains( $settings['layout'], array( 'grid', 'list' ) );
-		$this->assertIsBool( $settings['enabled'] );
-		$this->assertIsInt( $settings['size'] );
-		$this->assertGreaterThanOrEqual( 1, $settings['size'] );
-	}
-
-	public function test_block_theme_omits_settings_abilities_from_map() {
-		$this->force_block_theme();
-
-		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
-
-		$this->assertContains(
-			'jetpack-related-posts/get-related-posts',
-			$slugs,
-			'The lookup ability must remain available on block themes — it does not depend on the option.'
-		);
-		$this->assertNotContains(
-			'jetpack-related-posts/get-settings',
-			$slugs,
-			'Block themes do not consume the relatedposts option at render time; get-settings must be omitted.'
-		);
-		$this->assertNotContains(
-			'jetpack-related-posts/update-settings',
-			$slugs,
-			'Block themes do not consume the relatedposts option at render time; update-settings must be omitted.'
-		);
-	}
-
-	public function test_classic_theme_keeps_full_abilities_map() {
-		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
-
-		$this->assertContains( 'jetpack-related-posts/get-related-posts', $slugs );
-		$this->assertContains( 'jetpack-related-posts/get-settings', $slugs );
-		$this->assertContains( 'jetpack-related-posts/update-settings', $slugs );
-	}
-
-	public function test_block_theme_does_not_register_settings_abilities() {
-		if ( ! function_exists( 'wp_get_abilities' ) ) {
-			$this->markTestSkipped( 'Abilities API not available.' );
-		}
-
-		// Re-firing the Abilities API actions also re-fires WP core's own
-		// registration callbacks, which then raise "already registered"
-		// doing-it-wrong notices for the core site category and get-site-info
-		// ability. Whitelist those so the test asserts on its own behavior.
-		$this->setExpectedIncorrectUsage( 'WP_Ability_Categories_Registry::register' );
-		$this->setExpectedIncorrectUsage( 'WP_Abilities_Registry::register' );
-
-		$this->force_block_theme();
-		$this->trigger_registration();
-
-		$registered_slugs = array_keys( wp_get_abilities() );
-
-		$this->assertContains(
-			'jetpack-related-posts/get-related-posts',
-			$registered_slugs,
-			'Lookup ability must register on block themes.'
-		);
-		$this->assertNotContains(
-			'jetpack-related-posts/get-settings',
-			$registered_slugs,
-			'get-settings must not register on block themes.'
-		);
-		$this->assertNotContains(
-			'jetpack-related-posts/update-settings',
-			$registered_slugs,
-			'update-settings must not register on block themes.'
-		);
-	}
-
-	public function test_get_settings_on_block_theme_returns_minimal_shape_defensively() {
-		// The ability isn't registered on block themes, but the static method
-		// remains PHP-reachable. Direct callers should still get a sensible
-		// shape that does not mislead by listing irrelevant fields.
-		$this->force_block_theme();
-
-		$settings = Related_Posts_Abilities::get_settings();
-
-		$this->assertSame( 'block', $settings['theme_type'] );
-		$this->assertArrayHasKey( 'notice', $settings );
-		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context', 'layout', 'headline', 'size' ) as $field ) {
-			$this->assertArrayNotHasKey( $field, $settings );
-		}
-	}
-
-	public function test_update_settings_on_block_theme_is_rejected_defensively() {
-		// Even though the ability is not registered on block themes, the static
-		// execute callback is still PHP-reachable from direct callers — make
-		// sure it refuses to write so a misused call cannot corrupt the option.
-		$this->force_block_theme();
-		$this->seed_default_settings();
-		$before = Jetpack_Options::get_option( 'relatedposts' );
-
-		$result = Related_Posts_Abilities::update_settings( array( 'show_thumbnails' => true ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_block_theme_not_supported', $result->get_error_code() );
-		$this->assertSame( $before, Jetpack_Options::get_option( 'relatedposts' ) );
-	}
-
-	public function test_update_settings_response_advertises_theme_type() {
-		$this->seed_default_settings();
-
-		$result = Related_Posts_Abilities::update_settings( array( 'show_thumbnails' => true ) );
-
-		$this->assertIsArray( $result );
-		$this->assertTrue( $result['changed'] );
-		$this->assertSame( 'classic', $result['settings']['theme_type'] );
-
-		// theme_type is a derived field — it must not be persisted to the
-		// `relatedposts` option, only added to the response.
-		$stored = Jetpack_Options::get_option( 'relatedposts' );
-		$this->assertIsArray( $stored );
-		$this->assertArrayNotHasKey( 'theme_type', $stored );
 	}
 
 	public function test_get_related_posts_rejects_missing_post_id() {
@@ -626,98 +472,5 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		$this->assertNull( $result[0]['format'] );
 		$this->assertSame( '', $result[0]['excerpt'] );
 		$this->assertSame( '', $result[0]['date'] );
-	}
-
-	public function test_get_settings_fills_defaults_from_partial_db_row() {
-		Jetpack_Options::update_option(
-			'relatedposts',
-			array(
-				'enabled' => true,
-				'size'    => 7,
-			)
-		);
-
-		$settings = Related_Posts_Abilities::get_settings();
-
-		$this->assertTrue( $settings['enabled'] );
-		$this->assertSame( 7, $settings['size'] );
-		$this->assertSame( 'grid', $settings['layout'], 'Missing layout key must default to grid.' );
-		$this->assertFalse( $settings['show_thumbnails'], 'Missing booleans must default to false.' );
-		$this->assertFalse( $settings['show_headline'] );
-		$this->assertFalse( $settings['show_date'] );
-		$this->assertFalse( $settings['show_context'] );
-		$this->assertSame( 'Related', $settings['headline'], 'Missing headline must fall back to "Related".' );
-	}
-
-	public function test_update_settings_rejects_no_fields() {
-		$result = Related_Posts_Abilities::update_settings( array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_missing_field', $result->get_error_code() );
-	}
-
-	public function test_update_settings_rejects_only_unknown_fields() {
-		$result = Related_Posts_Abilities::update_settings( array( 'bogus_field' => true ) );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_missing_field', $result->get_error_code() );
-	}
-
-	public function test_update_settings_rejects_invalid_layout() {
-		$result = Related_Posts_Abilities::update_settings( array( 'layout' => 'masonry' ) );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_invalid_layout', $result->get_error_code() );
-	}
-
-	public function test_update_settings_rejects_size_out_of_range() {
-		$result = Related_Posts_Abilities::update_settings( array( 'size' => 999 ) );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_invalid_size', $result->get_error_code() );
-	}
-
-	public function test_update_settings_rejects_non_bool_enabled() {
-		$result = Related_Posts_Abilities::update_settings( array( 'enabled' => 'yes' ) );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_related_posts_invalid_enabled', $result->get_error_code() );
-	}
-
-	public function test_update_settings_changes_when_value_differs() {
-		$this->seed_default_settings();
-
-		$result = Related_Posts_Abilities::update_settings( array( 'show_thumbnails' => true ) );
-
-		$this->assertIsArray( $result );
-		$this->assertTrue( $result['changed'] );
-		$this->assertSame( array( 'show_thumbnails' ), $result['changed_fields'] );
-		$this->assertTrue( $result['settings']['show_thumbnails'] );
-	}
-
-	public function test_update_settings_is_idempotent_when_values_match() {
-		$this->seed_default_settings();
-
-		$result = Related_Posts_Abilities::update_settings(
-			array(
-				'layout'          => 'grid',
-				'show_thumbnails' => false,
-			)
-		);
-
-		$this->assertIsArray( $result );
-		$this->assertFalse( $result['changed'], 'No-op update must return changed=false.' );
-		$this->assertSame( array(), $result['changed_fields'] );
-	}
-
-	private function seed_default_settings() {
-		Jetpack_Options::update_option(
-			'relatedposts',
-			array(
-				'enabled'         => true,
-				'show_headline'   => true,
-				'show_thumbnails' => false,
-				'show_date'       => true,
-				'show_context'    => true,
-				'layout'          => 'grid',
-				'headline'        => 'Related',
-				'size'            => 3,
-			)
-		);
 	}
 }
