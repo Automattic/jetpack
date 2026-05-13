@@ -210,6 +210,9 @@ $bar-fill: #2271b1;
 		border-radius: 4px;
 		width: 100%;
 		text-align: start;
+		// Reset UA <button> grey on clickable rows (Top episodes); is-clickable
+		// hover/focus rules override.
+		background: transparent;
 		border: 0;
 		cursor: default;
 
