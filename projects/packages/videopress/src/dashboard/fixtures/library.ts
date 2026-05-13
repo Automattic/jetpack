@@ -1,4 +1,9 @@
-import type { LibraryItemPrivacy, LibraryItemType, MockLibraryItem } from '../types/library';
+import type {
+	LibraryItemPrivacy,
+	LibraryItemType,
+	MockLibraryItem,
+	VideoRating,
+} from '../types/library';
 
 const TITLES = [
 	'3D Animation Studio',
@@ -24,6 +29,15 @@ const PRIVACIES: LibraryItemPrivacy[] = [
 	'site-default',
 	'site-default',
 	'site-default',
+];
+
+const RATINGS: VideoRating[] = [ 'G', 'G', 'G', 'G', 'PG-13', 'PG-13', 'R' ];
+const DESCRIPTIONS = [
+	'A short, hand-rolled sample description for the mock dashboard.',
+	'',
+	'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus a tortor ut nibh dictum congue.',
+	'Quick test clip — used while exercising the modernized dashboard UI.',
+	'',
 ];
 
 /* Deterministic SVG data-URI thumbnails (no network needed). */
@@ -84,6 +98,11 @@ export function generateMockLibrary( count = 50 ): MockLibraryItem[] {
 			privacy,
 			fileSizeBytes,
 			upload: { status: 'idle', progress: 0 },
+			description: DESCRIPTIONS[ i % DESCRIPTIONS.length ],
+			rating: RATINGS[ i % RATINGS.length ],
+			allowSharing: i % 2 === 0,
+			allowDownloads: i % 3 === 0,
+			shortcode: `[videopress mock-${ i + 1 }]`,
 		};
 	} );
 }
