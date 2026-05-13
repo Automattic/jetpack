@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a small bug causing the contact panel on the email view to show 0 values.
