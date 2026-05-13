@@ -1231,10 +1231,10 @@ abstract class Publicize_Base {
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'version'                  => array(
+						'version'                        => array(
 							'type' => 'number',
 						),
-						'attached_media'           => array(
+						'attached_media'                 => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1251,7 +1251,10 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'image_generator_settings' => array(
+						'customize_per_network_user_set' => array(
+							'type' => 'boolean',
+						),
+						'image_generator_settings'       => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'          => array(
@@ -1280,7 +1283,7 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'media_source'             => array(
+						'media_source'                   => array(
 							'type' => 'string',
 							'enum' => array( 'featured-image', 'sig', 'media-library', 'upload-video', 'none' ),
 						),

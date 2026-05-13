@@ -34,6 +34,9 @@ export function usePerNetworkCustomization() {
 	const hasConnectionTemplate = connections.some(
 		connection => typeof connection.template === 'string' && connection.template.trim() !== ''
 	);
+	const hasUserSetCustomizePerNetwork = Boolean(
+		postMeta.jetpackSocialOptions.customize_per_network_user_set
+	);
 
 	const isMetaEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
@@ -41,8 +44,14 @@ export function usePerNetworkCustomization() {
 		return Boolean( meta?.[ CUSTOMIZE_PER_NETWORK_KEY ] );
 	}, [] );
 	const shouldUseTemplateDefault =
-		templatesEnabled && hasConnectionTemplate && ! isMetaEnabled && ! templateDefaultDisabled;
-	const isEnabled = isMetaEnabled || shouldUseTemplateDefault;
+		templatesEnabled &&
+		hasConnectionTemplate &&
+		! isMetaEnabled &&
+		! hasUserSetCustomizePerNetwork &&
+		! templateDefaultDisabled;
+	const isEnabled = hasUserSetCustomizePerNetwork
+		? isMetaEnabled
+		: isMetaEnabled || shouldUseTemplateDefault;
 
 	useEffect( () => {
 		if ( ! shouldUseTemplateDefault || ! hasSocialPaidFeatures() ) {
@@ -108,6 +117,11 @@ export function usePerNetworkCustomization() {
 		editPost( {
 			meta: {
 				[ CUSTOMIZE_PER_NETWORK_KEY ]: isNowEnabled,
+				jetpack_social_options: {
+					...postMeta.jetpackSocialOptions,
+					customize_per_network_user_set: true,
+					version: 2,
+				},
 			},
 		} );
 
@@ -120,6 +134,7 @@ export function usePerNetworkCustomization() {
 		templatesEnabled,
 		hasConnectionTemplate,
 		editPost,
+		postMeta.jetpackSocialOptions,
 		syncConnections,
 	] );
 

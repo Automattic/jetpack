@@ -112,12 +112,17 @@ describe( 'usePerNetworkCustomization', () => {
 	it( 'should default to enabled when message templates are enabled and a connection has a custom template', () => {
 		mockUseSelect.mockImplementation( ( selector: ( select: unknown ) => unknown ) => {
 			return selector(
-				createMockSelect( {}, [
+				createMockSelect(
 					{
-						connection_id: 'connection-1',
-						template: 'Custom template',
+						_wpas_customize_per_network: false,
 					},
-				] )
+					[
+						{
+							connection_id: 'connection-1',
+							template: 'Custom template',
+						},
+					]
+				)
 			);
 		} );
 
@@ -129,6 +134,38 @@ describe( 'usePerNetworkCustomization', () => {
 				_wpas_customize_per_network: true,
 			},
 		} );
+	} );
+
+	it( 'should respect an explicitly saved global mode when a connection has a custom template', () => {
+		mockUsePostMeta.mockReturnValue( {
+			attachedMedia: [],
+			imageGeneratorSettings: { enabled: false },
+			jetpackSocialOptions: {
+				customize_per_network_user_set: true,
+			},
+			mediaSource: undefined,
+			shareMessage: '',
+		} );
+		mockUseSelect.mockImplementation( ( selector: ( select: unknown ) => unknown ) => {
+			return selector(
+				createMockSelect(
+					{
+						_wpas_customize_per_network: false,
+					},
+					[
+						{
+							connection_id: 'connection-1',
+							template: 'Custom template',
+						},
+					]
+				)
+			);
+		} );
+
+		const { result } = renderHook( () => usePerNetworkCustomization() );
+
+		expect( result.current.isEnabled ).toBe( false );
+		expect( mockEditPost ).not.toHaveBeenCalled();
 	} );
 
 	it( 'should not default to enabled when the connection template is blank', () => {
@@ -200,6 +237,10 @@ describe( 'usePerNetworkCustomization', () => {
 		expect( mockEditPost ).toHaveBeenLastCalledWith( {
 			meta: {
 				_wpas_customize_per_network: false,
+				jetpack_social_options: {
+					customize_per_network_user_set: true,
+					version: 2,
+				},
 			},
 		} );
 	} );
@@ -222,6 +263,10 @@ describe( 'usePerNetworkCustomization', () => {
 		expect( mockEditPost ).toHaveBeenCalledWith( {
 			meta: {
 				_wpas_customize_per_network: true,
+				jetpack_social_options: {
+					customize_per_network_user_set: true,
+					version: 2,
+				},
 			},
 		} );
 	} );
