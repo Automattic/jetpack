@@ -1,57 +1,39 @@
 .page {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xl, 24px);
-	max-width: 880px;
-	margin-inline: auto;
 }
 
+// Break out of `.jetpack-boost-page__content--padded`'s 24px inset so
+// the breadcrumb header spans the full body-slot width — same look as
+// the chassis's own `.admin-ui-page__header`. The header element itself
+// already wears the `admin-ui-page__header` class, so admin-ui supplies
+// the sticky + padding + border + background styling.
 .header {
-	position: sticky;
-	top: 0;
-	z-index: 10;
-	display: flex;
-	align-items: center;
-	padding-block: var(--wpds-dimension-gap-md, 16px);
-	background: var(--wpds-color-bg-surface-neutral, #fff);
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
-}
-
-.breadcrumbs :global(.admin-ui-breadcrumbs__list) {
-	min-height: auto;
-	gap: var(--wpds-dimension-gap-xs, 8px);
-
-	li {
-		display: flex;
-		align-items: center;
-		margin-bottom: 0;
-	}
-}
-
-.breadcrumb-current {
-	display: inline;
-	font-size: var(--wpds-typography-font-size-xl, 24px);
-	font-weight: var(--wpds-typography-font-weight-medium, 600);
-	line-height: var(--wpds-typography-line-height-md, 1.4);
-	margin: 0;
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	margin:
+		calc(-1 * var(--wpds-dimension-padding-2xl, 24px))
+		calc(-1 * var(--wpds-dimension-padding-2xl, 24px))
+		var(--wpds-dimension-gap-xl, 24px);
 }
 
 .breadcrumb-link {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs, 8px);
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
-	font-size: var(--wpds-typography-font-size-lg, 20px);
-	font-weight: var(--wpds-typography-font-weight-regular, 400);
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	text-decoration: none;
 
 	&:hover,
 	&:focus,
 	&:active {
-		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+		color: var(--wpds-color-fg-interactive-brand, #2271b1);
 		text-decoration: underline;
 	}
+}
+
+.body {
+	max-width: 660px;
+	margin-inline: auto;
+	width: 100%;
 }
 
 .log-text {
@@ -76,14 +58,17 @@
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
+// Only the chassis-rendered `.admin-ui-page__header` (a direct child of
+// `.admin-ui-page`) gets hidden — our in-body header wears the same
+// class but is nested deeper, so it survives. Tabs row sits above the
+// scroll content so we hide it the same way.
 :global(body.jb-subpage-active) {
 
-	:global(.admin-ui-page__header),
-	:global(.jetpack-boost-page__tabs-row) {
+	:global(.admin-ui-page > .admin-ui-page__header) {
 		display: none;
 	}
 
-	:global(.jetpack-boost-page__content--padded) {
-		padding-top: 0;
+	:global(.jetpack-boost-page__tabs-row) {
+		display: none;
 	}
 }

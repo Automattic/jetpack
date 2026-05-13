@@ -93,8 +93,8 @@ export default function AdvancedCriticalCss() {
 
 	return (
 		<div className={ styles.page }>
-			<header className={ styles.header }>
-				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
+			<header className={ `admin-ui-page__header ${ styles.header }` }>
+				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }>
 					<HStack
 						as="ul"
 						className="admin-ui-breadcrumbs__list"
@@ -109,15 +109,13 @@ export default function AdvancedCriticalCss() {
 							</a>
 						</li>
 						<li>
-							<h1 className={ styles[ 'breadcrumb-current' ] }>
-								{ __( 'Critical CSS recommendations', 'jetpack-boost' ) }
-							</h1>
+							<h1>{ __( 'Critical CSS recommendations', 'jetpack-boost' ) }</h1>
 						</li>
 					</HStack>
 				</nav>
 			</header>
 
-			<Stack direction="column" gap="lg">
+			<Stack direction="column" gap="lg" className={ styles.body }>
 				<Card.Root>
 					<Card.Content>
 						<Stack direction="column" gap="md">

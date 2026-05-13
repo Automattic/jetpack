@@ -45,8 +45,8 @@ const CacheDebugLog = () => {
 
 	return (
 		<div className={ styles.page }>
-			<header className={ styles.header }>
-				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
+			<header className={ `admin-ui-page__header ${ styles.header }` }>
+				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }>
 					<HStack
 						as="ul"
 						className="admin-ui-breadcrumbs__list"
@@ -61,39 +61,39 @@ const CacheDebugLog = () => {
 							</a>
 						</li>
 						<li>
-							<h1 className={ styles[ 'breadcrumb-current' ] }>
-								{ __( 'Cache debug log', 'jetpack-boost' ) }
-							</h1>
+							<h1>{ __( 'Cache debug log', 'jetpack-boost' ) }</h1>
 						</li>
 					</HStack>
 				</nav>
 			</header>
-			<Card.Root>
-				<Card.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="md">
-						<Card.Title>{ __( 'Cache log', 'jetpack-boost' ) }</Card.Title>
-						{ hasLog && (
-							<Button variant="outline" tone="neutral" size="compact" onClick={ handleCopy }>
-								{ copied
-									? __( 'Copied!', 'jetpack-boost' )
-									: __( 'Copy to clipboard', 'jetpack-boost' ) }
-							</Button>
-						) }
-					</Stack>
-				</Card.Header>
-				<Card.Content>
-					{ hasLog ? (
-						<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
-					) : (
-						<p className={ styles.empty }>
-							{ __(
-								'No cache events have been logged yet. Browse your site with logging enabled to start collecting entries.',
-								'jetpack-boost'
+			<div className={ styles.body }>
+				<Card.Root>
+					<Card.Header>
+						<Stack direction="row" justify="space-between" align="center" gap="md">
+							<Card.Title>{ __( 'Cache log', 'jetpack-boost' ) }</Card.Title>
+							{ hasLog && (
+								<Button variant="outline" tone="neutral" size="compact" onClick={ handleCopy }>
+									{ copied
+										? __( 'Copied!', 'jetpack-boost' )
+										: __( 'Copy to clipboard', 'jetpack-boost' ) }
+								</Button>
 							) }
-						</p>
-					) }
-				</Card.Content>
-			</Card.Root>
+						</Stack>
+					</Card.Header>
+					<Card.Content>
+						{ hasLog ? (
+							<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
+						) : (
+							<p className={ styles.empty }>
+								{ __(
+									'No cache events have been logged yet. Browse your site with logging enabled to start collecting entries.',
+									'jetpack-boost'
+								) }
+							</p>
+						) }
+					</Card.Content>
+				</Card.Root>
+			</div>
 		</div>
 	);
 };
