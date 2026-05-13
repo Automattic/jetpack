@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register jetpack-plans/get-current-plan, jetpack-plans/list-plans, and jetpack-plans/get-purchase-url for WP 6.9+.
