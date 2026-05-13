@@ -437,7 +437,7 @@ function jpcrm_storage_dir_info() {
 	/**
 	 * Filters the CRM private storage directory location.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.8.0
 	 *
 	 * @param array $dir_info
 	 */
