@@ -67,6 +67,18 @@ describe( 'formatWpDate', () => {
 		expect( formatWpDate( evening, 'g:i a', 'en-US' ) ).toBe( '10:30 pm' );
 	} );
 
+	it( 'maps midnight and noon onto the 12-hour clock as 12, not 00', () => {
+		// `h % 12 || 12` short-circuits the 0-hour case so midnight renders as
+		// `12 AM` and noon as `12 PM`, matching PHP `date( 'h' )` / `date( 'g' )`.
+		const midnight = new Date( Date.UTC( 2026, 3, 20, 0, 0, 0 ) );
+		expect( formatWpDate( midnight, 'h:i A', 'en-US' ) ).toBe( '12:00 AM' );
+		expect( formatWpDate( midnight, 'g:i a', 'en-US' ) ).toBe( '12:00 am' );
+
+		const noon = new Date( Date.UTC( 2026, 3, 20, 12, 0, 0 ) );
+		expect( formatWpDate( noon, 'h:i A', 'en-US' ) ).toBe( '12:00 PM' );
+		expect( formatWpDate( noon, 'g:i a', 'en-US' ) ).toBe( '12:00 pm' );
+	} );
+
 	it( 'reads dates as UTC regardless of the runtime timezone', () => {
 		// Forming the Date via Date.UTC pins the wall-clock to UTC; the
 		// formatter must not shift it to the runtime's local offset.

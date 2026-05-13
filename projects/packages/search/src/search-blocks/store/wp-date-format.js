@@ -11,11 +11,14 @@
  *
  * Token coverage: every PHP `date()` letter likely to appear in a WP
  * `date_format` setting (`d D j l N S w F m M n Y y L o H h G g i s a A`),
- * plus `\` as the literal-escape character. Month and day names are sourced
- * from `Intl.DateTimeFormat` for the seeded blog locale — month names will
- * therefore follow the browser's ICU data rather than WordPress's own
- * translation tables, which is the closest faithful approximation reachable
- * from inside the IAPI runtime.
+ * plus `\` as the literal-escape character. Tokens that resolve to a month
+ * or weekday name (`F`, `M`, `l`, `D`) are sourced from `Intl.DateTimeFormat`
+ * for the seeded blog locale, so the output follows the browser's ICU data
+ * rather than WordPress's own translation tables — this is the closest
+ * faithful approximation reachable from inside the IAPI runtime. Note that
+ * locale-specific abbreviation conventions still apply: e.g. German short
+ * months render as "Apr." rather than the PHP-default "Apr", matching the
+ * behavior of `dateI18n()` on the same site.
  *
  * Dates are read in UTC to keep result cards stable regardless of the
  * viewer's timezone — the v1.3 Jetpack Search API returns post `date` in UTC,
