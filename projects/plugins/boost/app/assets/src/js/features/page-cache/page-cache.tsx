@@ -33,7 +33,11 @@ const DismissableNotice = ( { title, children }: { title: string; children: Reac
 	);
 };
 
-const PageCache = () => {
+type PageCacheProps = {
+	inline?: boolean;
+};
+
+const PageCache = ( { inline = false }: PageCacheProps = {} ) => {
 	const [ moduleState ] = useSingleModuleState( 'page_cache' );
 	const [ pageCacheSetup, pageCacheSetupNotices ] = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
@@ -75,6 +79,7 @@ const PageCache = () => {
 	return (
 		<Module
 			slug="page_cache"
+			inline={ inline }
 			title={ __( 'Cache site pages', 'jetpack-boost' ) }
 			onBeforeToggle={ status => {
 				setIsPageCacheSettingUp( status );

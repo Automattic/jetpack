@@ -46,7 +46,7 @@ const CornerstonePages = () => {
 			<Card.Header>
 				<Stack direction="column" gap="xs">
 					<Card.Title>
-						{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+						{ __( 'Cornerstone pages', 'jetpack-boost' ) }
 						{ isPremium && <Upgraded /> }
 					</Card.Title>
 					<Text>

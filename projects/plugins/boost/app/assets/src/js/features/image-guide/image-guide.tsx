@@ -2,7 +2,11 @@ import Module from '$features/module/module';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 
-const ImageGuide = () => {
+type ImageGuideProps = {
+	inline?: boolean;
+};
+
+const ImageGuide = ( { inline = false }: ImageGuideProps = {} ) => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	/**
@@ -16,6 +20,7 @@ const ImageGuide = () => {
 	return (
 		<Module
 			slug="image_guide"
+			inline={ inline }
 			title={ __( 'Activate overlay guide on site', 'jetpack-boost' ) }
 			onDisable={ resetImageGuideState }
 			description={ __(

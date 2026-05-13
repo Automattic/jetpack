@@ -4,12 +4,17 @@ import Module from '$features/module/module';
 import { useShowMinifyLegacy } from '$lib/stores/minify';
 import { __ } from '@wordpress/i18n';
 
-const MinifyJs = () => {
+type MinifyJsProps = {
+	inline?: boolean;
+};
+
+const MinifyJs = ( { inline = false }: MinifyJsProps = {} ) => {
 	const showMinifyLegacy = useShowMinifyLegacy();
 
 	return (
 		<Module
 			slug="minify_js"
+			inline={ inline }
 			title={ __( 'Concatenate JS', 'jetpack-boost' ) }
 			description={ __(
 				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
