@@ -10,6 +10,7 @@ import EmbeddedPreview from './previews/embedded-preview';
 import InlinePreview from './previews/inline-preview';
 import OffPreview from './previews/off-preview';
 import OverlayPreview from './previews/overlay-preview';
+import './experience-option.scss';
 
 // URL constants reused verbatim from the legacy ModuleControl.
 // `sprintf( ..., encodeURIComponent( returnUrl ) )` was a no-op there

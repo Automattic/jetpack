@@ -1,5 +1,3 @@
-@use "scss/variables";
-
 .jp-search-feature-selector-wrap {
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
@@ -23,177 +21,10 @@
 
 .jp-search-feature-selector {
 
-	// WP admin has no global `box-sizing: border-box` reset, so children that
-	// use `width: 100%` plus padding/border (like the previews) end up wider
-	// than their parent's content box and bleed into the card's right padding.
-	&,
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
-
 	&__fieldset {
 		border: 0;
 		margin: 0;
 		padding: 0;
-	}
-
-	&__card {
-		position: relative;
-		padding: var(--wpds-dimension-padding-2xl);
-		background: var(--wpds-color-bg-surface-neutral-strong);
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-		border-radius: var(--wpds-border-radius-lg);
-		transition: border-color 120ms ease, box-shadow 120ms ease;
-
-		&:hover {
-			border-color: var(--wpds-color-stroke-interactive-neutral);
-		}
-
-		&.is-selected {
-			border-color: var(--wpds-color-stroke-interactive-brand);
-			box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
-		}
-
-		&.is-disabled {
-			opacity: 0.55;
-
-			&:hover {
-				border-color: var(--wpds-color-stroke-surface-neutral);
-			}
-		}
-
-		// Mirror the radio's keyboard focus onto the whole card so users
-		// see *which* card is focused — the radio itself is visually hidden.
-		&:has(.jp-search-feature-selector__card-radio:focus-visible) {
-			outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
-			outline-offset: 2px;
-		}
-	}
-
-	&__card-radio {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-		border: 0;
-	}
-
-	// Explicit z-index keeps the click-catcher above any positioned descendants
-	// of the card — the inline preview is `position: relative` for its timing
-	// badge, and the overlay preview's popup is `position: absolute`; without
-	// this z-index those would paint over the overlay (DOM order rule for
-	// same-z positioned elements) and swallow the click.
-	&__card-overlay {
-		position: absolute;
-		inset: 0;
-		z-index: 1;
-		cursor: pointer;
-		border-radius: inherit;
-	}
-
-	&__card.is-disabled &__card-overlay {
-		cursor: not-allowed;
-	}
-
-	&__card-active-badge {
-		position: absolute;
-		inset-block-start: var(--wpds-dimension-padding-md);
-		inset-inline-end: var(--wpds-dimension-padding-md);
-		z-index: 3;
-		pointer-events: none;
-	}
-
-	&__card-title {
-		margin: 0;
-		font-size: var(--wpds-typography-font-size-lg);
-		line-height: var(--wpds-typography-line-height-lg);
-		color: var(--wpds-color-fg-content-neutral);
-	}
-
-	&__card-description {
-		margin: 0;
-		color: var(--wpds-color-fg-content-neutral-weak);
-		font-size: var(--wpds-typography-font-size-md);
-		line-height: var(--wpds-typography-line-height-sm);
-	}
-
-	// Pushes the action row to the bottom of the card so cards in the same
-	// grid row align along their action baseline even when descriptions
-	// differ in length.
-	&__card-content {
-		flex: 1 1 auto;
-	}
-
-	&__card-loss-list {
-		list-style: none;
-		margin: var(--wpds-dimension-gap-xs) 0 0;
-		padding: 0;
-		font-size: var(--wpds-typography-font-size-md);
-		line-height: var(--wpds-typography-line-height-sm);
-		color: var(--wpds-color-fg-content-neutral-weak);
-
-		li {
-			display: flex;
-			align-items: flex-start;
-			gap: var(--wpds-dimension-gap-sm);
-			padding-block: var(--wpds-dimension-padding-xs);
-
-			strong {
-				color: var(--wpds-color-fg-content-neutral);
-				font-weight: 600;
-			}
-		}
-	}
-
-	&__card-loss-icon {
-		fill: var(--wpds-color-fg-content-error);
-		flex: 0 0 auto;
-	}
-
-	// Lift above the transparent card overlay so the action links remain
-	// clickable and tabbable.
-	&__card-actions {
-		position: relative;
-		z-index: 2;
-	}
-
-	&__card-action {
-		flex: 1 1 0;
-		min-width: 0;
-	}
-
-	&__card-action-title {
-		font-weight: 600;
-		font-size: var(--wpds-typography-font-size-sm);
-		color: var(--wpds-color-fg-content-neutral);
-	}
-
-	&__card-action-link {
-		color: var(--wpds-color-fg-interactive-brand);
-		font-size: var(--wpds-typography-font-size-md);
-		font-weight: 500;
-		text-decoration: none;
-
-		&:hover,
-		&:focus-visible {
-			color: var(--wpds-color-fg-interactive-brand-active);
-			text-decoration: underline;
-		}
-
-		&[aria-disabled="true"] {
-			color: var(--wpds-color-fg-content-neutral-weak);
-			cursor: not-allowed;
-
-			&:hover {
-				text-decoration: none;
-			}
-		}
 	}
 
 	&__footer {
@@ -204,16 +35,5 @@
 		color: var(--wpds-color-fg-content-neutral-weak);
 		font-size: var(--wpds-typography-font-size-md);
 		margin: 0;
-	}
-}
-
-@include variables.for-phone-down {
-
-	.jp-search-feature-selector__card-actions {
-		flex-wrap: wrap;
-	}
-
-	.jp-search-feature-selector__card-action {
-		flex-basis: 100%;
 	}
 }
