@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Posts to Podcast: adapt the credits readout to the new `GET /wpcom/v2/posts-to-podcast` quota response (`{ quota: { quota, used, remaining, resetsAt, unlimited? }, activeJobId }`).

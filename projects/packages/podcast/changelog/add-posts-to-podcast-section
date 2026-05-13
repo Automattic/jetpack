@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Settings: add a "Generate episode from recent posts" section. The new package-local wpcom/v2/posts-to-podcast REST endpoint forwards Generate requests to the wpcom-side handler; the polling state machine surfaces the resulting draft as a link.
+Posts to Podcast: new Create tab in the Podcast dashboard for generating episode drafts from posts via the wpcom-side pipeline. Pick posts to include or use a recent-posts window, steer the output with a free-form prompt, and watch a remaining-credits indicator backed by the quota-snapshot endpoint. Generated drafts surface in the Episodes listing alongside posts in the configured podcast category. The top-level tab order is now Create, Episodes, Distribution, Stats, Settings.
