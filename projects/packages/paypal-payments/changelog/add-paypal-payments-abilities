@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register WP Abilities API surface for PayPal payment buttons (list-buttons).
