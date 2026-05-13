@@ -1,14 +1,18 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
-import ExperienceOption from '../../../../src/dashboard/components/feature-selector/experience-option';
+import ExperienceOption from '../../../../src/dashboard/components/experience-selector/experience-option';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
-const renderWith = ( jetpackSettings, props ) => {
+const renderWith = ( jetpackSettings, props, sitePlan = {} ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
-		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings },
+		initialState: {
+			...( storeConfig.initialState || {} ),
+			jetpackSettings,
+			sitePlan,
+		},
 	} );
 	registry.register( store );
 	return render(
@@ -30,13 +34,13 @@ describe( '<ExperienceOption>', () => {
 		renderWith( baseSettings, { experience: 'embedded' } );
 		expect( screen.getByText( 'Embedded search' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( 'A search-as-you-type customizable search page built with blocks.' )
+			screen.getByText( /A search-as-you-type customizable search page built with blocks/i )
 		).toBeInTheDocument();
 	} );
 
 	test( 'shows RECOMMENDED badge only on Embedded', () => {
 		const { rerender } = renderWith( baseSettings, { experience: 'embedded' } );
-		expect( screen.getByLabelText( 'Recommended' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Recommended' ) ).toBeInTheDocument();
 
 		const registry2 = createRegistry();
 		const store2 = createReduxStore( STORE_ID, {
@@ -49,18 +53,18 @@ describe( '<ExperienceOption>', () => {
 				<ExperienceOption experience="overlay" />
 			</RegistryProvider>
 		);
-		expect( screen.queryByLabelText( 'Recommended' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Recommended' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'shows ACTIVE badge when experience matches active state', () => {
 		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings, { experience: 'overlay' } );
-		expect( screen.getByLabelText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
 	} );
 
 	test( 'does not show ACTIVE badge on non-active rows', () => {
 		renderWith( baseSettings, { experience: 'inline' } );
-		expect( screen.queryByLabelText( 'Active' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'radio is checked when experience matches selected', () => {
@@ -79,15 +83,57 @@ describe( '<ExperienceOption>', () => {
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
 	} );
 
-	test( 'shows a tooltip explaining why the row is disabled', () => {
+	test( 'exposes the upsell hint in the disabled overlay label aria-label', () => {
 		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
-		// The label element has the title attribute; we locate it via getByTitle.
-		expect( screen.getByTitle( /upgrade/i ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( /upgrade your plan to unlock/i ) ).toBeInTheDocument();
 	} );
 
 	test( 'does not dispatch when a disabled row is clicked', () => {
 		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
 		fireEvent.click( screen.getByRole( 'radio', { name: /embedded search/i } ) );
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).not.toBeChecked();
+	} );
+} );
+
+describe( '<ExperienceOption> Overlay action links', () => {
+	const overlayActive = {
+		module_active: true,
+		instant_search_enabled: true,
+		pending_experience: null,
+		experience: null,
+	};
+	const inlineActive = {
+		module_active: true,
+		instant_search_enabled: false,
+		pending_experience: null,
+		experience: null,
+	};
+	test( 'renders Customize and Edit widgets as anchors with the correct hrefs when Overlay is active', () => {
+		renderWith( overlayActive, { experience: 'overlay' } );
+		expect( screen.getByRole( 'link', { name: /customize/i } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-search-configure'
+		);
+		expect( screen.getByRole( 'link', { name: /edit widgets/i } ) ).toHaveAttribute(
+			'href',
+			'widgets.php'
+		);
+	} );
+
+	test( 'renders actions as aria-disabled spans (no href) when Overlay is selected but not yet active', () => {
+		// selected = overlay (from pending_experience), active = inline.
+		renderWith( { ...inlineActive, pending_experience: 'overlay' }, { experience: 'overlay' } );
+		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( 'Edit widgets' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	test( 'actions are aria-disabled while settings are saving', () => {
+		renderWith( { ...overlayActive, is_updating: true }, { experience: 'overlay' } );
+		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( 'Edit widgets' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

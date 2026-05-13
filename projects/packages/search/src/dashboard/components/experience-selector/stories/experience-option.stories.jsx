@@ -11,7 +11,7 @@ const experienceLabels = Object.fromEntries(
 const setPendingExperienceAction = action( 'setPendingExperience' );
 
 export default {
-	title: 'Packages/Search/FeatureSelector/ExperienceOption',
+	title: 'Packages/Search/ExperienceSelector/ExperienceOption',
 	component: ExperienceOption,
 	parameters: {
 		layout: 'centered',

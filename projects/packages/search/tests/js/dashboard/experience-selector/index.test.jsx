@@ -1,7 +1,8 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
-import FeatureSelector from '../../../../src/dashboard/components/feature-selector';
+import ExperienceSelector from '../../../../src/dashboard/components/experience-selector';
+import { EXPERIENCE } from '../../../../src/dashboard/components/experience-selector/constants';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
 const renderWith = jetpackSettings => {
@@ -13,7 +14,7 @@ const renderWith = jetpackSettings => {
 	registry.register( store );
 	return render(
 		<RegistryProvider value={ registry }>
-			<FeatureSelector />
+			<ExperienceSelector />
 		</RegistryProvider>
 	);
 };
@@ -26,7 +27,7 @@ const baseSettings = {
 	is_updating: false,
 };
 
-describe( '<FeatureSelector>', () => {
+describe( '<ExperienceSelector>', () => {
 	test( 'renders four radio rows in display order', () => {
 		renderWith( baseSettings );
 		const radios = screen.getAllByRole( 'radio' );
@@ -51,7 +52,7 @@ describe( '<FeatureSelector>', () => {
 	test( 'Save button enables once a different option is selected', () => {
 		renderWith( baseSettings );
 		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		const save = screen.getByRole( 'button', { name: /save/i } );
+		const save = screen.getByRole( 'button', { name: /use theme search/i } );
 		expect( save ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );
 
@@ -83,13 +84,46 @@ describe( '<FeatureSelector>', () => {
 		registry.register( store );
 		render(
 			<RegistryProvider value={ registry }>
-				<FeatureSelector />
+				<ExperienceSelector />
 			</RegistryProvider>
 		);
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
 		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeDisabled();
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeEnabled();
 		expect( screen.getByRole( 'radio', { name: /off/i } ) ).toBeEnabled();
+	} );
+
+	test( 'Save button shows contextual label per pending experience', () => {
+		renderWith( baseSettings );
+		fireEvent.click( screen.getByRole( 'radio', { name: /embedded search/i } ) );
+		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect( screen.getByRole( 'button', { name: /use theme search/i } ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
+		expect(
+			screen.getByRole( 'button', { name: /turn off jetpack search/i } )
+		).toBeInTheDocument();
+	} );
+
+	test( 'renders pending-state notice next to the heading once dirty', () => {
+		renderWith( baseSettings );
+		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect( screen.getByText( /theme search selected, save to apply/i ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
+		expect( screen.getByText( /off selected, save to apply/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'hides the pending notice while a save is in flight', () => {
+		// `is_updating: true` simulates the in-flight window after Save was
+		// clicked — the global "Updating settings…" toast covers status, so
+		// the heading-row pending notice should disappear.
+		renderWith( {
+			...baseSettings,
+			pending_experience: EXPERIENCE.INLINE,
+			is_updating: true,
+		} );
+		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
@@ -105,7 +139,7 @@ describe( '<FeatureSelector>', () => {
 		registry.register( store );
 		render(
 			<RegistryProvider value={ registry }>
-				<FeatureSelector />
+				<ExperienceSelector />
 			</RegistryProvider>
 		);
 		const radios = screen.getAllByRole( 'radio' );

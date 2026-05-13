@@ -4,8 +4,9 @@
 .global-notices {
 	text-align: right;
 	pointer-events: none;
-
 	z-index: z-index.z-index("root", ".global-notices");
+
+	// Mobile: pin to the bottom of the viewport for thumb reachability.
 	position: fixed;
 	top: auto;
 	right: 0;
@@ -13,27 +14,31 @@
 	left: 0;
 
 	@include calypso-mixins.breakpoint( ">660px" ) {
-		top: 47px + 16px;
-		right: 16px;
+		position: sticky;
+		top: 16px;
+		right: auto;
 		bottom: auto;
 		left: auto;
 
-		/* `36px` being the width of the collapsed WP-admin sidebar */
-		max-width: calc(100% - 32px - 36px);
+		// Zero-height + overflow-visible so the wrapper sticks where we
+		// want but reserves no vertical space — the Notice paints downward
+		// from the wrapper's top edge without pushing the tabs row down.
+		height: 0;
+		overflow: visible;
+
+		// `width: auto` / `max-content` both collapse the `@wordpress/ui`
+		// Notice grid to its icons. Pin a width that fits the longest
+		// string we surface, then push to the right edge of the content
+		// container via auto-left margin (works in normal block flow).
+		width: 220px;
+		margin-inline: auto 16px;
 	}
 
 	@include calypso-mixins.breakpoint( ">960px" ) {
-		top: 47px + 24px;
-		right: 24px;
-
-		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc(100% - 48px - 160px);
+		margin-inline-end: 24px;
 	}
 
 	@include calypso-mixins.breakpoint( ">1040px" ) {
-		right: 32px;
-
-		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc(100% - 64px - 160px);
+		margin-inline-end: 32px;
 	}
 }

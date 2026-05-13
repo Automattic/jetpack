@@ -32,11 +32,15 @@ jest.mock( 'components/module-control', () => props => {
 	mockModuleControl( props );
 	return <div data-testid="module-control" />;
 } );
+jest.mock( 'components/experience-selector', () => () => (
+	<div data-testid="experience-selector" />
+) );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
 
-import { render, screen } from '@testing-library/react';
+/* eslint-disable testing-library/prefer-user-event */
+import { fireEvent, render, screen } from '@testing-library/react';
 import DashboardPage from '../dashboard-page';
 
 const createSelectMethods = () => ( {
@@ -93,6 +97,9 @@ describe( 'DashboardPage', () => {
 
 	test( 'passes Reader Chat settings to the Search settings control', () => {
 		render( <DashboardPage /> );
+
+		// The settings control lives in the Settings tab, which isn't visible until selected.
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 		expect( mockModuleControl ).toHaveBeenCalledWith(
