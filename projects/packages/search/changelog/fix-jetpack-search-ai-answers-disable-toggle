@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI answers feature disable toggle was not working. Fixed.
