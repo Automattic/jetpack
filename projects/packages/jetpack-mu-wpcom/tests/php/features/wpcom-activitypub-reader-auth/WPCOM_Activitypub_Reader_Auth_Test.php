@@ -118,7 +118,7 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * is_target_route — positive and negative cases.
+	 * Verify is_target_route returns the expected value for positive and negative cases.
 	 *
 	 * @param string $route Concrete route the AP plugin would dispatch.
 	 * @param string $method HTTP method.
@@ -137,26 +137,26 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function target_route_provider(): array {
 		return array(
-			'inbox GET (actors)'                  => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
-			'inbox GET (users alias)'             => array( '/activitypub/1.0/users/0/inbox', 'GET', true ),
+			'inbox GET (actors)'                   => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
+			'inbox GET (users alias)'              => array( '/activitypub/1.0/users/0/inbox', 'GET', true ),
 			'inbox GET (negative user_id allowed)' => array( '/activitypub/1.0/actors/-1/inbox', 'GET', true ),
-			'proxy POST'                          => array( '/activitypub/1.0/proxy', 'POST', true ),
-			'outbox POST (actors)'                => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
-			'outbox POST (users alias)'           => array( '/activitypub/1.0/users/0/outbox', 'POST', true ),
-			'inbox POST is wrong method'          => array( '/activitypub/1.0/actors/0/inbox', 'POST', false ),
-			'outbox GET is wrong method'          => array( '/activitypub/1.0/actors/0/outbox', 'GET', false ),
-			'proxy GET is wrong method'           => array( '/activitypub/1.0/proxy', 'GET', false ),
-			'followers GET not a target'          => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
-			'following GET not a target'          => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
-			'webfinger GET not a target'          => array( '/activitypub/1.0/webfinger', 'GET', false ),
-			'actor GET not a target'              => array( '/activitypub/1.0/actors/0', 'GET', false ),
-			'wp/v2 namespace ignored'             => array( '/wp/v2/posts', 'POST', false ),
-			'inbox under wrong namespace ignored' => array( '/other/1.0/actors/0/inbox', 'GET', false ),
+			'proxy POST'                           => array( '/activitypub/1.0/proxy', 'POST', true ),
+			'outbox POST (actors)'                 => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
+			'outbox POST (users alias)'            => array( '/activitypub/1.0/users/0/outbox', 'POST', true ),
+			'inbox POST is wrong method'           => array( '/activitypub/1.0/actors/0/inbox', 'POST', false ),
+			'outbox GET is wrong method'           => array( '/activitypub/1.0/actors/0/outbox', 'GET', false ),
+			'proxy GET is wrong method'            => array( '/activitypub/1.0/proxy', 'GET', false ),
+			'followers GET not a target'           => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
+			'following GET not a target'           => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
+			'webfinger GET not a target'           => array( '/activitypub/1.0/webfinger', 'GET', false ),
+			'actor GET not a target'               => array( '/activitypub/1.0/actors/0', 'GET', false ),
+			'wp/v2 namespace ignored'              => array( '/wp/v2/posts', 'POST', false ),
+			'inbox under wrong namespace ignored'  => array( '/other/1.0/actors/0/inbox', 'GET', false ),
 		);
 	}
 
 	/**
-	 * is_blog_mode reflects the activitypub_actor_mode option.
+	 * Confirm is_blog_mode reflects the activitypub_actor_mode option.
 	 */
 	public function test_is_blog_mode_defaults_true(): void {
 		delete_option( 'activitypub_actor_mode' );
@@ -174,7 +174,7 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * is_jetpack_signed returns true only when Rest_Authentication reports a signed request.
+	 * Verify is_jetpack_signed returns true only when Rest_Authentication reports a signed request.
 	 */
 	public function test_is_jetpack_signed_false_when_not_signed(): void {
 		$this->assertFalse( wpcom_activitypub_reader_auth_is_jetpack_signed() );
@@ -191,7 +191,7 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * is_oauth_request returns false when the AP plugin's Server class is not loaded
+	 * Verify is_oauth_request returns false when the AP plugin's Server class is not loaded
 	 * (the test environment never loads the AP plugin).
 	 */
 	public function test_is_oauth_request_false_when_ap_plugin_absent(): void {

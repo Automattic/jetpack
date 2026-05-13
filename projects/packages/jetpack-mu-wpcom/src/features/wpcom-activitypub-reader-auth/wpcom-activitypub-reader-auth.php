@@ -32,10 +32,9 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
  *
  * @param mixed            $result  Result from a previous filter, or null.
  * @param \WP_REST_Request $request The REST request being checked.
- * @param string|null      $scope   Required scope (unused — gating is by route + method).
  * @return mixed `true` when authorised; `$result` otherwise.
  */
-function wpcom_activitypub_reader_auth_check_permission( $result, $request, $scope = null ) {
+function wpcom_activitypub_reader_auth_check_permission( $result, $request ) {
 	if ( null !== $result ) {
 		return $result;
 	}
@@ -73,8 +72,11 @@ function wpcom_activitypub_reader_auth_check_permission( $result, $request, $sco
  * @return bool
  */
 function wpcom_activitypub_reader_auth_is_oauth_request(): bool {
-	return class_exists( 'Activitypub\OAuth\Server' )
-		&& \Activitypub\OAuth\Server::is_oauth_request();
+	if ( ! class_exists( 'Activitypub\OAuth\Server' ) ) {
+		return false;
+	}
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; class provided by the ActivityPub plugin at runtime.
+	return \Activitypub\OAuth\Server::is_oauth_request();
 }
 
 /**
@@ -152,4 +154,4 @@ function wpcom_activitypub_reader_auth_is_target_route( $request ): bool {
 	return false;
 }
 
-add_filter( 'activitypub_oauth_check_permission', 'wpcom_activitypub_reader_auth_check_permission', 10, 3 );
+add_filter( 'activitypub_oauth_check_permission', 'wpcom_activitypub_reader_auth_check_permission', 10, 2 );
