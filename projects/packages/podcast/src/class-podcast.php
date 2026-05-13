@@ -66,6 +66,9 @@ class Podcast {
 		// Local REST proxy for the Posts to Podcast Generate flow.
 		Posts_To_Podcast_Endpoint::init();
 
+		// Surface p2p-generated drafts in the Episodes dashboard listing.
+		Episodes_Query::init();
+
 		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
 		// dashboard; menu registration itself runs from wpcom-admin-menu.php
 		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
