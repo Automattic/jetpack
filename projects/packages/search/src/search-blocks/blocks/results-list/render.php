@@ -27,7 +27,7 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_author:bool, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
@@ -36,6 +36,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => false,
 			'show_path'    => false,
 			'show_content' => false,
+			'show_author'  => false,
 			'show_date'    => true,
 			'show_price'   => false,
 			'show_rating'  => false,
@@ -45,6 +46,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => true,
 			'show_path'    => true,
 			'show_content' => true,
+			'show_author'  => true,
 			'show_date'    => true,
 			'show_price'   => false,
 			'show_rating'  => false,
@@ -54,6 +56,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => true,
 			'show_path'    => false,
 			'show_content' => false,
+			'show_author'  => false,
 			'show_date'    => false,
 			'show_price'   => true,
 			'show_rating'  => true,
@@ -267,13 +270,29 @@ if ( '' === $error_message ) {
 							</mark>
 						</div>
 					<?php endif; ?>
-					<?php if ( $features['show_date'] ) : ?>
+					<?php if ( $features['show_author'] || $features['show_date'] ) : ?>
 						<div class="jetpack-search-results__meta">
-							<span
-								class="jetpack-search-results__date"
-								data-wp-bind--hidden="!context.result.dateLabel"
-								data-wp-text="context.result.dateLabel"
-							></span>
+							<?php if ( $features['show_author'] ) : ?>
+								<span
+									class="jetpack-search-results__author"
+									data-wp-bind--hidden="!context.result.authorLabel"
+									data-wp-text="context.result.authorLabel"
+								></span>
+							<?php endif; ?>
+							<?php if ( $features['show_author'] && $features['show_date'] ) : ?>
+								<span
+									class="jetpack-search-results__meta-separator"
+									aria-hidden="true"
+									data-wp-bind--hidden="!context.result.authorLabel || !context.result.dateLabel"
+								>&middot;</span>
+							<?php endif; ?>
+							<?php if ( $features['show_date'] ) : ?>
+								<span
+									class="jetpack-search-results__date"
+									data-wp-bind--hidden="!context.result.dateLabel"
+									data-wp-text="context.result.dateLabel"
+								></span>
+							<?php endif; ?>
 						</div>
 					<?php endif; ?>
 				</div>

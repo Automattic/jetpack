@@ -40,6 +40,7 @@ const SAMPLE_RESULTS = [
 			'jetpack-search-pkg'
 		),
 		path: 'example.com/articles/first',
+		author: __( 'Sample Author', 'jetpack-search-pkg' ),
 		date: 'Apr 1, 2026',
 	},
 	{
@@ -49,6 +50,7 @@ const SAMPLE_RESULTS = [
 			'jetpack-search-pkg'
 		),
 		path: 'example.com/guides/another',
+		author: __( 'A. Writer, B. Editor', 'jetpack-search-pkg' ),
 		date: 'Mar 22, 2026',
 	},
 	{
@@ -197,8 +199,8 @@ function renderCompactPreview( results ) {
 }
 
 /**
- * Expanded preview — title, breadcrumb path, date, and a side image. The
- * default layout for blogs and content sites.
+ * Expanded preview — title, breadcrumb path, author + date meta, and a side
+ * image. The default layout for blogs and content sites.
  *
  * @param {Array} results - Sample rows.
  * @return {object} Rendered element.
@@ -215,7 +217,17 @@ function renderExpandedPreview( results ) {
 						) }
 						<div className="jetpack-search-results__path">{ result.path }</div>
 						<div className="jetpack-search-results__meta">
-							<span className="jetpack-search-results__date">{ result.date }</span>
+							{ result.author && (
+								<span className="jetpack-search-results__author">{ result.author }</span>
+							) }
+							{ result.author && result.date && (
+								<span className="jetpack-search-results__meta-separator" aria-hidden="true">
+									·
+								</span>
+							) }
+							{ result.date && (
+								<span className="jetpack-search-results__date">{ result.date }</span>
+							) }
 						</div>
 					</div>
 					<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
