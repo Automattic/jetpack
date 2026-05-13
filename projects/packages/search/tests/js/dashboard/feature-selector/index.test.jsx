@@ -92,6 +92,27 @@ describe( '<FeatureSelector>', () => {
 		expect( screen.getByRole( 'radio', { name: /off/i } ) ).toBeEnabled();
 	} );
 
+	test( 'Save button shows contextual label per pending experience', () => {
+		renderWith( baseSettings );
+		fireEvent.click( screen.getByRole( 'radio', { name: /embedded search/i } ) );
+		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect( screen.getByRole( 'button', { name: /use theme search/i } ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
+		expect(
+			screen.getByRole( 'button', { name: /turn off jetpack search/i } )
+		).toBeInTheDocument();
+	} );
+
+	test( 'renders pending-state notice next to the heading once dirty', () => {
+		renderWith( baseSettings );
+		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect( screen.getByText( /theme search selected, save to apply/i ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
+		expect( screen.getByText( /off selected, save to apply/i ) ).toBeInTheDocument();
+	} );
+
 	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
 		const registry = createRegistry();
 		const store = createReduxStore( STORE_ID, {

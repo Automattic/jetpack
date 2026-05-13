@@ -42,7 +42,9 @@
 	inset-inline-start: var(--wpds-dimension-padding-md);
 	font-size: var(--wpds-typography-font-size-sm);
 	font-weight: 600;
-	color: var(--wpds-color-fg-content-caution);
+	// Brand colour reads as "this is faster" rather than the warning intent
+	// that `fg-content-caution` would imply.
+	color: var(--wpds-color-fg-interactive-brand);
 }
 
 .jp-search-feature-selector__inline-preview-bolt {

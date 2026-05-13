@@ -237,7 +237,9 @@ export default function DashboardPage( { isLoading = false } ) {
 const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
-	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
+	const siteTitle =
+		useSelect( select => select( STORE_ID ).getSiteTitle() ) ||
+		__( 'your site', 'jetpack-search-pkg' );
 	// Plan Info data
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );

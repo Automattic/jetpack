@@ -1,4 +1,5 @@
 import { useSelect, useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, cancelCircleFilled } from '@wordpress/icons';
 import { Badge, Stack } from '@wordpress/ui';
@@ -84,14 +85,15 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			<label
 				htmlFor={ inputId }
 				className="jp-search-feature-selector__card-overlay"
-				title={ disabled ? upsellHint : undefined }
-				aria-label={ getExperienceLabel( experience ) }
+				aria-label={
+					disabled
+						? `${ getExperienceLabel( experience ) }. ${ upsellHint }`
+						: getExperienceLabel( experience )
+				}
 			/>
 			{ isActive && (
 				<span className="jp-search-feature-selector__card-active-badge">
-					<Badge intent="stable" aria-label={ __( 'Active', 'jetpack-search-pkg' ) }>
-						{ __( 'Active', 'jetpack-search-pkg' ) }
-					</Badge>
+					<Badge intent="stable">{ __( 'Active', 'jetpack-search-pkg' ) }</Badge>
 				</span>
 			) }
 			<Preview />
@@ -101,9 +103,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						{ getExperienceLabel( experience ) }
 					</h3>
 					{ isRecommended && (
-						<Badge intent="informational" aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }>
-							{ __( 'Recommended', 'jetpack-search-pkg' ) }
-						</Badge>
+						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
 					) }
 				</Stack>
 				<CardCopy experience={ experience } />
@@ -196,22 +196,16 @@ const CardCopy = ( { experience } ) => {
 		);
 	}
 	const offLosses = [
-		{
-			title: __( 'Fast results', 'jetpack-search-pkg' ),
-			detail: __( '— searches hit your database', 'jetpack-search-pkg' ),
-		},
-		{
-			title: __( 'Smart ranking', 'jetpack-search-pkg' ),
-			detail: __( '— no typo tolerance or language-aware matching', 'jetpack-search-pkg' ),
-		},
-		{
-			title: __( 'Embedded and Overlay search', 'jetpack-search-pkg' ),
-			detail: __( '— both need the Jetpack engine', 'jetpack-search-pkg' ),
-		},
-		{
-			title: __( 'Search analytics', 'jetpack-search-pkg' ),
-			detail: __( '— and custom relevance rules', 'jetpack-search-pkg' ),
-		},
+		__( '<strong>Fast results</strong> — searches hit your database', 'jetpack-search-pkg' ),
+		__(
+			'<strong>Smart ranking</strong> — no typo tolerance or language-aware matching',
+			'jetpack-search-pkg'
+		),
+		__(
+			'<strong>Embedded and Overlay search</strong> — both need the Jetpack engine',
+			'jetpack-search-pkg'
+		),
+		__( '<strong>Search analytics</strong> — and custom relevance rules', 'jetpack-search-pkg' ),
 	];
 	return (
 		<>
@@ -219,16 +213,14 @@ const CardCopy = ( { experience } ) => {
 				{ __( 'Visitors use WordPress default search, and miss out on:', 'jetpack-search-pkg' ) }
 			</p>
 			<ul className="jp-search-feature-selector__card-loss-list">
-				{ offLosses.map( ( { title, detail } ) => (
-					<li key={ title }>
+				{ offLosses.map( loss => (
+					<li key={ loss }>
 						<Icon
 							className="jp-search-feature-selector__card-loss-icon"
 							icon={ cancelCircleFilled }
 							size={ 18 }
 						/>
-						<span>
-							<strong>{ title }</strong> { detail }
-						</span>
+						<span>{ createInterpolateElement( loss, { strong: <strong /> } ) }</span>
 					</li>
 				) ) }
 			</ul>
@@ -240,9 +232,16 @@ const CardLink = ( { title, linkLabel, href, disabled } ) => (
 	<Stack direction="column" gap="sm" className="jp-search-feature-selector__card-action">
 		<span className="jp-search-feature-selector__card-action-title">{ title }</span>
 		{ disabled ? (
+			// `aria-disabled` on a plain <span> is silently ignored by AT, so we
+			// also append a screen-reader-only suffix that explains why this
+			// action isn't usable.
 			<span className="jp-search-feature-selector__card-action-link" aria-disabled="true">
 				{ linkLabel }
 				<span aria-hidden="true"> →</span>
+				<span className="screen-reader-text">
+					{ ' ' }
+					{ __( '(save to activate)', 'jetpack-search-pkg' ) }
+				</span>
 			</span>
 		) : (
 			<a className="jp-search-feature-selector__card-action-link" href={ href }>

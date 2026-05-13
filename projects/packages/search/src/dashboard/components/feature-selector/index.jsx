@@ -1,7 +1,7 @@
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Grid is the easiest way to express the responsive 1→2 column card grid; reassess when it's promoted out of experimental.
 import { __experimentalGrid as Grid } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, EXPERIENCE_ORDER } from './constants';
@@ -47,13 +47,29 @@ export default function FeatureSelector() {
 		}
 		switch ( pendingExperience ) {
 			case EXPERIENCE.EMBEDDED:
-				return __( 'Use Embedded search', 'jetpack-search-pkg' );
+				return _x(
+					'Use Embedded search',
+					'Button label that activates the Embedded search experience',
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.OVERLAY:
-				return __( 'Use Overlay search', 'jetpack-search-pkg' );
+				return _x(
+					'Use Overlay search',
+					'Button label that activates the Overlay search experience',
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.INLINE:
-				return __( 'Use Theme search', 'jetpack-search-pkg' );
+				return _x(
+					'Use Theme search',
+					"Button label that activates the theme's built-in search",
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.OFF:
-				return __( 'Turn off Jetpack Search', 'jetpack-search-pkg' );
+				return _x(
+					'Turn off Jetpack Search',
+					'Button label that disables Jetpack Search entirely',
+					'jetpack-search-pkg'
+				);
 			default:
 				return __( 'Save', 'jetpack-search-pkg' );
 		}
@@ -64,13 +80,29 @@ export default function FeatureSelector() {
 	const getPendingNotice = () => {
 		switch ( pendingExperience ) {
 			case EXPERIENCE.EMBEDDED:
-				return __( 'Embedded search selected, save to apply', 'jetpack-search-pkg' );
+				return _x(
+					'Embedded search selected, save to apply',
+					'Dirty-state notice shown next to the heading',
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.OVERLAY:
-				return __( 'Overlay search selected, save to apply', 'jetpack-search-pkg' );
+				return _x(
+					'Overlay search selected, save to apply',
+					'Dirty-state notice shown next to the heading',
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.INLINE:
-				return __( 'Theme search selected, save to apply', 'jetpack-search-pkg' );
+				return _x(
+					'Theme search selected, save to apply',
+					'Dirty-state notice shown next to the heading',
+					'jetpack-search-pkg'
+				);
 			case EXPERIENCE.OFF:
-				return __( 'Off selected, save to apply', 'jetpack-search-pkg' );
+				return _x(
+					'Off selected, save to apply',
+					'Dirty-state notice shown next to the heading',
+					'jetpack-search-pkg'
+				);
 			default:
 				return '';
 		}
@@ -107,6 +139,10 @@ export default function FeatureSelector() {
 					className="jp-search-feature-selector__fieldset"
 					aria-labelledby="jp-search-feature-selector-heading"
 				>
+					{ /* Grid's `gap` is a unitless multiplier of its internal
+					   gridBase (4px), so `gap={ 6 }` → 24px. This bypasses
+					   WPDS spacing tokens but is the experimental API's only
+					   spacing knob. */ }
 					<Grid columns={ [ 1, 2 ] } gap={ 6 }>
 						{ visibleExperiences.map( experience => (
 							<ExperienceOption

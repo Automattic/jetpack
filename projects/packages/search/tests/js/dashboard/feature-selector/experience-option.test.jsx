@@ -40,7 +40,7 @@ describe( '<ExperienceOption>', () => {
 
 	test( 'shows RECOMMENDED badge only on Embedded', () => {
 		const { rerender } = renderWith( baseSettings, { experience: 'embedded' } );
-		expect( screen.getByLabelText( 'Recommended' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Recommended' ) ).toBeInTheDocument();
 
 		const registry2 = createRegistry();
 		const store2 = createReduxStore( STORE_ID, {
@@ -53,18 +53,18 @@ describe( '<ExperienceOption>', () => {
 				<ExperienceOption experience="overlay" />
 			</RegistryProvider>
 		);
-		expect( screen.queryByLabelText( 'Recommended' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Recommended' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'shows ACTIVE badge when experience matches active state', () => {
 		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings, { experience: 'overlay' } );
-		expect( screen.getByLabelText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
 	} );
 
 	test( 'does not show ACTIVE badge on non-active rows', () => {
 		renderWith( baseSettings, { experience: 'inline' } );
-		expect( screen.queryByLabelText( 'Active' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'radio is checked when experience matches selected', () => {
@@ -83,10 +83,9 @@ describe( '<ExperienceOption>', () => {
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
 	} );
 
-	test( 'shows a tooltip explaining why the row is disabled', () => {
+	test( 'exposes the upsell hint in the disabled overlay label aria-label', () => {
 		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
-		// The label element has the title attribute; we locate it via getByTitle.
-		expect( screen.getByTitle( /upgrade/i ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( /upgrade your plan to unlock/i ) ).toBeInTheDocument();
 	} );
 
 	test( 'does not dispatch when a disabled row is clicked', () => {
