@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: Add a hidden Post Type Scope block that constrains results to an include/exclude post-type list.

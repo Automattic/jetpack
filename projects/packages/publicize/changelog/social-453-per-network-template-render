@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social: honor per-connection message templates in the per-network preview pipeline and stop overwriting them when toggling per-network mode.

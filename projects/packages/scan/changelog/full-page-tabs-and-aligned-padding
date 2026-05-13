@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Make the Active threats / History tab panels fill the full page height and align the DataViews search row with the tab nav above it. The empty state now centers in the remaining vertical space (DataViews' built-in `flex-grow: 1` no-results body), and dropping the inner content padding lets the search row sit at the same 24 px inset as the tab labels rather than 48 px in.

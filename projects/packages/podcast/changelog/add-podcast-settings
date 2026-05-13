@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Settings: register the `podcasting_*` option schema with REST exposure and Jetpack Sync opt-in, gated behind the `jetpack_podcast_untangle` filter.

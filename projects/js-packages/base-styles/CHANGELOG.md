@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-05-11
+### Changed
+- Admin Page Layout: Explicitly set `overflow: visible` on `.jp-admin-page` so consumers can't accidentally turn the AdminPage root into a scroll container. [#48578]
+
+### Fixed
+- Admin Page Layout: Restore page-layout selectors after admin-ui 2.0.0 moved its `.admin-ui-page*` classes to CSS Modules. [#48410]
+
 ## [1.2.0] - 2026-05-04
 ### Added
 - admin-page-layout mixin: Use style hooks for `@wordpress/ui` Tabs hosted in an AdminPage (sticky `.jp-admin-page-tabs` wrapper, inline-padding alignment for tab buttons, header bottom-border/padding suppression when tabs are present). [#48277]
@@ -509,6 +516,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.2.1]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-base-styles/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.21...1.1.0
 [1.0.21]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.20...1.0.21

@@ -3619,6 +3619,9 @@ importers:
 
   projects/packages/podcast:
     dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
@@ -3631,12 +3634,24 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
+      '@wordpress/block-editor':
+        specifier: 15.17.0
+        version: 15.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/blocks':
+        specifier: 15.17.0
+        version: 15.17.0(react@18.3.1)
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3652,9 +3667,18 @@ importers:
       '@wordpress/dataviews':
         specifier: 14.1.0
         version: 14.1.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.44.0
+        version: 5.44.0
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 6.44.0
+        version: 6.44.0(webpack@5.105.2)
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
+      '@wordpress/hooks':
+        specifier: 4.44.0
+        version: 4.44.0
       '@wordpress/html-entities':
         specifier: 4.44.0
         version: 4.44.0
@@ -3670,6 +3694,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/primitives':
+        specifier: 4.44.0
+        version: 4.44.0(react@18.3.1)
       '@wordpress/route':
         specifier: 0.10.0
         version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3682,6 +3709,24 @@ importers:
       canvas-confetti:
         specifier: 1.9.4
         version: 1.9.4
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      copy-webpack-plugin:
+        specifier: 14.0.0
+        version: 14.0.0(webpack@5.105.2)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -3716,13 +3761,15 @@ importers:
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
-    optionalDependencies:
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
 
   projects/packages/post-list:
     dependencies:

@@ -212,7 +212,7 @@ class Search_Blocks {
 			 * before caching so a truthy non-bool return (e.g. `1`)
 			 * doesn't poison strictly-typed callers.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.59.0
 			 *
 			 * @param bool $enabled Defaults to the WooCommerce class probe.
 			 */

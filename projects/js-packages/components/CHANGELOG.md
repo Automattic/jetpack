@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.11.0] - 2026-05-11
+### Added
+- AdminPage: Add admin-page and jetpack-footer sub-path exports for use in wp-build dashboards. [#48510]
+- Global Notices: Add global-notices sub-path export for use in wp-build dashboards. [#48586]
+- Gravatar: Add a component with hovercard support at the `./gravatar` subpath, shared across products that render subscriber or response avatars. [#48581]
+
+### Changed
+- AdminPage: Update to @wordpress/admin-ui 2.0.0 and use the new `visual` prop to render the Jetpack logo alongside the page title. [#48410]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+### Removed
+- Components: Remove Gridicon component. [#48537]
+
+### Fixed
+- AdminPage: Pass a stable `jp-admin-page__page` className to admin-ui's Page so layout overrides survive admin-ui 2.0.0's switch to CSS Modules; pin the header heading level to `<h2>` and center the new `visual` slot to keep the Jetpack logo aligned with the title. [#48410]
+
 ## [1.10.0] - 2026-05-04
 ### Added
 - AdminPage: Add `unwrapped` prop to render children directly inside the admin-ui Page, skipping the default Container/Col grid wrap. Use for full-bleed pages (DataViews-based admin surfaces) that own their own scroll/layout model. [#48244]
@@ -1764,6 +1780,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.11.0]: https://github.com/Automattic/jetpack-components/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/Automattic/jetpack-components/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/Automattic/jetpack-components/compare/1.8.3...1.9.0
 [1.8.3]: https://github.com/Automattic/jetpack-components/compare/1.8.2...1.8.3

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Dashboard: fix the upsell page clipping its pricing rows at the footer line under the shared `jetpack-admin-page-layout` mixin. Wrap `<AdminSectionHero>` in a block-level `<div>` so the section's `overflow: hidden` (its margin-collapse guard) doesn't make it a flex item that shrinks below its content height — letting the mixin's middle `overflow: auto` engage and the rows scroll naturally. Mirrors the `.content { display: block }` precedent in `projects/packages/publicize/_inc/components/admin-page/styles.module.scss`.
