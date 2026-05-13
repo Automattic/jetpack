@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-activitypub-reader-auth/wpcom-activitypub-reader-auth.php';
@@ -157,10 +159,14 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Confirm is_blog_mode reflects the activitypub_actor_mode option.
+	 *
+	 * The shim fails closed when the option is unset: the AP plugin's own
+	 * default is user-mode (`ACTIVITYPUB_ACTOR_MODE = 'actor'`), so an
+	 * unset option must not be treated as blog-mode.
 	 */
-	public function test_is_blog_mode_defaults_true(): void {
+	public function test_is_blog_mode_false_when_option_unset(): void {
 		delete_option( 'activitypub_actor_mode' );
-		$this->assertTrue( wpcom_activitypub_reader_auth_is_blog_mode() );
+		$this->assertFalse( wpcom_activitypub_reader_auth_is_blog_mode() );
 	}
 
 	public function test_is_blog_mode_explicit_blog(): void {
@@ -170,6 +176,11 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 
 	public function test_is_blog_mode_user_mode_false(): void {
 		update_option( 'activitypub_actor_mode', 'actor' );
+		$this->assertFalse( wpcom_activitypub_reader_auth_is_blog_mode() );
+	}
+
+	public function test_is_blog_mode_actor_blog_false(): void {
+		update_option( 'activitypub_actor_mode', 'actor_blog' );
 		$this->assertFalse( wpcom_activitypub_reader_auth_is_blog_mode() );
 	}
 
@@ -196,6 +207,38 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_is_oauth_request_false_when_ap_plugin_absent(): void {
 		$this->assertFalse( wpcom_activitypub_reader_auth_is_oauth_request() );
+	}
+
+	/**
+	 * When a real OAuth bearer is present, check_permission must defer to the
+	 * plugin's normal verification — even if every other predicate is satisfied.
+	 *
+	 * Runs in a separate process so the stub `Activitypub\OAuth\Server` class
+	 * doesn't pollute other tests that rely on its absence.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_check_permission_defers_when_oauth_request_present(): void {
+		require __DIR__ . '/fixtures/Activitypub/OAuth/class-server.php';
+
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'wpcom_ap_test_admin',
+				'user_email' => 'wpcom_ap_test_admin@example.test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+		update_option( 'activitypub_actor_mode', 'blog' );
+		self::set_jetpack_signed( 'user' );
+
+		$request = self::make_request( '/activitypub/1.0/proxy', 'POST' );
+
+		$this->assertNull( wpcom_activitypub_reader_auth_check_permission( null, $request ) );
 	}
 
 	/**
@@ -306,6 +349,33 @@ class WPCOM_Activitypub_Reader_Auth_Test extends \WorDBless\BaseTestCase {
 		$request = self::make_request( '/activitypub/1.0/proxy', 'POST' );
 
 		$this->assertTrue( wpcom_activitypub_reader_auth_check_permission( null, $request ) );
+	}
+
+	/**
+	 * Realistic blog-token shadow request: no current user, signed with blog token.
+	 * Blog-token signing does not install a current user, so manage_options fails
+	 * and the shim must abstain — even though the route, method, and mode are valid.
+	 */
+	public function test_check_permission_null_for_blog_token_without_admin(): void {
+		wp_set_current_user( 0 );
+		update_option( 'activitypub_actor_mode', 'blog' );
+		self::set_jetpack_signed( 'blog' );
+
+		$request = self::make_request( '/activitypub/1.0/proxy', 'POST' );
+
+		$this->assertNull( wpcom_activitypub_reader_auth_check_permission( null, $request ) );
+	}
+
+	/**
+	 * The defensive guards in is_target_route mean check_permission must
+	 * not fatal on a non-WP_REST_Request payload — it should abstain.
+	 */
+	public function test_check_permission_handles_non_request_payloads(): void {
+		$this->fully_authorise();
+
+		$this->assertNull( wpcom_activitypub_reader_auth_check_permission( null, null ) );
+		$this->assertNull( wpcom_activitypub_reader_auth_check_permission( null, 'not-a-request' ) );
+		$this->assertNull( wpcom_activitypub_reader_auth_check_permission( null, new \stdClass() ) );
 	}
 
 	/**

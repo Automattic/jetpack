@@ -52,6 +52,9 @@ function wpcom_activitypub_reader_auth_check_permission( $result, $request ) {
 		return $result;
 	}
 
+	// Must follow the signing check: Rest_Authentication installs the wpcom
+	// user on user-token signed requests, so the current user is only trustworthy
+	// after that gate has passed.
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return $result;
 	}
@@ -104,10 +107,15 @@ function wpcom_activitypub_reader_auth_is_jetpack_signed(): bool {
  * operates on the blog actor (`user_id=0`), and short-circuiting OAuth for
  * user-mode routes would let admins act for arbitrary individual actors.
  *
+ * Uses a `null` sentinel default so an unset option is treated as "unknown,
+ * deny" rather than "blog, grant" — the AP plugin's own option default is
+ * `ACTIVITYPUB_ACTOR_MODE` (i.e. `'actor'`), so falling back to `'blog'`
+ * here would silently widen the grant surface on fresh installs.
+ *
  * @return bool
  */
 function wpcom_activitypub_reader_auth_is_blog_mode(): bool {
-	return 'blog' === get_option( 'activitypub_actor_mode', 'blog' );
+	return 'blog' === get_option( 'activitypub_actor_mode', null );
 }
 
 /**
