@@ -93,8 +93,11 @@ function render_block( $attr, $content ) {
 	// edited) fall back to the defaults in the first array. User-cleared
 	// keys (empty strings explicitly saved) win over defaults, so
 	// "blank stays blank" and "never set" gets the default.
-	$donations = array(
-		'one-time' => array_merge(
+	// Treat `show !== false` as on, so legacy blocks (where `show` was never
+	// set on oneTimeDonation) still render the one-time interval by default.
+	$donations = array();
+	if ( false !== ( $attr['oneTimeDonation']['show'] ?? true ) ) {
+		$donations['one-time'] = array_merge(
 			array(
 				'planId'     => null,
 				'title'      => __( 'One-Time', 'jetpack' ),
@@ -103,8 +106,8 @@ function render_block( $attr, $content ) {
 				'buttonText' => $default_texts['oneTimeDonation']['buttonText'],
 			),
 			$attr['oneTimeDonation']
-		),
-	);
+		);
+	}
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
@@ -133,26 +136,50 @@ function render_block( $attr, $content ) {
 	$choose_amount_text = $attr['chooseAmountText'] ?? $default_texts['chooseAmountText'];
 	$custom_amount_text = $attr['customAmountText'] ?? $default_texts['customAmountText'];
 	$currency           = $attr['currency'];
-	$nav                = '';
-	$headings           = '';
-	$amounts            = '';
-	$extra_text         = '';
-	$buttons            = '';
+
+	// Drop intervals whose plan no longer resolves so we can compute the active tab
+	// against the actually-rendered set, not the configured set.
+	$valid_donations = array();
+	foreach ( $donations as $interval => $donation ) {
+		$plan = get_post( (int) $donation['planId'] );
+		if ( $plan && ! is_wp_error( $plan ) ) {
+			$valid_donations[ $interval ] = $donation;
+		}
+	}
+	$donations          = $valid_donations;
+	$rendered_intervals = array_keys( $donations );
+
+	// Effective default = configured defaultInterval if it survived plan validation,
+	// otherwise the first rendered interval (one-time → monthly → annual).
+	$default_interval = $attr['defaultInterval'] ?? null;
+	if ( ! in_array( $default_interval, $rendered_intervals, true ) ) {
+		$default_interval = $rendered_intervals[0] ?? null;
+	}
+	$tab_content_class_map = array(
+		'one-time' => 'is-one-time',
+		'1 month'  => 'is-monthly',
+		'1 year'   => 'is-annual',
+	);
+	$tab_content_class     = $default_interval ? $tab_content_class_map[ $default_interval ] : '';
+
+	$nav        = '';
+	$headings   = '';
+	$amounts    = '';
+	$extra_text = '';
+	$buttons    = '';
 	foreach ( $donations as $interval => $donation ) {
 		$plan_id = (int) $donation['planId'];
-		$plan    = get_post( $plan_id );
-		if ( ! $plan || is_wp_error( $plan ) ) {
-			continue;
-		}
 
 		if ( count( $donations ) > 1 ) {
 			if ( ! $nav ) {
 				$nav .= '<div class="donations__nav">';
 			}
-			$nav .= sprintf(
-				'<div role="button" tabindex="0" class="donations__nav-item" data-interval="%1$s">%2$s</div>',
+			$is_active_class = $interval === $default_interval ? ' is-active' : '';
+			$nav            .= sprintf(
+				'<div role="button" tabindex="0" class="donations__nav-item%3$s" data-interval="%1$s">%2$s</div>',
 				esc_attr( $interval ),
-				esc_html( $donation['title'] )
+				esc_html( $donation['title'] ),
+				esc_attr( $is_active_class )
 			);
 		}
 		$heading_text = wp_kses_post( $donation['heading'] ?? '' );
@@ -163,9 +190,14 @@ function render_block( $attr, $content ) {
 				$heading_text
 			);
 		}
+		$default_index_attr = '';
+		if ( isset( $donation['defaultAmountIndex'] ) && is_numeric( $donation['defaultAmountIndex'] ) ) {
+			$default_index_attr = sprintf( ' data-default-index="%d"', (int) $donation['defaultAmountIndex'] );
+		}
 		$amounts .= sprintf(
-			'<div class="donations__amounts %s">',
-			esc_attr( $donation['class'] )
+			'<div class="donations__amounts %s"%s>',
+			esc_attr( $donation['class'] ),
+			$default_index_attr
 		);
 		foreach ( $donation['amounts'] as $amount ) {
 			$amounts .= sprintf(
@@ -200,7 +232,8 @@ function render_block( $attr, $content ) {
 		if ( '' !== trim( $custom_amount_html ) ) {
 			$custom_amount .= sprintf( '<p>%s</p>', $custom_amount_html );
 		}
-		$default_custom_amount = ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
+		$default_custom_amount = $attr['customAmountPlaceholder']
+			?? ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s
@@ -217,7 +250,11 @@ function render_block( $attr, $content ) {
 	if ( isset( $attr['tabsAppearance'] ) && 'buttons' === $attr['tabsAppearance'] ) {
 		$instance_classes .= ' is-style-buttons';
 	}
-	$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $instance_classes ) );
+	$wrapper_attr_array = array( 'class' => $instance_classes );
+	if ( $default_interval ) {
+		$wrapper_attr_array['data-default-interval'] = $default_interval;
+	}
+	$wrapper_attrs = get_block_wrapper_attributes( $wrapper_attr_array );
 	$custom_styles = build_custom_styles( $attr, '.' . $instance_id );
 
 	$choose_amount_html  = wp_kses_post( $choose_amount_text );
@@ -229,7 +266,7 @@ function render_block( $attr, $content ) {
 	<div class="donations__container">
 		%2$s
 		<div class="donations__content">
-			<div class="donations__tab">
+			<div class="donations__tab %10$s">
 				%3$s
 				%4$s
 				%5$s
@@ -250,7 +287,8 @@ function render_block( $attr, $content ) {
 		$custom_amount,
 		$extra_text,
 		$buttons,
-		$custom_styles ? '<style>' . $custom_styles . '</style>' : ''
+		$custom_styles ? '<style>' . $custom_styles . '</style>' : '',
+		esc_attr( $tab_content_class )
 	);
 }
 
