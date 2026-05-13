@@ -24,8 +24,8 @@ const TabFallback = () => (
 );
 
 const VALID_TABS: readonly TabName[] = [
-	'settings',
 	'create',
+	'settings',
 	'episodes',
 	'distribution',
 	'stats',
@@ -47,9 +47,12 @@ const App = () => {
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// `?tab=` owns the active tab; default (no `tab`) is Settings.
+	// `?tab=` owns the active tab. Default (no `tab`) is Create once podcasting
+	// is set up; before that, fall back to Settings so the disabled Create tab
+	// doesn't strand the user on a panel they can't act in.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : 'settings';
+	const defaultTab: TabName = isSetUp ? 'create' : 'settings';
+	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
 
 	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
@@ -66,7 +69,7 @@ const App = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					// Default tab keeps a clean URL.
-					tab: next === 'settings' ? undefined : next,
+					tab: next === 'create' ? undefined : next,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
