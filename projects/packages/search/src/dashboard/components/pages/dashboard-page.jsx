@@ -17,6 +17,7 @@ import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 const DEFAULT_TAB = 'plan-usage';
+// Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
 const TAB_QUERY_PARAM = 'tab';
 
