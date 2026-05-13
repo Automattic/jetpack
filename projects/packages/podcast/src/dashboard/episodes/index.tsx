@@ -2,10 +2,12 @@
 // merged client-side, so those columns are display-only (not sortable).
 
 import { getSiteData } from '@automattic/jetpack-script-data';
+import { Button } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
@@ -63,6 +65,24 @@ const defaultView: ViewTable = {
 
 const getEpisodeRowId = ( item: EpisodeRow ) => String( item.id );
 
+type PlaysCellProps = {
+	count: number;
+	episodeId: number;
+	onOpen: ( episodeId: number ) => void;
+};
+
+const PlaysCell = ( { count, episodeId, onOpen }: PlaysCellProps ) => {
+	const handleClick = useCallback( () => onOpen( episodeId ), [ onOpen, episodeId ] );
+	if ( count <= 0 ) {
+		return <>{ count }</>;
+	}
+	return (
+		<Button variant="link" onClick={ handleClick }>
+			{ count }
+		</Button>
+	);
+};
+
 const STATUS_LABELS: Record< string, string > = {
 	publish: __( 'Published', 'jetpack-podcast' ),
 	future: __( 'Scheduled', 'jetpack-podcast' ),
@@ -77,6 +97,21 @@ const EpisodesTab = () => {
 	const showCoverImage = settings?.podcasting_image ?? '';
 
 	const [ view, setView ] = useState< View >( defaultView );
+
+	const navigate = useNavigate();
+
+	const openEpisodeStats = useCallback(
+		( episodeId: number ) => {
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					tab: 'stats',
+					episode: episodeId,
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	const queryArgs = useMemo( () => {
 		const sortField = view.sort?.field;
@@ -179,6 +214,9 @@ const EpisodesTab = () => {
 				type: 'integer' as const,
 				label: __( 'Plays', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.playsAll,
+				render: ( { item }: { item: EpisodeRow } ) => (
+					<PlaysCell count={ item.playsAll } episodeId={ item.id } onOpen={ openEpisodeStats } />
+				),
 				enableSorting: false,
 			},
 			{
@@ -202,7 +240,7 @@ const EpisodesTab = () => {
 				enableSorting: true,
 			},
 		],
-		[]
+		[ openEpisodeStats ]
 	);
 
 	const actions = useMemo< Action< EpisodeRow >[] >(
