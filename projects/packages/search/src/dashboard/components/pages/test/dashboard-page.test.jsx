@@ -135,8 +135,8 @@ describe( 'DashboardPage', () => {
 	} );
 
 	test( 'falls back to the default tab when URL tab is unknown', () => {
-		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
 
 		render( <DashboardPage /> );
 
@@ -144,8 +144,7 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
-		expect( replaceStateSpy ).toHaveBeenCalledTimes( 1 );
-		expect( window.location.search ).toContain( 'tab=unknown' );
+		expect( replaceStateSpy ).not.toHaveBeenCalled();
 		replaceStateSpy.mockRestore();
 	} );
 
