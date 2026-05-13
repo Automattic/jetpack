@@ -64,9 +64,9 @@
 			"enum": [ "text/vtt", "text/html", "application/srt", "application/json" ],
 			"default": "text/vtt"
 		},
-		"chaptersUrl": {
-			"type": "string",
-			"default": ""
+		"chapters": {
+			"type": "array",
+			"default": []
 		},
 		"locationName": {
 			"type": "string",

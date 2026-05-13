@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 use Automattic\Jetpack\Podcast\Podcast_Episode_Block;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+use WP_Block;
 use WP_Block_Supports;
 
 /**
@@ -56,8 +57,18 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 	}
 
-	private function block_ctx( $post_id ) {
-		return (object) array( 'context' => array( 'postId' => $post_id ) );
+	private function block_ctx( $post_id ): WP_Block {
+		// Construct a real WP_Block (matches render_block's @param) and
+		// assign context post-hoc since the block isn't registered in this
+		// test, so WP_Block::__construct skips its uses_context loop.
+		$block          = new WP_Block(
+			array(
+				'blockName' => 'jetpack/podcast-episode',
+				'attrs'     => array(),
+			)
+		);
+		$block->context = array( 'postId' => $post_id );
+		return $block;
 	}
 
 	/**
@@ -214,11 +225,10 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertSame( 2, substr_count( $result, 'jetpack-podcast-episode__person"' ) );
 	}
 
-	public function test_renders_transcript_chapters_location_and_license_links() {
+	public function test_renders_transcript_location_and_license_links() {
 		$result = $this->render(
 			array(
 				'transcriptUrl' => 'https://example.com/transcript.vtt',
-				'chaptersUrl'   => 'https://example.com/chapters.json',
 				'locationName'  => 'Brooklyn, NY',
 				'license'       => 'CC-BY-4.0',
 				'licenseUrl'    => 'https://creativecommons.org/licenses/by/4.0/',
@@ -226,10 +236,44 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 
 		$this->assertStringContainsString( 'https://example.com/transcript.vtt', $result );
-		$this->assertStringContainsString( 'https://example.com/chapters.json', $result );
 		$this->assertStringContainsString( 'Brooklyn, NY', $result );
 		$this->assertStringContainsString( 'CC-BY-4.0', $result );
 		$this->assertStringContainsString( 'https://creativecommons.org/licenses/by/4.0/', $result );
+	}
+
+	public function test_renders_chapters_sorted_by_start_time() {
+		$result = $this->render(
+			array(
+				'chapters' => array(
+					array(
+						'startTime' => 3661,
+						'title'     => 'Closing thoughts',
+					),
+					array(
+						'startTime' => 0,
+						'title'     => 'Intro',
+					),
+					array(
+						'startTime' => 125,
+						'title'     => 'Main interview',
+					),
+					array( 'title' => 'No timestamp, skipped' ),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '<ol class="jetpack-podcast-episode__chapters">', $result );
+		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">0:00</time>', $result );
+		$this->assertStringContainsString( 'Intro', $result );
+		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">2:05</time>', $result );
+		$this->assertStringContainsString( 'Main interview', $result );
+		$this->assertStringContainsString( '<time class="jetpack-podcast-episode__chapter-time">1:01:01</time>', $result );
+		$this->assertStringContainsString( 'Closing thoughts', $result );
+		$this->assertStringNotContainsString( 'No timestamp, skipped', $result );
+
+		// Ascending order — Intro before Main interview before Closing thoughts.
+		$this->assertLessThan( strpos( $result, 'Main interview' ), strpos( $result, 'Intro' ) );
+		$this->assertLessThan( strpos( $result, 'Closing thoughts' ), strpos( $result, 'Main interview' ) );
 	}
 
 	public function test_renders_soundbites_with_timestamp_and_title() {

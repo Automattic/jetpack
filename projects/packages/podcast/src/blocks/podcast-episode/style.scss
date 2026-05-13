@@ -160,6 +160,28 @@ $jetpack-podcast-episode-gap: 16px;
 		font-size: 0.85em;
 	}
 
+	.jetpack-podcast-episode__chapters {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		font-size: 0.9em;
+	}
+
+	.jetpack-podcast-episode__chapter {
+		display: flex;
+		gap: 12px;
+		align-items: baseline;
+	}
+
+	.jetpack-podcast-episode__chapter-time {
+		flex: 0 0 auto;
+		font-variant-numeric: tabular-nums;
+		color: gb.$gray-700;
+	}
+
 	.jetpack-podcast-episode__links {
 		list-style: none;
 		margin: 0;

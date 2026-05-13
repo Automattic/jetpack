@@ -27,13 +27,18 @@ class Podcast_Episode_Block {
 	const EDITOR_HANDLE = 'jetpack-podcast-episode-editor';
 
 	/**
+	 * Front-end + editor shared style handle. Side-loaded by
+	 * `Assets::register_script` from the sibling `style.css` bundle.
+	 */
+	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
+
+	/**
 	 * Wire the block's actions. Hooks are added unconditionally; each
 	 * callback re-checks the untangle filter and short-circuits when off.
 	 */
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
-		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );
 	}
 
 	/**
@@ -46,16 +51,35 @@ class Podcast_Episode_Block {
 
 	/**
 	 * Register the block when the gate is open.
+	 *
+	 * Also registers the front-end style bundle (built separately from the
+	 * editor bundle so it actually ships on the public post page) and hands
+	 * the handle to `register_block_type` via the `style` arg, which auto-
+	 * enqueues it whenever the block is rendered.
 	 */
 	public static function register_block() {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
 
+		// Assets::register_script side-loads the sibling style.css and
+		// registers a style handle under the same name. The accompanying
+		// (essentially empty) style.js handle is registered too but never
+		// enqueued — only the style is passed to register_block_type below.
+		Assets::register_script(
+			self::STYLE_HANDLE,
+			'../../../dist/blocks/podcast-episode/style.js',
+			__FILE__,
+			array(
+				'css_path' => '../../../dist/blocks/podcast-episode/style.css',
+			)
+		);
+
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
+				'style'           => self::STYLE_HANDLE,
 			)
 		);
 	}
@@ -78,6 +102,10 @@ class Podcast_Episode_Block {
 				'textdomain' => 'jetpack-podcast',
 			)
 		);
+
+		// Add the script_loader_src rewrite only while the editor script is
+		// in flight, so the filter doesn't run on every front-end script load.
+		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );
 	}
 
 	/**
@@ -180,7 +208,7 @@ class Podcast_Episode_Block {
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
-		$chapters_url   = isset( $attributes['chaptersUrl'] ) ? esc_url_raw( $attributes['chaptersUrl'] ) : '';
+		$chapters       = isset( $attributes['chapters'] ) && is_array( $attributes['chapters'] ) ? $attributes['chapters'] : array();
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
 		$license_url    = isset( $attributes['licenseUrl'] ) ? esc_url_raw( $attributes['licenseUrl'] ) : '';
@@ -329,6 +357,37 @@ class Podcast_Episode_Block {
 						</ul>
 					<?php endif; ?>
 
+					<?php
+					$rendered_chapters = array();
+					foreach ( $chapters as $chapter ) {
+						if ( ! is_array( $chapter ) || ! isset( $chapter['startTime'] ) ) {
+							continue;
+						}
+						$rendered_chapters[] = array(
+							'startTime' => (float) $chapter['startTime'],
+							'title'     => isset( $chapter['title'] ) ? trim( (string) $chapter['title'] ) : '',
+						);
+					}
+					usort(
+						$rendered_chapters,
+						static function ( $a, $b ) {
+							return $a['startTime'] <=> $b['startTime'];
+						}
+					);
+					?>
+					<?php if ( ! empty( $rendered_chapters ) ) : ?>
+						<ol class="jetpack-podcast-episode__chapters">
+							<?php foreach ( $rendered_chapters as $chapter ) : ?>
+								<li class="jetpack-podcast-episode__chapter">
+									<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
+									<?php if ( '' !== $chapter['title'] ) : ?>
+										<span class="jetpack-podcast-episode__chapter-title"><?php echo esc_html( $chapter['title'] ); ?></span>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+						</ol>
+					<?php endif; ?>
+
 					<?php if ( ! empty( $alternate_enclosures ) ) : ?>
 						<ul class="jetpack-podcast-episode__alternates">
 							<?php
@@ -374,7 +433,7 @@ class Podcast_Episode_Block {
 						<ul class="jetpack-podcast-episode__people">
 							<?php
 							foreach ( $people as $person ) :
-								if ( empty( $person['name'] ) ) {
+								if ( ! is_array( $person ) || empty( $person['name'] ) ) {
 									continue;
 								}
 								$person_name = (string) $person['name'];
@@ -401,19 +460,12 @@ class Podcast_Episode_Block {
 						</ul>
 					<?php endif; ?>
 
-					<?php if ( $transcript_url || $chapters_url || $location_name || $license ) : ?>
+					<?php if ( $transcript_url || $location_name || $license ) : ?>
 						<ul class="jetpack-podcast-episode__links">
 							<?php if ( $transcript_url ) : ?>
 								<li>
 									<a href="<?php echo esc_url( $transcript_url ); ?>" class="jetpack-podcast-episode__transcript-link">
 										<?php esc_html_e( 'Read transcript', 'jetpack-podcast' ); ?>
-									</a>
-								</li>
-							<?php endif; ?>
-							<?php if ( $chapters_url ) : ?>
-								<li>
-									<a href="<?php echo esc_url( $chapters_url ); ?>" class="jetpack-podcast-episode__chapters-link">
-										<?php esc_html_e( 'View chapters', 'jetpack-podcast' ); ?>
 									</a>
 								</li>
 							<?php endif; ?>

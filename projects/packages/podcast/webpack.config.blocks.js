@@ -16,6 +16,7 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'podcast-episode/editor': './src/blocks/podcast-episode/editor.ts',
+		'podcast-episode/style': './src/blocks/podcast-episode/style.scss',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

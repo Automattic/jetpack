@@ -35,6 +35,11 @@ interface Person {
 	img?: string;
 }
 
+interface Chapter {
+	startTime?: number;
+	title?: string;
+}
+
 interface CoverArt {
 	id?: number;
 	url?: string;
@@ -52,7 +57,7 @@ interface PodcastEpisodeAttributes {
 	duration?: string;
 	transcriptUrl?: string;
 	transcriptType?: string;
-	chaptersUrl?: string;
+	chapters?: Chapter[];
 	locationName?: string;
 	license?: string;
 	licenseUrl?: string;
@@ -97,6 +102,82 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 ];
 
 const PERSON_ROW_STYLE = { marginBottom: '1em' };
+
+const formatTimeCode = ( seconds: number | undefined ): string => {
+	if ( ! seconds || seconds < 0 || Number.isNaN( seconds ) ) {
+		return '';
+	}
+	const total = Math.floor( seconds );
+	const h = Math.floor( total / 3600 );
+	const m = Math.floor( ( total % 3600 ) / 60 );
+	const s = total % 60;
+	const mm = String( m ).padStart( 2, '0' );
+	const ss = String( s ).padStart( 2, '0' );
+	return h > 0 ? `${ h }:${ mm }:${ ss }` : `${ m }:${ ss }`;
+};
+
+const parseTimeCode = ( value: string ): number | undefined => {
+	const trimmed = value.trim();
+	if ( '' === trimmed ) {
+		return undefined;
+	}
+	const parts = trimmed.split( ':' ).map( p => Number( p ) );
+	if ( parts.some( Number.isNaN ) || parts.length > 3 ) {
+		return undefined;
+	}
+	return parts.reduce( ( total, p ) => total * 60 + p, 0 );
+};
+
+interface ChaptersEditorProps {
+	chapters: Chapter[];
+	onChange: ( next: Chapter[] ) => void;
+}
+
+function ChaptersEditor( { chapters, onChange }: ChaptersEditorProps ) {
+	const updateChapter = ( index: number, patch: Partial< Chapter > ) => {
+		onChange(
+			chapters.map( ( chapter, i ) => ( i === index ? { ...chapter, ...patch } : chapter ) )
+		);
+	};
+	const removeChapter = ( index: number ) => onChange( chapters.filter( ( _, i ) => i !== index ) );
+	const addChapter = () => {
+		const lastTime = chapters.reduce(
+			( max, c ) => ( typeof c.startTime === 'number' && c.startTime > max ? c.startTime : max ),
+			-1
+		);
+		onChange( [ ...chapters, { startTime: lastTime + 1, title: '' } ] );
+	};
+
+	return (
+		<>
+			{ chapters.map( ( chapter, index ) => (
+				<div className="jetpack-podcast-episode__chapter-row" key={ index }>
+					<TextControl
+						label={ __( 'Start', 'jetpack-podcast' ) }
+						help={ __( 'HH:MM:SS or MM:SS.', 'jetpack-podcast' ) }
+						value={ formatTimeCode( chapter.startTime ) }
+						onChange={ value => updateChapter( index, { startTime: parseTimeCode( value ) } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<TextControl
+						label={ __( 'Title', 'jetpack-podcast' ) }
+						value={ chapter.title || '' }
+						onChange={ title => updateChapter( index, { title } ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+					/>
+					<Button variant="link" isDestructive onClick={ () => removeChapter( index ) }>
+						{ __( 'Remove chapter', 'jetpack-podcast' ) }
+					</Button>
+				</div>
+			) ) }
+			<Button variant="secondary" onClick={ addChapter }>
+				{ __( 'Add chapter', 'jetpack-podcast' ) }
+			</Button>
+		</>
+	);
+}
 
 interface PeopleEditorProps {
 	people: Person[];
@@ -179,7 +260,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		duration,
 		transcriptUrl,
 		transcriptType,
-		chaptersUrl,
+		chapters = [],
 		locationName,
 		license,
 		licenseUrl,
@@ -399,25 +480,38 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									value={ coverArt?.id }
 									render={ ( { open }: { open: () => void } ) => (
 										<div className="jetpack-podcast-episode__cover-picker">
-											{ coverArtUrl && (
-												<img
-													src={ coverArtUrl }
-													alt=""
-													className="jetpack-podcast-episode__cover-preview"
-												/>
-											) }
-											<Button variant="secondary" onClick={ open }>
-												{ coverArt?.url && __( 'Replace cover art', 'jetpack-podcast' ) }
-												{ ! coverArt?.url && __( 'Set episode cover art', 'jetpack-podcast' ) }
+											<Button
+												className={
+													coverArtUrl
+														? 'jetpack-podcast-episode__cover-button'
+														: 'jetpack-podcast-episode__cover-button jetpack-podcast-episode__cover-button--empty'
+												}
+												onClick={ open }
+												aria-label={
+													coverArt?.url
+														? __( 'Replace cover art', 'jetpack-podcast' )
+														: __( 'Set episode cover art', 'jetpack-podcast' )
+												}
+											>
+												{ coverArtUrl ? (
+													<img src={ coverArtUrl } alt="" />
+												) : (
+													<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
+												) }
 											</Button>
 											{ coverArt?.url && (
-												<Button
-													variant="link"
-													isDestructive
-													onClick={ () => setAttributes( { coverArt: {} } ) }
-												>
-													{ __( 'Use show cover art', 'jetpack-podcast' ) }
-												</Button>
+												<div className="jetpack-podcast-episode__cover-actions">
+													<Button variant="link" onClick={ open }>
+														{ __( 'Replace', 'jetpack-podcast' ) }
+													</Button>
+													<Button
+														variant="link"
+														isDestructive
+														onClick={ () => setAttributes( { coverArt: {} } ) }
+													>
+														{ __( 'Remove', 'jetpack-podcast' ) }
+													</Button>
+												</div>
 											) }
 										</div>
 									) }
@@ -442,9 +536,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
-				</PanelBody>
-
-				<PanelBody title={ __( 'Podcasting 2.0', 'jetpack-podcast' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Transcript URL', 'jetpack-podcast' ) }
 						type="url"
@@ -461,15 +552,18 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
-					<TextControl
-						label={ __( 'Chapters URL', 'jetpack-podcast' ) }
-						help={ __( 'Link to a JSON chapters file (podcast:chapters).', 'jetpack-podcast' ) }
-						type="url"
-						value={ chaptersUrl }
-						onChange={ value => setAttributes( { chaptersUrl: value } ) }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'Chapters', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<ChaptersEditor
+							chapters={ chapters }
+							onChange={ value => setAttributes( { chapters: value } ) }
+						/>
+					</BaseControl>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Metadata', 'jetpack-podcast' ) } initialOpen={ false }>
 					<TextControl
 						label={ __( 'Location', 'jetpack-podcast' ) }
 						help={ __(
