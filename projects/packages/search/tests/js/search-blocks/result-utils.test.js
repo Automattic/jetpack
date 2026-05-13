@@ -696,16 +696,21 @@ describe( 'normalizeResult', () => {
 		} );
 	} );
 
-	it( 'does not expose author data from the API response', () => {
+	it( 'exposes the author as authorLabel rather than a raw author key', () => {
+		// The template binds to `authorLabel`; a stray `author` property on
+		// the normalized result would let downstream code render the raw API
+		// shape (potentially an array) instead of the formatted string.
 		const raw = {
 			result_id: '1',
 			fields: {
 				'permalink.url.raw': 'https://example.com/a',
 				'title.default': 'Post',
-				'author.name': 'Ada Lovelace',
+				author: 'Ada Lovelace',
 			},
 		};
-		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+		const r = normalizeResult( raw );
+		expect( r ).not.toHaveProperty( 'author' );
+		expect( r.authorLabel ).toBe( 'Ada Lovelace' );
 	} );
 
 	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {
