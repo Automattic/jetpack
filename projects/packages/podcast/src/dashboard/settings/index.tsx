@@ -235,9 +235,7 @@ const SettingsTab = () => {
 			if ( result?.id ) {
 				commit( { podcasting_category_id: Number( result.id ) } );
 			}
-			setCreateCategoryOpen( false );
-			setNewCategoryName( '' );
-			setCreateError( null );
+			closeCreateCategory();
 		} catch ( error ) {
 			const message =
 				error instanceof Error
@@ -247,7 +245,7 @@ const SettingsTab = () => {
 		} finally {
 			setCreating( false );
 		}
-	}, [ newCategoryName, saveEntityRecord, commit ] );
+	}, [ newCategoryName, saveEntityRecord, commit, closeCreateCategory ] );
 
 	if ( isLoading || ! draft ) {
 		return null;
