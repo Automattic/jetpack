@@ -153,16 +153,8 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	/**
 	 * Drive registration through the lifecycle actions so WordPress 6.9's
 	 * doing-it-wrong check sees the callbacks fire inside the proper action.
-	 *
-	 * Re-firing the actions also re-invokes WP core's own listeners, which
-	 * raise "already registered" notices for the core site category and
-	 * get-site-info ability. Those notices are unrelated to this test's
-	 * intent, so the helper whitelists them up-front for the calling test.
 	 */
 	private function trigger_registration() {
-		$this->setExpectedIncorrectUsage( 'WP_Ability_Categories_Registry::register' );
-		$this->setExpectedIncorrectUsage( 'WP_Abilities_Registry::register' );
-
 		add_action( 'wp_abilities_api_categories_init', array( Related_Posts_Abilities::class, 'register_category' ) );
 		add_action( 'wp_abilities_api_init', array( Related_Posts_Abilities::class, 'register_abilities' ) );
 		do_action( 'wp_abilities_api_categories_init' );
