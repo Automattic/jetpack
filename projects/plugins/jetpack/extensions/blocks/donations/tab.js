@@ -17,6 +17,8 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		monthlyDonation,
 		annualDonation,
 		showCustomAmount,
+		// Destructure defaults are only applied when the property is `undefined`.
+		// User-cleared empty strings are left as-is, so they render empty.
 		chooseAmountText = DEFAULT_TEXTS.chooseAmountText,
 		customAmountText = DEFAULT_TEXTS.customAmountText,
 	} = attributes;
@@ -68,7 +70,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			<RichText
 				tagName="h4"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getDonationValue( 'heading' ) || DEFAULT_TEXTS[ donationAttribute ]?.heading }
+				value={ getDonationValue( 'heading' ) ?? DEFAULT_TEXTS[ donationAttribute ]?.heading }
 				onChange={ value => setDonationValue( 'heading', value ) }
 			/>
 			<RichText
@@ -119,10 +121,10 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			/>
 			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
-					className="wp-block-button__link donations__donate-button"
+					className="wp-block-button__link wp-element-button donations__donate-button"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={
-						getDonationValue( 'buttonText' ) || DEFAULT_TEXTS[ donationAttribute ]?.buttonText
+						getDonationValue( 'buttonText' ) ?? DEFAULT_TEXTS[ donationAttribute ]?.buttonText
 					}
 					onChange={ value => setButtonText( value ) }
 					allowedFormats={ allowedFormatsForButton }

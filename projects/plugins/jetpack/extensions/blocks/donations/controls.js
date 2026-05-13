@@ -1,6 +1,6 @@
 import { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { AlignmentControl, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Dashicon,
 	Dropdown,
@@ -12,6 +12,7 @@ import {
 	ToolbarItem,
 	ToolbarButton,
 } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import { Link } from '@wordpress/ui';
@@ -22,8 +23,14 @@ import {
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
-	const { currency, oneTimeDonation, monthlyDonation, annualDonation, showCustomAmount } =
-		attributes;
+	const {
+		currency,
+		oneTimeDonation,
+		monthlyDonation,
+		annualDonation,
+		showCustomAmount,
+		contentAlignment,
+	} = attributes;
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttributes = {
@@ -41,6 +48,11 @@ const Controls = props => {
 		} );
 	};
 
+	const setContentAlignment = useCallback(
+		value => setAttributes( { contentAlignment: value || '' } ),
+		[ setAttributes ]
+	);
+
 	const changeDefaultDonationAmounts = ccy => {
 		const defaultAmounts = getDefaultDonationAmountsForCurrency( ccy );
 
@@ -55,6 +67,7 @@ const Controls = props => {
 	return (
 		<>
 			<BlockControls>
+				<AlignmentControl value={ contentAlignment } onChange={ setContentAlignment } />
 				<ToolbarGroup>
 					<ToolbarItem>
 						{ () => (
