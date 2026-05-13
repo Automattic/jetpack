@@ -795,3 +795,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers_List' );
+
+// Register Subscribers Dashboard abilities (WordPress Abilities API, WP 6.9+).
+// Co-located with the REST controller because the abilities are a thin wrapper
+// over its routes, so they must share the same modernization gate to register.
+if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+	\Automattic\Jetpack\Plugin\Abilities\Subscribers_Dashboard_Abilities::init();
+}

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities API: register jetpack-subscribers/list-subscribers, /get-summary, /delete-subscriber, and /bulk-delete-subscribers for WP 6.9+, gated behind the newsletter modernization filter.
