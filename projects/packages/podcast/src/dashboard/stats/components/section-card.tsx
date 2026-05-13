@@ -7,7 +7,7 @@ type SectionCardProps = {
 	isLoading?: boolean;
 	isEmpty?: boolean;
 	emptyMessage?: string;
-	children: ReactNode;
+	children?: ReactNode;
 	className?: string;
 };
 
@@ -27,7 +27,7 @@ const renderBody = ( { isLoading, isEmpty, emptyMessage, children }: SectionCard
 	if ( isEmpty ) {
 		return <p className="podcast-stats__section-empty">{ emptyMessage }</p>;
 	}
-	return children;
+	return children ?? null;
 };
 
 const SectionCard = ( {
