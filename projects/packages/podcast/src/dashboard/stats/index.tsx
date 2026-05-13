@@ -1,7 +1,7 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
 import { useEntityRecord } from '@wordpress/core-data';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -27,17 +27,14 @@ const Stats = () => {
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StatsSearch;
 	const navigate = useNavigate();
 
-	const selectedPostId = useMemo( () => {
-		const raw = search.episode;
-		const n = typeof raw === 'number' ? raw : Number( raw );
-		return Number.isFinite( n ) && n > 0 ? n : null;
-	}, [ search.episode ] );
+	const rawEpisode = Number( search.episode );
+	const selectedPostId = rawEpisode > 0 ? rawEpisode : null;
 
-	// Fetch the post title for the URL-selected episode. Episodes-tab clicks
-	// supply only the id, so the title is hydrated client-side here.
+	// Episodes-tab plays-clicks deep-link with only the id, so the title is
+	// hydrated client-side via core-data.
 	const { record: selectedPost } = useEntityRecord< {
 		title?: { rendered?: string };
-	} >( 'postType', 'post', selectedPostId ?? 0 );
+	} >( 'postType', 'post', selectedPostId ?? 0, { enabled: selectedPostId !== null } );
 
 	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
 

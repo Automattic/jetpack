@@ -12,7 +12,7 @@ import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
-import type { EpisodeStats } from '../types';
+import type { EpisodeStats, TabName } from '../types';
 
 const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
 
@@ -73,13 +73,12 @@ type PlaysCellProps = {
 
 const PlaysCell = ( { count, episodeId, onOpen }: PlaysCellProps ) => {
 	const handleClick = useCallback( () => onOpen( episodeId ), [ onOpen, episodeId ] );
-	if ( count <= 0 ) {
-		return <>{ count }</>;
-	}
-	return (
+	return count > 0 ? (
 		<Button variant="link" onClick={ handleClick }>
 			{ count }
 		</Button>
+	) : (
+		<>{ count }</>
 	);
 };
 
@@ -102,10 +101,11 @@ const EpisodesTab = () => {
 
 	const openEpisodeStats = useCallback(
 		( episodeId: number ) => {
+			const tab: TabName = 'stats';
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
-					tab: 'stats',
+					tab,
 					episode: episodeId,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
