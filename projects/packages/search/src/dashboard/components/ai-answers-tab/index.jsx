@@ -108,7 +108,7 @@ export default function AiAnswersTab() {
 								checked={ isAiAnswersEnabled }
 								onChange={ setAiAnswersEnabled }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-								disabled={ ! isInstantSearchEnabled }
+								disabled={ ! isInstantSearchEnabled && ! isAiAnswersEnabled }
 							/>
 
 							{ ! isLoading && ! isUnavailable && (

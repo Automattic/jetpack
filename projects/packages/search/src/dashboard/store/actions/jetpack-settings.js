@@ -26,7 +26,9 @@ const getRollbackSettings = settings =>
 				k === 'module_active' ||
 				k === 'instant_search_enabled' ||
 				k === 'experience' ||
-				k === 'reader_chat'
+				k === 'reader_chat' ||
+				k === 'ai_answers_enabled' ||
+				k === 'search_suggestions_enabled'
 		)
 	);
 
