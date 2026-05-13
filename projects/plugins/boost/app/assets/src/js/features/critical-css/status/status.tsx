@@ -2,6 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { Notice } from '@wordpress/ui';
 import { Link } from 'react-router';
+import { useState } from 'react';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
@@ -28,9 +29,11 @@ const Status: FC< StatusTypes > = ( {
 	overrideText,
 } ) => {
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const [ overrideDismissed, setOverrideDismissed ] = useState( false );
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
 	const providersWithErrors = getProvidersWithErrors( cssState );
+	const showOverride = !! overrideText && ! overrideDismissed;
 
 	const handleClickRegenerate = () => {
 		recordBoostEvent( 'critical_css_regenerate_clicked', {} );
@@ -82,20 +85,32 @@ const Status: FC< StatusTypes > = ( {
 					successCount
 			  );
 
+	const shouldRenderSuccess = ! overrideText || showOverride;
+
 	return (
 		<>
-			<Notice.Root intent="success" spokenMessage={ successSpokenMessage }>
-				<Notice.Description>{ successText }</Notice.Description>
-				<Notice.Actions>
-					<Notice.ActionButton
-						variant={ highlightRegenerateButton ? 'solid' : 'minimal' }
-						onClick={ handleClickRegenerate }
-						disabled={ cssState.status === 'pending' }
-					>
-						{ __( 'Regenerate', 'jetpack-boost' ) }
-					</Notice.ActionButton>
-				</Notice.Actions>
-			</Notice.Root>
+			{ shouldRenderSuccess && (
+				<Notice.Root intent="success" spokenMessage={ successSpokenMessage }>
+					<Notice.Description>{ successText }</Notice.Description>
+					{ ! overrideText && (
+						<Notice.Actions>
+							<Notice.ActionButton
+								variant={ highlightRegenerateButton ? 'solid' : 'minimal' }
+								onClick={ handleClickRegenerate }
+								disabled={ cssState.status === 'pending' }
+							>
+								{ __( 'Regenerate', 'jetpack-boost' ) }
+							</Notice.ActionButton>
+						</Notice.Actions>
+					) }
+					{ overrideText && (
+						<Notice.CloseIcon
+							onClick={ () => setOverrideDismissed( true ) }
+							label={ __( 'Dismiss', 'jetpack-boost' ) }
+						/>
+					) }
+				</Notice.Root>
+			) }
 
 			{ hasErrors && (
 				<Notice.Root intent="warning">
