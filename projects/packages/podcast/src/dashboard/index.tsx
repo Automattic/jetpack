@@ -66,6 +66,7 @@ const App = () => {
 			if ( ! isValidTab( next ) ) {
 				return;
 			}
+			const postClickDefaultTab: TabName = isSetUp ? 'stats' : 'settings';
 			// Any explicit tab move ends the Welcome-setup pin so the URL/default
 			// switches to the returning-user shape.
 			setInWelcomeSetup( false );
@@ -73,11 +74,11 @@ const App = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					// Default tab keeps a clean URL.
-					tab: next === defaultTab ? undefined : next,
+					tab: next === postClickDefaultTab ? undefined : next,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, defaultTab ]
+		[ navigate, isSetUp ]
 	);
 
 	const handleEnable = useCallback( () => {
