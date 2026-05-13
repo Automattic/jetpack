@@ -44,7 +44,7 @@ function Search( props ) {
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
-					href="admin.php?page=jetpack-search"
+					href="admin.php?page=jetpack-search&tab=settings"
 				>
 					{ SEARCH_DASHBOARD_CTA }
 				</Card>
