@@ -222,6 +222,13 @@ class Podcast_Episode_Block {
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
 		$episode_url      = get_permalink( $post );
+		$transcript_type  = isset( $attributes['transcriptType'] ) ? (string) $attributes['transcriptType'] : '';
+
+		// Show-level data backs the `partOfSeries` PodcastSeries reference so
+		// search engines can connect the episode to its parent show.
+		$show_title     = (string) get_option( 'podcasting_title', '' );
+		$show_image_url = (string) get_option( 'podcasting_image', '' );
+		$show_email     = (string) get_option( 'podcasting_email', '' );
 
 		// Cover art: episode-specific override → show-level podcasting_image option → none.
 		$image_url = '';
@@ -229,15 +236,10 @@ class Podcast_Episode_Block {
 			if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
 				$image_url = esc_url_raw( $attributes['coverArt']['url'] );
 			} else {
-				$image_url = (string) get_option( 'podcasting_image', '' );
+				$image_url = $show_image_url;
 			}
 		}
 
-		// Show-level data backs the `partOfSeries` PodcastSeries reference so
-		// search engines can connect the episode to its parent show.
-		$show_title     = (string) get_option( 'podcasting_title', '' );
-		$show_image_url = (string) get_option( 'podcasting_image', '' );
-		$show_email     = (string) get_option( 'podcasting_email', '' );
 		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
 
@@ -417,13 +419,14 @@ class Podcast_Episode_Block {
 					<?php if ( ! empty( $rendered_chapters ) ) : ?>
 						<ol class="jetpack-podcast-episode__chapters">
 							<?php foreach ( $rendered_chapters as $chapter ) : ?>
+								<?php $chapter_start_seconds = (int) floor( max( 0, (float) $chapter['startTime'] ) ); ?>
 								<li
 									class="jetpack-podcast-episode__chapter"
 									itemprop="hasPart"
 									itemscope
 									itemtype="https://schema.org/Clip"
 								>
-									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) (int) $chapter['startTime'] ); ?>" />
+									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>" />
 									<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
 									<?php if ( '' !== $chapter['title'] ) : ?>
 										<span class="jetpack-podcast-episode__chapter-title" itemprop="name"><?php echo esc_html( $chapter['title'] ); ?></span>
@@ -512,7 +515,10 @@ class Podcast_Episode_Block {
 								<meta itemprop="image" content="<?php echo esc_url( $show_image_url ); ?>" />
 							<?php endif; ?>
 							<?php if ( $show_email ) : ?>
-								<meta itemprop="email" content="<?php echo esc_attr( $show_email ); ?>" />
+								<span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+									<meta itemprop="name" content="<?php echo esc_attr( $show_title ); ?>" />
+									<meta itemprop="email" content="<?php echo esc_attr( $show_email ); ?>" />
+								</span>
 							<?php endif; ?>
 						</div>
 					<?php endif; ?>
@@ -522,8 +528,8 @@ class Podcast_Episode_Block {
 							<?php if ( $transcript_url ) : ?>
 								<li itemprop="transcript" itemscope itemtype="https://schema.org/MediaObject">
 									<meta itemprop="contentUrl" content="<?php echo esc_url( $transcript_url ); ?>" />
-									<?php if ( ! empty( $attributes['transcriptType'] ) ) : ?>
-										<meta itemprop="encodingFormat" content="<?php echo esc_attr( (string) $attributes['transcriptType'] ); ?>" />
+									<?php if ( '' !== $transcript_type ) : ?>
+										<meta itemprop="encodingFormat" content="<?php echo esc_attr( $transcript_type ); ?>" />
 									<?php endif; ?>
 									<a href="<?php echo esc_url( $transcript_url ); ?>" class="jetpack-podcast-episode__transcript-link">
 										<?php esc_html_e( 'Read transcript', 'jetpack-podcast' ); ?>
