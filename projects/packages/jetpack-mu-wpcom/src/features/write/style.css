@@ -247,9 +247,14 @@
 	color: #333;
 }
 
-/* Push toolbar and content down when recovery banner is visible */
+/* Push toolbar, link popover, and content down
+   when recovery banner is visible */
 .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
 	top: 100px;
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
 }
 
 .bw-recovery-banner:not([hidden]) ~ .bw-main {
@@ -297,9 +302,14 @@
 	color: #333;
 }
 
-/* Push toolbar and content down when disclaimer banner is visible */
+/* Push toolbar, link popover, and content down
+   when disclaimer banner is visible */
 .bw-disclaimer-banner:not([hidden]) ~ .bw-toolbar {
 	top: 100px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
 }
 
 .bw-disclaimer-banner:not([hidden]) ~ .bw-main {
@@ -313,6 +323,10 @@
 
 .bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
 	top: 144px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 188px;
 }
 
 .bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-main {
