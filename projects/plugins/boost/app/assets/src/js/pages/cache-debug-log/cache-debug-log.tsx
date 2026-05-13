@@ -1,21 +1,22 @@
 import { __ } from '@wordpress/i18n';
-import { Card, Stack } from '@wordpress/ui';
-import { CopyToClipboard, JetpackLogo } from '@automattic/jetpack-components';
+import { Button, Card, Stack } from '@wordpress/ui';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useDebugLog } from '$features/page-cache/lib/stores';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import useHideChassisChrome from '$lib/hooks/use-hide-chassis-chrome';
+import useEnterSubPage from '$lib/hooks/use-hide-chassis-chrome';
 import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
 	const navigate = useNavigate();
+	const [ copied, setCopied ] = useState( false );
 
-	useHideChassisChrome();
+	useEnterSubPage();
 	useEffect( () => {
 		recordBoostEvent( 'page_view_cache_debug_log', {} );
 	}, [] );
@@ -27,6 +28,17 @@ const CacheDebugLog = () => {
 			destination: '/',
 		} );
 		navigate( '/' );
+	};
+
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText( debugLog || '' );
+			recordBoostEvent( 'cache_debug_log_copied', {} );
+			setCopied( true );
+			setTimeout( () => setCopied( false ), 1500 );
+		} catch {
+			// noop — clipboard permissions denied / unavailable
+		}
 	};
 
 	const hasLog = !! debugLog;
@@ -48,9 +60,6 @@ const CacheDebugLog = () => {
 								{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 							</a>
 						</li>
-						<li className={ styles[ 'breadcrumb-separator' ] } aria-hidden="true">
-							/
-						</li>
 						<li>
 							<h1 className={ styles[ 'breadcrumb-current' ] }>
 								{ __( 'Cache debug log', 'jetpack-boost' ) }
@@ -62,18 +71,13 @@ const CacheDebugLog = () => {
 			<Card.Root>
 				<Card.Header>
 					<Stack direction="row" justify="space-between" align="center" gap="md">
-						<span className={ styles[ 'card-label' ] }>
-							{ __( 'Log entries', 'jetpack-boost' ) }
-						</span>
+						<Card.Title>{ __( 'Cache log', 'jetpack-boost' ) }</Card.Title>
 						{ hasLog && (
-							<CopyToClipboard
-								buttonStyle="icon-text"
-								textToCopy={ debugLog || '' }
-								variant="link"
-								weight="regular"
-							>
-								{ __( 'Copy to clipboard', 'jetpack-boost' ) }
-							</CopyToClipboard>
+							<Button variant="outline" tone="neutral" size="compact" onClick={ handleCopy }>
+								{ copied
+									? __( 'Copied!', 'jetpack-boost' )
+									: __( 'Copy to clipboard', 'jetpack-boost' ) }
+							</Button>
 						) }
 					</Stack>
 				</Card.Header>

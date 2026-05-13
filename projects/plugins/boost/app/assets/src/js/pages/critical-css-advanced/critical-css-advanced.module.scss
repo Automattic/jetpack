@@ -3,11 +3,18 @@
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xl, 24px);
 	max-width: 880px;
+	margin-inline: auto;
 }
 
 .header {
+	position: sticky;
+	top: 0;
+	z-index: 10;
 	display: flex;
 	align-items: center;
+	padding-block: var(--wpds-dimension-gap-md, 16px);
+	background: var(--wpds-color-bg-surface-neutral, #fff);
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
 }
 
 .breadcrumbs :global(.admin-ui-breadcrumbs__list) {
@@ -19,13 +26,6 @@
 		align-items: center;
 		margin-bottom: 0;
 	}
-}
-
-.breadcrumb-separator {
-	color: var(--wpds-color-fg-content-neutral-weak, #757575);
-	font-size: var(--wpds-typography-font-size-lg, 20px);
-	font-weight: var(--wpds-typography-font-weight-regular, 400);
-	user-select: none;
 }
 
 .breadcrumb-current {

@@ -10,7 +10,7 @@ import { Card, Stack, Text } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { JetpackLogo } from '@automattic/jetpack-components';
-import useHideChassisChrome from '$lib/hooks/use-hide-chassis-chrome';
+import useEnterSubPage from '$lib/hooks/use-hide-chassis-chrome';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import {
 	useCriticalCssState,
@@ -42,7 +42,7 @@ export default function AdvancedCriticalCss() {
 	const setDismissedAction = useSetProviderErrorDismissedAction();
 	const navigate = useNavigate();
 
-	useHideChassisChrome();
+	useEnterSubPage();
 
 	const providersWithIssues = cssState.providers.filter( p => p.status === 'error' );
 	const { activeRecommendations, dismissedRecommendations } =
@@ -107,9 +107,6 @@ export default function AdvancedCriticalCss() {
 								<JetpackLogo showText={ false } height={ 20 } />
 								{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 							</a>
-						</li>
-						<li className={ styles[ 'breadcrumb-separator' ] } aria-hidden="true">
-							/
 						</li>
 						<li>
 							<h1 className={ styles[ 'breadcrumb-current' ] }>
