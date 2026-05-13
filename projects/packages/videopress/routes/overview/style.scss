@@ -4,15 +4,15 @@
 	gap: 24px;
 	box-sizing: border-box;
 	width: 100%;
-	max-width: 1200px;
+	max-width: 1344px;
 	margin-inline: auto;
 	padding-block: 24px;
 
-	// Match the wp-admin / Library tab edge inset on narrow viewports
-	// where the page no longer has its own surrounding gutter.
-	@media (max-width: 782px) {
-		padding-inline: 24px;
-	}
+	// Apply a constant inline gutter so the page never reads flush to
+	// `#wpbody-content`'s edges. The admin-page-layout mixin neutralizes
+	// `#wpcontent`'s padding, so without this rule the content touches
+	// the chrome at any viewport narrower than the max-width.
+	padding-inline: 24px;
 
 	&__kpi-row {
 		display: grid;
@@ -72,7 +72,7 @@
 	// inline so the value dominates the card.
 	&__kpi-value {
 		font-size: 36px;
-		font-weight: 700;
+		font-weight: 500;
 		line-height: 1.1;
 		font-variant-numeric: tabular-nums;
 	}
@@ -195,5 +195,33 @@
 		align-items: center;
 		justify-content: center;
 		height: 100%;
+	}
+
+	// Custom tooltip body. Mirrors the WordPress DS dark tooltip palette
+	// (see `@automattic/charts`' BaseTooltip module SCSS) so the chart
+	// surface reads as part of the design-system tooltip family rather
+	// than the LineChart's default light card. The chart's visx-tooltip
+	// system handles positioning; we only style the inner content.
+	&__chart-tooltip {
+		padding: var(--wpds-dimension-padding-sm, 8px);
+		background-color: rgba(0, 0, 0, 0.85);
+		color: #fff;
+		border-radius: var(--wpds-border-radius-md, 4px);
+		font-size: var(--wpds-typography-font-size-md, 13px);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
+
+	&__chart-tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
+	}
+
+	&__chart-tooltip-row {
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
+	}
+
+	&__chart-tooltip-label {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-right: var(--wpds-dimension-padding-lg, 16px);
 	}
 }

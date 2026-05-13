@@ -6,7 +6,8 @@ import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import { formatWatchTime } from '../../utils/format';
 import type { ActiveMetric, ChartCompare, Granularity, StatsSeriesPoint } from '../../types/stats';
-import type { ReactElement } from 'react';
+import type { LineChartProps } from '@automattic/charts';
+import type { ReactElement, ReactNode } from 'react';
 
 type Props = {
 	series: StatsSeriesPoint[];
@@ -87,6 +88,29 @@ const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
 	{ label: __( 'Weeks', 'jetpack-videopress-pkg' ), value: 'weeks' },
 	{ label: __( 'Months', 'jetpack-videopress-pkg' ), value: 'months' },
 ];
+
+const NUMBER_FORMATTER = new Intl.NumberFormat();
+
+/**
+ * Format a tooltip value with the unit matching the chart's active metric.
+ * Mirrors the KPI row's `formatWatchTime` / `Intl.NumberFormat` split so the
+ * tooltip never disagrees with the y-axis (the LineChart default tooltip
+ * uses `formatNumber` regardless of `axis.y.tickFormat`, which is why
+ * Watch time previously showed thousands of seconds while the axis showed
+ * minutes / hours).
+ *
+ * @param value  - Raw datum value.
+ * @param metric - Active chart metric.
+ * @return Formatted value string for the tooltip cell.
+ */
+function formatTooltipValue( value: number, metric: ActiveMetric ): string {
+	if ( metric === 'watch_time' ) {
+		return formatWatchTime( value );
+	}
+	return NUMBER_FORMATTER.format( value );
+}
+
+type ChartTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
 
 type ChartSeries = { label: string; data: { date: Date; value: number }[] };
 
@@ -187,6 +211,49 @@ export default function ViewsTrendsCard( {
 		[ config.yTickFormat ]
 	);
 
+	// LineChart's default tooltip renders a light card and formats values
+	// with `formatNumber`, ignoring `axis.y.tickFormat`. We provide our own
+	// so (a) Watch time tooltips read in the same unit as the axis ticks
+	// ("12 min", not "720"), and (b) the surface is dark to match the
+	// WordPress DS tooltip (https://wordpress.github.io/gutenberg/?path=/story/design-system-components-tooltip--default).
+	const renderTooltip = useCallback(
+		( params: ChartTooltipParams ): ReactNode => {
+			const nearestDatum = params.tooltipData?.nearestDatum?.datum;
+			if ( ! nearestDatum ) {
+				return null;
+			}
+			const points = Object.entries( params.tooltipData?.datumByKey ?? {} )
+				.map( ( [ key, entry ] ) => ( {
+					key,
+					value: ( entry.datum as { value: number } ).value,
+				} ) )
+				.sort( ( a, b ) => b.value - a.value );
+			const date = ( nearestDatum as { date?: Date } ).date;
+			return (
+				<div className="vp-overview__chart-tooltip">
+					{ date && (
+						<div className="vp-overview__chart-tooltip-date">{ date.toLocaleDateString() }</div>
+					) }
+					{ points.map( point => (
+						<Stack
+							key={ point.key }
+							direction="row"
+							align="center"
+							justify="space-between"
+							className="vp-overview__chart-tooltip-row"
+						>
+							<span className="vp-overview__chart-tooltip-label">{ point.key }:</span>
+							<span className="vp-overview__chart-tooltip-value">
+								{ formatTooltipValue( point.value, activeMetric ) }
+							</span>
+						</Stack>
+					) ) }
+				</div>
+			);
+		},
+		[ activeMetric ]
+	);
+
 	const onCompareSelect = useCallback(
 		( next: string ) => onChangeCompare( next as ChartCompare ),
 		[ onChangeCompare ]
@@ -236,6 +303,7 @@ export default function ViewsTrendsCard( {
 							withGradientFill={ false }
 							height={ CHART_HEIGHT }
 							options={ chartOptions }
+							renderTooltip={ renderTooltip }
 						/>
 					) }
 				</div>

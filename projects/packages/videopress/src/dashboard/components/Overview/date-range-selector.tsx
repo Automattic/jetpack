@@ -47,6 +47,7 @@ export default function DateRangeSelector( { value, onChange }: Props ): ReactEl
 			icon={ calendar }
 			label={ label( value ) }
 			text={ label( value ) }
+			toggleProps={ { variant: 'secondary', size: 'compact' } }
 			controls={ ORDER.map( option => ( {
 				title: label( option ),
 				isActive: option === value,
