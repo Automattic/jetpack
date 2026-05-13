@@ -16,7 +16,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Forwards `wp.apiFetch` calls from the wp-admin Settings tab to the wpcom-side
+ * Forwards `wp.apiFetch` calls from the wp-admin Create tab to the wpcom-side
  * endpoint as the current user (the upstream endpoint requires user identity).
  */
 class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
@@ -37,7 +37,7 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the POST + GET routes.
+	 * Register the GET (feature info), POST (enqueue), and job-status routes.
 	 */
 	public function register_routes() {
 		$this->namespace = 'wpcom/v2';
@@ -48,14 +48,25 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'read_feature_info' ),
+					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+				),
+				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'enqueue_generation' ),
 					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
 					'args'                => array(
 						'window'      => array(
 							'type'        => 'object',
-							'required'    => true,
-							'description' => __( 'Either { unit: days|weeks|months, n: <positive int> } or { from, to } as ISO-8601 dates.', 'jetpack-podcast' ),
+							'required'    => false,
+							'description' => __( 'Either { unit: days|weeks|months, n: <positive int> } or { from, to } as ISO-8601 dates. Required when postIds is omitted.', 'jetpack-podcast' ),
+						),
+						'postIds'     => array(
+							'type'        => 'array',
+							'required'    => false,
+							'items'       => array( 'type' => 'integer' ),
+							'description' => __( 'Explicit list of published post IDs to draw from. Required when window is omitted.', 'jetpack-podcast' ),
 						),
 						'length'      => array(
 							'type'        => 'string',
@@ -68,6 +79,11 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 							'required'    => true,
 							'enum'        => self::SUPPORTED_VOICE_PRESETS,
 							'description' => __( 'Voice preset id.', 'jetpack-podcast' ),
+						),
+						'prompt'      => array(
+							'type'        => 'string',
+							'required'    => false,
+							'description' => __( 'Optional free-form instructions appended to the generation prompt.', 'jetpack-podcast' ),
 						),
 					),
 				),
@@ -94,6 +110,33 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
+	 * Forward GET to the wpcom-side endpoint and return feature info
+	 * (remaining credits, plan, supported presets).
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function read_feature_info() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack-podcast' ), array( 'status' => 400 ) );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/posts-to-podcast', $blog_id ),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array( 'content-type' => 'application/json' ),
+				'timeout' => 15,
+			),
+			null,
+			'wpcom'
+		);
+
+		return $this->relay_response( $response );
+	}
+
+	/**
 	 * Forward POST to the wpcom-side endpoint and return the queued job descriptor.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -106,24 +149,39 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack-podcast' ), array( 'status' => 400 ) );
 		}
 
-		$query = http_build_query(
-			array(
-				'window'      => $request->get_param( 'window' ),
-				'length'      => $request->get_param( 'length' ),
-				'voicePreset' => $request->get_param( 'voicePreset' ),
-			),
-			'',
-			'&'
+		$body_payload = array(
+			'length'      => $request->get_param( 'length' ),
+			'voicePreset' => $request->get_param( 'voicePreset' ),
 		);
 
+		$window = $request->get_param( 'window' );
+		if ( null !== $window ) {
+			$body_payload['window'] = $window;
+		}
+
+		$post_ids = $request->get_param( 'postIds' );
+		if ( is_array( $post_ids ) && ! empty( $post_ids ) ) {
+			$body_payload['postIds'] = array_values( array_map( 'intval', $post_ids ) );
+		}
+
+		$prompt = $request->get_param( 'prompt' );
+		if ( is_string( $prompt ) && '' !== $prompt ) {
+			$body_payload['prompt'] = $prompt;
+		}
+
+		if ( ! isset( $body_payload['window'] ) && ! isset( $body_payload['postIds'] ) ) {
+			return new WP_Error( 'missing-source', __( 'One of window or postIds is required.', 'jetpack-podcast' ), array( 'status' => 400 ) );
+		}
+
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/posts-to-podcast?%s', $blog_id, $query ),
+			sprintf( '/sites/%d/posts-to-podcast', $blog_id ),
 			'2',
 			array(
 				'method'  => 'POST',
+				'headers' => array( 'content-type' => 'application/json' ),
 				'timeout' => 30,
 			),
-			null,
+			wp_json_encode( $body_payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'wpcom'
 		);
 

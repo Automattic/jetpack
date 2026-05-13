@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Posts to Podcast: add a "Pick posts" source mode with a multi-select post DataView alongside the recent-posts window, a free-form prompt field for steering the generation, and a remaining-credits indicator surfaced from the wpcom-side endpoint.

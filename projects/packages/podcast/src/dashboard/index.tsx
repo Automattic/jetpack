@@ -25,10 +25,10 @@ const TabFallback = () => (
 
 const VALID_TABS: readonly TabName[] = [
 	'create',
-	'settings',
 	'episodes',
 	'distribution',
 	'stats',
+	'settings',
 ];
 
 const isValidTab = ( value: unknown ): value is TabName =>
@@ -122,7 +122,6 @@ const App = () => {
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs">
 					<Tabs.List variant="minimal">
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 						<Tabs.Tab value="create" disabled={ ! isSetUp }>
 							{ __( 'Create', 'jetpack-podcast' ) }
 						</Tabs.Tab>
@@ -135,6 +134,7 @@ const App = () => {
 						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
 							{ __( 'Stats', 'jetpack-podcast' ) }
 						</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
 				<Tabs.Panel value="settings">

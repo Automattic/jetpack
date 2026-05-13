@@ -1,6 +1,6 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useReducer, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useReducer, useRef, useState } from '@wordpress/element';
 
 const POLL_FAST_MS = 3000;
 const POLL_SLOW_MS = 10000;
@@ -13,9 +13,11 @@ interface WindowParam {
 }
 
 export interface GenerateParams {
-	window: WindowParam;
+	window?: WindowParam;
+	postIds?: number[];
 	length: string;
 	voicePreset: string;
+	prompt?: string;
 }
 
 export interface JobResult {
@@ -264,4 +266,60 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 		generate,
 		reset,
 	};
+};
+
+export interface FeatureInfo {
+	remainingCredits?: number;
+	totalCredits?: number;
+	plan?: string;
+	[ key: string ]: unknown;
+}
+
+export interface UsePostsToPodcastInfoReturn {
+	data: FeatureInfo | null;
+	isLoading: boolean;
+	error: string | null;
+	refetch: () => void;
+}
+
+/**
+ * Reads feature info (including remaining credits) from the same path as the
+ * Generate POST, using GET. Refetches on demand after a successful generation
+ * so the credit counter reflects consumption.
+ *
+ * @return The current FeatureInfo, loading + error state, and a refetch trigger.
+ */
+export const usePostsToPodcastInfo = (): UsePostsToPodcastInfoReturn => {
+	const [ data, setData ] = useState< FeatureInfo | null >( null );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ error, setError ] = useState< string | null >( null );
+	const [ refreshTick, setRefreshTick ] = useState( 0 );
+
+	useEffect( () => {
+		let cancelled = false;
+		setIsLoading( true );
+		setError( null );
+		apiFetch< FeatureInfo >( { path: '/wpcom/v2/posts-to-podcast', method: 'GET' } )
+			.then( response => {
+				if ( cancelled ) {
+					return;
+				}
+				setData( response );
+				setIsLoading( false );
+			} )
+			.catch( ( err: unknown ) => {
+				if ( cancelled ) {
+					return;
+				}
+				setError( err instanceof Error ? err.message : 'Failed to load feature info.' );
+				setIsLoading( false );
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [ refreshTick ] );
+
+	const refetch = useCallback( () => setRefreshTick( prev => prev + 1 ), [] );
+
+	return { data, isLoading, error, refetch };
 };
