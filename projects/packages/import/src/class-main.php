@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Import;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Import\Abilities\Import_Abilities;
 
 /**
  * This class will provide endpoint for the Unified Importer.
@@ -46,6 +47,16 @@ class Main {
 		if ( $connection->has_connected_owner() ) {
 			add_action( 'rest_api_init', array( __CLASS__, 'initialize_rest_api' ) );
 		}
+
+		// Register WP Abilities API surface. Gated behind the
+		// `jetpack_wp_abilities_enabled` filter inside Registrar::init(),
+		// which defaults to false — so this call is safe to make unconditionally
+		// and still opt-in per-site until the flag is flipped. Wired here
+		// rather than inside the connected-owner branch above because the
+		// underlying REST endpoints already gate on the `import` capability;
+		// the abilities reuse that exact gate, so registering them without a
+		// site-level connection check matches the REST route's behavior.
+		Import_Abilities::init();
 
 		/**
 		 * Runs right after the Jetpack Import package is initialized.

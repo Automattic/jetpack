@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register Jetpack Import abilities (jetpack-import/get-config and jetpack-import/cleanup-meta) via the WordPress Abilities API. Gated behind the `jetpack_wp_abilities_enabled` filter, which defaults to false.
