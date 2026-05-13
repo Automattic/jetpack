@@ -16,7 +16,7 @@ const ImageGuide = () => {
 	return (
 		<Module
 			slug="image_guide"
-			title={ __( 'Image Guide', 'jetpack-boost' ) }
+			title={ __( 'Activate overlay guide on site', 'jetpack-boost' ) }
 			onDisable={ resetImageGuideState }
 			description={
 				<>

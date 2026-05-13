@@ -10,7 +10,11 @@ import { ErrorDetails } from './status/error-details';
 import Status from './status/status';
 import styles from './status/status.module.scss';
 
-const Lcp = () => {
+type LcpProps = {
+	inline?: boolean;
+};
+
+const Lcp = ( { inline = false }: LcpProps = {} ) => {
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -39,8 +43,9 @@ const Lcp = () => {
 	return (
 		<Module
 			slug="lcp"
-			title={ __( 'Optimize LCP Images', 'jetpack-boost' ) }
+			title={ __( 'Optimize LCP Images for smoother experience', 'jetpack-boost' ) }
 			worksOffline={ false }
+			inline={ inline }
 			description={
 				<p>
 					{ __(

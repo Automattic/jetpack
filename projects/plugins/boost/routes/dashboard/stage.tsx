@@ -38,8 +38,18 @@ const Stage = () => {
 				<Tabs.Panel value="overview" focusable={ false }>
 					{ activeTab === 'overview' ? <Overview /> : null }
 				</Tabs.Panel>
-				<Tabs.Panel value="settings" focusable={ false }>
-					{ activeTab === 'settings' ? <div /> : null }
+				<Tabs.Panel value="settings" focusable={ false } keepMounted>
+					{ /*
+					 * Stable mount-point for the legacy Boost webpack bundle.
+					 * The legacy entry (app/assets/src/js/index.tsx) detects
+					 * this id and mounts a slim provider stack (no chassis
+					 * chrome) so the Critical CSS generator + provider graph
+					 * keep working unchanged. `keepMounted` is required —
+					 * without it the panel unmounts when Overview is active,
+					 * which would orphan the legacy React root and lose
+					 * settings state on every tab switch.
+					 */ }
+					<div id="jb-settings-tab-mount" />
 				</Tabs.Panel>
 			</BoostPage>
 		</QueryClientProvider>

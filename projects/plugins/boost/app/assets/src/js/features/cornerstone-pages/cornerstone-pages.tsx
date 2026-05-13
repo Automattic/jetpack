@@ -1,13 +1,13 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
+import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import LcpModule from '$features/lcp/lcp';
+import { useSingleModuleState } from '$features/module/lib/stores';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import styles from './cornerstone-pages.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCustomCornerstonePages } from './lib/stores/cornerstone-pages';
+import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
 import Prerender from './prerender/prerender';
-import { useSingleModuleState } from '$features/module/lib/stores';
 
 const CornerstonePages = () => {
 	const premiumFeatures = usePremiumFeatures();
@@ -16,39 +16,32 @@ const CornerstonePages = () => {
 	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
 	const isSpeculationRulesAvailable = moduleState?.available ?? false;
 
+	const handleToggle = ( open: boolean ) => {
+		recordBoostEvent( 'cornerstone_pages_panel_toggle', {
+			status: open ? 'open' : 'close',
+		} );
+	};
+
 	return (
-		<div className={ styles.wrapper }>
-			<Panel className={ styles.panel }>
-				<PanelBody
-					title={
-						<div>
-							<h3>
-								{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-								{ isPremium && <Upgraded /> }
-							</h3>
-							<CornerstoneTitleSummary />
-						</div>
-					}
-					initialOpen={ false }
-					onToggle={ ( value: boolean ) => {
-						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
-							status: value ? 'open' : 'close',
-						} );
-					} }
-					className={ styles.body }
-				>
-					<PanelRow>
-						<Meta />
-					</PanelRow>
-					{ isSpeculationRulesAvailable && (
-						<PanelRow>
-							<Prerender />
-						</PanelRow>
-					) }
-					<CornerstonePagesUpgradeCTA />
-				</PanelBody>
-			</Panel>
-		</div>
+		<CollapsibleCard.Root onOpenChange={ handleToggle }>
+			<CollapsibleCard.Header>
+				<Stack direction="column" gap="xs">
+					<Card.Title>
+						{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+						{ isPremium && <Upgraded /> }
+					</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<CornerstoneTitleSummary />
+					</CollapsibleCard.HeaderDescription>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Meta />
+				{ isSpeculationRulesAvailable && <Prerender /> }
+				<CornerstonePagesUpgradeCTA />
+				<LcpModule inline />
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
 	);
 };
 

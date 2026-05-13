@@ -1,14 +1,15 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Card, Link, Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
+import { useNotices } from '$features/notice/context';
+import Pill from '$features/ui/pill/pill';
+import { isWoaHosting } from '$lib/utils/hosting';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
-import ErrorBoundary from '$features/error-boundary/error-boundary';
-import { __ } from '@wordpress/i18n';
-import { isWoaHosting } from '$lib/utils/hosting';
-import { useNotices } from '$features/notice/context';
-import { createInterpolateElement } from '@wordpress/element';
-import { Notice, Link } from '@wordpress/ui';
-import Pill from '$features/ui/pill/pill';
 import type { ReactNode } from 'react';
 
 type ModuleProps = {
@@ -18,6 +19,12 @@ type ModuleProps = {
 	slug: string;
 	toggle?: boolean;
 	worksOffline?: boolean;
+	/**
+	 * When true, render the module's toggle + body without wrapping in a
+	 * `Card.Root`. Used when nesting one module inside another card (for
+	 * example, the LCP module nested inside the Cornerstone Pages card).
+	 */
+	inline?: boolean;
 	onEnable?: () => void;
 	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
@@ -31,6 +38,7 @@ const Module = ( {
 	slug,
 	toggle = true,
 	worksOffline = true,
+	inline = false,
 	onEnable,
 	onBeforeToggle,
 	onDisable,
@@ -63,12 +71,10 @@ const Module = ( {
 	const offlineMessage = (
 		<Notice.Root intent="warning">
 			<Notice.Description>
-				<div className={ styles.offlineMessage }>
-					{ __(
-						'This module will not work while your website is not publicly available.',
-						'jetpack-boost'
-					) }
-				</div>
+				{ __(
+					'This module will not work while your website is not publicly available.',
+					'jetpack-boost'
+				) }
 			</Notice.Description>
 		</Notice.Root>
 	);
@@ -102,71 +108,96 @@ const Module = ( {
 		return null;
 	}
 
+	const isDevelopmentFeature = Jetpack_Boost.developmentFeatures.includes( slug );
+	const toggleLabel = isDevelopmentFeature ? (
+		<>
+			{ title }
+			<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
+		</>
+	) : (
+		title
+	);
+	const bodyContent = (
+		<>
+			<div className={ styles.description }>{ description }</div>
+			{ showOfflineMessage ? offlineMessage : isModuleActive && children }
+		</>
+	);
+
+	const body = toggle ? (
+		<>
+			<ToggleControl
+				__nextHasNoMarginBottom
+				className={ `jb-feature-toggle-${ slug }` }
+				label={ toggleLabel }
+				checked={ isModuleActive || isFakeActive }
+				disabled={ ! isModuleAvailable }
+				onChange={ handleToggle }
+			/>
+			<div className={ styles[ 'toggle-inset' ] }>{ bodyContent }</div>
+		</>
+	) : (
+		<>
+			<h3 className={ styles[ 'no-toggle-title' ] }>{ toggleLabel }</h3>
+			{ bodyContent }
+		</>
+	);
+
+	if ( inline ) {
+		return (
+			<div data-testid={ `module-${ slug }` } className={ styles.inline }>
+				{ body }
+			</div>
+		);
+	}
+
 	return (
-		<div className={ styles.module } data-testid={ `module-${ slug }` }>
-			<div className={ styles.toggle }>
-				{ toggle && (
-					<ToggleControl
-						className={ `jb-feature-toggle-${ slug }` }
-						size="small"
-						checked={ isModuleActive || isFakeActive }
-						disabled={ ! isModuleAvailable }
-						onChange={ handleToggle }
-					/>
-				) }
-			</div>
-
-			<div className={ styles.content }>
-				<h3>
-					{ title }
-					{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
-						<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
-					) }
-				</h3>
-
-				<div className={ styles.description }>{ description }</div>
-
-				{ showOfflineMessage ? offlineMessage : isModuleActive && children }
-			</div>
-		</div>
+		<Card.Root data-testid={ `module-${ slug }` }>
+			<Card.Content>{ body }</Card.Content>
+		</Card.Root>
 	);
 };
 
 export default ( props: ModuleProps ) => {
+	const errorNotice = ( error: Error ) => (
+		<Notice.Root intent="error">
+			<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
+			<Notice.Description>
+				<p>
+					{ createInterpolateElement(
+						__(
+							'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+							'jetpack-boost'
+						),
+						{
+							link: (
+								<Link
+									openInNewTab
+									href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+								/>
+							),
+						}
+					) }
+				</p>
+				<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
+			</Notice.Description>
+		</Notice.Root>
+	);
+
 	return (
 		<ErrorBoundary
-			fallback={ error => (
-				<div>
-					<div>
-						<h3>{ props.title }</h3>
-
-						<div className={ styles[ 'failed-module-notice' ] }>
-							<Notice.Root intent="error">
-								<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
-								<Notice.Description>
-									<p>
-										{ createInterpolateElement(
-											__(
-												'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
-												'jetpack-boost'
-											),
-											{
-												link: (
-													<Link
-														openInNewTab
-														href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
-													/>
-												),
-											}
-										) }
-									</p>
-									<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
-								</Notice.Description>
-							</Notice.Root>
-						</div>
-					</div>
-				</div>
-			) }
+			fallback={ error =>
+				props.inline ? (
+					errorNotice( error )
+				) : (
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>{ props.title }</Card.Title>
+						</Card.Header>
+						<Card.Content>{ errorNotice( error ) }</Card.Content>
+					</Card.Root>
+				)
+			}
 		>
 			<Module { ...props } />
 		</ErrorBoundary>

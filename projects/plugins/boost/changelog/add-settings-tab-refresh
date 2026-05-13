@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Boost dashboard Settings tab inside the modernization chassis: refreshed every module to WPDS Card + ToggleControl, wrapped sub-feature panels in CollapsibleCard, swapped legacy upsell modals for an inline Notice.Root with an "Upgrade now" action, and reorganized the IA per the new design. Still behind the modernization feature flag.

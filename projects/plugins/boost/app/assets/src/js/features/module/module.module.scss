@@ -1,42 +1,34 @@
-.module {
-	margin-bottom: 2em;
-	display: flex;
-	margin-left: auto;
-	margin-right: auto;
+// Indent everything below the toggle so descriptions, notices, sub-features
+// and child buttons line up with the toggle's label (40px ≈ toggle width
+// + ToggleControl's internal gap).
+.toggle-inset {
+	padding-left: 40px;
+}
 
+// Used when one Module renders inside another card (e.g. LCP nested
+// inside Cornerstone Pages). Skips the inner Card.Root so the toggle
+// reads as a row inside the parent card, with a hairline to separate it
+// from the content above.
+.inline {
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, hsl(0, 0%, 90%));
+	padding-top: var(--wpds-dimension-gap-md, 16px);
+	margin-top: var(--wpds-dimension-gap-md, 16px);
+}
 
-	h2 {
-		font-size: 22px;
-		margin-top: 0;
-	}
+.description {
+	margin-top: var(--wpds-dimension-gap-xs, 4px);
 
 	p {
-		margin: 1em 0;
+		margin: 0 0 var(--wpds-dimension-gap-xs, 8px);
 	}
 
-	.content h3:focus-visible {
-		outline: none;
+	p:last-child {
+		margin-bottom: 0;
 	}
 }
 
-.toggle {
-	// Compensate for header line height
-	// Manually move the switch to align it better
-	transform: translateY(8px);
-	margin-right: 2em;
-	min-width: 36px;
-}
-
-.content {
-	width: 100%;
-}
-
-.failed-module-notice {
-	width: 100%;
-	margin-bottom: 2em;
-	margin-top: 1em;
-}
-
-.offlineMessage {
-	line-height: 1.5;
+.no-toggle-title {
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-weight: 600;
+	margin: 0 0 var(--wpds-dimension-gap-xs, 4px);
 }

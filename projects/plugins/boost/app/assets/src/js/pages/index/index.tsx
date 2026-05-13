@@ -11,14 +11,13 @@ import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Stack } from '@wordpress/ui';
 import styles from './index.module.scss';
-import LcpModule from '$features/lcp/lcp';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -40,7 +39,7 @@ const Index = () => {
 	};
 
 	return (
-		<div className="jb-container--narrow">
+		<Stack className={ styles.container } direction="column" gap="xl">
 			<CornerstonePages />
 			<Module
 				slug="critical_css"
@@ -80,7 +79,7 @@ const Index = () => {
 			>
 				<CriticalCssMeta />
 
-				<InterstitialModalCTA
+				<UpgradeNotice
 					identifier="critical-css"
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
@@ -129,7 +128,6 @@ const Index = () => {
 			>
 				<CloudCssMeta />
 			</Module>
-			<LcpModule />
 			<PageCacheModule />
 			<Module
 				slug="render_blocking_js"
@@ -175,7 +173,7 @@ const Index = () => {
 				}
 			>
 				{ ! hasPremiumCdnFeatures && (
-					<InterstitialModalCTA
+					<UpgradeNotice
 						identifier="image-cdn"
 						description={ __(
 							'Auto-resize lazy images and adjust their quality.',
@@ -186,10 +184,8 @@ const Index = () => {
 				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
-			<div className={ styles.settings }>
-				<ImageGuide />
-			</div>
-		</div>
+			<ImageGuide />
+		</Stack>
 	);
 };
 

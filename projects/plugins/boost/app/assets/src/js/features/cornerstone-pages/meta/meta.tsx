@@ -4,7 +4,7 @@ import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 import { useModulesState } from '$features/module/lib/stores';
 import { useNotices } from '$features/notice/context';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
@@ -178,16 +178,14 @@ export const CornerstonePagesUpgradeCTA = () => {
 	}
 
 	return (
-		<div className={ styles.wrapper }>
-			<InterstitialModalCTA
-				identifier="cornerstone-10-pages"
-				description={ sprintf(
-					/* translators: %d is the number of cornerstone pages. */
-					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-					cornerstonePagesProperties.max_pages_premium
-				) }
-			/>
-		</div>
+		<UpgradeNotice
+			identifier="cornerstone-10-pages"
+			description={ sprintf(
+				/* translators: %d is the number of cornerstone pages. */
+				__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+				cornerstonePagesProperties.max_pages_premium
+			) }
+		/>
 	);
 };
 

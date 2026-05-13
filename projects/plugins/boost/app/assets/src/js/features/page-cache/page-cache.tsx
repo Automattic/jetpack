@@ -75,7 +75,7 @@ const PageCache = () => {
 	return (
 		<Module
 			slug="page_cache"
-			title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+			title={ __( 'Cache site pages', 'jetpack-boost' ) }
 			onBeforeToggle={ status => {
 				setIsPageCacheSettingUp( status );
 				if ( status === false ) {

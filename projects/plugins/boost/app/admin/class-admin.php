@@ -119,12 +119,9 @@ class Admin {
 		// `handle_admin_menu()`, so it only fires on the Boost admin page —
 		// no need to re-check the page here.
 		if ( self::is_modernized() ) {
-			// wp-build manages its own enqueue pipeline. The legacy Boost
-			// script and My Jetpack dependency are intentionally skipped
-			// for the wp-build dashboard. The shared plugin constants
-			// (site URL, asset paths, etc.) still ride along on wp-build's
-			// prerequisites handle so the modernized Overview can read
-			// them the same way the legacy app did.
+			// wp-build owns the Overview tab and the page chrome. Localize
+			// the shared plugin constants on its prerequisites handle so the
+			// modernized Overview reads them the same way the legacy app did.
 			wp_localize_script(
 				'jetpack-boost-dashboard-wp-admin-prerequisites',
 				'Jetpack_Boost',
@@ -138,7 +135,14 @@ class Admin {
 					'nonce' => wp_create_nonce( 'wp_rest' ),
 				)
 			);
-			return;
+			// Settings tab still renders via the legacy webpack bundle. The
+			// browser-side Critical CSS generator depends on Node-only
+			// modules (clean-css → fs / path) that legacy webpack polyfills
+			// via resolve.fallback; wp-build's esbuild has no equivalent.
+			// Falls through to the legacy enqueue below — the legacy bundle
+			// mounts into the chassis's `<div id="jb-settings-tab-mount" />`
+			// instead of `#jb-admin-settings` (which doesn't exist on the
+			// wp-build page).
 		}
 
 		/**

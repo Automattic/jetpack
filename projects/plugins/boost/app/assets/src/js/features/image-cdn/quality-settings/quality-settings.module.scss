@@ -1,28 +1,11 @@
-.section-title {
+.title-wrap {
+	align-items: center;
+	display: inline-flex;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.quality-controls {
 	display: flex;
-	font-weight: 700;
-
-	:global(.icon-tooltip-wrapper svg) {
-		color: #8c8f94;
-	}
-}
-
-.body {
-	background-color: var(--gray-0);
-	padding: 16px 16px 24px;
-}
-
-:global(.jb-dashboard) .body h5 {
-	font-weight: 600;
-	font-size: 14px;
-	line-height: 1.5;
-}
-
-.info-icon {
-	vertical-align: text-top;
-	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
-	line-height: 1em;
-	display: inline-block;
-	margin-left: 8px;
-	margin-right: 8px;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md, 16px);
 }
