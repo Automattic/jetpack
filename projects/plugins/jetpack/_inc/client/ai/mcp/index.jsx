@@ -291,12 +291,7 @@ export default function McpHub( {
 
 			{ isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<a
-						className="jetpack-ai-mcp__connect-row"
-						href={ activityLogUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
 						<span className="jetpack-ai-mcp__connect-row-icon">
 							<Icon icon={ list } size={ 24 } />
 						</span>

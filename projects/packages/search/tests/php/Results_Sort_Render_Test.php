@@ -69,7 +69,7 @@ class Results_Sort_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Reset `$_GET` and the WC-active memo between tests so URL parsing
+	 * Reset `$_GET` and the WC-blocks-enabled memo between tests so URL parsing
 	 * and the gate state never leak across cases. Interactivity state
 	 * carries across tests, but render.php always writes `sortOrder`
 	 * deterministically from attrs + URL, so each render overwrites
@@ -78,11 +78,11 @@ class Results_Sort_Render_Test extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$_GET = array();
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 	}
 
 	protected function tearDown(): void {
-		Search_Blocks::reset_is_woocommerce_active_cache();
+		Search_Blocks::reset_woocommerce_blocks_enabled_cache();
 		parent::tearDown();
 	}
 
@@ -120,7 +120,7 @@ class Results_Sort_Render_Test extends TestCase {
 	 * "non-Woo behavior is unchanged" half of the acceptance criteria.
 	 */
 	public function test_woocommerce_active_renders_product_keys_when_author_opts_in() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			$markup = $this->render(
 				array(
@@ -141,7 +141,7 @@ class Results_Sort_Render_Test extends TestCase {
 			$this->assertStringContainsString( 'Price: low to high', $markup );
 			$this->assertStringContainsString( 'Price: high to low', $markup );
 		} finally {
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
@@ -152,7 +152,7 @@ class Results_Sort_Render_Test extends TestCase {
 	 * jetpack#48282" promise from the issue's acceptance criteria.
 	 */
 	public function test_woocommerce_active_keeps_base_options_when_author_did_not_opt_in() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			$markup = $this->render();
 			foreach ( array( 'relevance', 'newest', 'oldest' ) as $key ) {
@@ -162,7 +162,7 @@ class Results_Sort_Render_Test extends TestCase {
 				$this->assertStringNotContainsString( 'value="' . $key . '"', $markup );
 			}
 		} finally {
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
@@ -190,7 +190,7 @@ class Results_Sort_Render_Test extends TestCase {
 	 * and select the corresponding option so deep links round-trip end-to-end.
 	 */
 	public function test_url_product_sort_selected_when_woocommerce_active() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		$_GET = array( 'orderby' => 'price_asc' );
 		try {
 			$markup = $this->render(
@@ -202,7 +202,7 @@ class Results_Sort_Render_Test extends TestCase {
 			);
 		} finally {
 			$_GET = array();
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
@@ -294,7 +294,7 @@ class Results_Sort_Render_Test extends TestCase {
 	 * leaving screen reader users without a "currently selected" signal.
 	 */
 	public function test_display_as_popover_aria_checked_uses_shared_getter_for_all_keys() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 		try {
 			$markup = $this->render(
 				array(
@@ -311,7 +311,7 @@ class Results_Sort_Render_Test extends TestCase {
 			}
 			$this->assertStringNotContainsString( 'data-wp-bind--aria-checked="false"', $markup );
 		} finally {
-			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+			Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		}
 	}
 
