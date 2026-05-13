@@ -16,12 +16,12 @@
 	"author": "Automattic",
 	"type": "module",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build": "pnpm run clean && concurrently 'pnpm:build:blocks' 'pnpm:build:wp-build' && pnpm run build:boot-asset",
 		"build:blocks": "webpack --config ./webpack.config.blocks.js",
 		"build:boot-asset": "provide-boot-asset-file",
 		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run clean && pnpm run build:blocks && pnpm run build:wp-build && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run clean && concurrently 'pnpm:build:blocks' 'pnpm:build:wp-build' && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset",
 		"clean": "rm -rf build/ dist/ .cache/",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:watch:wp-build'",
 		"watch:wp-build": "wp-build --watch"
