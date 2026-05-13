@@ -38,7 +38,7 @@ This is the conventional pattern shoppers already know from large retailers, so 
 
 ### Label
 
-The heading shown above the rows. Defaults to **Rating**. Customise it to match your store's language — for example, "Customer rating" or "Review score".
+The heading shown above the rows. Defaults to **Rating**. Customize it to match your store's language — for example, "Customer rating" or "Review score".
 
 ### Show result counts
 
@@ -54,4 +54,4 @@ At least one row must stay visible — the block won't let you hide all five.
 
 - The default setting (all five rows, counts on) is usually the right answer. Tune **Visible rows** only when you have a clear reason to nudge shoppers toward a quality band.
 - The "& up" wording is intentional — it reflects how shoppers actually think about ratings ("at least four stars"). Don't try to relabel rows individually.
-- If most products in your store have similar ratings, the rating filter isn't doing useful work. Consider dropping it in favour of [Filter by Price](../filter-wc-price/README.md) or [Filter by Product Attribute](../filter-wc-attribute/README.md), where the buckets actually separate things.
+- If most products in your store have similar ratings, the rating filter isn't doing useful work. Consider dropping it in favor of [Filter by Price](../filter-wc-price/README.md) or [Filter by Product Attribute](../filter-wc-attribute/README.md), where the buckets actually separate things.

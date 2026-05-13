@@ -18,9 +18,9 @@ The Product Filters block is a ready-made sidebar for shop pages. Drop it in and
 
 Use Product Filters when you're building a shop page and you want a complete filter sidebar without picking and configuring each child block yourself. It's the fastest way to get a usable shop search experience on the page.
 
-You can also start from the more general [Filters](../filters/README.md) block and add the WooCommerce-specific filters by hand — Product Filters is just a friendlier starting point.
+You can also start from the more general **Filters** block and add the WooCommerce-specific filters by hand — Product Filters is just a friendlier starting point.
 
-This block only appears in the inserter on sites that use WooCommerce. If you're not on WooCommerce, reach for [Filters](../filters/README.md) instead.
+This block only appears in the inserter on sites that use WooCommerce. If you're not on WooCommerce, reach for **Filters** instead.
 
 ## What's included by default
 
@@ -28,8 +28,8 @@ When you first insert this block, it comes pre-populated with these inner blocks
 
 | Default inner block | What it is |
 |---------------------|------------|
-| [Post Type Scope](../filter-post-type/README.md) | An invisible constraint that limits results to **Product** only — keeps blog posts and pages out of the shop view. Doesn't render anything for visitors. |
-| [Clear Filters](../clear-filters/README.md) | Button that removes all active filters at once. |
+| **Post Type Scope** | An invisible constraint that limits results to **Product** only — keeps blog posts and pages out of the shop view. Doesn't render anything for visitors. |
+| **Clear Filters** | Button that removes all active filters at once. |
 | [Filter by Stock Status](../filter-wc-stock-status/README.md) | "In stock" toggle. |
 | [Filter by Rating](../filter-wc-rating/README.md) | Star-rating threshold rows. |
 | [Filter by Price](../filter-wc-price/README.md) | Min / Max price inputs. |
@@ -41,9 +41,9 @@ Authors can remove any of these freely. The **Post Type Scope** block has no vis
 Click the **+** icon at the bottom of the Product Filters block to insert any of these:
 
 - [Filter by Product Attribute](../filter-wc-attribute/README.md) — for Color, Size, Material, etc. Add one per attribute.
-- [Active Filters](../active-filters/README.md) — pills showing currently applied selections.
-- Any [Checkbox Filter](../filter-checkbox/README.md) variation — Product Category, Product Tag, Product Brand, or any custom taxonomy your store uses.
-- [Filter by Date](../filter-date/README.md) — to filter by product publication date, useful for "new arrivals" sections.
+- **Active Filters** — pills showing currently applied selections.
+- Any **Checkbox Filter** variation — Product Category, Product Tag, Product Brand, or any custom taxonomy your store uses.
+- **Filter by Date** — to filter by product publication date, useful for "new arrivals" sections.
 
 ## Styling
 

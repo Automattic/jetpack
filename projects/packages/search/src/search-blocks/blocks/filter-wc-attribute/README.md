@@ -32,7 +32,7 @@ Which WooCommerce product attribute drives this filter. Required — until you p
 
 ### Label
 
-The heading shown above the options. Leave blank to use the attribute's name from WooCommerce (e.g. "Color"). Override it when you want a friendlier or more specific phrasing — for example, change "Pa Material" to "Made from".
+The heading shown above the options. Leave blank to use the attribute's name from WooCommerce (e.g. "Color"). Override it when you want a friendlier or more specific phrasing — for example, change "Material" to "Made from".
 
 ### Show result counts
 

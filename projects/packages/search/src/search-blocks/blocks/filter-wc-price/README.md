@@ -1,6 +1,6 @@
 # Filter by Price
 
-The Filter by Price block lets shoppers narrow product results to a price range. It ships in two flavours: a compact pair of **Min / Max** number inputs joined by a dash, and a wider version that pairs those inputs with a draggable range slider. Use whichever fits the space you have.
+The Filter by Price block lets shoppers narrow product results to a price range. It ships in two flavors: a compact pair of **Min / Max** number inputs joined by a dash, and a wider version that pairs those inputs with a draggable range slider. Use whichever fits the space you have.
 
 **Editor preview — inputs only (default):**
 
@@ -79,5 +79,5 @@ How granular the slider is — the smallest increment a shopper can drag it by. 
 
 - For most shops, leave **Auto-detect range from store** on — it adapts automatically as your catalog grows.
 - The inputs-only variation is the safer default for narrow sidebars and mobile. Adopt the slider variation only when you have at least ~300px of horizontal room to give it.
-- Keep the **Label** short. "Price" is recognisable to every shopper and works in every screen size.
+- Keep the **Label** short. "Price" is recognizable to every shopper and works in every screen size.
 - Don't fiddle with **Currency symbol** unless you genuinely want a non-store currency in the UI — the WooCommerce-inherited default does the right thing for your store's locale.
