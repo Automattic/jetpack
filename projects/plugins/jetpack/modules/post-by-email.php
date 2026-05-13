@@ -26,3 +26,7 @@ require_once __DIR__ . '/post-by-email/class-jetpack-post-by-email.php';
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
+
+// Register Jetpack Post by Email abilities (WordPress Abilities API, WP 6.9+).
+require_once __DIR__ . '/post-by-email/abilities/class-post-by-email-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Post_By_Email_Abilities::init();
