@@ -183,17 +183,20 @@ function strip( buildDir ) {
 		const source = readFileSync( filePath, 'utf8' );
 		const next = patchPhpSource( source );
 
+		// Inspect the post-patch text (or the original, if nothing matched).
+		// A non-null `next` can still contain a sibling ternary shape that
+		// slipped past every REPLACEMENTS pattern, and writing that out would
+		// ship a loader that 404s on SCRIPT_DEBUG=true.
+		if ( hasUnpatchedFallback( next ?? source ) ) {
+			throw new Error(
+				`[strip-unminified-prod] ${ fileName } still references a SCRIPT_DEBUG-driven ` +
+					`unminified fallback that our patches did not match. The wp-build PHP template ` +
+					`likely changed shape — update bin/strip-unminified-prod-lib.js in ` +
+					`@automattic/jetpack-wp-build-polyfills.`
+			);
+		}
+
 		if ( next === null ) {
-			// No-op: either already patched (idempotent rerun) or no SCRIPT_DEBUG
-			// ternary present. Only safe if no suspicious fallback remains.
-			if ( hasUnpatchedFallback( source ) ) {
-				throw new Error(
-					`[strip-unminified-prod] ${ fileName } still references a SCRIPT_DEBUG-driven ` +
-						`unminified fallback that our patches did not match. The wp-build PHP template ` +
-						`likely changed shape — update bin/strip-unminified-prod-lib.js in ` +
-						`@automattic/jetpack-wp-build-polyfills.`
-				);
-			}
 			continue;
 		}
 
