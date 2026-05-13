@@ -10,7 +10,7 @@ import { Card, Stack, Text } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { JetpackLogo } from '@automattic/jetpack-components';
-import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import useHideChassisChrome from '$lib/hooks/use-hide-chassis-chrome';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import {
 	useCriticalCssState,
@@ -41,6 +41,8 @@ export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();
 	const setDismissedAction = useSetProviderErrorDismissedAction();
 	const navigate = useNavigate();
+
+	useHideChassisChrome();
 
 	const providersWithIssues = cssState.providers.filter( p => p.status === 'error' );
 	const { activeRecommendations, dismissedRecommendations } =
@@ -89,33 +91,36 @@ export default function AdvancedCriticalCss() {
 		);
 	};
 
-	const breadcrumbs = (
-		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
-			<HStack
-				as="ul"
-				className="admin-ui-breadcrumbs__list"
-				spacing={ 0 }
-				justify="flex-start"
-				alignment="center"
-			>
-				<li>
-					<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
-						<JetpackLogo showText={ false } height={ 20 } />
-						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
-					</a>
-				</li>
-				<li>
-					<h1 className={ styles[ 'breadcrumb-current' ] }>
-						{ __( 'Critical CSS recommendations', 'jetpack-boost' ) }
-					</h1>
-				</li>
-			</HStack>
-		</nav>
-	);
-
 	return (
-		<BoostAdminPage breadcrumbs={ breadcrumbs }>
-			<Stack direction="column" gap="lg" className={ styles.container }>
+		<div className={ styles.page }>
+			<header className={ styles.header }>
+				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
+					<HStack
+						as="ul"
+						className="admin-ui-breadcrumbs__list"
+						spacing={ 0 }
+						justify="flex-start"
+						alignment="center"
+					>
+						<li>
+							<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
+								<JetpackLogo showText={ false } height={ 20 } />
+								{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+							</a>
+						</li>
+						<li className={ styles[ 'breadcrumb-separator' ] } aria-hidden="true">
+							/
+						</li>
+						<li>
+							<h1 className={ styles[ 'breadcrumb-current' ] }>
+								{ __( 'Critical CSS recommendations', 'jetpack-boost' ) }
+							</h1>
+						</li>
+					</HStack>
+				</nav>
+			</header>
+
+			<Stack direction="column" gap="lg">
 				<Card.Root>
 					<Card.Content>
 						<Stack direction="column" gap="md">
@@ -138,7 +143,7 @@ export default function AdvancedCriticalCss() {
 					/>
 				) ) }
 			</Stack>
-		</BoostAdminPage>
+		</div>
 	);
 }
 

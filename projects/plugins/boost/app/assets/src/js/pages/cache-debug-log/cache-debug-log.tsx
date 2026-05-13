@@ -4,15 +4,21 @@ import { CopyToClipboard, JetpackLogo } from '@automattic/jetpack-components';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import { useDebugLog } from '$features/page-cache/lib/stores';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import useHideChassisChrome from '$lib/hooks/use-hide-chassis-chrome';
 import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
 	const navigate = useNavigate();
+
+	useHideChassisChrome();
+	useEffect( () => {
+		recordBoostEvent( 'page_view_cache_debug_log', {} );
+	}, [] );
 
 	const handleBack = ( e: React.MouseEvent ) => {
 		e.preventDefault();
@@ -23,38 +29,42 @@ const CacheDebugLog = () => {
 		navigate( '/' );
 	};
 
-	const breadcrumbs = (
-		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
-			<HStack
-				as="ul"
-				className="admin-ui-breadcrumbs__list"
-				spacing={ 0 }
-				justify="flex-start"
-				alignment="center"
-			>
-				<li>
-					<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
-						<JetpackLogo showText={ false } height={ 20 } />
-						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
-					</a>
-				</li>
-				<li>
-					<h1 className={ styles[ 'breadcrumb-current' ] }>
-						{ __( 'Cache debug log', 'jetpack-boost' ) }
-					</h1>
-				</li>
-			</HStack>
-		</nav>
-	);
-
 	const hasLog = !! debugLog;
 
 	return (
-		<BoostAdminPage breadcrumbs={ breadcrumbs }>
+		<div className={ styles.page }>
+			<header className={ styles.header }>
+				<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
+					<HStack
+						as="ul"
+						className="admin-ui-breadcrumbs__list"
+						spacing={ 0 }
+						justify="flex-start"
+						alignment="center"
+					>
+						<li>
+							<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
+								<JetpackLogo showText={ false } height={ 20 } />
+								{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+							</a>
+						</li>
+						<li className={ styles[ 'breadcrumb-separator' ] } aria-hidden="true">
+							/
+						</li>
+						<li>
+							<h1 className={ styles[ 'breadcrumb-current' ] }>
+								{ __( 'Cache debug log', 'jetpack-boost' ) }
+							</h1>
+						</li>
+					</HStack>
+				</nav>
+			</header>
 			<Card.Root>
 				<Card.Header>
 					<Stack direction="row" justify="space-between" align="center" gap="md">
-						<Card.Title>{ __( 'Jetpack Boost cache log viewer', 'jetpack-boost' ) }</Card.Title>
+						<span className={ styles[ 'card-label' ] }>
+							{ __( 'Log entries', 'jetpack-boost' ) }
+						</span>
 						{ hasLog && (
 							<CopyToClipboard
 								buttonStyle="icon-text"
@@ -80,7 +90,7 @@ const CacheDebugLog = () => {
 					) }
 				</Card.Content>
 			</Card.Root>
-		</BoostAdminPage>
+		</div>
 	);
 };
 
