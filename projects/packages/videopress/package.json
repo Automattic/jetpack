@@ -17,8 +17,10 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
+		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
 		"build-client": "webpack",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
 		"clean": "rm -rf build/",
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage",
