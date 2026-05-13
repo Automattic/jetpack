@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Boost dashboard: the wp-build chassis (Overview + Settings tabs) is now the default admin experience. The legacy SettingsPage shell, the `render_settings` callback, and the `rsm_jetpack_ui_modernization_boost` feature filter are retired.

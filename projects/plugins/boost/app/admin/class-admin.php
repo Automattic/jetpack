@@ -23,14 +23,6 @@ class Admin {
 	 */
 	const MENU_SLUG = 'jetpack-boost';
 
-	/**
-	 * Filter name that gates the wp-build–based dashboard.
-	 *
-	 * When this filter returns true, "Boost" renders the new wp-build
-	 * dashboard (Overview + Settings tabs) instead of the legacy React app.
-	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
-
 	public function init( Modules_Setup $modules ) {
 		Environment_Change_Detector::init();
 
@@ -40,12 +32,9 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 
-		// Defer wp-build loading to admin_menu (priority 1) on every host. The
-		// modernization filter — which third parties typically register from a
-		// plugins_loaded callback — needs to have been applied before we read
-		// it, and the wp-build render function needs to be defined before
-		// handle_admin_menu (also priority 1) runs. Registering this first
-		// guarantees order at the same priority.
+		// Load wp-build on admin_menu priority 1 so the wp-build render
+		// function is defined before handle_admin_menu (also priority 1)
+		// runs. Registering this first guarantees order at the same priority.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 	}
@@ -64,33 +53,28 @@ class Admin {
 			$menu_label .= sprintf( ' <span class="menu-counter count-%d"><span class="count">%d</span></span>', $total_problems, $total_problems );
 		}
 
-		$callback = self::is_modernized() && function_exists( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' )
-			? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page'
-			: array( $this, 'render_settings' );
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
 			$menu_label,
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			$callback,
+			'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page',
 			2
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**
-	 * Load wp-build for the Boost admin page when modernization is enabled.
+	 * Load the wp-build chassis on Boost admin requests.
 	 *
-	 * Hooked to `admin_menu` priority 1 so the modernization filter has been
-	 * registered by any opt-in code (mu-plugins, snippets, themes) before we
-	 * read it, and so the wp-build render function and enqueue hook are in
-	 * place before `handle_admin_menu` runs at the same priority.
+	 * Hooked to `admin_menu` priority 1 so the wp-build render function and
+	 * enqueue hook are in place before `handle_admin_menu` runs at the same
+	 * priority.
 	 *
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		if ( ! self::is_modernized() || ! self::is_boost_admin_request() ) {
+		if ( ! self::is_boost_admin_request() ) {
 			return;
 		}
 
@@ -118,33 +102,30 @@ class Admin {
 		// This callback is registered via `load-{$page_suffix}` in
 		// `handle_admin_menu()`, so it only fires on the Boost admin page —
 		// no need to re-check the page here.
-		if ( self::is_modernized() ) {
-			// wp-build owns the Overview tab and the page chrome. Localize
-			// the shared plugin constants on its prerequisites handle so the
-			// modernized Overview reads them the same way the legacy app did.
-			wp_localize_script(
-				'jetpack-boost-dashboard-wp-admin-prerequisites',
-				'Jetpack_Boost',
-				( new Config() )->constants()
-			);
-			wp_localize_script(
-				'jetpack-boost-dashboard-wp-admin-prerequisites',
-				'wpApiSettings',
-				array(
-					'root'  => esc_url_raw( rest_url() ),
-					'nonce' => wp_create_nonce( 'wp_rest' ),
-				)
-			);
-			// Settings tab still renders via the legacy webpack bundle. The
-			// browser-side Critical CSS generator depends on Node-only
-			// modules (clean-css → fs / path) that legacy webpack polyfills
-			// via resolve.fallback; wp-build's esbuild has no equivalent.
-			// Falls through to the legacy enqueue below — the legacy bundle
-			// mounts into the chassis's `<div id="jb-settings-tab-mount" />`
-			// instead of `#jb-admin-settings` (which doesn't exist on the
-			// wp-build page).
-		}
 
+		// wp-build owns the Overview tab and the page chrome. Localize the
+		// shared plugin constants on its prerequisites handle so the
+		// modernized Overview reads them the same way the legacy app did.
+		wp_localize_script(
+			'jetpack-boost-dashboard-wp-admin-prerequisites',
+			'Jetpack_Boost',
+			( new Config() )->constants()
+		);
+		wp_localize_script(
+			'jetpack-boost-dashboard-wp-admin-prerequisites',
+			'wpApiSettings',
+			array(
+				'root'  => esc_url_raw( rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		);
+
+		// Settings tab still renders via the legacy webpack bundle. The
+		// browser-side Critical CSS generator depends on Node-only modules
+		// (clean-css → fs / path) that legacy webpack polyfills via
+		// resolve.fallback; wp-build's esbuild has no equivalent. The
+		// legacy bundle mounts into the chassis's `<div id="jb-settings-tab-mount" />`
+		// — see app/assets/src/js/index.tsx.
 		/**
 		 * Filters the internal path to the distributed assets used by the plugin
 		 *
@@ -194,27 +175,10 @@ class Admin {
 	}
 
 	/**
-	 * Generate the settings page.
-	 */
-	public function render_settings() {
-		wp_localize_script(
-			'jetpack-boost-admin',
-			'wpApiSettings',
-			array(
-				'root'  => esc_url_raw( rest_url() ),
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-			)
-		);
-		?>
-		<div id="jb-admin-settings"></div>
-		<?php
-	}
-
-	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-boost` admin requests when the
-	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-boost` admin requests. Keeps wp-build off
+	 * every other request.
 	 *
 	 * @return void
 	 */
@@ -248,8 +212,8 @@ class Admin {
 	 * Our wp-admin menu slug stays `jetpack-boost`, so we mutate the screen
 	 * object in place to make the check pass without changing the URL.
 	 *
-	 * Hooked only when modernization is on AND we're on the Boost admin
-	 * page, so this never affects any other request.
+	 * Hooked only when we're on the Boost admin page, so this never affects
+	 * any other request.
 	 *
 	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
 	 * @return void
@@ -260,15 +224,6 @@ class Admin {
 		}
 
 		$screen->id = 'jetpack-boost-dashboard';
-	}
-
-	/**
-	 * Returns true when the wp-build modernization filter is enabled.
-	 *
-	 * @return bool
-	 */
-	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 
 	/**

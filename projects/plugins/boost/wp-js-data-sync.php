@@ -89,18 +89,15 @@ function jetpack_boost_ds_delete( $key ) {
 /**
  * Ensure that Async Options are passed to the relevant scripts.
  *
- * The data-sync client is attached to the legacy Boost script by default.
- * When `rsm_jetpack_ui_modernization_boost` is on, it attaches to the
- * wp-build prerequisites handle instead so the modernized Overview tab
- * can read the same `window.jetpack_boost_ds` globals (REST URL + nonces)
- * without dragging the legacy bundle along.
+ * The data-sync client is attached to the wp-build chassis's prerequisites
+ * handle so the modernized Overview tab can read the
+ * `window.jetpack_boost_ds` globals (REST URL + nonces). The legacy bundle
+ * (which still owns Settings tab content via the dual-bundle architecture)
+ * inherits the same globals because it loads on the same page.
  */
 function jetpack_boost_initialize_datasync() {
 	$data_sync = Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE );
-	$handle    = apply_filters( 'rsm_jetpack_ui_modernization_boost', false )
-		? 'jetpack-boost-dashboard-wp-admin-prerequisites'
-		: 'jetpack-boost-admin';
-	$data_sync->attach_to_plugin( $handle, 'jetpack_page_jetpack-boost' );
+	$data_sync->attach_to_plugin( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'jetpack_page_jetpack-boost' );
 }
 
 add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
