@@ -142,7 +142,7 @@ export default function ExperienceSelector() {
 				>
 					{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 				</h2>
-				{ isDirty && (
+				{ ( isDirty || isUpdating ) && (
 					<p className="jp-search-experience-selector__pending-notice">{ getPendingNotice() }</p>
 				) }
 			</Stack>
@@ -168,13 +168,9 @@ export default function ExperienceSelector() {
 				<Stack
 					gap="md"
 					align="center"
-					justify="space-between"
+					justify="end"
 					className="jp-search-experience-selector__footer"
-					aria-live="polite"
 				>
-					<p className="jp-search-experience-selector__status">
-						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
-					</p>
 					<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
 						{ getSaveLabel() }
 					</Button>
