@@ -423,7 +423,6 @@ class Tracks {
 			}
 
 			if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 				return ( new \Automattic\Jetpack\Tracking() )->tracks_record_event( $user, $event_name, $properties );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch

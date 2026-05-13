@@ -51,8 +51,8 @@ class Episodes_Query {
 		$generated_ids = get_posts(
 			array(
 				'fields'                 => 'ids',
-				'post_type'              => isset( $args['post_type'] ) ? $args['post_type'] : 'post',
-				'post_status'            => isset( $args['post_status'] ) ? $args['post_status'] : 'any',
+				'post_type'              => $args['post_type'] ?? 'post',
+				'post_status'            => $args['post_status'] ?? 'any',
 				'meta_key'               => self::META_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'posts_per_page'         => -1,
 				'no_found_rows'          => true,
@@ -76,8 +76,8 @@ class Episodes_Query {
 			$category_ids = get_posts(
 				array(
 					'fields'                 => 'ids',
-					'post_type'              => isset( $args['post_type'] ) ? $args['post_type'] : 'post',
-					'post_status'            => isset( $args['post_status'] ) ? $args['post_status'] : 'any',
+					'post_type'              => $args['post_type'] ?? 'post',
+					'post_status'            => $args['post_status'] ?? 'any',
 					'category__in'           => $args['category__in'],
 					'posts_per_page'         => -1,
 					'no_found_rows'          => true,
