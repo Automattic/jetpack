@@ -13,19 +13,19 @@ When WooCommerce is active, the block inserter exposes a cluster of product-spec
 
 ![Block inserter on a WooCommerce site, filtered to "Filter by Product" — shows the Product Category, Product Tag, Product Brand, Product Attribute, Rating, and Stock Status filter cards, plus the Product Filters container.](./.docs-assets/wc-inserter-variations.png)
 
-The same cluster collapses to just **Checkbox Filter** and **Filter by Rating** (and a few other non-product blocks) when WooCommerce isn't active. Authors don't need to think about which one is "the WooCommerce one" — anything they see in the inserter is something they can use.
+Without WooCommerce, this whole product cluster disappears from the inserter — only the base **Checkbox Filter** stays, which authors can still configure to filter by Category, Tag, Author, or any registered taxonomy. Authors don't need to think about which block is "the WooCommerce one" — anything they see in the inserter is something they can use on their site.
 
 ## WooCommerce-only blocks
 
 Each of these blocks has a dedicated README in its folder. Open them for setup, settings, and tips:
 
-| Block | Slug | Use it for |
-|-------|------|-----------|
-| [Filter by Product Attribute](./filter-wc-attribute/README.md) | `filter-wc-attribute` | Color, Size, Material, and any other attribute your store uses |
-| [Filter by Price](./filter-wc-price/README.md) | `filter-wc-price` | Min / Max inputs and / or a draggable range slider |
-| [Filter by Rating](./filter-wc-rating/README.md) | `filter-wc-rating` | Star-rating threshold rows (★★★★ & up) |
-| [Filter by Stock Status](./filter-wc-stock-status/README.md) | `filter-wc-stock-status` | An "In stock" toggle |
-| [Product Filters](./filters-product/README.md) | `filters-product` | A ready-made shop sidebar wrapping the four filters above |
+| Block                                                            | Slug                       | Use it for                                                     |
+|------------------------------------------------------------------|----------------------------|----------------------------------------------------------------|
+| [Filter by Product Attribute](./filter-wc-attribute/README.md)   | `filter-wc-attribute`      | Color, Size, Material, and any other attribute your store uses |
+| [Filter by Price](./filter-wc-price/README.md)                   | `filter-wc-price`          | Min / Max inputs and / or a draggable range slider             |
+| [Filter by Rating](./filter-wc-rating/README.md)                 | `filter-wc-rating`         | Star-rating threshold rows (★★★★ & up)                         |
+| [Filter by Stock Status](./filter-wc-stock-status/README.md)     | `filter-wc-stock-status`   | An "In stock" toggle                                           |
+| [Product Filters](./filters-product/README.md)                   | `filters-product`          | A ready-made shop sidebar wrapping the four filters above      |
 
 ## Shared blocks with WooCommerce features
 
@@ -63,7 +63,7 @@ The settings panel is shared with the rest of the Checkbox Filter variations —
 - Use **Filter by Product Category** in any shop sidebar where shoppers browse by department. It's the single most-clicked filter on most stores.
 - Use **Filter by Product Tag** sparingly — tags work better as a discovery surface (related-products carousel, footer cloud) than as a primary filter, because shoppers don't usually think in tags.
 - Use **Filter by Product Brand** when you sell multiple brands and your shoppers already know which ones they trust. Skip it for a single-brand store.
-- All three pair naturally with **Filter by Price**, **Filter by Rating**, and **Filter by Stock Status** inside a [Product Filters](./filters-product/README.md) container.
+- All three pair naturally with [Filter by Price](./filter-wc-price/README.md), [Filter by Rating](./filter-wc-rating/README.md), and [Filter by Stock Status](./filter-wc-stock-status/README.md) inside a [Product Filters](./filters-product/README.md) container.
 
 ### Results List — Product layout
 

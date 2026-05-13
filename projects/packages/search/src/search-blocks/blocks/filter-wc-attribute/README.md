@@ -66,7 +66,6 @@ The maximum number of options to display. Defaults to 10. Lower it to keep the p
 - Use **Chips** for Color and Size, **Checkbox list** for everything else. The chip layout reads beautifully for short tokens; long phrases like "Cold-pressed organic" break the visual rhythm.
 - Pair this block with [Filter by Price](../filter-wc-price/README.md), [Filter by Rating](../filter-wc-rating/README.md), and [Filter by Stock Status](../filter-wc-stock-status/README.md) inside a [Product Filters](../filters-product/README.md) container for a complete shop sidebar.
 
-
 ## See also
 
 - [WooCommerce features in Jetpack Search blocks](../WOOCOMMERCE.md) — the index of every WC-only block and the WC options on shared blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating orders, Active Filters price chip).

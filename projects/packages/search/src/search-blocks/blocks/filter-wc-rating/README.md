@@ -56,7 +56,6 @@ At least one row must stay visible — the block won't let you hide all five.
 - The "& up" wording is intentional — it reflects how shoppers actually think about ratings ("at least four stars"). Don't try to relabel rows individually.
 - If most products in your store have similar ratings, the rating filter isn't doing useful work. Consider dropping it in favor of [Filter by Price](../filter-wc-price/README.md) or [Filter by Product Attribute](../filter-wc-attribute/README.md), where the buckets actually separate things.
 
-
 ## See also
 
 - [WooCommerce features in Jetpack Search blocks](../WOOCOMMERCE.md) — the index of every WC-only block and the WC options on shared blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating orders, Active Filters price chip).

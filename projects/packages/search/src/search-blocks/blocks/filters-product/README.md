@@ -56,7 +56,6 @@ Use the standard block styling controls in the editor sidebar (spacing, padding,
 - Resist the urge to stack every filter you can think of. A short, focused sidebar converts better than a long one. Three to five filters is the sweet spot.
 - If your store doesn't carry stock-tracked products, remove [Filter by Stock Status](../filter-wc-stock-status/README.md) — an "In stock (0)" badge isn't useful when everything's always in stock.
 
-
 ## See also
 
 - [WooCommerce features in Jetpack Search blocks](../WOOCOMMERCE.md) — the index of every WC-only block and the WC options on shared blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating orders, Active Filters price chip).

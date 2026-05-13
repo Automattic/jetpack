@@ -42,7 +42,6 @@ Shows the number of in-stock products matching the current search. On by default
 - If your store almost never has out-of-stock products, this filter has very little signal — drop it and use the sidebar space for [Filter by Price](../filter-wc-price/README.md) or [Filter by Rating](../filter-wc-rating/README.md).
 - This block is included by default in the [Product Filters](../filters-product/README.md) container — you don't need to add it separately when starting from that container.
 
-
 ## See also
 
 - [WooCommerce features in Jetpack Search blocks](../WOOCOMMERCE.md) — the index of every WC-only block and the WC options on shared blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating orders, Active Filters price chip).
