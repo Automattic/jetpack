@@ -179,6 +179,13 @@ class Module_Control {
 
 	/**
 	 * Enable Instant Search Experience
+	 *
+	 * Also writes `'overlay'` to the canonical experience option so callers that
+	 * arrive here through the legacy entry points (`update_instant_search_status`,
+	 * the legacy auto-setup REST endpoint, etc.) leave the option in agreement
+	 * with the boolean. Without this, a stale `'embedded'` / `'inline'` in the
+	 * experience option keeps `is_instant_search_enabled()` returning false even
+	 * though the legacy boolean was just set true.
 	 */
 	public function enable_instant_search() {
 		if ( ! $this->is_active() ) {
@@ -187,15 +194,27 @@ class Module_Control {
 		if ( ! $this->plan->supports_instant_search() ) {
 			return new WP_Error( 'not_supported', __( 'Your plan does not support Instant Search.', 'jetpack-search-pkg' ) );
 		}
+		update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
 
 	/**
 	 * Update instant search status
 	 *
+	 * When disabling via this legacy path we also clear the canonical experience
+	 * option — the user is asking for "not Overlay", and leaving a stale
+	 * `'overlay'` in the option would keep `is_instant_search_enabled()`
+	 * returning true. We don't clear from `disable_instant_search` itself
+	 * because `deactivate()` calls that to flip the legacy boolean, and
+	 * deactivation is meant to preserve the user's experience choice for the
+	 * next re-activation.
+	 *
 	 * @param boolean $enabled - true to enable, false to disable.
 	 */
 	public function update_instant_search_status( $enabled ) {
+		if ( ! $enabled ) {
+			update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, '' );
+		}
 		return $enabled ? $this->enable_instant_search() : $this->disable_instant_search();
 	}
 
