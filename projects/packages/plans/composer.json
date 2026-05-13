@@ -5,11 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
-		"automattic/jetpack-connection": "@dev"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -19,6 +20,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"actions.php"
 		]
 	},
 	"scripts": {
@@ -48,6 +52,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-plans",
+		"textdomain": "jetpack-plans",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 		},
