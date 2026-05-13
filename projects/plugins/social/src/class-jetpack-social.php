@@ -101,6 +101,9 @@ class Jetpack_Social {
 		// Add REST routes.
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
+		// Register Jetpack Social plugin abilities (gated by jetpack_wp_abilities_enabled).
+		\Automattic\Jetpack\Social\Abilities\Social_Settings_Abilities::init();
+
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 

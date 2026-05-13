@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register Jetpack Social plugin settings get/update (jetpack-social/get-settings, jetpack-social/update-settings).
