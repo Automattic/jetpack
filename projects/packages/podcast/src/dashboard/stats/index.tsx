@@ -94,9 +94,14 @@ const Stats = () => {
 	}
 
 	if ( selectedPostId ) {
+		// Prefer the resolved entity record; fall back to the top_episodes list
+		// (already in memory) so the heading is correct immediately when the user
+		// clicks from the in-page Top Episodes list, before useEntityRecord settles.
+		const fallbackTitle =
+			stats?.top_episodes?.find( ep => ep.post_id === selectedPostId )?.title ?? '';
 		const title = selectedPost?.title?.rendered
 			? decodeEntities( selectedPost.title.rendered )
-			: '';
+			: fallbackTitle;
 		return (
 			<EpisodeStats
 				postId={ selectedPostId }

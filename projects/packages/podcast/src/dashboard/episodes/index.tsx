@@ -6,7 +6,7 @@ import { Button } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import './style.scss';
@@ -68,13 +68,22 @@ const getEpisodeRowId = ( item: EpisodeRow ) => String( item.id );
 type PlaysCellProps = {
 	count: number;
 	episodeId: number;
+	episodeTitle: string;
 	onOpen: ( episodeId: number ) => void;
 };
 
-const PlaysCell = ( { count, episodeId, onOpen }: PlaysCellProps ) => {
+const PlaysCell = ( { count, episodeId, episodeTitle, onOpen }: PlaysCellProps ) => {
 	const handleClick = useCallback( () => onOpen( episodeId ), [ onOpen, episodeId ] );
 	return count > 0 ? (
-		<Button variant="link" onClick={ handleClick }>
+		<Button
+			variant="link"
+			onClick={ handleClick }
+			aria-label={ sprintf(
+				/* translators: %s: episode title */
+				__( 'View stats for %s', 'jetpack-podcast' ),
+				episodeTitle || __( '(Untitled)', 'jetpack-podcast' )
+			) }
+		>
 			{ count }
 		</Button>
 	) : (
@@ -218,7 +227,12 @@ const EpisodesTab = () => {
 				label: __( 'Plays', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.playsAll,
 				render: ( { item }: { item: EpisodeRow } ) => (
-					<PlaysCell count={ item.playsAll } episodeId={ item.id } onOpen={ openEpisodeStats } />
+					<PlaysCell
+						count={ item.playsAll }
+						episodeId={ item.id }
+						episodeTitle={ item.title }
+						onOpen={ openEpisodeStats }
+					/>
 				),
 				enableSorting: false,
 			},
