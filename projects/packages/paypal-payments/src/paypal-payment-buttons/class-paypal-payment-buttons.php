@@ -245,7 +245,7 @@ class PayPal_Payment_Buttons {
 			$wrapper_attributes = get_block_wrapper_attributes();
 			$link_label         = ! empty( $product_name )
 				? $product_name
-				: esc_html__( 'Pay with PayPal', 'jetpack-paypal-payments' );
+				: __( 'Pay with PayPal', 'jetpack-paypal-payments' );
 
 			return sprintf(
 				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
@@ -376,7 +376,7 @@ class PayPal_Payment_Buttons {
 			$qr_show     = esc_attr__( 'Show Link or QR Code', 'jetpack-paypal-payments' );
 			$qr_hide     = esc_attr__( 'Hide Link or QR Code', 'jetpack-paypal-payments' );
 			$qr_download = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
-			$copy_label  = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
+			$copy_label  = esc_attr__( 'Copy Link', 'jetpack-paypal-payments' );
 			$qr_html     = '<div class="jetpack-paypal-button__qr-section">'
 				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
 				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
