@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Search blocks: Add per-block end-user README documentation for the WooCommerce-only Search blocks.
+Search blocks: Add end-user README documentation for the WooCommerce-only Search blocks and a hub document covering every WooCommerce feature that lives on shared Search blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating sort orders, Active Filters price chip).

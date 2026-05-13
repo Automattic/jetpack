@@ -81,3 +81,8 @@ How granular the slider is — the smallest increment a shopper can drag it by. 
 - The inputs-only variation is the safer default for narrow sidebars and mobile. Adopt the slider variation only when you have at least ~300px of horizontal room to give it.
 - Keep the **Label** short. "Price" is recognizable to every shopper and works in every screen size.
 - Don't fiddle with **Currency symbol** unless you genuinely want a non-store currency in the UI — the WooCommerce-inherited default does the right thing for your store's locale.
+
+
+## See also
+
+- [WooCommerce features in Jetpack Search blocks](../WOOCOMMERCE.md) — the index of every WC-only block and the WC options on shared blocks (Checkbox Filter variations, Results List Product layout, Sort By price/rating orders, Active Filters price chip).
