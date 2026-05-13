@@ -8,42 +8,43 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Restricts the Episodes dashboard listing to drafts produced by the Posts to
- * Podcast pipeline. The pipeline tags every generated draft with the
- * `_posts_to_podcast_metadata` meta key (see wp-content/lib/posts-to-podcast/
- * pipeline.php's `posts_to_podcast_persist_draft`), and the SPA opts into the
- * filter by sending `p2p_only=1` on `/wp/v2/posts`.
+ * Allows the Episodes dashboard to union category-assigned posts with drafts
+ * produced by the Posts to Podcast pipeline (which are tagged via the
+ * `_posts_to_podcast_metadata` meta key but may not yet be in the podcast
+ * category).
+ *
+ * Activated per-request by the `include_p2p=1` query argument on `/wp/v2/posts`.
  */
 class Episodes_Query {
 
-	const REQUEST_PARAM = 'p2p_only';
+	const REQUEST_PARAM = 'include_p2p';
 	const META_KEY      = '_posts_to_podcast_metadata';
 
 	/**
-	 * Hook into `rest_post_query` so the dashboard can scope the listing.
+	 * Hook into `rest_post_query` so the dashboard can opt in to the union.
 	 */
 	public static function init() {
-		add_filter( 'rest_post_query', array( __CLASS__, 'maybe_restrict_to_generated_drafts' ), 10, 2 );
+		add_filter( 'rest_post_query', array( __CLASS__, 'maybe_include_generated_drafts' ), 10, 2 );
 	}
 
 	/**
-	 * When `p2p_only=1` is set, replace any category/taxonomy filter with a
-	 * single-meta-key existence check so the listing only includes generated
-	 * drafts. We translate the filter into `post__in` because the REST posts
-	 * controller doesn't expose a `meta_query` arg, and `meta_key` alone
-	 * coexists awkwardly with the controller's existing query shape.
+	 * When `include_p2p=1` is set, union the category-matching posts with any
+	 * post carrying the `_posts_to_podcast_metadata` meta. The original
+	 * category filter is replaced by an explicit `post__in` union so the
+	 * caller sees both sets in a single page.
 	 *
 	 * @param array            $args    Query args destined for `WP_Query`.
 	 * @param \WP_REST_Request $request The incoming REST request.
 	 *
 	 * @return array
 	 */
-	public static function maybe_restrict_to_generated_drafts( $args, $request ) {
+	public static function maybe_include_generated_drafts( $args, $request ) {
 		if ( ! $request instanceof \WP_REST_Request ) {
 			return $args;
 		}
 
-		if ( ! $request->get_param( self::REQUEST_PARAM ) ) {
+		$include = $request->get_param( self::REQUEST_PARAM );
+		if ( ! $include ) {
 			return $args;
 		}
 
@@ -61,12 +62,41 @@ class Episodes_Query {
 			)
 		);
 
-		// Drop any category constraint the SPA passed alongside `p2p_only=1`
-		// so we don't AND it with the meta filter and accidentally exclude
-		// drafts that aren't in the podcast category.
-		unset( $args['category__in'], $args['cat'] );
+		if ( empty( $generated_ids ) ) {
+			return $args;
+		}
 
-		$args['post__in'] = empty( $generated_ids ) ? array( 0 ) : array_map( 'intval', $generated_ids );
+		// Resolve the category-matching IDs so we can union them. WP_Query
+		// can't OR a tax query with a meta query in a single WP_Query pass,
+		// so we precompute both sides and merge into `post__in`. The REST
+		// posts controller surfaces the `categories` request param as
+		// `category__in` in the query args.
+		$category_ids = array();
+		if ( ! empty( $args['category__in'] ) ) {
+			$category_ids = get_posts(
+				array(
+					'fields'                 => 'ids',
+					'post_type'              => isset( $args['post_type'] ) ? $args['post_type'] : 'post',
+					'post_status'            => isset( $args['post_status'] ) ? $args['post_status'] : 'any',
+					'category__in'           => $args['category__in'],
+					'posts_per_page'         => -1,
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					'suppress_filters'       => true,
+				)
+			);
+			unset( $args['category__in'] );
+		}
+
+		$union = array_values( array_unique( array_merge( $category_ids, $generated_ids ) ) );
+		if ( empty( $union ) ) {
+			// Nothing matched on either side; force an empty page.
+			$args['post__in'] = array( 0 );
+			return $args;
+		}
+
+		$args['post__in'] = $union;
 		return $args;
 	}
 }
