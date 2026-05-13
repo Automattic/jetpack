@@ -1,6 +1,6 @@
 <?php
 /**
- * Content Research feature.
+ * WordPress.com Content Research feature.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -10,17 +10,18 @@ namespace A8C\FSE;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Class Content_Research
+ * Class WPCOM_Content_Research
  *
  * Main feature class. Registers REST API endpoints and enqueues
- * the frontend sidebar script on Gutenberg editor screens.
+ * the frontend sidebar script on Gutenberg editor screens for
+ * automatticians proxied through a8c on WPCOM Simple sites.
  */
-class Content_Research {
+class WPCOM_Content_Research {
 
 	/**
 	 * Class instance.
 	 *
-	 * @var Content_Research
+	 * @var WPCOM_Content_Research
 	 */
 	private static $instance = null;
 
@@ -34,7 +35,7 @@ class Content_Research {
 	}
 
 	/**
-	 * Content_Research constructor.
+	 * WPCOM_Content_Research constructor.
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -46,10 +47,10 @@ class Content_Research {
 	 */
 	public function register_rest_api() {
 		require_once __DIR__ . '/class-wp-rest-content-research-search.php';
-		( new WP_REST_Content_Research_Search() )->register_rest_route();
+		( new WP_REST_WPCOM_Content_Research_Search() )->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-content-research-summarize.php';
-		( new WP_REST_Content_Research_Summarize() )->register_rest_route();
+		( new WP_REST_WPCOM_Content_Research_Summarize() )->register_rest_route();
 	}
 
 	/**
@@ -178,4 +179,4 @@ class Content_Research {
 }
 
 // Initialize the feature when this file is loaded.
-Content_Research::init();
+WPCOM_Content_Research::init();

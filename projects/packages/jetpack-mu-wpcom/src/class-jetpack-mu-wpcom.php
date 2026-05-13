@@ -359,10 +359,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
 
-		if ( in_array( get_current_user_id(), array( 115118448, 128962475 ), true ) && ! class_exists( 'A8C\FSE\Content_Research' ) ) {
-			require_once __DIR__ . '/features/content-research/class-content-research.php';
-		}
-
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
@@ -395,6 +391,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
+		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
