@@ -748,7 +748,7 @@ const { state, actions } = store( NAMESPACE, {
 					return;
 				}
 				state.results = ( data.results ?? [] ).map( r =>
-					normalizeResult( r, state.locale, state.searchQuery )
+					normalizeResult( r, state.locale, state.searchQuery, state.dateFormat )
 				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
@@ -819,7 +819,7 @@ const { state, actions } = store( NAMESPACE, {
 				state.results = [
 					...state.results,
 					...( data.results ?? [] ).map( r =>
-						normalizeResult( r, state.locale, state.searchQuery )
+						normalizeResult( r, state.locale, state.searchQuery, state.dateFormat )
 					),
 				];
 				state.pageHandle = data.page_handle ?? null;

@@ -83,6 +83,39 @@ describe( 'formatDate', () => {
 	it( 'falls back to en-US when locale is empty string', () => {
 		expect( formatDate( '2026-04-20T10:00:00Z', '' ) ).toBe( 'Apr 20, 2026' );
 	} );
+
+	it( 'honors a WP F j, Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+
+	it( 'honors a WP Y-m-d date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'Y-m-d' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'honors a WP d/m/Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'd/m/Y' ) ).toBe( '20/04/2026' );
+	} );
+
+	it( 'honors an ordinal-suffixed l, F jS Y date_format', () => {
+		// 2026-04-20 is a Monday; 20 → "20th".
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'l, F jS Y' ) ).toBe(
+			'Monday, April 20th 2026'
+		);
+	} );
+
+	it( 'localizes month names within a WP date_format', () => {
+		// French May → "mai", layout still follows the F j, Y token order.
+		expect( formatDate( '2026-05-04T10:00:00Z', 'fr-FR', 'F j, Y' ) ).toBe( 'mai 4, 2026' );
+	} );
+
+	it( 'treats a backslash as a literal-escape', () => {
+		// `\Y` should emit a literal Y, not the year token.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '\\Y=Y' ) ).toBe( 'Y=2026' );
+	} );
+
+	it( 'leaves the legacy short-form output untouched when dateFormat is empty', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
 } );
 
 describe( 'formatPath', () => {
@@ -472,6 +505,16 @@ describe( 'normalizeResult', () => {
 	it( 'passes locale through to dateLabel', () => {
 		const r = normalizeResult( { fields: { date: '2026-04-20T10:00:00Z' } }, 'fr-FR' );
 		expect( r.dateLabel ).toMatch( /20 avr/ );
+	} );
+
+	it( 'passes dateFormat through to dateLabel', () => {
+		const r = normalizeResult(
+			{ fields: { date: '2026-04-20T10:00:00Z' } },
+			'en-US',
+			'',
+			'F j, Y'
+		);
+		expect( r.dateLabel ).toBe( 'April 20, 2026' );
 	} );
 
 	it( 'exposes authorLabel for a single-author result', () => {
