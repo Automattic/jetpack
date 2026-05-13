@@ -230,16 +230,12 @@ const CardLink = ( { title, linkLabel, href, disabled } ) => (
 	<Stack direction="column" gap="sm" className="jp-search-experience-option__action">
 		<span className="jp-search-experience-option__action-title">{ title }</span>
 		{ disabled ? (
-			// `aria-disabled` on a plain <span> is silently ignored by AT, so we
-			// also append a screen-reader-only suffix that explains why this
-			// action isn't usable.
+			// Render as a non-interactive <span> so AT doesn't announce a link
+			// the user can't follow. `aria-disabled` stays as the CSS hook for
+			// the muted/not-allowed visual state.
 			<span className="jp-search-experience-option__action-link" aria-disabled="true">
 				{ linkLabel }
 				<span aria-hidden="true"> →</span>
-				<span className="screen-reader-text">
-					{ ' ' }
-					{ __( '(save to activate)', 'jetpack-search-pkg' ) }
-				</span>
 			</span>
 		) : (
 			<a className="jp-search-experience-option__action-link" href={ href }>
