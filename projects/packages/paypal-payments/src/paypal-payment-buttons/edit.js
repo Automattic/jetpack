@@ -1201,6 +1201,38 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</InspectorControls>
 	);
 
+	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
+	const confirmDialogs = (
+		<>
+			{ showDeleteConfirm && (
+				<ConfirmDialog
+					title={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
+					confirmButtonText={ __( 'Delete Permanently', 'jetpack-paypal-payments' ) }
+					onConfirm={ executeDeleteButton }
+					onCancel={ () => setShowDeleteConfirm( false ) }
+				>
+					{ __(
+						'This will permanently delete your payment button. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.',
+						'jetpack-paypal-payments'
+					) }
+				</ConfirmDialog>
+			) }
+			{ showDisconnectConfirm && (
+				<ConfirmDialog
+					title={ __( 'Disconnect PayPal Account', 'jetpack-paypal-payments' ) }
+					confirmButtonText={ __( 'Disconnect', 'jetpack-paypal-payments' ) }
+					onConfirm={ executeDisconnect }
+					onCancel={ () => setShowDisconnectConfirm( false ) }
+				>
+					{ __(
+						'Disconnect your PayPal account? You will need to re-enter your credentials to create new buttons. Existing published buttons will continue to work.',
+						'jetpack-paypal-payments'
+					) }
+				</ConfirmDialog>
+			) }
+		</>
+	);
+
 	// Connected + has button + preview mode — show live button preview.
 	if ( hasButton && ! isEditing ) {
 		return (
@@ -1243,33 +1275,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					/>
 				</div>
 
-				{ /* Delete confirmation dialog — rendered here so it works in preview mode too */ }
-				{ showDeleteConfirm && (
-					<ConfirmDialog
-						title={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
-						confirmButtonText={ __( 'Delete Permanently', 'jetpack-paypal-payments' ) }
-						onConfirm={ executeDeleteButton }
-						onCancel={ () => setShowDeleteConfirm( false ) }
-					>
-						{ __(
-							'This will permanently delete your payment button. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.',
-							'jetpack-paypal-payments'
-						) }
-					</ConfirmDialog>
-				) }
-				{ showDisconnectConfirm && (
-					<ConfirmDialog
-						title={ __( 'Disconnect PayPal Account', 'jetpack-paypal-payments' ) }
-						confirmButtonText={ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-						onConfirm={ executeDisconnect }
-						onCancel={ () => setShowDisconnectConfirm( false ) }
-					>
-						{ __(
-							'Disconnect your PayPal account? You will need to re-enter your credentials to create new buttons. Existing published buttons will continue to work.',
-							'jetpack-paypal-payments'
-						) }
-					</ConfirmDialog>
-				) }
+				{ confirmDialogs }
 			</div>
 		);
 	}
@@ -1727,33 +1733,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				</div>
 			</div>
 
-			{ /* Delete confirmation dialog */ }
-			{ showDeleteConfirm && (
-				<ConfirmDialog
-					title={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
-					confirmButtonText={ __( 'Delete Permanently', 'jetpack-paypal-payments' ) }
-					onConfirm={ executeDeleteButton }
-					onCancel={ () => setShowDeleteConfirm( false ) }
-				>
-					{ __(
-						'This will permanently delete your payment button. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.',
-						'jetpack-paypal-payments'
-					) }
-				</ConfirmDialog>
-			) }
-			{ showDisconnectConfirm && (
-				<ConfirmDialog
-					title={ __( 'Disconnect PayPal Account', 'jetpack-paypal-payments' ) }
-					confirmButtonText={ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-					onConfirm={ executeDisconnect }
-					onCancel={ () => setShowDisconnectConfirm( false ) }
-				>
-					{ __(
-						'Disconnect your PayPal account? You will need to re-enter your credentials to create new buttons. Existing published buttons will continue to work.',
-						'jetpack-paypal-payments'
-					) }
-				</ConfirmDialog>
-			) }
+			{ confirmDialogs }
 		</div>
 	);
 }
