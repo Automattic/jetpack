@@ -16,6 +16,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -95,7 +96,7 @@ const SettingsTab = () => {
 	const [ createError, setCreateError ] = useState< string | null >( null );
 	const [ creating, setCreating ] = useState( false );
 
-	const { saveEntityRecord } = useDispatch( 'core' );
+	const { saveEntityRecord } = useDispatch( coreStore );
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
