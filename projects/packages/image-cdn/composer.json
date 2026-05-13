@@ -6,7 +6,8 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-test-environment": "@dev",
@@ -19,6 +20,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"actions.php"
 		]
 	},
 	"scripts": {
