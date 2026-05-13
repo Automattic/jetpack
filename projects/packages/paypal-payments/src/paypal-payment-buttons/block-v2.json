@@ -9,6 +9,11 @@
 	"description": "Accept payments with PayPal Payment Buttons.",
 	"example": {},
 	"attributes": {
+		"colorScheme": {
+			"type": "string",
+			"enum": [ "auto", "light", "dark" ],
+			"default": "auto"
+		},
 		"isApiManaged": {
 			"type": "boolean",
 			"default": false

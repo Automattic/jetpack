@@ -1114,4 +1114,139 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( toolbarSvg.first() ).toBeVisible( { timeout: 5000 } );
 		} );
 	} );
+
+	// ---------------------------------------------------------------
+	// 11. Style Preset — Light / Auto / Dark (WOOPTP-390)
+	// ---------------------------------------------------------------
+	test.describe( 'Style Preset', () => {
+		/**
+		 * Helper: open the block settings sidebar and return the Style panel button.
+		 * Returns the panel toggle element (already visible).
+		 *
+		 * @param {object} page   - Playwright page.
+		 * @param {object} canvas - Editor canvas frame.
+		 * @param {object} block  - Block locator.
+		 * @return {Promise<object>} Style panel toggle locator.
+		 */
+		async function openStylePanel( page, canvas, block ) {
+			const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
+			if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+				await closeInserter.click();
+				await page.waitForTimeout( 300 );
+			}
+
+			await block.click();
+			await page.waitForTimeout( 300 );
+
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			const isPressed = await settingsBtn
+				.evaluate( el => el.classList.contains( 'is-pressed' ) )
+				.catch( () => false );
+			if ( ! isPressed ) {
+				await settingsBtn.click();
+				await page.waitForTimeout( 500 );
+			}
+
+			const stylePanel = page.locator( 'button:has-text("Style")' ).first();
+
+			// Retry if Block tab not active yet.
+			for ( let attempt = 0; attempt < 3; attempt++ ) {
+				if ( await stylePanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+					break;
+				}
+				await block.click();
+				await page.waitForTimeout( 500 );
+				if (
+					! ( await settingsBtn
+						.evaluate( el => el.classList.contains( 'is-pressed' ) )
+						.catch( () => false ) )
+				) {
+					await settingsBtn.click();
+					await page.waitForTimeout( 500 );
+				}
+			}
+
+			await stylePanel.waitFor( { state: 'visible', timeout: 5000 } );
+			return stylePanel;
+		}
+
+		test( 'Style panel shows Light, Auto, and Dark preset buttons', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			// All three preset buttons must be visible in the sidebar.
+			await expect( page.locator( 'button:has-text("Light")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( page.locator( 'button:has-text("Auto")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( page.locator( 'button:has-text("Dark")' ).first() ).toBeVisible( {
+				timeout: 5000,
+			} );
+		} );
+
+		test( 'selecting Dark preset sets data-color-scheme="dark" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			// Click the Dark button in the sidebar (scope to sidebar to avoid block content).
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 300 );
+
+			// The block wrapper in the canvas should now carry data-color-scheme="dark".
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'dark', { timeout: 3000 } );
+		} );
+
+		test( 'selecting Light preset sets data-color-scheme="light" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			// First set Dark, then switch to Light — verifies the toggle updates correctly.
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Light")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'light', { timeout: 3000 } );
+		} );
+
+		test( 'selecting Auto preset sets data-color-scheme="auto" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			const canvas = await insertPayPalBlock( page );
+			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+
+			await openStylePanel( page, canvas, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			// Set to dark first, then back to Auto.
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Auto")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'auto', { timeout: 3000 } );
+		} );
+	} );
 } );
