@@ -80,7 +80,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				value={ experience }
 				checked={ isSelected }
 				disabled={ disabled }
-				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
+				onChange={ disabled ? () => {} : () => setPendingExperience( experience ) }
 			/>
 			<label
 				htmlFor={ inputId }
@@ -211,8 +211,8 @@ const CardCopy = ( { experience } ) => {
 				{ __( 'Visitors use WordPress default search, and miss out on:', 'jetpack-search-pkg' ) }
 			</p>
 			<ul className="jp-search-experience-option__loss-list">
-				{ offLosses.map( loss => (
-					<li key={ loss }>
+				{ offLosses.map( ( loss, index ) => (
+					<li key={ index }>
 						<Icon
 							className="jp-search-experience-option__loss-icon"
 							icon={ cancelCircleFilled }

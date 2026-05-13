@@ -37,7 +37,8 @@ export default function ExperienceSelector() {
 
 	const isExperienceDisabled = experience =>
 		isUpdating ||
-		( supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' ) );
+		( supportsOnlyClassicSearch &&
+			( experience === EXPERIENCE.EMBEDDED || experience === EXPERIENCE.OVERLAY ) );
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 
@@ -118,6 +119,11 @@ export default function ExperienceSelector() {
 
 	return (
 		<>
+			{ /* `aria-live` is on the heading row (not just the notice) so AT
+			   re-reads the h2 alongside the dirty state — users tabbing
+			   through cards can forget what the heading was, and announcing
+			   "Select a search experience… Theme search selected, save to
+			   apply" gives them the framing back. */ }
 			<Stack
 				direction="row"
 				align="center"
