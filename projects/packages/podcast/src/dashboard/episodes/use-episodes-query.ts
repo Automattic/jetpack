@@ -3,7 +3,6 @@ import { useMemo, useRef } from '@wordpress/element';
 import type { Episode } from '../types';
 
 export interface EpisodesQueryArgs {
-	categoryId: number;
 	page?: number;
 	perPage?: number;
 	orderBy?: 'date' | 'title';
@@ -33,8 +32,7 @@ export function useEpisodesQuery( args: EpisodesQueryArgs ): {
 } {
 	const query = useMemo(
 		() => ( {
-			categories: args.categoryId,
-			include_p2p: 1,
+			p2p_only: 1,
 			page: args.page ?? 1,
 			per_page: args.perPage ?? 20,
 			orderby: args.orderBy ?? 'date',
@@ -43,7 +41,7 @@ export function useEpisodesQuery( args: EpisodesQueryArgs ): {
 			...( args.search ? { search: args.search } : {} ),
 			...( args.status ? { status: args.status } : {} ),
 		} ),
-		[ args.categoryId, args.page, args.perPage, args.orderBy, args.order, args.search, args.status ]
+		[ args.page, args.perPage, args.orderBy, args.order, args.search, args.status ]
 	);
 
 	const { records, hasResolved, totalItems, totalPages } = useEntityRecords< Episode >(

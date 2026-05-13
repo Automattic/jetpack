@@ -86,7 +86,6 @@ const EpisodesTab = () => {
 			typeof statusFilter?.value === 'string' && statusFilter.value ? statusFilter.value : 'any';
 
 		return {
-			categoryId,
 			page: view.page ?? 1,
 			perPage: view.perPage ?? 20,
 			orderBy: orderBy as 'date' | 'title',
@@ -94,7 +93,7 @@ const EpisodesTab = () => {
 			search: view.search ?? '',
 			status,
 		};
-	}, [ categoryId, view ] );
+	}, [ view ] );
 
 	const { data: episodesPage, isLoading } = useEpisodesQuery( queryArgs );
 	// Memoised so the `?? []` fallback doesn't churn dependent useMemos.
