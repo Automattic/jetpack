@@ -18,6 +18,12 @@
 		bottom: auto;
 		left: auto;
 
+		// With `left: auto` and no width, the fixed element shrinks to its
+		// content — and the `@wordpress/ui` Notice's grid template collapses
+		// to just its icons (~26px) instead of laying out the text. Pin a
+		// width so the notice has room to render its description.
+		width: 320px;
+
 		/* `36px` being the width of the collapsed WP-admin sidebar */
 		max-width: calc(100% - 32px - 36px);
 	}
