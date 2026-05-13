@@ -273,3 +273,70 @@ $paypal-blue: #0070ba;
 noscript + .jetpack-paypal-button__qr-section {
 	display: none;
 }
+
+// ---------------------------------------------------------------
+// Light / Dark preset overrides (WOOPTP-390)
+//
+// When the merchant explicitly selects a color scheme preset, the
+// data-color-scheme attribute on the block wrapper activates these
+// rules. They use the CSS `color-scheme` property to hint the
+// browser, and inherit theme CSS custom properties when available
+// (Twenty Twenty-Four, et al.). Hardcoded fallbacks ensure a
+// reasonable appearance on themes that don't define the variables.
+//
+// "auto" (default) leaves the block unstyled here — OS/theme
+// preference applies via prefers-color-scheme and wp-element-button
+// inheritance, which is the existing behavior.
+//
+// Custom CSS targeting:
+//   .wp-block-jetpack-paypal-payment-buttons
+//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"]
+//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"]
+// No !important used — custom CSS overrides naturally.
+// ---------------------------------------------------------------
+
+.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"] {
+	color-scheme: light;
+
+	.jetpack-paypal-button__product-name,
+	.jetpack-paypal-button__product-price,
+	.jetpack-paypal-button__variant-name {
+		color: var(--wp--preset--color--foreground, #1e1e1e);
+	}
+
+	.jetpack-paypal-button__product-description,
+	.jetpack-paypal-button__attribution,
+	.jetpack-paypal-button__variants-label,
+	.jetpack-paypal-button__variant-price {
+		color: var(--wp--preset--color--foreground, #757575);
+		opacity: 0.7;
+	}
+
+	.jetpack-paypal-button__variant-option {
+		background: var(--wp--preset--color--background, #f0f0f0);
+		color: var(--wp--preset--color--foreground, #1e1e1e);
+	}
+}
+
+.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"] {
+	color-scheme: dark;
+
+	.jetpack-paypal-button__product-name,
+	.jetpack-paypal-button__product-price,
+	.jetpack-paypal-button__variant-name {
+		color: var(--wp--preset--color--foreground, #ffffff);
+	}
+
+	.jetpack-paypal-button__product-description,
+	.jetpack-paypal-button__attribution,
+	.jetpack-paypal-button__variants-label,
+	.jetpack-paypal-button__variant-price {
+		color: var(--wp--preset--color--foreground, #e0e0e0);
+		opacity: 0.7;
+	}
+
+	.jetpack-paypal-button__variant-option {
+		background: var(--wp--preset--color--background, #2e2e2e);
+		color: var(--wp--preset--color--foreground, #ffffff);
+	}
+}

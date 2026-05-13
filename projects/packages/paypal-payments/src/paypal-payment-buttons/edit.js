@@ -161,6 +161,7 @@ function FormatSwitcher( { value, onChange, disabled } ) {
  */
 export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } ) {
 	const {
+		colorScheme,
 		isApiManaged,
 		scriptSrc,
 		hostedButtonId,
@@ -830,7 +831,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
 		return (
-			<div { ...blockProps }>
+			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				<div className="jetpack-paypal-payment-buttons__loading">
 					<Spinner />
 					<p>{ __( 'Checking PayPal connection…', 'jetpack-paypal-payments' ) }</p>
@@ -842,7 +843,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// Legacy paste-code block — render as-is without the new UI.
 	if ( ! isApiManaged && ( scriptSrc || hostedButtonId ) ) {
 		return (
-			<div { ...blockProps }>
+			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				<div className="jetpack-paypal-payment-buttons__legacy">
 					<p>
 						{ __(
@@ -928,7 +929,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// Skip the wizard if the block already has a saved button (e.g. demo posts in Playground).
 	if ( ! isConnected && ! hasButton ) {
 		return (
-			<div { ...blockProps }>
+			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				<div className="jetpack-paypal-payment-buttons__connect">
 					{ /* Step indicator */ }
 					{ wizardStep !== 'welcome' && wizardStep !== 'success' && (
@@ -1214,9 +1215,45 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</BlockControls>
 	) : null;
 
-	// Inspector sidebar — format switcher + connection info and admin actions.
+	// Inspector sidebar — format switcher, Style preset, and connection info.
 	const inspectorControls = (
 		<InspectorControls>
+			{ /* Style preset: Light / Auto / Dark — overrides the OS/theme auto-detect */ }
+			<PanelBody title={ __( 'Style', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+				<p className="jetpack-paypal-payment-buttons__scheme-label">
+					{ __(
+						'Choose how the button adapts to your site theme. "Auto" follows the visitor\'s OS preference.',
+						'jetpack-paypal-payments'
+					) }
+				</p>
+				<ButtonGroup className="jetpack-paypal-payment-buttons__scheme-toggle">
+					<Button
+						variant={ colorScheme === 'light' ? 'primary' : 'secondary' }
+						onClick={ () => setAttributes( { colorScheme: 'light' } ) }
+					>
+						{ __( 'Light', 'jetpack-paypal-payments' ) }
+					</Button>
+					<Button
+						variant={ colorScheme === 'auto' || ! colorScheme ? 'primary' : 'secondary' }
+						onClick={ () => setAttributes( { colorScheme: 'auto' } ) }
+					>
+						{ __( 'Auto', 'jetpack-paypal-payments' ) }
+					</Button>
+					<Button
+						variant={ colorScheme === 'dark' ? 'primary' : 'secondary' }
+						onClick={ () => setAttributes( { colorScheme: 'dark' } ) }
+					>
+						{ __( 'Dark', 'jetpack-paypal-payments' ) }
+					</Button>
+				</ButtonGroup>
+				<p className="jetpack-paypal-payment-buttons__scheme-hint">
+					{ __(
+						'For advanced styling, target .wp-block-jetpack-paypal-payment-buttons or use data-color-scheme="light|dark|auto" in custom CSS.',
+						'jetpack-paypal-payments'
+					) }
+				</p>
+			</PanelBody>
+
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'Display Format', 'jetpack-paypal-payments' ) }
@@ -1311,7 +1348,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// Connected + has button + preview mode — show live button preview.
 	if ( hasButton && ! isEditing ) {
 		return (
-			<div { ...blockProps }>
+			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				{ toolbarControls }
 				{ inspectorControls }
 
@@ -1364,7 +1401,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 	// Connected — edit mode (either creating new or editing existing).
 	return (
-		<div { ...blockProps }>
+		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 			{ toolbarControls }
 			{ inspectorControls }
 

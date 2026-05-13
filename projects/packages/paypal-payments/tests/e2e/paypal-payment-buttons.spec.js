@@ -1129,4 +1129,119 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( block.locator( 'button:has-text("Create QR Code")' ) ).toBeVisible();
 		} );
 	} );
+
+	// ---------------------------------------------------------------
+	// 11. Style Preset — Light / Auto / Dark (WOOPTP-390)
+	// ---------------------------------------------------------------
+	test.describe( 'Style Preset', () => {
+		/**
+		 * Helper: open the settings sidebar and return the Style panel toggle.
+		 *
+		 * @param {object} page  - Playwright page.
+		 * @param {object} block - Block locator.
+		 * @return {Promise<object>} Style panel toggle locator.
+		 */
+		async function openStylePanel( page, block ) {
+			await block.click();
+			await page.waitForTimeout( 300 );
+
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			const isPressed = await settingsBtn
+				.evaluate( el => el.classList.contains( 'is-pressed' ) )
+				.catch( () => false );
+			if ( ! isPressed ) {
+				await settingsBtn.click();
+				await page.waitForTimeout( 500 );
+			}
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			const stylePanel = sidebar.locator( 'button:has-text("Style")' ).first();
+
+			for ( let attempt = 0; attempt < 3; attempt++ ) {
+				if ( await stylePanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+					break;
+				}
+				await block.click();
+				await page.waitForTimeout( 500 );
+			}
+
+			await stylePanel.waitFor( { state: 'visible', timeout: 5000 } );
+			return stylePanel;
+		}
+
+		test( 'Style panel shows Light, Auto, and Dark preset buttons', async ( { page } ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await openStylePanel( page, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await expect( sidebar.locator( 'button:has-text("Light")' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( sidebar.locator( 'button:has-text("Auto")' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+			await expect( sidebar.locator( 'button:has-text("Dark")' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
+		} );
+
+		test( 'selecting Dark preset sets data-color-scheme="dark" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await openStylePanel( page, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'dark', { timeout: 3000 } );
+		} );
+
+		test( 'selecting Light preset sets data-color-scheme="light" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await openStylePanel( page, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Light")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'light', { timeout: 3000 } );
+		} );
+
+		test( 'selecting Auto preset sets data-color-scheme="auto" on block wrapper', async ( {
+			page,
+		} ) => {
+			await setupPayPalMocks( page );
+			await goToNewPost( page );
+			await insertPayPalBlock( page );
+
+			const block = page.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			await openStylePanel( page, block );
+
+			const sidebar = page.locator( '.interface-complementary-area' );
+			await sidebar.locator( 'button:has-text("Dark")' ).click();
+			await page.waitForTimeout( 200 );
+			await sidebar.locator( 'button:has-text("Auto")' ).click();
+			await page.waitForTimeout( 300 );
+
+			await expect( block ).toHaveAttribute( 'data-color-scheme', 'auto', { timeout: 3000 } );
+		} );
+	} );
 } );
