@@ -150,7 +150,7 @@ describe( 'deriveVariation', () => {
 	} );
 
 	it( 'maps the WC product taxonomy slugs to their dedicated variations on Woo sites', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_PRODUCT_CAT
 		);
@@ -198,7 +198,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'lists all eight variations when WooCommerce is active', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		expect( variationOptions().map( o => o.value ) ).toEqual( [
 			VARIATION_CATEGORY,
 			VARIATION_POST_TAG,
@@ -222,7 +222,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'drops the three product variations when the gate is explicitly false', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
 		const values = variationOptions().map( o => o.value );
 		expect( values ).not.toContain( VARIATION_PRODUCT_CAT );
 		expect( values ).not.toContain( VARIATION_PRODUCT_TAG );

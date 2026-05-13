@@ -457,7 +457,7 @@ class Search_Blocks {
 			true
 		);
 
-		// Surface the WC gate to the editor bundle. `isWooCommerceActive`
+		// Surface the WC gate to the editor bundle. `isWooCommerceBlocksEnabled`
 		// drives per-component branches (e.g. the results-sort inspector
 		// hiding product-format checkboxes, the results-list inspector
 		// hiding the Product layout) and the `register-blocks.js`
@@ -473,8 +473,8 @@ class Search_Blocks {
 			'jetpack-search-blocks-register',
 			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
 				array(
-					'isWooCommerceActive'       => self::woocommerce_blocks_enabled(),
-					'woocommerceOnlyBlocks'     => self::woocommerce_only_block_names(),
+					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
+					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
 					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
 					// picker in filter-checkbox/edit.js — only taxonomies in
 					// this list (Jetpack-Search-indexed OR mapped to a
@@ -482,12 +482,12 @@ class Search_Blocks {
 					// are offered. See `supported_custom_taxonomies()` for
 					// the derivation and the FAQ link:
 					// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
-					'supportedCustomTaxonomies' => self::supported_custom_taxonomies(),
+					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					// `customTaxonomyMap` is keyed by the user-facing slug;
 					// the picker uses key membership to append a "(mapped)"
 					// suffix to those entries' labels so authors know the
 					// filter routes through a reserved slot.
-					'customTaxonomyMap'         => (object) self::custom_taxonomy_map(),
+					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -534,12 +534,12 @@ class Search_Blocks {
 			return;
 		}
 
-		$wc_enabled = self::woocommerce_blocks_enabled();
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $block_dirs as $block_dir ) {
 			if ( ! file_exists( $block_dir . '/block.json' ) ) {
 				continue;
 			}
-			if ( ! $wc_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
 				continue;
 			}
 			register_block_type( $block_dir );
@@ -714,9 +714,9 @@ class Search_Blocks {
 		if ( ! $pattern_files ) {
 			return;
 		}
-		$wc_enabled = self::woocommerce_blocks_enabled();
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $pattern_files as $pattern_file ) {
-			if ( ! $wc_enabled && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
+			if ( ! $wc_blocks_enabled && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
 				continue;
 			}
 			require_once $pattern_file;
@@ -1007,47 +1007,47 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'                => $site_id,
-			'apiRoot'               => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'                 => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite'         => $is_private,
-			'isWpcom'               => $is_wpcom,
+			'siteId'                     => $site_id,
+			'apiRoot'                    => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'              => $is_private,
+			'isWpcom'                    => $is_wpcom,
 			// Whether the product-format sort keys (rating, price asc/desc)
 			// are valid on this site, plus a JS-side gate any WC-only block
 			// can read. The store threads it into url-state so a
 			// `?orderby=price_asc` deep link round-trips on Woo sites and
 			// collapses to relevance everywhere else.
-			'isWooCommerceActive'   => self::woocommerce_blocks_enabled(),
-			'homeUrl'               => function_exists( 'home_url' ) ? home_url() : '',
+			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
+			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'                => function_exists( 'get_locale' )
+			'locale'                     => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'           => $search_query,
+			'searchQuery'                => $search_query,
 			// Whether the search-query URL key was present in `$_GET`, even
 			// when its value is empty. The JS store's `initialize()` reads
 			// this so a `?s=` deep link still fires the initial search —
 			// `searchQuery` alone can't carry that signal because an empty
 			// param and a missing param both round-trip as `''`.
-			'hasSearchParam'        => static::has_search_param(),
+			'hasSearchParam'             => static::has_search_param(),
 			// URL key the JS store uses to read/write the search query. `s`
 			// on the WP search route, `q` on non-search pages — see
 			// `get_search_param_name()`. Threaded through the seed so the JS
 			// store reads from the same key the seed pulled `searchQuery`
 			// from.
-			'searchParamName'       => static::get_search_param_name(),
-			'sortOrder'             => static::parse_url_sort(),
-			'activeFilters'         => $active_filters,
-			'filterLogic'           => $filter_logic,
-			'priceRange'            => $price_range,
+			'searchParamName'            => static::get_search_param_name(),
+			'sortOrder'                  => static::parse_url_sort(),
+			'activeFilters'              => $active_filters,
+			'filterLogic'                => $filter_logic,
+			'priceRange'                 => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
@@ -1055,7 +1055,7 @@ class Search_Blocks {
 			// `effectiveSlug` is resolved server-side at config-build time
 			// against `jetpack_search_custom_taxonomy_map`, so JS query
 			// builders never have to consult the global map themselves.
-			'filterConfigs'         => array(),
+			'filterConfigs'              => array(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
@@ -1069,24 +1069,24 @@ class Search_Blocks {
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'               => array(),
-			'aggregations'          => (object) array(),
+			'results'                    => array(),
+			'aggregations'               => (object) array(),
 			// Per-filter union of values seen across the session's aggregation
 			// responses. The JS store appends to this on each successful fetch
 			// so checkbox-filter lists can keep options visible even after a
 			// narrower query drops them from ES results.
-			'retainedFilterOptions' => (object) array(),
-			'totalResults'          => 0,
-			'pageHandle'            => null,
+			'retainedFilterOptions'      => (object) array(),
+			'totalResults'               => 0,
+			'pageHandle'                 => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the empty-state region inside
 			// `jetpack-search/results-list` stays hidden between first paint and JS
 			// hydrating the initial fetch — otherwise a "No results found" flash
 			// appears on deep links.
-			'isLoading'             => $is_initial_loading,
-			'isLoadingMore'         => false,
-			'hasError'              => false,
+			'isLoading'                  => $is_initial_loading,
+			'isLoadingMore'              => false,
+			'hasError'                   => false,
 
 			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
 			// `data-wp-bind--hidden` against literal seeded values (it can't
@@ -1094,12 +1094,12 @@ class Search_Blocks {
 			// boolean. JS flips it to true once `actions.search()` resolves
 			// and never resets it — subsequent re-searches keep live results
 			// on screen without re-flashing placeholders.
-			'skeletonHidden'        => false,
+			'skeletonHidden'             => false,
 
 			// Seeded so the SSR pass can resolve `data-wp-text` to a real
 			// string on first paint; `actions.search()` keeps it in lockstep
 			// with `isLoading` / `totalResults` via `computeResultsCountText`.
-			'resultsCountText'      => $is_initial_loading ? $searching_text : '',
+			'resultsCountText'           => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -1108,7 +1108,7 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'               => static::build_initial_strings(),
+			'strings'                    => static::build_initial_strings(),
 
 			// Currency symbol displayed inside the price filter pill rendered
 			// by the active-filters block. Defaults to `$`; the price block's
@@ -1116,7 +1116,7 @@ class Search_Blocks {
 			// attribute so a single chip on the page reflects whatever symbol
 			// the price input itself uses. The stored numeric value stays
 			// locale-agnostic — only the display string carries the symbol.
-			'priceCurrencySymbol'   => '$',
+			'priceCurrencySymbol'        => '$',
 
 			// Display labels for `wc_stock_status` selections, keyed by slug.
 			// Seeded from the status block's static option list so an active-
@@ -1124,7 +1124,7 @@ class Search_Blocks {
 			// slug. RSM-1932 will swap this with WC's translated labels so
 			// non-English locales render correctly; the map shape stays the
 			// same.
-			'wcStockStatusLabels'   => static::build_stock_status_labels(),
+			'wcStockStatusLabels'        => static::build_stock_status_labels(),
 		);
 	}
 

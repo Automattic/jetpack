@@ -38,7 +38,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
-			'isWooCommerceActive',
+			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
 			'searchQuery',
@@ -123,7 +123,7 @@ class Search_Blocks_Test extends TestCase {
 		try {
 			$state = Search_Blocks::build_initial_state();
 			$this->assertSame( 'relevance', $state['sortOrder'] );
-			$this->assertFalse( $state['isWooCommerceActive'] );
+			$this->assertFalse( $state['isWooCommerceBlocksEnabled'] );
 		} finally {
 			$_GET = $original_get;
 		}
@@ -131,7 +131,7 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * On Woo sites the same product-format `?orderby` values must seed the
-	 * matching sort and surface `isWooCommerceActive=true` on the IA store
+	 * matching sort and surface `isWooCommerceBlocksEnabled=true` on the IA store
 	 * so the JS-side url-state gate accepts them too (RSM-1082).
 	 */
 	public function test_build_initial_state_accepts_product_sort_when_woocommerce_active() {
@@ -142,7 +142,7 @@ class Search_Blocks_Test extends TestCase {
 				$_GET  = array( 'orderby' => $key );
 				$state = Search_Blocks::build_initial_state();
 				$this->assertSame( $key, $state['sortOrder'], "Expected $key to seed sortOrder when WC is active." );
-				$this->assertTrue( $state['isWooCommerceActive'] );
+				$this->assertTrue( $state['isWooCommerceBlocksEnabled'] );
 			}
 		} finally {
 			$_GET = $original_get;

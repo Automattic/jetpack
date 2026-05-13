@@ -83,12 +83,13 @@ export const VARIATION_PRODUCT_TAG = 'product_tag';
 export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
-// `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
+// `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` is the canonical
 // editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
 // Read at call time (not module init) so tests can flip the gate per case
 // and the editor responds to a runtime change in the localized config.
-const isWooCommerceActive = () =>
-	typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.isWooCommerceActive === true;
+const isWooCommerceBlocksEnabled = () =>
+	typeof window !== 'undefined' &&
+	window.JetpackSearchBlocksConfig?.isWooCommerceBlocksEnabled === true;
 
 // `JetpackSearchBlocksConfig.supportedCustomTaxonomies` is the editor-side
 // whitelist of taxonomy slugs the "Custom Taxonomy" picker may offer.
@@ -142,13 +143,13 @@ export function deriveVariation( attributes ) {
 	// Taxonomy with the slug preserved — author can still edit the block,
 	// and re-activating WC restores the dedicated variation on the next
 	// render. Mirrors the dormant-attribute pattern used by results-list.
-	if ( taxonomy === 'product_cat' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_cat' && isWooCommerceBlocksEnabled() ) {
 		return VARIATION_PRODUCT_CAT;
 	}
-	if ( taxonomy === 'product_tag' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_tag' && isWooCommerceBlocksEnabled() ) {
 		return VARIATION_PRODUCT_TAG;
 	}
-	if ( taxonomy === 'product_brand' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_brand' && isWooCommerceBlocksEnabled() ) {
 		return VARIATION_PRODUCT_BRAND;
 	}
 	return VARIATION_CUSTOM_TAXONOMY;
@@ -174,7 +175,7 @@ export function variationOptions() {
 		{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
 		{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
 	];
-	if ( isWooCommerceActive() ) {
+	if ( isWooCommerceBlocksEnabled() ) {
 		options.push(
 			{ value: VARIATION_PRODUCT_CAT, label: __( 'Product Category', 'jetpack-search-pkg' ) },
 			{ value: VARIATION_PRODUCT_TAG, label: __( 'Product Tag', 'jetpack-search-pkg' ) },

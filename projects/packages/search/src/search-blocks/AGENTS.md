@@ -34,10 +34,10 @@ Price is the one exception, and only because its shape doesn't fit. `activeFilte
 WC-only features hang off three canonical gates — **don't add a fourth** by re-implementing the probe in a render path or block edit:
 
 - **PHP:** `Search_Blocks::woocommerce_blocks_enabled()` — single memoized `class_exists( 'WooCommerce', false )` probe. Must be called at or after `plugins_loaded`. Use from any registration / render / parse path that should disappear on non-Woo sites. The probed value passes through the `jetpack_search_woocommerce_blocks_enabled` filter once before being cached, so a site can force the gate either way (e.g. hide WC-only blocks on a non-shop content area of a Woo site, or render them in a non-Woo staging preview). The filter name describes intent (the WC blocks toggle) rather than its default (the WC plugin probe), so a site can flip it for reasons unrelated to whether WooCommerce is actually loaded.
-- **Interactivity store seed:** `state.isWooCommerceActive` — read from JS store callbacks (e.g. URL-state parsing, sort-order validation) instead of probing for `window.WooCommerce` directly.
-- **Editor:** `window.JetpackSearchBlocksConfig.isWooCommerceActive` — localized in `Search_Blocks::enqueue_editor_assets()`. Read from block edit components to hide WC-only options from the inspector.
+- **Interactivity store seed:** `state.isWooCommerceBlocksEnabled` — read from JS store callbacks (e.g. URL-state parsing, sort-order validation) instead of probing for `window.WooCommerce` directly.
+- **Editor:** `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` — localized in `Search_Blocks::enqueue_editor_assets()`. Read from block edit components to hide WC-only options from the inspector.
 
-Tests flip the gate via `Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true|false|null )` (PHP) or `globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true }` (JS). Add a WC-on / WC-off matrix test for every new gate.
+Tests flip the gate via `Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true|false|null )` (PHP) or `globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true }` (JS). Add a WC-on / WC-off matrix test for every new gate.
 
 Single source of truth for which blocks count as WC-only:
 

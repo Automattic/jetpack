@@ -64,7 +64,7 @@ describe( 'ResultsListEdit', () => {
 	// path (Product option absent, saved `product` collapses to `expanded`)
 	// is covered in its own `describe` block below.
 	beforeEach( () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 	} );
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
@@ -164,7 +164,7 @@ describe( 'ResultsListEdit', () => {
 
 describe( 'ResultsListEdit on non-WooCommerce sites (RSM-2805)', () => {
 	beforeEach( () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
 	} );
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
