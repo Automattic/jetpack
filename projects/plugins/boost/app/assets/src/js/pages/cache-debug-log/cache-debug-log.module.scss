@@ -7,12 +7,28 @@
 // the breadcrumb header spans the full body-slot width — same look as
 // the chassis's own `.admin-ui-page__header`. The header element itself
 // already wears the `admin-ui-page__header` class, so admin-ui supplies
-// the sticky + padding + border + background styling.
+// the sticky + padding + background styling; the chassis's boost-page
+// rules then strip the bottom border (because the tab row owns the
+// separator in tabbed mode), so the override block below restores it.
 .header {
 	margin:
 		calc(-1 * var(--wpds-dimension-padding-2xl, 24px))
 		calc(-1 * var(--wpds-dimension-padding-2xl, 24px))
 		var(--wpds-dimension-gap-xl, 24px);
+}
+
+// Same specificity as boost-page.scss's `body.x .admin-ui-page__header`
+// rule, so we win on source order (legacy bundle loads after chassis).
+// Restores the bottom border with the same token the tabs row uses, and
+// resets the browser-default <h1> margin so the breadcrumb link and
+// the current-page heading sit on the same baseline.
+:global(body.jb-subpage-active) .header {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	padding-block-end: var(--wpds-dimension-padding-lg, 16px);
+
+	h1 {
+		margin: 0;
+	}
 }
 
 .breadcrumb-link {
