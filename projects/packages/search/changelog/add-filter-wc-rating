@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: adds the `jetpack-search/filter-wc-rating` block — five star rows (5..1) backed by a histogram aggregation on `meta._wc_average_rating.double` (interval=1, offset=0.5). View and render project the half-integer histogram bucket keys onto star integers via the same logic as `WC_RATING_RANGES` in `store/api.js`. Selecting multiple star levels OR-s their non-overlapping ranges. URL contract is the default `?rating_filter[]=5` array form (mirrors instant-search). Tracked under epic [RSM-1929].

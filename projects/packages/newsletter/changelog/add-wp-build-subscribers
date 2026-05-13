@@ -1,3 +1,0 @@
-Significance: patch
-Type: added
-Comment: Subscribers DataViews on the Newsletter modernization chassis behind the same feature flag; no user-visible change unless the flag is enabled.

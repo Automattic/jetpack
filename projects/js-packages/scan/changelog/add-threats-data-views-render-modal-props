@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-`ThreatsDataViews`: accept `RenderFixModal` / `RenderIgnoreModal` / `RenderUnignoreModal` props so consumers can route the row actions through DataViews-managed confirmation modals (`RenderModalProps< Threat >`) instead of fire-and-forget callbacks. The existing `onFixThreats` / `onIgnoreThreats` / `onUnignoreThreats` callbacks are still honoured when no render-modal is supplied; render-modal props take precedence when both are passed for the same action.

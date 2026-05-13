@@ -51,12 +51,10 @@ export function* updateJetpackSettings( settings = {} ) {
 		yield setUpdatingJetpackSettings();
 		previousSettings = getRollbackSettings( store.getSearchModuleStatus() );
 		yield setJetpackSettings( settings );
-		yield updateJetpackSettingsControl( settings );
-		const updatedSettings = yield fetchJetpackSettings();
-		yield setJetpackSettings( updatedSettings );
+		const savedSettings = yield updateJetpackSettingsControl( settings );
 		if ( shouldTrackReaderChat ) {
-			const updatedReaderChatEnabled = hasOwnSetting( updatedSettings, 'reader_chat' )
-				? Boolean( updatedSettings.reader_chat )
+			const updatedReaderChatEnabled = hasOwnSetting( savedSettings, 'reader_chat' )
+				? Boolean( savedSettings.reader_chat )
 				: Boolean( settings.reader_chat );
 
 			if ( updatedReaderChatEnabled !== previousReaderChatEnabled ) {
@@ -68,6 +66,8 @@ export function* updateJetpackSettings( settings = {} ) {
 				} );
 			}
 		}
+		const updatedSettings = yield fetchJetpackSettings();
+		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
 		yield setJetpackSettings( previousSettings ?? {} );

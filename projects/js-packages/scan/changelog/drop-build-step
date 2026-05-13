@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Switch the package to source-exports (mirrors `@automattic/jetpack-connection`): consumers resolve `@automattic/jetpack-scan` directly to `./src/index.ts`, so `tsgo` compile is no longer needed. `@wordpress/build` (esbuild) consumers process the TS + `*.module.scss` natively; webpack consumers (Protect plugin) keep working through the same `jetpack:src` resolution condition the rest of the monorepo already uses.

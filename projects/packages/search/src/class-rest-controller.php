@@ -253,8 +253,9 @@ class REST_Controller {
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
+		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -299,6 +300,10 @@ class REST_Controller {
 			update_option( 'reader_chat', $reader_chat );
 		}
 
+		if ( $ai_answers_enabled !== null ) {
+			update_option( 'jetpack_search_ai_answers_enabled', $ai_answers_enabled );
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
 				'some_updated',
@@ -325,8 +330,9 @@ class REST_Controller {
 	 * @param boolean     $swap_classic_to_inline_search - New inline search status.
 	 * @param string|null $experience - Experience value.
 	 * @param bool|null   $reader_chat - Reader Chat status.
+	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null ) {
 		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -357,6 +363,10 @@ class REST_Controller {
 			// Allow updating auxiliary settings without updating/validating the module settings.
 			return true;
 		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $ai_answers_enabled !== null ) {
+			// allow updating 'ai_answers_enabled' without updating/validating other settings.
+			return true;
+		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -376,6 +386,7 @@ class REST_Controller {
 			'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
 			'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
 			'experience'                    => $this->search_module->get_experience(),
+			'ai_answers_enabled'            => AI_Answers::is_enabled(),
 		);
 
 		if ( $this->is_reader_chat_setting_registered() ) {

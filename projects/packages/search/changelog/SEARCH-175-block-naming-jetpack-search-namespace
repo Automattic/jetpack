@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search blocks: align all 13 blocks under three predictable patterns (filter-{kind}, filters-{layout}, results-{role}) and move them to a dedicated jetpack-search/* namespace.

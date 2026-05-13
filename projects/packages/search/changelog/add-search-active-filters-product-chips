@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search 3.0: extends the `jetpack-search/active-filters` block to render product-aware chips. Stock-status pills resolve to "In stock" / "Out of stock" / "On backorder" via a seeded `state.wcStockStatusLabels` map; rating pills mirror the threshold semantics of the rating filter rows ("Rating: 5 stars" for the top row, "Rating: 4 stars and up" / "Rating: 1 star and up" for the 1-4 thresholds); a single price-range chip joins the chip list with the industry-standard one-bounded forms ("Price: $10 – $50" for both bounds, "Price: $10+" for min-only, "Price: Under $50" for max-only). Pills carry a `kind` discriminator so the remove handler dispatches `setFilter` for filter pills and `setPriceRange(null, null)` for the price pill. Heavy logic lives in a new sibling `lib.js` so the resolver is unit-testable without an Interactivity API runtime. Tracked under epic [RSM-1929].

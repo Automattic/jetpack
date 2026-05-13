@@ -8,6 +8,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
 import Card from 'components/card';
+import ReaderChatControl from 'components/reader-chat-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
@@ -38,11 +39,14 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {boolean}  props.isModuleEnabled                - true if Search module is enabled.
  * @param {boolean}  props.isInstantSearchEnabled         - true if Instant Search is enabled.
  * @param {boolean}  props.isInstantSearchPromotionActive - true if search promotion is active.
+ * @param {boolean}  props.isReaderChatAvailable          - true if the Reader Chat setting is available.
+ * @param {boolean}  props.isReaderChatEnabled            - true if Reader Chat is enabled.
  * @param {boolean}  props.supportsOnlyClassicSearch      - true if site has plan that supports only Classic Search.
  * @param {boolean}  props.supportsSearch                 - true if site has plan that supports either Classic or Instant Search.
  * @param {boolean}  props.supportsInstantSearch          - true if site has plan that supports Instant Search.
  * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
  * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
+ * @param {string}   props.readerChatGuidelinesUrl        - Guidelines admin URL, when available.
  * @return {import('react').Component} Search settings component.
  */
 export default function SearchModuleControl( {
@@ -54,11 +58,14 @@ export default function SearchModuleControl( {
 	isModuleEnabled,
 	isInstantSearchEnabled,
 	isInstantSearchPromotionActive,
+	isReaderChatAvailable,
+	isReaderChatEnabled,
 	supportsOnlyClassicSearch,
 	supportsSearch,
 	supportsInstantSearch,
 	isTogglingModule,
 	isTogglingInstantSearch,
+	readerChatGuidelinesUrl,
 } ) {
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
@@ -142,6 +149,14 @@ export default function SearchModuleControl( {
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
+					/>
+
+					<ReaderChatControl
+						isAvailable={ isReaderChatAvailable }
+						isEnabled={ isReaderChatEnabled }
+						isSaving={ isSavingEitherOption }
+						guidelinesUrl={ readerChatGuidelinesUrl }
+						updateOptions={ updateOptions }
 					/>
 				</div>
 			</Card>

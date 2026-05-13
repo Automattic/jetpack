@@ -105,6 +105,38 @@ export function formatPath( permalink ) {
 }
 
 /**
+ * Format the v1.3 `author` field for display on a result card. The API hands
+ * back a single author as a string and co-authored posts as an array; in the
+ * array case, mirror instant-search's behavior — comma-join up to three
+ * entries, and for >3 keep the first three and append an ellipsis so the
+ * meta row doesn't run away on heavily co-authored posts.
+ *
+ * Each name is run through `decodeEntities` because the API HTML-encodes
+ * punctuation in display names (`O&#8217;Brien`, `Jane &amp; John`). The meta
+ * row binds via `data-wp-text` (textContent, not innerHTML), so without
+ * decoding the raw entity would render literally on the card.
+ *
+ * @param {*} value - `fields.author` from the v1.3 API response.
+ * @return {string} Display string, or '' when no author is present.
+ */
+export function formatAuthor( value ) {
+	if ( Array.isArray( value ) ) {
+		const names = value.map( v => decodeEntities( String( v ?? '' ).trim() ) ).filter( Boolean );
+		if ( names.length === 0 ) {
+			return '';
+		}
+		if ( names.length > 3 ) {
+			return names.slice( 0, 3 ).join( ', ' ) + '...';
+		}
+		return names.join( ', ' );
+	}
+	if ( typeof value !== 'string' ) {
+		return '';
+	}
+	return decodeEntities( value.trim() );
+}
+
+/**
  * Decode the small set of HTML entities the v1.3 API can place in
  * text-rendered fields. WPCOM hands back WC-formatted prices and post titles
  * with numeric entities (e.g. `&#036;` for `$`) and a handful of named ones
@@ -414,6 +446,7 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
+		authorLabel: formatAuthor( fields.author ),
 		imageUrl,
 		// Pre-built `url(...)` value so the product layout's CSS background
 		// image binds via `data-wp-style--background-image` without the

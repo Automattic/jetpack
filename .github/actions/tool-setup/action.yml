@@ -52,11 +52,36 @@ runs:
           done
         done
 
+    # Composer <=2.9.7 rejects the new GITHUB_TOKEN token format.
+    # It validates GH tokens against `^[.A-Za-z0-9_]+$`:
+    #   https://github.com/composer/composer/blob/2.9.7/src/Composer/IO/BaseIO.php#L142-L144
+    #
+    # When we get a new-format token, let's pass a blank string so it uses an unauth call,
+    # but keep using the old-format token when issued to reduce the chances rate limiting.
+    #
+    # See: https://github.com/composer/composer/issues/12849
+    #      https://github.blog/changelog/2026-04-24-notice-about-upcoming-new-format-for-github-app-installation-tokens/
+    - name: Check github-token format for setup-php
+      id: gh_token_check
+      if: steps.versions.outputs.php-version != 'false'
+      shell: bash
+      env:
+        RAW: ${{ github.token }}
+      run: |
+        if [[ "$RAW" =~ ^[.A-Za-z0-9_]+$ ]]; then
+          echo "Old-format token will be accepted by composer, so it's safe to use."
+          echo "oldschooltoken=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "New-format token would be rejected by composer; let's use a blank token."
+          echo "oldschooltoken=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
+        github-token: ${{ steps.gh_token_check.outputs.oldschooltoken == 'true' && github.token || '' }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
         tools: composer:${{ steps.versions.outputs.composer-version }}
         extensions: mysql, imagick

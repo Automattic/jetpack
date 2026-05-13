@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search blocks: clear the previous query's results, total count, and aggregation buckets when a search request errors out so the error message no longer renders alongside stale data.

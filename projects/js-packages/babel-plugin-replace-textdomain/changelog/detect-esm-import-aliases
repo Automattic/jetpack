@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Detect aliased imports from the i18n ESM module

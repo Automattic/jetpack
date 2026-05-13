@@ -11,9 +11,11 @@ import {
 } from '../../../src/search-blocks/store/api';
 
 describe( 'SEARCH_FIELDS', () => {
-	it( 'does not request author fields for result cards', () => {
-		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
-		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	it( 'requests the bare `author` field for the expanded result card', () => {
+		// The expanded results-list layout renders the post author in the meta
+		// row. Without `author` in the requested fields list, the v1.3 API
+		// would omit it entirely (default response is just date / post_id).
+		expect( SEARCH_FIELDS ).toContain( 'author' );
 	} );
 
 	it( 'requests WooCommerce price and rating fields for the product layout', () => {

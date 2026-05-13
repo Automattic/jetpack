@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.16] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
 ## [0.34.15] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -868,6 +872,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.34.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.15...v0.34.16
 [0.34.15]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.14...v0.34.15
 [0.34.14]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.13...v0.34.14
 [0.34.13]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.12...v0.34.13

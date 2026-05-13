@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AdminPage: pass a stable `jp-admin-page__page` className to admin-ui's Page so layout overrides survive admin-ui 2.0.0's switch to CSS Modules; pin the header heading level to `<h2>` and center the new `visual` slot to keep the Jetpack logo aligned with the title.
