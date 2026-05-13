@@ -6,20 +6,51 @@ import { initializeMembershipButtons } from '../../shared/memberships';
 
 import './view.scss';
 
+const INTERVAL_TO_AMOUNT_CLASS = {
+	'one-time': 'donations__one-time-item',
+	'1 month': 'donations__monthly-item',
+	'1 year': 'donations__annual-item',
+};
+
 class JetpackDonations {
 	constructor( block ) {
 		this.block = block;
 		this.amount = null;
 		this.isCustomAmount = false;
-		this.interval = 'one-time';
+		this.interval = block.dataset.defaultInterval || 'one-time';
 
 		// Initialize block.
 		this.initNavigation();
 		this.handleCustomAmount();
 		this.handleChosenAmount();
+		this.applyDefaultAmount( this.interval );
 
 		// Remove loading spinner.
 		this.block.querySelector( '.donations__container' ).classList.add( 'loaded' );
+	}
+
+	applyDefaultAmount( interval ) {
+		const amountClass = INTERVAL_TO_AMOUNT_CLASS[ interval ];
+		if ( ! amountClass ) {
+			return;
+		}
+		const wrapper = this.block.querySelector( `.donations__amounts.${ amountClass }` );
+		if ( ! wrapper || wrapper.dataset.defaultIndex === undefined ) {
+			return;
+		}
+		const index = parseInt( wrapper.dataset.defaultIndex, 10 );
+		const tile = wrapper.querySelectorAll( '.donations__amount:not( .donations__custom-amount )' )[
+			index
+		];
+		if ( ! tile ) {
+			return;
+		}
+		this.resetSelectedAmount();
+		tile.classList.add( 'is-selected' );
+		this.amount = tile.dataset.amount;
+		this.isCustomAmount = false;
+		this.updateUrl();
+		this.toggleDonateButton( true );
 	}
 
 	getNavItem( interval ) {
@@ -130,6 +161,9 @@ class JetpackDonations {
 
 			// Disable donate button.
 			this.toggleDonateButton( false );
+
+			// Apply the new tab's default amount, if one is configured.
+			this.applyDefaultAmount( newInterval );
 		};
 
 		navItems.forEach( navItem => {
