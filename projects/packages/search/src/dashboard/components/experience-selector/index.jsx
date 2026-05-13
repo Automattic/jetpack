@@ -79,9 +79,6 @@ export default function ExperienceSelector() {
 	// Inline reminder rendered next to the heading once the form is dirty, so
 	// users on shorter screens know they still need to scroll down to save.
 	const getPendingNotice = () => {
-		if ( isUpdating ) {
-			return __( 'Saving…', 'jetpack-search-pkg' );
-		}
 		switch ( pendingExperience ) {
 			case EXPERIENCE.EMBEDDED:
 				return _x(
@@ -142,7 +139,7 @@ export default function ExperienceSelector() {
 				>
 					{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 				</h2>
-				{ ( isDirty || isUpdating ) && (
+				{ isDirty && ! isUpdating && (
 					<p className="jp-search-experience-selector__pending-notice">{ getPendingNotice() }</p>
 				) }
 			</Stack>
