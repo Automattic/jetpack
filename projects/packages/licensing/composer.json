@@ -5,7 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
-		"automattic/jetpack-connection": "@dev"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-test-environment": "@dev",
@@ -18,6 +19,9 @@
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"actions.php"
 		]
 	},
 	"scripts": {

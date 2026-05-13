@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register list-licenses, get-error-info, and attach-license abilities on WP 6.9+.
