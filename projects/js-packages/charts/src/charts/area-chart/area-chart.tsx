@@ -1,5 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { XYChart, AreaSeries, AreaStack, Grid, Axis } from '@visx/xychart';
+import { XYChart, AnimatedAreaSeries, AnimatedAreaStack, Grid, Axis } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -135,6 +135,43 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			totalPoints: dataSorted[ 0 ]?.data.length || 0,
 		} );
 
+		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
+		// fixed when series are toggled off — otherwise visx auto-fits to the remaining data
+		// and the chart appears to rescale.
+		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
+			if ( ! legendInteractive || ! dataSorted.length || ! dataSorted[ 0 ].data.length ) {
+				return undefined;
+			}
+
+			if ( stacked ) {
+				const numPoints = dataSorted[ 0 ].data.length;
+				let max = 0;
+				for ( let i = 0; i < numPoints; i++ ) {
+					let sum = 0;
+					for ( const series of dataSorted ) {
+						const v = Number( series.data[ i ]?.value );
+						if ( ! Number.isNaN( v ) ) sum += v;
+					}
+					if ( sum > max ) max = sum;
+				}
+				return [ 0, max ];
+			}
+
+			let max = -Infinity;
+			let min = Infinity;
+			for ( const series of dataSorted ) {
+				for ( const point of series.data ) {
+					const v = Number( point?.value );
+					if ( ! Number.isNaN( v ) ) {
+						if ( v > max ) max = v;
+						if ( v < min ) min = v;
+					}
+				}
+			}
+			if ( max === -Infinity ) return undefined;
+			return [ Math.min( 0, min ), max ];
+		}, [ dataSorted, stacked, legendInteractive ] );
+
 		const chartOptions = useMemo( () => {
 			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
 
@@ -164,10 +201,11 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					nice: true,
 					// Stacked areas should always include zero so the baseline is meaningful.
 					zero: stacked,
+					...( fixedYDomain ? { domain: fixedYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -191,11 +229,38 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		} );
 
 		const prefersReducedMotion = usePrefersReducedMotion();
+		const animationEnabled = !! animation && ! prefersReducedMotion;
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
+		const zeroYAccessor = useCallback( () => 0, [] );
+
+		// Hidden series are still registered with visx (so paths can interpolate), but their
+		// data points should not appear in the tooltip.
+		const visibleLabels = useMemo(
+			() => new Set( seriesWithVisibility.filter( s => s.isVisible ).map( s => s.series.label ) ),
+			[ seriesWithVisibility ]
+		);
+		const filteredRenderTooltip = useCallback(
+			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
+				if ( ! legendInteractive ) return renderTooltip( params );
+				const datumByKey = params?.tooltipData?.datumByKey;
+				if ( ! datumByKey ) return renderTooltip( params );
+				const filtered = Object.fromEntries(
+					Object.entries( datumByKey ).filter( ( [ key ] ) => visibleLabels.has( key ) )
+				);
+				return renderTooltip( {
+					...params,
+					tooltipData: {
+						...params.tooltipData,
+						datumByKey: filtered,
+					} as typeof params.tooltipData,
+				} );
+			},
+			[ renderTooltip, legendInteractive, visibleLabels ]
+		);
 
 		// Defaults that depend on stacked vs overlapping mode.
 		const resolvedFillOpacity = fillOpacity ?? ( stacked ? 0.85 : 0.4 );
@@ -224,6 +289,33 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const visibleSeries = seriesWithVisibility.filter( ( { isVisible } ) => isVisible );
 		const curve = getCurveType( curveType, smoothing );
 
+		// Visx's `<AreaStack>` keys each `<Area>` by `stackIndex-dataKey`, so filtering out
+		// a hidden series would shift indexes and remount every path. Instead we keep every
+		// series mounted and zero out hidden ones via `yAccessor` — react-spring then
+		// interpolates the `d` attribute, giving a smooth "going down" effect for the
+		// hidden area and a smooth re-flow for the rest.
+		const renderSeries = ( {
+			series: seriesData,
+			index,
+			isVisible,
+		}: ( typeof seriesWithVisibility )[ number ] ) => {
+			const { color, lineStyles } = getElementStyles( { data: seriesData, index } );
+			return (
+				<AnimatedAreaSeries
+					key={ seriesData?.label || index }
+					dataKey={ seriesData?.label }
+					data={ seriesData.data as DataPointDate[] }
+					xAccessor={ accessors.xAccessor }
+					yAccessor={ isVisible || ! legendInteractive ? accessors.yAccessor : zeroYAccessor }
+					fill={ color }
+					fillOpacity={ resolvedFillOpacity }
+					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }
+					lineProps={ { stroke: color, ...lineStyles } }
+					data-testid={ `area-chart-series-${ index }` }
+				/>
+			);
+		};
+
 		return (
 			<SingleChartContext.Provider
 				value={ {
@@ -241,7 +333,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					className={ clsx(
 						'area-chart',
 						styles[ 'area-chart' ],
-						{ [ styles[ 'area-chart--animated' ] ]: animation && ! prefersReducedMotion },
+						{ [ styles[ 'area-chart--animated' ] ]: animationEnabled },
 						className
 					) }
 					style={ { width, height } }
@@ -295,62 +387,16 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 											) : null }
 
 											{ ! allSeriesHidden && stacked && (
-												<AreaStack
+												<AnimatedAreaStack
 													curve={ curve }
 													offset={ stackOffset }
 													renderLine={ resolvedWithStroke }
 												>
-													{ visibleSeries.map( ( { series: seriesData, index } ) => {
-														const { color, lineStyles } = getElementStyles( {
-															data: seriesData,
-															index,
-														} );
-
-														return (
-															<AreaSeries
-																key={ seriesData?.label || index }
-																dataKey={ seriesData?.label }
-																data={ seriesData.data as DataPointDate[] }
-																{ ...accessors }
-																fill={ color }
-																fillOpacity={ resolvedFillOpacity }
-																lineProps={ {
-																	stroke: color,
-																	...lineStyles,
-																} }
-																data-testid={ `area-chart-series-${ index }` }
-															/>
-														);
-													} ) }
-												</AreaStack>
+													{ seriesWithVisibility.map( renderSeries ) }
+												</AnimatedAreaStack>
 											) }
 
-											{ ! allSeriesHidden &&
-												! stacked &&
-												visibleSeries.map( ( { series: seriesData, index } ) => {
-													const { color, lineStyles } = getElementStyles( {
-														data: seriesData,
-														index,
-													} );
-
-													return (
-														<AreaSeries
-															key={ seriesData?.label || index }
-															dataKey={ seriesData?.label }
-															data={ seriesData.data as DataPointDate[] }
-															{ ...accessors }
-															fill={ color }
-															fillOpacity={ resolvedFillOpacity }
-															renderLine={ resolvedWithStroke }
-															curve={ curve }
-															lineProps={ {
-																stroke: color,
-																...lineStyles,
-															} }
-															data-testid={ `area-chart-series-${ index }` }
-														/>
-													);
-												} ) }
+											{ ! allSeriesHidden && ! stacked && seriesWithVisibility.map( renderSeries ) }
 
 											{ withTooltips && (
 												<>
@@ -359,7 +405,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														snapTooltipToDatumX
 														// Stacked mode: yAccessor returns raw value, not stacked y — snapping mispositions.
 														snapTooltipToDatumY={ ! stacked }
-														renderTooltip={ renderTooltip }
+														renderTooltip={ filteredRenderTooltip }
 														showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
 														showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 														selectedIndex={ selectedIndex }

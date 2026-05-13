@@ -208,6 +208,7 @@ Animation.args = {
 	...areaChartStoryArgs,
 	animation: true,
 	showLegend: true,
+	legendInteractive: true,
 };
 
 export const WithCompositionLegend: StoryObj< typeof AreaChart > = {
