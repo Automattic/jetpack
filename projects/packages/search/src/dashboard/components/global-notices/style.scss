@@ -14,15 +14,17 @@
 	left: 0;
 
 	@include calypso-mixins.breakpoint( ">660px" ) {
-		// Switch to sticky inside the AdminPage's scrolling content
-		// container — the notice rides with scroll position so we don't
-		// hand-track the upstream header height from
-		// `@automattic/jetpack-components`.
 		position: sticky;
 		top: 16px;
 		right: auto;
 		bottom: auto;
 		left: auto;
+
+		// Zero-height + overflow-visible so the wrapper sticks where we
+		// want but reserves no vertical space — the Notice paints downward
+		// from the wrapper's top edge without pushing the tabs row down.
+		height: 0;
+		overflow: visible;
 
 		// `width: auto` / `max-content` both collapse the `@wordpress/ui`
 		// Notice grid to its icons. Pin a width that fits the longest
