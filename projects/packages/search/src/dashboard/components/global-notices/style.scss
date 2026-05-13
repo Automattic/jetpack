@@ -4,47 +4,39 @@
 .global-notices {
 	text-align: right;
 	pointer-events: none;
-
 	z-index: z-index.z-index("root", ".global-notices");
+
+	// Mobile: pin to the bottom of the viewport for thumb reachability.
 	position: fixed;
 	top: auto;
 	right: 0;
 	bottom: 0;
 	left: 0;
 
-	// Sit just below the chrome that never scrolls: the wpadminbar (32px) plus
-	// the AdminPage header (89px). The header is technically `position:
-	// relative`, but scrolling happens inside an inner Container element, not
-	// on the window — so the header stays put at the top of the viewport.
-	// The tabs row scrolls with the panel and is not compensated for.
 	@include calypso-mixins.breakpoint( ">660px" ) {
-		top: 32px + 89px + 16px;
-		right: 16px;
+		// Switch to sticky inside the AdminPage's scrolling content
+		// container — the notice rides with scroll position so we don't
+		// hand-track the upstream header height from
+		// `@automattic/jetpack-components`.
+		position: sticky;
+		top: 16px;
+		right: auto;
 		bottom: auto;
 		left: auto;
 
-		// `width: auto` and `max-content` both collapse the `@wordpress/ui`
-		// Notice's grid template down to just its icons (~26px) instead of
-		// laying out the text. Pin an explicit width so the Notice always
-		// renders with room for its message.
+		// `width: auto` / `max-content` both collapse the `@wordpress/ui`
+		// Notice grid to its icons. Pin a width that fits the longest
+		// string we surface, then push to the right edge of the content
+		// container via auto-left margin (works in normal block flow).
 		width: 220px;
-
-		/* `36px` being the width of the collapsed WP-admin sidebar */
-		max-width: calc(100% - 32px - 36px);
+		margin-inline: auto 16px;
 	}
 
 	@include calypso-mixins.breakpoint( ">960px" ) {
-		top: 32px + 89px + 24px;
-		right: 24px;
-
-		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc(100% - 48px - 160px);
+		margin-inline-end: 24px;
 	}
 
 	@include calypso-mixins.breakpoint( ">1040px" ) {
-		right: 32px;
-
-		/* `160px` being the width of the WP-admin sidebar */
-		max-width: calc(100% - 64px - 160px);
+		margin-inline-end: 32px;
 	}
 }
