@@ -3610,7 +3610,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "70de574c28bdf70d98a748697cd7d191565d7eb1"
+                "reference": "a40a7e6e3e8a25180d819e19370f632baae4dc47"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3665,7 +3665,7 @@
                     "pnpm run test"
                 ],
                 "build-production": [
-                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
                     "pnpm run build"

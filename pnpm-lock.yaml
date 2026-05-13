@@ -4767,6 +4767,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
       '@wordpress/a11y':
         specifier: ^4.40.0
         version: 4.44.0
@@ -4776,6 +4779,12 @@ importers:
       '@wordpress/boot':
         specifier: ^0.11.0
         version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/browserslist-config':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/build':
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.44.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       '@wordpress/icons':
         specifier: ^12.0.0
         version: 12.2.0(react@18.3.1)
@@ -4797,6 +4806,9 @@ importers:
       '@wordpress/ui':
         specifier: ^0.11.0
         version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
       webpack:
         specifier: ^5.104.1
         version: 5.105.2(webpack-cli@6.0.1)
@@ -24650,6 +24662,33 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/boot': 0.11.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.44.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      autoprefixer: 10.5.0(postcss@8.5.14)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.9(postcss@8.5.14)
+      esbuild: 0.27.4
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.14
+      postcss-modules: 6.0.1(postcss@8.5.14)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    optionalDependencies:
+      '@wordpress/boot': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/private-apis': 1.44.0
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
