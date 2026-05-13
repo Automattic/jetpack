@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Woocommerce CRM, Client Portal, Marketing Automation, Lead Generation
 Tested up to: 7.0
-Stable tag: 6.7.2
+Stable tag: 6.8.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
