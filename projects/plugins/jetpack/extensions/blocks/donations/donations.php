@@ -254,8 +254,9 @@ function render_block( $attr, $content ) {
 	if ( $default_interval ) {
 		$wrapper_attr_array['data-default-interval'] = $default_interval;
 	}
-	$wrapper_attrs = get_block_wrapper_attributes( $wrapper_attr_array );
-	$custom_styles = build_custom_styles( $attr, '.' . $instance_id );
+	$wrapper_attr_array = array_merge( $wrapper_attr_array, build_security_data_attrs( $attr, $currency ) );
+	$wrapper_attrs      = get_block_wrapper_attributes( $wrapper_attr_array );
+	$custom_styles      = build_custom_styles( $attr, '.' . $instance_id );
 
 	$choose_amount_html  = wp_kses_post( $choose_amount_text );
 	$choose_amount_block = '' !== trim( $choose_amount_html ) ? '<p>' . $choose_amount_html . '</p>' : '';
@@ -271,6 +272,7 @@ function render_block( $attr, $content ) {
 				%4$s
 				%5$s
 				%6$s
+				<div class="donations__range-error"></div>
 				<hr class="donations__separator">
 				%7$s
 				%8$s
@@ -290,6 +292,46 @@ function render_block( $attr, $content ) {
 		$custom_styles ? '<style>' . $custom_styles . '</style>' : '',
 		esc_attr( $tab_content_class )
 	);
+}
+
+/**
+ * Build data-attributes array for security (min/max amount) constraints.
+ *
+ * Extracted so it can be tested independently of the full render pipeline.
+ *
+ * @since $$next-version$$
+ *
+ * @param array  $attr     Block attributes.
+ * @param string $currency Currency code (e.g. 'USD').
+ * @return array Associative array of data-attribute name => value.
+ */
+function build_security_data_attrs( $attr, $currency ) {
+	$attrs      = array();
+	$min_amount = isset( $attr['minimumAmount'] ) ? (float) $attr['minimumAmount'] : null;
+	$max_amount = isset( $attr['maximumAmount'] ) ? (float) $attr['maximumAmount'] : null;
+	if ( null !== $min_amount ) {
+		$attrs['data-min-amount'] = $min_amount;
+		$attrs['data-min-error']  = sprintf(
+			/* translators: %s: minimum donation amount formatted with currency symbol */
+			__( 'The minimum donation amount is %s.', 'jetpack' ),
+			\Jetpack_Currencies::format_price( (string) $min_amount, $currency )
+		);
+	}
+	if ( null !== $max_amount ) {
+		$attrs['data-max-amount'] = $max_amount;
+		$attrs['data-max-error']  = sprintf(
+			/* translators: %s: maximum donation amount formatted with currency symbol */
+			__( 'The maximum donation amount is %s.', 'jetpack' ),
+			\Jetpack_Currencies::format_price( (string) $max_amount, $currency )
+		);
+	}
+	$stripe_min                     = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1;
+	$attrs['data-stripe-min-error'] = sprintf(
+		/* translators: %s: payment processor minimum donation amount formatted with currency symbol */
+		_x( 'The minimum donation amount is %s.', 'payment processor minimum', 'jetpack' ),
+		\Jetpack_Currencies::format_price( (string) $stripe_min, $currency )
+	);
+	return $attrs;
 }
 
 /**

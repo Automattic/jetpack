@@ -19,7 +19,7 @@ import {
 	ToolbarButton,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	getDefaultDonationAmountsForCurrency,
@@ -45,9 +45,12 @@ const Controls = props => {
 		contentAlignment,
 		defaultInterval,
 		customAmountPlaceholder,
+		minimumAmount,
+		maximumAmount,
 	} = attributes;
 
-	const computedCustomAmountPlaceholder = minimumTransactionAmountForCurrency( currency ) * 100;
+	const stripeMin = minimumTransactionAmountForCurrency( currency );
+	const computedCustomAmountPlaceholder = stripeMin * 100;
 	const effectiveCustomAmountPlaceholder =
 		customAmountPlaceholder ?? computedCustomAmountPlaceholder;
 
@@ -129,6 +132,21 @@ const Controls = props => {
 		value => setAttributes( { contentAlignment: value || '' } ),
 		[ setAttributes ]
 	);
+
+	let maximumHelp;
+	if (
+		minimumAmount !== undefined &&
+		maximumAmount !== undefined &&
+		maximumAmount < minimumAmount
+	) {
+		maximumHelp = __( 'Maximum must be greater than the minimum amount.', 'jetpack' );
+	} else if ( maximumAmount !== undefined && maximumAmount < stripeMin ) {
+		maximumHelp = sprintf(
+			/* translators: %s: minimum donation amount formatted with currency symbol */
+			__( 'Maximum must be at least %s, the minimum amount Stripe can process.', 'jetpack' ),
+			formatCurrency( stripeMin, currency )
+		);
+	}
 
 	const changeDefaultDonationAmounts = ccy => {
 		const defaultAmounts = getDefaultDonationAmountsForCurrency( ccy );
@@ -330,6 +348,41 @@ const Controls = props => {
 							{ __( 'View donation earnings', 'jetpack' ) }
 						</ExternalLink>
 					</p>
+				</PanelBody>
+				<PanelBody title={ __( 'Security', 'jetpack' ) } initialOpen={ false }>
+					<p style={ { marginTop: 0, marginBottom: 16, fontSize: 13 } }>
+						{ __(
+							'Setting minimum and maximum donation amounts can help prevent fraudulent transactions.',
+							'jetpack'
+						) }
+					</p>
+					<TextControl
+						type="number"
+						label={ __( 'Minimum amount', 'jetpack' ) }
+						value={ minimumAmount ?? '' }
+						onChange={ value =>
+							setAttributes( {
+								minimumAmount: value === '' ? undefined : Number( value ),
+							} )
+						}
+						min={ stripeMin }
+						step={ 0.01 }
+						__nextHasNoMarginBottom={ true }
+					/>
+					<TextControl
+						type="number"
+						label={ __( 'Maximum amount', 'jetpack' ) }
+						value={ maximumAmount ?? '' }
+						onChange={ value =>
+							setAttributes( {
+								maximumAmount: value === '' ? undefined : Number( value ),
+							} )
+						}
+						min={ minimumAmount ?? stripeMin }
+						step={ 0.01 }
+						help={ maximumHelp }
+						__nextHasNoMarginBottom={ true }
+					/>
 				</PanelBody>
 			</InspectorControls>
 		</>

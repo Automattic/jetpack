@@ -107,6 +107,17 @@
 		}
 	}
 
+	.donations__range-error {
+		display: none;
+		color: gb.$alert-red;
+		font-size: 0.875em;
+		margin-block-end: 8px;
+
+		&.is-visible {
+			display: block;
+		}
+	}
+
 	.donations__donate-button.is-disabled {
 		pointer-events: none;
 		opacity: 0.2;

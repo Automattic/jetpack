@@ -14,6 +14,26 @@ export function firstShownInterval( oneTimeShown, monthlyShown, annualShown ) {
 }
 
 /**
+ * Returns an error message if amount falls outside the configured min/max range, or null if valid.
+ *
+ * @param {number}      amount    - The donation amount to check.
+ * @param {number|null} minAmount - Admin-configured minimum (null = no limit).
+ * @param {number|null} maxAmount - Admin-configured maximum (null = no limit).
+ * @param {string}      minError  - Pre-translated error string for below-minimum.
+ * @param {string}      maxError  - Pre-translated error string for above-maximum.
+ * @return {string|null} Error message, or null if amount is within range.
+ */
+export function checkAmountRange( amount, minAmount, maxAmount, minError, maxError ) {
+	if ( minAmount !== null && amount < minAmount ) {
+		return minError;
+	}
+	if ( maxAmount !== null && amount > maxAmount ) {
+		return maxError;
+	}
+	return null;
+}
+
+/**
  * Return the default texts defined in `donations.php` and injected client side by assigning them
  * to the `Jetpack_DonationsBlock` attribute of the window object.
  *
