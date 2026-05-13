@@ -30,6 +30,7 @@
 		"watch:wp-build": "wp-build --watch"
 	},
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",

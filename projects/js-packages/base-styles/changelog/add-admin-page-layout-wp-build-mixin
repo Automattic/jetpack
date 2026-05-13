@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+admin-page-layout: add `jetpack-admin-page-layout-wp-build` mixin that layers defensive resets for wp-admin's `ul li { margin-bottom }` and `a { text-decoration: underline }` defaults onto the shared chrome, so wp-build dashboards rendering admin-ui `<Breadcrumbs>` don't inherit those globals. Non-wp-build dashboards continue using `jetpack-admin-page-layout` and stay untouched.

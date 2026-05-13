@@ -328,3 +328,59 @@ $jp-breakpoint-mobile: 782px;
 		}
 	}
 }
+
+// Same chrome as `jetpack-admin-page-layout` plus defensive resets for
+// wp-admin globals that leak into the modernized wp-build dashboards.
+
+// Why a separate mixin: every dashboard that uses `jetpack-admin-page-layout`
+// today predates the wp-build pipeline, hosts its UI in legacy markup, and
+// silently depends on wp-admin's global rules (`ul li { margin-bottom }`,
+// `a { text-decoration: underline }`). wp-build dashboards mount
+// `@wordpress/admin-ui` 2.x components — including `<Breadcrumbs>` —
+// whose semantic markup (`<nav aria-label="Breadcrumbs"><ul><li><a>…`)
+// collides with those defaults. Layering the resets into the existing
+// mixin would silently change every non-wp-build dashboard's rendering;
+// keeping the resets in a wp-build-only mixin contains the blast radius
+// while still letting every wp-build dashboard share a single fix.
+
+// Usage:
+
+//   @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+//   :global {
+//     body.jetpack_page_my-jetpack {
+//       @include jetpack-admin-page-layout-wp-build;
+//     }
+//   }
+@mixin jetpack-admin-page-layout-wp-build {
+
+	@include jetpack-admin-page-layout;
+
+	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
+	// inherits two wp-admin globals that misbehave inside the header:
+	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s
+	//     box ~3px below the text baseline; the `header-content` Stack
+	//     in admin-ui's `<Page>` then centers the visual slot
+	//     (JetpackLogo) to the `<ul>`'s geometric midpoint, so the logo
+	//     ends up sitting below the breadcrumbs label.
+	//   `a { text-decoration: underline }` forces an always-on underline
+	//     on the linked parent breadcrumb, contradicting admin-ui's
+	//     `<Link tone="neutral">` which is designed to render plain at
+	//     rest and underline only on hover/focus.
+	// Scope to the breadcrumbs nav so the surrounding admin page's
+	// other lists / anchors keep wp-admin's defaults.
+	nav[aria-label="Breadcrumbs"] {
+
+		li {
+			margin: 0;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		a:hover,
+		a:focus-visible {
+			text-decoration: underline;
+		}
+	}
+}
