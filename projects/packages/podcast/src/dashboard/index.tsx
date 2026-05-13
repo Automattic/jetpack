@@ -40,9 +40,8 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// Set-up shows lead with Stats. Unconfigured (or post-Enable, pre-category) sites
-	// land on Settings so users can pick a category before Stats/Episodes/Distribution
-	// unlock.
+	// Stats/Episodes/Distribution are disabled until a category is picked, so the
+	// pre-set-up default has to be Settings.
 	const defaultTab: TabName = isSetUp ? 'stats' : 'settings';
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
