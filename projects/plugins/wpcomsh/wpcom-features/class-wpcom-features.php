@@ -454,6 +454,9 @@ class WPCOM_Features {
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
+	public const POSTS_TO_PODCAST_TIER_1           = 'posts-to-podcast-tier-1';
+	public const POSTS_TO_PODCAST_TIER_2           = 'posts-to-podcast-tier-2';
+	public const POSTS_TO_PODCAST_TIER_3           = 'posts-to-podcast-tier-3';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
 	public const PERSONAL_THEMES                   = 'personal-themes';
 	public const PREMIUM_THEMES                    = 'premium-themes';
@@ -1092,6 +1095,19 @@ class WPCOM_Features {
 		),
 		self::POLLDADDY                         => array(
 			self::JETPACK_BUSINESS_PLANS,
+		),
+		// POSTS_TO_PODCAST_TIER_{1,2,3} — generates a podcast-style episode
+		// from recent posts. Monthly quotas: TIER_1 = 5, TIER_2 = 10,
+		// TIER_3 = 20. Sites accumulate tiers via the _AND_HIGHER cascades;
+		// the lib's quota helper takes the highest tier present.
+		self::POSTS_TO_PODCAST_TIER_1           => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
+		self::POSTS_TO_PODCAST_TIER_2           => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		self::POSTS_TO_PODCAST_TIER_3           => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// PREMIUM_CONTENT_CONTAINER - premium-content requires a paid wpcom plan.
 		self::PREMIUM_CONTENT_CONTAINER         => array(
