@@ -1,4 +1,3 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -17,9 +16,9 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import CoverImageControl from './cover-image-control';
@@ -91,6 +90,12 @@ const SettingsTab = () => {
 
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
+	const [ createCategoryOpen, setCreateCategoryOpen ] = useState( false );
+	const [ newCategoryName, setNewCategoryName ] = useState( '' );
+	const [ createError, setCreateError ] = useState< string | null >( null );
+	const [ creating, setCreating ] = useState( false );
+
+	const { saveEntityRecord } = useDispatch( 'core' );
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
@@ -209,6 +214,41 @@ const SettingsTab = () => {
 		commit( { podcasting_category_id: 0 } );
 	}, [ commit ] );
 
+	const openCreateCategory = useCallback( () => setCreateCategoryOpen( true ), [] );
+	const closeCreateCategory = useCallback( () => {
+		setCreateCategoryOpen( false );
+		setNewCategoryName( '' );
+		setCreateError( null );
+	}, [] );
+
+	const onCreateCategory = useCallback( async () => {
+		const name = newCategoryName.trim();
+		if ( ! name ) {
+			return;
+		}
+		setCreating( true );
+		setCreateError( null );
+		try {
+			const result = ( await saveEntityRecord( 'taxonomy', 'category', { name } ) ) as
+				| { id?: number }
+				| undefined;
+			if ( result?.id ) {
+				commit( { podcasting_category_id: Number( result.id ) } );
+			}
+			setCreateCategoryOpen( false );
+			setNewCategoryName( '' );
+			setCreateError( null );
+		} catch ( error ) {
+			const message =
+				error instanceof Error
+					? error.message
+					: __( 'Could not create the category. Please try again.', 'jetpack-podcast' );
+			setCreateError( message );
+		} finally {
+			setCreating( false );
+		}
+	}, [ newCategoryName, saveEntityRecord, commit ] );
+
 	if ( isLoading || ! draft ) {
 		return null;
 	}
@@ -252,9 +292,9 @@ const SettingsTab = () => {
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 							] }
 						/>
-						<Link openInNewTab href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }>
+						<Button variant="link" onClick={ openCreateCategory }>
 							{ __( 'Create a new category', 'jetpack-podcast' ) }
-						</Link>
+						</Button>
 					</VStack>
 				</CardBody>
 			</Card>
@@ -401,6 +441,41 @@ const SettingsTab = () => {
 							</Button>
 							<Button variant="primary" isDestructive onClick={ onDisablePodcasting }>
 								{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+							</Button>
+						</HStack>
+					</VStack>
+				</Modal>
+			) }
+
+			{ createCategoryOpen && (
+				<Modal
+					title={ __( 'Create a new category', 'jetpack-podcast' ) }
+					onRequestClose={ closeCreateCategory }
+				>
+					<VStack spacing={ 4 }>
+						{ createError && (
+							<Notice status="error" isDismissible={ false }>
+								{ createError }
+							</Notice>
+						) }
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Name', 'jetpack-podcast' ) }
+							value={ newCategoryName }
+							onChange={ setNewCategoryName }
+						/>
+						<HStack justify="flex-end" spacing={ 3 }>
+							<Button variant="tertiary" onClick={ closeCreateCategory }>
+								{ __( 'Cancel', 'jetpack-podcast' ) }
+							</Button>
+							<Button
+								variant="primary"
+								disabled={ newCategoryName.trim() === '' || creating }
+								isBusy={ creating }
+								onClick={ onCreateCategory }
+							>
+								{ __( 'Create', 'jetpack-podcast' ) }
 							</Button>
 						</HStack>
 					</VStack>
