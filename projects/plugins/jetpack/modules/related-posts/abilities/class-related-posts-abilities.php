@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Plugin\Abilities;
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Options;
 use Jetpack_RelatedPosts;
@@ -83,7 +84,17 @@ class Related_Posts_Abilities extends Registrar {
 
 		$settings_schema = array(
 			'type'       => 'object',
+			'required'   => array( 'theme_type' ),
 			'properties' => array(
+				'theme_type'      => array(
+					'type'        => 'string',
+					'enum'        => array( 'classic', 'block' ),
+					'description' => __( 'Active theme rendering model. "classic" themes consume these display settings via auto-injection after the post content; "block" themes ignore them — the Jetpack Related Posts block placed in the active template carries its own per-instance attributes.', 'jetpack' ),
+				),
+				'notice'          => array(
+					'type'        => 'string',
+					'description' => __( 'Present only when theme_type is "block". Human-readable pointer toward editing the Related Posts block in the Site Editor, since this option is not consumed at render time on block themes.', 'jetpack' ),
+				),
 				'enabled'         => array( 'type' => 'boolean' ),
 				'show_headline'   => array( 'type' => 'boolean' ),
 				'show_thumbnails' => array( 'type' => 'boolean' ),
@@ -160,7 +171,7 @@ class Related_Posts_Abilities extends Registrar {
 
 			'jetpack-related-posts/get-settings'      => array(
 				'label'               => __( 'Get Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Return the current Related Posts display settings as an object with enabled, show_headline, show_thumbnails, show_date, show_context, layout ("grid"|"list"), headline, and size. Read-only and idempotent. Pair with jetpack-related-posts/update-settings to change values; module activation itself is managed via jetpack-modules/set-module-status.', 'jetpack' ),
+				'description'         => __( 'Return the Related Posts settings relevant to the active theme. Always includes theme_type ("classic" or "block"). On classic themes, also returns enabled, show_headline, show_thumbnails, show_date, show_context, layout ("grid"|"list"), headline, and size — the values that drive auto-injection after the post content. On block themes those fields are omitted because the option is not consumed at render time; a "notice" string is returned instead, pointing toward editing the Jetpack Related Posts block in the active template (each block instance carries its own display attributes). Read-only and idempotent. Pair with jetpack-related-posts/update-settings to change values; module activation itself is managed via jetpack-modules/set-module-status.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(),
@@ -181,7 +192,7 @@ class Related_Posts_Abilities extends Registrar {
 
 			'jetpack-related-posts/update-settings'   => array(
 				'label'               => __( 'Update Related Posts settings', 'jetpack' ),
-				'description'         => __( 'Update one or more Related Posts display settings. Pass any subset of enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size — omitted fields keep their current value. Idempotent: when no field differs from the current value, the call is a no-op and returns changed=false with an empty changed_fields array. Returns { settings, changed, changed_fields }. Does not toggle the related-posts module itself; use jetpack-modules/set-module-status for that.', 'jetpack' ),
+				'description'         => __( 'Update one or more Related Posts display settings. Pass any subset of enabled, show_headline, show_thumbnails, show_date, show_context, layout, headline, size — omitted fields keep their current value. Only available on classic themes: block themes ignore this option at render time, so the ability returns jetpack_related_posts_block_theme_not_supported and the agent must edit the Jetpack Related Posts block in the active template via the Site Editor instead. Idempotent: when no field differs from the current value, the call is a no-op and returns changed=false with an empty changed_fields array. Returns { settings, changed, changed_fields }. Does not toggle the related-posts module itself; use jetpack-modules/set-module-status for that.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
@@ -358,12 +369,27 @@ class Related_Posts_Abilities extends Registrar {
 	/**
 	 * Execute: return the current Related Posts settings.
 	 *
+	 * On classic themes the full display-settings shape is returned. On block
+	 * themes the option is not consumed at render time, so we return only the
+	 * theme_type and a notice pointing the caller at the block — listing the
+	 * other fields would imply they have an effect they do not.
+	 *
 	 * @param array|null $input Unused.
 	 * @return array
 	 */
 	public static function get_settings( $input = null ) {
 		unset( $input );
-		return self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
+
+		if ( self::is_block_theme() ) {
+			return array(
+				'theme_type' => 'block',
+				'notice'     => __( 'Related Posts on block themes is rendered via the Jetpack Related Posts block placed in the active template or template part. Display settings live on each block instance, so this option is not consumed at render time — open the Site Editor and edit the block directly to change appearance or visibility.', 'jetpack' ),
+			);
+		}
+
+		$settings               = self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
+		$settings['theme_type'] = 'classic';
+		return $settings;
 	}
 
 	/**
@@ -373,6 +399,14 @@ class Related_Posts_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function update_settings( $input = null ) {
+		if ( self::is_block_theme() ) {
+			return new WP_Error(
+				'jetpack_related_posts_block_theme_not_supported',
+				__( 'Related Posts display settings are not editable on block themes — this option is not consumed at render time. Open the Site Editor and edit the Jetpack Related Posts block inside the active template or template part; each block instance carries its own display attributes.', 'jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		$input = is_array( $input ) ? $input : array();
 
 		$updates = array_intersect_key( $input, array_flip( self::EDITABLE_FIELDS ) );
@@ -439,7 +473,7 @@ class Related_Posts_Abilities extends Registrar {
 
 		if ( array() === $changed_fields ) {
 			return array(
-				'settings'       => $current,
+				'settings'       => array_merge( $current, array( 'theme_type' => 'classic' ) ),
 				'changed'        => false,
 				'changed_fields' => array(),
 			);
@@ -454,10 +488,25 @@ class Related_Posts_Abilities extends Registrar {
 		}
 
 		return array(
-			'settings'       => $merged,
+			'settings'       => array_merge( $merged, array( 'theme_type' => 'classic' ) ),
 			'changed'        => true,
 			'changed_fields' => $changed_fields,
 		);
+	}
+
+	/**
+	 * Whether the active theme is a block (FSE) theme for Related Posts purposes.
+	 *
+	 * Delegates to `Blocks::is_fse_theme()` so the ability's branching tracks the
+	 * exact same signal the module itself uses to skip auto-injection (see
+	 * `filter_add_target_to_dom()` in jetpack-related-posts.php). Going through
+	 * Jetpack's `jetpack_is_fse_theme` filter also lets tests flip the branch
+	 * without swapping the active theme on disk.
+	 *
+	 * @return bool
+	 */
+	private static function is_block_theme(): bool {
+		return Blocks::is_fse_theme();
 	}
 
 	/**

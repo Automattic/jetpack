@@ -44,11 +44,15 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 
 		$this->reset_registry_state();
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+		// Default every test to a classic theme so theme-type branches stay
+		// deterministic regardless of which theme the WP test bootstrap chose.
+		$this->force_classic_theme();
 	}
 
 	public function tear_down() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
+		remove_all_filters( 'jetpack_is_fse_theme' );
 		$this->reset_registry_state();
 		wp_set_current_user( 0 );
 
@@ -59,6 +63,25 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		}
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Pin the ability's theme-type check to "classic" by intercepting the same
+	 * filter the related-posts module itself consults. Avoids depending on the
+	 * test runner's active theme.
+	 */
+	private function force_classic_theme(): void {
+		remove_all_filters( 'jetpack_is_fse_theme' );
+		add_filter( 'jetpack_is_fse_theme', '__return_false' );
+	}
+
+	/**
+	 * Pin the ability's theme-type check to "block" without swapping the active
+	 * theme on disk.
+	 */
+	private function force_block_theme(): void {
+		remove_all_filters( 'jetpack_is_fse_theme' );
+		add_filter( 'jetpack_is_fse_theme', '__return_true' );
 	}
 
 	/**
@@ -264,6 +287,7 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	public function test_get_settings_returns_normalized_shape() {
 		$settings = Related_Posts_Abilities::get_settings();
 		$this->assertIsArray( $settings );
+		$this->assertSame( 'classic', $settings['theme_type'], 'Classic theme path must announce theme_type=classic.' );
 		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context', 'layout', 'headline', 'size' ) as $field ) {
 			$this->assertArrayHasKey( $field, $settings, "Settings shape must include {$field}." );
 		}
@@ -271,6 +295,58 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		$this->assertIsBool( $settings['enabled'] );
 		$this->assertIsInt( $settings['size'] );
 		$this->assertGreaterThanOrEqual( 1, $settings['size'] );
+	}
+
+	public function test_get_settings_on_block_theme_omits_display_fields() {
+		$this->force_block_theme();
+
+		$settings = Related_Posts_Abilities::get_settings();
+
+		$this->assertSame( 'block', $settings['theme_type'], 'Block theme path must announce theme_type=block.' );
+		$this->assertArrayHasKey( 'notice', $settings, 'Block-theme response must carry a notice pointing at the block.' );
+		$this->assertIsString( $settings['notice'] );
+		$this->assertNotSame( '', $settings['notice'] );
+
+		// The display fields are render-time no-ops on block themes; the response
+		// must omit them so agents don't think writing to them will change anything.
+		foreach ( array( 'enabled', 'show_headline', 'show_thumbnails', 'show_date', 'show_context', 'layout', 'headline', 'size' ) as $field ) {
+			$this->assertArrayNotHasKey(
+				$field,
+				$settings,
+				"Block-theme get-settings response must omit {$field} — the option is not consumed at render time."
+			);
+		}
+	}
+
+	public function test_update_settings_on_block_theme_is_rejected() {
+		$this->force_block_theme();
+		$this->seed_default_settings();
+		$before = Jetpack_Options::get_option( 'relatedposts' );
+
+		$result = Related_Posts_Abilities::update_settings( array( 'show_thumbnails' => true ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_related_posts_block_theme_not_supported', $result->get_error_code() );
+
+		// The stored option must not have been touched — block-theme rejection
+		// runs before any merge or save.
+		$this->assertSame( $before, Jetpack_Options::get_option( 'relatedposts' ) );
+	}
+
+	public function test_update_settings_response_advertises_theme_type() {
+		$this->seed_default_settings();
+
+		$result = Related_Posts_Abilities::update_settings( array( 'show_thumbnails' => true ) );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['changed'] );
+		$this->assertSame( 'classic', $result['settings']['theme_type'] );
+
+		// theme_type is a derived field — it must not be persisted to the
+		// `relatedposts` option, only added to the response.
+		$stored = Jetpack_Options::get_option( 'relatedposts' );
+		$this->assertIsArray( $stored );
+		$this->assertArrayNotHasKey( 'theme_type', $stored );
 	}
 
 	public function test_get_related_posts_rejects_missing_post_id() {
