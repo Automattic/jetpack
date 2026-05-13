@@ -38,8 +38,8 @@ class Message_Templates_Placeholders {
 		$cached   = get_transient( self::VALUE_TRANSIENT );
 		$is_valid = false !== get_transient( self::VALIDITY_TRANSIENT );
 
-		if ( $is_valid && is_array( $cached ) ) {
-			return $cached;
+		if ( $is_valid ) {
+			return is_array( $cached ) ? $cached : array();
 		}
 
 		return self::fetch_and_cache( $cached );
