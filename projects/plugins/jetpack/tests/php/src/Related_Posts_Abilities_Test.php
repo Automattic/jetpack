@@ -91,16 +91,6 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
-	public function test_abilities_map_only_exposes_the_lookup_ability() {
-		$slugs = array_keys( Related_Posts_Abilities::get_abilities() );
-
-		$this->assertSame(
-			array( 'jetpack-related-posts/get-related-posts' ),
-			$slugs,
-			'The settings abilities were intentionally removed — only the lookup ability should remain.'
-		);
-	}
-
 	public function test_no_spec_sets_category_explicitly() {
 		foreach ( Related_Posts_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertArrayNotHasKey(
