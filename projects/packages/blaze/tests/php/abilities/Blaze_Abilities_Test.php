@@ -106,6 +106,32 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The stop-campaign ability is a destructive write tool with an
+	 * explicit preview/confirm contract.
+	 */
+	public function test_stop_campaign_ability_definition() {
+		$abilities = Blaze_Abilities::get_abilities();
+
+		$this->assertArrayHasKey( Blaze_Abilities::ABILITY_STOP_CAMPAIGN, $abilities );
+
+		$ability = $abilities[ Blaze_Abilities::ABILITY_STOP_CAMPAIGN ];
+		$this->assertSame( array( Blaze_Abilities::class, 'stop_campaign' ), $ability['execute_callback'] );
+		$this->assertSame( array( Blaze_Abilities::class, 'permission_callback' ), $ability['permission_callback'] );
+		$this->assertTrue( $ability['meta']['show_in_rest'] );
+		$this->assertFalse( $ability['meta']['annotations']['readonly'] );
+		$this->assertTrue( $ability['meta']['annotations']['destructive'] );
+		$this->assertFalse( $ability['meta']['annotations']['idempotent'] );
+
+		$schema = $ability['input_schema'];
+		$this->assertSame( array( 'campaign_id' ), $schema['required'] );
+		$this->assertFalse( $schema['additionalProperties'] );
+		$this->assertSame( 'integer', $schema['properties']['campaign_id']['type'] );
+		$this->assertSame( 1, $schema['properties']['campaign_id']['minimum'] );
+		$this->assertSame( 'boolean', $schema['properties']['confirm']['type'] );
+		$this->assertFalse( $schema['properties']['confirm']['default'] );
+	}
+
+	/**
 	 * The double-register guard preserves an existing disabled decision.
 	 */
 	public function test_guard_against_double_register_preserves_disabled_decision() {
@@ -427,6 +453,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$owned = Blaze_Abilities::OWNED_ABILITY_SLUGS;
 		$this->assertContains( Blaze_Abilities::ABILITY_LIST_CAMPAIGNS, $owned );
 		$this->assertContains( Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN, $owned );
+		$this->assertContains( Blaze_Abilities::ABILITY_STOP_CAMPAIGN, $owned );
 
 		// Sanity: anything in OWNED_ABILITY_SLUGS that's a write ability gets
 		// wrapped. We exercise prepare-campaign here as the canonical write slug.
@@ -437,6 +464,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
 		);
 		$out  = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		$this->assertNotSame( $args['execute_callback'], $out['execute_callback'] );
+
+		$out = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_STOP_CAMPAIGN );
 		$this->assertNotSame( $args['execute_callback'], $out['execute_callback'] );
 	}
 
@@ -476,6 +506,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	public function test_opt_into_woo_mcp_for_owned_slugs() {
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_LIST_CAMPAIGNS ) );
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ) );
+		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_STOP_CAMPAIGN ) );
 
 		// Foreign slug, default false — should remain false (we don't toggle other people's abilities on).
 		$this->assertFalse( Blaze_Abilities::opt_into_woo_mcp( false, 'jetpack-forms/get-responses' ) );
@@ -586,6 +617,42 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Register a test campaign detail route for stop-campaign previews.
+	 *
+	 * @param int      $campaign_id Numeric DSP campaign ID.
+	 * @param callable $callback    Route callback.
+	 */
+	private function register_campaign_context_route( int $campaign_id, callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns/%d', self::TEST_SITE_ID, $campaign_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
+	 * Register a test campaign stop route for confirm-mode calls.
+	 *
+	 * @param int      $campaign_id Numeric DSP campaign ID.
+	 * @param callable $callback    Route callback.
+	 */
+	private function register_campaign_stop_route( int $campaign_id, callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns/%d/stop', self::TEST_SITE_ID, $campaign_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
 	 * Invalid target_urn returns a WP_Error with status 400, not a partial proposal.
 	 */
 	public function test_prepare_campaign_returns_error_for_invalid_target_urn() {
@@ -615,6 +682,137 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'blaze_post_not_found', $result->get_error_code() );
 		$data = $result->get_error_data();
 		$this->assertSame( 404, $data['status'] ?? null );
+	}
+
+	/**
+	 * Preview mode fetches campaign context but does not call the DSP stop
+	 * endpoint.
+	 */
+	public function test_stop_campaign_preview_fetches_context_without_stop_call() {
+		$stop_calls = 0;
+		$this->register_campaign_context_route(
+			987,
+			static function () {
+				return array(
+					'id'         => 987,
+					'name'       => 'Spring launch',
+					'status'     => 'active',
+					'start_date' => '2026-05-01',
+					'end_date'   => '2026-05-31',
+					'target_url' => 'https://example.com/spring',
+					'target_urn' => 'urn:wpcom:post:12345:42',
+				);
+			}
+		);
+		$this->register_campaign_stop_route(
+			987,
+			static function () use ( &$stop_calls ) {
+				++$stop_calls;
+				return array( 'status' => 'stopped' );
+			}
+		);
+
+		$result = Blaze_Abilities::stop_campaign( array( 'campaign_id' => 987 ) );
+
+		$this->assertSame( 0, $stop_calls, 'Preview mode must not call the DSP stop endpoint.' );
+		$this->assertIsArray( $result );
+		$this->assertSame( 'pending_confirmation', $result['status'] );
+		$this->assertSame( 987, $result['campaign']['campaign_id'] );
+		$this->assertSame( 'Spring launch', $result['campaign']['title'] );
+		$this->assertSame( 'active', $result['campaign']['status'] );
+		$this->assertSame( '2026-05-01', $result['campaign']['start_date'] );
+		$this->assertSame( '2026-05-31', $result['campaign']['end_date'] );
+		$this->assertSame( 'https://example.com/spring', $result['campaign']['target_url'] );
+		$this->assertSame( 'urn:wpcom:post:12345:42', $result['campaign']['target_urn'] );
+		$this->assertStringContainsString( 'will be stopped from serving', $result['consequence'] );
+		$this->assertStringContainsString( 'Preview only', $result['message'] );
+		$this->assertStringContainsString( 'Spring launch', $result['message'] );
+	}
+
+	/**
+	 * Confirm mode re-fetches campaign context and delegates to the DSP stop
+	 * endpoint through the Jetpack Blaze proxy.
+	 */
+	public function test_stop_campaign_confirm_refetches_context_and_calls_stop_endpoint() {
+		$context_calls = 0;
+		$stop_calls    = 0;
+		$this->register_campaign_context_route(
+			987,
+			static function () use ( &$context_calls ) {
+				++$context_calls;
+				return array(
+					'id'         => 987,
+					'title'      => 'Spring launch',
+					'status'     => 'active',
+					'start_date' => '2026-05-01',
+					'end_date'   => '2026-05-31',
+					'target_url' => 'https://example.com/spring',
+				);
+			}
+		);
+		$this->register_campaign_stop_route(
+			987,
+			static function () use ( &$stop_calls ) {
+				++$stop_calls;
+				return array(
+					'id'     => 987,
+					'status' => 'stopped',
+				);
+			}
+		);
+
+		$result = Blaze_Abilities::stop_campaign(
+			array(
+				'campaign_id' => 987,
+				'confirm'     => true,
+			)
+		);
+
+		$this->assertSame( 1, $context_calls );
+		$this->assertSame( 1, $stop_calls );
+		$this->assertIsArray( $result );
+		$this->assertSame( 'stopped', $result['status'] );
+		$this->assertSame( 'Spring launch', $result['campaign']['title'] );
+		$this->assertSame( array( 'id' => 987, 'status' => 'stopped' ), $result['stop_response'] );
+		$this->assertStringContainsString( 'Campaign "Spring launch" was stopped from serving.', $result['message'] );
+		$this->assertStringNotContainsString( 'deleted', strtolower( $result['message'] ) );
+		$this->assertStringNotContainsString( 'archived', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * DSP stop errors pass through without duplicating stop eligibility
+	 * rules in Jetpack.
+	 */
+	public function test_stop_campaign_confirm_passes_through_dsp_stop_error() {
+		$this->register_campaign_context_route(
+			987,
+			static function () {
+				return array(
+					'id'     => 987,
+					'title'  => 'Spring launch',
+					'status' => 'completed',
+				);
+			}
+		);
+		$this->register_campaign_stop_route(
+			987,
+			static function () {
+				return new WP_Error( 'campaign_not_stoppable', 'Campaign cannot be stopped from its current state.', array( 'status' => 409 ) );
+			}
+		);
+
+		$result = Blaze_Abilities::stop_campaign(
+			array(
+				'campaign_id' => 987,
+				'confirm'     => true,
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'campaign_not_stoppable', $result->get_error_code() );
+		$this->assertSame( 'Campaign cannot be stopped from its current state.', $result->get_error_message() );
+		$data = $result->get_error_data();
+		$this->assertSame( 409, $data['status'] ?? null );
 	}
 
 	/**

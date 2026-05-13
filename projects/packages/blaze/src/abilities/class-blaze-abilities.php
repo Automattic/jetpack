@@ -37,6 +37,7 @@ class Blaze_Abilities extends Registrar {
 	const CATEGORY_SLUG            = 'blaze-ads';
 	const ABILITY_LIST_CAMPAIGNS   = 'blaze-ads/list-campaigns';
 	const ABILITY_PREPARE_CAMPAIGN = 'blaze-ads/prepare-campaign';
+	const ABILITY_STOP_CAMPAIGN    = 'blaze-ads/stop-campaign';
 
 	/**
 	 * Slugs we own — used by `opt_into_woo_mcp` and the double-register guard.
@@ -44,6 +45,7 @@ class Blaze_Abilities extends Registrar {
 	const OWNED_ABILITY_SLUGS = array(
 		self::ABILITY_LIST_CAMPAIGNS,
 		self::ABILITY_PREPARE_CAMPAIGN,
+		self::ABILITY_STOP_CAMPAIGN,
 	);
 
 	/**
@@ -438,6 +440,61 @@ class Blaze_Abilities extends Registrar {
 					),
 				),
 			),
+			self::ABILITY_STOP_CAMPAIGN    => array(
+				'label'               => __( 'Stop a Blaze campaign', 'jetpack-blaze' ),
+				'description'         => __( 'Preview or confirm stopping delivery for an existing Blaze campaign. Pass the numeric DSP campaign_id. By default this returns the current campaign context and consequence text without calling the DSP stop endpoint. Set confirm to true only after the merchant explicitly confirms they want to stop serving; confirm mode re-fetches campaign context and delegates stop eligibility to the existing DSP stop endpoint.', 'jetpack-blaze' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'campaign_id' ),
+					'properties'           => array(
+						'campaign_id' => array(
+							'type'        => 'integer',
+							'description' => __( 'Numeric DSP campaign ID to stop.', 'jetpack-blaze' ),
+							'minimum'     => 1,
+						),
+						'confirm'     => array(
+							'type'        => 'boolean',
+							'description' => __( 'Set to true only after the merchant explicitly confirms they want this campaign stopped from serving. Defaults to false, which previews the consequence without stopping the campaign.', 'jetpack-blaze' ),
+							'default'     => false,
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'        => 'object',
+					'description' => __( 'Stop-campaign preview or confirmation response with campaign context and merchant-facing wording.', 'jetpack-blaze' ),
+					'required'    => array( 'status', 'message', 'campaign' ),
+					'properties'  => array(
+						'status'      => array(
+							'type'        => 'string',
+							'description' => __( 'pending_confirmation for preview responses, or stopped for successful confirm responses.', 'jetpack-blaze' ),
+							'enum'        => array( 'pending_confirmation', 'stopped' ),
+						),
+						'message'     => array(
+							'type'        => 'string',
+							'description' => __( 'Primary human-readable response for the MCP client to show to the merchant.', 'jetpack-blaze' ),
+						),
+						'campaign'    => array(
+							'type'        => 'object',
+							'description' => __( 'Current campaign context fetched from the Blaze DSP API.', 'jetpack-blaze' ),
+						),
+						'consequence' => array(
+							'type'        => 'string',
+							'description' => __( 'Clear consequence text explaining that confirmation stops the campaign from serving.', 'jetpack-blaze' ),
+						),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'stop_campaign' ),
+				'permission_callback' => array( __CLASS__, 'permission_callback' ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => true,
+						'idempotent'  => false,
+					),
+				),
+			),
 		);
 	}
 
@@ -527,6 +584,310 @@ class Blaze_Abilities extends Registrar {
 			'campaign_preview' => self::build_campaign_preview( $proposal ),
 			'forecast_summary' => self::build_forecast_summary( $proposal ),
 		) + $proposal;
+	}
+
+	/**
+	 * Preview or confirm stopping a Blaze campaign from serving.
+	 *
+	 * Preview mode fetches current campaign context and returns consequence
+	 * text without calling the DSP stop endpoint. Confirm mode re-fetches the
+	 * same context, then delegates stop eligibility and state handling to DSP.
+	 *
+	 * @param array $args Ability input — see `get_abilities()` input_schema.
+	 * @return array|\WP_Error
+	 */
+	public static function stop_campaign( $args = array() ) {
+		$args = is_array( $args ) ? $args : array();
+
+		$campaign_id = isset( $args['campaign_id'] ) ? (int) $args['campaign_id'] : 0;
+		if ( $campaign_id < 1 ) {
+			return new \WP_Error(
+				'blaze_invalid_campaign_id',
+				__( 'A numeric DSP campaign_id is required to stop a Blaze campaign.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$context = self::fetch_stop_campaign_context( $campaign_id );
+		if ( is_wp_error( $context ) ) {
+			return $context;
+		}
+
+		$campaign    = self::normalize_stop_campaign_context( $campaign_id, $context );
+		$consequence = self::build_stop_campaign_consequence( $campaign );
+		$confirmed   = isset( $args['confirm'] ) && true === $args['confirm'];
+
+		if ( ! $confirmed ) {
+			return array(
+				'status'      => 'pending_confirmation',
+				'message'     => self::format_stop_campaign_preview_message( $campaign, $consequence ),
+				'campaign'    => $campaign,
+				'consequence' => $consequence,
+			);
+		}
+
+		$stop_response = self::call_stop_campaign_endpoint( $campaign_id );
+		if ( is_wp_error( $stop_response ) ) {
+			return $stop_response;
+		}
+
+		return array(
+			'status'        => 'stopped',
+			'message'       => self::format_stop_campaign_confirmation_message( $campaign ),
+			'campaign'      => $campaign,
+			'consequence'   => __( 'The campaign was stopped from serving immediately.', 'jetpack-blaze' ),
+			'stop_response' => $stop_response,
+		);
+	}
+
+	/**
+	 * Fetch current campaign context through the existing Blaze proxy route.
+	 *
+	 * @param int $campaign_id Numeric DSP campaign ID.
+	 * @return array|\WP_Error
+	 */
+	private static function fetch_stop_campaign_context( int $campaign_id ) {
+		$route = self::get_dsp_campaign_route( $campaign_id );
+		if ( is_wp_error( $route ) ) {
+			return $route;
+		}
+
+		$request = new WP_REST_Request( 'GET', $route );
+		return self::dispatch_stop_campaign_rest_request( $request );
+	}
+
+	/**
+	 * Call the existing DSP stop endpoint through the Blaze proxy route.
+	 *
+	 * @param int $campaign_id Numeric DSP campaign ID.
+	 * @return array|\WP_Error
+	 */
+	private static function call_stop_campaign_endpoint( int $campaign_id ) {
+		$route = self::get_dsp_campaign_route( $campaign_id, '/stop' );
+		if ( is_wp_error( $route ) ) {
+			return $route;
+		}
+
+		$request = new WP_REST_Request( 'POST', $route );
+		return self::dispatch_stop_campaign_rest_request( $request );
+	}
+
+	/**
+	 * Build the local REST proxy route for a DSP campaign endpoint.
+	 *
+	 * @param int    $campaign_id Numeric DSP campaign ID.
+	 * @param string $suffix      Optional subpath suffix, e.g. /stop.
+	 * @return string|\WP_Error
+	 */
+	private static function get_dsp_campaign_route( int $campaign_id, string $suffix = '' ) {
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		return sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns/%d%s', $site_id, $campaign_id, $suffix );
+	}
+
+	/**
+	 * Dispatch a stop-campaign REST proxy request and normalize error output.
+	 *
+	 * @param WP_REST_Request $request Request to dispatch.
+	 * @return array|\WP_Error
+	 */
+	private static function dispatch_stop_campaign_rest_request( WP_REST_Request $request ) {
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return $response->as_error();
+		}
+
+		$status = $response->get_status();
+		$data   = $response->get_data();
+		if ( $status >= 400 ) {
+			return self::rest_response_to_wp_error( is_array( $data ) ? $data : array(), $status );
+		}
+
+		return is_array( $data ) ? $data : array();
+	}
+
+	/**
+	 * Convert non-2xx REST proxy responses into WP_Error for Abilities/MCP.
+	 *
+	 * @param array $data   REST response data.
+	 * @param int   $status HTTP status.
+	 * @return \WP_Error
+	 */
+	private static function rest_response_to_wp_error( array $data, int $status ): \WP_Error {
+		$code = isset( $data['code'] ) ? (string) $data['code'] : 'blaze_dsp_error';
+
+		$message = '';
+		foreach ( array( 'message', 'errorMessage', 'error' ) as $message_key ) {
+			if ( isset( $data[ $message_key ] ) && '' !== (string) $data[ $message_key ] ) {
+				$message = (string) $data[ $message_key ];
+				break;
+			}
+		}
+		if ( '' === $message ) {
+			$message = __( 'The Blaze DSP API could not stop this campaign.', 'jetpack-blaze' );
+		}
+
+		$data['status'] = $status;
+		return new \WP_Error( $code, $message, $data );
+	}
+
+	/**
+	 * Normalize the DSP campaign shape into the MCP-facing context fields.
+	 *
+	 * @param int   $campaign_id Numeric DSP campaign ID requested by the caller.
+	 * @param array $context     Raw DSP campaign context.
+	 * @return array
+	 */
+	private static function normalize_stop_campaign_context( int $campaign_id, array $context ): array {
+		$campaign = isset( $context['campaign'] ) && is_array( $context['campaign'] ) ? $context['campaign'] : $context;
+
+		return array(
+			'campaign_id' => self::get_first_integer_value( $campaign, array( 'campaign_id', 'id' ), $campaign_id ),
+			'title'       => self::get_first_string_value( $campaign, array( 'title', 'name', 'campaign_name' ) ),
+			'status'      => self::get_first_string_value( $campaign, array( 'status', 'state' ) ),
+			'start_date'  => self::get_first_string_value( $campaign, array( 'start_date', 'startDate', 'start_at', 'startAt', 'start' ) ),
+			'end_date'    => self::get_first_string_value( $campaign, array( 'end_date', 'endDate', 'end_at', 'endAt', 'end' ) ),
+			'target_url'  => self::get_first_string_value( $campaign, array( 'target_url', 'targetUrl', 'destination_url', 'destinationUrl', 'landing_page', 'landingPage', 'url' ) ),
+			'target_urn'  => self::get_first_string_value( $campaign, array( 'target_urn', 'targetUrn', 'urn' ) ),
+		);
+	}
+
+	/**
+	 * Return the first non-empty string value for a set of keys.
+	 *
+	 * @param array $source Source array.
+	 * @param array $keys   Candidate keys.
+	 * @return string
+	 */
+	private static function get_first_string_value( array $source, array $keys ): string {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && '' !== (string) $source[ $key ] ) {
+				return (string) $source[ $key ];
+			}
+		}
+
+		if ( isset( $source['target'] ) && is_array( $source['target'] ) ) {
+			foreach ( $keys as $key ) {
+				if ( isset( $source['target'][ $key ] ) && '' !== (string) $source['target'][ $key ] ) {
+					return (string) $source['target'][ $key ];
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Return the first positive integer value for a set of keys.
+	 *
+	 * @param array $source  Source array.
+	 * @param array $keys    Candidate keys.
+	 * @param int   $default Default value.
+	 * @return int
+	 */
+	private static function get_first_integer_value( array $source, array $keys, int $default ): int {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && (int) $source[ $key ] > 0 ) {
+				return (int) $source[ $key ];
+			}
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Build consequence text for preview mode.
+	 *
+	 * @param array $campaign Normalized campaign context.
+	 * @return string
+	 */
+	private static function build_stop_campaign_consequence( array $campaign ): string {
+		return sprintf(
+			/* translators: %s: campaign title or ID. */
+			__( 'If confirmed, campaign "%s" will be stopped from serving immediately. This MCP tool cannot resume the campaign after it is stopped.', 'jetpack-blaze' ),
+			self::get_stop_campaign_display_name( $campaign )
+		);
+	}
+
+	/**
+	 * Format the preview response for chat clients.
+	 *
+	 * @param array  $campaign    Normalized campaign context.
+	 * @param string $consequence Consequence text.
+	 * @return string
+	 */
+	private static function format_stop_campaign_preview_message( array $campaign, string $consequence ): string {
+		$message  = __( 'Preview only: this campaign has not been stopped.', 'jetpack-blaze' ) . "\n\n";
+		$message .= self::format_stop_campaign_context_table( $campaign );
+		$message .= "\n" . $consequence;
+		$message .= "\n\n" . __( 'To stop serving, call this ability again with confirm set to true after the merchant explicitly confirms.', 'jetpack-blaze' );
+
+		return $message;
+	}
+
+	/**
+	 * Format the confirmation response for chat clients.
+	 *
+	 * @param array $campaign Normalized campaign context.
+	 * @return string
+	 */
+	private static function format_stop_campaign_confirmation_message( array $campaign ): string {
+		return sprintf(
+			/* translators: %s: campaign title or ID. */
+			__( 'Campaign "%s" was stopped from serving.', 'jetpack-blaze' ),
+			self::get_stop_campaign_display_name( $campaign )
+		);
+	}
+
+	/**
+	 * Format normalized campaign context as a compact Markdown table.
+	 *
+	 * @param array $campaign Normalized campaign context.
+	 * @return string
+	 */
+	private static function format_stop_campaign_context_table( array $campaign ): string {
+		$message  = '| ' . __( 'Campaign', 'jetpack-blaze' ) . ' | ' . __( 'Current value', 'jetpack-blaze' ) . " |\n";
+		$message .= "| --- | --- |\n";
+
+		$rows = array(
+			__( 'ID', 'jetpack-blaze' )         => $campaign['campaign_id'] ?? '',
+			__( 'Title', 'jetpack-blaze' )      => $campaign['title'] ?? '',
+			__( 'Status', 'jetpack-blaze' )     => $campaign['status'] ?? '',
+			__( 'Start date', 'jetpack-blaze' ) => $campaign['start_date'] ?? '',
+			__( 'End date', 'jetpack-blaze' )   => $campaign['end_date'] ?? '',
+			__( 'Target URL', 'jetpack-blaze' ) => $campaign['target_url'] ?? '',
+			__( 'Target URN', 'jetpack-blaze' ) => $campaign['target_urn'] ?? '',
+		);
+
+		foreach ( $rows as $label => $value ) {
+			if ( '' === (string) $value ) {
+				continue;
+			}
+			$message .= '| ' . self::format_markdown_table_cell( $label ) . ' | ' . self::format_markdown_table_cell( $value ) . " |\n";
+		}
+
+		return rtrim( $message, "\n" );
+	}
+
+	/**
+	 * Human-readable campaign name fallback.
+	 *
+	 * @param array $campaign Normalized campaign context.
+	 * @return string
+	 */
+	private static function get_stop_campaign_display_name( array $campaign ): string {
+		if ( ! empty( $campaign['title'] ) ) {
+			return (string) $campaign['title'];
+		}
+
+		return sprintf(
+			/* translators: %d: numeric DSP campaign ID. */
+			__( 'Campaign %d', 'jetpack-blaze' ),
+			(int) ( $campaign['campaign_id'] ?? 0 )
+		);
 	}
 
 	/**
