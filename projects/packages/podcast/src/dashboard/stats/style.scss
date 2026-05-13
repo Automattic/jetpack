@@ -1,0 +1,298 @@
+@use "@automattic/charts/dist/index.css";
+
+// Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
+$text: #1e1e1e;
+$muted: #757575;
+$bar-bg: #f0f0f0;
+$bar-bg-hover: #e5e5e5;
+$bar-fill: #2271b1;
+
+%eyebrow {
+	font-size: 11px;
+	font-weight: 500;
+	color: $muted;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.podcast-stats {
+	padding-top: 16px;
+
+	&--stack {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	&__header {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	&__section-header {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__period-heading {
+		margin: 0;
+		font-size: 24px;
+		font-weight: 400;
+		line-height: 1.2;
+		color: $text;
+	}
+
+	&__episode-heading {
+		font-size: 22px;
+	}
+
+	&__section-description {
+		margin: 0;
+		color: $muted;
+	}
+
+	&__back-link {
+		align-self: flex-start;
+	}
+
+	&__module-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 16px;
+	}
+
+	&__section-card {
+		min-width: 0;
+	}
+
+	&__section-title {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: $text;
+	}
+
+	&__section-loading {
+		display: flex;
+		justify-content: center;
+		padding: 24px 0;
+	}
+
+	&__section-empty {
+		margin: 0;
+		color: $muted;
+	}
+
+	&__section-metric {
+		margin: 0;
+		color: $muted;
+		font-size: 12px;
+	}
+}
+
+.podcast-stats-summary {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 0;
+
+	&__tile {
+		padding: 12px 20px;
+		min-width: 0;
+
+		&:not(:first-child) {
+			border-inline-start: 1px solid #e0e0e0;
+		}
+	}
+
+	&__heading {
+
+		@extend %eyebrow;
+
+		margin-bottom: 6px;
+	}
+
+	&__value {
+		font-size: 24px;
+		font-weight: 500;
+		line-height: 1.2;
+		color: $text;
+	}
+
+	&__note {
+
+		@extend %eyebrow;
+
+		margin-top: 4px;
+	}
+
+	&--standalone {
+		gap: 12px;
+
+		.podcast-stats-summary__tile {
+			border-inline-start: 0;
+		}
+	}
+}
+
+.podcast-stats-chart {
+
+	&__body {
+		padding: 16px;
+	}
+
+	&__header {
+		margin-bottom: 8px;
+	}
+
+	// No min-height — fights the chart's ResizeObserver.
+	&__chart {
+		position: relative;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 280px;
+	}
+
+	&__tooltip {
+		padding: 8px 10px;
+		background: $text;
+		color: #fff;
+		border-radius: 4px;
+	}
+
+	&__tooltip-value {
+		display: block;
+	}
+
+	&__summary {
+		margin-top: 16px;
+	}
+}
+
+// Self-contained — shared base rule isn't in the lazy stats chunk.
+.podcast-stats .podcast__empty-state {
+	padding: 64px 16px;
+	text-align: center;
+	color: $muted;
+
+	.podcast__section-heading {
+		margin: 0 0 8px;
+		font-weight: 500;
+	}
+
+	p {
+		margin: 0 auto;
+		max-width: 420px;
+		color: $muted;
+	}
+}
+
+.podcast-stats-locations {
+
+	&__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+		gap: 24px;
+		align-items: start;
+
+		@media (max-width: 720px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	// No min-height — fights the chart's ResizeObserver.
+	&__map {
+		position: relative;
+	}
+
+	&__list-title {
+
+		@extend %eyebrow;
+
+		margin: 0 0 8px;
+		font-size: 12px;
+	}
+}
+
+.podcast-stats-bar-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+
+	&__item {
+		margin: 0;
+	}
+
+	&__row {
+		position: relative;
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 8px;
+		border-radius: 4px;
+		background: $bar-bg;
+		width: 100%;
+		text-align: start;
+		border: 0;
+		cursor: default;
+
+		&.is-clickable {
+			cursor: pointer;
+
+			&:hover {
+				background: $bar-bg-hover;
+			}
+
+			&:focus-visible {
+				background: $bar-bg-hover;
+				outline: 2px solid $bar-fill;
+				outline-offset: 2px;
+			}
+		}
+	}
+
+	&__leading {
+		grid-column: 1;
+	}
+
+	&__label {
+		grid-column: 2;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: $text;
+	}
+
+	&__value {
+		grid-column: 3;
+		font-variant-numeric: tabular-nums;
+		font-size: 12px;
+		color: $muted;
+	}
+
+	&__bar {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		background: $bar-fill;
+		opacity: 0.08;
+		border-radius: 4px;
+		pointer-events: none;
+	}
+}

@@ -17,6 +17,7 @@ import { encode } from 'qss';
  * a few hundred bytes per result.
  */
 export const SEARCH_FIELDS = [
+	'author',
 	'date',
 	'permalink.url.raw',
 	'post_type',

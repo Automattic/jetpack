@@ -30,17 +30,17 @@ $page_num = 0;
 if ( isset( $company_params['page'] ) ) {
 	$page_num = sanitize_text_field( $company_params['page'] );
 }
-$with_invoices = -1;
+$with_invoices = false;
 if ( isset( $company_params['invoices'] ) ) {
-	$with_invoices = sanitize_text_field( $company_params['invoices'] );
+	$with_invoices = filter_var( $company_params['invoices'], FILTER_VALIDATE_BOOLEAN );
 }
-$with_quotes = -1;
+$with_quotes = false;
 if ( isset( $company_params['quotes'] ) ) {
-	$with_quotes = sanitize_text_field( $company_params['quotes'] );
+	$with_quotes = filter_var( $company_params['quotes'], FILTER_VALIDATE_BOOLEAN );
 }
-$with_transactions = -1;
+$with_transactions = false;
 if ( isset( $company_params['transactions'] ) ) {
-	$with_transactions = sanitize_text_field( $company_params['transactions'] );
+	$with_transactions = filter_var( $company_params['transactions'], FILTER_VALIDATE_BOOLEAN );
 }
 $search_phrase = '';
 if ( isset( $company_params['search'] ) ) {
@@ -50,11 +50,6 @@ $owned_by = -1;
 if ( isset( $company_params['owned'] ) ) {
 	$owned_by = (int) $company_params['owned'];
 }
-
-// ... this forces them from string of "true" or "false" into a bool
-$with_invoices     = $with_invoices === 'true' ? true : false;
-$with_quotes       = $with_quotes === 'true' ? true : false;
-$with_transactions = $with_transactions === 'true' ? true : false;
 
 $args = array(
 	'perPage'          => $items_per_page,

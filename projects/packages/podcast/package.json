@@ -27,9 +27,11 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/compose": "7.44.0",

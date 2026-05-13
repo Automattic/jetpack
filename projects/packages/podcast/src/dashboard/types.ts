@@ -61,4 +61,4 @@ export interface EpisodeStats {
 	plays_90d: number;
 }
 
-export type TabName = 'settings' | 'episodes' | 'distribution';
+export type TabName = 'settings' | 'episodes' | 'distribution' | 'stats';
