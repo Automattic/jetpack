@@ -1298,11 +1298,16 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$customize_per_network_default = (
+			Current_Plan::supports( 'social-message-templates' )
+			&& $this->any_connection_has_custom_template()
+		);
+
 		$customize_per_network_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether to enable per-network customization.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => false,
+			'default'       => $customize_per_network_default,
 			'show_in_rest'  => $this->has_paid_features(),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
@@ -1326,6 +1331,21 @@ abstract class Publicize_Base {
 			register_meta( 'post', self::POST_CONNECTION_OVERRIDES, $connection_overrides_args );
 			register_meta( 'post', self::POST_CUSTOMIZE_PER_NETWORK, $customize_per_network_args );
 		}
+	}
+
+	/**
+	 * Whether any connection available to the current user has a custom message template.
+	 *
+	 * @return bool
+	 */
+	protected function any_connection_has_custom_template() {
+		foreach ( Connections::get_all_for_user() as $connection ) {
+			if ( '' !== trim( (string) ( $connection['template'] ?? '' ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
