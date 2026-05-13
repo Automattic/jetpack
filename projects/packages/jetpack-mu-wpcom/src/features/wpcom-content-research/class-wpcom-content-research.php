@@ -47,10 +47,10 @@ class WPCOM_Content_Research {
 	 */
 	public function register_rest_api() {
 		require_once __DIR__ . '/class-wp-rest-content-research-search.php';
-		( new WP_REST_WPCOM_Content_Research_Search() )->register_rest_route();
+		( new WP_REST_Content_Research_Search() )->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-content-research-summarize.php';
-		( new WP_REST_WPCOM_Content_Research_Summarize() )->register_rest_route();
+		( new WP_REST_Content_Research_Summarize() )->register_rest_route();
 	}
 
 	/**
@@ -115,13 +115,12 @@ class WPCOM_Content_Research {
 			return;
 		}
 
-		$version      = $asset_file['version'] ?? '1.0.0';
-		$dependencies = $asset_file['dependencies'] ?? array();
+		$version = $asset_file['version'] ?? '1.0.0';
 
 		wp_enqueue_script(
 			'content-research-gutenberg',
 			'https://widgets.wp.com/content-research/content-research-gutenberg.min.js',
-			$dependencies,
+			array(),
 			$version,
 			true
 		);
