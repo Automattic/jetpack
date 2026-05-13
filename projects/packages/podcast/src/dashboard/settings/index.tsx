@@ -85,7 +85,11 @@ const useFieldEditor = (
 	};
 };
 
-const SettingsTab = () => {
+interface SettingsTabProps {
+	onAfterDisable?: () => void;
+}
+
+const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 
@@ -207,7 +211,8 @@ const SettingsTab = () => {
 	const onDisablePodcasting = useCallback( () => {
 		setConfirmDisable( false );
 		commit( { podcasting_category_id: 0 } );
-	}, [ commit ] );
+		onAfterDisable?.();
+	}, [ commit, onAfterDisable ] );
 
 	if ( isLoading || ! draft ) {
 		return null;
