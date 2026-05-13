@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Social: Simplify preview render API by using the connction id as the source of truth.
