@@ -26,7 +26,7 @@ New folder `projects/packages/podcast/src/dashboard/settings/posts-to-podcast/`:
 
 Tests live under the package's existing `tests/` root (verify layout during implementation; mirror it).
 
-The hook returns `{ status, jobId, result, error, generate, reset }` — same shape as the Calypso hook.
+The hook returns `{ status, result, error, generate, reset }`. `result` is `{ postId } | null`. `error` is the user-facing message string (or `null` for a generic failure). `generate` is internally guarded by an inflight ref so a fast double-click cannot enqueue two server-side jobs before the button disables.
 
 ## API client and data flow
 
@@ -46,7 +46,7 @@ const { jobId } = await apiFetch<{ jobId: number }>( {
 const record = await apiFetch<JobRecord>( {
     path: `/wpcom/v2/posts-to-podcast/jobs/${ jobId }`,
 } );
-// JobRecord: { status: 'pending' | 'complete' | 'failed' | 'unknown'; postId?: number; editUrl?: string; message?: string; errorMessage?: string; errorCode?: string }
+// JobRecord: { status: 'pending' | 'complete' | 'failed' | 'unknown'; postId?: number; message?: string; errorMessage?: string }
 ```
 
 `apiFetch` already handles the nonce + REST URL plumbing the rest of the package uses (see `hooks/use-podcast-settings.ts`).
@@ -57,7 +57,7 @@ No React Query factory — the hand-rolled timer loop matches the Calypso implem
 
 Jobs take 2–3 minutes; users navigate between tabs (and across the wp-admin) during that time. Active jobs persist to `localStorage` keyed by site:
 
-- **Key:** `posts-to-podcast:active-job:<blogId>` — `blogId` from `getSiteData()?.blog_id`.
+- **Key:** `posts-to-podcast:active-job:<blogId>` — `blogId` from `getSiteData()?.wpcom?.blog_id` (matches the package convention in `use-episode-stats-query.ts` and `use-show-stats-query.ts`).
 - **Value:** `{ jobId, startedAt }` (ms since epoch).
 - **On generate success:** write the entry, transition to `polling`.
 - **On `<PostsToPodcastSection>` mount:** read the entry. If present and `Date.now() - startedAt < 5 min`, transition straight into `polling`. If expired, clear and stay `idle`.
@@ -77,7 +77,7 @@ Wrapping `<Card>` + `<CardHeader>` (h2.podcast__section-heading) + `<CardBody>` 
 - Status region below the button:
   - `polling` → `<Notice status="info" isDismissible={ false }>` with the 2–3-minute messaging.
   - `succeeded` → `<Notice status="success" onRemove={ reset }>` "Draft created." plus a `<Link href={ editPostUrl(result.postId) }>{ __('Open draft') }</Link>` using the `@wordpress/ui` `Link` already imported by `settings/index.tsx`. `editPostUrl(postId)` returns `${ ADMIN_URL }post.php?action=edit&post=${ postId }` — reuse the helper from the Episodes tab if it's already shared; otherwise lift to a shared util.
-  - `failed` → `<Notice status="error" onRemove={ reset }>` with `error?.message` or the generic fallback.
+  - `failed` → `<Notice status="error" onRemove={ reset }>` with `error` (the message string) or the generic fallback.
 
 Note: `@wordpress/components` Notice differs from Calypso's `Notice`. `status` values are `info|success|warning|error` (no `is-` prefix); dismissal is `onRemove`/`isDismissible`, not `onDismissClick`/`showDismiss`.
 

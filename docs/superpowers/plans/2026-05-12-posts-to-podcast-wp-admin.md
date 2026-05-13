@@ -118,12 +118,6 @@ export interface GenerateParams {
 
 export interface JobResult {
 	postId: number;
-	editUrl?: string;
-}
-
-export interface JobError {
-	code: string;
-	message: string | null;
 }
 
 type JobStatus = 'idle' | 'polling' | 'succeeded' | 'failed';
@@ -133,22 +127,20 @@ interface State {
 	jobId: number | null;
 	startedAt: number | null;
 	result: JobResult | null;
-	error: JobError | null;
+	error: string | null;
 }
 
 type Action =
 	| { type: 'START_POLLING'; jobId: number; startedAt: number }
 	| { type: 'SUCCEEDED'; result: JobResult }
-	| { type: 'FAILED'; error: JobError }
+	| { type: 'FAILED'; message?: string | null }
 	| { type: 'RESET' };
 
 interface JobRecord {
 	status: 'pending' | 'complete' | 'failed' | 'unknown';
 	postId?: number;
-	editUrl?: string;
 	message?: string;
 	errorMessage?: string;
-	errorCode?: string;
 }
 
 interface StoredJob {
@@ -220,7 +212,7 @@ const reducer = ( state: State, action: Action ): State => {
 		case 'SUCCEEDED':
 			return { ...state, status: 'succeeded', result: action.result };
 		case 'FAILED':
-			return { ...state, status: 'failed', error: action.error };
+			return { ...state, status: 'failed', error: action.message ?? null };
 		case 'RESET':
 			return initial;
 		default:
@@ -230,15 +222,14 @@ const reducer = ( state: State, action: Action ): State => {
 
 export interface UsePostsToPodcastJobReturn {
 	status: JobStatus;
-	jobId: number | null;
 	result: JobResult | null;
-	error: JobError | null;
+	error: string | null;
 	generate: ( params: GenerateParams ) => Promise< void >;
 	reset: () => void;
 }
 
 export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
-	const blogId = Number( getSiteData()?.blog_id ?? 0 );
+	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
 
 	const [ state, dispatch ] = useReducer( reducer, initial, ( init ): State => {
 		if ( ! blogId ) {
@@ -276,7 +267,7 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 			const elapsed = Date.now() - startedAt;
 			if ( elapsed > POLL_TIMEOUT_MS ) {
 				clearStored( blogId );
-				dispatch( { type: 'FAILED', error: { code: 'timeout', message: null } } );
+				dispatch( { type: 'FAILED' } );
 				return;
 			}
 			try {
@@ -288,20 +279,14 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 				}
 				if ( record.status === 'complete' && record.postId ) {
 					clearStored( blogId );
-					dispatch( {
-						type: 'SUCCEEDED',
-						result: { postId: record.postId, editUrl: record.editUrl },
-					} );
+					dispatch( { type: 'SUCCEEDED', result: { postId: record.postId } } );
 					return;
 				}
 				if ( record.status === 'failed' ) {
 					clearStored( blogId );
 					dispatch( {
 						type: 'FAILED',
-						error: {
-							code: record.errorCode || 'job-failed',
-							message: record.message || record.errorMessage || null,
-						},
+						message: record.message || record.errorMessage || null,
 					} );
 					return;
 				}
@@ -316,7 +301,7 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 					return;
 				}
 				clearStored( blogId );
-				dispatch( { type: 'FAILED', error: { code: 'poll-failed', message: null } } );
+				dispatch( { type: 'FAILED' } );
 			}
 		};
 
@@ -331,15 +316,18 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 		};
 	}, [ state.status, state.jobId, state.startedAt, blogId ] );
 
+	const inflightRef = useRef( false );
+
 	const generate = useCallback(
 		async ( params: GenerateParams ): Promise< void > => {
-			if ( ! blogId ) {
-				dispatch( {
-					type: 'FAILED',
-					error: { code: 'queue-failed', message: null },
-				} );
+			if ( inflightRef.current ) {
 				return;
 			}
+			if ( ! blogId ) {
+				dispatch( { type: 'FAILED' } );
+				return;
+			}
+			inflightRef.current = true;
 			try {
 				const response = await apiFetch< { jobId?: number } >( {
 					path: '/wpcom/v2/posts-to-podcast',
@@ -347,20 +335,16 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 					data: params,
 				} );
 				if ( ! response?.jobId ) {
-					dispatch( {
-						type: 'FAILED',
-						error: { code: 'queue-failed', message: null },
-					} );
+					dispatch( { type: 'FAILED' } );
 					return;
 				}
 				const startedAt = Date.now();
 				writeStored( blogId, { jobId: response.jobId, startedAt } );
 				dispatch( { type: 'START_POLLING', jobId: response.jobId, startedAt } );
 			} catch {
-				dispatch( {
-					type: 'FAILED',
-					error: { code: 'queue-failed', message: null },
-				} );
+				dispatch( { type: 'FAILED' } );
+			} finally {
+				inflightRef.current = false;
 			}
 		},
 		[ blogId ]
@@ -375,7 +359,6 @@ export const usePostsToPodcastJob = (): UsePostsToPodcastJobReturn => {
 
 	return {
 		status: state.status,
-		jobId: state.jobId,
 		result: state.result,
 		error: state.error,
 		generate,
@@ -517,8 +500,7 @@ const PostsToPodcastSection = (): JSX.Element => {
 
 					{ status === 'failed' && (
 						<Notice status="error" onRemove={ reset }>
-							{ error?.message ||
-								__( 'Generation failed. Please try again.', 'jetpack-podcast' ) }
+							{ error || __( 'Generation failed. Please try again.', 'jetpack-podcast' ) }
 						</Notice>
 					) }
 				</VStack>
@@ -694,6 +676,6 @@ Follow Jetpack's PR conventions. Reference PR #48523 in the description (this PR
 
 - **Spec coverage:** Section 1 (placement/gating) → Task 4. Section 2 (component structure) → Tasks 1–3. Section 3 (API/data flow) → Task 2 (apiFetch calls inside the hook). Section 4 (localStorage persistence) → Task 2 (read/write/clear/expire). Section 5 (UI) → Task 3 (Card/SelectControl/Notice/Link layout, copy verbatim). Section "Testing" → explicitly skipped in this plan per user decision; tracked as out-of-scope follow-up.
 - **Placeholder scan:** None. Every code step has runnable code. Every command has expected output.
-- **Type consistency:** Hook returns `{ status, jobId, result, error, generate, reset }`. `JobResult = { postId, editUrl? }`. `JobError = { code, message }`. Used consistently across Tasks 2, 3, and the spec.
+- **Type consistency:** Hook returns `{ status, result, error, generate, reset }`. `JobResult = { postId }`. `error: string | null`. Used consistently across Tasks 2, 3, and the spec.
 - **Notice API:** Uses `status="info|success|error"`, `onRemove`, `isDismissible` per `@wordpress/components` — not Calypso's `is-info`/`onDismissClick`/`showDismiss`. Verified against the existing `Notice` usage in `settings/index.tsx:218–227`.
 - **`getAdminUrl` vs `ADMIN_URL`:** Task 3 uses `getAdminUrl('post.php')` from `@automattic/jetpack-script-data` for the edit link, consistent with the Settings tab's existing `getAdminUrl('edit-tags.php?taxonomy=category')` import. The Episodes tab uses a hand-built `${ ADMIN_URL }post.php?action=edit&post=...` pattern; both work, but `getAdminUrl` is the more idiomatic helper.
