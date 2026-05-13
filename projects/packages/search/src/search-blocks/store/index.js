@@ -6,7 +6,7 @@ import {
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
 import { isEventInsidePopoverRoot } from './popover-events';
-import { countActiveFilters, normalizeResult } from './result-utils';
+import { countActiveFilters, normalizeResult, setSeededDateFormat } from './result-utils';
 import {
 	focusSortTrigger,
 	getSortMenuOptionKeysFromItem,
@@ -748,7 +748,7 @@ const { state, actions } = store( NAMESPACE, {
 					return;
 				}
 				state.results = ( data.results ?? [] ).map( r =>
-					normalizeResult( r, state.locale, state.searchQuery, state.dateFormat )
+					normalizeResult( r, state.locale, state.searchQuery )
 				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
@@ -819,7 +819,7 @@ const { state, actions } = store( NAMESPACE, {
 				state.results = [
 					...state.results,
 					...( data.results ?? [] ).map( r =>
-						normalizeResult( r, state.locale, state.searchQuery, state.dateFormat )
+						normalizeResult( r, state.locale, state.searchQuery )
 					),
 				];
 				state.pageHandle = data.page_handle ?? null;
@@ -1187,6 +1187,12 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			initialized = true;
+			// The PHP seed (`state.dateFormat`) carries the site's
+			// `date_format` Settings option. It's set once here so
+			// `formatDate()` in result-utils.js can read it from module scope
+			// instead of having every `normalizeResult` call thread it
+			// through — the value never changes for the lifetime of the page.
+			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {

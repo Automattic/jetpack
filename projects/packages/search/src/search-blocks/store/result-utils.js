@@ -13,6 +13,26 @@
 
 import { formatWpDate } from './wp-date-format';
 
+// Module-scoped: the site's WP `date_format` setting is seeded once at store
+// hydration via `setSeededDateFormat()` and read implicitly by `formatDate()`.
+// Threading it through every `normalizeResult` call would be noise — it never
+// changes for the lifetime of the page, and the Interactivity API store is a
+// singleton, so module scope matches the data's actual lifetime.
+let seededDateFormat = '';
+
+/**
+ * Capture the site's WP `date_format` Settings option for use by subsequent
+ * `formatDate()` calls. Called once during store init from the
+ * `state.dateFormat` seed (see `Search_Blocks::seed_interactivity_state()`).
+ *
+ * @param {string} format - WP `date_format` token string, or an empty string
+ *                        when the seed is missing (falls back to the legacy
+ *                        `toLocaleDateString` shape).
+ */
+export function setSeededDateFormat( format ) {
+	seededDateFormat = typeof format === 'string' ? format : '';
+}
+
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 const STRIP_TAGS_PATTERN = /<[^>]*>/g;
@@ -62,21 +82,26 @@ export function toSafeUrl( raw ) {
 /**
  * Format an ISO date string for display on a search result card.
  *
- * When `dateFormat` is supplied (the site's WordPress `date_format` Settings
- * option, seeded by `Search_Blocks::seed_interactivity_state()`), the date is
- * rendered through the PHP `date()`-style token parser in `wp-date-format.js`
- * so result cards match the rest of the site (`F j, Y`, `Y-m-d`, `d/m/Y`,
- * etc.) instead of `toLocaleDateString`'s fixed `{ year, month, day }` shape.
- * The legacy short-form output is kept as the fallback so call sites that
- * don't pass a format (older tests, places where the seed hasn't run) keep
- * working unchanged.
+ * When the module-scoped `seededDateFormat` is non-empty (the site's WP
+ * `date_format` option, captured once at store init via
+ * `setSeededDateFormat()`), the date is rendered through the PHP `date()`-style
+ * token parser in `wp-date-format.js` so result cards match the rest of the
+ * site (`F j, Y`, `Y-m-d`, `d/m/Y`, etc.) instead of `toLocaleDateString`'s
+ * fixed `{ year, month, day }` shape. The legacy short-form output is kept as
+ * the fallback so call sites that run before the seed (older tests, edge
+ * paths) keep working unchanged.
+ *
+ * The `dateFormat` override exists for test ergonomics — call sites pass
+ * nothing in production. Tests reach for the explicit override or for
+ * `setSeededDateFormat()` plus a reset; both are documented in
+ * `result-utils.test.js`.
  *
  * @param {string} iso          - ISO-ish date string.
  * @param {string} [locale]     - BCP47 locale (e.g. `en-US`).
- * @param {string} [dateFormat] - WP `date_format` token string; empty falls back to `toLocaleDateString`.
+ * @param {string} [dateFormat] - Override; defaults to the module-scoped seeded value.
  * @return {string} Formatted date or ''.
  */
-export function formatDate( iso, locale = 'en-US', dateFormat = '' ) {
+export function formatDate( iso, locale = 'en-US', dateFormat = seededDateFormat ) {
 	if ( ! iso ) {
 		return '';
 	}
@@ -422,6 +447,11 @@ export function deriveMatchHint( highlight, titlePieces ) {
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
+ * `formatDate()` reads the site's WP `date_format` from module scope (set
+ * once at store init via `setSeededDateFormat()`), so this signature stays
+ * focused on per-result inputs rather than threading site-wide formatting
+ * context through every call.
+ *
  * @param {object} raw           - Raw result from the API.
  * @param {string} [locale]      - BCP47 locale for date formatting.
  * @param {string} [searchQuery] - The query string the user actually typed. When
@@ -430,12 +460,9 @@ export function deriveMatchHint( highlight, titlePieces ) {
  *                               makes sense in response to a typed query, and
  *                               reads as misleading when every visible result
  *                               was returned by a category/tag/price filter.
- * @param {string} [dateFormat]  - WP `date_format` token string seeded from the
- *                               site option; threaded into `formatDate` so the
- *                               card matches the site's chosen layout.
  * @return {object} Flat result.
  */
-export function normalizeResult( raw, locale = 'en-US', searchQuery = '', dateFormat = '' ) {
+export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 	const fields = raw?.fields ?? {};
 	const highlight = raw?.highlight ?? {};
 	const permalink = toSafeUrl( fields[ 'permalink.url.raw' ] );
@@ -464,7 +491,7 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '', dateFo
 		hasContentPieces: contentPieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
-		dateLabel: formatDate( fields.date, locale, dateFormat ),
+		dateLabel: formatDate( fields.date, locale ),
 		authorLabel: formatAuthor( fields.author ),
 		imageUrl,
 		// Pre-built `url(...)` value so the product layout's CSS background

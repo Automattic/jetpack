@@ -6,10 +6,18 @@ import {
 	formatDate,
 	formatPath,
 	normalizeResult,
+	setSeededDateFormat,
 	stripTags,
 	toSafeUrl,
 	tokenizeHighlight,
 } from '../../../src/search-blocks/store/result-utils';
+
+// `setSeededDateFormat()` writes module-scoped state that bleeds across tests
+// — reset before each case so an earlier seed can't leak into the next test's
+// `formatDate()` / `normalizeResult()` output.
+beforeEach( () => {
+	setSeededDateFormat( '' );
+} );
 
 describe( 'toSafeUrl', () => {
 	it( 'passes through https URLs', () => {
@@ -115,6 +123,28 @@ describe( 'formatDate', () => {
 
 	it( 'leaves the legacy short-form output untouched when dateFormat is empty', () => {
 		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
+
+	it( 'picks up the seeded date format from setSeededDateFormat by default', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// No explicit dateFormat arg → falls back to the module-scoped seed.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'lets an explicit dateFormat argument override the seed', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// Explicit '' override falls back to legacy `toLocaleDateString`; the
+		// seeded `Y-m-d` doesn't leak through.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+} );
+
+describe( 'setSeededDateFormat', () => {
+	it( 'ignores non-string input and resets to empty', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		setSeededDateFormat( null );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( 'Apr 20, 2026' );
 	} );
 } );
 
@@ -507,13 +537,9 @@ describe( 'normalizeResult', () => {
 		expect( r.dateLabel ).toMatch( /20 avr/ );
 	} );
 
-	it( 'passes dateFormat through to dateLabel', () => {
-		const r = normalizeResult(
-			{ fields: { date: '2026-04-20T10:00:00Z' } },
-			'en-US',
-			'',
-			'F j, Y'
-		);
+	it( 'honors the seeded WP date_format when rendering dateLabel', () => {
+		setSeededDateFormat( 'F j, Y' );
+		const r = normalizeResult( { fields: { date: '2026-04-20T10:00:00Z' } }, 'en-US' );
 		expect( r.dateLabel ).toBe( 'April 20, 2026' );
 	} );
 
