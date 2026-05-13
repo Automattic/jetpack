@@ -16,7 +16,7 @@ The Filter by Product Attribute block lets shoppers narrow product results by on
 
 Use Filter by Product Attribute for any shop where the same product comes in variations that shoppers want to filter by — clothes by Size, paint by Finish, plants by Light requirement, and so on. Add one block per attribute you want exposed.
 
-This block only appears in the inserter on sites that use WooCommerce **and** have at least one product attribute registered. If you don't see it, you haven't set up any attributes yet. Visit **WooCommerce → Products → Attributes** in your admin to create one (Color, Size, etc.), and then the block becomes available.
+This block only appears in the inserter on sites that use WooCommerce **and** have at least one product attribute registered. If you don't see it, you haven't set up any attributes yet. Visit **Products → Attributes** in your WordPress admin to create one (Color, Size, etc.), and then the block becomes available.
 
 ## Setting up the block
 

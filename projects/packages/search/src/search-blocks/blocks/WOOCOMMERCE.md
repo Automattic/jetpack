@@ -77,7 +77,7 @@ Lets shoppers narrow product results by brand. Brand is its own WooCommerce taxo
 
 **When to use it:** when you carry multiple brands and your shoppers already know which ones they trust. Skip it for single-brand stores — the filter would always show just one option.
 
-This block only appears in the inserter when WooCommerce **and** the Product Brand taxonomy are both available on your site. If you don't see it, open **WooCommerce → Products → Brands** in your admin and create one — once a brand exists, the filter becomes available.
+This block only appears in the inserter when WooCommerce **and** the Product Brand taxonomy are both available on your site. If you don't see it, open **Products → Brands** in your WordPress admin and create one — once a brand exists, the filter becomes available.
 
 **Settings:** opens the shared **Checkbox Filter** inspector (see [Shared settings inspector](#shared-settings-inspector) below). The defaults are sensible: **Label** is *Product Brand*, **Display style** is *Checkbox list*, **Show result counts** is on.
 
