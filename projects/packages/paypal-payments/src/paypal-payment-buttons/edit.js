@@ -1229,18 +1229,21 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				<ButtonGroup className="jetpack-paypal-payment-buttons__scheme-toggle">
 					<Button
 						variant={ colorScheme === 'light' ? 'primary' : 'secondary' }
+						aria-pressed={ colorScheme === 'light' }
 						onClick={ () => setAttributes( { colorScheme: 'light' } ) }
 					>
 						{ __( 'Light', 'jetpack-paypal-payments' ) }
 					</Button>
 					<Button
 						variant={ colorScheme === 'auto' || ! colorScheme ? 'primary' : 'secondary' }
+						aria-pressed={ colorScheme === 'auto' || ! colorScheme }
 						onClick={ () => setAttributes( { colorScheme: 'auto' } ) }
 					>
 						{ __( 'Auto', 'jetpack-paypal-payments' ) }
 					</Button>
 					<Button
 						variant={ colorScheme === 'dark' ? 'primary' : 'secondary' }
+						aria-pressed={ colorScheme === 'dark' }
 						onClick={ () => setAttributes( { colorScheme: 'dark' } ) }
 					>
 						{ __( 'Dark', 'jetpack-paypal-payments' ) }

@@ -1521,6 +1521,9 @@ test.describe( 'Style Preset', () => {
 		await sidebar.locator( 'button:has-text("Auto")' ).click();
 		await page.waitForTimeout( 300 );
 
+		// Note: the editor always sets data-color-scheme on the wrapper for live preview.
+		// In save.js, the 'auto' value intentionally omits this attribute so legacy blocks
+		// without a stored colorScheme pass block validation without an 'unexpected content' error.
 		await expect( block ).toHaveAttribute( 'data-color-scheme', 'auto', { timeout: 3000 } );
 	} );
 } );
