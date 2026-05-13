@@ -17,7 +17,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ) ) );
 }
 
 /**
@@ -59,9 +59,15 @@ add_action(
 	'init',
 	function () {
 		wp_register_script_module(
+			'wpcom-write/undo-history',
+			wpcom_write_asset_url( 'undo-history.js' ),
+			array(),
+			WPCOM_WRITE_VERSION
+		);
+		wp_register_script_module(
 			'wpcom-write/view',
 			wpcom_write_asset_url( 'view.js' ),
-			array( '@wordpress/interactivity' ),
+			array( '@wordpress/interactivity', 'wpcom-write/undo-history' ),
 			WPCOM_WRITE_VERSION
 		);
 	}
@@ -479,6 +485,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		data-wp-on--keydown="actions.handleToolbarKeyDown"
 	>
 		<div class="bw-toolbar-scroll">
+			<!-- Undo / Redo -->
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>" tabindex="0" data-wp-on--click="actions.undo" data-wp-bind--disabled="!state.canUndo" title="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-undo"></span></button>
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.redo" data-wp-bind--disabled="!state.canRedo" title="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-redo"></span></button>
+			<span class="bw-tool-divider"></span>
 			<!-- Heading dropdown -->
 			<div class="bw-tool-dropdown-wrap">
 				<button class="bw-tool bw-tool-heading-toggle" aria-label="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="0" data-wp-bind--aria-expanded="state.showHeadingMenu" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>">

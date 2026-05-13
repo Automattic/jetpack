@@ -9,6 +9,8 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
+// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+import { createUndoHistory } from 'wpcom-write/undo-history';
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -23,6 +25,10 @@ const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 let lastSavedSnapshot = { title: '', content: '' };
 let autosaveTimer = null;
 let allowLeave = false;
+
+// Undo/redo history — tracked outside the store to avoid triggering reactivity.
+const undoHistory = createUndoHistory();
+let undoPendingTimer = null;
 
 /**
  * Get the current content snapshot for dirty-state comparison.
@@ -86,6 +92,188 @@ let selectedFigure = null;
 let preFigureSelectionRange = null;
 
 let cachedContent = null;
+
+// --- Undo/redo helpers ---
+
+/**
+ * Serialise the current selection as a root-relative node path so it can be
+ * restored after innerHTML is replaced.
+ *
+ * @param {Element} root - The contenteditable container.
+ * @return {Object|null} Cursor descriptor, or null when there is no selection.
+ */
+function serializeCursor( root ) {
+	const sel = window.getSelection();
+	if ( ! sel || sel.rangeCount === 0 ) return null;
+	const range = sel.getRangeAt( 0 );
+	if ( ! root.contains( range.startContainer ) ) return null;
+
+	/**
+	 * Walk from node up to root, recording child indices at each level.
+	 *
+	 * @param {Node} node - The node to build a path for.
+	 * @return {number[]|null} Child-index path from root to node, or null if node is not inside root.
+	 */
+	function getNodePath( node ) {
+		const path = [];
+		let current = node;
+		while ( current !== root ) {
+			const parent = current.parentNode;
+			if ( ! parent ) return null;
+			path.unshift( Array.prototype.indexOf.call( parent.childNodes, current ) );
+			current = parent;
+		}
+		return path;
+	}
+
+	const anchorPath = getNodePath( range.startContainer );
+	const focusPath = getNodePath( range.endContainer );
+	if ( ! anchorPath || ! focusPath ) return null;
+
+	return {
+		anchorPath,
+		anchorOffset: range.startOffset,
+		focusPath,
+		focusOffset: range.endOffset,
+	};
+}
+
+/**
+ * Restore a cursor position previously captured by serializeCursor.
+ * Falls back to the first paragraph when the serialised path can no longer
+ * be resolved (e.g. after a large structural undo).
+ *
+ * @param {Element}     root       - The contenteditable container.
+ * @param {Object|null} cursorInfo - Descriptor returned by serializeCursor, or null.
+ * @return {void}
+ */
+function restoreUndoCursor( root, cursorInfo ) {
+	/** Place the cursor at the start of the first paragraph as a safe fallback. */
+	function fallback() {
+		const p = root.querySelector( 'p' );
+		if ( p ) placeCursorAt( p );
+	}
+
+	/**
+	 * Resolve a root-relative node path to a { node, offset } pair.
+	 *
+	 * @param {number[]} path   - Child-index path from root to the target node.
+	 * @param {number}   offset - Character or child offset within that node.
+	 * @return {Object|null} Resolved node + clamped offset, or null when path is stale.
+	 */
+	function resolvePath( path, offset ) {
+		let node = root;
+		for ( const idx of path ) {
+			node = node.childNodes[ idx ];
+			if ( ! node ) return null;
+		}
+		const maxOffset = node.nodeType === Node.TEXT_NODE ? node.length : node.childNodes.length;
+		return { node, offset: Math.min( offset, maxOffset ) };
+	}
+
+	if ( ! cursorInfo ) return fallback();
+
+	const anchor = resolvePath( cursorInfo.anchorPath, cursorInfo.anchorOffset );
+	const focus = resolvePath( cursorInfo.focusPath, cursorInfo.focusOffset );
+	if ( ! anchor || ! focus ) return fallback();
+
+	try {
+		const sel = window.getSelection();
+		const range = document.createRange();
+		range.setStart( anchor.node, anchor.offset );
+		range.setEnd( focus.node, focus.offset );
+		sel.removeAllRanges();
+		sel.addRange( range );
+	} catch {
+		fallback();
+	}
+}
+
+/**
+ * Capture the current editor state as an undo snapshot.
+ *
+ * @return {object} Snapshot containing html, title, and cursor.
+ */
+function captureUndoSnapshot() {
+	const content = getContent();
+	return {
+		html: content ? content.innerHTML : '',
+		title: state.title || '',
+		cursor: content ? serializeCursor( content ) : null,
+	};
+}
+
+/**
+ * Restore editor content and cursor from an undo snapshot.
+ *
+ * @param {object} snapshot - Snapshot previously created by captureUndoSnapshot.
+ */
+function applyUndoSnapshot( snapshot ) {
+	const content = getContent();
+	if ( content ) {
+		content.innerHTML = snapshot.html;
+		ensureBlockStructure();
+		restoreUndoCursor( content, snapshot.cursor );
+	}
+	const titleEl = document.querySelector( '.bw-title' );
+	if ( titleEl ) {
+		titleEl.value = snapshot.title;
+		state.title = snapshot.title;
+		titleEl.style.height = 'auto';
+		titleEl.style.height = titleEl.scrollHeight + 'px';
+	}
+}
+
+/** Mirror undoHistory.canUndo/canRedo into reactive store state so buttons update. */
+function syncUndoState() {
+	state.canUndo = undoHistory.canUndo;
+	state.canRedo = undoHistory.canRedo;
+}
+
+/** Push the current editor state onto the undo stack (no-op when content is unchanged). */
+function pushToUndoHistory() {
+	undoPendingTimer = null;
+	const snapshot = captureUndoSnapshot();
+	const last = undoHistory.current;
+	if ( last && last.html === snapshot.html && last.title === snapshot.title ) return;
+	undoHistory.push( snapshot );
+	syncUndoState();
+}
+
+/** Schedule a history push 500 ms after the last keystroke. */
+function pushToUndoHistoryDebounced() {
+	if ( undoPendingTimer ) clearTimeout( undoPendingTimer );
+	undoPendingTimer = setTimeout( pushToUndoHistory, 500 );
+}
+
+/** Commit any pending debounced snapshot immediately. */
+function flushUndoDebounce() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		pushToUndoHistory();
+	}
+}
+
+/** Flush pending text input then step back one entry in the undo stack. */
+function performUndo() {
+	flushUndoDebounce();
+	if ( ! undoHistory.canUndo ) return;
+	const snap = undoHistory.undo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
+
+/** Discard pending text input and step forward one entry in the undo stack. */
+function performRedo() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		undoPendingTimer = null;
+	}
+	if ( ! undoHistory.canRedo ) return;
+	const snap = undoHistory.redo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
 
 /**
  * Get the content editable element, caching the reference.
@@ -757,6 +945,7 @@ function animateAndDeleteFigure( fig ) {
 		fig.remove();
 		ensureBlockStructure();
 		placeCursorAfterFigureDelete( next, prev );
+		pushToUndoHistory();
 	}, 200 );
 }
 
@@ -1720,6 +1909,8 @@ const { state } = store( 'wpcom-write', {
 		formatQuote: false,
 		imageUrl: '',
 		headingLabel: i18n.normal || 'Normal',
+		canUndo: false,
+		canRedo: false,
 		get headerLabel() {
 			return state.title.trim() || i18n.untitled || 'Untitled';
 		},
@@ -1925,6 +2116,15 @@ const { state } = store( 'wpcom-write', {
 			// Backspace can unwrap a neighbouring <p>).
 			promoteGapAtCursor();
 			ensureBlockStructure();
+			pushToUndoHistoryDebounced();
+		},
+
+		undo() {
+			performUndo();
+		},
+
+		redo() {
+			performRedo();
 		},
 
 		handleKeyDown( event ) {
@@ -1972,9 +2172,19 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Block undo/redo (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y).
-			if ( ( event.ctrlKey || event.metaKey ) && /^[zy]$/i.test( event.key ) ) {
+			// Undo (Cmd+Z / Ctrl+Z).
+			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'z' && ! event.shiftKey ) {
 				event.preventDefault();
+				performUndo();
+				return;
+			}
+			// Redo (Cmd+Shift+Z / Ctrl+Shift+Z / Ctrl+Y).
+			if (
+				( ( event.ctrlKey || event.metaKey ) && event.key === 'z' && event.shiftKey ) ||
+				( event.ctrlKey && event.key === 'y' )
+			) {
+				event.preventDefault();
+				performRedo();
 				return;
 			}
 
@@ -2186,9 +2396,13 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleBeforeInput( event ) {
-			// Block undo/redo triggered via browser Edit menu.
-			if ( event.inputType === 'historyUndo' || event.inputType === 'historyRedo' ) {
+			// Route Edit menu undo/redo through our history stack.
+			if ( event.inputType === 'historyUndo' ) {
 				event.preventDefault();
+				performUndo();
+			} else if ( event.inputType === 'historyRedo' ) {
+				event.preventDefault();
+				performRedo();
 			}
 		},
 
@@ -2811,6 +3025,7 @@ const { state } = store( 'wpcom-write', {
 
 			state.showImageModal = false;
 			resetUploadZone();
+			pushToUndoHistory();
 		},
 
 		async uploadImage() {
@@ -2863,10 +3078,13 @@ const { state } = store( 'wpcom-write', {
 		// --- Slash commands ---
 
 		insertHeading() {
+			flushUndoDebounce();
 			insertNewBlock( 'h2' );
+			pushToUndoHistory();
 		},
 
 		insertImage() {
+			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
@@ -2880,15 +3098,21 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertBulletedList() {
+			flushUndoDebounce();
 			insertNewList( 'ul' );
+			pushToUndoHistory();
 		},
 
 		insertNumberedList() {
+			flushUndoDebounce();
 			insertNewList( 'ol' );
+			pushToUndoHistory();
 		},
 
 		insertQuote() {
+			flushUndoDebounce();
 			insertNewBlock( 'blockquote' );
+			pushToUndoHistory();
 		},
 
 		insertVideo() {
@@ -2979,9 +3203,11 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showVideoModal = false;
+			pushToUndoHistory();
 		},
 
 		insertDivider() {
+			flushUndoDebounce();
 			clearSlashText();
 			const hr = document.createElement( 'hr' );
 			const p = document.createElement( 'p' );
@@ -3013,6 +3239,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			clearSlashActive();
 			state.showSlashMenu = false;
+			pushToUndoHistory();
 		},
 
 		// --- UI toggles ---
@@ -3384,6 +3611,8 @@ const autosaveReady = setInterval( () => {
 
 	// Capture the initial snapshot so edits are detected relative to load state.
 	updateSavedSnapshot();
+	// Seed the undo history with the initial content so Cmd+Z can return to it.
+	pushToUndoHistory();
 
 	// Start the periodic autosave timer.
 	const { actions } = store( 'wpcom-write' );
