@@ -18,13 +18,14 @@ import './dashboard-page.scss';
 
 const DEFAULT_TAB = 'plan-usage';
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
+const TAB_QUERY_PARAM = 'tab';
 
 const getInitialTab = () => {
 	if ( typeof window === 'undefined' ) {
 		return DEFAULT_TAB;
 	}
 
-	const requestedTab = new URLSearchParams( window.location.search ).get( 'tab' );
+	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
 
 	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
 };
@@ -48,7 +49,7 @@ export default function DashboardPage( { isLoading = false } ) {
 		}
 
 		const url = new URL( window.location.href );
-		url.searchParams.set( 'tab', tab );
+		url.searchParams.set( TAB_QUERY_PARAM, tab );
 		window.history.replaceState( {}, '', url.toString() );
 	};
 

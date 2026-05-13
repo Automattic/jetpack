@@ -145,6 +145,7 @@ describe( 'DashboardPage', () => {
 			'true'
 		);
 		expect( replaceStateSpy ).toHaveBeenCalledTimes( 1 );
+		expect( window.location.search ).toContain( 'tab=unknown' );
 		replaceStateSpy.mockRestore();
 	} );
 
