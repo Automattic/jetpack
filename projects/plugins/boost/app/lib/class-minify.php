@@ -28,7 +28,7 @@ class Minify {
 		// MatthiasMullie is an ES5-only minifier. ES6+ template literals (backtick
 		// strings) cause it to silently truncate the output, corrupting the file.
 		// Skip minification entirely when the content contains backticks.
-		if ( str_contains( $js, '`' ) ) {
+		if ( strpos( $js, '`' ) !== false ) {
 			return $js;
 		}
 
