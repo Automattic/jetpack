@@ -73,7 +73,7 @@ function wpcom_activitypub_reader_auth_check_permission( $result, $request, $sco
  * @return bool
  */
 function wpcom_activitypub_reader_auth_is_oauth_request(): bool {
-	return class_exists( '\Activitypub\OAuth\Server' )
+	return class_exists( 'Activitypub\OAuth\Server' )
 		&& \Activitypub\OAuth\Server::is_oauth_request();
 }
 
