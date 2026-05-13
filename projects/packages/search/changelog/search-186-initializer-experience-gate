@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Initializer: gate the Instant Search frontend on get_experience() === 'overlay' instead of the legacy is_instant_search_enabled() boolean, so an overlay → embedded/inline transition correctly switches the loaded frontend.
