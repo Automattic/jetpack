@@ -12,13 +12,11 @@
 	bottom: 0;
 	left: 0;
 
-	// Offsets below: 32px wpadminbar + ~137px AdminPage header chrome
-	// (title + subtitle + tab list). The header chrome is `position: relative`
-	// so it scrolls away with the page — pinning the notice below where the
-	// chrome sits at scroll=0 keeps it from overlapping the title on first
-	// paint without making it unreachable once the user scrolls.
+	// Sit just below the wpadminbar (32px, the only `position: fixed` chrome).
+	// The AdminPage header and tabs are `position: relative` and scroll away,
+	// so we don't compensate for them.
 	@include calypso-mixins.breakpoint( ">660px" ) {
-		top: 32px + 137px + 16px;
+		top: 32px + 16px;
 		right: 16px;
 		bottom: auto;
 		left: auto;
@@ -36,7 +34,7 @@
 	}
 
 	@include calypso-mixins.breakpoint( ">960px" ) {
-		top: 32px + 137px + 24px;
+		top: 32px + 24px;
 		right: 24px;
 
 		/* `160px` being the width of the WP-admin sidebar */
