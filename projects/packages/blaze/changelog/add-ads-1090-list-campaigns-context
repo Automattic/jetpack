@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Abilities: Expose campaign status filtering and campaign context in list-campaigns.
