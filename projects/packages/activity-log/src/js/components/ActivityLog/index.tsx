@@ -236,6 +236,12 @@ export default function ActivityLog() {
 	// the list / counts queries so the available options match what's on
 	// screen, and intentionally independent of the current filter state so
 	// selections don't shrink the dropdown to themselves.
+	//
+	// `number: 1000` matches the upstream REST schema's max for events
+	// scanned. On very large windows where >1000 events exist, actors who
+	// only appear beyond the scan horizon won't surface in the dropdown
+	// — bumping that ceiling would need a coordinated change to the
+	// Jetpack proxy and the WPCOM endpoint.
 	const { data: actorsData, isFetching: isFetchingActors } = useQuery(
 		activityLogActorsQuery( {
 			number: 1000,
