@@ -44,6 +44,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DashboardPage from '../dashboard-page';
 
+const DEFAULT_TEST_URL = 'https://example.com/wp-admin/admin.php?page=jetpack-search';
+
 const createSelectMethods = () => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
 	getAPIRootUrl: jest.fn( () => 'https://example.com/wp-json/' ),
@@ -89,11 +91,7 @@ const createSelectMethods = () => ( {
 describe( 'DashboardPage', () => {
 	beforeEach( () => {
 		mockModuleControl.mockClear();
-		window.history.replaceState(
-			{},
-			'',
-			'https://example.com/wp-admin/admin.php?page=jetpack-search'
-		);
+		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -121,11 +119,7 @@ describe( 'DashboardPage', () => {
 	} );
 
 	test( 'hydrates active tab from the URL query string', () => {
-		window.history.replaceState(
-			{},
-			'',
-			'https://example.com/wp-admin/admin.php?page=jetpack-search&tab=ai-answers'
-		);
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
 
 		render( <DashboardPage /> );
 
@@ -137,11 +131,7 @@ describe( 'DashboardPage', () => {
 	} );
 
 	test( 'falls back to the default tab when URL tab is unknown', () => {
-		window.history.replaceState(
-			{},
-			'',
-			'https://example.com/wp-admin/admin.php?page=jetpack-search&tab=unknown'
-		);
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
 
 		render( <DashboardPage /> );
 
@@ -162,7 +152,7 @@ describe( 'DashboardPage', () => {
 			expect( replaceStateSpy ).toHaveBeenCalledWith(
 				{},
 				'',
-				'https://example.com/wp-admin/admin.php?page=jetpack-search&tab=ai-answers'
+				`${ DEFAULT_TEST_URL }&tab=ai-answers`
 			)
 		);
 		replaceStateSpy.mockRestore();
