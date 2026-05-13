@@ -33,7 +33,7 @@ import {
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is stable in the version we depend on.
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
@@ -1700,7 +1700,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									variantsEnabled: false,
 									variants: undefined,
 									adjustableQuantity: false,
+									maxQuantity: 10,
 									customerNotes: [],
+									taxEnabled: false,
+									taxType: 'PERCENTAGE',
+									taxName: 'Sales Tax',
+									taxValue: '',
+									buttonText: 'Buy Now With PayPal',
+									showQrCode: true,
 								} );
 								setTouchedFields( {} );
 								setError( null );
