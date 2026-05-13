@@ -5,12 +5,12 @@ const premiumFeaturesSchema = z.array( z.string() );
 
 type PremiumFeatures = z.infer< typeof premiumFeaturesSchema >;
 
-export const usePremiumFeatures = () => {
+export const usePremiumFeatures = (): PremiumFeatures => {
 	const [ { data: premiumFeatures } ] = useDataSync(
 		'jetpack_boost_ds',
 		'premium_features',
 		premiumFeaturesSchema
 	);
 
-	return premiumFeatures as PremiumFeatures;
+	return ( premiumFeatures ?? [] ) as PremiumFeatures;
 };
