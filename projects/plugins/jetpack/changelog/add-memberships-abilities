@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities API: register Memberships reads (list-plans, list-subscribers, get-earnings-summary).
