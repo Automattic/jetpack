@@ -16,6 +16,19 @@ import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
+const DEFAULT_TAB = 'plan-usage';
+const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
+
+const getInitialTab = () => {
+	if ( typeof window === 'undefined' ) {
+		return DEFAULT_TAB;
+	}
+
+	const requestedTab = new URLSearchParams( window.location.search ).get( 'tab' );
+
+	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+};
+
 /**
  * SearchDashboard component definition.
  *
@@ -25,7 +38,19 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( 'plan-usage' );
+	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+
+	const handleTabChange = tab => {
+		setActiveTab( tab );
+
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+
+		const url = new URL( window.location.href );
+		url.searchParams.set( 'tab', tab );
+		window.history.replaceState( {}, '', url.toString() );
+	};
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
@@ -135,7 +160,7 @@ export default function DashboardPage( { isLoading = false } ) {
 					notices={ notices }
 					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 				/>
-				<Tabs.Root value={ activeTab } onValueChange={ setActiveTab }>
+				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 					<Tabs.List>
 						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
