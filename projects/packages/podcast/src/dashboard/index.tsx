@@ -12,6 +12,7 @@ import type { TabName } from './types';
 
 const Welcome = lazy( () => import( './welcome' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
+const CreateTab = lazy( () => import( './create' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
@@ -22,7 +23,13 @@ const TabFallback = () => (
 	</div>
 );
 
-const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution', 'stats' ];
+const VALID_TABS: readonly TabName[] = [
+	'settings',
+	'create',
+	'episodes',
+	'distribution',
+	'stats',
+];
 
 const isValidTab = ( value: unknown ): value is TabName =>
 	typeof value === 'string' && ( VALID_TABS as readonly string[] ).includes( value );
@@ -113,6 +120,9 @@ const App = () => {
 				<div className="jp-admin-page-tabs">
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="create" disabled={ ! isSetUp }>
+							{ __( 'Create', 'jetpack-podcast' ) }
+						</Tabs.Tab>
 						<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
 							{ __( 'Episodes', 'jetpack-podcast' ) }
 						</Tabs.Tab>
@@ -129,6 +139,15 @@ const App = () => {
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
 								<SettingsTab />
+							</Suspense>
+						</ErrorBoundary>
+					</div>
+				</Tabs.Panel>
+				<Tabs.Panel value="create">
+					<div className="podcast__tab-content podcast__tab-content--narrow">
+						<ErrorBoundary>
+							<Suspense fallback={ <TabFallback /> }>
+								<CreateTab />
 							</Suspense>
 						</ErrorBoundary>
 					</div>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Posts to Podcast: move the "Generate episode from recent posts" UI out of the Settings tab into a new "Create" tab. The tab is gated on the same `podcasting_category_id > 0` check as Episodes/Distribution/Stats.
