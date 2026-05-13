@@ -1,14 +1,14 @@
 import { __ } from '@wordpress/i18n';
-import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
-import styles from './cache-debug-log.module.scss';
-import clsx from 'clsx';
+import { Card, Stack } from '@wordpress/ui';
 import { CopyToClipboard, JetpackLogo } from '@automattic/jetpack-components';
-import { useDebugLog } from '$features/page-cache/lib/stores';
-import { useNavigate } from 'react-router';
-import { recordBoostEvent } from '$lib/utils/analytics';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useNavigate } from 'react-router';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import { useDebugLog } from '$features/page-cache/lib/stores';
+import { recordBoostEvent } from '$lib/utils/analytics';
+import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
@@ -47,29 +47,39 @@ const CacheDebugLog = () => {
 		</nav>
 	);
 
+	const hasLog = !! debugLog;
+
 	return (
 		<BoostAdminPage breadcrumbs={ breadcrumbs }>
-			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-				<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
-					<div className="jb-container">
-						<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
-						<header className={ styles.header }>
-							<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
+			<Card.Root>
+				<Card.Header>
+					<Stack direction="row" justify="space-between" align="center" gap="md">
+						<Card.Title>{ __( 'Jetpack Boost cache log viewer', 'jetpack-boost' ) }</Card.Title>
+						{ hasLog && (
 							<CopyToClipboard
 								buttonStyle="icon-text"
-								className={ styles[ 'copy-button' ] }
 								textToCopy={ debugLog || '' }
 								variant="link"
 								weight="regular"
 							>
 								{ __( 'Copy to clipboard', 'jetpack-boost' ) }
 							</CopyToClipboard>
-						</header>
-
+						) }
+					</Stack>
+				</Card.Header>
+				<Card.Content>
+					{ hasLog ? (
 						<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
-					</div>
-				</div>
-			</div>
+					) : (
+						<p className={ styles.empty }>
+							{ __(
+								'No cache events have been logged yet. Browse your site with logging enabled to start collecting entries.',
+								'jetpack-boost'
+							) }
+						</p>
+					) }
+				</Card.Content>
+			</Card.Root>
 		</BoostAdminPage>
 	);
 };

@@ -2,6 +2,17 @@ import { animated, useSpring } from '@react-spring/web';
 import useMeasure from 'react-use-measure';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
+	Button as WPButton,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { closeSmall } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { JetpackLogo } from '@automattic/jetpack-components';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import { recordBoostEvent } from '$lib/utils/analytics';
+import {
 	useCriticalCssState,
 	useSetProviderErrorDismissedAction,
 } from '$features/critical-css/lib/stores/critical-css-state';
@@ -10,14 +21,8 @@ import {
 	groupErrorsByFrequency,
 	groupRecommendationsByStatus,
 } from '$features/critical-css/lib/critical-css-errors';
-import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
-import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import clsx from 'clsx';
-import { Button } from '@automattic/jetpack-components';
 import {
 	DismissedItem,
 	ProviderRecommendation,
@@ -35,6 +40,7 @@ type HeadingMetaProps = {
 export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();
 	const setDismissedAction = useSetProviderErrorDismissedAction();
+	const navigate = useNavigate();
 
 	const providersWithIssues = cssState.providers.filter( p => p.status === 'error' );
 	const { activeRecommendations, dismissedRecommendations } =
@@ -50,13 +56,21 @@ export default function AdvancedCriticalCss() {
 		);
 	}
 
-	// If there are no issues at all, redirect to the main page.
-	const navigate = useNavigate();
 	useEffect( () => {
 		if ( providersWithIssues.length === 0 ) {
 			navigate( '/' );
 		}
 	}, [ providersWithIssues, navigate ] );
+
+	const handleBack = ( e: React.MouseEvent ) => {
+		e.preventDefault();
+		recordBoostEvent( 'back_button_clicked', {
+			current_page: window.location.href.replace( window.location.origin, '' ),
+			destination: '/',
+		} );
+		navigate( '/' );
+	};
+
 	const heading =
 		activeRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
@@ -75,31 +89,56 @@ export default function AdvancedCriticalCss() {
 		);
 	};
 
+	const breadcrumbs = (
+		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
+			<HStack
+				as="ul"
+				className="admin-ui-breadcrumbs__list"
+				spacing={ 0 }
+				justify="flex-start"
+				alignment="center"
+			>
+				<li>
+					<a href="#/" onClick={ handleBack } className={ styles[ 'breadcrumb-link' ] }>
+						<JetpackLogo showText={ false } height={ 20 } />
+						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+					</a>
+				</li>
+				<li>
+					<h1 className={ styles[ 'breadcrumb-current' ] }>
+						{ __( 'Critical CSS recommendations', 'jetpack-boost' ) }
+					</h1>
+				</li>
+			</HStack>
+		</nav>
+	);
+
 	return (
-		<div className="jb-container--narrow jb-critical-css__advanced">
-			<BackButton />
+		<BoostAdminPage breadcrumbs={ breadcrumbs }>
+			<Stack direction="column" gap="lg" className={ styles.container }>
+				<Card.Root>
+					<Card.Content>
+						<Stack direction="column" gap="md">
+							<Heading heading={ heading } />
+							{ dismissedRecommendations.length > 0 && (
+								<HeadingMeta
+									dismissedIssues={ dismissedRecommendations }
+									showDismissedIssues={ showDismissedIssues }
+								/>
+							) }
+						</Stack>
+					</Card.Content>
+				</Card.Root>
 
-			<h3>{ __( 'Critical CSS advanced recommendations', 'jetpack-boost' ) }</h3>
-
-			<section>
-				<Heading heading={ heading } />
-
-				{ dismissedRecommendations.length > 0 && (
-					<HeadingMeta
-						dismissedIssues={ dismissedRecommendations }
-						showDismissedIssues={ showDismissedIssues }
+				{ activeRecommendations.map( ( recommendation: ProviderRecommendation ) => (
+					<Recommendation
+						key={ `${ recommendation.key }-${ recommendation.errorType }` }
+						recommendation={ recommendation }
+						setDismissed={ setDismissed }
 					/>
-				) }
-			</section>
-
-			{ activeRecommendations.map( ( recommendation: ProviderRecommendation ) => (
-				<Recommendation
-					key={ `${ recommendation.key }-${ recommendation.errorType }` }
-					recommendation={ recommendation }
-					setDismissed={ setDismissed }
-				/>
-			) ) }
-		</div>
+				) ) }
+			</Stack>
+		</BoostAdminPage>
 	);
 }
 
@@ -111,7 +150,9 @@ const Heading = ( { heading }: { heading: string } ) => {
 
 	return (
 		<animated.div style={ animationStyles }>
-			<p ref={ ref }>{ heading }</p>
+			<Text ref={ ref } variant="body" render={ <p style={ { margin: 0 } } /> }>
+				{ heading }
+			</Text>
 		</animated.div>
 	);
 };
@@ -129,26 +170,22 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 		<animated.div
 			style={ {
 				overflow: 'hidden',
-				marginTop: 24,
-				marginBottom: 24,
 				...animationStyles,
 			} }
 		>
 			<div ref={ ref }>
-				<p style={ { margin: 0 } }>
-					<Button variant="link" size="small" onClick={ () => setShowHidden( true ) }>
-						{ sprintf(
-							/* translators: %d is a number of recommendations which were previously hidden by the user */
-							_n(
-								'Show %d hidden recommendation.',
-								'Show %d hidden recommendations.',
-								dismissedIssues.length,
-								'jetpack-boost'
-							),
-							dismissedIssues.length
-						) }
-					</Button>
-				</p>
+				<WPButton variant="link" size="small" onClick={ () => setShowHidden( true ) }>
+					{ sprintf(
+						/* translators: %d is a number of recommendations which were previously hidden by the user */
+						_n(
+							'Show %d hidden recommendation.',
+							'Show %d hidden recommendations.',
+							dismissedIssues.length,
+							'jetpack-boost'
+						),
+						dismissedIssues.length
+					) }
+				</WPButton>
 			</div>
 		</animated.div>
 	);
@@ -164,7 +201,7 @@ const Recommendation = ( { recommendation, setDismissed }: RecommendationProps )
 		return null;
 	}
 
-	return errorSets.map( ( errorSet, _index ) => (
+	return errorSets.map( errorSet => (
 		<SingleRecommendation
 			key={ `${ recommendation.key }-${ errorSet.type }` }
 			recommendation={ recommendation }
@@ -208,17 +245,23 @@ const SingleRecommendation = ( {
 			className={ styles[ 'recommendation-animation-wrapper' ] }
 			style={ animationStyles }
 		>
-			<div ref={ ref } className={ clsx( 'panel', styles.panel ) }>
-				<CloseButton onClick={ () => setIsDismissed( true ) } />
-
-				<h4>
-					<InfoIcon />
-					{ recommendation.label }
-				</h4>
-
-				<div className={ styles.problem }>
-					<CriticalCssErrorDescription errorSet={ errorSet } />
-				</div>
+			<div ref={ ref }>
+				<Card.Root>
+					<Card.Header>
+						<Stack direction="row" justify="space-between" align="center" gap="md">
+							<Card.Title>{ recommendation.label }</Card.Title>
+							<WPButton
+								size="small"
+								icon={ closeSmall }
+								label={ __( 'Dismiss', 'jetpack-boost' ) }
+								onClick={ () => setIsDismissed( true ) }
+							/>
+						</Stack>
+					</Card.Header>
+					<Card.Content>
+						<CriticalCssErrorDescription errorSet={ errorSet } />
+					</Card.Content>
+				</Card.Root>
 			</div>
 		</animated.div>
 	);

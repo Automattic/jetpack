@@ -5,6 +5,9 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
+import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
+import NoticeManager from '$features/notice/manager';
+import { NoticeProvider } from '$features/notice/context';
 import { useEffect, StrictMode } from 'react';
 import type { JSX } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -48,11 +51,14 @@ const useBoostRouter = () => {
 			path: '/critical-css-advanced',
 			loader: checkForGettingStarted,
 			element: (
-				<SettingsPage>
-					<Tracks>
-						<AdvancedCriticalCss />
-					</Tracks>
-				</SettingsPage>
+				<NoticeProvider>
+					<CriticalCssProvider>
+						<Tracks>
+							<AdvancedCriticalCss />
+							<NoticeManager />
+						</Tracks>
+					</CriticalCssProvider>
+				</NoticeProvider>
 			),
 		},
 		{

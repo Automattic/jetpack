@@ -1,5 +1,3 @@
-@use "$css/main/variables";
-
 .breadcrumbs :global(.admin-ui-breadcrumbs__list) {
 	min-height: auto;
 
@@ -33,21 +31,24 @@
 	}
 }
 
-.header {
-	display: flex;
-	align-items: center;
-}
-
-.copy-button:global(.components-button.is-link) {
-	margin-left: 2em;
-}
-
 .log-text {
-	margin-top: 32px;
+	margin: 0;
+	padding: var(--wpds-dimension-gap-md, 16px);
+	background: var(--wpds-color-bg-surface-neutral-weak, #f6f7f7);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+	border-radius: var(--wpds-border-radius-md, 4px);
 	overflow-x: auto;
 	overflow-y: clip;
+	font-family: var(--wpds-typography-font-family-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+	line-height: 1.5;
+	color: var(--wpds-color-fg-content-neutral, #50575e);
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
 }
 
-.section {
-	border-top: 1px solid variables.$gray_5;
+.empty {
+	margin: 0;
+	color: var(--wpds-color-fg-content-neutral, #50575e);
+	font-size: var(--wpds-typography-font-size-md, 13px);
 }

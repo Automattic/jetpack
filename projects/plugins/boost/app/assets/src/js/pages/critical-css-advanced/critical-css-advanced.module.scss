@@ -1,41 +1,40 @@
-@use "$css/main/mixins";
-@use "$css/main/variables";
+.breadcrumbs :global(.admin-ui-breadcrumbs__list) {
+	min-height: auto;
 
-.problem {
-
-	img {
-		margin-top: 20px;
-		display: block;
+	li {
+		display: flex;
+		align-items: center;
+		margin-bottom: 0;
 	}
+}
+
+.breadcrumb-current {
+	display: inline;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	margin: 0;
+}
+
+.breadcrumb-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: inherit;
+	text-decoration: none;
+
+	&:hover,
+	&:focus,
+	&:active {
+		color: inherit;
+		text-decoration: underline;
+	}
+}
+
+.container {
+	max-width: 880px;
 }
 
 .recommendation-animation-wrapper {
-	margin-top: 32px;
 	overflow: hidden;
-}
-
-.panel {
-	margin-top: 0;
-	position: relative;
-	border: 1px solid variables.$gray_5;
-	border-radius: 4px;
-	padding: 24px 69px 24px 27px;
-
-	li {
-
-		@include mixins.word-wrap();
-	}
-
-	h4 {
-		font-size: 20px;
-		margin-bottom: 1rem;
-		font-weight: 700;
-
-		svg {
-			vertical-align: sub;
-			margin: 4px 4px 2px 0;
-			height: 20px;
-			fill: variables.$color_warning;
-		}
-	}
 }

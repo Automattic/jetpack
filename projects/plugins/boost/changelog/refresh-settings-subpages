@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost dashboard: refreshed the two Settings sub-pages (Cache debug log and Critical CSS advanced recommendations) to use the same breadcrumb shell and WPDS Card patterns as the modernized Settings tab.
