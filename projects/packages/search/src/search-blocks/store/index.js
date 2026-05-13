@@ -943,7 +943,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
-				isWooCommerceActive: state.isWooCommerceActive,
+				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
 		},
 
@@ -954,7 +954,11 @@ const { state, actions } = store( NAMESPACE, {
 		 */
 		*handlePopState() {
 			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
-				readStateFromUrl( state.filterConfigs, state.searchParamName, state.isWooCommerceActive );
+				readStateFromUrl(
+					state.filterConfigs,
+					state.searchParamName,
+					state.isWooCommerceBlocksEnabled
+				);
 			state.searchQuery = searchQuery;
 			// Keep `hasSearchParam` in lockstep with the live URL so any future
 			// reader (e.g. `showNoResults`) sees the current state rather than

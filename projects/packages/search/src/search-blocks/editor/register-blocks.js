@@ -103,7 +103,7 @@ setCategories(
 // gated out" — defensive against the bundle being loaded outside its
 // enqueue path (e.g. test harness), which can't happen in production.
 const config = ( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig ) || {};
-const isWooCommerceActive = config.isWooCommerceActive === true;
+const isWooCommerceBlocksEnabled = config.isWooCommerceBlocksEnabled === true;
 const wcOnlyBlocks = new Set(
 	Array.isArray( config.woocommerceOnlyBlocks ) ? config.woocommerceOnlyBlocks : []
 );
@@ -138,7 +138,7 @@ addFilter(
 );
 
 BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
-	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
+	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
 	// Dev-only safety net: since `block.json` no longer carries an `icon`

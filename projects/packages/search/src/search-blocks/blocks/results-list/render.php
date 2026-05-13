@@ -78,7 +78,7 @@ if ( 'card' === $layout ) {
 // neutral `expanded` layout so an author who saved `product` on a Woo
 // site that later deactivates WC still sees a sensible result page.
 // Mirrors the inspector-side gate in edit.js.
-if ( 'product' === $layout && ! Search_Blocks::is_woocommerce_active() ) {
+if ( 'product' === $layout && ! Search_Blocks::woocommerce_blocks_enabled() ) {
 	$layout = 'expanded';
 }
 $features      = $resolve_layout( $layout );
