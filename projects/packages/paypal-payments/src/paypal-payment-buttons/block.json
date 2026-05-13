@@ -124,6 +124,11 @@
 		"showQrCode": {
 			"type": "boolean",
 			"default": true
+		},
+		"format": {
+			"type": "string",
+			"enum": [ "BUTTON", "LINK", "QR" ],
+			"default": "BUTTON"
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",

@@ -16,9 +16,63 @@
 import QRCode from 'qrcode';
 
 /**
- * Initialize QR code toggles for all PayPal button blocks on the page.
+ * Shared QR generation options.
  */
-function initQRCodes() {
+const QR_OPTIONS = {
+	width: 200,
+	margin: 2,
+	errorCorrectionLevel: 'M',
+	color: {
+		dark: '#253B80', // PayPal dark blue
+		light: '#FFFFFF',
+	},
+};
+
+/**
+ * Wire a download button to a canvas — convert canvas to PNG on click.
+ *
+ * @param {HTMLButtonElement|null} downloadBtn - The download button, or null to no-op.
+ * @param {HTMLCanvasElement}      canvas      - The QR canvas to export.
+ */
+function wireDownloadButton( downloadBtn, canvas ) {
+	if ( ! downloadBtn ) {
+		return;
+	}
+	downloadBtn.addEventListener( 'click', () => {
+		const dataUrl = canvas.toDataURL( 'image/png' );
+		const link = document.createElement( 'a' );
+		link.download = 'paypal-payment-qr.png';
+		link.href = dataUrl;
+		link.click();
+	} );
+}
+
+/**
+ * Wire a copy-link button to copy the given URL to the clipboard.
+ *
+ * @param {HTMLButtonElement|null} copyBtn - The copy button, or null to no-op.
+ * @param {string}                 url     - The URL to copy.
+ */
+function wireCopyButton( copyBtn, url ) {
+	if ( ! copyBtn ) {
+		return;
+	}
+	copyBtn.addEventListener( 'click', () => {
+		navigator.clipboard.writeText( url ).then( () => {
+			const copiedLabel = copyBtn.dataset.copiedLabel || 'Copied!';
+			const copyLabel = copyBtn.dataset.copyLabel || copyBtn.textContent;
+			copyBtn.textContent = copiedLabel;
+			setTimeout( () => {
+				copyBtn.textContent = copyLabel;
+			}, 2000 );
+		} );
+	} );
+}
+
+/**
+ * Initialize toggle-based QR codes (BUTTON format with showQrCode enabled).
+ */
+function initQRToggles() {
 	const toggles = document.querySelectorAll( '.jetpack-paypal-button__qr-toggle' );
 
 	toggles.forEach( toggle => {
@@ -54,15 +108,7 @@ function initQRCodes() {
 				const paymentLink = container.querySelector( '.jetpack-paypal-button__paypal-link' );
 				const qrUrl = ( paymentLink && paymentLink.href ) || window.location.href;
 
-				QRCode.toCanvas( canvas, qrUrl, {
-					width: 200,
-					margin: 2,
-					errorCorrectionLevel: 'M',
-					color: {
-						dark: '#253B80', // PayPal dark blue
-						light: '#FFFFFF',
-					},
-				} );
+				QRCode.toCanvas( canvas, qrUrl, QR_OPTIONS );
 				generated = true;
 			}
 
@@ -71,17 +117,46 @@ function initQRCodes() {
 			toggle.setAttribute( 'aria-expanded', 'true' );
 		} );
 
-		// Download button — convert canvas to PNG.
-		if ( downloadBtn ) {
-			downloadBtn.addEventListener( 'click', () => {
-				const dataUrl = canvas.toDataURL( 'image/png' );
-				const link = document.createElement( 'a' );
-				link.download = 'paypal-payment-qr.png';
-				link.href = dataUrl;
-				link.click();
-			} );
-		}
+		wireDownloadButton( downloadBtn, canvas );
 	} );
+}
+
+/**
+ * Initialize standalone QR codes (QR format — no toggle, renders immediately on load).
+ *
+ * The PHP render callback emits:
+ *   <canvas class="jetpack-paypal-button__qr-canvas--standalone" data-qr-url="{url}">
+ */
+function initStandaloneQRCodes() {
+	const canvases = document.querySelectorAll( '.jetpack-paypal-button__qr-canvas--standalone' );
+
+	canvases.forEach( canvas => {
+		const qrUrl = canvas.dataset.qrUrl;
+		if ( ! qrUrl ) {
+			return;
+		}
+
+		QRCode.toCanvas( canvas, qrUrl, QR_OPTIONS );
+
+		const container = canvas.closest( '.wp-block-jetpack-paypal-payment-buttons' );
+		if ( ! container ) {
+			return;
+		}
+
+		const downloadBtn = container.querySelector( '.jetpack-paypal-button__qr-download' );
+		const copyBtn = container.querySelector( '.jetpack-paypal-button__qr-copy' );
+
+		wireDownloadButton( downloadBtn, canvas );
+		wireCopyButton( copyBtn, qrUrl );
+	} );
+}
+
+/**
+ * Initialize all QR code variants on the page.
+ */
+function initQRCodes() {
+	initQRToggles();
+	initStandaloneQRCodes();
 }
 
 // Run on DOMContentLoaded.

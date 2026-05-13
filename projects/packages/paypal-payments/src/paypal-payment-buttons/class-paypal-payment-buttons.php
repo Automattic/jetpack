@@ -209,6 +209,12 @@ class PayPal_Payment_Buttons {
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
 		$show_qr_code        = $attributes['showQrCode'] ?? true;
+		$format              = $attributes['format'] ?? 'BUTTON';
+
+		// Validate — only known format values are accepted.
+		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
+			$format = 'BUTTON';
+		}
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;
@@ -221,14 +227,74 @@ class PayPal_Payment_Buttons {
 		}
 
 		self::register_hooks();
-		if ( $show_qr_code ) {
-			self::enqueue_qr_script();
+
+		// QR script needed for BUTTON (toggle) and QR (standalone) formats.
+		if ( 'LINK' !== $format ) {
+			if ( 'QR' === $format || $show_qr_code ) {
+				self::enqueue_qr_script();
+			}
 		}
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url(
 			add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized_payment_url )
 		);
+
+		// ─── LINK format: plain anchor ───────────────────────────────────
+		if ( 'LINK' === $format ) {
+			$wrapper_attributes = get_block_wrapper_attributes();
+			$link_label         = ! empty( $product_name )
+				? $product_name
+				: esc_html__( 'Pay with PayPal', 'jetpack-paypal-payments' );
+
+			return sprintf(
+				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
+				$wrapper_attributes,
+				$action_url,
+				esc_html( $link_label ),
+				esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' )
+			);
+		}
+
+		// ─── QR format: standalone auto-rendering QR canvas ──────────────
+		if ( 'QR' === $format ) {
+			$wrapper_attributes = get_block_wrapper_attributes();
+			$download_label     = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
+			$copy_label         = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
+			$copied_label       = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
+			$product_label      = ! empty( $product_name )
+				? sprintf(
+					'<p class="jetpack-paypal-button__qr-product-name">%s</p>',
+					esc_html( $product_name )
+				)
+				: '';
+
+			return sprintf(
+				'<div %1$s>
+	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format">
+		%2$s
+		<div class="jetpack-paypal-button__qr-standalone">
+			<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" data-qr-url="%3$s"></canvas>
+			<div class="jetpack-paypal-button__qr-link">
+				<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="%3$s" />
+				<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="%4$s" data-copied-label="%5$s">%4$s</button>
+			</div>
+			<button type="button" class="jetpack-paypal-button__qr-download">%6$s</button>
+		</div>
+		<p class="jetpack-paypal-button__attribution">%7$s</p>
+	</div>
+</div>',
+				$wrapper_attributes,
+				$product_label,
+				esc_attr( $action_url ),
+				$copy_label,
+				$copied_label,
+				$download_label,
+				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
+			);
+		}
+
+		// ─── BUTTON format (default): existing full button card ──────────
 
 		// Product image (WordPress-side only, not sent to PayPal).
 		$image_html = '';
@@ -304,7 +370,7 @@ class PayPal_Payment_Buttons {
 			}
 		}
 
-		// QR code section (conditionally rendered).
+		// QR code toggle section (conditionally rendered for BUTTON format).
 		$qr_html = '';
 		if ( $show_qr_code ) {
 			$qr_show     = esc_attr__( 'Show Link or QR Code', 'jetpack-paypal-payments' );
