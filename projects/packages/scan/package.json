@@ -18,9 +18,8 @@
 		"*.scss"
 	],
 	"scripts": {
-		"build": "pnpm run build:deps && pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
-		"build:deps": "pnpm --filter '@automattic/jetpack-scan-page...' --filter '!@automattic/jetpack-scan-page' run build",
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/",
