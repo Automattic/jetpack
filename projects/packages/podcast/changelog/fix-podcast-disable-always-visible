@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Always show the Disable podcasting card on the settings tab so users can back out before choosing a category.

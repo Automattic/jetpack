@@ -360,28 +360,26 @@ const SettingsTab = () => {
 				</CardBody>
 			</Card>
 
-			{ draft.podcasting_category_id > 0 && (
-				<Card>
-					<CardHeader>
-						<h2 className="podcast__section-heading">
-							{ __( 'Disable podcasting', 'jetpack-podcast' ) }
-						</h2>
-					</CardHeader>
-					<CardBody>
-						<VStack spacing={ 3 } alignment="flex-start">
-							<Text variant="muted">
-								{ __(
-									'Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.',
-									'jetpack-podcast'
-								) }
-							</Text>
-							<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
-								{ __( 'Disable', 'jetpack-podcast' ) }
-							</Button>
-						</VStack>
-					</CardBody>
-				</Card>
-			) }
+			<Card>
+				<CardHeader>
+					<h2 className="podcast__section-heading">
+						{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+					</h2>
+				</CardHeader>
+				<CardBody>
+					<VStack spacing={ 3 } alignment="flex-start">
+						<Text variant="muted">
+							{ __(
+								'Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.',
+								'jetpack-podcast'
+							) }
+						</Text>
+						<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
+							{ __( 'Disable', 'jetpack-podcast' ) }
+						</Button>
+					</VStack>
+				</CardBody>
+			</Card>
 
 			{ confirmDisable && (
 				<Modal
