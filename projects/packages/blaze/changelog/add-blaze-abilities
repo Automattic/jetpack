@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities API: register jetpack-blaze/list-campaigns, jetpack-blaze/get-campaign-eligibility, and jetpack-blaze/get-dashboard-summary for WP 6.9+.
