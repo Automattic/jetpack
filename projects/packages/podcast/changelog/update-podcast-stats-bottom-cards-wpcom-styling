@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast: visually align the Top episodes, By app, and Locations Stats cards with the wpcom Stats card module look (real border, larger header, 24px padding).
+Stats tab: Align Top episodes, By app, and Locations cards with the WordPress.com Stats card module look (real border, larger header, and 24px padding).
