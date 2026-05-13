@@ -34,6 +34,11 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 					row.labelText !== undefined ? `${ row.labelText }: ${ row.formattedValue }` : undefined;
 				const inner = (
 					<>
+						<span
+							className="podcast-stats-bar-list__bar"
+							style={ { width: `${ pct }%` } }
+							aria-hidden="true"
+						/>
 						<HStack
 							as="span"
 							className="podcast-stats-bar-list__content"
@@ -56,11 +61,6 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 								{ row.formattedValue }
 							</Text>
 						</HStack>
-						<span
-							className="podcast-stats-bar-list__bar"
-							style={ { width: `${ pct }%` } }
-							aria-hidden="true"
-						/>
 					</>
 				);
 				return (
