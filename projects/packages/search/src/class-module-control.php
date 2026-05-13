@@ -230,9 +230,6 @@ class Module_Control {
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return self::EXPERIENCE_OVERLAY;
 		}
-		if ( self::EXPERIENCE_INLINE === $saved ) {
-			return self::EXPERIENCE_INLINE;
-		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
 		// `instant_search_enabled` boolean reads as overlay; otherwise inline.
@@ -287,7 +284,7 @@ class Module_Control {
 				// Inline is the absence of an opt-in — delete the option rather than
 				// writing 'inline'. Pre-existing sites that have never saved are
 				// already in this state, so this also normalises after a switch.
-				delete_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, '' );
 				return true;
 
 			case self::EXPERIENCE_EMBEDDED:
