@@ -174,36 +174,27 @@ class Search_Blocks {
 
 	/**
 	 * Whether Jetpack Search exposes its WooCommerce-only blocks, filter
-	 * variations, and render paths. Defaults to whether WooCommerce is
-	 * loaded (`class_exists( 'WooCommerce', false )`); the
-	 * `jetpack_search_woocommerce_blocks_enabled` filter can flip the gate
-	 * either way regardless of WC's actual plugin state. Use from any
-	 * gate that needs to skip a WC-only feature (block registration of
-	 * `filter-wc-*` blocks, the product-format sort keys on
-	 * `results-sort`, etc.). The result is memoized per-request so adding
-	 * a new caller doesn't multiply autoloader probes.
+	 * variations, and render paths. Use from any gate that needs to skip
+	 * a WC-only feature (block registration of `filter-wc-*` blocks, the
+	 * product-format sort keys on `results-sort`, etc.). Memoized
+	 * per-request so adding a new caller doesn't multiply autoloader probes.
 	 *
 	 * **Load-order contract:** must be called at or after `plugins_loaded`.
 	 * WooCommerce includes its main `WooCommerce` class only when its plugin
 	 * file runs (during `plugins_loaded`), so an earlier call would return
-	 * false on a WC site even if the filter is unset. Every existing
-	 * caller fires from a hook later than that —
-	 * `enqueue_block_editor_assets`, `template_redirect`,
+	 * false on a WC site. Every existing caller fires from a hook later
+	 * than that — `enqueue_block_editor_assets`, `template_redirect`,
 	 * `wp_enqueue_scripts`, or block render — so the contract is naturally
 	 * satisfied. New callers earlier in the request lifecycle should defer
 	 * the probe to a `plugins_loaded`-or-later hook.
 	 *
 	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
-	 * force the gate either way — e.g. a WC site that wants to hide
-	 * WC-only Search blocks from a non-shop content area, or a non-Woo
-	 * site that wants to render WC-only blocks for a staging preview.
-	 * The filter name describes intent (whether WC-only Search blocks
-	 * are enabled) rather than its default value (the WooCommerce class
-	 * probe), so a site can flip it for reasons unrelated to whether
-	 * WooCommerce is actually loaded. Filter fires once per request,
-	 * before the result is memoized, so a filter that probes the database
-	 * or another expensive condition pays its cost once and is then
-	 * served from the cache for the remainder of the request.
+	 * force the gate either way regardless of WC's plugin state — e.g. a
+	 * Woo site hiding WC-only blocks on a non-shop content area, or a
+	 * non-Woo site previewing them in staging. Default is the
+	 * `class_exists( 'WooCommerce', false )` probe. Filter fires once per
+	 * request before the result is memoized, so an expensive callback
+	 * (DB probe, option read) pays its cost at most once.
 	 *
 	 * @return bool
 	 */
@@ -216,12 +207,10 @@ class Search_Blocks {
 
 			/**
 			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
-			 * filter variations, and render paths. Defaults to whether
-			 * the `WooCommerce` class is loaded, but a site can flip the
-			 * gate either way regardless of WC's actual plugin state.
-			 *
-			 * Cast to bool before caching so a filter returning a truthy
-			 * non-bool (e.g. `1`) doesn't poison strictly-typed callers.
+			 * filter variations, and render paths. Default is the
+			 * `class_exists( 'WooCommerce', false )` probe; cast to bool
+			 * before caching so a truthy non-bool return (e.g. `1`)
+			 * doesn't poison strictly-typed callers.
 			 *
 			 * @since $$next-version$$
 			 *
