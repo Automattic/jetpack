@@ -127,10 +127,15 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'false'
+		);
 		expect( screen.getByTestId( 'ai-answers-tab' ) ).toBeInTheDocument();
 	} );
 
 	test( 'falls back to the default tab when URL tab is unknown', () => {
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
 
 		render( <DashboardPage /> );
@@ -139,6 +144,8 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
+		expect( replaceStateSpy ).toHaveBeenCalledTimes( 1 );
+		replaceStateSpy.mockRestore();
 	} );
 
 	test( 'updates the URL tab query string when tabs are changed', async () => {
