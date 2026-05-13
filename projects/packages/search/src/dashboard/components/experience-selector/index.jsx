@@ -17,12 +17,12 @@ import './style.scss';
  * @return {import('react').Element} - The selector.
  */
 export default function ExperienceSelector() {
-	const { isDirty, isUpdating, pendingExperience, supportsInstantSearch, isWpcom } = useSelect(
+	const { isDirty, isUpdating, pendingExperience, supportsOnlyClassicSearch, isWpcom } = useSelect(
 		select => ( {
 			isDirty: select( STORE_ID ).isDirty(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			pendingExperience: select( STORE_ID ).getPendingExperience(),
-			supportsInstantSearch: select( STORE_ID ).supportsInstantSearch(),
+			supportsOnlyClassicSearch: select( STORE_ID ).supportsOnlyClassicSearch(),
 			isWpcom: select( STORE_ID ).isWpcom(),
 		} ),
 		[]
@@ -37,7 +37,7 @@ export default function ExperienceSelector() {
 
 	const isExperienceDisabled = experience =>
 		isUpdating ||
-		( ! supportsInstantSearch && ( experience === 'embedded' || experience === 'overlay' ) );
+		( supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' ) );
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 

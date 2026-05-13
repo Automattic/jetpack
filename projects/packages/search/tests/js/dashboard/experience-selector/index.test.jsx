@@ -4,11 +4,11 @@ import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/d
 import ExperienceSelector from '../../../../src/dashboard/components/experience-selector';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
-const renderWith = ( jetpackSettings, sitePlan = { supports_instant_search: true } ) => {
+const renderWith = jetpackSettings => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
-		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings, sitePlan },
+		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings },
 	} );
 	registry.register( store );
 	return render(
@@ -70,8 +70,22 @@ describe( '<ExperienceSelector>', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'disables Embedded and Overlay rows when plan does not support Instant Search', () => {
-		renderWith( baseSettings, { supports_instant_search: false } );
+	test( 'disables Embedded and Overlay rows when plan supports only Classic Search', () => {
+		const registry = createRegistry();
+		const store = createReduxStore( STORE_ID, {
+			...storeConfig,
+			initialState: {
+				...( storeConfig.initialState || {} ),
+				jetpackSettings: baseSettings,
+				sitePlan: { supports_only_classic_search: true },
+			},
+		} );
+		registry.register( store );
+		render(
+			<RegistryProvider value={ registry }>
+				<ExperienceSelector />
+			</RegistryProvider>
+		);
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
 		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeDisabled();
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeEnabled();
