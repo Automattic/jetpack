@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Settings: add a "Generate episode from recent posts" section that calls the wpcom/v2/posts-to-podcast proxy, polls the job, and links to the resulting draft.
+Settings: add a "Generate episode from recent posts" section. The new package-local wpcom/v2/posts-to-podcast REST endpoint forwards Generate requests to the wpcom-side handler; the polling state machine surfaces the resulting draft as a link.

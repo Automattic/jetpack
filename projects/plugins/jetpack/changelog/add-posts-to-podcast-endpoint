@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Posts to Podcast: register the local proxy REST endpoint and helper that forward Generate requests to the wpcom-side endpoint.

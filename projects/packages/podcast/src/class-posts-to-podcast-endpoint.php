@@ -2,62 +2,47 @@
 /**
  * Local Jetpack-side REST endpoint for the Posts to Podcast feature.
  *
- * The Jetpack admin form calls this local endpoint via wp.apiFetch; the endpoint
- * forwards the request to the wpcom-side endpoint at public-api.wordpress.com as
- * the current user via Connection\Client::wpcom_json_api_request_as_user. The
- * upstream endpoint requires `is_automattician()`, so the user-token form is
- * needed — a blog-token call has no user identity and would 401.
- *
- * @package automattic/jetpack
+ * @package automattic/jetpack-podcast
  */
+
+namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Connection\Client;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
-if ( ! class_exists( 'Jetpack_Posts_To_Podcast_Helper' ) ) {
-	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-posts-to-podcast-helper.php';
-}
+use Jetpack_Options;
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 /**
- * Class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast
+ * Forwards `wp.apiFetch` calls from the wp-admin Settings tab to the wpcom-side
+ * endpoint as the current user (the upstream endpoint requires user identity).
  */
-class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
+class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
+
+	const SUPPORTED_LENGTHS       = array( 'short', 'medium', 'long' );
+	const SUPPORTED_VOICE_PRESETS = array( 'witty', 'earnest', 'professional' );
 
 	/**
-	 * Namespace prefix.
-	 *
-	 * @var string
+	 * Wire up routes if the feature is enabled for this site.
 	 */
-	public $namespace = 'wpcom/v2';
-
-	/**
-	 * Endpoint base route.
-	 *
-	 * @var string
-	 */
-	public $rest_base = 'posts-to-podcast';
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->is_wpcom                     = true;
-		$this->wpcom_is_wpcom_only_endpoint = false;
-
-		if ( ! Jetpack_Posts_To_Podcast_Helper::is_enabled() ) {
+	public static function init() {
+		if ( ! Posts_To_Podcast_Helper::is_enabled() ) {
 			return;
 		}
 
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		$instance = new self();
+		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
 	}
 
 	/**
-	 * Register routes.
+	 * Register the POST + GET routes.
 	 */
 	public function register_routes() {
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'posts-to-podcast';
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base,
@@ -65,8 +50,26 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'enqueue_generation' ),
-					'permission_callback' => array( 'Jetpack_Posts_To_Podcast_Helper', 'get_status_permission_check' ),
-					'args'                => $this->get_enqueue_args(),
+					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'args'                => array(
+						'window'      => array(
+							'type'        => 'object',
+							'required'    => true,
+							'description' => __( 'Either { unit: days|weeks|months, n: <positive int> } or { from, to } as ISO-8601 dates.', 'jetpack-podcast' ),
+						),
+						'length'      => array(
+							'type'        => 'string',
+							'required'    => true,
+							'enum'        => self::SUPPORTED_LENGTHS,
+							'description' => __( 'Length preset id.', 'jetpack-podcast' ),
+						),
+						'voicePreset' => array(
+							'type'        => 'string',
+							'required'    => true,
+							'enum'        => self::SUPPORTED_VOICE_PRESETS,
+							'description' => __( 'Voice preset id.', 'jetpack-podcast' ),
+						),
+					),
 				),
 			)
 		);
@@ -78,7 +81,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'read_job_status' ),
-					'permission_callback' => array( 'Jetpack_Posts_To_Podcast_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
 					'args'                => array(
 						'job_id' => array(
 							'type'     => 'integer',
@@ -87,33 +90,6 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 					),
 				),
 			)
-		);
-	}
-
-	/**
-	 * Argument schema for the POST route.
-	 *
-	 * @return array<string, array<string, mixed>>
-	 */
-	private function get_enqueue_args() {
-		return array(
-			'window'      => array(
-				'type'        => 'object',
-				'required'    => true,
-				'description' => __( 'Either { unit: days|weeks|months, n: <positive int> } or { from, to } as ISO-8601 dates.', 'jetpack' ),
-			),
-			'length'      => array(
-				'type'        => 'string',
-				'required'    => true,
-				'enum'        => wp_list_pluck( Jetpack_Posts_To_Podcast_Helper::get_length_presets(), 'id' ),
-				'description' => __( 'Length preset id.', 'jetpack' ),
-			),
-			'voicePreset' => array(
-				'type'        => 'string',
-				'required'    => true,
-				'enum'        => wp_list_pluck( Jetpack_Posts_To_Podcast_Helper::get_voice_presets(), 'id' ),
-				'description' => __( 'Voice preset id.', 'jetpack' ),
-			),
 		);
 	}
 
@@ -127,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 	public function enqueue_generation( WP_REST_Request $request ) {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack-podcast' ), array( 'status' => 400 ) );
 		}
 
 		$query = http_build_query(
@@ -142,7 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/posts-to-podcast?%s', $blog_id, $query ),
-			2,
+			'2',
 			array(
 				'method'  => 'POST',
 				'timeout' => 30,
@@ -164,14 +140,14 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 	public function read_job_status( WP_REST_Request $request ) {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack-podcast' ), array( 'status' => 400 ) );
 		}
 
 		$job_id = (int) $request['job_id'];
 
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/posts-to-podcast/jobs/%d', $blog_id, $job_id ),
-			2,
+			'2',
 			array(
 				'method'  => 'GET',
 				'headers' => array( 'content-type' => 'application/json' ),
@@ -188,7 +164,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 	 * Relay an upstream Connection\Client response back to the local REST client.
 	 * Preserves the upstream HTTP status code so 202/4xx/5xx mappings flow through.
 	 *
-	 * @param array|WP_Error $response The raw response from Client::wpcom_json_api_request_as_blog.
+	 * @param array|\WP_Error $response The raw response from Client::wpcom_json_api_request_as_user.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -208,5 +184,3 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 		return $rest_response;
 	}
 }
-
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast' );
