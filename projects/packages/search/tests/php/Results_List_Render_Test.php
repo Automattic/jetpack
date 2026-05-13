@@ -66,11 +66,11 @@ class Results_List_Render_Test extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
 	}
 
 	protected function tearDown(): void {
-		Search_Blocks::set_is_woocommerce_active_for_testing( null );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
 		Search_Blocks::reset_initial_loading_cache();
 		parent::tearDown();
 	}
@@ -128,7 +128,7 @@ class Results_List_Render_Test extends TestCase {
 	 * on a Woo site that later deactivates WC still see a sensible page.
 	 */
 	public function test_product_layout_collapses_to_expanded_when_woocommerce_inactive() {
-		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
 
 		$markup = $this->render( array( 'layout' => 'product' ) );
 

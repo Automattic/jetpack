@@ -17,6 +17,7 @@ const i18n = window.wpcomWriteStrings || {};
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -3134,6 +3135,11 @@ const { state } = store( 'wpcom-write', {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			state.showRecoveryBanner = false;
 		},
+
+		dismissDisclaimer() {
+			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
+			state.showDisclaimer = false;
+		},
 	},
 } );
 
@@ -3312,6 +3318,10 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
+				// Hide the page before navigating so the bfcache snapshot
+				// stores it hidden — prevents a flash of stale content if
+				// the user later presses Back.
+				document.documentElement.style.visibility = 'hidden';
 				window.location.href = post.link;
 			}, 800 );
 		} else {
@@ -3360,6 +3370,11 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
+	// Show the beta disclaimer unless previously dismissed.
+	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+		state.showDisclaimer = true;
+	}
+
 	// Check for a recoverable autosaved draft (only for new posts).
 	if ( ! state.editPostId ) {
 		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
@@ -3379,6 +3394,16 @@ const autosaveReady = setInterval( () => {
 window.addEventListener( 'beforeunload', event => {
 	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
 		event.preventDefault();
+	}
+} );
+
+// If the page is restored from bfcache after a publish, redirect to a
+// fresh editor.  On publish the isSaving flag is intentionally left true
+// (buttons stay disabled while the redirect fires), so a bfcache restore
+// would strand the user on a "done" page with grayed-out buttons.
+window.addEventListener( 'pageshow', event => {
+	if ( event.persisted && state.isPublished ) {
+		window.location.replace( state.writeUrl );
 	}
 } );
 

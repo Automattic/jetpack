@@ -413,6 +413,30 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the template contains the beta disclaimer banner markup.
+	 */
+	public function test_template_contains_disclaimer_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-disclaimer-banner"', $output );
+		$this->assertStringContainsString( 'actions.dismissDisclaimer', $output );
+		$this->assertStringContainsString( 'Data loss is possible', $output );
+	}
+
+	/**
+	 * Test that the disclaimer banner is hidden by default (shown via JS after localStorage check).
+	 */
+	public function test_disclaimer_banner_hidden_by_default() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'bw-disclaimer-banner" hidden', $output );
+	}
+
+	/**
 	 * Test that autosave i18n strings are included in the rendered page state.
 	 */
 	public function test_autosave_i18n_strings_registered() {

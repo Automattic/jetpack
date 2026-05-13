@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+System Status: Update messaging when assets dir is not correctly configured.

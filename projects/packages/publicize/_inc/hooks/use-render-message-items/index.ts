@@ -12,9 +12,24 @@ import { usePostMeta } from '../use-post-meta';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
-import type { RenderItem } from '../../utils/render-messages';
+import type { RenderItem, RenderPostIntent } from '../../utils/render-messages';
 
 const MESSAGE_DEBOUNCE_MS = 1500;
+const EMPTY_POST_INTENT: RenderPostIntent = {};
+
+/**
+ * Normalize editor values before sending them to the render endpoint.
+ *
+ * @param value - Edited post field value.
+ * @return Normalized string value.
+ */
+function normalizePostIntentValue( value: unknown ): string {
+	if ( typeof value === 'string' ) {
+		return value;
+	}
+
+	return value === undefined || value === null ? '' : String( value );
+}
 
 /**
  * Whether a connection's preview will include media. Mirrors the media-presence
@@ -66,13 +81,25 @@ function connectionHasMedia(
  * Item ordering is stable (matches the connection list ordering) so cache keys
  * stay stable across re-renders and across `useConnectionPreviewData` instances.
  *
- * Debounce semantics — preserved from the previous per-network hook: 1500ms when any
- * item's `message` string changes; 0ms (next tick) when only non-message inputs change
+ * Debounce semantics: 1500ms when any template text input changes (`message` or
+ * edited post intent); 0ms (next tick) when only non-text inputs change
  * (network membership, `is_social_post`).
  *
  * @return The debounced items array, ready to feed to `getRenderedMessages`.
  */
 export function useRenderMessageItems(): RenderItem[] {
+	return useRenderMessageInputs().items;
+}
+
+/**
+ * Build the debounced render request inputs for rendered-message preview.
+ *
+ * @return The debounced render inputs.
+ */
+export function useRenderMessageInputs(): {
+	items: RenderItem[];
+	postIntent: RenderPostIntent;
+} {
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 
 	// All connections (not just enabled ones) — the per-connection customization
@@ -98,6 +125,22 @@ export function useRenderMessageItems(): RenderItem[] {
 	const { mediaSource: globalMediaSource } = usePostMeta();
 	const postData = useSocialPreviewPostData();
 	const { message: globalMessage } = useSocialMediaMessage();
+	const postIntent = useSelect(
+		select => {
+			if ( ! templatesEnabled ) {
+				return EMPTY_POST_INTENT;
+			}
+
+			const { getEditedPostAttribute } = select( editorStore );
+
+			return {
+				title: normalizePostIntentValue( getEditedPostAttribute( 'title' ) ),
+				excerpt: normalizePostIntentValue( getEditedPostAttribute( 'excerpt' ) ),
+				content: normalizePostIntentValue( getEditedPostAttribute( 'content' ) ),
+			};
+		},
+		[ templatesEnabled ]
+	) as RenderPostIntent;
 
 	const featuredImageId = useFeaturedImage();
 	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
@@ -143,7 +186,9 @@ export function useRenderMessageItems(): RenderItem[] {
 		} );
 	}, [ connections, globalMessage, siteMessageTemplate, ctx ] );
 
-	return useDebouncedItems( items );
+	const inputs = useMemo( () => ( { items, postIntent } ), [ items, postIntent ] );
+
+	return useDebouncedInputs( inputs );
 }
 
 /**
@@ -157,7 +202,7 @@ export function useRenderMessageItems(): RenderItem[] {
  * is open (e.g. `<TabPanelWrapper>`).
  */
 export function useDriveRenderedMessagesFetch(): void {
-	const items = useRenderMessageItems();
+	const { items, postIntent } = useRenderMessageInputs();
 	const registry = useRegistry();
 	const postId = useSelect(
 		select => select( editorStore ).getCurrentPostId() as number | undefined,
@@ -171,53 +216,65 @@ export function useDriveRenderedMessagesFetch(): void {
 
 		void registry
 			.resolveSelect( socialStore )
-			.getRenderedMessages( postId, items )
+			.getRenderedMessages( postId, items, postIntent )
 			// Errors are intentionally swallowed to preserve existing UI behavior.
 			.catch( () => {} );
-	}, [ items, postId, registry ] );
+	}, [ items, postId, postIntent, registry ] );
 }
 
 /**
- * Fingerprint just the messages so the debounce decision only fires for actual text edits.
+ * Fingerprint just the rendered text inputs so the debounce decision only fires
+ * for edits that affect template output.
  * Using JSON.stringify on the array form (rather than join) makes ["a","b"] and ["ab"]
- * fingerprint distinctly, regardless of what characters appear inside messages.
+ * fingerprint distinctly, regardless of what characters appear inside values.
  *
- * @param items - Items whose messages we want to fingerprint.
- * @return Stable string fingerprint of the messages.
+ * @param items      - Items whose rendered text inputs we want to fingerprint.
+ * @param postIntent - Edited post fields included in rendering.
+ * @return Stable string fingerprint of the rendered text inputs.
  */
-function hashMessages( items: RenderItem[] ): string {
-	return JSON.stringify( items.map( i => i.message ?? '' ) );
+function hashMessages( items: RenderItem[], postIntent: RenderPostIntent ): string {
+	return JSON.stringify( [
+		items.map( i => i.message ?? '' ),
+		postIntent.title ?? '',
+		postIntent.excerpt ?? '',
+		postIntent.content ?? '',
+	] );
 }
 
 /**
  * Hold back updates to `items` while messages are mid-edit; pass through immediately
  * for non-message changes so tab toggles, media changes, etc. update without delay.
  *
- * @param items - The latest items array.
- * @return The debounced items array.
+ * @param inputs            - The latest render inputs.
+ * @param inputs.items      - The latest item batch.
+ * @param inputs.postIntent - The latest edited post fields.
+ * @return The debounced render inputs.
  */
-function useDebouncedItems( items: RenderItem[] ): RenderItem[] {
-	const [ debounced, setDebounced ] = useState( items );
-	const committedMessagesRef = useRef( hashMessages( items ) );
+function useDebouncedInputs( inputs: { items: RenderItem[]; postIntent: RenderPostIntent } ): {
+	items: RenderItem[];
+	postIntent: RenderPostIntent;
+} {
+	const [ debounced, setDebounced ] = useState( inputs );
+	const committedMessagesRef = useRef( hashMessages( inputs.items, inputs.postIntent ) );
 
 	useEffect( () => {
 		// Track the last committed (emitted) message fingerprint, not the latest input.
 		// This avoids flushing pending message edits early on unrelated re-renders.
-		committedMessagesRef.current = hashMessages( debounced );
+		committedMessagesRef.current = hashMessages( debounced.items, debounced.postIntent );
 	}, [ debounced ] );
 
 	useEffect( () => {
-		const currentMessages = hashMessages( items );
+		const currentMessages = hashMessages( inputs.items, inputs.postIntent );
 		const hasMessageChange = currentMessages !== committedMessagesRef.current;
 
 		if ( ! hasMessageChange ) {
-			setDebounced( items );
+			setDebounced( inputs );
 			return;
 		}
 
-		const handle = setTimeout( () => setDebounced( items ), MESSAGE_DEBOUNCE_MS );
+		const handle = setTimeout( () => setDebounced( inputs ), MESSAGE_DEBOUNCE_MS );
 		return () => clearTimeout( handle );
-	}, [ items ] );
+	}, [ inputs ] );
 
 	return debounced;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+is_instant_search_enabled() now reads jetpack_search_experience first (only 'overlay' is on; 'inline'/'embedded' are explicitly off) and falls back to the legacy instant_search_enabled boolean only when the experience option has never been written. Also returns false when the module is inactive, so the preserve-on-OFF state doesn't read true. Module_Control::update_experience() restores disable_instant_search() on inline/embedded for write-side lockstep — belt-and-suspenders.

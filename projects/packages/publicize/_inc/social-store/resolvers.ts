@@ -1,6 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
-import { type RenderItem, type RenderResult } from '../utils/render-messages';
+import {
+	type RenderItem,
+	type RenderPostIntent,
+	type RenderResult,
+} from '../utils/render-messages';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import {
@@ -83,24 +87,29 @@ export function getPostShareStatus( _postId ) {
  * Failures are swallowed so the consumer keeps showing whatever it had — same
  * "don't flash on error" behavior the per-network hook used to provide.
  *
- * @param  postId - Post being previewed.
- * @param  items  - The render items.
+ * @param  postId     - Post being previewed.
+ * @param  items      - The render items.
+ * @param  postIntent - Edited post fields being rendered.
  *
  * @return {Function} Resolver
  */
-export function getRenderedMessages( postId: number, items: RenderItem[] ) {
+export function getRenderedMessages(
+	postId: number,
+	items: RenderItem[],
+	postIntent: RenderPostIntent = {}
+) {
 	return async ( { dispatch } ) => {
 		if ( ! postId || items.length === 0 ) {
 			return;
 		}
 
-		dispatch( startRenderingMessages( postId, items ) );
+		dispatch( startRenderingMessages( postId, items, postIntent ) );
 
 		try {
 			const records = await apiFetch< RenderResult[] >( {
 				path: '/wpcom/v2/publicize/render-messages',
 				method: 'POST',
-				data: { post_id: postId, items },
+				data: { post_id: postId, items, post_intent: postIntent },
 			} );
 
 			const batch: RenderedMessageBatch = {};
@@ -115,11 +124,11 @@ export function getRenderedMessages( postId: number, items: RenderItem[] ) {
 				batch[ record.id ] = slot;
 			}
 
-			dispatch( receiveRenderedMessages( postId, items, batch ) );
+			dispatch( receiveRenderedMessages( postId, items, batch, postIntent ) );
 		} catch {
 			// Keep the previous batch on error — clear loading without overwriting
 			// items so the consumer keeps showing whatever it had.
-			dispatch( finishRenderingMessages( postId, items ) );
+			dispatch( finishRenderingMessages( postId, items, postIntent ) );
 		}
 	};
 }

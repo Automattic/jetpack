@@ -457,6 +457,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</header>
 
+	<!-- Beta disclaimer banner -->
+	<div class="bw-disclaimer-banner" hidden data-wp-bind--hidden="!state.showDisclaimer">
+		<span class="bw-disclaimer-text"><?php echo esc_html__( 'Beta: This is an early-access feature. Data loss is possible.', 'jetpack-mu-wpcom' ); ?></span>
+		<button class="bw-disclaimer-dismiss" data-wp-on--click="actions.dismissDisclaimer" aria-label="<?php echo esc_attr__( 'Dismiss beta disclaimer', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
+
 	<!-- Recovery banner -->
 	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
 		<span class="bw-recovery-text"><?php echo esc_html__( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>

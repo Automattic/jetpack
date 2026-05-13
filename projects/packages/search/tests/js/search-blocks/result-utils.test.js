@@ -2,6 +2,7 @@ import {
 	countActiveFilters,
 	decodeEntities,
 	deriveMatchHint,
+	formatAuthor,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -310,6 +311,46 @@ describe( 'deriveMatchHint', () => {
 	} );
 } );
 
+describe( 'formatAuthor', () => {
+	it( 'returns a single-author string trimmed', () => {
+		expect( formatAuthor( '  Sample Author  ' ) ).toBe( 'Sample Author' );
+	} );
+
+	it( 'joins two authors with a comma', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+	} );
+
+	it( 'joins three authors with commas, no ellipsis', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris' ] ) ).toBe( 'Ada, Bob, Cris' );
+	} );
+
+	it( 'truncates after the first three when the array has more than three entries', () => {
+		// Mirrors instant-search behavior so co-authored posts don't blow out
+		// the meta row. The ellipsis is three dots, not the U+2026 character.
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris', 'Dee', 'Eve' ] ) ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'returns empty string for missing or empty input', () => {
+		expect( formatAuthor( undefined ) ).toBe( '' );
+		expect( formatAuthor( null ) ).toBe( '' );
+		expect( formatAuthor( '' ) ).toBe( '' );
+		expect( formatAuthor( [] ) ).toBe( '' );
+	} );
+
+	it( 'drops empty entries from an array before joining or truncating', () => {
+		expect( formatAuthor( [ 'Ada', '', '   ', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+		expect( formatAuthor( [ '', '   ' ] ) ).toBe( '' );
+	} );
+
+	it( 'decodes HTML entities in author names', () => {
+		// The v1.3 API HTML-encodes punctuation in display names, and the meta
+		// row binds via `data-wp-text` (textContent). Without entity decoding,
+		// `O&#8217;Brien` would render as the literal string.
+		expect( formatAuthor( 'O&#8217;Brien' ) ).toBe( 'O’Brien' );
+		expect( formatAuthor( [ 'Jane &amp; John', 'Ada' ] ) ).toBe( 'Jane & John, Ada' );
+	} );
+} );
+
 describe( 'normalizeResult', () => {
 	const RAW = {
 		result_id: 'r-42',
@@ -433,6 +474,22 @@ describe( 'normalizeResult', () => {
 		expect( r.dateLabel ).toMatch( /20 avr/ );
 	} );
 
+	it( 'exposes authorLabel for a single-author result', () => {
+		const r = normalizeResult( { fields: { author: 'Ada' } } );
+		expect( r.authorLabel ).toBe( 'Ada' );
+	} );
+
+	it( 'joins and truncates authorLabel for co-authored results', () => {
+		const r = normalizeResult( {
+			fields: { author: [ 'Ada', 'Bob', 'Cris', 'Dee' ] },
+		} );
+		expect( r.authorLabel ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'authorLabel is empty when the field is absent', () => {
+		expect( normalizeResult( { fields: {} } ).authorLabel ).toBe( '' );
+	} );
+
 	it( 'returns a usable object for a fully empty raw result', () => {
 		const r = normalizeResult( {} );
 		expect( r ).toEqual( {
@@ -445,6 +502,7 @@ describe( 'normalizeResult', () => {
 			permalink: '',
 			path: '',
 			dateLabel: '',
+			authorLabel: '',
 			imageUrl: '',
 			imageBackgroundImage: '',
 			matchHint: '',
@@ -638,16 +696,21 @@ describe( 'normalizeResult', () => {
 		} );
 	} );
 
-	it( 'does not expose author data from the API response', () => {
+	it( 'exposes the author as authorLabel rather than a raw author key', () => {
+		// The template binds to `authorLabel`; a stray `author` property on
+		// the normalized result would let downstream code render the raw API
+		// shape (potentially an array) instead of the formatted string.
 		const raw = {
 			result_id: '1',
 			fields: {
 				'permalink.url.raw': 'https://example.com/a',
 				'title.default': 'Post',
-				'author.name': 'Ada Lovelace',
+				author: 'Ada Lovelace',
 			},
 		};
-		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+		const r = normalizeResult( raw );
+		expect( r ).not.toHaveProperty( 'author' );
+		expect( r.authorLabel ).toBe( 'Ada Lovelace' );
 	} );
 
 	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {

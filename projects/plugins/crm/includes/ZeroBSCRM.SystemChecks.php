@@ -601,20 +601,38 @@ function zeroBSCRM_checkSystemFeat_locale( $withInfo = false ) {
 
 function zeroBSCRM_checkSystemFeat_assetdir() {
 
-	$potentialDirObj = zeroBSCRM_privatisedDirCheck();
-	if ( is_array( $potentialDirObj ) && isset( $potentialDirObj['path'] ) ) {
-		$potentialDir = $potentialDirObj['path'];
-	} else {
-		$potentialDir = false;
+	$storage_dir_info = jpcrm_storage_dir_info();
+
+	if ( $storage_dir_info === false ) {
+		return array(
+			false,
+			__( 'Storage directory is disabled via the <strong>jpcrm_storage_dir_info</strong> filter. File uploads and other features that rely on private storage will not work.', 'zero-bs-crm' ),
+		);
 	}
 
-	$enabled    = false;
-	$enabledStr = 'Using Default WP Upload Library';
+	$path = $storage_dir_info['path'];
 
-	if ( ! empty( $potentialDir ) ) {
-		$enabled    = true;
-		$enabledStr = $potentialDir;
+	if ( ! is_dir( $path ) ) {
+		return array(
+			false,
+			sprintf(
+				/* translators: %s is the absolute filesystem path that could not be created. */
+				__( 'Storage directory does not exist and could not be created: <strong>%s</strong>. Check that the parent directory is writable by the web server.', 'zero-bs-crm' ),
+				esc_html( $path )
+			),
+		);
 	}
 
-	return array( $enabled, $enabledStr );
+	if ( ! wp_is_writable( $path ) ) {
+		return array(
+			false,
+			sprintf(
+				/* translators: %s is the absolute filesystem path that is not writable. */
+				__( 'Storage directory exists but is not writable: <strong>%s</strong>. Check the directory permissions and ownership.', 'zero-bs-crm' ),
+				esc_html( $path )
+			),
+		);
+	}
+
+	return array( true, esc_html( $path ) );
 }
