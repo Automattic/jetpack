@@ -3318,6 +3318,10 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
+				// Hide the page before navigating so the bfcache snapshot
+				// stores it hidden — prevents a flash of stale content if
+				// the user later presses Back.
+				document.documentElement.style.visibility = 'hidden';
 				window.location.href = post.link;
 			}, 800 );
 		} else {
@@ -3390,6 +3394,16 @@ const autosaveReady = setInterval( () => {
 window.addEventListener( 'beforeunload', event => {
 	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
 		event.preventDefault();
+	}
+} );
+
+// If the page is restored from bfcache after a publish, redirect to a
+// fresh editor.  On publish the isSaving flag is intentionally left true
+// (buttons stay disabled while the redirect fires), so a bfcache restore
+// would strand the user on a "done" page with grayed-out buttons.
+window.addEventListener( 'pageshow', event => {
+	if ( event.persisted && state.isPublished ) {
+		window.location.replace( state.writeUrl );
 	}
 } );
 

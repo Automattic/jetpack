@@ -1417,19 +1417,27 @@ function jpcrm_wordpress_version( $operator = '>', $version = '4.0' ) {
  */
 function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '', $include_htaccess = true ) {
 
-	$safe = true;
-
-	// Creates the directory if it doesn't exist
-	if ( ! is_dir( $directory_path ) ) {
-		// Attempt to create
-		mkdir( $directory_path, 0755, true );
-		// Force perms
-		chmod( $directory_path, 0755 );
+	if ( empty( $directory_path ) ) {
+		return false;
 	}
+
+	// Create the directory if it doesn't exist. Bail if creation fails.
+	if ( ! is_dir( $directory_path ) ) {
+		if ( ! wp_mkdir_p( $directory_path ) ) {
+			return false;
+		}
+		chmod( $directory_path, 0755 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+	}
+
+	// Bail if the directory exists but is not writable.
+	if ( ! wp_is_writable( $directory_path ) ) {
+		return false;
+	}
+
+	$safe = true;
 
 	$files = array(
 		array(
-			'base'    => $directory_path,
 			'file'    => 'index.html',
 			'content' => '<!--nope-->',
 		),
@@ -1437,7 +1445,6 @@ function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '',
 
 	if ( $include_htaccess ) {
 		$files[] = array(
-			'base'    => $directory_path,
 			'file'    => '.htaccess',
 			'content' => 'DirectoryIndex index.php index.html' . PHP_EOL . 'deny from all',
 		);
@@ -1446,25 +1453,20 @@ function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '',
 	}
 
 	foreach ( $files as $file ) {
+		$file_path = trailingslashit( $directory_path ) . $file['file'];
 
-		if ( ! file_exists( trailingslashit( $file['base'] ) ) ) {
-			wp_mkdir_p( $file['base'] );
+		if ( file_exists( $file_path ) ) {
+			continue;
 		}
 
-		if ( ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
+		$file_handle = @fopen( $file_path, 'wb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		if ( $file_handle ) {
+			fwrite( $file_handle, $file['content'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+			fclose( $file_handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		}
 
-			$file_handle = fopen( trailingslashit( $file['base'] ) . $file['file'], 'wb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_fopen
-			if ( $file_handle ) {
-				fwrite( $file_handle, $file['content'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
-				fclose( $file_handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
-			}
-
-			if ( ! file_exists( trailingslashit( $file['base'] ) . $file['file'] ) ) {
-
-				// failed to create file
-				$safe = false;
-
-			}
+		if ( ! file_exists( $file_path ) ) {
+			$safe = false;
 		}
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Always register the Search sync module when the Search package is present, so updates to instant_search_enabled and jetpack_search_experience are queued regardless of the current option value.

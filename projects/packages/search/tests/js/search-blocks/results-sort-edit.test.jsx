@@ -68,7 +68,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 
 describe( 'ResultsSortEdit', () => {
 	afterEach( () => {
-		// `isWooCommerceActive()` reads window.JetpackSearchBlocksConfig at
+		// `isWooCommerceBlocksEnabled()` reads window.JetpackSearchBlocksConfig at
 		// each render, so resetting between tests keeps a single case from
 		// pinning the gate for everything that follows.
 		delete globalThis.JetpackSearchBlocksConfig;
@@ -117,7 +117,7 @@ describe( 'ResultsSortEdit', () => {
 	} );
 
 	it( 'surfaces the product-format checkboxes when WooCommerce is active (RSM-1082)', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		render( <ResultsSortEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 		expect( screen.getByRole( 'checkbox', { name: 'Rating' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: 'Price: low to high' } ) ).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe( 'ResultsSortEdit', () => {
 	} );
 
 	it( 'lets an author check a product-format option when WooCommerce is active (RSM-1082)', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		const onSetAttributes = jest.fn();
 		render(
 			<ResultsSortEdit
