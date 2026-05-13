@@ -23,6 +23,7 @@ import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import CoverImageControl from './cover-image-control';
+import PostsToPodcastSection from './posts-to-podcast';
 import './style.scss';
 import { TOPICS } from './topics';
 import { useCategoriesQuery } from './use-categories-query';
@@ -359,6 +360,8 @@ const SettingsTab = () => {
 					</VStack>
 				</CardBody>
 			</Card>
+
+			{ draft.podcasting_category_id > 0 && <PostsToPodcastSection /> }
 
 			{ draft.podcasting_category_id > 0 && (
 				<Card>
