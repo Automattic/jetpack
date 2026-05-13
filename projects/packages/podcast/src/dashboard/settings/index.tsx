@@ -229,18 +229,38 @@ const SettingsTab = () => {
 		setCreating( true );
 		setCreateError( null );
 		try {
-			const result = ( await saveEntityRecord( 'taxonomy', 'category', { name } ) ) as
-				| { id?: number }
-				| undefined;
-			if ( result?.id ) {
-				commit( { podcasting_category_id: Number( result.id ) } );
+			// `saveEntityRecord` swallows REST failures by default and resolves
+			// `undefined`. Without `throwOnError`, a duplicate name or missing
+			// `manage_categories` capability would silently close the modal
+			// without selecting a category. Opt in so the catch below fires.
+			const result = ( await saveEntityRecord(
+				'taxonomy',
+				'category',
+				{ name },
+				{ throwOnError: true }
+			) ) as { id?: number } | undefined;
+			if ( ! result?.id ) {
+				throw new Error(
+					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
+				);
 			}
+			commit( { podcasting_category_id: Number( result.id ) } );
 			closeCreateCategory();
 		} catch ( error ) {
-			const message =
-				error instanceof Error
-					? error.message
-					: __( 'Could not create the category. Please try again.', 'jetpack-podcast' );
+			// REST failures throw the raw response object (`{ code, message, data }`),
+			// not an Error instance, so check both shapes.
+			const fallback = __( 'Could not create the category. Please try again.', 'jetpack-podcast' );
+			let message = fallback;
+			if ( error instanceof Error ) {
+				message = error.message;
+			} else if (
+				error &&
+				typeof error === 'object' &&
+				'message' in error &&
+				typeof ( error as { message: unknown } ).message === 'string'
+			) {
+				message = ( error as { message: string } ).message;
+			}
 			setCreateError( message );
 		} finally {
 			setCreating( false );
