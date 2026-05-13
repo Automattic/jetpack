@@ -1508,7 +1508,7 @@ class VaultPress {
 		$protocol = 'https';
 		do {
 			--$retry;
-			$args['sslverify'] = 'https' == $protocol ? true : false;
+			$args['sslverify'] = 'https' === $protocol;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
@@ -2086,7 +2086,7 @@ JS;
 					$where = null;
 
 				if ( isset( $_POST['table'] ) ) {
-					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash'] ? true : false;
+					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash']; //phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$bdb->attach( base64_decode( $_POST['table'] ), $parse_create_table );
 				}
 

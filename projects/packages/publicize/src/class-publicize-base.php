@@ -319,7 +319,7 @@ abstract class Publicize_Base {
 		}
 
 		$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
-		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
+		return is_array( $connections ) && count( $connections ) > 0;
 	}
 
 	/**

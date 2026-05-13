@@ -2017,7 +2017,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	 */
 	public function load_theme_functions() {
-		if ( false === defined( 'STYLESHEETPATH' ) ) {
+		if ( ! defined( 'STYLESHEETPATH' ) ) {
 			wp_templating_constants();
 		}
 

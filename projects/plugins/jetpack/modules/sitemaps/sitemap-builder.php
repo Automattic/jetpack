@@ -674,7 +674,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		}
 
 		// Handle other page sitemap URLs.
-		if ( false === $any_posts_left || $last_post_id < 0 ) {
+		if ( ! $any_posts_left || $last_post_id < 0 ) {
 			// Negative IDs are used to track URL indexes.
 			$last_post_id   = min( 0, $last_post_id );
 			$any_posts_left = true; // Reinitialize.

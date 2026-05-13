@@ -920,10 +920,7 @@ class User_Agent_Info {
 		}
 
 		$ua = wp_unslash( $user_agent ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		if ( false === ( strpos( $ua, 'MSIE' ) || strpos( $ua, 'Trident/7' ) ) ) {
-			return false;
-		}
-		return true;
+		return strpos( $ua, 'MSIE' ) !== false || strpos( $ua, 'Trident/7' ) !== false;
 	}
 
 	/**

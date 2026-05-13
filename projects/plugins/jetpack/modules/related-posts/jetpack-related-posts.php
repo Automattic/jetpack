@@ -506,7 +506,7 @@ EOT;
 			}
 		}
 
-		if ( empty( $headline_markup ) && $block_attributes['show_headline'] === true ) {
+		if ( empty( $headline_markup ) && $block_attributes['show_headline'] ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(

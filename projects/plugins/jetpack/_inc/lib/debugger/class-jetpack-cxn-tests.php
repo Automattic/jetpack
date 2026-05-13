@@ -577,7 +577,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			}
 		}
 
-		if ( false === $invalid_tokens_exist ) {
+		if ( ! $invalid_tokens_exist ) {
 			return self::passing_test( array( 'name' => $name ) );
 		}
 

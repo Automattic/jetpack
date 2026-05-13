@@ -52,7 +52,7 @@ function archives_shortcode( $atts ) {
 		$limit = '';
 	}
 
-	$showcount = ( false !== $attr['showcount'] && 'false' !== $attr['showcount'] ) ? true : false;
+	$showcount = false !== $attr['showcount'] && 'false' !== $attr['showcount'];
 	$before    = wp_kses( $attr['before'], $allowedposttags );
 	$after     = wp_kses( $attr['after'], $allowedposttags );
 

@@ -358,8 +358,8 @@ class IDC_Simulator {
 			array(
 				'idc_siteurl'       => isset( $_POST['idc_siteurl'] ) ? filter_var( wp_unslash( $_POST['idc_siteurl'] ) ) : null,
 				'idc_simulation'    => isset( $_POST['idc_simulation'] ) ? filter_var( wp_unslash( $_POST['idc_simulation'] ) ) : null,
-				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ) ? true : false,
-				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ) ? true : false,
+				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ),
+				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ),
 				'idc_sync_status'   => isset( $_POST['idc_sync_status'] ) ? filter_var( wp_unslash( $_POST['idc_sync_status'] ) ) : null,
 			)
 		);

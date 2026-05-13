@@ -163,11 +163,11 @@ class Protect_Helper {
 			array(
 				'overwrite_status'  => isset( $_POST['overwrite_status'] ) ? filter_var( wp_unslash( $_POST['overwrite_status'] ) ) : null,
 				'status'            => isset( $_POST['status'] ) ? filter_var( wp_unslash( $_POST['status'] ) ) : null,
-				'vuls_for_core'     => isset( $_POST['vuls_for_core'] ) ? true : false,
-				'vuls_for_plugins'  => isset( $_POST['vuls_for_plugins'] ) ? true : false,
-				'vuls_for_themes'   => isset( $_POST['vuls_for_themes'] ) ? true : false,
-				'vuls_for_files'    => isset( $_POST['vuls_for_files'] ) ? true : false,
-				'vuls_for_database' => isset( $_POST['vuls_for_database'] ) ? true : false,
+				'vuls_for_core'     => isset( $_POST['vuls_for_core'] ),
+				'vuls_for_plugins'  => isset( $_POST['vuls_for_plugins'] ),
+				'vuls_for_themes'   => isset( $_POST['vuls_for_themes'] ),
+				'vuls_for_files'    => isset( $_POST['vuls_for_files'] ),
+				'vuls_for_database' => isset( $_POST['vuls_for_database'] ),
 			)
 		);
 

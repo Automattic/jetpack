@@ -849,7 +849,7 @@ class Actions {
 	 * @static
 	 */
 	public static function initialize_woocommerce() {
-		if ( false === class_exists( 'WooCommerce' ) ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
@@ -882,7 +882,7 @@ class Actions {
 	 * @static
 	 */
 	public static function initialize_search() {
-		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+		if ( ! class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
@@ -955,7 +955,7 @@ class Actions {
 	 * @static
 	 */
 	public static function initialize_wp_super_cache() {
-		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
+		if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_wp_super_cache_sync_module' ) );
@@ -1274,11 +1274,11 @@ class Actions {
 		}
 		$decoded_response = json_decode( $response_body, true );
 
-		if ( false === is_array( $decoded_response ) ) {
+		if ( ! is_array( $decoded_response ) ) {
 			return new WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', $response_body );
 		}
 
-		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
+		if ( $response_code !== 200 || ! isset( $decoded_response['processed_items'] ) ) {
 			if ( isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					'jetpack_sync_send_error_' . $decoded_response['code'],

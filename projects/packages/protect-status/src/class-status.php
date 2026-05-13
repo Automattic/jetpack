@@ -94,7 +94,7 @@ class Status {
 	 * @return boolean
 	 */
 	public static function should_use_cache() {
-		return defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ? false : true;
+		return ! ( defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE );
 	}
 
 	/**
