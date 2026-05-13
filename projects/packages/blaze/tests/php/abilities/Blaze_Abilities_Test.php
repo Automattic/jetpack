@@ -106,6 +106,56 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The get-campaign-stats ability is read-only and exposes the DSP stats
+	 * query contract used by the Blaze proxy route.
+	 */
+	public function test_get_campaign_stats_ability_definition() {
+		$abilities = Blaze_Abilities::get_abilities();
+
+		$this->assertArrayHasKey( 'blaze-ads/get-campaign-stats', $abilities );
+		$this->assertContains( 'blaze-ads/get-campaign-stats', Blaze_Abilities::OWNED_ABILITY_SLUGS );
+
+		$ability    = $abilities['blaze-ads/get-campaign-stats'];
+		$schema     = $ability['input_schema'];
+		$properties = $schema['properties'];
+
+		$this->assertSame( array( Blaze_Abilities::class, 'get_campaign_stats' ), $ability['execute_callback'] );
+		$this->assertSame( array( Blaze_Abilities::class, 'permission_callback' ), $ability['permission_callback'] );
+		$this->assertTrue( $ability['meta']['show_in_rest'] );
+		$this->assertTrue( $ability['meta']['annotations']['readonly'] );
+		$this->assertFalse( $ability['meta']['annotations']['destructive'] );
+		$this->assertTrue( $ability['meta']['annotations']['idempotent'] );
+
+		$this->assertSame( array( 'campaign_id' ), $schema['required'] );
+		$this->assertFalse( $schema['additionalProperties'] );
+		$this->assertSame( 'integer', $properties['campaign_id']['type'] );
+		$this->assertSame( 1, $properties['campaign_id']['minimum'] );
+		$this->assertArrayHasKey( 'start_date', $properties );
+		$this->assertArrayHasKey( 'end_date', $properties );
+		$this->assertArrayHasKey( 'time_zone', $properties );
+		$this->assertArrayHasKey( 'resolution', $properties );
+
+		$output_schema     = $ability['output_schema'];
+		$output_properties = $output_schema['properties'];
+
+		$this->assertContains( 'raw_stats', $output_schema['required'] );
+		$this->assertContains( 'totals', $output_schema['required'] );
+		$this->assertContains( 'time_series', $output_schema['required'] );
+		$this->assertContains( 'derived_metrics', $output_schema['required'] );
+		$this->assertContains( 'context', $output_schema['required'] );
+		$this->assertArrayHasKey( 'raw_stats', $output_properties );
+		$this->assertArrayHasKey( 'totals', $output_properties );
+		$this->assertArrayHasKey( 'time_series', $output_properties );
+		$this->assertArrayHasKey( 'country_breakdown', $output_properties );
+		$this->assertArrayHasKey( 'derived_metrics', $output_properties );
+		$this->assertArrayHasKey( 'ctr', $output_properties['derived_metrics']['properties'] );
+		$this->assertArrayHasKey( 'cpm', $output_properties['derived_metrics']['properties'] );
+		$this->assertArrayHasKey( 'cpc', $output_properties['derived_metrics']['properties'] );
+		$this->assertArrayHasKey( 'clicks_per_dollar', $output_properties['derived_metrics']['properties'] );
+		$this->assertArrayHasKey( 'context', $output_properties );
+	}
+
+	/**
 	 * The double-register guard preserves an existing disabled decision.
 	 */
 	public function test_guard_against_double_register_preserves_disabled_decision() {
@@ -143,7 +193,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'api_version' => 'v1.1',
+				'api_version' => 'v1',
 				'campaigns'   => array(
 					array(
 						'id'     => 'campaign-1',
@@ -153,6 +203,197 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			),
 			Blaze_Abilities::list_campaigns()
 		);
+	}
+
+	/**
+	 * Get_campaign_stats delegates to the existing Blaze stats proxy route
+	 * and forwards the DSP stats query options.
+	 */
+	public function test_get_campaign_stats_delegates_to_blaze_stats_rest_route() {
+		$captured_params = null;
+
+		register_rest_route(
+			'jetpack/v4',
+			'/blaze-app/sites/' . self::TEST_SITE_ID . '/wordads/dsp/api/v1/stats/67890',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function ( $request ) use ( &$captured_params ) {
+					$captured_params = $request->get_params();
+					return array(
+						'totals' => array(
+							'impressions' => 1000,
+							'clicks'      => 20,
+							'spend'       => 5.0,
+						),
+						'series' => array(),
+					);
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$result = Blaze_Abilities::get_campaign_stats(
+			array(
+				'campaign_id' => 67890,
+				'start_date'  => '2026-05-01',
+				'end_date'    => '2026-05-07',
+				'time_zone'   => 'America/New_York',
+				'resolution'  => 'day',
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame(
+			array(
+				'totals' => array(
+					'impressions' => 1000,
+					'clicks'      => 20,
+					'spend'       => 5.0,
+				),
+				'series' => array(),
+			),
+			$result['raw_stats']
+		);
+		$this->assertSame( 'v1', $captured_params['api_version'] ?? null );
+		$this->assertSame( '2026-05-01', $captured_params['start_date'] ?? null );
+		$this->assertSame( '2026-05-07', $captured_params['end_date'] ?? null );
+		$this->assertSame( 'America/New_York', $captured_params['time_zone'] ?? null );
+		$this->assertSame( 'day', $captured_params['resolution'] ?? null );
+	}
+
+	/**
+	 * Campaign stats requires a numeric DSP campaign ID at execution time.
+	 */
+	public function test_get_campaign_stats_rejects_non_numeric_campaign_id() {
+		$result = Blaze_Abilities::get_campaign_stats(
+			array(
+				'campaign_id' => '123abc',
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_invalid_campaign_id', $result->get_error_code() );
+		$data = $result->get_error_data();
+		$this->assertSame( 400, $data['status'] ?? null );
+	}
+
+	/**
+	 * Get_campaign_stats returns raw DSP stats plus simple display-ad
+	 * derived metrics.
+	 */
+	public function test_get_campaign_stats_returns_derived_metrics_and_context() {
+		$stats_payload = array(
+			'totals'    => array(
+				'impressions' => 2000,
+				'clicks'      => 50,
+				'spend'       => 25.0,
+			),
+			'series'    => array(
+				array(
+					'date'        => '2026-05-01',
+					'impressions' => 1200,
+					'clicks'      => 30,
+					'spend'       => 15.0,
+				),
+				array(
+					'date'        => '2026-05-02',
+					'impressions' => 800,
+					'clicks'      => 20,
+					'spend'       => 10.0,
+				),
+			),
+			'countries' => array(
+				array(
+					'country'     => 'US',
+					'impressions' => 1500,
+					'clicks'      => 40,
+					'spend'       => 20.0,
+				),
+			),
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/blaze-app/sites/' . self::TEST_SITE_ID . '/wordads/dsp/api/v1/stats/67890',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function () use ( $stats_payload ) {
+					return $stats_payload;
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$result = Blaze_Abilities::get_campaign_stats( array( 'campaign_id' => 67890 ) );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( $stats_payload, $result['raw_stats'] );
+		$this->assertSame( $stats_payload['totals'], $result['totals'] );
+		$this->assertSame( $stats_payload['series'], $result['time_series'] );
+		$this->assertSame( $stats_payload['countries'], $result['country_breakdown'] );
+		$this->assertSame(
+			array(
+				'ctr'               => 0.025,
+				'cpm'               => 12.5,
+				'cpc'               => 0.5,
+				'clicks_per_dollar' => 2.0,
+			),
+			$result['derived_metrics']
+		);
+		$this->assertStringContainsString( 'display advertising', $result['context'] );
+		$this->assertStringContainsString( 'low CTR', $result['context'] );
+		$this->assertStringContainsString( 'CPM', $result['context'] );
+		$this->assertStringContainsString( 'CPC', $result['context'] );
+		$this->assertStringContainsString( 'campaign goals', $result['context'] );
+		$this->assertStringNotContainsString( 'ROAS', $result['context'] );
+		$this->assertStringNotContainsString( 'revenue', $result['context'] );
+	}
+
+	/**
+	 * Zero-value stats do not cause divide-by-zero derived metrics.
+	 */
+	public function test_get_campaign_stats_handles_zero_value_derived_metrics() {
+		register_rest_route(
+			'jetpack/v4',
+			'/blaze-app/sites/' . self::TEST_SITE_ID . '/wordads/dsp/api/v1/stats/67890',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function () {
+					return array(
+						'totals' => array(
+							'impressions' => 0,
+							'clicks'      => 0,
+							'spend'       => 0.0,
+						),
+						'series' => array(
+							array(
+								'date'        => '2026-05-01',
+								'impressions' => 0,
+								'clicks'      => 0,
+								'spend'       => 0.0,
+							),
+						),
+					);
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$result = Blaze_Abilities::get_campaign_stats( array( 'campaign_id' => 67890 ) );
+
+		$this->assertIsArray( $result );
+		$this->assertSame(
+			array(
+				'ctr'               => null,
+				'cpm'               => null,
+				'cpc'               => null,
+				'clicks_per_dollar' => null,
+			),
+			$result['derived_metrics']
+		);
+		$this->assertSame( 0, $result['totals']['impressions'] );
+		$this->assertSame( 0, $result['totals']['clicks'] );
+		$this->assertSame( 0.0, $result['totals']['spend'] );
 	}
 
 	// --- Wrapper: shape and identity behaviour ---
@@ -426,6 +667,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	public function test_inheritance_documented_via_owned_slugs_constant() {
 		$owned = Blaze_Abilities::OWNED_ABILITY_SLUGS;
 		$this->assertContains( Blaze_Abilities::ABILITY_LIST_CAMPAIGNS, $owned );
+		$this->assertContains( Blaze_Abilities::ABILITY_GET_CAMPAIGN_STATS, $owned );
 		$this->assertContains( Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN, $owned );
 
 		// Sanity: anything in OWNED_ABILITY_SLUGS that's a write ability gets
@@ -470,11 +712,12 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	// --- Woo MCP opt-in ---
 
 	/**
-	 * Both owned slugs are opted into Woo's MCP whitelist; foreign slugs
+	 * Owned slugs are opted into Woo's MCP whitelist; foreign slugs
 	 * are passed through unchanged.
 	 */
 	public function test_opt_into_woo_mcp_for_owned_slugs() {
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_LIST_CAMPAIGNS ) );
+		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_GET_CAMPAIGN_STATS ) );
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ) );
 
 		// Foreign slug, default false — should remain false (we don't toggle other people's abilities on).

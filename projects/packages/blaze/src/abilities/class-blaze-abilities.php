@@ -34,15 +34,17 @@ use WP_REST_Request;
  */
 class Blaze_Abilities extends Registrar {
 
-	const CATEGORY_SLUG            = 'blaze-ads';
-	const ABILITY_LIST_CAMPAIGNS   = 'blaze-ads/list-campaigns';
-	const ABILITY_PREPARE_CAMPAIGN = 'blaze-ads/prepare-campaign';
+	const CATEGORY_SLUG                = 'blaze-ads';
+	const ABILITY_LIST_CAMPAIGNS       = 'blaze-ads/list-campaigns';
+	const ABILITY_GET_CAMPAIGN_STATS   = 'blaze-ads/get-campaign-stats';
+	const ABILITY_PREPARE_CAMPAIGN     = 'blaze-ads/prepare-campaign';
 
 	/**
 	 * Slugs we own — used by `opt_into_woo_mcp` and the double-register guard.
 	 */
 	const OWNED_ABILITY_SLUGS = array(
 		self::ABILITY_LIST_CAMPAIGNS,
+		self::ABILITY_GET_CAMPAIGN_STATS,
 		self::ABILITY_PREPARE_CAMPAIGN,
 	);
 
@@ -207,6 +209,116 @@ class Blaze_Abilities extends Registrar {
 					'description' => __( 'Campaigns payload as returned by the Blaze DSP API.', 'jetpack-blaze' ),
 				),
 				'execute_callback'    => array( __CLASS__, 'list_campaigns' ),
+				'permission_callback' => array( __CLASS__, 'permission_callback' ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+				),
+			),
+			self::ABILITY_GET_CAMPAIGN_STATS => array(
+				'label'               => __( 'Get Blaze campaign stats', 'jetpack-blaze' ),
+				'description'         => __( 'Get raw Blaze display advertising stats for a campaign, plus basic derived CTR, CPM, CPC, and clicks-per-dollar metrics.', 'jetpack-blaze' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'campaign_id' ),
+					'properties'           => array(
+						'campaign_id' => array(
+							'type'        => 'integer',
+							'description' => __( 'Numeric DSP campaign ID.', 'jetpack-blaze' ),
+							'minimum'     => 1,
+						),
+						'start_date'  => array(
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => __( 'Optional stats start date in YYYY-MM-DD format.', 'jetpack-blaze' ),
+						),
+						'end_date'    => array(
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => __( 'Optional stats end date in YYYY-MM-DD format.', 'jetpack-blaze' ),
+						),
+						'time_zone'   => array(
+							'type'        => 'string',
+							'description' => __( 'Optional IANA timezone name used by the DSP stats endpoint.', 'jetpack-blaze' ),
+						),
+						'resolution'  => array(
+							'type'        => 'string',
+							'description' => __( 'Optional stats time-series resolution accepted by the DSP stats endpoint.', 'jetpack-blaze' ),
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'        => 'object',
+					'description' => __( 'Campaign stats payload with raw totals, time series, country breakdown, derived metrics, and lightweight display-ad context.', 'jetpack-blaze' ),
+					'required'    => array( 'raw_stats', 'totals', 'time_series', 'country_breakdown', 'derived_metrics', 'context' ),
+					'properties'  => array(
+						'raw_stats'         => array(
+							'type'        => 'object',
+							'description' => __( 'Raw campaign stats payload as returned by the Blaze DSP stats endpoint.', 'jetpack-blaze' ),
+						),
+						'totals'            => array(
+							'type'       => 'object',
+							'required'   => array( 'impressions', 'clicks', 'spend' ),
+							'properties' => array(
+								'impressions' => array(
+									'type' => 'integer',
+								),
+								'clicks'      => array(
+									'type' => 'integer',
+								),
+								'spend'       => array(
+									'type' => 'number',
+								),
+							),
+						),
+						'time_series'       => array(
+							'type'        => 'array',
+							'description' => __( 'Raw time-series rows from the stats endpoint, including impressions, clicks, and spend when present.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type' => 'object',
+							),
+						),
+						'country_breakdown' => array(
+							'type'        => 'array',
+							'description' => __( 'Raw country breakdown rows from the stats endpoint.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type' => 'object',
+							),
+						),
+						'derived_metrics'   => array(
+							'type'       => 'object',
+							'required'   => array( 'ctr', 'cpm', 'cpc', 'clicks_per_dollar' ),
+							'properties' => array(
+								'ctr'               => array(
+									'type'        => array( 'number', 'null' ),
+									'description' => __( 'Click-through rate as clicks divided by impressions.', 'jetpack-blaze' ),
+								),
+								'cpm'               => array(
+									'type'        => array( 'number', 'null' ),
+									'description' => __( 'Cost per thousand impressions.', 'jetpack-blaze' ),
+								),
+								'cpc'               => array(
+									'type'        => array( 'number', 'null' ),
+									'description' => __( 'Cost per click.', 'jetpack-blaze' ),
+								),
+								'clicks_per_dollar' => array(
+									'type'        => array( 'number', 'null' ),
+									'description' => __( 'Clicks divided by spend.', 'jetpack-blaze' ),
+								),
+							),
+						),
+						'context'           => array(
+							'type'        => 'string',
+							'description' => __( 'Lightweight display-ad framing for interpreting CTR alongside CPM, CPC, and campaign goals.', 'jetpack-blaze' ),
+						),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'get_campaign_stats' ),
 				'permission_callback' => array( __CLASS__, 'permission_callback' ),
 				'meta'                => array(
 					'show_in_rest' => true,
@@ -482,7 +594,7 @@ class Blaze_Abilities extends Registrar {
 
 		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id );
 		$request = new WP_REST_Request( 'GET', $route );
-		$request->set_param( 'api_version', 'v1.1' );
+		$request->set_param( 'api_version', 'v1' );
 
 		$response = rest_do_request( $request );
 		if ( $response->is_error() ) {
@@ -490,6 +602,156 @@ class Blaze_Abilities extends Registrar {
 		}
 
 		return $response->get_data();
+	}
+
+	/**
+	 * Return a Blaze campaign stats payload.
+	 *
+	 * @param array $args Ability input — see `get_abilities()` input_schema.
+	 * @return array|\WP_Error
+	 */
+	public static function get_campaign_stats( $args = array() ) {
+		$args            = is_array( $args ) ? $args : array();
+		$raw_campaign_id = isset( $args['campaign_id'] ) ? $args['campaign_id'] : null;
+		$campaign_id     = 0;
+
+		if ( is_int( $raw_campaign_id ) ) {
+			$campaign_id = $raw_campaign_id;
+		} elseif ( is_string( $raw_campaign_id ) && ctype_digit( $raw_campaign_id ) ) {
+			$campaign_id = (int) $raw_campaign_id;
+		}
+
+		if ( $campaign_id < 1 ) {
+			return new \WP_Error(
+				'blaze_invalid_campaign_id',
+				__( 'A numeric DSP campaign ID is required.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1/stats/%d', $site_id, $campaign_id );
+		$request = new WP_REST_Request( 'GET', $route );
+		$request->set_param( 'api_version', 'v1' );
+
+		foreach ( array( 'start_date', 'end_date', 'time_zone', 'resolution' ) as $param ) {
+			if ( isset( $args[ $param ] ) && '' !== $args[ $param ] ) {
+				$request->set_param( $param, $args[ $param ] );
+			}
+		}
+
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return $response->as_error();
+		}
+
+		$stats  = $response->get_data();
+		$totals = is_array( $stats ) ? self::extract_campaign_stats_totals( $stats ) : array(
+			'impressions' => 0,
+			'clicks'      => 0,
+			'spend'       => 0.0,
+		);
+
+		return array(
+			'raw_stats'         => $stats,
+			'totals'            => $totals,
+			'time_series'       => is_array( $stats ) ? self::extract_campaign_stats_time_series( $stats ) : array(),
+			'country_breakdown' => is_array( $stats ) ? self::extract_campaign_stats_country_breakdown( $stats ) : array(),
+			'derived_metrics'   => self::derive_campaign_stats_metrics( $totals ),
+			'context'           => __( 'Blaze is display advertising. A low CTR should be interpreted alongside CPM, CPC, and campaign goals before drawing conclusions.', 'jetpack-blaze' ),
+		);
+	}
+
+	/**
+	 * Extract raw total metrics from known stats payload shapes.
+	 *
+	 * @param array $stats Raw stats payload.
+	 * @return array
+	 */
+	private static function extract_campaign_stats_totals( array $stats ): array {
+		$source = isset( $stats['totals'] ) && is_array( $stats['totals'] ) ? $stats['totals'] : $stats;
+
+		return array(
+			'impressions' => (int) self::get_first_numeric_value( $source, array( 'impressions', 'total_impressions' ) ),
+			'clicks'      => (int) self::get_first_numeric_value( $source, array( 'clicks', 'total_clicks' ) ),
+			'spend'       => (float) self::get_first_numeric_value( $source, array( 'spend', 'total_spend' ) ),
+		);
+	}
+
+	/**
+	 * Extract time-series rows from known stats payload shapes.
+	 *
+	 * @param array $stats Raw stats payload.
+	 * @return array
+	 */
+	private static function extract_campaign_stats_time_series( array $stats ): array {
+		if ( isset( $stats['series'] ) && is_array( $stats['series'] ) ) {
+			return $stats['series'];
+		}
+
+		if ( isset( $stats['time_series'] ) && is_array( $stats['time_series'] ) ) {
+			return $stats['time_series'];
+		}
+
+		return array();
+	}
+
+	/**
+	 * Extract country breakdown rows from known stats payload shapes.
+	 *
+	 * @param array $stats Raw stats payload.
+	 * @return array
+	 */
+	private static function extract_campaign_stats_country_breakdown( array $stats ): array {
+		if ( isset( $stats['countries'] ) && is_array( $stats['countries'] ) ) {
+			return $stats['countries'];
+		}
+
+		if ( isset( $stats['country_breakdown'] ) && is_array( $stats['country_breakdown'] ) ) {
+			return $stats['country_breakdown'];
+		}
+
+		return array();
+	}
+
+	/**
+	 * Derive simple campaign stats metrics from totals.
+	 *
+	 * @param array $totals Normalized totals.
+	 * @return array
+	 */
+	private static function derive_campaign_stats_metrics( array $totals ): array {
+		$impressions = isset( $totals['impressions'] ) ? (int) $totals['impressions'] : 0;
+		$clicks      = isset( $totals['clicks'] ) ? (int) $totals['clicks'] : 0;
+		$spend       = isset( $totals['spend'] ) ? (float) $totals['spend'] : 0.0;
+
+		return array(
+			'ctr'               => $impressions > 0 ? $clicks / $impressions : null,
+			'cpm'               => $impressions > 0 ? ( $spend / $impressions ) * 1000 : null,
+			'cpc'               => $clicks > 0 ? $spend / $clicks : null,
+			'clicks_per_dollar' => $spend > 0 ? $clicks / $spend : null,
+		);
+	}
+
+	/**
+	 * Return the first numeric value found in an array.
+	 *
+	 * @param array $source Source data.
+	 * @param array $keys Candidate keys.
+	 * @return float|int
+	 */
+	private static function get_first_numeric_value( array $source, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && is_numeric( $source[ $key ] ) ) {
+				return $source[ $key ];
+			}
+		}
+
+		return 0;
 	}
 
 	/**
