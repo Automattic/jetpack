@@ -73,7 +73,12 @@ const SummaryTiles = ( {
 	return (
 		<div className="podcast-stats-summary">
 			{ tiles.map( tile => (
-				<VStack key={ tile.heading } className="podcast-stats-summary__tile" spacing={ 1 }>
+				<VStack
+					key={ tile.heading }
+					className="podcast-stats-summary__tile"
+					spacing={ 1 }
+					alignment="topLeft"
+				>
 					<Heading level={ 4 } size={ 13 } lineHeight="20px" weight={ 500 }>
 						{ tile.heading }
 					</Heading>
