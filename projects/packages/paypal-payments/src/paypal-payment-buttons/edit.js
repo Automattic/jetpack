@@ -22,6 +22,7 @@ import {
 	MediaUploadCheck,
 	useBlockProps,
 } from '@wordpress/block-editor';
+import metadata from './block.json';
 import {
 	Button,
 	Notice,
@@ -505,6 +506,12 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				productName: '',
 				price: '',
 				productDescription: '',
+				imageUrl: undefined,
+				imageId: undefined,
+				returnUrl: '',
+				variantsEnabled: false,
+				variants: null,
+				currencyCode: 'USD',
 			} );
 			setSuccessMessage( __( 'PayPal account disconnected.', 'jetpack-paypal-payments' ) );
 		};
@@ -1690,24 +1697,24 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 								// No saved button yet — reset form fields so merchant can
 								// remove the block if they want.
 								setAttributes( {
-									productName: '',
-									price: '',
-									currencyCode: 'USD',
-									productDescription: '',
+									productName: metadata.attributes.productName.default,
+									price: metadata.attributes.price.default,
+									currencyCode: metadata.attributes.currencyCode.default,
+									productDescription: metadata.attributes.productDescription.default,
 									imageUrl: undefined,
 									imageId: undefined,
-									returnUrl: '',
-									variantsEnabled: false,
+									returnUrl: metadata.attributes.returnUrl.default,
+									variantsEnabled: metadata.attributes.variantsEnabled.default,
 									variants: undefined,
-									adjustableQuantity: false,
-									maxQuantity: 10,
-									customerNotes: [],
-									taxEnabled: false,
-									taxType: 'PERCENTAGE',
-									taxName: 'Sales Tax',
-									taxValue: '',
-									buttonText: 'Buy Now With PayPal',
-									showQrCode: true,
+									adjustableQuantity: metadata.attributes.adjustableQuantity.default,
+									maxQuantity: metadata.attributes.maxQuantity.default,
+									customerNotes: metadata.attributes.customerNotes.default,
+									taxEnabled: metadata.attributes.taxEnabled.default,
+									taxType: metadata.attributes.taxType.default,
+									taxName: metadata.attributes.taxName.default,
+									taxValue: metadata.attributes.taxValue.default,
+									buttonText: metadata.attributes.buttonText.default,
+									showQrCode: metadata.attributes.showQrCode.default,
 								} );
 								setTouchedFields( {} );
 								setError( null );

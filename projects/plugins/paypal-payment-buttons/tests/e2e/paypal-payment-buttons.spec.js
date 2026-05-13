@@ -895,19 +895,18 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await block.click();
 			const toolbar = page.locator( '.block-editor-block-toolbar' );
 			const toolbarDeleteBtn = toolbar.locator( 'button[aria-label="Delete Payment Button"]' );
-			if ( await toolbarDeleteBtn.isVisible( { timeout: 3000 } ).catch( () => false ) ) {
-				await toolbarDeleteBtn.click();
+			await expect( toolbarDeleteBtn ).toBeVisible( { timeout: 3000 } );
+			await toolbarDeleteBtn.click();
 
-				// ConfirmDialog — confirm the destructive action.
-				const confirmDialog = page.locator( '[role="dialog"]' );
-				await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
-				await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+			// ConfirmDialog — confirm the destructive action.
+			const confirmDialog = page.locator( '[role="dialog"]' );
+			await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
+			await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
 
-				// Should return to create form.
-				await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {
-					timeout: 5000,
-				} );
-			}
+			// Should return to create form.
+			await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {
+				timeout: 5000,
+			} );
 		} );
 
 		test( 'Cancel button in creation form resets fields without requiring confirmation', async ( { page } ) => {
