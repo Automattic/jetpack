@@ -227,15 +227,17 @@ export default function DashboardPage( { isLoading = false } ) {
 										<div className="jp-search-dashboard-row">
 											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 												<ExperienceSelector />
-												<div className="jp-search-reader-chat-card">
-													<ReaderChatControl
-														isAvailable={ isReaderChatAvailable }
-														isEnabled={ isReaderChatEnabled }
-														isSaving={ isSavingEitherOption }
-														guidelinesUrl={ readerChatGuidelinesUrl }
-														updateOptions={ updateOptions }
-													/>
-												</div>
+												{ isReaderChatAvailable && (
+													<div className="jp-search-reader-chat-card">
+														<ReaderChatControl
+															isAvailable={ isReaderChatAvailable }
+															isEnabled={ isReaderChatEnabled }
+															isSaving={ isSavingEitherOption }
+															guidelinesUrl={ readerChatGuidelinesUrl }
+															updateOptions={ updateOptions }
+														/>
+													</div>
+												) }
 											</div>
 										</div>
 									</div>

@@ -144,6 +144,18 @@ describe( 'DashboardPage', () => {
 		);
 	} );
 
+	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isReaderChatAvailable' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'reader-chat-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).not.toHaveBeenCalled();
+	} );
+
 	test( 'hydrates active tab from the URL query string', () => {
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
 
