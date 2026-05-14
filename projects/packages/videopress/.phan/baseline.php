@@ -23,7 +23,6 @@ return [
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
-    // PhanPluginNeverReturnFunction : 1 occurrence
     // PhanPluginUnreachableCode : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClass : 1 occurrence
@@ -31,7 +30,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'build/pages/jetpack-videopress-dashboard/page.php' => ['PhanPluginNeverReturnFunction'],
         'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall'],
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
