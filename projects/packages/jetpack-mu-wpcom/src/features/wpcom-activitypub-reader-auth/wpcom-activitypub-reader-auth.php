@@ -30,8 +30,12 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
  * every scope predicate holds. Returns the incoming `$result` (typically
  * null) otherwise, letting the plugin's normal OAuth check run.
  *
- * @param mixed            $result  Result from a previous filter, or null.
- * @param \WP_REST_Request $request The REST request being checked.
+ * `$request` is typed `mixed` rather than `\WP_REST_Request` because the
+ * WordPress filter ABI provides no guarantee — `is_target_route()` performs
+ * the shape check before any method is dispatched on the argument.
+ *
+ * @param mixed $result  Result from a previous filter, or null.
+ * @param mixed $request The REST request being checked, expected to be a `\WP_REST_Request`.
  * @return mixed `true` when authorised; `$result` otherwise.
  */
 function wpcom_activitypub_reader_auth_check_permission( $result, $request ) {
@@ -78,7 +82,6 @@ function wpcom_activitypub_reader_auth_is_oauth_request(): bool {
 	if ( ! class_exists( 'Activitypub\OAuth\Server' ) ) {
 		return false;
 	}
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; class provided by the ActivityPub plugin at runtime.
 	return \Activitypub\OAuth\Server::is_oauth_request();
 }
 
