@@ -22,6 +22,20 @@ import {
 import type { NewsletterSettings } from '../types';
 import type { ReactNode } from 'react';
 
+// Static map from setting key -> readable placement slug, used as the
+// `placement` field on `jetpack_newsletter_placement_toggle` and
+// `jetpack_newsletter_placement_preview_click` Tracks events. Hoisted out of
+// render so the analytics callbacks below stay referentially stable across
+// renders — building it inline made `handlePlacementChange` /
+// `handlePlacementPreviewClick` recompute every render, defeating their
+// `useCallback` memoization. Keep in sync with the `placements` array.
+const PLACEMENT_SLUG_BY_KEY: Record< string, string > = {
+	jetpack_subscribe_overlay_enabled: 'overlay',
+	sm_enabled: 'modal',
+	jetpack_subscriptions_subscribe_post_end_enabled: 'post_end',
+	jetpack_subscribe_floating_button_enabled: 'floating_button',
+};
+
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
@@ -81,19 +95,16 @@ export function SubscriptionsSection( {
 
 	// "Homepage and posts" placements rendered as a 2×2 grid of selectable
 	// cards. Each entry carries the underlying boolean key + the site-editor
-	// template that backs the "Preview and edit" link, plus a stable
-	// analytics slug so Tracks events stay readable when the underlying
-	// setting key churns.
+	// template that backs the "Preview and edit" link. The stable analytics
+	// slug lives in `PLACEMENT_SLUG_BY_KEY` at module scope.
 	const placements: Array< {
 		key: keyof NewsletterSettings;
-		slug: string;
 		title: string;
 		illustration: ReactNode;
 		previewUrl?: string;
 	} > = [
 		{
 			key: 'jetpack_subscribe_overlay_enabled',
-			slug: 'overlay',
 			title: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			illustration: <OverlayIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -106,7 +117,6 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'sm_enabled',
-			slug: 'modal',
 			title: __( 'Subscription pop-up in post', 'jetpack-newsletter' ),
 			illustration: <PopupIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -119,7 +129,6 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'jetpack_subscriptions_subscribe_post_end_enabled',
-			slug: 'post_end',
 			title: __( 'Subscribe block at the end of each post', 'jetpack-newsletter' ),
 			illustration: <EndOfPostIllustration />,
 			previewUrl: canShowSubscriptionEditorLinks
@@ -132,7 +141,6 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'jetpack_subscribe_floating_button_enabled',
-			slug: 'floating_button',
 			title: __( 'Floating button on bottom corner', 'jetpack-newsletter' ),
 			illustration: <FloatingIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -145,33 +153,26 @@ export function SubscriptionsSection( {
 		},
 	];
 
-	// Map setting key -> placement slug for analytics. The PlacementCard's
-	// onChange/onPreviewClick callbacks identify the row by its setting key,
-	// so we resolve back to the readable slug here.
-	const placementSlugByKey: Record< string, string > = Object.fromEntries(
-		placements.map( p => [ String( p.key ), p.slug ] )
-	);
-
 	const handlePlacementChange = useCallback(
 		( key: string, next: boolean ) => {
 			analytics.tracks.recordEvent( 'jetpack_newsletter_placement_toggle', {
 				site_type: siteType,
-				placement: placementSlugByKey[ key ] ?? key,
+				placement: PLACEMENT_SLUG_BY_KEY[ key ] ?? key,
 				enabled: next,
 			} );
 			onChange( { [ key ]: next } as Partial< NewsletterSettings > );
 		},
-		[ onChange, placementSlugByKey, siteType ]
+		[ onChange, siteType ]
 	);
 
 	const handlePlacementPreviewClick = useCallback(
 		( key: string ) => {
 			analytics.tracks.recordEvent( 'jetpack_newsletter_placement_preview_click', {
 				site_type: siteType,
-				placement: placementSlugByKey[ key ] ?? key,
+				placement: PLACEMENT_SLUG_BY_KEY[ key ] ?? key,
 			} );
 		},
-		[ placementSlugByKey, siteType ]
+		[ siteType ]
 	);
 
 	const handleSubscribeNavToggle = useCallback(
