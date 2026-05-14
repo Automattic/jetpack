@@ -1,4 +1,5 @@
 const mockModuleControl = jest.fn();
+const mockReaderChatControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -35,6 +36,10 @@ jest.mock( 'components/module-control', () => props => {
 jest.mock( 'components/experience-selector', () => () => (
 	<div data-testid="experience-selector" />
 ) );
+jest.mock( 'components/reader-chat-control', () => props => {
+	mockReaderChatControl( props );
+	return <div data-testid="reader-chat-control" />;
+} );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
@@ -91,6 +96,7 @@ const createSelectMethods = () => ( {
 describe( 'DashboardPage', () => {
 	beforeEach( () => {
 		mockModuleControl.mockClear();
+		mockReaderChatControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
@@ -116,6 +122,26 @@ describe( 'DashboardPage', () => {
 			} )
 		);
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
+	} );
+
+	test( 'renders ReaderChatControl alongside ExperienceSelector when search blocks is enabled', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isAvailable: true,
+				isEnabled: true,
+				isSaving: false,
+				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
 	} );
 
 	test( 'hydrates active tab from the URL query string', () => {
