@@ -203,6 +203,124 @@ describe( 'AreaChart', () => {
 			expect( tooltip ).not.toHaveTextContent( 'Series A' );
 			expect( tooltip ).toHaveTextContent( 'Series B' );
 		} );
+
+		test( 'renderTooltip receives only visible series in datumByKey', async () => {
+			const user = userEvent.setup();
+			const renderTooltip = jest.fn( () => <div>tooltip</div> );
+			renderWithProvider( {
+				showLegend: true,
+				chartId: 'test-interactive-render-tooltip',
+				legend: { interactive: true },
+				renderTooltip,
+			} );
+
+			await user.click( screen.getByText( 'Series A' ) );
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			chart.focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			// `renderTooltip` may be called for non-keyboard events too, but the
+			// keyboard-driven call must have filtered datumByKey down to visible series.
+			const calls = renderTooltip.mock.calls as unknown as Array<
+				[
+					{
+						tooltipData?: {
+							datumByKey?: Record< string, unknown >;
+							nearestDatum?: { key: string };
+						};
+					},
+				]
+			>;
+			const keyboardCall = calls.find( ( [ params ] ) => params?.tooltipData?.datumByKey );
+			expect( keyboardCall ).toBeDefined();
+			const keys = Object.keys( keyboardCall![ 0 ].tooltipData!.datumByKey! );
+			expect( keys ).toContain( 'Series B' );
+			expect( keys ).not.toContain( 'Series A' );
+			// And `nearestDatum` should never point at a hidden series.
+			expect( keyboardCall![ 0 ].tooltipData?.nearestDatum?.key ).not.toBe( 'Series A' );
+		} );
+
+		test( 'y-axis domain stays fixed across legend toggles', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain"
+						legend={ { interactive: true } }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = ref.current?.getScales()?.yScale?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = ref.current?.getScales()?.yScale?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
+		test( 'supports negative stacked values without clipping', () => {
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						chartId="test-interactive-negative"
+						showLegend
+						legend={ { interactive: true } }
+						data={ [
+							{
+								label: 'Pos',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10 },
+									{ date: new Date( '2024-01-02' ), value: 20 },
+								],
+							},
+							{
+								label: 'Neg',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: -5 },
+									{ date: new Date( '2024-01-02' ), value: -15 },
+								],
+							},
+						] }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const [ min, max ] = ref.current?.getScales()?.yScale?.domain() ?? [];
+			expect( min ).toBeLessThanOrEqual( -15 );
+			expect( max ).toBeGreaterThanOrEqual( 20 );
+		} );
+
+		test( 'does not pin domain for non-default stack offsets', () => {
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						chartId="test-interactive-expand"
+						showLegend
+						legend={ { interactive: true } }
+						stackOffset="expand"
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// `expand` normalises to [0,1]; if we accidentally pinned the raw-sum
+			// domain (e.g. [0, 35]), the top of the domain would be far above 1.
+			const [ min, max ] = ref.current?.getScales()?.yScale?.domain() ?? [];
+			expect( min ).toBeGreaterThanOrEqual( 0 );
+			expect( max ).toBeLessThanOrEqual( 1.001 );
+		} );
 	} );
 
 	describe( 'Without GlobalChartsProvider', () => {

@@ -137,24 +137,38 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
 		// fixed when series are toggled off — otherwise visx auto-fits to the remaining data
-		// and the chart appears to rescale.
+		// and the chart appears to rescale. Skipped for non-default stack offsets, which
+		// reshape the y-extent (`expand` → [0,1], `wiggle`/`silhouette` → centred around
+		// zero) — letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( ! legendInteractive || ! dataSorted.length || ! dataSorted[ 0 ].data.length ) {
+			if (
+				! legendInteractive ||
+				! dataSorted.length ||
+				! dataSorted[ 0 ].data.length ||
+				( stacked && stackOffset !== 'none' )
+			) {
 				return undefined;
 			}
 
 			if ( stacked ) {
-				const numPoints = dataSorted[ 0 ].data.length;
-				let max = 0;
+				// d3-stack with `offset: 'none'` stacks positives upward from 0 and
+				// negatives downward from 0, so we need both extremes.
+				const numPoints = Math.max( ...dataSorted.map( s => s.data.length ) );
+				let posMax = 0;
+				let negMin = 0;
 				for ( let i = 0; i < numPoints; i++ ) {
-					let sum = 0;
+					let posSum = 0;
+					let negSum = 0;
 					for ( const series of dataSorted ) {
 						const v = Number( series.data[ i ]?.value );
-						if ( ! Number.isNaN( v ) ) sum += v;
+						if ( Number.isNaN( v ) ) continue;
+						if ( v >= 0 ) posSum += v;
+						else negSum += v;
 					}
-					if ( sum > max ) max = sum;
+					if ( posSum > posMax ) posMax = posSum;
+					if ( negSum < negMin ) negMin = negSum;
 				}
-				return [ 0, max ];
+				return [ negMin, posMax ];
 			}
 
 			let max = -Infinity;
@@ -170,7 +184,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, legendInteractive ] );
+		}, [ dataSorted, stacked, stackOffset, legendInteractive ] );
 
 		const chartOptions = useMemo( () => {
 			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
@@ -251,11 +265,21 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 				const filtered = Object.fromEntries(
 					Object.entries( datumByKey ).filter( ( [ key ] ) => visibleLabels.has( key ) )
 				);
+				if ( Object.keys( filtered ).length === 0 ) return null;
+				// `nearestDatum` may still point at a hidden series; re-point it at the first
+				// visible entry so consumers that read it (e.g. for the tooltip heading) don't
+				// surface hidden-series state.
+				const nearestDatum = params?.tooltipData?.nearestDatum;
+				const nextNearest =
+					nearestDatum && visibleLabels.has( nearestDatum.key )
+						? nearestDatum
+						: { ...Object.values( filtered )[ 0 ], distance: nearestDatum?.distance ?? 0 };
 				return renderTooltip( {
 					...params,
 					tooltipData: {
 						...params.tooltipData,
 						datumByKey: filtered,
+						nearestDatum: nextNearest,
 					} as typeof params.tooltipData,
 				} );
 			},
