@@ -10,17 +10,15 @@
 /postcss.config.js                                       production-exclude
 /tools/**                                                production-exclude
 /src/**/test/**                                          production-exclude
+/src/**/*.ts                                             production-exclude
+/src/**/*.tsx                                            production-exclude
+/src/**/*.jsx                                            production-exclude
+/src/**/*.scss                                           production-exclude
+
+# @todo Are there any .js files we actually want to keep, or is everything build and we can do `/src/**/*.js` like above?
 /src/customberg/**/*.js                                  production-exclude
-/src/customberg/**/*.jsx                                 production-exclude
-/src/customberg/**/*.scss                                production-exclude
-/src/dashboard/**/*.js                                   production-exclude
-/src/dashboard/**/*.jsx                                  production-exclude
-/src/dashboard/**/*.scss                                 production-exclude
-/src/instant-search/**/*.js                              production-exclude
-/src/instant-search/**/*.jsx                             production-exclude
-/src/instant-search/**/*.scss                            production-exclude
 /src/customizer/**/*.js                                  production-exclude
+/src/dashboard/**/*.js                                   production-exclude
 /src/inline-search/**/*.js                               production-exclude
-/src/inline-search/**/*.jsx                              production-exclude
-/src/inline-search/**/*.scss                             production-exclude
+/src/instant-search/**/*.js                              production-exclude
 /src/widgets/**/*.js                                     production-exclude

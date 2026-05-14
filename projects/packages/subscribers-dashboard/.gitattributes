@@ -10,3 +10,4 @@
 _inc/*.scss       production-exclude
 _inc/*.jsx        production-exclude
 _inc/*.tsx        production-exclude
+**/test/**        production-exclude

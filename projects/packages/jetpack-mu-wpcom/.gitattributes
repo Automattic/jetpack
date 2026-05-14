@@ -12,4 +12,5 @@ src/**/**/*.scss           production-exclude
 src/**/*.ts                production-exclude
 src/**/*.tsx               production-exclude
 src/**/*.jsx               production-exclude
+verbum.webpack.config.js   production-exclude
 webpack.config.modules.js  production-exclude
