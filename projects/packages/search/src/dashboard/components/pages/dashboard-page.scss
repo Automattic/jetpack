@@ -35,13 +35,10 @@
 	.jp-search-dashboard-top__title {
 		padding: 2.5em 0;
 
-		// Match the Settings tab's `<h2>` ("Select a search experience for
-		// your visitors") so the page heading reads at the same scale across
-		// the two tabs.
-		h2 {
+		h1 {
+			line-height: 1.111;
+			font-size: 2.25em;
 			margin: 0;
-			font-size: var(--wpds-typography-font-size-xl);
-			line-height: var(--wpds-typography-line-height-md);
 		}
 	}
 

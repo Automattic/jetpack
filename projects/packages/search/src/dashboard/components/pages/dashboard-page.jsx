@@ -316,12 +316,12 @@ const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch
 		<>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
-					<h2>
+					<h1>
 						{ __(
 							"Help your visitors find exactly what they're looking for, fast",
 							'jetpack-search-pkg'
 						) }
-					</h2>
+					</h1>
 				</div>
 				<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
 			</div>

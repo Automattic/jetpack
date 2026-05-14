@@ -30,12 +30,12 @@ export default function RecordMeter( {
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-record-meter__content lg-col-span-12 md-col-span-6 sm-col-span-4">
-					<h3>
+					<h2>
 						{
 							/* translators: 'Your search index' is a breakdown of the site's indexed post type content,
 					such as the number of indexed posts, pages etc. */ __( 'Your search index', 'jetpack-search-pkg' )
 						}
-					</h3>
+					</h2>
 					<div>
 						<RecordCount
 							recordCount={ recordInfo.recordCount }
