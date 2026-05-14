@@ -114,6 +114,29 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 	const ActiveModal = activeApp?.Modal ?? SubmitModal;
 
+	if ( categoryId === 0 ) {
+		return (
+			<Card>
+				<CardBody>
+					<VStack spacing={ 4 } alignment="flex-start">
+						<h3 className="podcast__card-title">
+							{ __( 'Pick a podcast category to start distributing', 'jetpack-podcast' ) }
+						</h3>
+						<Text variant="muted">
+							{ __(
+								'Distribution publishes your podcast to Apple Podcasts, Spotify, and other directories. Choose or create a category in Settings to begin.',
+								'jetpack-podcast'
+							) }
+						</Text>
+						<Button variant="primary" onClick={ onEditSettings }>
+							{ __( 'Go to Settings', 'jetpack-podcast' ) }
+						</Button>
+					</VStack>
+				</CardBody>
+			</Card>
+		);
+	}
+
 	return (
 		<>
 			{ issues.length > 0 && (
