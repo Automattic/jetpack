@@ -148,6 +148,13 @@ while read -r GIT_SLUG; do
 	CLONE_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	cd "${CLONE_DIR}"
 
+	if [[ -e .git ]]; then
+		echo "::error::Artifact $GIT_SLUG contains a \`.git\` directory."
+		echo "Skipping."
+		EXIT=1
+		continue
+	fi
+
 	# Initialize the directory as a git repo, and set the remote
 	git init -b "$BRANCH" .
 	git config --local gc.auto 0
