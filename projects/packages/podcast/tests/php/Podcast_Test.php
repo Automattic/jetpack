@@ -23,6 +23,8 @@ class Podcast_Test extends BaseTestCase {
 		$this->reset_settings_registration_state();
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		remove_filter( 'jetpack_podcast_untangle', '__return_false' );
+		// Resetting the static registration flag does not remove hooks that were
+		// already added, so clear the filter explicitly between tests.
 		remove_filter( 'jetpack_sync_options_whitelist', array( Settings::class, 'filter_sync_options_whitelist' ) );
 
 		parent::tearDown();

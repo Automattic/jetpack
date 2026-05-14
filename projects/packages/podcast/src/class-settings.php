@@ -108,7 +108,8 @@ class Settings {
 	 * sites mirror them to wpcom. Split from `register()` so it can run above
 	 * the untangle gate: wpcom's Activity Log podcast matchers read
 	 * `podcasting_category_id` regardless of whether the new SPA is wired up
-	 * on the Atomic side. Idempotent.
+	 * on the Atomic side. Idempotent, and re-entrant if another caller removes
+	 * the filter in the same PHP process.
 	 */
 	public static function register_sync_whitelist() {
 		// Keep this re-entrant if a test or caller removes the hook after the
