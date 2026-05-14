@@ -222,6 +222,47 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Enabling Instant Search must also write 'overlay' to the canonical
+	 * experience option so is_instant_search_enabled() agrees. Without this
+	 * sync, a stale 'embedded' / 'inline' in the experience option keeps
+	 * the canonical read at false even after the legacy boolean flips true.
+	 */
+	public function test_enable_instant_search_syncs_experience_overlay() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		static::$search_module->enable_instant_search();
+
+		$this->assertEquals(
+			Module_Control::EXPERIENCE_OVERLAY,
+			get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY )
+		);
+		$this->assertTrue( static::$search_module->is_instant_search_enabled() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The legacy ModuleControl toggle, when turning Instant Search off,
+	 * clears the canonical experience option so a stale 'overlay' doesn't
+	 * keep is_instant_search_enabled() returning true.
+	 */
+	public function test_update_instant_search_status_false_clears_experience() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+
+		static::$search_module->update_instant_search_status( false );
+
+		$this->assertSame( '', get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
 	 * Inactive module always reads as 'off' regardless of any saved experience
 	 * option — off lives in jetpack_active_modules, not in the package's option.
 	 */
