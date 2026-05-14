@@ -18,6 +18,7 @@ import {
 	ToolbarItem,
 	ToolbarButton,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
@@ -26,6 +27,7 @@ import {
 	minimumTransactionAmountForCurrency,
 	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { firstShownInterval } from './utils';
 
 const SETTING_DEBOUNCE_MS = 800;
@@ -41,15 +43,22 @@ const Controls = props => {
 	const { tracks } = useAnalytics();
 	const debounceTimers = useRef( {} );
 
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl() || '',
+		[]
+	);
+	const stripeConnected = ! stripeConnectUrl;
+
 	const recordSettingChange = useCallback(
 		( settingName, settingValue ) => {
 			tracks.recordEvent( 'jetpack_donations_setting_changed', {
 				surface: 'block_editor',
 				setting_name: settingName,
 				setting_value: settingValue,
+				stripe_connected: stripeConnected,
 			} );
 		},
-		[ tracks ]
+		[ tracks, stripeConnected ]
 	);
 
 	const recordSettingChangeDebounced = useCallback(
