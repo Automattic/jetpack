@@ -10,6 +10,7 @@ import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -226,6 +227,17 @@ export default function DashboardPage( { isLoading = false } ) {
 										<div className="jp-search-dashboard-row">
 											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 												<ExperienceSelector />
+												{ isReaderChatAvailable && (
+													<div className="jp-search-reader-chat-card">
+														<ReaderChatControl
+															isAvailable={ isReaderChatAvailable }
+															isEnabled={ isReaderChatEnabled }
+															isSaving={ isSavingEitherOption }
+															guidelinesUrl={ readerChatGuidelinesUrl }
+															updateOptions={ updateOptions }
+														/>
+													</div>
+												) }
 											</div>
 										</div>
 									</div>
