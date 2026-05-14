@@ -161,6 +161,19 @@
 	}
 }
 
+// Respect the user's motion preference — the opacity fade-in is decorative,
+// so skip the transition entirely when the OS reports "reduce motion".
+@media (prefers-reduced-motion: reduce) {
+
+	.jp-search-experience-option__commit {
+		transition: none;
+	}
+
+	.jp-search-experience-option {
+		transition: none;
+	}
+}
+
 @include variables.for-phone-down {
 
 	.jp-search-experience-option__actions {

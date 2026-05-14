@@ -112,6 +112,11 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			className={ className }
 			aria-labelledby={ titleId }
 			aria-disabled={ disabled || undefined }
+			// `aria-current="true"` is the right pattern for "this is the
+			// currently-selected option in a set" — pairs the visible
+			// brand-tinted background + "Active" badge with a semantic cue
+			// for AT users navigating between the cards.
+			aria-current={ isActive || undefined }
 		>
 			{ isActive && (
 				<span className="jp-search-experience-option__active-badge">
