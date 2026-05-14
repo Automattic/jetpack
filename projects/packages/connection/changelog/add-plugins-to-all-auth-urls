@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Include the comma-separated list of connection-using plugin slugs on every authorize URL, not only those built by the connectors card flow.

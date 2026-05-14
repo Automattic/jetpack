@@ -2,15 +2,17 @@
 // merged client-side, so those columns are display-only (not sortable).
 
 import { getSiteData } from '@automattic/jetpack-script-data';
+import { Button } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
-import type { EpisodeStats } from '../types';
+import type { EpisodeStats, TabName } from '../types';
 
 const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
 
@@ -63,6 +65,32 @@ const defaultView: ViewTable = {
 
 const getEpisodeRowId = ( item: EpisodeRow ) => String( item.id );
 
+type PlaysCellProps = {
+	count: number;
+	episodeId: number;
+	episodeTitle: string;
+	onOpen: ( episodeId: number ) => void;
+};
+
+const PlaysCell = ( { count, episodeId, episodeTitle, onOpen }: PlaysCellProps ) => {
+	const handleClick = useCallback( () => onOpen( episodeId ), [ onOpen, episodeId ] );
+	return count > 0 ? (
+		<Button
+			variant="link"
+			onClick={ handleClick }
+			aria-label={ sprintf(
+				/* translators: %s: episode title */
+				__( 'View stats for %s', 'jetpack-podcast' ),
+				episodeTitle || __( '(Untitled)', 'jetpack-podcast' )
+			) }
+		>
+			{ count }
+		</Button>
+	) : (
+		<>{ count }</>
+	);
+};
+
 const STATUS_LABELS: Record< string, string > = {
 	publish: __( 'Published', 'jetpack-podcast' ),
 	future: __( 'Scheduled', 'jetpack-podcast' ),
@@ -77,6 +105,25 @@ const EpisodesTab = () => {
 	const showCoverImage = settings?.podcasting_image ?? '';
 
 	const [ view, setView ] = useState< View >( defaultView );
+
+	const navigate = useNavigate();
+
+	const openEpisodeStats = useCallback(
+		( episodeId: number ) => {
+			const tab: TabName = 'stats';
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					tab,
+					episode: episodeId,
+					// Episodes tab shows all-time plays, so open the drilldown at the
+					// widest window the episode endpoint supports ("Last year").
+					period: 'all',
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	const queryArgs = useMemo( () => {
 		const sortField = view.sort?.field;
@@ -179,6 +226,14 @@ const EpisodesTab = () => {
 				type: 'integer' as const,
 				label: __( 'Plays', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.playsAll,
+				render: ( { item }: { item: EpisodeRow } ) => (
+					<PlaysCell
+						count={ item.playsAll }
+						episodeId={ item.id }
+						episodeTitle={ item.title }
+						onOpen={ openEpisodeStats }
+					/>
+				),
 				enableSorting: false,
 			},
 			{
@@ -202,7 +257,7 @@ const EpisodesTab = () => {
 				enableSorting: true,
 			},
 		],
-		[]
+		[ openEpisodeStats ]
 	);
 
 	const actions = useMemo< Action< EpisodeRow >[] >(

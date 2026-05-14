@@ -203,14 +203,12 @@ describe( 'useRenderMessageItems', () => {
 
 		expect( result.current ).toEqual( [
 			{
-				id: 'a',
-				network: 'x',
+				connection_id: 'a',
 				message: 'Global',
 				is_social_post: false,
 			},
 			{
-				id: 'b',
-				network: 'facebook',
+				connection_id: 'b',
 				message: 'Global',
 				is_social_post: false,
 			},
@@ -230,8 +228,8 @@ describe( 'useRenderMessageItems', () => {
 		const { result } = renderHook( () => useRenderMessageItems() );
 
 		expect( result.current ).toEqual( [
-			{ id: 'a', network: 'x', message: 'A', is_social_post: false },
-			{ id: 'b', network: 'facebook', message: 'Site template', is_social_post: false },
+			{ connection_id: 'a', message: 'A', is_social_post: false },
+			{ connection_id: 'b', message: 'Site template', is_social_post: false },
 		] );
 	} );
 

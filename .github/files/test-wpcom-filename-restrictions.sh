@@ -138,6 +138,11 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 
 	cd "$GITHUB_WORKSPACE/build/$MIRROR"
 
+	if [[ -e .git ]]; then
+		failed "$SLUG: Artifact contains a \`.git\` dir. This is not allowed, aborting check."
+		continue
+	fi
+
 	echo "::group::Initializing $SLUG"
 	git init -b "tmp" .
 	git config --local gc.auto 0

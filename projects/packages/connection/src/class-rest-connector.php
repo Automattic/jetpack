@@ -242,10 +242,6 @@ class REST_Connector {
 						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
-					'plugins'      => array(
-						'description' => __( 'Comma-separated list of plugin slugs currently using the Jetpack connection', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
 				),
 			)
 		);
@@ -265,10 +261,6 @@ class REST_Connector {
 					),
 					'from'         => array(
 						'description' => __( 'Tracking/segmentation identifier for this authorize URL request', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
-					'plugins'      => array(
-						'description' => __( 'Comma-separated list of plugin slugs currently using the Jetpack connection', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 				),
@@ -824,11 +816,6 @@ class REST_Connector {
 
 		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri, '' !== $from ? $from : false );
 
-		$plugins = $request->get_param( 'plugins' );
-		if ( ! empty( $plugins ) ) {
-			$authorize_url = add_query_arg( 'plugins', (string) $plugins, $authorize_url );
-		}
-
 		/**
 		 * Filters the response of jetpack/v4/connection/register endpoint
 		 *
@@ -862,11 +849,6 @@ class REST_Connector {
 		$redirect_uri  = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 		$from          = $request->get_param( 'from' );
 		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri, ! empty( $from ) ? (string) $from : false );
-
-		$plugins = $request->get_param( 'plugins' );
-		if ( ! empty( $plugins ) ) {
-			$authorize_url = add_query_arg( 'plugins', (string) $plugins, $authorize_url );
-		}
 
 		return rest_ensure_response(
 			array(
