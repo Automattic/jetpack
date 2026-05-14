@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup abilities: replace PHP 7.4+ arrow function with closure and initialize $score so the package builds on PHP 7.2 and passes Phan

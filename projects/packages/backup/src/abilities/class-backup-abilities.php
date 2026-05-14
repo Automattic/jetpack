@@ -513,7 +513,14 @@ class Backup_Abilities extends Registrar {
 		// Client-side status filter (server-side filters by event name, not status).
 		if ( isset( $input['status'] ) && is_string( $input['status'] ) && '' !== $input['status'] ) {
 			$want  = $input['status'];
-			$items = array_values( array_filter( $items, static fn( $i ) => ( $i['status'] ?? null ) === $want ) );
+			$items = array_values(
+				array_filter(
+					$items,
+					static function ( $i ) use ( $want ) {
+						return ( $i['status'] ?? null ) === $want;
+					}
+				)
+			);
 		}
 
 		// Single-match shortcut.
@@ -566,7 +573,8 @@ class Backup_Abilities extends Registrar {
 				continue;
 			}
 
-			$diff = $ts - $target_ts;
+			$diff  = $ts - $target_ts;
+			$score = 0;
 			switch ( $match ) {
 				case 'on_or_after':
 					if ( $diff < 0 ) {
