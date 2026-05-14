@@ -600,7 +600,7 @@ class Tus_File {
 	public function copy( $source, $destination ) {
 		$status = copy( $source, $destination );
 
-		if ( false === $status ) {
+		if ( ! $status ) {
 			Logger::log( 'error', sprintf( 'Cannot copy source (%s) to destination (%s).', $source, $destination ) );
 			throw new File_Exception( 'Cannot copy source file to destination file.' );
 		}

@@ -24,7 +24,6 @@ return [
     // PhanTypeObjectUnsetDeclaredProperty : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -51,7 +50,7 @@ return [
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],
         'tests/php/Error_Handler_Test.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/Jetpack_XMLRPC_Server_Test.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
+        'tests/php/Jetpack_XMLRPC_Server_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/ManagerTest.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNullable', 'PhanTypeObjectUnsetDeclaredProperty'],
         'tests/php/Nonce_Handler_Test.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument'],
         'tests/php/REST_Authentication_Test.php' => ['PhanTypeMismatchArgument'],

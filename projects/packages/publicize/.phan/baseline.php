@@ -20,7 +20,6 @@ return [
     // PhanTypeMissingReturn : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
@@ -32,7 +31,7 @@ return [
     'file_suppressions' => [
         'src/class-connections.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
-        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
+        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
         'src/class-publicize-ui.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
