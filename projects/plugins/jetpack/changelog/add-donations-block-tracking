@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Donations Block: Record Tracks events for editor configuration changes and the frontend donation funnel.
+Donations Block: Record a Tracks event when an admin changes a sidebar setting, so we can measure adoption of the new configuration options.
