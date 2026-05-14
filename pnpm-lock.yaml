@@ -3626,8 +3626,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/charts
       '@automattic/date-range-picker':
-        specifier: 1.0.0
-        version: 1.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -6749,8 +6749,8 @@ packages:
       react: ^18.3.1
       react-dom: ^18.3.1
 
-  '@automattic/date-range-picker@1.0.0':
-    resolution: {integrity: sha512-IBIrgK5de1epmjUd1CacrKtMCVz/X8UnMmnzK/tmwumIlGk/30RYlrUNAszPSPVJfbMxbq0dQEAqXAyn/6rb5A==}
+  '@automattic/date-range-picker@1.0.1':
+    resolution: {integrity: sha512-IkoR927VQpOmL/YuadMzCYn6KH1FhzurcoCj30d1Lt3ZWcVtHRsl1X0Vs5IBeClf8ubD8Zu+qpevdzT7bav9WQ==}
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
@@ -18870,7 +18870,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@automattic/date-range-picker@1.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/date-range-picker@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/ui': 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 5.23.0

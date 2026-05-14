@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/charts": "workspace:*",
-		"@automattic/date-range-picker": "1.0.0",
+		"@automattic/date-range-picker": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
