@@ -117,7 +117,7 @@
 		text-decoration: underline;
 	}
 
-	&[aria-disabled="true"] {
+	&.is-disabled {
 		color: var(--wpds-color-fg-content-neutral-weak);
 		cursor: not-allowed;
 

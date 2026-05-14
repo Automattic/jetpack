@@ -291,12 +291,10 @@ const CardCopy = ( { experience } ) => {
 const CardLink = ( { label, href, disabled } ) =>
 	disabled ? (
 		// Render as a non-interactive <span> so AT doesn't announce a link
-		// the user can't follow. `aria-disabled` stays as the CSS hook for
-		// the muted/not-allowed visual state.
-		<span
-			className="jp-search-experience-option__action jp-search-experience-option__action-link"
-			aria-disabled="true"
-		>
+		// the user can't follow. The `is-disabled` class is the CSS hook for
+		// the muted/not-allowed visual state — `aria-disabled` on a roleless
+		// <span> has no semantic effect for AT.
+		<span className="jp-search-experience-option__action jp-search-experience-option__action-link is-disabled">
 			{ label }
 			<span aria-hidden="true"> →</span>
 		</span>

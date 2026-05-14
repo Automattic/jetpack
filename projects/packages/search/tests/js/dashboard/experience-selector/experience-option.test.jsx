@@ -140,19 +140,19 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		);
 	} );
 
-	test( 'renders actions as aria-disabled spans (no href) when Overlay is not active', () => {
+	test( 'renders actions as non-interactive spans (no href) when Overlay is not active', () => {
 		renderWith( inlineActive, { experience: 'overlay' } );
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( screen.getByText( 'Edit widgets' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( 'Customize' ) ).toHaveClass( 'is-disabled' );
+		expect( screen.getByText( 'Edit widgets' ) ).toHaveClass( 'is-disabled' );
 	} );
 
-	test( 'actions are aria-disabled while settings are saving', () => {
+	test( 'actions render as non-interactive spans while settings are saving', () => {
 		renderWith( { ...overlayActive, is_updating: true }, { experience: 'overlay' } );
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( screen.getByText( 'Edit widgets' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( 'Customize' ) ).toHaveClass( 'is-disabled' );
+		expect( screen.getByText( 'Edit widgets' ) ).toHaveClass( 'is-disabled' );
 	} );
 } );

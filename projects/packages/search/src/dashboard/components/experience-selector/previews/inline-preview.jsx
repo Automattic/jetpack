@@ -26,9 +26,7 @@ export default function InlinePreview() {
 					<Icon className="jp-search-inline-preview__search-icon" icon={ search } size={ 16 } />
 					<TextRowPlaceHolder style={ { height: '8px', width: '64px' } } />
 				</Stack>
-				<span className="jp-search-inline-preview__submit" aria-hidden="true">
-					Search
-				</span>
+				<span className="jp-search-inline-preview__submit">Search</span>
 			</Stack>
 			<Stack direction="column" gap="xs" className="jp-search-inline-preview__lines">
 				<TextRowPlaceHolder style={ { height: '6px', width: '100%' } } />
