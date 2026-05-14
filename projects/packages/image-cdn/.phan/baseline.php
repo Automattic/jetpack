@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
     // PhanTypeMismatchPropertyProbablyReal : 2 occurrences
@@ -25,8 +24,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-image-cdn-image-sizes.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/class-image-cdn.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/class-image-cdn.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'src/compatibility/photon.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'tests/php/Image_CDN_Core_Test.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeObjectUnsetDeclaredProperty'],
         'tests/php/Image_CDN_Test.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredMethod', 'PhanUndeclaredStaticMethod'],

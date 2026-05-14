@@ -13,6 +13,7 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
+    // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
@@ -20,12 +21,10 @@ return [
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
-    // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
@@ -33,7 +32,7 @@ return [
     'file_suppressions' => [
         'src/class-connections.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredMethod'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
-        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
+        'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
         'src/class-publicize-ui.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
