@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.33] - 2026-05-11
+### Changed
+- Update dependencies. [#47157]
+
 ## [4.3.32] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -1094,6 +1098,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.3.33]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.32...v4.3.33
 [4.3.32]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.31...v4.3.32
 [4.3.31]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.30...v4.3.31
 [4.3.30]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.29...v4.3.30

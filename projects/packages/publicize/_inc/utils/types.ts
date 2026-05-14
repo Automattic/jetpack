@@ -18,6 +18,7 @@ export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upl
 
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
+	customize_per_network_user_set?: boolean;
 	image_generator_settings?: SIGSettings;
 	media_source?: MediaSourceValue;
 };

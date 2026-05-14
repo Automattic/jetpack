@@ -1,4 +1,4 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MessageBoxControl, {
@@ -16,7 +16,14 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	siteHasFeature: jest.fn().mockReturnValue( false ),
+	getScriptData: jest.fn().mockReturnValue( {} ),
 } ) );
+
+const mockPlaceholders = [
+	{ id: '{title}', label: 'Post title' },
+	{ id: '{url}', label: 'Permalink to the post' },
+	{ id: '{tags}', label: 'Post tags as hashtags' },
+];
 
 describe( 'MessageBoxControl', () => {
 	const mockOnChange = jest.fn();
@@ -27,6 +34,9 @@ describe( 'MessageBoxControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		siteHasFeature.mockReturnValue( false );
+		getScriptData.mockReturnValue( {
+			social: { message_templates: { placeholders: mockPlaceholders } },
+		} );
 	} );
 
 	it( 'renders with the provided message', () => {

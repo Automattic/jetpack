@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: add the `jetpack-search/filters-product` parent block — an `InnerBlocks` wrapper that groups the product filter children into one layout context.

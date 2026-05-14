@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: Search 3.0 block registration now also requires the site to be connected and on a plan that supports Search (paid plans or the free `jetpack_search_free` product), reusing the same upstream gate that already gates Instant Search and Classic Search inside `Initializer::init()`. The `jetpack_search_blocks_enabled` feature flag is the remaining Phase 1 opt-in. Sites without a Search plan no longer see the blocks in the editor inserter, matching what the runtime can actually deliver.

@@ -80,6 +80,9 @@ class WPCOM_Features {
 	private const WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY          = 'wp_bundle_hosting_trial_monthly'; // 1058
 	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
 	private const WPCOM_HUNDRED_YEAR_BUNDLE                   = 'wp_com_hundred_year_bundle_centennially'; // 1061
+	private const WPCOM_CHOOSE_LOW_YEARLY                     = 'wp_bundle_choose_low_yearly'; // 1078
+	private const WPCOM_CHOOSE_MID_YEARLY                     = 'wp_bundle_choose_mid_yearly'; // 1079
+	private const WPCOM_CHOOSE_HIGH_YEARLY                    = 'wp_bundle_choose_high_yearly'; // 1080
 	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
 	private const JETPACK_FREE                                = 'jetpack_free'; // 2002
@@ -249,6 +252,14 @@ class WPCOM_Features {
 	private const GOOGLE_WORKSPACE_PRODUCTS     = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
+
+	// "Choose" tier plans (Choose Low / Mid / High at $12 / $24 / $36). Each
+	// tier is cumulative — a Choose High site has the entitlements of Mid and
+	// Low too, so the "tier-and-higher" groups below are what the FEATURES_MAP
+	// entries reference rather than picking individual slugs at each gate.
+	private const WPCOM_CHOOSE_PLANS           = array( self::WPCOM_CHOOSE_LOW_YEARLY, self::WPCOM_CHOOSE_MID_YEARLY, self::WPCOM_CHOOSE_HIGH_YEARLY );
+	private const WPCOM_CHOOSE_MID_AND_HIGHER  = array( self::WPCOM_CHOOSE_MID_YEARLY, self::WPCOM_CHOOSE_HIGH_YEARLY );
+	private const WPCOM_CHOOSE_HIGH_AND_HIGHER = array( self::WPCOM_CHOOSE_HIGH_YEARLY );
 
 	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
 	// Unlock Business-gated features for sites with the flex-cache-site sticker via the free plan.
@@ -454,6 +465,9 @@ class WPCOM_Features {
 	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
+	public const POSTS_TO_PODCAST_TIER_1           = 'posts-to-podcast-tier-1';
+	public const POSTS_TO_PODCAST_TIER_2           = 'posts-to-podcast-tier-2';
+	public const POSTS_TO_PODCAST_TIER_3           = 'posts-to-podcast-tier-3';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
 	public const PERSONAL_THEMES                   = 'personal-themes';
 	public const PREMIUM_THEMES                    = 'premium-themes';
@@ -743,6 +757,7 @@ class WPCOM_Features {
 		self::CUSTOM_DESIGN                     => array(
 			self::WPCOM_CUSTOM_DESIGN,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_CHOOSE_MID_AND_HIGHER,
 		),
 		self::CUSTOM_DOMAIN                     => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
@@ -1032,6 +1047,7 @@ class WPCOM_Features {
 			self::WPCOM_BLOGGER_PLANS,
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_CHOOSE_HIGH_AND_HIGHER,
 		),
 		// NO_WPCOM_BRANDING - Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING                 => array(
@@ -1092,6 +1108,19 @@ class WPCOM_Features {
 		),
 		self::POLLDADDY                         => array(
 			self::JETPACK_BUSINESS_PLANS,
+		),
+		// POSTS_TO_PODCAST_TIER_{1,2,3} — generates a podcast-style episode
+		// from recent posts. Monthly quotas: TIER_1 = 5, TIER_2 = 10,
+		// TIER_3 = 20. Sites accumulate tiers via the _AND_HIGHER cascades;
+		// the lib's quota helper takes the highest tier present.
+		self::POSTS_TO_PODCAST_TIER_1           => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
+		self::POSTS_TO_PODCAST_TIER_2           => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
+		self::POSTS_TO_PODCAST_TIER_3           => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		// PREMIUM_CONTENT_CONTAINER - premium-content requires a paid wpcom plan.
 		self::PREMIUM_CONTENT_CONTAINER         => array(
@@ -1415,6 +1444,7 @@ class WPCOM_Features {
 		// Features: Posts/Locations/Emails/File downloads/Referrers/Clicks
 		self::STATS_PAID                        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::WPCOM_CHOOSE_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Podcast Episode block. Embeds a single podcast episode from an audio or video file with Podcasting 2.0 metadata. Registration is gated behind the `jetpack_podcast_untangle` filter (default off).

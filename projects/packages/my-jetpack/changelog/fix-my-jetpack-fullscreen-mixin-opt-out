@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-My Jetpack: fix `.jetpack-admin-full-screen` interstitial pages (e.g. the `step=onboarding` "Supercharge my site" screen) being constrained by the shared admin-page-layout mixin. The opt-out selector was looking for `.jetpack-admin-full-screen` as a descendant of `<body>` via `:has()`, but the class is added directly to `<body>`, so the predicate never matched and the mixin applied to onboarding too.

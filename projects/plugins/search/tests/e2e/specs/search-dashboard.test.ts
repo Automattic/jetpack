@@ -52,6 +52,11 @@ test.describe( 'Search Dashboard', () => {
 				'Title should be visible'
 			).toBeVisible( { timeout: 30000 } );
 
+			// ModuleControl moved into the Settings tab in Search 3.0; the
+			// dashboard now opens on Plan & Usage by default, so the toggles
+			// aren't on the initial panel.
+			await page.getByRole( 'tab', { name: 'Settings' } ).click();
+
 			await expect( searchModuleToggle, 'Search module toggle should be visible' ).toBeVisible();
 
 			await expect( instantSearchToggle, 'Instant search toggle should be visible' ).toBeVisible();

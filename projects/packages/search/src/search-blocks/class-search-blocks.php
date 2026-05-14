@@ -212,7 +212,7 @@ class Search_Blocks {
 			 * before caching so a truthy non-bool return (e.g. `1`)
 			 * doesn't poison strictly-typed callers.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.59.0
 			 *
 			 * @param bool $enabled Defaults to the WooCommerce class probe.
 			 */
@@ -1016,6 +1016,16 @@ class Search_Blocks {
 			'locale'                     => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
+			// Site `date_format` token string (PHP `date()` syntax — e.g.
+			// `F j, Y`, `Y-m-d`) so the result card's date matches the rest of
+			// the site rather than `toLocaleDateString`'s fixed shape. Parsed
+			// client-side by `wp-date-format.js` because the Interactivity API
+			// view bundle can't import `@wordpress/date`. Empty string falls
+			// the JS side back to its legacy `{ year, month, day }` Intl
+			// shape, which keeps tests that don't seed a format passing.
+			'dateFormat'                 => function_exists( 'get_option' )
+				? (string) get_option( 'date_format', '' )
+				: '',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on

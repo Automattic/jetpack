@@ -275,7 +275,15 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
 // Add the reader icon to the admin bar before the help center icon.
-add_action( 'wp_loaded', array( 'Automattic\Jetpack\Newsletter\Reader_Link', 'init' ) );
+add_action(
+	'wp_loaded',
+	function () {
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Reader_Link' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Reader_Link::init();
+		}
+	}
+);
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.

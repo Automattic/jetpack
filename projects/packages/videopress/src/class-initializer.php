@@ -122,6 +122,8 @@ class Initializer {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
 		Uploader_Rest_Endpoints::init();
+		Rest_Controller::init();
+		Initial_State::init();
 		VideoPress_Rest_Api_V1_Stats::init();
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();

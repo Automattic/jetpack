@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.8
+Stable tag: 15.9-a.1
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,45 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8 - 2026-05-05
+### 15.9-a.1 - 2026-05-11
 #### Enhancements
-- Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker.
-- Activity Log: Default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips.
-- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI.
-- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails.
-- Forms: Support granular date filter in inbox.
-- Make phone numbers in the Contact Info widget clickable on all devices, not just mobile.
-- Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+.
-- Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes.
-- Performance: Add early-return guard conditions to skip loading scripts and styles on pages where they are not needed.
-- REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload.
-- Search: Add fallback image capability in expanded search.
-- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator.
-- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com.
-- Stats: Register abilities.
-- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline.
-- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block.
+- AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component.
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
+- Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos.
+- Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it.
 
 #### Improved compatibility
-- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.
-- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state.
-- Tested up to WordPress 7.0.
-- Update purchases endpoint from v1.1 `/sites/$site/purchases` to v1.2 `/upgrades?site=$site`.
+- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
 
 #### Bug fixes
-- AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin.
-- AI Site Logo extension: Fix static import of @wordpress/edit-post that was breaking the P2 frontend block inserter.
-- Fix taxonomies endpoint returning error when number parameter exceeds 1000.
-- Forms: Fix the Form block not being usable when the Blocks module is inactive.
-- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg.
-- oEmbed: Prevent PHP warnings when a registered provider is malformed.
-- PayPal Payments Button: Fix escaping issue for stacked payments buttons.
-- Paywall: Subscribers can now access tier-gated posts regardless of plan price.
-- Settings: Show an empty state when search returns no matching settings.
-- Subscriptions: Avoid conflicts in the block editor when editing custom post types.
-- Subscriptions: Prevent warning when $post global is malformed.
-- Sync: Increase lock time tolerance in tests.
-- WordAds: Prevent PHP warning when headers are already sent.
+- AI Page: Update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout applies again.
+- Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles.
+- Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names.
+- Social: Fall back to the site-wide social message template when no per-post share message is set.
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded.
 
 --------
 

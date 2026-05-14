@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search 3.0: rename the default filter composition block from `jetpack-search/filters-stack` to `jetpack-search/filters`. The block, its CSS class (`.jetpack-search-filters`), and its inserter title ("Filters") all drop the `-stack` suffix to give the most-used composition the simplest name. `filters-popover` keeps its layout-suffixed slug because it's a variant. Tracked under [RSM-2804].

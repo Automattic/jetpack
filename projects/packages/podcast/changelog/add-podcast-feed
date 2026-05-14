@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Feed: register `<itunes:*>` / `<googleplay:*>` channel + item tags, podcatcher detection, and stats-tracked enclosure URLs for the configured podcast category.

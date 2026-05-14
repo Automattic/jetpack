@@ -5,13 +5,19 @@ package.json      export-ignore
 
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
-/build/**         production-include
+/build/**               production-include
+/dist/**                production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-changelog/**      production-exclude
-.phpcs.dir.xml    production-exclude
-tests/**          production-exclude
-.phpcsignore      production-exclude
-routes/**/*.tsx   production-exclude
+.gitignore              production-exclude
+babel.config.js         production-exclude
+changelog/**            production-exclude
+.phpcs.dir.xml          production-exclude
+tests/**                production-exclude
+.phpcsignore            production-exclude
+routes/**/*.tsx         production-exclude
+webpack.config.blocks.js production-exclude
+/src/blocks/**/*.ts     production-exclude
+/src/blocks/**/*.tsx    production-exclude
+/src/blocks/**/*.scss   production-exclude

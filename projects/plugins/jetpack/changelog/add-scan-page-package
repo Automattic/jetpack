@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Scan: register the new Scan wp-admin page package. Phase 0 of the Calypso Dashboard → wp-admin port; surfaces an empty "Scan" submenu and a "Hello Scan" placeholder. No user-visible behaviour change yet.

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-crm",
-	"version": "6.7.2",
+	"version": "6.8.0",
 	"description": "The CRM for WordPress",
 	"repository": {
 		"type": "git",

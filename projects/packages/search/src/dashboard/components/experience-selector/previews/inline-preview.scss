@@ -1,0 +1,52 @@
+.jp-search-inline-preview {
+	position: relative;
+	width: 100%;
+	height: 200px;
+	padding: var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-bg-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.jp-search-inline-preview__search {
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-bg-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+	font-size: var(--wpds-typography-font-size-sm);
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.jp-search-inline-preview__search-icon {
+	fill: currentColor;
+	flex: 0 0 auto;
+}
+
+.jp-search-inline-preview__lines {
+	padding-inline: var(--wpds-dimension-padding-sm);
+}
+
+.jp-search-inline-preview__line {
+	height: 6px;
+	background: var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+
+	&.is-short {
+		width: 70%;
+	}
+}
+
+.jp-search-inline-preview__timing {
+	position: absolute;
+	inset-block-end: var(--wpds-dimension-padding-md);
+	inset-inline-start: var(--wpds-dimension-padding-md);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: 600;
+	// Brand colour reads as "this is faster" rather than the warning intent
+	// that `fg-content-caution` would imply.
+	color: var(--wpds-color-fg-interactive-brand);
+}
+
+.jp-search-inline-preview__bolt {
+	flex: 0 0 auto;
+}

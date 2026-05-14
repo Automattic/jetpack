@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Internal — register polyfills synchronously when wp_default_scripts has already fired, so wp-build admin pages render reliably regardless of which plugin first instantiated wp_scripts().

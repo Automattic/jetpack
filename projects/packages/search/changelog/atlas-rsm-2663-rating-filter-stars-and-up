@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search 3.0: redesign `jetpack-search/filter-wc-rating` as the industry-standard "X stars & up" threshold filter — single-select rows where picking 4★ matches every product rated 4 stars or higher, click the active row to clear. Filter clauses collapse to a single `gte: N - 0.5` range per row (no upper bound) and the count badges project the histogram cumulatively, so `count(3)` ≥ `count(4)` ≥ `count(5)`. Tracked under [RSM-2663].

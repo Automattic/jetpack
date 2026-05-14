@@ -2145,7 +2145,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "4606faf70c1878c047c2a2b28fd8f1f209669943"
+                "reference": "7cfabab251f5075e4aae10e2c80bfb79575a2b4b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2183,7 +2183,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.36.x-dev"
+                    "dev-trunk": "5.37.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2575,9 +2575,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7871589d1af53fe45a71bca9e1afffeab27e9322"
+                "reference": "4a26ea0ff9693aab7a5593ce7c5b787a062178cf"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
@@ -2909,7 +2911,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "062f2bd74e70f547c2217dbad38315dbe39c0a29"
+                "reference": "2747f5de7472b6f15e6a19a4ae630129019f8800"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2940,7 +2942,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.79.x-dev"
+                    "dev-trunk": "0.80.x-dev"
                 }
             },
             "autoload": {
@@ -3177,7 +3179,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "76552ed98d850c1cf0c5f071d9d6b24e8b13f365"
+                "reference": "4d1d7c471ccd4c3616ad9ebf7d0427cc7aaab2ca"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -3206,7 +3208,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.58.x-dev"
+                    "dev-trunk": "0.59.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -3536,7 +3538,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "76711591c7e3c5cc5c811fb7308d55b53f6052a5"
+                "reference": "724dc3bc06a2d03ab855dd9fc04032591747d256"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3569,7 +3571,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.37.x-dev"
+                    "dev-trunk": "4.38.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -3608,7 +3610,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "70de574c28bdf70d98a748697cd7d191565d7eb1"
+                "reference": "a40a7e6e3e8a25180d819e19370f632baae4dc47"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3663,7 +3665,7 @@
                     "pnpm run test"
                 ],
                 "build-production": [
-                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
                     "pnpm run build"

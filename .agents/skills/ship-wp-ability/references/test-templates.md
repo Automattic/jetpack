@@ -530,6 +530,21 @@ class <Name>AbilitiesTest extends TestCase {
 
 ## Notes
 
+- **Anti-pattern: `setExpectedIncorrectUsage()` as a "whitelist" for re-fired
+  Abilities API actions.** When tests drive registration by re-firing
+  `wp_abilities_api_categories_init` / `wp_abilities_api_init` directly with
+  `do_action()`, **do not** add `setExpectedIncorrectUsage(
+  'WP_Ability_Categories_Registry::register' )` /
+  `setExpectedIncorrectUsage( 'WP_Abilities_Registry::register' )` as a
+  defensive "whitelist" against expected "already registered" notices.
+  `setExpectedIncorrectUsage` is a *mandatory* assertion in `WP_UnitTestCase`
+  — the test fails if the named notice does **not** fire. In CI's test
+  environment the core listeners (site category + `get-site-info` ability)
+  often are not loaded, so the notice never fires and every test using the
+  helper goes red with "Failed to assert that ... triggered an incorrect
+  usage notice." This bit PR #48335 (Related Posts) across all PHP versions.
+  Mirror the Monitor pattern: call `do_action()` twice and assert on the
+  registry afterward — no incorrect-usage expectations needed.
 - Brain Monkey's `Functions\expect()` vs `Functions\when()`: use `expect()` for behavior that must happen (call counts); use `when()` for stubs that answer whenever called.
 - The Mockery `\Mockery::on(...)` matcher lets you assert on the full spec shape — use it to confirm category injection happened, annotations are present, etc.
 - When testing a `WP_Error` return from a package-context test, make sure `\WP_Error` is autoloaded. The `jetpack-wp-abilities` package already depends on `yoast/phpunit-polyfills` and `brain/monkey`; if the package test bootstrap doesn't pull in a WP test-utility shim that declares `WP_Error`, either add one or exercise the error case in the plugin-context test suite instead.

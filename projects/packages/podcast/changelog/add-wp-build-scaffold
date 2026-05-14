@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add an empty wp-build dashboard scaffold and the "Jetpack > Podcast" wp-admin entry, gated behind the `jetpack_podcast_untangle` filter. With the filter off (default), nothing changes; with it on, a placeholder Podcast page renders inside the standard wp-admin chrome.
