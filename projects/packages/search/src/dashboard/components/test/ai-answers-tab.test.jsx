@@ -155,6 +155,7 @@ describe( 'AiAnswersTab', () => {
 		await expect(
 			screen.findByText( 'Instant Search must be enabled for AI Answers to work.' )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Enable Instant Search on the Settings tab.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'toggle is not disabled when instant search is off but AI answers is already on', async () => {

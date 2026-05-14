@@ -99,7 +99,7 @@ export default function AiAnswersTab() {
 										) }
 									</Notice.Title>
 									<Notice.Description>
-										{ __( 'Enable Instant Search on the Plan & Usage tab.', 'jetpack-search-pkg' ) }
+										{ __( 'Enable Instant Search on the Settings tab.', 'jetpack-search-pkg' ) }
 									</Notice.Description>
 								</Notice.Root>
 							) }
