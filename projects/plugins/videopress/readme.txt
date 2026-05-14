@@ -89,6 +89,6 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 - Update package dependencies.
 
 #### Fixed
-- Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded.
-- VideoPress admin: add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
+- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded.
+- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
 

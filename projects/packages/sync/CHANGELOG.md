@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.38.1] - 2026-05-14
 ### Added
-- Sync: sync wp_guideline CPT when Jetpack Search AI Answers is enabled. [#48592]
+- Sync wp_guideline CPT when Jetpack Search AI Answers is enabled. [#48592]
 
 ### Fixed
-- Sync: Always register the Search sync module when the Search package is present, so updates to instant_search_enabled and jetpack_search_experience are queued regardless of the current option value. [#48745]
+- Always register the Search sync module when the Search package is present, so updates to instant_search_enabled and jetpack_search_experience are queued regardless of the current option value. [#48745]
 
 ## [4.38.0] - 2026-05-11
 ### Added

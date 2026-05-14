@@ -10,8 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Update package dependencies. [#48106]
 
 ### Fixed
-- Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded. [#48690]
-- VideoPress admin: add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded. [#48690]
+- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
 
 ## 3.0 - 2026-04-16
 ### Changed

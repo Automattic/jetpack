@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.36.9] - 2026-05-14
 ### Added
-- Comment: Adds a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
-- Comment: Adds the modernized Overview screen behind the existing modernization filter. [#48682]
-- Comment: Adds the modernized Video details screen behind the existing modernization filter. [#48669]
+- Comment: Add a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
+- Comment: Add the modernized Overview screen behind the existing modernization filter. [#48682]
+- Comment: Add the modernized Video details screen behind the existing modernization filter. [#48669]
 
 ### Changed
-- Update package dependencies. [#48695]
-- Update package dependencies. [#48696]
+- Update package dependencies. [#48695] [#48696]
 
 ## [0.36.8] - 2026-05-11
 ### Added

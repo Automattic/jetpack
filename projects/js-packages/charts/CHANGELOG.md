@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2026-05-14
 ### Changed
-- Charts: expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
-- Charts: expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks. [#48722]
-- Update package dependencies. [#48695]
-- Update package dependencies. [#48696]
+- Charts: Expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
+- Charts: Expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks. [#48722]
+- Update package dependencies. [#48695] [#48696]
 
 ### Removed
-- Charts: remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages. [#48617]
+- Charts: Remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages. [#48617]
 
 ## [1.3.1] - 2026-05-11
 ### Changed

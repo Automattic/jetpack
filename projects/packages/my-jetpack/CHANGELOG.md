@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#48696]
 
 ### Fixed
-- Fix PHP deprecated notice: cast $tier to int before using as array offset in get_long_description_by_usage_tier() to handle null from get_next_usage_tier() [#48524]
+- Prevent PHP deprecated notice when retrieving tier-based descriptions. [#48524]
 
 ## [5.37.0] - 2026-05-11
 ### Changed
