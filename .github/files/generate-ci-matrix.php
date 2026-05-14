@@ -53,6 +53,9 @@ $default_matrix_vars = array(
 
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
+
+	// {string} For 'test-coverage' jobs, which group to run: 'php' or 'js'.
+	'coverage-group'      => '',
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -107,13 +110,16 @@ $matrix[] = array(
 	'timeout' => 15, // 2025-11-06: Successful runs seem to take ~5 minutes.
 );
 
-// Add Coverage tests.
-$matrix[] = array(
-	'name'    => 'Code coverage',
-	'script'  => 'test-coverage',
-	'wp'      => 'latest',
-	'timeout' => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
-);
+// Add Coverage tests. Split into PHP and JS groups so they run in parallel.
+foreach ( array( 'php', 'js' ) as $cov_group ) {
+	$matrix[] = array(
+		'name'           => "Code coverage ($cov_group)",
+		'script'         => 'test-coverage',
+		'wp'             => 'latest',
+		'timeout'        => 30, // 2025-11-06: Successful runs took ~15 minutes combined; we'll want to update this when we have new numbers.
+		'coverage-group' => $cov_group,
+	);
+}
 
 // END matrix definitions.
 // Now, validation.
