@@ -41,17 +41,13 @@
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-coverage": "pnpm concurrently --names php,js 'composer test-php-coverage' 'composer test-js-coverage'",
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
 		"test-js-coverage": "pnpm run test-coverage",
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run test --watch"
 		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-php": "@composer phpunit",
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-development": [
 			"pnpm run build"

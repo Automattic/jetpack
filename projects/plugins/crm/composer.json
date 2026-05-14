@@ -19,9 +19,12 @@
 		"build-production": [
 			"pnpm run build-production"
 		],
-		"test-coverage": [
-			"php -d auto_prepend_file=tests/suppress_php84_deprecations.php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		"test-coverage": "@composer test-php-coverage",
+		"test-php": [
+			"@composer phpunit",
+			"tests/action-test-php.sh"
 		],
+		"test-php-coverage": "php -d auto_prepend_file=tests/suppress_php84_deprecations.php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"tests": "php -d auto_prepend_file=tests/suppress_php84_deprecations.php vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "php -d auto_prepend_file=tests/suppress_php84_deprecations.php vendor/bin/codecept run acceptance --fail-fast --debug",
 		"create-test": "php -d auto_prepend_file=tests/suppress_php84_deprecations.php vendor/bin/codecept generate:cest acceptance $1",
@@ -33,10 +36,6 @@
 			"php -d auto_prepend_file=tests/suppress_php84_deprecations.php vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"skip-test-php": "tests/action-skip-test-php.sh",
-		"test-php": [
-			"@composer phpunit",
-			"tests/action-test-php.sh"
-		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
