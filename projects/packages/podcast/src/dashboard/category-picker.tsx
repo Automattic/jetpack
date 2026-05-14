@@ -10,9 +10,9 @@ import {
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCategoriesQuery } from './settings/use-categories-query';
+import { useCategoriesQuery } from './hooks/use-categories-query';
 
 // Sentinel for the "create new category" option in the select.
 const CREATE_NEW = '__create_new__';
@@ -21,6 +21,10 @@ interface CategoryPickerProps {
 	selectedId: number;
 	onSelect: ( id: number ) => void;
 	disabled?: boolean;
+	// Fires when the inline "create a new category" form opens/closes, so a
+	// containing modal can gate its own Confirm button until the user either
+	// finishes or cancels the inline flow.
+	onCreatingChange?: ( isCreating: boolean ) => void;
 }
 
 const parseErrorMessage = ( error: unknown, fallback: string ): string => {
@@ -38,7 +42,12 @@ const parseErrorMessage = ( error: unknown, fallback: string ): string => {
 	return fallback;
 };
 
-const CategoryPicker = ( { selectedId, onSelect, disabled = false }: CategoryPickerProps ) => {
+const CategoryPicker = ( {
+	selectedId,
+	onSelect,
+	disabled = false,
+	onCreatingChange,
+}: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
 
@@ -54,6 +63,10 @@ const CategoryPicker = ( { selectedId, onSelect, disabled = false }: CategoryPic
 	const [ createError, setCreateError ] = useState< string | null >( null );
 	const [ saving, setSaving ] = useState( false );
 
+	useEffect( () => {
+		onCreatingChange?.( isCreating );
+	}, [ isCreating, onCreatingChange ] );
+
 	const trimmedName = newName.trim();
 
 	const handleSelectChange = useCallback(
@@ -64,6 +77,12 @@ const CategoryPicker = ( { selectedId, onSelect, disabled = false }: CategoryPic
 				setCreateError( null );
 				return;
 			}
+			// Picking a regular option from the dropdown while the inline
+			// create form is open should dismiss it; otherwise the select
+			// snaps back to CREATE_NEW on the next render.
+			setIsCreating( false );
+			setNewName( '' );
+			setCreateError( null );
 			onSelect( Number( value ) || 0 );
 		},
 		[ onSelect ]
@@ -150,16 +169,16 @@ const CategoryPicker = ( { selectedId, onSelect, disabled = false }: CategoryPic
 						label={ __( 'New category name', 'jetpack-podcast' ) }
 						value={ newName }
 						onChange={ setNewName }
-						disabled={ saving }
+						disabled={ disabled || saving }
 					/>
 					<HStack justify="flex-end" spacing={ 3 }>
-						<Button variant="tertiary" onClick={ cancelCreate } disabled={ saving }>
+						<Button variant="tertiary" onClick={ cancelCreate } disabled={ disabled || saving }>
 							{ __( 'Cancel', 'jetpack-podcast' ) }
 						</Button>
 						<Button
 							variant="primary"
 							onClick={ createCategory }
-							disabled={ trimmedName === '' || saving }
+							disabled={ disabled || trimmedName === '' || saving }
 							isBusy={ saving }
 						>
 							{ __( 'Create', 'jetpack-podcast' ) }

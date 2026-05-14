@@ -13,6 +13,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import type { PodcastSettingsUpdate } from '../types';
 
 interface CategorySetupModalProps {
 	siteName: string;
@@ -47,8 +48,7 @@ const CategorySetupModal = ( {
 	const [ categoryId, setCategoryId ] = useState( 0 );
 	const [ error, setError ] = useState< string | null >( null );
 	const [ saving, setSaving ] = useState( false );
-
-	const titleToSave = siteName.trim() || existingTitle;
+	const [ pickerCreating, setPickerCreating ] = useState( false );
 
 	const requestClose = useCallback( () => {
 		// Block dismissal while a save is in flight so the in-flight promise
@@ -66,14 +66,21 @@ const CategorySetupModal = ( {
 		setError( null );
 		setSaving( true );
 		try {
+			// Only prefill the title from the site name when the user hasn't
+			// already set one — preserves a custom title from a partial setup.
+			const updates: PodcastSettingsUpdate = { podcasting_category_id: categoryId };
+			if ( ! existingTitle && siteName.trim() ) {
+				updates.podcasting_title = siteName.trim();
+			}
 			await new Promise< void >( ( resolve, reject ) => {
-				saveSettings(
-					{
-						podcasting_title: titleToSave,
-						podcasting_category_id: categoryId,
-					},
-					{ onSuccess: () => resolve(), onError: reject }
-				);
+				saveSettings( updates, {
+					onSuccess: () => resolve(),
+					onError: reject,
+					// Inline Notice below covers the error UX; suppress the hook's
+					// duplicate snackbar. Success is implicit (modal closes and
+					// lands the user on a populated Settings tab).
+					silent: true,
+				} );
 			} );
 			onSuccess();
 		} catch ( err ) {
@@ -86,7 +93,7 @@ const CategorySetupModal = ( {
 		} finally {
 			setSaving( false );
 		}
-	}, [ categoryId, titleToSave, saveSettings, onSuccess ] );
+	}, [ categoryId, existingTitle, siteName, saveSettings, onSuccess ] );
 
 	return (
 		<Modal title={ __( 'Set up your podcast', 'jetpack-podcast' ) } onRequestClose={ requestClose }>
@@ -102,7 +109,12 @@ const CategorySetupModal = ( {
 						{ error }
 					</Notice>
 				) }
-				<CategoryPicker selectedId={ categoryId } onSelect={ setCategoryId } disabled={ saving } />
+				<CategoryPicker
+					selectedId={ categoryId }
+					onSelect={ setCategoryId }
+					disabled={ saving }
+					onCreatingChange={ setPickerCreating }
+				/>
 				<HStack justify="flex-end" spacing={ 3 }>
 					<Button variant="tertiary" onClick={ requestClose } disabled={ saving }>
 						{ __( 'Cancel', 'jetpack-podcast' ) }
@@ -110,7 +122,10 @@ const CategorySetupModal = ( {
 					<Button
 						variant="primary"
 						onClick={ onConfirm }
-						disabled={ ! categoryId || saving }
+						// Block Confirm while the inline create form is open so
+						// the user can't commit a stale `selectedId` with the
+						// half-filled inline form still mounted.
+						disabled={ ! categoryId || saving || pickerCreating }
 						isBusy={ saving }
 					>
 						{ __( 'Confirm', 'jetpack-podcast' ) }
