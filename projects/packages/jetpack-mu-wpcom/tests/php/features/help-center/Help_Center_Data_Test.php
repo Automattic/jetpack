@@ -85,7 +85,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function variant_section_name_provider(): array {
+	public static function variant_section_name_provider(): array {
 		return array(
 			'wp-admin'   => array( 'wp-admin', 'wp-admin' ),
 			'gutenberg'  => array( 'gutenberg', 'gutenberg' ),
