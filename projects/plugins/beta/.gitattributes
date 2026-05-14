@@ -9,7 +9,5 @@ vendor/erusev/parsedown/**                  production-include
 vendor/jetpack-autoloader/**                production-include
 
 # Files not needed in the production build.
-/changelog/**                               production-exclude
-/composer.lock                              production-exclude
+# (see also entries in the monorepo root .gitattributes)
 /vendor/automattic/jetpack-autoloader/**    production-exclude
-.phpcs.dir.xml   production-exclude

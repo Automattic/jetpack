@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Admin page mixin: move the tabs-strip horizontal padding from the tab buttons onto the `.jp-admin-page-tabs` wrapper, so we no longer override the @wordpress/ui tab button's own padding.
