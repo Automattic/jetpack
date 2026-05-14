@@ -282,7 +282,12 @@ function performRedo() {
  */
 function getContent() {
 	if ( ! cachedContent || ! cachedContent.isConnected ) {
-		cachedContent = document.querySelector( '.bw-content' );
+		// The inner wrapper holds user-editable content. The outer .bw-content
+		// keeps Preact's reactive bindings (event handlers, aria attributes),
+		// while .bw-content-inner has data-wp-ignore so Preact treats its
+		// children as opaque — preventing the reconciler from re-attaching
+		// stale Preact-tracked nodes after we replace innerHTML during undo.
+		cachedContent = document.querySelector( '.bw-content-inner' );
 	}
 	return cachedContent;
 }
@@ -1161,10 +1166,17 @@ const contentReady2 = setInterval( () => {
 	// inserted and the user can start editing right away.
 	ensureBlockStructure();
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
-		contentEl.classList.add( 'bw-is-empty' );
-		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
-			once: true,
-		} );
+		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
+		// Input events in a contenteditable fire on the contenteditable host (the
+		// outer .bw-content), not on inner descendants — so attach the cleanup
+		// listener to the outer element.
+		const outerContentEl = document.querySelector( '.bw-content' );
+		outerContentEl?.classList.add( 'bw-is-empty' );
+		outerContentEl?.addEventListener(
+			'input',
+			() => outerContentEl.classList.remove( 'bw-is-empty' ),
+			{ once: true }
+		);
 	}
 }, 200 );
 
@@ -3221,7 +3233,7 @@ const { state } = store( 'wpcom-write', {
 				while (
 					block &&
 					block.parentNode &&
-					! block.parentNode.classList.contains( 'bw-content' )
+					! block.parentNode.classList.contains( 'bw-content-inner' )
 				) {
 					block = block.parentNode;
 				}

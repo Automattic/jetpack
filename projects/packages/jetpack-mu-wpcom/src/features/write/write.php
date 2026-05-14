@@ -624,7 +624,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
-			>
+			><div class="bw-content-inner" data-wp-ignore>
 			<?php
 			if ( $edit_content ) {
 				// Sanitize through wp_kses_post — video embed tokens (HTML comments)
@@ -639,7 +639,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				echo '<p><br></p>';
 			}
 			?>
-			</div>
+			</div></div>
 		</div>
 	</main>
 
