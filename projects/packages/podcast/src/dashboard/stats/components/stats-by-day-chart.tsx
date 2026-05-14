@@ -14,7 +14,7 @@ type StatsByDayChartProps = {
 	range?: PodcastStatsRange;
 	period: PodcastStatsPeriod;
 	isLoading?: boolean;
-	children?: ReactNode;
+	summary?: ReactNode;
 };
 
 type DownloadDatum = {
@@ -73,7 +73,7 @@ const StatsByDayChart = ( {
 	range,
 	period,
 	isLoading = false,
-	children,
+	summary,
 }: StatsByDayChartProps ) => {
 	const downloadsLabel = __( 'Downloads', 'jetpack-podcast' );
 
@@ -193,7 +193,7 @@ const StatsByDayChart = ( {
 	return (
 		<SectionCard className="podcast-stats-chart" title={ downloadsLabel } metric={ rangeLabel }>
 			{ chartContent }
-			{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
+			{ summary && <div className="podcast-stats-chart__summary">{ summary }</div> }
 		</SectionCard>
 	);
 };

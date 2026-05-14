@@ -7,20 +7,20 @@ import StatsByApp from './stats-by-app';
 import StatsByDayChart from './stats-by-day-chart';
 import StatsLocations from './stats-locations';
 import SummaryTiles from './summary-tiles';
-import type { PodcastStatsPeriod } from '../types';
+import type { PodcastStatsSelection } from '../types';
 
 type EpisodeStatsProps = {
 	postId: number;
 	title: string;
 	onBack: () => void;
-	initialPeriod?: PodcastStatsPeriod;
+	initialSelection: PodcastStatsSelection;
 };
 
-const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: EpisodeStatsProps ) => {
-	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( initialPeriod );
+const EpisodeStats = ( { postId, title, onBack, initialSelection }: EpisodeStatsProps ) => {
+	const [ selection, setSelection ] = useState< PodcastStatsSelection >( initialSelection );
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
 
-	const { data: stats, isLoading, isError } = useEpisodeDetailStatsQuery( postId, period );
+	const { data: stats, isLoading, isError } = useEpisodeDetailStatsQuery( postId, selection );
 
 	const isEmpty = ! isLoading && ! isError && stats?.total_plays === 0;
 
@@ -42,11 +42,9 @@ const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: Episode
 					>
 						{ title }
 					</h2>
-					<p className="podcast-stats__section-description">
-						{ getPeriodHeading( period, 'episode' ) }
-					</p>
+					<p className="podcast-stats__section-description">{ getPeriodHeading( selection ) }</p>
 				</header>
-				<PeriodControl value={ period } onChange={ setPeriod } scope="episode" />
+				<PeriodControl value={ selection } onChange={ setSelection } />
 			</div>
 
 			{ isError && (
@@ -77,18 +75,19 @@ const EpisodeStats = ( { postId, title, onBack, initialPeriod = '30d' }: Episode
 					<StatsByDayChart
 						byDay={ stats?.by_day }
 						range={ stats?.range }
-						period={ period }
+						period={ selection.period }
 						isLoading={ isLoading }
-					>
-						<SummaryTiles
-							totalPlays={ stats?.total_plays }
-							byApp={ stats?.by_app }
-							byCountry={ stats?.by_country }
-							topDay={ stats?.top_day }
-							isLoading={ isLoading }
-							layout="chart"
-						/>
-					</StatsByDayChart>
+						summary={
+							<SummaryTiles
+								totalPlays={ stats?.total_plays }
+								byApp={ stats?.by_app }
+								byCountry={ stats?.by_country }
+								topDay={ stats?.top_day }
+								isLoading={ isLoading }
+								layout="chart"
+							/>
+						}
+					/>
 					<div className="podcast-stats__module-grid">
 						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
 					</div>
