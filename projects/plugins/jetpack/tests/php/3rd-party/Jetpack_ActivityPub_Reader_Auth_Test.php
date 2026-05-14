@@ -111,6 +111,10 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$reflection = new \ReflectionClass( Rest_Authentication::class );
 		if ( $reflection->hasProperty( 'instance' ) ) {
 			$instance_property = $reflection->getProperty( 'instance' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$instance_property->setAccessible( true );
+			}
 			$instance_property->setValue( null, null );
 		}
 	}
@@ -125,9 +129,15 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$reflection = new \ReflectionClass( $instance );
 
 		$status_property = $reflection->getProperty( 'rest_authentication_status' );
-		$status_property->setValue( $instance, true );
+		$type_property   = $reflection->getProperty( 'rest_authentication_type' );
 
-		$type_property = $reflection->getProperty( 'rest_authentication_type' );
+		// @todo Remove these calls once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$status_property->setAccessible( true );
+			$type_property->setAccessible( true );
+		}
+
+		$status_property->setValue( $instance, true );
 		$type_property->setValue( $instance, $type );
 	}
 
