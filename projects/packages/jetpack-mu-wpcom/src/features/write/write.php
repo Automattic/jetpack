@@ -258,8 +258,10 @@ function wpcom_write_allowed_block_attrs() {
 	return array(
 		'paragraph' => array( 'align' ),
 		'heading'   => array( 'level', 'align' ),
+		// id/sizeSlug: media-library metadata, not visible formatting.
+		// alt: preserved via HTML element, not block JSON.
 		'image'     => array( 'id', 'sizeSlug', 'alt' ),
-		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive', 'className', 'allowResponsive' ),
+		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align' ),
 		'list'      => array( 'ordered' ),
 		'list-item' => array(),

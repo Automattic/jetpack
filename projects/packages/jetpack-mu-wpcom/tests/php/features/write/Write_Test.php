@@ -835,12 +835,13 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that a YouTube embed with className (aspect ratio) returns false.
+	 * Test that a YouTube embed with className returns 'block-editor'.
+	 * className is not preserved by convertToBlocks() for any block type.
 	 */
 	public function test_detect_unsupported_youtube_embed_with_class_name() {
 		$attrs   = '{"url":"https://www.youtube.com/watch?v=abc","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"}';
 		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
-		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
 	}
 
 	/**
@@ -888,11 +889,17 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$view_js      = file_get_contents( $view_js_path );
 		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
 
-		// Parse @write-sync tags from the convertToBlocks JSDoc.
+		// Extract only the comment block directly above convertToBlocks()
+		// so write-sync tags elsewhere in the file don't affect this test.
+		$fn_pos = strpos( $view_js, 'function convertToBlocks(' );
+		$this->assertNotFalse( $fn_pos, 'convertToBlocks() not found in view.js' );
+		$region = substr( $view_js, max( 0, $fn_pos - 2000 ), 2000 );
+
+		// Parse write-sync tags from that region.
 		// Format: @write-sync blocktype: attr1, attr2
 		// or:     @write-sync blocktype:       (no attrs)
-		preg_match_all( '/@write-sync\s+([a-z][a-z0-9-]*):\s*(.*)/', $view_js, $matches, PREG_SET_ORDER );
-		$this->assertNotEmpty( $matches, 'No @write-sync tags found in view.js' );
+		preg_match_all( '/@write-sync\s+([a-z][a-z0-9-]*):\s*(.*)/', $region, $matches, PREG_SET_ORDER );
+		$this->assertNotEmpty( $matches, 'No @write-sync tags found near convertToBlocks() in view.js' );
 
 		$js_sync = array();
 		foreach ( $matches as $m ) {
