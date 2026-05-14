@@ -82,6 +82,13 @@ class Settings {
 	private static $registered = false;
 
 	/**
+	 * Whether `register_sync_whitelist()` has added its filter.
+	 *
+	 * @var bool
+	 */
+	private static $sync_whitelist_registered = false;
+
+	/**
 	 * Wire option registrations + Jetpack Sync opt-in. Idempotent.
 	 */
 	public static function register() {
@@ -104,18 +111,26 @@ class Settings {
 	 * on the Atomic side. Idempotent.
 	 */
 	public static function register_sync_whitelist() {
-		static $done = false;
-		if ( $done ) {
+		if ( self::$sync_whitelist_registered && has_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'filter_sync_options_whitelist' ) ) ) {
 			return;
 		}
-		$done = true;
 
 		add_filter(
 			'jetpack_sync_options_whitelist',
-			static function ( $options ) {
-				return array_merge( $options, self::OPTION_NAMES );
-			}
+			array( __CLASS__, 'filter_sync_options_whitelist' )
 		);
+
+		self::$sync_whitelist_registered = true;
+	}
+
+	/**
+	 * Add `podcasting_*` options to the Jetpack Sync whitelist.
+	 *
+	 * @param array $options Existing sync whitelist.
+	 * @return array
+	 */
+	public static function filter_sync_options_whitelist( $options ) {
+		return array_merge( $options, self::OPTION_NAMES );
 	}
 
 	/**

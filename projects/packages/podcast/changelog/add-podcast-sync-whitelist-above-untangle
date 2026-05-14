@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast: sync the podcasting_* options to wpcom regardless of the untangle gate so Atomic sites still on the legacy bridge mirror the option to wpcom.
+Podcast: Sync podcasting_* options to wpcom regardless of the untangle gate so Atomic sites on the legacy bridge still mirror options to wpcom.
