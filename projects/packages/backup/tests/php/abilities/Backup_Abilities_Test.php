@@ -11,6 +11,7 @@
 namespace Automattic\Jetpack\Backup\V0005\Abilities;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use WorDBless\BaseTestCase;
 
@@ -29,7 +30,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->admin_id = wp_insert_user(
+		$this->admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'backup_ability_admin_' . wp_generate_password( 6, false ),
 				'user_pass'  => 'pw',
@@ -53,15 +54,20 @@ class Backup_Abilities_Test extends BaseTestCase {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
+		remove_all_filters( 'jetpack_backup_abilities_should_load' );
 		remove_all_filters( 'pre_http_request' );
 		$this->deregister_backup_abilities();
 		parent::tearDown();
 	}
 
 	/**
-	 * Drop any abilities registered during this test so the next test starts
-	 * clean and `wp_register_ability_category()` doesn't trigger
-	 * "category already registered" notices.
+	 * Drop any abilities (and the test-fixture `site` category, if we put it
+	 * there) registered during this test so the next test starts clean.
+	 *
+	 * We never own the `site` category in production code — it's registered
+	 * upstream — but `ensure_site_category()` registers it as a test fixture
+	 * so `wp_register_ability()` doesn't reject our abilities, and we tear
+	 * it down here.
 	 */
 	private function deregister_backup_abilities(): void {
 		if ( function_exists( 'wp_has_ability' ) && function_exists( 'wp_unregister_ability' ) ) {
@@ -71,11 +77,50 @@ class Backup_Abilities_Test extends BaseTestCase {
 				}
 			}
 		}
-		if ( function_exists( 'wp_has_ability_category' ) && function_exists( 'wp_unregister_ability_category' ) ) {
-			$slug = Backup_Abilities::get_category_slug();
-			if ( wp_has_ability_category( $slug ) ) {
-				wp_unregister_ability_category( $slug );
+		if ( $this->registered_site_category && function_exists( 'wp_has_ability_category' ) && function_exists( 'wp_unregister_ability_category' ) ) {
+			if ( wp_has_ability_category( 'site' ) ) {
+				wp_unregister_ability_category( 'site' );
 			}
+			$this->registered_site_category = false;
+		}
+	}
+
+	/** @var bool */
+	private $registered_site_category = false;
+
+	/**
+	 * Pre-register the upstream `site` ability category as a test fixture.
+	 * Production code assumes `site` is already registered by WordPress core
+	 * / wpcom; the test environment doesn't get that for free, so any test
+	 * that exercises `wp_register_ability()` for a backup slug must call
+	 * this first.
+	 */
+	private function ensure_site_category(): void {
+		if ( ! function_exists( 'wp_register_ability_category' ) || ! function_exists( 'wp_has_ability_category' ) ) {
+			return;
+		}
+		if ( wp_has_ability_category( 'site' ) ) {
+			return;
+		}
+
+		global $wp_current_filter;
+		$resume_init = false;
+		if ( ! in_array( 'wp_abilities_api_categories_init', (array) $wp_current_filter, true ) ) {
+			$wp_current_filter[] = 'wp_abilities_api_categories_init';
+			$resume_init         = true;
+		}
+
+		wp_register_ability_category(
+			'site',
+			array(
+				'label'       => 'Site',
+				'description' => 'Site-wide abilities (test fixture).',
+			)
+		);
+		$this->registered_site_category = true;
+
+		if ( $resume_init ) {
+			array_pop( $wp_current_filter );
 		}
 	}
 
@@ -96,6 +141,15 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Force `Backup_Abilities::backup_is_loaded()` to return true for the
+	 * duration of the current test via the `jetpack_backup_abilities_should_load`
+	 * filter. Removed automatically in tearDown.
+	 */
+	private function mock_backup_plan_available(): void {
+		add_filter( 'jetpack_backup_abilities_should_load', '__return_true' );
+	}
+
+	/**
 	 * Reflection helper for the protected-by-encapsulation static methods.
 	 *
 	 * @param string $method Static method name.
@@ -108,10 +162,11 @@ class Backup_Abilities_Test extends BaseTestCase {
 		return $reflection->invokeArgs( null, $args );
 	}
 
-	// -------------------- Abstract getters --------------------
-
-	public function test_category_slug_is_package_scoped(): void {
-		$this->assertSame( 'jetpack-backup', Backup_Abilities::get_category_slug() );
+	public function test_category_slug_uses_shared_site_category(): void {
+		// We don't own the category — we live under the upstream-registered
+		// `site` category so agents see backup abilities alongside other
+		// site-management tools.
+		$this->assertSame( 'site', Backup_Abilities::get_category_slug() );
 	}
 
 	public function test_category_definition_has_label_and_description(): void {
@@ -188,8 +243,6 @@ class Backup_Abilities_Test extends BaseTestCase {
 		}
 	}
 
-	// -------------------- Registrar wiring --------------------
-
 	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
@@ -219,6 +272,9 @@ class Backup_Abilities_Test extends BaseTestCase {
 		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_get_abilities' ) ) {
 			$this->markTestSkipped( 'Abilities API not available in this test environment.' );
 		}
+
+		$this->mock_backup_plan_available();
+		$this->ensure_site_category();
 
 		$this->simulate_doing_categories_init();
 		Backup_Abilities::register_category();
@@ -300,9 +356,13 @@ class Backup_Abilities_Test extends BaseTestCase {
 			$this->markTestSkipped( 'Abilities API not available in this test environment.' );
 		}
 
+		$this->mock_backup_plan_available();
+		$this->ensure_site_category();
+
 		add_filter(
 			'jetpack_wp_abilities_should_register',
 			static function ( $enabled, $type, $slug ) {
+				unset( $slug ); // Per-slug allow-listing is the test's intent; only $type is needed.
 				if ( 'ability' === $type ) {
 					return false;
 				}
@@ -323,7 +383,35 @@ class Backup_Abilities_Test extends BaseTestCase {
 		}
 	}
 
-	// -------------------- Permission callbacks --------------------
+	/**
+	 * Without a Backup plan, `register_abilities()` must bail before
+	 * touching the registry so the abilities never appear in
+	 * /wp-abilities/v1/abilities/. We exercise the bail by leaving the
+	 * `jetpack_backup_abilities_should_load` filter unset and not mocking
+	 * `My_Jetpack\Products\Backup::is_active()` — in the test environment
+	 * that resolves to false, which makes the gate close.
+	 *
+	 * Pre-registering the `site` fixture category so `register_abilities()`
+	 * *could* register if the gate were open — that's the realistic
+	 * production scenario, where `site` already exists upstream.
+	 */
+	public function test_register_bails_when_no_backup_plan(): void {
+		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_has_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this test environment.' );
+		}
+
+		$this->ensure_site_category();
+
+		$this->simulate_doing_abilities_init();
+		Backup_Abilities::register_abilities();
+
+		foreach ( array_keys( Backup_Abilities::get_abilities() ) as $slug ) {
+			$this->assertFalse(
+				wp_has_ability( $slug ),
+				"Ability {$slug} must not register when there is no Backup plan."
+			);
+		}
+	}
 
 	public function test_can_view_backups_allows_admin(): void {
 		wp_set_current_user( $this->admin_id );
@@ -350,12 +438,13 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertTrue( Backup_Abilities::can_manage_backups() );
 	}
 
-	// -------------------- Execute callbacks (smoke tests) --------------------
-	// Full-fidelity execution requires a live Jetpack/WPCOM connection; without
-	// it, Connection\Client returns WP_Error('missing_token'|'invalid_signature')
-	// before the http layer. These tests verify that the callbacks degrade
-	// gracefully when the upstream is unreachable.
-
+	/**
+	 * Full-fidelity execution requires a live Jetpack/WPCOM connection;
+	 * without it, Connection\Client returns
+	 * `WP_Error('missing_token'|'invalid_signature')` before the http layer.
+	 * The next batch of tests verifies the callbacks degrade gracefully when
+	 * the upstream is unreachable.
+	 */
 	public function test_list_backups_returns_empty_array_when_upstream_unavailable(): void {
 		wp_set_current_user( $this->admin_id );
 		$result = Backup_Abilities::execute_list_backups( array() );
@@ -374,30 +463,252 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertSame( array(), $result );
 	}
 
-	public function test_get_backup_overview_returns_documented_shape_when_no_plan(): void {
+	public function test_get_backup_overview_returns_documented_shape_when_upstream_unavailable(): void {
 		wp_set_current_user( $this->admin_id );
 		$result = Backup_Abilities::execute_get_backup_overview( array() );
 		$this->assertIsArray( $result );
-		foreach ( array( 'has_plan', 'recent_backup_count', 'last_backup', 'schedule', 'storage' ) as $key ) {
+		foreach ( array( 'recent_backup_count', 'last_backup', 'schedule', 'storage' ) as $key ) {
 			$this->assertArrayHasKey( $key, $result, "Overview must always include {$key} key." );
 		}
-		// Without a Jetpack connection, has_backup_plan returns false.
-		$this->assertFalse( $result['has_plan'] );
 		$this->assertNull( $result['last_backup'] );
 	}
 
-	public function test_request_backup_returns_wp_error_without_plan(): void {
+	public function test_request_backup_returns_wp_error_when_upstream_unavailable(): void {
 		wp_set_current_user( $this->admin_id );
 		$result = Backup_Abilities::execute_request_backup( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_backup_no_plan', $result->get_error_code() );
+		$this->assertSame( 'jetpack_backup_data_unavailable', $result->get_error_code() );
 	}
 
-	// -------------------- summarize_* helpers --------------------
+	/**
+	 * Regression: the Abilities API may hand the callback non-array input
+	 * (string, null, etc.) before `additionalProperties:false` validation
+	 * rejects it. Callbacks must not fatal — they should treat unrecognised
+	 * input as "no input given" rather than throw a TypeError.
+	 *
+	 * @param mixed $input Non-array value the Abilities API might pass through.
+	 * @dataProvider provider_non_array_inputs
+	 */
+	#[DataProvider( 'provider_non_array_inputs' )]
+	public function test_execute_callbacks_tolerate_non_array_input( $input ): void {
+		wp_set_current_user( $this->admin_id );
 
-	public function test_summarize_backup_keeps_high_signal_fields(): void {
+		$list = Backup_Abilities::execute_list_backups( $input );
+		// list-backups accepts a `date` key; with non-array garbage there's
+		// no date set, so the path is "no upstream → empty array". Either
+		// is acceptable here — the point is it doesn't fatal.
+		$this->assertTrue( is_array( $list ) || $list instanceof \WP_Error );
+
+		$this->assertIsArray( Backup_Abilities::execute_list_restores( $input ) );
+		$this->assertIsArray( Backup_Abilities::execute_get_backup_overview( $input ) );
+
+		$request = Backup_Abilities::execute_request_backup( $input );
+		// Without a plan this returns WP_Error; the point is it doesn't fatal.
+		$this->assertInstanceOf( \WP_Error::class, $request );
+	}
+
+	/**
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provider_non_array_inputs(): array {
+		return array(
+			'null'         => array( null ),
+			'empty string' => array( '' ),
+			'string'       => array( 'not-an-array' ),
+			'integer'      => array( 42 ),
+			'bool'         => array( true ),
+		);
+	}
+
+	public function test_list_backups_rejects_invalid_date_with_wp_error(): void {
+		wp_set_current_user( $this->admin_id );
+
+		foreach ( array( 'date', 'date_from', 'date_to' ) as $param ) {
+			foreach ( array( 'not-a-date', '🐢' ) as $bad ) {
+				$result = Backup_Abilities::execute_list_backups( array( $param => $bad ) );
+				$this->assertInstanceOf( \WP_Error::class, $result, "{$param}={$bad} must be rejected." );
+				$this->assertSame( 'jetpack_backup_invalid_date', $result->get_error_code() );
+			}
+		}
+	}
+
+	public function test_summarize_backup_event_maps_activity_event_to_backup_item(): void {
+		$event = array(
+			'rewind_id'     => '1747143000.1234',
+			'published'     => '2026-05-13T12:30:00Z',
+			'name'          => 'rewind__backup_complete_full',
+			'status'        => 'success',
+			'is_rewindable' => true,
+			'summary'       => 'Backup complete',
+		);
+
+		$item = $this->call_private( 'summarize_backup_event', array( $event ) );
+
+		$this->assertSame( '1747143000.1234', $item['id'], 'id must be the rewind_id — the cross-system identifier.' );
+		$this->assertArrayNotHasKey( 'rewind_id', $item, 'Redundant rewind_id field must be dropped from the output shape.' );
+		$this->assertSame( '2026-05-13T12:30:00Z', $item['started'] );
+		$this->assertSame( '2026-05-13T12:30:00Z', $item['last_updated'] );
+		$this->assertSame( 'finished', $item['status'], 'success/backup_complete event must surface as "finished" to match the legacy vocabulary.' );
+		$this->assertTrue( $item['is_rewindable'] );
+		$this->assertFalse( $item['has_warnings'] );
+	}
+
+	public function test_summarize_backup_event_marks_warning_status(): void {
+		$item = $this->call_private(
+			'summarize_backup_event',
+			array(
+				array(
+					'rewind_id'     => '1.0',
+					'published'     => '2026-05-13T12:30:00Z',
+					'name'          => 'something',
+					'status'        => 'warning',
+					'is_rewindable' => true,
+				),
+			)
+		);
+
+		$this->assertSame( 'warning', $item['status'] );
+		$this->assertTrue( $item['has_warnings'] );
+	}
+
+	public function test_summarize_backup_event_drops_events_without_rewind_id(): void {
+		$item = $this->call_private(
+			'summarize_backup_event',
+			array(
+				array(
+					'published' => '2026-05-13T12:30:00Z',
+					'name'      => 'rewind__backup_complete_full',
+				),
+			)
+		);
+
+		$this->assertNull( $item, 'Events without a rewind_id are not backups.' );
+	}
+
+	public function test_extract_rewindable_items_reads_current_orderedItems_first(): void {
+		$envelope = array(
+			'type'         => 'OrderedCollection',
+			'orderedItems' => array( array( 'rewind_id' => 'a' ) ),
+			'current'      => array(
+				'orderedItems' => array( array( 'rewind_id' => 'b' ) ),
+			),
+		);
+
+		$items = $this->call_private( 'extract_rewindable_items', array( $envelope ) );
+
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'b', $items[0]['rewind_id'], 'Should prefer current.orderedItems (the canonical rewindable shape).' );
+	}
+
+	public function test_extract_rewindable_items_falls_back_to_top_level(): void {
+		$envelope = array(
+			'orderedItems' => array( array( 'rewind_id' => 'top' ) ),
+		);
+
+		$items = $this->call_private( 'extract_rewindable_items', array( $envelope ) );
+
+		$this->assertSame( 'top', $items[0]['rewind_id'] );
+	}
+
+	public function test_list_backups_returns_empty_array_when_upstream_unavailable_with_date_filter(): void {
+		wp_set_current_user( $this->admin_id );
+		$result = Backup_Abilities::execute_list_backups( array( 'date' => '2026-05-13T12:00:00Z' ) );
+		$this->assertIsArray( $result );
+		$this->assertSame( array(), $result );
+	}
+
+	public function test_pick_backup_picks_on_or_before_by_default(): void {
+		$backups = $this->sample_backups();
+		$target  = strtotime( '2026-05-13T12:00:00Z' );
+
+		$pick = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'on_or_before' ) );
+
+		$this->assertNotNull( $pick );
+		$this->assertSame( 'b-2026-05-13-10', $pick['id'], 'Should pick the latest backup at or before the target.' );
+	}
+
+	public function test_pick_backup_on_or_after_picks_earliest_in_future(): void {
+		$backups = $this->sample_backups();
+		$target  = strtotime( '2026-05-13T12:00:00Z' );
+
+		$pick = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'on_or_after' ) );
+
+		$this->assertNotNull( $pick );
+		$this->assertSame( 'b-2026-05-13-14', $pick['id'], 'Should pick the earliest backup at or after the target.' );
+	}
+
+	public function test_pick_backup_closest_minimizes_absolute_diff(): void {
+		$backups = $this->sample_backups();
+		// 11:00 — closer to the 10:00 backup (1h) than 14:00 (3h).
+		$target = strtotime( '2026-05-13T11:00:00Z' );
+		$pick   = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'closest' ) );
+		$this->assertSame( 'b-2026-05-13-10', $pick['id'] );
+
+		// 13:00 — closer to the 14:00 backup (1h) than 10:00 (3h).
+		$target = strtotime( '2026-05-13T13:00:00Z' );
+		$pick   = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'closest' ) );
+		$this->assertSame( 'b-2026-05-13-14', $pick['id'] );
+	}
+
+	public function test_pick_backup_returns_null_when_no_match_for_on_or_before(): void {
+		// Target predates every backup, so 'on_or_before' has nothing to return.
+		$backups = $this->sample_backups();
+		$target  = strtotime( '2020-01-01T00:00:00Z' );
+
+		$pick = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'on_or_before' ) );
+		$this->assertNull( $pick );
+	}
+
+	public function test_pick_backup_skips_items_with_unparseable_started(): void {
+		$backups = array(
+			array(
+				'id'      => 'bad',
+				'started' => 'not-a-date',
+			),
+			array(
+				'id'      => 'good',
+				'started' => '2026-05-13T10:00:00Z',
+			),
+			array( 'id' => 'missing' ), // No `started` at all.
+		);
+		$target  = strtotime( '2026-05-13T12:00:00Z' );
+
+		$pick = $this->call_private( 'pick_backup_near_timestamp', array( $backups, $target, 'on_or_before' ) );
+		$this->assertSame( 'good', $pick['id'] );
+	}
+
+	/**
+	 * Three synthetic backups bracketing 2026-05-13T12:00:00Z: 10:00 (before),
+	 * 14:00 (after), 09:00 (further before). Reused by the picking tests.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function sample_backups(): array {
+		return array(
+			array(
+				'id'      => 'b-2026-05-13-09',
+				'started' => '2026-05-13T09:00:00Z',
+				'status'  => 'finished',
+			),
+			array(
+				'id'      => 'b-2026-05-13-10',
+				'started' => '2026-05-13T10:00:00Z',
+				'status'  => 'finished',
+			),
+			array(
+				'id'      => 'b-2026-05-13-14',
+				'started' => '2026-05-13T14:00:00Z',
+				'status'  => 'finished',
+			),
+		);
+	}
+
+	public function test_summarize_backup_uses_rewind_id_as_id_and_drops_internal_attempt_id(): void {
 		$raw = array(
-			'id'            => 'b-1',
+			// `id` is wpcom's internal numeric VaultPress attempt id — must NOT
+			// leak into the agent-facing shape because no other endpoint can
+			// resolve it. `rewind_id` is the cross-system identifier.
+			'id'            => 875405461,
 			'rewind_id'     => '1700000000.0',
 			'started'       => '2026-04-26T01:00:00Z',
 			'last_updated'  => '2026-04-26T01:05:00Z',
@@ -410,24 +721,35 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 		$result = $this->call_private( 'summarize_backup', array( $raw ) );
 
-		$this->assertSame( 'b-1', $result['id'] );
-		$this->assertSame( '1700000000.0', $result['rewind_id'] );
+		$this->assertSame( '1700000000.0', $result['id'], 'id must mirror rewind_id (queryable across abilities) rather than the internal numeric attempt id.' );
+		$this->assertArrayNotHasKey( 'rewind_id', $result, 'Redundant rewind_id field must be dropped.' );
 		$this->assertTrue( $result['is_rewindable'] );
 		$this->assertFalse( $result['has_warnings'] );
 		$this->assertArrayNotHasKey( 'noise_field', $result );
 	}
 
-	public function test_summarize_backup_handles_missing_optional_fields(): void {
-		$result = $this->call_private( 'summarize_backup', array( array( 'id' => 'b-2' ) ) );
+	public function test_summarize_backup_returns_null_id_when_rewind_id_missing(): void {
+		// In-progress backups don't have a rewind_id yet; id is therefore null
+		// (the backup can't be looked up by any other endpoint until it
+		// completes).
+		$result = $this->call_private(
+			'summarize_backup',
+			array(
+				array(
+					'id'     => 999,
+					'status' => 'started',
+				),
+			)
+		);
 
-		$this->assertSame( 'b-2', $result['id'] );
-		$this->assertNull( $result['rewind_id'] );
+		$this->assertNull( $result['id'] );
+		$this->assertSame( 'started', $result['status'] );
 		$this->assertNull( $result['is_rewindable'] );
 	}
 
-	public function test_summarize_restore_keeps_high_signal_fields(): void {
+	public function test_summarize_restore_uses_rewind_id_as_id(): void {
 		$raw = array(
-			'id'           => 'r-1',
+			'id'           => 12345,
 			'rewind_id'    => '1700000000.0',
 			'started'      => '2026-04-26T01:00:00Z',
 			'last_updated' => '2026-04-26T01:10:00Z',
@@ -438,7 +760,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 		$result = $this->call_private( 'summarize_restore', array( $raw ) );
 
-		$this->assertSame( 'r-1', $result['id'] );
+		$this->assertSame( '1700000000.0', $result['id'], 'restore id mirrors the rewind_id being restored to.' );
+		$this->assertArrayNotHasKey( 'rewind_id', $result );
 		$this->assertSame( 100, $result['progress'] );
 		$this->assertArrayNotHasKey( 'noise_field', $result );
 	}
@@ -449,7 +772,15 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_summarize_schedule_extracts_hour_minute(): void {
-		$result = $this->call_private( 'summarize_schedule', array( array( 'hour' => 3, 'minute' => 30 ) ) );
+		$result = $this->call_private(
+			'summarize_schedule',
+			array(
+				array(
+					'hour'   => 3,
+					'minute' => 30,
+				),
+			)
+		);
 		$this->assertSame( 3, $result['hour'] );
 		$this->assertSame( 30, $result['minute'] );
 	}
@@ -458,7 +789,12 @@ class Backup_Abilities_Test extends BaseTestCase {
 		// Production WPCOM payload uses size_in_bytes/storage_limit_bytes.
 		$result = $this->call_private(
 			'summarize_storage',
-			array( array( 'size_in_bytes' => 1024, 'storage_limit_bytes' => 10240 ) )
+			array(
+				array(
+					'size_in_bytes'       => 1024,
+					'storage_limit_bytes' => 10240,
+				),
+			)
 		);
 		$this->assertSame( 1024, $result['used_bytes'] );
 		$this->assertSame( 10240, $result['limit_bytes'] );
@@ -466,13 +802,16 @@ class Backup_Abilities_Test extends BaseTestCase {
 		// Defensive shape: bare *_bytes keys also accepted.
 		$result = $this->call_private(
 			'summarize_storage',
-			array( array( 'used_bytes' => 5, 'limit_bytes' => 50 ) )
+			array(
+				array(
+					'used_bytes'  => 5,
+					'limit_bytes' => 50,
+				),
+			)
 		);
 		$this->assertSame( 5, $result['used_bytes'] );
 		$this->assertSame( 50, $result['limit_bytes'] );
 	}
-
-	// -------------------- apply_id_or_pagination --------------------
 
 	public function test_apply_id_or_pagination_filters_by_id(): void {
 		$items  = array(
@@ -523,9 +862,36 @@ class Backup_Abilities_Test extends BaseTestCase {
 		for ( $i = 0; $i < 25; $i++ ) {
 			$items[] = array( 'id' => 'b-' . $i );
 		}
-		$first  = $this->call_private( 'apply_id_or_pagination', array( $items, array( 'page' => 1, 'per_page' => 10 ) ) );
-		$second = $this->call_private( 'apply_id_or_pagination', array( $items, array( 'page' => 2, 'per_page' => 10 ) ) );
-		$third  = $this->call_private( 'apply_id_or_pagination', array( $items, array( 'page' => 3, 'per_page' => 10 ) ) );
+		$first  = $this->call_private(
+			'apply_id_or_pagination',
+			array(
+				$items,
+				array(
+					'page'     => 1,
+					'per_page' => 10,
+				),
+			)
+		);
+		$second = $this->call_private(
+			'apply_id_or_pagination',
+			array(
+				$items,
+				array(
+					'page'     => 2,
+					'per_page' => 10,
+				),
+			)
+		);
+		$third  = $this->call_private(
+			'apply_id_or_pagination',
+			array(
+				$items,
+				array(
+					'page'     => 3,
+					'per_page' => 10,
+				),
+			)
+		);
 
 		$this->assertCount( 10, $first );
 		$this->assertCount( 10, $second );
@@ -534,8 +900,6 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'b-10', $second[0]['id'] );
 		$this->assertSame( 'b-20', $third[0]['id'] );
 	}
-
-	// -------------------- unwrap_response --------------------
 
 	public function test_unwrap_response_returns_null_for_wp_error(): void {
 		$result = $this->call_private( 'unwrap_response', array( new \WP_Error( 'x', 'y' ) ) );
