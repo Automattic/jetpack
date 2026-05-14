@@ -307,7 +307,6 @@ const CardCopy = ( { experience } ) => {
 			'<strong>Smart ranking</strong> — no typo tolerance or language-aware matching',
 			'jetpack-search-pkg'
 		),
-		__( '<strong>Search analytics</strong> — and custom relevance rules', 'jetpack-search-pkg' ),
 	];
 	return (
 		<>
