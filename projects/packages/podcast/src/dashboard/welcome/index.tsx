@@ -22,7 +22,7 @@ const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string 
 		icon: <Icon icon={ megaphone } />,
 		title: __( 'Reach listeners in every app', 'jetpack-podcast' ),
 		body: __(
-			'One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.',
+			'One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.',
 			'jetpack-podcast'
 		),
 	},
@@ -77,7 +77,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => (
 				</h2>
 				<Text variant="muted">
 					{ __(
-						'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
+						'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
 						'jetpack-podcast'
 					) }
 				</Text>
