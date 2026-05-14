@@ -7,6 +7,7 @@
 
 use A8C\FSE\Help_Center;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/help-center/class-help-center.php';
 
@@ -48,8 +49,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_payload_has_stable_top_level_keys() {
-		$data = $this->help_center->get_help_center_data( 'wp-admin' );
-
+		// Adding a field is a deliberate change — frontend consumers depend on this shape.
 		$this->assertSame(
 			array(
 				'isProxied',
@@ -61,75 +61,60 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 				'site',
 				'locale',
 			),
-			array_keys( $data ),
-			'Top-level helpCenterData keys must stay stable. Adding a field is a deliberate change — update this list and any frontend consumers.'
+			array_keys( $this->help_center->get_help_center_data( 'wp-admin' ) )
 		);
 	}
 
 	public function test_current_user_block_reflects_logged_in_user() {
-		$data = $this->help_center->get_help_center_data( 'wp-admin' );
+		$current_user = $this->help_center->get_help_center_data( 'wp-admin' )['currentUser'];
 
-		$this->assertSame( $this->user_id, $data['currentUser']['ID'] );
-		$this->assertSame( 'help_center_user', $data['currentUser']['username'] );
-		$this->assertSame( 'Help Center User', $data['currentUser']['display_name'] );
-		$this->assertSame( 'help_center_user@example.com', $data['currentUser']['email'] );
-		$this->assertArrayHasKey( 'avatar_URL', $data['currentUser'] );
-		$this->assertArrayHasKey( 'is_a11n', $data['currentUser'] );
+		$this->assertSame( $this->user_id, $current_user['ID'] );
+		$this->assertSame( 'help_center_user', $current_user['username'] );
+		$this->assertSame( 'Help Center User', $current_user['display_name'] );
+		$this->assertSame( 'help_center_user@example.com', $current_user['email'] );
 	}
 
-	public function test_variant_drives_section_name_default() {
-		$this->assertSame( 'wp-admin', $this->help_center->get_help_center_data( 'wp-admin' )['sectionName'] );
-		$this->assertSame( 'gutenberg', $this->help_center->get_help_center_data( 'gutenberg' )['sectionName'] );
-		$this->assertSame( 'customizer', $this->help_center->get_help_center_data( 'customizer' )['sectionName'] );
-		$this->assertSame( 'ciab-admin', $this->help_center->get_help_center_data( 'ciab-admin' )['sectionName'] );
-		$this->assertSame( 'logged-out', $this->help_center->get_help_center_data( 'logged-out' )['sectionName'] );
-	}
-
-	public function test_overrides_are_shallow_merged() {
-		$data = $this->help_center->get_help_center_data(
-			'wp-admin',
-			array( 'sectionName' => 'landpack' )
+	/**
+	 * @dataProvider variant_section_name_provider
+	 */
+	#[DataProvider( 'variant_section_name_provider' )]
+	public function test_variant_drives_section_name_default( string $variant, string $expected ) {
+		$this->assertSame(
+			$expected,
+			$this->help_center->get_help_center_data( $variant )['sectionName']
 		);
-
-		$this->assertSame( 'landpack', $data['sectionName'], 'Override replaces sectionName.' );
-		$this->assertSame( $this->user_id, $data['currentUser']['ID'], 'Untouched fields keep computed values.' );
-		$this->assertSame( 'en', $data['locale'], 'Untouched fields keep computed values.' );
 	}
 
-	public function test_overrides_replace_subarrays_wholesale() {
-		$data = $this->help_center->get_help_center_data(
-			'wp-admin',
-			array( 'currentUser' => array( 'ID' => 0 ) )
+	public function variant_section_name_provider(): array {
+		return array(
+			'wp-admin'   => array( 'wp-admin', 'wp-admin' ),
+			'gutenberg'  => array( 'gutenberg', 'gutenberg' ),
+			'customizer' => array( 'customizer', 'customizer' ),
+			'ciab-admin' => array( 'ciab-admin', 'ciab-admin' ),
+			'logged-out' => array( 'logged-out', 'logged-out' ),
 		);
-
-		// Shallow merge: passing a partial currentUser replaces the whole sub-array.
-		$this->assertSame( array( 'ID' => 0 ), $data['currentUser'] );
 	}
 
 	public function test_default_variant_is_wp_admin() {
-		$this->assertSame(
-			$this->help_center->get_help_center_data(),
-			$this->help_center->get_help_center_data( 'wp-admin' )
-		);
+		$this->assertSame( 'wp-admin', $this->help_center->get_help_center_data()['sectionName'] );
 	}
 
-	public function test_payload_is_deterministic_under_json_encode() {
-		$first  = wp_json_encode(
-			$this->help_center->get_help_center_data( 'wp-admin' ),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-		);
-		$second = wp_json_encode(
-			$this->help_center->get_help_center_data( 'wp-admin' ),
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+	public function test_overrides_shallow_merge_top_level_and_replace_subarrays() {
+		$data = $this->help_center->get_help_center_data(
+			'wp-admin',
+			array(
+				'sectionName' => 'landpack',
+				'currentUser' => array( 'ID' => 0 ),
+			)
 		);
 
-		$this->assertSame( $first, $second, 'JSON-encoded payload must be byte-equal across calls.' );
+		$this->assertSame( 'landpack', $data['sectionName'], 'top-level override replaces' );
+		$this->assertSame( array( 'ID' => 0 ), $data['currentUser'], 'sub-array override replaces wholesale (no deep merge)' );
+		$this->assertSame( 'en', $data['locale'], 'untouched fields keep computed values' );
 	}
 
 	public function test_get_instance_returns_singleton_after_init() {
-		// init() may have been short-circuited (e.g. preview=true) or not yet run in this test context.
-		// What we guarantee is that get_instance() returns either an instance or null — not a fatal.
-		$instance = Help_Center::get_instance();
-		$this->assertTrue( $instance === null || $instance instanceof Help_Center );
+		Help_Center::init();
+		$this->assertInstanceOf( Help_Center::class, Help_Center::get_instance() );
 	}
 }

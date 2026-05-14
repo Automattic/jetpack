@@ -179,10 +179,6 @@ class Help_Center {
 	/**
 	 * Returns the singleton instance, or null if init() hasn't run or short-circuited.
 	 *
-	 * Exposed so frontend consumers (e.g. mounting Help Center outside the
-	 * admin-only enqueue path) can call get_help_center_data() without
-	 * re-implementing the payload.
-	 *
 	 * @return self|null
 	 */
 	public static function get_instance(): ?self {
@@ -460,11 +456,7 @@ class Help_Center {
 			'locale'           => self::determine_iso_639_locale(),
 		);
 
-		if ( ! empty( $overrides ) ) {
-			$data = array_replace( $data, $overrides );
-		}
-
-		return $data;
+		return array_replace( $data, $overrides );
 	}
 
 	/**
