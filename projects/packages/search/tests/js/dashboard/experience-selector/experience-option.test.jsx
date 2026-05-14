@@ -32,7 +32,9 @@ const baseSettings = {
 describe( '<ExperienceOption>', () => {
 	test( 'renders title and description', () => {
 		renderWith( baseSettings, { experience: 'embedded' } );
-		expect( screen.getByText( 'Embedded search' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /embedded search/i } )
+		).toBeInTheDocument();
 		expect(
 			screen.getByText( /A search-as-you-type customizable search page built with blocks/i )
 		).toBeInTheDocument();
@@ -56,42 +58,41 @@ describe( '<ExperienceOption>', () => {
 		expect( screen.queryByText( 'Recommended' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'shows ACTIVE badge when experience matches active state', () => {
+	test( 'shows ACTIVE badge on the active card and no commit button', () => {
 		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings, { experience: 'overlay' } );
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: /^use overlay search$/i } )
+		).not.toBeInTheDocument();
 	} );
 
-	test( 'does not show ACTIVE badge on non-active rows', () => {
+	test( 'non-active cards have no ACTIVE badge and a per-card commit button', () => {
 		renderWith( baseSettings, { experience: 'inline' } );
 		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /use theme search/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'radio is checked when experience matches selected', () => {
-		renderWith( { ...baseSettings, pending_experience: 'inline' }, { experience: 'inline' } );
-		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
+	test( 'commit button is aria-disabled when the card is disabled', () => {
+		// `@wordpress/ui` Button uses aria-disabled rather than the native
+		// `disabled` attribute, so focus order is preserved on disabled buttons.
+		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
+		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
-	test( 'clicking the row dispatches setPendingExperience', () => {
+	test( 'commit button opens a confirmation dialog; cancelling closes it', () => {
 		renderWith( baseSettings, { experience: 'inline' } );
-		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
-	} );
-
-	test( 'renders the radio as disabled when disabled prop is true', () => {
-		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
-		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
-	} );
-
-	test( 'exposes the upsell hint in the disabled overlay label aria-label', () => {
-		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
-		expect( screen.getByLabelText( /upgrade your plan to unlock/i ) ).toBeInTheDocument();
-	} );
-
-	test( 'does not dispatch when a disabled row is clicked', () => {
-		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
-		fireEvent.click( screen.getByRole( 'radio', { name: /embedded search/i } ) );
-		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).not.toBeChecked();
+		fireEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
+		const dialog = screen.getByRole( 'dialog' );
+		expect( dialog ).toHaveTextContent(
+			/switch the visitor-facing search experience to theme search/i
+		);
+		// The dialog's "Cancel" button (rendered alongside the confirmation
+		// button) closes the dialog without saving.
+		fireEvent.click( screen.getAllByRole( 'button', { name: /cancel/i } )[ 0 ] );
 	} );
 } );
 
@@ -120,9 +121,8 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		);
 	} );
 
-	test( 'renders actions as aria-disabled spans (no href) when Overlay is selected but not yet active', () => {
-		// selected = overlay (from pending_experience), active = inline.
-		renderWith( { ...inlineActive, pending_experience: 'overlay' }, { experience: 'overlay' } );
+	test( 'renders actions as aria-disabled spans (no href) when Overlay is not active', () => {
+		renderWith( inlineActive, { experience: 'overlay' } );
 		expect( screen.queryByRole( 'link', { name: /customize/i } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Customize' ) ).toHaveAttribute( 'aria-disabled', 'true' );

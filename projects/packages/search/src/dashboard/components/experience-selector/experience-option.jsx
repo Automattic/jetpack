@@ -1,6 +1,8 @@
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
+import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { createInterpolateElement, useState } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, cancelCircleFilled } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -80,6 +82,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 		[]
 	);
 	const { saveExperience } = useDispatch( STORE_ID );
+	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
@@ -167,12 +170,30 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						variant="primary"
 						disabled={ disabled || isUpdating }
 						loading={ isUpdating }
-						onClick={ () => saveExperience( experience ) }
+						onClick={ () => setConfirmOpen( true ) }
 					>
 						{ getCommitLabel( experience ) }
 					</Button>
 				</div>
 			) }
+			<ConfirmDialog
+				isOpen={ isConfirmOpen }
+				onConfirm={ () => {
+					saveExperience( experience );
+					setConfirmOpen( false );
+				} }
+				onCancel={ () => setConfirmOpen( false ) }
+				confirmButtonText={ getCommitLabel( experience ) }
+			>
+				{ sprintf(
+					/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
+					__(
+						'Switch the visitor-facing search experience to %s? Your current experience will stop running until you switch back.',
+						'jetpack-search-pkg'
+					),
+					getExperienceLabel( experience )
+				) }
+			</ConfirmDialog>
 		</Stack>
 	);
 }

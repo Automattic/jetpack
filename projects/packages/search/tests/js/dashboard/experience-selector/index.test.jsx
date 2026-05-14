@@ -1,15 +1,17 @@
-/* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import ExperienceSelector from '../../../../src/dashboard/components/experience-selector';
-import { EXPERIENCE } from '../../../../src/dashboard/components/experience-selector/constants';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
-const renderWith = jetpackSettings => {
+const renderWith = ( jetpackSettings, extraInitialState = {} ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
-		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings },
+		initialState: {
+			...( storeConfig.initialState || {} ),
+			jetpackSettings,
+			...extraInitialState,
+		},
 	} );
 	registry.register( store );
 	return render(
@@ -28,40 +30,28 @@ const baseSettings = {
 };
 
 describe( '<ExperienceSelector>', () => {
-	test( 'renders four radio rows in display order', () => {
+	test( 'renders four cards in display order, each titled', () => {
 		renderWith( baseSettings );
-		const radios = screen.getAllByRole( 'radio' );
-		expect( radios ).toHaveLength( 4 );
-		expect( radios[ 0 ] ).toHaveAccessibleName( /embedded search/i );
-		expect( radios[ 1 ] ).toHaveAccessibleName( /overlay search/i );
-		expect( radios[ 2 ] ).toHaveAccessibleName( /theme search/i );
-		expect( radios[ 3 ] ).toHaveAccessibleName( /off/i );
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /embedded search/i } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /overlay search/i } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /theme search/i } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: /^off$/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'pre-checks the radio that matches the active experience', () => {
+	test( 'renders the page heading at h1', () => {
 		renderWith( baseSettings );
-		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeChecked();
-	} );
-
-	test( 'Save button is aria-disabled while clean', () => {
-		renderWith( baseSettings );
-		const save = screen.getByRole( 'button', { name: /save/i } );
-		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
-	} );
-
-	test( 'Save button enables once a different option is selected', () => {
-		renderWith( baseSettings );
-		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		const save = screen.getByRole( 'button', { name: /use theme search/i } );
-		expect( save ).toHaveAttribute( 'aria-disabled', 'false' );
-	} );
-
-	test( 'Save button disables when selection returns to active', () => {
-		renderWith( baseSettings );
-		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		fireEvent.click( screen.getByRole( 'radio', { name: /overlay search/i } ) );
-		const save = screen.getByRole( 'button', { name: /save/i } );
-		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.getByRole( 'heading', {
+				level: 1,
+				name: /select a search experience for your visitors/i,
+			} )
+		).toBeInTheDocument();
 	} );
 
 	test( 'fieldset has an accessible group name', () => {
@@ -71,82 +61,62 @@ describe( '<ExperienceSelector>', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'disables Embedded and Overlay rows when plan supports only Classic Search', () => {
-		const registry = createRegistry();
-		const store = createReduxStore( STORE_ID, {
-			...storeConfig,
-			initialState: {
-				...( storeConfig.initialState || {} ),
-				jetpackSettings: baseSettings,
-				sitePlan: { supports_only_classic_search: true },
-			},
-		} );
-		registry.register( store );
-		render(
-			<RegistryProvider value={ registry }>
-				<ExperienceSelector />
-			</RegistryProvider>
-		);
-		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
-		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeDisabled();
-		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeEnabled();
-		expect( screen.getByRole( 'radio', { name: /off/i } ) ).toBeEnabled();
-	} );
-
-	test( 'Save button shows contextual label per pending experience', () => {
+	test( 'renders a per-card commit button for every non-active experience', () => {
+		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings );
-		fireEvent.click( screen.getByRole( 'radio', { name: /embedded search/i } ) );
 		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toBeInTheDocument();
-		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect(
+			screen.queryByRole( 'button', { name: /^use overlay search$/i } )
+		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: /use theme search/i } ) ).toBeInTheDocument();
-		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
 		expect(
 			screen.getByRole( 'button', { name: /turn off jetpack search/i } )
 		).toBeInTheDocument();
 	} );
 
-	test( 'renders pending-state notice next to the heading once dirty', () => {
+	test( 'no bottom Save button anywhere on the form', () => {
 		renderWith( baseSettings );
-		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
-		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
-		expect( screen.getByText( /theme search selected, save to apply/i ) ).toBeInTheDocument();
-		fireEvent.click( screen.getByRole( 'radio', { name: /off/i } ) );
-		expect( screen.getByText( /off selected, save to apply/i ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /^save$/i } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'hides the pending notice while a save is in flight', () => {
-		// `is_updating: true` simulates the in-flight window after Save was
-		// clicked — the global "Updating settings…" toast covers status, so
-		// the heading-row pending notice should disappear.
-		renderWith( {
-			...baseSettings,
-			pending_experience: EXPERIENCE.INLINE,
-			is_updating: true,
-		} );
+	test( 'no pending-state notice — saves are committed via the per-card button directly', () => {
+		renderWith( baseSettings );
 		expect( screen.queryByText( /selected, save to apply/i ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
-		const registry = createRegistry();
-		const store = createReduxStore( STORE_ID, {
-			...storeConfig,
-			initialState: {
-				...( storeConfig.initialState || {} ),
-				jetpackSettings: baseSettings,
-				siteData: { isWpcom: true },
-			},
-		} );
-		registry.register( store );
-		render(
-			<RegistryProvider value={ registry }>
-				<ExperienceSelector />
-			</RegistryProvider>
+		renderWith( baseSettings, { siteData: { isWpcom: true } } );
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /embedded search/i } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /overlay search/i } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: /theme search/i } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 2, name: /^off$/i } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'disables Embedded and Overlay commit buttons when plan supports only Classic Search', () => {
+		// Active = inline here so all four cards surface a commit button — we
+		// can assert directly on which are disabled. `@wordpress/ui` Button
+		// uses aria-disabled instead of the native attribute.
+		renderWith(
+			{ ...baseSettings, instant_search_enabled: false },
+			{ sitePlan: { supports_only_classic_search: true } }
 		);
-		const radios = screen.getAllByRole( 'radio' );
-		expect( radios ).toHaveLength( 3 );
-		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'radio', { name: /off/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: /use overlay search/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: /turn off jetpack search/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		);
 	} );
 } );

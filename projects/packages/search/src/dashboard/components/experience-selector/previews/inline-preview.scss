@@ -18,14 +18,18 @@
 	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
-// Visual stand-in for the theme's "Search" submit button — sized like a
-// short, solid pill, no text (skeleton aesthetic).
+// Visual stand-in for the theme's "Search" submit button. Muted neutral
+// fill so it reads as a small UI accent rather than competing with the
+// real "Use <experience>" Save buttons on the page.
 .jp-search-inline-preview__submit {
 	flex: 0 0 auto;
-	width: 48px;
-	height: 24px;
-	background: var(--wpds-color-bg-interactive-neutral-strong, var(--wpds-color-fg-content-neutral));
+	padding: 2px 8px;
+	background: var(--wpds-color-bg-interactive-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
+	color: var(--wpds-color-fg-content-neutral-weak);
+	font-size: 10px;
+	line-height: 1.4;
 }
 
 .jp-search-inline-preview__search-icon {

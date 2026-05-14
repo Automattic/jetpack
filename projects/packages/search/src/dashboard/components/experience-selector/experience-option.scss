@@ -126,10 +126,21 @@
 // Per-card commit button. Hidden by default; revealed on card hover or
 // when any descendant (the button itself) is focused. On no-hover devices
 // (touch / phones) we always show it so users have a reachable target.
+// The container carries a gradient fade matching the card background so
+// the button visually "rises out of" the card — the description / loss
+// list text fades into the card surface behind the button instead of
+// poking out around it (industry-standard hover-reveal pattern).
 .jp-search-experience-option__commit {
 	position: absolute;
-	inset-block-end: var(--wpds-dimension-padding-md);
-	inset-inline-end: var(--wpds-dimension-padding-md);
+	inset-block-end: 0;
+	inset-inline-end: 0;
+	inset-inline-start: 0;
+	display: flex;
+	justify-content: flex-end;
+	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-2xl);
+	background: linear-gradient(to top, var(--wpds-color-bg-surface-neutral-strong) 65%, rgb(255 255 255 / 0%));
+	border-end-end-radius: inherit;
+	border-end-start-radius: inherit;
 	z-index: 4;
 	opacity: 0;
 	pointer-events: none;
