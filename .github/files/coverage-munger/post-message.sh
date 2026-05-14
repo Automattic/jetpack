@@ -50,19 +50,23 @@ fi
 # Find coverage run status, if necessary
 if [[ -z "$STATUS" ]]; then
 	echo "::group::Looking for latest coverage run"
-	PAGE=1
-	R=null
-	while true; do
+	COVERAGE_GROUPS=( php js )
+	RUNS='[]'
+	for GROUP in "${COVERAGE_GROUPS[@]}"; do
+		ENC_TEST_NAME=$( jq -nr --arg N "Code coverage ($GROUP)" '$N | @uri' )
+		# The check-runs endpoint can be filtered by name and defaults to grab just the latest run, which simplifies the API call.
 		J=$( curl -v -L fail \
-			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?per_page=100&page=$PAGE" \
+			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?check_name=$ENC_TEST_NAME" \
 			--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 		)
-		R=$( jq --argjson R "$R" '[ ( $R, .check_runs[] ) | select( .name == "Code coverage" ) ] | sort_by( .completed_at // "running" ) | last' <<<"$J" )
-		if jq -e '.check_runs | length < 100' <<<"$J" &>/dev/null; then
-			break
-		fi
-		PAGE=$(( PAGE + 1 ))
+		RUNS=$( jq --argjson prev "$RUNS" '$prev + .check_runs' <<<"$J" )
 	done
+	# Pick worst status across split coverage jobs: failure beats in-progress beats success.
+	R=$( jq '
+		  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
+		// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
+		// .[0]
+	' <<<"$RUNS" )
 	jq . <<<"$R"
 	echo "::endgroup::"
 	STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
