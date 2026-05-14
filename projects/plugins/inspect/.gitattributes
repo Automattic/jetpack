@@ -10,6 +10,7 @@ vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
+# (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 /app-ui/build/**/*.map                          production-exclude
 /app-ui/src/**                                  production-exclude

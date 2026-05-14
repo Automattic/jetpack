@@ -1,3 +1,4 @@
 # Files not needed in the production build.
+# (see also entries in the monorepo root .gitattributes)
 /build-compat-rulesets.sh  production-exclude
 /check-docs.sh             production-exclude

@@ -2,5 +2,6 @@
 /build/**          production-include
 
 # Files to exclude from the mirror repo
+# (see also entries in the monorepo root .gitattributes)
 _inc/**            production-exclude
 /src/**/*.js       production-exclude

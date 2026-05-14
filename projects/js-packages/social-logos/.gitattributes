@@ -3,6 +3,7 @@
 /build/**         production-include
 
 # Files to exclude from the mirror repo
+# (see also entries in the monorepo root .gitattributes)
 /build/svg-clean/**     production-exclude
 **/stories/**     production-exclude
 /src/**           production-exclude

@@ -20,6 +20,7 @@
 /vendor/wikimedia/aho-corasick/**                        production-include
 
 # Files to exclude from Automattic/jetpack-production.
+# (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 /global.d.ts                                             production-exclude
 /.sass-cache/**                                          production-exclude

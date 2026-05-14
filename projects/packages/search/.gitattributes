@@ -4,6 +4,7 @@
 /build/**                                                production-include
 
 # Files not needed in the production build.
+# (see also entries in the monorepo root .gitattributes)
 /.size-limit.js                                          production-exclude
 /jest.url-tests.config.js                                production-exclude
 /postcss.config.js                                       production-exclude
