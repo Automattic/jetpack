@@ -1,10 +1,11 @@
 import { BarChart, parseAsLocalDate } from '@automattic/charts';
 import { formatNumber } from '@automattic/number-formatters';
-import { Card, CardBody, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { formatPodcastDate } from '../lib/format';
 import { getPeriodDayCount } from '../range';
+import SectionCard from './section-card';
 import type { PodcastStatsPeriod, PodcastStatsRange } from '../types';
 import type { ReactNode } from 'react';
 
@@ -38,6 +39,35 @@ const formatAxisTick = ( value: unknown ) => {
 	return Number.isNaN( date.getTime() ) ? String( value ) : AXIS_DATE_FORMATTER.format( date );
 };
 
+// Pick a step that yields integer ticks at roughly 5 stops, so the axis reads
+// like wpcom Stats (0, 5, 10) instead of visx's default fractional ticks
+// (0, 0.2, 0.4) when daily downloads are small. Walks the 1-2-5 ladder across
+// magnitudes so the cadence stays consistent past 500 too.
+const computeIntegerTicks = (
+	max: number
+): { domain: [ number, number ]; tickValues: number[] } => {
+	const normalizedMax = Number.isFinite( max ) ? Math.max( max, 0 ) : 0;
+	const target = Math.max( normalizedMax, 1 );
+	const roughStep = Math.max( target / 5, 1 );
+	const magnitude = Math.pow( 10, Math.floor( Math.log10( roughStep ) ) );
+	const normalizedStep = roughStep / magnitude;
+	let stepMultiplier = 10;
+	if ( normalizedStep <= 1 ) {
+		stepMultiplier = 1;
+	} else if ( normalizedStep <= 2 ) {
+		stepMultiplier = 2;
+	} else if ( normalizedStep <= 5 ) {
+		stepMultiplier = 5;
+	}
+	const step = magnitude * stepMultiplier;
+	const domainMax = Math.max( Math.ceil( normalizedMax / step ) * step, step * 5 );
+	const tickValues: number[] = [];
+	for ( let tick = 0; tick <= domainMax; tick += step ) {
+		tickValues.push( tick );
+	}
+	return { domain: [ 0, domainMax ], tickValues };
+};
+
 const StatsByDayChart = ( {
 	byDay = {},
 	range,
@@ -67,6 +97,16 @@ const StatsByDayChart = ( {
 		() => chartData.reduce( ( sum, datum ) => sum + datum.value, 0 ),
 		[ chartData ]
 	);
+
+	const { domain: yDomain, tickValues: yTickValues } = useMemo( () => {
+		const max = chartData.reduce( ( m, datum ) => Math.max( m, datum.value ), 0 );
+		return computeIntegerTicks( max );
+	}, [ chartData ] );
+
+	// BarChart's default numTicks: 4 leaves the x-axis sparse for 30/90-day
+	// ranges; bump toward 15 so the cadence reads like wpcom Stats. Cap at the
+	// number of bars to avoid duplicates on short ranges.
+	const xNumTicks = Math.min( chartData.length || 1, 15 );
 
 	const rangeDays = getPeriodDayCount( period, range );
 	const rangeLabel =
@@ -138,26 +178,23 @@ const StatsByDayChart = ( {
 					renderTooltip={ renderTooltip }
 					options={ {
 						axis: {
-							x: { tickFormat: formatAxisTick },
+							x: { tickFormat: formatAxisTick, numTicks: xNumTicks },
+							y: { tickValues: yTickValues },
 						},
-						yScale: { type: 'linear', zero: true },
+						yScale: { type: 'linear', zero: true, nice: false, domain: yDomain },
 					} }
 				/>
 			</div>
 		);
 	}
 
+	// Render the SummaryTiles (passed via children) regardless of loading/empty
+	// so the user sees per-tile loading skeletons rather than a single page-wide spinner.
 	return (
-		<Card className="podcast-stats__section-card podcast-stats-chart">
-			<CardBody className="podcast-stats-chart__body">
-				<div className="podcast-stats-chart__header">
-					<h3 className="podcast-stats__section-title">{ downloadsLabel }</h3>
-					{ rangeLabel && <p className="podcast-stats__section-metric">{ rangeLabel }</p> }
-				</div>
-				{ chartContent }
-				{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
-			</CardBody>
-		</Card>
+		<SectionCard className="podcast-stats-chart" title={ downloadsLabel } metric={ rangeLabel }>
+			{ chartContent }
+			{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
+		</SectionCard>
 	);
 };
 

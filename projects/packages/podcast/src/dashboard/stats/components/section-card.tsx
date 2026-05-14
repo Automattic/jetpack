@@ -3,10 +3,11 @@ import type { ReactNode } from 'react';
 
 type SectionCardProps = {
 	title: string;
+	metric?: string;
 	isLoading?: boolean;
 	isEmpty?: boolean;
 	emptyMessage?: string;
-	children: ReactNode;
+	children?: ReactNode;
 	className?: string;
 };
 
@@ -26,11 +27,12 @@ const renderBody = ( { isLoading, isEmpty, emptyMessage, children }: SectionCard
 	if ( isEmpty ) {
 		return <p className="podcast-stats__section-empty">{ emptyMessage }</p>;
 	}
-	return children;
+	return children ?? null;
 };
 
 const SectionCard = ( {
 	title,
+	metric,
 	isLoading = false,
 	isEmpty = false,
 	emptyMessage,
@@ -42,6 +44,7 @@ const SectionCard = ( {
 		<Card className={ cardClass }>
 			<CardHeader>
 				<h3 className="podcast-stats__section-title">{ title }</h3>
+				{ metric && <p className="podcast-stats__section-metric">{ metric }</p> }
 			</CardHeader>
 			<CardBody>{ renderBody( { isLoading, isEmpty, emptyMessage, children } ) }</CardBody>
 		</Card>
