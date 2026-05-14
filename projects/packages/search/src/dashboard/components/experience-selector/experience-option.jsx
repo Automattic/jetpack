@@ -99,9 +99,9 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			<Preview />
 			<Stack direction="column" gap="lg" className="jp-search-experience-option__content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
-					<h3 className="jp-search-experience-option__title">
+					<h2 className="jp-search-experience-option__title">
 						{ getExperienceLabel( experience ) }
-					</h3>
+					</h2>
 					{ isRecommended && (
 						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
 					) }
@@ -116,14 +116,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					className="jp-search-experience-option__actions"
 				>
 					<CardLink
-						title={ __( 'Search template', 'jetpack-search-pkg' ) }
-						linkLabel={ __( 'Open in Site Editor', 'jetpack-search-pkg' ) }
+						label={ __( 'Edit search template', 'jetpack-search-pkg' ) }
 						href={ SEARCH_TEMPLATE_URL }
 						disabled={ actionsDisabled }
 					/>
 					<CardLink
-						title={ __( 'Insert pattern', 'jetpack-search-pkg' ) }
-						linkLabel={ __( 'Browse patterns', 'jetpack-search-pkg' ) }
+						label={ __( 'Insert pattern', 'jetpack-search-pkg' ) }
 						href={ PATTERNS_URL }
 						disabled={ actionsDisabled }
 					/>
@@ -137,14 +135,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					className="jp-search-experience-option__actions"
 				>
 					<CardLink
-						title={ __( 'Overlay appearance', 'jetpack-search-pkg' ) }
-						linkLabel={ __( 'Customize', 'jetpack-search-pkg' ) }
+						label={ __( 'Customize', 'jetpack-search-pkg' ) }
 						href={ SEARCH_CUSTOMIZE_URL }
 						disabled={ actionsDisabled }
 					/>
 					<CardLink
-						title={ __( 'Sidebar widgets', 'jetpack-search-pkg' ) }
-						linkLabel={ __( 'Edit widgets', 'jetpack-search-pkg' ) }
+						label={ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 						href={ WIDGETS_EDITOR_URL }
 						disabled={ actionsDisabled }
 					/>
@@ -226,22 +222,24 @@ const CardCopy = ( { experience } ) => {
 	);
 };
 
-const CardLink = ( { title, linkLabel, href, disabled } ) => (
-	<Stack direction="column" gap="sm" className="jp-search-experience-option__action">
-		<span className="jp-search-experience-option__action-title">{ title }</span>
-		{ disabled ? (
-			// Render as a non-interactive <span> so AT doesn't announce a link
-			// the user can't follow. `aria-disabled` stays as the CSS hook for
-			// the muted/not-allowed visual state.
-			<span className="jp-search-experience-option__action-link" aria-disabled="true">
-				{ linkLabel }
-				<span aria-hidden="true"> →</span>
-			</span>
-		) : (
-			<a className="jp-search-experience-option__action-link" href={ href }>
-				{ linkLabel }
-				<span aria-hidden="true"> →</span>
-			</a>
-		) }
-	</Stack>
-);
+const CardLink = ( { label, href, disabled } ) =>
+	disabled ? (
+		// Render as a non-interactive <span> so AT doesn't announce a link
+		// the user can't follow. `aria-disabled` stays as the CSS hook for
+		// the muted/not-allowed visual state.
+		<span
+			className="jp-search-experience-option__action jp-search-experience-option__action-link"
+			aria-disabled="true"
+		>
+			{ label }
+			<span aria-hidden="true"> →</span>
+		</span>
+	) : (
+		<a
+			className="jp-search-experience-option__action jp-search-experience-option__action-link"
+			href={ href }
+		>
+			{ label }
+			<span aria-hidden="true"> →</span>
+		</a>
+	);

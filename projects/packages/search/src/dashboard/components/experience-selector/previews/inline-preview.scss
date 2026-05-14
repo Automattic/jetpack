@@ -9,12 +9,23 @@
 }
 
 .jp-search-inline-preview__search {
+	flex: 1 1 auto;
+	min-width: 0;
 	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
-	font-size: var(--wpds-typography-font-size-sm);
 	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+// Visual stand-in for the theme's "Search" submit button — sized like a
+// short, solid pill, no text (skeleton aesthetic).
+.jp-search-inline-preview__submit {
+	flex: 0 0 auto;
+	width: 48px;
+	height: 24px;
+	background: var(--wpds-color-bg-interactive-neutral-strong, var(--wpds-color-fg-content-neutral));
+	border-radius: var(--wpds-border-radius-sm);
 }
 
 .jp-search-inline-preview__search-icon {
@@ -40,8 +51,6 @@
 	position: absolute;
 	inset-block-end: var(--wpds-dimension-padding-md);
 	inset-inline-start: var(--wpds-dimension-padding-md);
-	font-size: var(--wpds-typography-font-size-sm);
-	font-weight: 600;
 	// Brand colour reads as "this is faster" rather than the warning intent
 	// that `fg-content-caution` would imply.
 	color: var(--wpds-color-fg-interactive-brand);

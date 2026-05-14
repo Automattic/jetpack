@@ -120,7 +120,7 @@ export default function ExperienceSelector() {
 	return (
 		<>
 			{ /* `aria-live` is on the heading row (not just the notice) so AT
-			   re-reads the h2 alongside the dirty state — users tabbing
+			   re-reads the h1 alongside the dirty state — users tabbing
 			   through cards can forget what the heading was, and announcing
 			   "Select a search experience… Theme search selected, save to
 			   apply" gives them the framing back. */ }
@@ -133,12 +133,12 @@ export default function ExperienceSelector() {
 				className="jp-search-experience-selector__heading-row"
 				aria-live="polite"
 			>
-				<h2
+				<h1
 					id="jp-search-experience-selector-heading"
 					className="jp-search-experience-selector__heading"
 				>
 					{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
-				</h2>
+				</h1>
 				{ isDirty && ! isUpdating && (
 					<p className="jp-search-experience-selector__pending-notice">{ getPendingNotice() }</p>
 				) }
