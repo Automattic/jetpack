@@ -52,6 +52,12 @@ class Podcast {
 		// late-registered filter callback still takes effect.
 		Podcast_Episode_Block::register_hooks();
 
+		// Sync `podcasting_*` to wpcom even when the untangle is off, so the
+		// Activity Log show-launched/episode-published matchers on wpcom can
+		// read `podcasting_category_id` on Atomic sites still on the legacy
+		// at-pressable-podcasting bridge.
+		Settings::register_sync_whitelist();
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}

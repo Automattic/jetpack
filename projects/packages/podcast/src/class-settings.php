@@ -90,8 +90,25 @@ class Settings {
 		}
 		self::$registered = true;
 
+		self::register_sync_whitelist();
+
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
+	}
+
+	/**
+	 * Add the `podcasting_*` options to Jetpack Sync's whitelist so Atomic
+	 * sites mirror them to wpcom. Split from `register()` so it can run above
+	 * the untangle gate: wpcom's Activity Log podcast matchers read
+	 * `podcasting_category_id` regardless of whether the new SPA is wired up
+	 * on the Atomic side. Idempotent.
+	 */
+	public static function register_sync_whitelist() {
+		static $done = false;
+		if ( $done ) {
+			return;
+		}
+		$done = true;
 
 		add_filter(
 			'jetpack_sync_options_whitelist',
