@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: keep stacked area chart paths mounted on legend toggle so only the hidden series animates down and the y-axis stays fixed.
