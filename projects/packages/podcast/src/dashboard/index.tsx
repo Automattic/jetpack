@@ -6,11 +6,12 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import ErrorBoundary from './error-boundary';
-import { usePodcastSettings, useUpdatePodcastSettings } from './hooks/use-podcast-settings';
+import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
 
 const Welcome = lazy( () => import( './welcome' ) );
+const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
@@ -37,7 +38,6 @@ type StageSearch = Record< string, unknown > & { tab?: string };
 
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
-	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
 	// `?tab=` owns the active tab; default (no `tab`) is Settings.
@@ -46,6 +46,7 @@ const App = () => {
 
 	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
+	const [ setupModalOpen, setSetupModalOpen ] = useState( false );
 	const showWelcome = ! isSetUp && ! hasEnabled;
 
 	const navigate = useNavigate();
@@ -66,18 +67,21 @@ const App = () => {
 		[ navigate ]
 	);
 
-	// Mirrors the legacy /podcasting toggle: pre-fills the title from the site
-	// name on first enable, then jumps to Settings.
 	const handleEnable = useCallback( () => {
-		const currentTitle = settings?.podcasting_title ?? '';
-		if ( ! currentTitle ) {
-			const siteName = getSiteData()?.title?.trim() ?? '';
-			if ( siteName ) {
-				saveSettings( { podcasting_title: siteName } );
-			}
-		}
+		setSetupModalOpen( true );
+	}, [] );
+
+	const handleSetupCancel = useCallback( () => {
+		setSetupModalOpen( false );
+	}, [] );
+
+	// Modal committed title + category atomically; flip out of Welcome and
+	// land the user on Settings to finish the show details.
+	const handleSetupSuccess = useCallback( () => {
+		setSetupModalOpen( false );
 		setHasEnabled( true );
-	}, [ settings?.podcasting_title, saveSettings ] );
+		handleTabChange( 'settings' );
+	}, [ handleTabChange ] );
 
 	const goToSettings = useCallback( () => {
 		handleTabChange( 'settings' );
@@ -98,6 +102,7 @@ const App = () => {
 	}
 
 	if ( showWelcome ) {
+		const siteName = getSiteData()?.title?.trim() ?? '';
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 				<div className="podcast__tab-content podcast__tab-content--wide">
@@ -107,6 +112,16 @@ const App = () => {
 						</Suspense>
 					</ErrorBoundary>
 				</div>
+				{ setupModalOpen && (
+					<Suspense fallback={ null }>
+						<CategorySetupModal
+							siteName={ siteName }
+							existingTitle={ settings?.podcasting_title ?? '' }
+							onClose={ handleSetupCancel }
+							onSuccess={ handleSetupSuccess }
+						/>
+					</Suspense>
+				) }
 			</AdminPage>
 		);
 	}
