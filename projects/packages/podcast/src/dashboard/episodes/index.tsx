@@ -74,6 +74,7 @@ const STATUS_LABELS: Record< string, string > = {
 const EpisodesTab = () => {
 	const { data: settings } = usePodcastSettings();
 	const categoryId = settings?.podcasting_category_id ?? 0;
+	const showCoverImage = settings?.podcasting_image ?? '';
 
 	const [ view, setView ] = useState< View >( defaultView );
 
@@ -116,7 +117,10 @@ const EpisodesTab = () => {
 			const media = post._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 			const sizes = media?.media_details?.sizes;
 			const thumbnail =
-				sizes?.thumbnail?.source_url ?? sizes?.medium?.source_url ?? media?.source_url ?? '';
+				sizes?.thumbnail?.source_url ??
+				sizes?.medium?.source_url ??
+				media?.source_url ??
+				showCoverImage;
 			const stat = statsByPostId.get( post.id );
 			return {
 				id: post.id,
@@ -129,7 +133,7 @@ const EpisodesTab = () => {
 				durationSeconds: stat?.duration_seconds ?? null,
 			};
 		} );
-	}, [ posts, statsByPostId ] );
+	}, [ posts, statsByPostId, showCoverImage ] );
 
 	const fields = useMemo(
 		() => [

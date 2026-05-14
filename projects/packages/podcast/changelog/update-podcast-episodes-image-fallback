@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast Episodes: fall back to the show cover image when an episode has no featured image.
