@@ -15,12 +15,11 @@ import type {
 } from '../types/stats';
 
 // Raw WPCOM `sites/{id}/stats/video-plays?complete_stats=true` shape.
-// Per the existing class-stats.php consumer and the Stats_Abilities top-
-// content normalizer, each day carries a per-period total and a per-
-// video plays[] list. Per-video watch_time / views fields are best-
-// effort: the existing Jetpack consumers don't read them, so Phase 8
-// manual validation should confirm what the endpoint actually returns
-// for paid VideoPress sites.
+// Each day carries a per-period `total` ({ views, impressions,
+// watch_time }) and a per-video `data[]` array. Per-video watch_time
+// / views fields are best-effort: confirmed empty for sites with no
+// traffic but undocumented for sites with plays — the transformer
+// falls back to the per-video plays count when they're absent.
 type VideoPlayEntry = {
 	post_id?: number | string;
 	title?: string;
@@ -35,9 +34,7 @@ type DayEntry = {
 		impressions?: number;
 		watch_time?: number;
 	};
-	plays?: VideoPlayEntry[];
-	other_plays?: number;
-	total_plays?: number;
+	data?: VideoPlayEntry[];
 };
 
 type VideoPlaysResponse = {
@@ -199,10 +196,10 @@ function aggregateTopVideos( response: VideoPlaysResponse | undefined ): Map< st
 		return acc;
 	}
 	for ( const day of Object.values( response.days ) ) {
-		if ( ! day.plays ) {
+		if ( ! day.data ) {
 			continue;
 		}
-		for ( const entry of day.plays ) {
+		for ( const entry of day.data ) {
 			const id = String( entry.post_id ?? entry.title ?? '' );
 			if ( ! id ) {
 				continue;

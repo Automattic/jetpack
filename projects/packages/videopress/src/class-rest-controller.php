@@ -14,7 +14,6 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -94,40 +93,24 @@ class Rest_Controller {
 	}
 
 	/**
-	 * Permission callback. Admin-gated and requires a user-level WPCOM
-	 * connection — the upstream stats endpoint is user-signed, and
-	 * signing as the blog returns "Only Administrators can query
-	 * information about the current site."
+	 * Permission callback. Admin-gated. The upstream call is blog-signed,
+	 * matching the existing `Stats::fetch_video_plays` path; no user-level
+	 * WPCOM connection is required.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool
 	 */
 	public static function permissions_callback() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
-		}
-
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return new WP_Error(
-				'videopress_stats_user_not_connected',
-				esc_html__(
-					'Your WordPress.com account is not connected to this site. Connect it to view VideoPress stats.',
-					'jetpack-videopress-pkg'
-				),
-				array( 'status' => 403 )
-			);
-		}
-
-		return true;
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
 	 * Proxy the video-plays stats endpoint.
 	 *
-	 * Forwards the whitelisted query params to WPCOM, signs as the
-	 * current user, and forces `complete_stats=true` so each day entry
-	 * carries `total.views`, `total.impressions`, and `total.watch_time`
-	 * alongside the per-video `plays[]` list the Overview's top-N cards
-	 * consume.
+	 * Forwards the whitelisted query params to WPCOM (REST v1.1, blog-signed
+	 * — matching the existing `Stats::fetch_video_plays` path) and forces
+	 * `complete_stats=true` so each day entry carries `total.views`,
+	 * `total.impressions`, and `total.watch_time` alongside the per-video
+	 * `plays[]` list the Overview's top-N cards consume.
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return mixed Decoded JSON response from WPCOM, or WP_Error on failure.
@@ -151,11 +134,11 @@ class Rest_Controller {
 		}
 
 		$path     = sprintf(
-			'/sites/%d/stats/video-plays?%s',
+			'sites/%d/stats/video-plays?%s',
 			$blog_id,
 			http_build_query( $params )
 		);
-		$response = Client::wpcom_json_api_request_as_user( $path );
+		$response = Client::wpcom_json_api_request_as_blog( $path );
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
