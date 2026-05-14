@@ -207,6 +207,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 						),
 						'no_tagcloud'  => __( 'No Labels found', 'jetpack-classic-theme-helper' ),
 						'hierarchical' => false,
+						'show_in_rest' => true,
 					)
 				);
 			}
@@ -250,6 +251,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 						'hierarchical'  => true,
 						'show_tagcloud' => false,
 						'query_var'     => 'menu',
+						'show_in_rest'  => true,
 					)
 				);
 			}
@@ -318,6 +320,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 					'map_meta_cap'         => true,
 					'has_archive'          => false,
 					'query_var'            => 'item',
+					'show_in_rest'         => true,
 				)
 			);
 		}
