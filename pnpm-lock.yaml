@@ -3889,12 +3889,21 @@ importers:
       '@automattic/ui':
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
+      '@wordpress/admin-ui':
+        specifier: 2.1.0
+        version: 2.1.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.46.0
         version: 3.46.0(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.46.0
         version: 7.46.0
+      '@wordpress/base-styles':
+        specifier: 8.0.0
+        version: 8.0.0
       '@wordpress/block-editor':
         specifier: 15.19.0
         version: 15.19.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3955,6 +3964,9 @@ importers:
       '@wordpress/preferences':
         specifier: 4.46.0
         version: 4.46.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.12.0
+        version: 0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
         specifier: 0.13.0
         version: 0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3995,6 +4007,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
@@ -4037,12 +4052,18 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.46.0
         version: 6.46.0
+      '@wordpress/build':
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/route@0.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.14)
       babel-jest:
-        specifier: 30.4.1
-        version: 30.4.1(@babel/core@7.29.0)
+        specifier: 30.4.0
+        version: 30.4.0(@babel/core@7.29.0)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -8252,6 +8273,10 @@ packages:
       node-notifier:
         optional: true
 
+  '@jest/schemas@30.4.0':
+    resolution: {integrity: sha512-tJLUhzktAsL7VKYJzdkNKxYTKGnkQvd6bMZQtxWnaE4V1VJyzzwt5WrCG5hwC+mB55uZbNSsxQUXLKjla08XPg==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
   '@jest/schemas@30.4.1':
     resolution: {integrity: sha512-i6b4qw5qnP8c5FEeBJg/uZQ4ddrkN6Ca8qISJh0pr7a5hfn3h3v5x60BEbOC7OYAGZNMs1LfFLwnW2CuK8F57Q==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -8272,8 +8297,16 @@ packages:
     resolution: {integrity: sha512-PeYE+4td5rKjoRPxztObrXU+H8hsjZfxKMXOcmrr34JerSyB/ROOxbbicz8B7A5j9R9VayDnVPvBmedqCsFCdw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
+  '@jest/transform@30.4.0':
+    resolution: {integrity: sha512-2X7FL+yezRtfthTZdUgtWnbixqkmGnDfkXE1vimu2Y1Wi7g0WxY2AAPctVrU7J9xmw5dWOBprBjx1hJIamJPbg==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
   '@jest/transform@30.4.1':
     resolution: {integrity: sha512-Wz0LyktlTvRefoymh+n64hQ84KNXsRGcwdoZ8CSa0Ea+fgYcHZlnk+hDP7v2MS7il2bQ5uTEIxf4/NNfhMN4KQ==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
+  '@jest/types@30.4.0':
+    resolution: {integrity: sha512-C951KSoEicxFUsUIO4T8lqWEemuMgMb3vlI8FO4OP369GSf6SOJd681nOcv7XR0TV5vCO4Jypvq3rBGEqfy9KQ==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   '@jest/types@30.4.1':
@@ -11653,6 +11686,12 @@ packages:
       react-native-b4a:
         optional: true
 
+  babel-jest@30.4.0:
+    resolution: {integrity: sha512-GQ4CKCr1XQ1dettGyiDCPg2u4kP/nav2z9PugOM3Da5l3zpNzY9PRuxmN1dV714Ghm2fdkQLhNxlUopDcoKc6A==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+    peerDependencies:
+      '@babel/core': ^7.11.0 || ^8.0.0-0
+
   babel-jest@30.4.1:
     resolution: {integrity: sha512-fATAbM8piYxkiXQp3RBXmZHxZVNJZAVXXfyeyCN2Tida3+qJ8ea9UxhiJ2y4fLO90ZImKt6k9FlcH2+rLkJGhw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -14352,6 +14391,10 @@ packages:
       jest:
         optional: true
 
+  jest-haste-map@30.4.0:
+    resolution: {integrity: sha512-01+o3CS8t35Va0Ed6w/HyeK9VaejRlBnZ1hGoOlTYlruFzycn3RfIdG1Szu1DVoACTs07ALirRjECq1FqNuAFg==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
   jest-haste-map@30.4.1:
     resolution: {integrity: sha512-rFrcONd8jeFsyw+Z9CrScJgglRf2+NFmNam8dKu7n+SoHqNYT47mn0DdEcVUZJpvh7Iz6/si7f7yUH7GJHVgnw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -14405,6 +14448,10 @@ packages:
     resolution: {integrity: sha512-tEOkkfOMppUyeiHwjZswOQ3lcnoTnws/q5FnGIaeIh/jmoU0ZlgMYRR8sTlTj+nNGCoJ0RDq6SfxGxCsyMTPmw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
+  jest-util@30.4.0:
+    resolution: {integrity: sha512-nae+Oh7CEdSTC5+uL4HCVDCLusj5IcypnVXWBSRjCUDkh7dX/FwreTsgvLROwHnEWW5dcdvLkW9RvmmMzKw+aw==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
   jest-util@30.4.1:
     resolution: {integrity: sha512-vjQb1sACEiv13DKJMDToJpzVW0joCsIQrmbg0fi7CyOOt+g9jTuQl2A216pWRBYhOVt53XbL/2LbMKg1BECWOw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -14420,6 +14467,10 @@ packages:
   jest-worker@27.5.1:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
+
+  jest-worker@30.4.0:
+    resolution: {integrity: sha512-0ZghqNv1P/M0nBysxrkGpLnorjM1ulhZ76QijLcwyBm+kIj/DPKyHcpHDVh0LD05JDZzVxi8z9RStF22B4gikQ==}
+    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   jest-worker@30.4.1:
     resolution: {integrity: sha512-SHynN/q/QD++iNyvMdy+WMmbCGk8jIsNcRxycXbWubSOhvo6T+j2afcfUSl+3hYsiBebOTo0cT7c2H7CXugu1g==}
@@ -20614,6 +20665,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@jest/schemas@30.4.0':
+    dependencies:
+      '@sinclair/typebox': 0.34.49
+
   '@jest/schemas@30.4.1':
     dependencies:
       '@sinclair/typebox': 0.34.49
@@ -20645,6 +20700,25 @@ snapshots:
       jest-haste-map: 30.4.1
       slash: 3.0.0
 
+  '@jest/transform@30.4.0':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@jest/types': 30.4.0
+      '@jridgewell/trace-mapping': 0.3.31
+      babel-plugin-istanbul: 8.0.0
+      chalk: 4.1.2
+      convert-source-map: 2.0.0
+      fast-json-stable-stringify: 2.1.0
+      graceful-fs: 4.2.11
+      jest-haste-map: 30.4.0
+      jest-regex-util: 30.4.0
+      jest-util: 30.4.0
+      pirates: 4.0.7
+      slash: 3.0.0
+      write-file-atomic: 5.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@jest/transform@30.4.1':
     dependencies:
       '@babel/core': 7.29.0
@@ -20663,6 +20737,16 @@ snapshots:
       write-file-atomic: 5.0.1
     transitivePeerDependencies:
       - supports-color
+
+  '@jest/types@30.4.0':
+    dependencies:
+      '@jest/pattern': 30.4.0
+      '@jest/schemas': 30.4.0
+      '@types/istanbul-lib-coverage': 2.0.6
+      '@types/istanbul-reports': 3.0.4
+      '@types/node': 24.12.3
+      '@types/yargs': 17.0.35
+      chalk: 4.1.2
 
   '@jest/types@30.4.1':
     dependencies:
@@ -26967,6 +27051,19 @@ snapshots:
 
   b4a@1.8.1: {}
 
+  babel-jest@30.4.0(@babel/core@7.29.0):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@jest/transform': 30.4.0
+      '@types/babel__core': 7.20.5
+      babel-plugin-istanbul: 8.0.0
+      babel-preset-jest: 30.4.0(@babel/core@7.29.0)
+      chalk: 4.1.2
+      graceful-fs: 4.2.11
+      slash: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+
   babel-jest@30.4.1(@babel/core@7.29.0):
     dependencies:
       '@babel/core': 7.29.0
@@ -30066,6 +30163,21 @@ snapshots:
     optionalDependencies:
       jest: 30.4.2
 
+  jest-haste-map@30.4.0:
+    dependencies:
+      '@jest/types': 30.4.0
+      '@types/node': 24.12.3
+      anymatch: 3.1.3
+      fb-watchman: 2.0.2
+      graceful-fs: 4.2.11
+      jest-regex-util: 30.4.0
+      jest-util: 30.4.0
+      jest-worker: 30.4.0
+      picomatch: 4.0.4
+      walker: 1.0.8
+    optionalDependencies:
+      fsevents: 2.3.3
+
   jest-haste-map@30.4.1:
     dependencies:
       '@jest/types': 30.4.1
@@ -30216,6 +30328,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  jest-util@30.4.0:
+    dependencies:
+      '@jest/types': 30.4.0
+      '@types/node': 24.12.3
+      chalk: 4.1.2
+      ci-info: 4.4.0
+      graceful-fs: 4.2.11
+      picomatch: 4.0.4
+
   jest-util@30.4.1:
     dependencies:
       '@jest/types': 30.4.1
@@ -30248,6 +30369,14 @@ snapshots:
   jest-worker@27.5.1:
     dependencies:
       '@types/node': 24.12.3
+      merge-stream: 2.0.0
+      supports-color: 8.1.1
+
+  jest-worker@30.4.0:
+    dependencies:
+      '@types/node': 24.12.3
+      '@ungap/structured-clone': 1.3.1
+      jest-util: 30.4.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
