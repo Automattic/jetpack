@@ -48,8 +48,12 @@ ul.jp-search-chart-legend {
 .jp-search-record-meter__content {
 	width: 100%; // fixes overflow issues in Firefox
 
-	h2 {
+	// `<h3>` subordinate to the page `<h2>` ("Help your visitors…") — use
+	// the `lg` typescale so it reads clearly below the page heading.
+	h3 {
 		margin-top: 0;
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
 	}
 }
 
@@ -57,7 +61,7 @@ ul.jp-search-chart-legend {
 	min-width: 10px;
 }
 
-.jp-search-record-meter__title h2 {
+.jp-search-record-meter__title h3 {
 	margin-top: 0;
 }
 

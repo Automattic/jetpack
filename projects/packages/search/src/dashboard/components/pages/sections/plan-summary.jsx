@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import './plan-summary.scss';
 
 const getPlanName = isFreePlan => {
 	// Determine plan name for display.
@@ -31,7 +32,7 @@ const displayPeriodFromAPIData = apiData => {
 const PlanSummary = ( { isFreePlan, planInfo } ) => {
 	const period = displayPeriodFromAPIData( planInfo );
 	return (
-		<h2>
+		<h3 className="jp-search-plan-summary__heading">
 			{
 				// translators: Header for section showing search records and requests usage.
 				__( 'Your usage', 'jetpack-search-pkg' )
@@ -39,7 +40,7 @@ const PlanSummary = ( { isFreePlan, planInfo } ) => {
 			<span>
 				{ period && `${ period } ` }({ getPlanName( isFreePlan ) })
 			</span>
-		</h2>
+		</h3>
 	);
 };
 

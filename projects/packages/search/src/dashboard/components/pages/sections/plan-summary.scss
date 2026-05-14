@@ -1,0 +1,7 @@
+// `<h3>` subordinate to the page `<h2>` ("Help your visitors…") — use the
+// `lg` typescale so it reads clearly below the page heading.
+.jp-search-plan-summary__heading {
+	font-size: var(--wpds-typography-font-size-lg);
+	line-height: var(--wpds-typography-line-height-md);
+	font-weight: 600;
+}

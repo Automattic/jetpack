@@ -49,13 +49,14 @@
 	pointer-events: none;
 }
 
-// Match the Plan & Usage section heading scale ("Your usage" h2) so the two
-// tabs share a single type scale.
+// Card title — `<h3>` (subordinate to the page-level `<h2>`). Uses the
+// `lg` WPDS font-size token (15px) so it sits clearly below the page
+// heading's `xl` (20px) instead of competing with it.
 .jp-search-experience-option__title {
 	margin: 0;
-	font-size: 24px;
+	font-size: var(--wpds-typography-font-size-lg);
 	font-weight: 600;
-	line-height: 1.3;
+	line-height: var(--wpds-typography-line-height-sm);
 	color: var(--wpds-color-fg-content-neutral);
 }
 
