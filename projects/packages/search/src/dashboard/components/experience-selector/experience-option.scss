@@ -29,14 +29,6 @@
 		border-color: var(--wpds-color-stroke-interactive-brand);
 	}
 
-	// Selected = the radio the user has clicked (may differ from active until
-	// Save). Drawn with a stronger inset ring so it still wins visually when
-	// the user is in the middle of changing experiences.
-	&.is-selected {
-		border-color: var(--wpds-color-stroke-interactive-brand);
-		box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
-	}
-
 	&.is-disabled {
 		opacity: 0.55;
 
@@ -44,42 +36,6 @@
 			border-color: var(--wpds-color-stroke-surface-neutral);
 		}
 	}
-
-	// Mirror the radio's keyboard focus onto the whole card so users
-	// see *which* card is focused — the radio itself is visually hidden.
-	&:has(.jp-search-experience-option__radio:focus-visible) {
-		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
-		outline-offset: 2px;
-	}
-}
-
-.jp-search-experience-option__radio {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
-	border: 0;
-}
-
-// Explicit z-index keeps the click-catcher above any positioned descendants
-// of the card — the inline preview is `position: relative` for its timing
-// badge, and the overlay preview's popup is `position: absolute`; without
-// this z-index those would paint over the overlay (DOM order rule for
-// same-z positioned elements) and swallow the click.
-.jp-search-experience-option__overlay {
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	cursor: pointer;
-	border-radius: inherit;
-}
-
-.jp-search-experience-option.is-disabled .jp-search-experience-option__overlay {
-	cursor: not-allowed;
 }
 
 .jp-search-experience-option__active-badge {
@@ -140,13 +96,6 @@
 	flex: 0 0 auto;
 }
 
-// Lift above the transparent card overlay so the action links remain
-// clickable and tabbable.
-.jp-search-experience-option__actions {
-	position: relative;
-	z-index: 2;
-}
-
 .jp-search-experience-option__action {
 	flex: 0 1 auto;
 	min-width: 0;
@@ -171,6 +120,33 @@
 		&:hover {
 			text-decoration: none;
 		}
+	}
+}
+
+// Per-card commit button. Hidden by default; revealed on card hover or
+// when any descendant (the button itself) is focused. On no-hover devices
+// (touch / phones) we always show it so users have a reachable target.
+.jp-search-experience-option__commit {
+	position: absolute;
+	inset-block-end: var(--wpds-dimension-padding-md);
+	inset-inline-end: var(--wpds-dimension-padding-md);
+	z-index: 4;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 120ms ease;
+}
+
+.jp-search-experience-option:hover .jp-search-experience-option__commit,
+.jp-search-experience-option:focus-within .jp-search-experience-option__commit {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+@media (hover: none) {
+
+	.jp-search-experience-option__commit {
+		opacity: 1;
+		pointer-events: auto;
 	}
 }
 

@@ -1,8 +1,8 @@
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, cancelCircleFilled } from '@wordpress/icons';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
@@ -27,16 +27,44 @@ const PREVIEWS = {
 	[ EXPERIENCE.OFF ]: OffPreview,
 };
 
+const getCommitLabel = experience => {
+	switch ( experience ) {
+		case EXPERIENCE.EMBEDDED:
+			return _x(
+				'Use Embedded search',
+				'Button label that activates the Embedded search experience',
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.OVERLAY:
+			return _x(
+				'Use Overlay search',
+				'Button label that activates the Overlay search experience',
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.INLINE:
+			return _x(
+				'Use Theme search',
+				"Button label that activates the theme's built-in search",
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.OFF:
+			return _x(
+				'Turn off Jetpack Search',
+				'Button label that disables Jetpack Search entirely',
+				'jetpack-search-pkg'
+			);
+		default:
+			return __( 'Use', 'jetpack-search-pkg' );
+	}
+};
+
 /**
  * One card in the experience-selector grid.
  *
- * The whole card is a click target — a transparent `<label htmlFor>`
- * positioned `inset: 0` catches clicks, and the underlying radio is
- * visually hidden but real (so keyboard nav and screen-reader semantics
- * come from native HTML). Action links sit above the label via z-index
- * to stay clickable, and they're gated on the card being the *active*
- * (saved) experience — when not, they render as a `<span aria-disabled>`
- * so AT users aren't told a non-functional element is a link.
+ * Each non-active card carries its own commit button at the bottom-right.
+ * The button is visually hidden by default and revealed on hover / focus
+ * (and always on no-hover devices, see SCSS) — clicking it dispatches
+ * `saveExperience()` immediately, so there's no separate Save step.
  *
  * @param {object}  props            - Props.
  * @param {string}  props.experience - One of the EXPERIENCE values.
@@ -44,53 +72,40 @@ const PREVIEWS = {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { selected, active, isUpdating } = useSelect(
+	const { active, isUpdating } = useSelect(
 		select => ( {
-			selected: select( STORE_ID ).getSelectedExperience(),
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 		} ),
 		[]
 	);
-	const { setPendingExperience } = useDispatch( STORE_ID );
+	const { saveExperience } = useDispatch( STORE_ID );
 
-	const isSelected = selected === experience;
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
-	const actionsDisabled = isUpdating || ! isActive;
+	const linksDisabled = isUpdating || ! isActive;
 
-	const inputId = `jp-search-experience-${ experience }`;
 	const Preview = PREVIEWS[ experience ];
 
 	const className = clsx( 'jp-search-experience-option', {
-		'is-selected': isSelected,
 		'is-active': isActive,
 		'is-disabled': disabled,
 	} );
 
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
+	const cardLabel = disabled
+		? `${ getExperienceLabel( experience ) }. ${ upsellHint }`
+		: getExperienceLabel( experience );
+
 	return (
-		<Stack direction="column" gap="lg" className={ className }>
-			<input
-				id={ inputId }
-				type="radio"
-				name="jp-search-experience"
-				className="jp-search-experience-option__radio"
-				value={ experience }
-				checked={ isSelected }
-				disabled={ disabled }
-				onChange={ disabled ? () => {} : () => setPendingExperience( experience ) }
-			/>
-			<label
-				htmlFor={ inputId }
-				className="jp-search-experience-option__overlay"
-				aria-label={
-					disabled
-						? `${ getExperienceLabel( experience ) }. ${ upsellHint }`
-						: getExperienceLabel( experience )
-				}
-			/>
+		<Stack
+			direction="column"
+			gap="lg"
+			className={ className }
+			aria-label={ cardLabel }
+			aria-disabled={ disabled || undefined }
+		>
 			{ isActive && (
 				<span className="jp-search-experience-option__active-badge">
 					<Badge intent="stable">{ __( 'Active', 'jetpack-search-pkg' ) }</Badge>
@@ -118,12 +133,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					<CardLink
 						label={ __( 'Edit search template', 'jetpack-search-pkg' ) }
 						href={ SEARCH_TEMPLATE_URL }
-						disabled={ actionsDisabled }
+						disabled={ linksDisabled }
 					/>
 					<CardLink
 						label={ __( 'Insert pattern', 'jetpack-search-pkg' ) }
 						href={ PATTERNS_URL }
-						disabled={ actionsDisabled }
+						disabled={ linksDisabled }
 					/>
 				</Stack>
 			) }
@@ -137,14 +152,26 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					<CardLink
 						label={ __( 'Customize', 'jetpack-search-pkg' ) }
 						href={ SEARCH_CUSTOMIZE_URL }
-						disabled={ actionsDisabled }
+						disabled={ linksDisabled }
 					/>
 					<CardLink
 						label={ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 						href={ WIDGETS_EDITOR_URL }
-						disabled={ actionsDisabled }
+						disabled={ linksDisabled }
 					/>
 				</Stack>
+			) }
+			{ ! isActive && (
+				<div className="jp-search-experience-option__commit">
+					<Button
+						variant="primary"
+						disabled={ disabled || isUpdating }
+						loading={ isUpdating }
+						onClick={ () => saveExperience( experience ) }
+					>
+						{ getCommitLabel( experience ) }
+					</Button>
+				</div>
 			) }
 		</Stack>
 	);
@@ -193,10 +220,6 @@ const CardCopy = ( { experience } ) => {
 		__( '<strong>Fast results</strong> — searches hit your database', 'jetpack-search-pkg' ),
 		__(
 			'<strong>Smart ranking</strong> — no typo tolerance or language-aware matching',
-			'jetpack-search-pkg'
-		),
-		__(
-			'<strong>Embedded and Overlay search</strong> — both need the Jetpack engine',
 			'jetpack-search-pkg'
 		),
 		__( '<strong>Search analytics</strong> — and custom relevance rules', 'jetpack-search-pkg' ),
