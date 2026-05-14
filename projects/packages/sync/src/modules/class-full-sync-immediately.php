@@ -281,7 +281,7 @@ class Full_Sync_Immediately extends Module {
 			if ( ! $module ) {
 				continue;
 			}
-			if ( isset( $config ) && $config ) {
+			if ( $config ) {
 				$range[ $module_name ] = $this->get_range( $module_name );
 			}
 		}
