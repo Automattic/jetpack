@@ -47,6 +47,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		Title: ( { children } ) => <div>{ children }</div>,
 		Description: ( { children } ) => <div>{ children }</div>,
 	},
+	Stack: ( { children, className } ) => <div className={ className }>{ children }</div>,
 } ) );
 
 jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
