@@ -1,3 +1,9 @@
+import {
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
+} from '@wordpress/components';
 import type { ReactNode, MouseEventHandler } from 'react';
 
 // Not @automattic/charts BarListChart — that's SVG/visx with no per-row onClick (Top episodes needs drilldown).
@@ -28,16 +34,28 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 					row.labelText !== undefined ? `${ row.labelText }: ${ row.formattedValue }` : undefined;
 				const inner = (
 					<>
-						{ row.leftSideItem && (
-							<span className="podcast-stats-bar-list__leading">{ row.leftSideItem }</span>
-						) }
-						<span className="podcast-stats-bar-list__label">{ row.label }</span>
-						<span className="podcast-stats-bar-list__value">{ row.formattedValue }</span>
 						<span
 							className="podcast-stats-bar-list__bar"
 							style={ { width: `${ pct }%` } }
 							aria-hidden="true"
 						/>
+						<HStack
+							as="span"
+							className="podcast-stats-bar-list__content"
+							spacing={ 2 }
+							justify="flex-start"
+							alignment="center"
+						>
+							{ row.leftSideItem && (
+								<span className="podcast-stats-bar-list__leading">{ row.leftSideItem }</span>
+							) }
+							<Text className="podcast-stats-bar-list__label" truncate>
+								{ row.label }
+							</Text>
+							<Text className="podcast-stats-bar-list__value" size={ 12 } variant="muted" truncate>
+								{ row.formattedValue }
+							</Text>
+						</HStack>
 					</>
 				);
 				return (

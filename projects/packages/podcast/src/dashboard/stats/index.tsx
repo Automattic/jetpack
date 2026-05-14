@@ -6,15 +6,23 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import EpisodeStats from './components/episode-stats';
-import PeriodControl, { getPeriodHeading, isPeriod } from './components/period-control';
+import PeriodControl, { getPeriodHeading } from './components/period-control';
 import StatsByApp from './components/stats-by-app';
 import StatsByDayChart from './components/stats-by-day-chart';
 import StatsLocations from './components/stats-locations';
 import StatsTopEpisodes from './components/stats-top-episodes';
 import SummaryTiles from './components/summary-tiles';
+import { getDefaultSelection, getStatsDateRange } from './range';
 import './style.scss';
 import { useShowStatsQuery } from './use-show-stats-query';
-import type { PodcastStatsPeriod, PodcastStatsTopEpisode } from './types';
+import type { PodcastStatsPeriod, PodcastStatsSelection, PodcastStatsTopEpisode } from './types';
+
+const PRESET_PERIODS: PodcastStatsPeriod[] = [ '7d', '30d', '90d', 'all' ];
+const isPresetPeriod = ( value: unknown ): value is Exclude< PodcastStatsPeriod, 'custom' > =>
+	typeof value === 'string' && ( PRESET_PERIODS as string[] ).includes( value );
+const selectionFromPeriod = (
+	period: Exclude< PodcastStatsPeriod, 'custom' >
+): PodcastStatsSelection => ( { period, range: getStatsDateRange( period ) } );
 
 type StatsSearch = Record< string, unknown > & {
 	episode?: string | number;
@@ -23,7 +31,9 @@ type StatsSearch = Record< string, unknown > & {
 
 const Stats = () => {
 	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( '30d' );
+	const [ selection, setSelection ] = useState< PodcastStatsSelection >( () =>
+		getDefaultSelection()
+	);
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
 
 	// `?episode=` owns the drilldown so Episodes-tab plays-clicks deep-link in.
@@ -34,9 +44,9 @@ const Stats = () => {
 	const selectedPostId = rawEpisode > 0 ? rawEpisode : null;
 
 	// `?period=` lets the Episodes-tab plays-click open the drilldown at the
-	// widest window. The show-level period is still owned by local state.
-	const urlPeriod =
-		typeof search.period === 'string' && isPeriod( search.period ) ? search.period : null;
+	// widest window. The show-level selection is still owned by local state.
+	// Only preset periods are URL-addressable; a custom range stays in-memory.
+	const urlPeriod = isPresetPeriod( search.period ) ? search.period : null;
 
 	// Episodes-tab plays-clicks deep-link with only the id, so the title is
 	// hydrated client-side via core-data.
@@ -44,7 +54,7 @@ const Stats = () => {
 		title?: { rendered?: string };
 	} >( 'postType', 'post', selectedPostId ?? 0, { enabled: selectedPostId !== null } );
 
-	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
+	const { data: stats, isLoading, isError } = useShowStatsQuery( selection );
 
 	const handleSelect = useCallback(
 		( item: PodcastStatsTopEpisode ) => {
@@ -52,13 +62,14 @@ const Stats = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					episode: item.post_id,
-					// Carry the show-level period into the URL so refresh/share
-					// reopens the drilldown at the same window the user selected.
-					period,
+					// Carry the preset period into the URL so refresh/share reopens
+					// the drilldown at the same window. Custom ranges aren't
+					// URL-addressable; the drilldown falls back to its default.
+					period: selection.period !== 'custom' ? selection.period : undefined,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, period ]
+		[ navigate, selection.period ]
 	);
 
 	const handleBack = useCallback( () => {
@@ -107,7 +118,7 @@ const Stats = () => {
 				postId={ selectedPostId }
 				title={ title || __( '(Untitled)', 'jetpack-podcast' ) }
 				onBack={ handleBack }
-				initialPeriod={ urlPeriod ?? period }
+				initialSelection={ urlPeriod ? selectionFromPeriod( urlPeriod ) : selection }
 			/>
 		);
 	}
@@ -120,7 +131,7 @@ const Stats = () => {
 			<div className="podcast-stats__header">
 				<header className="podcast-stats__section-header">
 					<h2 ref={ headingRef } tabIndex={ -1 } className="podcast-stats__period-heading">
-						{ getPeriodHeading( period ) }
+						{ getPeriodHeading( selection ) }
 					</h2>
 					<p className="podcast-stats__section-description">
 						{ __(
@@ -129,7 +140,7 @@ const Stats = () => {
 						) }
 					</p>
 				</header>
-				<PeriodControl value={ period } onChange={ setPeriod } />
+				<PeriodControl value={ selection } onChange={ setSelection } />
 			</div>
 
 			{ isError && (
@@ -160,18 +171,19 @@ const Stats = () => {
 					<StatsByDayChart
 						byDay={ stats?.by_day }
 						range={ stats?.range }
-						period={ period }
+						period={ selection.period }
 						isLoading={ isLoading }
-					>
-						<SummaryTiles
-							totalPlays={ stats?.total_plays }
-							byApp={ stats?.by_app }
-							byCountry={ stats?.by_country }
-							topDay={ stats?.top_day }
-							isLoading={ isLoading }
-							layout="chart"
-						/>
-					</StatsByDayChart>
+						summary={
+							<SummaryTiles
+								totalPlays={ stats?.total_plays }
+								byApp={ stats?.by_app }
+								byCountry={ stats?.by_country }
+								topDay={ stats?.top_day }
+								isLoading={ isLoading }
+								layout="chart"
+							/>
+						}
+					/>
 					<div className="podcast-stats__module-grid">
 						<StatsTopEpisodes
 							episodes={ stats?.top_episodes }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast stats: rebuild summary tiles and bar list rows on @wordpress/components primitives.
