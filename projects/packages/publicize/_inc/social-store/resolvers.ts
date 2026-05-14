@@ -121,7 +121,7 @@ export function getRenderedMessages(
 				if ( record.error ) {
 					slot.error = record.error;
 				}
-				batch[ record.id ] = slot;
+				batch[ record.connection_id ] = slot;
 			}
 
 			dispatch( receiveRenderedMessages( postId, items, batch, postIntent ) );
