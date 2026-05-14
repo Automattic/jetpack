@@ -3,7 +3,7 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Button, Notice } from '@wordpress/ui';
+import { Button, Notice, Stack } from '@wordpress/ui';
 import useAiAnswersSettings, { DEFAULT_PERSONALITY } from 'hooks/use-ai-answers-settings';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import useSearchSettings from 'hooks/use-search-settings';
@@ -88,7 +88,11 @@ export default function AiAnswersTab() {
 			<div className={ settingsClassName } data-testid="ai-answers-settings">
 				<div className="jp-search-dashboard-wrap">
 					<div className="jp-search-dashboard-row">
-						<div className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4">
+						<Stack
+							direction="column"
+							gap="lg"
+							className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4"
+						>
 							{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
 							{ supportsInstantSearch && ! isInstantSearchEnabled && (
 								<Notice.Root intent="warning">
@@ -152,7 +156,7 @@ export default function AiAnswersTab() {
 									</Notice.Description>
 								</Notice.Root>
 							) }
-						</div>
+						</Stack>
 					</div>
 				</div>
 			</div>
