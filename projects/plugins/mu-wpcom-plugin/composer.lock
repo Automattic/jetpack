@@ -1511,11 +1511,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "4a26ea0ff9693aab7a5593ce7c5b787a062178cf"
+                "reference": "99472f9cf83ec522499746f7736c5282bb3c70ba"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
