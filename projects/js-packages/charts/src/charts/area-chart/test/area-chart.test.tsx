@@ -148,6 +148,70 @@ describe( 'AreaChart', () => {
 		} );
 	} );
 
+	describe( 'Interactive legend', () => {
+		test( 'keeps every series mounted after hiding one (stacked)', async () => {
+			const user = userEvent.setup();
+			renderWithProvider( {
+				showLegend: true,
+				chartId: 'test-interactive-stacked',
+				legend: { interactive: true },
+			} );
+
+			expect( screen.getByTestId( 'area-chart-series-0' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'area-chart-series-1' ) ).toBeInTheDocument();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			// Both series remain in the DOM (hidden one is zeroed via yAccessor,
+			// not unmounted) so that visx stack indices stay stable.
+			expect( screen.getByTestId( 'area-chart-series-0' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'area-chart-series-1' ) ).toBeInTheDocument();
+		} );
+
+		test( 'keeps every series mounted after hiding one (unstacked)', async () => {
+			const user = userEvent.setup();
+			renderWithProvider( {
+				stacked: false,
+				showLegend: true,
+				chartId: 'test-interactive-unstacked',
+				legend: { interactive: true },
+			} );
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			expect( screen.getByTestId( 'area-chart-series-0' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'area-chart-series-1' ) ).toBeInTheDocument();
+		} );
+
+		test( 'tooltip omits hidden series after toggle', async () => {
+			const user = userEvent.setup();
+			renderWithProvider( {
+				showLegend: true,
+				chartId: 'test-interactive-tooltip',
+				legend: { interactive: true },
+			} );
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			// Open a tooltip via keyboard navigation, then verify the hidden
+			// series' label is absent from the rendered tooltip rows.
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			chart.focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const tooltip = await screen.findByRole( 'tooltip' );
+			expect( tooltip ).not.toHaveTextContent( 'Series A' );
+			expect( tooltip ).toHaveTextContent( 'Series B' );
+		} );
+	} );
+
+	describe( 'Without GlobalChartsProvider', () => {
+		test( 'self-wraps in a provider when none is present', () => {
+			render( <AreaChartUnresponsive { ...defaultProps } /> );
+			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Accessibility', () => {
 		test( 'chart container has expected ARIA attributes', () => {
 			renderWithProvider();
@@ -227,6 +291,19 @@ describe( 'AreaChart', () => {
 
 		test( 'renders glyphs in unstacked mode', async () => {
 			renderWithProvider( { stacked: false } );
+			await focusFirstDatum();
+
+			const glyphs = screen.getAllByTestId( /^area-chart-hover-glyph-/ );
+			expect( glyphs ).toHaveLength( 2 );
+		} );
+
+		test( 'renders glyphs in unstacked mode with interactive legend', async () => {
+			renderWithProvider( {
+				stacked: false,
+				showLegend: true,
+				chartId: 'test-unstacked-interactive',
+				legend: { interactive: true },
+			} );
 			await focusFirstDatum();
 
 			const glyphs = screen.getAllByTestId( /^area-chart-hover-glyph-/ );
