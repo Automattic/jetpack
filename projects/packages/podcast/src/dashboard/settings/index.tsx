@@ -210,9 +210,8 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
 	const onDisablePodcasting = useCallback( () => {
 		setConfirmDisable( false );
-		commit( { podcasting_category_id: 0 } );
-		onAfterDisable?.();
-	}, [ commit, onAfterDisable ] );
+		saveSettings( { podcasting_category_id: 0 }, { onSuccess: () => onAfterDisable?.() } );
+	}, [ saveSettings, onAfterDisable ] );
 
 	if ( isLoading || ! draft ) {
 		return null;
