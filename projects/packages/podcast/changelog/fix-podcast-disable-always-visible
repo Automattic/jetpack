@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Always show the Disable podcasting card on the settings tab, and return the user to the welcome screen after disabling, so the back-out flow works before a category has been chosen.

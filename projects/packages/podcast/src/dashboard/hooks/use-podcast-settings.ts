@@ -89,6 +89,9 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
+	// Suppress the hook's built-in success/error snackbars when the caller
+	// owns its own user-visible feedback (e.g. a modal with an inline Notice).
+	silent?: boolean;
 }
 
 /**
@@ -130,26 +133,37 @@ export function useUpdatePodcastSettings(): {
 	);
 
 	const mutate = useCallback(
-		( updates: PodcastSettingsUpdate, { onSuccess, onError }: MutateCallbacks = {} ) => {
+		(
+			updates: PodcastSettingsUpdate,
+			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
+		) => {
 			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
 				.then( record => {
 					if ( ! record ) {
 						onError?.( new Error( 'save returned no record' ) );
+						if ( ! silent ) {
+							createErrorNotice(
+								__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+								{ type: 'snackbar' }
+							);
+						}
+						return;
+					}
+					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
+					if ( ! silent ) {
+						createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
+							type: 'snackbar',
+						} );
+					}
+				} )
+				.catch( error => {
+					onError?.( error );
+					if ( ! silent ) {
 						createErrorNotice(
 							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
 							{ type: 'snackbar' }
 						);
-						return;
 					}
-					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
-					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
-				} )
-				.catch( error => {
-					onError?.( error );
-					createErrorNotice(
-						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-						{ type: 'snackbar' }
-					);
 				} );
 		},
 		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]

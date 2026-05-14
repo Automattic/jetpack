@@ -1,9 +1,12 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
+import { useEntityRecord } from '@wordpress/core-data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { useNavigate, useSearch } from '@wordpress/route';
 import EpisodeStats from './components/episode-stats';
-import PeriodControl, { getPeriodHeading } from './components/period-control';
+import PeriodControl, { getPeriodHeading, isPeriod } from './components/period-control';
 import StatsByApp from './components/stats-by-app';
 import StatsByDayChart from './components/stats-by-day-chart';
 import StatsLocations from './components/stats-locations';
@@ -13,24 +16,69 @@ import './style.scss';
 import { useShowStatsQuery } from './use-show-stats-query';
 import type { PodcastStatsPeriod, PodcastStatsTopEpisode } from './types';
 
+type StatsSearch = Record< string, unknown > & {
+	episode?: string | number;
+	period?: string;
+};
+
 const Stats = () => {
 	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
 	const [ period, setPeriod ] = useState< PodcastStatsPeriod >( '30d' );
-	const [ selected, setSelected ] = useState< PodcastStatsTopEpisode | null >( null );
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
-	const prevSelectedRef = useRef< PodcastStatsTopEpisode | null >( null );
+
+	// `?episode=` owns the drilldown so Episodes-tab plays-clicks deep-link in.
+	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StatsSearch;
+	const navigate = useNavigate();
+
+	const rawEpisode = Number( search.episode );
+	const selectedPostId = rawEpisode > 0 ? rawEpisode : null;
+
+	// `?period=` lets the Episodes-tab plays-click open the drilldown at the
+	// widest window. The show-level period is still owned by local state.
+	const urlPeriod =
+		typeof search.period === 'string' && isPeriod( search.period ) ? search.period : null;
+
+	// Episodes-tab plays-clicks deep-link with only the id, so the title is
+	// hydrated client-side via core-data.
+	const { record: selectedPost } = useEntityRecord< {
+		title?: { rendered?: string };
+	} >( 'postType', 'post', selectedPostId ?? 0, { enabled: selectedPostId !== null } );
 
 	const { data: stats, isLoading, isError } = useShowStatsQuery( period );
 
-	const handleBack = useCallback( () => setSelected( null ), [] );
+	const handleSelect = useCallback(
+		( item: PodcastStatsTopEpisode ) => {
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					episode: item.post_id,
+					// Carry the show-level period into the URL so refresh/share
+					// reopens the drilldown at the same window the user selected.
+					period,
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate, period ]
+	);
+
+	const handleBack = useCallback( () => {
+		navigate( {
+			search: ( prev: Record< string, unknown > ) => ( {
+				...prev,
+				episode: undefined,
+				period: undefined,
+			} ),
+		} as unknown as Parameters< typeof navigate >[ 0 ] );
+	}, [ navigate ] );
 
 	// Return focus to the heading after leaving the drilldown; the back button has unmounted.
+	const prevSelectedIdRef = useRef< number | null >( null );
 	useEffect( () => {
-		if ( prevSelectedRef.current !== null && selected === null ) {
+		if ( prevSelectedIdRef.current !== null && selectedPostId === null ) {
 			headingRef.current?.focus();
 		}
-		prevSelectedRef.current = selected;
-	}, [ selected ] );
+		prevSelectedIdRef.current = selectedPostId;
+	}, [ selectedPostId ] );
 
 	if ( ! blogId ) {
 		return (
@@ -45,13 +93,21 @@ const Stats = () => {
 		);
 	}
 
-	if ( selected ) {
+	if ( selectedPostId ) {
+		// Prefer the resolved entity record; fall back to the top_episodes list
+		// (already in memory) so the heading is correct immediately when the user
+		// clicks from the in-page Top Episodes list, before useEntityRecord settles.
+		const fallbackTitle =
+			stats?.top_episodes?.find( ep => ep.post_id === selectedPostId )?.title ?? '';
+		const title = selectedPost?.title?.rendered
+			? decodeEntities( selectedPost.title.rendered )
+			: fallbackTitle;
 		return (
 			<EpisodeStats
-				postId={ selected.post_id }
-				title={ selected.title || __( '(Untitled)', 'jetpack-podcast' ) }
+				postId={ selectedPostId }
+				title={ title || __( '(Untitled)', 'jetpack-podcast' ) }
 				onBack={ handleBack }
-				initialPeriod={ period }
+				initialPeriod={ urlPeriod ?? period }
 			/>
 		);
 	}
@@ -120,7 +176,7 @@ const Stats = () => {
 						<StatsTopEpisodes
 							episodes={ stats?.top_episodes }
 							isLoading={ isLoading }
-							onSelect={ setSelected }
+							onSelect={ handleSelect }
 						/>
 						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
 					</div>
