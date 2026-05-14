@@ -68,11 +68,11 @@ const Stage = () => {
 									{ activeTab === 'subscribers' ? body : null }
 								</Tabs.Panel>
 								<Tabs.Panel value="settings" focusable={ false }>
-									{ activeTab === 'settings' ? <NewsletterSettingsBody /> : null }
+									{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
 								</Tabs.Panel>
 							</>
 						) : (
-							<NewsletterSettingsBody />
+							<NewsletterSettingsBody isModernized />
 						) }
 					</NewsletterPage>
 				) }
