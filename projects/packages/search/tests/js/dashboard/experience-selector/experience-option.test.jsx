@@ -58,13 +58,17 @@ describe( '<ExperienceOption>', () => {
 		expect( screen.queryByText( 'Recommended' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'shows ACTIVE badge on the active card and no commit button', () => {
+	test( 'shows ACTIVE badge and a disabled state button on the active card', () => {
 		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings, { experience: 'overlay' } );
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		// No commit (action) button — clicking it would be a no-op.
 		expect(
 			screen.queryByRole( 'button', { name: /^use overlay search$/i } )
 		).not.toBeInTheDocument();
+		// State indicator: same row, but disabled and labelled "Using …".
+		const stateButton = screen.getByRole( 'button', { name: /^using overlay search$/i } );
+		expect( stateButton ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	test( 'non-active cards have no ACTIVE badge and a per-card commit button', () => {

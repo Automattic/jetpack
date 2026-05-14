@@ -153,9 +153,18 @@
 	pointer-events: auto;
 }
 
+// On touch / no-hover pointers the hover-reveal pattern doesn't apply —
+// the button is always on screen. Drop the absolute overlay + gradient so
+// the button takes its own row in the card's flex flow instead of sitting
+// on top of the description / loss-list text. Grid auto-stretch keeps
+// neighbouring cards equal-height in multi-column layouts; on phones the
+// grid collapses to one column so per-card height differences don't matter.
 @media (hover: none) {
 
 	.jp-search-experience-option__commit {
+		position: static;
+		padding: 0;
+		background: none;
 		opacity: 1;
 		pointer-events: auto;
 	}

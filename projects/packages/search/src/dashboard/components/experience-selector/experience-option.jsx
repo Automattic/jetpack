@@ -3,7 +3,7 @@ import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/compone
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Icon, cancelCircleFilled } from '@wordpress/icons';
+import { Icon, cancelCircleFilled, check } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
@@ -60,13 +60,49 @@ const getCommitLabel = experience => {
 	}
 };
 
+// Active-state counterparts to `getCommitLabel`. The grammar mirrors the
+// action labels ("Use X" → "Using X", "Turn off X" → "X is off") so the
+// active card slot reads as the resolved state of the same verb.
+const getActiveLabel = experience => {
+	switch ( experience ) {
+		case EXPERIENCE.EMBEDDED:
+			return _x(
+				'Using Embedded search',
+				'State indicator on the active card — Embedded search is the running experience',
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.OVERLAY:
+			return _x(
+				'Using Overlay search',
+				'State indicator on the active card — Overlay search is the running experience',
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.INLINE:
+			return _x(
+				'Using Theme search',
+				"State indicator on the active card — the theme's built-in search is in use",
+				'jetpack-search-pkg'
+			);
+		case EXPERIENCE.OFF:
+			return _x(
+				'Jetpack Search is off',
+				'State indicator on the active card — Jetpack Search is disabled',
+				'jetpack-search-pkg'
+			);
+		default:
+			return __( 'In use', 'jetpack-search-pkg' );
+	}
+};
+
 /**
  * One card in the experience-selector grid.
  *
- * Each non-active card carries its own commit button at the bottom-right.
- * The button is visually hidden by default and revealed on hover / focus
- * (and always on no-hover devices, see SCSS) — clicking it dispatches
- * `saveExperience()` immediately, so there's no separate Save step.
+ * Every card carries a bottom-right slot. On inactive cards it's a primary
+ * commit button that dispatches `saveExperience()` (no separate Save step).
+ * On the active card it's a disabled, check-iconed state indicator ("Using
+ * X") that keeps the four cards visually aligned. Both follow the same
+ * hover-reveal pattern on hover-capable pointers; on touch / no-hover the
+ * slot sits in the card's normal flex flow (see SCSS).
  *
  * @param {object}  props            - Props.
  * @param {string}  props.experience - One of the EXPERIENCE values.
@@ -173,8 +209,18 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					/>
 				</Stack>
 			) }
-			{ ! isActive && (
-				<div className="jp-search-experience-option__commit">
+			<div className="jp-search-experience-option__commit">
+				{ isActive ? (
+					// State indicator — same row as the inactive cards' commit
+					// button so the four cards share a baseline. `outline` +
+					// brand check icon reads as "completed state" rather than a
+					// disabled action; `aria-current` on the card already
+					// announces the active state to AT.
+					<Button variant="outline" disabled tabIndex={ -1 }>
+						<Icon icon={ check } size={ 18 } />
+						{ getActiveLabel( experience ) }
+					</Button>
+				) : (
 					<Button
 						variant="primary"
 						disabled={ commitButtonDisabled }
@@ -195,8 +241,8 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					>
 						{ getCommitLabel( experience ) }
 					</Button>
-				</div>
-			) }
+				) }
+			</div>
 			<ConfirmDialog
 				isOpen={ isConfirmOpen }
 				onConfirm={ () => {
@@ -208,10 +254,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			>
 				{ sprintf(
 					/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
-					__(
-						'Switch the visitor-facing search experience to %s? Your current experience will stop running until you switch back.',
-						'jetpack-search-pkg'
-					),
+					__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
 					getExperienceLabel( experience )
 				) }
 			</ConfirmDialog>
