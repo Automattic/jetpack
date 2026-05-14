@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast dashboard: drop the Welcome landing screen so a user with no podcast category set lands on the tab layout instead. The Distribution tab carries the empty-state CTA pointing the user to Settings. Default landing tab is now Create.
