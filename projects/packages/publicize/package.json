@@ -111,6 +111,7 @@
 		"babel-jest": "30.4.1",
 		"browserslist": "^4.24.0",
 		"concurrently": "9.2.1",
+		"copy-webpack-plugin": "14.0.0",
 		"jest": "30.4.2",
 		"postcss": "8.5.14",
 		"postcss-custom-properties": "12.1.11",

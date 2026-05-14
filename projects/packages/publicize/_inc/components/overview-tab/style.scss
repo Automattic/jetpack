@@ -1,0 +1,17 @@
+// Overview tab body — spaces the connection-error notice, JITM mount,
+// and the connected-accounts Card vertically with the WPDS gap token.
+// `Card.Root` from `@wordpress/ui` already paints the surface; this
+// rule only owns the inter-section spacing.
+
+.jetpack-social-overview {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+}
+
+// The JITM mount-point only takes up vertical space when the JITM
+// service injects a card. Hide it from the flex layout when empty so
+// the gap above the accounts card collapses cleanly.
+.jetpack-social-jitm-card:empty {
+	display: none;
+}

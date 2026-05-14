@@ -4067,6 +4067,9 @@ importers:
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
+      copy-webpack-plugin:
+        specifier: 14.0.0
+        version: 14.0.0(webpack@5.105.2)
       jest:
         specifier: 30.4.2
         version: 30.4.2

@@ -81,6 +81,15 @@ class Social_Admin_Page {
 			return;
 		}
 
+		// The chassis pre-empts to the legacy `SocialAdminPage` when the
+		// site isn't connected or the free-plan pricing nudge should
+		// show, so those flows render exactly as they do today and the
+		// wp-build bundle stays free of the jetpack-connection asset
+		// imports that the chassis would otherwise have to handle.
+		if ( self::should_preempt_to_legacy() ) {
+			return;
+		}
+
 		self::load_wp_build();
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
@@ -246,6 +255,40 @@ class Social_Admin_Page {
 	 */
 	private static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the chassis should defer to the legacy admin page.
+	 *
+	 * The legacy `SocialAdminPage` short-circuits its body with
+	 * `ConnectionScreen` (site not connected) or `PricingPage` (free
+	 * plan, pricing nudge not dismissed). Those components pull in
+	 * `@automattic/jetpack-connection`'s disconnect-dialog assets
+	 * (.jpg / .webp / .svg) and `@use "@wordpress/theme/design-tokens.css"`
+	 * in transitive SCSS — none of which the wp-build esbuild pipeline
+	 * loads out of the box. Detecting those same states server-side here
+	 * lets the chassis stay slim while preserving today's "pre-empt the
+	 * tabs" behaviour: when either holds we fall through to the legacy
+	 * menu callback and the user sees the existing flow.
+	 *
+	 * @return bool
+	 */
+	private static function should_preempt_to_legacy() {
+		if ( ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() ) {
+			return true;
+		}
+
+		if (
+			class_exists( '\\Automattic\\Jetpack\\Publicize\\Jetpack_Social_Settings\\Settings' )
+			&& \Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings::should_show_pricing_page()
+		) {
+			$publicize = Publicize_Script_Data::publicize();
+			if ( $publicize && ! $publicize->has_paid_features() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

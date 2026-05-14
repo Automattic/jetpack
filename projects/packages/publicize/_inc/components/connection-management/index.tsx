@@ -12,7 +12,12 @@ import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
 
-const ConnectionManagement = ( { className = null, disabled = false } ) => {
+const ConnectionManagement = ( {
+	className = null,
+	disabled = false,
+	hideConnectButton = false,
+	hideHeading = false,
+} ) => {
 	const { refresh } = useSocialMediaConnections();
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
@@ -50,7 +55,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 		>
 			{ connections.length ? (
 				<>
-					<h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3>
+					{ ! hideHeading && <h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3> }
 					<ul className={ styles[ 'connection-list' ] }>
 						{ connections.map( connection => {
 							const isUpdatingOrDeleting =
@@ -73,9 +78,14 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 				</>
 			) : null }
 			<ManageConnectionsModal />
-			<Button variant={ connections.length ? 'outline' : 'solid' } onClick={ openConnectionsModal }>
-				{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
-			</Button>
+			{ ! hideConnectButton && (
+				<Button
+					variant={ connections.length ? 'outline' : 'solid' }
+					onClick={ openConnectionsModal }
+				>
+					{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
+				</Button>
+			) }
 		</div>
 	);
 };
