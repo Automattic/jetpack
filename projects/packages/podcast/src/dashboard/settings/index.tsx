@@ -17,7 +17,7 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -97,6 +97,14 @@ const SettingsTab = () => {
 	const [ creating, setCreating ] = useState( false );
 
 	const { saveEntityRecord } = useDispatch( coreStore );
+
+	// `canUser` returns `undefined` while resolving, then `true`/`false`. Treat
+	// the loading state as "allowed" so the button doesn't flash hidden; only
+	// hide it once the REST OPTIONS probe definitively says no.
+	const canCreateCategory = useSelect(
+		select => select( coreStore ).canUser( 'create', 'categories' ),
+		[]
+	);
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
@@ -325,9 +333,11 @@ const SettingsTab = () => {
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 							] }
 						/>
-						<Button variant="link" onClick={ openCreateCategory }>
-							{ __( 'Create a new category', 'jetpack-podcast' ) }
-						</Button>
+						{ canCreateCategory !== false && (
+							<Button variant="link" onClick={ openCreateCategory }>
+								{ __( 'Create a new category', 'jetpack-podcast' ) }
+							</Button>
+						) }
 					</VStack>
 				</CardBody>
 			</Card>
