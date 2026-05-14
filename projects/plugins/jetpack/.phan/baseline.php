@@ -9,14 +9,14 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 430+ occurrences
+    // PhanTypeMismatchArgument : 420+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 260+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
+    // PhanTypeArraySuspiciousNullable : 70+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
-    // PhanTypeArraySuspiciousNullable : 55+ occurrences
     // PhanRedefineFunction : 45+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanTypeExpectedObjectPropAccess : 30+ occurrences
@@ -151,7 +151,6 @@ return [
         'extensions/blocks/ai-chat/ai-chat.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'extensions/blocks/blog-stats/blog-stats.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/calendly/calendly.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
-        'extensions/blocks/donations/donations.php' => ['PhanTypeMismatchArgument'],
         'extensions/blocks/gif/gif.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/google-calendar/google-calendar.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'extensions/blocks/image-compare/image-compare.php' => ['PhanTypeMismatchArgument'],

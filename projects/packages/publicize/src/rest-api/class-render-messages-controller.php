@@ -26,9 +26,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `social-message-templates` feature is enabled.
  *
  * POST takes a JSON body of `{ post_id, items: [...], post_intent: {...} }`
- * and returns one record per input item, in input order, keyed by
- * client-supplied `id` (typically the connection_id). Body-based POST is used
- * instead of a GET collection so multi-connection / long-message batches don't hit
+ * and returns one record per input item, in input order, keyed by the
+ * client-supplied `connection_id`. Body-based POST is used instead of a GET
+ * collection so multi-connection / long-message batches don't hit
  * infrastructure URL caps.
  *
  * @phan-constructor-used-for-side-effects
@@ -82,18 +82,14 @@ class Render_Messages_Controller extends Base_Controller {
 						'items'       => array(
 							'type'                 => 'object',
 							'additionalProperties' => false,
-							'required'             => array( 'id', 'network' ),
+							'required'             => array( 'connection_id' ),
 							'properties'           => array(
-								'id'             => array(
-									'description' => __( 'Client-supplied identifier echoed back in the response (typically the connection_id).', 'jetpack-publicize-pkg' ),
-									'type'        => 'string',
-								),
-								'network'        => array(
-									'description' => __( 'The social network slug (e.g. facebook, x, linkedin).', 'jetpack-publicize-pkg' ),
+								'connection_id'  => array(
+									'description' => __( 'Publicize connection ID — used to dispatch the renderer and resolve the per-connection template.', 'jetpack-publicize-pkg' ),
 									'type'        => 'string',
 								),
 								'message'        => array(
-									'description' => __( 'The message template to render. Empty uses the network default.', 'jetpack-publicize-pkg' ),
+									'description' => __( 'Optional message override. Empty walks the per-connection / site / network-default chain.', 'jetpack-publicize-pkg' ),
 									'type'        => 'string',
 									'default'     => '',
 								),
@@ -145,8 +141,8 @@ class Render_Messages_Controller extends Base_Controller {
 			'title'      => 'publicize-render-messages-item',
 			'type'       => 'object',
 			'properties' => array(
-				'id'               => array(
-					'description' => __( 'Client-supplied identifier echoed back from the request.', 'jetpack-publicize-pkg' ),
+				'connection_id'    => array(
+					'description' => __( 'Connection identifier echoed back from the request.', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -244,7 +240,7 @@ class Render_Messages_Controller extends Base_Controller {
 			}
 
 			return rest_ensure_response(
-				\Publicize\render_messages_for_networks( $post, $items, $intent )
+				\Publicize\render_messages( $post, $items, $intent )
 			);
 		}
 

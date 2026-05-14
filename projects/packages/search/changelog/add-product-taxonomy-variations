@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: register WooCommerce product Category, Tag, and Brand as inserter-visible variations on the existing jetpack-search/filter-checkbox block (RSM-1929).

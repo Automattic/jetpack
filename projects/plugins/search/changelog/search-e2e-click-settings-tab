@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: e2e: click the Settings tab before asserting on ModuleControl toggles. Test-only.
+
+

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Storage: Add new `jpcrm_storage_dir_info` filter.

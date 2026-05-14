@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -46,6 +46,11 @@ class Podcast {
 		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() ) {
 			return;
 		}
+
+		// Wire the Podcast Episode block actions before the filter check below:
+		// each callback re-checks `jetpack_podcast_untangle` at hook time so a
+		// late-registered filter callback still takes effect.
+		Podcast_Episode_Block::register_hooks();
 
 		if ( ! self::is_enabled() ) {
 			return;

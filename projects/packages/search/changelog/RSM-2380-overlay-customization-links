@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search dashboard: Replace the experience radio list with a 2×2 card grid (Embedded / Overlay / Theme / Off), each carrying its own preview, copy, and customization actions ("Search template" + "Insert pattern" for Embedded; "Customize" + "Edit widgets" for the active Overlay). Move the selector into a new Settings tab.

@@ -1,0 +1,82 @@
+/**
+ * Podcast Episode block — editor-only styles.
+ *
+ * Sidebar editors live inside the InspectorControls panel, whose content box
+ * is a fixed width (~280px). Everything below is scoped to fill 100% of that
+ * box so opening / closing panels doesn't reflow the column width.
+ */
+
+.wp-block-jetpack-podcast-episode {
+
+	.jetpack-podcast-episode__person-editor,
+	.jetpack-podcast-episode__chapter-row {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		box-sizing: border-box;
+		width: 100%;
+		padding: 12px;
+		margin-bottom: 12px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+	}
+
+	.jetpack-podcast-episode__notes-hint {
+		margin-top: 12px;
+		color: #757575;
+		font-style: italic;
+		font-size: 13px;
+	}
+
+	// Featured-image-style cover picker: full-width clickable preview that
+	// opens the media library, with Replace / Remove links underneath.
+	.jetpack-podcast-episode__cover-picker {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		margin-bottom: 8px;
+		width: 100%;
+	}
+
+	.jetpack-podcast-episode__cover-button {
+		box-sizing: border-box;
+		width: 100%;
+		height: auto;
+		padding: 0;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		background: transparent;
+		overflow: hidden;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--wp-admin-theme-color, #007cba);
+		}
+
+		img {
+			display: block;
+			width: 100%;
+			height: auto;
+			max-width: 100%;
+		}
+	}
+
+	.jetpack-podcast-episode__cover-button--empty {
+		min-height: 92px;
+		border-style: dashed;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		span {
+			color: var(--wp-admin-theme-color, #007cba);
+			font-weight: 500;
+		}
+	}
+
+	.jetpack-podcast-episode__cover-actions {
+		display: flex;
+		gap: 12px;
+	}
+}

@@ -487,7 +487,7 @@ class REST_Controller_Test extends Search_TestCase {
 		wp_set_current_user( $this->admin_id );
 
 		// Pre-activate the module and enable instant search via the legacy path so we can verify
-		// that `experience=off` deactivates the module but preserves instant_search_enabled.
+		// that `experience=off` deactivates the module and disables instant_search_enabled.
 		$activate_request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$activate_request->set_header( 'content-type', 'application/json' );
 		$activate_request->set_body(
@@ -509,8 +509,8 @@ class REST_Controller_Test extends Search_TestCase {
 		$data = $response->get_data();
 		$this->assertFalse( $data['module_active'] );
 		$this->assertEquals( 'off', $data['experience'] );
-		// instant_search_enabled should be preserved (not changed to false by deactivation).
-		$this->assertTrue( $data['instant_search_enabled'] );
+		// instant_search_enabled is disabled so the legacy boolean doesn't drift true after off.
+		$this->assertFalse( $data['instant_search_enabled'] );
 	}
 
 	/**

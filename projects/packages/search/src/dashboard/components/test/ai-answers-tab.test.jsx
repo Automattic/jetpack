@@ -25,13 +25,14 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/components', () => ( {
 	TextareaControl: ( { label } ) => <span>{ label }</span>,
-	ToggleControl: ( { label, checked, onChange } ) => (
+	ToggleControl: ( { label, checked, onChange, disabled } ) => (
 		<label htmlFor="toggle-control">
 			<input
 				id="toggle-control"
 				type="checkbox"
 				checked={ checked }
 				onChange={ e => onChange( e.target.checked ) }
+				disabled={ disabled }
 			/>
 			{ label }
 		</label>
@@ -154,5 +155,19 @@ describe( 'AiAnswersTab', () => {
 		await expect(
 			screen.findByText( 'Instant Search must be enabled for AI Answers to work.' )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'toggle is not disabled when instant search is off but AI answers is already on', async () => {
+		setupStore( { isInstantSearchEnabled: false, isAiAnswersEnabled: true } );
+		render( <AiAnswersTab /> );
+		const toggle = await screen.findByRole( 'checkbox' );
+		expect( toggle ).toBeEnabled();
+	} );
+
+	it( 'toggle is disabled when both instant search and AI answers are off', async () => {
+		setupStore( { isInstantSearchEnabled: false, isAiAnswersEnabled: false } );
+		render( <AiAnswersTab /> );
+		const toggle = await screen.findByRole( 'checkbox' );
+		expect( toggle ).toBeDisabled();
 	} );
 } );

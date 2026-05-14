@@ -597,7 +597,7 @@ jQuery( function($) {
 					<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
 				<?php endif; ?>
 				<textarea name="wpas_title" id="wpas-title"><?php echo esc_textarea( $title ); ?></textarea>
-				<?php if ( $templates_enabled ) : ?>
+				<?php if ( $templates_enabled && ! empty( $placeholders ) ) : ?>
 					<details class="publicize-placeholders-help">
 						<summary><?php esc_html_e( 'Available placeholders', 'jetpack-publicize-pkg' ); ?></summary>
 						<p>
@@ -606,8 +606,8 @@ jQuery( function($) {
 						<ul>
 							<?php foreach ( $placeholders as $placeholder ) : ?>
 								<li>
-									<code><?php echo esc_html( $placeholder['token'] ); ?></code>
-									&mdash; <?php echo esc_html( $placeholder['description'] ); ?>
+									<code><?php echo esc_html( $placeholder['id'] ); ?></code>
+									&mdash; <?php echo esc_html( $placeholder['label'] ); ?>
 								</li>
 							<?php endforeach; ?>
 						</ul>
@@ -632,62 +632,14 @@ jQuery( function($) {
 	}
 
 	/**
-	 * Get the list of placeholders supported in custom Publicize messages.
+	 * Get the catalogue of placeholders supported in custom Publicize messages.
 	 *
-	 * TODO: SOCIAL-471 — replace this hardcoded list with a fetch from WPCOM.
+	 * Sourced from WPCOM via `Message_Templates_Placeholders` so the metabox
+	 * hint can never drift from the resolver in `Template_Parser`.
 	 *
-	 * @return array<int, array{token: string, description: string}>
+	 * @return array<int, array{id: string, label: string}> Ordered list of placeholders.
 	 */
 	private function get_message_placeholders() {
-		return array(
-			array(
-				'token'       => '{title}',
-				'description' => __( 'Post title', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{excerpt}',
-				'description' => __( 'Post excerpt', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{content}',
-				'description' => __( 'Full post content', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{url}',
-				'description' => __( 'Permalink to the post', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{short_url}',
-				'description' => __( 'Short URL of the post', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{tags}',
-				'description' => __( 'Post tags as hashtags', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{categories}',
-				'description' => __( 'Post categories', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{author}',
-				'description' => __( 'Author display name', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{date}',
-				'description' => __( 'Publication date', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{site_name}',
-				'description' => __( 'Site title', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{site_url}',
-				'description' => __( 'Site URL', 'jetpack-publicize-pkg' ),
-			),
-			array(
-				'token'       => '{meta:<key>}',
-				'description' => __( 'Custom field value', 'jetpack-publicize-pkg' ),
-			),
-		);
+		return Message_Templates_Placeholders::get_all();
 	}
 }

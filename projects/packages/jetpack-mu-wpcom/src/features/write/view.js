@@ -233,6 +233,27 @@ function clearHighlight() {
 }
 
 /**
+ * Apply a link to the current selection. When the selection is collapsed
+ * (no text selected), insert the URL as visible text first so the link
+ * is created consistently across browsers — Firefox's createLink is a
+ * no-op on collapsed selections, while Chrome inserts the URL as text.
+ *
+ * @param {string} url - The URL to link to.
+ */
+function createLinkFromUrl( url ) {
+	const sel = window.getSelection();
+	if ( sel.isCollapsed ) {
+		// Insert the URL as text, then select it so createLink can wrap it.
+		document.execCommand( 'insertText', false, url );
+		const r = sel.getRangeAt( 0 );
+		r.setStart( r.startContainer, r.startOffset - url.length );
+		sel.removeAllRanges();
+		sel.addRange( r );
+	}
+	document.execCommand( 'createLink', false, url );
+}
+
+/**
  * Focus the first visible input inside a modal after it becomes visible.
  * Uses requestAnimationFrame so the element is no longer hidden.
  */
@@ -2632,7 +2653,7 @@ const { state } = store( 'wpcom-write', {
 				clearHighlight();
 				restoreSelection();
 				if ( state.linkUrl ) {
-					document.execCommand( 'createLink', false, state.linkUrl );
+					createLinkFromUrl( state.linkUrl );
 				}
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
@@ -2660,7 +2681,7 @@ const { state } = store( 'wpcom-write', {
 			clearHighlight();
 			restoreSelection();
 			if ( state.linkUrl ) {
-				document.execCommand( 'createLink', false, state.linkUrl );
+				createLinkFromUrl( state.linkUrl );
 			}
 			state.showLinkInput = false;
 			if ( linkPopoverCloseHandler ) {
@@ -3318,6 +3339,10 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
+				// Hide the page before navigating so the bfcache snapshot
+				// stores it hidden — prevents a flash of stale content if
+				// the user later presses Back.
+				document.documentElement.style.visibility = 'hidden';
 				window.location.href = post.link;
 			}, 800 );
 		} else {
@@ -3390,6 +3415,16 @@ const autosaveReady = setInterval( () => {
 window.addEventListener( 'beforeunload', event => {
 	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
 		event.preventDefault();
+	}
+} );
+
+// If the page is restored from bfcache after a publish, redirect to a
+// fresh editor.  On publish the isSaving flag is intentionally left true
+// (buttons stay disabled while the redirect fires), so a bfcache restore
+// would strand the user on a "done" page with grayed-out buttons.
+window.addEventListener( 'pageshow', event => {
+	if ( event.persisted && state.isPublished ) {
+		window.location.replace( state.writeUrl );
 	}
 } );
 

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.21.1] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Dashboard: Update to @wordpress/admin-ui 2.0.0 and use the Page component's new `visual` prop for the Jetpack logo. [#48410]
+- Forms: Use the shared `Gravatar` component from `@automattic/jetpack-components/gravatar`. No user-visible change. [#48581]
+
+### Fixed
+- Forms: Fix phantom unread counter badge appearing when there are no unread form submissions. [#47281]
+
 ## [7.21.0] - 2026-05-04
 ### Added
 - Add admin abilities for form CRUD (list-forms, get-form, create-form, delete-form) and bulk-update-responses. [#47102]
@@ -2470,6 +2479,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.21.1]: https://github.com/automattic/jetpack-forms/compare/v7.21.0...v7.21.1
 [7.21.0]: https://github.com/automattic/jetpack-forms/compare/v7.20.0...v7.21.0
 [7.20.0]: https://github.com/automattic/jetpack-forms/compare/v7.19.0...v7.20.0
 [7.19.0]: https://github.com/automattic/jetpack-forms/compare/v7.18.0...v7.19.0

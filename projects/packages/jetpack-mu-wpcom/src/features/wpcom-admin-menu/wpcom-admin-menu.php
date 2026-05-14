@@ -425,8 +425,12 @@ function wpcom_add_jetpack_submenu() {
 		// Register the in-admin Newsletter settings page (with its own render callback
 		// and admin hooks). This must be done here (at priority 999999) because the
 		// Jetpack menu is created by this function and doesn't exist at earlier priorities.
-		$newsletter_settings = new Newsletter_Settings();
-		$newsletter_settings->add_wp_admin_submenu();
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			$newsletter_settings = new Newsletter_Settings();
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			$newsletter_settings->add_wp_admin_submenu();
+		}
 
 		// Jetpack > Traffic
 		add_submenu_page(

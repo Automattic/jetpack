@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Podcast: register feed customizations (gated; no behavior change while jetpack_podcast_untangle filter is off).
