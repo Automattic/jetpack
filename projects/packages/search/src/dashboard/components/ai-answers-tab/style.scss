@@ -44,23 +44,19 @@
 .jp-search-ai-answers-tab__settings-inner {
 	display: flex;
 	flex-direction: column;
-
-	.jp-search-dashboard-toggle {
-		margin-bottom: 1.5em;
-	}
+	gap: 1.5em;
 }
 
 .jp-search-ai-answers-tab__actions {
 	display: flex;
 	align-items: center;
 	gap: 1em;
-	margin-top: 0.5em;
 }
 
 .jp-search-ai-answers-tab__error {
 	color: variables.$jp-red-error;
 	font-size: 0.875em;
-	margin: 0 0 1em;
+	margin: 0;
 }
 
 .jp-search-ai-answers-tab__saved {
