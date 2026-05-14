@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
 import AiAnswersTab from 'components/ai-answers-tab';
-import FeatureSelector from 'components/feature-selector';
+import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -16,6 +16,21 @@ import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
+const DEFAULT_TAB = 'plan-usage';
+// Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
+const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
+const TAB_QUERY_PARAM = 'tab';
+
+const getInitialTab = () => {
+	if ( typeof window === 'undefined' ) {
+		return DEFAULT_TAB;
+	}
+
+	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+
+	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+};
+
 /**
  * SearchDashboard component definition.
  *
@@ -25,7 +40,19 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( 'plan-usage' );
+	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+
+	const handleTabChange = tab => {
+		setActiveTab( tab );
+
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+
+		const url = new URL( window.location.href );
+		url.searchParams.set( TAB_QUERY_PARAM, tab );
+		window.history.replaceState( {}, '', url.toString() );
+	};
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
@@ -131,9 +158,14 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
-				<Tabs.Root value={ activeTab } onValueChange={ setActiveTab }>
+				<NoticesList
+					notices={ notices }
+					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+				/>
+				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 					<Tabs.List>
 						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						<Tabs.Tab value="ai-answers">
 							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
 							<span className="jp-search-dashboard-tabs__tab-preview-label">
@@ -182,41 +214,42 @@ export default function DashboardPage( { isLoading = false } ) {
 										postTypes={ postTypes }
 									/>
 								) }
-								<div className="jp-search-dashboard-bottom">
-									{ isSearchBlocksEnabled ? (
-										<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
-											<div className="jp-search-dashboard-row">
-												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-													<FeatureSelector />
-												</div>
+							</>
+						) }
+					</Tabs.Panel>
+					<Tabs.Panel value="settings">
+						{ isPageLoading && <Loading /> }
+						{ ! isPageLoading && (
+							<div className="jp-search-dashboard-bottom">
+								{ isSearchBlocksEnabled ? (
+									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
+										<div className="jp-search-dashboard-row">
+											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+												<ExperienceSelector />
 											</div>
 										</div>
-									) : (
-										<ModuleControl
-											siteAdminUrl={ siteAdminUrl }
-											updateOptions={ updateOptions }
-											domain={ domain }
-											isDisabledFromOverLimit={ isOverLimit }
-											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-											isReaderChatAvailable={ isReaderChatAvailable }
-											isReaderChatEnabled={ isReaderChatEnabled }
-											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-											supportsSearch={ supportsSearch }
-											supportsInstantSearch={ supportsInstantSearch }
-											isModuleEnabled={ isModuleEnabled }
-											isInstantSearchEnabled={ isInstantSearchEnabled }
-											isSavingEitherOption={ isSavingEitherOption }
-											isTogglingModule={ isTogglingModule }
-											isTogglingInstantSearch={ isTogglingInstantSearch }
-											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
-										/>
-									) }
-								</div>
-								<NoticesList
-									notices={ notices }
-									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-								/>
-							</>
+									</div>
+								) : (
+									<ModuleControl
+										siteAdminUrl={ siteAdminUrl }
+										updateOptions={ updateOptions }
+										domain={ domain }
+										isDisabledFromOverLimit={ isOverLimit }
+										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+										isReaderChatAvailable={ isReaderChatAvailable }
+										isReaderChatEnabled={ isReaderChatEnabled }
+										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+										supportsSearch={ supportsSearch }
+										supportsInstantSearch={ supportsInstantSearch }
+										isModuleEnabled={ isModuleEnabled }
+										isInstantSearchEnabled={ isInstantSearchEnabled }
+										isSavingEitherOption={ isSavingEitherOption }
+										isTogglingModule={ isTogglingModule }
+										isTogglingInstantSearch={ isTogglingInstantSearch }
+										readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+									/>
+								) }
+							</div>
 						) }
 					</Tabs.Panel>
 					<Tabs.Panel value="ai-answers">
@@ -231,7 +264,9 @@ export default function DashboardPage( { isLoading = false } ) {
 const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
-	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
+	const siteTitle =
+		useSelect( select => select( STORE_ID ).getSiteTitle() ) ||
+		__( 'your site', 'jetpack-search-pkg' );
 	// Plan Info data
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );

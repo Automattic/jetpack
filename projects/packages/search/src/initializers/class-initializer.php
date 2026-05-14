@@ -54,6 +54,13 @@ class Initializer {
 			return;
 		}
 
+		// Register the Search 3.0 Interactivity API blocks. Connection +
+		// plan are already guaranteed by the abort above; this call only
+		// layers the Phase 1 feature flag on top, mirroring how
+		// `init_search()` layers `is_instant_search_enabled` on top of
+		// the same upstream gate.
+		static::init_search_blocks();
+
 		$blog_id = Helper::get_wpcom_site_id();
 		if ( ! $blog_id ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
@@ -102,35 +109,44 @@ class Initializer {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
-		// Register the Interactivity API search blocks. These register
-		// server-side (block types, patterns, variations) regardless of
-		// connection/plan/module state so the blocks appear in the editor on
-		// any site that has the package loaded; runtime queries still require
-		// a connected site with a Search plan.
-		//
-		// Gated behind the `jetpack_search_blocks_enabled` filter, which
-		// defaults to false. This is the feature flag for Phase 1 of Search
-		// 3.0: the blocks, pattern, and shared Interactivity API store only
-		// register when a site has explicitly opted in.
+		( new AI_Answers() )->init();
+	}
+
+	/**
+	 * Register the Search 3.0 Interactivity API blocks on this request,
+	 * gated by the Phase 1 feature flag.
+	 *
+	 * Called from `init()` after the upstream connection + Search-plan
+	 * abort, so on entry the site is guaranteed to be connected and on a
+	 * plan that supports Search (paid plans or the free
+	 * `jetpack_search_free` product). The remaining gate is the
+	 * feature-flag opt-in.
+	 *
+	 * Sits before the blog_id and module-active checks because admins
+	 * should be able to configure Search blocks in the editor regardless
+	 * of which runtime experience is enabled — matching how Instant
+	 * Search layers its own opt-in on top of the same connection + plan
+	 * gate further down in `init_search()`.
+	 */
+	protected static function init_search_blocks() {
 		/**
 		 * Filter whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
 		 *
-		 * Returning true registers the blocks, the "Jetpack Search" block +
-		 * pattern categories, the "Blog Search Page" pattern, and seeds the
-		 * Interactivity API store on the front end. Default is false until
-		 * Search 3.0 ships.
+		 * Necessary but not sufficient on its own — registration also
+		 * requires the site to be connected and on a plan that supports
+		 * Search (paid plans or the free `jetpack_search_free` product).
 		 *
 		 * @param bool $enabled Default false.
 		 */
-		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
-			// Phase 1 ships without WooCommerce-only Search blocks. Sites
-			// that want them back hook the same filter at priority > 10
-			// so their callback runs after this default.
-			add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
-			Search_Blocks::init();
+		if ( ! apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
+			return;
 		}
 
-		( new AI_Answers() )->init();
+		// Phase 1 ships without WooCommerce-only Search blocks. Sites
+		// that want them back hook the same filter at priority > 10
+		// so their callback runs after this default.
+		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
+		Search_Blocks::init();
 	}
 
 	/**

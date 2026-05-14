@@ -5,6 +5,56 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.0] - 2026-05-13
+### Added
+- Exports: Add tags as an exportable field for contacts, companies, quotes, invoices, and transactions. [#48364]
+- Click 2 Call: Add `sip:` prefix. [#48656]
+- Permissions: Add new jpcrm_perms_manage_options() function. [#48384]
+- Storage: Add new `jpcrm_storage_dir_info` filter. [#48663]
+
+### Changed
+- Adjust header logo and spacing. [#47313] [#47425] [#47871]
+- Code Quality: Fix whitespace, indentation, and comment formatting throughout codebase. [#46809]
+- Improve PHP 8.5 compatibility. [#47743]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Listview: Add docs link when no objects are found. [#48653]
+- Settings: Update general settings section header. [#47790]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Tested up to WordPress 7.0. [#48114]
+- Update dependencies. [#47472]
+- Update package dependencies. [#46785] [#46854] [#46936] [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47496] [#47499] [#47505] [#47684] [#47799] [#47818] [#47890] [#47907] [#47998] [#48064] [#48106] [#48141] [#48683]
+
+### Removed
+- Remove experimental automations module. [#48422]
+- Remove unused legacy code. [#48384]
+
+### Fixed
+- API: Fix object and tag retrieval. [#48731]
+- Click 2 Call: Catch JavaScript error when creating links. [#48656]
+- Client Portal: Harden quote acceptance checks. [#47537]
+- Client Portal: Restrict various contact functions to admins. [#48358]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Dashboard: Fix week 53 appearing at end of dashboard contact chart when using weekly view. [#48344]
+- Ensure proper flags are used with `json_encode()`. [#47662]
+- Escape DOM-sourced values. [#47507]
+- File Uploads: Clean up upload logic. [#48360]
+- Fix a small bug causing the contact panel on the email view to show incorrect values. [#46451]
+- Fix double dash typo that was incorrectly converted into a comparison operator in DAL3 ObjectLayer. [#47518]
+- Fix JavaScript syntax error in list view caused by newline before PHP tag. [#47519]
+- Fix PHP warning when used with the new 'Modern' admin UI color scheme. [#47143]
+- Fix various PHP warnings. [#48727]
+- Improve sanitization and escaping of strings. [#48390]
+- Listview: Fix "Showing X of Y items" text. [#48396]
+- Listview: Fix Transactions Total column showing $0.00. [#46800]
+- Listview: Handle out-of-range page requests gracefully. [#48648]
+- Listview: Sanitize request params. [#47329]
+- Mail Delivery: Harden setting permissions. [#48359]
+- Remove redundant esc_html__() wrapper from export heading to prevent double escaping and ensure proper string rendering. [#45263]
+- Storage: Prevent PHP errors when storage dir is not writable. [#48663]
+- System Status: Update messaging when assets dir is not correctly configured. [#48725]
+- Use proper escaping functions on strings. [#48496]
+- WooSync: Skip tag insertion if there are no tags to insert. [#47806]
+
 ## [6.7.2] - 2026-02-03
 ### Changed
 - Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
@@ -3720,6 +3770,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.8.0]: https://github.com/Automattic/jetpack-crm/compare/6.7.2...6.8.0
 [6.7.2]: https://github.com/Automattic/jetpack-crm/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Automattic/jetpack-crm/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-crm/compare/6.6.1...6.7.0

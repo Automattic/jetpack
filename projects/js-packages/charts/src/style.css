@@ -1,0 +1,10 @@
+/*
+ * Placeholder for the `jetpack:src` arm of the `./style.css` package export.
+ *
+ * In-monorepo consumers resolving via source already pull each chart's
+ * `.module.scss` styles through the JS module graph, so no aggregated
+ * stylesheet is needed at this path.
+ *
+ * Published consumers resolve via the `default` condition, which points at
+ * the aggregated `./dist/index.css` produced by tsup.
+ */

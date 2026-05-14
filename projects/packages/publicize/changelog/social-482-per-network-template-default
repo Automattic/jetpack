@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Social: Default per-network customization to enabled only when a custom connection template exists.
+Social: Enable per-network customization by default when a custom connection template exists.

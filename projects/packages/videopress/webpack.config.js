@@ -15,6 +15,13 @@ module.exports = [
 			// VideoPress dashboard page
 			'admin/index': './src/client/admin/index.js',
 
+			// Page-level shell stylesheet for the modernized dashboard. CSS-only
+			// entry: emits build/dashboard-shell/index.css enqueued by
+			// class-admin-ui.php so every route inherits the admin-page-layout
+			// mixin (fixed #wpbody-content, scrollable middle, pinned footer)
+			// without each route having to invoke it itself.
+			'dashboard-shell/index': './src/dashboard/admin-shell.scss',
+
 			// Block editor extensions
 			'block-editor/index': './src/client/block-editor/index.ts',
 			// Divi editor extensions

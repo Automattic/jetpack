@@ -41,6 +41,7 @@ class Search_Blocks_Test extends TestCase {
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
+			'dateFormat',
 			'searchQuery',
 			'hasSearchParam',
 			'searchParamName',
@@ -58,6 +59,26 @@ class Search_Blocks_Test extends TestCase {
 		$state = Search_Blocks::build_initial_state();
 		foreach ( $required_keys as $key ) {
 			$this->assertArrayHasKey( $key, $state, "Missing key: $key" );
+		}
+	}
+
+	/**
+	 * The site's `date_format` Settings option flows into the seed so the JS
+	 * result card renders dates with the same layout as the rest of the site
+	 * (`F j, Y`, `Y-m-d`, etc.). Parsed client-side by `wp-date-format.js`.
+	 */
+	public function test_build_initial_state_seeds_site_date_format() {
+		$original = get_option( 'date_format' );
+		try {
+			update_option( 'date_format', 'Y-m-d' );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'Y-m-d', $state['dateFormat'] );
+		} finally {
+			if ( false === $original ) {
+				delete_option( 'date_format' );
+			} else {
+				update_option( 'date_format', $original );
+			}
 		}
 	}
 

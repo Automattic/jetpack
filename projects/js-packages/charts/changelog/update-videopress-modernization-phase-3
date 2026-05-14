@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build.

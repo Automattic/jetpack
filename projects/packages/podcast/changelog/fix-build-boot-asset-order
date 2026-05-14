@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Internal: run `build:boot-asset` as the first build step so the polyfill asset file is captured before parallel package builds (e.g. `packages/scan`'s recursive `build:deps`) re-clean `wp-build-polyfills`'s `build/` directory. Fixes a CI race in `Build all projects`.

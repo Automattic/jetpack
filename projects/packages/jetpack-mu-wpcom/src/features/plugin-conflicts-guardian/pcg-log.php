@@ -6,7 +6,7 @@
  */
 
 /**
- * Emit an event to the `plugin-conflicts-guardian` logstash bucket.
+ * Emit an event to the `atomic_plugin_conflicts_guardian` logstash bucket.
  *
  * Thin wrapper around `Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash()`
  * that pins the feature bucket and redacts ABSPATH/WP_CONTENT_DIR prefixes
@@ -18,7 +18,7 @@
  */
 function pcg_log_event( $message, array $extra ) {
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
-		'plugin-conflicts-guardian',
+		'atomic_plugin_conflicts_guardian',
 		$message,
 		pcg_log_redact_paths( $extra )
 	);
