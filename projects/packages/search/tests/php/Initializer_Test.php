@@ -117,7 +117,8 @@ class Initializer_Test extends Search_TestCase {
 	/**
 	 * Remove the hooks `Search_Blocks::init()` adds so they don't leak across
 	 * tests via the global `$wp_filter`. Mirrors every `add_action` /
-	 * `add_filter` in that method.
+	 * `add_filter` in that method, including the four hooks cascaded by
+	 * `Custom_Taxonomy_Slot_Mapping::init()`.
 	 */
 	private function remove_search_blocks_hooks(): void {
 		remove_action( 'init', array( Search_Blocks::class, 'register_blocks' ) );
@@ -125,5 +126,9 @@ class Initializer_Test extends Search_TestCase {
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'init', array( Custom_Taxonomy_Slot_Mapping::class, 'register_slot_taxonomies' ), 20 );
+		remove_action( 'set_object_terms', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_assignment' ) );
+		remove_action( 'deleted_term_relationships', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_removal' ) );
+		remove_action( 'delete_term', array( Custom_Taxonomy_Slot_Mapping::class, 'mirror_deletion' ) );
 	}
 }
