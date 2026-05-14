@@ -3,6 +3,11 @@ import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
+import {
+	generateDonationSessionId,
+	listenForCheckoutDismissal,
+	recordDonationsEvent,
+} from './tracking';
 import { checkAmountRange as checkRange } from './utils';
 
 import './view.scss';
@@ -11,6 +16,12 @@ const INTERVAL_TO_AMOUNT_CLASS = {
 	'one-time': 'donations__one-time-item',
 	'1 month': 'donations__monthly-item',
 	'1 year': 'donations__annual-item',
+};
+
+const INTERVAL_TO_FREQUENCY = {
+	'one-time': 'one_time',
+	'1 month': 'monthly',
+	'1 year': 'yearly',
 };
 
 class JetpackDonations {
@@ -24,15 +35,74 @@ class JetpackDonations {
 		this.minError = block.dataset.minError || '';
 		this.maxError = block.dataset.maxError || '';
 		this.stripeMinError = block.dataset.stripeMinError || '';
+		this.currency = block.dataset.currency || null;
+
+		this.donationSessionId = generateDonationSessionId();
+		this.ref = new URLSearchParams( window.location.search ).get( 'ref' ) || null;
 
 		// Initialize block.
 		this.initNavigation();
 		this.handleCustomAmount();
 		this.handleChosenAmount();
 		this.applyDefaultAmount( this.interval );
+		this.initTracking();
 
 		// Remove loading spinner.
 		this.block.querySelector( '.donations__container' ).classList.add( 'loaded' );
+	}
+
+	getFrequency() {
+		return INTERVAL_TO_FREQUENCY[ this.interval ] || this.interval;
+	}
+
+	getAmountValue() {
+		if ( this.amount === null || this.amount === undefined || this.amount === '' ) {
+			return null;
+		}
+		const parsed = parseFloat( this.amount );
+		return Number.isFinite( parsed ) ? parsed : null;
+	}
+
+	getCurrency() {
+		if ( this.currency ) {
+			return this.currency;
+		}
+		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
+		return input?.dataset?.currency || null;
+	}
+
+	getEventProps() {
+		return {
+			donation_session_id: this.donationSessionId,
+			amount_value: this.getAmountValue(),
+			currency: this.getCurrency(),
+			frequency: this.getFrequency(),
+			is_custom_amount: this.isCustomAmount,
+			ref: this.ref,
+		};
+	}
+
+	recordEvent( name, extra = {} ) {
+		recordDonationsEvent( name, { ...this.getEventProps(), ...extra } );
+	}
+
+	initTracking() {
+		this.recordEvent( 'jetpack_donations_form_viewed', {
+			default_frequency: this.getFrequency(),
+			has_min_amount: this.minAmount !== null,
+			has_max_amount: this.maxAmount !== null,
+		} );
+
+		listenForCheckoutDismissal( () => this.getEventProps() );
+
+		this.block.querySelectorAll( '.donations__donate-button' ).forEach( button => {
+			button.addEventListener( 'click', () => {
+				if ( button.getAttribute( 'aria-disabled' ) === 'true' ) {
+					return;
+				}
+				this.recordEvent( 'jetpack_donations_checkout_opened' );
+			} );
+		} );
 	}
 
 	applyDefaultAmount( interval, isUserInitiated = false ) {
@@ -142,6 +212,7 @@ class JetpackDonations {
 			} else {
 				this.clearRangeError();
 				this.toggleDonateButton( true );
+				this.recordEvent( 'jetpack_donations_amount_selected' );
 			}
 		} else {
 			wrapper.classList.add( 'has-error' );
@@ -280,6 +351,7 @@ class JetpackDonations {
 				} else {
 					this.clearRangeError();
 					this.toggleDonateButton( true );
+					this.recordEvent( 'jetpack_donations_amount_selected' );
 				}
 			} );
 		} );

@@ -250,7 +250,10 @@ function render_block( $attr, $content ) {
 	if ( isset( $attr['tabsAppearance'] ) && 'buttons' === $attr['tabsAppearance'] ) {
 		$instance_classes .= ' is-style-buttons';
 	}
-	$wrapper_attr_array = array( 'class' => $instance_classes );
+	$wrapper_attr_array = array(
+		'class'         => $instance_classes,
+		'data-currency' => $currency,
+	);
 	if ( $default_interval ) {
 		$wrapper_attr_array['data-default-interval'] = $default_interval;
 	}
