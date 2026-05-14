@@ -44,8 +44,31 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
+		// The Help_Center constructor registers hooks against $this. Without this,
+		// each test would leak duplicate callbacks into later tests in the session.
+		self::remove_help_center_hooks( $this->help_center );
+
+		// test_get_instance_returns_singleton_after_init may have populated the
+		// class-static singleton via init(); reset it so later tests start clean.
+		$singleton = Help_Center::get_instance();
+		if ( $singleton !== null ) {
+			self::remove_help_center_hooks( $singleton );
+			$property = new \ReflectionProperty( Help_Center::class, 'instance' );
+			$property->setAccessible( true );
+			$property->setValue( null, null );
+		}
+
 		wp_set_current_user( 0 );
 		parent::tear_down();
+	}
+
+	private static function remove_help_center_hooks( Help_Center $instance ): void {
+		remove_action( 'rest_api_init', array( $instance, 'register_rest_api' ) );
+		remove_filter( 'calypso_preferences_update', array( $instance, 'calypso_preferences_update' ) );
+		remove_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_wp_admin_scripts' ), 100 );
+		remove_action( 'wp_enqueue_scripts', array( $instance, 'enqueue_wp_admin_scripts' ), 100 );
+		remove_action( 'next_admin_init', array( $instance, 'enqueue_wp_admin_scripts' ), 1000 );
+		remove_filter( 'in_admin_header', array( $instance, 'jetpack_remove_core_help_tab' ) );
 	}
 
 	public function test_payload_has_stable_top_level_keys() {
