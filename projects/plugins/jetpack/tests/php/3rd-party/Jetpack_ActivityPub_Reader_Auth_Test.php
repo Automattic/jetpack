@@ -7,6 +7,7 @@
 
 declare( strict_types = 1 );
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -83,15 +84,20 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'id', 1234 );
 		\Jetpack_Options::update_option( 'blog_token', '1.0.test-blog-token' );
 		add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
 	 * Undo make_jetpack_appear_connected.
+	 *
+	 * Also resets the Connection_Manager's static memoization so a subsequent
+	 * is_connected() call recomputes against the freshly-cleared options.
 	 */
 	private static function clear_jetpack_connection_state(): void {
 		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::delete_option( 'blog_token' );
 		remove_filter( 'jetpack_offline_mode', '__return_false', 99 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -176,9 +182,9 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 			'followers GET not a target'               => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
 			'following GET not a target'               => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
 			'webfinger GET not a target'               => array( '/activitypub/1.0/webfinger', 'GET', false ),
-			'actor GET not a target'               => array( '/activitypub/1.0/actors/0', 'GET', false ),
-			'wp/v2 namespace ignored'              => array( '/wp/v2/posts', 'POST', false ),
-			'inbox under wrong namespace ignored'  => array( '/other/1.0/actors/0/inbox', 'GET', false ),
+			'actor GET not a target'                   => array( '/activitypub/1.0/actors/0', 'GET', false ),
+			'wp/v2 namespace ignored'                  => array( '/wp/v2/posts', 'POST', false ),
+			'inbox under wrong namespace ignored'      => array( '/other/1.0/actors/0/inbox', 'GET', false ),
 		);
 	}
 
@@ -368,7 +374,7 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * wpcom Simple sites are out of scope — they share the AP OAuth datastore
+	 * Wpcom Simple sites are out of scope — they share the AP OAuth datastore
 	 * directly and don't need the bridge. Setting the IS_WPCOM constant must
 	 * short-circuit even when every other predicate is satisfied.
 	 */
@@ -390,6 +396,7 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$this->fully_authorise();
 		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
 
 		$request = self::make_request( '/activitypub/1.0/actors/0/inbox', 'GET' );
 
