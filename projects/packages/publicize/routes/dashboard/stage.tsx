@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import SocialPage, { type SocialTab } from '../../_inc/components/social-page';
-import './route.scss';
 
 type StageSearch = Record< string, unknown > & {
 	tab?: string;
