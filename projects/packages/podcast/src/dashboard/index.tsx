@@ -83,6 +83,10 @@ const App = () => {
 		handleTabChange( 'settings' );
 	}, [ handleTabChange ] );
 
+	const handleAfterDisable = useCallback( () => {
+		setHasEnabled( false );
+	}, [] );
+
 	if ( isLoading ) {
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
@@ -128,7 +132,7 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--narrow">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<SettingsTab />
+								<SettingsTab onAfterDisable={ handleAfterDisable } />
 							</Suspense>
 						</ErrorBoundary>
 					</div>
