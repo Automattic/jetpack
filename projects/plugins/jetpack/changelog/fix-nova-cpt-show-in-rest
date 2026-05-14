@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: bugfix
 
 Nova Restaurant CPT: expose post type and taxonomies to the REST API so the Food Menus entry appears in the Calypso dashboard sidebar on Simple sites.
