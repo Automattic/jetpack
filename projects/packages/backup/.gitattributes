@@ -4,9 +4,6 @@
 # (see also entries in the monorepo root .gitattributes)
 types.d.ts       production-exclude
 /src/js/**       production-exclude
-babel.config.js  production-exclude
-webpack.config.js production-exclude
-tsconfig.json    production-exclude
 
 # Files needed in the production build.
 build/**         production-include

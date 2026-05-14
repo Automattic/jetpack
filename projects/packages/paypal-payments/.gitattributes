@@ -10,4 +10,3 @@ webpack.config.blocks.js production-exclude
 /src/block/*.js          production-exclude
 /src/block/*.scss                       production-exclude
 /src/paypal-payment-buttons/*.scss     production-exclude
-jest.config.js                         production-exclude

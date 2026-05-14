@@ -10,6 +10,3 @@
 _inc/*.scss       production-exclude
 _inc/*.jsx        production-exclude
 _inc/*.tsx        production-exclude
-webpack.config.js production-exclude
-.babelrc          production-exclude
-tsconfig.json     production-exclude

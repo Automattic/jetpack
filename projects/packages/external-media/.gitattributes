@@ -13,5 +13,3 @@ src/admin/*.js         production-exclude
 src/features/**/*.js   production-exclude
 src/shared/**/*.js     production-exclude
 src/**/*.ts            production-exclude
-webpack.config.js      production-exclude
-jest.config.js         production-exclude

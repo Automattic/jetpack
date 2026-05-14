@@ -8,5 +8,3 @@ src/build/**      production-include
 # Remember to end all directories with `/**` to properly tag every file.
 src/setting.js         production-exclude
 src/*.scss             production-exclude
-webpack.config.js      production-exclude
-babel.config.js        production-exclude

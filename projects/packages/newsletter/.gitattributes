@@ -10,5 +10,3 @@ src/**/*.scss     production-exclude
 src/**/*.tsx      production-exclude
 src/**/*.ts       production-exclude
 src/**/*.jsx      production-exclude
-.babelrc          production-exclude
-webpack.config.js production-exclude
