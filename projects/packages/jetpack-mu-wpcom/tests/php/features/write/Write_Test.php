@@ -632,4 +632,172 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( $original, $result );
 	}
+
+	// --- Unsupported content detection tests ---
+
+	/**
+	 * Test that empty content returns false (safe).
+	 */
+	public function test_detect_unsupported_empty_content() {
+		$this->assertFalse( wpcom_write_detect_unsupported_content( '' ) );
+	}
+
+	/**
+	 * Test that classic editor content (no block markers) returns 'classic-editor'.
+	 */
+	public function test_detect_unsupported_classic_content() {
+		$content = '<p>Hello world</p><p>This is a classic post.</p>';
+		$this->assertSame( 'classic-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that content with only supported blocks returns false.
+	 */
+	public function test_detect_unsupported_supported_blocks_only() {
+		$content = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->'
+			. '<!-- wp:heading {"level":2} --><h2>Title</h2><!-- /wp:heading -->'
+			. '<!-- wp:separator --><hr class="wp-block-separator"/><!-- /wp:separator -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported list with list-items returns false.
+	 */
+	public function test_detect_unsupported_list_blocks() {
+		$content = '<!-- wp:list --><ul><!-- wp:list-item --><li>Item</li><!-- /wp:list-item --></ul><!-- /wp:list -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported image block returns false.
+	 */
+	public function test_detect_unsupported_image_block() {
+		$content = '<!-- wp:image {"id":42} --><figure class="wp-block-image"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported quote block returns false.
+	 */
+	public function test_detect_unsupported_quote_block() {
+		$content = '<!-- wp:quote --><blockquote class="wp-block-quote"><p>A quote</p></blockquote><!-- /wp:quote -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a YouTube video embed returns false (supported).
+	 */
+	public function test_detect_unsupported_youtube_embed() {
+		$attrs   = '{"url":"https://www.youtube.com/watch?v=abc","type":"video","providerNameSlug":"youtube"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a Vimeo video embed returns false (supported).
+	 */
+	public function test_detect_unsupported_vimeo_embed() {
+		$attrs   = '{"url":"https://vimeo.com/123","type":"video","providerNameSlug":"vimeo"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an unsupported block type returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_gallery_block() {
+		$content = '<!-- wp:gallery {"ids":[1,2]} --><figure class="wp-block-gallery"></figure><!-- /wp:gallery -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a namespaced unsupported block returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_namespaced_block() {
+		$content = '<!-- wp:core/table --><table></table><!-- /wp:core/table -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a columns block returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_columns_block() {
+		$content = '<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"></div><!-- /wp:column --></div><!-- /wp:columns -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a non-video embed (e.g. Twitter) returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_twitter_embed() {
+		$attrs   = '{"url":"https://twitter.com/example/status/123","type":"rich","providerNameSlug":"twitter"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a non-video YouTube embed (e.g. playlist) returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_youtube_non_video_embed() {
+		$attrs   = '{"url":"https://www.youtube.com/playlist?list=abc","type":"rich","providerNameSlug":"youtube"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that textColor attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_text_color() {
+		$content = '<!-- wp:paragraph {"textColor":"vivid-red"} --><p class="has-vivid-red-color has-text-color">Red text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that backgroundColor attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_background_color() {
+		$content = '<!-- wp:paragraph {"backgroundColor":"pale-pink"} --><p class="has-pale-pink-background-color">Pink bg</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that fontSize attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_font_size() {
+		$content = '<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">Big text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that inline style typography returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_style_typography() {
+		$content = '<!-- wp:paragraph {"style":{"typography":{"fontSize":"22px"}}} --><p style="font-size:22px">Custom size</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that inline color classes return 'block-editor'.
+	 */
+	public function test_detect_unsupported_inline_color_class() {
+		$content = '<!-- wp:paragraph --><p>Some <span class="has-inline-color has-vivid-red-color">red</span> text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that has-text-color class returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_has_text_color_class() {
+		$content = '<!-- wp:paragraph --><p class="has-text-color has-vivid-red-color">Colored</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that mixed supported and unsupported blocks returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_mixed_content() {
+		$content = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->'
+			. '<!-- wp:gallery {"ids":[1,2]} --><figure class="wp-block-gallery"></figure><!-- /wp:gallery -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
 }

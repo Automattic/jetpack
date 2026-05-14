@@ -254,7 +254,7 @@ function wpcom_write_convert_video_embeds( $content ) {
  * they pass the allowlist check cleanly (no false warning).
  *
  * @param string $content Raw post_content (block markup).
- * @return string|false 'classic' or 'block-editor' indicating the warning
+ * @return string|false 'classic-editor' or 'block-editor' indicating the warning
  *                      type, or false when no warning is needed.
  */
 function wpcom_write_detect_unsupported_content( $content ) {
@@ -263,7 +263,7 @@ function wpcom_write_detect_unsupported_content( $content ) {
 	}
 
 	if ( ! has_blocks( $content ) ) {
-		return 'classic';
+		return 'classic-editor';
 	}
 
 	// --- Block content: allowlist check ---
@@ -369,7 +369,7 @@ function wpcom_write_render_admin_page() {
 		}
 	}
 
-	if ( 'classic' === $unsupported_type ) {
+	if ( 'classic-editor' === $unsupported_type ) {
 		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor' );
 	} elseif ( 'block-editor' === $unsupported_type ) {
 		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor__forget' );
