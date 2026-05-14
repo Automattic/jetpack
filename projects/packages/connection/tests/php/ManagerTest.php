@@ -1072,4 +1072,92 @@ class ManagerTest extends TestCase {
 		// Clean up
 		wp_delete_user( $user_id );
 	}
+
+	/**
+	 * `Manager::get_authorization_url()` should append a comma-separated
+	 * `plugins` query arg listing every plugin currently using the Jetpack
+	 * connection (sourced from `Plugin_Storage`). With no plugins seeded the
+	 * arg should be omitted entirely.
+	 *
+	 * The flow runs end-to-end: `Plugin::add()` -> `Plugin_Storage::upsert()` ->
+	 * `get_authorization_url()` -> `Plugin_Storage::get_all()`.
+	 */
+	public function test_get_authorization_url_includes_plugins_from_storage() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'authorize_url_test_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'authorize-url@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Sign role / secrets need a blog token + site id; fake both.
+		Jetpack_Options::update_option( 'id', 1 );
+		Jetpack_Options::update_option( 'blog_token', 'fake.blogtoken' );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token', 'sign_role' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn( (object) array( 'secret' => 'fake.secret' ) );
+		$tokens->method( 'sign_role' )->willReturn( 'administrator:signed' );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'has_connected_owner', 'get_assumed_site_creation_date' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'has_connected_owner' )->willReturn( true );
+		$manager->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
+
+		// No plugins seeded -> no `plugins` arg.
+		$this->reset_plugin_storage();
+
+		$url = $manager->get_authorization_url();
+		$this->assertStringNotContainsString( 'plugins=', $url );
+
+		// Seed two plugins -> URL should carry them as a single-encoded
+		// comma-separated list.
+		( new Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+
+		$url = $manager->get_authorization_url();
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $url );
+
+		// Cleanup.
+		$this->reset_plugin_storage();
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Reset `Plugin_Storage` to a clean, "post-`plugins_loaded`" state for
+	 * tests: `configured = true`, no cached plugins. Setting `configured`
+	 * to `false` here would make `Plugin_Storage::get_all()` hand back a
+	 * `WP_Error` object, which on PHP 8.5 trips the deprecated
+	 * `ArrayIterator::__construct()` object-backing notice once that error
+	 * object is iterated by the WP HTTP Requests library downstream.
+	 *
+	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * private static properties without `setAccessible(true)`.
+	 */
+	private function reset_plugin_storage() {
+		$reflection = new \ReflectionClass( Plugin_Storage::class );
+		try {
+			$reflection->setStaticPropertyValue( 'configured', true );
+			$reflection->setStaticPropertyValue( 'plugins', array() );
+		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+			$values = array(
+				'configured' => true,
+				'plugins'    => array(),
+			);
+			foreach ( $values as $name => $value ) {
+				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( null, $value );
+			}
+		}
+	}
 }

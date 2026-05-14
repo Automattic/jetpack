@@ -13,6 +13,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
@@ -196,6 +197,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+		$this->reset_plugin_storage();
 
 		// Clean up user meta and options
 		global $wpdb;
@@ -218,6 +220,34 @@ class REST_Endpoints_Test extends TestCase {
 			$manager = new \Automattic\Jetpack\Connection\Manager();
 		}
 		$manager->reset_connection_status();
+	}
+
+	/**
+	 * Reset the private static state of `Plugin_Storage` so tests that seed it
+	 * (or don't) start from a clean slate. We deliberately keep `configured`
+	 * set to `true` here: in production it flips to `true` once on
+	 * `plugins_loaded` and stays that way, and leaving it `false` would make
+	 * `Plugin_Storage::get_all()` return a `WP_Error` object that downstream
+	 * code (e.g. `Manager::register()` on PHP 8.5) feeds into the WP HTTP
+	 * Requests library, where iterating an object backing for `ArrayIterator`
+	 * is now deprecated and trips `failOnDeprecation` in PHPUnit.
+	 */
+	public function reset_plugin_storage() {
+		$reflection = new ReflectionClass( Connection_Plugin_Storage::class );
+		try {
+			$reflection->setStaticPropertyValue( 'configured', true );
+			$reflection->setStaticPropertyValue( 'plugins', array() );
+			$reflection->setStaticPropertyValue( 'current_blog_id', null );
+		} catch ( \ReflectionException $e ) { // PHP 7 compat fallback.
+			foreach ( array( 'configured', 'plugins', 'current_blog_id' ) as $name ) {
+				$prop = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$prop->setAccessible( true );
+				}
+				$prop->setValue( null, 'plugins' === $name ? array() : ( 'configured' === $name ? true : null ) );
+			}
+		}
 	}
 
 	/**
@@ -479,10 +509,15 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Testing the `connection/register` endpoint forwards the `from` param into
-	 * the authorize URL builder, and appends `plugins` as a query arg on the
-	 * returned authorize URL.
+	 * the authorize URL builder, and that the returned authorize URL includes
+	 * the comma-separated list of connection-using plugin slugs that
+	 * `Plugin_Storage` knows about.
 	 */
-	public function test_connection_register_forwards_from_and_plugins() {
+	public function test_connection_register_forwards_from_and_includes_plugins_from_storage() {
+		( new Connection_Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Connection_Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+		Connection_Plugin_Storage::configure();
+
 		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
@@ -492,7 +527,6 @@ class REST_Endpoints_Test extends TestCase {
 				array(
 					'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 					'from'               => 'jetpack-connector',
-					'plugins'            => 'jetpack,woocommerce',
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			)
@@ -505,12 +539,14 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
-		$this->assertStringContainsString( 'plugins=jetpack,woocommerce', $data['authorizeUrl'] );
+		// The comma in the slug list is URL-encoded once by `urlencode_deep` inside `get_authorization_url`.
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $data['authorizeUrl'] );
 	}
 
 	/**
-	 * Testing the `connection/register` endpoint without the new `from` /
-	 * `plugins` params — older callers should keep working unchanged.
+	 * Testing the `connection/register` endpoint without `from` and with no
+	 * connection-using plugins seeded in `Plugin_Storage` — neither query arg
+	 * should appear on the resulting authorize URL.
 	 */
 	public function test_connection_register_without_from_or_plugins() {
 		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
@@ -536,28 +572,28 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Testing the `connection/authorize_url` endpoint forwards `from` to the
-	 * underlying authorization URL builder and appends `plugins` as a query arg.
+	 * underlying authorization URL builder and that the URL includes the
+	 * comma-separated list of plugins from `Plugin_Storage`.
 	 */
-	public function test_connection_authorize_url_with_from_and_plugins() {
+	public function test_connection_authorize_url_with_from_and_includes_plugins_from_storage() {
+		( new Connection_Plugin( 'jetpack' ) )->add( 'Jetpack' );
+		( new Connection_Plugin( 'woocommerce' ) )->add( 'WooCommerce' );
+		Connection_Plugin_Storage::configure();
+
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
-		$request->set_query_params(
-			array(
-				'from'    => 'jetpack-connector',
-				'plugins' => 'jetpack,woocommerce',
-			)
-		);
+		$request->set_query_params( array( 'from' => 'jetpack-connector' ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
-		$this->assertStringContainsString( 'plugins=jetpack,woocommerce', $data['authorizeUrl'] );
+		$this->assertStringContainsString( 'plugins=jetpack%2Cwoocommerce', $data['authorizeUrl'] );
 	}
 
 	/**
-	 * Testing the `connection/authorize_url` endpoint without the new params —
-	 * older callers should not see `from` or `plugins` injected.
+	 * Testing the `connection/authorize_url` endpoint without `from` and with
+	 * no plugins seeded — neither query arg should be injected.
 	 */
 	public function test_connection_authorize_url_without_from_or_plugins() {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
