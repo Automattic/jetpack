@@ -25,6 +25,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// The upstream filter passes a third `$scope` arg; the shim deliberately
+// drops it (`accepted_args = 2`) because a Jetpack-signed admin grants full
+// client-to-server access by design.
 add_filter( 'activitypub_oauth_check_permission', 'jetpack_activitypub_reader_auth_check_permission', 10, 2 );
 
 /**
@@ -168,13 +171,17 @@ function jetpack_activitypub_reader_auth_is_target_route( $request ): bool {
 	$route  = (string) $request->get_route();
 	$method = strtoupper( (string) $request->get_method() );
 
+	// Patterns are pinned to the blog actor (user_id 0) on purpose: the wpcom
+	// Reader only operates on the blog actor, and granting the OAuth bypass
+	// for arbitrary user ids would silently widen the surface if the AP
+	// plugin ever loosened its downstream `verify_owner` check.
 	static $patterns = array(
 		'GET'  => array(
-			'#^/activitypub/\d+\.\d+/(?:users|actors)/-?\d+/inbox/?$#',
+			'#^/activitypub/\d+\.\d+/(?:users|actors)/0/inbox/?$#',
 		),
 		'POST' => array(
 			'#^/activitypub/\d+\.\d+/proxy/?$#',
-			'#^/activitypub/\d+\.\d+/(?:users|actors)/-?\d+/outbox/?$#',
+			'#^/activitypub/\d+\.\d+/(?:users|actors)/0/outbox/?$#',
 		),
 	);
 

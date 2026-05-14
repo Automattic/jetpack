@@ -56,6 +56,7 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$this->admin_id      = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$this->subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
+		\Automattic\Jetpack\Status\Cache::clear();
 		self::make_jetpack_appear_connected();
 	}
 
@@ -67,6 +68,7 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		delete_option( 'activitypub_actor_mode' );
 		self::clear_jetpack_connection_state();
 		self::clear_rest_authentication_state();
+		\Automattic\Jetpack\Status\Cache::clear();
 		parent::tear_down();
 	}
 
@@ -156,18 +158,24 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	 */
 	public static function target_route_provider(): array {
 		return array(
-			'inbox GET (actors)'                   => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
-			'inbox GET (users alias)'              => array( '/activitypub/1.0/users/0/inbox', 'GET', true ),
-			'inbox GET (negative user_id allowed)' => array( '/activitypub/1.0/actors/-1/inbox', 'GET', true ),
-			'proxy POST'                           => array( '/activitypub/1.0/proxy', 'POST', true ),
-			'outbox POST (actors)'                 => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
-			'outbox POST (users alias)'            => array( '/activitypub/1.0/users/0/outbox', 'POST', true ),
-			'inbox POST is wrong method'           => array( '/activitypub/1.0/actors/0/inbox', 'POST', false ),
-			'outbox GET is wrong method'           => array( '/activitypub/1.0/actors/0/outbox', 'GET', false ),
-			'proxy GET is wrong method'            => array( '/activitypub/1.0/proxy', 'GET', false ),
-			'followers GET not a target'           => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
-			'following GET not a target'           => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
-			'webfinger GET not a target'           => array( '/activitypub/1.0/webfinger', 'GET', false ),
+			'inbox GET (actors)'                       => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
+			'inbox GET (users alias)'                  => array( '/activitypub/1.0/users/0/inbox', 'GET', true ),
+			'inbox GET (trailing slash)'               => array( '/activitypub/1.0/actors/0/inbox/', 'GET', true ),
+			'proxy POST'                               => array( '/activitypub/1.0/proxy', 'POST', true ),
+			'proxy POST (trailing slash)'              => array( '/activitypub/1.0/proxy/', 'POST', true ),
+			'outbox POST (actors)'                     => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
+			'outbox POST (users alias)'                => array( '/activitypub/1.0/users/0/outbox', 'POST', true ),
+			'outbox POST (trailing slash)'             => array( '/activitypub/1.0/actors/0/outbox/', 'POST', true ),
+			'inbox POST is wrong method'               => array( '/activitypub/1.0/actors/0/inbox', 'POST', false ),
+			'outbox GET is wrong method'               => array( '/activitypub/1.0/actors/0/outbox', 'GET', false ),
+			'proxy GET is wrong method'                => array( '/activitypub/1.0/proxy', 'GET', false ),
+			'inbox GET (negative user_id rejected)'    => array( '/activitypub/1.0/actors/-1/inbox', 'GET', false ),
+			'inbox GET (non-blog user_id rejected)'    => array( '/activitypub/1.0/actors/1/inbox', 'GET', false ),
+			'outbox POST (non-blog user_id rejected)'  => array( '/activitypub/1.0/actors/42/outbox', 'POST', false ),
+			'inbox GET (non-numeric user_id rejected)' => array( '/activitypub/1.0/actors/abc/inbox', 'GET', false ),
+			'followers GET not a target'               => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
+			'following GET not a target'               => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
+			'webfinger GET not a target'               => array( '/activitypub/1.0/webfinger', 'GET', false ),
 			'actor GET not a target'               => array( '/activitypub/1.0/actors/0', 'GET', false ),
 			'wp/v2 namespace ignored'              => array( '/wp/v2/posts', 'POST', false ),
 			'inbox under wrong namespace ignored'  => array( '/other/1.0/actors/0/inbox', 'GET', false ),
@@ -264,6 +272,12 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$request = self::make_request( '/activitypub/1.0/proxy', 'POST' );
 
 		$this->assertNull( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
+
+		// A non-null prior result must also be preserved verbatim when an OAuth bearer is
+		// present: the shim must never substitute `true` over an existing decision.
+		$this->assertFalse( jetpack_activitypub_reader_auth_check_permission( false, $request ) );
+		$err = new WP_Error( 'oauth-denied' );
+		$this->assertSame( $err, jetpack_activitypub_reader_auth_check_permission( $err, $request ) );
 	}
 
 	/**
@@ -351,6 +365,22 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$this->assertNull( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true', 100 );
+	}
+
+	/**
+	 * wpcom Simple sites are out of scope — they share the AP OAuth datastore
+	 * directly and don't need the bridge. Setting the IS_WPCOM constant must
+	 * short-circuit even when every other predicate is satisfied.
+	 */
+	public function test_check_permission_null_on_wpcom_simple(): void {
+		$this->fully_authorise();
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		$request = self::make_request( '/activitypub/1.0/actors/0/inbox', 'GET' );
+
+		$this->assertNull( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
+
+		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 	}
 
 	/**
@@ -443,6 +473,20 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$this->assertSame(
 			10,
 			has_filter( 'activitypub_oauth_check_permission', 'jetpack_activitypub_reader_auth_check_permission' )
+		);
+	}
+
+	/**
+	 * Apply the filter end-to-end. Catches regressions in the filter wiring that the
+	 * direct function calls above miss — in particular, the `accepted_args = 2` setting
+	 * which is load-bearing (without it, `$request` is dropped and every request is denied).
+	 */
+	public function test_filter_grants_when_applied_end_to_end(): void {
+		$this->fully_authorise();
+		$request = self::make_request( '/activitypub/1.0/proxy', 'POST' );
+
+		$this->assertTrue(
+			apply_filters( 'activitypub_oauth_check_permission', null, $request, 'write' )
 		);
 	}
 
