@@ -1,0 +1,148 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.vp-library {
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+
+		// Flex-grow the single DataViews child inside this viewport so its
+		// pagination footer lands at the bottom. Targets `> *` rather than
+		// `.dataviews-wrapper` to avoid coupling to DataViews' internal class
+		// names — this viewport only ever wraps one DataViews instance.
+		> * {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img { height:
+	// auto }` reset (specificity 0,2,1) without referencing wp-build's class
+	// names. Our own class chain has specificity (0,3,0), which beats the
+	// reset and lets the img fill its parent in both grid (large) and table
+	// (32x32) cells.
+	&__viewport &__thumbnail &__thumbnail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	&__thumbnail {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #1e1e1e;
+		container-type: inline-size;
+
+		&-duration-badge {
+			position: absolute;
+			right: 8px;
+			bottom: 8px;
+			padding: 2px 6px;
+			border-radius: 2px;
+			background: rgba(0, 0, 0, 0.75);
+			color: #fff;
+			font-size: 11px;
+			font-variant-numeric: tabular-nums;
+			line-height: 1.4;
+
+			@container (max-width: 120px) {
+				display: none;
+			}
+		}
+	}
+
+	// Overlays — flex/centering live on the wp/ui Stack wrappers in JSX. The SCSS
+	// only owns position, background, and color so the visual treatment stays
+	// thumbnail-shaped (full overlay) while layout uses design-system primitives.
+	&__placeholder {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #1e1e1e;
+	}
+
+	&__hover-action {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 120ms ease-out;
+		background: rgba(240, 240, 240, 0.92);
+
+		.vp-library__thumbnail:hover &,
+		.vp-library__thumbnail:focus-within & {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
+	&__progress {
+		position: absolute;
+		inset: 0;
+		background: rgba(255, 255, 255, 0.92);
+		color: #1e1e1e;
+
+		&-percent {
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+
+		&-bar {
+			width: 70%;
+		}
+	}
+
+	&__failed {
+		position: absolute;
+		inset: 0;
+		background: rgba(204, 24, 24, 0.85);
+		color: #fff;
+	}
+
+	&__filename {
+		display: block;
+		color: #757575;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,
+	// and its cell wrapper uses `align-items: center` — so an img with a non-
+	// square intrinsic ratio collapses the wrapper to its content height (e.g.
+	// 32x18 for 16:9), leaving white space above/below. Lock the wrapper to the
+	// 32x32 slot. Suppress overlays; status info moves into the title cell as a
+	// pill (see `&__status-pill` below). Keyed off our own `&__viewport--table`
+	// modifier (set from `view.type` in stage.tsx) instead of DataViews'
+	// internal `.dataviews-view-table`, so we don't depend on
+	// @wordpress/dataviews' private class names.
+	&__viewport--table & {
+
+		&__thumbnail {
+			width: 32px;
+			height: 32px;
+		}
+
+		&__thumbnail-duration-badge,
+		&__placeholder,
+		&__hover-action,
+		&__progress,
+		&__failed {
+			display: none;
+		}
+	}
+
+	// Status info (Local / Uploading 47% / Upload failed) renders as a Badge
+	// alongside the title. Hide it in grid view — the per-card overlays already
+	// convey the same information more visibly. Targets the second child of the
+	// title-cell Stack so the title stays visible.
+	&__viewport--grid &__title-cell > :not(:first-child) {
+		display: none;
+	}
+}

@@ -2,9 +2,8 @@ import { renderMessagesCacheKey, type RenderItem } from '../../../utils/render-m
 import { getRenderedMessages, isLoadingRenderedMessages } from '../rendered-messages';
 import type { RenderedMessages, SocialStoreState } from '../../types';
 
-const item = ( id: string, message = '' ): RenderItem => ( {
-	id,
-	network: 'x',
+const item = ( connection_id: string, message = '' ): RenderItem => ( {
+	connection_id,
 	message,
 	is_social_post: false,
 } );
@@ -53,6 +52,28 @@ describe( 'getRenderedMessages', () => {
 		expect( getRenderedMessages( state, 42, itemsB )?.a.rendered_message ).toBe( 'rendered-B' );
 		// Reverting reads the original — no collision.
 		expect( getRenderedMessages( state, 42, itemsA )?.a.rendered_message ).toBe( 'rendered-A' );
+	} );
+
+	it( 'stores separate batches for different post intent values', () => {
+		const items = [ item( 'a', '{title}' ) ];
+
+		const state = stateWith( {
+			[ renderMessagesCacheKey( 42, items, { title: 'A' } ) ]: {
+				isLoading: false,
+				items: { a: { rendered_message: 'rendered-A' } },
+			},
+			[ renderMessagesCacheKey( 42, items, { title: 'B' } ) ]: {
+				isLoading: false,
+				items: { a: { rendered_message: 'rendered-B' } },
+			},
+		} );
+
+		expect( getRenderedMessages( state, 42, items, { title: 'A' } )?.a.rendered_message ).toBe(
+			'rendered-A'
+		);
+		expect( getRenderedMessages( state, 42, items, { title: 'B' } )?.a.rendered_message ).toBe(
+			'rendered-B'
+		);
 	} );
 } );
 

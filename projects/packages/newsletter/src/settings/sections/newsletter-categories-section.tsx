@@ -8,21 +8,11 @@ import {
 	getSiteType,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	Notice,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -35,6 +25,8 @@ interface NewsletterCategoriesSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -50,6 +42,7 @@ export function NewsletterCategoriesSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -57,14 +50,16 @@ export function NewsletterCategoriesSection( {
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
 
-	// Track section save
+	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'newsletter_categories',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -166,11 +161,11 @@ export function NewsletterCategoriesSection( {
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ createInterpolateElement(
@@ -185,11 +180,11 @@ export function NewsletterCategoriesSection( {
 					</Text>
 				</p>
 				{ categoriesError && (
-					<Notice status="error" isDismissible={ false }>
-						{ categoriesError }
-					</Notice>
+					<Notice.Root intent="error">
+						<Notice.Description>{ categoriesError }</Notice.Description>
+					</Notice.Root>
 				) }
-				<fieldset disabled={ ! isNewsletterEnabled || !! categoriesError }>
+				<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
 					<DataForm
 						data={ data }
 						fields={ newsletterCategoriesFields }
@@ -210,24 +205,24 @@ export function NewsletterCategoriesSection( {
 							</Link>
 						</p>
 					) }
-				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={
-						! isNewsletterEnabled ||
-						isSaving ||
-						! hasChanges ||
-						isFetchingCategories ||
-						( data.wpcom_newsletter_categories_enabled && ! isValid )
-					}
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				</Fieldset.Root>
+				<div className="newsletter-card-footer">
+					<Button
+						onClick={ handleSave }
+						disabled={
+							! isNewsletterEnabled ||
+							isSaving ||
+							! hasChanges ||
+							isFetchingCategories ||
+							( data.wpcom_newsletter_categories_enabled && ! isValid )
+						}
+						loading={ isSaving }
+						loadingAnnouncement={ savingText }
+					>
+						{ saveText }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }

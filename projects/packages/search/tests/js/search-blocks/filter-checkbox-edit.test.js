@@ -4,10 +4,15 @@
 // because subtle changes (e.g. dropping `previousTaxonomy` for Author) have
 // silently broken slug round-trips in the past.
 
+import { render, screen } from '@testing-library/react';
 import {
+	default as FilterCheckboxEdit,
 	deriveVariation,
+	normalizeDisplayStyle,
+	normalizeQueryType,
 	variationToAttributes,
 	variationDefaultLabel,
+	variationOptions,
 	VARIATION_CATEGORY,
 	VARIATION_POST_TAG,
 	VARIATION_POST_TYPE,
@@ -17,6 +22,116 @@ import {
 	VARIATION_PRODUCT_BRAND,
 	VARIATION_CUSTOM_TAXONOMY,
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
+
+jest.mock( '@wordpress/block-editor', () => ( {
+	useBlockProps: props => ( {
+		className: 'wp-block-jetpack-search-filter-checkbox',
+		...props,
+	} ),
+	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+} ) );
+
+let controlIdCounter = 0;
+const nextControlId = () => `mock-control-${ ++controlIdCounter }`;
+
+beforeEach( () => {
+	controlIdCounter = 0;
+} );
+
+jest.mock( '@wordpress/components', () => ( {
+	PanelBody: ( { children } ) => <div>{ children }</div>,
+	Placeholder: ( { children } ) => <div>{ children }</div>,
+	SelectControl: ( { label, value, options = [], onChange, help } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<select
+					id={ id }
+					value={ value || '' }
+					onChange={ event => onChange( event.target.value ) }
+				>
+					{ options.map( option => (
+						<option key={ option.value } value={ option.value } disabled={ !! option.disabled }>
+							{ option.label }
+						</option>
+					) ) }
+				</select>
+				{ help ? <p>{ help }</p> : null }
+			</>
+		);
+	},
+	RangeControl: ( { label, value, onChange, min = 0, max = 100 } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="range"
+					min={ min }
+					max={ max }
+					value={ value }
+					onChange={ event => onChange( Number( event.target.value ) ) }
+				/>
+			</>
+		);
+	},
+	TextControl: ( { label, value, onChange } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="text"
+					value={ value || '' }
+					onChange={ event => onChange( event.target.value ) }
+				/>
+			</>
+		);
+	},
+	ToggleControl: ( { label, checked, onChange } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ !! checked }
+					onChange={ event => onChange( event.target.checked ) }
+				/>
+			</>
+		);
+	},
+	// Minimal stub for the __experimentalToggleGroupControl family — renders
+	// label + children so existing preview snapshot tests run; the picker UX
+	// itself isn't exercised in this file.
+	__experimentalToggleGroupControl: ( { label, children } ) => (
+		<fieldset aria-label={ label }>
+			<legend>{ label }</legend>
+			{ children }
+		</fieldset>
+	),
+	__experimentalToggleGroupControlOption: ( { label, value } ) => (
+		<button type="button" data-value={ value }>
+			{ label }
+		</button>
+	),
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: jest.fn( () => null ),
+} ) );
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
+	sprintf: ( fmt, ...args ) => {
+		let i = 0;
+		return fmt.replace( /%s/g, () => args[ i++ ] );
+	},
+} ) );
 
 describe( 'deriveVariation', () => {
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
@@ -59,6 +174,44 @@ describe( 'deriveVariation', () => {
 	} );
 } );
 
+describe( 'variationOptions', () => {
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'lists all eight variations when WooCommerce is active', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
+		expect( variationOptions().map( o => o.value ) ).toEqual( [
+			VARIATION_CATEGORY,
+			VARIATION_POST_TAG,
+			VARIATION_POST_TYPE,
+			VARIATION_AUTHOR,
+			VARIATION_PRODUCT_CAT,
+			VARIATION_PRODUCT_TAG,
+			VARIATION_PRODUCT_BRAND,
+			VARIATION_CUSTOM_TAXONOMY,
+		] );
+	} );
+
+	it( 'drops the three product variations when WooCommerce is inactive', () => {
+		expect( variationOptions().map( o => o.value ) ).toEqual( [
+			VARIATION_CATEGORY,
+			VARIATION_POST_TAG,
+			VARIATION_POST_TYPE,
+			VARIATION_AUTHOR,
+			VARIATION_CUSTOM_TAXONOMY,
+		] );
+	} );
+
+	it( 'drops the three product variations when the gate is explicitly false', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
+		const values = variationOptions().map( o => o.value );
+		expect( values ).not.toContain( VARIATION_PRODUCT_CAT );
+		expect( values ).not.toContain( VARIATION_PRODUCT_TAG );
+		expect( values ).not.toContain( VARIATION_PRODUCT_BRAND );
+	} );
+} );
+
 describe( 'variationToAttributes', () => {
 	it( 'returns the canonical (filterType, taxonomy) pair for each built-in variation', () => {
 		expect( variationToAttributes( VARIATION_CATEGORY, '' ) ).toEqual( {
@@ -75,18 +228,32 @@ describe( 'variationToAttributes', () => {
 		// render.php ignores `taxonomy` when filterType isn't 'taxonomy', so
 		// keeping the slug here is purely UI state — but it lets the author
 		// flip Custom → Author → Custom without retyping `genre`.
+		// Author / Post Type also reset queryType to 'or' since AND is
+		// meaningless for single-valued filter types (see below test).
 		expect( variationToAttributes( VARIATION_POST_TYPE, 'genre' ) ).toEqual( {
 			filterType: 'post_type',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, 'genre' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: 'genre',
+			queryType: 'or',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: '',
+			queryType: 'or',
 		} );
+	} );
+
+	it( 'resets queryType to `or` when switching to Author / Post Type so a stale AND from the prior taxonomy doesn’t persist', () => {
+		// Without this reset, setting Logic = All on Category, switching to
+		// Post Type (which hides the Logic toggle), then back to Category,
+		// would re-surface the toggle pre-set to All. The toggle visibility
+		// gate alone isn't enough — the saved attribute travels with the block.
+		expect( variationToAttributes( VARIATION_POST_TYPE, '' ).queryType ).toBe( 'or' );
+		expect( variationToAttributes( VARIATION_AUTHOR, '' ).queryType ).toBe( 'or' );
 	} );
 
 	it( 'pins the slug for the three product variations', () => {
@@ -193,5 +360,218 @@ describe( 'variationDefaultLabel', () => {
 	it( 'returns empty string for custom taxonomies so the caller falls back to the generic placeholder', () => {
 		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toBe( '' );
 		expect( variationDefaultLabel( {} ) ).toBe( '' );
+	} );
+} );
+
+describe( 'normalizeDisplayStyle', () => {
+	it( 'defaults to checkbox-list for missing or unknown values', () => {
+		expect( normalizeDisplayStyle() ).toBe( 'checkbox-list' );
+		expect( normalizeDisplayStyle( 'bogus' ) ).toBe( 'checkbox-list' );
+		expect( normalizeDisplayStyle( 'checkbox-list' ) ).toBe( 'checkbox-list' );
+	} );
+
+	it( 'accepts chips', () => {
+		expect( normalizeDisplayStyle( 'chips' ) ).toBe( 'chips' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
+	const useSelectMock = jest.requireMock( '@wordpress/data' ).useSelect;
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+		useSelectMock.mockReset();
+		useSelectMock.mockImplementation( () => null );
+	} );
+
+	const taxonomyEntities = [
+		{ slug: 'genre', name: 'Genre', visibility: { public: true } },
+		{ slug: 'mood', name: 'Mood', visibility: { public: true } },
+		{ slug: 'private-thing', name: 'Private Thing', visibility: { public: true } },
+	];
+
+	it( 'restricts the picker to taxonomies present in supportedCustomTaxonomies', () => {
+		// The picker used to list every public taxonomy from core-data, but
+		// Jetpack Search only indexes a curated set — non-indexed taxonomies
+		// would build a filter that silently returns zero buckets. The new
+		// whitelist (server-derived from the index allowlist + map keys)
+		// drops `private-thing` because it's not in either set.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Private Thing' );
+	} );
+
+	it( 'appends "(mapped)" to taxonomies routed through a reserved slot', () => {
+		// The map's user-facing keys still surface in the picker, but with
+		// a label suffix so authors know the filter routes through a
+		// `jetpack-search-tagN` slot rather than the taxonomy itself.
+		// `mood` is supported via the native allowlist, `genre` only via
+		// the map — both appear; only `genre` gets the suffix.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: { genre: 'jetpack-search-tag1' },
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre (mapped)' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Genre' );
+	} );
+
+	it( 'shows the empty-state help text when no supported taxonomies exist on the site', () => {
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => [] );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( /jetpack_search_custom_taxonomy_map/ ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'normalizeQueryType', () => {
+	it( 'defaults to `or` for missing or unknown values', () => {
+		expect( normalizeQueryType() ).toBe( 'or' );
+		expect( normalizeQueryType( null ) ).toBe( 'or' );
+		expect( normalizeQueryType( '' ) ).toBe( 'or' );
+		expect( normalizeQueryType( 'banana' ) ).toBe( 'or' );
+	} );
+
+	it( 'accepts the literal `and`', () => {
+		expect( normalizeQueryType( 'and' ) ).toBe( 'and' );
+	} );
+
+	it( 'accepts the literal `or` (idempotent)', () => {
+		expect( normalizeQueryType( 'or' ) ).toBe( 'or' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit Logic toggle', () => {
+	it( 'renders the Any/All toggle when filterType is taxonomy', () => {
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'category',
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+		// The ToggleGroupControl mock renders a fieldset with the label as
+		// aria-label and a <legend>. Look for the legend text since fieldsets
+		// don't expose a role.
+		expect( screen.getByText( 'Logic' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Any' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'All' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the Logic toggle for post_type filters', () => {
+		// post_type / author are single-valued per document, so "All" with
+		// 2+ selections is guaranteed empty. The inspector hides the option
+		// rather than serving an obvious footgun.
+		render(
+			<FilterCheckboxEdit attributes={ { filterType: 'post_type' } } setAttributes={ jest.fn() } />
+		);
+		expect( screen.queryByText( 'Logic' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the Logic toggle for author filters', () => {
+		render(
+			<FilterCheckboxEdit attributes={ { filterType: 'author' } } setAttributes={ jest.fn() } />
+		);
+		expect( screen.queryByText( 'Logic' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'FilterCheckboxEdit display style preview', () => {
+	it( 'renders the chip-mode preview DOM shape', () => {
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'category',
+					displayStyle: 'chips',
+					showCount: true,
+					maxItems: 2,
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getAllByRole( 'listitem' ) ).toMatchInlineSnapshot( `
+			[
+			  <li
+			    class="jetpack-search-filter__item"
+			  >
+			    <label>
+			      <input
+			        disabled=""
+			        type="checkbox"
+			      />
+			      <span
+			        class="jetpack-search-filter__label"
+			      >
+			        First option
+			      </span>
+			      <span
+			        class="jetpack-search-filter__count"
+			      >
+			        24
+			      </span>
+			    </label>
+			  </li>,
+			  <li
+			    class="jetpack-search-filter__item"
+			  >
+			    <label>
+			      <input
+			        disabled=""
+			        type="checkbox"
+			      />
+			      <span
+			        class="jetpack-search-filter__label"
+			      >
+			        Second option
+			      </span>
+			      <span
+			        class="jetpack-search-filter__count"
+			      >
+			        12
+			      </span>
+			    </label>
+			  </li>,
+			]
+		` );
 	} );
 } );

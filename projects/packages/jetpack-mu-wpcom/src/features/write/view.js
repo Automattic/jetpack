@@ -8,7 +8,7 @@
 /* eslint-disable @wordpress/no-global-get-selection -- Write serves a full page, not an iframe or shadow DOM. */
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
-import { store, getElement, getContext } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -17,6 +17,7 @@ const i18n = window.wpcomWriteStrings || {};
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 
 // Autosave state — tracked outside the store to avoid triggering reactivity.
 let lastSavedSnapshot = { title: '', content: '' };
@@ -229,6 +230,27 @@ function clearHighlight() {
 	if ( CSS.highlights ) {
 		CSS.highlights.delete( 'bw-link-highlight' );
 	}
+}
+
+/**
+ * Apply a link to the current selection. When the selection is collapsed
+ * (no text selected), insert the URL as visible text first so the link
+ * is created consistently across browsers — Firefox's createLink is a
+ * no-op on collapsed selections, while Chrome inserts the URL as text.
+ *
+ * @param {string} url - The URL to link to.
+ */
+function createLinkFromUrl( url ) {
+	const sel = window.getSelection();
+	if ( sel.isCollapsed ) {
+		// Insert the URL as text, then select it so createLink can wrap it.
+		document.execCommand( 'insertText', false, url );
+		const r = sel.getRangeAt( 0 );
+		r.setStart( r.startContainer, r.startOffset - url.length );
+		sel.removeAllRanges();
+		sel.addRange( r );
+	}
+	document.execCommand( 'createLink', false, url );
 }
 
 /**
@@ -1665,6 +1687,31 @@ function insertMediaBlock( mediaEl ) {
 	return p;
 }
 
+// --- Inline category meta helpers ---
+
+/**
+ * Recompute state.catLabel from the currently selected categories.
+ * Uses the translatable "Writing in %s" format string from i18n.
+ */
+function updateCatLabel() {
+	const selected = state.categories.filter( c => c.selected );
+	const names = selected.map( c => c.name ).join( ', ' );
+	const fmt = i18n.writingIn || 'Writing in %s';
+	state.catLabel = names ? fmt.replace( '%s', names ) : '';
+}
+
+/**
+ * Sync the visual selected state of each dropdown item with state.categories.
+ */
+function syncCatDropdownItems() {
+	document.querySelectorAll( '#bw-cat-dropdown .bw-meta-dropdown-item' ).forEach( item => {
+		const idx = parseInt( item.dataset.catIndex, 10 );
+		const selected = !! state.categories[ idx ]?.selected;
+		item.classList.toggle( 'bw-meta-dropdown-item--selected', selected );
+		item.setAttribute( 'aria-selected', selected ? 'true' : 'false' );
+	} );
+}
+
 const { state } = store( 'wpcom-write', {
 	state: {
 		formatBold: false,
@@ -1673,6 +1720,12 @@ const { state } = store( 'wpcom-write', {
 		formatQuote: false,
 		imageUrl: '',
 		headingLabel: i18n.normal || 'Normal',
+		get headerLabel() {
+			return state.title.trim() || i18n.untitled || 'Untitled';
+		},
+		get displayStatus() {
+			return state.message || state.headerLabel;
+		},
 	},
 
 	actions: {
@@ -2600,7 +2653,7 @@ const { state } = store( 'wpcom-write', {
 				clearHighlight();
 				restoreSelection();
 				if ( state.linkUrl ) {
-					document.execCommand( 'createLink', false, state.linkUrl );
+					createLinkFromUrl( state.linkUrl );
 				}
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
@@ -2628,7 +2681,7 @@ const { state } = store( 'wpcom-write', {
 			clearHighlight();
 			restoreSelection();
 			if ( state.linkUrl ) {
-				document.execCommand( 'createLink', false, state.linkUrl );
+				createLinkFromUrl( state.linkUrl );
 			}
 			state.showLinkInput = false;
 			if ( linkPopoverCloseHandler ) {
@@ -2710,6 +2763,19 @@ const { state } = store( 'wpcom-write', {
 					event.preventDefault();
 					first.focus();
 				}
+			}
+		},
+
+		// Close whichever media modal is open, but only when the pointerdown
+		// lands directly on the overlay backdrop — not when it starts inside
+		// the modal (e.g. while selecting text in an input) and drags out.
+		handleOverlayPointerDown( event ) {
+			if ( event.button !== 0 || event.target !== event.currentTarget ) return;
+			const { actions: a } = store( 'wpcom-write' );
+			if ( state.showImageModal ) {
+				a.closeImageModal();
+			} else if ( state.showVideoModal ) {
+				a.closeVideoModal();
 			}
 		},
 
@@ -2978,39 +3044,70 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
-		toggleCatPicker( event ) {
-			event.stopPropagation();
-			state.showCatPicker = ! state.showCatPicker;
+		// --- Inline category meta ---
 
-			if ( state.showCatPicker ) {
-				const close = e => {
-					if ( e.target.closest( '.bw-cat-popover' ) || e.target.closest( '.bw-cat-fab' ) ) return;
-					state.showCatPicker = false;
-					document.removeEventListener( 'click', close );
-				};
-				// Delay so the current click doesn't immediately close it.
-				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+		toggleCatDropdown( event ) {
+			event.stopPropagation();
+			state.showCatDropdown = ! state.showCatDropdown;
+			if ( state.showCatDropdown ) {
+				syncCatDropdownItems();
 			}
 		},
 
-		handleCatKeyDown( event ) {
-			if ( event.key === 'Escape' ) {
+		handleCatBtnKeyDown( event ) {
+			if ( event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
-				state.showCatPicker = false;
-				event.currentTarget.querySelector( '.bw-cat-fab' )?.focus();
+				if ( ! state.showCatDropdown ) {
+					state.showCatDropdown = true;
+					syncCatDropdownItems();
+				}
+				// Focus first item once the dropdown is visible.
+				requestAnimationFrame( () => {
+					const first = document.querySelector( '#bw-cat-dropdown .bw-meta-dropdown-item' );
+					if ( first ) first.focus();
+				} );
+			} else if ( event.key === 'Escape' ) {
+				state.showCatDropdown = false;
+			}
+		},
+
+		handleCatDropdownKeyDown( event ) {
+			const dropdown = event.currentTarget;
+			const focused = dropdown.ownerDocument.activeElement;
+			const items = [ ...dropdown.querySelectorAll( '.bw-meta-dropdown-item' ) ];
+
+			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				const idx = items.indexOf( focused );
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				items[ ( idx + delta + items.length ) % items.length ]?.focus();
+			} else if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				focused.click();
+			} else if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showCatDropdown = false;
+				document.querySelector( '.bw-meta-cat-btn' )?.focus();
 			}
 		},
 
 		handleCatFocusOut( event ) {
 			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
-				state.showCatPicker = false;
+				state.showCatDropdown = false;
 			}
 		},
 
-		toggleCategory() {
-			const ctx = getContext();
-			ctx.catSelected = ! ctx.catSelected;
-			state.categories[ ctx.catIndex ].selected = ctx.catSelected;
+		handleCatDropdownClick( event ) {
+			const item = event.target.closest( '.bw-meta-dropdown-item' );
+			if ( ! item ) {
+				return;
+			}
+			const idx = parseInt( item.dataset.catIndex, 10 );
+			if ( ! isNaN( idx ) && state.categories[ idx ] ) {
+				state.categories[ idx ].selected = ! state.categories[ idx ].selected;
+				syncCatDropdownItems();
+				updateCatLabel();
+			}
 		},
 
 		async publish() {
@@ -3058,6 +3155,11 @@ const { state } = store( 'wpcom-write', {
 		dismissRecovery() {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			state.showRecoveryBanner = false;
+		},
+
+		dismissDisclaimer() {
+			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
+			state.showDisclaimer = false;
 		},
 	},
 } );
@@ -3158,10 +3260,38 @@ async function savePost( postStatus, isAutosave = false ) {
 	// the submitted content, not whatever the DOM contains when the request resolves.
 	const submittedSnapshot = getContentSnapshot();
 
+	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
+	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	const tagNames = [];
+	clone.querySelectorAll( ':scope > p' ).forEach( p => {
+		const text = p.textContent.trim();
+		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
+			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+			p.remove();
+		}
+	} );
+
 	const blockMarkup = convertToBlocks( clone.innerHTML );
 
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
+
+	// Resolve extracted tag names to WP term IDs only when #tag paragraphs are present.
+	// When present, merge with existing tag IDs so tags set outside the Write editor survive.
+	// Omitting `tags` entirely when no #tag lines exist preserves existing tags without fetching.
+	// WordPress returns a term_exists error (with the existing ID) for duplicates.
+	const tagData = {};
+	if ( tagNames.length ) {
+		const newTagIds = await Promise.all(
+			tagNames.map( name =>
+				window.wp
+					.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
+					.then( tag => tag.id )
+					.catch( err => err?.data?.term_id ?? null )
+			)
+		).then( ids => ids.filter( Boolean ) );
+		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
+	}
 
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
@@ -3175,6 +3305,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				content: blockMarkup,
 				status: postStatus,
 				categories: selectedCats,
+				...tagData,
 				featured_media: state.featuredMediaId || 0,
 			},
 		} );
@@ -3182,6 +3313,11 @@ async function savePost( postStatus, isAutosave = false ) {
 		// Store the post ID so subsequent saves update the same post.
 		if ( ! isEditing ) {
 			state.editPostId = post.id;
+		}
+
+		// Keep existingTagIds in sync so the next save in this session merges correctly.
+		if ( tagData.tags ) {
+			state.existingTagIds = tagData.tags;
 		}
 
 		// Mark only the submitted content as saved — if the user typed
@@ -3203,6 +3339,10 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
+				// Hide the page before navigating so the bfcache snapshot
+				// stores it hidden — prevents a flash of stale content if
+				// the user later presses Back.
+				document.documentElement.style.visibility = 'hidden';
 				window.location.href = post.link;
 			}, 800 );
 		} else {
@@ -3251,6 +3391,11 @@ const autosaveReady = setInterval( () => {
 		actions.autosave();
 	}, AUTOSAVE_INTERVAL_MS );
 
+	// Show the beta disclaimer unless previously dismissed.
+	if ( ! localStorage.getItem( DISCLAIMER_STORAGE_KEY ) ) {
+		state.showDisclaimer = true;
+	}
+
 	// Check for a recoverable autosaved draft (only for new posts).
 	if ( ! state.editPostId ) {
 		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
@@ -3270,6 +3415,16 @@ const autosaveReady = setInterval( () => {
 window.addEventListener( 'beforeunload', event => {
 	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
 		event.preventDefault();
+	}
+} );
+
+// If the page is restored from bfcache after a publish, redirect to a
+// fresh editor.  On publish the isSaving flag is intentionally left true
+// (buttons stay disabled while the redirect fires), so a bfcache restore
+// would strand the user on a "done" page with grayed-out buttons.
+window.addEventListener( 'pageshow', event => {
+	if ( event.persisted && state.isPublished ) {
+		window.location.replace( state.writeUrl );
 	}
 } );
 

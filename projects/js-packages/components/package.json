@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.10.0",
+	"version": "1.11.1",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -27,6 +27,11 @@
 			"jetpack:src": "./components/admin-page/index.tsx",
 			"types": "./build/components/admin-page/index.d.ts",
 			"default": "./build/components/admin-page/index.js"
+		},
+		"./global-notices": {
+			"jetpack:src": "./components/global-notices/index.ts",
+			"types": "./build/components/global-notices/index.d.ts",
+			"default": "./build/components/global-notices/index.js"
 		},
 		"./gravatar": {
 			"jetpack:src": "./components/gravatar/index.tsx",
@@ -95,8 +100,8 @@
 		"@babel/core": "7.29.0",
 		"@babel/preset-react": "7.28.5",
 		"@jest/globals": "30.3.0",
-		"@storybook/addon-docs": "10.3.5",
-		"@storybook/react": "10.3.5",
+		"@storybook/addon-docs": "10.3.6",
+		"@storybook/react": "10.3.6",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
@@ -109,7 +114,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",
-		"storybook": "10.3.5",
+		"storybook": "10.3.6",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.9.3",
 		"webpack": "5.105.2",

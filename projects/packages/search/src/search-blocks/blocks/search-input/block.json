@@ -5,8 +5,7 @@
 	"version": "0.1.0",
 	"title": "Search Input",
 	"category": "jetpack-search",
-	"icon": "search",
-	"description": "Text input that drives Jetpack Search results.",
+	"description": "Text input for the search query. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
 		"interactivity": true

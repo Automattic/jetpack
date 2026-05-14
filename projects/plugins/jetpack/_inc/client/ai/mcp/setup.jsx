@@ -162,7 +162,7 @@ export default function McpSetup() {
 											'jetpack'
 										) }
 									</Text>
-									<ol className="jetpack-ai-mcp-setup__steps">
+									<ul className="jetpack-ai-mcp-setup__steps">
 										<li>
 											<Text as="p" variant="muted">
 												{ createInterpolateElement(
@@ -206,7 +206,7 @@ export default function McpSetup() {
 												) }
 											</Text>
 										</li>
-									</ol>
+									</ul>
 								</Stack>
 							) }
 

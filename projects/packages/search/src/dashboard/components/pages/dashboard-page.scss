@@ -92,3 +92,31 @@
 		margin-bottom: 0;
 	}
 }
+
+.jp-search-reader-chat-card {
+	margin-block-start: var(--wpds-dimension-padding-3xl);
+	padding: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-bg-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+
+	// ReaderChatControl is shared with the legacy ModuleControl, which
+	// gives `.jp-form-search-settings-group__toggle.is-reader-chat` a 4em
+	// top margin to separate it from the toggles above. Inside this card
+	// it's the only child, so reset that spacing — the card's own padding
+	// handles the gap.
+	.jp-form-search-settings-group__toggle.is-reader-chat {
+		margin-top: 0;
+	}
+
+	// `.jp-search-dashboard-row` carries responsive horizontal margins
+	// (16/18/24px) plus a `calc(100% - …)` width that together inset its
+	// content from the dashboard edges. Inside the card we already have
+	// the card's own padding, so neutralise the row's inset to let the
+	// toggle and description sit flush with the card's content box.
+	.jp-search-dashboard-row {
+		width: 100%;
+		max-width: none;
+		margin-inline: 0;
+	}
+}

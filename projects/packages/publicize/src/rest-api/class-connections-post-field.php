@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Base;
 use WP_Error;
 use WP_Post;
@@ -231,6 +232,8 @@ class Connections_Post_Field {
 			$connection_overrides  = array();
 		}
 
+		$message_templates_enabled = Current_Plan::supports( 'social-message-templates' );
+
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
@@ -238,6 +241,11 @@ class Connections_Post_Field {
 				if ( isset( $connection[ $property ] ) ) {
 					$output_connection[ $property ] = $connection[ $property ];
 				}
+			}
+
+			// Default `message` to the connection's own template when set
+			if ( $message_templates_enabled && ! empty( $output_connection['template'] ) ) {
+				$output_connection['message'] = $output_connection['template'];
 			}
 
 			// Merge per-connection overrides if global flag is enabled.

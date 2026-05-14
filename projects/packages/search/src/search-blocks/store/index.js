@@ -6,7 +6,7 @@ import {
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
 import { isEventInsidePopoverRoot } from './popover-events';
-import { countActiveFilters, normalizeResult } from './result-utils';
+import { countActiveFilters, normalizeResult, setSeededDateFormat } from './result-utils';
 import {
 	focusSortTrigger,
 	getSortMenuOptionKeysFromItem,
@@ -53,6 +53,104 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 		gated[ key ] = values;
 	}
 	return { gated, droppedAny };
+}
+
+/**
+ * Drop filterLogic entries whose filter key is missing from `activeFilters`,
+ * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
+ * cleanup `setFilter()` performs locally; called from popstate and at
+ * hydration where the URL parse is the source of truth and the
+ * taxonomy-only gate (server-side `Filter_Checkbox::normalize_query_type`)
+ * may not have run yet — because PHP `parse_url_filter_logic` runs before
+ * any block has registered its config, so it can't know which keys are
+ * taxonomy filters.
+ *
+ * @param {object} filterLogic     - { [filterKey]: 'or' | 'and' }.
+ * @param {object} activeFilters   - { [filterKey]: string[] }.
+ * @param {object} [filterConfigs] - { [filterKey]: FilterConfig } when available; passing
+ *                                 this enables the taxonomy gate.
+ * @return {object} Gated logic map.
+ */
+export function pickLogicForActive( filterLogic, activeFilters, filterConfigs = null ) {
+	const out = {};
+	for ( const [ key, value ] of Object.entries( filterLogic ?? {} ) ) {
+		if ( ( activeFilters?.[ key ]?.length ?? 0 ) === 0 ) {
+			continue;
+		}
+		if ( filterConfigs && filterConfigs[ key ]?.filterType !== 'taxonomy' ) {
+			continue;
+		}
+		out[ key ] = value;
+	}
+	return out;
+}
+
+/**
+ * Overlay per-filter AND/OR overrides onto each filterConfig's `queryType`.
+ * The override map (`filterLogic`) is its own state slice — kept separate so
+ * a deep-link `?query_type_category=and` survives even if the user toggles
+ * the block attribute in a future edit. Returns the original map untouched
+ * when no overrides apply, to avoid spurious referential changes that would
+ * defeat downstream identity checks.
+ *
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
+ * @param {object} filterLogic   - { [filterKey]: 'or' | 'and' } overrides.
+ * @return {object} Effective filterConfigs.
+ */
+export function overlayFilterLogic( filterConfigs, filterLogic ) {
+	if ( ! filterConfigs || ! filterLogic || Object.keys( filterLogic ).length === 0 ) {
+		return filterConfigs;
+	}
+	let dirty = false;
+	const overlaid = {};
+	for ( const [ key, config ] of Object.entries( filterConfigs ) ) {
+		const override = filterLogic[ key ];
+		if ( override && override !== config?.queryType ) {
+			overlaid[ key ] = { ...config, queryType: override };
+			dirty = true;
+		} else {
+			overlaid[ key ] = config;
+		}
+	}
+	return dirty ? overlaid : filterConfigs;
+}
+
+/**
+ * Reverse the slot-keyed aggregation response back onto user-facing filter
+ * keys. The API request keys mapped custom taxonomies under the slot slug
+ * (e.g. `jetpack-search-tag1`) because the WPCOM search proxy validates
+ * aggregation names against indexable taxonomies — see
+ * `aggregationKeyFor` in `store/api.js`. Downstream readers all key off
+ * `filterKey` (`genre`), so we flip back here, once, before the response
+ * hits store state.
+ *
+ * Built-in and unmapped taxonomies pass through untouched: their
+ * `effectiveSlug` equals their `filterKey`, so there's nothing to swap.
+ *
+ * @param {object} aggregations  - Raw `data.aggregations` from the API.
+ * @param {object} filterConfigs - Registered filter configs.
+ * @return {object} Aggregations keyed by user-facing `filterKey`.
+ */
+export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
+	if ( ! aggregations || typeof aggregations !== 'object' ) {
+		return {};
+	}
+	const slotToFilterKey = {};
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		const slug = config?.effectiveSlug;
+		if ( slug && config?.taxonomy && slug !== config.taxonomy ) {
+			slotToFilterKey[ slug ] = filterKey;
+		}
+	}
+	if ( Object.keys( slotToFilterKey ).length === 0 ) {
+		return aggregations;
+	}
+	const remapped = {};
+	for ( const [ key, value ] of Object.entries( aggregations ) ) {
+		const target = slotToFilterKey[ key ] ?? key;
+		remapped[ target ] = value;
+	}
+	return remapped;
 }
 
 /**
@@ -353,7 +451,12 @@ function* fetchResults( pageHandle ) {
 		apiRoot: state.apiRoot,
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
-		filterConfigs: state.filterConfigs,
+		// Overlay per-filter `filterLogic` overrides onto each filterConfig's
+		// `queryType` before handing to the URL builder. The override lives
+		// separately in store state so it survives across navigations even
+		// when blocks re-register their configs; merging here keeps the
+		// downstream consumer (`buildFilterClause`) free of the override path.
+		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticPostTypes: state.staticPostTypes,
 	} );
@@ -393,17 +496,22 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
-		 * Gated on `searchQuery` (so the message doesn't flash on a bare
-		 * `/search/` page where the user hasn't typed) and on `!hasError`
-		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — the error region inside `jetpack-search/results-list` owns
-		 * that message instead).
+		 * Gated on `searchQuery || hasSearchParam` (so the message doesn't
+		 * flash on a bare `/search/` page where the user hasn't typed, but
+		 * does surface when an explicit-but-empty `?s=` URL fired the
+		 * initial search and got nothing back — e.g. a site with no indexed
+		 * posts), and on `!hasError` (so "No results found" doesn't display
+		 * when the fetch actually failed — the error region inside
+		 * `jetpack-search/results-list` owns that message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
 			return (
-				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
+				( !! state.searchQuery || !! state.hasSearchParam ) &&
+				! state.isLoading &&
+				! state.hasError &&
+				state.results.length === 0
 			);
 		},
 
@@ -639,10 +747,15 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) );
+				state.results = ( data.results ?? [] ).map( r =>
+					normalizeResult( r, state.locale, state.searchQuery )
+				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				state.aggregations = data.aggregations ?? {};
+				state.aggregations = remapAggregationsToFilterKeys(
+					data.aggregations,
+					state.filterConfigs
+				);
 				state.retainedFilterOptions = mergeRetainedFilterOptions(
 					state.retainedFilterOptions,
 					state.aggregations,
@@ -705,7 +818,9 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				state.results = [
 					...state.results,
-					...( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) ),
+					...( data.results ?? [] ).map( r =>
+						normalizeResult( r, state.locale, state.searchQuery )
+					),
 				];
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
@@ -745,6 +860,14 @@ const { state, actions } = store( NAMESPACE, {
 				if ( next.length === 0 ) {
 					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
 					state.activeFilters = rest;
+					// Drop any logic override for the now-empty filter so the
+					// URL serializer doesn't leave `?query_type_<key>=and`
+					// orphaned in the address bar after the last selection
+					// is cleared.
+					if ( state.filterLogic && filterKey in state.filterLogic ) {
+						const { [ filterKey ]: _droppedLogic, ...restLogic } = state.filterLogic;
+						state.filterLogic = restLogic;
+					}
 				} else {
 					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
 				}
@@ -764,6 +887,7 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			state.activeFilters = {};
+			state.filterLogic = {};
 			state.priceRange = null;
 			yield actions.search();
 		},
@@ -815,8 +939,11 @@ const { state, actions } = store( NAMESPACE, {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
+				filterLogic: state.filterLogic,
+				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
+				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
 		},
 
@@ -826,17 +953,30 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
-				state.filterConfigs,
-				state.searchParamName
-			);
+			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
+				readStateFromUrl(
+					state.filterConfigs,
+					state.searchParamName,
+					state.isWooCommerceBlocksEnabled
+				);
 			state.searchQuery = searchQuery;
+			// Keep `hasSearchParam` in lockstep with the live URL so any future
+			// reader (e.g. `showNoResults`) sees the current state rather than
+			// the PHP-seeded value from first paint. `actions.search()` below
+			// fires unconditionally, so the popstate path doesn't depend on
+			// the flag — this write is for state-consistency only.
+			state.hasSearchParam = hasSearchParam;
 			state.sortOrder = sortOrder;
 			// urlParamsToState bypasses its own gate when filterConfigs is empty;
 			// re-gate here so popstate matches initialize() and stray URL keys
 			// can't round-trip back into pushStateToUrl on a page with no
 			// registered filters.
-			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
+			const { gated } = gateActiveFilters( activeFilters, state.filterConfigs );
+			state.activeFilters = gated;
+			// Gate filterLogic the same way: drop entries whose filter key
+			// either isn't registered, has no surviving selections, or
+			// targets a non-taxonomy filter.
+			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -1047,12 +1187,39 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			initialized = true;
+			// The PHP seed (`state.dateFormat`) carries the site's
+			// `date_format` Settings option. It's set once here so
+			// `formatDate()` in result-utils.js can read it from module scope
+			// instead of having every `normalizeResult` call thread it
+			// through — the value never changes for the lifetime of the page.
+			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}
-			if ( state.searchQuery || state.hasActiveFilters ) {
+			// Re-gate filterLogic against the (possibly trimmed) activeFilters
+			// AND against the just-registered filterConfigs so a
+			// `?query_type_<key>=and` whose `<key>` was dropped or targets a
+			// non-taxonomy filter doesn't linger in state and re-emit on the
+			// next URL push. PHP `parse_url_filter_logic` can't apply the
+			// taxonomy gate itself because it runs before any block render.php
+			// has populated filterConfigs — this is where it lands.
+			if ( state.filterLogic && Object.keys( state.filterLogic ).length > 0 ) {
+				const gatedLogic = pickLogicForActive(
+					state.filterLogic,
+					state.activeFilters,
+					state.filterConfigs
+				);
+				if ( Object.keys( gatedLogic ).length !== Object.keys( state.filterLogic ).length ) {
+					state.filterLogic = gatedLogic;
+				}
+			}
+			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
+				// `hasSearchParam` catches `?s=` (empty value) — the param is
+				// present so the visitor expects a search to run, but
+				// `searchQuery` alone is `''` and indistinguishable from a
+				// URL that omits `s`. Seeded from PHP via build_initial_state().
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {

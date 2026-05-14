@@ -1003,13 +1003,29 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.npmignore`, ignore, { encoding: 'utf8' } );
 	}
 
-	// If autorelease is active, flag .git files to be excluded from the archive.
-	if ( composerJson.extra?.autorelease ) {
+	// Flag .git* files to be excluded from the archive, and strip any production-exclude and production-include attributes.
+	{
 		let rules = '# Automatically generated rules.\n/.git*\texport-ignore\n';
 		if ( await fsExists( `${ buildDir }/.gitattributes` ) ) {
-			rules +=
-				'\n# Package attributes file.\n' +
-				( await fs.readFile( `${ buildDir }/.gitattributes`, { encoding: 'utf8' } ) );
+			const pkgrules = ( await fs.readFile( `${ buildDir }/.gitattributes`, { encoding: 'utf8' } ) )
+				.split( /(?<=\n)/ )
+				.reduce(
+					( [ kept, pending ], line ) => {
+						if ( /^\s*$|^#/.test( line ) ) {
+							pending += line;
+							return [ kept, pending ];
+						}
+						if ( ! /\sproduction-(?:include|exclude)\s*$/.test( line ) ) {
+							kept += pending + line;
+						}
+						return [ kept, '' ];
+					},
+					[ '', '' ]
+				)[ 0 ]
+				.replace( /\n\n+|\n*$/g, '\n' );
+			if ( ! pkgrules.match( /^\s*$/ ) ) {
+				rules += '\n# Package attributes file.\n' + pkgrules;
+			}
 		}
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}

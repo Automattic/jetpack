@@ -4,6 +4,7 @@ const siteDataSelectors = {
 	getAPINonce: state => state.siteData?.WP_API_nonce ?? null,
 	getRegistrationNonce: state => state.siteData?.registrationNonce ?? null,
 	getSiteAdminUrl: state => state.siteData?.adminUrl ?? null,
+	getReaderChatGuidelinesUrl: state => state.siteData?.readerChatGuidelinesUrl ?? '',
 	isInstantSearchPromotionActive: state => state.siteData?.showPromotions ?? true,
 	getBlogId: state => state.siteData?.blogId ?? 0,
 	getVersion: state => state.siteData?.version ?? 'development',

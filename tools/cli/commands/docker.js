@@ -10,6 +10,49 @@ import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 let dockerComposeCmd = null;
 
 /**
+ * Normalize and validate a short project name to match Docker Compose rules.
+ *
+ * Compose requires project names to consist of lowercase alphanumeric characters, hyphens,
+ * and underscores, starting with a letter or digit. Uppercase input is auto-lowercased so
+ * `--name Feature` "just works"; anything else throws a clear error early, before compose.
+ *
+ * @param {string} name - User-supplied short name (e.g. from --name or --clone-from).
+ * @return {string} Normalized (lowercased) short name.
+ */
+export const normalizeProjectShortName = name => {
+	const original = String( name );
+	const normalized = original.toLowerCase();
+	if ( ! /^[a-z0-9][a-z0-9_-]*$/.test( normalized ) ) {
+		throw new Error(
+			`Invalid project name '${ original }'. Use only lowercase letters, digits, '-' and '_' (must start with a letter or digit).`
+		);
+	}
+	return normalized;
+};
+
+/**
+ * Build a yargs `coerce` handler that normalizes a project short-name option and prints
+ * a friendly note when it had to lowercase the input.
+ *
+ * @param {string} flag - The user-facing flag label (e.g. '--name').
+ * @return {Function} yargs coerce function.
+ */
+const coerceProjectShortName = flag => value => {
+	if ( value === undefined || value === null || value === '' ) {
+		return value;
+	}
+	const normalized = normalizeProjectShortName( value );
+	if ( normalized !== String( value ) ) {
+		console.warn(
+			chalk.yellow(
+				`Note: ${ flag } '${ value }' was normalized to '${ normalized }' (compose project names must be lowercase).`
+			)
+		);
+	}
+	return normalized;
+};
+
+/**
  * Sets default options that are common for most of the commands
  *
  * @param {object} yargs - Yargs
@@ -25,10 +68,35 @@ const defaultOpts = yargs =>
 		.option( 'name', {
 			alias: 'n',
 			describe: 'Project name',
+			coerce: coerceProjectShortName( '--name' ),
 		} )
 		.option( 'port', {
 			alias: 'p',
 			describe: 'WP port',
+		} )
+		.option( 'port-phpmy', {
+			describe: 'phpMyAdmin port',
+		} )
+		.option( 'port-inbox', {
+			describe: 'Mailpit web UI port',
+		} )
+		.option( 'port-smtp', {
+			describe: 'Mailpit SMTP port',
+		} )
+		.option( 'port-sftp', {
+			describe: 'SFTP port',
+		} )
+		.option( 'clone-from', {
+			type: 'string',
+			describe:
+				'Clone the database from an existing running instance (short name, e.g. --clone-from dev). When omitted but --name is set, the default jetpack_dev instance is used automatically if running.',
+			coerce: coerceProjectShortName( '--clone-from' ),
+		} )
+		.option( 'clone', {
+			type: 'boolean',
+			default: true,
+			describe:
+				'Auto-clone the database from jetpack_dev when spinning up a parallel instance with --name. Use --no-clone to opt out and get a fresh install instead.',
 		} )
 		.option( 'ngrok', {
 			type: 'boolean',
@@ -41,10 +109,10 @@ const defaultOpts = yargs =>
  * @param {object} argv - Yargs
  * @return {string} Project name
  */
-const getProjectName = argv => {
-	let project = 'dev';
-	if ( argv.type === 'e2e' ) {
-		project = argv.name ? argv.name : 'e2e';
+export const getProjectName = argv => {
+	let project = argv.type === 'e2e' ? 'e2e' : 'dev';
+	if ( argv.name ) {
+		project = argv.name;
 	}
 
 	return 'jetpack_' + project;
@@ -56,10 +124,25 @@ const getProjectName = argv => {
  * @param {object} argv - Yargs
  * @return {object} key-value pairs of ENV variables
  */
-const buildEnv = argv => {
+export const buildEnv = argv => {
 	const envOpts = {};
-	if ( argv.type === 'e2e' ) {
-		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
+	if ( argv.port ) {
+		envOpts.PORT_WORDPRESS = argv.port;
+	} else if ( argv.type === 'e2e' ) {
+		envOpts.PORT_WORDPRESS = 8889;
+	}
+
+	if ( argv.portPhpmy ) {
+		envOpts.PORT_PHPMY = argv.portPhpmy;
+	}
+	if ( argv.portInbox ) {
+		envOpts.PORT_INBOX = argv.portInbox;
+	}
+	if ( argv.portSmtp ) {
+		envOpts.PORT_SMTP = argv.portSmtp;
+	}
+	if ( argv.portSftp ) {
+		envOpts.PORT_SFTP = argv.portSftp;
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
@@ -78,6 +161,168 @@ const buildEnv = argv => {
  */
 const setEnv = () => {
 	fs.closeSync( fs.openSync( `${ dockerFolder }/.env`, 'a' ) );
+};
+
+/**
+ * Decides which source instance to clone the DB from, if any.
+ *
+ * Purely argv-driven; whether the chosen source is actually running is checked by the caller.
+ *
+ * @param {object} argv - Yargs
+ * @return {{source: string, explicit: boolean} | null} Source compose project name and whether the user asked for it by name, or null to skip cloning.
+ */
+export const resolveCloneSource = argv => {
+	if ( argv.cloneFrom ) {
+		return { source: 'jetpack_' + argv.cloneFrom, explicit: true };
+	}
+	if ( argv.clone === false ) {
+		return null;
+	}
+	// Auto-clone only makes sense when the user is spinning up a parallel instance.
+	if ( ! argv.name ) {
+		return null;
+	}
+	const source = 'jetpack_dev';
+	if ( getProjectName( argv ) === source ) {
+		return null;
+	}
+	return { source, explicit: false };
+};
+
+/**
+ * Check whether a given compose project has at least one running container.
+ *
+ * @param {string} project - Compose project name (e.g. 'jetpack_dev').
+ * @return {boolean} true when any container for the project is currently running.
+ */
+const isProjectRunning = project => {
+	const res = spawnSync(
+		'docker',
+		[ 'ps', '-q', '--filter', `label=com.docker.compose.project=${ project }` ],
+		{ encoding: 'utf8' }
+	);
+	return res.status === 0 && res.stdout.trim().length > 0;
+};
+
+/**
+ * Clone the database of a running source instance into a freshly-started target instance.
+ *
+ * Waits for the target's WordPress container to be ready, then skips if the target is already
+ * installed, resets the target DB, pipes `wp db export` from source → `wp db import` into
+ * target, and runs `wp search-replace` to rewrite the source siteurl to the target URL.
+ *
+ * @param {object} argv      - Yargs
+ * @param {string} source    - Source compose project name (e.g. 'jetpack_dev').
+ * @param {string} target    - Target compose project name (e.g. 'jetpack_feature').
+ * @param {object} targetEnv - ENV map for the target (used to compute target port).
+ */
+const cloneDatabase = async ( argv, source, target, targetEnv ) => {
+	const sourceWp = `${ source }-wordpress-1`;
+	const targetWp = `${ target }-wordpress-1`;
+	const wpPath = '/var/www/html';
+
+	console.log( chalk.cyan( `Cloning database: ${ source } → ${ target }` ) );
+
+	// Wait for the target's WP container + DB to be reachable via wp-cli.
+	try {
+		await retry(
+			async () => {
+				const res = spawnSync(
+					'docker',
+					[ 'exec', targetWp, 'wp', 'db', 'check', `--path=${ wpPath }` ],
+					{
+						stdio: 'ignore',
+					}
+				);
+				if ( res.status !== 0 ) {
+					throw new Error( 'target not ready' );
+				}
+			},
+			{ times: 24, delay: 5000 }
+		);
+	} catch {
+		console.error(
+			chalk.red( `Target ${ target } did not become ready in time. Aborting clone.` )
+		);
+		process.exit( 1 );
+	}
+
+	// If the target is already installed (e.g. the user re-ran `up` on a working instance), do nothing.
+	const installedCheck = spawnSync(
+		'docker',
+		[ 'exec', targetWp, 'wp', 'core', 'is-installed', `--path=${ wpPath }` ],
+		{ stdio: 'ignore' }
+	);
+	if ( installedCheck.status === 0 ) {
+		console.log(
+			chalk.yellow( `Target ${ target } already has an installed WordPress — skipping clone.` )
+		);
+		return;
+	}
+
+	// Read the source siteurl so search-replace can rewrite it afterwards.
+	const siteurlRes = spawnSync(
+		'docker',
+		[ 'exec', sourceWp, 'wp', 'option', 'get', 'siteurl', `--path=${ wpPath }` ],
+		{ encoding: 'utf8' }
+	);
+	if ( siteurlRes.status !== 0 ) {
+		console.error(
+			chalk.red(
+				`Could not read siteurl from source ${ source }. Is it installed? (try \`jetpack docker install\` there first)`
+			)
+		);
+		process.exit( 1 );
+	}
+	const sourceSiteUrl = siteurlRes.stdout.trim();
+
+	const targetPort = String( targetEnv.PORT_WORDPRESS || 80 );
+	const targetSiteUrl =
+		targetPort === '80' ? 'http://localhost' : `http://localhost:${ targetPort }`;
+
+	// Reset the target DB so import doesn't collide with the minimal tables compose may have created.
+	checkProcessResult(
+		spawnSync( 'docker', [ 'exec', targetWp, 'wp', 'db', 'reset', '--yes', `--path=${ wpPath }` ], {
+			stdio: 'inherit',
+		} )
+	);
+
+	console.log( chalk.cyan( 'Dumping source DB and importing into target…' ) );
+	const pipe = spawnSync(
+		'bash',
+		[
+			'-c',
+			'docker exec "$1" wp db export - --path="$3" | docker exec -i "$2" wp db import - --path="$3"',
+			'--',
+			sourceWp,
+			targetWp,
+			wpPath,
+		],
+		{ stdio: 'inherit' }
+	);
+	checkProcessResult( pipe );
+
+	if ( sourceSiteUrl !== targetSiteUrl ) {
+		console.log( chalk.cyan( `Rewriting URLs: ${ sourceSiteUrl } → ${ targetSiteUrl }` ) );
+		const sr = spawnSync(
+			'docker',
+			[
+				'exec',
+				targetWp,
+				'wp',
+				'search-replace',
+				sourceSiteUrl,
+				targetSiteUrl,
+				'--all-tables',
+				'--skip-columns=guid',
+				`--path=${ wpPath }`,
+			],
+			{ stdio: 'inherit' }
+		);
+		checkProcessResult( sr );
+	}
+
+	console.log( chalk.green( `Clone complete. Target site ready at ${ targetSiteUrl }/` ) );
 };
 
 /**
@@ -109,7 +354,7 @@ const printPostCmdMsg = argv => {
 		return;
 	}
 	if ( argv._[ 1 ] === 'up' ) {
-		const port = argv.port ? argv.port : '';
+		const port = argv.port ? `:${ argv.port }` : '';
 		const msg = chalk.green( `Open http://localhost${ port }/ to see your site!` );
 		console.log( msg );
 	}
@@ -369,6 +614,33 @@ const defaultDockerCmdHandler = async argv => {
 		};
 
 		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
+	}
+
+	// Auto-clone DB from a running source instance when spinning up a parallel one.
+	// Gate on the target actually being up rather than on `--detached`: in foreground
+	// mode `composeExecutor` blocks until the user exits compose, at which point the
+	// target is stopped and there's nothing to clone into. Skipping silently in that
+	// case is friendlier than hard-requiring `-d`.
+	if ( argv.type === 'dev' && argv._[ 1 ] === 'up' ) {
+		const cloneReq = resolveCloneSource( argv );
+		if ( cloneReq ) {
+			const target = getProjectName( argv );
+			if ( ! isProjectRunning( target ) ) {
+				// Target never came up, or compose was foregrounded and already exited.
+			} else if ( ! isProjectRunning( cloneReq.source ) ) {
+				if ( cloneReq.explicit ) {
+					console.error(
+						chalk.red(
+							`--clone-from source '${ cloneReq.source }' is not running. Start it first, or omit --clone-from.`
+						)
+					);
+					process.exit( 1 );
+				}
+				// Auto-clone: silent skip — user gets the normal fresh-install flow.
+			} else {
+				await cloneDatabase( argv, cloneReq.source, target, envOpts );
+			}
+		}
 	}
 	printPostCmdMsg( argv );
 };

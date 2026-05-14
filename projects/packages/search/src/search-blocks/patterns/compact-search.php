@@ -30,6 +30,7 @@ register_block_pattern(
 <!-- wp:jetpack-search/search-input /-->
 <!-- wp:jetpack-search/filters-popover -->
 <!-- wp:jetpack-search/active-filters /-->
+<!-- wp:jetpack-search/clear-filters /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"post_type"} /-->

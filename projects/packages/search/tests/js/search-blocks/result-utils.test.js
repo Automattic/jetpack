@@ -2,13 +2,22 @@ import {
 	countActiveFilters,
 	decodeEntities,
 	deriveMatchHint,
+	formatAuthor,
 	formatDate,
 	formatPath,
 	normalizeResult,
+	setSeededDateFormat,
 	stripTags,
 	toSafeUrl,
 	tokenizeHighlight,
 } from '../../../src/search-blocks/store/result-utils';
+
+// `setSeededDateFormat()` writes module-scoped state that bleeds across tests
+// — reset before each case so an earlier seed can't leak into the next test's
+// `formatDate()` / `normalizeResult()` output.
+beforeEach( () => {
+	setSeededDateFormat( '' );
+} );
 
 describe( 'toSafeUrl', () => {
 	it( 'passes through https URLs', () => {
@@ -81,6 +90,61 @@ describe( 'formatDate', () => {
 
 	it( 'falls back to en-US when locale is empty string', () => {
 		expect( formatDate( '2026-04-20T10:00:00Z', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
+
+	it( 'honors a WP F j, Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+
+	it( 'honors a WP Y-m-d date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'Y-m-d' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'honors a WP d/m/Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'd/m/Y' ) ).toBe( '20/04/2026' );
+	} );
+
+	it( 'honors an ordinal-suffixed l, F jS Y date_format', () => {
+		// 2026-04-20 is a Monday; 20 → "20th".
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'l, F jS Y' ) ).toBe(
+			'Monday, April 20th 2026'
+		);
+	} );
+
+	it( 'localizes month names within a WP date_format', () => {
+		// French May → "mai", layout still follows the F j, Y token order.
+		expect( formatDate( '2026-05-04T10:00:00Z', 'fr-FR', 'F j, Y' ) ).toBe( 'mai 4, 2026' );
+	} );
+
+	it( 'treats a backslash as a literal-escape', () => {
+		// `\Y` should emit a literal Y, not the year token.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '\\Y=Y' ) ).toBe( 'Y=2026' );
+	} );
+
+	it( 'leaves the legacy short-form output untouched when dateFormat is empty', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
+
+	it( 'picks up the seeded date format from setSeededDateFormat by default', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// No explicit dateFormat arg → falls back to the module-scoped seed.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'lets an explicit dateFormat argument override the seed', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// Explicit '' override falls back to legacy `toLocaleDateString`; the
+		// seeded `Y-m-d` doesn't leak through.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+} );
+
+describe( 'setSeededDateFormat', () => {
+	it( 'ignores non-string input and resets to empty', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		setSeededDateFormat( null );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( 'Apr 20, 2026' );
 	} );
 } );
 
@@ -310,6 +374,46 @@ describe( 'deriveMatchHint', () => {
 	} );
 } );
 
+describe( 'formatAuthor', () => {
+	it( 'returns a single-author string trimmed', () => {
+		expect( formatAuthor( '  Sample Author  ' ) ).toBe( 'Sample Author' );
+	} );
+
+	it( 'joins two authors with a comma', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+	} );
+
+	it( 'joins three authors with commas, no ellipsis', () => {
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris' ] ) ).toBe( 'Ada, Bob, Cris' );
+	} );
+
+	it( 'truncates after the first three when the array has more than three entries', () => {
+		// Mirrors instant-search behavior so co-authored posts don't blow out
+		// the meta row. The ellipsis is three dots, not the U+2026 character.
+		expect( formatAuthor( [ 'Ada', 'Bob', 'Cris', 'Dee', 'Eve' ] ) ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'returns empty string for missing or empty input', () => {
+		expect( formatAuthor( undefined ) ).toBe( '' );
+		expect( formatAuthor( null ) ).toBe( '' );
+		expect( formatAuthor( '' ) ).toBe( '' );
+		expect( formatAuthor( [] ) ).toBe( '' );
+	} );
+
+	it( 'drops empty entries from an array before joining or truncating', () => {
+		expect( formatAuthor( [ 'Ada', '', '   ', 'Bob' ] ) ).toBe( 'Ada, Bob' );
+		expect( formatAuthor( [ '', '   ' ] ) ).toBe( '' );
+	} );
+
+	it( 'decodes HTML entities in author names', () => {
+		// The v1.3 API HTML-encodes punctuation in display names, and the meta
+		// row binds via `data-wp-text` (textContent). Without entity decoding,
+		// `O&#8217;Brien` would render as the literal string.
+		expect( formatAuthor( 'O&#8217;Brien' ) ).toBe( 'O’Brien' );
+		expect( formatAuthor( [ 'Jane &amp; John', 'Ada' ] ) ).toBe( 'Jane & John, Ada' );
+	} );
+} );
+
 describe( 'normalizeResult', () => {
 	const RAW = {
 		result_id: 'r-42',
@@ -433,6 +537,28 @@ describe( 'normalizeResult', () => {
 		expect( r.dateLabel ).toMatch( /20 avr/ );
 	} );
 
+	it( 'honors the seeded WP date_format when rendering dateLabel', () => {
+		setSeededDateFormat( 'F j, Y' );
+		const r = normalizeResult( { fields: { date: '2026-04-20T10:00:00Z' } }, 'en-US' );
+		expect( r.dateLabel ).toBe( 'April 20, 2026' );
+	} );
+
+	it( 'exposes authorLabel for a single-author result', () => {
+		const r = normalizeResult( { fields: { author: 'Ada' } } );
+		expect( r.authorLabel ).toBe( 'Ada' );
+	} );
+
+	it( 'joins and truncates authorLabel for co-authored results', () => {
+		const r = normalizeResult( {
+			fields: { author: [ 'Ada', 'Bob', 'Cris', 'Dee' ] },
+		} );
+		expect( r.authorLabel ).toBe( 'Ada, Bob, Cris...' );
+	} );
+
+	it( 'authorLabel is empty when the field is absent', () => {
+		expect( normalizeResult( { fields: {} } ).authorLabel ).toBe( '' );
+	} );
+
 	it( 'returns a usable object for a fully empty raw result', () => {
 		const r = normalizeResult( {} );
 		expect( r ).toEqual( {
@@ -445,6 +571,7 @@ describe( 'normalizeResult', () => {
 			permalink: '',
 			path: '',
 			dateLabel: '',
+			authorLabel: '',
 			imageUrl: '',
 			imageBackgroundImage: '',
 			matchHint: '',
@@ -460,6 +587,53 @@ describe( 'normalizeResult', () => {
 			reviewCountLabel: '',
 			ratingAriaLabel: '',
 			hasRating: false,
+		} );
+	} );
+
+	describe( 'matchHint search-query gating', () => {
+		// "Matches content" / "Matches comments" are only meaningful in response
+		// to a typed query. When the user is browsing with filters only (no
+		// query), every visible result is trivially a "match" — the badge reads
+		// as misleading. The gate also covers whitespace-only queries, which
+		// the API treats as empty.
+		const RAW_WITH_CONTENT_HIGHLIGHT = {
+			fields: { post_id: 1, 'title.default': 'Hello' },
+			highlight: { content: [ 'body <mark>match</mark>' ] },
+		};
+
+		it( 'suppresses matchHint when no search query was provided', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT );
+			expect( r.matchHint ).toBe( '' );
+			expect( r.matchHintIsComments ).toBe( false );
+		} );
+
+		it( 'suppresses matchHint when the search query is empty string', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', '' );
+			expect( r.matchHint ).toBe( '' );
+		} );
+
+		it( 'suppresses matchHint when the search query is whitespace only', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', '   \t  ' );
+			expect( r.matchHint ).toBe( '' );
+		} );
+
+		it( 'preserves matchHint when a real search query was typed', () => {
+			const r = normalizeResult( RAW_WITH_CONTENT_HIGHLIGHT, 'en-US', 'match' );
+			expect( r.matchHint ).toBe( 'content' );
+			expect( r.matchHintIsComments ).toBe( false );
+		} );
+
+		it( 'preserves comments matchHint when a real search query was typed', () => {
+			const r = normalizeResult(
+				{
+					fields: { post_id: 2, 'title.default': 'Hello' },
+					highlight: { comment: [ 'comment <mark>word</mark>' ] },
+				},
+				'en-US',
+				'word'
+			);
+			expect( r.matchHint ).toBe( 'comments' );
+			expect( r.matchHintIsComments ).toBe( true );
 		} );
 	} );
 
@@ -591,37 +765,50 @@ describe( 'normalizeResult', () => {
 		} );
 	} );
 
-	it( 'does not expose author data from the API response', () => {
+	it( 'exposes the author as authorLabel rather than a raw author key', () => {
+		// The template binds to `authorLabel`; a stray `author` property on
+		// the normalized result would let downstream code render the raw API
+		// shape (potentially an array) instead of the formatted string.
 		const raw = {
 			result_id: '1',
 			fields: {
 				'permalink.url.raw': 'https://example.com/a',
 				'title.default': 'Post',
-				'author.name': 'Ada Lovelace',
+				author: 'Ada Lovelace',
 			},
 		};
-		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+		const r = normalizeResult( raw );
+		expect( r ).not.toHaveProperty( 'author' );
+		expect( r.authorLabel ).toBe( 'Ada Lovelace' );
 	} );
 
 	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {
-		const r = normalizeResult( {
-			fields: { 'title.default': 'Hello' },
-			highlight: {
-				title: 'Hello',
-				content: [ 'some <mark>match</mark>' ],
+		const r = normalizeResult(
+			{
+				fields: { 'title.default': 'Hello' },
+				highlight: {
+					title: 'Hello',
+					content: [ 'some <mark>match</mark>' ],
+				},
 			},
-		} );
+			'en-US',
+			'match'
+		);
 		expect( r.matchHint ).toBe( 'content' );
 		expect( r.matchHintIsComments ).toBe( false );
 	} );
 
 	it( 'exposes matchHint="comments" when the comment field is highlighted but the title is not', () => {
-		const r = normalizeResult( {
-			fields: { 'title.default': 'Hello' },
-			highlight: {
-				comment: [ 'a <mark>match</mark> in comments' ],
+		const r = normalizeResult(
+			{
+				fields: { 'title.default': 'Hello' },
+				highlight: {
+					comment: [ 'a <mark>match</mark> in comments' ],
+				},
 			},
-		} );
+			'en-US',
+			'match'
+		);
 		expect( r.matchHint ).toBe( 'comments' );
 		expect( r.matchHintIsComments ).toBe( true );
 	} );

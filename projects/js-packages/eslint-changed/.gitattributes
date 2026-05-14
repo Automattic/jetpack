@@ -1,4 +1,0 @@
-/changelog/**    production-exclude
-/.gitattributes  production-exclude
-/.gitignore      production-exclude
-/tests/**        production-exclude

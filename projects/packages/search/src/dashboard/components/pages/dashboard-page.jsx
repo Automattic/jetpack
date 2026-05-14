@@ -1,23 +1,36 @@
-import {
-	AdminPage,
-	Button,
-	Container,
-	Col,
-	getProductCheckoutUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import FeatureSelector from 'components/feature-selector';
+import { Stack, Tabs } from '@wordpress/ui';
+import { useState } from 'react';
+import AiAnswersTab from 'components/ai-answers-tab';
+import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
+
+const DEFAULT_TAB = 'plan-usage';
+// Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
+const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
+const TAB_QUERY_PARAM = 'tab';
+
+const getInitialTab = () => {
+	if ( typeof window === 'undefined' ) {
+		return DEFAULT_TAB;
+	}
+
+	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+
+	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+};
 
 /**
  * SearchDashboard component definition.
@@ -28,6 +41,20 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
+	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+
+	const handleTabChange = tab => {
+		setActiveTab( tab );
+
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+
+		const url = new URL( window.location.href );
+		url.searchParams.set( TAB_QUERY_PARAM, tab );
+		window.history.replaceState( {}, '', url.toString() );
+	};
+
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
@@ -37,6 +64,9 @@ export default function DashboardPage( { isLoading = false } ) {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const readerChatGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -80,6 +110,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isReaderChatAvailable = useSelect( select => select( STORE_ID ).isReaderChatAvailable() );
+	const isReaderChatEnabled = useSelect( select => select( STORE_ID ).isReaderChatEnabled() );
 	const isSavingEitherOption = useSelect( select =>
 		select( STORE_ID ).isUpdatingJetpackSettings()
 	);
@@ -127,81 +159,115 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
-				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-					<div className="jp-search-dashboard-row">
-						<div
-							id="jp-admin-notices"
-							className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-						/>
-					</div>
-					{ isPageLoading && <Loading /> }
-					{ ! isPageLoading && (
-						<MockedSearchContent
-							supportsInstantSearch={ supportsInstantSearch }
-							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						/>
-					) }
-				</div>
-				{ ! isPageLoading && (
-					<>
-						{ hasConnectionError && (
-							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
-							</Container>
-						) }
-						{ isNewPricing && supportsInstantSearch && (
-							<PlanInfo
-								hasIndex={ postCount !== 0 }
-								recordMeterInfo={ recordMeterInfo }
-								isFreePlan={ isFreePlan }
-								sendPaidPlanToCart={ sendPaidPlanToCart }
-							/>
-						) }
-						{ ! isNewPricing && supportsInstantSearch && (
-							<RecordMeter
-								postCount={ postCount }
-								postTypeBreakdown={ postTypeBreakdown }
-								tierMaximumRecords={ tierMaximumRecords }
-								lastIndexedDate={ lastIndexedDate }
-								postTypes={ postTypes }
-							/>
-						) }
-						<div className="jp-search-dashboard-bottom">
-							{ isSearchBlocksEnabled ? (
-								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
-									<div className="jp-search-dashboard-row">
-										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-											<FeatureSelector />
-										</div>
-									</div>
-								</div>
-							) : (
-								<ModuleControl
-									siteAdminUrl={ siteAdminUrl }
-									updateOptions={ updateOptions }
-									domain={ domain }
-									isDisabledFromOverLimit={ isOverLimit }
-									isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-									supportsSearch={ supportsSearch }
+				<NoticesList
+					notices={ notices }
+					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+				/>
+				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
+					<Tabs.List>
+						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
+						<Tabs.Tab value="ai-answers">
+							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
+							<span className="jp-search-dashboard-tabs__tab-preview-label">
+								{ __( '(Preview)', 'jetpack-search-pkg' ) }
+							</span>
+						</Tabs.Tab>
+					</Tabs.List>
+					<Tabs.Panel value="plan-usage">
+						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+							<div className="jp-search-dashboard-row">
+								<div
+									id="jp-admin-notices"
+									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
+								/>
+							</div>
+							{ isPageLoading && <Loading /> }
+							{ ! isPageLoading && (
+								<MockedSearchContent
 									supportsInstantSearch={ supportsInstantSearch }
-									isModuleEnabled={ isModuleEnabled }
-									isInstantSearchEnabled={ isInstantSearchEnabled }
-									isSavingEitherOption={ isSavingEitherOption }
-									isTogglingModule={ isTogglingModule }
-									isTogglingInstantSearch={ isTogglingInstantSearch }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 								/>
 							) }
 						</div>
-						<NoticesList
-							notices={ notices }
-							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-						/>
-					</>
-				) }
+						{ ! isPageLoading && (
+							<>
+								{ hasConnectionError && (
+									<Stack direction="column">
+										<ConnectionError />
+									</Stack>
+								) }
+								{ isNewPricing && supportsInstantSearch && (
+									<PlanInfo
+										hasIndex={ postCount !== 0 }
+										recordMeterInfo={ recordMeterInfo }
+										isFreePlan={ isFreePlan }
+										sendPaidPlanToCart={ sendPaidPlanToCart }
+									/>
+								) }
+								{ ! isNewPricing && supportsInstantSearch && (
+									<RecordMeter
+										postCount={ postCount }
+										postTypeBreakdown={ postTypeBreakdown }
+										tierMaximumRecords={ tierMaximumRecords }
+										lastIndexedDate={ lastIndexedDate }
+										postTypes={ postTypes }
+									/>
+								) }
+							</>
+						) }
+					</Tabs.Panel>
+					<Tabs.Panel value="settings">
+						{ isPageLoading && <Loading /> }
+						{ ! isPageLoading && (
+							<div className="jp-search-dashboard-bottom">
+								{ isSearchBlocksEnabled ? (
+									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
+										<div className="jp-search-dashboard-row">
+											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+												<ExperienceSelector />
+												{ isReaderChatAvailable && (
+													<div className="jp-search-reader-chat-card">
+														<ReaderChatControl
+															isAvailable={ isReaderChatAvailable }
+															isEnabled={ isReaderChatEnabled }
+															isSaving={ isSavingEitherOption }
+															guidelinesUrl={ readerChatGuidelinesUrl }
+															updateOptions={ updateOptions }
+														/>
+													</div>
+												) }
+											</div>
+										</div>
+									</div>
+								) : (
+									<ModuleControl
+										siteAdminUrl={ siteAdminUrl }
+										updateOptions={ updateOptions }
+										domain={ domain }
+										isDisabledFromOverLimit={ isOverLimit }
+										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+										isReaderChatAvailable={ isReaderChatAvailable }
+										isReaderChatEnabled={ isReaderChatEnabled }
+										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+										supportsSearch={ supportsSearch }
+										supportsInstantSearch={ supportsInstantSearch }
+										isModuleEnabled={ isModuleEnabled }
+										isInstantSearchEnabled={ isInstantSearchEnabled }
+										isSavingEitherOption={ isSavingEitherOption }
+										isTogglingModule={ isTogglingModule }
+										isTogglingInstantSearch={ isTogglingInstantSearch }
+										readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+									/>
+								) }
+							</div>
+						) }
+					</Tabs.Panel>
+					<Tabs.Panel value="ai-answers">
+						<AiAnswersTab />
+					</Tabs.Panel>
+				</Tabs.Root>
 			</AdminPage>
 		</div>
 	);
@@ -210,7 +276,9 @@ export default function DashboardPage( { isLoading = false } ) {
 const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
-	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
+	const siteTitle =
+		useSelect( select => select( STORE_ID ).getSiteTitle() ) ||
+		__( 'your site', 'jetpack-search-pkg' );
 	// Plan Info data
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );

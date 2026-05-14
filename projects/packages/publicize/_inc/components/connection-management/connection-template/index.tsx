@@ -68,7 +68,7 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 	const persist = useCallback(
 		( value: string ) => {
 			lastSentRef.current = value;
-			updateConnectionById( connection.connection_id, { template: value } );
+			updateConnectionById( connection.connection_id, { template: value }, { silent: true } );
 		},
 		[ connection.connection_id, updateConnectionById ]
 	);

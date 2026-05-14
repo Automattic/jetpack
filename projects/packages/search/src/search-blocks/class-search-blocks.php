@@ -74,6 +74,27 @@ class Search_Blocks {
 	private static $is_free_plan_cache = null;
 
 	/**
+	 * Per-request memo backing `woocommerce_blocks_enabled()`. Centralized here
+	 * (rather than inside any one WC-aware block helper) so every gate that
+	 * needs the answer — block-registration filters that hide WC-only blocks
+	 * on non-Woo sites, render callbacks that drop product-format sort keys,
+	 * the editor-side localized config, the Interactivity store seed —
+	 * shares the same `class_exists()` probe.
+	 *
+	 * @var bool|null
+	 */
+	private static $woocommerce_blocks_enabled_cache = null;
+
+	/**
+	 * Per-request memo backing `supported_custom_taxonomies()`. Derived from
+	 * the Sync allowlist intersected with registered taxonomies and unioned
+	 * with the map's user-facing keys; same inputs every request.
+	 *
+	 * @var string[]|null
+	 */
+	private static $supported_custom_taxonomies_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -110,6 +131,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		Custom_Taxonomy_Slot_Mapping::init();
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -148,6 +170,234 @@ class Search_Blocks {
 	 */
 	public static function reset_is_free_plan_cache() {
 		self::$is_free_plan_cache = null;
+	}
+
+	/**
+	 * Whether Jetpack Search exposes its WooCommerce-only blocks, filter
+	 * variations, and render paths. Use from any gate that needs to skip
+	 * a WC-only feature (block registration of `filter-wc-*` blocks, the
+	 * product-format sort keys on `results-sort`, etc.). Memoized
+	 * per-request so adding a new caller doesn't multiply autoloader probes.
+	 *
+	 * **Load-order contract:** must be called at or after `plugins_loaded`.
+	 * WooCommerce includes its main `WooCommerce` class only when its plugin
+	 * file runs (during `plugins_loaded`), so an earlier call would return
+	 * false on a WC site. Every existing caller fires from a hook later
+	 * than that — `enqueue_block_editor_assets`, `template_redirect`,
+	 * `wp_enqueue_scripts`, or block render — so the contract is naturally
+	 * satisfied. New callers earlier in the request lifecycle should defer
+	 * the probe to a `plugins_loaded`-or-later hook.
+	 *
+	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
+	 * force the gate either way regardless of WC's plugin state — e.g. a
+	 * Woo site hiding WC-only blocks on a non-shop content area, or a
+	 * non-Woo site previewing them in staging. Default is the
+	 * `class_exists( 'WooCommerce', false )` probe. Filter fires once per
+	 * request before the result is memoized, so an expensive callback
+	 * (DB probe, option read) pays its cost at most once.
+	 *
+	 * @return bool
+	 */
+	public static function woocommerce_blocks_enabled(): bool {
+		if ( null === self::$woocommerce_blocks_enabled_cache ) {
+			// Pass `false` so a missing class doesn't fire the autoloader
+			// on non-Woo sites — the gate is hit on every request, and
+			// any upstream autoloader work is wasted when the answer is "no".
+			$probed = class_exists( 'WooCommerce', false );
+
+			/**
+			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
+			 * filter variations, and render paths. Default is the
+			 * `class_exists( 'WooCommerce', false )` probe; cast to bool
+			 * before caching so a truthy non-bool return (e.g. `1`)
+			 * doesn't poison strictly-typed callers.
+			 *
+			 * @since 0.59.0
+			 *
+			 * @param bool $enabled Defaults to the WooCommerce class probe.
+			 */
+			self::$woocommerce_blocks_enabled_cache = (bool) apply_filters(
+				'jetpack_search_woocommerce_blocks_enabled',
+				$probed
+			);
+		}
+		return self::$woocommerce_blocks_enabled_cache;
+	}
+
+	/**
+	 * Force the `woocommerce_blocks_enabled()` answer to a specific boolean —
+	 * tests only. Pass `null` to clear the override and revive the real
+	 * `class_exists()` probe (also done by `reset_woocommerce_blocks_enabled_cache()`).
+	 *
+	 * @internal
+	 *
+	 * @param bool|null $value Forced answer or null to clear.
+	 */
+	public static function set_woocommerce_blocks_enabled_for_testing( ?bool $value ): void {
+		self::$woocommerce_blocks_enabled_cache = $value;
+	}
+
+	/**
+	 * Reset the `woocommerce_blocks_enabled()` memo. Tests only.
+	 *
+	 * @internal
+	 */
+	public static function reset_woocommerce_blocks_enabled_cache(): void {
+		self::$woocommerce_blocks_enabled_cache = null;
+	}
+
+	/**
+	 * Canonical list of WooCommerce-only block names. Single source of
+	 * truth for the WC-only gate applied to block registration
+	 * (`register_blocks()`), the `filter_block_helpers()` map, and the
+	 * editor's `register-blocks.js` bundle (read after being localized
+	 * onto `window.JetpackSearchBlocksConfig.woocommerceOnlyBlocks` in
+	 * `enqueue_editor_assets()`).
+	 *
+	 * Add a new WC-only block by appending one entry — every gate picks
+	 * it up automatically. Names are full namespaced names (not bare
+	 * slugs) so the list reads identically to what `BLOCKS` contains in
+	 * `register-blocks.js` and what `filter_block_helpers()` keys against.
+	 *
+	 * @return string[]
+	 */
+	public static function woocommerce_only_block_names(): array {
+		return array(
+			'jetpack-search/filter-wc-attribute',
+			'jetpack-search/filter-wc-price',
+			'jetpack-search/filter-wc-rating',
+			'jetpack-search/filter-wc-stock-status',
+			'jetpack-search/filters-product',
+		);
+	}
+
+	/**
+	 * Whether a block name (or block-directory basename) belongs to a
+	 * WooCommerce-only block. Membership is decided by exact match against
+	 * `woocommerce_only_block_names()`; either form (full namespaced name
+	 * or bare directory basename) works because `register_blocks()` walks
+	 * directory basenames while the helpers map and editor bundle hold
+	 * full names.
+	 *
+	 * @param string $block_name Full block name (`jetpack-search/filter-wc-rating`)
+	 *                           or bare directory basename (`filter-wc-rating`).
+	 * @return bool
+	 */
+	public static function is_woocommerce_only_block( string $block_name ): bool {
+		$candidate = false === strpos( $block_name, '/' )
+			? 'jetpack-search/' . $block_name
+			: $block_name;
+		return in_array( $candidate, self::woocommerce_only_block_names(), true );
+	}
+
+	/**
+	 * Built-in taxonomies that have their own dedicated filter-checkbox
+	 * variations — Category / Tag plus the three WooCommerce product
+	 * taxonomies. Excluded from the "Custom Taxonomy" picker (both server
+	 * and editor) so site builders reach for the dedicated variation rather
+	 * than the generic Custom Taxonomy entry. Mirrors `BUILT_IN_TAXONOMY_SLUGS`
+	 * in filter-checkbox/edit.js — must stay in lockstep.
+	 *
+	 * @var string[]
+	 */
+	const BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS = array(
+		'category',
+		'post_tag',
+		'product_cat',
+		'product_tag',
+		'product_brand',
+	);
+
+	/**
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::get_map()`.
+	 * The slot-mapping logic lives in its own class; this proxy keeps the
+	 * editor enqueue + `supported_custom_taxonomies()` call sites stable.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function custom_taxonomy_map(): array {
+		return Custom_Taxonomy_Slot_Mapping::get_map();
+	}
+
+	/**
+	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::resolve_slot()`.
+	 * Used by `Filter_Checkbox::build_config()` to seed `effectiveSlug`
+	 * on each filterConfig at config-build time.
+	 *
+	 * @param string $taxonomy User-facing taxonomy slug.
+	 * @return string Effective ES field slug.
+	 */
+	public static function resolve_taxonomy_slot( string $taxonomy ): string {
+		return Custom_Taxonomy_Slot_Mapping::resolve_slot( $taxonomy );
+	}
+
+	/**
+	 * Reset both the slot-mapping memo and the `supported_custom_taxonomies()`
+	 * memo. Tests only — production WP runs a single request per process and
+	 * the map is derived purely from a filter hook, so callers should never
+	 * need to clear the cache.
+	 *
+	 * @internal
+	 */
+	public static function reset_custom_taxonomy_map_cache(): void {
+		Custom_Taxonomy_Slot_Mapping::reset_cache_for_testing();
+		self::$supported_custom_taxonomies_cache = null;
+	}
+
+	/**
+	 * Custom-taxonomy slugs the "Custom Taxonomy" filter variation should
+	 * offer in the editor picker. A taxonomy is "supported" when:
+	 *
+	 *   1. It's registered locally AND in Jetpack Search's indexable
+	 *      allowlist (`Sync\Modules\Search::get_all_taxonomies()`), so an
+	 *      aggregation against it will actually return buckets; OR
+	 *   2. It's a key in `custom_taxonomy_map()` AND registered locally —
+	 *      the mapping routes its queries through a reserved slot.
+	 *
+	 * Built-in slugs already covered by dedicated filter variations
+	 * (`category`, `post_tag`, `product_cat`, `product_tag`, `product_brand`)
+	 * are stripped so the Custom Taxonomy variation never offers them as
+	 * alternatives.
+	 *
+	 * The Sync allowlist comes from `automattic/jetpack-sync` (a runtime
+	 * dependency of `automattic/jetpack-search`); the class_exists guard is
+	 * defensive for partial installs / isolated tests where the Sync
+	 * package isn't autoloaded — in that case the helper falls back to
+	 * "map keys only", which is the most conservative answer.
+	 *
+	 * @return string[] Distinct, zero-indexed list of supported taxonomy slugs.
+	 */
+	public static function supported_custom_taxonomies(): array {
+		if ( null !== self::$supported_custom_taxonomies_cache ) {
+			return self::$supported_custom_taxonomies_cache;
+		}
+
+		// Limit to public taxonomies so the picker stays in lockstep with
+		// the editor's `core.getTaxonomies()` call, which only returns
+		// REST-visible (public) taxonomies. Avoids surfacing a private
+		// taxonomy that happens to be in the Sync allowlist.
+		$registered = function_exists( 'get_taxonomies' )
+			? array_values( get_taxonomies( array( 'public' => true ), 'names' ) )
+			: array();
+
+		$indexed = class_exists( '\\Automattic\\Jetpack\\Sync\\Modules\\Search' )
+			? \Automattic\Jetpack\Sync\Modules\Search::get_all_taxonomies()
+			: array();
+
+		$map_keys = array_keys( self::custom_taxonomy_map() );
+
+		// A registered taxonomy is supported when it sits in the index
+		// allowlist OR when the site owner has mapped it to a slot.
+		$candidates = array_unique( array_merge( $indexed, $map_keys ) );
+		$supported  = array_values(
+			array_diff(
+				array_values( array_intersect( $registered, $candidates ) ),
+				self::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS
+			)
+		);
+
+		self::$supported_custom_taxonomies_cache = $supported;
+		return $supported;
 	}
 
 	/**
@@ -195,6 +445,43 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+
+		// Surface the WC gate to the editor bundle. `isWooCommerceBlocksEnabled`
+		// drives per-component branches (e.g. the results-sort inspector
+		// hiding product-format checkboxes, the results-list inspector
+		// hiding the Product layout) and the `register-blocks.js`
+		// registration loop. `woocommerceOnlyBlocks` is the canonical
+		// list the registration loop intersects with — keeping it
+		// localized (rather than duplicated in JS) means
+		// `Search_Blocks::woocommerce_only_block_names()` is the single
+		// source of truth across the PHP and JS sides.
+		// `wp_add_inline_script` (rather than `wp_localize_script`) per
+		// core ticket #25280 — the latter HTML-encodes ampersands inside
+		// nested values.
+		wp_add_inline_script(
+			'jetpack-search-blocks-register',
+			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
+				array(
+					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
+					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
+					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
+					// picker in filter-checkbox/edit.js — only taxonomies in
+					// this list (Jetpack-Search-indexed OR mapped to a
+					// reserved slot via `jetpack_search_custom_taxonomy_map`)
+					// are offered. See `supported_custom_taxonomies()` for
+					// the derivation and the FAQ link:
+					// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
+					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
+					// `customTaxonomyMap` is keyed by the user-facing slug;
+					// the picker uses key membership to append a "(mapped)"
+					// suffix to those entries' labels so authors know the
+					// filter routes through a reserved slot.
+					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
+		);
 	}
 
 	/**
@@ -236,10 +523,15 @@ class Search_Blocks {
 			return;
 		}
 
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $block_dirs as $block_dir ) {
-			if ( file_exists( $block_dir . '/block.json' ) ) {
-				register_block_type( $block_dir );
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
 			}
+			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+				continue;
+			}
+			register_block_type( $block_dir );
 		}
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
@@ -312,53 +604,53 @@ class Search_Blocks {
 				),
 				'isActive'    => array( 'filterType' ),
 			),
-			array(
+		);
+
+		// WC-only product taxonomies. Gated on `woocommerce_blocks_enabled()` so
+		// they don't appear in the inserter on non-Woo sites where the
+		// taxonomies happen to exist via another plugin (or a previous WC
+		// install that left them registered). `product_brand` layers an
+		// extra `taxonomy_exists()` probe on top because it isn't a core WC
+		// taxonomy — extensions like WC Brands / Perfect Brands / recent
+		// bundled WC versions provide it. The three product variations stay
+		// grouped before `custom_taxonomy` below so the inserter renders
+		// them as a contiguous cluster.
+		if ( self::woocommerce_blocks_enabled() ) {
+			$additions[] = array(
 				'name'        => 'product_cat',
 				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'category',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_cat',
 					'label'      => __( 'Product Category', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
-			),
-			array(
+			);
+			$additions[] = array(
 				'name'        => 'product_tag',
 				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'tag',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_tag',
 					'label'      => __( 'Product Tag', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
-			),
-		);
-
-		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
-		// extensions (WC Brands, Perfect Brands, recent bundled WC versions).
-		// Registering the variation unconditionally would surface "Filter by
-		// Product Brand" in the inserter on sites without it, where the block
-		// renders no buckets and the failure is silent. Gate on the taxonomy's
-		// presence so authors only see the option when it can actually work.
-		// Inserted before `custom_taxonomy` below so the three product
-		// variations stay grouped in the inserter when the gate fires.
-		if ( taxonomy_exists( 'product_brand' ) ) {
-			$additions[] = array(
-				'name'        => 'product_brand',
-				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
-				'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'awards',
-				'attributes'  => array(
-					'filterType' => 'taxonomy',
-					'taxonomy'   => 'product_brand',
-					'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
-				),
-				'isActive'    => array( 'filterType', 'taxonomy' ),
 			);
+			if ( taxonomy_exists( 'product_brand' ) ) {
+				$additions[] = array(
+					'name'        => 'product_brand',
+					'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+					'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
+					'attributes'  => array(
+						'filterType' => 'taxonomy',
+						'taxonomy'   => 'product_brand',
+						'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
+					),
+					'isActive'    => array( 'filterType', 'taxonomy' ),
+				);
+			}
 		}
 
 		$additions[] = array(
@@ -396,6 +688,11 @@ class Search_Blocks {
 
 	/**
 	 * Register block patterns.
+	 *
+	 * Convention: a pattern file whose basename starts with `wc-` composes
+	 * WooCommerce-only blocks and is loaded only when WC is active. Mirrors
+	 * the `filter-wc-*` block-slug convention so a new WC-only pattern
+	 * auto-enrolls in the gate without an extra registration step.
 	 */
 	protected static function register_patterns() {
 		$patterns_dir = __DIR__ . '/patterns';
@@ -406,7 +703,11 @@ class Search_Blocks {
 		if ( ! $pattern_files ) {
 			return;
 		}
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
 		foreach ( $pattern_files as $pattern_file ) {
+			if ( ! $wc_blocks_enabled && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
+				continue;
+			}
 			require_once $pattern_file;
 		}
 	}
@@ -625,13 +926,26 @@ class Search_Blocks {
 	 * @return array<string, class-string>
 	 */
 	protected static function filter_block_helpers(): array {
-		return array(
+		$helpers = array(
 			'jetpack-search/filter-checkbox'        => Filter_Checkbox::class,
 			'jetpack-search/filter-date'            => Filter_Date::class,
 			'jetpack-search/filter-wc-rating'       => Filter_Wc_Rating::class,
 			'jetpack-search/filter-wc-attribute'    => Filter_Wc_Attribute::class,
 			'jetpack-search/filter-wc-stock-status' => Search_Product_Filter_Status::class,
 		);
+		if ( self::woocommerce_blocks_enabled() ) {
+			return $helpers;
+		}
+		// On non-Woo sites the WC-only blocks aren't registered (see
+		// `register_blocks()`), so any saved instance in post content has no
+		// renderer. Drop them from the helper map too — that keeps the
+		// filter-config walk symmetrical with what the inserter offers.
+		foreach ( array_keys( $helpers ) as $name ) {
+			if ( self::is_woocommerce_only_block( $name ) ) {
+				unset( $helpers[ $name ] );
+			}
+		}
+		return $helpers;
 	}
 
 	/**
@@ -675,45 +989,72 @@ class Search_Blocks {
 		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$search_query       = static::parse_url_search_query();
 		$active_filters     = static::parse_url_filters();
+		$filter_logic       = static::parse_url_filter_logic( $active_filters );
 		$price_range        = static::parse_url_price_range();
 		$is_initial_loading = static::is_initial_loading();
 		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.
-			'siteId'                => $site_id,
-			'apiRoot'               => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'                 => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite'         => $is_private,
-			'isWpcom'               => $is_wpcom,
-			'homeUrl'               => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'                     => $site_id,
+			'apiRoot'                    => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'              => $is_private,
+			'isWpcom'                    => $is_wpcom,
+			// Whether the product-format sort keys (rating, price asc/desc)
+			// are valid on this site, plus a JS-side gate any WC-only block
+			// can read. The store threads it into url-state so a
+			// `?orderby=price_asc` deep link round-trips on Woo sites and
+			// collapses to relevance everywhere else.
+			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
+			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'                => function_exists( 'get_locale' )
+			'locale'                     => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
+			// Site `date_format` token string (PHP `date()` syntax — e.g.
+			// `F j, Y`, `Y-m-d`) so the result card's date matches the rest of
+			// the site rather than `toLocaleDateString`'s fixed shape. Parsed
+			// client-side by `wp-date-format.js` because the Interactivity API
+			// view bundle can't import `@wordpress/date`. Empty string falls
+			// the JS side back to its legacy `{ year, month, day }` Intl
+			// shape, which keeps tests that don't seed a format passing.
+			'dateFormat'                 => function_exists( 'get_option' )
+				? (string) get_option( 'date_format', '' )
+				: '',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'           => $search_query,
+			'searchQuery'                => $search_query,
+			// Whether the search-query URL key was present in `$_GET`, even
+			// when its value is empty. The JS store's `initialize()` reads
+			// this so a `?s=` deep link still fires the initial search —
+			// `searchQuery` alone can't carry that signal because an empty
+			// param and a missing param both round-trip as `''`.
+			'hasSearchParam'             => static::has_search_param(),
 			// URL key the JS store uses to read/write the search query. `s`
 			// on the WP search route, `q` on non-search pages — see
 			// `get_search_param_name()`. Threaded through the seed so the JS
 			// store reads from the same key the seed pulled `searchQuery`
 			// from.
-			'searchParamName'       => static::get_search_param_name(),
-			'sortOrder'             => static::parse_url_sort(),
-			'activeFilters'         => $active_filters,
-			'priceRange'            => $price_range,
+			'searchParamName'            => static::get_search_param_name(),
+			'sortOrder'                  => static::parse_url_sort(),
+			'activeFilters'              => $active_filters,
+			'filterLogic'                => $filter_logic,
+			'priceRange'                 => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
-			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs'         => array(),
+			// taxonomy, effectiveSlug, label, showCount, maxItems } }. The
+			// `effectiveSlug` is resolved server-side at config-build time
+			// against `jetpack_search_custom_taxonomy_map`, so JS query
+			// builders never have to consult the global map themselves.
+			'filterConfigs'              => array(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
@@ -727,24 +1068,24 @@ class Search_Blocks {
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'               => array(),
-			'aggregations'          => (object) array(),
+			'results'                    => array(),
+			'aggregations'               => (object) array(),
 			// Per-filter union of values seen across the session's aggregation
 			// responses. The JS store appends to this on each successful fetch
 			// so checkbox-filter lists can keep options visible even after a
 			// narrower query drops them from ES results.
-			'retainedFilterOptions' => (object) array(),
-			'totalResults'          => 0,
-			'pageHandle'            => null,
+			'retainedFilterOptions'      => (object) array(),
+			'totalResults'               => 0,
+			'pageHandle'                 => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the empty-state region inside
 			// `jetpack-search/results-list` stays hidden between first paint and JS
 			// hydrating the initial fetch — otherwise a "No results found" flash
 			// appears on deep links.
-			'isLoading'             => $is_initial_loading,
-			'isLoadingMore'         => false,
-			'hasError'              => false,
+			'isLoading'                  => $is_initial_loading,
+			'isLoadingMore'              => false,
+			'hasError'                   => false,
 
 			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
 			// `data-wp-bind--hidden` against literal seeded values (it can't
@@ -752,12 +1093,12 @@ class Search_Blocks {
 			// boolean. JS flips it to true once `actions.search()` resolves
 			// and never resets it — subsequent re-searches keep live results
 			// on screen without re-flashing placeholders.
-			'skeletonHidden'        => false,
+			'skeletonHidden'             => false,
 
 			// Seeded so the SSR pass can resolve `data-wp-text` to a real
 			// string on first paint; `actions.search()` keeps it in lockstep
 			// with `isLoading` / `totalResults` via `computeResultsCountText`.
-			'resultsCountText'      => $is_initial_loading ? $searching_text : '',
+			'resultsCountText'           => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -766,8 +1107,53 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'               => static::build_initial_strings(),
+			'strings'                    => static::build_initial_strings(),
+
+			// Currency symbol displayed inside the price filter pill rendered
+			// by the active-filters block. Defaults to `$`; the price block's
+			// render.php overrides this with the author's currencySymbol
+			// attribute so a single chip on the page reflects whatever symbol
+			// the price input itself uses. The stored numeric value stays
+			// locale-agnostic — only the display string carries the symbol.
+			'priceCurrencySymbol'        => '$',
+
+			// Display labels for `wc_stock_status` selections, keyed by slug.
+			// Seeded from the status block's static option list so an active-
+			// filters chip for "instock" reads "In stock" rather than the raw
+			// slug. RSM-1932 will swap this with WC's translated labels so
+			// non-English locales render correctly; the map shape stays the
+			// same.
+			'wcStockStatusLabels'        => static::build_stock_status_labels(),
 		);
+	}
+
+	/**
+	 * Slug → display label map for `wc_stock_status` selections, used by the
+	 * active-filters block to render product-aware chips.
+	 *
+	 * Sourced from the status block's `get_options()` so there's one source of
+	 * truth for the label set; in RSM-1932 we'll switch to WC's translated
+	 * labels (`wc_get_product_stock_status_options()`) without changing this
+	 * shape. Returns an empty array when the status helper class isn't loaded
+	 * — defensive for environments that pull the search package in isolation
+	 * (tests, partial installs, or sites where the status block PR hasn't
+	 * landed yet).
+	 *
+	 * @return array<string, string>
+	 */
+	protected static function build_stock_status_labels(): array {
+		if ( ! class_exists( Search_Product_Filter_Status::class ) ) {
+			return array();
+		}
+		$labels = array();
+		foreach ( Search_Product_Filter_Status::get_options() as $option ) {
+			$value = (string) ( $option['value'] ?? '' );
+			if ( '' === $value ) {
+				continue;
+			}
+			$labels[ $value ] = (string) ( $option['label'] ?? $value );
+		}
+		return $labels;
 	}
 
 	/**
@@ -797,8 +1183,12 @@ class Search_Blocks {
 		if ( null !== self::$is_initial_loading_cache ) {
 			return self::$is_initial_loading_cache;
 		}
-		$search_query = static::parse_url_search_query();
-		if ( '' !== $search_query ) {
+		// `has_search_param()` rather than `parse_url_search_query() !== ''` —
+		// an explicit `?s=` (empty value) still means the visitor landed on a
+		// search page and expects an initial unfiltered result set, the same
+		// as submitting a blank search form. The non-empty case is a subset
+		// of "param present" so this guard subsumes the old text-query check.
+		if ( static::has_search_param() ) {
 			self::$is_initial_loading_cache = true;
 			return true;
 		}
@@ -883,6 +1273,27 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Normalize the `displayStyle` attribute shared by the bucket-driven
+	 * filter blocks (`filter-checkbox`, `filter-date`, `filter-wc-attribute`)
+	 * so render wrappers always emit one of the two supported CSS variants.
+	 * Per-block classes delegate here so every adopting block applies the
+	 * same fallback rule.
+	 *
+	 * `filter-wc-stock-status` (single option) and `filter-wc-rating` (star
+	 * rows + "& up" suffix + count badge) deliberately don't ship a chip
+	 * variant — see the PR thread for the discussion — so they don't call
+	 * this helper today. Adding them later is a one-attribute change in
+	 * their respective `block.json` / `render.php` / `edit.js`; the helper
+	 * doesn't need updating.
+	 *
+	 * @param mixed $value Raw attribute value (string, null, or unexpected type).
+	 * @return string Either 'checkbox-list' or 'chips'.
+	 */
+	public static function normalize_display_style( $value ): string {
+		return 'chips' === $value ? 'chips' : 'checkbox-list';
+	}
+
+	/**
 	 * Seed translated view-bundle strings for the Interactivity API store.
 	 *
 	 * @return array<string, string>
@@ -890,20 +1301,41 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'          => 'Searching…',
-				'resultsCountSingle' => 'Found %d result',
-				'resultsCountPlural' => 'Found %d results',
-				'removeFilter'       => 'Remove %s',
+				'searching'              => 'Searching…',
+				'resultsCountSingle'     => 'Found %d result',
+				'resultsCountPlural'     => 'Found %d results',
+				'removeFilter'           => 'Remove %s',
+				'ratingStarsTop'         => '5 stars',
+				'ratingStarsAndUpSingle' => '%d star and up',
+				'ratingStarsAndUpPlural' => '%d stars and up',
+				'priceRangeFromTo'       => '%1$s – %2$s',
+				'priceRangeFrom'         => '%s+',
+				'priceRangeUpTo'         => 'Under %s',
+				'priceLabel'             => 'Price',
 			);
 		}
 		return array(
-			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searching'              => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			'resultsCountSingle'     => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountPlural'     => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
+			'removeFilter'           => __( 'Remove %s', 'jetpack-search-pkg' ),
+			/* translators: Active-filter chip label for the 5-star row. The 5-star row is "exactly 5 stars" — no "& up" affordance — because there is no higher rating. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsTop'         => __( '5 stars', 'jetpack-search-pkg' ),
+			/* translators: %d: rating threshold (singular form, i.e. 1). Active-filter chip label for the "1 star and up" threshold row. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsAndUpSingle' => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
+			/* translators: %d: rating threshold (plural form, i.e. 2-4). Active-filter chip label for the "X stars and up" threshold rows. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsAndUpPlural' => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
+			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
+			'priceRangeFromTo'       => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: $10+" filter pill (no upper bound) — compact "and above" form aligned with mainstream e-commerce filter chips. */
+			'priceRangeFrom'         => __( '%s+', 'jetpack-search-pkg' ),
+			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Under $50" filter pill (no lower bound) — mirrors Amazon/eBay/Walmart's "Under $X" convention. */
+			'priceRangeUpTo'         => __( 'Under %s', 'jetpack-search-pkg' ),
+			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
+			'priceLabel'             => __( 'Price', 'jetpack-search-pkg' ),
 		);
 	}
 
@@ -930,16 +1362,48 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Whether the active search-query URL key is present in `$_GET`, regardless
+	 * of value. Distinguishes `?s=` (visitor submitted a blank search and
+	 * expects an unfiltered result set) from a URL that omits `s` entirely
+	 * (homepage, archive, etc.) — `parse_url_search_query()` collapses both
+	 * to `''`. Mirrors the JS-side `hasSearchParam` field seeded into the
+	 * Interactivity store.
+	 *
+	 * Array-shaped `?s[]=foo` is treated as "not present" to stay in lockstep
+	 * with `parse_url_search_query()` (which returns `''` for non-scalar
+	 * input) — otherwise a malformed deep link would flip the page into the
+	 * loading state with no usable query to fire.
+	 *
+	 * @return bool
+	 */
+	public static function has_search_param(): bool {
+		$key = self::get_search_param_name();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL presence check; the value is never read here.
+		return isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] );
+	}
+
+	/**
 	 * Parse the sort order from the URL, defaulting to 'relevance'. Valid
-	 * values mirror the UI keys in src/instant-search/lib/constants.js
-	 * SORT_OPTIONS so deep links work across both surfaces.
+	 * values come from `Results_Sort::get_all_option_keys()` so the seeded
+	 * sort matches what the results-sort block would render — including the
+	 * product-format keys when WooCommerce is active. On non-Woo sites a
+	 * `?orderby=price_asc` deep link collapses to `relevance`, mirroring the
+	 * JS-side gate in store/url-state.js.
 	 *
 	 * @return string
 	 */
 	protected static function parse_url_sort(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
-		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
+		$allowed = array_values(
+			array_filter(
+				Results_Sort::get_all_option_keys(),
+				static function ( $key ) {
+					return 'relevance' !== $key;
+				}
+			)
+		);
+		return in_array( $orderby, $allowed, true ) ? $orderby : 'relevance';
 	}
 
 	/**
@@ -949,11 +1413,18 @@ class Search_Blocks {
 	 * garbage URL can't drive the API into producing zero results.
 	 *
 	 * Returns null when neither bound is set, so callers can early-out
-	 * without checking individual fields.
+	 * without checking individual fields. Also returns null on non-Woo
+	 * sites — `min_price` / `max_price` are WC-only and the price filter
+	 * block (`filter-wc-price`) isn't registered there, so a stray
+	 * `?min_price=10` in the URL can't drive the API into building a
+	 * `range` clause for a field the index doesn't have.
 	 *
 	 * @return array{min: float|null, max: float|null}|null
 	 */
 	protected static function parse_url_price_range(): ?array {
+		if ( ! self::woocommerce_blocks_enabled() ) {
+			return null;
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to float in parse_price_bound() which discards any non-numeric input.
 		$min = self::parse_price_bound( $_GET['min_price'] ?? null );
 		$max = self::parse_price_bound( $_GET['max_price'] ?? null );
@@ -1041,6 +1512,46 @@ class Search_Blocks {
 			if ( $clean ) {
 				$out[ $filter_key ] = $clean;
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Parse the per-filter AND/OR override params (`?query_type_<key>=and`)
+	 * from the current request URL. Returns `{ [filterKey]: 'and' }` —
+	 * matches the JS-side parser in `store/url-state.js`. Only the literal
+	 * value `'and'` is honoured; anything else collapses to the default and
+	 * is omitted so it can never round-trip back through `pushStateToUrl`.
+	 *
+	 * Filter keys for which no active selection exists are dropped because
+	 * they'd otherwise hang around in state and re-emit on the next URL push.
+	 *
+	 * @param array<string, string[]> $active_filters Result of parse_url_filters().
+	 * @return array<string, string>
+	 */
+	protected static function parse_url_filter_logic( array $active_filters ): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
+		$raw = wp_unslash( $_GET );
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $raw as $key => $value ) {
+			if ( ! is_string( $key ) || 0 !== strpos( $key, 'query_type_' ) ) {
+				continue;
+			}
+			if ( ! is_string( $value ) || 'and' !== $value ) {
+				continue;
+			}
+			$filter_key = sanitize_key( substr( $key, strlen( 'query_type_' ) ) );
+			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
+				continue;
+			}
+			if ( empty( $active_filters[ $filter_key ] ) ) {
+				continue;
+			}
+			$out[ $filter_key ] = 'and';
 		}
 		return $out;
 	}

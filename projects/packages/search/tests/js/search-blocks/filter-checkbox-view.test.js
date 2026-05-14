@@ -430,3 +430,26 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		expect( contextRef.current.wrapperHidden ).toBe( true );
 	} );
 } );
+
+describe( 'filter-checkbox view store — onFilterChange', () => {
+	// onFilterChange is display-style-agnostic: chip clicks and checkbox-list
+	// clicks both flow through the same actions.onFilterChange → setFilter
+	// path because the DOM (input + label + count) is identical across
+	// display styles. build_config() also does not emit `displayStyle` into
+	// `filterConfigs`, so the action handler has no display-style branch to
+	// exercise here — one click-routing assertion covers both variants.
+	it( 'routes filter clicks through actions.onFilterChange to setFilter', () => {
+		contextRef.current = { filterKey: 'category' };
+		captured.state.filterConfigs = { category: {} };
+
+		const setFilter = jest
+			.spyOn( captured.actions, 'setFilter' )
+			.mockImplementation( function* () {} );
+
+		const iterator = captured.actions.onFilterChange( { target: { value: 'news' } } );
+		iterator.next();
+
+		expect( setFilter ).toHaveBeenCalledWith( 'category', 'news' );
+		setFilter.mockRestore();
+	} );
+} );

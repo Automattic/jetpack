@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Dashboard: Render Reader Chat toggle in the experience-selector view so it stays reachable when the search blocks flag is on.

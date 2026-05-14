@@ -5,8 +5,7 @@
 	"version": "0.1.0",
 	"title": "Powered by Jetpack",
 	"category": "jetpack-search",
-	"icon": "wordpress",
-	"description": "Attribution link to jetpack.com. Free-plan sites always display this; paid sites can remove the block to hide it.",
+	"description": "Renders the \"Search powered by Jetpack\" attribution link to jetpack.com. Free-plan sites always display this; paid sites can remove the block to hide it.",
 	"keywords": [ "search", "jetpack", "powered by", "colophon" ],
 	"supports": {
 		"html": false,

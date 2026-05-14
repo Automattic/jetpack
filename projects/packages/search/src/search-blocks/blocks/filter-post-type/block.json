@@ -5,8 +5,7 @@
 	"version": "0.1.0",
 	"title": "Post Type Scope",
 	"category": "jetpack-search",
-	"icon": "filter",
-	"description": "Author-configured filter that constrains Jetpack Search results to a fixed set of post types (or removes specific post types). Configured in the editor inspector; renders nothing on the front end.",
+	"description": "Author-configured filter that constrains results to a fixed set of post types (or removes specific post types). Configured in the editor inspector; renders nothing on the front end. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
 		"interactivity": true,

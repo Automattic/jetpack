@@ -1,0 +1,17 @@
+.podcast__episode-thumb {
+	width: 56px;
+	height: 56px;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.podcast__episode-thumb--placeholder {
+	background: #f0f0f1;
+	border: 1px dashed #dcdcde;
+}
+
+.podcast__empty-state {
+	padding: 48px 16px;
+	text-align: center;
+	color: #757575;
+}

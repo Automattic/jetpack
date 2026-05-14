@@ -556,8 +556,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised — mirrors the pattern used by
+	 * test_can_generate_video_clips_true_when_wpcom_helper_true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_true_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->enable_and_enqueue_block_editor();
 
@@ -574,8 +593,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so both hard gates pass — otherwise the wpcom gate could
+	 * short-circuit to false and the assertion would succeed without actually
+	 * exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_false_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
 		$this->enable_and_enqueue_block_editor();
 
@@ -591,14 +629,110 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that image_studio_can_generate_video_clips() honors the override filter.
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to false. The filter is consulted between the hard
+	 * gates and the default `true`.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()`
+	 * to return true so both hard gates pass — otherwise the wpcom gate
+	 * could short-circuit to false and the assertion would succeed without
+	 * actually exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_can_generate_video_clips_filter_override() {
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_false() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to true once both hard gates pass.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_true() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
 
-		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
-		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+	/**
+	 * Test that the helper returns false when Image Studio itself is not
+	 * enabled, regardless of the underlying video-upload capability. Ensures
+	 * video clip generation is only surfaced on plans/environments that
+	 * already support Image Studio.
+	 */
+	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
+	 * before the filter so accidental usage on unsupported environments still
+	 * reports false.
+	 */
+	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
+		$this->disable_ai_features();
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * `wpcom_site_can_upload_videos()` capability check. Both hard gates must
+	 * pass before the filter is consulted, so a plan that doesn't support
+	 * video uploads always reports false even with the filter forcing true.
+	 *
+	 * Runs in a separate process so we can stub the global helper without
+	 * leaking the definition into the main test process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_cannot_override_no_video_upload() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
@@ -1757,6 +1891,114 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Feature clip post meta tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that the feature clip meta key constant is defined correctly.
+	 */
+	public function test_feature_clip_meta_key_constant() {
+		$this->assertEquals( '_jetpack_feature_clip_id', ImageStudio\FEATURE_CLIP_META_KEY );
+	}
+
+	/**
+	 * Test that the feature clip meta is registered for the 'post' object type
+	 * with the expected schema (integer, single, exposed in REST).
+	 */
+	public function test_feature_clip_post_meta_registered_when_enabled() {
+		// The plugin's `init` hook should have registered the meta during bootstrap.
+		// Re-run the registration explicitly so the test isn't sensitive to setup order.
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		$schema = $registered[ ImageStudio\FEATURE_CLIP_META_KEY ];
+		$this->assertSame( 'integer', $schema['type'] );
+		$this->assertTrue( $schema['single'] );
+		$this->assertTrue( $schema['show_in_rest'] );
+		$this->assertSame( 0, $schema['default'] );
+		$this->assertSame( 'absint', $schema['sanitize_callback'] );
+		$this->assertIsCallable( $schema['auth_callback'] );
+	}
+
+	/**
+	 * Test that the registered default surfaces as `0` from `get_post_meta()`
+	 * for posts without an explicit value, so REST clients always see a
+	 * deterministic integer instead of `null` or an empty string.
+	 */
+	public function test_feature_clip_meta_default_value_is_zero() {
+		ImageStudio\register_feature_clip_post_meta();
+
+		$post_id = self::factory()->post->create();
+		$value   = get_post_meta( $post_id, ImageStudio\FEATURE_CLIP_META_KEY, true );
+
+		$this->assertSame( 0, $value );
+	}
+
+	/**
+	 * Test that the meta auth callback grants access when the user can edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_grants_when_user_can_edit_post() {
+		$user_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue(
+			ImageStudio\feature_clip_meta_auth_callback( false, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access when the user cannot edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_when_user_cannot_edit_post() {
+		$post_id       = self::factory()->post->create();
+		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( $subscriber_id );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access for an anonymous user.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_anonymous_user() {
+		$post_id = self::factory()->post->create();
+		wp_set_current_user( 0 );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the registration is gated on `is_image_studio_enabled()`. When
+	 * Image Studio is disabled, calling the registration helper directly is a no-op.
+	 */
+	public function test_feature_clip_post_meta_skipped_when_disabled() {
+		// Force the gate to false by disabling AI features and Big Sky.
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Unregister any prior registration so we can detect a no-op.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayNotHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
 	}
 
 	// -------------------------------------------------------------------------

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Improved the MCP settings UI by fixing browser Back button navigation, changing setup instructions to unordered lists, correcting the 'All enabled' label vertical alignment, and tightening toggle help-text spacing.

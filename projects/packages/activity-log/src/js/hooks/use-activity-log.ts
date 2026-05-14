@@ -10,6 +10,8 @@
 import { queryOptions } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import type {
+	ActivityLogActorsParams,
+	ActivityLogActorsResponse,
 	ActivityLogEntry,
 	ActivityLogGroupCountResponse,
 	ActivityLogParams,
@@ -40,7 +42,7 @@ interface RawActivityLogResponse {
  *               `key[]=value` pairs; undefined/null are dropped.
  * @return The combined path.
  */
-const buildPath = ( base: string, params: ActivityLogParams ): string => {
+const buildPath = ( base: string, params: ActivityLogParams | ActivityLogActorsParams ): string => {
 	const search = new URLSearchParams();
 	Object.entries( params ).forEach( ( [ key, value ] ) => {
 		if ( value === undefined || value === null ) {
@@ -95,6 +97,24 @@ export function activityLogGroupCountsQuery( params: ActivityLogParams ) {
 		queryFn: async (): Promise< ActivityLogGroupCountResponse > => {
 			return apiFetch< ActivityLogGroupCountResponse >( {
 				path: buildPath( '/jetpack/v4/activity-log/count/group', params ),
+			} );
+		},
+	} );
+}
+
+/**
+ * TanStack Query options for the actors endpoint powering the
+ * "Performed by" filter dropdown.
+ *
+ * @param params - Forwarded to the server as query params.
+ * @return `queryOptions` ready to pass to `useQuery`.
+ */
+export function activityLogActorsQuery( params: ActivityLogActorsParams ) {
+	return queryOptions( {
+		queryKey: [ 'jetpack-activity-log', 'actors', params ],
+		queryFn: async (): Promise< ActivityLogActorsResponse > => {
+			return apiFetch< ActivityLogActorsResponse >( {
+				path: buildPath( '/jetpack/v4/activity-log/actors', params ),
 			} );
 		},
 	} );
