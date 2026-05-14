@@ -255,12 +255,16 @@ describe( 'AreaChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			const initialDomain = ref.current?.getScales()?.yScale?.domain();
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
 			expect( initialDomain ).toBeDefined();
 
 			await user.click( screen.getByText( 'Series A' ) );
 
-			const afterToggleDomain = ref.current?.getScales()?.yScale?.domain();
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
@@ -295,7 +299,9 @@ describe( 'AreaChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			const [ min, max ] = ref.current?.getScales()?.yScale?.domain() ?? [];
+			const [ min, max ] =
+				( ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined )?.domain() ??
+				[];
 			expect( min ).toBeLessThanOrEqual( -15 );
 			expect( max ).toBeGreaterThanOrEqual( 20 );
 		} );
@@ -317,7 +323,9 @@ describe( 'AreaChart', () => {
 
 			// `expand` normalises to [0,1]; if we accidentally pinned the raw-sum
 			// domain (e.g. [0, 35]), the top of the domain would be far above 1.
-			const [ min, max ] = ref.current?.getScales()?.yScale?.domain() ?? [];
+			const [ min, max ] =
+				( ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined )?.domain() ??
+				[];
 			expect( min ).toBeGreaterThanOrEqual( 0 );
 			expect( max ).toBeLessThanOrEqual( 1.001 );
 		} );
