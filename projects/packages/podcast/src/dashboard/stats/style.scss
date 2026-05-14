@@ -98,6 +98,14 @@ $bar-fill: #2271b1;
 				line-height: 1.3;
 			}
 		}
+
+		// Downloads chart card shares SectionCard but stays compact —
+		// no heavy CardHeader divider, tighter header padding.
+		&.podcast-stats-chart .components-card__header {
+			border-block-end: 0;
+			padding-block: 10px;
+			min-height: 0;
+		}
 	}
 
 	&__section-title {
