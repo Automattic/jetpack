@@ -162,8 +162,11 @@
 	padding: 9px 0;
 	width: 100%;
 
-	&:hover {
+	&:hover,
+	&:focus,
+	&:active {
 		background: helper.$color-surface-alt;
+		color: helper.$color-link;
 	}
 }
 

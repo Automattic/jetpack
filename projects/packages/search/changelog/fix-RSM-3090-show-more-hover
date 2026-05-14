@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Fix AI Answers "Show more" button text becoming invisible on hover on sites with global button hover styles.
