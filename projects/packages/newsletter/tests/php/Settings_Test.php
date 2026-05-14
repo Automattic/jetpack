@@ -219,6 +219,8 @@ class Settings_Test extends BaseTestCase {
 	 * auto-generated `<page>-wp-admin` enqueue check passes. The slug we expose
 	 * to admins stays `jetpack-newsletter`, but wp-build expects
 	 * `jetpack-newsletter-dashboard` — the alias hides the mismatch.
+	 *
+	 * @phan-suppress PhanTypeMismatchArgumentProbablyReal -- stdClass stands in for WP_Screen; the production code only requires an object with an `id` property, and instantiating WP_Screen in unit tests is impractical.
 	 */
 	public function test_alias_screen_id_rewrites_current_screen_id() {
 		$screen      = (object) array( 'id' => 'jetpack_page_jetpack-newsletter' );
@@ -237,6 +239,8 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * The alias is called from the `current_screen` action, which can pass null
 	 * before the screen is set. The guard must accept that without warning.
+	 *
+	 * @phan-suppress PhanTypeMismatchArgumentProbablyReal -- the whole point of this test is to drive non-WP_Screen values through the `is_object()` guard.
 	 */
 	public function test_alias_screen_id_is_noop_for_non_object_input() {
 		// Calling with null/false/string must not warn or throw.
