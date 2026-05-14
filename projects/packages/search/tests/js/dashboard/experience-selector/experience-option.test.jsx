@@ -83,16 +83,30 @@ describe( '<ExperienceOption>', () => {
 		);
 	} );
 
-	test( 'commit button opens a confirmation dialog; cancelling closes it', () => {
-		renderWith( baseSettings, { experience: 'inline' } );
-		fireEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
-		const dialog = screen.getByRole( 'dialog' );
-		expect( dialog ).toHaveTextContent(
-			/switch the visitor-facing search experience to theme search/i
+	test( 'commit → confirm dispatches saveExperience for the card experience', () => {
+		// Override the store's `saveExperience` action so we can observe the
+		// dispatch and short-circuit the real generator (which would otherwise
+		// fetch /wp/v2/settings). The mock has to return a plain action object —
+		// Redux middleware refuses undefined.
+		const saveExperienceMock = jest.fn( () => ( { type: 'NOOP' } ) );
+		const registry = createRegistry();
+		const store = createReduxStore( STORE_ID, {
+			...storeConfig,
+			initialState: { ...( storeConfig.initialState || {} ), jetpackSettings: baseSettings },
+			actions: { ...storeConfig.actions, saveExperience: saveExperienceMock },
+		} );
+		registry.register( store );
+		render(
+			<RegistryProvider value={ registry }>
+				<ExperienceOption experience="inline" />
+			</RegistryProvider>
 		);
-		// The dialog's "Cancel" button (rendered alongside the confirmation
-		// button) closes the dialog without saving.
-		fireEvent.click( screen.getAllByRole( 'button', { name: /cancel/i } )[ 0 ] );
+		fireEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
+		// Dialog renders a second "Use Theme search" button (the confirm) —
+		// the hover-card one is first, confirm is last in DOM order.
+		const buttons = screen.getAllByRole( 'button', { name: /use theme search/i } );
+		fireEvent.click( buttons[ buttons.length - 1 ] );
+		expect( saveExperienceMock ).toHaveBeenCalledWith( 'inline' );
 	} );
 } );
 

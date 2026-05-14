@@ -138,7 +138,7 @@
 	display: flex;
 	justify-content: flex-end;
 	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-2xl);
-	background: linear-gradient(to top, var(--wpds-color-bg-surface-neutral-strong) 65%, rgb(255 255 255 / 0%));
+	background: linear-gradient(to top, var(--wpds-color-bg-surface-neutral-strong) 65%, transparent);
 	border-end-end-radius: inherit;
 	border-end-start-radius: inherit;
 	z-index: 4;

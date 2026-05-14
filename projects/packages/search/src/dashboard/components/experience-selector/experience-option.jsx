@@ -97,16 +97,20 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
-	const cardLabel = disabled
-		? `${ getExperienceLabel( experience ) }. ${ upsellHint }`
-		: getExperienceLabel( experience );
+	// `role="group"` makes the surrounding `<div>` an ARIA-recognised landmark
+	// so its `aria-label` / `aria-disabled` actually announce. The card's `<h2>`
+	// is named via `aria-labelledby`, which is the announce-by-content pattern
+	// preferred when the label is already on-screen.
+	const titleId = `jp-search-experience-option-title-${ experience }`;
+	const commitButtonDisabled = disabled || isUpdating;
 
 	return (
 		<Stack
+			role="group"
 			direction="column"
 			gap="lg"
 			className={ className }
-			aria-label={ cardLabel }
+			aria-labelledby={ titleId }
 			aria-disabled={ disabled || undefined }
 		>
 			{ isActive && (
@@ -117,7 +121,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			<Preview />
 			<Stack direction="column" gap="lg" className="jp-search-experience-option__content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
-					<h2 className="jp-search-experience-option__title">
+					<h2 id={ titleId } className="jp-search-experience-option__title">
 						{ getExperienceLabel( experience ) }
 					</h2>
 					{ isRecommended && (
@@ -168,9 +172,21 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				<div className="jp-search-experience-option__commit">
 					<Button
 						variant="primary"
-						disabled={ disabled || isUpdating }
+						disabled={ commitButtonDisabled }
 						loading={ isUpdating }
-						onClick={ () => setConfirmOpen( true ) }
+						// `@wordpress/ui` Button uses `aria-disabled` rather than the
+						// native `disabled` attribute (to preserve focus order on
+						// disabled controls). aria-disabled doesn't block click
+						// events reliably across versions, so guard the handler too.
+						onClick={ () => {
+							if ( commitButtonDisabled ) {
+								return;
+							}
+							setConfirmOpen( true );
+						} }
+						aria-label={
+							disabled ? `${ getCommitLabel( experience ) }. ${ upsellHint }` : undefined
+						}
 					>
 						{ getCommitLabel( experience ) }
 					</Button>

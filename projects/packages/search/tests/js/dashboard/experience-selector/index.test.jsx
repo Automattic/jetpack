@@ -30,18 +30,15 @@ const baseSettings = {
 };
 
 describe( '<ExperienceSelector>', () => {
-	test( 'renders four cards in display order, each titled', () => {
+	test( 'renders four cards in display order', () => {
 		renderWith( baseSettings );
-		expect(
-			screen.getByRole( 'heading', { level: 2, name: /embedded search/i } )
-		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'heading', { level: 2, name: /overlay search/i } )
-		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'heading', { level: 2, name: /theme search/i } )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: /^off$/i } ) ).toBeInTheDocument();
+		const headings = screen.getAllByRole( 'heading', { level: 2 } );
+		expect( headings.map( h => h.textContent ) ).toEqual( [
+			'Embedded search',
+			'Overlay search',
+			'Theme search',
+			'Off',
+		] );
 	} );
 
 	test( 'renders the page heading at h1', () => {

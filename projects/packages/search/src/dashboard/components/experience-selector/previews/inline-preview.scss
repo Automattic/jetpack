@@ -41,16 +41,6 @@
 	padding-inline: var(--wpds-dimension-padding-sm);
 }
 
-.jp-search-inline-preview__line {
-	height: 6px;
-	background: var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-sm);
-
-	&.is-short {
-		width: 70%;
-	}
-}
-
 .jp-search-inline-preview__timing {
 	position: absolute;
 	inset-block-end: var(--wpds-dimension-padding-md);
