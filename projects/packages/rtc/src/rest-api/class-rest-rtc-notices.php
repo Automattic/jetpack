@@ -3,8 +3,6 @@
  * REST API controller for RTC notices.
  *
  * Handles:
- * - Per-user dismissal of the RTC welcome notice via user meta
- *   (works on Simple, Atomic, and self-hosted sites).
  * - Join requests: when a non-admin is blocked by the collaborator limit,
  *   their browser records a join request so the admin can be notified.
  *
@@ -23,34 +21,12 @@ use WP_REST_Server;
  */
 class REST_RTC_Notices extends WP_REST_Controller {
 
-	// Kept as wpcom_* for backward compatibility with existing user meta.
-	const OPTION_KEY          = 'wpcom_rtc_welcome_notice_dismissed';
 	const JOIN_REQUEST_OPTION = 'rtc_pending_join_requests';
 
 	/**
 	 * Register the routes.
 	 */
 	public function register_routes() {
-		register_rest_route(
-			'wpcom/v2',
-			'/rtc-notices/dismiss',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'dismiss_notice' ),
-				'permission_callback' => array( $this, 'check_permission' ),
-			)
-		);
-
-		register_rest_route(
-			'wpcom/v2',
-			'/rtc-notices/status',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_status' ),
-				'permission_callback' => array( $this, 'check_permission' ),
-			)
-		);
-
 		register_rest_route(
 			'wpcom/v2',
 			'/rtc-notices/join-request',
@@ -104,15 +80,6 @@ class REST_RTC_Notices extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check if the current user is logged in.
-	 *
-	 * @return bool
-	 */
-	public function check_permission() {
-		return is_user_logged_in();
-	}
-
-	/**
 	 * Check if the current user can edit the post specified in the request.
 	 *
 	 * @param WP_REST_Request $request The request.
@@ -144,35 +111,6 @@ class REST_RTC_Notices extends WP_REST_Controller {
 		}
 
 		return $this->check_edit_post_permission( $request );
-	}
-
-	/**
-	 * Dismiss the welcome notice.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function dismiss_notice() {
-		update_user_option( get_current_user_id(), self::OPTION_KEY, 'dismissed' );
-		return rest_ensure_response( array( 'success' => true ) );
-	}
-
-	/**
-	 * Get the dismissed status.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function get_status() {
-		return rest_ensure_response( array( 'dismissed' => self::is_dismissed() ) );
-	}
-
-	/**
-	 * Check if the welcome notice is dismissed.
-	 * Uses user options (not user meta) so dismissal is per-site on multisite/Simple.
-	 *
-	 * @return bool
-	 */
-	public static function is_dismissed() {
-		return 'dismissed' === get_user_option( self::OPTION_KEY, get_current_user_id() );
 	}
 
 	/**
