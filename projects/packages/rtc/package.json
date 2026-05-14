@@ -26,7 +26,6 @@
 	"dependencies": {
 		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/components": "32.6.0",
-		"@wordpress/data": "10.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/hooks": "4.44.0",
 		"@wordpress/i18n": "6.17.0",

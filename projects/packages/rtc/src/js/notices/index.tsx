@@ -8,7 +8,7 @@ import './public-path';
  * Registers a sync.providers filter (priority 20) that wraps providers with
  * room-limit enforcement, a filter on editor.SyncConnectionErrorModal to
  * replace Gutenberg's default connection error modal with RTC-specific
- * notices, and a block editor plugin for the welcome notice and admin polling.
+ * notices, and a block editor plugin for admin polling.
  */
 
 import { addFilter } from '@wordpress/hooks';
@@ -16,11 +16,9 @@ import { registerPlugin } from '@wordpress/plugins';
 import RtcAdminSomeoneWaitingNotice from './notices/rtc-admin-someone-waiting-notice';
 import { registerConnectionErrorModalFilter } from './notices/rtc-connection-error-modal-filter';
 import RtcNonAdminPostUpgradeNotice from './notices/rtc-non-admin-post-upgrade-notice';
-import RtcWelcomeNotice from './notices/rtc-welcome-notice';
 import { withRoomLimit } from './room-limit';
 import type { ProviderCreator } from '@wordpress/sync';
 
-const enableWelcomeNotice = window.jetpackRtcNotices?.enableWelcomeNotice ?? false;
 const enableLimitNotices = window.jetpackRtcNotices?.enableLimitNotices ?? false;
 
 /**
@@ -60,7 +58,6 @@ if ( enableLimitNotices ) {
 const RtcNoticesPlugin = () => {
 	return (
 		<>
-			{ enableWelcomeNotice && <RtcWelcomeNotice /> }
 			{ enableLimitNotices && <RtcAdminSomeoneWaitingNotice /> }
 			{ enableLimitNotices && <RtcNonAdminPostUpgradeNotice /> }
 		</>
