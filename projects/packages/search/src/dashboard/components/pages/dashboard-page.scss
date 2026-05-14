@@ -92,3 +92,20 @@
 		margin-bottom: 0;
 	}
 }
+
+.jp-search-reader-chat-card {
+	margin-block-start: var(--wpds-dimension-gap-xl);
+	padding: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-bg-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+
+	// ReaderChatControl is shared with the legacy ModuleControl, which
+	// gives `.jp-form-search-settings-group__toggle.is-reader-chat` a 4em
+	// top margin to separate it from the toggles above. Inside this card
+	// it's the only child, so reset that spacing — the card's own padding
+	// handles the gap.
+	.jp-form-search-settings-group__toggle.is-reader-chat {
+		margin-top: 0;
+	}
+}
