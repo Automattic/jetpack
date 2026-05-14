@@ -1,4 +1,3 @@
 Significance: patch
 Type: added
-
-Empty Overview tab on the modernized chassis with a connected-accounts card and an 'Add account' page-header action; gated behind the modernization flag.
+Comment: Overview tab on the modernized chassis with a connected-accounts card and an 'Add account' page-header action; gated behind the modernization flag, no user-visible change unless enabled.
