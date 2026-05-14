@@ -32,7 +32,7 @@ const baseSettings = {
 describe( '<ExperienceSelector>', () => {
 	test( 'renders four cards in display order', () => {
 		renderWith( baseSettings );
-		const headings = screen.getAllByRole( 'heading', { level: 2 } );
+		const headings = screen.getAllByRole( 'heading', { level: 3 } );
 		expect( headings.map( h => h.textContent ) ).toEqual( [
 			'Embedded search',
 			'Overlay search',
@@ -41,11 +41,11 @@ describe( '<ExperienceSelector>', () => {
 		] );
 	} );
 
-	test( 'renders the page heading at h1', () => {
+	test( 'renders the page heading at h2', () => {
 		renderWith( baseSettings );
 		expect(
 			screen.getByRole( 'heading', {
-				level: 1,
+				level: 2,
 				name: /select a search experience for your visitors/i,
 			} )
 		).toBeInTheDocument();
@@ -84,15 +84,15 @@ describe( '<ExperienceSelector>', () => {
 	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
 		renderWith( baseSettings, { siteData: { isWpcom: true } } );
 		expect(
-			screen.getByRole( 'heading', { level: 2, name: /embedded search/i } )
+			screen.getByRole( 'heading', { level: 3, name: /embedded search/i } )
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole( 'heading', { level: 2, name: /overlay search/i } )
+			screen.getByRole( 'heading', { level: 3, name: /overlay search/i } )
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole( 'heading', { level: 2, name: /theme search/i } )
+			screen.getByRole( 'heading', { level: 3, name: /theme search/i } )
 		).toBeInTheDocument();
-		expect( screen.queryByRole( 'heading', { level: 2, name: /^off$/i } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 3, name: /^off$/i } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'disables Embedded and Overlay commit buttons when plan supports only Classic Search', () => {

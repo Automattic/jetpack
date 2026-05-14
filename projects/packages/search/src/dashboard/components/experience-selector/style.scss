@@ -2,13 +2,10 @@
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
-// Match the Plan & Usage `<h1>` ("Help your visitors find exactly what
-// they're looking for, fast" in `dashboard-page.scss`) so the two tabs share
-// a single page-level type scale.
 .jp-search-experience-selector__heading {
 	margin: 0 0 var(--wpds-dimension-gap-xl);
-	font-size: 2.25em;
-	line-height: 1.111;
+	font-size: var(--wpds-typography-font-size-xl);
+	line-height: var(--wpds-typography-line-height-md);
 }
 
 .jp-search-experience-selector__fieldset {

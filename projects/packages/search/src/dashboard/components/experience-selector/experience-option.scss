@@ -22,10 +22,13 @@
 		border-color: var(--wpds-color-stroke-interactive-neutral);
 	}
 
-	// Active = the currently-saved experience. Tinted background + brand border
-	// so the eye lands on it without needing to find the small "Active" badge.
+	// Active = the currently-saved experience. Tinted brand surface + brand
+	// border so the eye lands on it without needing to find the small "Active"
+	// badge. `bg-interactive-brand-weak` is intentionally transparent in WPDS
+	// (it's a hover wash, not a fill) — `bg-surface-brand` is the named token
+	// for a soft brand-tinted surface, which is what we actually want here.
 	&.is-active {
-		background: var(--wpds-color-bg-interactive-brand-weak);
+		background: var(--wpds-color-bg-surface-brand);
 		border-color: var(--wpds-color-stroke-interactive-brand);
 	}
 

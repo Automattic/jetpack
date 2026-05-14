@@ -37,12 +37,12 @@ export default function ExperienceSelector() {
 
 	return (
 		<>
-			<h1
+			<h2
 				id="jp-search-experience-selector-heading"
 				className="jp-search-experience-selector__heading"
 			>
 				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
-			</h1>
+			</h2>
 			<div className="jp-search-experience-selector">
 				<fieldset
 					className="jp-search-experience-selector__fieldset"
