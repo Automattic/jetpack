@@ -33,10 +33,14 @@ export default function HeaderActions( {
 }: Props ): ReactElement {
 	return (
 		<Stack direction="row" gap="sm" align="center">
-			<Button disabled={ ! canSave } onClick={ onSave }>
+			<Button size="compact" disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<DropdownMenu icon={ moreVertical } label={ __( 'More actions', 'jetpack-videopress-pkg' ) }>
+			<DropdownMenu
+				icon={ moreVertical }
+				label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
+				toggleProps={ { size: 'compact' } }
+			>
 				{ ( { onClose } ) => (
 					<MenuGroup>
 						<MenuItem

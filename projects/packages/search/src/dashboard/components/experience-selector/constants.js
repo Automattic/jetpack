@@ -1,5 +1,4 @@
 import { __, _x } from '@wordpress/i18n';
-import { grid, navigationOverlay, trendingUp, notAllowed } from '@wordpress/icons';
 
 /**
  * Experience IDs.
@@ -49,53 +48,5 @@ export function getExperienceLabel( experience ) {
 			return _x( 'Off', 'Jetpack Search disabled', 'jetpack-search-pkg' );
 		default:
 			return '';
-	}
-}
-
-/**
- * Get the human-readable description for an experience.
- *
- * Note: The Overlay description deliberately references "Instant Search" —
- * the older marketing name — so existing users connect the two.
- *
- * @param {string} experience - One of the EXPERIENCE values.
- * @return {string} - Translated description.
- */
-export function getExperienceDescription( experience ) {
-	switch ( experience ) {
-		case EXPERIENCE.EMBEDDED:
-			return __(
-				'A search-as-you-type customizable search page built with blocks.',
-				'jetpack-search-pkg'
-			);
-		case EXPERIENCE.OVERLAY:
-			return __( 'A search-as-you-type overlay (formerly Instant Search).', 'jetpack-search-pkg' );
-		case EXPERIENCE.INLINE:
-			return __( "Your theme's search layout, with faster results.", 'jetpack-search-pkg' );
-		case EXPERIENCE.OFF:
-			return __( 'WordPress default search.', 'jetpack-search-pkg' );
-		default:
-			return '';
-	}
-}
-
-/**
- * Get the icon component for an experience.
- *
- * @param {string} experience - One of the EXPERIENCE values.
- * @return {object} - A `@wordpress/icons` icon definition.
- */
-export function getExperienceIcon( experience ) {
-	switch ( experience ) {
-		case EXPERIENCE.EMBEDDED:
-			return grid;
-		case EXPERIENCE.OVERLAY:
-			return navigationOverlay;
-		case EXPERIENCE.INLINE:
-			return trendingUp;
-		case EXPERIENCE.OFF:
-			return notAllowed;
-		default:
-			return null;
 	}
 }

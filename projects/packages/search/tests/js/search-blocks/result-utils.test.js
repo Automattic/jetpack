@@ -6,10 +6,18 @@ import {
 	formatDate,
 	formatPath,
 	normalizeResult,
+	setSeededDateFormat,
 	stripTags,
 	toSafeUrl,
 	tokenizeHighlight,
 } from '../../../src/search-blocks/store/result-utils';
+
+// `setSeededDateFormat()` writes module-scoped state that bleeds across tests
+// — reset before each case so an earlier seed can't leak into the next test's
+// `formatDate()` / `normalizeResult()` output.
+beforeEach( () => {
+	setSeededDateFormat( '' );
+} );
 
 describe( 'toSafeUrl', () => {
 	it( 'passes through https URLs', () => {
@@ -82,6 +90,61 @@ describe( 'formatDate', () => {
 
 	it( 'falls back to en-US when locale is empty string', () => {
 		expect( formatDate( '2026-04-20T10:00:00Z', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
+
+	it( 'honors a WP F j, Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+
+	it( 'honors a WP Y-m-d date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'Y-m-d' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'honors a WP d/m/Y date_format', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'd/m/Y' ) ).toBe( '20/04/2026' );
+	} );
+
+	it( 'honors an ordinal-suffixed l, F jS Y date_format', () => {
+		// 2026-04-20 is a Monday; 20 → "20th".
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'l, F jS Y' ) ).toBe(
+			'Monday, April 20th 2026'
+		);
+	} );
+
+	it( 'localizes month names within a WP date_format', () => {
+		// French May → "mai", layout still follows the F j, Y token order.
+		expect( formatDate( '2026-05-04T10:00:00Z', 'fr-FR', 'F j, Y' ) ).toBe( 'mai 4, 2026' );
+	} );
+
+	it( 'treats a backslash as a literal-escape', () => {
+		// `\Y` should emit a literal Y, not the year token.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '\\Y=Y' ) ).toBe( 'Y=2026' );
+	} );
+
+	it( 'leaves the legacy short-form output untouched when dateFormat is empty', () => {
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+	} );
+
+	it( 'picks up the seeded date format from setSeededDateFormat by default', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// No explicit dateFormat arg → falls back to the module-scoped seed.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( '2026-04-20' );
+	} );
+
+	it( 'lets an explicit dateFormat argument override the seed', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		// Explicit '' override falls back to legacy `toLocaleDateString`; the
+		// seeded `Y-m-d` doesn't leak through.
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', '' ) ).toBe( 'Apr 20, 2026' );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US', 'F j, Y' ) ).toBe( 'April 20, 2026' );
+	} );
+} );
+
+describe( 'setSeededDateFormat', () => {
+	it( 'ignores non-string input and resets to empty', () => {
+		setSeededDateFormat( 'Y-m-d' );
+		setSeededDateFormat( null );
+		expect( formatDate( '2026-04-20T10:00:00Z', 'en-US' ) ).toBe( 'Apr 20, 2026' );
 	} );
 } );
 
@@ -472,6 +535,12 @@ describe( 'normalizeResult', () => {
 	it( 'passes locale through to dateLabel', () => {
 		const r = normalizeResult( { fields: { date: '2026-04-20T10:00:00Z' } }, 'fr-FR' );
 		expect( r.dateLabel ).toMatch( /20 avr/ );
+	} );
+
+	it( 'honors the seeded WP date_format when rendering dateLabel', () => {
+		setSeededDateFormat( 'F j, Y' );
+		const r = normalizeResult( { fields: { date: '2026-04-20T10:00:00Z' } }, 'en-US' );
+		expect( r.dateLabel ).toBe( 'April 20, 2026' );
 	} );
 
 	it( 'exposes authorLabel for a single-author result', () => {

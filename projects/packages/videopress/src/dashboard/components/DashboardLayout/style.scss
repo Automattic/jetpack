@@ -7,20 +7,22 @@ body.jetpack_page_jetpack-videopress {
 	// Propagate the admin page's flex column through @wordpress/ui's Tabs
 	// primitives, which default to display:block and break the chain. Lets
 	// DataViews-based tabs (Library) flex-grow into the available area and
-	// pin their pagination to the visible bottom. Targeted via stable ARIA
-	// roles, not Base UI's obfuscated CSS-in-JS classnames.
-	:has(> [role="tabpanel"]) { // Tabs.Root
+	// pin their pagination to the visible bottom. Scoped to the dashboard
+	// Tabs.Root via a stable class so we don't reach into nested tabpanels
+	// inside individual routes (e.g. the Overview screen's KPI tablist /
+	// chart tabpanel).
+	.vp-dashboard-tabs {
 		display: flex;
 		flex-direction: column;
 		flex: 1 1 0;
 		min-height: 0;
-	}
 
-	[role="tabpanel"] {
-		display: flex;
-		flex-direction: column;
-		flex: 1 1 0;
-		min-height: 0;
+		> [role="tabpanel"] {
+			display: flex;
+			flex-direction: column;
+			flex: 1 1 0;
+			min-height: 0;
+		}
 	}
 
 	// Match the design-system default-variant Tabs (Storybook reference).

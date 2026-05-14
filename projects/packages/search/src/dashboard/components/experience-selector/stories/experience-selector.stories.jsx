@@ -2,21 +2,14 @@ import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/d
 import { action } from 'storybook/actions';
 import { storeConfig, STORE_ID } from '../../../store';
 import { EXPERIENCE } from '../constants';
-import FeatureSelector from '../index';
+import ExperienceSelector from '../index';
 
 export default {
-	title: 'Packages/Search/FeatureSelector',
-	component: FeatureSelector,
+	title: 'Packages/Search/ExperienceSelector',
+	component: ExperienceSelector,
 	parameters: {
-		layout: 'centered',
+		layout: 'padded',
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: 900 } }>
-				<Story />
-			</div>
-		),
-	],
 	argTypes: {
 		isWpcom: {
 			control: 'boolean',
@@ -59,7 +52,9 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} 
 		initialState: {
 			...( storeConfig.initialState || {} ),
 			jetpackSettings,
-			sitePlan,
+			// Default `supports_instant_search: true` so the Overlay card renders
+			// both customization actions; stories override via the arg.
+			sitePlan: { supports_instant_search: true, ...sitePlan },
 			siteData,
 		},
 	} );
@@ -73,7 +68,7 @@ const renderWithStoryArgs = ( settings, args ) => {
 	const registry = createStoreWithSettings( settings, sitePlan, siteData );
 	return (
 		<RegistryProvider value={ registry }>
-			<FeatureSelector />
+			<ExperienceSelector />
 		</RegistryProvider>
 	);
 };

@@ -3,7 +3,7 @@
  */
 import { AdminPage, Col, Container, GlobalNotices } from '@automattic/jetpack-components';
 import { useConnection, getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { createRoot, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -36,6 +36,12 @@ export function NewsletterSettingsApp(): JSX.Element {
 		[]
 	);
 
+	// `AdminPage` writes these into the shared `restApi` client on mount,
+	// defaulting to '' when omitted — which clobbers the root the settings
+	// API set up itself and breaks saves with a 404. Feed it the real values
+	// from script data so it stays consistent with `./api.ts`.
+	const siteData = getSiteData();
+
 	return (
 		<AdminPage
 			title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
@@ -43,6 +49,8 @@ export function NewsletterSettingsApp(): JSX.Element {
 				'Transform your blog posts into newsletters to easily reach your subscribers.',
 				'jetpack-newsletter'
 			) }
+			apiRoot={ siteData?.rest_root }
+			apiNonce={ siteData?.rest_nonce }
 		>
 			<GlobalNotices />
 			<Container horizontalSpacing={ 0 }>

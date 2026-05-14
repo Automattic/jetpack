@@ -142,7 +142,7 @@ export function setActiveExperience( experience ) {
  * the signal we read here. On failure we leave `pending_experience` in place
  * so the user can retry without re-clicking.
  *
- * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
+ * The whole experience-selector UI is gated behind `jetpack_search_blocks_enabled`,
  * so we send only `{ experience }`. The back end resolves the storage shape —
  * `'off'` deactivates the module, `'inline'` deletes the experience option,
  * `'embedded'` / `'overlay'` write affirmative values — and resolves the

@@ -1,4 +1,3 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -17,9 +16,10 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import CoverImageControl from './cover-image-control';
@@ -91,6 +91,20 @@ const SettingsTab = () => {
 
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
+	const [ createCategoryOpen, setCreateCategoryOpen ] = useState( false );
+	const [ newCategoryName, setNewCategoryName ] = useState( '' );
+	const [ createError, setCreateError ] = useState< string | null >( null );
+	const [ creating, setCreating ] = useState( false );
+
+	const { saveEntityRecord } = useDispatch( coreStore );
+
+	// `canUser` returns `undefined` while resolving, then `true`/`false`. Treat
+	// the loading state as "allowed" so the button doesn't flash hidden; only
+	// hide it once the REST OPTIONS probe definitively says no.
+	const canCreateCategory = useSelect(
+		select => select( coreStore ).canUser( 'create', 'categories' ),
+		[]
+	);
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
@@ -209,6 +223,73 @@ const SettingsTab = () => {
 		commit( { podcasting_category_id: 0 } );
 	}, [ commit ] );
 
+	const openCreateCategory = useCallback( () => setCreateCategoryOpen( true ), [] );
+	// `force` skips the in-flight guard so the success path can reset state
+	// while the finally block still has `creating === true`. The Cancel
+	// button and `onRequestClose` always pass `false` so the user can't
+	// dismiss mid-create and leave the promise to mutate settings after.
+	const closeCreateCategory = useCallback(
+		( force = false ) => {
+			if ( ! force && creating ) {
+				return;
+			}
+			setCreateCategoryOpen( false );
+			setNewCategoryName( '' );
+			setCreateError( null );
+		},
+		[ creating ]
+	);
+	const requestCloseCreateCategory = useCallback(
+		() => closeCreateCategory(),
+		[ closeCreateCategory ]
+	);
+
+	const onCreateCategory = useCallback( async () => {
+		const name = newCategoryName.trim();
+		if ( ! name ) {
+			return;
+		}
+		setCreating( true );
+		setCreateError( null );
+		try {
+			// `saveEntityRecord` swallows REST failures by default and resolves
+			// `undefined`. Without `throwOnError`, a duplicate name or missing
+			// `manage_categories` capability would silently close the modal
+			// without selecting a category. Opt in so the catch below fires.
+			const result = ( await saveEntityRecord(
+				'taxonomy',
+				'category',
+				{ name },
+				{ throwOnError: true }
+			) ) as { id?: number } | undefined;
+			if ( ! result?.id ) {
+				throw new Error(
+					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
+				);
+			}
+			commit( { podcasting_category_id: Number( result.id ) } );
+			closeCreateCategory( true );
+		} catch ( error ) {
+			// REST failures throw the raw response object (`{ code, message, data }`),
+			// not an Error instance, so check both shapes.
+			const fallback = __( 'Could not create the category. Please try again.', 'jetpack-podcast' );
+			let message = fallback;
+			if ( error instanceof Error ) {
+				message = error.message;
+			} else if (
+				error &&
+				typeof error === 'object' &&
+				'message' in error &&
+				typeof ( error as { message: unknown } ).message === 'string'
+			) {
+				message = ( error as { message: string } ).message;
+			}
+			setCreateError( message );
+		} finally {
+			setCreating( false );
+		}
+	}, [ newCategoryName, saveEntityRecord, commit, closeCreateCategory ] );
+
 	if ( isLoading || ! draft ) {
 		return null;
 	}
@@ -252,9 +333,11 @@ const SettingsTab = () => {
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 							] }
 						/>
-						<Link openInNewTab href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }>
-							{ __( 'Create a new category', 'jetpack-podcast' ) }
-						</Link>
+						{ canCreateCategory !== false && (
+							<Button variant="link" onClick={ openCreateCategory }>
+								{ __( 'Create a new category', 'jetpack-podcast' ) }
+							</Button>
+						) }
 					</VStack>
 				</CardBody>
 			</Card>
@@ -401,6 +484,45 @@ const SettingsTab = () => {
 							</Button>
 							<Button variant="primary" isDestructive onClick={ onDisablePodcasting }>
 								{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+							</Button>
+						</HStack>
+					</VStack>
+				</Modal>
+			) }
+
+			{ createCategoryOpen && (
+				<Modal
+					title={ __( 'Create a new category', 'jetpack-podcast' ) }
+					onRequestClose={ requestCloseCreateCategory }
+				>
+					<VStack spacing={ 4 }>
+						{ createError && (
+							<Notice status="error" isDismissible={ false }>
+								{ createError }
+							</Notice>
+						) }
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Name', 'jetpack-podcast' ) }
+							value={ newCategoryName }
+							onChange={ setNewCategoryName }
+						/>
+						<HStack justify="flex-end" spacing={ 3 }>
+							<Button
+								variant="tertiary"
+								onClick={ requestCloseCreateCategory }
+								disabled={ creating }
+							>
+								{ __( 'Cancel', 'jetpack-podcast' ) }
+							</Button>
+							<Button
+								variant="primary"
+								disabled={ newCategoryName.trim() === '' || creating }
+								isBusy={ creating }
+								onClick={ onCreateCategory }
+							>
+								{ __( 'Create', 'jetpack-podcast' ) }
 							</Button>
 						</HStack>
 					</VStack>

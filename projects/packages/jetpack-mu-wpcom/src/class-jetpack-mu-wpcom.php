@@ -391,6 +391,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
+		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
@@ -818,7 +819,7 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
 	 *
-	 * @param string $feature Logstash `feature` bucket (e.g. "plugin-conflicts-guardian").
+	 * @param string $feature Logstash `feature` bucket; should start with the `atomic_` prefix (e.g. "atomic_plugin_conflicts_guardian").
 	 * @param string $message Event message slug.
 	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
 	 * @return void

@@ -120,22 +120,6 @@ function wpcom_rtc_providers( $providers ) {
 }
 add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
 
-/**
- * Disable the RTC welcome notice on P2 sites.
- *
- * @param bool $is_enabled Whether the welcome notice is enabled.
- * @return bool
- */
-function wpcom_rtc_enable_welcome_notice( $is_enabled ) {
-	// The RTC welcome notice is too noisy for P2 sites.
-	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
-		return false;
-	}
-
-	return $is_enabled;
-}
-add_filter( 'jetpack_rtc_enable_welcome_notice', 'wpcom_rtc_enable_welcome_notice' );
-
 add_filter( 'jetpack_rtc_enable_limit_notices', '__return_false', 99 );
 
 \Automattic\Jetpack\RTC::init();

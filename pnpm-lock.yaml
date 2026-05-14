@@ -4061,9 +4061,6 @@ importers:
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: 10.44.0
-        version: 10.44.0(react@18.3.1)
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
@@ -4534,6 +4531,9 @@ importers:
 
   projects/packages/videopress:
     dependencies:
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -4549,6 +4549,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.0.0
         version: 2.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
