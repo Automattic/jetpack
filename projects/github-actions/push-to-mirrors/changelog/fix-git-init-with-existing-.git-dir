@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+If an artifact already contains a `.git` dir, skip it. This avoids certain attacks based on having malicious hooks or config in the artifact.
