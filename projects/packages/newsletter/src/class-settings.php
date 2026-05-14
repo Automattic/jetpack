@@ -201,8 +201,6 @@ class Settings {
 	 *
 	 * This method is called from wpcom-admin-menu.php on Simple sites at late priority
 	 * (999999) when the Jetpack menu already exists.
-	 *
-	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
 	 */
 	public function add_wp_admin_submenu() {
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
