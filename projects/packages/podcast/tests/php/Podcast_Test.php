@@ -50,7 +50,6 @@ class Podcast_Test extends BaseTestCase {
 	public function test_init_registers_sync_whitelist_when_untangle_is_disabled() {
 		$this->reset_podcast_init_state();
 		$this->reset_settings_registration_state();
-		remove_filter( 'jetpack_sync_options_whitelist', array( Settings::class, 'filter_sync_options_whitelist' ) );
 
 		Constants::set_constant( 'IS_WPCOM', true );
 		add_filter( 'jetpack_podcast_untangle', '__return_false' );

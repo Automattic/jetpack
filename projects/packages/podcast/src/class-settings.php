@@ -111,6 +111,8 @@ class Settings {
 	 * on the Atomic side. Idempotent.
 	 */
 	public static function register_sync_whitelist() {
+		// Keep this re-entrant if a test or caller removes the hook after the
+		// first registration in the same PHP process.
 		if ( self::$sync_whitelist_registered && has_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'filter_sync_options_whitelist' ) ) ) {
 			return;
 		}
