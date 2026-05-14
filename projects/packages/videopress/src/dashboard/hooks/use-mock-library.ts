@@ -115,8 +115,14 @@ const STORE_KEY = '__jetpackVideopressMockLibrary' as const;
  */
 function getStore(): GlobalStore {
 	if ( ! window[ STORE_KEY ] ) {
+		// `?vp_free=1` is the designer/QA toggle that flips the dashboard
+		// into the free-tier view (see `useFreeTier`). Starting the
+		// library empty under that flag lets the same toggle reach both
+		// "free, can still upload" and (with `?vp_at_limit=1`) "free,
+		// at limit" states without dropping a video by hand.
+		const isFreeToggle = new URLSearchParams( window.location.search ).get( 'vp_free' ) === '1';
 		window[ STORE_KEY ] = {
-			items: generateMockLibrary( 50 ),
+			items: isFreeToggle ? [] : generateMockLibrary( 50 ),
 			isLoading: true,
 			subscribers: new Set(),
 			intervals: new Map(),
