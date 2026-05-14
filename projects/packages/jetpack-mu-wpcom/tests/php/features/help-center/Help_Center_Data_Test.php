@@ -53,9 +53,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$singleton = Help_Center::get_instance();
 		if ( $singleton !== null ) {
 			self::remove_help_center_hooks( $singleton );
-			$property = new \ReflectionProperty( Help_Center::class, 'instance' );
-			$property->setAccessible( true );
-			$property->setValue( null, null );
+			( new \ReflectionProperty( Help_Center::class, 'instance' ) )->setValue( null, null );
 		}
 
 		wp_set_current_user( 0 );
