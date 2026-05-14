@@ -4552,6 +4552,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.0.0
         version: 2.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
