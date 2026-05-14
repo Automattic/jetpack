@@ -793,11 +793,149 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that plain text mentioning color class names is not treated as unsupported.
+	 */
+	public function test_detect_unsupported_plain_text_class_name_mentions() {
+		$content = '<!-- wp:paragraph --><p>Use has-text-color and has-inline-color classes in your CSS.</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that center-aligned paragraph returns false (preserved by convertToBlocks).
+	 */
+	public function test_detect_unsupported_center_aligned_paragraph() {
+		$content = '<!-- wp:paragraph {"align":"center"} --><p style="text-align:center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that block-editor-style center alignment (CSS class) returns 'block-editor'.
+	 * The block editor uses has-text-align-center class, which convertToBlocks()
+	 * can't read (it reads node.style.textAlign, which is empty for class-based alignment).
+	 */
+	public function test_detect_unsupported_block_editor_center_alignment() {
+		$content = '<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that wide-aligned heading returns 'block-editor' (not preserved).
+	 */
+	public function test_detect_unsupported_wide_aligned_heading() {
+		$content = '<!-- wp:heading {"level":2,"align":"wide"} --><h2 class="wp-block-heading alignwide">Title</h2><!-- /wp:heading -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a custom className on a paragraph returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_custom_class_name() {
+		$content = '<!-- wp:paragraph {"className":"my-custom-class"} --><p class="my-custom-class">Styled</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a YouTube embed with className (aspect ratio) returns false.
+	 */
+	public function test_detect_unsupported_youtube_embed_with_class_name() {
+		$attrs   = '{"url":"https://www.youtube.com/watch?v=abc","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an anchor attribute on a heading returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_anchor_attribute() {
+		$content = '<!-- wp:heading {"level":2,"anchor":"my-section"} --><h2 class="wp-block-heading" id="my-section">Title</h2><!-- /wp:heading -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an embed block with malformed JSON attributes returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_embed_malformed_json() {
+		$content = '<!-- wp:embed {not-valid-json} --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
 	 * Test that mixed supported and unsupported blocks returns 'block-editor'.
 	 */
 	public function test_detect_unsupported_mixed_content() {
 		$content = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->'
 			. '<!-- wp:gallery {"ids":[1,2]} --><figure class="wp-block-gallery"></figure><!-- /wp:gallery -->';
 		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	// --- Allowlist sync test ---
+
+	/**
+	 * Verify that the PHP allowlist stays in sync with convertToBlocks() in
+	 * view.js.  The JS function declares its per-block output attributes via
+	 * write-sync tags in a comment block.  This test parses those tags and
+	 * compares against wpcom_write_allowed_block_attrs() in write.php.
+	 *
+	 * If this test fails, update both sides:
+	 *  - write-sync tags in the convertToBlocks() comment (view.js)
+	 *  - wpcom_write_allowed_block_attrs() (write.php)
+	 */
+	public function test_allowed_block_types_in_sync_with_convert_to_blocks() {
+		// Read view.js relative to this test file.
+		// Test: tests/php/features/write/Write_Test.php
+		// JS:   src/features/write/view.js
+		$view_js_path = dirname( __DIR__, 4 ) . '/src/features/write/view.js';
+		$view_js      = file_get_contents( $view_js_path );
+		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
+
+		// Parse @write-sync tags from the convertToBlocks JSDoc.
+		// Format: @write-sync blocktype: attr1, attr2
+		// or:     @write-sync blocktype:       (no attrs)
+		preg_match_all( '/@write-sync\s+([a-z][a-z0-9-]*):\s*(.*)/', $view_js, $matches, PREG_SET_ORDER );
+		$this->assertNotEmpty( $matches, 'No @write-sync tags found in view.js' );
+
+		$js_sync = array();
+		foreach ( $matches as $m ) {
+			$block = $m[1];
+			$attrs = array_filter( array_map( 'trim', explode( ',', $m[2] ) ), 'strlen' );
+			sort( $attrs );
+			$js_sync[ $block ] = $attrs;
+		}
+		ksort( $js_sync );
+
+		// Get the PHP allowlist.  The PHP list may include extra metadata
+		// attrs (id, sizeSlug, alt, className, allowResponsive) that JS
+		// doesn't output but are safe to lose.  The JS attrs must be a
+		// subset of the PHP attrs for each block type.
+		$php_all = wpcom_write_allowed_block_attrs();
+		ksort( $php_all );
+
+		// Block types must match exactly.
+		$js_types  = array_keys( $js_sync );
+		$php_types = array_keys( $php_all );
+		$this->assertSame(
+			$js_types,
+			$php_types,
+			sprintf(
+				"Block types are out of sync.\n@write-sync: [%s]\nPHP:         [%s]",
+				implode( ', ', $js_types ),
+				implode( ', ', $php_types )
+			)
+		);
+
+		// For each block, every JS-declared attr must appear in the PHP list.
+		foreach ( $js_sync as $block => $js_attrs ) {
+			$php_attrs = $php_all[ $block ];
+			$missing   = array_diff( $js_attrs, $php_attrs );
+			$this->assertEmpty(
+				$missing,
+				sprintf(
+					"Block '%s': @write-sync declares attrs [%s] missing from PHP allowlist [%s].",
+					$block,
+					implode( ', ', $missing ),
+					implode( ', ', $php_attrs )
+				)
+			);
+		}
 	}
 }

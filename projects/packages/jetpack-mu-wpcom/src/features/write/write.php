@@ -243,15 +243,36 @@ function wpcom_write_convert_video_embeds( $content ) {
 }
 
 /**
+ * Return the per-block-type attribute allowlist for Write.
+ *
+ * Attributes listed here are safe for Write to handle — either preserved by
+ * convertToBlocks() in view.js or metadata that doesn't affect visible
+ * content.  Keep this in sync with convertToBlocks().
+ *
+ * A sync test (test_allowed_block_types_in_sync_with_convert_to_blocks)
+ * verifies that the block types here match what convertToBlocks() outputs.
+ *
+ * @return array<string, string[]> Block type → allowed attribute keys.
+ */
+function wpcom_write_allowed_block_attrs() {
+	return array(
+		'paragraph' => array( 'align' ),
+		'heading'   => array( 'level', 'align' ),
+		'image'     => array( 'id', 'sizeSlug', 'alt' ),
+		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive', 'className', 'allowResponsive' ),
+		'quote'     => array( 'align' ),
+		'list'      => array( 'ordered' ),
+		'list-item' => array(),
+		'separator' => array(),
+	);
+}
+
+/**
  * Detect whether a post contains features the Write editor cannot preserve.
  *
- * Checks for block comments in the content:
- *  - No block comments → classic content; saving converts to blocks.
- *  - Has block comments → allowlist check on block types, embed providers,
- *    and styling attributes.
- *
- * Write-created posts produce block markup with only supported blocks, so
- * they pass the allowlist check cleanly (no false warning).
+ * Uses parse_blocks() to inspect block types and attributes against an
+ * allowlist derived from what convertToBlocks() in view.js can round-trip.
+ * Any block type or attribute not in the allowlist will trigger a warning.
  *
  * @param string $content Raw post_content (block markup).
  * @return string|false 'classic-editor' or 'block-editor' indicating the warning
@@ -266,67 +287,86 @@ function wpcom_write_detect_unsupported_content( $content ) {
 		return 'classic-editor';
 	}
 
-	// --- Block content: allowlist check ---
-	// Applies to posts from the block editor OR the Write editor (both
-	// produce block markup).  Write-created posts use only supported
-	// blocks, so they pass cleanly.
+	$allowed_attrs = wpcom_write_allowed_block_attrs();
 
-	// Block types that convertToBlocks() can round-trip.
-	$supported_types = array(
-		'paragraph',
-		'heading',
-		'image',
-		'embed',
-		'quote',
-		'list',
-		'list-item',
-		'separator',
-	);
+	$blocks = parse_blocks( $content );
 
-	// 1. Unsupported block types.
-	if ( preg_match_all( '/<!-- wp:(?:[a-z0-9-]+\/)?([a-z0-9-]+)/', $content, $matches ) ) {
-		foreach ( $matches[1] as $type ) {
-			if ( ! in_array( $type, $supported_types, true ) ) {
-				return 'block-editor';
-			}
-		}
+	if ( wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) ) {
+		return 'block-editor';
 	}
 
-	// 2. Embed blocks: only YouTube and Vimeo video embeds round-trip.
-	if ( preg_match_all( '/<!-- wp:embed\s+(\{[^>]+?\})\s+-->/s', $content, $embed_matches ) ) {
-		foreach ( $embed_matches[1] as $json ) {
-			$attrs = json_decode( $json, true );
-			if ( ! is_array( $attrs ) ) {
-				return 'block-editor';
-			}
+	// HTML-level classes that Write can't round-trip.  convertToBlocks()
+	// reconstructs the outer element, losing any classes set by the block
+	// editor.  Match only inside class attributes to avoid false positives
+	// from plain text mentioning these class names.
+	//
+	// - has-text-align-*: block editor alignment (Write uses inline styles
+	// instead, which convertToBlocks reads via node.style.textAlign).
+	// - has-inline-color / has-text-color: rich-text color classes.
+	if (
+		preg_match( '/class="[^"]*has-(?:text-align-|inline-color|text-color)[^"]*"/', $content ) ||
+		preg_match( "/class='[^']*has-(?:text-align-|inline-color|text-color)[^']*'/", $content )
+	) {
+		return 'block-editor';
+	}
+
+	return false;
+}
+
+/**
+ * Check whether any block in the tree has an unsupported type or attributes.
+ *
+ * @param array $blocks        Parsed block array from parse_blocks().
+ * @param array $allowed_attrs Per-block-type allowed attribute keys.
+ * @return bool True if any block is unsupported.
+ */
+function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
+	foreach ( $blocks as $block ) {
+		// Skip freeform HTML / whitespace between blocks.
+		if ( empty( $block['blockName'] ) ) {
+			continue;
+		}
+
+		// Normalize: strip 'core/' namespace prefix.
+		$name = $block['blockName'];
+		if ( strpos( $name, 'core/' ) === 0 ) {
+			$name = substr( $name, 5 );
+		}
+
+		// Unknown block type (including third-party namespaced blocks).
+		if ( ! isset( $allowed_attrs[ $name ] ) ) {
+			return true;
+		}
+
+		// Attributes beyond what Write handles for this block type.
+		$attrs = $block['attrs'] ?? array();
+		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
+		if ( ! empty( $extra ) ) {
+			return true;
+		}
+
+		// Alignment: convertToBlocks() only preserves center and right
+		// (read from style.textAlign). Block-level values like wide/full
+		// are CSS-class-based and silently lost.
+		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], array( 'center', 'right' ), true ) ) {
+			return true;
+		}
+
+		// Embed-specific: only YouTube and Vimeo video embeds round-trip.
+		if ( 'embed' === $name ) {
 			$type     = $attrs['type'] ?? '';
 			$provider = $attrs['providerNameSlug'] ?? '';
 			if ( 'video' !== $type || ! in_array( $provider, array( 'youtube', 'vimeo' ), true ) ) {
-				return 'block-editor';
+				return true;
 			}
 		}
-	}
 
-	// 3. Styling attributes in block JSON that Write strips on save.
-	$style_indicators = array(
-		'"textColor"',
-		'"backgroundColor"',
-		'"gradient"',
-		'"fontSize"',
-		'"style":{"color"',
-		'"style":{"typography"',
-		'"style":{"spacing"',
-		'"style":{"border"',
-	);
-	foreach ( $style_indicators as $indicator ) {
-		if ( strpos( $content, $indicator ) !== false ) {
-			return 'block-editor';
+		// Recurse into inner blocks (e.g. list → list-item).
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			if ( wpcom_write_has_unsupported_blocks( $block['innerBlocks'], $allowed_attrs ) ) {
+				return true;
+			}
 		}
-	}
-
-	// 4. Inline color classes from the block editor's rich-text color picker.
-	if ( strpos( $content, 'has-inline-color' ) !== false || strpos( $content, 'has-text-color' ) !== false ) {
-		return 'block-editor';
 	}
 
 	return false;
@@ -794,10 +834,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Unsupported content warning -->
 	<div class="bw-unsupported-overlay" hidden data-wp-bind--hidden="!state.unsupportedWarning" data-wp-on--keydown="actions.handleUnsupportedKeyDown">
-		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-bind--aria-describedby="state.unsupportedDescId" data-wp-on--click="actions.stopPropagation">
 			<p class="bw-unsupported-title"><?php echo esc_html__( 'This post has formatting that Write can\'t preserve', 'jetpack-mu-wpcom' ); ?></p>
-			<p class="bw-unsupported-desc" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php echo esc_html__( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
-			<p class="bw-unsupported-desc" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php echo esc_html__( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-classic" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php echo esc_html__( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-block" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php echo esc_html__( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-unsupported-actions">
 				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php echo esc_html__( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
 				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
