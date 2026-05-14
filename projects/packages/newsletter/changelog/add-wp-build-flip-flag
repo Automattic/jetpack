@@ -1,3 +1,4 @@
 Significance: minor
 Type: changed
-Comment: The Newsletter admin page now ships the unified Subscribers/Settings chassis by default; opt out with `add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );`.
+
+The Newsletter admin page now ships the unified Subscribers/Settings chassis by default; opt out with `add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );`.
