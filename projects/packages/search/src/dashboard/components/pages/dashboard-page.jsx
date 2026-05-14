@@ -229,7 +229,7 @@ export default function DashboardPage( { isLoading = false } ) {
 												<ExperienceSelector />
 												<div className="jp-search-reader-chat-card">
 													<ReaderChatControl
-														isAvailable={ true }
+														isAvailable={ isReaderChatAvailable }
 														isEnabled={ isReaderChatEnabled }
 														isSaving={ isSavingEitherOption }
 														guidelinesUrl={ readerChatGuidelinesUrl }
