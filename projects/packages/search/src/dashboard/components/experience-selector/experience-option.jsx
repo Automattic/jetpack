@@ -302,16 +302,19 @@ const CardCopy = ( { experience } ) => {
 		);
 	}
 	const offLosses = [
-		__( '<strong>Fast results</strong> — searches hit your database', 'jetpack-search-pkg' ),
 		__(
-			'<strong>Smart ranking</strong> — no typo tolerance or language-aware matching',
+			'<strong>Fast and smart results</strong> — slower database-powered search, no typo tolerance or language-aware matching',
+			'jetpack-search-pkg'
+		),
+		__(
+			'<strong>Offloaded search</strong> — every query now hits your database',
 			'jetpack-search-pkg'
 		),
 	];
 	return (
 		<>
 			<p className="jp-search-experience-option__description">
-				{ __( 'Visitors use WordPress default search, and miss out on:', 'jetpack-search-pkg' ) }
+				{ __( 'Visitors use WordPress default search, and you lose:', 'jetpack-search-pkg' ) }
 			</p>
 			<ul className="jp-search-experience-option__loss-list">
 				{ offLosses.map( ( loss, index ) => (
