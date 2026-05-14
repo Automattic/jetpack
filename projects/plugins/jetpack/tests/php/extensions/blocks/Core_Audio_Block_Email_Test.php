@@ -135,7 +135,7 @@ class Core_Audio_Block_Email_Test extends WP_UnitTestCase {
 		$post_id      = $this->set_up_global_post();
 		$parsed_block = $this->create_parsed_block(
 			array(),
-			array( 'margin' => array( 'top' => '32px', 'bottom' => '32px' ) )
+			array( 'margin' => '32px 0' )
 		);
 		$mock_context = $this->create_rendering_context_mock();
 
