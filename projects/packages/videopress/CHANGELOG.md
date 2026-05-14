@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.9] - 2026-05-14
+### Added
+- Comment: Adds a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
+- Comment: Adds the modernized Overview screen behind the existing modernization filter. [#48682]
+- Comment: Adds the modernized Video details screen behind the existing modernization filter. [#48669]
+
+### Changed
+- Update package dependencies. [#48695]
+- Update package dependencies. [#48696]
+
 ## [0.36.8] - 2026-05-11
 ### Added
 - VideoPress: Add Library tab as a DataViews grid with table alternate and mocked uploads, all behind the existing modernization filter. [#48586]
@@ -1959,6 +1969,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9
 [0.36.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.7...v0.36.8
 [0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
 [0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6

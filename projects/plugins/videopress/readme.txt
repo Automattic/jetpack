@@ -83,8 +83,12 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.0 - 2026-04-16
+### 3.1 - 2026-05-14
 #### Changed
-- Tested up to WordPress 7.0.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
 - Update package dependencies.
+
+#### Fixed
+- Fix the Add new video button disappearing on the admin dashboard after the first video is uploaded.
+- VideoPress admin: add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
 

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-05-14
+### Changed
+- Charts: expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
+- Charts: expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks. [#48722]
+- Update package dependencies. [#48695]
+- Update package dependencies. [#48696]
+
+### Removed
+- Charts: remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages. [#48617]
+
 ## [1.3.1] - 2026-05-11
 ### Changed
 - Update dependencies. [#43811]
@@ -820,6 +830,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.4.0]: https://github.com/Automattic/charts/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Automattic/charts/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Automattic/charts/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/Automattic/charts/compare/v1.2.0...v1.2.1

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.38.1] - 2026-05-14
+### Added
+- Sync: sync wp_guideline CPT when Jetpack Search AI Answers is enabled. [#48592]
+
+### Fixed
+- Sync: Always register the Search sync module when the Search package is present, so updates to instant_search_enabled and jetpack_search_experience are queued regardless of the current option value. [#48745]
+
 ## [4.38.0] - 2026-05-11
 ### Added
 - Activity Log: Add custom event support with a non-public custom post type, guarded REST route, and class API for creating entries. [#48567]
@@ -1736,6 +1743,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.38.1]: https://github.com/Automattic/jetpack-sync/compare/v4.38.0...v4.38.1
 [4.38.0]: https://github.com/Automattic/jetpack-sync/compare/v4.37.0...v4.38.0
 [4.37.0]: https://github.com/Automattic/jetpack-sync/compare/v4.36.0...v4.37.0
 [4.36.0]: https://github.com/Automattic/jetpack-sync/compare/v4.35.0...v4.36.0

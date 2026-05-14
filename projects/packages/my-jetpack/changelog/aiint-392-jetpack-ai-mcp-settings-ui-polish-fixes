@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix PHP deprecated notice: cast $tier to int before using as array offset in get_long_description_by_usage_tier() to handle null from get_next_usage_tier()
