@@ -18,7 +18,7 @@ class Help_Center {
 	/**
 	 * Class instance.
 	 *
-	 * @var Help_Center
+	 * @var Help_Center|null
 	 */
 	private static $instance = null;
 
