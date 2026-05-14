@@ -40,8 +40,11 @@ jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
 
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import DashboardPage from '../dashboard-page';
+
+const DEFAULT_TEST_URL = 'https://example.com/wp-admin/admin.php?page=jetpack-search';
 
 const createSelectMethods = () => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
@@ -88,6 +91,7 @@ const createSelectMethods = () => ( {
 describe( 'DashboardPage', () => {
 	beforeEach( () => {
 		mockModuleControl.mockClear();
+		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -112,5 +116,53 @@ describe( 'DashboardPage', () => {
 			} )
 		);
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
+	} );
+
+	test( 'hydrates active tab from the URL query string', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'false'
+		);
+		expect( screen.getByTestId( 'ai-answers-tab' ) ).toBeInTheDocument();
+	} );
+
+	test( 'falls back to the default tab when URL tab is unknown', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( replaceStateSpy ).not.toHaveBeenCalled();
+		expect( window.location.search ).toContain( 'tab=unknown' );
+		replaceStateSpy.mockRestore();
+	} );
+
+	test( 'updates the URL tab query string when tabs are changed', async () => {
+		const user = userEvent.setup();
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
+
+		render( <DashboardPage /> );
+		await user.click( screen.getByRole( 'tab', { name: /ai answers/i } ) );
+
+		await waitFor( () =>
+			expect( replaceStateSpy ).toHaveBeenCalledWith(
+				{},
+				'',
+				`${ DEFAULT_TEST_URL }&tab=ai-answers`
+			)
+		);
+		replaceStateSpy.mockRestore();
 	} );
 } );
