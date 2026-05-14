@@ -31,6 +31,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php',                                                                // function wpcom_rest_api_v2_load_plugin
 		),
 		'exclude_analysis_directory_list' => array(
+			// This file is generated from a `wp-build` template, and the upstream template has two safe Phan violations related to `exit`.
 			'build/pages/jetpack-videopress-dashboard/page.php',
 		),
 	)
