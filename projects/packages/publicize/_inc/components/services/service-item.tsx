@@ -1,20 +1,26 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useReducer, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
+import { Icon, chevronDown } from '@wordpress/icons';
+import { Collapsible } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import { ServiceItemNotice } from './service-item-notice';
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
+import type { SyntheticEvent } from 'react';
 
 export type ServicesItemProps = ServicesItemDetailsProps & {
 	isPanelDefaultOpen?: boolean;
 };
+
+// Stops a child click from bubbling up to the surrounding
+// `Collapsible.Trigger`, which would otherwise toggle the disclosure
+// when the user is trying to interact with an inline control (e.g.
+// the "Connect" button or the broken-connection reauth flow).
+const stopPropagation = ( event: SyntheticEvent ) => event.stopPropagation();
 
 /**
  * Service item component
@@ -30,12 +36,13 @@ export function ServiceItem( {
 }: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
-	const panelRef = useRef< HTMLDivElement >( null );
+	const [ isPanelOpen, setIsPanelOpen ] = useState( Boolean( isPanelDefaultOpen ) );
+	const togglePanel = useCallback( () => setIsPanelOpen( open => ! open ), [] );
+	const rowRef = useRef< HTMLDivElement >( null );
 
 	useEffect( () => {
 		if ( isPanelDefaultOpen ) {
-			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+			rowRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
@@ -68,9 +75,14 @@ export function ServiceItem( {
 			: _x( 'Fix connection', 'Fix social media connection', 'jetpack-publicize-pkg' );
 
 	return (
-		<div className={ styles[ 'service-item' ] }>
-			<div className={ styles[ 'service-item-info' ] }>
-				<div>
+		<Collapsible.Root open={ isPanelOpen } onOpenChange={ setIsPanelOpen }>
+			<Collapsible.Trigger
+				ref={ rowRef }
+				className={ styles[ 'service-row' ] }
+				nativeButton={ false }
+				render={ <div /> }
+			>
+				<div className={ styles[ 'service-row-icon' ] }>
 					<service.icon iconSize={ isSmall ? 36 : 48 } />
 				</div>
 				<div className={ styles[ 'service-basics' ] }>
@@ -86,8 +98,13 @@ export function ServiceItem( {
 						reauthConnections={ reauthConnections }
 					/>
 				</div>
-				<div className={ styles.actions }>
-					{ ! hideInitialConnectForm ? (
+				{ ! hideInitialConnectForm ? (
+					<div
+						className={ styles.actions }
+						onClick={ stopPropagation }
+						onKeyDown={ stopPropagation }
+						role="presentation"
+					>
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
@@ -97,21 +114,12 @@ export function ServiceItem( {
 							hasConnections={ serviceConnections.length > 0 }
 							buttonLabel={ hasOwnBrokenConnections ? buttonLabel : undefined }
 						/>
-					) : null }
-					<Button
-						size={ 'small' }
-						className={ styles[ 'learn-more' ] }
-						variant="minimal"
-						onClick={ togglePanel }
-						aria-label={ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-					>
-						{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
-					</Button>
-				</div>
-			</div>
-
-			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
-				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
+					</div>
+				) : null }
+				<Icon className={ styles.chevron } icon={ chevronDown } />
+			</Collapsible.Trigger>
+			<Collapsible.Panel className={ styles[ 'service-panel' ] }>
+				<div className={ styles[ 'service-panel-inner' ] }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 					<ServiceItemNotice service={ service } serviceConnections={ serviceConnections } />
 					{
@@ -128,8 +136,8 @@ export function ServiceItem( {
 							</div>
 						) : null
 					}
-				</PanelBody>
-			</Panel>
-		</div>
+				</div>
+			</Collapsible.Panel>
+		</Collapsible.Root>
 	);
 }

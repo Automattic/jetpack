@@ -1,10 +1,8 @@
 .wrapper {
-	position: relative;
-	width: 28px;
-	height: 28px;
+	align-items: center;
 	display: flex;
 	justify-content: center;
-	align-items: center;
+	position: relative;
 
 	&.disabled {
 		opacity: 0.4;
@@ -12,20 +10,48 @@
 
 	img,
 	.avatar {
+		background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-radius: 50%;
-		border: 2px solid #fff;
-		background-color: #fff;
-		width: 24px;
-		height: 24px;
 	}
 
 	.social-icon {
-		position: absolute;
+		background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-radius: var(--wpds-border-radius-sm, 2px);
 		inset-block-end: 0;
 		inset-inline-end: 0;
-		width: 14px;
-		height: 14px;
-		border-radius: 2px;
-		background-color: #fff;
+		position: absolute;
+	}
+
+	&.small {
+		block-size: 28px;
+		inline-size: 28px;
+
+		img,
+		.avatar {
+			block-size: 24px;
+			border: 2px solid var(--wpds-color-bg-surface-neutral-strong, #fff);
+			inline-size: 24px;
+		}
+
+		.social-icon {
+			block-size: 14px;
+			inline-size: 14px;
+		}
+	}
+
+	&.medium {
+		block-size: 32px;
+		inline-size: 32px;
+
+		img,
+		.avatar {
+			block-size: 32px;
+			inline-size: 32px;
+		}
+
+		.social-icon {
+			block-size: 16px;
+			inline-size: 16px;
+		}
 	}
 }

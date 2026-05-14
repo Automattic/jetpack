@@ -1,87 +1,53 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .services {
-	outline: 1px solid var(--jp-gray-5);
-	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 
+	// Rows after the first get a top border so the dividers between
+	// them read as one continuous list. The first row sits flush with
+	// the Card.Root's own top edge — adding a border-top there would
+	// double up against the card's own border line.
 	.service-list-item {
-		margin-bottom: 0;
+		margin: 0;
 
-		&:not(:last-child) {
-			border-bottom: 1px solid var(--jp-gray-5);
+		&:not(:first-child) {
+			border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
 		}
-	}
-
-	.service-item {
-		padding: 0.75rem;
-
-		@include gb.break-small {
-			padding: 1rem;
-		}
-	}
-
-	.service-item-info {
-		display: flex;
-		gap: 1rem;
-		align-items: center;
 	}
 
 	.service-basics {
-		flex: 1;
 		display: flex;
+		flex: 1;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: var(--wpds-dimension-gap-xs, 4px);
+		min-width: 0;
 	}
 
 	.heading {
-		display: flex;
-		gap: 1rem;
 		align-items: center;
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg, 16px);
 	}
 
 	.title {
-		font-size: 16px;
-		line-height: 24px;
-		font-weight: 600;
-		color: var(--jp-gray-80);
+		color: var(--wpds-color-fg-content-neutral, var(--jp-gray-80));
+		font-size: 0.875rem;
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		line-height: 1.4;
 	}
 
 	.description {
-		font-size: 14px;
-		color: var(--jp-gray-50);
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+		font-size: var(--wpds-typography-font-size-md, 13px);
 	}
 
 	.actions {
 		display: flex;
-		gap: 0.5rem;
-	}
-
-	.learn-more {
-
-		&:global(.components-button) {
-			padding-inline: 6px;
-			font-size: 14px;
-			font-weight: 500;
-			line-height: 20px;
-
-			span {
-				display: flex;
-			}
-		}
-	}
-
-	.service-panel {
-		border: 0;
-
-		:global(.components-panel__body) {
-			border-top: 0;
-			border-bottom: 0;
-			padding: 0;
-		}
-
-		:global(.components-panel__body.is-opened) {
-			margin-top: 1rem;
-		}
+		gap: var(--wpds-dimension-gap-sm, 8px);
 	}
 
 	.active-connection {
@@ -106,6 +72,69 @@
 			opacity: 0.7;
 		}
 	}
+}
+
+// Flat clickable row used as the `Collapsible.Trigger` for each service.
+// Layout mirrors `.connection-row` in connection-management so the modal
+// and the chassis Overview share the same visual language.
+.service-row {
+	align-items: center;
+	cursor: var(--wpds-cursor-control, pointer);
+	display: flex;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	width: 100%;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: calc(var(--wpds-border-width-focus, 2px) * -1);
+	}
+
+	&[data-panel-open] {
+
+		.chevron {
+			rotate: 180deg;
+		}
+	}
+}
+
+.service-row-icon {
+	flex-shrink: 0;
+}
+
+.chevron {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	flex-shrink: 0;
+	transition: rotate 0.15s ease-out;
+
+	@media (prefers-reduced-motion) {
+		transition: none;
+	}
+}
+
+// Collapsible.Panel — height transition driven by `--collapsible-panel-height`
+// set by Base UI. Mirrors the WPDS CollapsibleCard.Content rule so the
+// services panels animate in/out at the same cadence.
+.service-panel {
+	height: var(--collapsible-panel-height);
+	overflow: hidden;
+
+	&[hidden]:not([hidden="until-found"]) {
+		display: none;
+	}
+
+	&[data-ending-style],
+	&[data-starting-style] {
+		height: 0;
+	}
+
+	@media not (prefers-reduced-motion) {
+		transition: all 0.15s ease-out;
+	}
+}
+
+.service-panel-inner {
+	padding: 0 var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
 }
 
 .example-wrapper {
@@ -200,6 +229,7 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		flex-basis: 100%;
+		min-width: 220px;
 
 		@include gb.break-medium {
 			flex-basis: 50%;
@@ -212,34 +242,36 @@
 			}
 		}
 	}
-
-	label {
-		font-weight: 600;
-	}
-
-	input {
-		min-width: 220px;
-		height: auto;
-		font-size: var(--font-body);
-		line-height: 22px;
-		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // To make the inputs of the same size as the Connect button
-
-		// Override the default input styles for small screens
-		@media (max-width: #{ (gb.$break-medium) }) {
-			padding: 0 8px;
-			font-size: 14px;
-		}
-
-		&.error {
-			border-color: var(--jp-red);
-			box-shadow: 0 0 0 1px var(--jp-red);
-		}
-	}
 }
 
 .mark-shared-wrap {
+	align-items: center;
 	display: flex;
-	gap: 0.5rem;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.mark-shared-help {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	cursor: var(--wpds-cursor-control, pointer);
+	display: inline-flex;
+	height: 24px;
+	justify-content: center;
+	padding: 0;
+	width: 24px;
+
+	&:hover,
+	&:focus-visible {
+		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: var(--wpds-border-width-focus, 2px);
+	}
 }
 
 .error-text.error-text {
