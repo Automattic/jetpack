@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Clean up `.gitattributes`, moved a lot of boilerplate to the monorepo root.
+
+
