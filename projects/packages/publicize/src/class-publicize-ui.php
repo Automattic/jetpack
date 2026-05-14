@@ -204,8 +204,8 @@ class Publicize_UI {
 		$default_suffix = $this->publicize->default_suffix;
 		$default_suffix = preg_replace( '/%([0-9])\$s/', '" + %\\1$s + "', wp_json_encode( (string) $default_suffix, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) );
 
-		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
-		$max_length = $max_length - 24; // t.co link, space.
+		$max_length  = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
+		$max_length -= 24; // t.co link, space.
 
 		?>
 

@@ -37,9 +37,9 @@ if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
 		}
 
 		for ( $t = floor( log10( $num ) / log10( 62 ) ); $t >= 0; $t-- ) {
-			$a   = (int) floor( $num / pow( 62, $t ) );
-			$out = $out . substr( $index, $a, 1 );
-			$num = $num - ( $a * pow( 62, $t ) );
+			$a    = (int) floor( $num / pow( 62, $t ) );
+			$out .= substr( $index, $a, 1 );
+			$num -= $a * pow( 62, $t );
 		}
 
 		return $out;

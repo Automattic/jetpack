@@ -275,7 +275,7 @@ class iCalendarReader {
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * DAY_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( $catchup < $rrule_count ) {
-									$rrule_count                = $rrule_count - $catchup;
+									$rrule_count               -= $catchup;
 									$recurring_event_date_start = date(
 										'Ymd',
 										strtotime(
@@ -323,7 +323,7 @@ class iCalendarReader {
 							$catchup = floor( ( $current - strtotime( $event['DTSTART'] ) ) / ( $interval * WEEK_IN_SECONDS ) );
 							if ( $rrule_count && $catchup > 0 ) {
 								if ( ( $catchup * count( $bydays ) ) < $rrule_count ) {
-									$rrule_count                = $rrule_count - ( $catchup * count( $bydays ) ); // Estimate current event count.
+									$rrule_count               -= $catchup * count( $bydays ); // Estimate current event count.
 									$recurring_event_date_start = date( 'Ymd', strtotime( '+ ' . ( $interval * $catchup ) . ' weeks', strtotime( $event['DTSTART'] ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 								} else {
 									$noop = true;
