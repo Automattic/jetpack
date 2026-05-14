@@ -4,3 +4,6 @@ node_modules/
 build/
 dist/
 composer.lock
+
+# wp-build generated entry files
+/routes/**/.content-entry.js
