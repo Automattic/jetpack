@@ -196,6 +196,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_filter( 'terms_pre_query', $callback, 10 );
 	}
 
+	/**
+	 * Stub `attachment_url_to_postid` so a fake attachment ID is returned for
+	 * the given URL — lets us exercise the rewrite path without needing a real
+	 * attachment post in the test DB.
+	 *
+	 * @param string $url            Enclosure URL to claim ownership of.
+	 * @param int    $attachment_id  Attachment ID to return.
+	 */
+	private function stub_attachment_resolution( string $url, int $attachment_id ): void {
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $lookup_url ) use ( $url, $attachment_id ) {
+				return $lookup_url === $url ? $attachment_id : $pre;
+			},
+			10,
+			2
+		);
+	}
+
 	public function test_rewrite_enclosure_replaces_url_with_canonical_stats_endpoint() {
 		global $post;
 		$post = new WP_Post(
@@ -212,6 +231,8 @@ class Customize_Feed_Test extends BaseTestCase {
 				return 12345;
 			}
 		);
+
+		$this->stub_attachment_resolution( 'https://example.com/path/episode.M4A?v=1', 9001 );
 
 		$original = '<enclosure url="https://example.com/path/episode.M4A?v=1" length="123" type="audio/m4a" />';
 		$result   = Customize_Feed::rewrite_enclosure( $original );
@@ -237,6 +258,8 @@ class Customize_Feed_Test extends BaseTestCase {
 				return 99;
 			}
 		);
+
+		$this->stub_attachment_resolution( 'https://example.com/episode.exe', 9002 );
 
 		$original = '<enclosure url="https://example.com/episode.exe" length="1" type="audio/mpeg" />';
 		$result   = Customize_Feed::rewrite_enclosure( $original );
@@ -264,11 +287,43 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 
 		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+		$this->stub_attachment_resolution( 'https://example.com/episode.mp3', 9003 );
 
 		$original = '<enclosure url="https://example.com/episode.mp3" length="12345" type="audio/mpeg" />';
 		$result   = Customize_Feed::rewrite_enclosure( $original );
 
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', $result );
+		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
+	}
+
+	/**
+	 * Externally hosted enclosures (Podtrac, Megaphone, Art19, etc.) don't
+	 * resolve to a local attachment. The wpcom redirect handler 404s those, so
+	 * minting a tracked URL would publish a broken link to subscribers. Leave
+	 * the original URL in the feed instead.
+	 */
+	public function test_rewrite_enclosure_skips_external_url_with_no_local_attachment() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'         => 555,
+				'post_type'  => 'post',
+				'post_title' => 'Externally Hosted Episode',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 7777;
+			}
+		);
+
+		// No stub_attachment_resolution call — attachment_url_to_postid returns 0.
+		$original = '<enclosure url="https://cdn.podtrac.com/foo/episode-3.mp3" length="100" type="audio/mpeg" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString( 'url="https://cdn.podtrac.com/foo/episode-3.mp3"', $result );
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
 	}
 

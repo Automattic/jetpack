@@ -244,7 +244,14 @@ class Customize_Feed {
 		 */
 		$enable = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
 
-		if ( null !== $post_obj && $enable ) {
+		// The wpcom redirect handler (`Automattic_Podcasting_Tracked_Play::handle_play`)
+		// 404s on enclosures that don't resolve to a local attachment. Externally
+		// hosted enclosures (Podtrac, Megaphone, Art19) won't resolve, so rewriting
+		// them to the stats URL would publish broken URLs to subscribers. Skip the
+		// rewrite for those and emit the original URL as-is.
+		$attachment_id = attachment_url_to_postid( $original_url );
+
+		if ( null !== $post_obj && $enable && $attachment_id > 0 ) {
 			/**
 			 * Override the blog ID baked into the stats URL. Atomic / non-Simple
 			 * sites should return the WPCOM shadow ID so the public-api endpoint
@@ -274,7 +281,6 @@ class Customize_Feed {
 			);
 		}
 
-		$attachment_id = attachment_url_to_postid( $original_url );
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
 		}
