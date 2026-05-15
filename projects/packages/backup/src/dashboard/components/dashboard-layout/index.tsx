@@ -2,6 +2,7 @@ import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import QueryClientProvider from '../../providers/query-client-provider';
 import DevModeBanner from '../dev-mode-banner';
+import Gates from '../gates';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -35,7 +36,9 @@ export default function DashboardLayout( { children, actions }: Props ) {
 		>
 			<DevModeBanner />
 			<QueryClientProvider>
-				<div className="jpb-dashboard-body">{ children }</div>
+				<div className="jpb-dashboard-body">
+					<Gates>{ children }</Gates>
+				</div>
 			</QueryClientProvider>
 		</Page>
 	);
