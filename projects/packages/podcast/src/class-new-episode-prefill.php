@@ -48,7 +48,11 @@ class New_Episode_Prefill {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET[ self::QUERY_VAR ] ) || '1' !== (string) $_GET[ self::QUERY_VAR ] ) {
+		if ( ! isset( $_GET[ self::QUERY_VAR ] ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '1' !== sanitize_text_field( wp_unslash( $_GET[ self::QUERY_VAR ] ) ) ) {
 			return;
 		}
 
