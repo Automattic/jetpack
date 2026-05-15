@@ -282,7 +282,9 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 			define( 'IS_WPCOM', true );
 		}
 
-		require_once __DIR__ . '/fixtures/wpforteams-stub.php';
+		// Status\Host::is_p2_site() calls \WPForTeams\is_wpforteams_site(); namespaced
+		// functions can't be declared in a method body, so eval a namespace block.
+		eval( 'namespace WPForTeams { function is_wpforteams_site( $blog_id ) { return true; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		$this->set_admin_context();
 		$this->create_and_login_user();
@@ -412,7 +414,9 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_enabled_sticker() {
-		require_once __DIR__ . '/fixtures/big-sky-enabled-sticker-stub.php';
+		// wpcom_has_blog_sticker() in src/utils.php proxies to the global has_blog_sticker().
+		// This file lives in namespace A8C\FSE, so use an eval'd global namespace block.
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
@@ -433,7 +437,7 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_free_trial_sticker() {
-		require_once __DIR__ . '/fixtures/big-sky-free-trial-sticker-stub.php';
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
