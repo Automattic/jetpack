@@ -176,6 +176,109 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Atomic regression: a logged-in subscriber whose local user_id differs from their
+	 * WPCOM user_id (the common case on Atomic, where the local wp_users table is
+	 * autoincrement-independent from WPCOM global IDs) must still get access when their
+	 * subscription is registered against the WPCOM id and the bridge is recorded in
+	 * the `wpcom_user_id` user_meta.
+	 *
+	 * Without the fix, `current_visitor_can_access` only runs the
+	 * `earn_get_user_subscriptions_for_site_id` filter when `is_wpcom_simple()` is true,
+	 * so Atomic-hosted subscribers fall through to the JWT-cookie-only path and get gated.
+	 *
+	 * See https://linear.app/a8c/issue/CM-584
+	 *
+	 * @return void
+	 */
+	public function test_access_check_atomic_logged_in_tier_subscriber_uses_wpcom_user_id_meta() {
+		$plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
+		update_post_meta( $plan_id, 'jetpack_memberships_price', 15 );
+		update_post_meta( $plan_id, 'jetpack_memberships_currency', 'CAD' );
+		update_post_meta( $plan_id, 'jetpack_memberships_interval', '1 year' );
+
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'atomic-subscriber@example.test' )
+		);
+
+		// Simulate Atomic: the WPCOM-side identity has a different ID than the local one.
+		// SSO populates this user_meta as the bridge.
+		$wpcom_user_id = 999999;
+		update_user_meta( $local_user_id, 'wpcom_user_id', $wpcom_user_id );
+
+		// The `earn_get_user_subscriptions_for_site_id` filter at WPCOM only knows about
+		// WPCOM user IDs. It returns nothing when queried with a local Atomic user_id.
+		$product_id = $this->product_id;
+		add_filter(
+			'earn_get_user_subscriptions_for_site_id',
+			static function ( $subscriptions, $subscriber_id ) use ( $wpcom_user_id, $product_id ) {
+				if ( (int) $subscriber_id === $wpcom_user_id ) {
+					$subscriptions[] = array(
+						'product_id' => $product_id,
+						'status'     => 'active',
+						'end_date'   => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+					);
+				}
+				return $subscriptions;
+			},
+			10,
+			2
+		);
+
+		wp_set_current_user( $local_user_id );
+		// Intentionally do NOT set a JWT token — this simulates a returning subscriber
+		// whose premium-content cookie expired or was never issued.
+
+		$this->assertTrue(
+			current_visitor_can_access(
+				array( 'selectedPlanIds' => array( $plan_id ) ),
+				array()
+			)
+		);
+	}
+
+	/**
+	 * Regression guard: a logged-in user without `wpcom_user_id` user_meta (the typical
+	 * Jetpack self-hosted case) must still be granted access via the JWT cookie path.
+	 *
+	 * The fix for CM-584 introduces a logged-in branch that queries the
+	 * `earn_get_user_subscriptions_for_site_id` filter. That filter is only registered on
+	 * WPCOM-hosted sites; on Jetpack self-hosted it returns the empty default, so the
+	 * code must fall back to the JWT-cookie subscription source.
+	 *
+	 * @return void
+	 */
+	public function test_access_check_logged_in_subscriber_falls_back_to_jwt_when_filter_returns_nothing() {
+		$plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
+		update_post_meta( $plan_id, 'jetpack_memberships_price', 5 );
+		update_post_meta( $plan_id, 'jetpack_memberships_currency', 'USD' );
+		update_post_meta( $plan_id, 'jetpack_memberships_interval', '1 month' );
+
+		$user_id = $this->factory->user->create(
+			array( 'user_email' => 'selfhosted-subscriber@example.test' )
+		);
+		// Intentionally no `wpcom_user_id` user_meta — simulating Jetpack self-hosted.
+		// No filter registered for `earn_get_user_subscriptions_for_site_id` either.
+
+		wp_set_current_user( $user_id );
+		$this->set_returned_token( $this->get_payload( true, true ) );
+
+		$this->assertTrue(
+			current_visitor_can_access(
+				array( 'selectedPlanIds' => array( $plan_id ) ),
+				array()
+			)
+		);
+	}
+
+	/**
 	 * Test that plan id can be passed 2 ways
 	 *
 	 * @return void

@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/subscription-service/include.php';
 
@@ -110,8 +109,14 @@ function current_visitor_can_access( $attributes, $block ) {
 		// This is to prevent situation where the user upgrades and lose access to premium-gated content
 
 		$subscriptions = array();
-		if ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) {
-			$user_id = wp_get_current_user()->ID;
+		if ( is_user_logged_in() ) {
+			$local_user_id = wp_get_current_user()->ID;
+			// On WPCOM Simple the local user_id matches the WPCOM user_id, but on Atomic
+			// the local wp_users table is independent. The bridge is the `wpcom_user_id`
+			// user_meta populated by Jetpack SSO. The Memberships filter at WPCOM only
+			// knows WPCOM user IDs, so translate before querying.
+			$wpcom_user_id = (int) get_user_meta( $local_user_id, 'wpcom_user_id', true );
+			$user_id       = $wpcom_user_id > 0 ? $wpcom_user_id : $local_user_id;
 			/**
 			 * Filter the subscriptions attached to a specific user on a given site.
 			 *
@@ -124,7 +129,13 @@ function current_visitor_can_access( $attributes, $block ) {
 			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, get_current_blog_id() );
 			// format the subscriptions so that they can be validated.
 			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $subscriptions );
-		} else {
+		}
+
+		// Fall back to the JWT cookie/token when no subscriptions were found via the filter.
+		// The filter is only registered on WPCOM-hosted sites; on Jetpack self-hosted (where it
+		// returns the empty default) the JWT cookie issued at checkout is the source of truth.
+		// This also covers logged-out visitors arriving via a `?token=` magic link.
+		if ( empty( $subscriptions ) ) {
 			$token          = $paywall->get_and_set_token_from_request();
 			$payload        = $paywall->decode_token( $token );
 			$is_valid_token = ! empty( $payload );

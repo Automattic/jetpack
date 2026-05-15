@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paid Content: ensure paid subscribers on Atomic-hosted sites retain access to gated content by translating local user IDs to WordPress.com user IDs before querying subscriptions.
