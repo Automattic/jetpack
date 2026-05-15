@@ -9,6 +9,8 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
+// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+import { createUndoHistory } from 'wpcom-write/undo-history';
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -23,6 +25,10 @@ const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 let lastSavedSnapshot = { title: '', content: '' };
 let autosaveTimer = null;
 let allowLeave = false;
+
+// Undo/redo history — tracked outside the store to avoid triggering reactivity.
+const undoHistory = createUndoHistory();
+let undoPendingTimer = null;
 
 /**
  * Get the current content snapshot for dirty-state comparison.
@@ -87,6 +93,215 @@ let preFigureSelectionRange = null;
 
 let cachedContent = null;
 
+// --- Undo/redo helpers ---
+
+/**
+ * Serialise the current selection as a root-relative node path so it can be
+ * restored after innerHTML is replaced.
+ *
+ * @param {Element} root - The contenteditable container.
+ * @return {Object|null} Cursor descriptor, or null when there is no selection.
+ */
+function serializeCursor( root ) {
+	const sel = window.getSelection();
+	if ( ! sel || sel.rangeCount === 0 ) return null;
+	const range = sel.getRangeAt( 0 );
+	if ( ! root.contains( range.startContainer ) ) return null;
+
+	/**
+	 * Walk from node up to root, recording child indices at each level.
+	 *
+	 * @param {Node} node - The node to build a path for.
+	 * @return {number[]|null} Child-index path from root to node, or null if node is not inside root.
+	 */
+	function getNodePath( node ) {
+		const path = [];
+		let current = node;
+		while ( current !== root ) {
+			const parent = current.parentNode;
+			if ( ! parent ) return null;
+			path.unshift( Array.prototype.indexOf.call( parent.childNodes, current ) );
+			current = parent;
+		}
+		return path;
+	}
+
+	const anchorPath = getNodePath( range.startContainer );
+	const focusPath = getNodePath( range.endContainer );
+	if ( ! anchorPath || ! focusPath ) return null;
+
+	return {
+		anchorPath,
+		anchorOffset: range.startOffset,
+		focusPath,
+		focusOffset: range.endOffset,
+	};
+}
+
+/**
+ * Restore a cursor position previously captured by serializeCursor.
+ * Falls back to the first paragraph when the serialised path can no longer
+ * be resolved (e.g. after a large structural undo).
+ *
+ * @param {Element}     root       - The contenteditable container.
+ * @param {Object|null} cursorInfo - Descriptor returned by serializeCursor, or null.
+ * @return {void}
+ */
+function restoreUndoCursor( root, cursorInfo ) {
+	/** Place the cursor at the start of the first paragraph as a safe fallback. */
+	function fallback() {
+		const p = root.querySelector( 'p' );
+		if ( p ) placeCursorAt( p );
+	}
+
+	/**
+	 * Resolve a root-relative node path to a { node, offset } pair.
+	 *
+	 * @param {number[]} path   - Child-index path from root to the target node.
+	 * @param {number}   offset - Character or child offset within that node.
+	 * @return {Object|null} Resolved node + clamped offset, or null when path is stale.
+	 */
+	function resolvePath( path, offset ) {
+		let node = root;
+		for ( const idx of path ) {
+			node = node.childNodes[ idx ];
+			if ( ! node ) return null;
+		}
+		const maxOffset = node.nodeType === Node.TEXT_NODE ? node.length : node.childNodes.length;
+		return { node, offset: Math.min( offset, maxOffset ) };
+	}
+
+	if ( ! cursorInfo ) return fallback();
+
+	const anchor = resolvePath( cursorInfo.anchorPath, cursorInfo.anchorOffset );
+	const focus = resolvePath( cursorInfo.focusPath, cursorInfo.focusOffset );
+	if ( ! anchor || ! focus ) return fallback();
+
+	try {
+		const sel = window.getSelection();
+		const range = document.createRange();
+		range.setStart( anchor.node, anchor.offset );
+		range.setEnd( focus.node, focus.offset );
+		sel.removeAllRanges();
+		sel.addRange( range );
+	} catch {
+		fallback();
+	}
+}
+
+/**
+ * Strip runtime-injected figure controls from a content subtree.
+ *
+ * The img-controls wrapper and the delete / alt / caption buttons are added
+ * at runtime by addDeleteButtons() with live event listeners attached. Those
+ * listeners do not survive an innerHTML round-trip, so we drop the markup
+ * before serialising — the MutationObserver in addDeleteButtons() will
+ * re-add buttons (with listeners) when the figure reappears after undo/redo.
+ *
+ * @param {Element} root - Detached root (typically a clone of .bw-content-inner).
+ */
+function stripRuntimeFigureControls( root ) {
+	root.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
+		const img = wrapper.querySelector( 'img' );
+		if ( img ) wrapper.before( img );
+		wrapper.remove();
+	} );
+	root
+		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.forEach( el => el.remove() );
+}
+
+/**
+ * Capture the current editor state as an undo snapshot.
+ *
+ * @return {object} Snapshot containing html, title, and cursor.
+ */
+function captureUndoSnapshot() {
+	const content = getContent();
+	if ( ! content ) {
+		return { html: '', title: state.title || '', cursor: null };
+	}
+	const clone = content.cloneNode( true );
+	stripRuntimeFigureControls( clone );
+	return {
+		html: clone.innerHTML,
+		title: state.title || '',
+		cursor: serializeCursor( content ),
+	};
+}
+
+/**
+ * Restore editor content and cursor from an undo snapshot.
+ *
+ * @param {object} snapshot - Snapshot previously created by captureUndoSnapshot.
+ */
+function applyUndoSnapshot( snapshot ) {
+	const content = getContent();
+	if ( content ) {
+		content.innerHTML = snapshot.html;
+		ensureBlockStructure();
+		restoreUndoCursor( content, snapshot.cursor );
+	}
+	const titleEl = document.querySelector( '.bw-title' );
+	if ( titleEl ) {
+		titleEl.value = snapshot.title;
+		state.title = snapshot.title;
+		titleEl.style.height = 'auto';
+		titleEl.style.height = titleEl.scrollHeight + 'px';
+	}
+}
+
+/** Mirror undoHistory.canUndo/canRedo into reactive store state so buttons update. */
+function syncUndoState() {
+	state.canUndo = undoHistory.canUndo;
+	state.canRedo = undoHistory.canRedo;
+}
+
+/** Push the current editor state onto the undo stack (no-op when content is unchanged). */
+function pushToUndoHistory() {
+	undoPendingTimer = null;
+	const snapshot = captureUndoSnapshot();
+	const last = undoHistory.current;
+	if ( last && last.html === snapshot.html && last.title === snapshot.title ) return;
+	undoHistory.push( snapshot );
+	syncUndoState();
+}
+
+/** Schedule a history push 500 ms after the last keystroke. */
+function pushToUndoHistoryDebounced() {
+	if ( undoPendingTimer ) clearTimeout( undoPendingTimer );
+	undoPendingTimer = setTimeout( pushToUndoHistory, 500 );
+}
+
+/** Commit any pending debounced snapshot immediately. */
+function flushUndoDebounce() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		pushToUndoHistory();
+	}
+}
+
+/** Flush pending text input then step back one entry in the undo stack. */
+function performUndo() {
+	flushUndoDebounce();
+	if ( ! undoHistory.canUndo ) return;
+	const snap = undoHistory.undo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
+
+/** Discard pending text input and step forward one entry in the undo stack. */
+function performRedo() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		undoPendingTimer = null;
+	}
+	if ( ! undoHistory.canRedo ) return;
+	const snap = undoHistory.redo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
+
 /**
  * Get the content editable element, caching the reference.
  *
@@ -94,7 +309,12 @@ let cachedContent = null;
  */
 function getContent() {
 	if ( ! cachedContent || ! cachedContent.isConnected ) {
-		cachedContent = document.querySelector( '.bw-content' );
+		// The inner wrapper holds user-editable content. The outer .bw-content
+		// keeps Preact's reactive bindings (event handlers, aria attributes),
+		// while .bw-content-inner has data-wp-ignore so Preact treats its
+		// children as opaque — preventing the reconciler from re-attaching
+		// stale Preact-tracked nodes after we replace innerHTML during undo.
+		cachedContent = document.querySelector( '.bw-content-inner' );
 	}
 	return cachedContent;
 }
@@ -757,6 +977,7 @@ function animateAndDeleteFigure( fig ) {
 		fig.remove();
 		ensureBlockStructure();
 		placeCursorAfterFigureDelete( next, prev );
+		pushToUndoHistory();
 	}, 200 );
 }
 
@@ -928,28 +1149,33 @@ function addDeleteButtons() {
 			figcaption.setAttribute( 'data-placeholder', i18n.writeCaption || 'Write a caption...' );
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
-
-			// Listen on the figure for keydown so we catch it before the content area.
-			fig.addEventListener( 'keydown', ev => {
-				if (
-					ev.key === 'Enter' &&
-					fig.querySelector( 'figcaption' ) &&
-					fig.querySelector( 'figcaption' ).contains( document.getSelection().anchorNode )
-				) {
-					ev.preventDefault();
-					ev.stopImmediatePropagation();
-					let next = fig.nextElementSibling;
-					if ( ! next || next.tagName === 'FIGURE' ) {
-						next = document.createElement( 'p' );
-						next.innerHTML = '<br>';
-						fig.after( next );
-					}
-					placeCursorAt( next );
-				}
-			} );
 			figcaption.focus();
 		} );
 		controls.appendChild( capBtn );
+
+		// Enter inside the figcaption exits to the next block. Attached on every
+		// figure init (not just on first caption-button click) so it survives an
+		// undo that restored a figure with a pre-existing figcaption — the
+		// MutationObserver re-runs addDeleteButtons, and the early-return at the
+		// top of this loop keeps the listener from being attached twice.
+		fig.addEventListener( 'keydown', ev => {
+			const figcaption = fig.querySelector( 'figcaption' );
+			if (
+				ev.key === 'Enter' &&
+				figcaption &&
+				figcaption.contains( document.getSelection().anchorNode )
+			) {
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+				let next = fig.nextElementSibling;
+				if ( ! next || next.tagName === 'FIGURE' ) {
+					next = document.createElement( 'p' );
+					next.innerHTML = '<br>';
+					fig.after( next );
+				}
+				placeCursorAt( next );
+			}
+		} );
 	} );
 }
 
@@ -972,10 +1198,16 @@ const contentReady2 = setInterval( () => {
 	// inserted and the user can start editing right away.
 	ensureBlockStructure();
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
-		contentEl.classList.add( 'bw-is-empty' );
-		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
-			once: true,
-		} );
+		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
+		// Input events from the inner contenteditable bubble up to the outer,
+		// so a single listener on the outer is enough to detect the first edit.
+		const outerContentEl = document.querySelector( '.bw-content' );
+		outerContentEl?.classList.add( 'bw-is-empty' );
+		outerContentEl?.addEventListener(
+			'input',
+			() => outerContentEl.classList.remove( 'bw-is-empty' ),
+			{ once: true }
+		);
 	}
 }, 200 );
 
@@ -1713,6 +1945,24 @@ function syncCatDropdownItems() {
 }
 
 const { state } = store( 'wpcom-write', {
+	callbacks: {
+		/**
+		 * Mirror reactive slash-menu state onto the .bw-content-inner element.
+		 *
+		 * .bw-content-inner has `data-wp-ignore` (so Preact treats its children
+		 * as opaque and won't re-attach detached nodes during undo/redo) — but
+		 * that directive strips any sibling `data-wp-bind--*` directives. To
+		 * keep the combobox aria attributes reactive, we sync them imperatively
+		 * via `data-wp-watch` on the outer wrapper: reading state.showSlashMenu
+		 * and state.slashActiveId here subscribes the watcher to their signals.
+		 */
+		syncComboboxAria() {
+			const inner = document.querySelector( '.bw-content-inner' );
+			if ( ! inner ) return;
+			inner.setAttribute( 'aria-expanded', state.showSlashMenu ? 'true' : 'false' );
+			inner.setAttribute( 'aria-activedescendant', state.slashActiveId || '' );
+		},
+	},
 	state: {
 		formatBold: false,
 		formatItalic: false,
@@ -1720,6 +1970,8 @@ const { state } = store( 'wpcom-write', {
 		formatQuote: false,
 		imageUrl: '',
 		headingLabel: i18n.normal || 'Normal',
+		canUndo: false,
+		canRedo: false,
 		get headerLabel() {
 			return state.title.trim() || i18n.untitled || 'Untitled';
 		},
@@ -1925,6 +2177,15 @@ const { state } = store( 'wpcom-write', {
 			// Backspace can unwrap a neighbouring <p>).
 			promoteGapAtCursor();
 			ensureBlockStructure();
+			pushToUndoHistoryDebounced();
+		},
+
+		undo() {
+			performUndo();
+		},
+
+		redo() {
+			performRedo();
 		},
 
 		handleKeyDown( event ) {
@@ -1972,14 +2233,27 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Block undo/redo (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y).
-			if ( ( event.ctrlKey || event.metaKey ) && /^[zy]$/i.test( event.key ) ) {
+			// Normalize via toLowerCase so Shift+Z and CapsLock don't bypass these
+			// shortcuts — some browser/platform combinations report uppercase keys.
+			const lowerKey = event.key.toLowerCase();
+			// Undo (Cmd+Z / Ctrl+Z).
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && ! event.shiftKey ) {
 				event.preventDefault();
+				performUndo();
+				return;
+			}
+			// Redo (Cmd+Shift+Z / Ctrl+Shift+Z / Ctrl+Y).
+			if (
+				( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && event.shiftKey ) ||
+				( event.ctrlKey && lowerKey === 'y' )
+			) {
+				event.preventDefault();
+				performRedo();
 				return;
 			}
 
 			// Ctrl+K / Cmd+K to toggle link input.
-			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'k' ) {
 				event.preventDefault();
 				const { actions: a } = store( 'wpcom-write' );
 				a.toggleLinkInput();
@@ -2099,6 +2373,35 @@ const { state } = store( 'wpcom-write', {
 				// No adjacent figure — fall through to native Backspace/Delete.
 			}
 
+			// Block Backspace at the very start of the first block. With nothing
+			// to merge into, some browsers respond by unwrapping the structure
+			// — including the .bw-content-inner wrapper that protects user
+			// content from the Interactivity API reconciler. Losing the wrapper
+			// breaks undo/redo, so we no-op this keystroke instead.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const range = sel.getRangeAt( 0 );
+					const content = getContent();
+					if ( content && content.firstElementChild ) {
+						// Walk up from the cursor to the direct child of .bw-content-inner.
+						let block = range.startContainer;
+						while ( block && block.parentNode !== content ) {
+							block = block.parentNode;
+						}
+						if ( block && block === content.firstElementChild ) {
+							const beforeRange = document.createRange();
+							beforeRange.setStart( block, 0 );
+							beforeRange.setEnd( range.startContainer, range.startOffset );
+							if ( beforeRange.toString() === '' ) {
+								event.preventDefault();
+								return;
+							}
+						}
+					}
+				}
+			}
+
 			// Tab / Shift-Tab inside a list: indent / outdent.
 			if ( event.key === 'Tab' ) {
 				const sel = window.getSelection();
@@ -2186,9 +2489,13 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleBeforeInput( event ) {
-			// Block undo/redo triggered via browser Edit menu.
-			if ( event.inputType === 'historyUndo' || event.inputType === 'historyRedo' ) {
+			// Route Edit menu undo/redo through our history stack.
+			if ( event.inputType === 'historyUndo' ) {
 				event.preventDefault();
+				performUndo();
+			} else if ( event.inputType === 'historyRedo' ) {
+				event.preventDefault();
+				performRedo();
 			}
 		},
 
@@ -2736,8 +3043,7 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleImageModalKeyDown( event ) {
@@ -2811,6 +3117,7 @@ const { state } = store( 'wpcom-write', {
 
 			state.showImageModal = false;
 			resetUploadZone();
+			pushToUndoHistory();
 		},
 
 		async uploadImage() {
@@ -2863,10 +3170,13 @@ const { state } = store( 'wpcom-write', {
 		// --- Slash commands ---
 
 		insertHeading() {
+			flushUndoDebounce();
 			insertNewBlock( 'h2' );
+			pushToUndoHistory();
 		},
 
 		insertImage() {
+			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
@@ -2880,15 +3190,21 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertBulletedList() {
+			flushUndoDebounce();
 			insertNewList( 'ul' );
+			pushToUndoHistory();
 		},
 
 		insertNumberedList() {
+			flushUndoDebounce();
 			insertNewList( 'ol' );
+			pushToUndoHistory();
 		},
 
 		insertQuote() {
+			flushUndoDebounce();
 			insertNewBlock( 'blockquote' );
+			pushToUndoHistory();
 		},
 
 		insertVideo() {
@@ -2905,8 +3221,7 @@ const { state } = store( 'wpcom-write', {
 			state.showVideoModal = false;
 			state.videoUrl = '';
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleVideoModalKeyDown( event ) {
@@ -2979,9 +3294,11 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showVideoModal = false;
+			pushToUndoHistory();
 		},
 
 		insertDivider() {
+			flushUndoDebounce();
 			clearSlashText();
 			const hr = document.createElement( 'hr' );
 			const p = document.createElement( 'p' );
@@ -2995,7 +3312,7 @@ const { state } = store( 'wpcom-write', {
 				while (
 					block &&
 					block.parentNode &&
-					! block.parentNode.classList.contains( 'bw-content' )
+					! block.parentNode.classList.contains( 'bw-content-inner' )
 				) {
 					block = block.parentNode;
 				}
@@ -3013,6 +3330,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			clearSlashActive();
 			state.showSlashMenu = false;
+			pushToUndoHistory();
 		},
 
 		// --- UI toggles ---
@@ -3231,19 +3549,7 @@ async function savePost( postStatus, isAutosave = false ) {
 	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
 		el.removeAttribute( 'contenteditable' );
 	} );
-	// Strip runtime control wrappers and buttons from figures so only
-	// the original media elements are saved.
-	clone.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
-		// Move the img back out of the wrapper.
-		const img = wrapper.querySelector( 'img' );
-		if ( img ) {
-			wrapper.before( img );
-		}
-		wrapper.remove();
-	} );
-	clone
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
-		.forEach( el => el.remove() );
+	stripRuntimeFigureControls( clone );
 
 	// Safety net: if stripping editor-only elements left the clone
 	// empty, treat it the same as no content.
@@ -3384,6 +3690,8 @@ const autosaveReady = setInterval( () => {
 
 	// Capture the initial snapshot so edits are detected relative to load state.
 	updateSavedSnapshot();
+	// Seed the undo history with the initial content so Cmd+Z can return to it.
+	pushToUndoHistory();
 
 	// Start the periodic autosave timer.
 	const { actions } = store( 'wpcom-write' );
