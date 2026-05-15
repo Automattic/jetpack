@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities API: register Shortlinks_Abilities for the WP.me Shortlinks module on WP 6.9+ behind the jetpack_wp_abilities_enabled gate.
