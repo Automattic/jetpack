@@ -1,11 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
-import { createRegistry, createReduxStore, RegistryProvider } from '@wordpress/data';
-import DashboardPage from '../../../../src/dashboard/components/pages/dashboard-page';
-import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
-
 // jetpack-components and connection components reach into globals; mock the
-// surface we don't care about for this test.
+// surface we don't care about for this test before importing the dashboard.
 jest.mock(
 	'@automattic/jetpack-components',
 	() => ( {
@@ -61,6 +56,32 @@ jest.mock( 'components/global-notices', () => () => null );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
 
+import { fireEvent, render, screen } from '@testing-library/react';
+import { createRegistry, createReduxStore, RegistryProvider } from '@wordpress/data';
+import DashboardPage from '../../../../src/dashboard/components/pages/dashboard-page';
+import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
+
+const CONNECTION_STORE_ID = 'jetpack-connection';
+
+const connectionStoreConfig = {
+	reducer: ( state = {} ) => state,
+	actions: {
+		connectUser: () => ( { type: 'CONNECT_USER' } ),
+		refreshConnectedPlugins: () => ( { type: 'REFRESH_CONNECTED_PLUGINS' } ),
+		registerSite: () => ( { type: 'REGISTER_SITE' } ),
+	},
+	selectors: {
+		getConnectedPlugins: () => [],
+		getConnectionErrors: () => ( {} ),
+		getConnectionStatus: () => ( {} ),
+		getIsOfflineMode: () => false,
+		getRegistrationError: () => false,
+		getSiteIsRegistering: () => false,
+		getUserConnectionData: () => ( {} ),
+		getUserIsConnecting: () => false,
+	},
+};
+
 const renderWith = ( {
 	aiAgentAccessAvailable = true,
 	aiAgentAccessGuidelinesUrl = '',
@@ -84,6 +105,7 @@ const renderWith = ( {
 		},
 	} );
 	registry.register( store );
+	registry.register( createReduxStore( CONNECTION_STORE_ID, connectionStoreConfig ) );
 
 	// Mark the three resolvers that gate isPageLoading as finished so the
 	// loading spinner doesn't hide the page content.

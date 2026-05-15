@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { STORE_ID } from 'store';
 
 const AI_AGENT_ACCESS_DESCRIPTION = __(
@@ -28,6 +28,7 @@ export default function AIAgentAccessControl( {
 	showGuidelinesLink = true,
 } ) {
 	const [ isEnabled, setIsEnabled ] = useState( false );
+	const isEnabledRef = useRef( isEnabled );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
@@ -35,6 +36,10 @@ export default function AIAgentAccessControl( {
 	const storeDispatch = useDispatch( STORE_ID );
 	const settingsPath = isWpcom ? WPCOM_AI_AGENTS_SETTINGS_PATH : WP_SETTINGS_PATH;
 	const settingsKey = isWpcom ? 'enabled' : 'jetpack_ai_agents_enabled';
+
+	useEffect( () => {
+		isEnabledRef.current = isEnabled;
+	}, [ isEnabled ] );
 
 	useEffect( () => {
 		if ( ! isAvailable ) {
@@ -62,6 +67,8 @@ export default function AIAgentAccessControl( {
 
 	const toggle = useCallback(
 		next => {
+			const previousEnabled = isEnabledRef.current;
+
 			setIsSaving( true );
 			storeDispatch.updatingNotice();
 			apiFetch( {
@@ -73,10 +80,10 @@ export default function AIAgentAccessControl( {
 					const updatedEnabled = Boolean( settings?.[ settingsKey ] );
 
 					setIsEnabled( updatedEnabled );
-					if ( updatedEnabled !== isEnabled ) {
+					if ( updatedEnabled !== previousEnabled ) {
 						analytics.tracks.recordEvent( 'jetpack_search_ai_agent_access_toggle', {
 							enabled: updatedEnabled,
-							previous_enabled: isEnabled,
+							previous_enabled: previousEnabled,
 							is_wpcom: isWpcom,
 							surface: 'jetpack_search_dashboard',
 						} );
@@ -94,7 +101,7 @@ export default function AIAgentAccessControl( {
 					setIsSaving( false );
 				} );
 		},
-		[ isEnabled, isWpcom, settingsKey, settingsPath, storeDispatch ]
+		[ isWpcom, settingsKey, settingsPath, storeDispatch ]
 	);
 
 	if ( ! isAvailable || isLoading || ! isSettingAvailable ) {
