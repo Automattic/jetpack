@@ -1,0 +1,59 @@
+.jpb-backup-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+
+	&__header {
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	}
+
+	&__download {
+		display: inline-flex;
+		gap: 6px;
+		align-items: center;
+		text-decoration: none;
+	}
+
+	// Styled-link "primary button" for the Restore action. The router's
+	// `<Link>` renders an `<a>`, so we avoid nesting it inside a `<Button>`
+	// (which would produce invalid `<a><button></button></a>` HTML).
+	&__restore {
+		display: inline-flex;
+		gap: 6px;
+		align-items: center;
+		padding: 6px 12px;
+		border-radius: 2px;
+		background-color: var(--wp-admin-theme-color, #007cba);
+		font-size: 13px;
+		line-height: 1.4;
+		text-decoration: none;
+
+		// wp-admin's global `a { color: #2271b1 }` is unlayered and wins
+		// over `@layer wp-ui-components`; force white explicitly.
+		&,
+		&:hover,
+		&:focus,
+		&:visited {
+			color: #fff;
+		}
+
+		&:hover {
+			background-color: var(--wp-admin-theme-color-darker-10, #005a87);
+		}
+
+		&:focus {
+			outline: 2px solid transparent;
+			box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #007cba);
+		}
+	}
+
+	&__stats {
+		font-weight: 600;
+	}
+
+	&__files {
+		margin-top: 8px;
+	}
+}
