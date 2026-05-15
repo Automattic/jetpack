@@ -41,6 +41,11 @@ class Campaign_Preparer {
 	 * @return array|\WP_Error
 	 */
 	public static function prepare( array $args ) {
+		$args = self::normalize_target_args( $args );
+		if ( is_wp_error( $args ) ) {
+			return $args;
+		}
+
 		$urn = isset( $args['target_urn'] ) ? (string) $args['target_urn'] : '';
 		if ( '' === $urn || ! preg_match( '/^urn:wpcom:post:\d+:(\d+)$/', $urn, $matches ) ) {
 			return new \WP_Error(
@@ -83,6 +88,81 @@ class Campaign_Preparer {
 		}
 
 		return $proposal;
+	}
+
+	/**
+	 * Normalize public target input forms into the canonical target URN.
+	 *
+	 * @param array $args Preparation input.
+	 * @return array|\WP_Error
+	 */
+	private static function normalize_target_args( array $args ) {
+		if ( isset( $args['target_urn'] ) && '' !== (string) $args['target_urn'] ) {
+			return $args;
+		}
+
+		$has_post_id    = isset( $args['post_id'] ) && '' !== (string) $args['post_id'];
+		$has_product_id = isset( $args['product_id'] ) && '' !== (string) $args['product_id'];
+
+		if ( $has_post_id && $has_product_id ) {
+			return new \WP_Error(
+				'blaze_ambiguous_target',
+				__( 'Provide only one of post_id or product_id when target_urn is omitted.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! isset( $args['site_url'] ) || '' === (string) $args['site_url'] || ( ! $has_post_id && ! $has_product_id ) ) {
+			return new \WP_Error(
+				'blaze_missing_target',
+				__( 'Provide target_urn, or provide site_url with exactly one of post_id or product_id.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$site_id = self::lookup_public_site_id( (string) $args['site_url'] );
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		$target_id          = $has_product_id ? (int) $args['product_id'] : (int) $args['post_id'];
+		$args['target_urn'] = sprintf( 'urn:wpcom:post:%d:%d', (int) $site_id, $target_id );
+
+		return $args;
+	}
+
+	/**
+	 * Resolve a public WordPress.com site URL/domain to its site ID.
+	 *
+	 * @param string $site_url Public site URL or domain.
+	 * @return int|\WP_Error
+	 */
+	private static function lookup_public_site_id( string $site_url ) {
+		$response = wp_remote_get(
+			'https://public-api.wordpress.com/rest/v1.1/sites/' . rawurlencode( $site_url ),
+			array(
+				'timeout' => 5,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new \WP_Error(
+				'blaze_site_lookup_failed',
+				__( 'Could not resolve site_url through the public WordPress.com sites API.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $data ) || empty( $data['ID'] ) ) {
+			return new \WP_Error(
+				'blaze_site_not_connected',
+				__( 'The supplied site_url did not resolve to a connected WordPress.com site.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return (int) $data['ID'];
 	}
 
 	/**

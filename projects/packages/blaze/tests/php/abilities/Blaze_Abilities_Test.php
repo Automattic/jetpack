@@ -884,8 +884,12 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$schema     = $ability['input_schema'];
 		$properties = $schema['properties'];
 
-		$this->assertSame( array( 'target_urn' ), $schema['required'] );
+		$this->assertSame( array(), $schema['required'] );
 		$this->assertFalse( $schema['additionalProperties'] );
+		$this->assertArrayHasKey( 'target_urn', $properties );
+		$this->assertArrayHasKey( 'site_url', $properties );
+		$this->assertArrayHasKey( 'post_id', $properties );
+		$this->assertArrayHasKey( 'product_id', $properties );
 		$this->assertArrayHasKey( 'goal', $properties );
 		$this->assertArrayHasKey( 'budget_total', $properties );
 		$this->assertArrayHasKey( 'duration_days', $properties );
@@ -900,6 +904,10 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'interests', $properties );
 		$this->assertArrayNotHasKey( 'objective', $properties );
 		$this->assertArrayNotHasKey( 'page_topics', $properties );
+		$this->assertStringContainsString( 'site_url plus post_id', $properties['target_urn']['description'] );
+		$this->assertStringContainsString( 'public WordPress.com site URL', $properties['site_url']['description'] );
+		$this->assertStringContainsString( 'post_id', $properties['post_id']['description'] );
+		$this->assertStringContainsString( 'product_id', $properties['product_id']['description'] );
 		$this->assertStringContainsString( 'ISO 639-1', $properties['languages']['description'] );
 		$this->assertStringContainsString( 'ISO 3166-1 alpha-2', $properties['countries']['description'] );
 		$this->assertSame( array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' ), $properties['languages']['items']['enum'] );
@@ -1126,7 +1134,13 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertSame( 'stopped', $result['status'] );
 		$this->assertSame( 'Spring launch', $result['campaign']['title'] );
-		$this->assertSame( array( 'id' => 987, 'status' => 'stopped' ), $result['stop_response'] );
+		$this->assertSame(
+			array(
+				'id'     => 987,
+				'status' => 'stopped',
+			),
+			$result['stop_response']
+		);
 		$this->assertStringContainsString( 'Campaign "Spring launch" was stopped from serving.', $result['message'] );
 		$this->assertStringNotContainsString( 'deleted', strtolower( $result['message'] ) );
 		$this->assertStringNotContainsString( 'archived', strtolower( $result['message'] ) );
