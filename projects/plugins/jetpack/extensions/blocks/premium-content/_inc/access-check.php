@@ -64,6 +64,67 @@ function current_user_can_edit() {
 }
 
 /**
+ * Mint and persist a fresh premium-content session cookie for the current visitor.
+ *
+ * When the WPCOM Memberships filter returns authoritative subscriptions for a logged-in
+ * visitor but no JWT cookie is present (e.g. the previous one expired or was cleared),
+ * we wrap those subscriptions in a JWT signed with the site's Jetpack blog token and
+ * persist it as the standard `wp-jp-premium-content-session` cookie. Subsequent requests
+ * within the cookie TTL take the fast cached path instead of the WPCOM round-trip.
+ *
+ * No-ops if there are no subscriptions, a valid cookie already exists, headers were
+ * already sent, or the signing key is unavailable.
+ *
+ * @param object $paywall                Subscription service (provides the signing key).
+ * @param int    $user_id                WordPress.com user id the subscriptions belong to.
+ * @param array  $raw_subscriptions      Subscriptions as returned by the filter.
+ * @param array  $abbreviated_subscriptions Subscriptions after `abbreviate_subscriptions()`.
+ * @return void
+ */
+function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $abbreviated_subscriptions ) {
+	if ( empty( $abbreviated_subscriptions ) ) {
+		return;
+	}
+	if ( Abstract_Token_Subscription_Service::has_token_from_cookie() ) {
+		return;
+	}
+	if ( headers_sent() ) {
+		return;
+	}
+
+	$key = $paywall->get_key();
+	if ( ! $key ) {
+		return;
+	}
+
+	$payload_subscriptions = array();
+	foreach ( $raw_subscriptions as $sub ) {
+		$sub = (array) $sub;
+		if ( empty( $sub['product_id'] ) ) {
+			continue;
+		}
+		$pid                           = (int) $sub['product_id'];
+		$payload_subscriptions[ $pid ] = array(
+			'status'     => $sub['status'] ?? 'active',
+			'end_date'   => $sub['end_date'] ?? gmdate( 'Y-m-d H:i:s', time() + MONTH_IN_SECONDS ),
+			'product_id' => $pid,
+		);
+	}
+
+	$token = JWT::encode(
+		array(
+			'user_id'       => $user_id,
+			'blog_sub'      => 'active',
+			'subscriptions' => $payload_subscriptions,
+		),
+		$key
+	);
+
+	// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+	setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
+}
+
+/**
  * Determines if the current user can view the protected content of the given block.
  *
  * @param array  $attributes Block attributes.
@@ -133,32 +194,7 @@ function current_visitor_can_access( $attributes, $block ) {
 			// Self-heal: when we have authoritative subscriptions from WPCOM but no valid
 			// JWT cookie yet, mint and set one so subsequent requests use the cached path
 			// (and remain accessible if the filter becomes unavailable later).
-			if ( ! empty( $subscriptions ) && ! Abstract_Token_Subscription_Service::has_token_from_cookie() && ! headers_sent() ) {
-				$key = $paywall->get_key();
-				if ( $key ) {
-					$payload_subscriptions = array();
-					foreach ( $raw_subscriptions as $sub ) {
-						$sub = (array) $sub;
-						if ( empty( $sub['product_id'] ) ) {
-							continue;
-						}
-						$pid                           = (int) $sub['product_id'];
-						$payload_subscriptions[ $pid ] = array(
-							'status'     => $sub['status'] ?? 'active',
-							'end_date'   => $sub['end_date'] ?? gmdate( 'Y-m-d H:i:s', time() + MONTH_IN_SECONDS ),
-							'product_id' => $pid,
-						);
-					}
-					$jwt_payload = array(
-						'user_id'       => $user_id,
-						'blog_sub'      => 'active',
-						'subscriptions' => $payload_subscriptions,
-					);
-					$token       = JWT::encode( $jwt_payload, $key );
-					// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
-					setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
-				}
-			}
+			maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $subscriptions );
 		}
 
 		// Fall back to the JWT cookie/token when the filter returned nothing (e.g. Jetpack
