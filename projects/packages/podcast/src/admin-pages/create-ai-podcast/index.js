@@ -150,32 +150,80 @@
 	// --- Quota ------------------------------------------------------------------
 
 	/**
-	 *
 	 * @param quota
 	 */
 	function renderCredits( quota ) {
 		creditsEl.dataset.state = 'visible';
 		creditsEl.innerHTML = '';
 
-		const text = document.createElement( 'p' );
+		const label = document.createElement( 'span' );
+		label.className = 'jetpack-create-ai-podcast__credits-label';
+		label.textContent = data.i18n.creditsLabel;
+
 		if ( quota?.unlimited ) {
-			text.textContent = data.i18n.creditsUnlimited;
-		} else {
-			const used = sprintf( data.i18n.creditsUsed, quota?.used ?? 0, quota?.quota ?? 0 );
-			text.textContent = used;
-			if ( quota?.resetsAt ) {
-				const resetDate = new Date( quota.resetsAt );
-				if ( ! Number.isNaN( resetDate.getTime() ) ) {
-					const formatted = resetDate.toLocaleDateString( undefined, {
-						month: 'short',
-						day: 'numeric',
-						year: 'numeric',
-					} );
-					text.textContent += ' ' + sprintf( data.i18n.creditsReset, formatted );
-				}
+			const header = document.createElement( 'div' );
+			header.className = 'jetpack-create-ai-podcast__credits-header';
+
+			const value = document.createElement( 'span' );
+			value.className = 'jetpack-create-ai-podcast__credits-count';
+			value.textContent = data.i18n.creditsUnlimited;
+
+			header.appendChild( label );
+			header.appendChild( value );
+			creditsEl.appendChild( header );
+			return;
+		}
+
+		const used = Math.max( 0, Number( quota?.used ?? 0 ) );
+		const total = Math.max( 0, Number( quota?.quota ?? 0 ) );
+		const ratio = total > 0 ? Math.min( 1, used / total ) : 0;
+		const percent = Math.round( ratio * 100 );
+
+		const header = document.createElement( 'div' );
+		header.className = 'jetpack-create-ai-podcast__credits-header';
+
+		const count = document.createElement( 'span' );
+		count.className = 'jetpack-create-ai-podcast__credits-count';
+		count.textContent = sprintf( data.i18n.creditsCount, used, total );
+
+		header.appendChild( label );
+		header.appendChild( count );
+		creditsEl.appendChild( header );
+
+		const bar = document.createElement( 'div' );
+		bar.className = 'jetpack-create-ai-podcast__credits-bar';
+		bar.setAttribute( 'role', 'progressbar' );
+		bar.setAttribute( 'aria-valuemin', '0' );
+		bar.setAttribute( 'aria-valuemax', String( total ) );
+		bar.setAttribute( 'aria-valuenow', String( used ) );
+		bar.setAttribute( 'aria-valuetext', sprintf( data.i18n.creditsUsed, used, total ) );
+
+		const fill = document.createElement( 'div' );
+		fill.className = 'jetpack-create-ai-podcast__credits-fill';
+		fill.style.width = `${ percent }%`;
+		if ( ratio >= 0.9 ) {
+			fill.dataset.tone = 'danger';
+		} else if ( ratio >= 0.7 ) {
+			fill.dataset.tone = 'warning';
+		}
+
+		bar.appendChild( fill );
+		creditsEl.appendChild( bar );
+
+		if ( quota?.resetsAt ) {
+			const resetDate = new Date( quota.resetsAt );
+			if ( ! Number.isNaN( resetDate.getTime() ) ) {
+				const formatted = resetDate.toLocaleDateString( undefined, {
+					month: 'short',
+					day: 'numeric',
+					year: 'numeric',
+				} );
+				const meta = document.createElement( 'div' );
+				meta.className = 'jetpack-create-ai-podcast__credits-meta';
+				meta.textContent = sprintf( data.i18n.creditsReset, formatted );
+				creditsEl.appendChild( meta );
 			}
 		}
-		creditsEl.appendChild( text );
 	}
 
 	/**

@@ -140,6 +140,9 @@ class Create_AI_Podcast_Page {
 				'notAvailable'     => __( 'Create AI Podcast isn\'t available on your current plan.', 'jetpack-podcast' ),
 				// translators: 1: number of credits used, 2: total credits available.
 				'creditsUsed'      => __( '%1$d of %2$d credits used.', 'jetpack-podcast' ),
+				'creditsLabel'     => __( 'Credits', 'jetpack-podcast' ),
+				// translators: 1: number of credits used, 2: total credits available.
+				'creditsCount'     => __( '%1$d / %2$d', 'jetpack-podcast' ),
 				// translators: %s: date when credits reset.
 				'creditsReset'     => __( 'Resets on %s.', 'jetpack-podcast' ),
 				'creditsUnlimited' => __( 'Unlimited generations available.', 'jetpack-podcast' ),
@@ -165,7 +168,7 @@ class Create_AI_Podcast_Page {
 
 			<div id="jetpack-create-ai-podcast-app">
 				<div
-					class="jetpack-create-ai-podcast__card jetpack-create-ai-podcast__card--accent jetpack-create-ai-podcast__credits"
+					class="jetpack-create-ai-podcast__card jetpack-create-ai-podcast__credits"
 					data-region="credits"
 				></div>
 
