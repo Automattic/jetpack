@@ -66,6 +66,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		remove_all_filters( 'wp_register_ability_args' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'blaze_abilities_prepare_campaign_enabled' );
+		remove_all_filters( 'jetpack_blaze_prepare_campaign_tracks_event' );
 		remove_all_actions( 'wp_after_execute_ability' );
 		unset( $GLOBALS['wp_rest_server'] );
 	}
@@ -251,6 +252,122 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'campaign_id' => 'abc-123' ), $result, 'Original callback result should pass through unchanged.' );
 		$this->assertSame( array( 'budget_total' => 50 ), $received_input, 'Original callback should receive the original input.' );
+	}
+
+	/**
+	 * Prepare-campaign emits safe called + succeeded telemetry around
+	 * successful registered ability executions.
+	 */
+	public function test_wrapped_prepare_campaign_tracks_called_and_succeeded() {
+		$events = array();
+		add_filter(
+			'jetpack_blaze_prepare_campaign_tracks_event',
+			static function ( $event ) use ( &$events ) {
+				$events[] = $event;
+				return false;
+			},
+			10,
+			4
+		);
+
+		$callback = static function () {
+			return array(
+				'intent'  => 'ecommerce',
+				'prefill' => array(
+					'type'         => 'product',
+					'site_name'    => 'Secret merchant headline',
+					'text_snippet' => 'Secret merchant copy',
+					'target_url'   => 'https://example.com/private-product',
+				),
+			);
+		};
+		$args     = array(
+			'execute_callback' => $callback,
+			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
+		);
+
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		call_user_func(
+			$wrapped['execute_callback'],
+			array(
+				'target_urn'    => 'urn:wpcom:post:12345:42',
+				'budget_total'  => 50,
+				'duration_days' => 7,
+				'site_name'     => 'Secret caller headline',
+				'text_snippet'  => 'Secret caller copy',
+			)
+		);
+
+		$this->assertCount( 2, $events );
+		$called_event    = $events[0] ?? array();
+		$succeeded_event = $events[1] ?? array();
+
+		$this->assertSame( 'blaze_prepare_campaign_called', $called_event['name'] ?? null );
+		$this->assertSame(
+			array(
+				'result'            => 'called',
+				'target_type'       => 'unknown',
+				'inferred_intent'   => 'unknown',
+				'budget_provided'   => true,
+				'duration_provided' => true,
+			),
+			$called_event['props'] ?? array()
+		);
+		$succeeded_props = $succeeded_event['props'] ?? array();
+		$this->assertSame( 'blaze_prepare_campaign_succeeded', $succeeded_event['name'] ?? null );
+		$this->assertSame( 'succeeded', $succeeded_props['result'] ?? null );
+		$this->assertSame( 'product', $succeeded_props['target_type'] ?? null );
+		$this->assertSame( 'ecommerce', $succeeded_props['inferred_intent'] ?? null );
+		$this->assertStringNotContainsString( 'Secret', wp_json_encode( $events, JSON_UNESCAPED_SLASHES ) );
+		$this->assertStringNotContainsString( 'private-product', wp_json_encode( $events, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Failed prepare-campaign executions emit a low-cardinality failure
+	 * category without carrying raw input or error messages.
+	 */
+	public function test_wrapped_prepare_campaign_tracks_failed_with_safe_failure_category() {
+		$events = array();
+		add_filter(
+			'jetpack_blaze_prepare_campaign_tracks_event',
+			static function ( $event ) use ( &$events ) {
+				$events[] = $event;
+				return false;
+			},
+			10,
+			4
+		);
+
+		$callback = static function () {
+			return new WP_Error( 'blaze_invalid_target_urn', 'Secret malformed URN value' );
+		};
+		$args     = array(
+			'execute_callback' => $callback,
+			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
+		);
+
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		call_user_func(
+			$wrapped['execute_callback'],
+			array(
+				'target_urn'   => 'secret-bad-urn',
+				'budget_total' => 50,
+			)
+		);
+
+		$this->assertCount( 2, $events );
+		$called_event = $events[0] ?? array();
+		$failed_event = $events[1] ?? array();
+		$failed_props = $failed_event['props'] ?? array();
+
+		$this->assertSame( 'blaze_prepare_campaign_called', $called_event['name'] ?? null );
+		$this->assertSame( 'blaze_prepare_campaign_failed', $failed_event['name'] ?? null );
+		$this->assertSame( 'failed', $failed_props['result'] ?? null );
+		$this->assertSame( 'invalid_target', $failed_props['failure_category'] ?? null );
+		$this->assertSame( true, $failed_props['budget_provided'] ?? null );
+		$this->assertSame( false, $failed_props['duration_provided'] ?? null );
+		$this->assertStringNotContainsString( 'secret-bad-urn', wp_json_encode( $events, JSON_UNESCAPED_SLASHES ) );
+		$this->assertStringNotContainsString( 'Secret malformed', wp_json_encode( $events, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

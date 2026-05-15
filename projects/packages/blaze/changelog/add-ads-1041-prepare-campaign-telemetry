@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Blaze: Track server-side telemetry for prepare-campaign ability requests.
