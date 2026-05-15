@@ -5,6 +5,7 @@ import { changelogDefine } from './commands/changelog.js';
 import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
 import * as composerCommand from './commands/composer.js';
+import * as coverageCommand from './commands/coverage.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { docsDefine } from './commands/docs.js';
@@ -42,6 +43,7 @@ export async function cli() {
 	argv = cliDefine( argv );
 	argv.command( composerCommand );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	argv.command( coverageCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = docsDefine( argv );

@@ -29,7 +29,7 @@ export async function builder( yargs ) {
 	return yargs
 		.positional( 'test', {
 			describe:
-				'Test to run. Typically "js", "php", "coverage", or "typecheck", but available tests depend on the project.',
+				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project. For code coverage, use `jetpack coverage`.',
 			type: 'string',
 		} )
 		.positional( 'project', {
@@ -93,7 +93,7 @@ export async function handler( argv ) {
 		rmartifacts = true;
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		if ( argv.htmlDir ) {
 			opts.HTML_DIR = path.resolve( argv.htmlDir );
 			await fs.mkdir( argv.htmlDir, { recursive: true } );
@@ -162,7 +162,7 @@ export async function runTests( argv, opts ) {
 				type: 'confirm',
 				name: 'verbose',
 				message: 'See output from the test runner?',
-				initial: argv.test !== 'coverage',
+				initial: ! argv.isCoverage,
 			},
 		] );
 		argv.v = response.verbose;
@@ -174,7 +174,7 @@ export async function runTests( argv, opts ) {
 		);
 	}
 
-	if ( argv.test === 'coverage' ) {
+	if ( argv.coverageGroup === 'php' ) {
 		try {
 			await execa(
 				'php',
@@ -237,7 +237,7 @@ export async function runTests( argv, opts ) {
 		reject: rootInstallReject,
 	} = Promise.withResolvers();
 	let any = false;
-	if ( argv.test === 'php' || argv.test === 'coverage' ) {
+	if ( argv.test === 'php' || argv.coverageGroup === 'php' ) {
 		for ( const project of projects ) {
 			const composerJson = await readComposerJson( project, false );
 			if ( composerJson?.[ 'require-dev' ]?.[ 'automattic/jetpack-test-environment' ] ) {
@@ -346,7 +346,7 @@ export async function runTests( argv, opts ) {
 						const env = { ...genv };
 						env.ARTIFACTS_DIR = path.join( opts.ARTIFACTS_DIR, project );
 						await fs.mkdir( env.ARTIFACTS_DIR, { recursive: true } );
-						if ( argv.test === 'coverage' ) {
+						if ( argv.isCoverage ) {
 							env.COVERAGE_DIR = path.join( opts.ARTIFACTS_DIR, 'coverage', project );
 							await fs.mkdir( env.COVERAGE_DIR, { recursive: true } );
 						}
@@ -398,7 +398,7 @@ export async function runTests( argv, opts ) {
 		} );
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		const scriptDir = path.join( basedir, '.github/files/coverage-munger' );
 		const coverageDir = path.join( opts.ARTIFACTS_DIR, 'coverage' );
 		let phpFiles, jsFiles;
@@ -408,8 +408,12 @@ export async function runTests( argv, opts ) {
 			skip: async () => {
 				await Promise.all( promises );
 
-				phpFiles = await glob( '**/*.cov', { cwd: coverageDir } );
-				jsFiles = await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
+				phpFiles =
+					argv.coverageGroup === 'php' ? await glob( '**/*.cov', { cwd: coverageDir } ) : [];
+				jsFiles =
+					argv.coverageGroup === 'js'
+						? await glob( '**/*.json', { cwd: coverageDir, absolute: true } )
+						: [];
 
 				return phpFiles.length === 0 && jsFiles.length === 0 ? 'No coverage data generated' : false;
 			},
@@ -541,7 +545,9 @@ export async function promptForTest( argv ) {
 	const packageJson = await readPackageJson( project );
 	const tests = Object.keys( composerJson.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
-		.map( test => test.substring( 5 ) );
+		.map( test => test.substring( 5 ) )
+		// Hide coverage tests, as they should be run with the `jetpack coverage` command.
+		.filter( test => ! test.endsWith( '-coverage' ) );
 	if ( packageJson?.scripts?.typecheck ) {
 		tests.push( 'typecheck' );
 	}
