@@ -120,6 +120,9 @@ export default function DashboardPage( { isLoading = false } ) {
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
 	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
+	const isSearchSuggestionsEnabled = useSelect( select =>
+		select( STORE_ID ).isSearchSuggestionsEnabled()
+	);
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -223,47 +226,54 @@ export default function DashboardPage( { isLoading = false } ) {
 					<Tabs.Panel value="settings">
 						{ isPageLoading && <Loading /> }
 						{ ! isPageLoading && (
-							<div className="jp-search-dashboard-bottom">
-								{ isSearchBlocksEnabled ? (
-									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
-										<div className="jp-search-dashboard-row">
-											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-												<ExperienceSelector />
-												{ isReaderChatAvailable && (
-													<div className="jp-search-reader-chat-card">
-														<ReaderChatControl
-															isAvailable={ isReaderChatAvailable }
-															isEnabled={ isReaderChatEnabled }
-															isSaving={ isSavingEitherOption }
-															guidelinesUrl={ readerChatGuidelinesUrl }
-															updateOptions={ updateOptions }
-														/>
-													</div>
-												) }
+							<>
+								<div className="jp-search-dashboard-bottom">
+									{ isSearchBlocksEnabled ? (
+										<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
+											<div className="jp-search-dashboard-row">
+												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+													<ExperienceSelector />
+													{ isReaderChatAvailable && (
+														<div className="jp-search-reader-chat-card">
+															<ReaderChatControl
+																isAvailable={ isReaderChatAvailable }
+																isEnabled={ isReaderChatEnabled }
+																isSaving={ isSavingEitherOption }
+																guidelinesUrl={ readerChatGuidelinesUrl }
+																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+												</div>
 											</div>
 										</div>
-									</div>
-								) : (
-									<ModuleControl
-										siteAdminUrl={ siteAdminUrl }
-										updateOptions={ updateOptions }
-										domain={ domain }
-										isDisabledFromOverLimit={ isOverLimit }
-										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-										isReaderChatAvailable={ isReaderChatAvailable }
-										isReaderChatEnabled={ isReaderChatEnabled }
-										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-										supportsSearch={ supportsSearch }
-										supportsInstantSearch={ supportsInstantSearch }
-										isModuleEnabled={ isModuleEnabled }
-										isInstantSearchEnabled={ isInstantSearchEnabled }
-										isSavingEitherOption={ isSavingEitherOption }
-										isTogglingModule={ isTogglingModule }
-										isTogglingInstantSearch={ isTogglingInstantSearch }
-										readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
-									/>
-								) }
-							</div>
+									) : (
+										<ModuleControl
+											siteAdminUrl={ siteAdminUrl }
+											updateOptions={ updateOptions }
+											domain={ domain }
+											isDisabledFromOverLimit={ isOverLimit }
+											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isReaderChatAvailable={ isReaderChatAvailable }
+											isReaderChatEnabled={ isReaderChatEnabled }
+											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+											supportsSearch={ supportsSearch }
+											supportsInstantSearch={ supportsInstantSearch }
+											isModuleEnabled={ isModuleEnabled }
+											isInstantSearchEnabled={ isInstantSearchEnabled }
+											isSavingEitherOption={ isSavingEitherOption }
+											isTogglingModule={ isTogglingModule }
+											isTogglingInstantSearch={ isTogglingInstantSearch }
+											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
+										/>
+									) }
+								</div>
+								<NoticesList
+									notices={ notices }
+									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+								/>
+							</>
 						) }
 					</Tabs.Panel>
 					<Tabs.Panel value="ai-answers">

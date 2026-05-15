@@ -255,7 +255,9 @@ class REST_Controller {
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
 		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled );
+		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
+
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled, $search_suggestions_enabled );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -303,6 +305,9 @@ class REST_Controller {
 		if ( $ai_answers_enabled !== null ) {
 			update_option( 'jetpack_search_ai_answers_enabled', $ai_answers_enabled );
 		}
+		if ( $search_suggestions_enabled !== null ) {
+			update_option( 'jetpack_search_suggestions_enabled', $search_suggestions_enabled );
+		}
 
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
@@ -331,8 +336,9 @@ class REST_Controller {
 	 * @param string|null $experience - Experience value.
 	 * @param bool|null   $reader_chat - Reader Chat status.
 	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
+	 * @param boolean     $search_suggestions_enabled - New search suggestions status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null ) {
 		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -367,6 +373,10 @@ class REST_Controller {
 			// allow updating 'ai_answers_enabled' without updating/validating other settings.
 			return true;
 		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $search_suggestions_enabled !== null ) {
+			// allow updating 'search_suggestions_enabled' without updating/validating other settings.
+			return true;
+		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -377,9 +387,9 @@ class REST_Controller {
 		return true;
 	}
 
-	/**
-	 * GET `jetpack/v4/search/settings`
-	 */
+		/**
+		 *     GET `jetpack/v4/search/settings`
+		 */
 	public function get_settings() {
 		$settings = array(
 			'module_active'                 => $this->search_module->is_active(),
@@ -387,6 +397,7 @@ class REST_Controller {
 			'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
 			'experience'                    => $this->search_module->get_experience(),
 			'ai_answers_enabled'            => AI_Answers::is_enabled(),
+			'search_suggestions_enabled'    => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
 		);
 
 		if ( $this->is_reader_chat_setting_registered() ) {

@@ -85,6 +85,7 @@ const createSelectMethods = () => ( {
 	isReaderChatEnabled: jest.fn( () => true ),
 	isResolving: jest.fn( () => false ),
 	isSearchBlocksEnabled: jest.fn( () => false ),
+	isSearchSuggestionsEnabled: jest.fn( () => false ),
 	isTogglingInstantSearch: jest.fn( () => false ),
 	isTogglingModule: jest.fn( () => false ),
 	isUpdatingJetpackSettings: jest.fn( () => false ),
