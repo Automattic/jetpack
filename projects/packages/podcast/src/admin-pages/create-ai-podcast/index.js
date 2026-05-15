@@ -21,9 +21,10 @@
 
 	/**
 	 * Strip the `_envelope=1` wrapper that wpcom adds on Simple sites.
-	 * The wrapper has shape `{ body, status, headers }`. We unwrap to `body`
-	 * for 2xx and throw for non-2xx so callers' try/catch paths fire the
-	 * same way they do for native HTTP errors on Atomic.
+	 * The wrapper has shape `{ code, headers, body }` (see
+	 * WPCOM_JSON_API::wrap_http_envelope). We unwrap to `body` for 2xx
+	 * and throw for non-2xx so callers' try/catch paths fire the same
+	 * way they do for native HTTP errors on Atomic.
 	 *
 	 * @param opts
 	 */
@@ -33,12 +34,12 @@
 			response &&
 			typeof response === 'object' &&
 			'body' in response &&
-			'status' in response &&
+			'code' in response &&
 			'headers' in response
 		) {
-			if ( response.status < 200 || response.status >= 300 ) {
-				const err = new Error( response.body?.message || `HTTP ${ response.status }` );
-				err.status = response.status;
+			if ( response.code < 200 || response.code >= 300 ) {
+				const err = new Error( response.body?.message || `HTTP ${ response.code }` );
+				err.status = response.code;
 				err.code = response.body?.code;
 				throw err;
 			}
