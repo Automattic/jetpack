@@ -447,6 +447,7 @@ class REST_Controller {
 	public function activate_plan( $request ) {
 		$default_options = array(
 			'search_plan_info'      => null,
+			'enable_search'         => true,
 			'enable_instant_search' => true,
 			'search_experience'     => null,
 			'auto_config_search'    => true,
@@ -454,12 +455,29 @@ class REST_Controller {
 		$payload         = $request->get_json_params();
 		$payload         = wp_parse_args( $payload, $default_options );
 
-		// Validate `search_experience` up front. `update_experience` accepts
-		// `off` as a deactivation signal, but that has its own endpoint —
-		// allowing it here would let a `/plan/activate` call silently turn
-		// Search off. The type guard mirrors `update_settings()` and turns a
-		// non-string payload into a 400 instead of a `TypeError`.
+		// Update plan data, plan info is in the request body.
+		// We do this to avoid another call to WPCOM and reduce latency.
+		if ( $payload['search_plan_info'] === null || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
+			$this->plan->get_plan_info_from_wpcom();
+		}
+
+		// Activation is the precondition for the experience handling below —
+		// not a consequence of which payload variant the caller sent — so it
+		// runs first for both canonical and legacy callers. The `enable_search`
+		// flag stays as the single opt-out (defaults to true). Eligibility
+		// (offline mode, connection, plan support) is enforced inside
+		// `activate()`.
+		if ( false !== $payload['enable_search'] ) {
+			$ret = $this->search_module->activate();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
+		}
+
 		if ( $payload['search_experience'] !== null ) {
+			// Canonical path. Restrict to activate-able experiences — `off`
+			// belongs on `/plan/deactivate`, and a non-string payload would
+			// blow up `update_experience(string $experience)`.
 			$valid_experiences = array(
 				Module_Control::EXPERIENCE_OVERLAY,
 				Module_Control::EXPERIENCE_INLINE,
@@ -474,27 +492,7 @@ class REST_Controller {
 					array( 'status' => 400 )
 				);
 			}
-			$payload['search_experience'] = sanitize_text_field( $payload['search_experience'] );
-		}
-
-		// Update plan data, plan info is in the request body.
-		// We do this to avoid another call to WPCOM and reduce latency.
-		if ( $payload['search_plan_info'] === null || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
-			$this->plan->get_plan_info_from_wpcom();
-		}
-
-		// `/plan/activate` always implies the caller wants Search on, so
-		// activation is unconditional. Eligibility (offline mode, connection,
-		// plan support) is enforced inside `activate()`.
-		$ret = $this->search_module->activate();
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
-		}
-
-		if ( $payload['search_experience'] !== null ) {
-			// Canonical path: route through the same setter the in-product UI
-			// uses, so the experience option and legacy boolean stay in sync.
-			$ret = $this->search_module->update_experience( $payload['search_experience'] );
+			$ret = $this->search_module->update_experience( sanitize_text_field( $payload['search_experience'] ) );
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
