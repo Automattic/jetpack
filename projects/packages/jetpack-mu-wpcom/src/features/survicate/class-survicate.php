@@ -55,6 +55,11 @@ class Survicate {
 			return false;
 		}
 
+		// Network and user admin pages on wpcom are internal tools surfaces; surveys must never reach them.
+		if ( is_network_admin() || is_user_admin() ) {
+			return false;
+		}
+
 		// Only load for English locale users.
 		if ( strpos( strtolower( get_user_locale() ), 'en' ) !== 0 ) {
 			return false;

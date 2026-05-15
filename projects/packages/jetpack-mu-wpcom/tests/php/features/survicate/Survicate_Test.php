@@ -218,6 +218,34 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_load returns false on network admin pages.
+	 *
+	 * Note: is_network_admin() reads $GLOBALS['current_screen']->in_admin( 'network' )
+	 * when a screen is set, so we set a -network-suffixed hook to put WP_Screen
+	 * into network admin mode.
+	 */
+	public function test_should_load_returns_false_on_network_admin() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard-network' );
+		$this->create_and_login_user();
+
+		$this->assertTrue( is_network_admin() );
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false on user admin pages.
+	 */
+	public function test_should_load_returns_false_on_user_admin() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard-user' );
+		$this->create_and_login_user();
+
+		$this->assertTrue( is_user_admin() );
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
 	 * Tests that should_load returns false on a P2 site detected via stylesheet.
 	 *
 	 * Status\Host::is_p2_site() short-circuits to false unless get_wpcom_site_id()
