@@ -539,8 +539,9 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		update_post_meta( $post_id, 'videopress_privacy_setting', $video_info->privacy_setting );
 	}
 
-	if ( videopress_is_finished_processing( $post_id ) ) {
-		$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s' );
+	$finished = videopress_is_finished_processing( $post_id );
+	if ( $finished ) {
+		$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s', (int) $finished );
 	}
 
 	return $video_info;
