@@ -169,9 +169,9 @@ export default function DashboardPage( { isLoading = false } ) {
 							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="ai-answers">
-								{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
+								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
 								<span className="jp-search-dashboard-tabs__tab-preview-label">
-									{ __( '(Preview)', 'jetpack-search-pkg' ) }
+									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
 								</span>
 							</Tabs.Tab>
 						</Tabs.List>
