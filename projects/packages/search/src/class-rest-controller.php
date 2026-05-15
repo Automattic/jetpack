@@ -449,6 +449,7 @@ class REST_Controller {
 			'search_plan_info'      => null,
 			'enable_search'         => true,
 			'enable_instant_search' => true,
+			'search_experience'     => null,
 			'auto_config_search'    => true,
 		);
 		$payload         = $request->get_json_params();
@@ -460,21 +461,27 @@ class REST_Controller {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 
-		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['enable_search'] ) {
-			// Eligibility is checked in `activate` function.
-			$ret = $this->search_module->activate();
+		if ( $payload['search_experience'] !== null ) {
+			// Canonical path: set the experience directly. `update_experience` handles module
+			// activation and keeps the legacy `instant_search_enabled` boolean in sync.
+			$ret = $this->search_module->update_experience( $payload['search_experience'] );
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
-		}
+		} else {
+			// Legacy path for older WPCOM callers that send enable_search / enable_instant_search.
+			if ( false !== $payload['enable_search'] ) {
+				$ret = $this->search_module->activate();
+				if ( is_wp_error( $ret ) ) {
+					return $ret;
+				}
+			}
 
-		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['enable_instant_search'] ) {
-			// Eligibility is checked in `enable_instant_search` function.
-			$ret = $this->search_module->enable_instant_search();
-			if ( is_wp_error( $ret ) ) {
-				return $ret;
+			if ( false !== $payload['enable_instant_search'] ) {
+				$ret = $this->search_module->enable_instant_search();
+				if ( is_wp_error( $ret ) ) {
+					return $ret;
+				}
 			}
 		}
 

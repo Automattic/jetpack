@@ -652,6 +652,35 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * `POST /jetpack/v4/search/plan/activate` with the canonical `search_experience`
+	 * parameter writes the experience option and routes through `update_experience`.
+	 */
+	public function test_activate_plan_admin_with_search_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"embedded"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'embedded', get_option( 'jetpack_search_experience' ) );
+	}
+
+	/**
+	 * `POST /jetpack/v4/search/plan/activate` with an unknown `search_experience` value
+	 * surfaces the `update_experience` validation error.
+	 */
+	public function test_activate_plan_admin_with_invalid_search_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"bogus"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertNotEquals( 200, $response->get_status() );
+	}
+
+	/**
 	 * Testing the `POST /jetpack/v4/search/plan/deactivate` endpoint with no user.
 	 */
 	public function test_deactivate_plan_authorized() {
