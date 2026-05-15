@@ -272,10 +272,12 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		$source_title   = "Title with \\t tab";
 
 		$source_post_id = self::factory()->post->create(
-			array(
-				'post_content' => $source_content,
-				'post_excerpt' => $source_excerpt,
-				'post_title'   => $source_title,
+			wp_slash(
+				array(
+					'post_content' => $source_content,
+					'post_excerpt' => $source_excerpt,
+					'post_title'   => $source_title,
+				)
 			)
 		);
 		$source_post    = get_post( $source_post_id );
