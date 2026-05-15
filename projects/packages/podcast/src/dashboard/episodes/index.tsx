@@ -310,10 +310,7 @@ const EpisodesTab = () => {
 	// flashing the empty state before the first page resolves. No search/filter
 	// guard because DataViews mounts its toolbar after the first render.
 	const hasNoEpisodes =
-		! isLoading &&
-		rows.length === 0 &&
-		! view.search &&
-		! view.filters?.some( f => f.value );
+		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( f => f.value );
 
 	if ( hasNoEpisodes ) {
 		return (
