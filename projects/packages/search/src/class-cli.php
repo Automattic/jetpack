@@ -101,8 +101,8 @@ class CLI extends WP_CLI_Command {
 
 		WP_CLI::line( sprintf( 'Running backfill in %s mode…', $mode ) );
 		try {
-			$mirrored = Custom_Taxonomy_Slot_Mapping::backfill( $mode );
-			WP_CLI::success( sprintf( 'Backfilled %d (post, taxonomy) pair(s).', $mirrored ) );
+			$count = Custom_Taxonomy_Slot_Mapping::backfill( $mode );
+			WP_CLI::success( sprintf( 'Backfilled %d (post, taxonomy) pair(s).', $count ) );
 		} catch ( \Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
