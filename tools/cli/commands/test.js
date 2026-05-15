@@ -401,21 +401,19 @@ export async function runTests( argv, opts ) {
 	if ( argv.isCoverage && argv.html !== false ) {
 		const scriptDir = path.join( basedir, '.github/files/coverage-munger' );
 		const coverageDir = path.join( opts.ARTIFACTS_DIR, 'coverage' );
-		let phpFiles, jsFiles;
+		let coverageFiles;
 
 		tasks.push( {
 			title: 'Generate HTML coverage reports',
 			skip: async () => {
 				await Promise.all( promises );
 
-				phpFiles =
-					argv.coverageGroup === 'php' ? await glob( '**/*.cov', { cwd: coverageDir } ) : [];
-				jsFiles =
-					argv.coverageGroup === 'js'
-						? await glob( '**/*.json', { cwd: coverageDir, absolute: true } )
-						: [];
+				coverageFiles =
+					argv.coverageGroup === 'php'
+						? await glob( '**/*.cov', { cwd: coverageDir } )
+						: await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
 
-				return phpFiles.length === 0 && jsFiles.length === 0 ? 'No coverage data generated' : false;
+				return coverageFiles.length === 0 ? 'No coverage data generated' : false;
 			},
 			task: async () => {
 				let sstdout = process.stdout,
@@ -430,7 +428,7 @@ export async function runTests( argv, opts ) {
 
 				const subtasks = [];
 
-				if ( phpFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'php' ) {
 					subtasks.push( {
 						title: 'Generate PHP coverage report',
 						task: async () => {
@@ -468,7 +466,7 @@ export async function runTests( argv, opts ) {
 					} );
 				}
 
-				if ( jsFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'js' ) {
 					subtasks.push( {
 						title: 'Generate JS coverage report',
 						task: async () => {
@@ -477,8 +475,8 @@ export async function runTests( argv, opts ) {
 
 							try {
 								// nyc can merge files itself, but needs them all in one directory (not in subdirs).
-								for ( let i = 0; i < jsFiles.length; i++ ) {
-									await fs.cp( jsFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
+								for ( let i = 0; i < coverageFiles.length; i++ ) {
+									await fs.cp( coverageFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
 								}
 
 								const dir = path.join( opts.HTML_DIR, 'js' );
