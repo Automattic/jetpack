@@ -79,6 +79,7 @@ class Podcast {
 		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
 		if ( is_admin() ) {
 			Admin_Page::init();
+			Create_AI_Podcast_Page::init();
 		}
 	}
 
