@@ -170,6 +170,40 @@
 	margin-left: auto;
 }
 
+.jetpack-create-ai-podcast__posts-loading {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	padding: 12px 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.jetpack-create-ai-podcast__posts-loading::before {
+	content: "";
+	width: 14px;
+	height: 14px;
+	border: 2px solid #dcdcde;
+	border-top-color: #2271b1;
+	border-radius: 50%;
+	animation: jetpack-create-ai-podcast-spin 800ms linear infinite;
+}
+
+@keyframes jetpack-create-ai-podcast-spin {
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.jetpack-create-ai-podcast__posts-loading::before {
+		animation: none;
+	}
+}
+
 /* --- Actions row ---------------------------------------------------------- */
 
 .jetpack-create-ai-podcast__actions {

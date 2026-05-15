@@ -280,7 +280,15 @@
 		postsRegion.appendChild( ul );
 	}
 
-	const onSearchPosts = debounce( async query => {
+	function renderPostsLoading() {
+		postsRegion.innerHTML = '';
+		const loading = document.createElement( 'p' );
+		loading.className = 'jetpack-create-ai-podcast__posts-loading';
+		loading.textContent = data.i18n.loadingPosts;
+		postsRegion.appendChild( loading );
+	}
+
+	const fetchPosts = debounce( async query => {
 		try {
 			const posts = await apiFetch( {
 				path: `${
@@ -293,6 +301,11 @@
 			renderPosts( [] );
 		}
 	}, 300 );
+
+	function onSearchPosts( query ) {
+		renderPostsLoading();
+		fetchPosts( query );
+	}
 
 	// --- Generate + poll --------------------------------------------------------
 

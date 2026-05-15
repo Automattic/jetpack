@@ -144,6 +144,7 @@ class Create_AI_Podcast_Page {
 				'creditsReset'     => __( 'Resets on %s.', 'jetpack-podcast' ),
 				'creditsUnlimited' => __( 'Unlimited generations available.', 'jetpack-podcast' ),
 				'noPostsFound'     => __( 'No posts match.', 'jetpack-podcast' ),
+				'loadingPosts'     => __( 'Loading posts…', 'jetpack-podcast' ),
 				'pickPosts'        => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
 			),
 		);
