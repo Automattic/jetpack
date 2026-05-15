@@ -100,8 +100,6 @@ class Jetpack_Mu_Wpcom {
 		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'maybe_disable_gutenberg_classic_block_deprecation_experiment' ), 1000 );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'maybe_disable_gutenberg_classic_block_deprecation_experiment' ), 1000 );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -793,36 +791,23 @@ class Jetpack_Mu_Wpcom {
 
 	/**
 	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
+	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return array The filtered experiments.
 	 */
 	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
+		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
+			return $experiments;
+		}
+
 		if ( ! is_array( $experiments ) ) {
 			$experiments = array();
 		}
+
 		$experiments['gutenberg-classic-block-deprecation'] = true;
 		return $experiments;
 	}
-
-	/**
-	 * Disable the `gutenberg-classic-block-deprecation` experiment on sites with the `disable-classic-block-deprecation` sticker.
-	 *
-	 * Runs at priority 1000 so it overrides the default-on filter.
-	 *
-	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return mixed The filtered experiments.
-	 */
-	public static function maybe_disable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
-		if ( ! is_array( $experiments ) ) {
-			return $experiments;
-		}
-		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
-			unset( $experiments['gutenberg-classic-block-deprecation'] );
-		}
-		return $experiments;
-	}
-
 	/**
 	 * Add Jetpack script data with host information on P2
 	 *
