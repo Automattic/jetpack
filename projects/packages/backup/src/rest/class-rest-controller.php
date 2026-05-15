@@ -37,6 +37,7 @@ class Rest_Controller {
 		Capabilities_Bridge::register_routes();
 		Activity_Log_Bridge::register_routes();
 		File_Browser_Bridge::register_routes();
+		Download_Bridge::register_routes();
 	}
 
 	/**

@@ -8,7 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { toIntRewindId } from '../data/api/_helpers';
-import { useMockDownload } from '../hooks/use-mock-download';
+import { useDownload } from '../hooks/use-download';
 import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
@@ -25,7 +25,7 @@ export default function DownloadScreen() {
 		return Number.isFinite( seconds ) ? new Date( seconds * 1000 ).toISOString() : null;
 	} )();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useMockDownload();
+	const { state, submit, reset } = useDownload( rewindId );
 
 	return (
 		<DashboardLayout>
