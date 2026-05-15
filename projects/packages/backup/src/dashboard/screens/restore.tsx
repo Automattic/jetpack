@@ -8,7 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { toIntRewindId } from '../data/api/_helpers';
-import { useMockRestore } from '../hooks/use-mock-restore';
+import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
@@ -26,7 +26,7 @@ export default function RestoreScreen() {
 		return Number.isFinite( seconds ) ? new Date( seconds * 1000 ).toISOString() : null;
 	} )();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useMockRestore();
+	const { state, submit, reset } = useRestore( rewindId );
 
 	return (
 		<DashboardLayout>
