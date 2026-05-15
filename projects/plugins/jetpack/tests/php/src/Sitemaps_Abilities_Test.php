@@ -95,9 +95,9 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 				wp_unregister_ability( $slug );
 			}
 		}
-		if ( function_exists( 'wp_unregister_ability_category' ) ) {
-			wp_unregister_ability_category( Sitemaps_Abilities::get_category_slug() );
-		}
+		// Note: we intentionally do NOT unregister the category here — Sitemaps
+		// abilities live under the WordPress core `site` category, which this
+		// registrar never registers and must never tear down.
 
 		delete_transient( 'jetpack-sitemap-state-lock' );
 		delete_option( 'jetpack-sitemap-state' );
@@ -139,16 +139,23 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 	/**
 	 * Section: Abstract getters
 	 */
-	public function test_category_slug_is_plugin_scoped() {
-		$this->assertSame( 'jetpack-sitemaps', Sitemaps_Abilities::get_category_slug() );
+	public function test_category_slug_is_core_site_category() {
+		$this->assertSame( 'site', Sitemaps_Abilities::get_category_slug() );
 	}
 
-	public function test_category_definition_has_label_and_description() {
-		$def = Sitemaps_Abilities::get_category_definition();
-		$this->assertArrayHasKey( 'label', $def );
-		$this->assertArrayHasKey( 'description', $def );
-		$this->assertIsString( $def['label'] );
-		$this->assertIsString( $def['description'] );
+	public function test_register_category_is_a_noop() {
+		// The `site` category is owned by WordPress core; this registrar must
+		// not register (and thus clobber) it.
+		if ( ! function_exists( 'wp_get_ability_category' ) ) {
+			$this->markTestSkipped( 'Abilities API not available in this WP version.' );
+		}
+
+		add_action( Registrar::CATEGORIES_INIT_ACTION, array( Sitemaps_Abilities::class, 'register_category' ) );
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+
+		// Nothing this registrar did should have created a `jetpack-sitemaps`
+		// category, and the core `site` category (if present) is untouched.
+		$this->assertNull( wp_get_ability_category( 'jetpack-sitemaps' ) );
 	}
 
 	public function test_abilities_map_is_non_empty_and_namespaced() {
@@ -279,9 +286,9 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 			$registered = wp_get_ability( $slug );
 			$this->assertNotNull( $registered, "Ability {$slug} should be registered." );
 			$this->assertSame(
-				'jetpack-sitemaps',
+				'site',
 				$registered->get_category(),
-				"Ability {$slug} should have category auto-injected."
+				"Ability {$slug} should be assigned the core `site` category."
 			);
 		}
 	}

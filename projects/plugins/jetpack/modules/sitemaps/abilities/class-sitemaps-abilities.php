@@ -57,21 +57,35 @@ class Sitemaps_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * Sitemaps abilities live under the WordPress core `site` category — it is
+	 * registered by the Abilities API itself, so we reference it by slug and
+	 * never register it ourselves (see the no-op `register_category()` below).
 	 */
 	public static function get_category_slug(): string {
-		return 'jetpack-sitemaps';
+		return 'site';
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * Unused: the `site` category is owned by WordPress core, so
+	 * `register_category()` is a no-op and this definition is never passed to
+	 * `wp_register_ability_category()`. It remains only to satisfy the abstract
+	 * Registrar contract.
 	 */
 	public static function get_category_definition(): array {
-		return array(
-			// translators: "Jetpack" is a product name and should not be translated.
-			'label'       => __( 'Jetpack Sitemaps', 'jetpack' ),
-			'description' => __( 'Abilities for inspecting and rebuilding Jetpack-generated XML sitemaps.', 'jetpack' ),
-		);
+		return array();
 	}
+
+	/**
+	 * No-op: the `site` ability category is registered by the WordPress core
+	 * Abilities API. Re-registering it here would clobber the core definition,
+	 * so this registrar only references the category by slug.
+	 *
+	 * @return void
+	 */
+	public static function register_category() {}
 
 	/**
 	 * {@inheritDoc}
