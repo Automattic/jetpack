@@ -17,18 +17,20 @@ type Props = {
  */
 export default function ActivityDetail( { item }: Props ) {
 	return (
-		<Card className="jpb-activity-detail">
-			<Stack direction="column" gap="sm">
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ item.title }
-				</Text>
-				<Text size="small" variant="muted">
-					{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
-					{ '   ' }
-					{ item.actor.name }
-				</Text>
-				{ item.summary && <Text>{ item.summary }</Text> }
-			</Stack>
-		</Card>
+		<Card.Root className="jpb-activity-detail">
+			<Card.Content>
+				<Stack direction="column" gap="sm">
+					<Text variant="heading-md" render={ <h3 /> }>
+						{ item.title }
+					</Text>
+					<Text size="small" variant="muted">
+						{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+						{ '   ' }
+						{ item.actor.name }
+					</Text>
+					{ item.summary && <Text>{ item.summary }</Text> }
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 }

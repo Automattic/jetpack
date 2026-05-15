@@ -32,7 +32,7 @@ export default function DownloadScreen() {
 					<Icon icon={ arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
-				<Card className="jpb-download__card">
+				<Card.Root className="jpb-download__card">
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ cloud } />
 						<Stack direction="column" gap="2xs">
@@ -57,6 +57,7 @@ export default function DownloadScreen() {
 							</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							<Button
+								className="jpb-download__confirm"
 								variant="primary"
 								disabled={ state.phase === 'submitting' }
 								onClick={ submit }
@@ -91,12 +92,16 @@ export default function DownloadScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button variant="secondary" onClick={ reset }>
+							<Button
+								className="jpb-download__confirm"
+								variant="secondary"
+								onClick={ reset }
+							>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>
 					) }
-				</Card>
+				</Card.Root>
 			</div>
 		</DashboardLayout>
 	);

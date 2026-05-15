@@ -1,5 +1,6 @@
-import { __ } from '@wordpress/i18n';
-import { Icon, closeSmall } from '@wordpress/icons';
+import { dateI18n } from '@wordpress/date';
+import { __, sprintf } from '@wordpress/i18n';
+import { closeSmall } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { findContents } from '../../fixtures/file-contents';
 import './style.scss';
@@ -42,8 +43,9 @@ function humanSize( bytes: number ): string {
 }
 
 /**
- * Side panel showing details for the currently-open file: name + path +
- * size + mime, plus a monospace preview for recognized text mime types.
+ * Side panel showing details for the currently-open file: size, modified
+ * timestamp, hash, monospace text preview for recognized text mime types,
+ * plus per-file Download and Restore buttons.
  *
  * @param props         - Component props.
  * @param props.file    - The file to render.
@@ -54,35 +56,72 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const contents = isTextual( file.mimeType ) ? findContents( file.path ) : null;
 
 	return (
-		<Card className="jpb-file-info-card">
-			<Stack direction="row" align="center" justify="space-between">
+		<Card.Root className="jpb-file-info-card">
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				className="jpb-file-info-card__header"
+			>
 				<Text variant="heading-sm" render={ <h4 /> }>
 					{ file.name }
 				</Text>
 				<Button
-					variant="tertiary"
+					variant="minimal"
+					tone="neutral"
+					size="small"
 					aria-label={ __( 'Close preview', 'jetpack-backup-pkg' ) }
-					icon={ <Icon icon={ closeSmall } /> }
 					onClick={ onClose }
-				/>
+				>
+					<Button.Icon icon={ closeSmall } />
+				</Button>
 			</Stack>
-			<Stack direction="column" gap="2xs">
-				<Text size="small" variant="muted">
-					{ file.path }
-				</Text>
-				<Text size="small" variant="muted">
-					{ humanSize( file.sizeBytes ) } { file.mimeType }
-				</Text>
-			</Stack>
+			<dl className="jpb-file-info-card__meta">
+				<div>
+					<dt>{ __( 'Size:', 'jetpack-backup-pkg' ) }</dt>
+					<dd>{ humanSize( file.sizeBytes ) }</dd>
+				</div>
+				<div>
+					<dt>{ __( 'Modified:', 'jetpack-backup-pkg' ) }</dt>
+					<dd>{ dateI18n( 'M j, Y, g:i A', file.lastModified, undefined ) }</dd>
+				</div>
+				<div>
+					<dt>{ __( 'Hash:', 'jetpack-backup-pkg' ) }</dt>
+					<dd className="jpb-file-info-card__hash">{ file.hash }</dd>
+				</div>
+			</dl>
 			<div className="jpb-file-info-card__preview">
 				{ contents !== null ? (
 					<pre>{ contents }</pre>
 				) : (
 					<Text size="small" variant="muted">
-						{ __( 'No preview available for this file type.', 'jetpack-backup-pkg' ) }
+						{ __( 'Preview unavailable for this file.', 'jetpack-backup-pkg' ) }
 					</Text>
 				) }
 			</div>
-		</Card>
+			<Stack
+				direction="row"
+				align="center"
+				justify="flex-end"
+				gap="sm"
+				className="jpb-file-info-card__actions"
+			>
+				<Button
+					variant="outline"
+					tone="neutral"
+					size="small"
+					aria-label={ sprintf(
+						/* translators: %s file name */
+						__( 'Download %s', 'jetpack-backup-pkg' ),
+						file.name
+					) }
+				>
+					{ __( 'Download file', 'jetpack-backup-pkg' ) }
+				</Button>
+				<Button variant="solid" tone="brand" size="small">
+					{ __( 'Restore', 'jetpack-backup-pkg' ) }
+				</Button>
+			</Stack>
+		</Card.Root>
 	);
 }

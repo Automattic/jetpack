@@ -33,7 +33,7 @@ export default function RestoreScreen() {
 					<Icon icon={ arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
-				<Card className="jpb-restore__card">
+				<Card.Root className="jpb-restore__card">
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
 						<Stack direction="column" gap="2xs">
@@ -59,6 +59,7 @@ export default function RestoreScreen() {
 							<Text>{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							<Button
+								className="jpb-restore__confirm"
 								variant="primary"
 								disabled={ state.phase === 'submitting' }
 								onClick={ submit }
@@ -91,12 +92,16 @@ export default function RestoreScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button variant="secondary" onClick={ reset }>
+							<Button
+								className="jpb-restore__confirm"
+								variant="secondary"
+								onClick={ reset }
+							>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>
 					) }
-				</Card>
+				</Card.Root>
 			</div>
 		</DashboardLayout>
 	);

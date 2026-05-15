@@ -1,14 +1,22 @@
-import { SearchControl, Spinner } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { Icon, settings as settingsIcon } from '@wordpress/icons';
-import { Button, Card, Stack } from '@wordpress/ui';
+import { DataViews } from '@wordpress/dataviews';
+import { dateI18n } from '@wordpress/date';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Icon, cloud, image, post, plugins as pluginsIcon, color } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
 import { useMockActivityLog } from '../../hooks/use-mock-activity-log';
-import ActivityRow from '../activity-row';
+import { isBackupItem } from '../../types/activity';
 import './style.scss';
-import type { ActivityItem } from '../../types/activity';
+import type { ActivityItem, ActivityKind } from '../../types/activity';
+import type { Field, View } from '@wordpress/dataviews';
 
-const PAGE_SIZE = 10;
+const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
+	backup: cloud,
+	upload: image,
+	post,
+	'plugin-update': pluginsIcon,
+	'theme-update': color,
+};
 
 type Props = {
 	selectedId: string | null;
@@ -16,98 +24,192 @@ type Props = {
 };
 
 /**
- * Left pane of the modernized Overview: a paginated, searchable activity list.
+ * Returns the row's stable id for DataViews selection bookkeeping.
  *
- * Owns its own search and pagination state and reads items from the mock hook.
- * Selection is owned by the parent so it can be reflected in the URL and used
- * by the right-hand detail pane.
+ * Backup rows use their `rewindId` (which the URL persists); everything
+ * else uses the activity's `activity_id`.
+ *
+ * @param item - Activity item.
+ * @return The selection id.
+ */
+function getRowId( item: ActivityItem ): string {
+	return isBackupItem( item ) ? item.rewindId : item.id;
+}
+
+/**
+ * Renders the icon tile that DataViews shows in the `media` slot of the
+ * list layout — a small white square with a thin border, matching the
+ * legacy admin's row affordance.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item to render an icon for.
+ * @return The rendered icon tile.
+ */
+function MediaCell( { item }: { item: ActivityItem } ) {
+	return (
+		<span className="jpb-activity-list__icon" aria-hidden="true">
+			<Icon icon={ ICON_BY_KIND[ item.kind ] } size={ 20 } />
+		</span>
+	);
+}
+
+/**
+ * Descriptions cell — single muted line with the timestamp + optional
+ * summary, joined by a thin separator.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The rendered description.
+ */
+function DescriptionCell( { item }: { item: ActivityItem } ) {
+	return (
+		<Stack direction="row" align="center" gap="xs">
+			<Text size="small" variant="muted" className="jpb-activity-list__date">
+				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+			</Text>
+			{ item.summary && (
+				<Text size="small" variant="muted" className="jpb-activity-list__summary">
+					{ item.summary }
+				</Text>
+			) }
+		</Stack>
+	);
+}
+
+const DEFAULT_PER_PAGE = 10;
+
+/**
+ * Left pane of the modernized Overview, rendered as a DataViews list.
+ *
+ * DataViews gives us the cog/filter affordance, pagination controls,
+ * zebra striping, row separators, and search box for free — the legacy
+ * affordances `<ActivityList>` was hand-rolling get swapped out for the
+ * design-system primitive.
+ *
+ * Selection lives in the parent (URL-persisted via `?selected=<id>`),
+ * with `<DataViews>` driven through its `selection` + `onChangeSelection`
+ * props so the row click is the single source of truth for "which row
+ * is highlighted".
  *
  * @param props            - Component props.
  * @param props.selectedId - Currently selected row id, or null when nothing is selected.
  * @param props.onSelect   - Callback invoked with the new selection id when a row is activated.
- * @return The rendered activity list card.
+ * @return The rendered list.
  */
 export default function ActivityList( { selectedId, onSelect }: Props ) {
-	const [ search, setSearch ] = useState( '' );
-	const [ page, setPage ] = useState( 1 );
-	const { items, totalPages, isLoading } = useMockActivityLog( {
-		page,
-		pageSize: PAGE_SIZE,
-		search,
+	// In DataViews' list layout, the `titleField`, `mediaField` and
+	// `descriptionField` fields are rendered implicitly — anything else
+	// in `fields` would render a second time as a generic row. Leave
+	// `fields` empty so the title + media + description are the only
+	// things shown per row.
+	const [ view, setView ] = useState< View >( {
+		type: 'list',
+		page: 1,
+		perPage: DEFAULT_PER_PAGE,
+		search: '',
+		filters: [],
+		titleField: 'title',
+		mediaField: 'icon',
+		descriptionField: 'description',
+		fields: [],
 	} );
 
-	const handleSearchChange = useCallback( ( next: string ) => {
-		setSearch( next );
-		setPage( 1 );
-	}, [] );
+	// Always pull the full fixture; DataViews handles pagination, search,
+	// and filtering on the in-memory dataset.
+	const { items: allItems, isLoading } = useMockActivityLog( {
+		page: 1,
+		pageSize: 100,
+		search: '',
+	} );
 
-	const handlePrevPage = useCallback( () => {
-		setPage( p => Math.max( 1, p - 1 ) );
-	}, [] );
+	const fields: Field< ActivityItem >[] = useMemo(
+		() => [
+			{
+				id: 'icon',
+				type: 'media',
+				label: __( 'Icon', 'jetpack-backup-pkg' ),
+				render: MediaCell,
+				enableHiding: false,
+				enableSorting: false,
+			},
+			{
+				id: 'title',
+				type: 'text',
+				label: __( 'Title', 'jetpack-backup-pkg' ),
+				getValue: ( { item } ) => item.title,
+				enableGlobalSearch: true,
+			},
+			{
+				id: 'description',
+				type: 'text',
+				label: __( 'When', 'jetpack-backup-pkg' ),
+				render: DescriptionCell,
+				getValue: ( { item } ) =>
+					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
+						item.summary ? ` ${ item.summary }` : ''
+					}`,
+				enableGlobalSearch: true,
+				enableHiding: false,
+			},
+		],
+		[]
+	);
 
-	const handleNextPage = useCallback( () => {
-		setPage( p => Math.min( totalPages, p + 1 ) );
-	}, [ totalPages ] );
+	const onChangeSelection = useCallback(
+		( next: string[] ) => {
+			const [ first ] = next;
+			if ( first ) {
+				onSelect( first );
+			}
+		},
+		[ onSelect ]
+	);
+
+	const selection = useMemo< string[] >(
+		() => ( selectedId ? [ selectedId ] : [] ),
+		[ selectedId ]
+	);
+
+	// DataViews treats `data` as the already-paginated/filtered page when
+	// `paginationInfo` is passed. We want client-side everything for the
+	// in-memory fixture, so we slice ourselves and forward the totals.
+	const filtered = useMemo( () => {
+		const q = ( view.search ?? '' ).toLowerCase();
+		if ( ! q ) {
+			return allItems;
+		}
+		return allItems.filter( item => {
+			const haystack = `${ item.title } ${ item.summary ?? '' } ${ item.publishedAt }`;
+			return haystack.toLowerCase().includes( q );
+		} );
+	}, [ allItems, view.search ] );
+
+	const perPage = view.perPage ?? DEFAULT_PER_PAGE;
+	const page = view.page ?? 1;
+	const paged = useMemo(
+		() => filtered.slice( ( page - 1 ) * perPage, page * perPage ),
+		[ filtered, page, perPage ]
+	);
 
 	return (
-		<Card className="jpb-activity-list">
-			<Stack direction="row" gap="sm" align="center" className="jpb-activity-list__header">
-				<SearchControl
-					value={ search }
-					onChange={ handleSearchChange }
-					label={ __( 'Search backups', 'jetpack-backup-pkg' ) }
-					placeholder={ __( 'Search backups', 'jetpack-backup-pkg' ) }
-					__nextHasNoMarginBottom
-				/>
-				<Button
-					variant="tertiary"
-					aria-label={ __( 'Filter activity', 'jetpack-backup-pkg' ) }
-					icon={ <Icon icon={ settingsIcon } /> }
-				/>
-			</Stack>
-			<div className="jpb-activity-list__rows" aria-busy={ isLoading }>
-				{ isLoading ? (
-					<div className="jpb-activity-list__loading">
-						<Spinner />
-					</div>
-				) : (
-					items.map( ( item: ActivityItem ) => (
-						<ActivityRow
-							key={ item.id }
-							item={ item }
-							isSelected={
-								selectedId !== null &&
-								( item.kind === 'backup' ? item.rewindId : item.id ) === selectedId
-							}
-							onSelect={ onSelect }
-						/>
-					) )
-				) }
-			</div>
-			<Stack
-				direction="row"
-				gap="sm"
-				align="center"
-				justify="space-between"
-				className="jpb-activity-list__footer"
-			>
-				<span>
-					{ sprintf(
-						/* translators: %1$d current page, %2$d total pages */
-						__( 'Page %1$d of %2$d', 'jetpack-backup-pkg' ),
-						page,
-						totalPages
-					) }
-				</span>
-				<Stack direction="row" gap="xs">
-					<Button variant="tertiary" disabled={ page === 1 } onClick={ handlePrevPage }>
-						‹
-					</Button>
-					<Button variant="tertiary" disabled={ page >= totalPages } onClick={ handleNextPage }>
-						›
-					</Button>
-				</Stack>
-			</Stack>
-		</Card>
+		<Card.Root className="jpb-activity-list" aria-busy={ isLoading }>
+			<DataViews< ActivityItem >
+				data={ paged }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				paginationInfo={ {
+					totalItems: filtered.length,
+					totalPages: Math.max( 1, Math.ceil( filtered.length / perPage ) ),
+				} }
+				defaultLayouts={ { list: {} } }
+				getItemId={ getRowId }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				isLoading={ isLoading }
+				search={ true }
+				searchLabel={ __( 'Search backups', 'jetpack-backup-pkg' ) }
+			/>
+		</Card.Root>
 	);
 }

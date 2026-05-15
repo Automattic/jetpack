@@ -1,7 +1,59 @@
 // Route-level styles for the modernized Backup dashboard.
 // Per-component styles live alongside each component under
-// src/dashboard/components/*. This file is intentionally minimal for
-// Task 1; later tasks add layout rules for the two-pane Overview here.
+// src/dashboard/components/*.
+
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Pull in the bundled DataViews stylesheet. `@wordpress/dataviews` ships
+// its CSS in `build-style/style.css` rather than auto-injecting it from
+// the JS entry, so we explicitly @include it once at the route level
+// (mirrors VideoPress's `routes/library/style.scss`). Without this the
+// list-layout primary action button falls back to wp-admin's default
+// browser button styling and shows as a visible artifact in every row.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Pin the wp-admin content column to the viewport and turn its inner
+// flex chain into "fixed header + scrollable middle + pinned footer"
+// — matches the modernized VideoPress / Forms dashboards (see
+// `projects/packages/videopress/src/dashboard/admin-shell.scss`).
+// Without this, JetpackFooter scrolls with the body when the activity
+// list grows past the viewport. Scoped to the backup admin body so it
+// can't leak onto other Jetpack pages.
+body.jetpack_page_jetpack-backup {
+	@include jetpack-admin-page-layout-wp-build;
+
+	// The shared mixin assumes `<AdminPage>` from `@automattic/jetpack-components`
+	// (which stamps `.jp-admin-page` AND admin-ui's `.admin-ui-page` /
+	// `.admin-ui-page__header` classes verbatim). Our DashboardLayout uses
+	// `<Page>` from `@wordpress/admin-ui` 2.x, whose root + header classes
+	// are emotion-hashed (`_<hash>__page`, `_<hash>__header`) and don't
+	// match the mixin's selectors. We add `.jp-admin-page` to the Page so
+	// the mixin's outer flex chain still attaches, and reproduce the
+	// page-internal "header / middle / footer" sticky layout here using
+	// our own stable class names (`.jpb-dev-mode-banner`,
+	// `.jpb-dashboard-body`, `.jetpack-footer`).
+	.jp-admin-page {
+
+		> header {
+			flex-shrink: 0;
+		}
+
+		> .jpb-dev-mode-banner {
+			flex-shrink: 0;
+		}
+
+		> .jpb-dashboard-body {
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow: auto;
+		}
+
+		> .jetpack-footer {
+			flex-shrink: 0;
+		}
+	}
+}
 
 .jpb-overview {
 	display: grid;

@@ -12,6 +12,8 @@ export type FileNodeFile = FileNodeBase & {
 	type: 'file';
 	sizeBytes: number;
 	mimeType: string;
+	lastModified: string;
+	hash: string;
 };
 
 export type FileNode = FolderNode | FileNodeFile;

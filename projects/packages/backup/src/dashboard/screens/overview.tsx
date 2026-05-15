@@ -1,23 +1,42 @@
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { calendar } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import DashboardLayout from '../components/dashboard-layout';
-import { findActivityById } from '../fixtures/activity-log';
+import { MOCK_ACTIVITY_LOG, findActivityById } from '../fixtures/activity-log';
 import { isBackupItem } from '../types/activity';
+import type { ActivityItem } from '../types/activity';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
+
+/**
+ * Returns the selection id of the newest backup row in the fixture, so the
+ * Overview can preselect it on first load and keep the right pane populated.
+ *
+ * @param items - Activity items to scan.
+ * @return The newest backup's rewindId, or null when none exists.
+ */
+function findDefaultSelection( items: readonly ActivityItem[] ): string | null {
+	for ( const item of items ) {
+		if ( isBackupItem( item ) ) {
+			return item.rewindId;
+		}
+	}
+	return null;
+}
 
 /**
  * Overview screen for the modernized Backup dashboard.
  *
  * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
- * left pane is the searchable, paginated activity list; the right pane is an
- * empty-state placeholder until the backup-detail commit lands. Selection is
- * persisted in the URL via `?selected=<id>` so a refresh preserves it.
+ * left pane is the searchable activity list; the right pane resolves the
+ * selected row to a detail card. Selection is persisted in the URL via
+ * `?selected=<id>` so a refresh preserves it; on first visit the newest
+ * backup is preselected so the right pane mirrors Calypso's behaviour.
  *
  * @return The rendered Overview screen.
  */
@@ -27,7 +46,8 @@ export default function OverviewScreen() {
 		strict: false,
 	} ) as OverviewSearch;
 	const navigate = useNavigate();
-	const selectedId = typeof search.selected === 'string' ? search.selected : null;
+	const defaultSelectedId = useMemo( () => findDefaultSelection( MOCK_ACTIVITY_LOG ), [] );
+	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
 
 	const setSelected = useCallback(
 		( id: string ) => {
@@ -43,10 +63,11 @@ export default function OverviewScreen() {
 		<DashboardLayout
 			actions={
 				<Stack direction="row" gap="sm">
-					<Button variant="tertiary" disabled>
+					<Button variant="outline" tone="neutral">
+						<Button.Icon icon={ calendar } />
 						{ __( 'Apr 16, 2026 to May 15, 2026', 'jetpack-backup-pkg' ) }
 					</Button>
-					<Button variant="secondary" disabled>
+					<Button variant="outline" tone="neutral">
 						{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 					</Button>
 				</Stack>

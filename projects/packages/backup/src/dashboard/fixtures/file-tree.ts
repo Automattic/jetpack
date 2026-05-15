@@ -1,12 +1,25 @@
 import { isFolder } from '../types/file-tree';
 import type { FileNode } from '../types/file-tree';
 
-const file = ( name: string, path: string, sizeBytes: number, mimeType: string ): FileNode => ( {
+// Stable timestamps + hashes so snapshot tests can't flake on
+// import-time clock reads. The exact values mirror the kind of
+// metadata the future REST path-info call will return.
+const FIXTURE_LAST_MODIFIED = '2026-02-16T20:42:00.000Z';
+
+const file = (
+	name: string,
+	path: string,
+	sizeBytes: number,
+	mimeType: string,
+	hash = 'ce4fc8526a348484a88bba63b08c0976'
+): FileNode => ( {
 	type: 'file',
 	name,
 	path,
 	sizeBytes,
 	mimeType,
+	lastModified: FIXTURE_LAST_MODIFIED,
+	hash,
 } );
 
 const folder = ( name: string, path: string, children?: FileNode[] ): FileNode => ( {

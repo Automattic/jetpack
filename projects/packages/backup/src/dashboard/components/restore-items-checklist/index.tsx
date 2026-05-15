@@ -71,7 +71,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 	);
 
 	return (
-		<Stack direction="column" gap="2xs">
+		<Stack direction="column" gap="3xs" className="jpb-restore-checklist__row">
 			<CheckboxControl
 				checked={ value[ item.key ] }
 				label={ item.label }
@@ -79,7 +79,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 				__nextHasNoMarginBottom
 			/>
 			{ item.description && (
-				<Text size="small" variant="muted" className="jpb-restore-checklist__desc">
+				<Text size="small" className="jpb-restore-checklist__desc">
 					{ item.description }
 				</Text>
 			) }
@@ -100,7 +100,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
  */
 export default function RestoreItemsChecklist( { value, onChange }: Props ) {
 	return (
-		<Stack direction="column" gap="md" className="jpb-restore-checklist">
+		<Stack direction="column" gap="lg" className="jpb-restore-checklist">
 			{ ITEMS.map( item => (
 				<ChecklistRow key={ item.key } item={ item } value={ value } onChange={ onChange } />
 			) ) }
