@@ -20,32 +20,22 @@
 	}
 
 	/**
-	 * Strip the `_envelope=1` wrapper that wpcom adds on Simple sites.
-	 * The wrapper has shape `{ code, headers, body }` (see
-	 * WPCOM_JSON_API::wrap_http_envelope). We unwrap to `body` for 2xx
-	 * and throw for non-2xx so callers' try/catch paths fire the same
-	 * way they do for native HTTP errors on Atomic.
+	 * On Simple sites the wpcom apiFetch middleware adds `_envelope=1`,
+	 * which wraps the response as `{ code, headers, body }`. Setting
+	 * `_envelope=0` ourselves opts out so responses arrive unwrapped on
+	 * both Simple and Atomic sites — no per-call branching needed.
 	 *
+	 * @param path
+	 */
+	function withoutEnvelope( path ) {
+		return path + ( path.includes( '?' ) ? '&' : '?' ) + '_envelope=0';
+	}
+
+	/**
 	 * @param opts
 	 */
-	async function apiCall( opts ) {
-		const response = await apiFetch( opts );
-		if (
-			response &&
-			typeof response === 'object' &&
-			'body' in response &&
-			'code' in response &&
-			'headers' in response
-		) {
-			if ( response.code < 200 || response.code >= 300 ) {
-				const err = new Error( response.body?.message || `HTTP ${ response.code }` );
-				err.status = response.code;
-				err.code = response.body?.code;
-				throw err;
-			}
-			return response.body;
-		}
-		return response;
+	function apiCall( opts ) {
+		return apiFetch( { ...opts, path: withoutEnvelope( opts.path ) } );
 	}
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
@@ -256,7 +246,8 @@
 			renderCredits( quota, response?.upgradeUrl ?? '' );
 			return response;
 		} catch ( err ) {
-			if ( err?.code === 'rest_forbidden' || err?.status === 403 || err?.status === 404 ) {
+			const status = err?.data?.status;
+			if ( err?.code === 'rest_forbidden' || status === 403 || status === 404 ) {
 				renderNotAvailable();
 				return null;
 			}
