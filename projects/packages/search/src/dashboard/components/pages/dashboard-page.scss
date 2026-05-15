@@ -30,13 +30,16 @@ body.jetpack_page_jetpack-search .jp-search-dashboard-page {
 
 	// "Preview" qualifier on the AI Answers tab. Rendered as a semantic
 	// <sup> so assistive tech announces it as supplementary; visually we
-	// keep the UA `vertical-align: super` baseline shift and just dial the
-	// font size down and tint the text with the muted neutral-weak token
-	// so it reads as metadata rather than competing with the tab title.
+	// just dial the font size down, tint the text with the muted
+	// neutral-weak token, and pin `vertical-align: super` + `line-height: 1`
+	// explicitly (instead of leaning on the UA stylesheet) so the qualifier
+	// can't accidentally inflate the tab line-box if a future reset strips
+	// the UA baseline shift.
 	.jp-search-dashboard-tabs__tab-preview-label {
 		margin-inline-start: var(--wpds-dimension-padding-xs, 4px);
 		font-size: 0.7em;
-		font-weight: 500;
+		line-height: 1;
+		vertical-align: super;
 		color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 	}
 }
