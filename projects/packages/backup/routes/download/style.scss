@@ -1,0 +1,27 @@
+.jpb-download {
+	max-width: 700px;
+	margin-inline: auto;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	&__back {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		text-decoration: none;
+		width: max-content;
+	}
+
+	&__card {
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	&__link {
+		font-weight: 600;
+	}
+}
