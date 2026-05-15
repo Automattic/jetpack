@@ -1,6 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
-import { Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -9,6 +9,12 @@ import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
+
+const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
+
+// Server-side filters key off `?podcast_episode=1` to apply the configured
+// podcast category (and, on Premium, prefill the Podcast Episode block).
+const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
 
 const Welcome = lazy( () => import( './welcome' ) );
 const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
@@ -131,8 +137,18 @@ const App = () => {
 		);
 	}
 
+	// Header CTA: visible once the show is configured. Same destination and
+	// label for every plan — the Premium value-add lives inside the editor
+	// (PR 7's server-side filter inserts the Podcast Episode block on load),
+	// not at this button. Free users get a plain new post.
+	const headerActions = isSetUp ? (
+		<Button variant="primary" href={ NEW_EPISODE_URL }>
+			{ __( '+ Create episode', 'jetpack-podcast' ) }
+		</Button>
+	) : undefined;
+
 	return (
-		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE } actions={ headerActions }>
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs">
 					<Tabs.List variant="minimal">
