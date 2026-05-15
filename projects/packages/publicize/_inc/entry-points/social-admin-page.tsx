@@ -1,6 +1,7 @@
 import '../utils/public-path.js';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
+import { Tooltip } from '@wordpress/ui';
 import { SocialAdminPage } from '../components/admin-page';
 
 /**
@@ -15,7 +16,9 @@ function render() {
 
 	const component = (
 		<ThemeProvider targetDom={ document.body }>
-			<SocialAdminPage />
+			<Tooltip.Provider delay={ 0 }>
+				<SocialAdminPage />
+			</Tooltip.Provider>
 		</ThemeProvider>
 	);
 	WPElement.createRoot( container ).render( component );
