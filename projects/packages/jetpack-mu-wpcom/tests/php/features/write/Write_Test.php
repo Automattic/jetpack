@@ -819,13 +819,75 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that block-editor-style center alignment (CSS class) returns 'block-editor'.
-	 * The block editor uses has-text-align-center class, which convertToBlocks()
-	 * can't read (it reads node.style.textAlign, which is empty for class-based alignment).
+	 * Test that block-editor-style alignment classes are supported.
+	 * The classes are converted to inline styles on load so convertToBlocks()
+	 * can read them via node.style.textAlign.
 	 */
-	public function test_detect_unsupported_block_editor_center_alignment() {
+	public function test_detect_supported_block_editor_alignment_classes() {
 		$content = '<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"align":"right"} --><p class="has-text-align-right">Right</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"align":"left"} --><p class="has-text-align-left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that style.typography.textAlign alignment (newer Gutenberg format) is supported.
+	 */
+	public function test_detect_supported_style_typography_text_align() {
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}}} --><p class="has-text-align-center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} --><p class="has-text-align-right">Right</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"left"}}} --><p class="has-text-align-left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that style attr with unsupported properties (not just typography.textAlign) is flagged.
+	 */
+	public function test_detect_unsupported_style_with_extra_properties() {
+		// fontSize in style → unsupported.
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"center","fontSize":"18px"}}} --><p class="has-text-align-center">Styled</p><!-- /wp:paragraph -->';
 		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+
+		// color in style → unsupported.
+		$content = '<!-- wp:paragraph {"style":{"color":{"text":"#ff0000"}}} --><p>Red</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that alignment classes are converted to inline styles.
+	 */
+	public function test_alignment_classes_to_inline() {
+		$html = '<p class="has-text-align-center wp-block-paragraph">Centered</p>';
+		$this->assertSame(
+			'<p class="wp-block-paragraph" style="text-align:center">Centered</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// Right alignment on a heading.
+		$html = '<h2 class="has-text-align-right wp-block-heading">Right</h2>';
+		$this->assertSame(
+			'<h2 class="wp-block-heading" style="text-align:right">Right</h2>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// Left alignment — class removed, inline style added.
+		$html = '<p class="has-text-align-left">Left</p>';
+		$this->assertSame(
+			'<p style="text-align:left">Left</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// No alignment class — unchanged.
+		$html = '<p class="wp-block-paragraph">Normal</p>';
+		$this->assertSame( $html, wpcom_write_alignment_classes_to_inline( $html ) );
 	}
 
 	/**

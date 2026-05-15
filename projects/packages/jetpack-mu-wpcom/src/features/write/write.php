@@ -300,12 +300,14 @@ function wpcom_write_detect_unsupported_content( $content ) {
 	// editor.  Match only inside class attributes to avoid false positives
 	// from plain text mentioning these class names.
 	//
-	// - has-text-align-*: block editor alignment (Write uses inline styles
-	// instead, which convertToBlocks reads via node.style.textAlign).
+	// Note: has-text-align-* is NOT checked here — those classes are
+	// converted to inline styles on load (see wpcom_write_alignment_classes_to_inline)
+	// so convertToBlocks() can read them via node.style.textAlign.
+	//
 	// - has-inline-color / has-text-color: rich-text color classes.
 	if (
-		preg_match( '/class="[^"]*has-(?:text-align-|inline-color|text-color)[^"]*"/', $content ) ||
-		preg_match( "/class='[^']*has-(?:text-align-|inline-color|text-color)[^']*'/", $content )
+		preg_match( '/class="[^"]*has-(?:inline-color|text-color)[^"]*"/', $content ) ||
+		preg_match( "/class='[^']*has-(?:inline-color|text-color)[^']*'/", $content )
 	) {
 		return 'block-editor';
 	}
@@ -340,6 +342,23 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 
 		// Attributes beyond what Write handles for this block type.
 		$attrs = $block['attrs'] ?? array();
+
+		// The block editor stores alignment in two ways:
+		// 1. Top-level: {"align":"center"}
+		// 2. Nested style: {"style":{"typography":{"textAlign":"center"}}}
+		// Both are converted to inline styles on load, so they round-trip.
+		// Strip the style attr if it only contains typography.textAlign
+		// with a supported value, so it doesn't trigger the extra-attrs check.
+		$style_align = $attrs['style']['typography']['textAlign'] ?? '';
+		if (
+			isset( $attrs['style'] ) &&
+			$style_align &&
+			in_array( $style_align, array( 'left', 'center', 'right' ), true ) &&
+			array( 'typography' => array( 'textAlign' => $style_align ) ) === $attrs['style']
+		) {
+			unset( $attrs['style'] );
+		}
+
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
 		if ( ! empty( $extra ) ) {
 			return true;
@@ -371,6 +390,40 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 	}
 
 	return false;
+}
+
+/**
+ * Convert block-editor alignment CSS classes to inline styles.
+ *
+ * The block editor uses `has-text-align-{left,center,right}` classes for
+ * alignment, but Write's convertToBlocks() reads alignment from
+ * node.style.textAlign.  This converts the classes to inline styles so
+ * alignment round-trips through Write.
+ *
+ * @param string $html Rendered HTML content.
+ * @return string HTML with alignment classes replaced by inline styles.
+ */
+function wpcom_write_alignment_classes_to_inline( $html ) {
+	return preg_replace_callback(
+		'/(<(?:p|h[1-6]|blockquote)\b[^>]*?)class="([^"]*has-text-align-(left|center|right)[^"]*)"([^>]*?>)/',
+		function ( $m ) {
+			$before  = $m[1];
+			$classes = $m[2];
+			$align   = $m[3];
+			$after   = $m[4];
+
+			// Remove the has-text-align-* class.
+			$classes = trim( preg_replace( '/\bhas-text-align-(?:left|center|right)\b/', '', $classes ) );
+			$classes = preg_replace( '/  +/', ' ', $classes );
+
+			// Build the new tag with inline style.
+			$class_attr = $classes ? 'class="' . $classes . '" ' : '';
+			$style      = 'style="text-align:' . $align . '"';
+
+			return $before . $class_attr . $style . $after;
+		},
+		$html
+	);
 }
 
 /**
@@ -772,6 +825,9 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			>
 			<?php
 			if ( $edit_content ) {
+				// Convert block-editor alignment classes to inline styles so
+				// convertToBlocks() can read them via node.style.textAlign.
+				$edit_content = wpcom_write_alignment_classes_to_inline( $edit_content );
 				// Sanitize through wp_kses_post — video embed tokens (HTML comments)
 				// pass through untouched, then we swap them for the real iframe HTML.
 				// This avoids the pre_kses filter that converts iframes to shortcodes.
