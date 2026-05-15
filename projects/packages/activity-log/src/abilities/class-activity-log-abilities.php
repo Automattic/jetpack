@@ -34,7 +34,11 @@ use WP_REST_Request;
  */
 class Activity_Log_Abilities extends Registrar {
 
-	const CATEGORY_SLUG = 'jetpack-activity-log';
+	/**
+	 * Core ability category provided by WordPress 6.9+ (`wp_register_core_ability_categories()`).
+	 * Registered by core, so this package never registers its own category.
+	 */
+	const CATEGORY_SLUG = 'site';
 	const ERROR_PREFIX  = 'jetpack_activity_log_';
 
 	/**
@@ -51,14 +55,27 @@ class Activity_Log_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * The `site` category is owned and registered by WordPress core, so this
+	 * package must not register (or re-register) it. `register_category()` is
+	 * overridden to a no-op below; this definition is only kept to satisfy the
+	 * abstract contract.
 	 */
 	public static function get_category_definition(): array {
 		return array(
-			// "Jetpack" is a product name and should not be translated.
-			'label'       => 'Jetpack Activity Log',
-			'description' => __( 'Abilities for reading Jetpack Activity Log events.', 'jetpack-activity-log' ),
+			'label'       => __( 'Site', 'jetpack-activity-log' ),
+			'description' => __( 'Abilities that retrieve or modify site information and settings.', 'jetpack-activity-log' ),
 		);
 	}
+
+	/**
+	 * The `site` category is registered by WordPress core. Overriding this to a
+	 * no-op prevents the Registrar base class from attempting to re-register a
+	 * core-owned category.
+	 *
+	 * @return void
+	 */
+	public static function register_category() {}
 
 	/**
 	 * {@inheritDoc}
@@ -350,7 +367,7 @@ class Activity_Log_Abilities extends Registrar {
 			if ( ! is_array( $item ) ) {
 				continue;
 			}
-			$id = isset( $item['activity_id'] ) ? $item['activity_id'] : ( $item['id'] ?? null );
+			$id = $item['activity_id'] ?? ( $item['id'] ?? null );
 			if ( null !== $id && (string) $id === $needle ) {
 				return array( $item );
 			}

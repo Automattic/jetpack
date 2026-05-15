@@ -156,6 +156,17 @@ class Activity_Log_Abilities_Test extends BaseTestCase {
 		$this->with_simulated_action(
 			Registrar::CATEGORIES_INIT_ACTION,
 			static function () {
+				// The `site` category is owned by WordPress core. Core registers it
+				// on this action in production; the test environment does not run
+				// core's registration, so register it here to simulate core.
+				if ( function_exists( 'wp_register_ability_category' )
+					&& function_exists( 'wp_has_ability_category' )
+					&& ! wp_has_ability_category( Activity_Log_Abilities::get_category_slug() ) ) {
+					wp_register_ability_category(
+						Activity_Log_Abilities::get_category_slug(),
+						Activity_Log_Abilities::get_category_definition()
+					);
+				}
 				Activity_Log_Abilities::register_category();
 			}
 		);
@@ -197,8 +208,8 @@ class Activity_Log_Abilities_Test extends BaseTestCase {
 	/**
 	 * -------------------- Abstract getters --------------------
 	 */
-	public function test_category_slug_is_jetpack_activity_log(): void {
-		$this->assertSame( 'jetpack-activity-log', Activity_Log_Abilities::get_category_slug() );
+	public function test_category_slug_is_core_site_category(): void {
+		$this->assertSame( 'site', Activity_Log_Abilities::get_category_slug() );
 	}
 
 	public function test_category_definition_has_label_and_description(): void {
@@ -325,9 +336,9 @@ class Activity_Log_Abilities_Test extends BaseTestCase {
 			$registered = wp_get_ability( $slug );
 			$this->assertNotNull( $registered, "Ability {$slug} should be registered." );
 			$this->assertSame(
-				'jetpack-activity-log',
+				'site',
 				$registered->get_category(),
-				"Ability {$slug} should have category auto-injected."
+				"Ability {$slug} should have the core `site` category auto-injected."
 			);
 		}
 	}

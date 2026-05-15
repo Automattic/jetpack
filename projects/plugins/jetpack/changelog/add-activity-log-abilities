@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Activity Log: register the `jetpack-activity-log/list-events` ability (WordPress Abilities API) when the Activity Log feature is active.
