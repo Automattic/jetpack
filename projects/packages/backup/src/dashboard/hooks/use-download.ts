@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { fetchDownloadStatus, initiateDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
 
@@ -72,7 +73,7 @@ export function useDownload( rewindId: string ): Result {
 	} else if ( statusQuery.data?.status === 'completed' && statusQuery.data.url ) {
 		state = { phase: 'success', downloadUrl: statusQuery.data.url };
 	} else if ( statusQuery.data?.status === 'failed' ) {
-		state = { phase: 'error', message: 'Download failed.' };
+		state = { phase: 'error', message: __( 'Download failed.', 'jetpack-backup-pkg' ) };
 	} else if ( downloadId !== null && statusQuery.data ) {
 		state = {
 			phase: 'progress',

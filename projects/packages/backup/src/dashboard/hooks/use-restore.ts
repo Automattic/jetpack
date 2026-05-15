@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { fetchRestoreStatus, initiateRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import type { RestoreState } from '../types/restore';
@@ -75,7 +76,10 @@ export function useRestore( rewindId: string ): Result {
 	} else if ( statusQuery.data?.status === 'failed' ) {
 		state = {
 			phase: 'error',
-			message: statusQuery.data.message || statusQuery.data.error_code || 'Restore failed.',
+			message:
+				statusQuery.data.message ||
+				statusQuery.data.error_code ||
+				__( 'Restore failed.', 'jetpack-backup-pkg' ),
 		};
 	} else if ( restoreId !== null && statusQuery.data ) {
 		state = {

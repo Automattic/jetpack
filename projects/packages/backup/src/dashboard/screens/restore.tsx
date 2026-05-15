@@ -13,9 +13,8 @@ import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
  * Restore screen — narrow centered layout with the warning notice, the
- * shared item checklist, and a Confirm button. Submit transitions
- * through a synthetic state machine; ~10% of submits land in the error
- * branch.
+ * shared item checklist, and a Confirm button. Submit kicks off a
+ * WPCOM rewind and polls until it lands on success, failure, or error.
  *
  * @return The rendered Restore screen.
  */

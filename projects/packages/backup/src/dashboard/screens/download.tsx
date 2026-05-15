@@ -13,8 +13,8 @@ import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
  * Download screen — same narrow layout as the Restore screen minus the
- * warning notice. Submission runs through a mocked state machine; the
- * success branch surfaces a synthetic download URL as a link.
+ * warning notice. Submission initiates a WPCOM-side download prep; the
+ * success branch surfaces the signed download URL as a link.
  *
  * @return The rendered Download screen.
  */
