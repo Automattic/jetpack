@@ -2,3 +2,21 @@
 // Per-component styles live alongside each component under
 // src/dashboard/components/*. This file is intentionally minimal for
 // Task 1; later tasks add layout rules for the two-pane Overview here.
+
+.jpb-overview {
+	display: grid;
+	grid-template-columns: minmax(360px, 1fr) minmax(400px, 1.5fr);
+	gap: 16px;
+	width: 100%;
+	min-height: 600px;
+
+	&__detail--empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 200px;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 8px;
+		padding: 24px;
+	}
+}

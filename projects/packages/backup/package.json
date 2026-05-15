@@ -47,6 +47,7 @@
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
+		"@wordpress/route": "0.10.0",
 		"@wordpress/ui": "0.11.0",
 		"moment": "2.30.1",
 		"prop-types": "^15.8.1",
