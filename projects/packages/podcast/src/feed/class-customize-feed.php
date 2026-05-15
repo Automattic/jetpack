@@ -83,14 +83,14 @@ class Customize_Feed {
 	public static function feed_title( $title ) {
 		$override = (string) get_option( 'podcasting_title', '' );
 		if ( '' !== $override ) {
-			return $override;
+			return esc_html( $override );
 		}
 
 		$category = get_category( self::resolve_category_id() );
 		if ( $category && ! is_wp_error( $category ) ) {
-			return get_bloginfo( 'name' ) . ' &#187; ' . $category->name;
+			return esc_html( get_bloginfo( 'name' ) ) . ' &#187; ' . esc_html( $category->name );
 		}
-		return $title;
+		return esc_html( $title );
 	}
 
 	/**
