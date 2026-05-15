@@ -667,8 +667,8 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
-	 * `POST /jetpack/v4/search/plan/activate` with an unknown `search_experience` value
-	 * surfaces the `update_experience` validation error.
+	 * `POST /jetpack/v4/search/plan/activate` rejects an unknown `search_experience`
+	 * value with a 400 `invalid_experience` error.
 	 */
 	public function test_activate_plan_admin_with_invalid_search_experience() {
 		wp_set_current_user( $this->admin_id );
@@ -677,7 +677,38 @@ class REST_Controller_Test extends Search_TestCase {
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"bogus"}' );
 		$response = $this->server->dispatch( $request );
-		$this->assertNotEquals( 200, $response->get_status() );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
+	}
+
+	/**
+	 * `search_experience: "off"` is reserved for `/plan/deactivate`. Sending it to
+	 * the activate endpoint must not silently deactivate Search.
+	 */
+	public function test_activate_plan_admin_rejects_off_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"off"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Non-string `search_experience` payloads must surface as a 400, not a TypeError
+	 * from `update_experience(string $experience)`.
+	 */
+	public function test_activate_plan_admin_rejects_non_string_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":["overlay"]}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
 	}
 
 	/**
