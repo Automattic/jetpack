@@ -181,7 +181,8 @@ class Jetpack_Backup_Test extends TestCase {
 							'summary'       => 'Backup complete',
 						),
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 	}
