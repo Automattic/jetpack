@@ -903,7 +903,8 @@ class The_Neverending_Home_Page {
 				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
 			) {
-				$post_type = $taxonomy->object_type[0];
+				// It seems [0] doesn't work, as sometimes plugins can deregister a taxonomy but not reindex.
+				$post_type = reset( $taxonomy->object_type );
 			}
 		}
 
