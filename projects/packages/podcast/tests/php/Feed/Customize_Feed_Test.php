@@ -160,8 +160,17 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_category_tag_escapes_xml_attributes() {
 		$xml = Customize_Feed::category_tag( 'Arts & <Culture>,Kids\' Shows "Daily"' );
 
-		$this->assertStringContainsString( "<itunes:category text='Arts &amp; &lt;Culture&gt;'>", $xml );
-		$this->assertStringContainsString( "<itunes:category text='Kids&#039; Shows &quot;Daily&quot;' />", $xml );
+		$this->assertStringContainsString( "<itunes:category text='Arts &#38; &#60;Culture&#62;'>", $xml );
+		$this->assertStringContainsString( "<itunes:category text='Kids&#039; Shows &#34;Daily&#34;' />", $xml );
+	}
+
+	public function test_category_tag_normalizes_html_named_entities_for_xml() {
+		// `&nbsp;` is a valid HTML named entity but not defined in XML — must be
+		// converted to a numeric reference so the feed stays well-formed.
+		$xml = Customize_Feed::category_tag( 'Rock&nbsp;Roll' );
+
+		$this->assertStringContainsString( "<itunes:category text='Rock&#160;Roll' />", $xml );
+		$this->assertStringNotContainsString( '&nbsp;', $xml );
 	}
 
 	/**

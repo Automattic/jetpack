@@ -1,4 +1,4 @@
 Significance: patch
 Type: security
 
-Podcast: escape title overrides and iTunes category attribute values for the RSS feed to prevent malformed XML.
+Podcast: escape title overrides, descriptions, and iTunes category attribute values for the RSS feed to prevent malformed XML.

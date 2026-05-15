@@ -83,14 +83,14 @@ class Customize_Feed {
 	public static function feed_title( $title ) {
 		$override = (string) get_option( 'podcasting_title', '' );
 		if ( '' !== $override ) {
-			return esc_html( $override );
+			return esc_xml( $override );
 		}
 
 		$category = get_category( self::resolve_category_id() );
 		if ( $category && ! is_wp_error( $category ) ) {
-			return esc_html( get_bloginfo( 'name' ) ) . ' &#187; ' . esc_html( $category->name );
+			return esc_xml( get_bloginfo( 'name' ) ) . ' &#187; ' . esc_xml( $category->name );
 		}
-		return esc_html( $title );
+		return esc_xml( $title );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class Customize_Feed {
 		if ( 'description' !== $field ) {
 			return $value;
 		}
-		return esc_html( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
+		return esc_xml( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
 	}
 
 	/**
@@ -451,12 +451,15 @@ class Customize_Feed {
 			return '';
 		}
 
+		// `ent2ncr()` normalises named HTML entities (e.g. `&nbsp;`, `&copy;`) into
+		// numeric character references so an attribute value containing them stays
+		// well-formed XML after esc_attr().
 		$splits = explode( ',', $category );
 		if ( 2 === count( $splits ) ) {
-			return "<itunes:category text='" . esc_attr( $splits[0] ) . "'>\n"
-				. "\t<itunes:category text='" . esc_attr( $splits[1] ) . "' />\n"
+			return "<itunes:category text='" . ent2ncr( esc_attr( $splits[0] ) ) . "'>\n"
+				. "\t<itunes:category text='" . ent2ncr( esc_attr( $splits[1] ) ) . "' />\n"
 				. "</itunes:category>\n";
 		}
-		return "<itunes:category text='" . esc_attr( $category ) . "' />\n";
+		return "<itunes:category text='" . ent2ncr( esc_attr( $category ) ) . "' />\n";
 	}
 }
