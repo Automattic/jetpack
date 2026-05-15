@@ -195,16 +195,78 @@ class Blaze_Abilities extends Registrar {
 		return array(
 			self::ABILITY_LIST_CAMPAIGNS   => array(
 				'label'               => __( 'List Blaze campaigns', 'jetpack-blaze' ),
-				'description'         => __( 'List the Blaze advertising campaigns associated with the current site, including status, schedule, spend, and performance metrics.', 'jetpack-blaze' ),
+				'description'         => __( 'List the Blaze advertising campaigns associated with the current site, including numeric campaign_id, campaign title/name, DSP status, schedule, spend, target, and performance context. Use campaign_id for follow-up operations; title/name is human-readable context for the merchant, not as the operation identifier.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'default'              => array(),
-					'properties'           => new \stdClass(),
+					'properties'           => array(
+						'status' => array(
+							'type'        => 'string',
+							'description' => __( 'Optional DSP campaign status filter. Values pass through to the existing Blaze DSP campaigns route; clients should use DSP status vocabulary returned by this ability rather than inventing MCP-only states.', 'jetpack-blaze' ),
+						),
+					),
 					'additionalProperties' => false,
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
 					'description' => __( 'Campaigns payload as returned by the Blaze DSP API.', 'jetpack-blaze' ),
+					'properties'  => array(
+						'campaigns' => array(
+							'type'        => 'array',
+							'description' => __( 'Blaze campaigns returned by DSP. MCP clients should show these fields so the merchant can choose the right campaign before requesting stats or stop operations.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type'                 => 'object',
+								'additionalProperties' => true,
+								'properties'           => array(
+									'campaign_id'   => array(
+										'type'        => 'integer',
+										'description' => __( 'The numeric operation identifier for follow-up campaign operations such as stats or stop.', 'jetpack-blaze' ),
+									),
+									'title'         => array(
+										'type'        => 'string',
+										'description' => __( 'Campaign title shown as human-readable context for the merchant, not as the operation identifier.', 'jetpack-blaze' ),
+									),
+									'name'          => array(
+										'type'        => 'string',
+										'description' => __( 'Campaign name shown as human-readable context for the merchant, not as the operation identifier.', 'jetpack-blaze' ),
+									),
+									'status'        => array(
+										'type'        => 'string',
+										'description' => __( 'DSP status for the campaign, using the status vocabulary returned by Blaze/DSP.', 'jetpack-blaze' ),
+									),
+									'ui_status'     => array(
+										'type'        => 'string',
+										'description' => __( 'Display status returned by DSP for merchant-facing UI context, when available.', 'jetpack-blaze' ),
+									),
+									'start_date'    => array(
+										'type'        => 'string',
+										'description' => __( 'Campaign start date returned by DSP, when available.', 'jetpack-blaze' ),
+									),
+									'end_date'      => array(
+										'type'        => 'string',
+										'description' => __( 'Campaign end date returned by DSP, when available.', 'jetpack-blaze' ),
+									),
+									'target_url'    => array(
+										'type'        => 'string',
+										'format'      => 'uri',
+										'description' => __( 'Target URL promoted by the campaign, when available.', 'jetpack-blaze' ),
+									),
+									'target_urn'    => array(
+										'type'        => 'string',
+										'description' => __( 'Target URN promoted by the campaign, when available.', 'jetpack-blaze' ),
+									),
+									'budget'        => array(
+										'type'        => 'object',
+										'description' => __( 'Campaign budget details returned by DSP, when available.', 'jetpack-blaze' ),
+									),
+									'summary_stats' => array(
+										'type'        => 'object',
+										'description' => __( 'Existing campaign summary stats returned by DSP, when available.', 'jetpack-blaze' ),
+									),
+								),
+							),
+						),
+					),
 				),
 				'execute_callback'    => array( __CLASS__, 'list_campaigns' ),
 				'permission_callback' => array( __CLASS__, 'permission_callback' ),
@@ -469,11 +531,11 @@ class Blaze_Abilities extends Registrar {
 	 * directly so we inherit the standard request lifecycle, permission
 	 * checks, and any third-party filters wired onto that route.
 	 *
-	 * @param array $args Ability input. Currently unused; reserved for future filtering params.
+	 * @param array $args Ability input.
 	 * @return array|\WP_Error
 	 */
 	public static function list_campaigns( $args = array() ) {
-		unset( $args );
+		$args = is_array( $args ) ? $args : array();
 
 		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
@@ -483,6 +545,9 @@ class Blaze_Abilities extends Registrar {
 		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id );
 		$request = new WP_REST_Request( 'GET', $route );
 		$request->set_param( 'api_version', 'v1.1' );
+		if ( isset( $args['status'] ) ) {
+			$request->set_param( 'status', $args['status'] );
+		}
 
 		$response = rest_do_request( $request );
 		if ( $response->is_error() ) {

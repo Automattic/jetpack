@@ -103,6 +103,40 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertFalse( $ability['meta']['annotations']['destructive'] );
 		$this->assertTrue( $ability['meta']['annotations']['idempotent'] );
 		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+
+		$properties = $ability['input_schema']['properties'];
+		$this->assertIsArray( $properties );
+		$this->assertArrayHasKey( 'status', $properties );
+		$this->assertSame( 'string', $properties['status']['type'] );
+		$this->assertStringContainsString( 'DSP campaign status', $properties['status']['description'] );
+		$this->assertStringContainsString( 'pass through', $properties['status']['description'] );
+	}
+
+	/**
+	 * The list-campaigns output schema documents the campaign context agents
+	 * should show before follow-up operations.
+	 */
+	public function test_list_campaigns_output_schema_documents_agent_context() {
+		$abilities = Blaze_Abilities::get_abilities();
+		$ability   = $abilities[ Blaze_Abilities::ABILITY_LIST_CAMPAIGNS ];
+
+		$this->assertStringContainsString( 'campaign_id', $ability['description'] );
+		$this->assertStringContainsString( 'title/name', $ability['description'] );
+		$this->assertStringContainsString( 'not as the operation identifier', $ability['description'] );
+
+		$output_properties = $ability['output_schema']['properties'];
+		$this->assertArrayHasKey( 'campaigns', $output_properties );
+
+		$campaign_properties = $output_properties['campaigns']['items']['properties'];
+		foreach ( array( 'campaign_id', 'title', 'name', 'status', 'ui_status', 'start_date', 'end_date', 'target_url', 'target_urn', 'budget', 'summary_stats' ) as $field ) {
+			$this->assertArrayHasKey( $field, $campaign_properties );
+		}
+
+		$this->assertStringContainsString( 'numeric operation identifier', $campaign_properties['campaign_id']['description'] );
+		$this->assertStringContainsString( 'human-readable context', $campaign_properties['title']['description'] );
+		$this->assertStringContainsString( 'not as the operation identifier', $campaign_properties['title']['description'] );
+		$this->assertStringContainsString( 'DSP status', $campaign_properties['status']['description'] );
+		$this->assertStringContainsString( 'when available', $campaign_properties['summary_stats']['description'] );
 	}
 
 	/**
@@ -150,6 +184,82 @@ class Blaze_Abilities_Test extends BaseTestCase {
 						'status' => 'active',
 					),
 				),
+			),
+			Blaze_Abilities::list_campaigns()
+		);
+	}
+
+	/**
+	 * List_campaigns forwards the optional status filter to the existing DSP route.
+	 */
+	public function test_list_campaigns_forwards_status_filter_to_blaze_rest_route() {
+		register_rest_route(
+			'jetpack/v4',
+			'/blaze-app/sites/' . self::TEST_SITE_ID . '/wordads/dsp/api/v1.1/campaigns',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function ( $request ) {
+					return array(
+						'status' => $request->get_param( 'status' ),
+					);
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'status' => 'active',
+			),
+			Blaze_Abilities::list_campaigns(
+				array(
+					'status' => 'active',
+				)
+			)
+		);
+	}
+
+	/**
+	 * List_campaigns preserves campaign context returned by DSP for agent display.
+	 */
+	public function test_list_campaigns_preserves_campaign_context_from_blaze_rest_route() {
+		$campaign = array(
+			'campaign_id'   => 123,
+			'title'         => 'Spring product launch',
+			'name'          => 'Spring launch',
+			'status'        => 'active',
+			'ui_status'     => 'Running',
+			'start_date'    => '2026-05-01',
+			'end_date'      => '2026-05-31',
+			'target_url'    => 'https://example.com/product',
+			'target_urn'    => 'urn:wpcom:post:12345:678',
+			'budget'        => array(
+				'amount'   => 50,
+				'currency' => 'USD',
+			),
+			'summary_stats' => array(
+				'impressions' => 1000,
+				'clicks'      => 40,
+			),
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/blaze-app/sites/' . self::TEST_SITE_ID . '/wordads/dsp/api/v1.1/campaigns',
+			array(
+				'methods'             => 'GET',
+				'callback'            => static function () use ( $campaign ) {
+					return array(
+						'campaigns' => array( $campaign ),
+					);
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'campaigns' => array( $campaign ),
 			),
 			Blaze_Abilities::list_campaigns()
 		);
