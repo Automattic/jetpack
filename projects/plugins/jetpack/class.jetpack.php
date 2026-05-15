@@ -758,6 +758,14 @@ class Jetpack {
 
 		// Register Jetpack module management abilities (WordPress Abilities API, WP 6.9+).
 		\Automattic\Jetpack\Plugin\Abilities\Modules_Abilities::init();
+
+		// Register Jetpack Plans abilities, but only when the site is connected —
+		// plan data is meaningless without a WordPress.com connection. The
+		// jetpack-plans package no longer self-registers via autoload, so the
+		// Jetpack plugin owns this wiring for now.
+		if ( self::is_connection_ready() ) {
+			\Automattic\Jetpack\Plans\Abilities\Plans_Abilities::init();
+		}
 	}
 
 	/**

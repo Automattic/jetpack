@@ -43,6 +43,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-post-media": "@dev",
