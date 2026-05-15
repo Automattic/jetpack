@@ -10,7 +10,6 @@ import './style.scss';
 import type { TabName } from './types';
 
 const SettingsTab = lazy( () => import( './settings' ) );
-const CreateTab = lazy( () => import( './create' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
@@ -21,13 +20,7 @@ const TabFallback = () => (
 	</div>
 );
 
-const VALID_TABS: readonly TabName[] = [
-	'create',
-	'episodes',
-	'distribution',
-	'stats',
-	'settings',
-];
+const VALID_TABS: readonly TabName[] = [ 'episodes', 'distribution', 'stats', 'settings' ];
 
 const isValidTab = ( value: unknown ): value is TabName =>
 	typeof value === 'string' && ( VALID_TABS as readonly string[] ).includes( value );
@@ -44,9 +37,9 @@ const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// `?tab=` owns the active tab. Default (no `tab`) is always Create.
+	// `?tab=` owns the active tab. Default (no `tab`) is Episodes.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const defaultTab: TabName = 'create';
+	const defaultTab: TabName = 'episodes';
 	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
 
 	const navigate = useNavigate();
@@ -60,7 +53,7 @@ const App = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					// Default tab keeps a clean URL.
-					tab: next === 'create' ? undefined : next,
+					tab: next === 'episodes' ? undefined : next,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
@@ -86,7 +79,6 @@ const App = () => {
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs">
 					<Tabs.List variant="minimal">
-						<Tabs.Tab value="create">{ __( 'Create', 'jetpack-podcast' ) }</Tabs.Tab>
 						<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
 						<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
 						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
@@ -100,15 +92,6 @@ const App = () => {
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
 								<SettingsTab />
-							</Suspense>
-						</ErrorBoundary>
-					</div>
-				</Tabs.Panel>
-				<Tabs.Panel value="create">
-					<div className="podcast__tab-content podcast__tab-content--narrow">
-						<ErrorBoundary>
-							<Suspense fallback={ <TabFallback /> }>
-								<CreateTab />
 							</Suspense>
 						</ErrorBoundary>
 					</div>
