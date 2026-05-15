@@ -1558,7 +1558,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "4d1d7c471ccd4c3616ad9ebf7d0427cc7aaab2ca"
+                "reference": "46ce3de14c39479ef3ec0668a5fb2239f9d0c638"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1568,6 +1568,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -1596,6 +1597,9 @@
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "actions.php"
                 ]
             },
             "scripts": {
