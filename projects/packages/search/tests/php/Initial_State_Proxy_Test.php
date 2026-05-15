@@ -38,9 +38,9 @@ class Initial_State_Proxy_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the AI Agent Access toggle is available to Automatticians.
+	 * Test that the AI Agent Access toggle is unavailable to non-proxied Automatticians.
 	 */
-	public function test_ai_agent_access_available_reflects_automattician() {
+	public function test_ai_agent_access_available_ignores_non_proxied_automattician() {
 		if ( empty( $GLOBALS['jetpack_test_controls_is_automattician'] ) ) {
 			$this->markTestSkipped( 'The is_automattician() helper is already defined.' );
 		}
@@ -50,7 +50,7 @@ class Initial_State_Proxy_Test extends TestCase {
 
 		$state = ( new Initial_State() )->get_initial_state();
 
-		$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
+		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
 	}
 
 	/**

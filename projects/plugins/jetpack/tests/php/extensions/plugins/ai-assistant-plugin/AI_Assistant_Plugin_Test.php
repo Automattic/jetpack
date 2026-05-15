@@ -90,14 +90,14 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the AI Agent Access proxy check accepts Automattician requests.
+	 * Test that the AI Agent Access proxy check rejects non-proxied Automattician requests.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_is_proxied_request_accepts_automattician() {
+	public function test_is_proxied_request_rejects_non_proxied_automattician() {
 		require_once __DIR__ . '/proxy-test-functions.php';
 
 		if ( empty( $GLOBALS['jetpack_test_controls_is_automattician'] ) ) {
@@ -106,7 +106,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 
 		$GLOBALS['jetpack_test_is_automattician'] = true;
 
-		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
+		$this->assertFalse( AiAssistantPlugin\is_proxied_request() );
 	}
 
 	/**

@@ -86,8 +86,8 @@ add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
 /**
  * Check whether the current request is coming from an Automattic rollout context.
  *
- * This gates the AI Agent Access toggle during rollout so regular site owners
- * do not see unfinished controls.
+ * This gates the AI Agent Access toggle during rollout so regular site owners,
+ * and non-proxied staff, do not see unfinished controls.
  *
  * IMPORTANT: Only use for feature gating, not for authorization.
  *
@@ -96,10 +96,6 @@ add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
  * @return bool
  */
 function is_proxied_request(): bool {
-	if ( function_exists( 'is_automattician' ) && \is_automattician( \get_current_user_id() ) ) {
-		return true;
-	}
-
 	return is_automattic_proxied_request();
 }
 
