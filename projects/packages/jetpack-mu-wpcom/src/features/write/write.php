@@ -347,8 +347,9 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 
 		// Alignment: convertToBlocks() only preserves center and right
 		// (read from style.textAlign). Block-level values like wide/full
-		// are CSS-class-based and silently lost.
-		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], array( 'center', 'right' ), true ) ) {
+		// are CSS-class-based and silently lost. Left is the default and
+		// renders identically to no alignment, so allow it too.
+		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], array( 'left', 'center', 'right' ), true ) ) {
 			return true;
 		}
 
@@ -544,7 +545,7 @@ function wpcom_write_render_admin_page() {
 			'formatUList'         => false,
 			'insideList'          => false,
 			'showRecoveryBanner'  => false,
-			'unsupportedWarning'  => $unsupported_type ? $unsupported_type : false,
+			'unsupportedWarning'  => $unsupported_type,
 			'editorUrl'           => $editor_url,
 		)
 	);
@@ -694,7 +695,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Writing area -->
 	<main class="bw-main" data-wp-on--click="actions.handleMainClick">
-		<div class="bw-editor">
+		<div class="bw-editor" data-wp-bind--inert="state.unsupportedWarning">
 
 			<?php if ( $show_cat_row ) : ?>
 			<!-- Category selector — only shown when site has 2+ used categories -->

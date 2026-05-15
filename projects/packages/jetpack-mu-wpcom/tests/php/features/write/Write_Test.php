@@ -809,6 +809,16 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that left-aligned paragraph returns false. The block editor can
+	 * explicitly set align:left even though it's the default. Left alignment
+	 * renders identically to no alignment, so Write handles it fine.
+	 */
+	public function test_detect_unsupported_left_aligned_paragraph() {
+		$content = '<!-- wp:paragraph {"align":"left"} --><p style="text-align:left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
 	 * Test that block-editor-style center alignment (CSS class) returns 'block-editor'.
 	 * The block editor uses has-text-align-center class, which convertToBlocks()
 	 * can't read (it reads node.style.textAlign, which is empty for class-based alignment).
@@ -893,6 +903,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$fn_start = strpos( $view_js, 'function convertToBlocks(' );
 		$this->assertNotFalse( $fn_start, 'convertToBlocks() not found in view.js' );
+		// Read enough of the function body to capture all block types.
+		// If convertToBlocks() grows past this, the assertion below will
+		// catch missing types. Increase as needed.
 		$fn_body = substr( $view_js, $fn_start, 6000 );
 
 		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
@@ -930,8 +943,18 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'separator' => array(),
 		);
 
+		// PHP-only extras: attributes the block editor adds as metadata
+		// that don't affect visible content.  Write doesn't produce these
+		// but safely ignores them.  Any PHP attr not in $js_attrs and not
+		// listed here is an error — it would let unsupported content through.
+		$php_extras = array(
+			'image' => array( 'alt', 'id', 'sizeSlug' ),
+		);
+
 		foreach ( $js_attrs as $block => $expected ) {
 			$this->assertArrayHasKey( $block, $php_all, "Block '$block' missing from PHP allowlist." );
+
+			// Every JS attr must exist in PHP.
 			$missing = array_diff( $expected, $php_all[ $block ] );
 			$this->assertEmpty(
 				$missing,
@@ -940,6 +963,18 @@ class Write_Test extends \WorDBless\BaseTestCase {
 					$block,
 					implode( ', ', $missing ),
 					implode( ', ', $php_all[ $block ] )
+				)
+			);
+
+			// Every PHP attr must be in JS or in the documented extras.
+			$allowed_extras = $php_extras[ $block ] ?? array();
+			$unexpected     = array_diff( $php_all[ $block ], $expected, $allowed_extras );
+			$this->assertEmpty(
+				$unexpected,
+				sprintf(
+					"Block '%s': PHP allows attrs [%s] not produced by JS and not in \$php_extras.",
+					$block,
+					implode( ', ', $unexpected )
 				)
 			);
 		}

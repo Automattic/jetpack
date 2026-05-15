@@ -571,9 +571,11 @@ function convertToBlocks( html ) {
 		// Check for text alignment.
 		const align = node.style && node.style.textAlign;
 		const alignAttr =
-			align && [ 'center', 'right' ].includes( align ) ? ` style="text-align:${ align }"` : '';
+			align && [ 'left', 'center', 'right' ].includes( align )
+				? ` style="text-align:${ align }"`
+				: '';
 		const alignJson =
-			align && [ 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+			align && [ 'left', 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
 
 		if ( tag === 'p' || tag === 'div' ) {
 			blocks.push(
