@@ -4,7 +4,7 @@ import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/d
 import ExperienceOption from '../../../../src/dashboard/components/experience-selector/experience-option';
 import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
-const renderWith = ( jetpackSettings, props, sitePlan = {} ) => {
+const renderWith = ( jetpackSettings, props, sitePlan = {}, siteData = {} ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
@@ -12,6 +12,7 @@ const renderWith = ( jetpackSettings, props, sitePlan = {} ) => {
 			...( storeConfig.initialState || {} ),
 			jetpackSettings,
 			sitePlan,
+			siteData,
 		},
 	} );
 	registry.register( store );
@@ -154,5 +155,40 @@ describe( '<ExperienceOption> Overlay action links', () => {
 		expect( screen.queryByRole( 'link', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Customize' ) ).toHaveClass( 'is-disabled' );
 		expect( screen.getByText( 'Edit widgets' ) ).toHaveClass( 'is-disabled' );
+	} );
+} );
+
+describe( '<ExperienceOption> Embedded action links', () => {
+	const embeddedActive = {
+		module_active: true,
+		instant_search_enabled: false,
+		pending_experience: null,
+		experience: 'embedded',
+	};
+	test( 'Edit search template deep-links to the active theme stylesheet', () => {
+		renderWith(
+			embeddedActive,
+			{ experience: 'embedded' },
+			{},
+			{ activeThemeStylesheet: 'twentytwentyfive' }
+		);
+		expect( screen.getByRole( 'link', { name: /edit search template/i } ) ).toHaveAttribute(
+			'href',
+			'site-editor.php?p=%2Fwp_template%2Ftwentytwentyfive%2F%2Fjetpack-search&canvas=edit'
+		);
+	} );
+	test( 'Edit search template falls back to the templates list with no stylesheet', () => {
+		renderWith( embeddedActive, { experience: 'embedded' } );
+		expect( screen.getByRole( 'link', { name: /edit search template/i } ) ).toHaveAttribute(
+			'href',
+			'site-editor.php?p=%2Ftemplate'
+		);
+	} );
+	test( 'Insert pattern deep-links to the Jetpack Search pattern category', () => {
+		renderWith( embeddedActive, { experience: 'embedded' } );
+		expect( screen.getByRole( 'link', { name: /insert pattern/i } ) ).toHaveAttribute(
+			'href',
+			'site-editor.php?p=%2Fpattern&search=jetpack-search'
+		);
 	} );
 } );

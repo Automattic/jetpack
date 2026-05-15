@@ -14,12 +14,18 @@ import OffPreview from './previews/off-preview';
 import OverlayPreview from './previews/overlay-preview';
 import './experience-option.scss';
 
-// URL constants reused verbatim from the legacy ModuleControl.
-// `sprintf( ..., encodeURIComponent( returnUrl ) )` was a no-op there
-// (the format strings had no `%s`), so we drop it here.
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
-const SEARCH_TEMPLATE_URL = 'site-editor.php?p=%2Ftemplate&activeView=jetpack-search';
+// The Site Editor identifies templates by `<theme-stylesheet>//<template-slug>`
+// even for plugin-registered ones, so the active theme is part of the URL. Built
+// at render time so the link follows theme switches without a re-deploy. Falls
+// back to the Templates list when the stylesheet is missing from initial state.
+const buildSearchTemplateUrl = stylesheet =>
+	stylesheet
+		? `site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+				stylesheet
+		  ) }%2F%2Fjetpack-search&canvas=edit`
+		: 'site-editor.php?p=%2Ftemplate';
 const PATTERNS_URL = 'site-editor.php?p=%2Fpattern&search=jetpack-search';
 
 const PREVIEWS = {
@@ -98,10 +104,11 @@ const getHoverHint = experience => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating } = useSelect(
+	const { active, isUpdating, activeThemeStylesheet } = useSelect(
 		select => ( {
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
 		} ),
 		[]
 	);
@@ -168,7 +175,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				>
 					<CardLink
 						label={ __( 'Edit search template', 'jetpack-search-pkg' ) }
-						href={ SEARCH_TEMPLATE_URL }
+						href={ buildSearchTemplateUrl( activeThemeStylesheet ) }
 						disabled={ linksDisabled }
 					/>
 					<CardLink
