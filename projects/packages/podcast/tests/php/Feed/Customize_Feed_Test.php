@@ -33,6 +33,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_title' );
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
+		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		unset( $GLOBALS['post'] );
