@@ -17,12 +17,14 @@ const WPCOM_AI_AGENTS_SETTINGS_PATH = '/wpcom/v2/ai-agents-settings';
  * AI Agent Access opt-in control.
  *
  * @param {object}  props                    - Component properties.
+ * @param {string}  props.className          - Additional class name for the control wrapper.
  * @param {string}  props.guidelinesUrl      - Guidelines admin URL, when available.
  * @param {boolean} props.isAvailable        - Whether the control is available in this rollout context.
  * @param {boolean} props.showGuidelinesLink - Whether to show the guidelines link.
  * @return {import('react').Component} AI Agent Access settings component.
  */
 export default function AIAgentAccessControl( {
+	className = '',
 	guidelinesUrl,
 	isAvailable = true,
 	showGuidelinesLink = true,
@@ -109,7 +111,11 @@ export default function AIAgentAccessControl( {
 	}
 
 	return (
-		<div className="jp-form-search-settings-group__toggle is-ai-agent-access jp-search-dashboard-wrap">
+		<div
+			className={ `jp-form-search-settings-group__toggle is-ai-agent-access jp-search-dashboard-wrap${
+				className ? ` ${ className }` : ''
+			}` }
+		>
 			<div className="jp-search-dashboard-row">
 				<ToggleControl
 					checked={ isEnabled }

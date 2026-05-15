@@ -1,6 +1,7 @@
 const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 const mockSearchSuggestionsControl = jest.fn();
+const mockAIAgentAccessControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -44,6 +45,10 @@ jest.mock( 'components/reader-chat-control', () => props => {
 jest.mock( 'components/search-suggestions-control', () => props => {
 	mockSearchSuggestionsControl( props );
 	return <div data-testid="search-suggestions-control" />;
+} );
+jest.mock( 'components/ai-agent-access-control', () => props => {
+	mockAIAgentAccessControl( props );
+	return <div data-testid="ai-agent-access-control" />;
 } );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
@@ -108,6 +113,7 @@ describe( 'DashboardPage', () => {
 		mockModuleControl.mockClear();
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
+		mockAIAgentAccessControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
@@ -140,7 +146,7 @@ describe( 'DashboardPage', () => {
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
 	} );
 
-	test( 'renders ReaderChatControl alongside ExperienceSelector when search blocks is enabled', () => {
+	test( 'renders ReaderChatControl and AIAgentAccessControl alongside ExperienceSelector when search blocks is enabled', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 
 		render( <DashboardPage /> );
@@ -148,6 +154,7 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
@@ -156,6 +163,14 @@ describe( 'DashboardPage', () => {
 				isSaving: false,
 				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
+		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				className: 'jp-search-ai-agent-access-card',
+				isAvailable: true,
+				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				showGuidelinesLink: false,
 			} )
 		);
 	} );

@@ -55,6 +55,19 @@ jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter
 jest.mock( 'components/global-notices', () => () => null );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
+jest.mock(
+	'components/ai-agent-access-control',
+	() =>
+		( { className, guidelinesUrl, isAvailable, showGuidelinesLink } ) => (
+			<div
+				className={ className }
+				data-guidelines-url={ guidelinesUrl }
+				data-is-available={ isAvailable }
+				data-show-guidelines-link={ showGuidelinesLink }
+				data-testid="ai-agent-access-control"
+			/>
+		)
+);
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createRegistry, createReduxStore, RegistryProvider } from '@wordpress/data';
@@ -140,6 +153,9 @@ describe( '<DashboardPage> branch', () => {
 		// The selector lives in the Settings tab, which isn't visible until selected.
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveClass(
+			'jp-search-ai-agent-access-card'
+		);
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 	} );
 
