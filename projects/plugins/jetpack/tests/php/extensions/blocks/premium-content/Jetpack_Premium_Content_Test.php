@@ -10,6 +10,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access;
+use function Automattic\Jetpack\Extensions\Premium_Content\maybe_renew_session_cookie;
 use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
@@ -276,6 +277,73 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				array()
 			)
 		);
+	}
+
+	/**
+	 * `maybe_renew_session_cookie` mints a fresh JWT when authoritative subscriptions exist
+	 * and the visitor has no premium-content session cookie. The encoded token must round-trip
+	 * through `decode_token` and yield the same `user_id` and `subscriptions` that came in.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_mints_jwt_when_subscriptions_present_and_no_cookie() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+
+		$paywall     = subscription_service();
+		$raw         = array(
+			array(
+				'product_id' => $this->product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$token = maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated );
+
+		$this->assertIsString( $token );
+		$payload = $paywall->decode_token( $token );
+		$this->assertIsArray( $payload );
+		$this->assertSame( 999999, (int) $payload['user_id'] );
+		$subscriptions = (array) $payload['subscriptions'];
+		$this->assertArrayHasKey( $this->product_id, $subscriptions );
+		$this->assertSame( 'active', $subscriptions[ $this->product_id ]->status );
+	}
+
+	/**
+	 * `maybe_renew_session_cookie` no-ops when there are no subscriptions to wrap.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_returns_null_when_no_subscriptions() {
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
+		$paywall = subscription_service();
+		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, array(), array() ) );
+	}
+
+	/**
+	 * `maybe_renew_session_cookie` no-ops when the visitor already has a session cookie —
+	 * we don't want to clobber a valid token on every page load.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_renew_session_cookie_returns_null_when_cookie_already_present() {
+		$paywall                                  = subscription_service();
+		$existing_token                           = JWT::encode( $this->get_payload( true, true ), $paywall->get_key() );
+		$_COOKIE['wp-jp-premium-content-session'] = $existing_token;
+
+		$raw         = array(
+			array(
+				'product_id' => $this->product_id,
+				'status'     => 'active',
+				'end_date'   => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			),
+		);
+		$abbreviated = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw );
+
+		$this->assertNull( maybe_renew_session_cookie( $paywall, 999999, $raw, $abbreviated ) );
+
+		unset( $_COOKIE['wp-jp-premium-content-session'] );
 	}
 
 	/**

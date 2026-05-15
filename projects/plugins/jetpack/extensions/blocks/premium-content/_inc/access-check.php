@@ -72,29 +72,28 @@ function current_user_can_edit() {
  * persist it as the standard `wp-jp-premium-content-session` cookie. Subsequent requests
  * within the cookie TTL take the fast cached path instead of the WPCOM round-trip.
  *
- * No-ops if there are no subscriptions, a valid cookie already exists, headers were
- * already sent, or the signing key is unavailable.
+ * Returns the minted JWT so callers can act on it; returns null when no token should be
+ * minted because there are no subscriptions, a valid cookie already exists, or the
+ * signing key is unavailable. The cookie itself is set on a best-effort basis: if headers
+ * have already been sent, the token is still returned so the caller can decide what to do.
  *
- * @param object $paywall                Subscription service (provides the signing key).
- * @param int    $user_id                WordPress.com user id the subscriptions belong to.
- * @param array  $raw_subscriptions      Subscriptions as returned by the filter.
+ * @param object $paywall                  Subscription service (provides the signing key).
+ * @param int    $user_id                  WordPress.com user id the subscriptions belong to.
+ * @param array  $raw_subscriptions        Subscriptions as returned by the filter.
  * @param array  $abbreviated_subscriptions Subscriptions after `abbreviate_subscriptions()`.
- * @return void
+ * @return string|null The encoded JWT, or null when no cookie was minted.
  */
 function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $abbreviated_subscriptions ) {
 	if ( empty( $abbreviated_subscriptions ) ) {
-		return;
+		return null;
 	}
 	if ( Abstract_Token_Subscription_Service::has_token_from_cookie() ) {
-		return;
-	}
-	if ( headers_sent() ) {
-		return;
+		return null;
 	}
 
 	$key = $paywall->get_key();
 	if ( ! $key ) {
-		return;
+		return null;
 	}
 
 	$payload_subscriptions = array();
@@ -120,8 +119,12 @@ function maybe_renew_session_cookie( $paywall, $user_id, $raw_subscriptions, $ab
 		$key
 	);
 
-	// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
-	setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
+	if ( ! headers_sent() ) {
+		// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+		setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
+	}
+
+	return $token;
 }
 
 /**
