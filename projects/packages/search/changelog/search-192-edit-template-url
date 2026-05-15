@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search dashboard: the "Edit search template" and "Insert pattern" links on the Embedded experience card now use the modern Site Editor URL format, so they open the Jetpack Search template view and pre-filtered patterns library instead of an empty editor.
