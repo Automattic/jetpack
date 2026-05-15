@@ -156,13 +156,47 @@
 	&[aria-disabled="true"] {
 		cursor: not-allowed;
 	}
+
+	// Hover / focus chip sourced from the overlay's `data-hint` attribute.
+	// Sits at the top-right of the card (next to where the Active badge
+	// would land on the sibling active card) so the eye lands on the same
+	// place across the grid. Hidden by default; revealed when the card is
+	// hovered or the overlay button is keyboard-focused. The button's
+	// `aria-label` carries the same intent for AT, so this chip is purely
+	// a sighted-user affordance.
+	&::after {
+		content: attr(data-hint);
+		position: absolute;
+		inset-block-start: var(--wpds-dimension-padding-md);
+		inset-inline-end: var(--wpds-dimension-padding-md);
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+		background: var(--wpds-color-bg-interactive-brand-strong);
+		color: var(--wpds-color-fg-interactive-brand-strong);
+		border-radius: var(--wpds-border-radius-md);
+		font-size: var(--wpds-typography-font-size-xs);
+		line-height: var(--wpds-typography-line-height-xs);
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 120ms ease;
+	}
+
+	&:not([data-hint])::after {
+		content: none;
+	}
 }
 
-// Respect the user's motion preference — the card's border-color
-// transition is decorative.
+.jp-search-experience-option:hover .jp-search-experience-option__commit-overlay::after,
+.jp-search-experience-option__commit-overlay:focus-visible::after {
+	opacity: 1;
+}
+
+// Respect the user's motion preference — both the card's border-color
+// transition and the chip's opacity fade are decorative.
 @media (prefers-reduced-motion: reduce) {
 
-	.jp-search-experience-option {
+	.jp-search-experience-option,
+	.jp-search-experience-option__commit-overlay::after {
 		transition: none;
 	}
 }

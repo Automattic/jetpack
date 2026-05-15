@@ -60,6 +60,25 @@ const getCommitLabel = experience => {
 	}
 };
 
+const getHoverHint = experience => {
+	if ( experience === EXPERIENCE.OFF ) {
+		return _x(
+			'Click to turn off Jetpack Search',
+			'Hover hint on the OFF card explaining what clicking the card does',
+			'jetpack-search-pkg'
+		);
+	}
+	return sprintf(
+		/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
+		_x(
+			'Click to switch to %s',
+			'Hover hint on a non-active experience card explaining what clicking the card does',
+			'jetpack-search-pkg'
+		),
+		getExperienceLabel( experience )
+	);
+};
+
 /**
  * One card in the experience-selector grid.
  *
@@ -185,10 +204,16 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				// when paywalled so it stays in the tab order and AT can read
 				// the upsell hint. `aria-disabled` doesn't block click events,
 				// so guard the handler too.
+				//
+				// `data-hint` carries the localised "Click to switch to <X>"
+				// copy that the SCSS reveals as a chip on card hover / button
+				// focus. Suppressed on paywalled cards so we don't tease an
+				// action the user can't take.
 				<button
 					type="button"
 					className="jp-search-experience-option__commit-overlay"
 					aria-disabled={ commitButtonDisabled }
+					data-hint={ commitButtonDisabled ? undefined : getHoverHint( experience ) }
 					onClick={ () => {
 						if ( commitButtonDisabled ) {
 							return;
