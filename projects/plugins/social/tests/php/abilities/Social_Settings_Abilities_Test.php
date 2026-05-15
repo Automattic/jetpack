@@ -3,7 +3,6 @@
  * Unit tests for the Social_Settings_Abilities Registrar subclass.
  *
  * @package automattic/jetpack-social-plugin
- * @phan-file-suppress PhanPluginUnreachableCode -- markTestSkipped throws but Phan doesn't know that.
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
