@@ -637,6 +637,9 @@ class The_Neverending_Home_Page {
 
 		// grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
 
 		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
