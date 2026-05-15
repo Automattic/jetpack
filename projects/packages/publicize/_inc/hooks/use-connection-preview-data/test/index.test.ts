@@ -323,8 +323,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseRenderMessageInputs.mockReturnValue( {
 			items: [
 				{
-					id: '123',
-					network: 'tumblr',
+					connection_id: '123',
 					message: 'Old template',
 					is_social_post: false,
 				},
@@ -349,8 +348,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseRenderMessageInputs.mockReturnValue( {
 			items: [
 				{
-					id: '123',
-					network: 'tumblr',
+					connection_id: '123',
 					message: 'Global message',
 					is_social_post: false,
 				},
@@ -371,8 +369,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseRenderMessageInputs.mockReturnValue( {
 			items: [
 				{
-					id: '123',
-					network: 'tumblr',
+					connection_id: '123',
 					message: 'New template {excerpt}',
 					is_social_post: false,
 				},
@@ -399,8 +396,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseRenderMessageInputs.mockReturnValue( {
 			items: [
 				{
-					id: '123',
-					network: 'tumblr',
+					connection_id: '123',
 					message: 'Different debounced template',
 					is_social_post: false,
 				},

@@ -2,27 +2,30 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { getStatsDateRange } from './range';
+import { resolveSelectionRange } from './range';
 import type {
 	PodcastEpisodeDetailStats,
 	PodcastEpisodeDetailStatsResponse,
-	PodcastStatsPeriod,
+	PodcastStatsSelection,
 } from './types';
 
 /**
  * Per-episode stats query.
  *
- * @param postId - Episode post ID, or null when no episode is selected.
- * @param period - Stats period.
- * @return       Query result.
+ * @param postId    - Episode post ID, or null when no episode is selected.
+ * @param selection - Stats selection.
+ * @return          Query result.
  */
 export function useEpisodeDetailStatsQuery(
 	postId: number | null,
-	period: PodcastStatsPeriod = '30d'
+	selection: PodcastStatsSelection
 ): { data?: PodcastEpisodeDetailStats; isLoading: boolean; isError: boolean } {
 	const [ data, setData ] = useState< PodcastEpisodeDetailStats | undefined >();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ isError, setIsError ] = useState( false );
+
+	const { period } = selection;
+	const { from, to } = resolveSelectionRange( selection );
 
 	useEffect( () => {
 		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
@@ -33,15 +36,14 @@ export function useEpisodeDetailStatsQuery(
 			return;
 		}
 
-		const range = getStatsDateRange( period );
 		let cancelled = false;
 		setIsLoading( true );
 		setIsError( false );
 
 		apiFetch< PodcastEpisodeDetailStatsResponse >( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode/${ postId }`, {
-				from: range.from,
-				to: range.to,
+				from,
+				to,
 			} ),
 			method: 'GET',
 		} )
@@ -61,7 +63,7 @@ export function useEpisodeDetailStatsQuery(
 		return () => {
 			cancelled = true;
 		};
-	}, [ postId, period ] );
+	}, [ postId, period, from, to ] );
 
 	return { data, isLoading, isError };
 }

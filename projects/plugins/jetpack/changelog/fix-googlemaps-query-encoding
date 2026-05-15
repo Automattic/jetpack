@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: Google Maps shortcode now preserves URL-encoded reserved characters (`#`, `%`, `+`) and HTML-entity-encoded ampersands inside place names.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: add pre-hydration skeleton to the WooCommerce attribute filter block so a deep-linked URL (`?pa_color[]=red`) shows shimmer rows instead of a blank space while the initial fetch runs.

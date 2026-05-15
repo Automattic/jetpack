@@ -12,8 +12,7 @@
  */
 
 export type RenderItem = {
-	id: string;
-	network: string;
+	connection_id: string;
 	message?: string;
 	is_social_post?: boolean;
 };
@@ -25,7 +24,7 @@ export type RenderPostIntent = {
 };
 
 export type RenderResult = {
-	id: string;
+	connection_id: string;
 	rendered_message?: string;
 	error?: { code: string; message: string };
 };
@@ -60,7 +59,7 @@ export function hashRenderItems( items: RenderItem[], postIntent: RenderPostInte
 	}
 
 	return JSON.stringify( [
-		items.map( i => [ i.id, i.network, i.message ?? '', Boolean( i.is_social_post ) ] ),
+		items.map( i => [ i.connection_id, i.message ?? '', Boolean( i.is_social_post ) ] ),
 		postIntent.title ?? '',
 		postIntent.excerpt ?? '',
 		hashString( postIntent.content ?? '' ),

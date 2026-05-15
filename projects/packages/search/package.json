@@ -27,6 +27,7 @@
 		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/ .cache/",
+		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-url-tests' 'pnpm:test-size'",
 		"test-coverage": "pnpm:test-scripts --coverage && pnpm:test-url-tests --coverage",
 		"test-scripts": "jest --passWithNoTests",

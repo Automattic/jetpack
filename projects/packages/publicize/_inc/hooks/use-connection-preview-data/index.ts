@@ -107,7 +107,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const baseMessage = (
 		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
 	).trim();
-	const currentRenderItem = items.find( item => item.id === connection.connection_id );
+	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );
 
 	const { rendered, isLoadingRendered } = useSelect(
 		select => {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Search blocks: add jetpack/results-panel container block bundling the result-display stack (count, sort, results, error, empty state, load-more).

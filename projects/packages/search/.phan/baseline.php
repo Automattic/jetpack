@@ -19,7 +19,6 @@ return [
     // PhanDeprecatedFunction : 2 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
@@ -31,7 +30,6 @@ return [
     'file_suppressions' => [
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
         'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
-        'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/classic-search/class-classic-search.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],

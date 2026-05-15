@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: Google Maps shortcode now preserves URL-encoded ampersands (%26) in place names.

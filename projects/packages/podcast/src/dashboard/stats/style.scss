@@ -1,22 +1,35 @@
 @use "@automattic/charts/dist/index.css";
 
+// @automattic/date-range-picker uses Calypso dashboard CSS variables we don't
+// have here; re-color its trigger button with wp-admin tokens, and hide the
+// calendar's bounded month-nav chevrons (the API never serves dates beyond
+// today or older than a year, so the disabled arrows are dead weight).
+.daterange-input__field.components-button {
+	background: #fff;
+	border-color: #949494;
+}
+
+.daterange-input__field svg,
+.daterange-input__text {
+	color: #1e1e1e;
+}
+
+.daterange-calendar button[aria-disabled="true"] {
+	visibility: hidden;
+}
+
 // Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
 $text: #1e1e1e;
 $muted: #757575;
-$bar-bg: #f0f0f0;
-$bar-bg-hover: #e5e5e5;
 $bar-fill: #2271b1;
 
-%eyebrow {
-	font-size: 11px;
-	font-weight: 500;
-	color: $muted;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-}
-
 .podcast-stats {
-	padding-top: 16px;
+	padding-block-start: 16px;
+	padding-inline: 16px;
+
+	@media (min-width: 783px) {
+		padding-inline: 24px;
+	}
 
 	&--stack {
 		display: flex;
@@ -68,12 +81,48 @@ $bar-fill: #2271b1;
 
 	&__section-card {
 		min-width: 0;
+
+		// Calypso Stats card-module look: real border, no shadow, larger header,
+		// 24px content padding. Scoped off the Downloads chart card.
+		&:not(.podcast-stats-chart) {
+			background: #fff;
+			border: 1px solid #dcdcde;
+			border-radius: 5px;
+			box-shadow: none;
+
+			.components-card__header {
+				padding-block: 24px 12px;
+				padding-inline: 24px;
+				border-block-end: 0;
+				min-height: 0;
+			}
+
+			.components-card__body {
+				padding-block: 0 24px;
+				padding-inline: 24px;
+			}
+
+			.podcast-stats__section-title {
+				font-size: 20px;
+				font-weight: 500;
+				line-height: 1.3;
+			}
+		}
+
+		// Downloads chart card shares SectionCard but stays compact —
+		// no heavy CardHeader divider, tighter header padding.
+		&.podcast-stats-chart .components-card__header {
+			border-block-end: 0;
+			padding-block: 10px;
+			min-height: 0;
+		}
 	}
 
 	&__section-title {
 		margin: 0;
-		font-size: 14px;
+		font-size: 15px;
 		font-weight: 600;
+		line-height: 1.3;
 		color: $text;
 	}
 
@@ -95,10 +144,9 @@ $bar-fill: #2271b1;
 	}
 }
 
+// Inline metric tiles. Display-only; typography is owned by Heading/Text,
+// so only layout lives here.
 .podcast-stats-summary {
-	list-style: none;
-	margin: 0;
-	padding: 0;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: 0;
@@ -111,46 +159,9 @@ $bar-fill: #2271b1;
 			border-inline-start: 1px solid #e0e0e0;
 		}
 	}
-
-	&__heading {
-
-		@extend %eyebrow;
-
-		margin-bottom: 6px;
-	}
-
-	&__value {
-		font-size: 24px;
-		font-weight: 500;
-		line-height: 1.2;
-		color: $text;
-	}
-
-	&__note {
-
-		@extend %eyebrow;
-
-		margin-top: 4px;
-	}
-
-	&--standalone {
-		gap: 12px;
-
-		.podcast-stats-summary__tile {
-			border-inline-start: 0;
-		}
-	}
 }
 
 .podcast-stats-chart {
-
-	&__body {
-		padding: 16px;
-	}
-
-	&__header {
-		margin-bottom: 8px;
-	}
 
 	// No min-height — fights the chart's ResizeObserver.
 	&__chart {
@@ -217,11 +228,12 @@ $bar-fill: #2271b1;
 	}
 
 	&__list-title {
-
-		@extend %eyebrow;
-
 		margin: 0 0 8px;
-		font-size: 12px;
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: $muted;
 	}
 }
 
@@ -239,15 +251,13 @@ $bar-fill: #2271b1;
 
 	&__row {
 		position: relative;
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		align-items: center;
-		gap: 8px;
 		padding: 6px 8px;
 		border-radius: 4px;
-		background: $bar-bg;
 		width: 100%;
 		text-align: start;
+		// Reset UA <button> grey on clickable rows (Top episodes); is-clickable
+		// hover/focus rules override.
+		background: transparent;
 		border: 0;
 		cursor: default;
 
@@ -255,35 +265,34 @@ $bar-fill: #2271b1;
 			cursor: pointer;
 
 			&:hover {
-				background: $bar-bg-hover;
+				background: rgba(34, 113, 177, 0.06);
 			}
 
 			&:focus-visible {
-				background: $bar-bg-hover;
+				background: rgba(34, 113, 177, 0.06);
 				outline: 2px solid $bar-fill;
 				outline-offset: 2px;
 			}
 		}
 	}
 
+	&__content {
+		position: relative;
+	}
+
 	&__leading {
-		grid-column: 1;
+		display: inline-flex;
+		flex: 0 0 auto;
 	}
 
 	&__label {
-		grid-column: 2;
+		flex: 1;
 		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		color: $text;
 	}
 
 	&__value {
-		grid-column: 3;
+		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
-		font-size: 12px;
-		color: $muted;
 	}
 
 	&__bar {
@@ -291,7 +300,7 @@ $bar-fill: #2271b1;
 		inset-block: 0;
 		inset-inline-start: 0;
 		background: $bar-fill;
-		opacity: 0.08;
+		opacity: 0.18;
 		border-radius: 4px;
 		pointer-events: none;
 	}

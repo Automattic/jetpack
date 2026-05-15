@@ -12,7 +12,11 @@ import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
+import {
+	activityLogQuery,
+	activityLogGroupCountsQuery,
+	activityLogActorsQuery,
+} from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
@@ -21,7 +25,7 @@ import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues } from './filters';
+import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -153,6 +157,11 @@ export default function ActivityLog() {
 		return extractActivityLogTypeValues( filters );
 	}, [ view.filters ] );
 
+	const actorIdValues = useMemo( () => {
+		const filters = ( view.filters as Filter[] | undefined ) ?? [];
+		return extractActorIdValues( filters );
+	}, [ view.filters ] );
+
 	const searchTerm = view.search?.trim() ?? '';
 
 	// The picker hands us start-of-day / end-of-day Dates at local-midnight
@@ -184,6 +193,9 @@ export default function ActivityLog() {
 		if ( activityLogTypeValues.length ) {
 			params.group = activityLogTypeValues;
 		}
+		if ( actorIdValues.length ) {
+			params.actor = actorIdValues;
+		}
 		return params;
 	}, [
 		view.sort?.direction,
@@ -191,6 +203,7 @@ export default function ActivityLog() {
 		view.page,
 		searchTerm,
 		activityLogTypeValues,
+		actorIdValues,
 		afterIso,
 		beforeIso,
 	] );
@@ -219,7 +232,25 @@ export default function ActivityLog() {
 		} )
 	);
 
-	const isFetching = isFetchingData || isFetchingFilters;
+	// Actors query feeds the "Performed by" dropdown. Same date window as
+	// the list / counts queries so the available options match what's on
+	// screen, and intentionally independent of the current filter state so
+	// selections don't shrink the dropdown to themselves.
+	//
+	// `number: 1000` matches the upstream REST schema's max for events
+	// scanned. On very large windows where >1000 events exist, actors who
+	// only appear beyond the scan horizon won't surface in the dropdown
+	// — bumping that ceiling would need a coordinated change to the
+	// Jetpack proxy and the WPCOM endpoint.
+	const { data: actorsData, isFetching: isFetchingActors } = useQuery(
+		activityLogActorsQuery( {
+			number: 1000,
+			after: afterIso,
+			before: beforeIso,
+		} )
+	);
+
+	const isFetching = isFetchingData || isFetchingFilters || isFetchingActors;
 
 	const paginationInfo = {
 		totalItems: activityLogData?.totalItems ?? 0,
@@ -234,6 +265,7 @@ export default function ActivityLog() {
 		gmtOffset,
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
+		actors: actorsData?.actors,
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );
@@ -268,11 +300,13 @@ export default function ActivityLog() {
 				} );
 			}
 			if ( filtersChanged ) {
-				const activityTypes = extractActivityLogTypeValues(
-					( next.filters as Filter[] | undefined ) ?? []
-				);
+				const nextFilters = ( next.filters as Filter[] | undefined ) ?? [];
+				const activityTypes = extractActivityLogTypeValues( nextFilters );
+				const actorIds = extractActorIdValues( nextFilters );
 				const eventProps: Record< string, boolean | number > = {
 					num_groups_selected: activityTypes.length,
+					num_actors_selected: actorIds.length,
+					actor_filter_includes_mcp: actorIds.some( id => id.startsWith( 'mcp:' ) ),
 				};
 				let totalActivitiesSelected = 0;
 				Object.entries( groupCountsData?.groups ?? {} ).forEach( ( [ groupKey, { count } ] ) => {

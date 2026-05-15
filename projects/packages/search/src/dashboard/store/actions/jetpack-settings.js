@@ -26,7 +26,9 @@ const getRollbackSettings = settings =>
 				k === 'module_active' ||
 				k === 'instant_search_enabled' ||
 				k === 'experience' ||
-				k === 'reader_chat'
+				k === 'reader_chat' ||
+				k === 'ai_answers_enabled' ||
+				k === 'search_suggestions_enabled'
 		)
 	);
 
@@ -140,7 +142,7 @@ export function setActiveExperience( experience ) {
  * the signal we read here. On failure we leave `pending_experience` in place
  * so the user can retry without re-clicking.
  *
- * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
+ * The whole experience-selector UI is gated behind `jetpack_search_blocks_enabled`,
  * so we send only `{ experience }`. The back end resolves the storage shape —
  * `'off'` deactivates the module, `'inline'` deletes the experience option,
  * `'embedded'` / `'overlay'` write affirmative values — and resolves the

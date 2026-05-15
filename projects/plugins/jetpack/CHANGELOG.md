@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.1 - 2026-05-11
+### Enhancements
+- AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component. [#48471]
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos. [#48486]
+- Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it. [#48640]
+
+### Improved compatibility
+- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
+
+### Bug fixes
+- AI Page: Update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout applies again. [#48668]
+- Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles. [#48550]
+- Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names. [#48468] [#48495]
+- Social: Fall back to the site-wide social message template when no per-post share message is set. [#48606]
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Surface a Review Mediator UI feature flag and an extension filter for the agentsManagerData payload. [#48409]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Dashboard: Remove translation wrappers from "Boost" and "CRM" product names in the at-a-glance dashboard. [#48520]
+- Podcast: Add the new Jetpack Podcast package as a dependency. [#48556]
+- Podcast Dashboard: Pull in the wp-build dashboard scaffold from the jetpack-podcast package. [#48557]
+- Reader Chat: Mount the Agents Manager chat UI on public blog frontends, gated by the `jetpack_reader_chat_has_ai_features` filter. Adds a `reader_chat` site option exposed over REST so it can be toggled from wp-admin. [#48144]
+- Scan: Register the new Scan wp-admin page package. No user-visible behavior change yet. [#48458]
+- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48638] [#48540]
+- Update package dependencies. [#48689]
+
 ## 15.8 - 2026-05-05
 ### Enhancements
 - Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker. [#48244]

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Write editor: replace ambiguous '?' help button with a cleaner italic 'i' icon, and fix the tips popover appearing behind the beta/recovery banners.

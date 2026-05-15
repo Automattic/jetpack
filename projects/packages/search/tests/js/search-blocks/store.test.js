@@ -503,12 +503,12 @@ describe( 'store actions', () => {
 		// Regression: omitting priceRange from pushStateToUrl meant the
 		// first search after JS hydrated rewrote `?min_price=10` away,
 		// breaking shareable URLs and back-button behavior.
-		// `isWooCommerceActive` must be true — `min_price`/`max_price` are
+		// `isWooCommerceBlocksEnabled` must be true — `min_price`/`max_price` are
 		// WC-only and `pushStateToUrl` drops them otherwise (RSM-2805).
 		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
 		state.searchQuery = 'shoes';
 		state.priceRange = { min: 10, max: 50 };
-		state.isWooCommerceActive = true;
+		state.isWooCommerceBlocksEnabled = true;
 
 		actions.syncToUrl();
 
@@ -527,7 +527,7 @@ describe( 'store actions', () => {
 		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
 		state.searchQuery = 'shoes';
 		state.priceRange = { min: 10, max: 50 };
-		state.isWooCommerceActive = false;
+		state.isWooCommerceBlocksEnabled = false;
 
 		actions.syncToUrl();
 

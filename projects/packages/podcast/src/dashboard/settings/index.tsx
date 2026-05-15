@@ -1,4 +1,3 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -19,13 +18,12 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import CoverImageControl from './cover-image-control';
 import './style.scss';
 import { TOPICS } from './topics';
-import { useCategoriesQuery } from './use-categories-query';
 import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
@@ -85,7 +83,11 @@ const useFieldEditor = (
 	};
 };
 
-const SettingsTab = () => {
+interface SettingsTabProps {
+	onAfterDisable?: () => void;
+}
+
+const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 
@@ -97,8 +99,6 @@ const SettingsTab = () => {
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
-
-	const { data: categories = [] } = useCategoriesQuery();
 
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
@@ -140,8 +140,8 @@ const SettingsTab = () => {
 
 	// Discrete-action handlers — these controls "commit" on each user choice
 	// (no blur ambiguity), so they save immediately.
-	const handleCategoryChange = useCallback(
-		( value: string ) => commit( { podcasting_category_id: Number( value ) || 0 } ),
+	const handleCategorySelect = useCallback(
+		( id: number ) => commit( { podcasting_category_id: id } ),
 		[ commit ]
 	);
 	const handleExplicitChange = useCallback(
@@ -206,8 +206,8 @@ const SettingsTab = () => {
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
 	const onDisablePodcasting = useCallback( () => {
 		setConfirmDisable( false );
-		commit( { podcasting_category_id: 0 } );
-	}, [ commit ] );
+		saveSettings( { podcasting_category_id: 0 }, { onSuccess: () => onAfterDisable?.() } );
+	}, [ saveSettings, onAfterDisable ] );
 
 	if ( isLoading || ! draft ) {
 		return null;
@@ -240,21 +240,10 @@ const SettingsTab = () => {
 								'jetpack-podcast'
 							) }
 						</Text>
-						<SelectControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Podcast category', 'jetpack-podcast' ) }
-							hideLabelFromVision
-							value={ String( draft.podcasting_category_id || '' ) }
-							onChange={ handleCategoryChange }
-							options={ [
-								{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
-								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
-							] }
+						<CategoryPicker
+							selectedId={ draft.podcasting_category_id }
+							onSelect={ handleCategorySelect }
 						/>
-						<Link openInNewTab href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }>
-							{ __( 'Create a new category', 'jetpack-podcast' ) }
-						</Link>
 					</VStack>
 				</CardBody>
 			</Card>
@@ -360,28 +349,26 @@ const SettingsTab = () => {
 				</CardBody>
 			</Card>
 
-			{ draft.podcasting_category_id > 0 && (
-				<Card>
-					<CardHeader>
-						<h2 className="podcast__section-heading">
-							{ __( 'Disable podcasting', 'jetpack-podcast' ) }
-						</h2>
-					</CardHeader>
-					<CardBody>
-						<VStack spacing={ 3 } alignment="flex-start">
-							<Text variant="muted">
-								{ __(
-									'Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.',
-									'jetpack-podcast'
-								) }
-							</Text>
-							<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
-								{ __( 'Disable', 'jetpack-podcast' ) }
-							</Button>
-						</VStack>
-					</CardBody>
-				</Card>
-			) }
+			<Card>
+				<CardHeader>
+					<h2 className="podcast__section-heading">
+						{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+					</h2>
+				</CardHeader>
+				<CardBody>
+					<VStack spacing={ 3 } alignment="flex-start">
+						<Text variant="muted">
+							{ __(
+								'Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.',
+								'jetpack-podcast'
+							) }
+						</Text>
+						<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
+							{ __( 'Disable', 'jetpack-podcast' ) }
+						</Button>
+					</VStack>
+				</CardBody>
+			</Card>
 
 			{ confirmDisable && (
 				<Modal

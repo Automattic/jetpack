@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeArraySuspicious : 1 occurrence
@@ -24,7 +23,7 @@ return [
     'file_suppressions' => [
         'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-modules.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-status.php' => ['PhanUndeclaredFunction'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
     ],
