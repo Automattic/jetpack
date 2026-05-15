@@ -112,10 +112,10 @@ class Plans_Abilities_Test extends TestCase {
 	// -------------------- Abstract getters --------------------
 
 	/**
-	 * Category slug is namespaced under the plugin.
+	 * Abilities register under the shared "jetpack" category.
 	 */
-	public function test_category_slug_is_package_scoped() {
-		$this->assertSame( 'jetpack-plans', Plans_Abilities::get_category_slug() );
+	public function test_category_slug_is_jetpack() {
+		$this->assertSame( 'jetpack', Plans_Abilities::get_category_slug() );
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Plans_Abilities_Test extends TestCase {
 		$this->assertNotNull( $ability );
 		$category = method_exists( $ability, 'get_category' ) ? $ability->get_category() : null;
 		if ( is_string( $category ) ) {
-			$this->assertSame( 'jetpack-plans', $category );
+			$this->assertSame( Plans_Abilities::get_category_slug(), $category );
 		}
 	}
 

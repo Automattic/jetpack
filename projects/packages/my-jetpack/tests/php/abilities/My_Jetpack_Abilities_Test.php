@@ -180,10 +180,10 @@ class My_Jetpack_Abilities_Test extends TestCase {
 	// -------------------- Abstract getters --------------------
 
 	/**
-	 * Category slug matches the documented vocabulary.
+	 * Abilities register under the shared "jetpack" category.
 	 */
-	public function test_category_slug_is_jetpack_my_jetpack() {
-		$this->assertSame( 'jetpack-my-jetpack', My_Jetpack_Abilities::get_category_slug() );
+	public function test_category_slug_is_jetpack() {
+		$this->assertSame( 'jetpack', My_Jetpack_Abilities::get_category_slug() );
 	}
 
 	/**

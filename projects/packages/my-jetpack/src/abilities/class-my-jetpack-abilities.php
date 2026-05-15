@@ -24,8 +24,12 @@ class My_Jetpack_Abilities extends Registrar {
 
 	/**
 	 * Category slug for all My Jetpack abilities.
+	 *
+	 * Shared with the rest of the Jetpack plugin's abilities (modules, etc.)
+	 * so everything groups under a single "jetpack" category in the
+	 * Abilities API surface.
 	 */
-	const CATEGORY_SLUG = 'jetpack-my-jetpack';
+	const CATEGORY_SLUG = 'jetpack';
 
 	/**
 	 * Option key that tracks the timestamp of the last in-product feedback prompt.
@@ -53,9 +57,9 @@ class My_Jetpack_Abilities extends Registrar {
 	 */
 	public static function get_category_definition(): array {
 		return array(
-			// "My Jetpack" is a product name and is intentionally not translated.
-			'label'       => 'My Jetpack',
-			'description' => __( 'Abilities for reading My Jetpack product status and in-product feedback state.', 'jetpack-my-jetpack' ),
+			// "Jetpack" is a product name and should not be translated.
+			'label'       => 'Jetpack',
+			'description' => __( 'Abilities exposed by the Jetpack plugin.', 'jetpack-my-jetpack' ),
 		);
 	}
 

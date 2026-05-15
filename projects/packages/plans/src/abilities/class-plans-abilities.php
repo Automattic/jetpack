@@ -27,7 +27,14 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
  */
 class Plans_Abilities extends Registrar {
 
-	const CATEGORY_SLUG = 'jetpack-plans';
+	/**
+	 * Category slug for all Plans abilities.
+	 *
+	 * Shared with the rest of the Jetpack plugin's abilities (modules, etc.)
+	 * so everything groups under a single "jetpack" category in the
+	 * Abilities API surface.
+	 */
+	const CATEGORY_SLUG = 'jetpack';
 
 	/**
 	 * Accepted category filter values for list-plans.
@@ -57,9 +64,9 @@ class Plans_Abilities extends Registrar {
 	 */
 	public static function get_category_definition(): array {
 		return array(
-			// translators: "Jetpack" is a product name and should not be translated.
-			'label'       => __( 'Jetpack Plans', 'jetpack-plans' ),
-			'description' => __( 'Abilities for inspecting the active Jetpack plan and minting WordPress.com checkout URLs for available plans.', 'jetpack-plans' ),
+			// "Jetpack" is a product name and should not be translated.
+			'label'       => 'Jetpack',
+			'description' => __( 'Abilities exposed by the Jetpack plugin.', 'jetpack-plans' ),
 		);
 	}
 
