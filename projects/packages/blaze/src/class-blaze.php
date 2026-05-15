@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Blaze\Abilities\Blaze_Abilities;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
@@ -59,6 +60,8 @@ class Blaze {
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Register Blaze abilities and opt them into Woo's MCP server (no-op when Woo MCP isn't present).
+		Blaze_Abilities::init();
 	}
 
 	/**
