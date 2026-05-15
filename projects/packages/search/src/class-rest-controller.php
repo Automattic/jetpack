@@ -491,14 +491,14 @@ class REST_Controller {
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
-		} elseif ( false !== $payload['enable_instant_search'] ) {
+		}
+
+		if ( false !== $payload['enable_instant_search'] ) {
 			// Legacy path: old WPCOM callers send `enable_instant_search`
 			// instead of `search_experience`. Default-true matches the
 			// pre-refactor behavior.
+			// We intentionally skipped error handling for invalid `enable_instant_search` value since it's legacy option now.
 			$ret = $this->search_module->enable_instant_search();
-			if ( is_wp_error( $ret ) ) {
-				return $ret;
-			}
 		}
 
 		// `auto_config_search` wires up Overlay sidebar widgets — only meaningful
