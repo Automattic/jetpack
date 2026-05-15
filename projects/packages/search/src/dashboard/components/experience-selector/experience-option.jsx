@@ -19,8 +19,8 @@ import './experience-option.scss';
 // (the format strings had no `%s`), so we drop it here.
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
-const SEARCH_TEMPLATE_URL = 'site-editor.php?postType=wp_template&postId=search';
-const PATTERNS_URL = 'site-editor.php?path=/patterns';
+const SEARCH_TEMPLATE_URL = 'site-editor.php?p=%2Ftemplate&activeView=jetpack-search';
+const PATTERNS_URL = 'site-editor.php?p=%2Fpattern&search=jetpack-search';
 
 const PREVIEWS = {
 	[ EXPERIENCE.EMBEDDED ]: EmbeddedPreview,
