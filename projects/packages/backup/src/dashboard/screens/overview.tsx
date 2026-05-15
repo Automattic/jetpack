@@ -6,7 +6,7 @@ import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import DashboardLayout from '../components/dashboard-layout';
-import { findActivityById } from '../fixtures/activity-log';
+import { getCachedActivityById } from '../hooks/use-activity-log';
 import { isBackupItem } from '../types/activity';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
@@ -80,7 +80,7 @@ function RightPane( { selectedId }: { selectedId: string | null } ) {
 			</div>
 		);
 	}
-	const item = findActivityById( selectedId );
+	const item = getCachedActivityById( selectedId );
 	if ( ! item ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">

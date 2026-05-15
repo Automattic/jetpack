@@ -3,7 +3,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, settings as settingsIcon } from '@wordpress/icons';
 import { Button, Card, Stack } from '@wordpress/ui';
-import { useMockActivityLog } from '../../hooks/use-mock-activity-log';
+import { useActivityLog } from '../../hooks/use-activity-log';
 import ActivityRow from '../activity-row';
 import './style.scss';
 import type { ActivityItem } from '../../types/activity';
@@ -30,7 +30,7 @@ type Props = {
 export default function ActivityList( { selectedId, onSelect }: Props ) {
 	const [ search, setSearch ] = useState( '' );
 	const [ page, setPage ] = useState( 1 );
-	const { items, totalPages, isLoading } = useMockActivityLog( {
+	const { items, totalPages, isLoading } = useActivityLog( {
 		page,
 		pageSize: PAGE_SIZE,
 		search,

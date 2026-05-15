@@ -7,7 +7,7 @@ import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
-import { findActivityById } from '../fixtures/activity-log';
+import { toIntRewindId } from '../data/api/_helpers';
 import { useMockRestore } from '../hooks/use-mock-restore';
 import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
@@ -21,8 +21,10 @@ import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
-	const item = findActivityById( rewindId );
-	const restorePoint = item ? item.publishedAt : null;
+	const restorePoint = ( () => {
+		const seconds = parseInt( toIntRewindId( rewindId ), 10 );
+		return Number.isFinite( seconds ) ? new Date( seconds * 1000 ).toISOString() : null;
+	} )();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useMockRestore();
 
