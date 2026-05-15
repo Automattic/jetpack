@@ -1,0 +1,23 @@
+.jpb-file-info-card {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	&__preview {
+		max-height: 320px;
+		overflow: auto;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 4px;
+		padding: 12px;
+
+		pre {
+			margin: 0;
+			font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+			font-size: 12px;
+			line-height: 1.5;
+			white-space: pre;
+			color: var(--wp-components-color-foreground, #1e1e1e);
+		}
+	}
+}

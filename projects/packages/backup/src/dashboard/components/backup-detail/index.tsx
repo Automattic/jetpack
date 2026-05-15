@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, backup as backupIcon } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
+import FileBrowser from '../file-browser';
 import './style.scss';
 import type { BackupActivityItem } from '../../types/activity';
 
@@ -57,10 +58,7 @@ export default function BackupDetail( { item }: Props ) {
 				) }
 			</Text>
 			<div className="jpb-backup-detail__files">
-				{ /* Task 4 replaces this slot with the real file-browser tree. */ }
-				<Text size="small" variant="muted">
-					Files placeholder — Task 4 will replace this.
-				</Text>
+				<FileBrowser rewindId={ item.rewindId } />
 			</div>
 		</Card>
 	);
