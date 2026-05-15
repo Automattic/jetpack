@@ -191,4 +191,16 @@ describe( '<ExperienceOption> Embedded action links', () => {
 			'site-editor.php?p=%2Fpattern&search=jetpack-search'
 		);
 	} );
+	test( 'Edit search template percent-encodes unusual stylesheet names', () => {
+		renderWith(
+			embeddedActive,
+			{ experience: 'embedded' },
+			{},
+			{ activeThemeStylesheet: 'my theme/v2' }
+		);
+		expect( screen.getByRole( 'link', { name: /edit search template/i } ) ).toHaveAttribute(
+			'href',
+			'site-editor.php?p=%2Fwp_template%2Fmy%20theme%2Fv2%2F%2Fjetpack-search&canvas=edit'
+		);
+	} );
 } );
