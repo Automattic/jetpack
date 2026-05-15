@@ -188,6 +188,16 @@ class Jetpack_Backup {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+
+		if ( self::is_modernized() ) {
+			// The modernized Backup overview is a focused, full-screen product
+			// surface. Suppress JITMs and other core/plugin admin notices so they
+			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
+			// Forms handles its dashboard page
+			// (`plugins/forms/src/dashboard/class-dashboard.php`).
+			remove_all_actions( 'admin_notices' );
+			remove_all_actions( 'all_admin_notices' );
+		}
 	}
 
 	/**
