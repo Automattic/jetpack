@@ -164,16 +164,18 @@ export default function DashboardPage( { isLoading = false } ) {
 					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 				/>
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-					<Tabs.List>
-						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
-						<Tabs.Tab value="ai-answers">
-							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
-							<span className="jp-search-dashboard-tabs__tab-preview-label">
-								{ __( '(Preview)', 'jetpack-search-pkg' ) }
-							</span>
-						</Tabs.Tab>
-					</Tabs.List>
+					<div className="jp-admin-page-tabs">
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="ai-answers">
+								{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
+								<span className="jp-search-dashboard-tabs__tab-preview-label">
+									{ __( '(Preview)', 'jetpack-search-pkg' ) }
+								</span>
+							</Tabs.Tab>
+						</Tabs.List>
+					</div>
 					<Tabs.Panel value="plan-usage">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
