@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Abilities API: register Jetpack Search abilities only while the Search module is active.

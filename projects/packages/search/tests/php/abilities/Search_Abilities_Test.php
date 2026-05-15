@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Search\Abilities;
 
 use Automattic\Jetpack\Search\AI_Answers;
+use Automattic\Jetpack\Search\Classic_Search;
 use Automattic\Jetpack\Search\Module_Control;
 use Automattic\Jetpack\Search\Options;
 use Automattic\Jetpack\Search\Plan;
@@ -53,6 +54,7 @@ class Search_Abilities_Test extends Search_TestCase {
 		remove_all_filters( 'jetpack_search_abilities_module_control' );
 		remove_all_filters( 'jetpack_search_abilities_plan' );
 		remove_all_filters( 'jetpack_search_abilities_stats' );
+		remove_all_filters( 'jetpack_search_abilities_search' );
 		remove_all_filters( 'jetpack_search_ai_answers_enabled' );
 
 		remove_action( 'wp_abilities_api_categories_init', array( Search_Abilities::class, 'register_category' ) );
@@ -157,11 +159,11 @@ class Search_Abilities_Test extends Search_TestCase {
 		}
 	}
 
-	public function test_all_three_abilities_are_readonly_and_non_destructive(): void {
+	public function test_all_abilities_are_readonly_and_non_destructive(): void {
 		$expected_slugs = array(
 			'jetpack-search/get-settings',
 			'jetpack-search/get-stats',
-			'jetpack-search/get-plan-info',
+			'jetpack-search/search-site',
 		);
 		$abilities      = Search_Abilities::get_abilities();
 		foreach ( $expected_slugs as $slug ) {
@@ -301,7 +303,7 @@ class Search_Abilities_Test extends Search_TestCase {
 
 		$this->assertTrue( wp_has_ability( 'jetpack-search/get-settings' ) );
 		$this->assertFalse( wp_has_ability( 'jetpack-search/get-stats' ) );
-		$this->assertFalse( wp_has_ability( 'jetpack-search/get-plan-info' ) );
+		$this->assertFalse( wp_has_ability( 'jetpack-search/search-site' ) );
 	}
 
 	/**
@@ -382,6 +384,22 @@ class Search_Abilities_Test extends Search_TestCase {
 		);
 	}
 
+	/**
+	 * Stub Classic_Search with a fixed return value for search().
+	 *
+	 * @param mixed $response Return value for search().
+	 */
+	private function stub_search( $response ): void {
+		$stub = $this->createStub( Classic_Search::class );
+		$stub->method( 'search' )->willReturn( $response );
+		add_filter(
+			'jetpack_search_abilities_search',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+	}
+
 	public function test_get_settings_returns_documented_shape(): void {
 		$this->stub_module_control( true, false );
 
@@ -430,7 +448,7 @@ class Search_Abilities_Test extends Search_TestCase {
 		$this->assertContains( 'page', $result['customizations']['excluded_post_types'] );
 	}
 
-	public function test_get_stats_returns_documented_shape_from_num_requests_3m(): void {
+	public function test_get_stats_returns_combined_usage_and_plan_shape(): void {
 		$this->stub_stats(
 			array(
 				'response' => array( 'code' => 200 ),
@@ -454,20 +472,83 @@ class Search_Abilities_Test extends Search_TestCase {
 		);
 		$this->stub_plan(
 			array(
-				'record_limit'            => 10000,
-				'supports_instant_search' => true,
+				'record_limit'                => 10000,
+				'tier'                        => 'jetpack-search-tier-100',
+				'supports_instant_search'     => true,
+				'supports_ai_answers'         => false,
+				'effective_subscription'      => array(
+					'product_slug'      => 'jetpack_search',
+					'bill_period'       => '365',
+					'bill_period_label' => 'Yearly',
+				),
+				'default_upgrade_bill_period' => 'yearly',
 			)
 		);
 
 		$result = Search_Abilities::get_stats();
 
 		$this->assertIsArray( $result );
+		// Usage portion.
 		$this->assertSame( 12345, $result['requests_this_period'] );
 		$this->assertSame( '2026-04-01', $result['period_start'] );
 		$this->assertSame( '2026-04-30', $result['period_end'] );
 		$this->assertSame( 10000, $result['plan_records_included'] );
 		$this->assertTrue( $result['plan_overage'] );
 		$this->assertSame( 2, $result['overage_count'] );
+		// Plan portion (folded in from the former get-plan-info ability).
+		$this->assertSame( 'jetpack-search-tier-100', $result['tier'] );
+		$this->assertSame( 'jetpack_search', $result['plan_slug'] );
+		$this->assertTrue( $result['supports_instant_search'] );
+		$this->assertFalse( $result['supports_ai_answers'] );
+		$this->assertSame( 'yearly', $result['billing_period'] );
+	}
+
+	public function test_get_stats_plan_portion_tolerates_missing_plan_info(): void {
+		$this->stub_stats(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'plan_usage' => array(
+							'num_requests_3m' => array(
+								array(
+									'num_requests' => 1,
+									'start_date'   => '2026-05-01',
+									'end_date'     => '2026-05-31',
+								),
+							),
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+		$this->stub_plan( false );
+
+		$result = Search_Abilities::get_stats();
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 1, $result['requests_this_period'] );
+		$this->assertSame( '', $result['tier'] );
+		$this->assertSame( '', $result['plan_slug'] );
+		$this->assertFalse( $result['supports_instant_search'] );
+		$this->assertSame( '', $result['billing_period'] );
+	}
+
+	public function test_get_stats_ai_answers_supports_falls_back_to_filter(): void {
+		$this->stub_stats(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'plan_usage' => array() ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+		$this->stub_plan( array() );
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+
+		$result = Search_Abilities::get_stats();
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['supports_ai_answers'] );
 	}
 
 	public function test_get_stats_returns_wp_error_when_remote_is_wp_error(): void {
@@ -491,73 +572,110 @@ class Search_Abilities_Test extends Search_TestCase {
 		$this->assertSame( 'jetpack_search_data_unavailable', $result->get_error_code() );
 	}
 
-	public function test_get_plan_info_returns_documented_shape(): void {
-		$this->stub_plan(
+	/**
+	---------------------------------------------------------------------
+	 * search-site
+	 * ---------------------------------------------------------------------
+	 */
+	public function test_search_site_returns_documented_shape(): void {
+		$this->stub_search(
 			array(
-				'tier'                        => 'jetpack-search-tier-100',
-				'supports_instant_search'     => true,
-				'supports_ai_answers'         => false,
-				'effective_subscription'      => array(
-					'product_slug'      => 'jetpack_search',
-					'bill_period'       => '365',
-					'bill_period_label' => 'Yearly',
+				'results' => array(
+					'total' => 2,
+					'hits'  => array(
+						array(
+							'fields' => array(
+								'post_id'           => array( 42 ),
+								'title.default'     => array( 'Hello World' ),
+								'permalink.url.raw' => array( 'https://example.com/hello-world' ),
+								'post_type'         => array( 'post' ),
+								'date'              => array( '2026-05-01 10:00:00' ),
+							),
+						),
+						array(
+							'fields' => array(
+								'post_id'   => 7,
+								'title'     => 'Sample Page',
+								'permalink' => 'https://example.com/sample-page',
+								'post_type' => 'page',
+								'date'      => '2026-04-15 09:30:00',
+							),
+						),
+					),
 				),
-				'default_upgrade_bill_period' => 'yearly',
 			)
 		);
 
-		$result = Search_Abilities::get_plan_info();
+		$result = Search_Abilities::search_site( array( 'query' => 'hello' ) );
 
 		$this->assertIsArray( $result );
-		$this->assertSame( 'jetpack-search-tier-100', $result['tier'] );
-		$this->assertSame( 'jetpack_search', $result['plan_slug'] );
-		$this->assertTrue( $result['supports_instant_search'] );
-		$this->assertFalse( $result['supports_ai_answers'] );
-		$this->assertSame( 'yearly', $result['billing_period'] );
+		$this->assertSame( 2, $result['total'] );
+		$this->assertCount( 2, $result['results'] );
+
+		$this->assertSame( 42, $result['results'][0]['id'] );
+		$this->assertSame( 'Hello World', $result['results'][0]['title'] );
+		$this->assertSame( 'https://example.com/hello-world', $result['results'][0]['url'] );
+		$this->assertSame( 'post', $result['results'][0]['type'] );
+		$this->assertSame( '2026-05-01 10:00:00', $result['results'][0]['date'] );
+
+		$this->assertSame( 7, $result['results'][1]['id'] );
+		$this->assertSame( 'Sample Page', $result['results'][1]['title'] );
+		$this->assertSame( 'page', $result['results'][1]['type'] );
 	}
 
-	public function test_get_plan_info_normalises_monthly_billing_from_days(): void {
-		$this->stub_plan(
-			array(
-				'tier'                   => '',
-				'effective_subscription' => array(
-					'product_slug' => 'jetpack_search_monthly',
-					'bill_period'  => '30',
-				),
-			)
-		);
-
-		$result = Search_Abilities::get_plan_info();
-		$this->assertSame( 'monthly', $result['billing_period'] );
-		$this->assertSame( '', $result['tier'] );
-		$this->assertSame( 'jetpack_search_monthly', $result['plan_slug'] );
-	}
-
-	public function test_get_plan_info_returns_wp_error_when_plan_info_missing(): void {
-		$this->stub_plan( false );
-
-		$result = Search_Abilities::get_plan_info();
+	public function test_search_site_requires_non_empty_query(): void {
+		$result = Search_Abilities::search_site( array( 'query' => '   ' ) );
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_search_plan_data_unavailable', $result->get_error_code() );
+		$this->assertSame( 'jetpack_search_invalid_query', $result->get_error_code() );
 	}
 
-	public function test_ai_answers_supports_falls_back_to_filter(): void {
-		$this->stub_plan( array() );
-		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	public function test_search_site_returns_wp_error_when_search_fails(): void {
+		$this->stub_search( new WP_Error( 'invalid_search_api_response', 'boom' ) );
 
-		$result = Search_Abilities::get_plan_info();
+		$result = Search_Abilities::search_site( array( 'query' => 'anything' ) );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_search_unavailable', $result->get_error_code() );
+	}
 
+	public function test_search_site_handles_empty_results(): void {
+		$this->stub_search(
+			array(
+				'results' => array(
+					'total' => 0,
+					'hits'  => array(),
+				),
+			)
+		);
+
+		$result = Search_Abilities::search_site( array( 'query' => 'nomatch' ) );
 		$this->assertIsArray( $result );
-		$this->assertTrue( $result['supports_ai_answers'] );
+		$this->assertSame( 0, $result['total'] );
+		$this->assertSame( array(), $result['results'] );
 	}
 
 	/**
-	 * Belt-and-suspenders: confirm AI_Answers and Stats classes exist so the
+	---------------------------------------------------------------------
+	 * search-site permission
+	 * ---------------------------------------------------------------------
+	 */
+	public function test_can_search_site_allows_logged_in_user(): void {
+		wp_set_current_user( $this->editor_id );
+		$this->assertTrue( Search_Abilities::can_search_site() );
+	}
+
+	public function test_can_search_site_denies_anonymous(): void {
+		wp_set_current_user( 0 );
+		$this->assertFalse( Search_Abilities::can_search_site() );
+	}
+
+	/**
+	 * Belt-and-suspenders: confirm referenced search classes exist so the
 	 * filter pivots above match real production types.
 	 */
 	public function test_referenced_search_classes_exist(): void {
 		$this->assertTrue( class_exists( AI_Answers::class ) );
 		$this->assertTrue( class_exists( Plan::class ) );
 		$this->assertTrue( class_exists( Stats::class ) );
+		$this->assertTrue( class_exists( Classic_Search::class ) );
 	}
 }

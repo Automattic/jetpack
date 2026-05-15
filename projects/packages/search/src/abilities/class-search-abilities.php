@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\Search\Abilities;
 
 use Automattic\Jetpack\Search\AI_Answers;
+use Automattic\Jetpack\Search\Classic_Search;
 use Automattic\Jetpack\Search\Module_Control;
 use Automattic\Jetpack\Search\Options;
 use Automattic\Jetpack\Search\Plan;
@@ -22,10 +23,15 @@ use WP_Error;
 /**
  * Registers Jetpack Search abilities with the WordPress Abilities API.
  *
- * Exposes a small, read-only surface that lets agents answer "what is my
- * Search configuration / usage / plan?" through the standard
- * `wp-abilities/v1` REST surface. Writes (re-index, settings updates) are
- * intentionally deferred — this batch ships reads only.
+ * Exposes a small read-only surface that lets agents answer "what is my
+ * Search configuration / usage / plan?" and run an actual site search through
+ * the standard `wp-abilities/v1` REST surface. Writes (re-index, settings
+ * updates) are intentionally deferred — this batch ships reads only.
+ *
+ * Registration is gated by {@see Registrar::init()} behind the
+ * `jetpack_wp_abilities_enabled` filter and is wired up from the Jetpack
+ * plugin's Search module file, so it only loads when the Jetpack Search
+ * module is active. Other consumers of the package do not pick these up yet.
  */
 class Search_Abilities extends Registrar {
 
@@ -56,6 +62,11 @@ class Search_Abilities extends Registrar {
 	);
 
 	/**
+	 * Upper bound for the search-site `per_page` parameter.
+	 */
+	const MAX_PER_PAGE = 50;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public static function get_category_slug(): string {
@@ -69,7 +80,7 @@ class Search_Abilities extends Registrar {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack Search',
-			'description' => __( 'Abilities for reading Jetpack Search configuration, request usage, and plan info.', 'jetpack-search-pkg' ),
+			'description' => __( 'Abilities for reading Jetpack Search configuration, usage and plan info, and running a site search.', 'jetpack-search-pkg' ),
 		);
 	}
 
@@ -78,9 +89,9 @@ class Search_Abilities extends Registrar {
 	 */
 	public static function get_abilities(): array {
 		return array(
-			'jetpack-search/get-settings'  => self::spec_get_settings(),
-			'jetpack-search/get-stats'     => self::spec_get_stats(),
-			'jetpack-search/get-plan-info' => self::spec_get_plan_info(),
+			'jetpack-search/get-settings' => self::spec_get_settings(),
+			'jetpack-search/get-stats'    => self::spec_get_stats(),
+			'jetpack-search/search-site'  => self::spec_search_site(),
 		);
 	}
 
@@ -97,7 +108,7 @@ class Search_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack Search settings', 'jetpack-search-pkg' ),
 			'description'         => __(
-				'Return the current Jetpack Search configuration as a single snapshot. Shape: { module_active: bool, instant_search_enabled: bool, supported_post_types: [string], customizations: { color_theme, result_format, default_sort, overlay_trigger, excluded_post_types: [string], highlight_color, enable_sort, inf_scroll, filtering_opens_overlay, show_post_date, show_product_price, show_powered_by }, ai_answers_enabled: bool }. `supported_post_types` lists the post types that participate in search (public, not excluded from search, and not in the excluded_post_types deny-list). Read-only and idempotent; writes are not exposed in this batch. Pair with jetpack-search/get-plan-info to learn which features the current plan supports, and jetpack-search/get-stats for usage.',
+				'Return the current Jetpack Search configuration as a single snapshot. Shape: { module_active: bool, instant_search_enabled: bool, supported_post_types: [string], customizations: { color_theme, result_format, default_sort, overlay_trigger, excluded_post_types: [string], highlight_color, enable_sort, inf_scroll, filtering_opens_overlay, show_post_date, show_product_price, show_powered_by }, ai_answers_enabled: bool }. `supported_post_types` lists the post types that participate in search (public, not excluded from search, and not in the excluded_post_types deny-list). Read-only and idempotent; writes are not exposed in this batch. Pair with jetpack-search/get-stats to learn the plan tier, supported features and request usage, and jetpack-search/search-site to run an actual search.',
 				'jetpack-search-pkg'
 			),
 			'input_schema'        => array(
@@ -137,12 +148,16 @@ class Search_Abilities extends Registrar {
 
 	/**
 	 * Spec: jetpack-search/get-stats.
+	 *
+	 * Consolidates request usage for the current billing period together with
+	 * the plan tier and feature flags. (Replaces the previously separate
+	 * get-stats + get-plan-info abilities.)
 	 */
 	private static function spec_get_stats(): array {
 		return array(
-			'label'               => __( 'Get Jetpack Search request usage', 'jetpack-search-pkg' ),
+			'label'               => __( 'Get Jetpack Search usage and plan', 'jetpack-search-pkg' ),
 			'description'         => __(
-				'Return Jetpack Search request usage for the current billing period plus the plan-tier limits that determine overage. Shape: { requests_this_period: int, period_start: string, period_end: string, plan_records_included: int, plan_overage: bool, overage_count: int }. Sourced from WordPress.com — precondition: the site must be connected to WordPress.com and have a Search plan. Returns `jetpack_search_data_unavailable` when the remote call fails. Read-only and safe to poll; results are not cached locally so each call hits WPCOM. Related: jetpack-search/get-plan-info for tier / billing-period details.',
+				'Return Jetpack Search request usage for the current billing period together with the plan tier and the features the current plan supports. Shape: { requests_this_period: int, period_start: string, period_end: string, plan_records_included: int, plan_overage: bool, overage_count: int, tier: string, plan_slug: string, supports_instant_search: bool, supports_ai_answers: bool, billing_period: string }. Usage is sourced from WordPress.com — precondition: the site must be connected to WordPress.com and have a Search plan; returns `jetpack_search_data_unavailable` when the remote call fails. `tier` is the cached pricing tier (a WPCOM tier slug, or empty string when no tier is set). `billing_period` is one of `monthly`, `yearly`, or empty when unknown. Read-only and safe to poll; usage is not cached locally so each call hits WPCOM, while the plan portion reads the locally cached plan record.',
 				'jetpack-search-pkg'
 			),
 			'input_schema'        => array(
@@ -153,12 +168,17 @@ class Search_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'requests_this_period'  => array( 'type' => 'integer' ),
-					'period_start'          => array( 'type' => 'string' ),
-					'period_end'            => array( 'type' => 'string' ),
-					'plan_records_included' => array( 'type' => 'integer' ),
-					'plan_overage'          => array( 'type' => 'boolean' ),
-					'overage_count'         => array( 'type' => 'integer' ),
+					'requests_this_period'    => array( 'type' => 'integer' ),
+					'period_start'            => array( 'type' => 'string' ),
+					'period_end'              => array( 'type' => 'string' ),
+					'plan_records_included'   => array( 'type' => 'integer' ),
+					'plan_overage'            => array( 'type' => 'boolean' ),
+					'overage_count'           => array( 'type' => 'integer' ),
+					'tier'                    => array( 'type' => 'string' ),
+					'plan_slug'               => array( 'type' => 'string' ),
+					'supports_instant_search' => array( 'type' => 'boolean' ),
+					'supports_ai_answers'     => array( 'type' => 'boolean' ),
+					'billing_period'          => array( 'type' => 'string' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_stats' ),
@@ -179,32 +199,70 @@ class Search_Abilities extends Registrar {
 	}
 
 	/**
-	 * Spec: jetpack-search/get-plan-info.
+	 * Spec: jetpack-search/search-site.
+	 *
+	 * Runs an actual search against the site's Jetpack Search index by
+	 * delegating to {@see Classic_Search::search()}, the same WordPress.com
+	 * Elasticsearch path the Search module uses for front-end queries.
 	 */
-	private static function spec_get_plan_info(): array {
+	private static function spec_search_site(): array {
 		return array(
-			'label'               => __( 'Get Jetpack Search plan info', 'jetpack-search-pkg' ),
+			'label'               => __( 'Search the site with Jetpack Search', 'jetpack-search-pkg' ),
 			'description'         => __(
-				'Return the Jetpack Search plan tier and which features the current plan supports. Shape: { tier: string, plan_slug: string, supports_instant_search: bool, supports_ai_answers: bool, billing_period: string }. `tier` is the cached pricing tier (one of the WPCOM tier slugs, or an empty string when no tier is set). `billing_period` is one of `monthly`, `yearly`, or empty when unknown. Returns `jetpack_search_plan_data_unavailable` when the cached plan record is missing — call should still be safe to retry; the cached record is refreshed lazily by the package elsewhere. Read-only and idempotent.',
+				'Run a search against the site using Jetpack Search (the WordPress.com Elasticsearch index). Input: { query: string (required, the search phrase), per_page?: int 1-50 (default 10), page?: int >= 1 (default 1), post_types?: [string] (optional, restrict to these post type slugs) }. Output: { total: int (total matching results), results: [ { id: int, title: string, url: string, type: string, date: string } ] }. Precondition: the site must be connected to WordPress.com and have an active Jetpack Search plan; returns `jetpack_search_unavailable` when the search request fails. Read-only and idempotent.',
 				'jetpack-search-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
-				'properties'           => new \stdClass(),
+				'required'             => array( 'query' ),
+				'properties'           => array(
+					'query'      => array(
+						'type'        => 'string',
+						'minLength'   => 1,
+						'description' => __( 'The search phrase.', 'jetpack-search-pkg' ),
+					),
+					'per_page'   => array(
+						'type'        => 'integer',
+						'minimum'     => 1,
+						'maximum'     => self::MAX_PER_PAGE,
+						'default'     => 10,
+						'description' => __( 'Number of results to return per page (1-50).', 'jetpack-search-pkg' ),
+					),
+					'page'       => array(
+						'type'        => 'integer',
+						'minimum'     => 1,
+						'default'     => 1,
+						'description' => __( 'Page of results to return, 1-based.', 'jetpack-search-pkg' ),
+					),
+					'post_types' => array(
+						'type'        => 'array',
+						'items'       => array( 'type' => 'string' ),
+						'description' => __( 'Restrict the search to these post type slugs.', 'jetpack-search-pkg' ),
+					),
+				),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'tier'                    => array( 'type' => 'string' ),
-					'plan_slug'               => array( 'type' => 'string' ),
-					'supports_instant_search' => array( 'type' => 'boolean' ),
-					'supports_ai_answers'     => array( 'type' => 'boolean' ),
-					'billing_period'          => array( 'type' => 'string' ),
+					'total'   => array( 'type' => 'integer' ),
+					'results' => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'    => array( 'type' => 'integer' ),
+								'title' => array( 'type' => 'string' ),
+								'url'   => array( 'type' => 'string' ),
+								'type'  => array( 'type' => 'string' ),
+								'date'  => array( 'type' => 'string' ),
+							),
+						),
+					),
 				),
 			),
-			'execute_callback'    => array( __CLASS__, 'get_plan_info' ),
-			'permission_callback' => array( __CLASS__, 'can_manage_search' ),
+			'execute_callback'    => array( __CLASS__, 'search_site' ),
+			'permission_callback' => array( __CLASS__, 'can_search_site' ),
 			'meta'                => array(
 				'annotations'  => array(
 					'readonly'    => true,
@@ -229,15 +287,30 @@ class Search_Abilities extends Registrar {
 	/**
 	 * Permission: matches REST_Controller::require_admin_privilege_callback().
 	 *
-	 * All three Search REST routes (`/search/settings`, `/search/stats`,
-	 * `/search/plan`) gate on `manage_options`. Keep the abilities aligned
-	 * with the controller so an agent that can call one surface can call the
-	 * other.
+	 * The Search admin REST routes (`/search/settings`, `/search/stats`,
+	 * `/search/plan`) gate on `manage_options`. Keep the config/usage
+	 * abilities aligned with the controller so an agent that can call one
+	 * surface can call the other.
 	 *
 	 * @return bool
 	 */
 	public static function can_manage_search(): bool {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Permission: matches the `/jetpack/v4/search` REST route.
+	 *
+	 * The site-search REST endpoint
+	 * ({@see \Automattic\Jetpack\Search\REST_Controller::get_search_results()})
+	 * is registered with an `is_user_logged_in` permission callback. Mirror it
+	 * so the ability is reachable by exactly the same callers as the route it
+	 * backs.
+	 *
+	 * @return bool
+	 */
+	public static function can_search_site(): bool {
+		return is_user_logged_in();
 	}
 
 	/*
@@ -277,12 +350,13 @@ class Search_Abilities extends Registrar {
 	 * Execute: get-stats.
 	 *
 	 * Pulls the latest-month request usage from `/jetpack-search/stats` (via
-	 * {@see Stats::get_stats_from_wpcom()}) and the plan-tier counters from
-	 * the cached plan info ({@see Plan::get_plan_info()}). The dashboard's
-	 * `state.sitePlan.plan_usage` shape is the canonical reference:
-	 * `num_requests_3m` is an array of `{ num_requests, start_date, end_date }`
-	 * objects (current period first); `must_upgrade` flips when overage hits;
-	 * `num_records` is the indexed-record count.
+	 * {@see Stats::get_stats_from_wpcom()}) and merges the plan tier / feature
+	 * flags from the cached plan info ({@see Plan::get_plan_info()}). The
+	 * dashboard's `state.sitePlan.plan_usage` shape is the canonical
+	 * reference: `num_requests_3m` is an array of
+	 * `{ num_requests, start_date, end_date }` objects (current period first);
+	 * `must_upgrade` flips when overage hits; `num_records` is the indexed
+	 * record count.
 	 *
 	 * @param array|null $input Ignored — zero-arg ability.
 	 * @return array|WP_Error
@@ -307,53 +381,97 @@ class Search_Abilities extends Registrar {
 
 		$plan_info       = self::get_plan_client()->get_plan_info();
 		$plan_info_array = is_array( $plan_info ) ? $plan_info : array();
+		$subscription    = isset( $plan_info_array['effective_subscription'] ) && is_array( $plan_info_array['effective_subscription'] )
+			? $plan_info_array['effective_subscription']
+			: array();
 
 		return array(
-			'requests_this_period'  => self::pick_int( array( $latest, $plan_usage ), array( 'num_requests' ) ),
-			'period_start'          => self::pick_string( array( $latest, $plan_usage ), array( 'start_date', 'period_start' ) ),
-			'period_end'            => self::pick_string( array( $latest, $plan_usage ), array( 'end_date', 'period_end' ) ),
-			'plan_records_included' => self::pick_int(
+			'requests_this_period'    => self::pick_int( array( $latest, $plan_usage ), array( 'num_requests' ) ),
+			'period_start'            => self::pick_string( array( $latest, $plan_usage ), array( 'start_date', 'period_start' ) ),
+			'period_end'              => self::pick_string( array( $latest, $plan_usage ), array( 'end_date', 'period_end' ) ),
+			'plan_records_included'   => self::pick_int(
 				array( $plan_info_array, $body, $plan_usage ),
 				array( 'record_limit', 'plan_records_included', 'monthly_search_request_limit' )
 			),
-			'plan_overage'          => ! empty( $plan_usage['must_upgrade'] ),
-			'overage_count'         => self::pick_int( array( $plan_usage ), array( 'overage_records', 'months_over_plan_records_limit' ) ),
+			'plan_overage'            => ! empty( $plan_usage['must_upgrade'] ),
+			'overage_count'           => self::pick_int( array( $plan_usage ), array( 'overage_records', 'months_over_plan_records_limit' ) ),
+			'tier'                    => isset( $plan_info_array['tier'] ) && is_string( $plan_info_array['tier'] ) ? $plan_info_array['tier'] : '',
+			'plan_slug'               => isset( $subscription['product_slug'] ) ? (string) $subscription['product_slug'] : '',
+			'supports_instant_search' => ! empty( $plan_info_array['supports_instant_search'] ),
+			'supports_ai_answers'     => ! empty( $plan_info_array['supports_ai_answers'] ) || (bool) AI_Answers::is_enabled(),
+			'billing_period'          => self::normalize_billing_period( $plan_info_array, $subscription ),
 		);
 	}
 
 	/**
-	 * Execute: get-plan-info.
+	 * Execute: search-site.
 	 *
-	 * Reads the cached plan-info option populated by {@see Plan}; does not hit
-	 * WPCOM directly. {@see Plan::get_plan_info()} will refresh the cache on
-	 * first read after a flush, so this stays effectively idempotent.
+	 * Delegates to {@see Classic_Search::search()} — the same WordPress.com
+	 * Elasticsearch path the Search module uses for front-end queries — and
+	 * reshapes the raw API response into a compact result list. We do not
+	 * reimplement search; we only build the Elasticsearch args and project the
+	 * hits.
 	 *
-	 * @param array|null $input Ignored — zero-arg ability.
+	 * @param array|null $input Ability input. Validated against input_schema.
 	 * @return array|WP_Error
 	 */
-	public static function get_plan_info( $input = null ) {
-		unset( $input );
+	public static function search_site( $input = null ) {
+		$input = is_array( $input ) ? $input : array();
 
-		$plan      = self::get_plan_client();
-		$plan_info = $plan->get_plan_info();
-
-		if ( ! is_array( $plan_info ) ) {
+		$query = isset( $input['query'] ) ? (string) $input['query'] : '';
+		if ( '' === trim( $query ) ) {
 			return new WP_Error(
-				self::ERROR_PREFIX . 'plan_data_unavailable',
-				__( 'Jetpack Search plan info is not available yet. Confirm the site is connected to WordPress.com and try again — the package refreshes the plan cache on read.', 'jetpack-search-pkg' )
+				self::ERROR_PREFIX . 'invalid_query',
+				__( 'A non-empty `query` is required.', 'jetpack-search-pkg' )
 			);
 		}
 
-		$subscription = isset( $plan_info['effective_subscription'] ) && is_array( $plan_info['effective_subscription'] )
-			? $plan_info['effective_subscription']
-			: array();
+		$per_page = isset( $input['per_page'] ) ? (int) $input['per_page'] : 10;
+		$per_page = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
+
+		$page = isset( $input['page'] ) ? (int) $input['page'] : 1;
+		$page = max( 1, $page );
+
+		$es_args = array(
+			'query' => $query,
+			'size'  => $per_page,
+			'from'  => ( $page - 1 ) * $per_page,
+		);
+
+		if ( ! empty( $input['post_types'] ) && is_array( $input['post_types'] ) ) {
+			$post_types = array_values( array_filter( array_map( 'sanitize_key', $input['post_types'] ) ) );
+			if ( ! empty( $post_types ) ) {
+				$es_args['filter'] = array(
+					'terms' => array( 'post_type' => $post_types ),
+				);
+			}
+		}
+
+		$response = self::get_search_client()->search( $es_args );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'unavailable',
+				__( 'The search request could not be completed. Confirm the site is connected to WordPress.com and has an active Jetpack Search plan, then try again.', 'jetpack-search-pkg' )
+			);
+		}
+
+		// Classic_Search::search() json-decodes the API body as an associative
+		// array, though its docblock advertises the looser object|WP_Error.
+		// Normalise defensively so the projection below is array-safe.
+		$response = (array) $response;
+
+		$results = isset( $response['results'] ) && is_array( $response['results'] ) ? $response['results'] : array();
+		$hits    = isset( $results['hits'] ) && is_array( $results['hits'] ) ? $results['hits'] : array();
+
+		$total = 0;
+		if ( isset( $results['total'] ) && is_numeric( $results['total'] ) ) {
+			$total = (int) $results['total'];
+		}
 
 		return array(
-			'tier'                    => isset( $plan_info['tier'] ) && is_string( $plan_info['tier'] ) ? $plan_info['tier'] : '',
-			'plan_slug'               => isset( $subscription['product_slug'] ) ? (string) $subscription['product_slug'] : '',
-			'supports_instant_search' => ! empty( $plan_info['supports_instant_search'] ),
-			'supports_ai_answers'     => ! empty( $plan_info['supports_ai_answers'] ) || (bool) AI_Answers::is_enabled(),
-			'billing_period'          => self::normalize_billing_period( $plan_info, $subscription ),
+			'total'   => $total,
+			'results' => array_map( array( __CLASS__, 'shape_hit' ), $hits ),
 		);
 	}
 
@@ -362,6 +480,52 @@ class Search_Abilities extends Registrar {
 	 * Helpers
 	 * ---------------------------------------------------------------------
 	 */
+
+	/**
+	 * Project a single Elasticsearch hit to the ability's result shape.
+	 *
+	 * Hits from the WordPress.com search API carry a `fields` envelope keyed
+	 * by document field name (e.g. `post_id`, `title.default`, `permalink.url.raw`).
+	 *
+	 * @param mixed $hit Raw hit from `results.hits`.
+	 * @return array
+	 */
+	private static function shape_hit( $hit ): array {
+		$fields = is_array( $hit ) && isset( $hit['fields'] ) && is_array( $hit['fields'] ) ? $hit['fields'] : array();
+
+		return array(
+			'id'    => (int) self::first_scalar( $fields, array( 'post_id', 'blog_post_id' ) ),
+			'title' => (string) self::first_scalar( $fields, array( 'title.default', 'title' ) ),
+			'url'   => (string) self::first_scalar( $fields, array( 'permalink.url.raw', 'permalink.url', 'permalink' ) ),
+			'type'  => (string) self::first_scalar( $fields, array( 'post_type' ) ),
+			'date'  => (string) self::first_scalar( $fields, array( 'date', 'date_gmt' ) ),
+		);
+	}
+
+	/**
+	 * Return the first scalar value found across the given field keys.
+	 *
+	 * Search-API field values are frequently single-element arrays.
+	 *
+	 * @param array    $fields Hit `fields` map.
+	 * @param string[] $keys   Ordered keys to try.
+	 * @return mixed Scalar value or empty string.
+	 */
+	private static function first_scalar( array $fields, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( ! array_key_exists( $key, $fields ) ) {
+				continue;
+			}
+			$value = $fields[ $key ];
+			if ( is_array( $value ) ) {
+				$value = reset( $value );
+			}
+			if ( is_scalar( $value ) ) {
+				return $value;
+			}
+		}
+		return '';
+	}
 
 	/**
 	 * Resolve the configured supported (searchable) post types.
@@ -626,5 +790,28 @@ class Search_Abilities extends Registrar {
 		 */
 		$instance = apply_filters( 'jetpack_search_abilities_stats', new Stats() );
 		return $instance instanceof Stats ? $instance : new Stats();
+	}
+
+	/**
+	 * Return a Classic_Search instance. Filterable for tests.
+	 *
+	 * Classic_Search is the package's WordPress.com Elasticsearch client; the
+	 * search-site ability delegates to its `search()` method rather than
+	 * reimplementing the query path.
+	 *
+	 * @return Classic_Search
+	 */
+	protected static function get_search_client(): Classic_Search {
+		/**
+		 * Filters the Classic_Search instance used by the search-site ability.
+		 *
+		 * @since 0.58.0
+		 *
+		 * @param Classic_Search $search The default instance.
+		 */
+		// Classic_Search::instance() resolves the blog ID itself via
+		// Helper::get_wpcom_site_id() when none is passed.
+		$instance = apply_filters( 'jetpack_search_abilities_search', Classic_Search::instance() );
+		return $instance instanceof Classic_Search ? $instance : Classic_Search::instance();
 	}
 }

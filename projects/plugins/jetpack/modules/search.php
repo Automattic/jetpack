@@ -47,3 +47,14 @@ class Jetpack_Search {
 		return Classic_Search::instance( Search_Helper::get_wpcom_site_id() );
 	}
 }
+
+// Register Jetpack Search abilities (WordPress Abilities API, WP 6.9+).
+//
+// This file only loads while the Jetpack Search module is active and only in
+// the Jetpack plugin, so registration is implicitly scoped to that consumer
+// and gated on the module being enabled — mirroring the Monitor module
+// precedent. Registrar::init() still applies the `jetpack_wp_abilities_enabled`
+// rollout filter on top.
+if ( class_exists( \Automattic\Jetpack\Search\Abilities\Search_Abilities::class ) ) {
+	\Automattic\Jetpack\Search\Abilities\Search_Abilities::init();
+}
