@@ -58,7 +58,7 @@ describe( '<ExperienceSelector>', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'renders a per-card commit button for every non-active experience', () => {
+	test( 'renders a click-anywhere commit overlay for every non-active experience', () => {
 		// instant_search_enabled=true → active = 'overlay'
 		renderWith( baseSettings );
 		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toBeInTheDocument();
@@ -95,10 +95,11 @@ describe( '<ExperienceSelector>', () => {
 		expect( screen.queryByRole( 'heading', { level: 3, name: /^off$/i } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'disables Embedded and Overlay commit buttons when plan supports only Classic Search', () => {
-		// Active = inline here so all four cards surface a commit button — we
-		// can assert directly on which are disabled. `@wordpress/ui` Button
-		// uses aria-disabled instead of the native attribute.
+	test( 'disables Embedded and Overlay commit overlays when plan supports only Classic Search', () => {
+		// Active = inline here so all four cards surface a commit overlay — we
+		// can assert directly on which are disabled. The overlay uses
+		// `aria-disabled` (not native `disabled`) so it stays in the tab
+		// order and AT can read the upsell hint.
 		renderWith(
 			{ ...baseSettings, instant_search_enabled: false },
 			{ sitePlan: { supports_only_classic_search: true } }
@@ -111,9 +112,8 @@ describe( '<ExperienceSelector>', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByRole( 'button', { name: /turn off jetpack search/i } ) ).toHaveAttribute(
-			'aria-disabled',
-			'false'
-		);
+		expect(
+			screen.getByRole( 'button', { name: /turn off jetpack search/i } )
+		).not.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

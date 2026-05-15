@@ -127,60 +127,40 @@
 	}
 }
 
-// Per-card commit button. Hidden by default; revealed on card hover or
-// when any descendant (the button itself) is focused. On no-hover devices
-// (touch / phones) we always show it so users have a reachable target.
-// The container carries a gradient fade matching the card background so
-// the button visually "rises out of" the card — the description / loss
-// list text fades into the card surface behind the button instead of
-// poking out around it (industry-standard hover-reveal pattern).
-.jp-search-experience-option__commit {
+// Click-anywhere overlay for inactive cards. The whole card behaves as a
+// button — this transparent <button> is stretched over the card to capture
+// clicks regardless of where the pointer lands. Underlying text (h3,
+// description, loss list, muted action labels) is non-interactive on
+// inactive cards, so the overlay doesn't compete with anything. Active
+// cards skip this overlay; their action links remain reachable.
+// `z-index: 1` sits above content but below the `Active` badge (z-index 3).
+.jp-search-experience-option__commit-overlay {
 	position: absolute;
-	inset-block-end: 0;
-	inset-inline-end: 0;
-	inset-inline-start: 0;
-	display: flex;
-	justify-content: flex-end;
-	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-2xl);
-	background: linear-gradient(to top, var(--wpds-color-bg-surface-neutral-strong) 65%, transparent);
-	border-end-end-radius: inherit;
-	border-end-start-radius: inherit;
-	z-index: 4;
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 120ms ease;
-}
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	border-radius: inherit;
+	cursor: pointer;
+	appearance: none;
+	z-index: 1;
 
-.jp-search-experience-option:hover .jp-search-experience-option__commit,
-.jp-search-experience-option:focus-within .jp-search-experience-option__commit {
-	opacity: 1;
-	pointer-events: auto;
-}
+	&:focus-visible {
+		outline: var(--wpds-border-width-md) solid var(--wpds-color-stroke-interactive-brand);
+		outline-offset: calc(var(--wpds-border-width-md) * -1);
+	}
 
-// On touch / no-hover pointers the hover-reveal pattern doesn't apply —
-// the button is always on screen. Drop the absolute overlay + gradient so
-// the button takes its own row in the card's flex flow instead of sitting
-// on top of the description / loss-list text. Grid auto-stretch keeps
-// neighbouring cards equal-height in multi-column layouts; on phones the
-// grid collapses to one column so per-card height differences don't matter.
-@media (hover: none) {
-
-	.jp-search-experience-option__commit {
-		position: static;
-		padding: 0;
-		background: none;
-		opacity: 1;
-		pointer-events: auto;
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
 	}
 }
 
-// Respect the user's motion preference — the opacity fade-in is decorative,
-// so skip the transition entirely when the OS reports "reduce motion".
+// Respect the user's motion preference — the card's border-color
+// transition is decorative.
 @media (prefers-reduced-motion: reduce) {
-
-	.jp-search-experience-option__commit {
-		transition: none;
-	}
 
 	.jp-search-experience-option {
 		transition: none;

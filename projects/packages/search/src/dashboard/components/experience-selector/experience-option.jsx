@@ -4,7 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, cancelCircleFilled } from '@wordpress/icons';
-import { Badge, Button, Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, getExperienceLabel } from './constants';
@@ -63,12 +63,15 @@ const getCommitLabel = experience => {
 /**
  * One card in the experience-selector grid.
  *
- * Each non-active card carries its own commit button at the bottom-right.
- * The button is visually hidden by default and revealed on hover / focus
- * (and always on no-hover devices, see SCSS) — clicking it dispatches
- * `saveExperience()` immediately, so there's no separate Save step. The
- * active card has no commit slot — its action links (Customize / Edit
- * widgets / Edit search template / Insert pattern) are the primary CTAs.
+ * Inactive cards behave as a single button — a transparent `<button>` is
+ * stretched across the card so clicking anywhere on it opens the confirm
+ * dialog. The card's text content (title, description, action labels) sits
+ * underneath visually but is non-interactive while the card itself is
+ * inactive, so the click-anywhere target doesn't compete with anything.
+ *
+ * Active cards skip the overlay button: their action links (Customize /
+ * Edit widgets / Edit search template / Insert pattern) are the primary
+ * CTAs and need to be reachable.
  *
  * @param {object}  props            - Props.
  * @param {string}  props.experience - One of the EXPERIENCE values.
@@ -176,28 +179,28 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</Stack>
 			) }
 			{ ! isActive && (
-				<div className="jp-search-experience-option__commit">
-					<Button
-						variant="primary"
-						disabled={ commitButtonDisabled }
-						loading={ isUpdating }
-						// `@wordpress/ui` Button uses `aria-disabled` rather than the
-						// native `disabled` attribute (to preserve focus order on
-						// disabled controls). aria-disabled doesn't block click
-						// events reliably across versions, so guard the handler too.
-						onClick={ () => {
-							if ( commitButtonDisabled ) {
-								return;
-							}
-							setConfirmOpen( true );
-						} }
-						aria-label={
-							disabled ? `${ getCommitLabel( experience ) }. ${ upsellHint }` : undefined
+				// Transparent button stretched across the card — clicking
+				// anywhere on the card opens the confirm dialog. Native
+				// `<button>`, but with `aria-disabled` (not native `disabled`)
+				// when paywalled so it stays in the tab order and AT can read
+				// the upsell hint. `aria-disabled` doesn't block click events,
+				// so guard the handler too.
+				<button
+					type="button"
+					className="jp-search-experience-option__commit-overlay"
+					aria-disabled={ commitButtonDisabled }
+					onClick={ () => {
+						if ( commitButtonDisabled ) {
+							return;
 						}
-					>
-						{ getCommitLabel( experience ) }
-					</Button>
-				</div>
+						setConfirmOpen( true );
+					} }
+					aria-label={
+						disabled
+							? `${ getCommitLabel( experience ) }. ${ upsellHint }`
+							: getCommitLabel( experience )
+					}
+				/>
 			) }
 			<ConfirmDialog
 				isOpen={ isConfirmOpen }

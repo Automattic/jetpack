@@ -72,15 +72,15 @@ describe( '<ExperienceOption>', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'non-active cards have no ACTIVE badge and a per-card commit button', () => {
+	test( 'non-active cards have no ACTIVE badge and a click-anywhere commit overlay', () => {
 		renderWith( baseSettings, { experience: 'inline' } );
 		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: /use theme search/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'commit button is aria-disabled when the card is disabled', () => {
-		// `@wordpress/ui` Button uses aria-disabled rather than the native
-		// `disabled` attribute, so focus order is preserved on disabled buttons.
+	test( 'commit overlay is aria-disabled when the card is disabled', () => {
+		// Native <button>, but we set `aria-disabled` (not native `disabled`)
+		// so the overlay stays in tab order and AT can read the upsell hint.
 		renderWith( baseSettings, { experience: 'embedded', disabled: true } );
 		expect( screen.getByRole( 'button', { name: /use embedded search/i } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -108,7 +108,7 @@ describe( '<ExperienceOption>', () => {
 		);
 		fireEvent.click( screen.getByRole( 'button', { name: /use theme search/i } ) );
 		// Dialog renders a second "Use Theme search" button (the confirm) —
-		// the hover-card one is first, confirm is last in DOM order.
+		// the card overlay is first, confirm is last in DOM order.
 		const buttons = screen.getAllByRole( 'button', { name: /use theme search/i } );
 		fireEvent.click( buttons[ buttons.length - 1 ] );
 		expect( saveExperienceMock ).toHaveBeenCalledWith( 'inline' );
