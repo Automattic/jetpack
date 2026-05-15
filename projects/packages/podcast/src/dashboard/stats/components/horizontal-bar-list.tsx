@@ -51,10 +51,7 @@ const HorizontalBarList = ( { rows, wrapLabels = false }: HorizontalBarListProps
 							{ row.leftSideItem && (
 								<span className="podcast-stats-bar-list__leading">{ row.leftSideItem }</span>
 							) }
-							<Text
-								className="podcast-stats-bar-list__label"
-								truncate={ ! wrapLabels }
-							>
+							<Text className="podcast-stats-bar-list__label" truncate={ ! wrapLabels }>
 								{ row.label }
 							</Text>
 							<Text className="podcast-stats-bar-list__value" size={ 12 } variant="muted" truncate>
