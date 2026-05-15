@@ -461,12 +461,7 @@ class REST_Controller {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 
-		// Activation is the precondition for the experience handling below —
-		// not a consequence of which payload variant the caller sent — so it
-		// runs first for both canonical and legacy callers. The `enable_search`
-		// flag stays as the single opt-out (defaults to true). Eligibility
-		// (offline mode, connection, plan support) is enforced inside
-		// `activate()`.
+		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
 		if ( false !== $payload['enable_search'] ) {
 			$ret = $this->search_module->activate();
 			if ( is_wp_error( $ret ) ) {
