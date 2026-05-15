@@ -3,7 +3,6 @@
  * Unit tests for the Backup_Abilities Registrar subclass.
  *
  * @package automattic/jetpack-backup
- * @phan-file-suppress PhanPluginUnreachableCode -- markTestSkipped throws but Phan doesn't know that.
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
@@ -158,7 +157,11 @@ class Backup_Abilities_Test extends BaseTestCase {
 	 */
 	private function call_private( string $method, array $args = array() ) {
 		$reflection = ( new ReflectionClass( Backup_Abilities::class ) )->getMethod( $method );
-		$reflection->setAccessible( true );
+		// setAccessible() is required on PHP < 8.1, a no-op on 8.1-8.4,
+		// and deprecated on 8.5+. Only call it where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 		return $reflection->invokeArgs( null, $args );
 	}
 
@@ -339,6 +342,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 		// confirm the lifecycle hooks land exactly once (Registrar::init is
 		// guarded against double-registration by its own static flag).
 		$found();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional: calling the gate closure twice verifies idempotent registration.
 		$found();
 
 		$this->assertNotFalse(

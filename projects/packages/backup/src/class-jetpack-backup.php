@@ -589,7 +589,7 @@ class Jetpack_Backup {
 	 *                    `date_range`, `number` (max 1000), `page` (1-based),
 	 *                    `sort_order` ('asc'|'desc'). Any `action` key is
 	 *                    overridden with the curated backup-completion list.
-	 * @return array|WP_REST_Response|null
+	 * @return array|\WP_REST_Response|null
 	 */
 	public static function list_backup_events( array $args = array() ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
