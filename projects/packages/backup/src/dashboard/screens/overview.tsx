@@ -2,8 +2,12 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
+import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
+import BackupDetail from '../components/backup-detail';
 import DashboardLayout from '../components/dashboard-layout';
+import { findActivityById } from '../fixtures/activity-log';
+import { isBackupItem } from '../types/activity';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
@@ -50,12 +54,42 @@ export default function OverviewScreen() {
 		>
 			<div className="jpb-overview">
 				<ActivityList selectedId={ selectedId } onSelect={ setSelected } />
-				<div className="jpb-overview__detail jpb-overview__detail--empty">
-					<Text>
-						{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }
-					</Text>
-				</div>
+				<RightPane selectedId={ selectedId } />
 			</div>
 		</DashboardLayout>
 	);
+}
+
+/**
+ * Right-pane router for the Overview screen.
+ *
+ * Resolves the URL-driven `selectedId` to an activity item and renders the
+ * matching detail card: `<BackupDetail>` for backup rows and `<ActivityDetail>`
+ * for everything else. Falls back to an empty/not-found state when the
+ * selection is missing or doesn't resolve.
+ *
+ * @param props            - Component props.
+ * @param props.selectedId - Currently selected row id, or null when nothing is selected.
+ * @return The rendered detail card or an empty-state placeholder.
+ */
+function RightPane( { selectedId }: { selectedId: string | null } ) {
+	if ( ! selectedId ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				<Text>{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }</Text>
+			</div>
+		);
+	}
+	const item = findActivityById( selectedId );
+	if ( ! item ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				<Text>{ __( 'Item not found.', 'jetpack-backup-pkg' ) }</Text>
+			</div>
+		);
+	}
+	if ( isBackupItem( item ) ) {
+		return <BackupDetail item={ item } />;
+	}
+	return <ActivityDetail item={ item } />;
 }

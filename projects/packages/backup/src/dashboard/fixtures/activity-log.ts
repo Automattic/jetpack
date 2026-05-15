@@ -71,3 +71,19 @@ export const MOCK_ACTIVITY_LOG: ActivityItem[] = [
 	backup( 13 ),
 	backup( 14 ),
 ];
+
+/**
+ * Look up an activity item by the id used in the URL's `?selected=` param.
+ *
+ * Backup items match on `rewindId`; non-backup items match on `id`.
+ *
+ * @param id - Selection id from the URL.
+ * @return The matching activity item, or `null` if no row matches.
+ */
+export function findActivityById( id: string ): ActivityItem | null {
+	return (
+		MOCK_ACTIVITY_LOG.find( item =>
+			item.kind === 'backup' ? item.rewindId === id : item.id === id
+		) ?? null
+	);
+}
