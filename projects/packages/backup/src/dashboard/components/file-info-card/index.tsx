@@ -1,11 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
-import { findContents } from '../../fixtures/file-contents';
+import { useFileContents } from '../../hooks/use-file-contents';
+import { usePathInfo } from '../../hooks/use-path-info';
 import './style.scss';
 import type { FileNodeFile } from '../../types/file-tree';
 
 type Props = {
+	rewindId: string;
 	file: FileNodeFile;
 	onClose: () => void;
 };
@@ -45,13 +47,20 @@ function humanSize( bytes: number ): string {
  * Side panel showing details for the currently-open file: name + path +
  * size + mime, plus a monospace preview for recognized text mime types.
  *
- * @param props         - Component props.
- * @param props.file    - The file to render.
- * @param props.onClose - Callback to close the card.
+ * @param props          - Component props.
+ * @param props.rewindId - Backup rewind id, threaded into the file-contents fetcher.
+ * @param props.file     - The file to render.
+ * @param props.onClose  - Callback to close the card.
  * @return The rendered info card.
  */
-export default function FileInfoCard( { file, onClose }: Props ) {
-	const contents = isTextual( file.mimeType ) ? findContents( file.path ) : null;
+export default function FileInfoCard( { rewindId, file, onClose }: Props ) {
+	// The tree response only carries names + types — `mime_type` and `size`
+	// come from path-info, which we fetch once per opened file.
+	const { data: pathInfo, isLoading: pathInfoLoading } = usePathInfo( rewindId, file.path );
+	const mimeType = pathInfo?.mime_type ?? file.mimeType;
+	const sizeBytes = pathInfo?.size ?? file.sizeBytes;
+	const canPreview = ! pathInfoLoading && isTextual( mimeType );
+	const { content: contents } = useFileContents( rewindId, file.path, canPreview );
 
 	return (
 		<Card className="jpb-file-info-card">
@@ -71,7 +80,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					{ file.path }
 				</Text>
 				<Text size="small" variant="muted">
-					{ humanSize( file.sizeBytes ) } { file.mimeType }
+					{ humanSize( sizeBytes ) } { mimeType }
 				</Text>
 			</Stack>
 			<div className="jpb-file-info-card__preview">
@@ -79,7 +88,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					<pre>{ contents }</pre>
 				) : (
 					<Text size="small" variant="muted">
-						{ __( 'No preview available for this file type.', 'jetpack-backup-pkg' ) }
+						{ canPreview
+							? __( 'Loading preview…', 'jetpack-backup-pkg' )
+							: __( 'No preview available for this file type.', 'jetpack-backup-pkg' ) }
 					</Text>
 				) }
 			</div>

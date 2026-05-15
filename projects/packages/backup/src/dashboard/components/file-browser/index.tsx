@@ -9,7 +9,7 @@ import {
 	category as folderIcon,
 } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
-import { useMockFileTree } from '../../hooks/use-mock-file-tree';
+import { useFileTree } from '../../hooks/use-file-tree';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
 import './style.scss';
@@ -19,22 +19,28 @@ type Props = {
 	rewindId: string;
 };
 
+// File selections store the resolved `FileNodeFile` rather than just a
+// path: the tree fetches children lazily per folder, so a path-only
+// lookup walked across roots can't find files inside collapsed-then-
+// re-expanded folders. Holding the resolved node directly side-steps
+// that and keeps `<FileInfoCard>` decoupled from where the click came from.
+
 /**
  * Lazy file-tree browser for the selected backup. Folders fetch their
- * children on first expand via `useMockFileTree`; selecting a file opens
+ * children on first expand via `useFileTree`; selecting a file opens
  * `<FileInfoCard>` to the right of the tree with a text preview when the
  * mime type is text-shaped.
  *
  * @param props          - Component props.
- * @param props.rewindId - The selected backup's rewindId. Surfaced as a data
- *                       attribute today; the future REST hook will use it to
- *                       scope its requests to a specific backup point.
+ * @param props.rewindId - The selected backup's rewindId. Threaded into the
+ *                       file-tree and file-contents bridge calls so each
+ *                       request is scoped to the chosen backup point.
  * @return The rendered tree.
  */
 export default function FileBrowser( { rewindId }: Props ) {
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
-	const [ openFilePath, setOpenFilePath ] = useState< string | null >( null );
-	const { children: roots } = useMockFileTree( null );
+	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
+	const { children: roots } = useFileTree( rewindId, null );
 
 	const toggleSelected = useCallback( ( path: string ) => {
 		setSelected( prev => {
@@ -49,12 +55,10 @@ export default function FileBrowser( { rewindId }: Props ) {
 	}, [] );
 
 	const clearSelected = useCallback( () => setSelected( new Set() ), [] );
-	const closeInfoCard = useCallback( () => setOpenFilePath( null ), [] );
-
-	const openFile = roots ? findFileInTree( roots, openFilePath ) : null;
+	const closeInfoCard = useCallback( () => setOpenFile( null ), [] );
 
 	return (
-		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+		<div className="jpb-file-browser">
 			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__header">
 				<Text weight="600">{ __( 'FILES', 'jetpack-backup-pkg' ) }</Text>
 			</Stack>
@@ -77,13 +81,16 @@ export default function FileBrowser( { rewindId }: Props ) {
 							key={ node.path }
 							node={ node }
 							depth={ 0 }
+							rewindId={ rewindId }
 							selected={ selected }
 							onToggleSelected={ toggleSelected }
-							onOpenFile={ setOpenFilePath }
+							onOpenFile={ setOpenFile }
 						/>
 					) ) }
 				</div>
-				{ openFile && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
+				{ openFile && (
+					<FileInfoCard rewindId={ rewindId } file={ openFile } onClose={ closeInfoCard } />
+				) }
 			</div>
 		</div>
 	);
@@ -92,35 +99,48 @@ export default function FileBrowser( { rewindId }: Props ) {
 type NodeRowProps = {
 	node: FileNode;
 	depth: number;
+	rewindId: string;
 	selected: Set< string >;
 	onToggleSelected: ( path: string ) => void;
-	onOpenFile: ( path: string ) => void;
+	onOpenFile: ( file: FileNodeFile ) => void;
 };
 
 /**
  * Recursive row inside the file-browser tree. Folders own their own
- * expand state; while a folder is open, `useMockFileTree` keeps its
+ * expand state; while a folder is open, `useFileTree` keeps its
  * children resolved (re-collapsing and re-opening re-issues the fetch).
  *
  * @param props                  - Component props.
  * @param props.node             - The node to render.
  * @param props.depth            - Indent depth (root = 0).
+ * @param props.rewindId         - Backup rewind id, threaded into the fetcher.
  * @param props.selected         - Set of selected paths shared across rows.
  * @param props.onToggleSelected - Toggle selection for a path.
  * @param props.onOpenFile       - Open the info-card for a file path.
  * @return The rendered row.
  */
-function NodeRow( { node, depth, selected, onToggleSelected, onOpenFile }: NodeRowProps ) {
+function NodeRow( {
+	node,
+	depth,
+	rewindId,
+	selected,
+	onToggleSelected,
+	onOpenFile,
+}: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading } = useMockFileTree( open && nodeIsFolder ? node.path : null );
+	const { children, isLoading } = useFileTree( rewindId, open && nodeIsFolder ? node.path : null );
 
 	const handleToggleSelected = useCallback(
 		() => onToggleSelected( node.path ),
 		[ onToggleSelected, node.path ]
 	);
 	const handleToggleOpen = useCallback( () => setOpen( v => ! v ), [] );
-	const handleOpenFile = useCallback( () => onOpenFile( node.path ), [ onOpenFile, node.path ] );
+	const handleOpenFile = useCallback( () => {
+		if ( ! isFolder( node ) ) {
+			onOpenFile( node );
+		}
+	}, [ onOpenFile, node ] );
 
 	return (
 		<div>
@@ -162,6 +182,7 @@ function NodeRow( { node, depth, selected, onToggleSelected, onOpenFile }: NodeR
 								key={ child.path }
 								node={ child }
 								depth={ depth + 1 }
+								rewindId={ rewindId }
 								selected={ selected }
 								onToggleSelected={ onToggleSelected }
 								onOpenFile={ onOpenFile }
@@ -171,29 +192,4 @@ function NodeRow( { node, depth, selected, onToggleSelected, onOpenFile }: NodeR
 			) }
 		</div>
 	);
-}
-
-/**
- * Recursively searches the rendered tree for a file at the given path.
- *
- * @param nodes - Nodes to search.
- * @param path  - File path to match, or null to short-circuit.
- * @return The matching file node, or null.
- */
-function findFileInTree( nodes: FileNode[], path: string | null ): FileNodeFile | null {
-	if ( ! path ) {
-		return null;
-	}
-	for ( const node of nodes ) {
-		if ( node.path === path && ! isFolder( node ) ) {
-			return node;
-		}
-		if ( isFolder( node ) && node.children ) {
-			const found = findFileInTree( node.children, path );
-			if ( found ) {
-				return found;
-			}
-		}
-	}
-	return null;
 }
