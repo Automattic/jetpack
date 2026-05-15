@@ -489,13 +489,27 @@
 
 	/**
 	 *
+	 * @param jobId
+	 * @param startedAt
 	 */
+	function resumePolling( jobId, startedAt ) {
+		setFormDisabled( true );
+		setStatus( 'progress', data.i18n.polling );
+		startPolling( jobId, startedAt );
+	}
+
 	async function bootstrap() {
+		// Bind form interactions in every path: even when we resume an
+		// in-flight job and disable the form, the listeners need to be live
+		// once the job finishes and re-enables it so the user can submit
+		// again without a full page reload.
+		bindSourceToggle();
+		bindPostsSearch();
+		bindGenerate();
+
 		const stored = readStoredJob();
 		if ( stored ) {
-			setFormDisabled( true );
-			setStatus( 'progress', data.i18n.polling );
-			startPolling( stored.jobId, stored.startedAt );
+			resumePolling( stored.jobId, stored.startedAt );
 			return;
 		}
 
@@ -504,9 +518,15 @@
 			return; // not-available banner already rendered.
 		}
 
-		bindSourceToggle();
-		bindPostsSearch();
-		bindGenerate();
+		// Server-side fallback: even when localStorage didn't carry the job
+		// across the reload (incognito, cleared storage, different browser),
+		// the quota endpoint reports an `activeJobId` whenever one is still
+		// running for the current user. Resume polling from there.
+		if ( typeof quota.activeJobId === 'number' ) {
+			const startedAt = Date.now();
+			writeStoredJob( quota.activeJobId );
+			resumePolling( quota.activeJobId, startedAt );
+		}
 	}
 
 	bootstrap();
