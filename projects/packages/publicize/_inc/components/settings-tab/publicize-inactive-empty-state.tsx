@@ -28,7 +28,7 @@ export default function PublicizeInactiveEmptyState(): JSX.Element {
 				) }
 			</EmptyState.Description>
 			<EmptyState.Actions>
-				<Button variant="primary" href={ getAdminUrl( 'admin.php?page=jetpack#/settings' ) }>
+				<Button render={ <a href={ getAdminUrl( 'admin.php?page=jetpack#/settings' ) } /> }>
 					{ __( 'Manage modules', 'jetpack-publicize-pkg' ) }
 				</Button>
 			</EmptyState.Actions>

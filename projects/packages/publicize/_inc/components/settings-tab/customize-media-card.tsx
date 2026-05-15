@@ -59,7 +59,7 @@ export default function CustomizeMediaCard(): JSX.Element {
 	const renderTemplatePickerTrigger = useCallback(
 		( { open } ) => (
 			<Button
-				variant="secondary"
+				variant="outline"
 				size="compact"
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
