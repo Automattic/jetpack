@@ -563,7 +563,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "462e11a1200eca86fd8f433d969e4f7bb6dada81"
+                "reference": "8feb027e629a22fb67012bcce0fd97f68f4e3e38"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -612,7 +612,8 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer test-php-coverage"
+                    "@composer test-php-coverage",
+                    "@composer test-js-coverage"
                 ],
                 "test-js": [
                     "pnpm run test:js"
