@@ -20,22 +20,30 @@
 	}
 
 	/**
-	 * On Simple sites the wpcom apiFetch middleware adds `_envelope=1`,
-	 * which wraps the response as `{ code, headers, body }`. Setting
-	 * `_envelope=0` ourselves opts out so responses arrive unwrapped on
-	 * both Simple and Atomic sites — no per-call branching needed.
+	 * Strip the `_envelope=1` wrapper that the wpcom proxy unconditionally
+	 * adds to wpcom/v2 requests on Simple sites (see provider-v2.0.js
+	 * `_envelope=1` append). The wrapped shape is `{ code, headers, body }`
+	 * (see WPCOM_JSON_API::wrap_http_envelope). We unwrap to `body` for 2xx
+	 * and throw the body for non-2xx so callers' try/catch paths fire the
+	 * same way they do for native apiFetch errors on Atomic.
 	 *
-	 * @param path
-	 */
-	function withoutEnvelope( path ) {
-		return path + ( path.includes( '?' ) ? '&' : '?' ) + '_envelope=0';
-	}
-
-	/**
 	 * @param opts
 	 */
-	function apiCall( opts ) {
-		return apiFetch( { ...opts, path: withoutEnvelope( opts.path ) } );
+	async function apiCall( opts ) {
+		const response = await apiFetch( opts );
+		if (
+			response &&
+			typeof response === 'object' &&
+			'body' in response &&
+			'code' in response &&
+			'headers' in response
+		) {
+			if ( response.code < 200 || response.code >= 300 ) {
+				throw response.body || { code: 'unknown', message: `HTTP ${ response.code }` };
+			}
+			return response.body;
+		}
+		return response;
 	}
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
