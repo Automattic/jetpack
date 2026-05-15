@@ -149,14 +149,13 @@ class Connection_Abilities_Test extends TestCase {
 	}
 
 	/**
-	 * The abilities map must list exactly the two read abilities we ship in this PR.
+	 * The abilities map must list exactly the single read ability we ship in this PR.
 	 */
-	public function test_abilities_map_lists_the_two_read_abilities(): void {
+	public function test_abilities_map_lists_the_single_read_ability(): void {
 		$abilities = Connection_Abilities::get_abilities();
 		$this->assertSame(
 			array(
 				'jetpack-connection/get-connection-status',
-				'jetpack-connection/get-current-user-connection',
 			),
 			array_keys( $abilities )
 		);
@@ -395,84 +394,5 @@ class Connection_Abilities_Test extends TestCase {
 		$this->assertSame( 'jetpack_premium', $out['plan_class'] );
 		$this->assertNull( $out['registration_url'], 'registration_url must be null once the site is connected.' );
 		$this->assertSame( '99.9', $out['jetpack_version'] );
-	}
-
-	// --- get-current-user-connection execute -------------------------------.
-
-	/**
-	 * Anonymous callers must receive the documented `jetpack_connection_not_logged_in`
-	 * WP_Error so agents can steer the next call (e.g. authenticate first).
-	 */
-	public function test_get_current_user_connection_returns_wp_error_when_anonymous(): void {
-		wp_set_current_user( 0 );
-
-		$out = Connection_Abilities::get_current_user_connection();
-
-		$this->assertInstanceOf( \WP_Error::class, $out );
-		$this->assertSame( 'jetpack_connection_not_logged_in', $out->get_error_code() );
-	}
-
-	/**
-	 * A connected user who is also the connection owner must come back with
-	 * `connected=true`, `is_master_user=true`, and a null `connect_url`.
-	 */
-	public function test_get_current_user_connection_reports_connected_master_user(): void {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'connection_abilities_owner',
-				'user_pass'  => 'pw',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( (int) $user_id );
-		Jetpack_Options::update_option( 'master_user', (int) $user_id );
-
-		$this->inject_manager_mock(
-			array(
-				'is_user_connected' => true,
-			)
-		);
-
-		$out = Connection_Abilities::get_current_user_connection();
-
-		$this->assertIsArray( $out );
-		$this->assertSame( (int) $user_id, $out['id'] );
-		$this->assertSame( 'connection_abilities_owner', $out['login'] );
-		$this->assertTrue( $out['connected'] );
-		$this->assertTrue( $out['is_master_user'] );
-		$this->assertNull( $out['connect_url'], 'connect_url must be null once the user is connected.' );
-	}
-
-	/**
-	 * A non-owner, unconnected user must come back with `connected=false`,
-	 * `is_master_user=false`, and a non-empty `connect_url` so the agent
-	 * can hand the URL back to the human user.
-	 */
-	public function test_get_current_user_connection_reports_non_owner_unconnected(): void {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'connection_abilities_visitor',
-				'user_pass'  => 'pw',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( (int) $user_id );
-		Jetpack_Options::update_option( 'master_user', 99 );
-
-		$this->inject_manager_mock(
-			array(
-				'is_user_connected' => false,
-			)
-		);
-
-		$out = Connection_Abilities::get_current_user_connection();
-
-		$this->assertIsArray( $out );
-		$this->assertSame( (int) $user_id, $out['id'] );
-		$this->assertSame( 'connection_abilities_visitor', $out['login'] );
-		$this->assertFalse( $out['connected'] );
-		$this->assertFalse( $out['is_master_user'] );
-		$this->assertIsString( $out['connect_url'] );
-		$this->assertNotSame( '', $out['connect_url'] );
 	}
 }

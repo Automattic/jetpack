@@ -11,8 +11,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-wp-abilities": "@dev"
+		"automattic/jetpack-redirect": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-test-environment": "@dev",
@@ -20,6 +19,7 @@
 		"brain/monkey": "^2.6.2",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {

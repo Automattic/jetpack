@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Abilities API: register connection status reads (get-connection-status, get-current-user-connection).
+Abilities API: add jetpack-connection/get-connection-status read ability.

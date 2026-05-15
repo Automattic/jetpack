@@ -17,15 +17,13 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Options;
-use WP_Error;
 
 /**
  * Registers Jetpack Connection abilities with the WordPress Abilities API.
  *
- * Exposes two read-only abilities — one for site-level connection state, one
- * for the calling user's connection state — so AI agents can answer
- * "is this site connected?" and "is the current user connected?" without
- * having to reverse-engineer Jetpack_Options keys.
+ * Exposes a single read-only ability for site-level connection state so AI
+ * agents can answer "is this site connected?" without having to
+ * reverse-engineer Jetpack_Options keys.
  *
  * Writes (registering a new site, disconnecting a user, transferring
  * ownership) are deliberately deferred to a follow-up PR.
@@ -33,7 +31,6 @@ use WP_Error;
 class Connection_Abilities extends Registrar {
 
 	const CATEGORY_SLUG = 'jetpack-connection';
-	const ERROR_PREFIX  = 'jetpack_connection_';
 
 	/**
 	 * {@inheritDoc}
@@ -49,7 +46,7 @@ class Connection_Abilities extends Registrar {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack Connection',
-			'description' => __( 'Abilities for inspecting the site\'s and the current user\'s Jetpack connection state.', 'jetpack-connection' ),
+			'description' => __( 'Abilities for inspecting the site\'s Jetpack connection state.', 'jetpack-connection' ),
 		);
 	}
 
@@ -59,7 +56,6 @@ class Connection_Abilities extends Registrar {
 	public static function get_abilities(): array {
 		return array(
 			'jetpack-connection/get-connection-status' => self::spec_get_connection_status(),
-			'jetpack-connection/get-current-user-connection' => self::spec_get_current_user_connection(),
 		);
 	}
 
@@ -76,7 +72,7 @@ class Connection_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack connection status', 'jetpack-connection' ),
 			'description'         => __(
-				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_connected, user_connected, master_user, plan_class, blog_id, registration_url, jetpack_version }. `site_connected` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `plan_class` is the slug of the currently active Jetpack/WordPress.com plan (e.g. "free", "personal", "premium", "business"), or null when no plan is known. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_connected` is false; null once the site is connected. `jetpack_version` is the running Jetpack plugin version, or null when the constant is not defined (which means Jetpack itself is not loaded — the abilities are still callable through any other connection-consuming plugin). Read-only and idempotent — safe to poll. Call jetpack-connection/get-current-user-connection for the calling user\'s individual link state.',
+				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_connected, user_connected, master_user, plan_class, blog_id, registration_url, jetpack_version }. `site_connected` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `plan_class` is the slug of the currently active Jetpack/WordPress.com plan (e.g. "free", "personal", "premium", "business"), or null when no plan is known. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_connected` is false; null once the site is connected. `jetpack_version` is the running Jetpack plugin version, or null when the constant is not defined. Read-only and idempotent — safe to poll.',
 				'jetpack-connection'
 			),
 			'input_schema'        => array(
@@ -97,44 +93,6 @@ class Connection_Abilities extends Registrar {
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_connection_status' ),
-			'permission_callback' => array( __CLASS__, 'can_view_connection' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-			),
-		);
-	}
-
-	/**
-	 * Spec: jetpack-connection/get-current-user-connection.
-	 */
-	private static function spec_get_current_user_connection(): array {
-		return array(
-			'label'               => __( 'Get current user Jetpack connection', 'jetpack-connection' ),
-			'description'         => __(
-				'Return the calling user\'s Jetpack connection state in one zero-argument call. Shape: { id, login, connected, is_master_user, connect_url }. `id` is the local WordPress user id and `login` is their user_login. `connected` is true when the user has linked their WordPress.com account (a user token exists for this id). `is_master_user` is true when this user is the connection owner — the user who originally registered the site to WordPress.com. `connect_url` is the wp-admin URL the user should visit to link their account when `connected` is false; null when the user is already connected. Read-only and idempotent. Fails with jetpack_connection_not_logged_in when called by an anonymous request — the caller must be authenticated. Call jetpack-connection/get-connection-status for the site-wide view.',
-				'jetpack-connection'
-			),
-			'input_schema'        => array(
-				'type'                 => 'object',
-				'properties'           => new \stdClass(),
-				'additionalProperties' => false,
-			),
-			'output_schema'       => array(
-				'type'       => 'object',
-				'properties' => array(
-					'id'             => array( 'type' => 'integer' ),
-					'login'          => array( 'type' => 'string' ),
-					'connected'      => array( 'type' => 'boolean' ),
-					'is_master_user' => array( 'type' => 'boolean' ),
-					'connect_url'    => array( 'type' => array( 'string', 'null' ) ),
-				),
-			),
-			'execute_callback'    => array( __CLASS__, 'get_current_user_connection' ),
 			'permission_callback' => array( __CLASS__, 'can_view_connection' ),
 			'meta'                => array(
 				'annotations'  => array(
@@ -215,48 +173,6 @@ class Connection_Abilities extends Registrar {
 		);
 	}
 
-	/**
-	 * Execute: get-current-user-connection.
-	 *
-	 * @param array|null $input Ignored — zero-arg ability.
-	 * @return array|WP_Error
-	 */
-	public static function get_current_user_connection( $input = null ) {
-		unset( $input );
-
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return new WP_Error(
-				self::ERROR_PREFIX . 'not_logged_in',
-				__( 'You must be logged in to inspect the current user\'s Jetpack connection. Authenticate the request and try again.', 'jetpack-connection' )
-			);
-		}
-
-		$user = get_userdata( $user_id );
-		if ( ! $user ) {
-			return new WP_Error(
-				self::ERROR_PREFIX . 'not_logged_in',
-				__( 'The current user could not be loaded. Authenticate the request and try again.', 'jetpack-connection' )
-			);
-		}
-
-		$manager        = self::get_manager();
-		$connected      = (bool) $manager->is_user_connected( $user_id );
-		$is_master_user = false;
-		$master_user    = Jetpack_Options::get_option( 'master_user' );
-		if ( is_numeric( $master_user ) && (int) $master_user === $user_id ) {
-			$is_master_user = true;
-		}
-
-		return array(
-			'id'             => $user_id,
-			'login'          => (string) $user->user_login,
-			'connected'      => $connected,
-			'is_master_user' => $is_master_user,
-			'connect_url'    => $connected ? null : self::connect_url(),
-		);
-	}
-
 	/*
 	---------------------------------------------------------------------
 	 * Helpers
@@ -296,18 +212,6 @@ class Connection_Abilities extends Registrar {
 	 * @return string
 	 */
 	private static function registration_url(): string {
-		return admin_url( 'admin.php?page=jetpack' );
-	}
-
-	/**
-	 * Build the wp-admin URL the current user should visit to link their
-	 * WordPress.com account. Same rationale as `registration_url()` — stable,
-	 * side-effect free. The Jetpack admin page brokers the actual
-	 * authorization request.
-	 *
-	 * @return string
-	 */
-	private static function connect_url(): string {
 		return admin_url( 'admin.php?page=jetpack' );
 	}
 }
