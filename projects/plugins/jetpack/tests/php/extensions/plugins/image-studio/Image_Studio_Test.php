@@ -556,8 +556,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised — mirrors the pattern used by
+	 * test_can_generate_video_clips_true_when_wpcom_helper_true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_true_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->enable_and_enqueue_block_editor();
 
@@ -574,8 +593,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so both hard gates pass — otherwise the wpcom gate could
+	 * short-circuit to false and the assertion would succeed without actually
+	 * exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_inline_script_can_generate_video_clips_false_via_filter() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
 		$this->enable_and_enqueue_block_editor();
 
@@ -591,14 +629,110 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that image_studio_can_generate_video_clips() honors the override filter.
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to false. The filter is consulted between the hard
+	 * gates and the default `true`.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()`
+	 * to return true so both hard gates pass — otherwise the wpcom gate
+	 * could short-circuit to false and the assertion would succeed without
+	 * actually exercising the filter override path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_can_generate_video_clips_filter_override() {
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_false() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that image_studio_can_generate_video_clips() honors a filter that
+	 * forces the result to true once both hard gates pass.
+	 *
+	 * Runs in a separate process and stubs `wpcom_site_can_upload_videos()` to
+	 * return true so the wpcom hard gate is satisfied and the filter's
+	 * force-enable path is actually exercised.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_override_true() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
 
-		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
-		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+	/**
+	 * Test that the helper returns false when Image Studio itself is not
+	 * enabled, regardless of the underlying video-upload capability. Ensures
+	 * video clip generation is only surfaced on plans/environments that
+	 * already support Image Studio.
+	 */
+	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
+	 * before the filter so accidental usage on unsupported environments still
+	 * reports false.
+	 */
+	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
+		$this->disable_ai_features();
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a stray __return_true on the override filter cannot bypass the
+	 * `wpcom_site_can_upload_videos()` capability check. Both hard gates must
+	 * pass before the filter is consulted, so a plan that doesn't support
+	 * video uploads always reports false even with the filter forcing true.
+	 *
+	 * Runs in a separate process so we can stub the global helper without
+	 * leaking the definition into the main test process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_filter_cannot_override_no_video_upload() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 

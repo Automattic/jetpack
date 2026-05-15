@@ -13,6 +13,25 @@ export function formatDuration( seconds: number ): string {
 	return h > 0 ? `${ h }:${ pad( m ) }:${ pad( s ) }` : `${ pad( m ) }:${ pad( s ) }`;
 }
 
+/**
+ * Format a watch-time value in the largest unit that yields a value
+ * ≥ 1, picking from hours / minutes / seconds. Hours show one decimal
+ * place ("1.1 h") to match the Figma; smaller units are integers.
+ *
+ * @param seconds - Total seconds.
+ * @return Compact human-readable duration.
+ */
+export function formatWatchTime( seconds: number ): string {
+	if ( seconds >= 3_600 ) {
+		const hours = seconds / 3_600;
+		return `${ hours.toFixed( 1 ) } h`;
+	}
+	if ( seconds >= 60 ) {
+		return `${ Math.round( seconds / 60 ) } min`;
+	}
+	return `${ Math.round( seconds ) } s`;
+}
+
 const BYTE_UNITS = [ 'B', 'KB', 'MB', 'GB', 'TB' ] as const;
 
 /**

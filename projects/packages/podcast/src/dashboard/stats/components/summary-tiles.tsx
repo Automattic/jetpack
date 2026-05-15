@@ -1,5 +1,12 @@
 import { formatNumber } from '@automattic/number-formatters';
-import { Card, CardBody } from '@wordpress/components';
+import {
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { formatAppName, formatPct, formatPodcastDate, getCountryName } from '../lib/format';
 import type { PodcastStatsAppRow, PodcastStatsCountryRow, PodcastStatsTopDay } from '../types';
@@ -12,7 +19,6 @@ type SummaryTilesProps = {
 	byCountry?: PodcastStatsCountryRow[];
 	topDay?: PodcastStatsTopDay | null;
 	isLoading?: boolean;
-	layout?: 'standalone' | 'chart';
 };
 
 type Tile = {
@@ -21,21 +27,12 @@ type Tile = {
 	note?: string;
 };
 
-const TileContent = ( { heading, value, note }: Tile ) => (
-	<>
-		<div className="podcast-stats-summary__heading">{ heading }</div>
-		<div className="podcast-stats-summary__value">{ value }</div>
-		{ note && <div className="podcast-stats-summary__note">{ note }</div> }
-	</>
-);
-
 const SummaryTiles = ( {
 	totalPlays,
 	byApp = [],
 	byCountry = [],
 	topDay,
 	isLoading = false,
-	layout = 'standalone',
 }: SummaryTilesProps ) => {
 	const topApp = byApp[ 0 ];
 	const topCountry = byCountry[ 0 ];
@@ -73,28 +70,29 @@ const SummaryTiles = ( {
 		},
 	];
 
-	if ( layout === 'chart' ) {
-		return (
-			<ul className="podcast-stats-summary">
-				{ tiles.map( tile => (
-					<li key={ tile.heading } className="podcast-stats-summary__tile">
-						<TileContent { ...tile } />
-					</li>
-				) ) }
-			</ul>
-		);
-	}
-
 	return (
-		<section className="podcast-stats-summary podcast-stats-summary--standalone">
+		<div className="podcast-stats-summary">
 			{ tiles.map( tile => (
-				<Card key={ tile.heading } className="podcast-stats-summary__tile">
-					<CardBody>
-						<TileContent { ...tile } />
-					</CardBody>
-				</Card>
+				<VStack
+					key={ tile.heading }
+					className="podcast-stats-summary__tile"
+					spacing={ 1 }
+					alignment="topLeft"
+				>
+					<Heading level={ 4 } size={ 13 } lineHeight="20px" weight={ 500 }>
+						{ tile.heading }
+					</Heading>
+					<Text size={ 28 } lineHeight="36px" truncate>
+						{ tile.value }
+					</Text>
+					{ tile.note && (
+						<Text size={ 12 } variant="muted">
+							{ tile.note }
+						</Text>
+					) }
+				</VStack>
 			) ) }
-		</section>
+		</div>
 	);
 };
 

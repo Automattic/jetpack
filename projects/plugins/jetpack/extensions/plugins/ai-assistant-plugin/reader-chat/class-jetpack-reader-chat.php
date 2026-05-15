@@ -49,7 +49,7 @@ class Jetpack_Reader_Chat {
 		 * unset). Override programmatically with:
 		 *   add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
 		 *
-		 * @since $$next-version$$
+		 * @since 15.9
 		 *
 		 * @param bool $enabled Whether the reader chat is enabled.
 		 */
@@ -80,7 +80,7 @@ class Jetpack_Reader_Chat {
 	 * see an unfinished toggle. The admin UI in the Jetpack Search
 	 * dashboard also checks for the setting's presence before rendering.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @return void
 	 */
@@ -110,7 +110,7 @@ class Jetpack_Reader_Chat {
 	 * option before serving public chat requests. Syncing the option keeps
 	 * the local toggle and agent permission gate aligned.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @param array $options Option names allowed to sync.
 	 * @return array Updated option names.
@@ -131,7 +131,7 @@ class Jetpack_Reader_Chat {
 	 *
 	 * IMPORTANT: Only use for feature gating, not for authorization.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @return bool
 	 */
@@ -153,7 +153,7 @@ class Jetpack_Reader_Chat {
 	 *
 	 * IMPORTANT: Only use for feature gating, not for authorization.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @return bool
 	 */

@@ -173,7 +173,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 		foreach ( $this->plugins as $index => $plugin ) {
 			if ( ! preg_match( '/\.php$/', $plugin ) ) {
-				$plugin                  = $plugin . '.php';
+				$plugin                 .= '.php';
 				$this->plugins[ $index ] = $plugin;
 			}
 			$valid = $this->validate_plugin( urldecode( $plugin ) );

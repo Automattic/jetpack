@@ -178,8 +178,7 @@ export function useRenderMessageInputs(): {
 			 */
 			const raw = ctx.isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage;
 			return {
-				id: connection.connection_id,
-				network: connection.service_name ?? '',
+				connection_id: connection.connection_id,
 				message: raw.trim(),
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};

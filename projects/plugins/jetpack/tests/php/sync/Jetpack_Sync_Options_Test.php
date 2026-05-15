@@ -284,6 +284,18 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_waf_share_data'                       => true,
 			'jetpack_waf_share_debug_data'                 => false,
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
+			'jetpack_search_ai_prompt_override'            => 'pineapple',
+			'jetpack_search_color_theme'                   => 'pineapple',
+			'jetpack_search_result_format'                 => 'pineapple',
+			'jetpack_search_default_sort'                  => 'pineapple',
+			'jetpack_search_overlay_trigger'               => 'pineapple',
+			'jetpack_search_excluded_post_types'           => 'pineapple',
+			'jetpack_search_highlight_color'               => 'pineapple',
+			'jetpack_search_enable_sort'                   => true,
+			'jetpack_search_inf_scroll'                    => true,
+			'jetpack_search_show_powered_by'               => true,
+			'jetpack_search_experience'                    => 'pineapple',
+			'instant_search_enabled'                       => true,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

@@ -6,6 +6,7 @@ export interface ActivityDescription {
 }
 
 export interface ActivityActorDetails {
+	actorId?: string;
 	actorAvatarUrl?: string;
 	actorName?: string;
 	actorRole?: string;
@@ -66,6 +67,7 @@ export interface ActivityNotificationRange {
 }
 
 export interface ActivityLogActor {
+	id?: string;
 	type?: 'Person' | 'Application' | 'Happiness Engineer';
 	name?: string;
 	role?: string;
@@ -122,6 +124,35 @@ export interface ActivityLogGroupCountResponse {
 	totalItems?: number;
 }
 
+/**
+ * Single entry in the /activity-log/actors response. `id` is the stable
+ * identifier the client sends back as a filter value; the rest are
+ * presentational. Mirrors the actor block on individual activity entries.
+ */
+export interface ActorSummary {
+	id: string;
+	type?: 'Person' | 'Application' | 'Happiness Engineer';
+	name?: string;
+	role?: string;
+	icon?: { url?: string };
+	is_cli?: boolean;
+	is_happiness?: boolean;
+	is_mcp_agent?: boolean;
+	mcp_client?: string;
+	count?: number;
+}
+
+export interface ActivityLogActorsResponse {
+	actors: ActorSummary[];
+	totalItems?: number;
+}
+
+export interface ActivityLogActorsParams {
+	number?: number;
+	after?: string;
+	before?: string;
+}
+
 export interface ActivityLogParams {
 	number?: number;
 	page?: number;
@@ -131,4 +162,5 @@ export interface ActivityLogParams {
 	group?: string[];
 	not_group?: string[];
 	text_search?: string;
+	actor?: string[];
 }

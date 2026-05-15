@@ -6,11 +6,12 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import ErrorBoundary from './error-boundary';
-import { usePodcastSettings, useUpdatePodcastSettings } from './hooks/use-podcast-settings';
+import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
 
 const Welcome = lazy( () => import( './welcome' ) );
+const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
@@ -37,16 +38,21 @@ type StageSearch = Record< string, unknown > & { tab?: string };
 
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
-	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// `?tab=` owns the active tab; default (no `tab`) is Settings.
+	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
-	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : 'settings';
 
 	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
+	const [ setupModalOpen, setSetupModalOpen ] = useState( false );
 	const showWelcome = ! isSetUp && ! hasEnabled;
+
+	// Stats/Episodes/Distribution are disabled until a category is picked, so the
+	// pre-set-up default has to be Settings. Returning, set-up users land on Stats.
+	const defaultTab: TabName = isSetUp ? 'stats' : 'settings';
+
+	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : defaultTab;
 
 	const navigate = useNavigate();
 
@@ -59,29 +65,36 @@ const App = () => {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					// Default tab keeps a clean URL.
-					tab: next === 'settings' ? undefined : next,
+					tab: next === defaultTab ? undefined : next,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ navigate, defaultTab ]
 	);
 
-	// Mirrors the legacy /podcasting toggle: pre-fills the title from the site
-	// name on first enable, then jumps to Settings.
 	const handleEnable = useCallback( () => {
-		const currentTitle = settings?.podcasting_title ?? '';
-		if ( ! currentTitle ) {
-			const siteName = getSiteData()?.title?.trim() ?? '';
-			if ( siteName ) {
-				saveSettings( { podcasting_title: siteName } );
-			}
-		}
+		setSetupModalOpen( true );
+	}, [] );
+
+	const handleSetupCancel = useCallback( () => {
+		setSetupModalOpen( false );
+	}, [] );
+
+	// Modal committed title + category atomically; flip out of Welcome and
+	// land the user on Settings to finish the show details.
+	const handleSetupSuccess = useCallback( () => {
+		setSetupModalOpen( false );
 		setHasEnabled( true );
-	}, [ settings?.podcasting_title, saveSettings ] );
+		handleTabChange( 'settings' );
+	}, [ handleTabChange ] );
 
 	const goToSettings = useCallback( () => {
 		handleTabChange( 'settings' );
 	}, [ handleTabChange ] );
+
+	const handleAfterDisable = useCallback( () => {
+		setHasEnabled( false );
+	}, [] );
 
 	if ( isLoading ) {
 		return (
@@ -94,6 +107,7 @@ const App = () => {
 	}
 
 	if ( showWelcome ) {
+		const siteName = getSiteData()?.title?.trim() ?? '';
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 				<div className="podcast__tab-content podcast__tab-content--wide">
@@ -103,6 +117,16 @@ const App = () => {
 						</Suspense>
 					</ErrorBoundary>
 				</div>
+				{ setupModalOpen && (
+					<Suspense fallback={ null }>
+						<CategorySetupModal
+							siteName={ siteName }
+							existingTitle={ settings?.podcasting_title ?? '' }
+							onClose={ handleSetupCancel }
+							onSuccess={ handleSetupSuccess }
+						/>
+					</Suspense>
+				) }
 			</AdminPage>
 		);
 	}
@@ -112,23 +136,23 @@ const App = () => {
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs">
 					<Tabs.List variant="minimal">
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
+							{ __( 'Stats', 'jetpack-podcast' ) }
+						</Tabs.Tab>
 						<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
 							{ __( 'Episodes', 'jetpack-podcast' ) }
 						</Tabs.Tab>
 						<Tabs.Tab value="distribution" disabled={ ! isSetUp }>
 							{ __( 'Distribution', 'jetpack-podcast' ) }
 						</Tabs.Tab>
-						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
-							{ __( 'Stats', 'jetpack-podcast' ) }
-						</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				<Tabs.Panel value="settings">
-					<div className="podcast__tab-content podcast__tab-content--narrow">
+				<Tabs.Panel value="stats">
+					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<SettingsTab />
+								<StatsTab />
 							</Suspense>
 						</ErrorBoundary>
 					</div>
@@ -151,11 +175,11 @@ const App = () => {
 						</ErrorBoundary>
 					</div>
 				</Tabs.Panel>
-				<Tabs.Panel value="stats">
-					<div className="podcast__tab-content podcast__tab-content--xwide">
+				<Tabs.Panel value="settings">
+					<div className="podcast__tab-content podcast__tab-content--narrow">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<StatsTab />
+								<SettingsTab onAfterDisable={ handleAfterDisable } />
 							</Suspense>
 						</ErrorBoundary>
 					</div>
