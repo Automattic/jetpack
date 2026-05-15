@@ -314,7 +314,7 @@ class Blaze_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'        => 'object',
 					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'intent', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
+					'required'    => array( 'status', 'intent', 'forecast', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
 					'properties'  => array(
 						'status'          => array(
 							'type'        => 'string',
@@ -329,6 +329,10 @@ class Blaze_Abilities extends Registrar {
 							'type'        => 'string',
 							'description' => __( 'Inferred campaign intent used to choose server-owned defaults.', 'jetpack-blaze' ),
 							'enum'        => array( 'ecommerce', 'content', 'unknown' ),
+						),
+						'forecast'        => array(
+							'type'        => 'object',
+							'description' => __( 'Forecast estimates for the recommended option. Available forecasts include views/impressions and clicks ranges; unavailable forecasts do not block the review URL.', 'jetpack-blaze' ),
 						),
 						'assumptions'     => array(
 							'type'        => 'array',

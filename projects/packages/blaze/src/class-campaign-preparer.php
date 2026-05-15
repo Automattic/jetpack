@@ -66,10 +66,12 @@ class Campaign_Preparer {
 		$recommendations = self::build_recommendations( $intent, $budget_context );
 		$prefill         = self::build_prefill_payload( $args, $post, $intent, $budget_context );
 		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
+		$forecast        = self::request_forecast( $prefill, $intent );
 
 		$proposal = array(
 			'status'          => 'pending_merchant_review',
 			'intent'          => $intent,
+			'forecast'        => $forecast,
 			'assumptions'     => $assumptions,
 			'recommendations' => $recommendations,
 			'prefill_url'     => $prefill_url,
@@ -202,6 +204,110 @@ class Campaign_Preparer {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Request a DSP forecast for the recommended prefilled campaign.
+	 *
+	 * @param array  $prefill Recommended campaign prefill payload.
+	 * @param string $intent  Inferred campaign intent.
+	 * @return array
+	 */
+	private static function request_forecast( array $prefill, string $intent ): array {
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return self::unavailable_forecast( $site_id->get_error_code() );
+		}
+
+		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/forecast', (int) $site_id );
+		$request = new \WP_REST_Request( 'POST', $route );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( self::build_forecast_request_body( $prefill ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			$error = $response->as_error();
+			return self::unavailable_forecast( $error->get_error_code() );
+		}
+
+		$data = $response->get_data();
+		if ( ! is_array( $data ) ) {
+			return self::unavailable_forecast( 'forecast_invalid_response' );
+		}
+
+		return self::normalize_forecast_response( $data, $intent );
+	}
+
+	/**
+	 * Build the request body expected by the DSP v1.1 forecast endpoint.
+	 *
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @return array
+	 */
+	private static function build_forecast_request_body( array $prefill ): array {
+		$duration_days = isset( $prefill['duration_days'] ) ? max( 1, (int) $prefill['duration_days'] ) : self::DEFAULT_DURATION_DAYS;
+		$start_date    = gmdate( 'Y-m-d' );
+		$end_date      = gmdate( 'Y-m-d', strtotime( '+' . ( $duration_days - 1 ) . ' days' ) );
+
+		return array(
+			'time_zone'       => self::get_site_timezone(),
+			'start_date'      => $start_date,
+			'end_date'        => $end_date,
+			'total_budget'    => isset( $prefill['budget']['amount'] ) ? (float) $prefill['budget']['amount'] : self::DEFAULT_BUDGET_TOTAL,
+			'is_evergreen'    => isset( $prefill['is_evergreen'] ) ? (bool) $prefill['is_evergreen'] : true,
+			'is_tsp_eligible' => false,
+			'targeting'       => array(
+				'locations'   => array(),
+				'languages'   => isset( $prefill['languages'] ) ? array_values( (array) $prefill['languages'] ) : array(),
+				'devices'     => isset( $prefill['devices'] ) ? array_values( (array) $prefill['devices'] ) : array(),
+				'page_topics' => isset( $prefill['page_topics'] ) ? array_values( (array) $prefill['page_topics'] ) : array(),
+			),
+		);
+	}
+
+	/**
+	 * Normalize the DSP forecast response into the prepare-campaign contract.
+	 *
+	 * @param array  $data   DSP forecast response.
+	 * @param string $intent Inferred campaign intent.
+	 * @return array
+	 */
+	private static function normalize_forecast_response( array $data, string $intent ): array {
+		$views  = array(
+			'min' => isset( $data['total_impressions_min'] ) ? (int) $data['total_impressions_min'] : 0,
+			'max' => isset( $data['total_impressions_max'] ) ? (int) $data['total_impressions_max'] : 0,
+		);
+		$clicks = array(
+			'min' => isset( $data['total_clicks_min'] ) ? (int) $data['total_clicks_min'] : 0,
+			'max' => isset( $data['total_clicks_max'] ) ? (int) $data['total_clicks_max'] : 0,
+		);
+
+		return array(
+			'status'           => 'available',
+			'primary_metric'   => self::INTENT_ECOMMERCE === $intent ? 'clicks' : 'views',
+			'secondary_metric' => self::INTENT_ECOMMERCE === $intent ? 'views' : 'clicks',
+			'views'            => $views,
+			'impressions'      => $views,
+			'clicks'           => $clicks,
+			'tsp_impressions'  => array(
+				'min' => isset( $data['total_tsp_impressions_min'] ) ? (int) $data['total_tsp_impressions_min'] : 0,
+				'max' => isset( $data['total_tsp_impressions_max'] ) ? (int) $data['total_tsp_impressions_max'] : 0,
+			),
+		);
+	}
+
+	/**
+	 * Build a non-blocking forecast failure response.
+	 *
+	 * @param string $reason Stable failure reason.
+	 * @return array
+	 */
+	private static function unavailable_forecast( string $reason ): array {
+		return array(
+			'status'  => 'unavailable',
+			'reason'  => $reason,
+			'message' => __( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', 'jetpack-blaze' ),
+		);
 	}
 
 	/**
@@ -501,5 +607,15 @@ class Campaign_Preparer {
 	 */
 	private static function get_site_currency(): string {
 		return 'USD';
+	}
+
+	/**
+	 * Site timezone for DSP forecast requests.
+	 *
+	 * @return string IANA timezone name.
+	 */
+	private static function get_site_timezone(): string {
+		$timezone = wp_timezone_string();
+		return '' !== $timezone ? $timezone : 'UTC';
 	}
 }
