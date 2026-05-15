@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Posts to Podcast: new Create tab in the Podcast dashboard for generating episode drafts from posts via the wpcom-side pipeline. Pick posts to include or use a recent-posts window, steer the output with a free-form prompt, and watch a remaining-credits indicator backed by the quota-snapshot endpoint. Generated drafts surface in the Episodes listing alongside posts in the configured podcast category. The top-level tab order is now Create, Episodes, Distribution, Stats, Settings.
+Posts to Podcast: new Media > Create AI Podcast wp-admin page for generating podcast episode drafts from posts via the wpcom-side pipeline. Pick posts to include or use a recent-posts window, steer the output with a free-form prompt, watch a remaining-credits indicator backed by the quota-snapshot endpoint, and resume polling across page reloads. The page is plain PHP plus a vanilla-JS island — no React or wp-build chassis for this surface. Feature is wpcom-only; self-hosted Jetpack sites don't see the menu.

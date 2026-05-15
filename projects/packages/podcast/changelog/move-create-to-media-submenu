@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Posts to Podcast: move the Generate flow out of the Jetpack > Podcast dashboard's Create tab into a standalone Media > Create AI Podcast wp-admin page. The new page is plain PHP + a vanilla-JS island; no React or wp-build chassis for this surface. The Create tab is removed from the Podcast dashboard; the default landing tab is now Episodes. Feature is wpcom-only — self-hosted Jetpack sites don't see the menu.
