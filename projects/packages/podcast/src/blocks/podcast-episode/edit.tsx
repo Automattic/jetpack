@@ -303,8 +303,10 @@ export default function PodcastEpisodeEdit( {
 
 	// Drives the "Add episode show notes in the post content below." hint.
 	// Hide it as soon as there's anything substantive after this block in the
-	// post — a non-paragraph block, or a paragraph with non-whitespace text.
+	// post: a non-paragraph block, or a paragraph with non-whitespace text.
 	// Empty trailing paragraphs (Gutenberg's default appender) don't count.
+	// Walks ancestor lists so content placed after a Group/Columns wrapper at
+	// any nesting level still counts as "below".
 	const hasContentBelow = useSelect(
 		select => {
 			const blockEditor = select( 'core/block-editor' ) as {
@@ -315,13 +317,7 @@ export default function PodcastEpisodeEdit( {
 					attributes?: Record< string, unknown >;
 				} | null;
 			};
-			const rootClientId = blockEditor.getBlockRootClientId( clientId );
-			const order = blockEditor.getBlockOrder( rootClientId );
-			const myIndex = order.indexOf( clientId );
-			if ( myIndex < 0 ) {
-				return false;
-			}
-			return order.slice( myIndex + 1 ).some( id => {
+			const isSubstantive = ( id: string ): boolean => {
 				const block = blockEditor.getBlock( id );
 				if ( ! block ) {
 					return false;
@@ -335,7 +331,18 @@ export default function PodcastEpisodeEdit( {
 					return text.trim() !== '';
 				}
 				return true;
-			} );
+			};
+			let currentId: string | null = clientId;
+			while ( currentId ) {
+				const parentId: string | null = blockEditor.getBlockRootClientId( currentId );
+				const order = blockEditor.getBlockOrder( parentId );
+				const idx = order.indexOf( currentId );
+				if ( idx >= 0 && order.slice( idx + 1 ).some( isSubstantive ) ) {
+					return true;
+				}
+				currentId = parentId;
+			}
+			return false;
 		},
 		[ clientId ]
 	);
