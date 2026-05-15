@@ -8,9 +8,9 @@ import ExperienceOption from './experience-option';
 import './style.scss';
 
 /**
- * Top-level dashboard control: a fieldset of cards. Each card carries its
- * own commit button (revealed on hover / focus) that saves the chosen
- * experience directly — no separate Save step.
+ * Top-level dashboard control: a fieldset of cards. Inactive cards behave
+ * as a single button — clicking anywhere on the card opens a confirm
+ * dialog and saves the chosen experience directly. No separate Save step.
  *
  * @return {import('react').Element} - The selector.
  */
