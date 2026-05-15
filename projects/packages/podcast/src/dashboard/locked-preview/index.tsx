@@ -6,7 +6,7 @@
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
-import { useCallback, useId } from '@wordpress/element';
+import { useCallback, useId, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import EpisodesPreview from './episodes-preview';
 import StatsPreview from './stats-preview';
@@ -56,6 +56,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 		: 'https://wordpress.com/pricing';
 
 	const titleId = useId();
+	const wrapperRef = useRef< HTMLDivElement >( null );
 
 	// Escape blurs the CTA so the user can tab out into the dashboard tab list
 	// instead of staying parked on this control. The wrapper is keyboard-active
@@ -65,7 +66,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 		if ( event.key !== 'Escape' ) {
 			return;
 		}
-		const active = document.activeElement;
+		const active = wrapperRef.current?.ownerDocument.activeElement;
 		if ( active instanceof HTMLElement ) {
 			active.blur();
 		}
@@ -75,8 +76,9 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const overlayDescription = OVERLAY_DESCRIPTION_BY_VARIANT[ variant ];
 
 	return (
-		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
+		// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
 		<div
+			ref={ wrapperRef }
 			className="podcast-locked-preview"
 			role="region"
 			aria-labelledby={ titleId }
