@@ -23,9 +23,11 @@ export type HorizontalBarRow = {
 
 type HorizontalBarListProps = {
 	rows: HorizontalBarRow[];
+	/** Allow long labels to wrap to multiple lines instead of truncating. */
+	wrapLabels?: boolean;
 };
 
-const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
+const HorizontalBarList = ( { rows, wrapLabels = false }: HorizontalBarListProps ) => {
 	return (
 		<ul className="podcast-stats-bar-list">
 			{ rows.map( row => {
@@ -44,12 +46,15 @@ const HorizontalBarList = ( { rows }: HorizontalBarListProps ) => {
 							className="podcast-stats-bar-list__content"
 							spacing={ 2 }
 							justify="flex-start"
-							alignment="center"
+							alignment={ wrapLabels ? 'flex-start' : 'center' }
 						>
 							{ row.leftSideItem && (
 								<span className="podcast-stats-bar-list__leading">{ row.leftSideItem }</span>
 							) }
-							<Text className="podcast-stats-bar-list__label" truncate>
+							<Text
+								className="podcast-stats-bar-list__label"
+								truncate={ ! wrapLabels }
+							>
 								{ row.label }
 							</Text>
 							<Text className="podcast-stats-bar-list__value" size={ 12 } variant="muted" truncate>

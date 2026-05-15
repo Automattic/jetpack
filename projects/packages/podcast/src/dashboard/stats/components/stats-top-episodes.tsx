@@ -49,7 +49,7 @@ const StatsTopEpisodes = ( {
 
 	return (
 		<SectionCard title={ title }>
-			<HorizontalBarList rows={ data } />
+			<HorizontalBarList rows={ data } wrapLabels />
 		</SectionCard>
 	);
 };
