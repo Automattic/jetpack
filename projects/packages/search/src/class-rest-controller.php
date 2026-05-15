@@ -493,11 +493,12 @@ class REST_Controller {
 			}
 		}
 
-		if ( false !== $payload['enable_instant_search'] ) {
+		if ( $payload['search_experience'] === null && false !== $payload['enable_instant_search'] ) {
 			// Legacy path: old WPCOM callers send `enable_instant_search`
-			// instead of `search_experience`. Default-true matches the
-			// pre-refactor behavior.
-			// We intentionally skipped error handling for invalid `enable_instant_search` value since it's legacy option now.
+			// instead of `search_experience`. Gated on the canonical value
+			// being absent so it doesn't overwrite a non-overlay experience
+			// the caller just set.
+			// Error handling intentionally skipped — this is the legacy fallback.
 			$ret = $this->search_module->enable_instant_search();
 		}
 
