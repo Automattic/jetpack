@@ -205,15 +205,16 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				// the upsell hint. `aria-disabled` doesn't block click events,
 				// so guard the handler too.
 				//
-				// `data-hint` carries the localised "Click to switch to <X>"
-				// copy that the SCSS reveals as a chip on card hover / button
-				// focus. Suppressed on paywalled cards so we don't tease an
-				// action the user can't take.
+				// `title` adds a very weak native-browser tooltip — "Click to
+				// switch to <X>" — that surfaces after the OS's hover delay.
+				// Intentionally not a custom-styled chip; the goal is the
+				// browser-default treatment, not a CTA. Suppressed on
+				// paywalled cards so we don't tease an inaccessible action.
 				<button
 					type="button"
 					className="jp-search-experience-option__commit-overlay"
 					aria-disabled={ commitButtonDisabled }
-					data-hint={ commitButtonDisabled ? undefined : getHoverHint( experience ) }
+					title={ commitButtonDisabled ? undefined : getHoverHint( experience ) }
 					onClick={ () => {
 						if ( commitButtonDisabled ) {
 							return;
