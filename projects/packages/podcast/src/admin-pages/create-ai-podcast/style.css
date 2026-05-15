@@ -1,0 +1,111 @@
+/*!
+ * Create AI Podcast — page styles.
+ *
+ * Scoped under .jetpack-create-ai-podcast. Inherits wp-admin form styles
+ * for fieldset / select / button; custom rules cover credits readout
+ * layout, the posts checklist scroll area, and the status notice card.
+ */
+
+.jetpack-create-ai-podcast__credits {
+	margin: 1em 0;
+	padding: 0.75em 1em;
+	background: #f6f7f7;
+	border-left: 4px solid #2271b1;
+}
+
+.jetpack-create-ai-podcast__credits[data-state="not-available"] {
+	border-left-color: #d63638;
+}
+
+.jetpack-create-ai-podcast__credits[data-state="hidden"] {
+	display: none;
+}
+
+.jetpack-create-ai-podcast__form {
+	max-width: 680px;
+}
+
+.jetpack-create-ai-podcast__form fieldset {
+	margin: 0 0 1em;
+	padding: 0;
+	border: 0;
+}
+
+.jetpack-create-ai-podcast__form fieldset label {
+	display: inline-block;
+	margin-right: 1.5em;
+}
+
+.jetpack-create-ai-podcast__form label {
+	display: block;
+	margin-top: 1em;
+	font-weight: 600;
+}
+
+.jetpack-create-ai-podcast__form select,
+.jetpack-create-ai-podcast__form input[type="search"],
+.jetpack-create-ai-podcast__form textarea {
+	margin-top: 0.25em;
+	width: 100%;
+	max-width: 540px;
+}
+
+.jetpack-create-ai-podcast__posts {
+	margin-top: 0.5em;
+	max-height: 320px;
+	overflow-y: auto;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	padding: 0.5em 0.75em;
+}
+
+.jetpack-create-ai-podcast__posts ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jetpack-create-ai-podcast__posts li {
+	margin: 0;
+	padding: 0.25em 0;
+}
+
+.jetpack-create-ai-podcast__posts label {
+	font-weight: 400;
+	margin: 0;
+	display: flex;
+	gap: 0.5em;
+	align-items: baseline;
+}
+
+.jetpack-create-ai-podcast__posts .date {
+	color: #646970;
+	font-size: 0.9em;
+}
+
+.jetpack-create-ai-podcast__status {
+	margin-top: 1.5em;
+}
+
+.jetpack-create-ai-podcast__status[data-state="idle"] {
+	display: none;
+}
+
+.jetpack-create-ai-podcast__status-card {
+	padding: 1em 1.25em;
+	border-left: 4px solid #2271b1;
+	background: #f6f7f7;
+}
+
+.jetpack-create-ai-podcast__status-card[data-tone="success"] {
+	border-left-color: #00a32a;
+}
+
+.jetpack-create-ai-podcast__status-card[data-tone="error"] {
+	border-left-color: #d63638;
+}
+
+.jetpack-create-ai-podcast__form[data-disabled="true"] {
+	opacity: 0.6;
+	pointer-events: none;
+}
