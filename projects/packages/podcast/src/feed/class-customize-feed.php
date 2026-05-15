@@ -120,8 +120,8 @@ class Customize_Feed {
 		 */
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
-			echo '<itunes:summary>' . esc_html( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_html( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
+			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
+			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
 		/**

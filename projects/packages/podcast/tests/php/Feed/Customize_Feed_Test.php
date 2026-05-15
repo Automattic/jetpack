@@ -106,6 +106,17 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 'My &lt;Podcast&gt; &amp; &quot;Friends&quot;', Customize_Feed::feed_title( 'Default Title' ) );
 	}
 
+	public function test_feed_title_escapes_html_named_entities_for_xml() {
+		update_option( 'podcasting_title', 'Rock&nbsp;Roll &copy; Show' );
+
+		$result = Customize_Feed::feed_title( 'Default Title' );
+
+		$this->assertStringNotContainsString( '&nbsp;', $result );
+		$this->assertStringNotContainsString( '&copy;', $result );
+		$this->assertStringContainsString( '&amp;nbsp;', $result );
+		$this->assertStringContainsString( '&amp;copy;', $result );
+	}
+
 	public function test_feed_title_escapes_blog_and_category_fallback_for_rss_title() {
 		$this->configure_podcast_category( 1234, 'Audio <News> & "Reviews"' );
 		$blogname = static function () {
@@ -171,6 +182,19 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( "<itunes:category text='Rock&#160;Roll' />", $xml );
 		$this->assertStringNotContainsString( '&nbsp;', $xml );
+	}
+
+	public function test_output_channel_tags_escapes_summary_for_xml() {
+		update_option( 'podcasting_summary', 'Rock&nbsp;Roll &copy; <strong>Show</strong>' );
+
+		ob_start();
+		Customize_Feed::output_channel_tags();
+		$xml = (string) ob_get_clean();
+
+		$this->assertStringContainsString( '<itunes:summary>Rock&amp;nbsp;Roll &amp;copy; Show</itunes:summary>', $xml );
+		$this->assertStringContainsString( '<googleplay:description>Rock&amp;nbsp;Roll &amp;copy; Show</googleplay:description>', $xml );
+		$this->assertStringNotContainsString( '&nbsp;', $xml );
+		$this->assertStringNotContainsString( '&copy;', $xml );
 	}
 
 	/**
