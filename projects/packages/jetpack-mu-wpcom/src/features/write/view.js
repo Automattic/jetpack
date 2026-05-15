@@ -530,21 +530,6 @@ function normalizeColorMarkup( container ) {
 	} );
 }
 
-/*
- * Block JSON attributes that convertToBlocks() outputs per block type.
- * wpcom_write_allowed_block_attrs() in write.php must list at least these;
- * a sync test verifies both sides match.  Update both when adding attribute
- * support.
- *
- * @write-sync paragraph: align
- * @write-sync heading: level, align
- * @write-sync image:
- * @write-sync embed: url, type, providerNameSlug, responsive
- * @write-sync quote: align
- * @write-sync list: ordered
- * @write-sync list-item:
- * @write-sync separator:
- */
 /**
  * Convert contentEditable HTML into WordPress block markup.
  *

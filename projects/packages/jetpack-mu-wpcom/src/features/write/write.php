@@ -247,10 +247,8 @@ function wpcom_write_convert_video_embeds( $content ) {
  *
  * Attributes listed here are safe for Write to handle — either preserved by
  * convertToBlocks() in view.js or metadata that doesn't affect visible
- * content.  Keep this in sync with convertToBlocks().
- *
- * A sync test (test_allowed_block_types_in_sync_with_convert_to_blocks)
- * verifies that the block types here match what convertToBlocks() outputs.
+ * content.  Keep this in sync with convertToBlocks(); a PHPUnit test
+ * cross-checks that both sides list the same block types.
  *
  * @return array<string, string[]> Block type → allowed attribute keys.
  */

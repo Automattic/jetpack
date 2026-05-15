@@ -869,78 +869,77 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
 	}
 
-	// --- Allowlist sync test ---
+	// --- JS / PHP allowlist sync ---
 
 	/**
 	 * Verify that the PHP allowlist stays in sync with convertToBlocks() in
-	 * view.js.  The JS function declares its per-block output attributes via
-	 * write-sync tags in a comment block.  This test parses those tags and
-	 * compares against wpcom_write_allowed_block_attrs() in write.php.
+	 * view.js.
 	 *
-	 * If this test fails, update both sides:
-	 *  - write-sync tags in the convertToBlocks() comment (view.js)
-	 *  - wpcom_write_allowed_block_attrs() (write.php)
+	 * Block types are extracted directly from the `<!-- wp:type -->` comment
+	 * literals that convertToBlocks() emits, so no manual annotations are
+	 * needed for that axis.
+	 *
+	 * Attribute-level sync uses a hardcoded map of what convertToBlocks()
+	 * outputs per block type.  When you add attribute support in view.js,
+	 * update both wpcom_write_allowed_block_attrs() in write.php and
+	 * $js_attrs below.
 	 */
 	public function test_allowed_block_types_in_sync_with_convert_to_blocks() {
-		// Read view.js relative to this test file.
-		// Test: tests/php/features/write/Write_Test.php
-		// JS:   src/features/write/view.js
+		// -- Block-type sync (automatic from JS source) --
+
 		$view_js_path = dirname( __DIR__, 4 ) . '/src/features/write/view.js';
 		$view_js      = file_get_contents( $view_js_path );
 		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
 
-		// Extract only the comment block directly above convertToBlocks()
-		// so write-sync tags elsewhere in the file don't affect this test.
-		$fn_pos = strpos( $view_js, 'function convertToBlocks(' );
-		$this->assertNotFalse( $fn_pos, 'convertToBlocks() not found in view.js' );
-		$region = substr( $view_js, max( 0, $fn_pos - 2000 ), 2000 );
+		$fn_start = strpos( $view_js, 'function convertToBlocks(' );
+		$this->assertNotFalse( $fn_start, 'convertToBlocks() not found in view.js' );
+		$fn_body = substr( $view_js, $fn_start, 6000 );
 
-		// Parse write-sync tags from that region.
-		// Format: @write-sync blocktype: attr1, attr2
-		// or:     @write-sync blocktype:       (no attrs)
-		preg_match_all( '/@write-sync\s+([a-z][a-z0-9-]*):\s*(.*)/', $region, $matches, PREG_SET_ORDER );
-		$this->assertNotEmpty( $matches, 'No @write-sync tags found near convertToBlocks() in view.js' );
+		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
+		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );
+		$js_types = array_values( array_unique( $matches[1] ) );
+		sort( $js_types );
+		$this->assertNotEmpty( $js_types, 'No block types found in convertToBlocks()' );
 
-		$js_sync = array();
-		foreach ( $matches as $m ) {
-			$block = $m[1];
-			$attrs = array_filter( array_map( 'trim', explode( ',', $m[2] ) ), 'strlen' );
-			sort( $attrs );
-			$js_sync[ $block ] = $attrs;
-		}
-		ksort( $js_sync );
-
-		// Get the PHP allowlist.  The PHP list may include extra metadata
-		// attrs (id, sizeSlug, alt, className, allowResponsive) that JS
-		// doesn't output but are safe to lose.  The JS attrs must be a
-		// subset of the PHP attrs for each block type.
-		$php_all = wpcom_write_allowed_block_attrs();
-		ksort( $php_all );
-
-		// Block types must match exactly.
-		$js_types  = array_keys( $js_sync );
+		$php_all   = wpcom_write_allowed_block_attrs();
 		$php_types = array_keys( $php_all );
+		sort( $php_types );
+
 		$this->assertSame(
 			$js_types,
 			$php_types,
 			sprintf(
-				"Block types are out of sync.\n@write-sync: [%s]\nPHP:         [%s]",
+				"Block types are out of sync.\nJS (view.js):  [%s]\nPHP (write.php): [%s]",
 				implode( ', ', $js_types ),
 				implode( ', ', $php_types )
 			)
 		);
 
-		// For each block, every JS-declared attr must appear in the PHP list.
-		foreach ( $js_sync as $block => $js_attrs ) {
-			$php_attrs = $php_all[ $block ];
-			$missing   = array_diff( $js_attrs, $php_attrs );
+		// -- Attribute-level sync (hardcoded JS expectations) --
+		// These are the attributes convertToBlocks() actually writes into
+		// block JSON.  Every one must appear in the PHP allowlist.
+
+		$js_attrs = array(
+			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
+			'heading'   => array( 'align', 'level' ),
+			'image'     => array(),
+			'list'      => array( 'ordered' ),
+			'list-item' => array(),
+			'paragraph' => array( 'align' ),
+			'quote'     => array( 'align' ),
+			'separator' => array(),
+		);
+
+		foreach ( $js_attrs as $block => $expected ) {
+			$this->assertArrayHasKey( $block, $php_all, "Block '$block' missing from PHP allowlist." );
+			$missing = array_diff( $expected, $php_all[ $block ] );
 			$this->assertEmpty(
 				$missing,
 				sprintf(
-					"Block '%s': @write-sync declares attrs [%s] missing from PHP allowlist [%s].",
+					"Block '%s': JS outputs attrs [%s] missing from PHP allowlist [%s].",
 					$block,
 					implode( ', ', $missing ),
-					implode( ', ', $php_attrs )
+					implode( ', ', $php_all[ $block ] )
 				)
 			);
 		}
