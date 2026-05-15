@@ -74,6 +74,64 @@ class Podcast {
 		if ( is_admin() ) {
 			Admin_Page::init();
 		}
+
+		// Posts to Podcast lives behind its own filter so the Create AI
+		// Podcast page and its REST proxy can ship together but ramp
+		// independently of the broader untangle. Only register code in the
+		// context that actually needs it: the page in wp-admin, the REST
+		// routes during REST request processing.
+		if ( self::is_posts_to_podcast_enabled() ) {
+			if ( is_admin() ) {
+				Create_AI_Podcast_Page::init();
+			}
+			if ( self::is_rest_request() ) {
+				Posts_To_Podcast_Endpoint::init();
+			}
+		}
+	}
+
+	/**
+	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
+	 * proxy) is enabled for the current request.
+	 *
+	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
+	 * A8C-proxied requests so Automatticians dogfood it, and can be flipped
+	 * globally via the `jetpack_posts_to_podcast` filter.
+	 */
+	public static function is_posts_to_podcast_enabled() {
+		/**
+		 * Master switch for the Posts to Podcast (Create AI Podcast) feature.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable Posts to Podcast.
+		 */
+		return (bool) apply_filters( 'jetpack_posts_to_podcast', self::is_proxied_request() );
+	}
+
+	/**
+	 * Whether the current request is a WP REST API request.
+	 *
+	 * `Podcast::init()` typically fires before `REST_REQUEST` is defined
+	 * and before `wp_is_serving_rest_request()` is reliable, so fall back
+	 * to a URL prefix check.
+	 */
+	private static function is_rest_request() {
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+		if ( function_exists( 'wp_is_serving_rest_request' ) && wp_is_serving_rest_request() ) {
+			return true;
+		}
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+		$path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
+		if ( ! is_string( $path ) ) {
+			return false;
+		}
+		$prefix = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : 'wp-json';
+		return false !== strpos( $path, '/' . trim( $prefix, '/' ) . '/' );
 	}
 
 	/**
