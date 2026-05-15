@@ -2184,16 +2184,19 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
+			// Normalize via toLowerCase so Shift+Z and CapsLock don't bypass these
+			// shortcuts — some browser/platform combinations report uppercase keys.
+			const lowerKey = event.key.toLowerCase();
 			// Undo (Cmd+Z / Ctrl+Z).
-			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'z' && ! event.shiftKey ) {
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && ! event.shiftKey ) {
 				event.preventDefault();
 				performUndo();
 				return;
 			}
 			// Redo (Cmd+Shift+Z / Ctrl+Shift+Z / Ctrl+Y).
 			if (
-				( ( event.ctrlKey || event.metaKey ) && event.key === 'z' && event.shiftKey ) ||
-				( event.ctrlKey && event.key === 'y' )
+				( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && event.shiftKey ) ||
+				( event.ctrlKey && lowerKey === 'y' )
 			) {
 				event.preventDefault();
 				performRedo();
@@ -2201,7 +2204,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Ctrl+K / Cmd+K to toggle link input.
-			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'k' ) {
 				event.preventDefault();
 				const { actions: a } = store( 'wpcom-write' );
 				a.toggleLinkInput();
