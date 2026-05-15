@@ -26,7 +26,11 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		// Priority must be higher than wpcomsh's `WPCOMSH_Require_Connection_Owner` filter
+		// (registered at 1000), which would otherwise force-return false in CI's wpcomsh
+		// suite and break tier-aware tests that need `Jetpack_Memberships::get_all_*` to
+		// see plans.
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		add_filter(
 			PAYWALL_FILTER,
 			function () {
