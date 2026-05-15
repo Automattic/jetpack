@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+MailPoet: Add recipient validation with 14-day hard bounce expiry based on latest_hit, and suppression manager that preserves suppressed_at when updating existing bounce records.

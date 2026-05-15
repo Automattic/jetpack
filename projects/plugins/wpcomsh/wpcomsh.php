@@ -218,6 +218,10 @@ require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-
 // Enable MailPoet subscriber stats reports
 require_once __DIR__ . '/mailpoet/class-wpcomsh-mailpoet-subscribers-stats-report.php';
 
+// MailPoet recipient validation and suppression management
+require_once __DIR__ . '/mailpoet/class-mailpoet-recipient-validator.php';
+require_once __DIR__ . '/mailpoet/class-mailpoet-suppression-manager.php';
+
 // Force Jetpack to update plugins one-at-a-time to avoid a site-breaking core concurrent update bug
 // https://core.trac.wordpress.org/ticket/53705
 if (
