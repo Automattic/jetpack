@@ -260,9 +260,6 @@ class Copy_Post_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that update_content preserves backslashes in post fields.
-	 *
-	 * wp_update_post() calls wp_unslash() internally, so content must be
-	 * passed through wp_slash() first to prevent backslashes from being stripped.
 	 */
 	public function test_update_content_preserves_backslashes() {
 		$copy_post = new Jetpack_Copy_Post();
@@ -284,7 +281,9 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		$target_post_id = self::factory()->post->create();
 
 		$method = new ReflectionMethod( Jetpack_Copy_Post::class, 'update_content' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( $copy_post, $source_post, $target_post_id );
 
 		$target_post = get_post( $target_post_id );
