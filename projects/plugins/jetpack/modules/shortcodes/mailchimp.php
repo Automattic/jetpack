@@ -113,11 +113,18 @@ class MailChimp_Subscriber_Popup {
 				$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $matches[0][ $index ], '#' ) );
 
 				$attrs = json_decode( '{' . $js_vars . '}' );
+				// If JSON is garbage, skip.
+				if ( ! $attrs ) {
+					continue;
+				}
 
 				if ( $matches[2][ $index ] ) {
 					$config_attrs = json_decode( '{' . $matches[2][ $index ] . '}' );
-					foreach ( $config_attrs as $key => $value ) {
-						$attrs->$key = ( 1 === $value ) ? 'true' : 'false';
+					// Only use if properly decoded.
+					if ( $config_attrs ) {
+						foreach ( $config_attrs as $key => $value ) {
+							$attrs->$key = ( 1 === $value ) ? 'true' : 'false';
+						}
 					}
 				}
 
