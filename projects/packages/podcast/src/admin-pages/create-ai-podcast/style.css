@@ -113,6 +113,24 @@
 	color: #646970;
 }
 
+.jetpack-create-ai-podcast__credits-upgrade {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f1;
+	flex-wrap: wrap;
+}
+
+.jetpack-create-ai-podcast__credits-upgrade-message {
+	font-size: 13px;
+	color: #50575e;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.jetpack-create-ai-podcast__credits-fill {

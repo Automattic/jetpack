@@ -111,44 +111,46 @@ class Create_AI_Podcast_Page {
 	 */
 	private static function build_localized_data(): array {
 		return array(
-			'endpoints'           => array(
+			'endpoints' => array(
 				'enqueue' => '/wpcom/v2/posts-to-podcast',
 				'job'     => '/wpcom/v2/posts-to-podcast/jobs/',
 				'quota'   => '/wpcom/v2/posts-to-podcast',
 				'posts'   => '/wp/v2/posts',
 			),
-			'editPostUrlTemplate' => admin_url( 'post.php?action=edit&post=__ID__' ),
-			'presets'             => array(
+			'presets'   => array(
 				'window' => window_presets(),
 				'length' => length_presets(),
 				'voice'  => voice_presets(),
 			),
-			'poll'                => array(
+			'poll'      => array(
 				'fastMs'    => 3000,
 				'slowMs'    => 10000,
 				'switchMs'  => 30000,
 				'timeoutMs' => 5 * 60 * 1000,
 			),
-			'i18n'                => array(
-				'submitting'       => __( 'Submitting…', 'jetpack-podcast' ),
-				'polling'          => __( 'Generating your episode…', 'jetpack-podcast' ),
-				'succeeded'        => __( 'Episode draft ready.', 'jetpack-podcast' ),
-				'editDraft'        => __( 'Edit draft', 'jetpack-podcast' ),
-				'failed'           => __( 'Generation failed.', 'jetpack-podcast' ),
-				'timedOut'         => __( 'Generation is taking longer than expected. Check your drafts.', 'jetpack-podcast' ),
-				'tryAgain'         => __( 'Try again', 'jetpack-podcast' ),
-				'notAvailable'     => __( 'Create AI Podcast isn\'t available on your current plan.', 'jetpack-podcast' ),
+			'i18n'      => array(
+				'submitting'          => __( 'Submitting…', 'jetpack-podcast' ),
+				'polling'             => __( 'Generating your episode…', 'jetpack-podcast' ),
+				'succeeded'           => __( 'Episode draft ready.', 'jetpack-podcast' ),
+				'editDraft'           => __( 'Edit draft', 'jetpack-podcast' ),
+				'failed'              => __( 'Generation failed.', 'jetpack-podcast' ),
+				'timedOut'            => __( 'Generation is taking longer than expected. Check your drafts.', 'jetpack-podcast' ),
+				'tryAgain'            => __( 'Try again', 'jetpack-podcast' ),
+				'notAvailable'        => __( 'Create AI Podcast isn\'t available on your current plan.', 'jetpack-podcast' ),
 				// translators: 1: number of credits used, 2: total credits available.
-				'creditsUsed'      => __( '%1$d of %2$d credits used.', 'jetpack-podcast' ),
-				'creditsLabel'     => __( 'Credits', 'jetpack-podcast' ),
+				'creditsUsed'         => __( '%1$d of %2$d credits used.', 'jetpack-podcast' ),
+				'creditsLabel'        => __( 'Credits', 'jetpack-podcast' ),
 				// translators: 1: number of credits used, 2: total credits available.
-				'creditsCount'     => __( '%1$d / %2$d', 'jetpack-podcast' ),
+				'creditsCount'        => __( '%1$d / %2$d', 'jetpack-podcast' ),
 				// translators: %s: date when credits reset.
-				'creditsReset'     => __( 'Resets on %s.', 'jetpack-podcast' ),
-				'creditsUnlimited' => __( 'Unlimited generations available.', 'jetpack-podcast' ),
-				'noPostsFound'     => __( 'No posts match.', 'jetpack-podcast' ),
-				'loadingPosts'     => __( 'Loading posts…', 'jetpack-podcast' ),
-				'pickPosts'        => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
+				'creditsReset'        => __( 'Resets on %s.', 'jetpack-podcast' ),
+				'creditsUnlimited'    => __( 'Unlimited generations available.', 'jetpack-podcast' ),
+				'noPostsFound'        => __( 'No posts match.', 'jetpack-podcast' ),
+				'loadingPosts'        => __( 'Loading posts…', 'jetpack-podcast' ),
+				'pickPosts'           => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
+				'upgradeRunningLow'   => __( 'Running low on credits.', 'jetpack-podcast' ),
+				'upgradeOutOfCredits' => __( 'You\'re out of credits for this period.', 'jetpack-podcast' ),
+				'upgradeCta'          => __( 'Upgrade plan', 'jetpack-podcast' ),
 			),
 		);
 	}

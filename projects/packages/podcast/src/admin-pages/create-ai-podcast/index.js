@@ -3,8 +3,8 @@
  *
  * Server-rendered form lives in PHP; this file fetches quota, drives the
  * posts picker, submits the generate request, polls the job, and resumes
- * across reloads via localStorage. All endpoints and labels come from
- * window.jetpackCreateAiPodcast (set by wp_localize_script).
+ * across reloads via the GET response's `activeJob`. All endpoints and
+ * labels come from window.jetpackCreateAiPodcast (set by wp_localize_script).
  */
 
 ( function () {
@@ -19,7 +19,34 @@
 		return;
 	}
 
-	const STORAGE_KEY = 'jetpack-create-ai-podcast:job';
+	/**
+	 * Strip the `_envelope=1` wrapper that wpcom adds on Simple sites.
+	 * The wrapper has shape `{ body, status, headers }`. We unwrap to `body`
+	 * for 2xx and throw for non-2xx so callers' try/catch paths fire the
+	 * same way they do for native HTTP errors on Atomic.
+	 *
+	 * @param opts
+	 */
+	async function apiCall( opts ) {
+		const response = await apiFetch( opts );
+		if (
+			response &&
+			typeof response === 'object' &&
+			'body' in response &&
+			'status' in response &&
+			'headers' in response
+		) {
+			if ( response.status < 200 || response.status >= 300 ) {
+				const err = new Error( response.body?.message || `HTTP ${ response.status }` );
+				err.status = response.status;
+				err.code = response.body?.code;
+				throw err;
+			}
+			return response.body;
+		}
+		return response;
+	}
+
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
 		return;
@@ -36,57 +63,6 @@
 
 	const selectedPostIds = new Set();
 	let pollTimer = null;
-
-	// --- Local storage helpers ---------------------------------------------------
-
-	/**
-	 *
-	 */
-	function readStoredJob() {
-		try {
-			const raw = window.localStorage.getItem( STORAGE_KEY );
-			if ( ! raw ) {
-				return null;
-			}
-			const parsed = JSON.parse( raw );
-			if ( typeof parsed?.jobId !== 'number' || typeof parsed?.startedAt !== 'number' ) {
-				return null;
-			}
-			if ( Date.now() - parsed.startedAt > data.poll.timeoutMs ) {
-				window.localStorage.removeItem( STORAGE_KEY );
-				return null;
-			}
-			return parsed;
-		} catch {
-			return null;
-		}
-	}
-
-	/**
-	 *
-	 * @param jobId
-	 */
-	function writeStoredJob( jobId ) {
-		try {
-			window.localStorage.setItem(
-				STORAGE_KEY,
-				JSON.stringify( { jobId, startedAt: Date.now() } )
-			);
-		} catch {
-			/* ignore quota errors */
-		}
-	}
-
-	/**
-	 *
-	 */
-	function clearStoredJob() {
-		try {
-			window.localStorage.removeItem( STORAGE_KEY );
-		} catch {
-			/* ignore */
-		}
-	}
 
 	// --- Status notice rendering -------------------------------------------------
 
@@ -151,8 +127,9 @@
 
 	/**
 	 * @param quota
+	 * @param upgradeUrl
 	 */
-	function renderCredits( quota ) {
+	function renderCredits( quota, upgradeUrl ) {
 		creditsEl.dataset.state = 'visible';
 		creditsEl.innerHTML = '';
 
@@ -176,6 +153,8 @@
 
 		const used = Math.max( 0, Number( quota?.used ?? 0 ) );
 		const total = Math.max( 0, Number( quota?.quota ?? 0 ) );
+		const remaining =
+			typeof quota?.remaining === 'number' ? quota.remaining : Math.max( total - used, 0 );
 		const ratio = total > 0 ? Math.min( 1, used / total ) : 0;
 		const percent = Math.round( ratio * 100 );
 
@@ -224,6 +203,30 @@
 				creditsEl.appendChild( meta );
 			}
 		}
+
+		// Upgrade nudge when usage is high and the site has a higher tier
+		// available. `upgradeUrl` is empty on Business+ so nothing renders there.
+		const shouldNudge = upgradeUrl && ( remaining === 0 || ratio >= 0.7 );
+		if ( shouldNudge ) {
+			const nudge = document.createElement( 'div' );
+			nudge.className = 'jetpack-create-ai-podcast__credits-upgrade';
+
+			const message = document.createElement( 'span' );
+			message.className = 'jetpack-create-ai-podcast__credits-upgrade-message';
+			message.textContent =
+				remaining === 0 ? data.i18n.upgradeOutOfCredits : data.i18n.upgradeRunningLow;
+
+			const cta = document.createElement( 'a' );
+			cta.className = 'button button-primary';
+			cta.href = upgradeUrl;
+			cta.target = '_blank';
+			cta.rel = 'noopener noreferrer';
+			cta.textContent = data.i18n.upgradeCta;
+
+			nudge.appendChild( message );
+			nudge.appendChild( cta );
+			creditsEl.appendChild( nudge );
+		}
 	}
 
 	/**
@@ -241,21 +244,22 @@
 	/**
 	 *
 	 */
-	async function fetchQuota() {
+	async function fetchInfo() {
 		try {
-			const response = await apiFetch( { path: data.endpoints.quota, method: 'GET' } );
+			const response = await apiCall( { path: data.endpoints.quota, method: 'GET' } );
 			if ( response?.notAvailable || response?.error === 'not_available' ) {
 				renderNotAvailable();
 				return null;
 			}
-			renderCredits( response?.quota ?? response );
+			const quota = response?.quota ?? response;
+			renderCredits( quota, response?.upgradeUrl ?? '' );
 			return response;
 		} catch ( err ) {
 			if ( err?.code === 'rest_forbidden' || err?.status === 403 || err?.status === 404 ) {
 				renderNotAvailable();
 				return null;
 			}
-			renderCredits( { quota: 0, used: 0 } );
+			renderCredits( { quota: 0, used: 0 }, '' );
 			return null;
 		}
 	}
@@ -338,7 +342,7 @@
 
 	const fetchPosts = debounce( async query => {
 		try {
-			const posts = await apiFetch( {
+			const posts = await apiCall( {
 				path: `${
 					data.endpoints.posts
 				}?status=publish&per_page=20&_fields=id,title,date&search=${ encodeURIComponent( query ) }`,
@@ -382,15 +386,12 @@
 	}
 
 	/**
-	 *
-	 * @param postId
+	 * @param editUrl
 	 */
-	function onSucceeded( postId ) {
-		clearStoredJob();
+	function onSucceeded( editUrl ) {
 		setFormDisabled( false );
-		const href = data.editPostUrlTemplate.replace( '__ID__', String( postId ) );
 		setStatus( 'success', data.i18n.succeeded, {
-			link: { href, label: data.i18n.editDraft },
+			link: { href: editUrl, label: data.i18n.editDraft },
 		} );
 	}
 
@@ -399,7 +400,6 @@
 	 * @param message
 	 */
 	function onFailed( message ) {
-		clearStoredJob();
 		setFormDisabled( false );
 		setStatus( 'error', message || data.i18n.failed, {
 			action: {
@@ -413,7 +413,6 @@
 	 *
 	 */
 	function onTimedOut() {
-		clearStoredJob();
 		setFormDisabled( false );
 		setStatus( 'error', data.i18n.timedOut, {
 			action: {
@@ -446,12 +445,12 @@
 	 */
 	async function pollOnce( jobId, startedAt ) {
 		try {
-			const response = await apiFetch( {
+			const response = await apiCall( {
 				path: data.endpoints.job + jobId,
 				method: 'GET',
 			} );
-			if ( response?.status === 'complete' && typeof response.postId === 'number' ) {
-				onSucceeded( response.postId );
+			if ( response?.status === 'complete' ) {
+				onSucceeded( response.editUrl );
 				return;
 			}
 			if ( response?.status === 'failed' ) {
@@ -462,6 +461,22 @@
 		} catch {
 			onFailed();
 		}
+	}
+
+	/**
+	 * Derive the job's start time from the server's `createdAt` ISO-8601 string
+	 * so the poll-rate switch + 5-minute timeout reflect real elapsed time, not
+	 * client wall-clock at boot. Falls back to "now" when the timestamp is
+	 * missing/malformed.
+	 *
+	 * @param createdAt
+	 */
+	function parseStartedAt( createdAt ) {
+		if ( typeof createdAt !== 'string' ) {
+			return Date.now();
+		}
+		const parsed = Date.parse( createdAt );
+		return Number.isNaN( parsed ) ? Date.now() : parsed;
 	}
 
 	/**
@@ -483,19 +498,18 @@
 		}
 
 		try {
-			const response = await apiFetch( {
+			const response = await apiCall( {
 				path: data.endpoints.enqueue,
 				method: 'POST',
 				data: payload,
 			} );
-			const jobId = response?.jobId ?? response?.id;
+			const jobId = response?.jobId;
 			if ( typeof jobId !== 'number' ) {
 				onFailed();
 				return;
 			}
-			writeStoredJob( jobId );
 			setStatus( 'progress', data.i18n.polling );
-			startPolling( jobId, Date.now() );
+			startPolling( jobId, parseStartedAt( response.createdAt ) );
 		} catch ( err ) {
 			onFailed( err?.message );
 		}
@@ -555,25 +569,16 @@
 		bindPostsSearch();
 		bindGenerate();
 
-		const stored = readStoredJob();
-		if ( stored ) {
-			resumePolling( stored.jobId, stored.startedAt );
-			return;
-		}
-
-		const quota = await fetchQuota();
-		if ( ! quota ) {
+		const info = await fetchInfo();
+		if ( ! info ) {
 			return; // not-available banner already rendered.
 		}
 
-		// Server-side fallback: even when localStorage didn't carry the job
-		// across the reload (incognito, cleared storage, different browser),
-		// the quota endpoint reports an `activeJobId` whenever one is still
-		// running for the current user. Resume polling from there.
-		if ( typeof quota.activeJobId === 'number' ) {
-			const startedAt = Date.now();
-			writeStoredJob( quota.activeJobId );
-			resumePolling( quota.activeJobId, startedAt );
+		// The GET endpoint is now the single source of truth: it reports an
+		// `activeJob` whenever one is still running for the current user.
+		const activeJob = info.activeJob;
+		if ( activeJob && typeof activeJob === 'object' && typeof activeJob.jobId === 'number' ) {
+			resumePolling( activeJob.jobId, parseStartedAt( activeJob.createdAt ) );
 		}
 	}
 
