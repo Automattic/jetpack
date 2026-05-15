@@ -133,9 +133,9 @@ export default function HistoryChartCard( {
 						</div>
 						{ needsUpgrade && (
 							<div className="jetpack-boost-overview__chart-overlay">
-								<Notice.Root intent="success" className="jetpack-boost-overview__upgrade-notice">
+								<Notice.Root intent="info" className="jetpack-boost-overview__upgrade-notice">
 									<Notice.Title>
-										{ __( 'Unlock Historical performance', 'jetpack-boost' ) }
+										{ __( 'Unlock historical performance', 'jetpack-boost' ) }
 									</Notice.Title>
 									<Notice.Description>
 										{ __(
