@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "0ddb32aaf9528db45b8326af39d23a4a731aed0e"
+                "reference": "5ecafb846fd3310a04c74d9a2288a03114a6c3ce"
             },
             "require": {
                 "php": ">=7.2"
@@ -43,10 +43,13 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -63,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "a9d419e3af6211cb8961e76e7f70c11b8e402c91"
+                "reference": "c7693c2d7a69610a508daaef83832587f1aa68d2"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -109,11 +112,14 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit",
                     "./check-docs.sh"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -138,7 +144,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "f074345ade28fa4f977b115b845840138675d28e"
+                "reference": "6c00dcad2320364816faf378c8e0d24c1f49ef18"
             },
             "require": {
                 "phan/phan": "5.5.2",
@@ -169,10 +175,13 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -195,7 +204,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "a239179e2ea8112242a2681c56fd8b0e7141cf80"
+                "reference": "7c4a33c02dd8c279c807fd0350b27996d836799b"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -222,10 +231,13 @@
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "@composer test-php-coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
