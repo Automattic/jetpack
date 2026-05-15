@@ -27,6 +27,18 @@ body.jetpack_page_jetpack-search .jp-search-dashboard-page {
 	.jp-admin-page-tabs {
 		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
 	}
+
+	// "Preview" qualifier on the AI Answers tab. Rendered as a semantic
+	// <sup> so assistive tech announces it as supplementary; visually we
+	// keep the UA `vertical-align: super` baseline shift and just dial the
+	// font size down and tint the text with the muted neutral-weak token
+	// so it reads as metadata rather than competing with the tab title.
+	.jp-search-dashboard-tabs__tab-preview-label {
+		margin-inline-start: var(--wpds-dimension-padding-xs, 4px);
+		font-size: 0.7em;
+		font-weight: 500;
+		color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+	}
 }
 
 #jp-search-dashboard {

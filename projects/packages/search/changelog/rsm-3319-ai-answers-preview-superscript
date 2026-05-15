@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Dashboard: render the "Preview" qualifier on the AI Answers tab as a semantic `<sup>` superscript — smaller, raised above the baseline and tinted with the secondary-foreground token — instead of inline parenthetical text, so it reads as a status marker rather than part of the tab title.

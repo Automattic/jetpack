@@ -1,7 +1,7 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
 import AiAnswersTab from 'components/ai-answers-tab';
@@ -170,9 +170,13 @@ export default function DashboardPage( { isLoading = false } ) {
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="ai-answers">
 								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
-								<span className="jp-search-dashboard-tabs__tab-preview-label">
-									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
-								</span>
+								<sup className="jp-search-dashboard-tabs__tab-preview-label">
+									{ _x(
+										'Preview',
+										'Status badge on the AI Answers tab marking the feature as in preview',
+										'jetpack-search-pkg'
+									) }
+								</sup>
 							</Tabs.Tab>
 						</Tabs.List>
 					</div>
