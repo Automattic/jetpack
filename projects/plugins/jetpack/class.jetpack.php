@@ -872,13 +872,10 @@ class Jetpack {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
 
-		// Register Activity Log abilities (WordPress Abilities API, WP 6.9+) only
-		// once the Activity Log feature has wired up in this plugin. Hooked before
-		// initialize() so it catches the synchronous jetpack_activity_log_initialized action.
-		add_action(
-			'jetpack_activity_log_initialized',
-			array( \Automattic\Jetpack\Activity_Log\Abilities\Activity_Log_Abilities::class, 'init' )
-		);
+		// Register Activity Log abilities (WordPress Abilities API, WP 6.9+) only once the
+		// Activity Log feature has wired up. Hooked before initialize() so it catches the
+		// synchronous jetpack_activity_log_initialized action.
+		add_action( 'jetpack_activity_log_initialized', array( \Automattic\Jetpack\Activity_Log\Abilities\Activity_Log_Abilities::class, 'init' ) );
 		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 
