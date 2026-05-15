@@ -114,10 +114,39 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 	 * `doing_action()`, so direct invocation outside the hook is rejected.
 	 */
 	private function fire_abilities_lifecycle(): void {
+		// Sitemaps abilities live under the core `site` category, which in
+		// production is registered by WordPress core on the
+		// `wp_abilities_api_categories_init` action. The isolated unit-test
+		// lifecycle does not carry core's registration over, so without this
+		// the category is absent when `register_abilities()` runs and
+		// `wp_register_ability()` rejects every ability ("category not
+		// registered"). Register the `site` category here, scoped to the
+		// categories-init action (where `wp_register_ability_category()` is
+		// permitted) and guarded so a re-fire — or a build where core already
+		// registered it — does not trigger an "already registered" notice.
+		$ensure_site_category = static function () {
+			if (
+				function_exists( 'wp_has_ability_category' )
+				&& function_exists( 'wp_register_ability_category' )
+				&& ! wp_has_ability_category( 'site' )
+			) {
+				wp_register_ability_category(
+					'site',
+					array(
+						'label'       => 'Site',
+						'description' => 'Abilities that retrieve or modify site information and settings.',
+					)
+				);
+			}
+		};
+		add_action( Registrar::CATEGORIES_INIT_ACTION, $ensure_site_category, 1 );
+
 		add_action( Registrar::CATEGORIES_INIT_ACTION, array( Sitemaps_Abilities::class, 'register_category' ) );
 		add_action( Registrar::ABILITIES_INIT_ACTION, array( Sitemaps_Abilities::class, 'register_abilities' ) );
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		remove_action( Registrar::CATEGORIES_INIT_ACTION, $ensure_site_category, 1 );
 	}
 
 	/**
@@ -145,17 +174,19 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 
 	public function test_register_category_is_a_noop() {
 		// The `site` category is owned by WordPress core; this registrar must
-		// not register (and thus clobber) it.
-		if ( ! function_exists( 'wp_get_ability_category' ) ) {
+		// not register a plugin-scoped category of its own.
+		if ( ! function_exists( 'wp_has_ability_category' ) ) {
 			$this->markTestSkipped( 'Abilities API not available in this WP version.' );
 		}
 
 		add_action( Registrar::CATEGORIES_INIT_ACTION, array( Sitemaps_Abilities::class, 'register_category' ) );
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 
-		// Nothing this registrar did should have created a `jetpack-sitemaps`
-		// category, and the core `site` category (if present) is untouched.
-		$this->assertNull( wp_get_ability_category( 'jetpack-sitemaps' ) );
+		// Firing the registrar's (no-op) category callback must not have created
+		// a legacy `jetpack-sitemaps` category. `wp_has_ability_category()`
+		// returns a clean bool (no `_doing_it_wrong`), unlike
+		// `wp_get_ability_category()` which flags an unregistered lookup.
+		$this->assertFalse( wp_has_ability_category( 'jetpack-sitemaps' ) );
 	}
 
 	public function test_abilities_map_is_non_empty_and_namespaced() {
