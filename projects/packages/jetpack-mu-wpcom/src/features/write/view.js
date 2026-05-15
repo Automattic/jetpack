@@ -1149,28 +1149,33 @@ function addDeleteButtons() {
 			figcaption.setAttribute( 'data-placeholder', i18n.writeCaption || 'Write a caption...' );
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
-
-			// Listen on the figure for keydown so we catch it before the content area.
-			fig.addEventListener( 'keydown', ev => {
-				if (
-					ev.key === 'Enter' &&
-					fig.querySelector( 'figcaption' ) &&
-					fig.querySelector( 'figcaption' ).contains( document.getSelection().anchorNode )
-				) {
-					ev.preventDefault();
-					ev.stopImmediatePropagation();
-					let next = fig.nextElementSibling;
-					if ( ! next || next.tagName === 'FIGURE' ) {
-						next = document.createElement( 'p' );
-						next.innerHTML = '<br>';
-						fig.after( next );
-					}
-					placeCursorAt( next );
-				}
-			} );
 			figcaption.focus();
 		} );
 		controls.appendChild( capBtn );
+
+		// Enter inside the figcaption exits to the next block. Attached on every
+		// figure init (not just on first caption-button click) so it survives an
+		// undo that restored a figure with a pre-existing figcaption — the
+		// MutationObserver re-runs addDeleteButtons, and the early-return at the
+		// top of this loop keeps the listener from being attached twice.
+		fig.addEventListener( 'keydown', ev => {
+			const figcaption = fig.querySelector( 'figcaption' );
+			if (
+				ev.key === 'Enter' &&
+				figcaption &&
+				figcaption.contains( document.getSelection().anchorNode )
+			) {
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+				let next = fig.nextElementSibling;
+				if ( ! next || next.tagName === 'FIGURE' ) {
+					next = document.createElement( 'p' );
+					next.innerHTML = '<br>';
+					fig.after( next );
+				}
+				placeCursorAt( next );
+			}
+		} );
 	} );
 }
 
