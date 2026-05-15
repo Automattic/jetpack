@@ -608,15 +608,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-separator"></div>
 			<div
 				class="bw-content<?php echo $edit_content ? '' : ' bw-is-empty'; ?>"
-				contenteditable="true"
-				role="combobox"
-				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
-				aria-autocomplete="list"
-				aria-haspopup="listbox"
-				aria-expanded="false"
-				aria-controls="bw-slash-menu"
-				data-wp-bind--aria-expanded="state.showSlashMenu"
-				data-wp-bind--aria-activedescendant="state.slashActiveId"
+				data-wp-watch="callbacks.syncComboboxAria"
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
 				data-wp-on--click="actions.handleContentClick"
@@ -624,7 +616,17 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
-			><div class="bw-content-inner" data-wp-ignore>
+			><div
+				class="bw-content-inner"
+				contenteditable="true"
+				role="combobox"
+				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
+				aria-autocomplete="list"
+				aria-haspopup="listbox"
+				aria-expanded="false"
+				aria-controls="bw-slash-menu"
+				data-wp-ignore
+			>
 			<?php
 			if ( $edit_content ) {
 				// Sanitize through wp_kses_post — video embed tokens (HTML comments)

@@ -1194,9 +1194,8 @@ const contentReady2 = setInterval( () => {
 	ensureBlockStructure();
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
 		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
-		// Input events in a contenteditable fire on the contenteditable host (the
-		// outer .bw-content), not on inner descendants — so attach the cleanup
-		// listener to the outer element.
+		// Input events from the inner contenteditable bubble up to the outer,
+		// so a single listener on the outer is enough to detect the first edit.
 		const outerContentEl = document.querySelector( '.bw-content' );
 		outerContentEl?.classList.add( 'bw-is-empty' );
 		outerContentEl?.addEventListener(
@@ -1941,6 +1940,24 @@ function syncCatDropdownItems() {
 }
 
 const { state } = store( 'wpcom-write', {
+	callbacks: {
+		/**
+		 * Mirror reactive slash-menu state onto the .bw-content-inner element.
+		 *
+		 * .bw-content-inner has `data-wp-ignore` (so Preact treats its children
+		 * as opaque and won't re-attach detached nodes during undo/redo) — but
+		 * that directive strips any sibling `data-wp-bind--*` directives. To
+		 * keep the combobox aria attributes reactive, we sync them imperatively
+		 * via `data-wp-watch` on the outer wrapper: reading state.showSlashMenu
+		 * and state.slashActiveId here subscribes the watcher to their signals.
+		 */
+		syncComboboxAria() {
+			const inner = document.querySelector( '.bw-content-inner' );
+			if ( ! inner ) return;
+			inner.setAttribute( 'aria-expanded', state.showSlashMenu ? 'true' : 'false' );
+			inner.setAttribute( 'aria-activedescendant', state.slashActiveId || '' );
+		},
+	},
 	state: {
 		formatBold: false,
 		formatItalic: false,
@@ -3021,8 +3038,7 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleImageModalKeyDown( event ) {
@@ -3200,8 +3216,7 @@ const { state } = store( 'wpcom-write', {
 			state.showVideoModal = false;
 			state.videoUrl = '';
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleVideoModalKeyDown( event ) {
