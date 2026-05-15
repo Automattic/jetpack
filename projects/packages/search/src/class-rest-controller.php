@@ -449,6 +449,7 @@ class REST_Controller {
 			'search_plan_info'      => null,
 			'enable_search'         => true,
 			'enable_instant_search' => true,
+			'search_experience'     => null,
 			'auto_config_search'    => true,
 		);
 		$payload         = $request->get_json_params();
@@ -462,24 +463,49 @@ class REST_Controller {
 
 		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
 		if ( false !== $payload['enable_search'] ) {
-			// Eligibility is checked in `activate` function.
 			$ret = $this->search_module->activate();
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
 		}
 
-		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['enable_instant_search'] ) {
-			// Eligibility is checked in `enable_instant_search` function.
-			$ret = $this->search_module->enable_instant_search();
+		if ( $payload['search_experience'] !== null ) {
+			// Canonical path. Restrict to activate-able experiences — `off`
+			// belongs on `/plan/deactivate`, and a non-string payload would
+			// blow up `update_experience(string $experience)`.
+			$valid_experiences = array(
+				Module_Control::EXPERIENCE_OVERLAY,
+				Module_Control::EXPERIENCE_INLINE,
+				Module_Control::EXPERIENCE_EMBEDDED,
+			);
+			if ( ! is_string( $payload['search_experience'] )
+				|| ! in_array( $payload['search_experience'], $valid_experiences, true )
+			) {
+				return new WP_Error(
+					'invalid_experience',
+					__( 'Invalid experience value.', 'jetpack-search-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
+			$ret = $this->search_module->update_experience( sanitize_text_field( $payload['search_experience'] ) );
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
 		}
 
-		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['auto_config_search'] ) {
+		if ( $payload['search_experience'] === null && false !== $payload['enable_instant_search'] ) {
+			// Legacy path: old WPCOM callers send `enable_instant_search`
+			// instead of `search_experience`. Gated on the canonical value
+			// being absent so it doesn't overwrite a non-overlay experience
+			// the caller just set.
+			// Error handling intentionally skipped — this is the legacy fallback.
+			$ret = $this->search_module->enable_instant_search();
+		}
+
+		// `auto_config_search` wires up Overlay sidebar widgets — only meaningful
+		// when Overlay is the resulting experience. For Inline / Embedded, the
+		// caller would otherwise get widget side effects they didn't ask for.
+		if ( false !== $payload['auto_config_search'] && $this->search_module->is_instant_search_enabled() ) {
 			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
 		}
 
