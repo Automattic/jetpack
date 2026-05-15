@@ -1,62 +1,140 @@
 /*!
  * Create AI Podcast — page styles.
  *
- * Scoped under .jetpack-create-ai-podcast. Inherits wp-admin form styles
- * for fieldset / select / button; custom rules cover credits readout
- * layout, the posts checklist scroll area, and the status notice card.
+ * Card-based layout aligned with wp-admin's color palette. Scoped under
+ * .jetpack-create-ai-podcast. Inherits wp-admin form styles for native
+ * controls (select, button, etc.); custom rules add the card surfaces,
+ * section headers, credits readout, posts checklist, status notice, and
+ * disabled-form state.
  */
 
-.jetpack-create-ai-podcast__credits {
-	margin: 1em 0;
-	padding: 0.75em 1em;
-	background: #f6f7f7;
-	border-left: 4px solid #2271b1;
+.jetpack-create-ai-podcast {
+	max-width: 720px;
 }
 
-.jetpack-create-ai-podcast__credits[data-state="not-available"] {
-	border-left-color: #d63638;
+.jetpack-create-ai-podcast__page-title {
+	margin: 0 0 20px;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+
+.jetpack-create-ai-podcast__card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	padding: 20px 24px;
+	margin: 0 0 16px;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.jetpack-create-ai-podcast__card--accent {
+	border-left: 4px solid #2271b1;
+	padding-left: 20px;
+}
+
+.jetpack-create-ai-podcast__card-title {
+	margin: 0 0 16px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #50575e;
+}
+
+/* --- Credits readout ------------------------------------------------------ */
+
+.jetpack-create-ai-podcast__credits {
+	font-size: 14px;
+	color: #1d2327;
 }
 
 .jetpack-create-ai-podcast__credits[data-state="hidden"] {
 	display: none;
 }
 
-.jetpack-create-ai-podcast__form {
-	max-width: 680px;
+.jetpack-create-ai-podcast__credits[data-state="not-available"] {
+	border-left-color: #d63638;
 }
 
-.jetpack-create-ai-podcast__form fieldset {
-	margin: 0 0 1em;
-	padding: 0;
-	border: 0;
+.jetpack-create-ai-podcast__credits p {
+	margin: 0;
 }
 
-.jetpack-create-ai-podcast__form fieldset label {
-	display: inline-block;
-	margin-right: 1.5em;
+/* --- Form fields ---------------------------------------------------------- */
+
+.jetpack-create-ai-podcast__field {
+	margin: 0 0 16px;
 }
 
-.jetpack-create-ai-podcast__form label {
+.jetpack-create-ai-podcast__field:last-child {
+	margin-bottom: 0;
+}
+
+.jetpack-create-ai-podcast__field label {
 	display: block;
-	margin-top: 1em;
+	margin: 0 0 6px;
 	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
 }
 
-.jetpack-create-ai-podcast__form select,
-.jetpack-create-ai-podcast__form input[type="search"],
-.jetpack-create-ai-podcast__form textarea {
-	margin-top: 0.25em;
+.jetpack-create-ai-podcast__field select,
+.jetpack-create-ai-podcast__field input[type="search"],
+.jetpack-create-ai-podcast__field textarea {
 	width: 100%;
-	max-width: 540px;
+	max-width: 100%;
+	box-sizing: border-box;
 }
+
+/* --- Radio group ---------------------------------------------------------- */
+
+.jetpack-create-ai-podcast__radio-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 20px;
+}
+
+.jetpack-create-ai-podcast__radio {
+	flex: 1 1 200px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #f6f7f7;
+	cursor: pointer;
+	font-size: 14px;
+	color: #1d2327;
+	transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.jetpack-create-ai-podcast__radio:hover {
+	border-color: #2271b1;
+	background: #fff;
+}
+
+.jetpack-create-ai-podcast__radio:has(input:checked) {
+	border-color: #2271b1;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px #2271b1;
+}
+
+.jetpack-create-ai-podcast__radio input[type="radio"] {
+	margin: 0;
+}
+
+/* --- Posts picker --------------------------------------------------------- */
 
 .jetpack-create-ai-podcast__posts {
-	margin-top: 0.5em;
+	margin-top: 8px;
 	max-height: 320px;
 	overflow-y: auto;
-	border: 1px solid #c3c4c7;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
 	background: #fff;
-	padding: 0.5em 0.75em;
+	padding: 8px 12px;
 }
 
 .jetpack-create-ai-podcast__posts ul {
@@ -67,24 +145,50 @@
 
 .jetpack-create-ai-podcast__posts li {
 	margin: 0;
-	padding: 0.25em 0;
+	padding: 6px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.jetpack-create-ai-podcast__posts li:last-child {
+	border-bottom: 0;
 }
 
 .jetpack-create-ai-podcast__posts label {
 	font-weight: 400;
 	margin: 0;
 	display: flex;
-	gap: 0.5em;
+	gap: 8px;
 	align-items: baseline;
+	font-size: 14px;
+	color: #1d2327;
+	cursor: pointer;
 }
 
 .jetpack-create-ai-podcast__posts .date {
 	color: #646970;
-	font-size: 0.9em;
+	font-size: 13px;
+	margin-left: auto;
 }
 
+/* --- Actions row ---------------------------------------------------------- */
+
+.jetpack-create-ai-podcast__actions {
+	margin-top: 8px;
+	display: flex;
+	gap: 12px;
+}
+
+/* --- Disabled form state -------------------------------------------------- */
+
+.jetpack-create-ai-podcast__form[data-disabled="true"] {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+/* --- Status notice -------------------------------------------------------- */
+
 .jetpack-create-ai-podcast__status {
-	margin-top: 1.5em;
+	margin-top: 16px;
 }
 
 .jetpack-create-ai-podcast__status[data-state="idle"] {
@@ -92,9 +196,12 @@
 }
 
 .jetpack-create-ai-podcast__status-card {
-	padding: 1em 1.25em;
+	background: #fff;
+	border: 1px solid #dcdcde;
 	border-left: 4px solid #2271b1;
-	background: #f6f7f7;
+	border-radius: 8px;
+	padding: 16px 20px;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .jetpack-create-ai-podcast__status-card[data-tone="success"] {
@@ -105,7 +212,35 @@
 	border-left-color: #d63638;
 }
 
-.jetpack-create-ai-podcast__form[data-disabled="true"] {
-	opacity: 0.6;
-	pointer-events: none;
+.jetpack-create-ai-podcast__status-card p {
+	margin: 0 0 12px;
+}
+
+.jetpack-create-ai-podcast__status-card p:last-child {
+	margin-bottom: 0;
+}
+
+.jetpack-create-ai-podcast__status-card .button {
+	margin-right: 8px;
+}
+
+/* --- Narrow viewport tweaks ---------------------------------------------- */
+
+@media (max-width: 600px) {
+
+	.jetpack-create-ai-podcast {
+		max-width: none;
+	}
+
+	.jetpack-create-ai-podcast__card {
+		padding: 16px;
+	}
+
+	.jetpack-create-ai-podcast__radio {
+		flex: 1 1 100%;
+	}
+
+	.jetpack-create-ai-podcast__actions .button-hero {
+		flex: 1;
+	}
 }

@@ -158,79 +158,95 @@ class Create_AI_Podcast_Page {
 		$voice  = voice_presets();
 		?>
 		<div class="wrap jetpack-create-ai-podcast">
-			<h1><?php echo esc_html__( 'Create AI Podcast', 'jetpack-podcast' ); ?></h1>
+			<h1 class="jetpack-create-ai-podcast__page-title">
+				<?php echo esc_html__( 'Create AI Podcast', 'jetpack-podcast' ); ?>
+			</h1>
 
 			<div id="jetpack-create-ai-podcast-app">
-				<div class="jetpack-create-ai-podcast__credits" data-region="credits"></div>
+				<div
+					class="jetpack-create-ai-podcast__card jetpack-create-ai-podcast__card--accent jetpack-create-ai-podcast__credits"
+					data-region="credits"
+				></div>
 
 				<form class="jetpack-create-ai-podcast__form" data-region="form">
-					<fieldset class="jetpack-create-ai-podcast__source">
-						<legend><?php echo esc_html__( 'Source', 'jetpack-podcast' ); ?></legend>
-						<label>
-							<input type="radio" name="source" value="window" checked>
-							<?php echo esc_html__( 'From a date range', 'jetpack-podcast' ); ?>
-						</label>
-						<label>
-							<input type="radio" name="source" value="posts">
-							<?php echo esc_html__( 'From specific posts', 'jetpack-podcast' ); ?>
-						</label>
-					</fieldset>
+					<section class="jetpack-create-ai-podcast__card">
+						<h2 class="jetpack-create-ai-podcast__card-title">
+							<?php echo esc_html__( 'Source', 'jetpack-podcast' ); ?>
+						</h2>
 
-					<div data-source="window">
-						<label for="jetpack-create-ai-podcast-window">
-							<?php echo esc_html__( 'Date range', 'jetpack-podcast' ); ?>
+						<div class="jetpack-create-ai-podcast__radio-group" role="radiogroup">
+							<label class="jetpack-create-ai-podcast__radio">
+								<input type="radio" name="source" value="window" checked>
+								<span><?php echo esc_html__( 'From a date range', 'jetpack-podcast' ); ?></span>
+							</label>
+							<label class="jetpack-create-ai-podcast__radio">
+								<input type="radio" name="source" value="posts">
+								<span><?php echo esc_html__( 'From specific posts', 'jetpack-podcast' ); ?></span>
+							</label>
+						</div>
+
+						<div class="jetpack-create-ai-podcast__field" data-source="window">
+							<label for="jetpack-create-ai-podcast-window">
+								<?php echo esc_html__( 'Date range', 'jetpack-podcast' ); ?>
+							</label>
+							<select id="jetpack-create-ai-podcast-window" name="window">
+								<?php foreach ( $window as $opt ) : ?>
+									<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+
+						<div class="jetpack-create-ai-podcast__field" data-source="posts" hidden>
+							<label for="jetpack-create-ai-podcast-posts-search">
+								<?php echo esc_html__( 'Search posts', 'jetpack-podcast' ); ?>
+							</label>
+							<input
+								type="search"
+								id="jetpack-create-ai-podcast-posts-search"
+								placeholder="<?php echo esc_attr__( 'Type to filter…', 'jetpack-podcast' ); ?>"
+							>
+							<div class="jetpack-create-ai-podcast__posts" data-region="posts"></div>
+						</div>
+					</section>
+
+					<div class="jetpack-create-ai-podcast__field" hidden>
+						<label for="jetpack-create-ai-podcast-length">
+							<?php echo esc_html__( 'Length', 'jetpack-podcast' ); ?>
 						</label>
-						<select id="jetpack-create-ai-podcast-window" name="window">
-							<?php foreach ( $window as $opt ) : ?>
+						<select id="jetpack-create-ai-podcast-length" name="length">
+							<?php foreach ( $length as $opt ) : ?>
 								<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</div>
 
-					<div data-source="posts" hidden>
-						<label for="jetpack-create-ai-podcast-posts-search">
-							<?php echo esc_html__( 'Search posts', 'jetpack-podcast' ); ?>
+					<div class="jetpack-create-ai-podcast__field" hidden>
+						<label for="jetpack-create-ai-podcast-voice">
+							<?php echo esc_html__( 'Voice', 'jetpack-podcast' ); ?>
 						</label>
-						<input
-							type="search"
-							id="jetpack-create-ai-podcast-posts-search"
-							placeholder="<?php echo esc_attr__( 'Type to filter…', 'jetpack-podcast' ); ?>"
-						>
-						<div class="jetpack-create-ai-podcast__posts" data-region="posts"></div>
+						<select id="jetpack-create-ai-podcast-voice" name="voice">
+							<?php foreach ( $voice as $opt ) : ?>
+								<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
+							<?php endforeach; ?>
+						</select>
 					</div>
 
-					<label for="jetpack-create-ai-podcast-length">
-						<?php echo esc_html__( 'Length', 'jetpack-podcast' ); ?>
-					</label>
-					<select id="jetpack-create-ai-podcast-length" name="length">
-						<?php foreach ( $length as $opt ) : ?>
-							<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
-						<?php endforeach; ?>
-					</select>
+					<div class="jetpack-create-ai-podcast__field" hidden>
+						<label for="jetpack-create-ai-podcast-prompt">
+							<?php echo esc_html__( 'Prompt (optional)', 'jetpack-podcast' ); ?>
+						</label>
+						<textarea
+							id="jetpack-create-ai-podcast-prompt"
+							name="prompt"
+							rows="3"
+						></textarea>
+					</div>
 
-					<label for="jetpack-create-ai-podcast-voice">
-						<?php echo esc_html__( 'Voice', 'jetpack-podcast' ); ?>
-					</label>
-					<select id="jetpack-create-ai-podcast-voice" name="voice">
-						<?php foreach ( $voice as $opt ) : ?>
-							<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
-						<?php endforeach; ?>
-					</select>
-
-					<label for="jetpack-create-ai-podcast-prompt">
-						<?php echo esc_html__( 'Prompt (optional)', 'jetpack-podcast' ); ?>
-					</label>
-					<textarea
-						id="jetpack-create-ai-podcast-prompt"
-						name="prompt"
-						rows="3"
-					></textarea>
-
-					<p>
-						<button type="submit" class="button button-primary">
+					<div class="jetpack-create-ai-podcast__actions">
+						<button type="submit" class="button button-primary button-hero">
 							<?php echo esc_html__( 'Generate', 'jetpack-podcast' ); ?>
 						</button>
-					</p>
+					</div>
 				</form>
 
 				<div class="jetpack-create-ai-podcast__status" aria-live="polite" data-region="status"></div>
