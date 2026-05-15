@@ -794,7 +794,7 @@ class Jetpack_Mu_Wpcom {
 	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return array The filtered experiments.
+	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
 		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
@@ -808,6 +808,7 @@ class Jetpack_Mu_Wpcom {
 		$experiments['gutenberg-classic-block-deprecation'] = true;
 		return $experiments;
 	}
+
 	/**
 	 * Add Jetpack script data with host information on P2
 	 *
