@@ -126,15 +126,44 @@ function current_visitor_can_access( $attributes, $block ) {
 			 * @param int   $user_id The user's ID.
 			 * @param int   $site_id ID of the current site.
 			 */
-			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, get_current_blog_id() );
+			$raw_subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, get_current_blog_id() );
 			// format the subscriptions so that they can be validated.
-			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $subscriptions );
+			$subscriptions = WPCOM_Online_Subscription_Service::abbreviate_subscriptions( $raw_subscriptions );
+
+			// Self-heal: when we have authoritative subscriptions from WPCOM but no valid
+			// JWT cookie yet, mint and set one so subsequent requests use the cached path
+			// (and remain accessible if the filter becomes unavailable later).
+			if ( ! empty( $subscriptions ) && ! Abstract_Token_Subscription_Service::has_token_from_cookie() && ! headers_sent() ) {
+				$key = $paywall->get_key();
+				if ( $key ) {
+					$payload_subscriptions = array();
+					foreach ( $raw_subscriptions as $sub ) {
+						$sub = (array) $sub;
+						if ( empty( $sub['product_id'] ) ) {
+							continue;
+						}
+						$pid                           = (int) $sub['product_id'];
+						$payload_subscriptions[ $pid ] = array(
+							'status'     => $sub['status'] ?? 'active',
+							'end_date'   => $sub['end_date'] ?? gmdate( 'Y-m-d H:i:s', time() + MONTH_IN_SECONDS ),
+							'product_id' => $pid,
+						);
+					}
+					$jwt_payload = array(
+						'user_id'       => $user_id,
+						'blog_sub'      => 'active',
+						'subscriptions' => $payload_subscriptions,
+					);
+					$token       = JWT::encode( $jwt_payload, $key );
+					// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+					setcookie( Abstract_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 month' ), '/', '', is_ssl(), false );
+				}
+			}
 		}
 
-		// Fall back to the JWT cookie/token when no subscriptions were found via the filter.
-		// The filter is only registered on WPCOM-hosted sites; on Jetpack self-hosted (where it
-		// returns the empty default) the JWT cookie issued at checkout is the source of truth.
-		// This also covers logged-out visitors arriving via a `?token=` magic link.
+		// Fall back to the JWT cookie/token when the filter returned nothing (e.g. Jetpack
+		// self-hosted without the WPCOM filter registered, or anonymous visitor arriving
+		// via a `?token=` magic link).
 		if ( empty( $subscriptions ) ) {
 			$token          = $paywall->get_and_set_token_from_request();
 			$payload        = $paywall->decode_token( $token );
