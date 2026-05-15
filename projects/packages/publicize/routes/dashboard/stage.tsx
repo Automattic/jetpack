@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
 import OverviewTab from '../../_inc/components/overview-tab';
+import SettingsTab from '../../_inc/components/settings-tab';
 import SocialPage, { type SocialTab } from '../../_inc/components/social-page';
 import { store as socialStore } from '../../_inc/social-store';
 
@@ -65,7 +66,7 @@ const Stage = () => {
 					{ activeTab === 'overview' ? <OverviewTab /> : null }
 				</Tabs.Panel>
 				<Tabs.Panel value="settings" focusable={ false }>
-					{ activeTab === 'settings' ? <div /> : null }
+					{ activeTab === 'settings' ? <SettingsTab /> : null }
 				</Tabs.Panel>
 			</SocialPage>
 		</QueryClientProvider>

@@ -2,7 +2,7 @@ import { useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
-import TEMPLATES_DATA from './templates.js';
+import TEMPLATES_DATA from './templates';
 
 /** @typedef {import('react').ReactNode} ReactNode */
 
