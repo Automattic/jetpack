@@ -534,7 +534,7 @@ export async function promptForTest( argv ) {
 		.filter( test => test.startsWith( 'test-' ) )
 		.map( test => test.substring( 5 ) )
 		// Hide coverage tests, as they should be run with the `jetpack coverage` command.
-		.filter( test => ! test.endsWith( '-coverage' ) );
+		.filter( test => ! test.endsWith( 'coverage' ) );
 	if ( packageJson?.scripts?.typecheck ) {
 		tests.push( 'typecheck' );
 	}
