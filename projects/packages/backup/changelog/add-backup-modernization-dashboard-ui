@@ -1,0 +1,3 @@
+Significance: minor
+Type: added
+Comment: Backup: scaffold the modernized dashboard route with shared <DashboardLayout> chrome and mocked-mode banner. No-op when the modernization filter is off.
