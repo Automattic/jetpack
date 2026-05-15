@@ -13,7 +13,13 @@ import {
 	startRenderingMessages,
 } from './actions/rendered-messages';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { PostShareStatus, RenderedMessageBatch } from './types';
+import { fetchTrafficReferrers, receiveTrafficReferrers } from './actions/traffic-stats';
+import {
+	PostShareStatus,
+	RenderedMessageBatch,
+	TrafficInterval,
+	TrafficReferrerDay,
+} from './types';
 
 /**
  * Resolves the connections from the post.
@@ -133,8 +139,37 @@ export function getRenderedMessages(
 	};
 }
 
+type ReferrersResponse = {
+	days?: Record< string, TrafficReferrerDay >;
+};
+
+/**
+ * Resolver for `getTrafficReferrers`. Hits the existing stats-app REST
+ * endpoint at `/jetpack/v4/stats-app/sites/{site}/stats/referrers` and
+ * stores the per-day rows under the requested interval. The endpoint
+ * resolves the site from `get_current_blog_id()` server-side, so the
+ * frontend path uses a literal `0` segment as the placeholder.
+ *
+ * @param interval - Number of days the chart should cover.
+ * @return Resolver thunk.
+ */
+export function getTrafficReferrers( interval: TrafficInterval = 30 ) {
+	return async ( { dispatch } ) => {
+		dispatch( fetchTrafficReferrers( interval ) );
+		try {
+			const result = await apiFetch< ReferrersResponse >( {
+				path: `/jetpack/v4/stats-app/sites/0/stats/referrers?period=day&num=${ interval }&max=20`,
+			} );
+			dispatch( receiveTrafficReferrers( interval, result?.days ?? {} ) );
+		} catch {
+			dispatch( fetchTrafficReferrers( interval, false ) );
+		}
+	};
+}
+
 export default {
 	getConnections,
 	getPostShareStatus,
 	getRenderedMessages,
+	getTrafficReferrers,
 };
