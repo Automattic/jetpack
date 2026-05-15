@@ -190,16 +190,43 @@ function restoreUndoCursor( root, cursorInfo ) {
 }
 
 /**
+ * Strip runtime-injected figure controls from a content subtree.
+ *
+ * The img-controls wrapper and the delete / alt / caption buttons are added
+ * at runtime by addDeleteButtons() with live event listeners attached. Those
+ * listeners do not survive an innerHTML round-trip, so we drop the markup
+ * before serialising — the MutationObserver in addDeleteButtons() will
+ * re-add buttons (with listeners) when the figure reappears after undo/redo.
+ *
+ * @param {Element} root - Detached root (typically a clone of .bw-content-inner).
+ */
+function stripRuntimeFigureControls( root ) {
+	root.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
+		const img = wrapper.querySelector( 'img' );
+		if ( img ) wrapper.before( img );
+		wrapper.remove();
+	} );
+	root
+		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.forEach( el => el.remove() );
+}
+
+/**
  * Capture the current editor state as an undo snapshot.
  *
  * @return {object} Snapshot containing html, title, and cursor.
  */
 function captureUndoSnapshot() {
 	const content = getContent();
+	if ( ! content ) {
+		return { html: '', title: state.title || '', cursor: null };
+	}
+	const clone = content.cloneNode( true );
+	stripRuntimeFigureControls( clone );
 	return {
-		html: content ? content.innerHTML : '',
+		html: clone.innerHTML,
 		title: state.title || '',
-		cursor: content ? serializeCursor( content ) : null,
+		cursor: serializeCursor( content ),
 	};
 }
 
@@ -2324,6 +2351,35 @@ const { state } = store( 'wpcom-write', {
 				// No adjacent figure — fall through to native Backspace/Delete.
 			}
 
+			// Block Backspace at the very start of the first block. With nothing
+			// to merge into, some browsers respond by unwrapping the structure
+			// — including the .bw-content-inner wrapper that protects user
+			// content from the Interactivity API reconciler. Losing the wrapper
+			// breaks undo/redo, so we no-op this keystroke instead.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const range = sel.getRangeAt( 0 );
+					const content = getContent();
+					if ( content && content.firstElementChild ) {
+						// Walk up from the cursor to the direct child of .bw-content-inner.
+						let block = range.startContainer;
+						while ( block && block.parentNode !== content ) {
+							block = block.parentNode;
+						}
+						if ( block && block === content.firstElementChild ) {
+							const beforeRange = document.createRange();
+							beforeRange.setStart( block, 0 );
+							beforeRange.setEnd( range.startContainer, range.startOffset );
+							if ( beforeRange.toString() === '' ) {
+								event.preventDefault();
+								return;
+							}
+						}
+					}
+				}
+			}
+
 			// Tab / Shift-Tab inside a list: indent / outdent.
 			if ( event.key === 'Tab' ) {
 				const sel = window.getSelection();
@@ -3473,19 +3529,7 @@ async function savePost( postStatus, isAutosave = false ) {
 	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
 		el.removeAttribute( 'contenteditable' );
 	} );
-	// Strip runtime control wrappers and buttons from figures so only
-	// the original media elements are saved.
-	clone.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
-		// Move the img back out of the wrapper.
-		const img = wrapper.querySelector( 'img' );
-		if ( img ) {
-			wrapper.before( img );
-		}
-		wrapper.remove();
-	} );
-	clone
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
-		.forEach( el => el.remove() );
+	stripRuntimeFigureControls( clone );
 
 	// Safety net: if stripping editor-only elements left the clone
 	// empty, treat it the same as no content.
