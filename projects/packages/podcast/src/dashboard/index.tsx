@@ -81,12 +81,20 @@ const App = () => {
 	}, [] );
 
 	// Modal committed title + category atomically; flip out of Welcome and
-	// land the user on Settings to finish the show details.
+	// land the user on Settings to finish the show details. Pin `?tab=settings`
+	// explicitly rather than calling handleTabChange — once the settings query
+	// refetches and `isSetUp` flips true, the default tab flips to `stats` and
+	// a `tab: undefined` URL would bounce the user there before they finish.
 	const handleSetupSuccess = useCallback( () => {
 		setSetupModalOpen( false );
 		setHasEnabled( true );
-		handleTabChange( 'settings' );
-	}, [ handleTabChange ] );
+		navigate( {
+			search: ( prev: Record< string, unknown > ) => ( {
+				...prev,
+				tab: 'settings',
+			} ),
+		} as unknown as Parameters< typeof navigate >[ 0 ] );
+	}, [ navigate ] );
 
 	const goToSettings = useCallback( () => {
 		handleTabChange( 'settings' );

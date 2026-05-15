@@ -98,6 +98,9 @@ const CategorySetupModal = ( {
 	return (
 		<Modal title={ __( 'Set up your podcast', 'jetpack-podcast' ) } onRequestClose={ requestClose }>
 			<VStack spacing={ 4 }>
+				<Text weight={ 600 }>
+					{ __( 'Select a post category for your podcast', 'jetpack-podcast' ) }
+				</Text>
 				<Text variant="muted">
 					{ __(
 						'Posts in the category you choose become episodes in your podcast feed. You can change this later in Settings.',
