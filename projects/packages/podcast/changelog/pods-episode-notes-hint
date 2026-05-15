@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast Episode block: hide the "Add episode show notes in the post content below." hint once the post has content after the block.

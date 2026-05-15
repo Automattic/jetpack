@@ -79,6 +79,7 @@ interface MediaAttachment {
 interface EditProps {
 	attributes: PodcastEpisodeAttributes;
 	setAttributes: ( patch: Partial< PodcastEpisodeAttributes > ) => void;
+	clientId: string;
 	context?: {
 		postId?: number;
 		postType?: string;
@@ -243,7 +244,12 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 	);
 }
 
-export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
+export default function PodcastEpisodeEdit( {
+	attributes,
+	setAttributes,
+	clientId,
+	context,
+}: EditProps ) {
 	const validated = getValidatedAttributes(
 		metadata.attributes,
 		attributes
@@ -294,6 +300,45 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	);
 
 	const coverArtUrl = coverArt?.url || showCoverUrl;
+
+	// Drives the "Add episode show notes in the post content below." hint.
+	// Hide it as soon as there's anything substantive after this block in the
+	// post — a non-paragraph block, or a paragraph with non-whitespace text.
+	// Empty trailing paragraphs (Gutenberg's default appender) don't count.
+	const hasContentBelow = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' ) as {
+				getBlockRootClientId: ( id: string ) => string | null;
+				getBlockOrder: ( id: string | null ) => string[];
+				getBlock: ( id: string ) => {
+					name?: string;
+					attributes?: Record< string, unknown >;
+				} | null;
+			};
+			const rootClientId = blockEditor.getBlockRootClientId( clientId );
+			const order = blockEditor.getBlockOrder( rootClientId );
+			const myIndex = order.indexOf( clientId );
+			if ( myIndex < 0 ) {
+				return false;
+			}
+			return order.slice( myIndex + 1 ).some( id => {
+				const block = blockEditor.getBlock( id );
+				if ( ! block ) {
+					return false;
+				}
+				if ( block.name === 'core/paragraph' ) {
+					const content = block.attributes?.content;
+					const text =
+						typeof content === 'string'
+							? content
+							: String( ( content as { text?: string } )?.text ?? '' );
+					return text.trim() !== '';
+				}
+				return true;
+			} );
+		},
+		[ clientId ]
+	);
 
 	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState< string | null >( null );
@@ -683,9 +728,11 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						) }
 					</div>
 
-					<p className="jetpack-podcast-episode__notes-hint">
-						{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
-					</p>
+					{ ! hasContentBelow && (
+						<p className="jetpack-podcast-episode__notes-hint">
+							{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
+						</p>
+					) }
 				</div>
 			</article>
 		</div>
