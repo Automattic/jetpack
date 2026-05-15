@@ -1,0 +1,3 @@
+Significance: minor
+Type: added
+Comment: Backup: wire the modernized dashboard to real REST endpoints, add Gates for capability checks, drop the mock-mode dev banner. No-op when the modernization filter is off.
