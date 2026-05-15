@@ -56,7 +56,6 @@ class My_Jetpack_Abilities_Test extends TestCase {
 		remove_filter( 'map_meta_cap', array( $this, 'map_jetpack_admin_page_cap' ), 10 );
 		remove_all_filters( 'jetpack_wp_abilities_enabled' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
-		delete_option( My_Jetpack_Abilities::FEEDBACK_LAST_PROMPTED_OPTION );
 
 		// Only unregister abilities/categories that this test actually registered.
 		// Calling wp_unregister_ability() on an unregistered slug emits a
@@ -198,13 +197,12 @@ class My_Jetpack_Abilities_Test extends TestCase {
 	}
 
 	/**
-	 * Both abilities are declared and namespaced under jetpack-my-jetpack/.
+	 * The ability is declared and namespaced under jetpack-my-jetpack/.
 	 */
 	public function test_abilities_map_is_namespaced_and_complete() {
 		$abilities = My_Jetpack_Abilities::get_abilities();
-		$this->assertCount( 2, $abilities );
+		$this->assertCount( 1, $abilities );
 		$this->assertArrayHasKey( 'jetpack-my-jetpack/list-products', $abilities );
-		$this->assertArrayHasKey( 'jetpack-my-jetpack/get-feedback-prompt-state', $abilities );
 		foreach ( array_keys( $abilities ) as $slug ) {
 			$this->assertStringStartsWith( 'jetpack-my-jetpack/', $slug );
 		}
@@ -349,12 +347,7 @@ class My_Jetpack_Abilities_Test extends TestCase {
 		$this->assertNotContains(
 			'jetpack-my-jetpack/list-products',
 			$registered_slugs,
-			'list-products should be filtered out.'
-		);
-		$this->assertContains(
-			'jetpack-my-jetpack/get-feedback-prompt-state',
-			$registered_slugs,
-			'Unfiltered abilities should remain registered.'
+			'list-products should be filtered out when the allow-list filter returns false.'
 		);
 	}
 
@@ -446,51 +439,5 @@ class My_Jetpack_Abilities_Test extends TestCase {
 	public function test_list_products_with_empty_string_slug_returns_full_list() {
 		$result = My_Jetpack_Abilities::list_products( array( 'slug' => '' ) );
 		$this->assertSameSize( Products::get_products_slugs(), $result );
-	}
-
-	// -------------------- Execute: get-feedback-prompt-state --------------------
-
-	/**
-	 * With no option set, should_prompt is true and last_prompted_at is null.
-	 */
-	public function test_get_feedback_prompt_state_returns_defaults_when_no_record() {
-		delete_option( My_Jetpack_Abilities::FEEDBACK_LAST_PROMPTED_OPTION );
-
-		$result = My_Jetpack_Abilities::get_feedback_prompt_state();
-
-		$this->assertSame(
-			array( 'should_prompt', 'last_prompted_at' ),
-			array_keys( $result ),
-			'Response keys must match the documented shape.'
-		);
-		$this->assertTrue( $result['should_prompt'] );
-		$this->assertNull( $result['last_prompted_at'] );
-	}
-
-	/**
-	 * Within the cool-down window, should_prompt is false and last_prompted_at
-	 * is the stored timestamp.
-	 */
-	public function test_get_feedback_prompt_state_inside_cooldown_blocks_prompt() {
-		$recent = time() - 60; // 60 seconds ago, well inside the 30-day cool-down.
-		update_option( My_Jetpack_Abilities::FEEDBACK_LAST_PROMPTED_OPTION, $recent );
-
-		$result = My_Jetpack_Abilities::get_feedback_prompt_state();
-
-		$this->assertFalse( $result['should_prompt'] );
-		$this->assertSame( $recent, $result['last_prompted_at'] );
-	}
-
-	/**
-	 * Once the cool-down window has elapsed, should_prompt flips back to true.
-	 */
-	public function test_get_feedback_prompt_state_after_cooldown_allows_prompt() {
-		$stale = time() - ( My_Jetpack_Abilities::FEEDBACK_COOLDOWN_SECONDS + 60 );
-		update_option( My_Jetpack_Abilities::FEEDBACK_LAST_PROMPTED_OPTION, $stale );
-
-		$result = My_Jetpack_Abilities::get_feedback_prompt_state();
-
-		$this->assertTrue( $result['should_prompt'] );
-		$this->assertSame( $stale, $result['last_prompted_at'] );
 	}
 }

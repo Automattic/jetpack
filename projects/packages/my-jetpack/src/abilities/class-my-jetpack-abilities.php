@@ -17,8 +17,8 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 /**
  * Class My_Jetpack_Abilities
  *
- * Exposes read-only views of My Jetpack state — the product registry and the
- * in-product feedback prompt — through the WordPress Abilities API.
+ * Exposes a read-only view of My Jetpack state — the product registry —
+ * through the WordPress Abilities API.
  */
 class My_Jetpack_Abilities extends Registrar {
 
@@ -30,20 +30,6 @@ class My_Jetpack_Abilities extends Registrar {
 	 * Abilities API surface.
 	 */
 	const CATEGORY_SLUG = 'jetpack';
-
-	/**
-	 * Option key that tracks the timestamp of the last in-product feedback prompt.
-	 *
-	 * Read-only here. The write side (the prompt UI) is responsible for setting
-	 * this option when it surfaces a prompt to the user.
-	 */
-	const FEEDBACK_LAST_PROMPTED_OPTION = 'jetpack_my_jetpack_feedback_last_prompted_at';
-
-	/**
-	 * Minimum seconds between successive feedback prompts. Used as the cool-down
-	 * window when deriving `should_prompt`.
-	 */
-	const FEEDBACK_COOLDOWN_SECONDS = 2592000; // 30 days.
 
 	/**
 	 * {@inheritDoc}
@@ -68,8 +54,7 @@ class My_Jetpack_Abilities extends Registrar {
 	 */
 	public static function get_abilities(): array {
 		return array(
-			'jetpack-my-jetpack/list-products'             => self::spec_list_products(),
-			'jetpack-my-jetpack/get-feedback-prompt-state' => self::spec_get_feedback_prompt_state(),
+			'jetpack-my-jetpack/list-products' => self::spec_list_products(),
 		);
 	}
 
@@ -153,52 +138,6 @@ class My_Jetpack_Abilities extends Registrar {
 		);
 	}
 
-	/**
-	 * Spec: jetpack-my-jetpack/get-feedback-prompt-state.
-	 *
-	 * Zero-arg read of whether the in-product feedback prompt should surface
-	 * for the current site, plus the timestamp of the last prompt.
-	 */
-	private static function spec_get_feedback_prompt_state(): array {
-		return array(
-			'label'               => __( 'Get feedback prompt state', 'jetpack-my-jetpack' ),
-			'description'         => __(
-				'Return whether the My Jetpack in-product feedback prompt should be shown to the current user, and when it was last shown. Always returns { should_prompt: bool, last_prompted_at: int|null }. `last_prompted_at` is a Unix timestamp (seconds) or null when no prompt has ever been recorded. `should_prompt` is true when either no prompt has been recorded or the cool-down (30 days) has elapsed. Read-only and idempotent.',
-				'jetpack-my-jetpack'
-			),
-			'input_schema'        => array(
-				'type'                 => 'object',
-				'default'              => array(),
-				'properties'           => array(),
-				'additionalProperties' => false,
-			),
-			'output_schema'       => array(
-				'type'                 => 'object',
-				'additionalProperties' => false,
-				'properties'           => array(
-					'should_prompt'    => array(
-						'type'        => 'boolean',
-						'description' => __( 'True when the prompt is eligible to be shown now.', 'jetpack-my-jetpack' ),
-					),
-					'last_prompted_at' => array(
-						'type'        => array( 'integer', 'null' ),
-						'description' => __( 'Unix timestamp of the last prompt, or null if no prompt has been recorded.', 'jetpack-my-jetpack' ),
-					),
-				),
-			),
-			'execute_callback'    => array( __CLASS__, 'get_feedback_prompt_state' ),
-			'permission_callback' => array( __CLASS__, 'can_view_my_jetpack' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-			),
-		);
-	}
-
 	/*
 	---------------------------------------------------------------------
 	 * Permission callbacks
@@ -208,7 +147,7 @@ class My_Jetpack_Abilities extends Registrar {
 	/**
 	 * Permission shared by every My Jetpack read ability. Matches the gate on
 	 * the My Jetpack admin page itself: only users who can reach the page can
-	 * see its product registry or feedback-prompt state.
+	 * see its product registry.
 	 *
 	 * @return bool
 	 */
@@ -251,33 +190,6 @@ class My_Jetpack_Abilities extends Registrar {
 		}
 
 		return $entries;
-	}
-
-	/**
-	 * Execute: get-feedback-prompt-state.
-	 *
-	 * @param array|null $input Unused — spec accepts no parameters.
-	 * @return array{ should_prompt: bool, last_prompted_at: ?int }
-	 */
-	public static function get_feedback_prompt_state( $input = null ): array {
-		unset( $input );
-
-		$raw  = get_option( self::FEEDBACK_LAST_PROMPTED_OPTION, 0 );
-		$last = is_numeric( $raw ) ? (int) $raw : 0;
-
-		if ( $last <= 0 ) {
-			return array(
-				'should_prompt'    => true,
-				'last_prompted_at' => null,
-			);
-		}
-
-		$should_prompt = ( time() - $last ) >= self::FEEDBACK_COOLDOWN_SECONDS;
-
-		return array(
-			'should_prompt'    => $should_prompt,
-			'last_prompted_at' => $last,
-		);
 	}
 
 	/*
