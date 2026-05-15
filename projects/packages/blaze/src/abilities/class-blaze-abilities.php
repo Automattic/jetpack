@@ -224,11 +224,26 @@ class Blaze_Abilities extends Registrar {
 				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and Blaze public page topic IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
-					'required'             => array( 'target_urn' ),
+					'required'             => array(),
 					'properties'           => array(
 						'target_urn'           => array(
 							'type'        => 'string',
-							'description' => __( 'The URN of the post or product to promote (e.g. urn:wpcom:post:123456:42).', 'jetpack-blaze' ),
+							'description' => __( 'The canonical URN of the post or product to promote (e.g. urn:wpcom:post:123456:42). Advanced callers may pass this directly; other callers should use site_url plus post_id or site_url plus product_id.', 'jetpack-blaze' ),
+						),
+						'site_url'             => array(
+							'type'        => 'string',
+							'format'      => 'uri',
+							'description' => __( 'Optional public WordPress.com site URL or domain used with post_id or product_id when target_urn is not known.', 'jetpack-blaze' ),
+						),
+						'post_id'              => array(
+							'type'        => 'integer',
+							'description' => __( 'Optional WordPress post ID to promote with site_url when target_urn is not known. Do not send post_id and product_id together.', 'jetpack-blaze' ),
+							'minimum'     => 1,
+						),
+						'product_id'           => array(
+							'type'        => 'integer',
+							'description' => __( 'Optional WooCommerce product_id to promote with site_url when target_urn is not known. This is normalized into the canonical post target URN. Do not send post_id and product_id together.', 'jetpack-blaze' ),
+							'minimum'     => 1,
 						),
 						'goal'                 => array(
 							'type'        => 'string',
@@ -1387,7 +1402,12 @@ class Blaze_Abilities extends Registrar {
 	private static function get_prepare_campaign_failure_category( \WP_Error $error ): string {
 		switch ( $error->get_error_code() ) {
 			case 'blaze_invalid_target_urn':
+			case 'blaze_missing_target':
+			case 'blaze_ambiguous_target':
 				return 'invalid_target';
+			case 'blaze_site_lookup_failed':
+			case 'blaze_site_not_connected':
+				return 'site_lookup_failed';
 			case 'blaze_post_not_found':
 				return 'target_not_found';
 			case 'blaze_setup_required':

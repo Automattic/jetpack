@@ -43,6 +43,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 	public function tear_down() {
 		Jetpack_Options::delete_option( 'id' );
 		unset( $GLOBALS['wp_rest_server'] );
+		remove_all_filters( 'pre_http_request' );
 	}
 
 	/**
@@ -85,6 +86,29 @@ class Campaign_Preparer_Test extends BaseTestCase {
 				'callback'            => $callback,
 				'permission_callback' => '__return_true',
 			)
+		);
+	}
+
+	/**
+	 * Mock the public WordPress.com site lookup used by portable target inputs.
+	 *
+	 * @param string $expected_site_url Expected site URL.
+	 * @param array  $response          Mock HTTP response.
+	 */
+	private function mock_site_lookup( string $expected_site_url, array $response ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $expected_site_url, $response ) {
+				$expected_path = '/rest/v1.1/sites/' . rawurlencode( $expected_site_url );
+
+				if ( false !== strpos( $url, $expected_path ) ) {
+					return $response;
+				}
+
+				return $preempt;
+			},
+			10,
+			3
 		);
 	}
 
@@ -460,5 +484,111 @@ class Campaign_Preparer_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'blaze_invalid_target_urn', $result->get_error_code() );
+	}
+
+	/**
+	 * Friendly site URL + post ID inputs are normalized into the canonical
+	 * target URN before the existing proposal path runs.
+	 */
+	public function test_prepare_accepts_site_url_and_post_id() {
+		$ctx = $this->make_test_post();
+		$this->mock_site_lookup(
+			'https://example.com',
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ID' => self::TEST_SITE_ID ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'site_url'      => 'https://example.com',
+				'post_id'       => $ctx['post_id'],
+				'budget_total'  => 25,
+				'duration_days' => 5,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( $ctx['target_urn'], $result['prefill']['target_urn'] );
+		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
+	}
+
+	/**
+	 * Product_id is a Woo-friendly alias for the promoted post ID in the
+	 * canonical Blaze target URN.
+	 */
+	public function test_prepare_accepts_site_url_and_product_id() {
+		$ctx = $this->make_test_post( array( 'post_type' => 'product' ) );
+		$this->mock_site_lookup(
+			'https://shop.example.com',
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ID' => self::TEST_SITE_ID ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'site_url'   => 'https://shop.example.com',
+				'product_id' => $ctx['post_id'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( $ctx['target_urn'], $result['prefill']['target_urn'] );
+		$this->assertSame( 'product', $result['prefill']['type'] );
+	}
+
+	/**
+	 * A failed public site lookup is a clear hard stop, not a malformed URN.
+	 */
+	public function test_prepare_returns_error_when_site_lookup_fails() {
+		$ctx = $this->make_test_post();
+		$this->mock_site_lookup(
+			'https://missing.example.com',
+			array(
+				'response' => array( 'code' => 404 ),
+				'body'     => wp_json_encode( array( 'error' => 'unknown_blog' ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'site_url' => 'https://missing.example.com',
+				'post_id'  => $ctx['post_id'],
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_site_lookup_failed', $result->get_error_code() );
+	}
+
+	/**
+	 * Callers must choose either post_id or product_id for friendly inputs.
+	 */
+	public function test_prepare_returns_error_for_ambiguous_friendly_target() {
+		$ctx = $this->make_test_post();
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'site_url'   => 'https://example.com',
+				'post_id'    => $ctx['post_id'],
+				'product_id' => $ctx['post_id'],
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_ambiguous_target', $result->get_error_code() );
+	}
+
+	/**
+	 * Missing target inputs get a specific error that can guide MCP clients.
+	 */
+	public function test_prepare_returns_error_for_missing_target_input() {
+		$result = Campaign_Preparer::prepare( array() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_missing_target', $result->get_error_code() );
 	}
 }
