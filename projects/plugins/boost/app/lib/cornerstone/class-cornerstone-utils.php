@@ -98,7 +98,7 @@ class Cornerstone_Utils {
 	public static function prepare_provider_data( $url ) {
 		return array(
 			'key' => self::get_provider_key( $url ),
-			'url' => self::sanitize_url( $url ),
+			'url' => $url,
 		);
 	}
 
