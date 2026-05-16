@@ -111,7 +111,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		// normalizes them to their Unicode code points — valid in XML.
 		update_option( 'podcasting_title', 'Rock&nbsp;Roll &copy; Show' );
 
-		$this->assertSame( "Rock\u{a0}Roll \u{a9} Show", Customize_Feed::feed_title( 'Default Title' ) );
+		$this->assertSame( "Rock\u{00A0}Roll \u{00A9} Show", Customize_Feed::feed_title( 'Default Title' ) );
 	}
 
 	public function test_feed_title_escapes_blog_and_category_fallback_for_rss_title() {
@@ -190,8 +190,8 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		// `wp_strip_all_tags` removes the markup, then `esc_xml()` normalizes
 		// the named HTML entities into Unicode characters (well-formed XML).
-		$this->assertStringContainsString( "<itunes:summary>Rock\u{a0}Roll \u{a9} Show</itunes:summary>", $xml );
-		$this->assertStringContainsString( "<googleplay:description>Rock\u{a0}Roll \u{a9} Show</googleplay:description>", $xml );
+		$this->assertStringContainsString( "<itunes:summary>Rock\u{00A0}Roll \u{00A9} Show</itunes:summary>", $xml );
+		$this->assertStringContainsString( "<googleplay:description>Rock\u{00A0}Roll \u{00A9} Show</googleplay:description>", $xml );
 		$this->assertStringNotContainsString( '&nbsp;', $xml );
 		$this->assertStringNotContainsString( '&copy;', $xml );
 	}
