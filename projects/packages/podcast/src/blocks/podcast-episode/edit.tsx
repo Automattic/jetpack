@@ -21,7 +21,7 @@ import {
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import metadata from './block.json';
@@ -83,7 +83,6 @@ interface EditProps {
 	context?: {
 		postId?: number;
 		postType?: string;
-		queryId?: number;
 	};
 }
 
@@ -249,10 +248,10 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 }
 
 export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
-	const validated = getValidatedAttributes(
-		metadata.attributes,
-		attributes
-	) as PodcastEpisodeAttributes;
+	const validated = useMemo(
+		() => getValidatedAttributes( metadata.attributes, attributes ) as PodcastEpisodeAttributes,
+		[ attributes ]
+	);
 	const {
 		mediaId,
 		mediaUrl,
@@ -595,8 +594,19 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Podcasting 2.0', 'jetpack-podcast' ) } initialOpen={ false }>
 					<BaseControl __nextHasNoMarginBottom>
-						<BaseControl.VisualLabel>{ __( 'People', 'jetpack-podcast' ) }</BaseControl.VisualLabel>
+						<BaseControl.VisualLabel>
+							{ __( 'Guests & credits', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<p className="components-base-control__help">
+							{ __(
+								'Credit hosts, guests, and producers. Read by Podcasting 2.0 apps (Podverse, Fountain, Podcast Addict) and rendered as a credits list on the post page.',
+								'jetpack-podcast'
+							) }
+						</p>
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
@@ -678,12 +688,12 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							<video
 								src={ mediaUrl }
 								controls
-								preload="metadata"
+								preload="none"
 								poster={ showPoster ? coverArtUrl : undefined }
 								data-mime={ mediaMimeType || undefined }
 							/>
 						) : (
-							<audio src={ mediaUrl } controls preload="metadata" />
+							<audio src={ mediaUrl } controls preload="none" />
 						) }
 					</div>
 				</div>

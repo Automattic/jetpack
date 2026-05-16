@@ -208,6 +208,9 @@ class Podcast_Episode_Block {
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
+		if ( '' !== $transcript_url && ! wp_http_validate_url( $transcript_url ) ) {
+			$transcript_url = '';
+		}
 		$chapters       = isset( $attributes['chapters'] ) && is_array( $attributes['chapters'] ) ? $attributes['chapters'] : array();
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
@@ -217,8 +220,10 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
+		$author_id        = (int) $post->post_author;
 		$title            = get_the_title( $post );
-		$author_name      = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$author_name      = get_the_author_meta( 'display_name', $author_id );
+		$author_url       = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
 		$episode_url      = get_permalink( $post );
@@ -302,7 +307,13 @@ class Podcast_Episode_Block {
 						<p class="jetpack-podcast-episode__byline">
 							<?php if ( $author_name ) : ?>
 								<span class="jetpack-podcast-episode__author" itemprop="author" itemscope itemtype="https://schema.org/Person">
-									<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+									<?php if ( $author_url ) : ?>
+										<a href="<?php echo esc_url( $author_url ); ?>" itemprop="url">
+											<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+										</a>
+									<?php else : ?>
+										<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+									<?php endif; ?>
 								</span>
 							<?php endif; ?>
 							<?php if ( $publish_date ) : ?>
@@ -340,7 +351,7 @@ class Podcast_Episode_Block {
 							<video
 								class="jetpack-podcast-episode__video"
 								controls
-								preload="metadata"
+								preload="none"
 								src="<?php echo esc_url( $media_url ); ?>"
 								<?php
 								if ( $image_url ) :
@@ -355,7 +366,7 @@ class Podcast_Episode_Block {
 							<audio
 								class="jetpack-podcast-episode__audio"
 								controls
-								preload="metadata"
+								preload="none"
 								src="<?php echo esc_url( $media_url ); ?>"
 								<?php
 								if ( $mime_type ) :
