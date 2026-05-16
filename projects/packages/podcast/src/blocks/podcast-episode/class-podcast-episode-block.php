@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Request;
 
 /**
@@ -243,17 +242,6 @@ class Podcast_Episode_Block {
 
 		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
-
-		// Route the player through the same WPCOM stats endpoint the RSS feed
-		// rewrites enclosures to, so front-end plays count alongside RSS
-		// subscriber plays. Mirrors the gating used in Customize_Feed.
-		/** This filter is documented in projects/packages/podcast/src/feed/class-customize-feed.php */
-		$track_plays = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post );
-		if ( $track_plays ) {
-			/** This filter is documented in projects/packages/podcast/src/feed/class-customize-feed.php */
-			$tracked_blog_id = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post );
-			$media_url       = Customize_Feed::build_stats_url( $tracked_blog_id, (int) $post->ID, $media_url );
-		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
 
