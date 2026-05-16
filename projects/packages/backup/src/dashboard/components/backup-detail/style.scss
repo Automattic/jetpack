@@ -6,6 +6,32 @@
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
 	}
 
+	// Allow the title group and the action group to drop onto separate
+	// rows when the card is too narrow to fit them side-by-side
+	// (notably on stacked / mobile layouts). Without this the inner
+	// Stack stays nowrap, each link wraps mid-label, and the row
+	// collapses into an unreadable squeeze.
+	&__header-row {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+
+	// Keep the title pinned to its icon and let the heading shrink with
+	// the row rather than forcing the parent to overflow.
+	&__header-title {
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
+	// Keep each action label on a single line so it stays legible when
+	// the action group wraps onto its own row. flex-wrap lets the two
+	// links drop to a second sub-row if the viewport is too narrow even
+	// for them side-by-side (deep mobile / zoomed-in widths).
+	&__header-actions {
+		flex-wrap: wrap;
+		flex-shrink: 0;
+	}
+
 	&__body {
 		display: flex;
 		flex-direction: column;

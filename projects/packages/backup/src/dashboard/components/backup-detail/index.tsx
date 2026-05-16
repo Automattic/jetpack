@@ -79,14 +79,29 @@ export default function BackupDetail( { item }: Props ) {
 	return (
 		<Card.Root className="jpb-backup-detail">
 			<Card.Header className="jpb-backup-detail__header">
-				<Stack direction="row" align="center" justify="space-between">
-					<Stack direction="row" gap="xs" align="center">
+				<Stack
+					className="jpb-backup-detail__header-row"
+					direction="row"
+					align="center"
+					justify="space-between"
+				>
+					<Stack
+						className="jpb-backup-detail__header-title"
+						direction="row"
+						gap="xs"
+						align="center"
+					>
 						<Icon icon={ cloud } />
 						<Text variant="heading-md" render={ <h3 /> }>
 							{ __( 'Backup and scan complete', 'jetpack-backup-pkg' ) }
 						</Text>
 					</Stack>
-					<Stack direction="row" gap="sm" align="center">
+					<Stack
+						className="jpb-backup-detail__header-actions"
+						direction="row"
+						gap="sm"
+						align="center"
+					>
 						<Link to={ `/download/${ item.rewindId }` } className="jpb-backup-detail__download">
 							<Icon icon={ downloadIcon } size={ 18 } />
 							{ downloadLabel( count ) }
