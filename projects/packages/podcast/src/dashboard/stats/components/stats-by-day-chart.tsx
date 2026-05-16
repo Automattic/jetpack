@@ -89,8 +89,7 @@ const StatsByDayChart = ( {
 		[ byDay ]
 	);
 
-	// BarChart's per-series color override flows through `options.stroke` in
-	// @automattic/charts (see GlobalChartsProvider#getElementStyles).
+	// @automattic/charts uses options.stroke as the per-series bar color override.
 	const barFill = useMemo( () => getPodcastStatsBarFill(), [] );
 
 	const seriesData = useMemo(
