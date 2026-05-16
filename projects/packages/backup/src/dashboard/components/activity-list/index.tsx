@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloud, image, post, plugins as pluginsIcon, color } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
-import { useMockActivityLog } from '../../hooks/use-mock-activity-log';
+import { useActivityLog } from '../../hooks/use-activity-log';
 import { isBackupItem } from '../../types/activity';
 import './style.scss';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
@@ -115,14 +115,11 @@ export default function ActivityList( { selectedId, onSelect }: Props ) {
 	} );
 
 	// Drive the hook with DataViews' own view state so the hook is the
-	// single source of truth for the visible slice + counts. The mock
-	// hook's contract matches the real `useActivityLog` from the
-	// data-layer follow-up, so swapping the import line later is the
-	// only change required here.
+	// single source of truth for the visible slice + counts.
 	const page = view.page ?? 1;
 	const perPage = view.perPage ?? DEFAULT_PER_PAGE;
 	const search = view.search ?? '';
-	const { items, totalItems, totalPages, isLoading } = useMockActivityLog( {
+	const { items, totalItems, totalPages, isLoading } = useActivityLog( {
 		page,
 		pageSize: perPage,
 		search,
