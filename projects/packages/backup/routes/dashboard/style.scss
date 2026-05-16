@@ -21,6 +21,7 @@
 // list grows past the viewport. Scoped to the backup admin body so it
 // can't leak onto other Jetpack pages.
 body.jetpack_page_jetpack-backup {
+
 	@include jetpack-admin-page-layout-wp-build;
 
 	// The shared mixin assumes `<AdminPage>` from `@automattic/jetpack-components`
