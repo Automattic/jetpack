@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast Episode: enrich front-end schema.org markup with PodcastSeason, AudioObject/VideoObject, Clip chapters and soundbites, transcript MediaObject, and partOfSeries PodcastSeries with publisher.

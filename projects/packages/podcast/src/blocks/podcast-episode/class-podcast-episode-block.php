@@ -419,7 +419,7 @@ class Podcast_Episode_Block {
 					<?php if ( ! empty( $rendered_chapters ) ) : ?>
 						<ol class="jetpack-podcast-episode__chapters">
 							<?php foreach ( $rendered_chapters as $chapter ) : ?>
-								<?php $chapter_start_seconds = (int) floor( max( 0, (float) $chapter['startTime'] ) ); ?>
+								<?php $chapter_start_seconds = (int) floor( max( 0, $chapter['startTime'] ) ); ?>
 								<li
 									class="jetpack-podcast-episode__chapter"
 									itemprop="hasPart"
