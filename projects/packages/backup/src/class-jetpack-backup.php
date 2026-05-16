@@ -122,6 +122,7 @@ class Jetpack_Backup {
 		Connection_Rest_Authentication::init();
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -969,6 +970,27 @@ class Jetpack_Backup {
 		}
 
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Emit `window.JP_CONNECTION_INITIAL_STATE` inline on the modernized
+	 * Backup admin page.
+	 *
+	 * The modernized enqueue path short-circuits before the legacy
+	 * `Connection_Initial_State::render_script()` call, so without this
+	 * the React `<Gates>` component never sees the connection state and
+	 * sits on its loading skeleton forever. We emit the same JS payload
+	 * the legacy path emits, just outside of a registered script handle
+	 * (wp-build's handles aren't reliable here, and the global is
+	 * page-scoped — any tag setting it works).
+	 *
+	 * @return void
+	 */
+	public static function render_connection_initial_state() {
+		echo '<script id="jetpack-backup-connection-initial-state">'
+			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
+			. '</script>';
 	}
 
 	/**
@@ -1024,7 +1046,7 @@ class Jetpack_Backup {
 	 *
 	 * @return bool
 	 */
-	private static function is_modernized() {
+	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 
