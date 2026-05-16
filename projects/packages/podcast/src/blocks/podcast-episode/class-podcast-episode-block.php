@@ -33,6 +33,13 @@ class Podcast_Episode_Block {
 	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
 
 	/**
+	 * Front-end view script handle. Enqueued from the render callback
+	 * because the block.json `viewScript` field can't resolve to the
+	 * package's dist directory from the deployed src location.
+	 */
+	const VIEW_HANDLE = 'jetpack-podcast-episode-view';
+
+	/**
 	 * Wire the block's actions. Hooks are added unconditionally; each
 	 * callback re-checks the untangle filter and short-circuits when off.
 	 */
@@ -80,6 +87,26 @@ class Podcast_Episode_Block {
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'style'           => self::STYLE_HANDLE,
+			)
+		);
+	}
+
+	/**
+	 * Register and enqueue the front-end view script that wires chapter and
+	 * soundbite buttons to the audio player. Called from the render callback
+	 * so the script only ships on pages that actually contain the block.
+	 *
+	 * `Assets::register_script` dedups internally, so calling this for each
+	 * rendered instance of the block is safe.
+	 */
+	private static function enqueue_view_script() {
+		Assets::register_script(
+			self::VIEW_HANDLE,
+			'../../../dist/blocks/podcast-episode/view.js',
+			__FILE__,
+			array(
+				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
 	}
@@ -198,6 +225,8 @@ class Podcast_Episode_Block {
 		if ( ! wp_http_validate_url( $media_url ) ) {
 			return '';
 		}
+
+		self::enqueue_view_script();
 
 		$media_type     = isset( $attributes['mediaType'] ) && 'video' === $attributes['mediaType'] ? 'video' : 'audio';
 		$mime_type      = isset( $attributes['mediaMimeType'] ) ? (string) $attributes['mediaMimeType'] : '';
