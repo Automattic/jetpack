@@ -105,7 +105,7 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 const PERSON_ROW_STYLE = { marginBottom: '1em' };
 
 const formatTimeCode = ( seconds: number | undefined ): string => {
-	if ( ! seconds || seconds < 0 || Number.isNaN( seconds ) ) {
+	if ( typeof seconds !== 'number' || seconds < 0 || Number.isNaN( seconds ) ) {
 		return '';
 	}
 	const total = Math.floor( seconds );
