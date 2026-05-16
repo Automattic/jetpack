@@ -92,11 +92,7 @@ export default function RestoreScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button
-								className="jpb-restore__confirm"
-								variant="secondary"
-								onClick={ reset }
-							>
+							<Button className="jpb-restore__confirm" variant="secondary" onClick={ reset }>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>

@@ -92,11 +92,7 @@ export default function DownloadScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button
-								className="jpb-download__confirm"
-								variant="secondary"
-								onClick={ reset }
-							>
+							<Button className="jpb-download__confirm" variant="secondary" onClick={ reset }>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>
