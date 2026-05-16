@@ -170,8 +170,8 @@ class Jetpack_Backup {
 			: array( __CLASS__, 'plugin_settings_page' );
 
 		$page_suffix = Admin_Menu::add_menu(
-			'Jetpack Backup',
-			'Backup', // Product name, do not translate.
+			'Jetpack VaultPress Backup',
+			'VaultPress Backup', // Product name, do not translate.
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
 			$callback,
