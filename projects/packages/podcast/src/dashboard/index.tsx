@@ -183,7 +183,7 @@ const App = () => {
 	// not at this button. Free users get a plain new post.
 	const headerActions = isSetUp ? (
 		<Button variant="primary" href={ NEW_EPISODE_URL }>
-			{ __( '+ Create episode', 'jetpack-podcast' ) }
+			{ __( 'Create episode', 'jetpack-podcast' ) }
 		</Button>
 	) : undefined;
 
