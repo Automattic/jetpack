@@ -6,6 +6,34 @@
  * just need one delegated click listener per episode to seek the player.
  */
 
+const seekAndPlay = ( media: HTMLMediaElement, seconds: number ): void => {
+	const seek = () => {
+		try {
+			media.currentTime = seconds;
+		} catch {
+			// Edge case: setting currentTime may still throw if the media never
+			// got past HAVE_NOTHING — ignore and let play() start where it can.
+		}
+	};
+
+	// With preload="none" the element is in readyState 0 (HAVE_NOTHING) until
+	// play() is called. Setting currentTime now would throw INVALID_STATE_ERR
+	// per the HTML spec, so wait for loadedmetadata if we're not there yet.
+	if ( media.readyState >= 1 ) {
+		seek();
+	} else {
+		media.addEventListener( 'loadedmetadata', seek, { once: true } );
+		media.load();
+	}
+
+	const playResult = media.play();
+	if ( playResult && typeof playResult.catch === 'function' ) {
+		playResult.catch( () => {
+			// Autoplay restrictions can still reject even after a user click.
+		} );
+	}
+};
+
 const wireEpisode = ( root: Element ): void => {
 	const media = root.querySelector< HTMLMediaElement >(
 		'.jetpack-podcast-episode__audio, .jetpack-podcast-episode__video'
@@ -25,18 +53,7 @@ const wireEpisode = ( root: Element ): void => {
 		if ( Number.isNaN( seconds ) || seconds < 0 ) {
 			return;
 		}
-		try {
-			media.currentTime = seconds;
-		} catch {
-			// Some browsers throw if the media isn't ready yet — ignore and let
-			// play() resume from wherever the element starts.
-		}
-		const playResult = media.play();
-		if ( playResult && typeof playResult.catch === 'function' ) {
-			playResult.catch( () => {
-				// Autoplay restrictions can still reject even after a user click.
-			} );
-		}
+		seekAndPlay( media, seconds );
 	} );
 };
 
