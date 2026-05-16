@@ -19,6 +19,10 @@ const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
 const editPostUrl = ( postId: number ): string =>
 	`${ ADMIN_URL }post.php?action=edit&post=${ postId }`;
 
+// Server-side filters key off `?podcast_episode=1` to apply the configured
+// podcast category (and, on Premium, prefill the Podcast Episode block).
+const newEpisodeUrl = (): string => `${ ADMIN_URL }post-new.php?podcast_episode=1`;
+
 interface EpisodeRow {
 	id: number;
 	title: string;
@@ -298,6 +302,31 @@ const EpisodesTab = () => {
 						'jetpack-podcast'
 					) }
 				</p>
+			</div>
+		);
+	}
+
+	// Post-setup, no posts in the chosen category yet. Loading guard avoids
+	// flashing the empty state before the first page resolves. No search/filter
+	// guard because DataViews mounts its toolbar after the first render.
+	const hasNoEpisodes =
+		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( f => f.value );
+
+	if ( hasNoEpisodes ) {
+		return (
+			<div className="podcast__empty-state">
+				<h2 className="podcast__section-heading">
+					{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
+				</h2>
+				<p>
+					{ __(
+						'Publish a podcast post in your chosen category to see it here.',
+						'jetpack-podcast'
+					) }
+				</p>
+				<Button variant="primary" href={ newEpisodeUrl() }>
+					{ __( '+ Create episode', 'jetpack-podcast' ) }
+				</Button>
 			</div>
 		);
 	}
