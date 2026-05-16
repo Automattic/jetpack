@@ -304,7 +304,9 @@ export default function PodcastEpisodeEdit( {
 	// Drives the "Add episode show notes in the post content below." hint.
 	// Hide it as soon as there's anything substantive after this block in the
 	// post: a non-paragraph block, or a paragraph with non-whitespace text.
-	// Empty trailing paragraphs (Gutenberg's default appender) don't count.
+	// Empty trailing paragraphs (Gutenberg's default appender) don't count,
+	// and an empty Group/Columns/List wrapper doesn't either; we recurse into
+	// container children rather than treating the wrapper itself as content.
 	// Walks ancestor lists so content placed after a Group/Columns wrapper at
 	// any nesting level still counts as "below".
 	const hasContentBelow = useSelect(
@@ -312,25 +314,36 @@ export default function PodcastEpisodeEdit( {
 			const blockEditor = select( 'core/block-editor' ) as {
 				getBlockRootClientId: ( id: string ) => string | null;
 				getBlockOrder: ( id: string | null ) => string[];
-				getBlock: ( id: string ) => {
-					name?: string;
-					attributes?: Record< string, unknown >;
-				} | null;
+				getBlockName: ( id: string ) => string | null;
+				getBlockAttributes: ( id: string ) => Record< string, unknown > | null;
 			};
+			// Container blocks render no content of their own when empty.
+			const EMPTY_CONTAINERS = new Set( [
+				'core/group',
+				'core/columns',
+				'core/column',
+				'core/list',
+				'core/list-item',
+				'core/buttons',
+			] );
 			const isSubstantive = ( id: string ): boolean => {
-				const block = blockEditor.getBlock( id );
-				if ( ! block ) {
+				const name = blockEditor.getBlockName( id );
+				if ( ! name ) {
 					return false;
 				}
-				if ( block.name === 'core/paragraph' ) {
-					const content = block.attributes?.content;
+				if ( name === 'core/paragraph' ) {
+					const content = blockEditor.getBlockAttributes( id )?.content;
 					const text =
 						typeof content === 'string'
 							? content
 							: String( ( content as { text?: string } )?.text ?? '' );
 					return text.trim() !== '';
 				}
-				return true;
+				const children = blockEditor.getBlockOrder( id );
+				if ( children.length > 0 ) {
+					return children.some( isSubstantive );
+				}
+				return ! EMPTY_CONTAINERS.has( name );
 			};
 			let currentId: string | null = clientId;
 			while ( currentId ) {
