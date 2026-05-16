@@ -371,7 +371,7 @@ class Podcast_Episode_Block {
 								</time>
 							<?php endif; ?>
 							<?php if ( $duration ) : ?>
-								<span class="jetpack-podcast-episode__duration" itemprop="duration"><?php echo esc_html( $duration ); ?></span>
+								<span class="jetpack-podcast-episode__duration"><?php echo esc_html( $duration ); ?></span>
 							<?php endif; ?>
 						</p>
 					<?php endif; ?>
@@ -388,9 +388,6 @@ class Podcast_Episode_Block {
 						<?php endif; ?>
 						<?php if ( $duration ) : ?>
 							<meta itemprop="duration" content="<?php echo esc_attr( $duration ); ?>" />
-						<?php endif; ?>
-						<?php if ( $title ) : ?>
-							<meta itemprop="name" content="<?php echo esc_attr( $title ); ?>" />
 						<?php endif; ?>
 						<?php if ( 'video' === $media_type ) : ?>
 							<video
@@ -584,7 +581,6 @@ class Podcast_Episode_Block {
 							<?php endif; ?>
 							<?php if ( $show_email ) : ?>
 								<span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
-									<meta itemprop="name" content="<?php echo esc_attr( $show_title ); ?>" />
 									<meta itemprop="email" content="<?php echo esc_attr( $show_email ); ?>" />
 								</span>
 							<?php endif; ?>
