@@ -114,12 +114,18 @@ export default function ActivityList( { selectedId, onSelect }: Props ) {
 		fields: [],
 	} );
 
-	// Always pull the full fixture; DataViews handles pagination, search,
-	// and filtering on the in-memory dataset.
-	const { items: allItems, isLoading } = useMockActivityLog( {
-		page: 1,
-		pageSize: 100,
-		search: '',
+	// Drive the hook with DataViews' own view state so the hook is the
+	// single source of truth for the visible slice + counts. The mock
+	// hook's contract matches the real `useActivityLog` from the
+	// data-layer follow-up, so swapping the import line later is the
+	// only change required here.
+	const page = view.page ?? 1;
+	const perPage = view.perPage ?? DEFAULT_PER_PAGE;
+	const search = view.search ?? '';
+	const { items, totalItems, totalPages, isLoading } = useMockActivityLog( {
+		page,
+		pageSize: perPage,
+		search,
 	} );
 
 	const fields: Field< ActivityItem >[] = useMemo(
@@ -170,38 +176,14 @@ export default function ActivityList( { selectedId, onSelect }: Props ) {
 		[ selectedId ]
 	);
 
-	// DataViews treats `data` as the already-paginated/filtered page when
-	// `paginationInfo` is passed. We want client-side everything for the
-	// in-memory fixture, so we slice ourselves and forward the totals.
-	const filtered = useMemo( () => {
-		const q = ( view.search ?? '' ).toLowerCase();
-		if ( ! q ) {
-			return allItems;
-		}
-		return allItems.filter( item => {
-			const haystack = `${ item.title } ${ item.summary ?? '' } ${ item.publishedAt }`;
-			return haystack.toLowerCase().includes( q );
-		} );
-	}, [ allItems, view.search ] );
-
-	const perPage = view.perPage ?? DEFAULT_PER_PAGE;
-	const page = view.page ?? 1;
-	const paged = useMemo(
-		() => filtered.slice( ( page - 1 ) * perPage, page * perPage ),
-		[ filtered, page, perPage ]
-	);
-
 	return (
 		<Card.Root className="jpb-activity-list" aria-busy={ isLoading }>
 			<DataViews< ActivityItem >
-				data={ paged }
+				data={ items }
 				fields={ fields }
 				view={ view }
 				onChangeView={ setView }
-				paginationInfo={ {
-					totalItems: filtered.length,
-					totalPages: Math.max( 1, Math.ceil( filtered.length / perPage ) ),
-				} }
+				paginationInfo={ { totalItems, totalPages } }
 				defaultLayouts={ { list: {} } }
 				getItemId={ getRowId }
 				selection={ selection }

@@ -13,15 +13,18 @@ type Args = {
 
 type Result = {
 	items: ActivityItem[];
+	totalItems: number;
 	totalPages: number;
 	isLoading: boolean;
+	error: Error | null;
 };
 
 /**
  * Predicate that returns true when the given activity item matches the search query.
  *
- * Matching is case-insensitive against the item's title and optional summary.
- * An empty query returns every item.
+ * Matches case-insensitively against the item's title and optional summary —
+ * the same surface the real `useActivityLog` hook in the data-layer follow-up
+ * matches against, so swapping the import line preserves search behaviour.
  *
  * @param item - Activity item to test.
  * @param q    - Search query (raw, untrimmed).
@@ -38,15 +41,19 @@ function matchesSearch( item: ActivityItem, q: string ): boolean {
 /**
  * Hook returning a paginated, search-filtered slice of the mock activity log.
  *
+ * Mirrors the shape of the real `useActivityLog` hook (same `Args`, same
+ * `Result` keys) so the data-layer follow-up can swap the import line
+ * without touching the consumer.
+ *
  * Adds synthetic latency so the dashboard exercises its loading states even
  * with fixture data: a longer delay on first load, a shorter one on every
- * page or search change after that.
+ * page / pageSize / search change after that.
  *
  * @param args          - Query arguments.
  * @param args.page     - 1-indexed page number.
  * @param args.pageSize - Number of items per page.
  * @param args.search   - Current search query.
- * @return The current page of items, total page count, and loading flag.
+ * @return The current page of items, total item / page counts, loading flag, and a (mock-always-null) error.
  */
 export function useMockActivityLog( { page, pageSize, search }: Args ): Result {
 	// Tracked in a ref (not state) so settling the first load doesn't itself
@@ -63,15 +70,18 @@ export function useMockActivityLog( { page, pageSize, search }: Args ): Result {
 			firstLoadDoneRef.current = true;
 		}, delay );
 		return () => window.clearTimeout( handle );
-	}, [ page, search ] );
+	}, [ page, pageSize, search ] );
 
-	const { items, totalPages } = useMemo( () => {
+	const { items, totalItems, totalPages } = useMemo( () => {
 		const filtered = MOCK_ACTIVITY_LOG.filter( item => matchesSearch( item, search ) );
 		const total = Math.max( 1, Math.ceil( filtered.length / pageSize ) );
 		const start = ( page - 1 ) * pageSize;
-		const slice = filtered.slice( start, start + pageSize );
-		return { items: slice, totalPages: total };
+		return {
+			items: filtered.slice( start, start + pageSize ),
+			totalItems: filtered.length,
+			totalPages: total,
+		};
 	}, [ page, pageSize, search ] );
 
-	return { items, totalPages, isLoading };
+	return { items, totalItems, totalPages, isLoading, error: null };
 }

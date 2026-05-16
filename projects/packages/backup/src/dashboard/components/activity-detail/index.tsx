@@ -25,7 +25,7 @@ export default function ActivityDetail( { item }: Props ) {
 					</Text>
 					<Text size="small" variant="muted">
 						{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
-						{ '   ' }
+						{ ' · ' }
 						{ item.actor.name }
 					</Text>
 					{ item.summary && <Text>{ item.summary }</Text> }

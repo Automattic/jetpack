@@ -65,7 +65,8 @@ export default function OverviewScreen() {
 				<Stack direction="row" gap="sm">
 					<Button variant="outline" tone="neutral">
 						<Button.Icon icon={ calendar } />
-						{ __( 'Apr 16, 2026 to May 15, 2026', 'jetpack-backup-pkg' ) }
+						{ /* Placeholder copy for the upcoming date-range filter — not translated until the real UI lands. */ }
+						Apr 16, 2026 to May 15, 2026
 					</Button>
 					<Button variant="outline" tone="neutral">
 						{ __( 'Back up now', 'jetpack-backup-pkg' ) }

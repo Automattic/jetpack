@@ -66,11 +66,14 @@ function restoreLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
-	// `count` tracks the number of items the visitor sees ticked in the
-	// loaded subtree (selections + inherited descendants + indeterminate
-	// folders). FileBrowser owns the loaded children, so it reports the
-	// count back here for the header labels to swap between "Download
-	// backup" and "Download N items".
+	// `count` tracks how many opaque server-side download units the
+	// current selection covers — files plus folders whose contents
+	// haven't been loaded yet (each treated as one unit). Loaded
+	// folders contribute via their leaves, not themselves;
+	// indeterminate folders don't add to the count. FileBrowser owns
+	// the loaded children, so it reports the count back here for the
+	// header labels to swap between "Download backup" and "Download N
+	// items".
 	const [ count, setCount ] = useState( 0 );
 
 	return (
@@ -107,7 +110,7 @@ export default function BackupDetail( { item }: Props ) {
 				</Text>
 				<div className="jpb-backup-detail__files">
 					<div className="jpb-backup-detail__files-title">
-						{ __( 'FILES', 'jetpack-backup-pkg' ) }
+						{ __( 'Files', 'jetpack-backup-pkg' ) }
 					</div>
 					<FileBrowser
 						rewindId={ item.rewindId }

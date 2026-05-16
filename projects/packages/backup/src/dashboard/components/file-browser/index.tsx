@@ -562,7 +562,10 @@ function NodeRow( {
 					) }
 					{ ! isLoading && ( children ?? [] ).length === 0 && (
 						<div className="jpb-file-browser__empty" style={ { paddingLeft: 44 + depth * 16 } }>
-							{ __( 'Empty', 'jetpack-backup-pkg' ) }
+							{
+								/* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
+								__( 'Empty', 'jetpack-backup-pkg' )
+							}
 						</div>
 					) }
 					{ ! isLoading &&

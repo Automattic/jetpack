@@ -1,13 +1,15 @@
 const MOCK_URL_PARAM = 'jpb-mock';
 
-let cachedValue: boolean | null = null;
-
 /**
- * Read the mock-mode flag from the current URL's query string.
+ * Hook returning whether the dashboard should use fixture data.
  *
- * @return True when the `?jpb-mock` query parameter is present.
+ * Reads the `?jpb-mock` query parameter from the current URL on every call,
+ * so client-side navigation that drops the param (e.g. a `<Link to="/">`
+ * back to the overview) flips the answer back to `false` as expected.
+ *
+ * @return True when mock mode is active (`?jpb-mock=1`).
  */
-function readFromUrl(): boolean {
+export function useIsMockMode(): boolean {
 	if ( typeof window === 'undefined' ) {
 		return false;
 	}
@@ -16,19 +18,4 @@ function readFromUrl(): boolean {
 	} catch {
 		return false;
 	}
-}
-
-/**
- * Hook returning whether the dashboard should use fixture data.
- *
- * The value is read from the URL once and cached for the lifetime of the page,
- * so subsequent calls are cheap and stable across re-renders.
- *
- * @return True when mock mode is active (`?jpb-mock=1`).
- */
-export function useIsMockMode(): boolean {
-	if ( cachedValue === null ) {
-		cachedValue = readFromUrl();
-	}
-	return cachedValue;
 }
