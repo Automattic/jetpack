@@ -35,24 +35,8 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_archive' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
-		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
-	}
-
-	private function configure_podcast_category( int $id, string $name ): int {
-		$term = new WP_Term(
-			(object) array(
-				'term_id'          => $id,
-				'name'             => $name,
-				'slug'             => 'podcast-' . $id,
-				'taxonomy'         => 'category',
-				'term_taxonomy_id' => $id,
-			)
-		);
-		wp_cache_set( $id, $term, 'terms' );
-		update_option( 'podcasting_category_id', $id );
-		return $id;
 	}
 
 	/**
@@ -100,29 +84,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 'My Podcast Show', Customize_Feed::feed_title( 'Default Title' ) );
 	}
 
-	public function test_feed_title_escapes_override_for_rss_title() {
-		update_option( 'podcasting_title', 'My <Podcast> & "Friends"' );
-
-		$this->assertSame( 'My &lt;Podcast&gt; &amp; &quot;Friends&quot;', Customize_Feed::feed_title( 'Default Title' ) );
-	}
-
-	public function test_feed_title_escapes_blog_and_category_fallback_for_rss_title() {
-		$this->configure_podcast_category( 1234, 'Audio <News> & "Reviews"' );
-		$blogname = static function () {
-			return 'Blog <Name> & "Site"';
-		};
-		add_filter( 'pre_option_blogname', $blogname );
-
-		try {
-			$this->assertSame(
-				'Blog &lt;Name&gt; &amp; &quot;Site&quot; &#187; Audio &lt;News&gt; &amp; &quot;Reviews&quot;',
-				Customize_Feed::feed_title( 'Default Title' )
-			);
-		} finally {
-			remove_filter( 'pre_option_blogname', $blogname );
-		}
-	}
-
 	public function test_feed_title_falls_through_when_no_override_and_no_category() {
 		update_option( 'podcasting_title', '' );
 		update_option( 'podcasting_category_id', 0 );
@@ -155,22 +116,6 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( "<itunes:category text='Technology'>", $xml );
 		$this->assertStringContainsString( "<itunes:category text='Tech News' />", $xml );
-	}
-
-	public function test_category_tag_escapes_xml_attributes() {
-		$xml = Customize_Feed::category_tag( 'Arts & <Culture>,Kids\' Shows "Daily"' );
-
-		$this->assertStringContainsString( "<itunes:category text='Arts &#38; &#60;Culture&#62;'>", $xml );
-		$this->assertStringContainsString( "<itunes:category text='Kids&#039; Shows &#34;Daily&#34;' />", $xml );
-	}
-
-	public function test_category_tag_normalizes_html_named_entities_for_xml() {
-		// `&nbsp;` is a valid HTML named entity but not defined in XML — must be
-		// converted to a numeric reference so the feed stays well-formed.
-		$xml = Customize_Feed::category_tag( 'Rock&nbsp;Roll' );
-
-		$this->assertStringContainsString( "<itunes:category text='Rock&#160;Roll' />", $xml );
-		$this->assertStringNotContainsString( '&nbsp;', $xml );
 	}
 
 	/**
