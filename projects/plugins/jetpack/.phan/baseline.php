@@ -60,7 +60,6 @@ return [
     // PhanNonClassMethodCall : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanParamTooManyCallable : 2 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
@@ -268,7 +267,6 @@ return [
         'modules/likes/jetpack-likes-settings.php' => ['PhanDeprecatedFunction'],
         'modules/markdown/easy-markdown.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'modules/memberships/class-jetpack-memberships.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
-        'modules/module-headings.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/monitor.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'modules/plugin-search.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'modules/post-by-email/class-jetpack-post-by-email.php' => ['PhanUndeclaredMethodInCallable'],

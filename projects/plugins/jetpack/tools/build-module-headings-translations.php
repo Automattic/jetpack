@@ -116,7 +116,7 @@ foreach ( $all_modules as $module_key => $module_info ) {
 
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\n\treturn isset( \$modules[ \$key ] ) ? \$modules[ \$key ] : null;
+$file_contents .= "\n\treturn \$modules[ \$key ] ?? array();
 }";
 
 /*
@@ -160,7 +160,7 @@ $file_contents .= "
  */
 function jetpack_get_module_info( \$key ) {
 \tstatic \$module_info = " . str_replace( "\n", "\n\t", var_export( $all_modules, true ) ) . ";
-\treturn isset( \$module_info[ \$key ] ) ? \$module_info[ \$key ] : null;
+\treturn \$module_info[ \$key ] ?? '';
 }\n";
 
 /*
