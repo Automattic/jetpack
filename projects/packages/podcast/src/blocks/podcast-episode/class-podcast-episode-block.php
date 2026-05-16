@@ -265,13 +265,23 @@ class Podcast_Episode_Block {
 		$show_image_url = (string) get_option( 'podcasting_image', '' );
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
-		// Cover art: episode-specific override → show-level podcasting_image option → none.
+		// Cover art chain: episode override → post featured image → show-level cover → none.
 		// Resolved unconditionally so schema metadata always carries the image; the
 		// `$show_poster` toggle only gates the visible figure and the video poster.
+		$image_url = '';
 		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
 			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
 		} else {
-			$image_url = $show_image_url;
+			$featured_id = (int) get_post_thumbnail_id( $post );
+			if ( $featured_id ) {
+				$featured_url = (string) wp_get_attachment_image_url( $featured_id, 'full' );
+				if ( '' !== $featured_url ) {
+					$image_url = $featured_url;
+				}
+			}
+			if ( '' === $image_url ) {
+				$image_url = $show_image_url;
+			}
 		}
 
 		// AudioObject/VideoObject @type for the embedded media.

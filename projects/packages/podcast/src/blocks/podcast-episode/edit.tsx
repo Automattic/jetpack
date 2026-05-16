@@ -278,6 +278,12 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	const [ postTitle ] = useEntityProp( 'postType', postType, 'title', postId );
 	const [ postDate ] = useEntityProp( 'postType', postType, 'date', postId );
 	const [ authorId ] = useEntityProp( 'postType', postType, 'author', postId );
+	const [ featuredImageId ] = useEntityProp< number >(
+		'postType',
+		postType,
+		'featured_media',
+		postId
+	);
 
 	// Source the show-level cover from the same REST surface the dashboard
 	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
@@ -297,7 +303,23 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		[ authorId ]
 	);
 
-	const coverArtUrl = coverArt?.url || showCoverUrl;
+	const featuredImageUrl = useSelect(
+		select => {
+			if ( ! featuredImageId ) {
+				return '';
+			}
+			const media = (
+				select( coreStore ) as {
+					getMedia: ( id: number ) => { source_url?: string } | null;
+				}
+			 ).getMedia( featuredImageId );
+			return media?.source_url || '';
+		},
+		[ featuredImageId ]
+	);
+
+	// Editor preview mirrors the PHP chain: episode override → featured image → show cover.
+	const coverArtUrl = coverArt?.url || featuredImageUrl || showCoverUrl;
 
 	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState< string | null >( null );
@@ -524,7 +546,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						</MediaUploadCheck>
 						<p className="components-base-control__help">
 							{ __(
-								'Defaults to the show cover art set in Settings → Writing → Podcasting.',
+								'Defaults to the post’s featured image, then the show cover art from Settings → Writing → Podcasting.',
 								'jetpack-podcast'
 							) }
 						</p>
