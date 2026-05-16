@@ -131,7 +131,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( '' !== $instance['address'] ) {
 
 				$showmap = $instance['showmap'];
-				$goodmap = isset( $instance['goodmap'] ) ? $instance['goodmap'] : $this->has_good_map( $instance );
+				$goodmap = $instance['goodmap'] ?? $this->has_good_map( $instance );
 
 				if ( $showmap && true === $goodmap ) {
 					/**
@@ -214,7 +214,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
 			$instance['email']   = wp_kses( $new_instance['email'], array() );
 			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
-			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
+			$instance['apikey']  = wp_kses( $new_instance['apikey'] ?? $old_instance['apikey'], array() );
 
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;

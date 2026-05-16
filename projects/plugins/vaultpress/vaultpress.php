@@ -2292,9 +2292,9 @@ JS;
 			$args['cause_user_id'] = -1;
 			$args['cause_user_login'] = '';
 		}
-		$args['cause_ip'] = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null ;
-		$args['cause_uri'] = isset( $_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
-		$args['cause_method'] = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$args['cause_ip']     = $_SERVER['REMOTE_ADDR'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_uri']    = $_SERVER['REQUEST_URI'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_method'] = $_SERVER['REQUEST_METHOD'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// End audit trail breadcrumbs
 
 		$args['version']   = $this->plugin_version;

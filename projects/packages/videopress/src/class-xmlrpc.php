@@ -89,7 +89,7 @@ class XMLRPC {
 
 		foreach ( $media as & $media_item ) {
 			$title = sanitize_title( basename( $media_item['url'] ) );
-			$guid  = isset( $media['guid'] ) ? $media['guid'] : null;
+			$guid  = $media['guid'] ?? null;
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 

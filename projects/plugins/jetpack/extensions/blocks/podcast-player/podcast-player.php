@@ -219,8 +219,8 @@ function get_colors( $name, $attrs, $property ) {
 	$attr_color  = "{$name}Color";
 	$attr_custom = 'custom' . ucfirst( $attr_color );
 
-	$color        = isset( $attrs[ $attr_color ] ) ? $attrs[ $attr_color ] : null;
-	$custom_color = isset( $attrs[ $attr_custom ] ) ? $attrs[ $attr_custom ] : null;
+	$color        = $attrs[ $attr_color ] ?? null;
+	$custom_color = $attrs[ $attr_custom ] ?? null;
 
 	$colors = array(
 		'class' => '',

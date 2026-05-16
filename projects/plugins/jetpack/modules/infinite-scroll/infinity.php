@@ -711,7 +711,7 @@ class The_Neverending_Home_Page {
 			$query = self::wp_query();
 		}
 
-		$orderby = isset( $query->query_vars['orderby'] ) ? $query->query_vars['orderby'] : '';
+		$orderby = $query->query_vars['orderby'] ?? '';
 
 		switch ( $orderby ) {
 			case 'modified':

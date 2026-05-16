@@ -89,7 +89,7 @@ class Action_Endpoint {
 	public function handle_action( $request ) {
 		try {
 			$params      = $request->get_json_params();
-			$data        = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$data        = $params['JSON'] ?? null;
 			$parsed_data = $this->request_schema->parse( $data );
 
 			// Delegate to the action handler

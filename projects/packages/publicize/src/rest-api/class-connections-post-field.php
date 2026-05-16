@@ -293,7 +293,7 @@ class Connections_Post_Field {
 			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
-		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
+		$this->get_meta_to_update( $request_connections, $post->ID ?? 0 );
 
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.

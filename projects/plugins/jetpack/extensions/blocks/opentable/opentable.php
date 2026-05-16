@@ -130,7 +130,7 @@ function get_attribute( $attributes, $attribute_name ) {
 		'newtab' => 'false',
 	);
 
-	return isset( $default_attributes[ $attribute_name ] ) ? $default_attributes[ $attribute_name ] : null;
+	return $default_attributes[ $attribute_name ] ?? null;
 }
 
 /**
