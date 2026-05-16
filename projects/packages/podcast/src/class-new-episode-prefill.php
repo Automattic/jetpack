@@ -11,13 +11,13 @@ namespace Automattic\Jetpack\Podcast;
  * Prefills the new-post screen with the configured podcast category and, on
  * Premium, an inserted Podcast Episode block.
  *
- * The dashboard's "+ Create episode" button (header on every tab, CTA on the
+ * The dashboard's "Create episode" button (header on every tab, CTA on the
  * empty Episodes state) routes through `post-new.php?podcast_episode=1`. This
  * class catches that flag during auto-draft creation and:
  *
  * - Assigns the configured `podcasting_category_id` to the new post (all plans).
  * - Prefills the post content with the Podcast Episode block (Premium only,
- *   via `Podcast_Gate::has_product_access()`).
+ *   via `Podcast_Gate::has_product_access()` when that class is available).
  *
  * Free users get a plain new post and add a core Audio block themselves with
  * an externally hosted URL.
@@ -25,6 +25,14 @@ namespace Automattic\Jetpack\Podcast;
 class New_Episode_Prefill {
 
 	const QUERY_VAR = 'podcast_episode';
+
+	/**
+	 * Tracks the first auto-draft we touch so we can self-unhook and avoid
+	 * acting on any sibling auto-draft created later in the same request.
+	 *
+	 * @var int
+	 */
+	private static $handled_post_id = 0;
 
 	/**
 	 * Register hooks.
@@ -37,7 +45,7 @@ class New_Episode_Prefill {
 
 	/**
 	 * Wire the auto-draft / default-content filters only on
-	 * `post-new.php?podcast_episode=1`.
+	 * `post-new.php?podcast_episode=1` with a configured podcast category.
 	 *
 	 * We bind on `admin_init` rather than at load time so `$pagenow` is
 	 * settled.
@@ -56,9 +64,18 @@ class New_Episode_Prefill {
 			return;
 		}
 
+		// Direct URLs can hit this even when the dashboard CTA isn't visible.
+		// If no category is configured, the prefill is meaningless and the
+		// block prefill below would land on an unconfigured site; bail.
+		if ( (int) get_option( 'podcasting_category_id', 0 ) <= 0 ) {
+			return;
+		}
+
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
 
-		if ( Podcast_Gate::has_product_access() ) {
+		// `Podcast_Gate` is a future package; fail closed (no block prefill)
+		// until it exists so an unqualified call doesn't fatal.
+		if ( class_exists( __NAMESPACE__ . '\\Podcast_Gate' ) && Podcast_Gate::has_product_access() ) {
 			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 		}
 	}
@@ -69,7 +86,8 @@ class New_Episode_Prefill {
 	 * Fires on `wp_insert_post` once for the auto-draft `post-new.php` creates;
 	 * we filter to that single insert (new, not update; post post-type;
 	 * auto-draft status) so user-driven saves later in the editor session
-	 * aren't re-overridden.
+	 * aren't re-overridden. After the first match we self-unhook so any
+	 * sibling auto-draft created later in the same request is left alone.
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post    Post object.
@@ -85,6 +103,9 @@ class New_Episode_Prefill {
 		if ( 'post' !== $post->post_type || 'auto-draft' !== $post->post_status ) {
 			return;
 		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 
 		$category_id = (int) get_option( 'podcasting_category_id', 0 );
 		if ( $category_id <= 0 ) {
@@ -92,6 +113,9 @@ class New_Episode_Prefill {
 		}
 
 		wp_set_post_categories( $post_id, array( $category_id ) );
+
+		self::$handled_post_id = (int) $post_id;
+		remove_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10 );
 	}
 
 	/**
@@ -99,7 +123,9 @@ class New_Episode_Prefill {
 	 *
 	 * The `default_content` filter runs once when the editor loads the
 	 * auto-draft. If a previous filter (or another plugin) has already filled
-	 * `$content`, leave it alone.
+	 * `$content`, leave it alone. Scoped to the post we already category-tagged
+	 * so a sibling auto-draft in the same request doesn't inherit the block,
+	 * then self-unhooks.
 	 *
 	 * @param string   $content Default post content.
 	 * @param \WP_Post $post    Post object.
@@ -109,9 +135,15 @@ class New_Episode_Prefill {
 		if ( ! ( $post instanceof \WP_Post ) || 'post' !== $post->post_type ) {
 			return $content;
 		}
+		if ( self::$handled_post_id > 0 && (int) $post->ID !== self::$handled_post_id ) {
+			return $content;
+		}
 		if ( '' !== trim( (string) $content ) ) {
 			return $content;
 		}
+
+		remove_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10 );
+
 		return "<!-- wp:jetpack/podcast-episode /-->\n";
 	}
 }
