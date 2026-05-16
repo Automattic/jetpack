@@ -152,7 +152,12 @@ function ChaptersEditor( { chapters, onChange }: ChaptersEditorProps ) {
 	return (
 		<>
 			{ chapters.map( ( chapter, index ) => (
-				<div className="jetpack-podcast-episode__chapter-row" key={ index }>
+				<div
+					className={ clsx( 'jetpack-podcast-episode__chapter-row', {
+						'jetpack-podcast-episode__chapter-row--alt': index % 2 === 1,
+					} ) }
+					key={ index }
+				>
 					<TextControl
 						label={ __( 'Start', 'jetpack-podcast' ) }
 						help={ __( 'HH:MM:SS or MM:SS.', 'jetpack-podcast' ) }

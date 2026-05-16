@@ -21,6 +21,11 @@
 		border-radius: 4px;
 	}
 
+	// Alternate the chapter row background so a stack reads as distinct cards.
+	.jetpack-podcast-episode__chapter-row--alt {
+		background: #f6f7f7;
+	}
+
 	.jetpack-podcast-episode__notes-hint {
 		margin-top: 12px;
 		color: #757575;
@@ -38,10 +43,15 @@
 		width: 100%;
 	}
 
+	// `<Button>` defaults to `display: inline-flex; height: 36px;` which makes
+	// the image overflow the bounds when we drop it inside. Force the button to
+	// act as a block container that grows to wrap whatever it holds.
 	.jetpack-podcast-episode__cover-button {
 		box-sizing: border-box;
+		display: block;
 		width: 100%;
 		height: auto;
+		min-height: 0;
 		padding: 0;
 		border: 1px solid #ddd;
 		border-radius: 4px;
@@ -63,11 +73,11 @@
 	}
 
 	.jetpack-podcast-episode__cover-button--empty {
-		min-height: 92px;
-		border-style: dashed;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		min-height: 92px;
+		border-style: dashed;
 
 		span {
 			color: var(--wp-admin-theme-color, #007cba);
