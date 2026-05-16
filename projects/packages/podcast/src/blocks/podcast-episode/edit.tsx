@@ -687,10 +687,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							<audio src={ mediaUrl } controls preload="metadata" />
 						) }
 					</div>
-
-					<p className="jetpack-podcast-episode__notes-hint">
-						{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
-					</p>
 				</div>
 			</article>
 		</div>
