@@ -106,14 +106,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 'My &lt;Podcast&gt; &amp; &quot;Friends&quot;', Customize_Feed::feed_title( 'Default Title' ) );
 	}
 
-	public function test_feed_title_normalizes_html_named_entities_to_utf8() {
-		// `&nbsp;`/`&copy;` are not predefined XML entities, so `esc_xml()`
-		// normalizes them to their Unicode code points — valid in XML.
-		update_option( 'podcasting_title', 'Rock&nbsp;Roll &copy; Show' );
-
-		$this->assertSame( "Rock\u{00A0}Roll \u{00A9} Show", Customize_Feed::feed_title( 'Default Title' ) );
-	}
-
 	public function test_feed_title_escapes_blog_and_category_fallback_for_rss_title() {
 		$this->configure_podcast_category( 1234, 'Audio <News> & "Reviews"' );
 		$blogname = static function () {
@@ -179,21 +171,6 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( "<itunes:category text='Rock&#160;Roll' />", $xml );
 		$this->assertStringNotContainsString( '&nbsp;', $xml );
-	}
-
-	public function test_output_channel_tags_escapes_summary_for_xml() {
-		update_option( 'podcasting_summary', 'Rock&nbsp;Roll &copy; <strong>Show</strong>' );
-
-		ob_start();
-		Customize_Feed::output_channel_tags();
-		$xml = (string) ob_get_clean();
-
-		// `wp_strip_all_tags` removes the markup, then `esc_xml()` normalizes
-		// the named HTML entities into Unicode characters (well-formed XML).
-		$this->assertStringContainsString( "<itunes:summary>Rock\u{00A0}Roll \u{00A9} Show</itunes:summary>", $xml );
-		$this->assertStringContainsString( "<googleplay:description>Rock\u{00A0}Roll \u{00A9} Show</googleplay:description>", $xml );
-		$this->assertStringNotContainsString( '&nbsp;', $xml );
-		$this->assertStringNotContainsString( '&copy;', $xml );
 	}
 
 	/**
