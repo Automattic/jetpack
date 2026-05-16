@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast: bar colors on the Stats tab now follow the user's wp-admin color scheme, with Studio Blue as the default for the Fresh scheme and non-wp-admin contexts.
+Stats: bar colors now follow the user's wp-admin color scheme, with Studio Blue as the default for the Fresh scheme and non-wp-admin contexts.

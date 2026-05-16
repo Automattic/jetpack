@@ -10,11 +10,16 @@ export function getPodcastStatsBarFill(): string {
 		return STUDIO_BLUE;
 	}
 
-	if ( document.body.classList.contains( 'admin-color-fresh' ) ) {
+	const body = document.body;
+	const hasAdminScheme = /\badmin-color-/.test( body.className );
+
+	// Mirror the SCSS guard: contexts with no admin-color-* class (e.g. Calypso)
+	// always get Studio Blue, even if --wp-admin-theme-color is set on body.
+	if ( ! hasAdminScheme || body.classList.contains( 'admin-color-fresh' ) ) {
 		return STUDIO_BLUE;
 	}
 
-	const resolved = getComputedStyle( document.body )
+	const resolved = getComputedStyle( body )
 		.getPropertyValue( '--wp-admin-theme-color' )
 		.trim();
 	return resolved || STUDIO_BLUE;
