@@ -170,23 +170,27 @@ $jetpack-podcast-episode-gap: 16px;
 		font-size: 0.9em;
 	}
 
-	.jetpack-podcast-episode__chapter {
-		display: flex;
-		gap: 12px;
-		align-items: baseline;
-	}
-
 	.jetpack-podcast-episode__chapter-time {
 		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
 		color: gb.$gray-700;
 	}
 
-	// The view script tags chapters and soundbites with .is-clickable once
-	// it has wired the play/seek handlers; the style only applies when JS
-	// has hydrated, so non-JS readers see static lists with no hover affordance.
-	.jetpack-podcast-episode__chapter.is-clickable,
-	.jetpack-podcast-episode__soundbite.is-clickable {
+	// Click-to-seek buttons render in place of plain rows. Reset the browser's
+	// default <button> chrome so they read as regular list items, then add a
+	// hover/focus affordance to signal interactivity.
+	.jetpack-podcast-episode__chapter-button,
+	.jetpack-podcast-episode__soundbite-button {
+		display: flex;
+		gap: 12px;
+		align-items: baseline;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		text-align: inherit;
 		cursor: pointer;
 		border-radius: 2px;
 

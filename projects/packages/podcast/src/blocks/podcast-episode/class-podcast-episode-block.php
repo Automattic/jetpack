@@ -384,16 +384,21 @@ class Podcast_Episode_Block {
 									itemprop="hasPart"
 									itemscope
 									itemtype="https://schema.org/Clip"
-									data-start-time="<?php echo esc_attr( (string) $start_seconds ); ?>"
 								>
 									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $start_seconds ); ?>" />
 									<?php if ( null !== $end_seconds ) : ?>
 										<meta itemprop="endOffset" content="<?php echo esc_attr( (string) $end_seconds ); ?>" />
 									<?php endif; ?>
-									<time class="jetpack-podcast-episode__soundbite-time"><?php echo esc_html( $start_label ); ?></time>
-									<?php if ( '' !== $soundbite_title ) : ?>
-										<span class="jetpack-podcast-episode__soundbite-title" itemprop="name"><?php echo esc_html( $soundbite_title ); ?></span>
-									<?php endif; ?>
+									<button
+										type="button"
+										class="jetpack-podcast-episode__soundbite-button"
+										data-start-time="<?php echo esc_attr( (string) $start_seconds ); ?>"
+									>
+										<time class="jetpack-podcast-episode__soundbite-time"><?php echo esc_html( $start_label ); ?></time>
+										<?php if ( '' !== $soundbite_title ) : ?>
+											<span class="jetpack-podcast-episode__soundbite-title" itemprop="name"><?php echo esc_html( $soundbite_title ); ?></span>
+										<?php endif; ?>
+									</button>
 								</li>
 							<?php endforeach; ?>
 						</ul>
@@ -426,13 +431,18 @@ class Podcast_Episode_Block {
 									itemprop="hasPart"
 									itemscope
 									itemtype="https://schema.org/Clip"
-									data-start-time="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>"
 								>
 									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>" />
-									<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
-									<?php if ( '' !== $chapter['title'] ) : ?>
-										<span class="jetpack-podcast-episode__chapter-title" itemprop="name"><?php echo esc_html( $chapter['title'] ); ?></span>
-									<?php endif; ?>
+									<button
+										type="button"
+										class="jetpack-podcast-episode__chapter-button"
+										data-start-time="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>"
+									>
+										<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
+										<?php if ( '' !== $chapter['title'] ) : ?>
+											<span class="jetpack-podcast-episode__chapter-title" itemprop="name"><?php echo esc_html( $chapter['title'] ); ?></span>
+										<?php endif; ?>
+									</button>
 								</li>
 							<?php endforeach; ?>
 						</ol>
