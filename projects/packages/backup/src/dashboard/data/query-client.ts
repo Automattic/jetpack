@@ -35,8 +35,6 @@ export const keys = {
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
 		[ 'backup', 'file-contents', rewindId, path ] as const,
-	pathInfo: ( rewindId: string, path: string | null ) =>
-		[ 'backup', 'path-info', rewindId, path ] as const,
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,

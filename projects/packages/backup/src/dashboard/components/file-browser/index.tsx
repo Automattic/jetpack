@@ -9,8 +9,7 @@ import {
 	category as folderIcon,
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
-import { MOCK_FILE_TREE } from '../../fixtures/file-tree';
-import { useMockFileTree } from '../../hooks/use-mock-file-tree';
+import { useFileTree } from '../../hooks/use-file-tree';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
 import './style.scss';
@@ -322,8 +321,9 @@ export default function FileBrowser( {
 	onSelectionChange,
 	onSelectionCountChange,
 }: Props ) {
-	const [ openFilePath, setOpenFilePath ] = useState< string | null >( null );
-	const roots = MOCK_FILE_TREE;
+	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
+	const { children: rootsData, isLoading: rootsLoading } = useFileTree( rewindId, null );
+	const roots = useMemo< FileNode[] >( () => rootsData ?? [], [ rootsData ] );
 	const { selected, deselected } = selection;
 
 	// Loaded folder children, hoisted here so toggle propagation and the
@@ -331,8 +331,24 @@ export default function FileBrowser( {
 	// already expanded. Top-level roots live under the empty-string key
 	// so `parentOf('/foo') === ''` resolves consistently.
 	const [ loadedChildren, setLoadedChildren ] = useState< Map< string, FileNode[] > >(
-		() => new Map< string, FileNode[] >( [ [ '', roots ] ] )
+		() => new Map< string, FileNode[] >()
 	);
+
+	// Sync the lazily-fetched root list into the loadedChildren map once
+	// it resolves so toggle propagation can see the top-level siblings.
+	useEffect( () => {
+		if ( ! rootsData ) {
+			return;
+		}
+		setLoadedChildren( prev => {
+			if ( prev.get( '' ) === rootsData ) {
+				return prev;
+			}
+			const next = new Map( prev );
+			next.set( '', rootsData );
+			return next;
+		} );
+	}, [ rootsData ] );
 
 	const registerChildren = useCallback( ( path: string, children: FileNode[] ) => {
 		setLoadedChildren( prev => {
@@ -400,9 +416,7 @@ export default function FileBrowser( {
 		} );
 	}, [ selected.size, roots, onSelectionChange ] );
 
-	const closeInfoCard = useCallback( () => setOpenFilePath( null ), [] );
-
-	const openFile = findFileInTree( roots, openFilePath );
+	const closeInfoCard = useCallback( () => setOpenFile( null ), [] );
 
 	return (
 		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
@@ -420,19 +434,26 @@ export default function FileBrowser( {
 			</Stack>
 			<div className="jpb-file-browser__layout">
 				<div className="jpb-file-browser__tree">
-					{ roots.map( ( node, index ) => (
-						<NodeRow
-							key={ node.path }
-							node={ node }
-							depth={ 0 }
-							isAlternate={ index % 2 === 1 }
-							ancestorSelected={ false }
-							selection={ selection }
-							onToggle={ toggleAt }
-							onOpenFile={ setOpenFilePath }
-							onRegisterChildren={ registerChildren }
-						/>
-					) ) }
+					{ rootsLoading && (
+						<div className="jpb-file-browser__loading">
+							<Spinner />
+						</div>
+					) }
+					{ ! rootsLoading &&
+						roots.map( ( node, index ) => (
+							<NodeRow
+								key={ node.path }
+								node={ node }
+								depth={ 0 }
+								isAlternate={ index % 2 === 1 }
+								ancestorSelected={ false }
+								rewindId={ rewindId }
+								selection={ selection }
+								onToggle={ toggleAt }
+								onOpenFile={ setOpenFile }
+								onRegisterChildren={ registerChildren }
+							/>
+						) ) }
 				</div>
 				{ openFile && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
 			</div>
@@ -445,9 +466,10 @@ type NodeRowProps = {
 	depth: number;
 	isAlternate: boolean;
 	ancestorSelected: boolean;
+	rewindId: string;
 	selection: FileSelection;
 	onToggle: ( path: string, effectiveBefore: boolean ) => void;
-	onOpenFile: ( path: string ) => void;
+	onOpenFile: ( file: FileNodeFile ) => void;
 	onRegisterChildren: ( path: string, children: FileNode[] ) => void;
 };
 
@@ -463,6 +485,7 @@ type NodeRowProps = {
  * @param props.depth              - Indent depth (root = 0).
  * @param props.isAlternate        - Whether this row gets the alt (gray) background.
  * @param props.ancestorSelected   - True when this row inherits a checked state from a selected ancestor (modulo its own deselection).
+ * @param props.rewindId           - The selected backup's rewind id, threaded down so each folder row can fetch its own children via `useFileTree`.
  * @param props.selection          - Current selection state (selected + deselected sets).
  * @param props.onToggle           - Called with the row's path and current effective state when the checkbox toggles.
  * @param props.onOpenFile         - Open the info-card for a file path.
@@ -474,6 +497,7 @@ function NodeRow( {
 	depth,
 	isAlternate,
 	ancestorSelected,
+	rewindId,
 	selection,
 	onToggle,
 	onOpenFile,
@@ -481,7 +505,7 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading } = useMockFileTree( open && nodeIsFolder ? node.path : null );
+	const { children, isLoading } = useFileTree( rewindId, open && nodeIsFolder ? node.path : null );
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -508,7 +532,11 @@ function NodeRow( {
 		[ onToggle, node.path, isEffectivelySelected ]
 	);
 	const handleToggleOpen = useCallback( () => setOpen( v => ! v ), [] );
-	const handleOpenFile = useCallback( () => onOpenFile( node.path ), [ onOpenFile, node.path ] );
+	const handleOpenFile = useCallback( () => {
+		if ( ! nodeIsFolder ) {
+			onOpenFile( node as FileNodeFile );
+		}
+	}, [ onOpenFile, node, nodeIsFolder ] );
 
 	// Register the loaded children with the FileBrowser parent once
 	// they've actually resolved for this folder. The gate skips the
@@ -578,6 +606,7 @@ function NodeRow( {
 								// parent's parity, then alternates from there.
 								isAlternate={ index % 2 === 0 ? ! isAlternate : isAlternate }
 								ancestorSelected={ isEffectivelySelected }
+								rewindId={ rewindId }
 								selection={ selection }
 								onToggle={ onToggle }
 								onOpenFile={ onOpenFile }
@@ -588,29 +617,4 @@ function NodeRow( {
 			) }
 		</div>
 	);
-}
-
-/**
- * Recursively searches the rendered tree for a file at the given path.
- *
- * @param nodes - Nodes to search.
- * @param path  - File path to match, or null to short-circuit.
- * @return The matching file node, or null.
- */
-function findFileInTree( nodes: FileNode[], path: string | null ): FileNodeFile | null {
-	if ( ! path ) {
-		return null;
-	}
-	for ( const node of nodes ) {
-		if ( node.path === path && ! isFolder( node ) ) {
-			return node;
-		}
-		if ( isFolder( node ) && node.children ) {
-			const found = findFileInTree( node.children, path );
-			if ( found ) {
-				return found;
-			}
-		}
-	}
-	return null;
 }
