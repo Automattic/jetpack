@@ -463,71 +463,72 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					/>
 					<ToggleControl
 						label={ __( 'Show cover art', 'jetpack-podcast' ) }
-						help={ __( 'Display cover art alongside the player.', 'jetpack-podcast' ) }
+						help={ __(
+							'Display cover art alongside the player on the post page. Cover art stays in schema metadata either way.',
+							'jetpack-podcast'
+						) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
 						__nextHasNoMarginBottom
 					/>
-					{ showPoster && (
-						<BaseControl __nextHasNoMarginBottom>
-							<BaseControl.VisualLabel>
-								{ __( 'Cover art', 'jetpack-podcast' ) }
-							</BaseControl.VisualLabel>
-							<MediaUploadCheck>
-								<MediaUpload
-									onSelect={ ( media: MediaAttachment ) =>
-										setAttributes( {
-											coverArt: media?.url ? { id: media.id, url: media.url } : {},
-										} )
-									}
-									allowedTypes={ [ 'image' ] }
-									value={ coverArt?.id }
-									render={ ( { open }: { open: () => void } ) => (
-										<div className="jetpack-podcast-episode__cover-picker">
-											<Button
-												variant="secondary"
-												className={ clsx( 'jetpack-podcast-episode__cover-button', {
-													'jetpack-podcast-episode__cover-button--empty': ! coverArtUrl,
-												} ) }
-												onClick={ open }
-												aria-label={
-													coverArt?.url
-														? __( 'Replace cover art', 'jetpack-podcast' )
-														: __( 'Set episode cover art', 'jetpack-podcast' )
-												}
-											>
-												{ coverArtUrl ? (
-													<img src={ coverArtUrl } alt="" />
-												) : (
-													<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
-												) }
-											</Button>
-											{ coverArt?.url && (
-												<div className="jetpack-podcast-episode__cover-actions">
-													<Button variant="link" onClick={ open }>
-														{ __( 'Replace', 'jetpack-podcast' ) }
-													</Button>
-													<Button
-														variant="link"
-														isDestructive
-														onClick={ () => setAttributes( { coverArt: {} } ) }
-													>
-														{ __( 'Remove', 'jetpack-podcast' ) }
-													</Button>
-												</div>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'Cover art', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<MediaUploadCheck>
+							<MediaUpload
+								onSelect={ ( media: MediaAttachment ) =>
+									setAttributes( {
+										coverArt: media?.url ? { id: media.id, url: media.url } : {},
+									} )
+								}
+								allowedTypes={ [ 'image' ] }
+								value={ coverArt?.id }
+								render={ ( { open }: { open: () => void } ) => (
+									<div className="jetpack-podcast-episode__cover-picker">
+										<Button
+											variant="secondary"
+											className={ clsx( 'jetpack-podcast-episode__cover-button', {
+												'jetpack-podcast-episode__cover-button--empty': ! coverArtUrl,
+											} ) }
+											onClick={ open }
+											aria-label={
+												coverArt?.url
+													? __( 'Replace cover art', 'jetpack-podcast' )
+													: __( 'Set episode cover art', 'jetpack-podcast' )
+											}
+										>
+											{ coverArtUrl ? (
+												<img src={ coverArtUrl } alt="" />
+											) : (
+												<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
 											) }
-										</div>
-									) }
-								/>
-							</MediaUploadCheck>
-							<p className="components-base-control__help">
-								{ __(
-									'Defaults to the show cover art set in Settings → Writing → Podcasting.',
-									'jetpack-podcast'
+										</Button>
+										{ coverArt?.url && (
+											<div className="jetpack-podcast-episode__cover-actions">
+												<Button variant="link" onClick={ open }>
+													{ __( 'Replace', 'jetpack-podcast' ) }
+												</Button>
+												<Button
+													variant="link"
+													isDestructive
+													onClick={ () => setAttributes( { coverArt: {} } ) }
+												>
+													{ __( 'Remove', 'jetpack-podcast' ) }
+												</Button>
+											</div>
+										) }
+									</div>
 								) }
-							</p>
-						</BaseControl>
-					) }
+							/>
+						</MediaUploadCheck>
+						<p className="components-base-control__help">
+							{ __(
+								'Defaults to the show cover art set in Settings → Writing → Podcasting.',
+								'jetpack-podcast'
+							) }
+						</p>
+					</BaseControl>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Audio', 'jetpack-podcast' ) }>

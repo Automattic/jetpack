@@ -266,13 +266,12 @@ class Podcast_Episode_Block {
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
 		// Cover art: episode-specific override → show-level podcasting_image option → none.
-		$image_url = '';
-		if ( $show_poster ) {
-			if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
-				$image_url = esc_url_raw( $attributes['coverArt']['url'] );
-			} else {
-				$image_url = $show_image_url;
-			}
+		// Resolved unconditionally so schema metadata always carries the image; the
+		// `$show_poster` toggle only gates the visible figure and the video poster.
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
+		} else {
+			$image_url = $show_image_url;
 		}
 
 		// AudioObject/VideoObject @type for the embedded media.
@@ -287,7 +286,7 @@ class Podcast_Episode_Block {
 				<?php if ( $episode_url ) : ?>
 					<link itemprop="url" href="<?php echo esc_url( $episode_url ); ?>" />
 				<?php endif; ?>
-				<?php if ( $image_url ) : ?>
+				<?php if ( $image_url && $show_poster ) : ?>
 					<figure class="jetpack-podcast-episode__poster">
 						<img
 							src="<?php echo esc_url( $image_url ); ?>"
@@ -296,6 +295,8 @@ class Podcast_Episode_Block {
 							loading="lazy"
 						/>
 					</figure>
+				<?php elseif ( $image_url ) : ?>
+					<meta itemprop="image" content="<?php echo esc_url( $image_url ); ?>" />
 				<?php endif; ?>
 
 				<div class="jetpack-podcast-episode__body">
@@ -384,7 +385,7 @@ class Podcast_Episode_Block {
 								preload="none"
 								src="<?php echo esc_url( $media_url ); ?>"
 								<?php
-								if ( $image_url ) :
+								if ( $image_url && $show_poster ) :
 									?>
 									poster="<?php echo esc_url( $image_url ); ?>"<?php endif; ?>
 								<?php
