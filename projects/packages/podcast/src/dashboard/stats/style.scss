@@ -18,12 +18,18 @@
 	visibility: hidden;
 }
 
-// Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
 $text: #1e1e1e;
 $muted: #757575;
-$bar-fill: #2271b1;
+
+// Bar fill follows the user's wp-admin color scheme (Modern, Blue, Ectoplasm,
+// Sunrise, etc.) so podcast Stats matches the rest of their admin UI. For the
+// default Fresh scheme (and any context where the variable is missing, e.g.
+// Calypso surfaces), use Studio Blue rather than the legacy #2271b1.
+$bar-fill-default: #3858e9;
 
 .podcast-stats {
+	--podcast-stats-bar-fill: var(--wp-admin-theme-color, #{$bar-fill-default});
+
 	padding-block-start: 16px;
 	padding-inline: 16px;
 
@@ -265,12 +271,12 @@ $bar-fill: #2271b1;
 			cursor: pointer;
 
 			&:hover {
-				background: rgba(34, 113, 177, 0.06);
+				background: color-mix(in srgb, var(--podcast-stats-bar-fill) 6%, transparent);
 			}
 
 			&:focus-visible {
-				background: rgba(34, 113, 177, 0.06);
-				outline: 2px solid $bar-fill;
+				background: color-mix(in srgb, var(--podcast-stats-bar-fill) 6%, transparent);
+				outline: 2px solid var(--podcast-stats-bar-fill);
 				outline-offset: 2px;
 			}
 		}
@@ -299,9 +305,18 @@ $bar-fill: #2271b1;
 		position: absolute;
 		inset-block: 0;
 		inset-inline-start: 0;
-		background: $bar-fill;
+		background: var(--podcast-stats-bar-fill);
 		opacity: 0.18;
 		border-radius: 4px;
 		pointer-events: none;
 	}
+}
+
+// Fresh is the wp-admin default scheme and sets --wp-admin-theme-color to the
+// legacy #2271b1; override so the package defaults read as modern Studio Blue.
+// The :not() guard catches contexts (e.g. Calypso) where no admin-color-* class
+// exists on the body.
+body.admin-color-fresh .podcast-stats,
+body:not([class*="admin-color-"]) .podcast-stats {
+	--podcast-stats-bar-fill: #{$bar-fill-default};
 }

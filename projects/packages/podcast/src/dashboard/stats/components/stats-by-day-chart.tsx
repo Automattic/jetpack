@@ -5,6 +5,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { formatPodcastDate } from '../lib/format';
 import { getPeriodDayCount } from '../range';
+import { getPodcastStatsBarFill } from '../lib/bar-fill-color';
 import SectionCard from './section-card';
 import type { PodcastStatsPeriod, PodcastStatsRange } from '../types';
 import type { ReactNode } from 'react';
@@ -88,9 +89,12 @@ const StatsByDayChart = ( {
 		[ byDay ]
 	);
 
+	// @automattic/charts uses options.stroke as the per-series bar color override.
+	const barFill = useMemo( () => getPodcastStatsBarFill(), [] );
+
 	const seriesData = useMemo(
-		() => [ { label: downloadsLabel, data: chartData } ],
-		[ downloadsLabel, chartData ]
+		() => [ { label: downloadsLabel, data: chartData, options: { stroke: barFill } } ],
+		[ downloadsLabel, chartData, barFill ]
 	);
 
 	const total = useMemo(
