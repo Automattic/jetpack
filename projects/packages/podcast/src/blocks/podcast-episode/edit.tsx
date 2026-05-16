@@ -79,6 +79,7 @@ interface MediaAttachment {
 interface EditProps {
 	attributes: PodcastEpisodeAttributes;
 	setAttributes: ( patch: Partial< PodcastEpisodeAttributes > ) => void;
+	clientId: string;
 	context?: {
 		postId?: number;
 		postType?: string;
@@ -243,7 +244,12 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 	);
 }
 
-export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
+export default function PodcastEpisodeEdit( {
+	attributes,
+	setAttributes,
+	clientId,
+	context,
+}: EditProps ) {
 	const validated = getValidatedAttributes(
 		metadata.attributes,
 		attributes
@@ -294,6 +300,52 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	);
 
 	const coverArtUrl = coverArt?.url || showCoverUrl;
+
+	// Drives the "Add episode show notes in the post content below." hint.
+	// Hide it as soon as there's anything substantive after this block in the
+	// post: a non-paragraph block, or a paragraph with non-whitespace text.
+	// Empty trailing paragraphs (Gutenberg's default appender) don't count.
+	// Walks ancestor lists so content placed after a Group/Columns wrapper at
+	// any nesting level still counts as "below".
+	const hasContentBelow = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' ) as {
+				getBlockRootClientId: ( id: string ) => string | null;
+				getBlockOrder: ( id: string | null ) => string[];
+				getBlock: ( id: string ) => {
+					name?: string;
+					attributes?: Record< string, unknown >;
+				} | null;
+			};
+			const isSubstantive = ( id: string ): boolean => {
+				const block = blockEditor.getBlock( id );
+				if ( ! block ) {
+					return false;
+				}
+				if ( block.name === 'core/paragraph' ) {
+					const content = block.attributes?.content;
+					const text =
+						typeof content === 'string'
+							? content
+							: String( ( content as { text?: string } )?.text ?? '' );
+					return text.trim() !== '';
+				}
+				return true;
+			};
+			let currentId: string | null = clientId;
+			while ( currentId ) {
+				const parentId: string | null = blockEditor.getBlockRootClientId( currentId );
+				const order = blockEditor.getBlockOrder( parentId );
+				const idx = order.indexOf( currentId );
+				if ( idx >= 0 && order.slice( idx + 1 ).some( isSubstantive ) ) {
+					return true;
+				}
+				currentId = parentId;
+			}
+			return false;
+		},
+		[ clientId ]
+	);
 
 	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState< string | null >( null );
@@ -683,9 +735,11 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						) }
 					</div>
 
-					<p className="jetpack-podcast-episode__notes-hint">
-						{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
-					</p>
+					{ ! hasContentBelow && (
+						<p className="jetpack-podcast-episode__notes-hint">
+							{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
+						</p>
+					) }
 				</div>
 			</article>
 		</div>
