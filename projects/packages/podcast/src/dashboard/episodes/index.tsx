@@ -325,7 +325,7 @@ const EpisodesTab = () => {
 					) }
 				</p>
 				<Button variant="primary" href={ newEpisodeUrl() }>
-					{ __( '+ Create episode', 'jetpack-podcast' ) }
+					{ __( 'Create episode', 'jetpack-podcast' ) }
 				</Button>
 			</div>
 		);
