@@ -208,9 +208,6 @@ class Podcast_Episode_Block {
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
-		if ( '' !== $transcript_url && ! wp_http_validate_url( $transcript_url ) ) {
-			$transcript_url = '';
-		}
 		$chapters       = isset( $attributes['chapters'] ) && is_array( $attributes['chapters'] ) ? $attributes['chapters'] : array();
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
@@ -219,6 +216,10 @@ class Podcast_Episode_Block {
 
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
+
+		if ( '' !== $transcript_url && ! wp_http_validate_url( $transcript_url ) ) {
+			$transcript_url = '';
+		}
 
 		$author_id        = (int) $post->post_author;
 		$title            = get_the_title( $post );
