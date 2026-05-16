@@ -7,24 +7,38 @@ import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
-import { findActivityById } from '../fixtures/activity-log';
-import { useMockRestore } from '../hooks/use-mock-restore';
+import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
+ * Derive an ISO timestamp for the restore-point label from the WPCOM
+ * rewind id. WPCOM rewind ids are unix-seconds (with an optional decimal
+ * suffix), so we don't need to look the activity row up in cache just
+ * to render "Restore point: …".
+ *
+ * @param rewindId - The rewind id from the URL.
+ * @return ISO timestamp or null when the id isn't numeric.
+ */
+function rewindIdToIso( rewindId: string ): string | null {
+	const seconds = Number.parseInt( rewindId, 10 );
+	if ( ! Number.isFinite( seconds ) || seconds <= 0 ) {
+		return null;
+	}
+	return new Date( seconds * 1000 ).toISOString();
+}
+
+/**
  * Restore screen — narrow centered layout with the warning notice, the
- * shared item checklist, and a Confirm button. Submit transitions
- * through a synthetic state machine; ~10% of submits land in the error
- * branch.
+ * shared item checklist, and a Confirm button. Submit drives a real
+ * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
-	const item = findActivityById( rewindId );
-	const restorePoint = item ? item.publishedAt : null;
+	const restorePoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useMockRestore();
+	const { state, submit, reset } = useRestore( rewindId );
 
 	return (
 		<DashboardLayout>
