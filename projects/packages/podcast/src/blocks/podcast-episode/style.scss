@@ -170,15 +170,26 @@ $jetpack-podcast-episode-gap: 16px;
 		font-size: 0.9em;
 	}
 
-	.jetpack-podcast-episode__chapter-time {
+	// Layout sits on the <li> so theme overrides that target these classes
+	// (rather than the inner button) keep working.
+	.jetpack-podcast-episode__chapter,
+	.jetpack-podcast-episode__soundbite {
+		display: flex;
+		gap: 12px;
+		align-items: baseline;
+	}
+
+	.jetpack-podcast-episode__chapter-time,
+	.jetpack-podcast-episode__soundbite-time {
 		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
 		color: gb.$gray-700;
 	}
 
-	// Click-to-seek buttons render in place of plain rows. Reset the browser's
-	// default <button> chrome so they read as regular list items, then add a
-	// hover/focus affordance to signal interactivity.
+	// Click-to-seek button wraps the row content. Reset the browser's default
+	// <button> chrome so it reads as a regular list row, then add a hover /
+	// focus affordance to signal interactivity. Inherits flex layout from the
+	// parent <li> to lay out the time and title inline.
 	.jetpack-podcast-episode__chapter-button,
 	.jetpack-podcast-episode__soundbite-button {
 		display: flex;
