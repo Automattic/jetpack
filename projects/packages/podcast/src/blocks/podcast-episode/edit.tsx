@@ -23,6 +23,7 @@ import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import metadata from './block.json';
 import { microphone } from './icons';
 import { getValidatedAttributes } from './util/get-validated-attributes';
@@ -480,12 +481,11 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									value={ coverArt?.id }
 									render={ ( { open }: { open: () => void } ) => (
 										<div className="jetpack-podcast-episode__cover-picker">
-											<Button
-												className={
-													coverArtUrl
-														? 'jetpack-podcast-episode__cover-button'
-														: 'jetpack-podcast-episode__cover-button jetpack-podcast-episode__cover-button--empty'
-												}
+											<button
+												type="button"
+												className={ clsx( 'jetpack-podcast-episode__cover-button', {
+													'jetpack-podcast-episode__cover-button--empty': ! coverArtUrl,
+												} ) }
 												onClick={ open }
 												aria-label={
 													coverArt?.url
@@ -498,7 +498,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 												) : (
 													<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
 												) }
-											</Button>
+											</button>
 											{ coverArt?.url && (
 												<div className="jetpack-podcast-episode__cover-actions">
 													<Button variant="link" onClick={ open }>
