@@ -1,5 +1,5 @@
 import { useEffect, useState } from '@wordpress/element';
-import { findNodeByPath, MOCK_FILE_TREE } from '../fixtures/file-tree';
+import { findNodeByPath } from '../fixtures/file-tree';
 import { isFolder } from '../types/file-tree';
 import type { FileNode } from '../types/file-tree';
 
@@ -11,27 +11,26 @@ type Result = {
 };
 
 /**
- * Hook returning the children of a folder in the mock file tree.
+ * Hook returning the lazily-loaded children of a folder in the mock
+ * file tree. Passing a folder path resolves the children after a 300ms
+ * synthetic delay so the tree exercises its per-folder loading state;
+ * passing `null` no-ops (keeps the previously-loaded children cached
+ * so a caller that just collapsed a folder doesn't lose them).
  *
- * Passing `null` returns the root nodes synchronously (no latency); passing
- * a folder path resolves the children after a 300ms synthetic delay so the
- * tree exercises its per-folder loading state. Identical signature to what
- * the future REST-driven hook will expose.
+ * Callers that need the top-level roots should import `MOCK_FILE_TREE`
+ * directly — this hook only handles non-root lazy loads so a row that
+ * passes `null` (e.g. a collapsed folder) doesn't accidentally see the
+ * root tree as its own children.
  *
- * @param folderPath - Folder path to load, or null for the root.
+ * @param folderPath - Folder path to load, or null to leave state alone.
  * @return Loaded children + loading flag.
  */
 export function useMockFileTree( folderPath: string | null ): Result {
-	// Seed state synchronously when asked for the root so the tree paints
-	// fully on first render. Non-root paths still flip through isLoading.
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ children, setChildren ] = useState< FileNode[] | null >(
-		folderPath === null ? MOCK_FILE_TREE : null
-	);
+	const [ children, setChildren ] = useState< FileNode[] | null >( null );
 
 	useEffect( () => {
 		if ( folderPath === null ) {
-			setChildren( MOCK_FILE_TREE );
 			setIsLoading( false );
 			return;
 		}

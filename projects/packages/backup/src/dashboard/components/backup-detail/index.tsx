@@ -1,25 +1,25 @@
 import { dateI18n } from '@wordpress/date';
 import { useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../file-browser';
 import './style.scss';
-import type { FileSelection } from '../file-browser';
 import type { BackupActivityItem } from '../../types/activity';
+import type { FileSelection } from '../file-browser';
 
 type Props = {
 	item: BackupActivityItem;
 };
 
 /**
- * Returns the appropriate "Download" header-label given how many files
+ * Returns the appropriate "Download" header-label given how many items
  * the visitor has selected in the file browser. With zero selections we
  * default to the whole-backup download; otherwise we count the selected
- * paths.
+ * items (files + folders) currently visible in the loaded tree.
  *
- * @param count - Number of currently selected files/folders.
+ * @param count - Number of currently selected items.
  * @return Localized button label.
  */
 function downloadLabel( count: number ): string {
@@ -27,17 +27,17 @@ function downloadLabel( count: number ): string {
 		return __( 'Download backup', 'jetpack-backup-pkg' );
 	}
 	return sprintf(
-		/* translators: %d count of selected files */
-		__( 'Download %d selected files', 'jetpack-backup-pkg' ),
+		/* translators: %d count of selected items (files + opaque folders) */
+		_n( 'Download %d selected item', 'Download %d selected items', count, 'jetpack-backup-pkg' ),
 		count
 	);
 }
 
 /**
- * Returns the appropriate "Restore" header-label given how many files
+ * Returns the appropriate "Restore" header-label given how many items
  * the visitor has selected in the file browser.
  *
- * @param count - Number of currently selected files/folders.
+ * @param count - Number of currently selected items.
  * @return Localized button label.
  */
 function restoreLabel( count: number ): string {
@@ -45,8 +45,8 @@ function restoreLabel( count: number ): string {
 		return __( 'Restore to this point', 'jetpack-backup-pkg' );
 	}
 	return sprintf(
-		/* translators: %d count of selected files */
-		__( 'Restore %d selected files', 'jetpack-backup-pkg' ),
+		/* translators: %d count of selected items (files + opaque folders) */
+		_n( 'Restore %d selected item', 'Restore %d selected items', count, 'jetpack-backup-pkg' ),
 		count
 	);
 }
@@ -66,11 +66,12 @@ function restoreLabel( count: number ): string {
  */
 export default function BackupDetail( { item }: Props ) {
 	const [ selection, setSelection ] = useState< FileSelection >( EMPTY_FILE_SELECTION );
-	// "X selected files" in the header reflects the positive set only —
-	// negative exceptions on a folder's subtree don't bump the count
-	// up, so the label always matches what the visitor explicitly asked
-	// for ("you picked N things, here are the exceptions inside them").
-	const count = selection.selected.size;
+	// `count` tracks the number of items the visitor sees ticked in the
+	// loaded subtree (selections + inherited descendants + indeterminate
+	// folders). FileBrowser owns the loaded children, so it reports the
+	// count back here for the header labels to swap between "Download
+	// backup" and "Download N items".
+	const [ count, setCount ] = useState( 0 );
 
 	return (
 		<Card.Root className="jpb-backup-detail">
@@ -112,6 +113,7 @@ export default function BackupDetail( { item }: Props ) {
 						rewindId={ item.rewindId }
 						selection={ selection }
 						onSelectionChange={ setSelection }
+						onSelectionCountChange={ setCount }
 					/>
 				</div>
 			</Card.Content>
