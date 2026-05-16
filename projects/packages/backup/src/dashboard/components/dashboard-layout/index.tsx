@@ -2,6 +2,7 @@ import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
+import QueryClientProvider from '../../providers/query-client-provider';
 import DevModeBanner from '../dev-mode-banner';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -44,11 +45,13 @@ export default function DashboardLayout( { children, actions }: Props ) {
 			hasPadding={ false }
 			actions={ actions }
 		>
-			<DevModeBanner />
-			<div className="jpb-dashboard-body">
-				<div className="jpb-dashboard-body__inner">{ children }</div>
-			</div>
-			<JetpackFooter />
+			<QueryClientProvider>
+				<DevModeBanner />
+				<div className="jpb-dashboard-body">
+					<div className="jpb-dashboard-body__inner">{ children }</div>
+				</div>
+				<JetpackFooter />
+			</QueryClientProvider>
 		</Page>
 	);
 }
