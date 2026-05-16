@@ -406,12 +406,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 
 			$i18n = jetpack_get_module_i18n( $request['slug'] );
-			if ( isset( $module['name'] ) ) {
-				$module['name'] = $i18n['name'];
-			}
-			if ( isset( $module['description'] ) ) {
-				$module['description']       = $i18n['description'];
-				$module['short_description'] = $i18n['description'];
+			if ( $i18n ) {
+				if ( isset( $module['name'] ) ) {
+					$module['name'] = $i18n['name'];
+				}
+				if ( isset( $module['description'] ) ) {
+					$module['description']       = $i18n['description'];
+					$module['short_description'] = $i18n['description'];
+				}
 			}
 			if ( isset( $module['module_tags'] ) ) {
 				$module['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
