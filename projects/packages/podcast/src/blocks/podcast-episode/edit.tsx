@@ -102,8 +102,6 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 	{ label: __( 'JSON (application/json)', 'jetpack-podcast' ), value: 'application/json' },
 ];
 
-const PERSON_ROW_STYLE = { marginBottom: '1em' };
-
 const formatTimeCode = ( seconds: number | undefined ): string => {
 	if ( typeof seconds !== 'number' || seconds < 0 || Number.isNaN( seconds ) ) {
 		return '';
@@ -202,9 +200,10 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 		<>
 			{ people.map( ( person, index ) => (
 				<div
-					className="jetpack-podcast-episode__person-editor"
+					className={ clsx( 'jetpack-podcast-episode__person-editor', {
+						'jetpack-podcast-episode__person-editor--alt': index % 2 === 1,
+					} ) }
 					key={ index }
-					style={ PERSON_ROW_STYLE }
 				>
 					<TextControl
 						label={ __( 'Name', 'jetpack-podcast' ) }

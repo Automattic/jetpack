@@ -21,8 +21,10 @@
 		border-radius: 4px;
 	}
 
-	// Alternate the chapter row background so a stack reads as distinct cards.
-	.jetpack-podcast-episode__chapter-row--alt {
+	// Alternate the row background so a stack of chapter / person editors
+	// reads as distinct cards instead of merging visually.
+	.jetpack-podcast-episode__chapter-row--alt,
+	.jetpack-podcast-episode__person-editor--alt {
 		background: #f6f7f7;
 	}
 
