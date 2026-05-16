@@ -83,7 +83,7 @@ const CoverImageControl = ( {
 	return (
 		<div className="podcast__cover-control" role="group" aria-labelledby={ labelId }>
 			<span id={ labelId } className="podcast__cover-label">
-				{ __( 'Show cover image', 'jetpack-podcast' ) }
+				{ __( 'Cover image', 'jetpack-podcast' ) }
 			</span>
 			<div className="podcast__cover-preview">
 				{ imageUrl ? (
