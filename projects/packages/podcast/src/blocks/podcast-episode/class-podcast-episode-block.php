@@ -226,8 +226,6 @@ class Podcast_Episode_Block {
 			return '';
 		}
 
-		self::enqueue_view_script();
-
 		$media_type     = isset( $attributes['mediaType'] ) && 'video' === $attributes['mediaType'] ? 'video' : 'audio';
 		$mime_type      = isset( $attributes['mediaMimeType'] ) ? (string) $attributes['mediaMimeType'] : '';
 		$episode_number = isset( $attributes['episodeNumber'] ) ? (int) $attributes['episodeNumber'] : 0;
@@ -245,6 +243,11 @@ class Podcast_Episode_Block {
 
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
+
+		// Only ship the click-to-seek script on episodes that actually have chapters or soundbites to wire.
+		if ( ! empty( $chapters ) || ! empty( $soundbites ) ) {
+			self::enqueue_view_script();
+		}
 
 		if ( '' !== $transcript_url && ! wp_http_validate_url( $transcript_url ) ) {
 			$transcript_url = '';
@@ -322,7 +325,8 @@ class Podcast_Episode_Block {
 								</span>
 							<?php endif; ?>
 							<?php if ( $episode_number ) : ?>
-								<span class="jetpack-podcast-episode__episode-number" itemprop="episodeNumber">
+								<span class="jetpack-podcast-episode__episode-number">
+									<meta itemprop="episodeNumber" content="<?php echo esc_attr( (string) $episode_number ); ?>" />
 									<?php
 									/* translators: %d: episode number. */
 									echo esc_html( sprintf( __( 'Episode %d', 'jetpack-podcast' ), $episode_number ) );

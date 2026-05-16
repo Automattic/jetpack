@@ -7,30 +7,31 @@
  */
 
 const seekAndPlay = ( media: HTMLMediaElement, seconds: number ): void => {
-	const seek = () => {
+	const seekThenPlay = () => {
 		try {
 			media.currentTime = seconds;
 		} catch {
 			// Edge case: setting currentTime may still throw if the media never
 			// got past HAVE_NOTHING — ignore and let play() start where it can.
 		}
+		const playResult = media.play();
+		if ( playResult && typeof playResult.catch === 'function' ) {
+			playResult.catch( () => {
+				// Autoplay restrictions can still reject even after a user click.
+			} );
+		}
 	};
 
 	// With preload="none" the element is in readyState 0 (HAVE_NOTHING) until
-	// play() is called. Setting currentTime now would throw INVALID_STATE_ERR
-	// per the HTML spec, so wait for loadedmetadata if we're not there yet.
+	// the resource selection algorithm runs. Setting currentTime now would throw
+	// INVALID_STATE_ERR per the HTML spec, so wait for loadedmetadata first.
+	// play() is deferred too so playback never starts from 0 before the seek
+	// lands; transient user activation lasts long enough for the metadata load.
 	if ( media.readyState >= 1 ) {
-		seek();
+		seekThenPlay();
 	} else {
-		media.addEventListener( 'loadedmetadata', seek, { once: true } );
+		media.addEventListener( 'loadedmetadata', seekThenPlay, { once: true } );
 		media.load();
-	}
-
-	const playResult = media.play();
-	if ( playResult && typeof playResult.catch === 'function' ) {
-		playResult.catch( () => {
-			// Autoplay restrictions can still reject even after a user click.
-		} );
 	}
 };
 
