@@ -112,7 +112,7 @@ function load_assets( $attributes ) {
  * @param array  $attributes Array of block attributes.
  * @param string $attribute_name The attribute to get.
  *
- * @return string The filtered attribute
+ * @return string|null The filtered attribute
  */
 function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
