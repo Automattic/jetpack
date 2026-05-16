@@ -481,8 +481,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									value={ coverArt?.id }
 									render={ ( { open }: { open: () => void } ) => (
 										<div className="jetpack-podcast-episode__cover-picker">
-											<button
-												type="button"
+											<Button
+												variant="secondary"
 												className={ clsx( 'jetpack-podcast-episode__cover-button', {
 													'jetpack-podcast-episode__cover-button--empty': ! coverArtUrl,
 												} ) }
@@ -498,7 +498,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 												) : (
 													<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
 												) }
-											</button>
+											</Button>
 											{ coverArt?.url && (
 												<div className="jetpack-podcast-episode__cover-actions">
 													<Button variant="link" onClick={ open }>
