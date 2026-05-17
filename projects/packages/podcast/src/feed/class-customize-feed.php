@@ -244,11 +244,7 @@ class Customize_Feed {
 		 */
 		$enable = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
 
-		// The wpcom redirect handler (`Automattic_Podcasting_Tracked_Play::handle_play`)
-		// 404s on enclosures that don't resolve to a local attachment. Externally
-		// hosted enclosures (Podtrac, Megaphone, Art19) won't resolve, so rewriting
-		// them to the stats URL would publish broken URLs to subscribers. Skip the
-		// rewrite for those and emit the original URL as-is.
+		// Skip rewrite for externally hosted enclosures — the stats endpoint 404s anything that isn't a local attachment.
 		$attachment_id = attachment_url_to_postid( $original_url );
 
 		if ( null !== $post_obj && $enable && $attachment_id > 0 ) {
