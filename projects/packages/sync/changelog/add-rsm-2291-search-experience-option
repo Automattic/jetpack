@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Sync: Whitelist the new jetpack_search_experience option so it propagates to WPcom.

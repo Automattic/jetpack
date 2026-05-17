@@ -83,14 +83,14 @@ class WPCOM_JSON_API_Date {
 			return;
 		}
 
-		$days      = floor( $timestamp / 86400 );
-		$timestamp = $timestamp % 86400;
+		$days       = floor( $timestamp / 86400 );
+		$timestamp %= 86400;
 
-		$hours     = floor( $timestamp / 3600 );
-		$timestamp = $timestamp % 3600;
+		$hours      = floor( $timestamp / 3600 );
+		$timestamp %= 3600;
 
-		$minutes   = floor( $timestamp / 60 );
-		$timestamp = $timestamp % 60;
+		$minutes    = floor( $timestamp / 60 );
+		$timestamp %= 60;
 
 		return sprintf(
 			'P%dDT%dH%dM%dS',

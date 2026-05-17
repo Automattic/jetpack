@@ -3,16 +3,10 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -25,6 +19,13 @@ interface PaidNewsletterSectionProps {
 
 /**
  * Paid Newsletter Section Component
+ *
+ * Uses `@wordpress/components` Button + a native `<fieldset>` because this is
+ * the one button-as-link case in the dashboard. WP UI's Button rendered as
+ * `<a>` (`render={ <a /> }`) inherits wp-admin's global `a { color: #2271b1 }`
+ * — that rule is unlayered, while WP UI's button color sits in
+ * `@layer wp-ui-components`, and unlayered always wins over layered. Worth a
+ * Gutenberg-side fix; out of scope for this PR.
  *
  * @param {PaidNewsletterSectionProps} props - Component props
  * @return {JSX.Element | null} The paid newsletter section or null if URL not available
@@ -54,11 +55,11 @@ export function PaidNewsletterSection( {
 	const buttonText = hasActivePlan ? managePlansText : addPlansText;
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ __(
@@ -69,6 +70,7 @@ export function PaidNewsletterSection( {
 				</p>
 				<fieldset disabled={ ! isNewsletterEnabled }>
 					<Button
+						__next40pxDefaultSize
 						variant="primary"
 						href={ newsletterScriptData.setupPaymentPlansUrl }
 						target="_blank"
@@ -79,7 +81,7 @@ export function PaidNewsletterSection( {
 						{ buttonText }
 					</Button>
 				</fieldset>
-			</CardBody>
-		</Card>
+			</Card.Content>
+		</Card.Root>
 	);
 }

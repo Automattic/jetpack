@@ -26,7 +26,8 @@
 
 .jp-form-search-settings-group__toggle {
 
-	&.is-instant-search {
+	&.is-instant-search,
+	&.is-reader-chat {
 		margin-top: 4em;
 	}
 

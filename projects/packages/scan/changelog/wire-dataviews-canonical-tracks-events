@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Wire DataViews-canonical Tracks events on both panels. Forwards the upstream `ThreatsDataViews` `onTrackEvent` callback to `useTrackEvent()` with a `jetpack_scan_` prefix, so Tracks now records `jetpack_scan_search` (`{ has_query }`), `jetpack_scan_layout_changed` (`{ layout }`), `jetpack_scan_page_change` (`{ page }`), `jetpack_scan_filter_change`, and `jetpack_scan_view_change` whenever the user manipulates the in-table view.

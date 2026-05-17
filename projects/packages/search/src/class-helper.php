@@ -970,6 +970,7 @@ class Helper {
 			 * @param bool $disable_tracking Whether to disable tracking. Default false.
 			 */
 			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
+			'aiAnswersEnabled'            => AI_Answers::is_enabled(),
 		);
 
 		/**

@@ -7,6 +7,8 @@ import { store as noticesStore } from '@wordpress/notices';
 import type {
 	PodcastSettings,
 	PodcastSettingsUpdate,
+	PodcastShowState,
+	PodcastShowStates,
 	PodcastShowUrls,
 	PodcatcherId,
 } from '../types';
@@ -25,6 +27,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_3',
 	'podcasting_email',
 	'podcasting_show_urls',
+	'podcasting_show_states',
 ];
 
 // Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
@@ -43,6 +46,21 @@ const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	for ( const id of PODCATCHER_IDS ) {
 		const value = source[ id ];
 		out[ id ] = typeof value === 'string' ? value : '';
+	}
+	return out;
+};
+
+const SHOW_STATES: readonly PodcastShowState[] = [ '', 'pending', 'active' ] as const;
+
+const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
+	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
+	const out = {} as PodcastShowStates;
+	for ( const id of PODCATCHER_IDS ) {
+		const value = source[ id ];
+		out[ id ] =
+			typeof value === 'string' && ( SHOW_STATES as readonly string[] ).includes( value )
+				? ( value as PodcastShowState )
+				: '';
 	}
 	return out;
 };
@@ -70,6 +88,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );
+		} else if ( key === 'podcasting_show_states' ) {
+			out[ key ] = normalizeShowStates( value );
 		} else if (
 			key === 'podcasting_category_1' ||
 			key === 'podcasting_category_2' ||
@@ -89,6 +109,9 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
+	// Suppress the hook's built-in success/error snackbars when the caller
+	// owns its own user-visible feedback (e.g. a modal with an inline Notice).
+	silent?: boolean;
 }
 
 /**
@@ -130,26 +153,37 @@ export function useUpdatePodcastSettings(): {
 	);
 
 	const mutate = useCallback(
-		( updates: PodcastSettingsUpdate, { onSuccess, onError }: MutateCallbacks = {} ) => {
+		(
+			updates: PodcastSettingsUpdate,
+			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
+		) => {
 			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
 				.then( record => {
 					if ( ! record ) {
 						onError?.( new Error( 'save returned no record' ) );
+						if ( ! silent ) {
+							createErrorNotice(
+								__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+								{ type: 'snackbar' }
+							);
+						}
+						return;
+					}
+					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
+					if ( ! silent ) {
+						createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
+							type: 'snackbar',
+						} );
+					}
+				} )
+				.catch( error => {
+					onError?.( error );
+					if ( ! silent ) {
 						createErrorNotice(
 							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
 							{ type: 'snackbar' }
 						);
-						return;
 					}
-					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
-					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
-				} )
-				.catch( error => {
-					onError?.( error );
-					createErrorNotice(
-						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-						{ type: 'snackbar' }
-					);
 				} );
 		},
 		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]

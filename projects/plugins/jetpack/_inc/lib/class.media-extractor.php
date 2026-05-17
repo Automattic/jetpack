@@ -84,7 +84,7 @@ class Jetpack_Media_Meta_Extractor {
 			$extracted = self::get_image_fields( $post, array(), $extract_alt_text );
 
 			// Turn off images so we can safely call extract_from_content() below.
-			$what_to_extract = $what_to_extract - self::IMAGES;
+			$what_to_extract -= self::IMAGES;
 		}
 
 		if ( function_exists( 'restore_current_blog' ) ) {

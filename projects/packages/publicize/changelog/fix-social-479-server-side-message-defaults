@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Default the share-message post meta and per-connection message to the saved template on the server side.

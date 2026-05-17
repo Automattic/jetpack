@@ -41,7 +41,7 @@ beforeEach( () => {
 jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( { children } ) => <div>{ children }</div>,
 	Placeholder: ( { children } ) => <div>{ children }</div>,
-	SelectControl: ( { label, value, options = [], onChange } ) => {
+	SelectControl: ( { label, value, options = [], onChange, help } ) => {
 		const id = nextControlId();
 		return (
 			<>
@@ -57,6 +57,7 @@ jest.mock( '@wordpress/components', () => ( {
 						</option>
 					) ) }
 				</select>
+				{ help ? <p>{ help }</p> : null }
 			</>
 		);
 	},
@@ -126,13 +127,13 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
+	sprintf: ( fmt, ...args ) => {
+		let i = 0;
+		return fmt.replace( /%s/g, () => args[ i++ ] );
+	},
 } ) );
 
 describe( 'deriveVariation', () => {
-	afterEach( () => {
-		delete globalThis.JetpackSearchBlocksConfig;
-	} );
-
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
 			VARIATION_CATEGORY
@@ -144,8 +145,7 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
 	} );
 
-	it( 'maps the WC product taxonomy slugs to their dedicated variations on Woo sites', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+	it( 'maps the WC product taxonomy slugs to their dedicated variations', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_PRODUCT_CAT
 		);
@@ -155,19 +155,6 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
 			VARIATION_PRODUCT_BRAND
 		);
-	} );
-
-	it( 'collapses saved WC product slugs to Custom Taxonomy when WooCommerce is inactive', () => {
-		// Mirrors the dormant-attribute pattern in results-list: the saved
-		// attribute stays (re-activating WC restores the dedicated variation
-		// next render), but the inspector picker collapses to a value that
-		// still exists in `variationOptions()` so the SelectControl doesn't
-		// try to render an option that isn't there.
-		[ 'product_cat', 'product_tag', 'product_brand' ].forEach( taxonomy => {
-			expect( deriveVariation( { filterType: 'taxonomy', taxonomy } ) ).toBe(
-				VARIATION_CUSTOM_TAXONOMY
-			);
-		} );
 	} );
 
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
@@ -193,7 +180,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'lists all eight variations when WooCommerce is active', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		expect( variationOptions().map( o => o.value ) ).toEqual( [
 			VARIATION_CATEGORY,
 			VARIATION_POST_TAG,
@@ -217,7 +204,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'drops the three product variations when the gate is explicitly false', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
 		const values = variationOptions().map( o => o.value );
 		expect( values ).not.toContain( VARIATION_PRODUCT_CAT );
 		expect( values ).not.toContain( VARIATION_PRODUCT_TAG );
@@ -385,6 +372,91 @@ describe( 'normalizeDisplayStyle', () => {
 
 	it( 'accepts chips', () => {
 		expect( normalizeDisplayStyle( 'chips' ) ).toBe( 'chips' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
+	const useSelectMock = jest.requireMock( '@wordpress/data' ).useSelect;
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+		useSelectMock.mockReset();
+		useSelectMock.mockImplementation( () => null );
+	} );
+
+	const taxonomyEntities = [
+		{ slug: 'genre', name: 'Genre', visibility: { public: true } },
+		{ slug: 'mood', name: 'Mood', visibility: { public: true } },
+		{ slug: 'private-thing', name: 'Private Thing', visibility: { public: true } },
+	];
+
+	it( 'restricts the picker to taxonomies present in supportedCustomTaxonomies', () => {
+		// The picker used to list every public taxonomy from core-data, but
+		// Jetpack Search only indexes a curated set — non-indexed taxonomies
+		// would build a filter that silently returns zero buckets. The new
+		// whitelist (server-derived from the index allowlist + map keys)
+		// drops `private-thing` because it's not in either set.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Private Thing' );
+	} );
+
+	it( 'appends "(mapped)" to taxonomies routed through a reserved slot', () => {
+		// The map's user-facing keys still surface in the picker, but with
+		// a label suffix so authors know the filter routes through a
+		// `jetpack-search-tagN` slot rather than the taxonomy itself.
+		// `mood` is supported via the native allowlist, `genre` only via
+		// the map — both appear; only `genre` gets the suffix.
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: { genre: 'jetpack-search-tag1' },
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		const taxonomySelect = screen.getByLabelText( 'Taxonomy' );
+		const visibleLabels = Array.from( taxonomySelect.options ).map( o => o.textContent );
+		expect( visibleLabels ).toContain( 'Genre (mapped)' );
+		expect( visibleLabels ).toContain( 'Mood' );
+		expect( visibleLabels ).not.toContain( 'Genre' );
+	} );
+
+	it( 'shows the empty-state help text when no supported taxonomies exist on the site', () => {
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => [] );
+
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '' } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( /jetpack_search_custom_taxonomy_map/ ) ).toBeInTheDocument();
 	} );
 } );
 

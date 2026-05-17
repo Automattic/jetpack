@@ -18,7 +18,7 @@ class Help_Center {
 	/**
 	 * Class instance.
 	 *
-	 * @var Help_Center
+	 * @var Help_Center|null
 	 */
 	private static $instance = null;
 
@@ -177,6 +177,15 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns the singleton instance, or null if init() hasn't run or short-circuited.
+	 *
+	 * @return self|null
+	 */
+	public static function get_instance(): ?self {
+		return self::$instance;
+	}
+
+	/**
 	 * Enqueue Help Center assets.
 	 *
 	 * @param string $variant The variant of the asset file to get.
@@ -269,42 +278,10 @@ class Help_Center {
 
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			$user_id            = get_current_user_id();
-			$user_data          = get_userdata( $user_id );
-			$username           = $user_data ? $user_data->user_login : null;
-			$user_email         = $user_data ? $user_data->user_email : null;
-			$display_name       = $user_data ? $user_data->display_name : null;
-			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
-			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
-
-			if ( $this->is_forum_site ) {
-				$section_name = 'wp.com/forums';
-			} elseif ( $this->is_support_site ) {
-				$section_name = 'wp.com/support';
-			} else {
-				$section_name = $variant;
-			}
-
 			wp_add_inline_script(
 				'help-center',
 				'if ( typeof helpCenterData === "undefined" ) { var helpCenterData = ' . wp_json_encode(
-					array(
-						'isProxied'        => boolval( self::is_proxied() ),
-						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $section_name,
-						'isCommerceGarden' => $is_commerce_garden,
-						'currentUser'      => array(
-							'ID'           => $user_id,
-							'username'     => $username,
-							'display_name' => $display_name,
-							'avatar_URL'   => $avatar_url,
-							'email'        => $user_email,
-							'is_a11n'      => function_exists( '\is_automattician' ) && \is_automattician( $user_id ),
-						),
-						'site'             => $this->get_current_site(),
-						'locale'           => self::determine_iso_639_locale(),
-					),
+					$this->get_help_center_data( $variant ),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				) . '; }',
 				'before'
@@ -422,6 +399,64 @@ class Help_Center {
 		);
 
 		return $return_data;
+	}
+
+	/**
+	 * Build the helpCenterData payload for the connected Help Center bundles.
+	 *
+	 * Exposed so frontend consumers can mount Help Center outside the
+	 * admin-only enqueue path without re-implementing the payload
+	 * field-for-field.
+	 *
+	 * Note: this is the payload for the *connected* bundles. The disconnected
+	 * variants ('wp-admin-disconnected', 'gutenberg-disconnected') do not
+	 * consume helpCenterData and are not valid input here.
+	 *
+	 * @param string $variant   Bundle variant driving the default sectionName.
+	 *                          One of 'wp-admin', 'logged-out', 'customizer',
+	 *                          'gutenberg', 'ciab-admin'.
+	 * @param array  $overrides Shallow-merged onto the result via array_replace
+	 *                          (e.g. array( 'sectionName' => 'landpack' )).
+	 *                          Replacing a sub-array (e.g. 'currentUser')
+	 *                          replaces it whole — no deep merge.
+	 * @return array            JSON-ready associative array.
+	 */
+	public function get_help_center_data( string $variant = 'wp-admin', array $overrides = array() ): array {
+		$user_id            = get_current_user_id();
+		$user_data          = get_userdata( $user_id );
+		$username           = $user_data ? $user_data->user_login : null;
+		$user_email         = $user_data ? $user_data->user_email : null;
+		$display_name       = $user_data ? $user_data->display_name : null;
+		$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
+		$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
+
+		if ( $this->is_forum_site ) {
+			$section_name = 'wp.com/forums';
+		} elseif ( $this->is_support_site ) {
+			$section_name = 'wp.com/support';
+		} else {
+			$section_name = $variant;
+		}
+
+		$data = array(
+			'isProxied'        => boolval( self::is_proxied() ),
+			'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+			'isSSP'            => isset( $_COOKIE['ssp'] ),
+			'sectionName'      => $section_name,
+			'isCommerceGarden' => $is_commerce_garden,
+			'currentUser'      => array(
+				'ID'           => $user_id,
+				'username'     => $username,
+				'display_name' => $display_name,
+				'avatar_URL'   => $avatar_url,
+				'email'        => $user_email,
+				'is_a11n'      => function_exists( '\is_automattician' ) && \is_automattician( $user_id ),
+			),
+			'site'             => $this->get_current_site(),
+			'locale'           => self::determine_iso_639_locale(),
+		);
+
+		return array_replace( $data, $overrides );
 	}
 
 	/**

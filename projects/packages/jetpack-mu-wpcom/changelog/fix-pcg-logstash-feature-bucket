@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugin Conflicts Guardian: rename the logstash feature bucket to `atomic_plugin_conflicts_guardian`.

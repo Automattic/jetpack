@@ -55,7 +55,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			actions={ actions }
 			showFooter={ ! hideFooter }
 		>
-			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
+			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>

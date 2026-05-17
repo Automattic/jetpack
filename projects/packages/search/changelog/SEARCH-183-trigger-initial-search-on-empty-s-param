@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: trigger the initial search when the URL carries an explicit-but-empty `?s=` so a blank search submission shows the full result set instead of an empty results region.
