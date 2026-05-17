@@ -5,6 +5,11 @@
 
 const STUDIO_BLUE = '#3858e9';
 
+/**
+ * Resolve the stats bar fill color for the active admin color scheme.
+ *
+ * @return Hex string for charts that paint SVG directly.
+ */
 export function getPodcastStatsBarFill(): string {
 	if ( typeof document === 'undefined' ) {
 		return STUDIO_BLUE;
@@ -19,8 +24,6 @@ export function getPodcastStatsBarFill(): string {
 		return STUDIO_BLUE;
 	}
 
-	const resolved = getComputedStyle( body )
-		.getPropertyValue( '--wp-admin-theme-color' )
-		.trim();
+	const resolved = getComputedStyle( body ).getPropertyValue( '--wp-admin-theme-color' ).trim();
 	return resolved || STUDIO_BLUE;
 }

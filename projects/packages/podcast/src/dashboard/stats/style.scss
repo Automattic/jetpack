@@ -271,11 +271,11 @@ $bar-fill-default: #3858e9;
 			cursor: pointer;
 
 			&:hover {
-				background: color-mix(in srgb, var(--podcast-stats-bar-fill) 6%, transparent);
+				background: color-mix(in sRGB, var(--podcast-stats-bar-fill) 6%, transparent);
 			}
 
 			&:focus-visible {
-				background: color-mix(in srgb, var(--podcast-stats-bar-fill) 6%, transparent);
+				background: color-mix(in sRGB, var(--podcast-stats-bar-fill) 6%, transparent);
 				outline: 2px solid var(--podcast-stats-bar-fill);
 				outline-offset: 2px;
 			}
