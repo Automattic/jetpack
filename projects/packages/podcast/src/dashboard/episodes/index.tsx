@@ -307,8 +307,8 @@ const EpisodesTab = () => {
 	}
 
 	// Post-setup, no posts in the chosen category yet. Loading guard avoids
-	// flashing the empty state before the first page resolves. No search/filter
-	// guard because DataViews mounts its toolbar after the first render.
+	// flashing the empty state before the first page resolves, and the
+	// search/filter guard preserves DataViews' no-results UI when filtering.
 	const hasNoEpisodes =
 		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( f => f.value );
 
