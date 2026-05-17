@@ -244,7 +244,10 @@ class Customize_Feed {
 		 */
 		$enable = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
 
-		if ( null !== $post_obj && $enable ) {
+		// Skip rewrite for externally hosted enclosures — the stats endpoint 404s anything that isn't a local attachment.
+		$attachment_id = attachment_url_to_postid( $original_url );
+
+		if ( null !== $post_obj && $enable && $attachment_id > 0 ) {
 			/**
 			 * Override the blog ID baked into the stats URL. Atomic / non-Simple
 			 * sites should return the WPCOM shadow ID so the public-api endpoint
@@ -274,7 +277,6 @@ class Customize_Feed {
 			);
 		}
 
-		$attachment_id = attachment_url_to_postid( $original_url );
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
 		}
