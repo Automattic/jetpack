@@ -314,6 +314,8 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
@@ -396,6 +398,8 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
 							<PricingTableItem isIncluded={ false } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -493,6 +497,20 @@ const newPricingArgs = {
 			name: __( 'Spelling correction', 'jetpack-search-pkg' ),
 			tooltipInfo: __(
 				'Quick and accurate spelling correction for when your site visitors mistype their search.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Jetpack Search blocks', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Design your own search experience in the block editor. Drop in dedicated search, filtering, and sorting blocks to build a results page that matches your site — no code required.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Embedded search page', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
 				'jetpack-search-pkg'
 			),
 		},
