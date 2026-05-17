@@ -1,4 +1,8 @@
-import { renderMessagesCacheKey, type RenderItem } from '../../utils/render-messages';
+import {
+	renderMessagesCacheKey,
+	type RenderItem,
+	type RenderPostIntent,
+} from '../../utils/render-messages';
 import {
 	FINISH_RENDERING_MESSAGES,
 	RECEIVE_RENDERED_MESSAGES,
@@ -11,14 +15,19 @@ import type { RenderedMessageBatch } from '../types';
  * the apiFetch fires. Any prior `items` are preserved so the consumer can keep
  * showing the previous render while the new one resolves.
  *
- * @param postId - Post being previewed.
- * @param items  - The render items.
+ * @param postId     - Post being previewed.
+ * @param items      - The render items.
+ * @param postIntent - Edited post fields being rendered.
  * @return Action object.
  */
-export function startRenderingMessages( postId: number, items: RenderItem[] ) {
+export function startRenderingMessages(
+	postId: number,
+	items: RenderItem[],
+	postIntent: RenderPostIntent = {}
+) {
 	return {
 		type: START_RENDERING_MESSAGES,
-		cacheKey: renderMessagesCacheKey( postId, items ),
+		cacheKey: renderMessagesCacheKey( postId, items, postIntent ),
 	} as const;
 }
 
@@ -26,19 +35,21 @@ export function startRenderingMessages( postId: number, items: RenderItem[] ) {
  * Store the rendered batch for a given (postId, items) cache key. Implicitly
  * clears the loading flag for that key.
  *
- * @param postId - Post being previewed.
- * @param items  - The render items.
- * @param batch  - Map of connection_id → result for this batch.
+ * @param postId     - Post being previewed.
+ * @param items      - The render items.
+ * @param batch      - Map of connection_id → result for this batch.
+ * @param postIntent - Edited post fields being rendered.
  * @return Action object.
  */
 export function receiveRenderedMessages(
 	postId: number,
 	items: RenderItem[],
-	batch: RenderedMessageBatch
+	batch: RenderedMessageBatch,
+	postIntent: RenderPostIntent = {}
 ) {
 	return {
 		type: RECEIVE_RENDERED_MESSAGES,
-		cacheKey: renderMessagesCacheKey( postId, items ),
+		cacheKey: renderMessagesCacheKey( postId, items, postIntent ),
 		batch,
 	} as const;
 }
@@ -48,13 +59,18 @@ export function receiveRenderedMessages(
  * Used in the resolver's error path so the consumer keeps whatever it had
  * (preserves the "no flash on failure" behavior).
  *
- * @param postId - Post being previewed.
- * @param items  - The render items.
+ * @param postId     - Post being previewed.
+ * @param items      - The render items.
+ * @param postIntent - Edited post fields being rendered.
  * @return Action object.
  */
-export function finishRenderingMessages( postId: number, items: RenderItem[] ) {
+export function finishRenderingMessages(
+	postId: number,
+	items: RenderItem[],
+	postIntent: RenderPostIntent = {}
+) {
 	return {
 		type: FINISH_RENDERING_MESSAGES,
-		cacheKey: renderMessagesCacheKey( postId, items ),
+		cacheKey: renderMessagesCacheKey( postId, items, postIntent ),
 	} as const;
 }

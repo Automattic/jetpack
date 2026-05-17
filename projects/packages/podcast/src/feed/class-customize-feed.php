@@ -83,14 +83,14 @@ class Customize_Feed {
 	public static function feed_title( $title ) {
 		$override = (string) get_option( 'podcasting_title', '' );
 		if ( '' !== $override ) {
-			return $override;
+			return esc_xml( $override );
 		}
 
 		$category = get_category( self::resolve_category_id() );
 		if ( $category && ! is_wp_error( $category ) ) {
-			return get_bloginfo( 'name' ) . ' &#187; ' . $category->name;
+			return esc_xml( get_bloginfo( 'name' ) ) . ' &#187; ' . esc_xml( $category->name );
 		}
-		return $title;
+		return esc_xml( $title );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class Customize_Feed {
 		if ( 'description' !== $field ) {
 			return $value;
 		}
-		return esc_html( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
+		return esc_xml( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
 	}
 
 	/**
@@ -120,8 +120,8 @@ class Customize_Feed {
 		 */
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
-			echo '<itunes:summary>' . esc_html( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_html( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
+			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
+			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
 		/**
@@ -129,8 +129,8 @@ class Customize_Feed {
 		 */
 		$author = (string) get_option( 'podcasting_talent_name', '' );
 		if ( '' !== $author ) {
-			echo '<itunes:author>' . esc_html( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_html( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
+			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
+			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
 		/**
@@ -138,9 +138,9 @@ class Customize_Feed {
 		 */
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
-			echo '<itunes:owner><itunes:email>' . esc_html( $email ) . "</itunes:email></itunes:owner>\n";
-			echo '<googleplay:owner>' . esc_html( $email ) . "</googleplay:owner>\n";
-			echo '<googleplay:email>' . esc_html( $email ) . "</googleplay:email>\n";
+			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
+			echo '<googleplay:owner>' . esc_xml( $email ) . "</googleplay:owner>\n";
+			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
 
 		/**
@@ -148,7 +148,7 @@ class Customize_Feed {
 		 */
 		$copyright = (string) get_option( 'podcasting_copyright', '' );
 		if ( '' !== $copyright ) {
-			echo '<copyright>' . esc_html( wp_strip_all_tags( $copyright ) ) . "</copyright>\n";
+			echo '<copyright>' . esc_xml( wp_strip_all_tags( $copyright ) ) . "</copyright>\n";
 		}
 
 		/**
@@ -190,8 +190,8 @@ class Customize_Feed {
 			$author = (string) get_option( 'podcasting_talent_name', '' );
 		}
 		if ( '' !== $author ) {
-			echo '<itunes:author>' . esc_html( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_html( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
+			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
+			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
 		// Per Apple / Google Play spec, the channel-level `<itunes:explicit>`
@@ -210,8 +210,8 @@ class Customize_Feed {
 		// item's `<description>`.
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
-			echo '<itunes:summary>' . esc_html( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_html( wp_strip_all_tags( $excerpt ) ) . "</googleplay:description>\n";
+			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
+			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</googleplay:description>\n";
 		}
 	}
 
@@ -451,12 +451,15 @@ class Customize_Feed {
 			return '';
 		}
 
+		// `ent2ncr()` normalises named HTML entities (e.g. `&nbsp;`, `&copy;`) into
+		// numeric character references so an attribute value containing them stays
+		// well-formed XML after esc_attr().
 		$splits = explode( ',', $category );
 		if ( 2 === count( $splits ) ) {
-			return "<itunes:category text='" . esc_attr( $splits[0] ) . "'>\n"
-				. "\t<itunes:category text='" . esc_attr( $splits[1] ) . "' />\n"
+			return "<itunes:category text='" . ent2ncr( esc_attr( $splits[0] ) ) . "'>\n"
+				. "\t<itunes:category text='" . ent2ncr( esc_attr( $splits[1] ) ) . "' />\n"
 				. "</itunes:category>\n";
 		}
-		return "<itunes:category text='" . esc_attr( $category ) . "' />\n";
+		return "<itunes:category text='" . ent2ncr( esc_attr( $category ) ) . "' />\n";
 	}
 }

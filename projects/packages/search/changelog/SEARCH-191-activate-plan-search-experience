@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST: `POST /jetpack/v4/search/plan/activate` accepts a new `search_experience` parameter (`overlay` | `inline` | `embedded`). When present it routes the activation through `Module_Control::update_experience()` — writing the canonical `jetpack_search_experience` option — so WPCOM can change the default experience without a Jetpack code change. The legacy `enable_search` / `enable_instant_search` parameters keep working as a fallback for older callers.

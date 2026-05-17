@@ -4,27 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "92c91b9f92fa4ddc44de6deea3a1a051",
+    "content-hash": "f027d03433b3a70bb6f4b28317c7a19c",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.7",
+            "version": "v2.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "b3920eb6e94594aadb0c678f6c8328191091a9be"
+                "reference": "78780729dbf7b01e67e2a6472f8576ce8ba7f0fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/b3920eb6e94594aadb0c678f6c8328191091a9be",
-                "reference": "b3920eb6e94594aadb0c678f6c8328191091a9be",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/78780729dbf7b01e67e2a6472f8576ce8ba7f0fc",
+                "reference": "78780729dbf7b01e67e2a6472f8576ce8ba7f0fc",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-04-24T20:01:37+00:00"
+            "time": "2026-05-12T12:18:56+00:00"
         },
         {
             "name": "automattic/block-delimiter",
@@ -1434,7 +1434,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "5ac3b4268d352de7e901a9ce29ebab28ce26b950"
+                "reference": "9550ed17eaf560f57f7fe35b63b05f85e4051e06"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1446,7 +1446,6 @@
                 "automattic/jetpack-explat": "@dev",
                 "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
-                "automattic/jetpack-newsletter": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-rtc": "@dev",
@@ -1512,85 +1511,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Enhances your site with features powered by WordPress.com",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-newsletter",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/newsletter",
-                "reference": "80b6d5ab8ec2964f09457217d43d5cfdf0321f9e"
-            },
-            "require": {
-                "automattic/jetpack-admin-ui": "@dev",
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-plans": "@dev",
-                "automattic/jetpack-redirect": "@dev",
-                "automattic/jetpack-status": "@dev",
-                "automattic/jetpack-wp-build-polyfills": "@dev",
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autorelease": true,
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-newsletter",
-                "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
-                },
-                "textdomain": "jetpack-newsletter",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-settings.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-newsletter/compare/v${old}...v${new}"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ],
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Jetpack Newsletter functionality",
             "transport-options": {
                 "relative": true
             }
@@ -1718,9 +1638,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "7871589d1af53fe45a71bca9e1afffeab27e9322"
+                "reference": "99472f9cf83ec522499746f7736c5282bb3c70ba"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
@@ -2370,7 +2293,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "76711591c7e3c5cc5c811fb7308d55b53f6052a5"
+                "reference": "724dc3bc06a2d03ab855dd9fc04032591747d256"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2403,7 +2326,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.37.x-dev"
+                    "dev-trunk": "4.38.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

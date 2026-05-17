@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: CRM unified header
-
-Replace header logo with Jetpack bolt icon and "CRM" text to match the unified admin page header pattern. Adjust spacing, add border below tabs, and preserve fullscreen toggle and white-label support.

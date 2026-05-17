@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: Add `jetpack-search/filter-wc-stock-status` block — a single "In stock" toggle that excludes WooCommerce out-of-stock products via the `product_visibility` taxonomy.

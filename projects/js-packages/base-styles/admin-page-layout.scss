@@ -301,15 +301,13 @@ $jp-breakpoint-mobile: 782px;
 		background: var(--wpds-color-bg-surface-neutral-strong);
 		border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 
-		// Align tab buttons' inline padding with the page header's
-		// horizontal padding (admin-ui ships its page header at
-		// `padding-inline: var(--wpds-dimension-padding-2xl)`).
-		// `@wordpress/ui` Tabs default the buttons to `padding-inline:
-		// var(--wpds-dimension-padding-lg)`; bump them to 2xl so the
-		// first tab's start edge lines up under the page title.
-		[role="tab"] {
-			padding-inline: var(--wpds-dimension-padding-2xl, 24px);
-		}
+		// Align the first tab's start edge with the page header's title.
+		// admin-ui's page header sits at `padding-inline: 2xl` (24px); the
+		// `@wordpress/ui` tab buttons ship with their own `padding-inline:
+		// lg` (16px). Add the `sm` (8px) difference here on the wrapper so
+		// `lg + sm = 2xl` at the button's content edge — without touching
+		// the tab button's own padding.
+		padding-inline: var(--wpds-dimension-padding-sm, 8px);
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
@@ -327,6 +325,62 @@ $jp-breakpoint-mobile: 782px;
 
 		.jp-admin-page {
 			margin-left: 0;          // override legacy -10px @ ≤782px too.
+		}
+	}
+}
+
+// Same chrome as `jetpack-admin-page-layout` plus defensive resets for
+// wp-admin globals that leak into the modernized wp-build dashboards.
+
+// Why a separate mixin: every dashboard that uses `jetpack-admin-page-layout`
+// today predates the wp-build pipeline, hosts its UI in legacy markup, and
+// silently depends on wp-admin's global rules (`ul li { margin-bottom }`,
+// `a { text-decoration: underline }`). wp-build dashboards mount
+// `@wordpress/admin-ui` 2.x components — including `<Breadcrumbs>` —
+// whose semantic markup (`<nav aria-label="Breadcrumbs"><ul><li><a>…`)
+// collides with those defaults. Layering the resets into the existing
+// mixin would silently change every non-wp-build dashboard's rendering;
+// keeping the resets in a wp-build-only mixin contains the blast radius
+// while still letting every wp-build dashboard share a single fix.
+
+// Usage:
+
+//   @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+//   :global {
+//     body.jetpack_page_my-jetpack {
+//       @include jetpack-admin-page-layout-wp-build;
+//     }
+//   }
+@mixin jetpack-admin-page-layout-wp-build {
+
+	@include jetpack-admin-page-layout;
+
+	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
+	// inherits two wp-admin globals that misbehave inside the header:
+	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s
+	//     box ~3px below the text baseline; the `header-content` Stack
+	//     in admin-ui's `<Page>` then centers the visual slot
+	//     (JetpackLogo) to the `<ul>`'s geometric midpoint, so the logo
+	//     ends up sitting below the breadcrumbs label.
+	//   `a { text-decoration: underline }` forces an always-on underline
+	//     on the linked parent breadcrumb, contradicting admin-ui's
+	//     `<Link tone="neutral">` which is designed to render plain at
+	//     rest and underline only on hover/focus.
+	// Scope to the breadcrumbs nav so the surrounding admin page's
+	// other lists / anchors keep wp-admin's defaults.
+	nav[aria-label="Breadcrumbs"] {
+
+		li {
+			margin: 0;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		a:hover,
+		a:focus-visible {
+			text-decoration: underline;
 		}
 	}
 }

@@ -33,11 +33,11 @@ Price is the one exception, and only because its shape doesn't fit. `activeFilte
 
 WC-only features hang off three canonical gates — **don't add a fourth** by re-implementing the probe in a render path or block edit:
 
-- **PHP:** `Search_Blocks::is_woocommerce_active()` — single memoized `class_exists( 'WooCommerce', false )` probe. Must be called at or after `plugins_loaded`. Use from any registration / render / parse path that should disappear on non-Woo sites. The probed value passes through the `jetpack_search_blocks_is_woocommerce_active` filter once before being cached, so a site can force the gate either way (e.g. hide WC-only blocks on a non-shop content area of a Woo site, or render them in a non-Woo staging preview).
-- **Interactivity store seed:** `state.isWooCommerceActive` — read from JS store callbacks (e.g. URL-state parsing, sort-order validation) instead of probing for `window.WooCommerce` directly.
-- **Editor:** `window.JetpackSearchBlocksConfig.isWooCommerceActive` — localized in `Search_Blocks::enqueue_editor_assets()`. Read from block edit components to hide WC-only options from the inspector.
+- **PHP:** `Search_Blocks::woocommerce_blocks_enabled()` — single memoized `class_exists( 'WooCommerce', false )` probe. Must be called at or after `plugins_loaded`. Use from any registration / render / parse path that should disappear on non-Woo sites. The probed value passes through the `jetpack_search_woocommerce_blocks_enabled` filter once before being cached, so a site can force the gate either way regardless of WC's plugin state (e.g. hide WC-only blocks on a non-shop content area of a Woo site, or render them in a non-Woo staging preview).
+- **Interactivity store seed:** `state.isWooCommerceBlocksEnabled` — read from JS store callbacks (e.g. URL-state parsing, sort-order validation) instead of probing for `window.WooCommerce` directly.
+- **Editor:** `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` — localized in `Search_Blocks::enqueue_editor_assets()`. Read from block edit components to hide WC-only options from the inspector.
 
-Tests flip the gate via `Search_Blocks::set_is_woocommerce_active_for_testing( true|false|null )` (PHP) or `globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true }` (JS). Add a WC-on / WC-off matrix test for every new gate.
+Tests flip the gate via `Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true|false|null )` (PHP) or `globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true }` (JS). Add a WC-on / WC-off matrix test for every new gate.
 
 Single source of truth for which blocks count as WC-only:
 
@@ -50,7 +50,7 @@ Single source of truth for which blocks count as WC-only:
 Other WC-only surfaces have to opt into the gate explicitly because they aren't standalone blocks:
 
 - **WC-only patterns:** filename in `patterns/` starts with `wc-`. Caught in `register_patterns()`.
-- **WC-only block variations** (e.g. `product_cat`, `product_tag` on `filter-checkbox`): wrap their `$additions[] = …` push in an `if ( self::is_woocommerce_active() )` block in `inject_filter_checkbox_variations()`.
+- **WC-only block variations** (e.g. `product_cat`, `product_tag` on `filter-checkbox`): wrap their `$additions[] = …` push in an `if ( self::woocommerce_blocks_enabled() )` block in `inject_filter_checkbox_variations()`.
 - **WC-only render paths on shared blocks** (e.g. the `product` layout on `results-list`): collapse to a neutral default in `render.php` and prune the option from the editor inspector. Don't leave a reachable code path that reads WC-shaped fields on a non-Woo site.
 
 A saved post that contains a WC-only block on a site that later deactivates WooCommerce will render the missing-block placeholder for that block — that's expected (and matches WordPress's behavior for any deactivated-plugin block). Authors remove the placeholder and re-pick a non-WC alternative.

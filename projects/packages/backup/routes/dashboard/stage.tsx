@@ -1,6 +1,6 @@
-const Stage = () => {
-	// "Backup" is a product name, do not translate.
-	return <h1>Backup</h1>;
-};
+import OverviewScreen from '../../src/dashboard/screens/overview';
+import './style.scss';
+
+const Stage = () => <OverviewScreen />;
 
 export { Stage as stage };

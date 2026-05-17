@@ -107,10 +107,25 @@ class Filter_Checkbox {
 			$label = static::default_label( $attributes );
 		}
 
+		$taxonomy = sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) );
+
 		return array(
 			'filterKey'       => $filter_key,
 			'filterType'      => $filter_type,
-			'taxonomy'        => sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) ),
+			'taxonomy'        => $taxonomy,
+			// Pre-resolved Elasticsearch field slug for the taxonomy. Equals
+			// `$taxonomy` for natively-indexed taxonomies and the matching
+			// `jetpack-search-tagN` slot when a `jetpack_search_custom_taxonomy_map`
+			// entry routes the user-facing slug through one. Resolving here
+			// (rather than threading the map through every JS helper) keeps
+			// the JS query builders pure: `resolveFilterFields` reads
+			// `config.effectiveSlug` directly without consulting any global
+			// state, which also makes its unit tests trivial. Empty string
+			// for non-taxonomy filterTypes so JS callers can ignore it
+			// without a type check.
+			'effectiveSlug'   => 'taxonomy' === $filter_type
+				? Search_Blocks::resolve_taxonomy_slot( $taxonomy )
+				: '',
 			'label'           => $label,
 			'showCount'       => (bool) ( $attributes['showCount'] ?? true ),
 			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),

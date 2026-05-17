@@ -27,7 +27,7 @@
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 100000;
+	z-index: 100002;
 	height: 56px;
 	background: #fff;
 	border-bottom: 1px solid #f0f0f0;
@@ -56,6 +56,13 @@
 	font-family: inherit;
 }
 
+.bw-help-i {
+	font-style: italic;
+	font-size: 15px;
+	font-family: Georgia, serif;
+	line-height: 1;
+}
+
 .bw-help-toggle:hover {
 	border-color: #999;
 	color: #666;
@@ -65,7 +72,7 @@
 	position: absolute;
 	top: 48px;
 	left: 60px;
-	z-index: 200;
+	z-index: 100002;
 	background: #fff;
 	border-radius: 10px;
 	padding: 16px 20px;
@@ -247,13 +254,90 @@
 	color: #333;
 }
 
-/* Push toolbar and content down when recovery banner is visible */
+/* Push toolbar, link popover, and content down
+   when recovery banner is visible */
 .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
 	top: 100px;
 }
 
+.bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
+}
+
 .bw-recovery-banner:not([hidden]) ~ .bw-main {
 	padding-top: 164px;
+}
+
+/* ===== Beta disclaimer banner ===== */
+.bw-disclaimer-banner {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 100001;
+	box-sizing: border-box;
+	height: 44px;
+	background: #fff8e6;
+	border-bottom: 1px solid #e8c84a;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	animation: bw-fade-in 0.2s ease;
+}
+
+.bw-disclaimer-banner[hidden] {
+	display: none;
+}
+
+.bw-disclaimer-text {
+	font-size: 14px;
+	color: #1a1a1a;
+}
+
+.bw-disclaimer-dismiss {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	line-height: 1;
+}
+
+.bw-disclaimer-dismiss:hover {
+	color: #333;
+}
+
+/* Push toolbar, link popover, and content down
+   when disclaimer banner is visible */
+.bw-disclaimer-banner:not([hidden]) ~ .bw-toolbar {
+	top: 100px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-link-popover {
+	top: 144px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-main {
+	padding-top: 164px;
+}
+
+/* Both disclaimer and recovery visible — stack recovery below disclaimer */
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) {
+	top: 100px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
+	top: 144px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
+	top: 188px;
+}
+
+.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-main {
+	padding-top: 208px;
 }
 
 /* ===== Persistent formatting toolbar ===== */
@@ -1140,8 +1224,12 @@
 	background: rgba(33, 113, 177, 0.85);
 }
 
-/* Figcaption */
-.bw-figcaption {
+/* Figcaption.
+ * `.wp-element-caption` is the class on saved markup served by the server
+ * before JS upgrades it to `.bw-figcaption` — match both so reloaded
+ * captions don't flash left-aligned before init runs. */
+.bw-figcaption,
+.bw-content .wp-element-caption {
 	text-align: center;
 	font-size: 0.875rem;
 	color: #999;

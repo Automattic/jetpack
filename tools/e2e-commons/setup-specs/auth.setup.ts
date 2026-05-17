@@ -35,13 +35,18 @@ setup(
 		await setup.step( 'verify wordpress.com user authentication', async () => {
 			// use the browser to ensure JS routing is executed
 			const page = await authenticatedContext.newPage();
-			await page.goto( 'https://wordpress.com/me' );
+			await page.goto( 'https://wordpress.com/me', { waitUntil: 'load' } );
+
+			await expect
+				.soft( page, 'User remains on an authenticated WordPress.com page' )
+				.toHaveURL( /wordpress\.com\/me/ );
+
 			await expect
 				.soft(
-					page.getByRole( 'link', { name: `Howdy, ${ dotComCredentials.username }` } ),
-					'User is logged in and username is visible'
+					page.getByRole( 'link', { name: /log in/i } ),
+					'Login link should not be visible for authenticated user'
 				)
-				.toBeVisible();
+				.toHaveCount( 0 );
 		} );
 	}
 );

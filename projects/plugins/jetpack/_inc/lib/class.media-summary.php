@@ -239,7 +239,7 @@ class Jetpack_Media_Summary {
 				++$number_of_paragraphs;
 			}
 
-			$number_of_paragraphs = $number_of_paragraphs - $return['count']['video']; // subtract amount for videos.
+			$number_of_paragraphs -= $return['count']['video']; // subtract amount for videos.
 
 			// More than 2 paragraph? The video is not the primary focus so we can do some more analysis.
 			if ( $number_of_paragraphs > 2 ) {

@@ -234,10 +234,10 @@ final class Image_CDN {
 			return $data;
 		}
 		$sizes_already_exist = (
-			true === is_array( $data )
-			&& true === array_key_exists( 'sizes', $data )
-			&& true === is_array( $data['sizes'] )
-			&& false === empty( $data['sizes'] )
+			is_array( $data )
+			&& array_key_exists( 'sizes', $data )
+			&& is_array( $data['sizes'] )
+			&& ! empty( $data['sizes'] )
 		);
 		if ( $sizes_already_exist ) {
 			return $data;

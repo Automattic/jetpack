@@ -169,6 +169,11 @@ class Filter_Checkbox_Test extends TestCase {
 				'filterKey'       => 'category',
 				'filterType'      => 'taxonomy',
 				'taxonomy'        => 'category',
+				// `effectiveSlug` mirrors `taxonomy` for built-in slugs and
+				// natively-indexed custom slugs; the slot-mapping case is
+				// exercised in `Search_Blocks::resolve_taxonomy_slot`'s own
+				// test.
+				'effectiveSlug'   => 'category',
 				'label'           => 'Category',
 				'showCount'       => true,
 				'maxItems'        => 10,

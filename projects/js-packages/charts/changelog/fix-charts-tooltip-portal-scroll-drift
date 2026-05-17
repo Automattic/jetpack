@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Charts: remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages.

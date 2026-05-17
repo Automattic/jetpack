@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add SSH proxy support for rsync to enable Secure Enclave SSH keys that cannot be forwarded into Docker.

@@ -40,14 +40,16 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '../src/settings/sections', () => ( {
-	NewsletterSection: () => <div data-testid="newsletter-section" />,
-	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
-	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
-	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
-	EmailContentSection: () => <div data-testid="email-content-section" />,
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
-	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,
+	EmailContentSection: () => <div data-testid="email-content-section" />,
+	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,
+	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,
+	LegacySubscriptionsSection: () => <div data-testid="legacy-subscriptions-section" />,
+	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
+	NewsletterSection: () => <div data-testid="newsletter-section" />,
+	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
+	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
 	WelcomeEmailSection: () => <div data-testid="welcome-email-section" />,
 } ) );
 

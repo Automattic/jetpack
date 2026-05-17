@@ -2092,6 +2092,45 @@ class Manager {
 		 */
 		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
+		$body_args = array(
+			'response_type'         => 'code',
+			'client_id'             => \Jetpack_Options::get_option( 'id' ),
+			'redirect_uri'          => add_query_arg(
+				array(
+					'handler'  => 'jetpack-connection-webhooks',
+					'action'   => 'authorize',
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+					'redirect' => $redirect ? rawurlencode( $redirect ) : false,
+				),
+				esc_url( $processing_url )
+			),
+			'state'                 => $user->ID,
+			'scope'                 => $signed_role,
+			'user_email'            => $user->user_email,
+			'user_login'            => $user->user_login,
+			'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
+			'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
+			'auth_type'             => $auth_type,
+			'secret'                => $secrets['secret_1'],
+			'blogname'              => get_option( 'blogname' ),
+			'site_url'              => Urls::site_url(),
+			'home_url'              => Urls::home_url(),
+			'site_icon'             => get_site_icon_url(),
+			'site_lang'             => get_locale(),
+			'site_created'          => $this->get_assumed_site_creation_date(),
+			'allow_site_connection' => ! $this->has_connected_owner(),
+			'calypso_env'           => ( new Host() )->get_calypso_env(),
+			'source'                => ( new Host() )->get_source_query(),
+		);
+
+		// Include the slugs of every plugin currently using the Jetpack connection so wpcom
+		// knows which integrations the site is authorizing on behalf of. `Plugin_Storage::get_all()`
+		// returns a `WP_Error` when called before `plugins_loaded`; in that case we silently skip.
+		$active_plugins = Plugin_Storage::get_all();
+		if ( is_array( $active_plugins ) && ! empty( $active_plugins ) ) {
+			$body_args['plugins'] = implode( ',', array_keys( $active_plugins ) );
+		}
+
 		/**
 		 * Filters the user connection request data for additional property addition.
 		 *
@@ -2100,39 +2139,7 @@ class Manager {
 		 *
 		 * @param array $request_data request data.
 		 */
-		$body = apply_filters(
-			'jetpack_connect_request_body',
-			array(
-				'response_type'         => 'code',
-				'client_id'             => \Jetpack_Options::get_option( 'id' ),
-				'redirect_uri'          => add_query_arg(
-					array(
-						'handler'  => 'jetpack-connection-webhooks',
-						'action'   => 'authorize',
-						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-						'redirect' => $redirect ? rawurlencode( $redirect ) : false,
-					),
-					esc_url( $processing_url )
-				),
-				'state'                 => $user->ID,
-				'scope'                 => $signed_role,
-				'user_email'            => $user->user_email,
-				'user_login'            => $user->user_login,
-				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
-				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
-				'auth_type'             => $auth_type,
-				'secret'                => $secrets['secret_1'],
-				'blogname'              => get_option( 'blogname' ),
-				'site_url'              => Urls::site_url(),
-				'home_url'              => Urls::home_url(),
-				'site_icon'             => get_site_icon_url(),
-				'site_lang'             => get_locale(),
-				'site_created'          => $this->get_assumed_site_creation_date(),
-				'allow_site_connection' => ! $this->has_connected_owner(),
-				'calypso_env'           => ( new Host() )->get_calypso_env(),
-				'source'                => ( new Host() )->get_source_query(),
-			)
-		);
+		$body = apply_filters( 'jetpack_connect_request_body', $body_args );
 
 		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 

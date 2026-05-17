@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.59.0] - 2026-05-11
+### Added
+- Search 3.0: Add "Matches content" / "Matches comments" hint badge to the product layout result card when a non-title field matches but the title does not. [#48518]
+- Search 3.0: Add a "Slider" variation to `jetpack-search/filter-wc-price`. Toggling `showSlider` reveals a dual-thumb single-track slider above the existing min/max inputs — mirroring WooCommerce Blocks' `product-filter-price-slider` pattern. [#48670]
+- Search 3.0: Add a per-block "Logic" toggle to `jetpack-search/filter-checkbox` taxonomy filters. [#48685]
+- Search 3.0: Add the `jetpack-search/filter-wc-attribute` block for filtering by a single WooCommerce product attribute. [#48450]
+- Search 3.0: Add the `jetpack-search/filter-wc-price` block with min/max number inputs bound to the shared price range state. [#48449]
+- Search 3.0: Add the `jetpack-search/filter-wc-rating` block with rating-bucket filtering. [#48448]
+- Search 3.0: Add the `jetpack-search/filters-product` parent block for grouping product filter children. [#48454]
+- Search 3.0: Add `jetpack-search/filter-wc-stock-status` block — a single "In stock" toggle that excludes WooCommerce out-of-stock products via the `product_visibility` taxonomy. [#48447]
+- Search 3.0: Extract the "Clear filters" affordance from `jetpack-search/active-filters` into a standalone `jetpack-search/clear-filters` block. [#48452]
+- Search 3.0: Register WooCommerce product Category, Tag, and Brand as inserter-visible variations on the existing jetpack-search/filter-checkbox block. [#48629]
+- Search 3.0: Restore product-format sort keys on the results-sort block when WooCommerce is active. [#48671]
+- Search: Add backend support for the `experience` field in the search settings REST endpoint. `POST /jetpack/v4/search/settings` accepts `experience` (`embedded`, `overlay`, `inline`, or `off`) and updates the package state in lockstep. `GET /jetpack/v4/search/settings` returns the active `experience`, derived from the legacy settings for sites that have not yet saved via the new UI. [#48540]
+- Search: Add Reader Chat opt-in card to the dashboard so site owners can enable or disable Reader Chat without writing PHP. [#48144]
+- Search Blocks: Add 'product' layout to the search-results block, alongside an Inspector control to switch between compact / expanded / product. [#48509]
+- Search Blocks: Add a "Powered by Jetpack" block (`jetpack/powered-by`) to the results-panel default template, patterns, and search template. [#48548]
+- Search Blocks: Add a chips display style option to the Checkbox Filter block. [#48678]
+- Search Blocks: Add a hidden Post Type Scope block that constrains results to an include/exclude post-type list. [#48501]
+- Search Blocks: Add foundation data-plane primitives for the upcoming WooCommerce product filter blocks. [#48446]
+- Search Blocks: Add jetpack/results-panel container block bundling the result-display stack. [#48504]
+- Search Blocks: Extend the chips display style option to the Date and Product Attribute filter blocks. [#48680]
+- Search Blocks: Render highlighted content snippet under the result title in the expanded card layout. [#48516]
+- Search Dashboard: Add new feature-selection UI gated behind the jetpack_search_blocks_enabled filter. [#48500]
+- Search Dashboard: Add Storybook stories for feature-selector components (ExperienceOption and FeatureSelector). [#48624]
+
+### Changed
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Search 3.0: Consolidate icons across all Search blocks so they read as one branded family in the inserter, breadcrumb, and toolbar. [#48686]
+- Search 3.0: Extend the `jetpack-search/active-filters` block to render product-aware chips. [#48453]
+- Search 3.0: Extract the rating filter's cumulative bucket projection into its own module and add unit tests for the threshold semantics. [#48630]
+- Search 3.0: Hide WooCommerce-only blocks, filter variations, layouts, and price-range URL params on sites without WooCommerce active. [#48675]
+- Search 3.0: Include `jetpack-search/clear-filters` in the `jetpack-search/filters-product` allowed list and seed it in the default template. [#48672]
+- Search 3.0: Only override the theme's search template when the saved experience is `embedded`. [#48562]
+- Search 3.0: Redesign `jetpack-search/filter-wc-rating` as the industry-standard "X stars & up" threshold filter. [#48628]
+- Search 3.0: Rename the default filter composition block from `jetpack-search/filters-stack` to `jetpack-search/filters`. [#48674]
+- Search: Migrate dashboard notices to the @wordpress/ui Notice component. [#48550]
+- Search Blocks: Align all 13 blocks under three predictable naming patterns and move them to a dedicated jetpack-search/* namespace. [#48590]
+- Search Blocks: Allow the Post Type Scope block to be inserted inside the Filters container. [#48511]
+- Search Blocks: Convert createElement/h calls to JSX in editor preview components for readability. [#48502]
+- Search Blocks: Differentiate result path and content text styles in the expanded layout. [#48587]
+- Search Blocks: Fold the no-results and search-error blocks into jetpack/search-results so the editor exposes one block with three states. [#48513]
+- Search Blocks: Keep previously-seen checkbox filter options visible and uncheckable across searches. [#48593]
+- Search Blocks: Keep selected filter-checkbox and filter-date buckets visible in the list so visitors can untick them in place. [#48591]
+- Search Blocks: Render skeleton placeholders pre-hydration so deep-linked search pages don't flash blank columns before the JS view bundle loads. [#48505]
+- Search Blocks: Render WooCommerce formatted prices and post titles as plain text. [#48549]
+- Search Dashboard: Hide the Off row of the new feature-selector on WordPress.com. [#48558]
+
+### Fixed
+- Search 3.0: Prevent 404 when refreshing a singular page that hosts inline search blocks. [#48436]
+- Search 3.0: Stop showing the "Matches content" badge on result cards when the visitor has only applied filters without typing a search query. [#48687]
+- Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles. [#48550]
+- Search Blocks: Add pre-hydration skeleton to the WooCommerce attribute filter block. [#48677]
+- Search Blocks: Category, Tag, Post Type, Author, and Custom Taxonomy filter presets now appear in the block inserter. [#48589]
+- Search Blocks: Clear the previous query's results, total count, and aggregation buckets when a search request errors out. [#48541]
+- Search Blocks: Fix block-validation error on results-panel, filter-popover, and common-filters when inserted via patterns. [#48545]
+- Search Blocks: Fix pre-hydration skeleton shape for the product layout. [#48514]
+- Search Dashboard: Fix the upsell page clipping its pricing rows at the footer line under the shared `jetpack-admin-page-layout` mixin. [#48623]
+
 ## [0.58.0] - 2026-05-04
 ### Added
 - Search 3.0: Add common-filters block — Group-like container for stacking filter blocks (active filters, taxonomy/author/post-type checkboxes, date). [#48478]
@@ -1562,6 +1622,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.59.0]: https://github.com/Automattic/jetpack-search/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-search/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-search/compare/v0.56.10...v0.57.0
 [0.56.10]: https://github.com/Automattic/jetpack-search/compare/v0.56.9...v0.56.10
