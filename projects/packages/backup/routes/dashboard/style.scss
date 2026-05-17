@@ -1,0 +1,101 @@
+// Route-level styles for the modernized Backup dashboard.
+// Per-component styles live alongside each component under
+// src/dashboard/components/*.
+
+@use "sass:meta";
+@use "@wordpress/base-styles/breakpoints";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Pull in the bundled DataViews stylesheet. `@wordpress/dataviews` ships
+// its CSS in `build-style/style.css` rather than auto-injecting it from
+// the JS entry, so we explicitly @include it once at the route level
+// (mirrors VideoPress's `routes/library/style.scss`). Without this the
+// list-layout primary action button falls back to wp-admin's default
+// browser button styling and shows as a visible artifact in every row.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Pin the wp-admin content column to the viewport and turn its inner
+// flex chain into "fixed header + scrollable middle + pinned footer"
+// — matches the modernized VideoPress / Forms dashboards (see
+// `projects/packages/videopress/src/dashboard/admin-shell.scss`).
+// Without this, JetpackFooter scrolls with the body when the activity
+// list grows past the viewport. Scoped to the backup admin body so it
+// can't leak onto other Jetpack pages.
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	// `<Page>` from `@wordpress/admin-ui` puts the page title and the
+	// caller-supplied actions on the same flex row inside the header
+	// content slot. The row doesn't wrap by default, so on narrow
+	// viewports the action buttons overflow the page width (the "Back up
+	// now" button is clipped on mobile). Allow the content row and the
+	// actions group to wrap so the actions drop onto a new row instead
+	// of escaping the viewport. admin-ui's emotion-hashed classnames
+	// follow a stable `<hash>__semantic-name` pattern that we can match
+	// on without depending on the hash.
+	.jpb-dashboard-layout {
+
+		[class*="__header-content"],
+		[class*="__header-actions"] {
+			flex-wrap: wrap;
+		}
+	}
+
+	// The shared mixin assumes `<AdminPage>` from `@automattic/jetpack-components`
+	// (which stamps `.jp-admin-page` AND admin-ui's `.admin-ui-page` /
+	// `.admin-ui-page__header` classes verbatim). Our DashboardLayout uses
+	// `<Page>` from `@wordpress/admin-ui` 2.x, whose root + header classes
+	// are emotion-hashed (`_<hash>__page`, `_<hash>__header`) and don't
+	// match the mixin's selectors. We add `.jp-admin-page` to the Page so
+	// the mixin's outer flex chain still attaches, and reproduce the
+	// page-internal "header / middle / footer" sticky layout here using
+	// our own stable class names (`.jpb-dev-mode-banner`,
+	// `.jpb-dashboard-body`, `.jetpack-footer`).
+	.jp-admin-page {
+
+		> header {
+			flex-shrink: 0;
+		}
+
+		> .jpb-dev-mode-banner {
+			flex-shrink: 0;
+		}
+
+		> .jpb-dashboard-body {
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow: auto;
+		}
+
+		> .jetpack-footer {
+			flex-shrink: 0;
+		}
+	}
+}
+
+.jpb-overview {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+	width: 100%;
+
+	// At desktop widths, switch to the side-by-side activity-list + detail
+	// pane. Below this the two cells stack vertically; the grid's minimums
+	// (360px + 400px + 16px gap) would otherwise overflow the dashboard body
+	// on tablet and force horizontal scrolling.
+	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+		grid-template-columns: minmax(360px, 1fr) minmax(400px, 1.5fr);
+		min-height: 600px;
+	}
+
+	&__detail--empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 200px;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 8px;
+		padding: 24px;
+	}
+}

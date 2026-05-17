@@ -136,7 +136,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 }
 
 /**
- * Log an activation block to logstash. Best-effort; no-op off WordPress.com.
+ * Log an activation block to logstash. Best-effort.
  *
  * @param string[]             $checked Probe batch as basenames.
  * @param array<string,string> $blocked Map of basename => admin-notice reason. Empty-string key = batch-level fallback.

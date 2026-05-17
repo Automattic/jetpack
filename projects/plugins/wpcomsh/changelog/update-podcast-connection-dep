@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Internal: regenerate composer.lock to pick up the podcast package's new automattic/jetpack-connection dependency.

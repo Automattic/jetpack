@@ -86,6 +86,12 @@ class Initial_State {
 				 * same flag the back end uses to register the blocks themselves.
 				 */
 				'searchBlocksEnabled'     => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				/**
+				 * Active theme stylesheet — used by the experience-selector to deep-link
+				 * the "Edit search template" action to the right Site Editor entry
+				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).
+				 */
+				'activeThemeStylesheet'   => get_stylesheet(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),

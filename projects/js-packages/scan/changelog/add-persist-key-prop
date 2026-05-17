@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-`ThreatsDataViews`: add `persistKey?: string` prop. When set, the component hydrates its initial view (filters, sort, search, pagination, layout) from `localStorage[persistKey]` and writes back on every change. Use stable, namespaced keys per panel (e.g. `jetpack-scan:active-threats:view`) so consumer panels don't collide. Quietly no-ops when `localStorage` is unavailable (privacy mode, full disk).

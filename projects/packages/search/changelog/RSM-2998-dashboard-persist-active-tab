@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Persist the active Search dashboard tab in the URL across page refreshes.

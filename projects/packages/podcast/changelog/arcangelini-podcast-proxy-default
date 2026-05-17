@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Default the untangle gate to enabled for A8C-proxied requests so Automatticians dogfood the new package on Simple and Atomic.

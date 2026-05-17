@@ -21,7 +21,6 @@ return [
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
     // PhanUndeclaredClassStaticProperty : 2 occurrences
-    // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
@@ -44,7 +43,6 @@ return [
         'src/api/class-analyze-controller.php' => ['PhanPluginUseReturnValueInternalKnown'],
         'src/api/class-controller.php' => ['PhanUndeclaredMethod'],
         'src/api/class-model.php' => ['PhanTypeArraySuspiciousNullable'],
-        'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation'],
         'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter'],

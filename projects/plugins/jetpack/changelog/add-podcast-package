@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add the new Jetpack Podcast package as a dependency. Loaded on Simple and Atomic only, gated behind the `jetpack_podcast_untangle` filter (default off) so it has no effect until subsequent PRs in the untangle train fill it in.

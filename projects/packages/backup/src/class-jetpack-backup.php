@@ -165,13 +165,19 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$callback = self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+		$is_modernized = self::is_modernized();
+		$callback      = $is_modernized && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
+		// Gate the "VaultPress Backup" relabel behind the modernization
+		// filter so the flag-off path stays byte-identical to trunk.
+		$page_title = $is_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $is_modernized ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+
 		$page_suffix = Admin_Menu::add_menu(
-			'Jetpack Backup',
-			'Backup', // Product name, do not translate.
+			$page_title,
+			$menu_title,
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
 			$callback,
@@ -188,6 +194,16 @@ class Jetpack_Backup {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+
+		if ( self::is_modernized() ) {
+			// The modernized Backup overview is a focused, full-screen product
+			// surface. Suppress JITMs and other core/plugin admin notices so they
+			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
+			// Forms handles its dashboard page
+			// (`plugins/forms/src/dashboard/class-dashboard.php`).
+			remove_all_actions( 'admin_notices' );
+			remove_all_actions( 'all_admin_notices' );
+		}
 	}
 
 	/**

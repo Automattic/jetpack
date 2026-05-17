@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Phase 8: scaffold the test surface. PHPUnit bridge tests cover the admin-only permission callback + route registration for every `/jetpack/v4/site/scan/*` endpoint; Jest unit tests cover the `isFixComplete` polling-terminator from `useFixThreatsStatusQuery`. Broader bridge coverage and an e2e Playwright pass land in a follow-up PR.

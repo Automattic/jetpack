@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Copy Post: fix backslash characters being stripped from post content, title, and excerpt when duplicating a post.

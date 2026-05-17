@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 
 // Mirror Results_Sort::BASE_SORT_KEYS / PRODUCT_SORT_KEYS. The product
 // keys only surface in the inspector when WooCommerce is active on this
-// site (see `isWooCommerceActive` below).
+// site (see `isWooCommerceBlocksEnabled` below).
 const BASE_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
 const PRODUCT_SORT_KEYS = [ 'rating_desc', 'price_asc', 'price_desc' ];
 
@@ -26,8 +26,8 @@ const PRODUCT_SORT_KEYS = [ 'rating_desc', 'price_asc', 'price_desc' ];
  *
  * @return {boolean} True when WooCommerce is active.
  */
-function isWooCommerceActive() {
-	return Boolean( globalThis?.JetpackSearchBlocksConfig?.isWooCommerceActive );
+function isWooCommerceBlocksEnabled() {
+	return Boolean( globalThis?.JetpackSearchBlocksConfig?.isWooCommerceBlocksEnabled );
 }
 
 /**
@@ -38,7 +38,9 @@ function isWooCommerceActive() {
  * @return {string[]} Ordered sort keys available in this environment.
  */
 function getAllSortKeys() {
-	return isWooCommerceActive() ? [ ...BASE_SORT_KEYS, ...PRODUCT_SORT_KEYS ] : BASE_SORT_KEYS;
+	return isWooCommerceBlocksEnabled()
+		? [ ...BASE_SORT_KEYS, ...PRODUCT_SORT_KEYS ]
+		: BASE_SORT_KEYS;
 }
 
 /**

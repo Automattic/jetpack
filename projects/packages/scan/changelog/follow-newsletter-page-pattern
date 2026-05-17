@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Switch the page-level layout from the `jetpack-admin-page-layout` mixin (Activity Log's pattern) to a Newsletter-style stylesheet (#48420 phase 3) — sticky page header + tab row sticky-stacked beneath it via a `ResizeObserver`-tracked height variable, off-white page surface so the white DataViews chrome stands out, single hairline owned by the tab row instead of the page header. Cleans up the divider line that appeared between the empty state and the page footer when the mixin's `> :not(.admin-ui-page__header):not(.jetpack-footer) { overflow: auto }` rule kicked in.

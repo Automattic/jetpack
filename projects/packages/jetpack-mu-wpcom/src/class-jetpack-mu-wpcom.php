@@ -309,10 +309,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
-		// Write: distraction-free front-end editor. Gated by blog sticker for gradual rollout.
-		if ( wpcom_has_blog_sticker( 'wpcom-write-editor', get_wpcom_blog_id() ) ) {
-			require_once __DIR__ . '/features/write/write.php';
-		}
+		require_once __DIR__ . '/features/write/write.php';
 
 		/*
 		 * Temporarily disable client-side media processing.
@@ -388,13 +385,21 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
+		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
-		\Automattic\Jetpack\Newsletter\Settings::init();
+		// Guarded with class_exists since mu-wpcom no longer composer-requires
+		// the jetpack-newsletter package: the class is provided by the standalone
+		// Jetpack plugin on Atomic, or by the wpcom platform's bundled Jetpack
+		// source on Simple.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Settings::init();
+		}
 
 		// Initialize the Podcast package on Simple sites (where late_initialization
 		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
@@ -797,5 +802,98 @@ class Jetpack_Mu_Wpcom {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
+	 *
+	 * @param string $feature Logstash `feature` bucket; should start with the `atomic_` prefix (e.g. "atomic_plugin_conflicts_guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => \get_wpcom_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			// Defer the HTTP POST to shutdown. Dispatching inline as a
+			// non-blocking request loses the event when the caller `exit`s
+			// or `wp_safe_redirect`s right after (e.g. the activation-guard
+			// block path), because the cURL handle is torn down before the
+			// TLS handshake completes. Draining at shutdown with a blocking
+			// POST guarantees delivery without adding latency to the
+			// user-visible response.
+			self::queue_logstash_http( $payload );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+			unset( $e );
+		}
+	}
+
+	/**
+	 * Append a logstash payload to the shutdown drain queue, registering
+	 * the drain hook on first enqueue. See `log2logstash()` for why
+	 * dispatch is deferred.
+	 *
+	 * @param array $payload Logstash record (`blog_id`, `feature`, `message`, `extra`).
+	 * @return void
+	 */
+	private static function queue_logstash_http( array $payload ) {
+		static $queue = null;
+		if ( null === $queue ) {
+			$queue = array();
+			register_shutdown_function(
+				static function () use ( &$queue ) {
+					foreach ( $queue as $entry ) {
+						try {
+							wp_remote_post(
+								'https://public-api.wordpress.com/rest/v1.1/logstash',
+								array(
+									'body'    => array( 'params' => wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ),
+									'timeout' => 5,
+								)
+							);
+						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+							unset( $e );
+						}
+					}
+					$queue = array();
+				}
+			);
+		}
+		$queue[] = $payload;
 	}
 }

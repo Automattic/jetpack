@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add support for global and per-connection message templates via REST API.

@@ -681,7 +681,7 @@ class Jetpack_Widget_Conditions {
 				$conditions['rules'][] = array(
 					'major'        => $major_rule,
 					'minor'        => isset( $new_instance['conditions']['rules_minor'][ $index ] ) ? $new_instance['conditions']['rules_minor'][ $index ] : '',
-					'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ) ? true : false,
+					'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ),
 				);
 			}
 		}

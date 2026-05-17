@@ -114,6 +114,39 @@ class REST_Controller {
 				'description' => __( 'Full-text search string.', 'jetpack-activity-log' ),
 				'type'        => 'string',
 			),
+			'actor'       => array(
+				'description' => __( 'Only return events performed by these actor IDs.', 'jetpack-activity-log' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+			),
+		);
+	}
+
+	/**
+	 * Query params accepted by the actors endpoint. Same date window as the
+	 * counts endpoint (no pagination, no sort, no filters) — we just want
+	 * the distinct set for the "Performed by" dropdown.
+	 *
+	 * @return array
+	 */
+	private static function actors_args() {
+		return array(
+			'number' => array(
+				'description' => __( 'Cap on the number of events considered when collecting actors.', 'jetpack-activity-log' ),
+				'type'        => 'integer',
+				'minimum'     => 1,
+				'maximum'     => 1000,
+			),
+			'after'  => array(
+				'description' => __( 'ISO 8601 lower bound on event timestamp.', 'jetpack-activity-log' ),
+				'type'        => 'string',
+				'format'      => 'date-time',
+			),
+			'before' => array(
+				'description' => __( 'ISO 8601 upper bound on event timestamp.', 'jetpack-activity-log' ),
+				'type'        => 'string',
+				'format'      => 'date-time',
+			),
 		);
 	}
 
@@ -179,6 +212,17 @@ class REST_Controller {
 				'callback'            => array( __CLASS__, 'get_activity_log_group_counts' ),
 				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
 				'args'                => self::group_counts_args(),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/activity-log/actors',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_activity_log_actors' ),
+				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+				'args'                => self::actors_args(),
 			)
 		);
 	}
@@ -286,7 +330,7 @@ class REST_Controller {
 	 *   1. `number` is clamped to {@see self::FREE_TIER_ITEM_CAP}.
 	 *   2. `page` is forced to 1.
 	 *   3. All filter inputs (`after`, `before`, `group`, `not_group`,
-	 *      `text_search`) are dropped.
+	 *      `text_search`, `actor`) are dropped.
 	 *
 	 * Together these mean a client-side bypass (DevTools, direct
 	 * `wp.apiFetch`) is bounded to "the 20 most recent events overall" —
@@ -336,6 +380,22 @@ class REST_Controller {
 	 */
 	public static function get_activity_log_group_counts( WP_REST_Request $request ) {
 		return self::proxy_get( '/activity/count/group', $request, array_keys( self::group_counts_args() ) );
+	}
+
+	/**
+	 * Proxy the actors endpoint. Returns the distinct actors that have at
+	 * least one event in the requested date window — used to populate the
+	 * "Performed by" filter dropdown.
+	 *
+	 * Tier-clamping mirrors the group-counts endpoint: the list clamp at
+	 * {@see self::get_activity_log()} is the security boundary, so the
+	 * actors metadata is fine to serve unconditionally.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return mixed
+	 */
+	public static function get_activity_log_actors( WP_REST_Request $request ) {
+		return self::proxy_get( '/activity/actors', $request, array_keys( self::actors_args() ) );
 	}
 
 	/**

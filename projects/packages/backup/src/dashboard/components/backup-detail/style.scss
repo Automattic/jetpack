@@ -1,0 +1,119 @@
+.jpb-backup-detail {
+
+	&__header {
+		// Card.Header doesn't ship its own separator; add one so the
+		// header row and the body content read as distinct sections.
+		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	}
+
+	// Allow the title group and the action group to drop onto separate
+	// rows when the card is too narrow to fit them side-by-side
+	// (notably on stacked / mobile layouts). Without this the inner
+	// Stack stays nowrap, each link wraps mid-label, and the row
+	// collapses into an unreadable squeeze.
+	&__header-row {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+
+	// Keep the title pinned to its icon and let the heading shrink with
+	// the row rather than forcing the parent to overflow.
+	&__header-title {
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
+	// Keep each action label on a single line so it stays legible when
+	// the action group wraps onto its own row. flex-wrap lets the two
+	// links drop to a second sub-row if the viewport is too narrow even
+	// for them side-by-side (deep mobile / zoomed-in widths).
+	&__header-actions {
+		flex-wrap: wrap;
+		flex-shrink: 0;
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding-top: var(--wp-ui-card-padding, 24px);
+	}
+
+	&__download {
+		display: inline-flex;
+		gap: 6px;
+		align-items: center;
+		text-decoration: none;
+
+		// wp-admin's global `svg { fill: … }` is unlayered and overrides
+		// `@wordpress/icons`'s default `fill: currentColor` for any SVG
+		// inside an anchor. Force the icon back to inherit the link's
+		// blue so it doesn't render black next to the "Download backup"
+		// text.
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// Styled-link "primary button" for the Restore action. The router's
+	// `<Link>` renders an `<a>`, so we avoid nesting it inside a `<Button>`
+	// (which would produce invalid `<a><button></button></a>` HTML).
+	&__restore {
+		display: inline-flex;
+		gap: 6px;
+		align-items: center;
+		padding: 6px 12px;
+		border-radius: 2px;
+		background-color: var(--wp-admin-theme-color, #007cba);
+		font-size: 13px;
+		line-height: 1.4;
+		text-decoration: none;
+
+		// wp-admin's global `a { color: #2271b1 }` is unlayered and wins
+		// over `@layer wp-ui-components`; force white explicitly.
+		&,
+		&:hover,
+		&:focus,
+		&:visited {
+			color: #fff;
+		}
+
+		// The `<Icon>` SVG defaults to `fill: currentColor` but wp-admin's
+		// global `svg { fill: ... }` rules can override it for links.
+		// Force the icon to inherit the white link color.
+		svg {
+			fill: currentColor;
+		}
+
+		&:hover {
+			background-color: var(--wp-admin-theme-color-darker-10, #005a87);
+		}
+
+		&:focus {
+			outline: 2px solid transparent;
+			box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #007cba);
+		}
+	}
+
+	&__stats {
+		font-weight: 600;
+	}
+
+	// "Files" section inside the body. Sits below the meta row and holds
+	// the FileBrowser tree. A subtle top border separates it from the
+	// summary, matching the legacy admin's section divider.
+	&__files {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+	}
+
+	&__files-title {
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		color: var(--wp-components-color-foreground-muted, #757575);
+		margin-bottom: 8px;
+	}
+}

@@ -29,6 +29,13 @@ body.jetpack_page_jetpack-podcast {
 	max-inline-size: 1024px;
 }
 
+// Wider variant for tabs whose content benefits from extra horizontal
+// breathing room (Stats: side-by-side chart + tile row, map + country list).
+.podcast__tab-content--xwide {
+	margin-inline: auto;
+	max-inline-size: 1280px;
+}
+
 .podcast__section-heading {
 	margin: 0;
 	font-size: 24px;

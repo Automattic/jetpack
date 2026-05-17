@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-`ThreatsDataViews`: add `showStatusFilter?: boolean` prop (defaults to `true`). Lets consumers that already filter the dataset by status outside the component (e.g. page-level Active threats / History tabs in Scan) opt out of the in-table active/historic toggle. Existing callers (Protect) keep the toggle by default.
