@@ -59,7 +59,8 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 						out.push( ...result.episodes );
 					}
 				} catch ( error ) {
-					const status = ( error as { data?: { status?: number } } )?.data?.status;
+					const err = error as { data?: { status?: number }; status?: number };
+					const status = err?.data?.status ?? err?.status;
 					if ( status === 402 ) {
 						if ( ! cancelled ) {
 							setData( [] );
