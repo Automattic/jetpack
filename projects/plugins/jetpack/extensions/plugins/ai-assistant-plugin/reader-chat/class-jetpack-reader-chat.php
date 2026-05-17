@@ -18,6 +18,7 @@
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Search\Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -57,13 +58,14 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
-		// Rollout gate: only serve the widget to Automatticians for now.
-		// The opt-in + orchestrator agents are still being validated
-		// end-to-end; showing the widget to arbitrary visitors would
-		// produce a 403 from the (also staff-only) reader-chat agent.
-		// Falls back to the proxied-request check when is_automattician
-		// isn't available (non-wpcom hosts). Filterable for dev overrides.
-		if ( ! apply_filters( 'jetpack_reader_chat_enqueue_enabled', self::current_user_is_staff() ) ) {
+		/**
+		 * Filter whether Reader Chat should hook its public frontend loader.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the reader chat frontend loader should be hooked.
+		 */
+		if ( ! apply_filters( 'jetpack_reader_chat_enqueue_enabled', true ) ) {
 			return;
 		}
 
@@ -75,20 +77,11 @@ class Jetpack_Reader_Chat {
 	 * Register the reader_chat option so it is readable and writable
 	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
 	 *
-	 * Gated to proxied Automattic requests during the rollout so regular
-	 * site owners (and even non-proxied staff on JN / localhost) do not
-	 * see an unfinished toggle. The admin UI in the Jetpack Search
-	 * dashboard also checks for the setting's presence before rendering.
-	 *
-	 * @since 15.9
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
 	public static function register_settings(): void {
-		if ( ! self::is_proxied_request() ) {
-			return;
-		}
-
 		register_setting(
 			'general',
 			'reader_chat',
@@ -121,69 +114,6 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Check whether the current request is from an Automattician.
-	 *
-	 * Uses the wpcom is_automattician() helper when available (wpcom
-	 * Simple / Atomic). Falls back to the proxied-request heuristic
-	 * on self-hosted Jetpack sites where is_automattician() does not
-	 * exist. Returns false for logged-out visitors on wpcom (since
-	 * get_current_user_id() is 0 and is_automattician( 0 ) is false).
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
-	 *
-	 * @since 15.9
-	 *
-	 * @return bool
-	 */
-	private static function current_user_is_staff(): bool {
-		if ( function_exists( 'is_automattician' ) ) {
-			return is_automattician( get_current_user_id() );
-		}
-
-		return self::is_proxied_request();
-	}
-
-	/**
-	 * Check whether the current request is coming from a proxied
-	 * Automattic context (a12 staff on a sandbox / proxy).
-	 *
-	 * This is a strict subset of is_dev_mode(): it excludes the
-	 * hostname-based matches (localhost, jurassic.ninja, jurassic.tube)
-	 * because a non-staff dev on JN should not see the rollout toggle.
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
-	 *
-	 * @since 15.9
-	 *
-	 * @return bool
-	 */
-	private static function is_proxied_request(): bool {
-		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
-			return true;
-		}
-
-		if (
-			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-		) {
-			return true;
-		}
-
-		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
-			switch ( ATOMIC_CLIENT_ID ) {
-				case 1:
-				case 2:
-				case 3: // Pressable
-				case 32:
-				case 118: // Commerce garden client (ciab)
-					return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Enqueue the reader chat script on the frontend.
 	 *
 	 * Loads on every public-facing page (home, archives, pages, singular
@@ -209,6 +139,10 @@ class Jetpack_Reader_Chat {
 		 */
 		$has_features = apply_filters( 'jetpack_reader_chat_has_ai_features', null );
 		if ( ! ( $has_features ?? self::has_ai_features() ) ) {
+			return;
+		}
+
+		if ( ! self::has_search_plan_access() ) {
 			return;
 		}
 
@@ -456,6 +390,33 @@ class Jetpack_Reader_Chat {
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 			&& ! ( new Status() )->is_offline_mode()
 			&& apply_filters( 'jetpack_ai_enabled', true );
+	}
+
+	/**
+	 * Check whether the current site can serve Reader Chat under its Search plan.
+	 *
+	 * Uses the cached Jetpack Search plan option instead of forcing a remote
+	 * refresh on public frontend requests.
+	 *
+	 * @return bool
+	 */
+	private static function has_search_plan_access(): bool {
+		$plan_access = apply_filters( 'jetpack_reader_chat_has_search_plan_access', null );
+		if ( null !== $plan_access ) {
+			return (bool) $plan_access;
+		}
+
+		if ( ! class_exists( Plan::class ) ) {
+			return false;
+		}
+
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( ! is_array( $plan_info ) ) {
+			return false;
+		}
+
+		return ! empty( $plan_info['supports_search'] )
+			&& empty( $plan_info['plan_usage']['must_upgrade'] );
 	}
 
 	/**
