@@ -307,13 +307,12 @@ export default function PodcastEpisodeEdit( {
 	// Empty trailing paragraphs (Gutenberg's default appender) don't count,
 	// and an empty Group/Columns/List wrapper doesn't either; we recurse into
 	// container children rather than treating the wrapper itself as content.
-	// Walks ancestor lists so content placed after a Group/Columns wrapper at
-	// any nesting level still counts as "below".
+	// Only checks blocks that come after this block in the same parent list.
 	const hasContentBelow = useSelect(
 		select => {
 			const blockEditor = select( 'core/block-editor' ) as {
 				getBlockRootClientId: ( id: string ) => string | null;
-				getBlockOrder: ( id: string | null ) => string[];
+				getBlockOrder: ( id?: string ) => string[];
 				getBlockName: ( id: string ) => string | null;
 				getBlockAttributes: ( id: string ) => Record< string, unknown > | null;
 			};
@@ -345,17 +344,10 @@ export default function PodcastEpisodeEdit( {
 				}
 				return ! EMPTY_CONTAINERS.has( name );
 			};
-			let currentId: string | null = clientId;
-			while ( currentId ) {
-				const parentId: string | null = blockEditor.getBlockRootClientId( currentId );
-				const order = blockEditor.getBlockOrder( parentId );
-				const idx = order.indexOf( currentId );
-				if ( idx >= 0 && order.slice( idx + 1 ).some( isSubstantive ) ) {
-					return true;
-				}
-				currentId = parentId;
-			}
-			return false;
+			const parentId = blockEditor.getBlockRootClientId( clientId );
+			const order = parentId ? blockEditor.getBlockOrder( parentId ) : blockEditor.getBlockOrder();
+			const idx = order.indexOf( clientId );
+			return idx >= 0 && order.slice( idx + 1 ).some( isSubstantive );
 		},
 		[ clientId ]
 	);
