@@ -168,6 +168,42 @@ class Search_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Counts outbound HTTP attempts while forcing them to fail.
+	 *
+	 * @var int
+	 */
+	private $http_error_calls = 0;
+
+	/**
+	 * Forces outbound HTTP requests to fail and tallies how many were attempted.
+	 *
+	 * @return \WP_Error
+	 */
+	public function count_http_error() {
+		++$this->http_error_calls;
+		return new \WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+	}
+
+	/**
+	 * A failed pricing fetch is cached for the request, so the two callers in
+	 * get_pricing_for_ui() share a single failed attempt instead of two 5s timeouts.
+	 */
+	public function test_failed_pricing_fetch_is_cached() {
+		$this->http_error_calls = 0;
+		add_filter( 'pre_http_request', array( $this, 'count_http_error' ) );
+
+		$record_count = 987654;
+		$first        = Search::get_pricing_from_wpcom( $record_count );
+		$second       = Search::get_pricing_from_wpcom( $record_count );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_http_error' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $first );
+		$this->assertInstanceOf( \WP_Error::class, $second );
+		$this->assertSame( 1, $this->http_error_calls );
+	}
+
+	/**
 	 * When the WPCOM pricing fetch errors, the UI pricing payload should still default to
 	 * the new pricing version so the dashboard renders the current grid, not the legacy view.
 	 */

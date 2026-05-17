@@ -296,7 +296,10 @@ class Search extends Hybrid_Product {
 		}
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'search_pricing_fetch_failed' );
+			// Cache the failure too: get_pricing_for_ui() reaches this twice per request
+			// (once via has_trial_support(), once directly), and each miss is a 5s timeout.
+			$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
+			return $pricings[ $record_count ];
 		}
 
 		$body                      = wp_remote_retrieve_body( $response );
