@@ -157,4 +157,41 @@ class Search_Product_Test extends TestCase {
 		activate_plugins( Search::get_installed_plugin_filename() );
 		$this->assertSame( '', Search::get_post_activation_url() );
 	}
+
+	/**
+	 * Forces every outbound HTTP request to fail so the WPCOM pricing fetch errors.
+	 *
+	 * @return \WP_Error
+	 */
+	public function force_http_error() {
+		return new \WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+	}
+
+	/**
+	 * When the WPCOM pricing fetch errors, the UI pricing payload should still default to
+	 * the new pricing version so the dashboard renders the current grid, not the legacy view.
+	 */
+	public function test_get_pricing_for_ui_defaults_to_new_pricing_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$pricing = Search::get_pricing_for_ui();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertArrayHasKey( 'pricing_version', $pricing );
+		$this->assertSame( '202208', $pricing['pricing_version'] );
+	}
+
+	/**
+	 * When the WPCOM pricing fetch errors, is_new_pricing_202208() should default to true.
+	 */
+	public function test_is_new_pricing_202208_true_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$is_new_pricing = Search::is_new_pricing_202208();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertTrue( $is_new_pricing );
+	}
 }

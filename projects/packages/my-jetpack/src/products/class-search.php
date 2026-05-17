@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -168,6 +169,9 @@ class Search extends Hybrid_Product {
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 
 		if ( is_wp_error( $search_pricing ) ) {
+			// Default to the current pricing experience when the WPCOM fetch fails so the
+			// dashboard degrades to the production default, not the legacy single-card view.
+			$pricing['pricing_version'] = Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
 			return $pricing;
 		}
 
@@ -215,10 +219,11 @@ class Search extends Hybrid_Product {
 		$record_count   = intval( Search_Stats::estimate_count() );
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 		if ( is_wp_error( $search_pricing ) ) {
-			return false;
+			// Default to the current pricing experience when the WPCOM fetch fails.
+			return true;
 		}
 
-		return '202208' === $search_pricing['pricing_version'];
+		return Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION === $search_pricing['pricing_version'];
 	}
 
 	/**
