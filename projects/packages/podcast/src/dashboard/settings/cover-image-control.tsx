@@ -3,7 +3,7 @@
 // close-but-not-exactly-square assets.
 
 import { Button } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { MediaUpload } from '@wordpress/media-utils';
 
@@ -52,6 +52,7 @@ const CoverImageControl = ( {
 	disabled,
 }: CoverImageControlProps ) => {
 	const [ warning, setWarning ] = useState< string | null >( null );
+	const labelId = useId();
 
 	const hasImage = !! imageUrl || imageId > 0;
 
@@ -80,7 +81,10 @@ const CoverImageControl = ( {
 	);
 
 	return (
-		<div className="podcast__cover-control">
+		<div className="podcast__cover-control" role="group" aria-labelledby={ labelId }>
+			<span id={ labelId } className="podcast__cover-label">
+				{ __( 'Cover image', 'jetpack-podcast' ) }
+			</span>
 			<div className="podcast__cover-preview">
 				{ imageUrl ? (
 					<img src={ imageUrl } alt={ __( 'Podcast cover', 'jetpack-podcast' ) } />
