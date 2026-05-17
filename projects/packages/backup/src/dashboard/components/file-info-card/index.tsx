@@ -1,6 +1,6 @@
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { useFileContents } from '../../hooks/use-file-contents';
@@ -61,8 +61,11 @@ type Props = {
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
- * contents in a `<pre>` when available, or a "preview unavailable" muted
- * line when the mime type isn't text or the fetch returned nothing.
+ * contents in a `<pre>` when available, an error-specific muted line
+ * when the fetch failed (most commonly because the file's `period`
+ * predates available content blobs — VaultPress retains manifest
+ * entries longer than blob storage), or a generic "preview unavailable"
+ * muted line for non-text mime types.
  *
  * Pulled out as a standalone component to keep `FileInfoCard`'s JSX flat
  * (no nested ternaries) and to give the loading / error / empty branches
@@ -72,16 +75,19 @@ type Props = {
  * @param props.showPreview - Whether the file's mime type is renderable as text.
  * @param props.isLoading   - Whether the file-contents query is in flight.
  * @param props.content     - The fetched body, or null when not yet resolved.
+ * @param props.error       - The fetch error, or null on success.
  * @return The preview body.
  */
 function PreviewBody( {
 	showPreview,
 	isLoading,
 	content,
+	error,
 }: {
 	showPreview: boolean;
 	isLoading: boolean;
 	content: string | null;
+	error: Error | null;
 } ) {
 	if ( ! showPreview ) {
 		return (
@@ -92,6 +98,16 @@ function PreviewBody( {
 	}
 	if ( isLoading ) {
 		return <Spinner />;
+	}
+	if ( error ) {
+		return (
+			<Text variant="body-sm" className="jpb-text-muted">
+				{ __(
+					'Preview could not be loaded for this file. It may no longer be available in storage.',
+					'jetpack-backup-pkg'
+				) }
+			</Text>
+		);
 	}
 	if ( content === null ) {
 		return (
@@ -137,11 +153,11 @@ function isTextual( mime: string ): boolean {
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
 	const showPreview = mimeType ? isTextual( mimeType ) : false;
-	const { content, isLoading: contentsLoading } = useFileContents(
-		file.period,
-		file.manifestPath,
-		showPreview
-	);
+	const {
+		content,
+		isLoading: contentsLoading,
+		error: contentsError,
+	} = useFileContents( file.period, file.manifestPath, showPreview );
 
 	return (
 		<Card.Root className="jpb-file-info-card">
@@ -183,31 +199,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					showPreview={ showPreview }
 					isLoading={ contentsLoading }
 					content={ content }
+					error={ contentsError }
 				/>
 			</div>
-			<Stack
-				direction="row"
-				align="center"
-				justify="flex-end"
-				gap="sm"
-				className="jpb-file-info-card__actions"
-			>
-				<Button
-					variant="outline"
-					tone="neutral"
-					size="small"
-					aria-label={ sprintf(
-						/* translators: %s file name */
-						__( 'Download %s', 'jetpack-backup-pkg' ),
-						file.name
-					) }
-				>
-					{ __( 'Download file', 'jetpack-backup-pkg' ) }
-				</Button>
-				<Button variant="solid" tone="brand" size="small">
-					{ __( 'Restore', 'jetpack-backup-pkg' ) }
-				</Button>
-			</Stack>
 		</Card.Root>
 	);
 }

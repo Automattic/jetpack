@@ -23,9 +23,12 @@ type ConnectionStatus = {
  * memoizing avoids any chance of capturing a pre-emit empty snapshot
  * if load order ever drifts.
  *
+ * If the global is missing entirely (PHP failed to emit it), we treat
+ * the connection as "loaded but not connected" so `<Gates>` falls
+ * through to the not-connected screen instead of spinning forever.
  * `@automattic/jetpack-connection`'s `declarations.d.ts` already types
  * the global ambiently — and declares it non-optional — so we don't
- * redeclare it here, but we do keep the runtime guard because nothing
+ * redeclare it here, but we do keep that runtime guard because nothing
  * guarantees PHP emitted it.
  *
  * @return Connection state.
@@ -33,13 +36,23 @@ type ConnectionStatus = {
 export function useConnection(): Result {
 	const state = typeof window !== 'undefined' ? window.JP_CONNECTION_INITIAL_STATE : undefined;
 	const status: ConnectionStatus = state?.connectionStatus ?? {};
+	const hasGlobal = Boolean( state );
 
-	const isLoaded = Object.keys( status ).length > 0;
-	const isFullyConnected = Boolean( isLoaded && status.isRegistered && status.hasConnectedOwner );
+	if ( ! hasGlobal && typeof window !== 'undefined' ) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			'[Jetpack Backup] JP_CONNECTION_INITIAL_STATE is missing — treating site as not connected.'
+		);
+	}
+
+	const isFullyConnected = Boolean( status.isRegistered && status.hasConnectedOwner );
 	const isSecondaryAdminNotConnected = Boolean( isFullyConnected && ! status.isUserConnected );
 
 	return {
-		isLoaded,
+		// Always loaded: either the global is present (with whatever
+		// keys it has, including `{}` for a disconnected site) or it's
+		// missing and we've decided to render the not-connected screen.
+		isLoaded: true,
 		isFullyConnected,
 		isSecondaryAdminNotConnected,
 		hasConnectionError: false,

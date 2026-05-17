@@ -81,6 +81,14 @@ export function useRestore( rewindId: string ): Result {
 			phase: 'error',
 			message: statusQuery.data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
 		};
+	} else if ( restoreId !== null && statusQuery.error ) {
+		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
+		// in `progress` at the last known percent with no way out.
+		state = {
+			phase: 'error',
+			message:
+				statusQuery.error.message || __( 'Lost connection while restoring.', 'jetpack-backup-pkg' ),
+		};
 	} else if ( restoreId !== null && statusQuery.data ) {
 		state = {
 			phase: 'progress',

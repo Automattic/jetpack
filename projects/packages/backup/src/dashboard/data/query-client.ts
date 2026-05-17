@@ -32,11 +32,14 @@ export const queryClient = new QueryClient( {
  */
 export const keys = {
 	capabilities: () => [ 'backup', 'capabilities' ] as const,
-	// Single shared key: the hook always fetches one fixed window of
-	// rewindable activity and filters/paginates client-side, so every
-	// consumer (list, default-selection, by-id lookup) subscribes to
-	// the same entry.
-	activityLogWindow: () => [ 'backup', 'activity-log-window' ] as const,
+	// Family prefix for any rewindable-activity-log page. Use as a
+	// query-filter root to scan all cached pages (e.g. when looking up
+	// a row by id across pages).
+	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
+	// Per-page key. `(page, pageSize)` is the only thing that
+	// distinguishes one fetch from another, so both must be in the key.
+	activityLogPage: ( page: number, pageSize: number ) =>
+		[ 'backup', 'activity-log', { page, pageSize } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>

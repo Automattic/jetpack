@@ -78,6 +78,15 @@ export function useDownload( rewindId: string ): Result {
 		state = { phase: 'success', downloadUrl: statusQuery.data.url };
 	} else if ( statusQuery.data?.status === 'failed' ) {
 		state = { phase: 'error', message: __( 'Download failed.', 'jetpack-backup-pkg' ) };
+	} else if ( downloadId !== null && statusQuery.error ) {
+		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
+		// in `progress` at the last known percent with no way out.
+		state = {
+			phase: 'error',
+			message:
+				statusQuery.error.message ||
+				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
+		};
 	} else if ( downloadId !== null && statusQuery.data ) {
 		state = {
 			phase: 'progress',

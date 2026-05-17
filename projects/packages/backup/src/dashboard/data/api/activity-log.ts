@@ -17,23 +17,32 @@ export type WpcomActivityLogResponse = {
 	current?: {
 		orderedItems?: WpcomActivityEntry[];
 	};
-	total_items?: number;
+	totalItems?: number;
+	totalPages?: number;
+	itemsPerPage?: number;
 };
 
 type FetchArgs = {
 	number?: number;
+	page?: number;
 };
 
 /**
- * Fetch the rewindable activity log entries from the bridge.
+ * Fetch a page of the rewindable activity log from the bridge.
  *
- * @param args - Optional pagination args.
+ * `number` is the page size; `page` is 1-indexed. The bridge forwards
+ * both to WPCOM, which returns `totalItems` / `totalPages` in the
+ * envelope — those values drive DataViews' pagination footer.
+ *
+ * @param args        - Pagination args.
+ * @param args.page   - 1-indexed page number.
+ * @param args.number - Items per page.
  * @return The raw WPCOM-shaped response.
  */
 export async function fetchActivityLog(
 	args: FetchArgs = {}
 ): Promise< WpcomActivityLogResponse > {
 	return apiCall< WpcomActivityLogResponse >( {
-		path: apiPath( '/site/rewindable-activity', { number: args.number } ),
+		path: apiPath( '/site/rewindable-activity', { number: args.number, page: args.page } ),
 	} );
 }

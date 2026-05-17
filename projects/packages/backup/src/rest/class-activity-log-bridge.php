@@ -44,6 +44,7 @@ class Activity_Log_Bridge {
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
 				'args'                => array(
 					'number' => array( 'type' => 'integer' ),
+					'page'   => array( 'type' => 'integer' ),
 				),
 			)
 		);
@@ -51,6 +52,12 @@ class Activity_Log_Bridge {
 
 	/**
 	 * Proxy the WPCOM rewindable activity log.
+	 *
+	 * Forwards `number` (per page) and `page` (1-indexed) so the dashboard
+	 * paginates against the real server response — `totalItems` /
+	 * `totalPages` come back in the WPCOM envelope and drive DataViews'
+	 * pagination footer. Same param shape the `automattic/jetpack-activity-log`
+	 * package uses against the parent `/sites/{id}/activity` endpoint.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
@@ -62,7 +69,10 @@ class Activity_Log_Bridge {
 		}
 
 		$query = array_filter(
-			array( 'number' => $request->get_param( 'number' ) ),
+			array(
+				'number' => $request->get_param( 'number' ),
+				'page'   => $request->get_param( 'page' ),
+			),
 			static function ( $value ) {
 				return null !== $value && '' !== $value;
 			}
