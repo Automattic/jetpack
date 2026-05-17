@@ -169,6 +169,7 @@ class New_Episode_Prefill {
 	 */
 	private static function has_product_access() {
 		$callback = array( __NAMESPACE__ . '\\Podcast_Gate', 'has_product_access' );
+		// @phan-suppress-next-line PhanUndeclaredClassInCallable -- Podcast_Gate is a future class; guarded by is_callable().
 		return is_callable( $callback ) && call_user_func( $callback );
 	}
 }
