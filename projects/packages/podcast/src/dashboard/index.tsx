@@ -14,7 +14,7 @@ const Welcome = lazy( () => import( './welcome' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
-const Upsell = lazy( () => import( './upsell' ) );
+const LockedPreview = lazy( () => import( './locked-preview' ) );
 
 // Fail-open: a missing flag means access-granted, so a deploy race never locks
 // grandfathered users out of the Episodes tab.
@@ -136,16 +136,10 @@ const App = () => {
 					</div>
 				</Tabs.Panel>
 				<Tabs.Panel value="episodes">
-					<div
-						className={
-							hasAccess
-								? 'podcast__tab-content'
-								: 'podcast__tab-content podcast__tab-content--narrow'
-						}
-					>
+					<div className="podcast__tab-content">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								{ hasAccess ? <EpisodesTab /> : <Upsell /> }
+								{ hasAccess ? <EpisodesTab /> : <LockedPreview variant="episodes" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
