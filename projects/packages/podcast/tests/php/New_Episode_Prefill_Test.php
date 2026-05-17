@@ -71,10 +71,35 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
+		// WorDBless lacks the term-relationships table, so wp_get_post_categories
+		// can't read the assignment back. Spy on the set_object_terms action
+		// (fires at the end of wp_set_object_terms) to confirm the call was
+		// made with our category.
+		$spy = array();
+		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy ) {
+			$spy[] = array(
+				'object_id' => (int) $object_id,
+				'taxonomy'  => $taxonomy,
+				'terms'     => array_map( 'intval', (array) $terms ),
+			);
+		};
+		add_action( 'set_object_terms', $record, 10, 4 );
+
 		add_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ), 10, 3 );
 		do_action( 'wp_insert_post', $post_id, get_post( $post_id ), false );
 
-		$this->assertSame( array( $category_id ), wp_get_post_categories( $post_id ) );
+		remove_action( 'set_object_terms', $record, 10 );
+
+		$this->assertSame(
+			array(
+				array(
+					'object_id' => (int) $post_id,
+					'taxonomy'  => 'category',
+					'terms'     => array( (int) $category_id ),
+				),
+			),
+			$spy
+		);
 		$this->assertFalse( has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );
 
 		wp_delete_post( $post_id, true );
@@ -106,10 +131,23 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
+		// WorDBless lacks the term-relationships table, so wp_get_post_categories
+		// can't read the assignment back. Spy on the set_object_terms action to
+		// confirm no override call was made for our test post.
+		$spy = array();
+		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy, $post_id ) {
+			if ( (int) $object_id === (int) $post_id && 'category' === $taxonomy ) {
+				$spy[] = array_map( 'intval', (array) $terms );
+			}
+		};
+		add_action( 'set_object_terms', $record, 10, 4 );
+
 		New_Episode_Prefill::assign_category( $post_id, get_post( $post_id ), true );
 		New_Episode_Prefill::assign_category( $post_id, get_post( $post_id ), false );
 
-		$this->assertSame( array( $current_category ), wp_get_post_categories( $post_id ) );
+		remove_action( 'set_object_terms', $record, 10 );
+
+		$this->assertSame( array(), $spy );
 
 		wp_delete_post( $post_id, true );
 		wp_delete_user( $user_id );
@@ -145,7 +183,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 	 */
 	private function reset_prefill_state() {
 		$property = new \ReflectionProperty( New_Episode_Prefill::class, 'handled_post_id' );
-		$property->setAccessible( true );
-		$property->setValue( 0 );
+		$property->setValue( null, 0 );
 	}
 }
