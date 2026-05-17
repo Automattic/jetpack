@@ -1,7 +1,9 @@
 // Static stats-panel placeholder for the locked preview. Mirrors the modules a
 // Premium user sees in the Stats panel: Downloads bar chart, Top episodes
 // list, By app list. CSS-only render — no @automattic/charts dependency so
-// free users don't pull the heavy stats chunk.
+// free users don't pull the heavy stats chunk. The whole preview is
+// `aria-hidden` and visually blurred, so the rows below are non-language
+// skeleton placeholders rather than localized strings.
 
 import { __ } from '@wordpress/i18n';
 
@@ -10,23 +12,21 @@ const DOWNLOAD_MAX = Math.max( ...DOWNLOAD_DAYS );
 
 interface SampleRow {
 	id: number;
-	label: string;
-	value: string;
 	pct: number;
 }
 
 const SAMPLE_TOP_EPISODES: SampleRow[] = [
-	{ id: 1, label: 'Episode 1 — the first conversation', value: '1,284', pct: 100 },
-	{ id: 2, label: 'Episode 2 — guest interview with a friend', value: '973', pct: 76 },
-	{ id: 3, label: 'Episode 3 — back-to-basics, why we started', value: '812', pct: 63 },
-	{ id: 4, label: 'Episode 4 — Q&A from our listeners', value: '604', pct: 47 },
+	{ id: 1, pct: 100 },
+	{ id: 2, pct: 76 },
+	{ id: 3, pct: 63 },
+	{ id: 4, pct: 47 },
 ];
 
 const SAMPLE_BY_APP: SampleRow[] = [
-	{ id: 1, label: 'Apple Podcasts', value: '2,140', pct: 100 },
-	{ id: 2, label: 'Spotify', value: '1,420', pct: 66 },
-	{ id: 3, label: 'Pocket Casts', value: '510', pct: 24 },
-	{ id: 4, label: 'Overcast', value: '320', pct: 15 },
+	{ id: 1, pct: 100 },
+	{ id: 2, pct: 66 },
+	{ id: 3, pct: 24 },
+	{ id: 4, pct: 15 },
 ];
 
 const StatsPreview = () => (
@@ -54,8 +54,6 @@ const StatsPreview = () => (
 							style={ { width: `${ row.pct }%` } }
 							aria-hidden="true"
 						/>
-						<span className="podcast-locked-preview__bar-label">{ row.label }</span>
-						<span className="podcast-locked-preview__bar-value">{ row.value }</span>
 					</li>
 				) ) }
 			</ul>
@@ -71,8 +69,6 @@ const StatsPreview = () => (
 							style={ { width: `${ row.pct }%` } }
 							aria-hidden="true"
 						/>
-						<span className="podcast-locked-preview__bar-label">{ row.label }</span>
-						<span className="podcast-locked-preview__bar-value">{ row.value }</span>
 					</li>
 				) ) }
 			</ul>

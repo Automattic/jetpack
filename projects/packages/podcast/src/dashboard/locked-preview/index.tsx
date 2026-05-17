@@ -6,12 +6,12 @@
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
-import { useCallback, useId, useRef } from '@wordpress/element';
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import EpisodesPreview from './episodes-preview';
 import StatsPreview from './stats-preview';
 import './style.scss';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
 
@@ -65,34 +65,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	} )();
 
 	const titleId = useId();
-	const wrapperRef = useRef< HTMLDivElement >( null );
-
-	// Escape blurs the CTA so the user can tab out into the dashboard tab list
-	// instead of staying parked on this control. The wrapper is keyboard-active
-	// even though only the CTA is focusable, so escape from anywhere inside the
-	// preview region still does the right thing.
-	const handleKeyDown = useCallback( ( event: KeyboardEvent< HTMLDivElement > ) => {
-		if ( event.key !== 'Escape' ) {
-			return;
-		}
-		const active = wrapperRef.current?.ownerDocument.activeElement;
-		if ( active instanceof HTMLElement ) {
-			active.blur();
-		}
-	}, [] );
 
 	const overlayTitle = OVERLAY_TITLE_BY_VARIANT[ variant ];
 	const overlayDescription = OVERLAY_DESCRIPTION_BY_VARIANT[ variant ];
 
 	return (
-		// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-		<div
-			ref={ wrapperRef }
-			className="podcast-locked-preview"
-			role="region"
-			aria-labelledby={ titleId }
-			onKeyDown={ handleKeyDown }
-		>
+		<div className="podcast-locked-preview" role="region" aria-labelledby={ titleId }>
 			{ /* Sample data is purely visual: no focusable elements, no
 				 network calls, no real values. `aria-hidden` keeps it off the
 				 a11y tree; `pointer-events: none` (in the SCSS) keeps it

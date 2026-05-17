@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a locked-preview component for free users on the Episodes and Stats panels: a blurred sample of the gated content behind a centered upgrade overlay. Replaces the plain upsell card once the upstream feature-gate PRs land.
+Add a locked-preview component for free users on the Episodes and Stats panels: a blurred sample of the gated content behind a centered upgrade overlay.

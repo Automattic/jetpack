@@ -97,6 +97,19 @@ $bar-fill-soft: rgba(34, 113, 177, 0.18);
 		background: #e0e0e0;
 	}
 
+	&__cell-skeleton {
+		display: inline-block;
+		height: 10px;
+		width: 64px;
+		border-radius: 3px;
+		background: $bar-fill-soft;
+
+		&--wide {
+			width: 70%;
+			max-width: 240px;
+		}
+	}
+
 	// --- Stats preview ------------------------------------------------------
 
 	&__stats {
@@ -154,6 +167,7 @@ $bar-fill-soft: rgba(34, 113, 177, 0.18);
 			gap: 12px;
 			font-size: 13px;
 			color: $text;
+			min-height: 28px;
 		}
 	}
 
@@ -164,20 +178,5 @@ $bar-fill-soft: rgba(34, 113, 177, 0.18);
 		background: $bar-fill-soft;
 		border-radius: 4px;
 		pointer-events: none;
-	}
-
-	&__bar-label {
-		position: relative;
-		flex: 1;
-		min-width: 0;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	&__bar-value {
-		position: relative;
-		font-variant-numeric: tabular-nums;
-		color: $muted;
 	}
 }
