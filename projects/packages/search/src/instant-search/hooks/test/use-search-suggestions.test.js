@@ -1,5 +1,6 @@
 jest.mock( 'debounce', () => fn => {
 	const wrapped = ( ...args ) => fn( ...args );
+	wrapped.clear = () => {};
 	jest.spyOn( wrapped, 'clear' ).mockImplementation();
 	return wrapped;
 } );
@@ -28,9 +29,9 @@ function makeOkResponse( data ) {
 function makeErrorResponse() {
 	return Promise.resolve( { ok: false } );
 }
-
 beforeEach( () => {
-	jest.spyOn( global, 'fetch' ).mockImplementation();
+	// eslint-disable-next-line jest/prefer-spy-on
+	global.fetch = jest.fn();
 	window.JetpackInstantSearchOptions = {};
 } );
 
