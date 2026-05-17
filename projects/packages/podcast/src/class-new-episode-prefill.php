@@ -25,6 +25,10 @@ namespace Automattic\Jetpack\Podcast;
 class New_Episode_Prefill {
 
 	const QUERY_VAR = 'podcast_episode';
+
+	/**
+	 * Post type supported by this prefill flow.
+	 */
 	const POST_TYPE = 'post';
 
 	/**
@@ -76,8 +80,7 @@ class New_Episode_Prefill {
 
 		// `Podcast_Gate` is a future package; fail closed (no block prefill)
 		// until it exists so an unqualified call doesn't fatal.
-		$has_product_access = __NAMESPACE__ . '\\Podcast_Gate::has_product_access';
-		if ( is_callable( $has_product_access ) && call_user_func( $has_product_access ) ) {
+		if ( self::has_product_access() ) {
 			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 		}
 	}
@@ -157,5 +160,15 @@ class New_Episode_Prefill {
 	 */
 	private static function is_supported_post( $post ) {
 		return $post instanceof \WP_Post && self::POST_TYPE === $post->post_type;
+	}
+
+	/**
+	 * Whether Podcast_Gate is available and grants podcast product access.
+	 *
+	 * @return bool
+	 */
+	private static function has_product_access() {
+		$callback = array( __NAMESPACE__ . '\\Podcast_Gate', 'has_product_access' );
+		return is_callable( $callback ) && call_user_func( $callback );
 	}
 }

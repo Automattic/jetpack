@@ -21,10 +21,14 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 	}
 
 	protected function tearDown(): void {
-		remove_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ), 10 );
-		remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
+		if ( has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) ) {
+			remove_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ), 10 );
+		}
+		if ( has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) ) {
+			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
+		}
 		delete_option( 'podcasting_category_id' );
-		unset( $_GET[ New_Episode_Prefill::QUERY_VAR ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET = array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$this->reset_prefill_state();
 		parent::tearDown();
 	}
@@ -68,7 +72,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		);
 
 		add_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ), 10, 3 );
-		New_Episode_Prefill::assign_category( $post_id, get_post( $post_id ), false );
+		do_action( 'wp_insert_post', $post_id, get_post( $post_id ), false );
 
 		$this->assertSame( array( $category_id ), wp_get_post_categories( $post_id ) );
 		$this->assertFalse( has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );
