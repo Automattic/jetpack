@@ -18,9 +18,9 @@ const PRODUCT_NAME = 'VaultPress Backup'; // Product name; do not translate.
  * Shared shell for every screen of the modernized Backup dashboard.
  *
  * Wraps a `<Page>` from `@wordpress/admin-ui` (the standard wp-admin
- * chrome) with a Jetpack logo in the `visual` slot, the dev-mode banner,
- * the page body, and `<JetpackFooter>` at the bottom — matching every
- * other modernized Jetpack dashboard (Newsletter, VideoPress, Forms).
+ * chrome) with a Jetpack logo in the `visual` slot, the page body, and
+ * `<JetpackFooter>` at the bottom — matching every other modernized
+ * Jetpack dashboard (Newsletter, VideoPress, Forms).
  *
  * The page is laid out so the body grows to fill the viewport and the
  * footer stays parked at the bottom when content is short, but scrolls

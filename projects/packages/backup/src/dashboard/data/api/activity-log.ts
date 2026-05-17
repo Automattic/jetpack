@@ -37,7 +37,7 @@ export async function fetchActivityLog(
 	args: FetchArgs = {}
 ): Promise< WpcomActivityLogResponse > {
 	return apiCall< WpcomActivityLogResponse >( {
-		path: apiPath( '/activity-log', {
+		path: apiPath( '/site/rewindable-activity', {
 			number: args.number,
 			aggregate: args.aggregate,
 			after: args.after,

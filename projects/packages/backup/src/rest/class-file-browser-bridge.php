@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -91,7 +90,10 @@ class File_Browser_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function list_directory( WP_REST_Request $request ) {
-		$blog_id = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/rewind/backup/ls', $blog_id ),
@@ -128,7 +130,10 @@ class File_Browser_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_file_content( WP_REST_Request $request ) {
-		$blog_id               = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 		$file_period           = (string) $request->get_param( 'file_period' );
 		$encoded_manifest_path = (string) $request->get_param( 'encoded_manifest_path' );
 
@@ -161,7 +166,10 @@ class File_Browser_Bridge {
 
 		$url_body   = json_decode( wp_remote_retrieve_body( $url_response ), true );
 		$signed_url = is_array( $url_body ) && isset( $url_body['url'] ) ? $url_body['url'] : null;
-		if ( ! $signed_url ) {
+		if ( ! $signed_url || ! wp_http_validate_url( $signed_url ) ) {
+			// Defense-in-depth: WPCOM is supposed to hand back an HTTPS
+			// URL, but a regression that returned `file://…` or another
+			// scheme would otherwise reach `wp_remote_get` below.
 			return new WP_Error(
 				'backup_file_content_url_missing',
 				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
@@ -170,7 +178,20 @@ class File_Browser_Bridge {
 		}
 
 		// Step 2: fetch the stream body server-side.
-		$stream_response = wp_remote_get( $signed_url, array( 'timeout' => 15 ) );
+		//
+		// `limit_response_size` caps the body at the HTTP-transport
+		// layer so a multi-GB blob can't be buffered into PHP memory
+		// before truncation. The bridge enforces no mime check at
+		// all — the React layer's allowlist is advisory only — so any
+		// admin can address any blob the WPCOM signer is willing to
+		// hand a URL for.
+		$stream_response = wp_remote_get(
+			$signed_url,
+			array(
+				'timeout'             => 15,
+				'limit_response_size' => self::PREVIEW_MAX_BYTES,
+			)
+		);
 
 		if ( is_wp_error( $stream_response ) ) {
 			return $stream_response;
@@ -185,13 +206,7 @@ class File_Browser_Bridge {
 			);
 		}
 
-		$content = wp_remote_retrieve_body( $stream_response );
-
-		if ( strlen( $content ) > self::PREVIEW_MAX_BYTES ) {
-			$content = substr( $content, 0, self::PREVIEW_MAX_BYTES );
-		}
-
-		return rest_ensure_response( array( 'content' => $content ) );
+		return rest_ensure_response( array( 'content' => wp_remote_retrieve_body( $stream_response ) ) );
 	}
 
 	/**

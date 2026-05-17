@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -30,9 +29,15 @@ class Activity_Log_Bridge {
 	 * @return void
 	 */
 	public static function register_routes() {
+		// NOTE: not `/activity-log` — that namespace is owned by the
+		// `automattic/jetpack-activity-log` package's REST controller,
+		// which is loaded inside the Jetpack plugin. Sharing the route
+		// would let `register_rest_route`'s endpoint-merge pick the
+		// wrong handler at dispatch time (the two bridges proxy
+		// different WPCOM endpoints with different response shapes).
 		register_rest_route(
 			'jetpack/v4',
-			'/activity-log',
+			'/site/rewindable-activity',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_activity_log' ),
@@ -54,7 +59,10 @@ class Activity_Log_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_activity_log( WP_REST_Request $request ) {
-		$blog_id = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 
 		$query = array_filter(
 			array(

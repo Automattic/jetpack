@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -82,7 +81,10 @@ class Restore_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function initiate_restore( WP_REST_Request $request ) {
-		$blog_id   = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
@@ -108,14 +110,10 @@ class Restore_Bridge {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			$upstream = json_decode( wp_remote_retrieve_body( $response ), true );
 			return new WP_Error(
 				'restore_initiate_failed',
 				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array(
-					'status'   => is_int( $status_code ) && $status_code > 0 ? $status_code : 500,
-					'upstream' => is_array( $upstream ) ? $upstream : null,
-				)
+				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
 			);
 		}
 
@@ -140,7 +138,10 @@ class Restore_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_restore_status( WP_REST_Request $request ) {
-		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 		$restore_id = (int) $request->get_param( 'restore_id' );
 
 		$response = Client::wpcom_json_api_request_as_user(

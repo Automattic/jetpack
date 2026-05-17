@@ -300,7 +300,7 @@ function countSelectedInLoadedTree(
 
 /**
  * Lazy file-tree browser for the selected backup. Folders fetch their
- * children on first expand via `useMockFileTree`; selecting a file opens
+ * children on first expand via `useFileTree`; selecting a file opens
  * `<FileInfoCard>` to the right of the tree with a text preview when the
  * mime type is text-shaped.
  *
@@ -474,7 +474,7 @@ type NodeRowProps = {
 };
 
 /**
- * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useMockFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
+ * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
  *
  * Two pieces of state propagate top-down: `ancestorSelected` carries the *effective* checked state of the nearest ancestor (own selected beats own deselected beats ancestor), and zebra parity (`isAlternate`) is toggled before each child so the stripe runs continuously through nested branches.
  *

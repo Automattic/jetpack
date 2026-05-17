@@ -74,12 +74,12 @@ export function useRestore( rewindId: string ): Result {
 	} else if ( statusQuery.data?.status === 'finished' ) {
 		state = { phase: 'success' };
 	} else if ( statusQuery.data?.status === 'failed' ) {
+		// `error_code` is a machine identifier (e.g. `"checksum_mismatch"`)
+		// — never surface it to users; fall straight through to the
+		// translated generic message when `message` is empty.
 		state = {
 			phase: 'error',
-			message:
-				statusQuery.data.message ||
-				statusQuery.data.error_code ||
-				__( 'Restore failed.', 'jetpack-backup-pkg' ),
+			message: statusQuery.data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
 		};
 	} else if ( restoreId !== null && statusQuery.data ) {
 		state = {

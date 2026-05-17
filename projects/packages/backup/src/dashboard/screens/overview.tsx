@@ -7,7 +7,7 @@ import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import DashboardLayout from '../components/dashboard-layout';
-import { getCachedActivityById, getCachedDefaultBackupRewindId } from '../hooks/use-activity-log';
+import { useActivityById, useDefaultBackupRewindId } from '../hooks/use-activity-log';
 import { isBackupItem } from '../types/activity';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
@@ -29,11 +29,12 @@ export default function OverviewScreen() {
 		strict: false,
 	} ) as OverviewSearch;
 	const navigate = useNavigate();
-	// The default selection comes from the activity-log cache; ActivityList
-	// populates that cache on mount, so the right pane will reconcile to
-	// the newest backup once the first fetch resolves. Until then,
-	// `selectedId` is null and the empty-state placeholder renders.
-	const defaultSelectedId = getCachedDefaultBackupRewindId();
+	// Subscribe to the activity-log window so the right pane reconciles
+	// to the newest backup the moment the first fetch resolves. Until
+	// then, `defaultSelectedId` is null and the empty-state placeholder
+	// renders. The hook shares its query key with ActivityList's
+	// `useActivityLog`, so this doesn't issue an extra fetch.
+	const defaultSelectedId = useDefaultBackupRewindId();
 	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
 
 	const setSelected = useCallback(
@@ -82,6 +83,7 @@ export default function OverviewScreen() {
  * @return The rendered detail card or an empty-state placeholder.
  */
 function RightPane( { selectedId }: { selectedId: string | null } ) {
+	const item = useActivityById( selectedId );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
@@ -89,7 +91,6 @@ function RightPane( { selectedId }: { selectedId: string | null } ) {
 			</div>
 		);
 	}
-	const item = getCachedActivityById( selectedId );
 	if ( ! item ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">

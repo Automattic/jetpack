@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -81,7 +80,10 @@ class Download_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function initiate_download( WP_REST_Request $request ) {
-		$blog_id   = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -133,7 +135,10 @@ class Download_Bridge {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_download_status( WP_REST_Request $request ) {
-		$blog_id     = Jetpack_Options::get_option( 'id' );
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 		$rewind_id   = (string) $request->get_param( 'rewind_id' );
 		$download_id = (int) $request->get_param( 'download_id' );
 

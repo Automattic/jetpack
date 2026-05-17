@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from '@wordpress/element';
 import { fetchActivityLog } from '../data/api/activity-log';
 import { normalizeActivityLog } from '../data/normalize/activity-log';
-import { keys, queryClient } from '../data/query-client';
+import { keys } from '../data/query-client';
 import type { ActivityItem } from '../types/activity';
 
 type Args = {
@@ -20,6 +20,23 @@ type Result = {
 };
 
 const MAX_FETCH_ITEMS = 100;
+
+/**
+ * Shared `useQuery` for the single rewindable-activity window the
+ * dashboard fetches. Centralizing the query options means every
+ * consumer (`useActivityLog`, `useActivityById`,
+ * `useDefaultBackupRewindId`) subscribes to the same cache entry, so
+ * TanStack dedups the fetch and any consumer mounted after the window
+ * resolves re-renders without a refetch.
+ *
+ * @return The cached window query.
+ */
+function useActivityLogWindowQuery() {
+	return useQuery( {
+		queryKey: keys.activityLogWindow(),
+		queryFn: () => fetchActivityLog( { number: MAX_FETCH_ITEMS } ),
+	} );
+}
 
 /**
  * Case-insensitive predicate: returns true when the activity item's title
@@ -55,10 +72,7 @@ function matchesSearch( item: ActivityItem, q: string ): boolean {
  * @return Items, total items, total pages, loading, error.
  */
 export function useActivityLog( { page, pageSize, search }: Args ): Result {
-	const query = useQuery( {
-		queryKey: keys.activityLog( { page: 1, pageSize: MAX_FETCH_ITEMS, search: '' } ),
-		queryFn: () => fetchActivityLog( { number: MAX_FETCH_ITEMS } ),
-	} );
+	const query = useActivityLogWindowQuery();
 
 	const allItems = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
@@ -86,42 +100,45 @@ export function useActivityLog( { page, pageSize, search }: Args ): Result {
 }
 
 /**
- * Look up a single activity item from the React Query cache.
- *
- * Reads the same single window the hook fetches, so the right-pane
- * detail card on Overview can resolve its selected id without issuing
- * an extra request.
+ * Look up a single activity item from the cached rewindable-activity
+ * window. Reactive: subscribes via `useQuery`, so when the window
+ * fetch resolves the calling component re-renders with the item.
  *
  * @param id - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @return The matching item, or null when the cache hasn't been populated yet or the id doesn't match anything in the cached page.
  */
-export function getCachedActivityById( id: string ): ActivityItem | null {
-	const data = queryClient.getQueryData< Awaited< ReturnType< typeof fetchActivityLog > > >(
-		keys.activityLog( { page: 1, pageSize: MAX_FETCH_ITEMS, search: '' } )
-	);
-	const items = normalizeActivityLog( data?.current?.orderedItems );
-	return (
-		items.find( item => ( item.kind === 'backup' ? item.rewindId === id : item.id === id ) ) ?? null
-	);
+export function useActivityById( id: string | null ): ActivityItem | null {
+	const query = useActivityLogWindowQuery();
+	return useMemo( () => {
+		if ( ! id ) {
+			return null;
+		}
+		const items = normalizeActivityLog( query.data?.current?.orderedItems );
+		return (
+			items.find( item => ( item.kind === 'backup' ? item.rewindId === id : item.id === id ) ) ??
+			null
+		);
+	}, [ query.data, id ] );
 }
 
 /**
- * Returns the newest backup row in the cached activity log, or null when
- * the cache isn't populated or holds no backup rows.
- *
- * Used by the Overview to preselect a default right-pane on first load.
+ * Returns the newest backup row in the cached rewindable-activity
+ * window, or null when the cache isn't populated or holds no backup
+ * rows. Reactive: subscribes via `useQuery`, so Overview's first-load
+ * default selection reconciles to the newest backup the moment the
+ * window fetch resolves.
  *
  * @return The newest backup item's rewindId, or null.
  */
-export function getCachedDefaultBackupRewindId(): string | null {
-	const data = queryClient.getQueryData< Awaited< ReturnType< typeof fetchActivityLog > > >(
-		keys.activityLog( { page: 1, pageSize: MAX_FETCH_ITEMS, search: '' } )
-	);
-	const items = normalizeActivityLog( data?.current?.orderedItems );
-	for ( const item of items ) {
-		if ( item.kind === 'backup' ) {
-			return item.rewindId;
+export function useDefaultBackupRewindId(): string | null {
+	const query = useActivityLogWindowQuery();
+	return useMemo( () => {
+		const items = normalizeActivityLog( query.data?.current?.orderedItems );
+		for ( const item of items ) {
+			if ( item.kind === 'backup' ) {
+				return item.rewindId;
+			}
 		}
-	}
-	return null;
+		return null;
+	}, [ query.data ] );
 }

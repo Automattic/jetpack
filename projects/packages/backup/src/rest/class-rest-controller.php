@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack_Options;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -44,9 +47,47 @@ class Rest_Controller {
 	/**
 	 * Permission check shared by every modernized-dashboard route.
 	 *
-	 * @return bool True when the current user can manage options.
+	 * Mirrors the activity-log package's pattern: `manage_options` is
+	 * necessary but not sufficient — every bridge eventually proxies a
+	 * WPCOM endpoint that's user-gated, so a site admin who isn't
+	 * personally WPCOM-linked needs a clearer error than the opaque
+	 * "Only Administrators can query…" WPCOM returns.
+	 *
+	 * @return bool|WP_Error True when the current user can call the bridges, WP_Error otherwise.
 	 */
 	public static function permission_check() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return new WP_Error(
+				'user_not_connected',
+				__( 'Your WordPress.com account is not connected to this site.', 'jetpack-backup-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns the site's WPCOM blog id, or a `not_connected` WP_Error
+	 * when the site hasn't been registered yet. Shared across the bridges
+	 * so the `sprintf( '/sites/%d/…', $blog_id )` upstream path is never
+	 * built with an empty id.
+	 *
+	 * @return int|WP_Error Blog id, or WP_Error when not connected.
+	 */
+	public static function get_blog_id_or_error() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error(
+				'not_connected',
+				__( 'This site is not connected to Jetpack.', 'jetpack-backup-pkg' ),
+				array( 'status' => 412 )
+			);
+		}
+		return $blog_id;
 	}
 }

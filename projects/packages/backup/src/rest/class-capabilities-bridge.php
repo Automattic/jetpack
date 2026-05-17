@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
 
@@ -53,13 +52,9 @@ class Capabilities_Bridge {
 	 * @return \WP_REST_Response|WP_Error The decoded capabilities, or WP_Error on failure.
 	 */
 	public static function get_capabilities() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error(
-				'not_connected',
-				__( 'This site is not connected to Jetpack.', 'jetpack-backup-pkg' ),
-				array( 'status' => 412 )
-			);
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(

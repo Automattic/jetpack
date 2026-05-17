@@ -22,7 +22,7 @@ use function wp_insert_user;
 use function wp_set_current_user;
 
 /**
- * Tests for the GET /jetpack/v4/activity-log route.
+ * Tests for the GET /jetpack/v4/site/rewindable-activity route.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\REST\Activity_Log_Bridge
  */
@@ -69,7 +69,7 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 	 */
 	public function test_route_registers_when_modernized() {
 		$routes = $this->server->get_routes();
-		$this->assertArrayHasKey( '/jetpack/v4/activity-log', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/site/rewindable-activity', $routes );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 		);
 		wp_set_current_user( $subscriber_id );
 
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/activity-log' );
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
