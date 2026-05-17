@@ -28,11 +28,11 @@ if ( ! function_exists( 'tracks_record_event' ) ) {
 }
 
 /**
- * Mirror the jetpack-mu-wpcom sticker dispatcher.
+ * Shim WordPress multisite `get_blog_details` for non-multisite test runs.
  */
-if ( ! function_exists( 'wpcom_has_blog_sticker' ) ) {
-	function wpcom_has_blog_sticker( $sticker, $blog_id ) {
-		$stickers = $GLOBALS['jetpack_podcast_test_stickers'][ $blog_id ] ?? array();
-		return in_array( $sticker, $stickers, true );
+if ( ! function_exists( 'get_blog_details' ) ) {
+	function get_blog_details( $blog_id = 0 ) {
+		$details = $GLOBALS['jetpack_podcast_test_blog_details'][ $blog_id ] ?? null;
+		return $details ? (object) $details : false;
 	}
 }

@@ -21,12 +21,12 @@ class Podcast_Gate_Test extends BaseTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$GLOBALS['jetpack_podcast_test_stickers'] = array();
+		$GLOBALS['jetpack_podcast_test_blog_details'] = array();
 		self::reset_active_plan_cache();
 	}
 
 	protected function tearDown(): void {
-		unset( $GLOBALS['jetpack_podcast_test_stickers'] );
+		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
 		parent::tearDown();
@@ -44,12 +44,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$property->setValue( null, null );
 	}
 
-	public function test_grandfather_sticker_grants_access(): void {
-		$GLOBALS['jetpack_podcast_test_stickers'][ get_current_blog_id() ] = array( Podcast_Gate::GRANDFATHER_STICKER );
-
-		$this->assertTrue( Podcast_Gate::has_product_access() );
-	}
-
 	public function test_plan_supports_feature_grants_access(): void {
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( Podcast_Gate::FEATURE_SLUG );
@@ -62,6 +56,54 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array();
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_blog_registered_before_cutoff_grants_access(): void {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
+			'registered' => '2025-01-01 00:00:00',
+		);
+
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_blog_registered_on_cutoff_falls_through_to_plan(): void {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
+			'registered' => Podcast_Gate::PREMIUM_CUTOFF_DATE . ' 00:00:00',
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_blog_registered_after_cutoff_with_plan_grants_access(): void {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( Podcast_Gate::FEATURE_SLUG );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
+			'registered' => '2027-01-01 00:00:00',
+		);
+
+		$this->assertTrue( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_blog_registered_after_cutoff_without_plan_denies_access(): void {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
+			'registered' => '2027-01-01 00:00:00',
+		);
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}

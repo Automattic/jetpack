@@ -18,9 +18,10 @@ use Automattic\Jetpack\Current_Plan;
  */
 class Podcast_Gate {
 
-	const GRANDFATHER_STICKER = 'podcasting-grandfathered';
-
 	const FEATURE_SLUG = 'podcasting';
+
+	// Blogs registered before this date bypass the plan check.
+	const PREMIUM_CUTOFF_DATE = '2026-05-18';
 
 	/**
 	 * Whether the current blog can use Premium podcast features.
@@ -33,13 +34,27 @@ class Podcast_Gate {
 			return false;
 		}
 
-		if (
-			function_exists( 'wpcom_has_blog_sticker' )
-			&& wpcom_has_blog_sticker( self::GRANDFATHER_STICKER, $blog_id )
-		) {
+		if ( self::blog_created_before_cutoff( $blog_id ) ) {
 			return true;
 		}
 
 		return (bool) Current_Plan::supports( self::FEATURE_SLUG );
+	}
+
+	/**
+	 * Whether the blog was registered before the Premium cutoff.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return bool
+	 */
+	protected static function blog_created_before_cutoff( int $blog_id ): bool {
+		if ( ! function_exists( 'get_blog_details' ) ) {
+			return false;
+		}
+		$details = get_blog_details( $blog_id );
+		if ( ! $details || empty( $details->registered ) ) {
+			return false;
+		}
+		return strtotime( $details->registered ) < strtotime( self::PREMIUM_CUTOFF_DATE );
 	}
 }
