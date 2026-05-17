@@ -29,11 +29,11 @@ const PREVIEW_BY_VARIANT: Record< LockedPreviewVariant, () => ReactNode > = {
 const EPISODES_OVERLAY_TITLE = __( 'Episode dashboard included with Premium', 'jetpack-podcast' );
 const STATS_OVERLAY_TITLE = __( 'Episode stats included with Premium', 'jetpack-podcast' );
 const EPISODES_OVERLAY_DESCRIPTION = __(
-	'Upgrade to Premium to see every episode, track plays and durations, and manage your catalog from one place.',
+	'Upgrade to Premium to manage your podcast catalog from a unified dashboard.',
 	'jetpack-podcast'
 );
 const STATS_OVERLAY_DESCRIPTION = __(
-	'Upgrade to Premium to see downloads, top episodes, and listener apps over time.',
+	'Upgrade to Premium to see downloads by episode, app, and country.',
 	'jetpack-podcast'
 );
 
@@ -51,9 +51,18 @@ const CTA_LABEL = __( 'Upgrade to Premium', 'jetpack-podcast' );
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const siteSuffix = getSiteData()?.suffix ?? '';
-	const checkoutUrl = siteSuffix
-		? getProductCheckoutUrl( 'premium', siteSuffix, window.location.href, true )
-		: 'https://wordpress.com/pricing';
+	const returnUrl = window.location.href;
+	const checkoutUrl = ( () => {
+		if ( ! siteSuffix ) {
+			return 'https://wordpress.com/pricing';
+		}
+		// `getProductCheckoutUrl` sets `redirect_to` for the success path; the
+		// cart's close button reads `cancel_to`, so both need pointing back to
+		// the dashboard for the user to land where they started.
+		const url = new URL( getProductCheckoutUrl( 'premium', siteSuffix, returnUrl, true ) );
+		url.searchParams.set( 'cancel_to', returnUrl );
+		return url.toString();
+	} )();
 
 	const titleId = useId();
 	const wrapperRef = useRef< HTMLDivElement >( null );
