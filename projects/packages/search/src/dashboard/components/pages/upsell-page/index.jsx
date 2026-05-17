@@ -21,7 +21,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
@@ -193,9 +193,13 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		select => select( STORE_ID ).isSearchBlocksEnabled(),
 		[]
 	);
-	const pricingArgs = isSearchBlocksEnabled
-		? { ...newPricingArgs, items: [ ...newPricingArgs.items, ...searchBlocksPricingItems ] }
-		: newPricingArgs;
+	const pricingArgs = useMemo(
+		() =>
+			isSearchBlocksEnabled
+				? { ...newPricingArgs, items: [ ...newPricingArgs.items, ...searchBlocksPricingItems ] }
+				: newPricingArgs,
+		[ isSearchBlocksEnabled ]
+	);
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
@@ -323,7 +327,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
-								<PricingTableItem key={ item.name } isIncluded={ true } />
+								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
 						</PricingTableColumn>
 						<PricingTableColumn>
@@ -412,7 +416,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
-								<PricingTableItem key={ item.name } isIncluded={ true } />
+								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
 						</PricingTableColumn>
 					</PricingTable>
@@ -518,6 +522,7 @@ const newPricingArgs = {
 // Search blocks features only when the blocks themselves are registered.
 const searchBlocksPricingItems = [
 	{
+		id: 'search-blocks',
 		name: __( 'Jetpack Search blocks', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			'Design your own search experience in the block editor. Drop in dedicated search, filtering, and sorting blocks to build a results page that matches your site — no code required.',
@@ -525,6 +530,7 @@ const searchBlocksPricingItems = [
 		),
 	},
 	{
+		id: 'embedded-search-page',
 		name: __( 'Embedded search page', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
