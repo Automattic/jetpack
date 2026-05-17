@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Phase 3: wire single-threat fix / ignore / unignore actions on the Active threats and Scan history tabs. New REST bridges (`/threat/{id}/ignore`, `/threat/{id}/unignore`, `/threats/fix`, `/threats/fix-status`) proxy to WPCOM's `/sites/:siteId/alerts/*` surface; `useFixThreatsMutation` / `useIgnoreThreatMutation` / `useUnignoreThreatMutation` hand stable callbacks to `ThreatsDataViews`'s row-action props with `core/notices` snackbar feedback on success and failure. The 2 s fix-status polling hook is wired but not yet rendered — Phase 4's bulk-fix modal consumes it.

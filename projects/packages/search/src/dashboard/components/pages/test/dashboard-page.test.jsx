@@ -1,3 +1,4 @@
+const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
@@ -27,7 +28,14 @@ jest.mock( 'store', () => ( {
 jest.mock( 'components/global-notices', () => () => <div data-testid="notices-list" /> );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
-jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
+jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
+jest.mock( 'components/module-control', () => props => {
+	mockModuleControl( props );
+	return <div data-testid="module-control" />;
+} );
+jest.mock( 'components/experience-selector', () => () => (
+	<div data-testid="experience-selector" />
+) );
 jest.mock( 'components/reader-chat-control', () => props => {
 	mockReaderChatControl( props );
 	return <div data-testid="reader-chat-control" />;
@@ -36,8 +44,12 @@ jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
 
-import { render, screen } from '@testing-library/react';
+/* eslint-disable testing-library/prefer-user-event */
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import DashboardPage from '../dashboard-page';
+
+const DEFAULT_TEST_URL = 'https://example.com/wp-admin/admin.php?page=jetpack-search';
 
 const createSelectMethods = () => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
@@ -83,7 +95,9 @@ const createSelectMethods = () => ( {
 
 describe( 'DashboardPage', () => {
 	beforeEach( () => {
+		mockModuleControl.mockClear();
 		mockReaderChatControl.mockClear();
+		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -91,19 +105,102 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
-	test( 'passes the Reader Chat guidelines URL to the Reader Chat control', () => {
+	test( 'passes Reader Chat settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 
-		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
-		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+		// The settings control lives in the Settings tab, which isn't visible until selected.
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
+		expect( mockModuleControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
-				isAvailable: true,
-				isEnabled: true,
-				isSaving: false,
+				isReaderChatAvailable: true,
+				isReaderChatEnabled: true,
+				readerChatGuidelinesUrl:
+					'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
+	} );
+
+	test( 'renders ReaderChatControl alongside ExperienceSelector when search blocks is enabled', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isAvailable: true,
+				isEnabled: true,
+				isSaving: false,
+				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
+	} );
+
+	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isReaderChatAvailable' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'reader-chat-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'hydrates active tab from the URL query string', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=ai-answers` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'false'
+		);
+		expect( screen.getByTestId( 'ai-answers-tab' ) ).toBeInTheDocument();
+	} );
+
+	test( 'falls back to the default tab when URL tab is unknown', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=unknown` );
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( replaceStateSpy ).not.toHaveBeenCalled();
+		expect( window.location.search ).toContain( 'tab=unknown' );
+		replaceStateSpy.mockRestore();
+	} );
+
+	test( 'updates the URL tab query string when tabs are changed', async () => {
+		const user = userEvent.setup();
+		const replaceStateSpy = jest.spyOn( window.history, 'replaceState' );
+
+		render( <DashboardPage /> );
+		await user.click( screen.getByRole( 'tab', { name: /ai answers/i } ) );
+
+		await waitFor( () =>
+			expect( replaceStateSpy ).toHaveBeenCalledWith(
+				{},
+				'',
+				`${ DEFAULT_TEST_URL }&tab=ai-answers`
+			)
+		);
+		replaceStateSpy.mockRestore();
 	} );
 } );

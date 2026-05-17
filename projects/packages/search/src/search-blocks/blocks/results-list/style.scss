@@ -113,11 +113,27 @@
 		}
 	}
 
-	.jetpack-search-results__date {
+	.jetpack-search-results__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.5rem;
 		margin-top: 1rem;
 		color: inherit;
 		opacity: 0.6;
 		font-size: 0.9rem;
+	}
+
+	.jetpack-search-results__author,
+	.jetpack-search-results__date {
+		color: inherit;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__meta-separator {
 
 		&[hidden] {
 			display: none;
@@ -203,14 +219,13 @@
 	}
 
 	.jetpack-search-results__meta {
-		display: flex;
+		// Compact meta sits inline next to the title via `__copy`'s flex
+		// row — override the base 1rem top margin that lifts the meta row
+		// away from the snippet/path in the expanded layout.
+		margin-top: 0;
 		gap: 0.75rem;
 		font-size: 0.875em;
 		opacity: 0.75;
-	}
-
-	.jetpack-search-results__date {
-		margin-top: 0;
 	}
 }
 

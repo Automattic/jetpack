@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Updated package versions. Production builds of bundled wp-build dashboards no longer ship unminified `.js`/`.css` siblings.

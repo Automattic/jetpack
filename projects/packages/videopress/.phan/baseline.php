@@ -10,24 +10,23 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
-    // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanTypeArraySuspicious : 3 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
-    // PhanUndeclaredTypeThrowsType : 2 occurrences
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPluginUnreachableCode : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClass : 1 occurrence
+    // PhanUndeclaredTypeThrowsType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -47,7 +46,7 @@ return [
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
-        'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
+        'src/tus/class-tus-file.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
         'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass'],

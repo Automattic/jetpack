@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -47,19 +47,12 @@ class Podcast {
 			return;
 		}
 
-		/**
-		 * Master switch for the Podcast untangle.
-		 *
-		 * While the legacy podcasting code is still the source of truth on
-		 * Simple and Atomic sites, this filter stays false. Subsequent PRs
-		 * layer the new wp-admin SPA, REST integration, and feed
-		 * customization on top of this gate.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param bool $enabled Whether to enable the new Podcast package.
-		 */
-		if ( ! apply_filters( 'jetpack_podcast_untangle', false ) ) {
+		// Wire the Podcast Episode block actions before the filter check below:
+		// each callback re-checks `jetpack_podcast_untangle` at hook time so a
+		// late-registered filter callback still takes effect.
+		Podcast_Episode_Block::register_hooks();
+
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
@@ -81,5 +74,103 @@ class Podcast {
 		if ( is_admin() ) {
 			Admin_Page::init();
 		}
+
+		// Posts to Podcast lives behind its own filter so the Create AI
+		// Podcast page and its REST proxy can ship together but ramp
+		// independently of the broader untangle. Only register code in the
+		// context that actually needs it: the page in wp-admin, the REST
+		// routes during REST request processing.
+		if ( self::is_posts_to_podcast_enabled() ) {
+			if ( is_admin() ) {
+				Create_AI_Podcast_Page::init();
+			}
+			if ( self::is_rest_request() ) {
+				Posts_To_Podcast_Endpoint::init();
+			}
+		}
+	}
+
+	/**
+	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
+	 * proxy) is enabled for the current request.
+	 *
+	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
+	 * A8C-proxied requests so Automatticians dogfood it, and can be flipped
+	 * globally via the `jetpack_posts_to_podcast` filter.
+	 */
+	public static function is_posts_to_podcast_enabled() {
+		/**
+		 * Master switch for the Posts to Podcast (Create AI Podcast) feature.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable Posts to Podcast.
+		 */
+		return (bool) apply_filters( 'jetpack_posts_to_podcast', self::is_proxied_request() );
+	}
+
+	/**
+	 * Whether the current request is a WP REST API request.
+	 *
+	 * `Podcast::init()` typically fires before `REST_REQUEST` is defined
+	 * and before `wp_is_serving_rest_request()` is reliable, so fall back
+	 * to a URL prefix check.
+	 */
+	private static function is_rest_request() {
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+		if ( function_exists( 'wp_is_serving_rest_request' ) && wp_is_serving_rest_request() ) {
+			return true;
+		}
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+		$path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
+		if ( ! is_string( $path ) ) {
+			return false;
+		}
+		$prefix = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : 'wp-json';
+		return false !== strpos( $path, '/' . trim( $prefix, '/' ) . '/' );
+	}
+
+	/**
+	 * Whether the Podcast untangle is enabled for the current request.
+	 *
+	 * Defaults to true for A8C-proxied requests so Automatticians dogfood
+	 * the new package; everyone else stays on the legacy stack until the
+	 * `jetpack_podcast_untangle` filter is flipped globally.
+	 */
+	public static function is_enabled() {
+		/**
+		 * Master switch for the Podcast untangle.
+		 *
+		 * While the legacy podcasting code is still the source of truth on
+		 * Simple and Atomic sites, this filter stays false for non-proxied
+		 * requests. Subsequent PRs layer the new wp-admin SPA, REST
+		 * integration, and feed customization on top of this gate.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable the new Podcast package.
+		 */
+		return (bool) apply_filters( 'jetpack_podcast_untangle', self::is_proxied_request() );
+	}
+
+	/**
+	 * Whether the current request is coming from the A8C proxy.
+	 */
+	private static function is_proxied_request() {
+		// Simple sites: use the wpcom helper when available.
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			return wpcom_is_proxied_request();
+		}
+
+		// Atomic/WoA: fall back to the server variable or constant.
+		if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) ) {
+			return (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
+		}
+
+		return defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 }

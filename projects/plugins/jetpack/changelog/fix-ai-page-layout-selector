@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI page: update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout (sticky header, scrollable middle, pinned footer) applies again.

@@ -1,9 +1,0 @@
-Significance: patch
-Type: changed
-
-Address P3 review feedback on #48458:
-
-- Scan page chrome now wraps the shared `<AdminPage>` from `@automattic/jetpack-components/admin-page` (matching the wp-build VideoPress dashboard) instead of `Page` from `@wordpress/admin-ui` directly. Drops the bespoke `ResizeObserver` that measured the header height — the `jetpack-admin-page-layout` mixin's `:has(.jp-admin-page-tabs)` rule now handles the sticky tab strip.
-- `empty-state` switches to `EmptyState.Root` / `Title` / `Description` from `@wordpress/ui` (semantic `<h2>`/`<p>` instead of styled spans).
-- `active-threats` swaps the loading `__experimentalVStack` and the auto-fix CTA `Button` for `Stack` and `Button` from `@wordpress/ui`.
-- `bulk-fix-modal` swaps the remaining `Notice` for `Notice.Root` + `Notice.Description` from `@wordpress/ui`.

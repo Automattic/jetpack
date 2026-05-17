@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Module_Control::update_experience(): write the empty string to jetpack_search_experience for the inline branch instead of deleting the option, so the change always fires an option-write action that Sync can replicate (delete_option no-ops on a missing option, leaving the WPcom cache stuck with a stale 'overlay'/'embedded' after a fresh site toggles to inline).

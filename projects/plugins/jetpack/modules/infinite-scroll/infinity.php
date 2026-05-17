@@ -258,7 +258,7 @@ class The_Neverending_Home_Page {
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
 			if ( 'click' !== $settings['type'] ) {
 				// Check the setting status
-				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+				$disabled = '' === get_option( self::$option_name_enabled );
 
 				// Footer content or Reading option check
 				if ( $settings['footer_widgets'] || $disabled ) {
@@ -553,7 +553,7 @@ class The_Neverending_Home_Page {
 		$settings = self::get_settings();
 		$classes  = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
-		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+		$disabled = '' === get_option( self::$option_name_enabled );
 		if ( ! $disabled || 'click' === $settings->type ) {
 			$classes = 'infinite-scroll';
 
@@ -610,7 +610,7 @@ class The_Neverending_Home_Page {
 		// applies to search page only
 		if ( true === self::wp_query()->is_search() ) {
 			// set post__not_in array in query_vars in case it does not exists
-			if ( false === isset( $query_vars['post__not_in'] ) ) {
+			if ( ! isset( $query_vars['post__not_in'] ) ) {
 				$query_vars['post__not_in'] = array();
 			}
 			// get excluded posts

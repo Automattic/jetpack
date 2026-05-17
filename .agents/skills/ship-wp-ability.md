@@ -188,7 +188,17 @@ If `composer update automattic/jetpack-wp-abilities` reports "Nothing to modify 
 
 ### 10) Write tests
 
-Follow `references/test-templates.md`. The test file lives at:
+Follow `references/test-templates.md`. **In particular, do NOT add
+`setExpectedIncorrectUsage('WP_Ability_Categories_Registry::register')` or
+`setExpectedIncorrectUsage('WP_Abilities_Registry::register')` to test
+helpers that re-fire the Abilities API lifecycle actions — that's a
+mandatory assertion, and the underlying core listeners don't always emit
+the expected notice in CI, which fails every test that uses the helper.
+See the "Anti-pattern" entry in `references/test-templates.md` for the full
+story. Mirror the Monitor test pattern (just `do_action()` twice, no
+incorrect-usage expectations).**
+
+The test file lives at:
 
 - Plugin context: `projects/plugins/jetpack/tests/php/src/<Name>_Abilities_Test.php` (extends `WP_UnitTestCase`, uses `WP_UnitTestCase_Fix` trait + `#[CoversClass]` attribute).
 - Package context: `projects/packages/<pkg>/tests/php/abilities/<Name>AbilitiesTest.php` (extends `PHPUnit\Framework\TestCase`, uses Brain Monkey + Mockery).
@@ -313,6 +323,7 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.
 - **Duplicate `category` in a spec.** Silent smell — `Registrar` injects the slug when missing. Setting `'category' => self::CATEGORY_SLUG` in each spec is redundant and drifts.
 - **Annotation mismatch** (`readonly: true` on a writer, `destructive: false` on a deleter). `wp-abilities-verify` is the source of truth; this skill doesn't re-check annotation correctness.
+- **CI fails with "Failed to assert that `WP_Ability_Categories_Registry::register` triggered an incorrect usage notice."** A previous version of the test added `setExpectedIncorrectUsage()` calls as a "whitelist" inside a `trigger_registration()` helper. `setExpectedIncorrectUsage` is a *mandatory* assertion — the test fails when the notice doesn't fire, which it usually doesn't in CI because core's site-category / `get-site-info` listeners aren't loaded. Fix: delete the `setExpectedIncorrectUsage` lines from the helper. See `references/test-templates.md` "Anti-pattern" note and PR #48335 commit `af3cdfb51a`.
 - **Description is a label, not a spec.** `"Activate a module."` tells the agent nothing. Rewrite to include return shape, idempotency, preconditions, and which abilities typically precede or follow. See `references/agent-ergonomics.md`.
 - **Raw backing-object dump in the response.** Returning `Jetpack::get_module()` verbatim, a full `WP_Post`, or a REST controller payload unadapted leaks internal fields the agent can't use and wastes context. Summarize to the shape the agent actually consumes.
 - **Unbounded list response.** A `list-*` / `get-*s` read with no `per_page` or `limit` ceiling is a latent OOM on the agent side. Cap at ~100 items, paginate past that.

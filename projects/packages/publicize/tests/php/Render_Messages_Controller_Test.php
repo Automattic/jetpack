@@ -106,8 +106,7 @@ class Render_Messages_Controller_Test extends TestCase {
 				'post_id' => $this->post_id,
 				'items'   => array(
 					array(
-						'id'      => 'a',
-						'network' => 'x',
+						'connection_id' => 'a',
 					),
 				),
 			)
@@ -150,22 +149,19 @@ class Render_Messages_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Items missing required fields fail validation.
+	 * Items missing the required `connection_id` field fail schema validation.
 	 */
-	public function test_render_messages_rejects_item_missing_required_fields() {
+	public function test_render_messages_rejects_item_missing_connection_id() {
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
-				// Missing `network` on the second item.
+				// Missing `connection_id` on the second item.
 				'items'   => array(
-					array(
-						'id'      => 'a',
-						'network' => 'x',
-					),
-					array( 'id' => 'b' ),
+					array( 'connection_id' => 'a' ),
+					array( 'message' => 'no id' ),
 				),
 			)
 		);
@@ -195,8 +191,7 @@ class Render_Messages_Controller_Test extends TestCase {
 				'post_id' => $this->post_id,
 				'items'   => array(
 					array(
-						'id'      => 'a',
-						'network' => 'x',
+						'connection_id' => 'a',
 					),
 				),
 			)
@@ -218,12 +213,10 @@ class Render_Messages_Controller_Test extends TestCase {
 				'post_id' => $this->post_id,
 				'items'   => array(
 					array(
-						'id'      => 'conn_a',
-						'network' => 'x',
+						'connection_id' => 'conn_a',
 					),
 					array(
-						'id'      => 'conn_b',
-						'network' => 'facebook',
+						'connection_id' => 'conn_b',
 					),
 				),
 			)
@@ -237,16 +230,46 @@ class Render_Messages_Controller_Test extends TestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'               => 'conn_a',
+					'connection_id'    => 'conn_a',
 					'rendered_message' => 'A',
 				),
 				array(
-					'id'               => 'conn_b',
+					'connection_id'    => 'conn_b',
 					'rendered_message' => 'B',
 				),
 			),
 			$response->get_data()
 		);
+	}
+
+	/**
+	 * Edited post intent is accepted by the request schema.
+	 */
+	public function test_render_messages_accepts_post_intent() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
+			array(
+				'post_id'     => $this->post_id,
+				'items'       => array(
+					array(
+						'connection_id' => 'conn_a',
+					),
+				),
+				'post_intent' => array(
+					'title'   => 'Updated title',
+					'excerpt' => 'Updated excerpt',
+					'content' => 'Updated content',
+				),
+			)
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**
@@ -261,8 +284,7 @@ class Render_Messages_Controller_Test extends TestCase {
 				'post_id' => $this->post_id,
 				'items'   => array(
 					array(
-						'id'             => 'a',
-						'network'        => 'x',
+						'connection_id'  => 'a',
 						'is_social_post' => 'not-a-bool',
 					),
 				),
@@ -283,11 +305,11 @@ class Render_Messages_Controller_Test extends TestCase {
 			'body'     => wp_json_encode(
 				array(
 					array(
-						'id'               => 'conn_a',
+						'connection_id'    => 'conn_a',
 						'rendered_message' => 'A',
 					),
 					array(
-						'id'               => 'conn_b',
+						'connection_id'    => 'conn_b',
 						'rendered_message' => 'B',
 					),
 				),

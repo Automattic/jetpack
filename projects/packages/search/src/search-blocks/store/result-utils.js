@@ -11,6 +11,28 @@
  * pipeline gains wp.i18n support.
  */
 
+import { formatWpDate } from './wp-date-format';
+
+// Module-scoped: the site's WP `date_format` setting is seeded once at store
+// hydration via `setSeededDateFormat()` and read implicitly by `formatDate()`.
+// Threading it through every `normalizeResult` call would be noise — it never
+// changes for the lifetime of the page, and the Interactivity API store is a
+// singleton, so module scope matches the data's actual lifetime.
+let seededDateFormat = '';
+
+/**
+ * Capture the site's WP `date_format` Settings option for use by subsequent
+ * `formatDate()` calls. Called once during store init from the
+ * `state.dateFormat` seed (see `Search_Blocks::seed_interactivity_state()`).
+ *
+ * @param {string} format - WP `date_format` token string, or an empty string
+ *                        when the seed is missing (falls back to the legacy
+ *                        `toLocaleDateString` shape).
+ */
+export function setSeededDateFormat( format ) {
+	seededDateFormat = typeof format === 'string' ? format : '';
+}
+
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 const STRIP_TAGS_PATTERN = /<[^>]*>/g;
@@ -60,11 +82,26 @@ export function toSafeUrl( raw ) {
 /**
  * Format an ISO date string for display on a search result card.
  *
- * @param {string} iso      - ISO-ish date string.
- * @param {string} [locale] - BCP47 locale (e.g. `en-US`).
+ * When the module-scoped `seededDateFormat` is non-empty (the site's WP
+ * `date_format` option, captured once at store init via
+ * `setSeededDateFormat()`), the date is rendered through the PHP `date()`-style
+ * token parser in `wp-date-format.js` so result cards match the rest of the
+ * site (`F j, Y`, `Y-m-d`, `d/m/Y`, etc.) instead of `toLocaleDateString`'s
+ * fixed `{ year, month, day }` shape. The legacy short-form output is kept as
+ * the fallback so call sites that run before the seed (older tests, edge
+ * paths) keep working unchanged.
+ *
+ * The `dateFormat` override exists for test ergonomics — call sites pass
+ * nothing in production. Tests reach for the explicit override or for
+ * `setSeededDateFormat()` plus a reset; both are documented in
+ * `result-utils.test.js`.
+ *
+ * @param {string} iso          - ISO-ish date string.
+ * @param {string} [locale]     - BCP47 locale (e.g. `en-US`).
+ * @param {string} [dateFormat] - Override; defaults to the module-scoped seeded value.
  * @return {string} Formatted date or ''.
  */
-export function formatDate( iso, locale = 'en-US' ) {
+export function formatDate( iso, locale = 'en-US', dateFormat = seededDateFormat ) {
 	if ( ! iso ) {
 		return '';
 	}
@@ -73,7 +110,11 @@ export function formatDate( iso, locale = 'en-US' ) {
 	if ( isNaN( d.getTime() ) ) {
 		return '';
 	}
-	return d.toLocaleDateString( locale || 'en-US', {
+	const resolvedLocale = locale || 'en-US';
+	if ( dateFormat ) {
+		return formatWpDate( d, dateFormat, resolvedLocale );
+	}
+	return d.toLocaleDateString( resolvedLocale, {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
@@ -102,6 +143,38 @@ export function formatPath( permalink ) {
 	} catch {
 		return '';
 	}
+}
+
+/**
+ * Format the v1.3 `author` field for display on a result card. The API hands
+ * back a single author as a string and co-authored posts as an array; in the
+ * array case, mirror instant-search's behavior — comma-join up to three
+ * entries, and for >3 keep the first three and append an ellipsis so the
+ * meta row doesn't run away on heavily co-authored posts.
+ *
+ * Each name is run through `decodeEntities` because the API HTML-encodes
+ * punctuation in display names (`O&#8217;Brien`, `Jane &amp; John`). The meta
+ * row binds via `data-wp-text` (textContent, not innerHTML), so without
+ * decoding the raw entity would render literally on the card.
+ *
+ * @param {*} value - `fields.author` from the v1.3 API response.
+ * @return {string} Display string, or '' when no author is present.
+ */
+export function formatAuthor( value ) {
+	if ( Array.isArray( value ) ) {
+		const names = value.map( v => decodeEntities( String( v ?? '' ).trim() ) ).filter( Boolean );
+		if ( names.length === 0 ) {
+			return '';
+		}
+		if ( names.length > 3 ) {
+			return names.slice( 0, 3 ).join( ', ' ) + '...';
+		}
+		return names.join( ', ' );
+	}
+	if ( typeof value !== 'string' ) {
+		return '';
+	}
+	return decodeEntities( value.trim() );
 }
 
 /**
@@ -374,6 +447,11 @@ export function deriveMatchHint( highlight, titlePieces ) {
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
+ * `formatDate()` reads the site's WP `date_format` from module scope (set
+ * once at store init via `setSeededDateFormat()`), so this signature stays
+ * focused on per-result inputs rather than threading site-wide formatting
+ * context through every call.
+ *
  * @param {object} raw           - Raw result from the API.
  * @param {string} [locale]      - BCP47 locale for date formatting.
  * @param {string} [searchQuery] - The query string the user actually typed. When
@@ -414,6 +492,7 @@ export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
+		authorLabel: formatAuthor( fields.author ),
 		imageUrl,
 		// Pre-built `url(...)` value so the product layout's CSS background
 		// image binds via `data-wp-style--background-image` without the
