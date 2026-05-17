@@ -25,6 +25,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Search extends Hybrid_Product {
 	/**
+	 * Fallback starting price (USD, billed yearly) for the entry record tier, used when
+	 * the WPCOM pricing fetch fails so the dashboard still shows a price, not "$0".
+	 *
+	 * @var float
+	 */
+	const FALLBACK_STARTING_PRICE_USD = 100;
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -172,6 +180,15 @@ class Search extends Hybrid_Product {
 			// Default to the current pricing experience when the WPCOM fetch fails so the
 			// dashboard degrades to the production default, not the legacy single-card view.
 			$pricing['pricing_version'] = Search_Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+
+			// If the generic product pricing was also unavailable, fall back to a USD
+			// starting price so the pricing grid renders a price instead of "$0".
+			if ( empty( $pricing['full_price'] ) ) {
+				$pricing['currency_code']  = 'USD';
+				$pricing['full_price']     = self::FALLBACK_STARTING_PRICE_USD;
+				$pricing['discount_price'] = self::FALLBACK_STARTING_PRICE_USD;
+			}
+
 			return $pricing;
 		}
 

@@ -183,6 +183,22 @@ class Search_Product_Test extends TestCase {
 	}
 
 	/**
+	 * When the WPCOM pricing fetch errors and no generic product pricing is available,
+	 * the payload should fall back to a USD starting price so the grid renders a price.
+	 */
+	public function test_get_pricing_for_ui_falls_back_to_usd_starting_price_on_fetch_error() {
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$pricing = Search::get_pricing_for_ui();
+
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->assertSame( 'USD', $pricing['currency_code'] );
+		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['full_price'] );
+		$this->assertSame( Search::FALLBACK_STARTING_PRICE_USD, $pricing['discount_price'] );
+	}
+
+	/**
 	 * When the WPCOM pricing fetch errors, is_new_pricing_202208() should default to true.
 	 */
 	public function test_is_new_pricing_202208_true_on_fetch_error() {
