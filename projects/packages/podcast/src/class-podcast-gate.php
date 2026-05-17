@@ -20,7 +20,6 @@ class Podcast_Gate {
 
 	const FEATURE_SLUG = 'podcasting';
 
-	// Blogs registered before this date bypass the plan check.
 	const PREMIUM_CUTOFF_DATE = '2026-05-18';
 
 	/**
@@ -42,10 +41,9 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Whether the blog was registered before the Premium cutoff.
+	 * Whether the blog predates the Premium cutoff.
 	 *
 	 * @param int $blog_id Blog ID.
-	 * @return bool
 	 */
 	protected static function blog_created_before_cutoff( int $blog_id ): bool {
 		if ( ! function_exists( 'get_blog_details' ) ) {
@@ -55,6 +53,10 @@ class Podcast_Gate {
 		if ( ! $details || empty( $details->registered ) ) {
 			return false;
 		}
-		return strtotime( $details->registered ) < strtotime( self::PREMIUM_CUTOFF_DATE );
+		$registered_ts = strtotime( $details->registered );
+		if ( false === $registered_ts ) {
+			return false;
+		}
+		return $registered_ts < strtotime( self::PREMIUM_CUTOFF_DATE );
 	}
 }
