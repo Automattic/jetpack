@@ -165,13 +165,19 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$callback = self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+		$is_modernized = self::is_modernized();
+		$callback      = $is_modernized && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
+		// Gate the "VaultPress Backup" relabel behind the modernization
+		// filter so the flag-off path stays byte-identical to trunk.
+		$page_title = $is_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $is_modernized ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+
 		$page_suffix = Admin_Menu::add_menu(
-			'Jetpack Backup',
-			'Backup', // Product name, do not translate.
+			$page_title,
+			$menu_title,
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
 			$callback,

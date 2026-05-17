@@ -33,6 +33,13 @@ class Podcast_Episode_Block {
 	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
 
 	/**
+	 * Front-end view script handle. Enqueued from the render callback
+	 * because the block.json `viewScript` field can't resolve to the
+	 * package's dist directory from the deployed src location.
+	 */
+	const VIEW_HANDLE = 'jetpack-podcast-episode-view';
+
+	/**
 	 * Wire the block's actions. Hooks are added unconditionally; each
 	 * callback re-checks the untangle filter and short-circuits when off.
 	 */
@@ -80,6 +87,26 @@ class Podcast_Episode_Block {
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'style'           => self::STYLE_HANDLE,
+			)
+		);
+	}
+
+	/**
+	 * Register and enqueue the front-end view script that wires chapter and
+	 * soundbite buttons to the audio player. Called from the render callback
+	 * so the script only ships on pages that actually contain the block.
+	 *
+	 * `Assets::register_script` dedups internally, so calling this for each
+	 * rendered instance of the block is safe.
+	 */
+	private static function enqueue_view_script() {
+		Assets::register_script(
+			self::VIEW_HANDLE,
+			'../../../dist/blocks/podcast-episode/view.js',
+			__FILE__,
+			array(
+				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
 	}
@@ -217,20 +244,51 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
+		// Only ship the click-to-seek script on episodes that actually have chapters or soundbites to wire.
+		if ( ! empty( $chapters ) || ! empty( $soundbites ) ) {
+			self::enqueue_view_script();
+		}
+
+		if ( '' !== $transcript_url && ! wp_http_validate_url( $transcript_url ) ) {
+			$transcript_url = '';
+		}
+
+		$author_id        = (int) $post->post_author;
 		$title            = get_the_title( $post );
-		$author_name      = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$author_name      = get_the_author_meta( 'display_name', $author_id );
+		$author_url       = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
+		$episode_url      = get_permalink( $post );
+		$transcript_type  = isset( $attributes['transcriptType'] ) ? (string) $attributes['transcriptType'] : '';
 
-		// Cover art: episode-specific override → show-level podcasting_image option → none.
+		// Show-level data backs the `partOfSeries` PodcastSeries reference so
+		// search engines can connect the episode to its parent show.
+		$show_title     = (string) get_option( 'podcasting_title', '' );
+		$show_image_url = (string) get_option( 'podcasting_image', '' );
+		$show_email     = (string) get_option( 'podcasting_email', '' );
+
+		// Cover art chain: episode override → post featured image → show-level cover → none.
+		// Resolved unconditionally so schema metadata always carries the image; the
+		// `$show_poster` toggle only gates the visible figure and the video poster.
 		$image_url = '';
-		if ( $show_poster ) {
-			if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
-				$image_url = esc_url_raw( $attributes['coverArt']['url'] );
-			} else {
-				$image_url = (string) get_option( 'podcasting_image', '' );
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
+		} else {
+			$featured_id = (int) get_post_thumbnail_id( $post );
+			if ( $featured_id ) {
+				$featured_url = (string) wp_get_attachment_image_url( $featured_id, 'full' );
+				if ( '' !== $featured_url ) {
+					$image_url = $featured_url;
+				}
+			}
+			if ( '' === $image_url ) {
+				$image_url = $show_image_url;
 			}
 		}
+
+		// AudioObject/VideoObject @type for the embedded media.
+		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
 
 		$wrapper_attributes = get_block_wrapper_attributes();
 
@@ -238,7 +296,10 @@ class Podcast_Episode_Block {
 		?>
 		<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns pre-escaped attribute output. ?>>
 			<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
-				<?php if ( $image_url ) : ?>
+				<?php if ( $episode_url ) : ?>
+					<link itemprop="url" href="<?php echo esc_url( $episode_url ); ?>" />
+				<?php endif; ?>
+				<?php if ( $image_url && $show_poster ) : ?>
 					<figure class="jetpack-podcast-episode__poster">
 						<img
 							src="<?php echo esc_url( $image_url ); ?>"
@@ -247,13 +308,16 @@ class Podcast_Episode_Block {
 							loading="lazy"
 						/>
 					</figure>
+				<?php elseif ( $image_url ) : ?>
+					<meta itemprop="image" content="<?php echo esc_url( $image_url ); ?>" />
 				<?php endif; ?>
 
 				<div class="jetpack-podcast-episode__body">
 					<?php if ( $season_number || $episode_number || 'full' !== $episode_type || $is_explicit ) : ?>
 						<p class="jetpack-podcast-episode__meta-line">
 							<?php if ( $season_number ) : ?>
-								<span class="jetpack-podcast-episode__season">
+								<span class="jetpack-podcast-episode__season" itemprop="partOfSeason" itemscope itemtype="https://schema.org/PodcastSeason">
+									<meta itemprop="seasonNumber" content="<?php echo esc_attr( (string) $season_number ); ?>" />
 									<?php
 									/* translators: %d: season number. */
 									echo esc_html( sprintf( __( 'Season %d', 'jetpack-podcast' ), $season_number ) );
@@ -261,7 +325,8 @@ class Podcast_Episode_Block {
 								</span>
 							<?php endif; ?>
 							<?php if ( $episode_number ) : ?>
-								<span class="jetpack-podcast-episode__episode-number" itemprop="episodeNumber">
+								<span class="jetpack-podcast-episode__episode-number">
+									<meta itemprop="episodeNumber" content="<?php echo esc_attr( (string) $episode_number ); ?>" />
 									<?php
 									/* translators: %d: episode number. */
 									echo esc_html( sprintf( __( 'Episode %d', 'jetpack-podcast' ), $episode_number ) );
@@ -287,7 +352,13 @@ class Podcast_Episode_Block {
 						<p class="jetpack-podcast-episode__byline">
 							<?php if ( $author_name ) : ?>
 								<span class="jetpack-podcast-episode__author" itemprop="author" itemscope itemtype="https://schema.org/Person">
-									<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+									<?php if ( $author_url ) : ?>
+										<a href="<?php echo esc_url( $author_url ); ?>" itemprop="url">
+											<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+										</a>
+									<?php else : ?>
+										<span itemprop="name"><?php echo esc_html( $author_name ); ?></span>
+									<?php endif; ?>
 								</span>
 							<?php endif; ?>
 							<?php if ( $publish_date ) : ?>
@@ -300,39 +371,49 @@ class Podcast_Episode_Block {
 								</time>
 							<?php endif; ?>
 							<?php if ( $duration ) : ?>
-								<span class="jetpack-podcast-episode__duration" itemprop="duration"><?php echo esc_html( $duration ); ?></span>
+								<span class="jetpack-podcast-episode__duration"><?php echo esc_html( $duration ); ?></span>
 							<?php endif; ?>
 						</p>
 					<?php endif; ?>
 
-					<div class="jetpack-podcast-episode__player">
+					<div
+						class="jetpack-podcast-episode__player"
+						itemprop="<?php echo 'video' === $media_type ? 'video' : 'audio'; ?>"
+						itemscope
+						itemtype="https://schema.org/<?php echo esc_attr( $media_object_type ); ?>"
+					>
+						<meta itemprop="contentUrl" content="<?php echo esc_url( $media_url ); ?>" />
+						<?php if ( $mime_type ) : ?>
+							<meta itemprop="encodingFormat" content="<?php echo esc_attr( $mime_type ); ?>" />
+						<?php endif; ?>
+						<?php if ( $duration ) : ?>
+							<meta itemprop="duration" content="<?php echo esc_attr( $duration ); ?>" />
+						<?php endif; ?>
 						<?php if ( 'video' === $media_type ) : ?>
 							<video
 								class="jetpack-podcast-episode__video"
 								controls
-								preload="metadata"
+								preload="none"
 								src="<?php echo esc_url( $media_url ); ?>"
 								<?php
-								if ( $image_url ) :
+								if ( $image_url && $show_poster ) :
 									?>
 									poster="<?php echo esc_url( $image_url ); ?>"<?php endif; ?>
 								<?php
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-								itemprop="associatedMedia"
 							></video>
 						<?php else : ?>
 							<audio
 								class="jetpack-podcast-episode__audio"
 								controls
-								preload="metadata"
+								preload="none"
 								src="<?php echo esc_url( $media_url ); ?>"
 								<?php
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-								itemprop="associatedMedia"
 							></audio>
 						<?php endif; ?>
 					</div>
@@ -346,12 +427,31 @@ class Podcast_Episode_Block {
 								}
 								$start_label     = self::format_seconds_label( $soundbite['startTime'] );
 								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
+								$start_seconds   = (int) floor( max( 0, (float) $soundbite['startTime'] ) );
+								$end_seconds     = isset( $soundbite['duration'] )
+									? $start_seconds + (int) floor( max( 0, (float) $soundbite['duration'] ) )
+									: null;
 								?>
-								<li class="jetpack-podcast-episode__soundbite">
-									<time class="jetpack-podcast-episode__soundbite-time"><?php echo esc_html( $start_label ); ?></time>
-									<?php if ( '' !== $soundbite_title ) : ?>
-										<span class="jetpack-podcast-episode__soundbite-title"><?php echo esc_html( $soundbite_title ); ?></span>
+								<li
+									class="jetpack-podcast-episode__soundbite"
+									itemprop="hasPart"
+									itemscope
+									itemtype="https://schema.org/Clip"
+								>
+									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $start_seconds ); ?>" />
+									<?php if ( null !== $end_seconds ) : ?>
+										<meta itemprop="endOffset" content="<?php echo esc_attr( (string) $end_seconds ); ?>" />
 									<?php endif; ?>
+									<button
+										type="button"
+										class="jetpack-podcast-episode__soundbite-button"
+										data-start-time="<?php echo esc_attr( (string) $start_seconds ); ?>"
+									>
+										<time class="jetpack-podcast-episode__soundbite-time"><?php echo esc_html( $start_label ); ?></time>
+										<?php if ( '' !== $soundbite_title ) : ?>
+											<span class="jetpack-podcast-episode__soundbite-title" itemprop="name"><?php echo esc_html( $soundbite_title ); ?></span>
+										<?php endif; ?>
+									</button>
 								</li>
 							<?php endforeach; ?>
 						</ul>
@@ -378,11 +478,24 @@ class Podcast_Episode_Block {
 					<?php if ( ! empty( $rendered_chapters ) ) : ?>
 						<ol class="jetpack-podcast-episode__chapters">
 							<?php foreach ( $rendered_chapters as $chapter ) : ?>
-								<li class="jetpack-podcast-episode__chapter">
-									<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
-									<?php if ( '' !== $chapter['title'] ) : ?>
-										<span class="jetpack-podcast-episode__chapter-title"><?php echo esc_html( $chapter['title'] ); ?></span>
-									<?php endif; ?>
+								<?php $chapter_start_seconds = (int) floor( max( 0, $chapter['startTime'] ) ); ?>
+								<li
+									class="jetpack-podcast-episode__chapter"
+									itemprop="hasPart"
+									itemscope
+									itemtype="https://schema.org/Clip"
+								>
+									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>" />
+									<button
+										type="button"
+										class="jetpack-podcast-episode__chapter-button"
+										data-start-time="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>"
+									>
+										<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
+										<?php if ( '' !== $chapter['title'] ) : ?>
+											<span class="jetpack-podcast-episode__chapter-title" itemprop="name"><?php echo esc_html( $chapter['title'] ); ?></span>
+										<?php endif; ?>
+									</button>
 								</li>
 							<?php endforeach; ?>
 						</ol>
@@ -460,10 +573,28 @@ class Podcast_Episode_Block {
 						</ul>
 					<?php endif; ?>
 
+					<?php if ( '' !== $show_title ) : ?>
+						<div class="jetpack-podcast-episode__series" itemprop="partOfSeries" itemscope itemtype="https://schema.org/PodcastSeries">
+							<meta itemprop="name" content="<?php echo esc_attr( $show_title ); ?>" />
+							<?php if ( $show_image_url ) : ?>
+								<meta itemprop="image" content="<?php echo esc_url( $show_image_url ); ?>" />
+							<?php endif; ?>
+							<?php if ( $show_email ) : ?>
+								<span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+									<meta itemprop="email" content="<?php echo esc_attr( $show_email ); ?>" />
+								</span>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+
 					<?php if ( $transcript_url || $location_name || $license ) : ?>
 						<ul class="jetpack-podcast-episode__links">
 							<?php if ( $transcript_url ) : ?>
-								<li>
+								<li itemprop="transcript" itemscope itemtype="https://schema.org/MediaObject">
+									<meta itemprop="contentUrl" content="<?php echo esc_url( $transcript_url ); ?>" />
+									<?php if ( '' !== $transcript_type ) : ?>
+										<meta itemprop="encodingFormat" content="<?php echo esc_attr( $transcript_type ); ?>" />
+									<?php endif; ?>
 									<a href="<?php echo esc_url( $transcript_url ); ?>" class="jetpack-podcast-episode__transcript-link">
 										<?php esc_html_e( 'Read transcript', 'jetpack-podcast' ); ?>
 									</a>
