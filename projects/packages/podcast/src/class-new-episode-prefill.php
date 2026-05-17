@@ -25,6 +25,7 @@ namespace Automattic\Jetpack\Podcast;
 class New_Episode_Prefill {
 
 	const QUERY_VAR = 'podcast_episode';
+	const POST_TYPE = 'post';
 
 	/**
 	 * Tracks the first auto-draft we touch so we can self-unhook and avoid
@@ -75,7 +76,8 @@ class New_Episode_Prefill {
 
 		// `Podcast_Gate` is a future package; fail closed (no block prefill)
 		// until it exists so an unqualified call doesn't fatal.
-		if ( class_exists( __NAMESPACE__ . '\\Podcast_Gate' ) && Podcast_Gate::has_product_access() ) {
+		$has_product_access = __NAMESPACE__ . '\\Podcast_Gate::has_product_access';
+		if ( is_callable( $has_product_access ) && call_user_func( $has_product_access ) ) {
 			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 		}
 	}
@@ -100,7 +102,7 @@ class New_Episode_Prefill {
 		if ( ! ( $post instanceof \WP_Post ) ) {
 			return;
 		}
-		if ( 'post' !== $post->post_type || 'auto-draft' !== $post->post_status ) {
+		if ( ! self::is_supported_post( $post ) || 'auto-draft' !== $post->post_status ) {
 			return;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -132,7 +134,7 @@ class New_Episode_Prefill {
 	 * @return string
 	 */
 	public static function prefill_block_content( $content, $post ) {
-		if ( ! ( $post instanceof \WP_Post ) || 'post' !== $post->post_type ) {
+		if ( ! self::is_supported_post( $post ) ) {
 			return $content;
 		}
 		if ( self::$handled_post_id > 0 && (int) $post->ID !== self::$handled_post_id ) {
@@ -145,5 +147,15 @@ class New_Episode_Prefill {
 		remove_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10 );
 
 		return "<!-- wp:jetpack/podcast-episode /-->\n";
+	}
+
+	/**
+	 * Whether the post is a core post object we support for new-episode prefill.
+	 *
+	 * @param mixed $post Candidate post object.
+	 * @return bool
+	 */
+	private static function is_supported_post( $post ) {
+		return $post instanceof \WP_Post && self::POST_TYPE === $post->post_type;
 	}
 }
