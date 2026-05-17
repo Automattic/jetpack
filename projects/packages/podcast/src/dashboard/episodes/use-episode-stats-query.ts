@@ -9,17 +9,27 @@ import type { EpisodeStats } from '../types';
  * (no core-data entity), so a thin `apiFetch` + `useState` wrapper. Server
  * caches 5 minutes; refetching on remount is cheap.
  *
+ * `premiumRequired` is `true` when the endpoint responds 402
+ * (`podcast_premium_required`). The dashboard tab gate normally hides the
+ * stats UI before any request fires, so this is a defense-in-depth state for
+ * stale gate snapshots and grandfather-edge races.
+ *
  * @param postIds - Episode post IDs (from the visible page of the table).
- * @return         `{ data }` matching the prior TanStack-shaped contract.
+ * @return         `{ data, premiumRequired }`.
  */
-export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[] } {
+export function useEpisodeStatsQuery( postIds: number[] ): {
+	data: EpisodeStats[];
+	premiumRequired: boolean;
+} {
 	const [ data, setData ] = useState< EpisodeStats[] >( [] );
+	const [ premiumRequired, setPremiumRequired ] = useState( false );
 	// Sort so the effect dep is stable regardless of incoming order.
 	const key = useMemo( () => [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' ), [ postIds ] );
 
 	useEffect( () => {
 		if ( ! key ) {
 			setData( [] );
+			setPremiumRequired( false );
 			return;
 		}
 		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
@@ -36,20 +46,34 @@ export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[
 					return;
 				}
 				const chunk = ids.slice( i, i + 50 );
-				const result = ( await apiFetch( {
-					path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
-						post_ids: chunk.join( ',' ),
-					} ),
-					method: 'GET',
-				} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
-				if ( Array.isArray( result ) ) {
-					out.push( ...result );
-				} else if ( result.episodes ) {
-					out.push( ...result.episodes );
+				try {
+					const result = ( await apiFetch( {
+						path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
+							post_ids: chunk.join( ',' ),
+						} ),
+						method: 'GET',
+					} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
+					if ( Array.isArray( result ) ) {
+						out.push( ...result );
+					} else if ( result.episodes ) {
+						out.push( ...result.episodes );
+					}
+				} catch ( error ) {
+					const err = error as { data?: { status?: number }; status?: number };
+					const status = err?.data?.status ?? err?.status;
+					if ( status === 402 ) {
+						if ( ! cancelled ) {
+							setData( [] );
+							setPremiumRequired( true );
+						}
+						return;
+					}
+					throw error;
 				}
 			}
 			if ( ! cancelled ) {
 				setData( out );
+				setPremiumRequired( false );
 			}
 		} )();
 		return () => {
@@ -57,5 +81,5 @@ export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[
 		};
 	}, [ key ] );
 
-	return { data };
+	return { data, premiumRequired };
 }
