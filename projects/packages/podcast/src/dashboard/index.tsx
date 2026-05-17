@@ -112,9 +112,7 @@ const App = () => {
 			return;
 		}
 		focusActiveTabOnNextRender.current = false;
-		const tab = document.querySelector< HTMLElement >(
-			'[role="tab"][aria-selected="true"]'
-		);
+		const tab = document.querySelector< HTMLElement >( '[role="tab"][aria-selected="true"]' );
 		tab?.focus();
 	}, [ showWelcome ] );
 
