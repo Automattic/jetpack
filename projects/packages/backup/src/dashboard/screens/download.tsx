@@ -1,6 +1,6 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
@@ -38,6 +38,7 @@ export default function DownloadScreen() {
 	const downloadPoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useDownload( rewindId );
+	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
 
 	return (
 		<DashboardLayout>
@@ -74,7 +75,7 @@ export default function DownloadScreen() {
 								className="jpb-download__confirm"
 								variant="solid"
 								disabled={ state.phase === 'submitting' }
-								onClick={ submit }
+								onClick={ handleGenerate }
 							>
 								{ state.phase === 'submitting' ? (
 									<Spinner />
@@ -96,7 +97,12 @@ export default function DownloadScreen() {
 							<Notice status="success" isDismissible={ false }>
 								{ __( 'Your download is ready.', 'jetpack-backup-pkg' ) }
 							</Notice>
-							<a className="jpb-download__link" href={ state.downloadUrl }>
+							<a
+								className="jpb-download__link"
+								href={ state.downloadUrl }
+								download
+								rel="noreferrer"
+							>
 								{ __( 'Download the file', 'jetpack-backup-pkg' ) }
 							</a>
 						</Stack>

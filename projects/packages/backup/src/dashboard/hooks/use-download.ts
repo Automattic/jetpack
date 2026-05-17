@@ -3,6 +3,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { fetchDownloadStatus, initiateDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
+import type { RestoreItems } from '../types/restore';
 
 type DownloadState =
 	| { phase: 'idle' }
@@ -13,7 +14,7 @@ type DownloadState =
 
 type Result = {
 	state: DownloadState;
-	submit: () => void;
+	submit: ( items: RestoreItems ) => void;
 	reset: () => void;
 };
 
@@ -39,7 +40,7 @@ export function useDownload( rewindId: string ): Result {
 		reset: resetMutation,
 		isPending: isInitiating,
 	} = useMutation( {
-		mutationFn: () => initiateDownload( rewindId ),
+		mutationFn: ( items: RestoreItems ) => initiateDownload( rewindId, items ),
 		onSuccess: result => {
 			setDownloadId( result.id );
 			setErrorMessage( null );
@@ -58,7 +59,10 @@ export function useDownload( rewindId: string ): Result {
 			query.state.data?.status === 'in-progress' ? POLL_INTERVAL_MS : false,
 	} );
 
-	const submit = useCallback( () => mutateInitiate(), [ mutateInitiate ] );
+	const submit = useCallback(
+		( items: RestoreItems ) => mutateInitiate( items ),
+		[ mutateInitiate ]
+	);
 	const reset = useCallback( () => {
 		setDownloadId( null );
 		setErrorMessage( null );

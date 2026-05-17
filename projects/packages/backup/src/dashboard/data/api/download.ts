@@ -1,4 +1,5 @@
 import { apiCall, apiPath, toIntRewindId } from './_helpers';
+import type { RestoreItems } from '../../types/restore';
 
 export type InitiateDownloadResponse = {
 	id: number;
@@ -14,13 +15,21 @@ export type DownloadStatusResponse = {
 /**
  * Initiate a backup download.
  *
+ * `types` maps directly to WPCOM's `types` payload (the keys match the
+ * `RestoreItems` checklist). Sending `{}` means "include everything".
+ *
  * @param rewindId - The backup's rewind id.
+ * @param types    - Which categories to include in the download.
  * @return The download id.
  */
-export async function initiateDownload( rewindId: string ): Promise< InitiateDownloadResponse > {
+export async function initiateDownload(
+	rewindId: string,
+	types: RestoreItems
+): Promise< InitiateDownloadResponse > {
 	return apiCall< InitiateDownloadResponse >( {
 		path: apiPath( `/backups/download/${ toIntRewindId( rewindId ) }` ),
 		method: 'POST',
+		data: { types },
 	} );
 }
 

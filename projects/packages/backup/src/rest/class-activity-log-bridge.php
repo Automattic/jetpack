@@ -43,10 +43,7 @@ class Activity_Log_Bridge {
 				'callback'            => array( __CLASS__, 'get_activity_log' ),
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
 				'args'                => array(
-					'number'    => array( 'type' => 'integer' ),
-					'aggregate' => array( 'type' => 'boolean' ),
-					'after'     => array( 'type' => 'string' ),
-					'before'    => array( 'type' => 'string' ),
+					'number' => array( 'type' => 'integer' ),
 				),
 			)
 		);
@@ -65,12 +62,7 @@ class Activity_Log_Bridge {
 		}
 
 		$query = array_filter(
-			array(
-				'number'    => $request->get_param( 'number' ),
-				'aggregate' => $request->get_param( 'aggregate' ) ? 'true' : null,
-				'after'     => $request->get_param( 'after' ),
-				'before'    => $request->get_param( 'before' ),
-			),
+			array( 'number' => $request->get_param( 'number' ) ),
 			static function ( $value ) {
 				return null !== $value && '' !== $value;
 			}

@@ -122,7 +122,7 @@ class Restore_Bridge {
 		if ( ! $restore_id_in ) {
 			return new WP_Error(
 				'restore_initiate_failed',
-				__( 'Restore response missing restore id.', 'jetpack-backup-pkg' ),
+				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
 				array( 'status' => 500 )
 			);
 		}

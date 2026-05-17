@@ -1,6 +1,6 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
@@ -39,6 +39,7 @@ export default function RestoreScreen() {
 	const restorePoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useRestore( rewindId );
+	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 
 	return (
 		<DashboardLayout>
@@ -76,7 +77,7 @@ export default function RestoreScreen() {
 								className="jpb-restore__confirm"
 								variant="solid"
 								disabled={ state.phase === 'submitting' }
-								onClick={ submit }
+								onClick={ handleConfirm }
 							>
 								{ state.phase === 'submitting' ? (
 									<Spinner />

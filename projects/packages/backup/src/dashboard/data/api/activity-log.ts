@@ -22,26 +22,18 @@ export type WpcomActivityLogResponse = {
 
 type FetchArgs = {
 	number?: number;
-	aggregate?: boolean;
-	after?: string;
-	before?: string;
 };
 
 /**
  * Fetch the rewindable activity log entries from the bridge.
  *
- * @param args - Optional pagination and filter args.
+ * @param args - Optional pagination args.
  * @return The raw WPCOM-shaped response.
  */
 export async function fetchActivityLog(
 	args: FetchArgs = {}
 ): Promise< WpcomActivityLogResponse > {
 	return apiCall< WpcomActivityLogResponse >( {
-		path: apiPath( '/site/rewindable-activity', {
-			number: args.number,
-			aggregate: args.aggregate,
-			after: args.after,
-			before: args.before,
-		} ),
+		path: apiPath( '/site/rewindable-activity', { number: args.number } ),
 	} );
 }

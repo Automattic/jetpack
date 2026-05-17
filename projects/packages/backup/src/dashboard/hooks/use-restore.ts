@@ -3,11 +3,11 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { fetchRestoreStatus, initiateRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
-import type { RestoreState } from '../types/restore';
+import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
 	state: RestoreState;
-	submit: () => void;
+	submit: ( items: RestoreItems ) => void;
 	reset: () => void;
 };
 
@@ -36,7 +36,7 @@ export function useRestore( rewindId: string ): Result {
 		reset: resetMutation,
 		isPending,
 	} = useMutation( {
-		mutationFn: () => initiateRestore( rewindId ),
+		mutationFn: ( items: RestoreItems ) => initiateRestore( rewindId, items ),
 		onSuccess: result => {
 			setRestoreId( result.id );
 			setErrorMessage( null );
@@ -59,7 +59,7 @@ export function useRestore( rewindId: string ): Result {
 				: false,
 	} );
 
-	const submit = useCallback( () => kickOff(), [ kickOff ] );
+	const submit = useCallback( ( items: RestoreItems ) => kickOff( items ), [ kickOff ] );
 	const reset = useCallback( () => {
 		setRestoreId( null );
 		setErrorMessage( null );
