@@ -189,6 +189,14 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	const isSearchBlocksEnabled = useSelect(
+		select => select( STORE_ID ).isSearchBlocksEnabled(),
+		[]
+	);
+	const pricingArgs = isSearchBlocksEnabled
+		? { ...newPricingArgs, items: [ ...newPricingArgs.items, ...searchBlocksPricingItems ] }
+		: newPricingArgs;
+
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
@@ -222,7 +230,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
 				<ThemeProvider>
-					<PricingTable { ...newPricingArgs }>
+					<PricingTable { ...pricingArgs }>
 						<PricingTableColumn primary>
 							<PricingTableHeader>
 								<ProductPrice
@@ -314,8 +322,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
-							<PricingTableItem isIncluded={ true } />
-							<PricingTableItem isIncluded={ true } />
+							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.name } isIncluded={ true } />
+							) ) }
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
@@ -402,8 +411,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
-							<PricingTableItem isIncluded={ true } />
-							<PricingTableItem isIncluded={ true } />
+							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.name } isIncluded={ true } />
+							) ) }
 						</PricingTableColumn>
 					</PricingTable>
 				</ThemeProvider>
@@ -500,19 +510,25 @@ const newPricingArgs = {
 				'jetpack-search-pkg'
 			),
 		},
-		{
-			name: __( 'Jetpack Search blocks', 'jetpack-search-pkg' ),
-			tooltipInfo: __(
-				'Design your own search experience in the block editor. Drop in dedicated search, filtering, and sorting blocks to build a results page that matches your site — no code required.',
-				'jetpack-search-pkg'
-			),
-		},
-		{
-			name: __( 'Embedded search page', 'jetpack-search-pkg' ),
-			tooltipInfo: __(
-				"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
-				'jetpack-search-pkg'
-			),
-		},
 	],
 };
+
+// Rows gated behind the `jetpack_search_blocks_enabled` flag (mirrored to the
+// dashboard as `searchBlocksEnabled`), so the pricing table advertises the
+// Search blocks features only when the blocks themselves are registered.
+const searchBlocksPricingItems = [
+	{
+		name: __( 'Jetpack Search blocks', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			'Design your own search experience in the block editor. Drop in dedicated search, filtering, and sorting blocks to build a results page that matches your site — no code required.',
+			'jetpack-search-pkg'
+		),
+	},
+	{
+		name: __( 'Embedded search page', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
+			'jetpack-search-pkg'
+		),
+	},
+];
