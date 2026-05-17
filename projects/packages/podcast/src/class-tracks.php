@@ -330,7 +330,6 @@ class Tracks {
 		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
 		$plan = class_exists( '\WPCOM_Store_API' )
 			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
 
 		self::record_event(
