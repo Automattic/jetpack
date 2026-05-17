@@ -216,7 +216,9 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		add_filter(
 			'pre_attachment_url_to_postid',
-			static fn( $pre, $url ) => 'https://example.com/path/episode.M4A?v=1' === $url ? 9001 : $pre,
+			static function ( $pre, $url ) {
+				return 'https://example.com/path/episode.M4A?v=1' === $url ? 9001 : $pre;
+			},
 			10,
 			2
 		);
@@ -248,7 +250,9 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		add_filter(
 			'pre_attachment_url_to_postid',
-			static fn( $pre, $url ) => 'https://example.com/episode.exe' === $url ? 9002 : $pre,
+			static function ( $pre, $url ) {
+				return 'https://example.com/episode.exe' === $url ? 9002 : $pre;
+			},
 			10,
 			2
 		);
