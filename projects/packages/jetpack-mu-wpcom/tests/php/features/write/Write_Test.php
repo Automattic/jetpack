@@ -632,4 +632,425 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( $original, $result );
 	}
+
+	// --- Unsupported content detection tests ---
+
+	/**
+	 * Test that empty content returns false (safe).
+	 */
+	public function test_detect_unsupported_empty_content() {
+		$this->assertFalse( wpcom_write_detect_unsupported_content( '' ) );
+	}
+
+	/**
+	 * Test that classic editor content (no block markers) returns 'classic-editor'.
+	 */
+	public function test_detect_unsupported_classic_content() {
+		$content = '<p>Hello world</p><p>This is a classic post.</p>';
+		$this->assertSame( 'classic-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that content with only supported blocks returns false.
+	 */
+	public function test_detect_unsupported_supported_blocks_only() {
+		$content = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->'
+			. '<!-- wp:heading {"level":2} --><h2>Title</h2><!-- /wp:heading -->'
+			. '<!-- wp:separator --><hr class="wp-block-separator"/><!-- /wp:separator -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported list with list-items returns false.
+	 */
+	public function test_detect_unsupported_list_blocks() {
+		$content = '<!-- wp:list --><ul><!-- wp:list-item --><li>Item</li><!-- /wp:list-item --></ul><!-- /wp:list -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported image block returns false.
+	 */
+	public function test_detect_unsupported_image_block() {
+		$content = '<!-- wp:image {"id":42} --><figure class="wp-block-image"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a supported quote block returns false.
+	 */
+	public function test_detect_unsupported_quote_block() {
+		$content = '<!-- wp:quote --><blockquote class="wp-block-quote"><p>A quote</p></blockquote><!-- /wp:quote -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a YouTube video embed returns false (supported).
+	 */
+	public function test_detect_unsupported_youtube_embed() {
+		$attrs   = '{"url":"https://www.youtube.com/watch?v=abc","type":"video","providerNameSlug":"youtube"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a Vimeo video embed returns false (supported).
+	 */
+	public function test_detect_unsupported_vimeo_embed() {
+		$attrs   = '{"url":"https://vimeo.com/123","type":"video","providerNameSlug":"vimeo"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an unsupported block type returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_gallery_block() {
+		$content = '<!-- wp:gallery {"ids":[1,2]} --><figure class="wp-block-gallery"></figure><!-- /wp:gallery -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a namespaced unsupported block returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_namespaced_block() {
+		$content = '<!-- wp:core/table --><table></table><!-- /wp:core/table -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a columns block returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_columns_block() {
+		$content = '<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"></div><!-- /wp:column --></div><!-- /wp:columns -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a non-video embed (e.g. Twitter) returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_twitter_embed() {
+		$attrs   = '{"url":"https://twitter.com/example/status/123","type":"rich","providerNameSlug":"twitter"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a non-video YouTube embed (e.g. playlist) returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_youtube_non_video_embed() {
+		$attrs   = '{"url":"https://www.youtube.com/playlist?list=abc","type":"rich","providerNameSlug":"youtube"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that textColor attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_text_color() {
+		$content = '<!-- wp:paragraph {"textColor":"vivid-red"} --><p class="has-vivid-red-color has-text-color">Red text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that backgroundColor attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_background_color() {
+		$content = '<!-- wp:paragraph {"backgroundColor":"pale-pink"} --><p class="has-pale-pink-background-color">Pink bg</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that fontSize attribute returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_font_size() {
+		$content = '<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">Big text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that inline style typography returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_style_typography() {
+		$content = '<!-- wp:paragraph {"style":{"typography":{"fontSize":"22px"}}} --><p style="font-size:22px">Custom size</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that inline color classes return 'block-editor'.
+	 */
+	public function test_detect_unsupported_inline_color_class() {
+		$content = '<!-- wp:paragraph --><p>Some <span class="has-inline-color has-vivid-red-color">red</span> text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that has-text-color class returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_has_text_color_class() {
+		$content = '<!-- wp:paragraph --><p class="has-text-color has-vivid-red-color">Colored</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that plain text mentioning color class names is not treated as unsupported.
+	 */
+	public function test_detect_unsupported_plain_text_class_name_mentions() {
+		$content = '<!-- wp:paragraph --><p>Use has-text-color and has-inline-color classes in your CSS.</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that center-aligned paragraph returns false (preserved by convertToBlocks).
+	 */
+	public function test_detect_unsupported_center_aligned_paragraph() {
+		$content = '<!-- wp:paragraph {"align":"center"} --><p style="text-align:center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that left-aligned paragraph returns false. The block editor can
+	 * explicitly set align:left even though it's the default. Left alignment
+	 * renders identically to no alignment, so Write handles it fine.
+	 */
+	public function test_detect_unsupported_left_aligned_paragraph() {
+		$content = '<!-- wp:paragraph {"align":"left"} --><p style="text-align:left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that block-editor-style alignment classes are supported.
+	 * The classes are converted to inline styles on load so convertToBlocks()
+	 * can read them via node.style.textAlign.
+	 */
+	public function test_detect_supported_block_editor_alignment_classes() {
+		$content = '<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"align":"right"} --><p class="has-text-align-right">Right</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"align":"left"} --><p class="has-text-align-left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that style.typography.textAlign alignment (newer Gutenberg format) is supported.
+	 */
+	public function test_detect_supported_style_typography_text_align() {
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"center"}}} --><p class="has-text-align-center">Centered</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} --><p class="has-text-align-right">Right</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"left"}}} --><p class="has-text-align-left">Left</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that style attr with unsupported properties (not just typography.textAlign) is flagged.
+	 */
+	public function test_detect_unsupported_style_with_extra_properties() {
+		// fontSize in style → unsupported.
+		$content = '<!-- wp:paragraph {"style":{"typography":{"textAlign":"center","fontSize":"18px"}}} --><p class="has-text-align-center">Styled</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+
+		// color in style → unsupported.
+		$content = '<!-- wp:paragraph {"style":{"color":{"text":"#ff0000"}}} --><p>Red</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that alignment classes are converted to inline styles.
+	 */
+	public function test_alignment_classes_to_inline() {
+		$html = '<p class="has-text-align-center wp-block-paragraph">Centered</p>';
+		$this->assertSame(
+			'<p class="wp-block-paragraph" style="text-align:center">Centered</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// Right alignment on a heading.
+		$html = '<h2 class="has-text-align-right wp-block-heading">Right</h2>';
+		$this->assertSame(
+			'<h2 class="wp-block-heading" style="text-align:right">Right</h2>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// Left alignment — class removed, inline style added.
+		$html = '<p class="has-text-align-left">Left</p>';
+		$this->assertSame(
+			'<p style="text-align:left">Left</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+
+		// No alignment class — unchanged.
+		$html = '<p class="wp-block-paragraph">Normal</p>';
+		$this->assertSame( $html, wpcom_write_alignment_classes_to_inline( $html ) );
+	}
+
+	/**
+	 * Test that alignment conversion merges into an existing style attribute
+	 * instead of producing invalid duplicate style attrs.
+	 */
+	public function test_alignment_classes_to_inline_with_existing_style() {
+		$html = '<p class="has-text-align-center" style="color:red">Centered</p>';
+		$this->assertSame(
+			'<p style="text-align:center;color:red">Centered</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+	}
+
+	/**
+	 * Test that wide-aligned heading returns 'block-editor' (not preserved).
+	 */
+	public function test_detect_unsupported_wide_aligned_heading() {
+		$content = '<!-- wp:heading {"level":2,"align":"wide"} --><h2 class="wp-block-heading alignwide">Title</h2><!-- /wp:heading -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a custom className on a paragraph returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_custom_class_name() {
+		$content = '<!-- wp:paragraph {"className":"my-custom-class"} --><p class="my-custom-class">Styled</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a YouTube embed with className returns 'block-editor'.
+	 * className is not preserved by convertToBlocks() for any block type.
+	 */
+	public function test_detect_unsupported_youtube_embed_with_class_name() {
+		$attrs   = '{"url":"https://www.youtube.com/watch?v=abc","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"}';
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an anchor attribute on a heading returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_anchor_attribute() {
+		$content = '<!-- wp:heading {"level":2,"anchor":"my-section"} --><h2 class="wp-block-heading" id="my-section">Title</h2><!-- /wp:heading -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an embed block with malformed JSON attributes returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_embed_malformed_json() {
+		$content = '<!-- wp:embed {not-valid-json} --><figure class="wp-block-embed"></figure><!-- /wp:embed -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that mixed supported and unsupported blocks returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_mixed_content() {
+		$content = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->'
+			. '<!-- wp:gallery {"ids":[1,2]} --><figure class="wp-block-gallery"></figure><!-- /wp:gallery -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	// --- JS / PHP allowlist sync ---
+
+	/**
+	 * Verify that the PHP allowlist stays in sync with convertToBlocks() in
+	 * view.js.
+	 *
+	 * Block types are extracted directly from the `<!-- wp:type -->` comment
+	 * literals that convertToBlocks() emits, so no manual annotations are
+	 * needed for that axis.
+	 *
+	 * Attribute-level sync uses a hardcoded map of what convertToBlocks()
+	 * outputs per block type.  When you add attribute support in view.js,
+	 * update both wpcom_write_allowed_block_attrs() in write.php and
+	 * $js_attrs below.
+	 */
+	public function test_allowed_block_types_in_sync_with_convert_to_blocks() {
+		// -- Block-type sync (automatic from JS source) --
+
+		$view_js_path = dirname( __DIR__, 4 ) . '/src/features/write/view.js';
+		$view_js      = file_get_contents( $view_js_path );
+		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
+
+		$fn_start = strpos( $view_js, 'function convertToBlocks(' );
+		$this->assertNotFalse( $fn_start, 'convertToBlocks() not found in view.js' );
+		// Read enough of the function body to capture all block types.
+		// If convertToBlocks() grows past this, the assertion below will
+		// catch missing types. Increase as needed.
+		$fn_body = substr( $view_js, $fn_start, 6000 );
+
+		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
+		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );
+		$js_types = array_values( array_unique( $matches[1] ) );
+		sort( $js_types );
+		$this->assertNotEmpty( $js_types, 'No block types found in convertToBlocks()' );
+
+		$php_all   = wpcom_write_allowed_block_attrs();
+		$php_types = array_keys( $php_all );
+		sort( $php_types );
+
+		$this->assertSame(
+			$js_types,
+			$php_types,
+			sprintf(
+				"Block types are out of sync.\nJS (view.js):  [%s]\nPHP (write.php): [%s]",
+				implode( ', ', $js_types ),
+				implode( ', ', $php_types )
+			)
+		);
+
+		// -- Attribute-level sync (hardcoded JS expectations) --
+		// These are the attributes convertToBlocks() actually writes into
+		// block JSON.  Every one must appear in the PHP allowlist.
+
+		$js_attrs = array(
+			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
+			'heading'   => array( 'align', 'level' ),
+			'image'     => array(),
+			'list'      => array( 'ordered' ),
+			'list-item' => array(),
+			'paragraph' => array( 'align' ),
+			'quote'     => array( 'align' ),
+			'separator' => array(),
+		);
+
+		// PHP-only extras: attributes the block editor adds as metadata
+		// that don't affect visible content.  Write doesn't produce these
+		// but safely ignores them.  Any PHP attr not in $js_attrs and not
+		// listed here is an error — it would let unsupported content through.
+		$php_extras = array(
+			'image' => array( 'alt', 'id', 'sizeSlug' ),
+		);
+
+		foreach ( $js_attrs as $block => $expected ) {
+			$this->assertArrayHasKey( $block, $php_all, "Block '$block' missing from PHP allowlist." );
+
+			// Every JS attr must exist in PHP.
+			$missing = array_diff( $expected, $php_all[ $block ] );
+			$this->assertEmpty(
+				$missing,
+				sprintf(
+					"Block '%s': JS outputs attrs [%s] missing from PHP allowlist [%s].",
+					$block,
+					implode( ', ', $missing ),
+					implode( ', ', $php_all[ $block ] )
+				)
+			);
+
+			// Every PHP attr must be in JS or in the documented extras.
+			$allowed_extras = $php_extras[ $block ] ?? array();
+			$unexpected     = array_diff( $php_all[ $block ], $expected, $allowed_extras );
+			$this->assertEmpty(
+				$unexpected,
+				sprintf(
+					"Block '%s': PHP allows attrs [%s] not produced by JS and not in \$php_extras.",
+					$block,
+					implode( ', ', $unexpected )
+				)
+			);
+		}
+	}
 }

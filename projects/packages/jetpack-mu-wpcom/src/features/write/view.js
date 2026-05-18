@@ -571,9 +571,11 @@ function convertToBlocks( html ) {
 		// Check for text alignment.
 		const align = node.style && node.style.textAlign;
 		const alignAttr =
-			align && [ 'center', 'right' ].includes( align ) ? ` style="text-align:${ align }"` : '';
+			align && [ 'left', 'center', 'right' ].includes( align )
+				? ` style="text-align:${ align }"`
+				: '';
 		const alignJson =
-			align && [ 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+			align && [ 'left', 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
 
 		if ( tag === 'p' || tag === 'div' ) {
 			blocks.push(
@@ -1992,6 +1994,21 @@ const { state } = store( 'wpcom-write', {
 		},
 		get displayStatus() {
 			return state.message || state.headerLabel;
+		},
+		get isClassicWarning() {
+			return state.unsupportedWarning === 'classic-editor';
+		},
+		get isBlockEditorWarning() {
+			return state.unsupportedWarning === 'block-editor';
+		},
+		get unsupportedDescId() {
+			if ( state.unsupportedWarning === 'classic-editor' ) {
+				return 'bw-unsupported-desc-classic';
+			}
+			if ( state.unsupportedWarning === 'block-editor' ) {
+				return 'bw-unsupported-desc-block';
+			}
+			return '';
 		},
 	},
 
@@ -3457,7 +3474,13 @@ const { state } = store( 'wpcom-write', {
 		async autosave() {
 			// Skip autosave for published posts — partial edits should not go live silently.
 			// Users can still save manually via the unsaved-changes modal.
-			if ( ! isDirty() || state.isSaving || state.isPublished || state.postStatus === 'publish' ) {
+			if (
+				state.unsupportedWarning ||
+				! isDirty() ||
+				state.isSaving ||
+				state.isPublished ||
+				state.postStatus === 'publish'
+			) {
 				return;
 			}
 
@@ -3493,6 +3516,50 @@ const { state } = store( 'wpcom-write', {
 		dismissDisclaimer() {
 			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
 			state.showDisclaimer = false;
+		},
+
+		// --- Unsupported content warning ---
+		goBack() {
+			const sameOrigin =
+				document.referrer && new URL( document.referrer ).origin === window.location.origin;
+			if ( sameOrigin && window.history.length > 1 ) {
+				window.history.back();
+			} else {
+				window.location.href = state.adminUrl + 'edit.php';
+			}
+		},
+
+		openEditor() {
+			if ( state.editorUrl ) {
+				window.location.href = state.editorUrl;
+			}
+		},
+
+		handleUnsupportedKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions } = store( 'wpcom-write' );
+				actions.goBack();
+				return;
+			}
+
+			// Trap Tab within the modal.
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-unsupported-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll( 'button:not([hidden])' );
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 	},
 } );
@@ -3707,6 +3774,16 @@ const autosaveReady = setInterval( () => {
 	updateSavedSnapshot();
 	// Seed the undo history with the initial content so Cmd+Z can return to it.
 	pushToUndoHistory();
+
+	// Focus the unsupported-content warning modal when present on load
+	// and prevent background scrolling while the overlay is visible.
+	if ( state.unsupportedWarning ) {
+		document.body.style.overflow = 'hidden';
+		requestAnimationFrame( () => {
+			const btn = document.querySelector( '.bw-unsupported-open-editor:not([hidden])' );
+			if ( btn ) btn.focus();
+		} );
+	}
 
 	// Start the periodic autosave timer.
 	const { actions } = store( 'wpcom-write' );

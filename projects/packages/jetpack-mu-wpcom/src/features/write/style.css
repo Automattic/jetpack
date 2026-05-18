@@ -867,6 +867,109 @@
 	color: #fff;
 }
 
+/* Unsupported content warning */
+.bw-unsupported-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000001;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.1s ease-out;
+}
+
+.bw-unsupported-overlay[hidden] {
+	display: none;
+}
+
+.bw-unsupported-modal {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 0.7px 1px rgba(0, 0, 0, 0.1), 0 1.2px 1.7px -0.2px rgba(0, 0, 0, 0.1), 0 2.3px 3.3px -0.5px rgba(0, 0, 0, 0.1);
+	width: 420px;
+	max-width: calc(100% - 32px);
+	padding: 24px;
+	color: #1e1e1e;
+	animation: bw-modal-appear 0.1s ease-out;
+	box-sizing: border-box;
+}
+
+.bw-unsupported-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 8px;
+	color: #1e1e1e;
+}
+
+.bw-unsupported-desc {
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 0 0 24px;
+	color: #757575;
+}
+
+.bw-unsupported-desc[hidden] {
+	display: none;
+}
+
+.bw-unsupported-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.bw-unsupported-back {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: color 0.1s ease;
+}
+
+.bw-unsupported-back:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-unsupported-open-editor {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-unsupported-open-editor:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+	color: #fff;
+}
+
+.bw-unsupported-open-editor[hidden] {
+	display: none;
+}
+
 /* Slash command menu */
 .bw-slash-menu {
 	position: absolute;
