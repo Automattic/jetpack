@@ -246,10 +246,43 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_load returns false when WP_NETWORK_ADMIN is set via constant
+	 * (the branch hit on real /wp-admin/network/* requests before current_screen exists).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_when_wp_network_admin_constant_set() {
+		define( 'WP_ADMIN', true );
+		define( 'WP_NETWORK_ADMIN', true );
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
+	 * Tests that should_load returns false when WP_USER_ADMIN is set via constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_when_wp_user_admin_constant_set() {
+		define( 'WP_ADMIN', true );
+		define( 'WP_USER_ADMIN', true );
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
 	 * Tests that should_load returns false on a P2 site detected via stylesheet.
 	 *
-	 * Status\Host::is_p2_site() short-circuits to false unless get_wpcom_site_id()
-	 * returns a value, so define IS_WPCOM to route through get_current_blog_id().
+	 * Note: get_wpcom_site_id() returns 0 off-wpcom, so we set IS_WPCOM to
+	 * route through get_current_blog_id() and surface a non-zero id.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -416,7 +449,8 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_enabled_sticker() {
 		// wpcom_has_blog_sticker() in src/utils.php proxies to the global has_blog_sticker().
 		// This file lives in namespace A8C\FSE, so use an eval'd global namespace block.
-		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		// function_exists guard defends against future bootstrap changes that pre-declare the stub.
+		eval( 'namespace { if ( ! function_exists( "has_blog_sticker" ) ) { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
@@ -437,7 +471,7 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_free_trial_sticker() {
-		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		eval( 'namespace { if ( ! function_exists( "has_blog_sticker" ) ) { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
