@@ -405,6 +405,7 @@ class Search_Blocks_Test extends TestCase {
 	public function test_init_registers_template_hooks_when_embedded() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 
 		Search_Blocks::init();
@@ -418,6 +419,33 @@ class Search_Blocks_Test extends TestCase {
 			'prepend_search_template must hook into search_template_hierarchy on embedded'
 		);
 
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Saved Embedded but on a non-block theme: the experience resolves to Theme
+	 * search (inline), so the FSE template-takeover hooks must NOT register —
+	 * otherwise `/?s=…` would resolve to a template the theme can't render.
+	 */
+	public function test_init_does_not_register_template_hooks_when_embedded_on_non_block_theme() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must not hook into init when the theme cannot render Embedded'
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must not hook into search_template_hierarchy on a non-block theme'
+		);
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
