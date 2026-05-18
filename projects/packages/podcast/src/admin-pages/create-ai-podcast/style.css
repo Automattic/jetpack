@@ -680,6 +680,81 @@
 	font-size: 13px;
 }
 
+/* Pagination */
+
+.jetpack-create-ai-podcast__pagination {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 16px;
+	padding-top: 14px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.jetpack-create-ai-podcast__pagination-summary {
+	font-size: 12px;
+	color: #646970;
+}
+
+.jetpack-create-ai-podcast__pagination-controls {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.jetpack-create-ai-podcast__pagination-button {
+	min-width: 32px;
+	height: 32px;
+	padding: 0 10px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+	color: #1d2327;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.jetpack-create-ai-podcast__pagination-button:hover:not(:disabled) {
+	border-color: #2271b1;
+	color: #2271b1;
+}
+
+.jetpack-create-ai-podcast__pagination-button:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.jetpack-create-ai-podcast__pagination-button:disabled {
+	color: #a7aaad;
+	background: #f6f7f7;
+	cursor: not-allowed;
+}
+
+.jetpack-create-ai-podcast__pagination-button[aria-current="page"] {
+	background: #1d2327;
+	border-color: #1d2327;
+	color: #fff;
+	cursor: default;
+}
+
+.jetpack-create-ai-podcast__pagination-button--prev,
+.jetpack-create-ai-podcast__pagination-button--next {
+	font-weight: 600;
+}
+
+.jetpack-create-ai-podcast__pagination-ellipsis {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	color: #8c8f94;
+	font-size: 13px;
+}
+
 /* Loading skeleton */
 
 .jetpack-create-ai-podcast__episodes-items--skeleton .jetpack-create-ai-podcast__episode {

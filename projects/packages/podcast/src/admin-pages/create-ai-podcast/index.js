@@ -51,9 +51,41 @@
 	// fires the first quota/episodes requests itself; we only fetch on
 	// post-success refresh, where freshness matters.
 	const bootstrapQuota = data?.bootstrap?.quota ?? null;
-	const bootstrapEpisodes = Array.isArray( data?.bootstrap?.episodes )
-		? data.bootstrap.episodes
-		: [];
+	const bootstrapEpisodes = normalizeEpisodesPayload( data?.bootstrap?.episodes );
+
+	const EPISODES_PER_PAGE = bootstrapEpisodes.perPage || 5;
+
+	/**
+	 * Accept either the envelope shape { items, total, page, perPage, totalPages }
+	 * (preferred) or the legacy bare array (older sandbox releases) and
+	 * normalize to the envelope. Keeps the JS island resilient across the
+	 * cross-PR rollout.
+	 *
+	 * @param payload - Server-provided episodes payload.
+	 */
+	function normalizeEpisodesPayload( payload ) {
+		if ( payload && typeof payload === 'object' && Array.isArray( payload.items ) ) {
+			return {
+				items: payload.items,
+				total: Number.isFinite( payload.total ) ? payload.total : payload.items.length,
+				page: Math.max( 1, Number( payload.page ) || 1 ),
+				perPage: Math.max( 1, Number( payload.perPage ) || 5 ),
+				totalPages: Math.max( 0, Number( payload.totalPages ) || 0 ),
+			};
+		}
+		if ( Array.isArray( payload ) ) {
+			return {
+				items: payload,
+				total: payload.length,
+				page: 1,
+				perPage: 5,
+				totalPages: payload.length > 0 ? 1 : 0,
+			};
+		}
+		return { items: [], total: 0, page: 1, perPage: 5, totalPages: 0 };
+	}
+
+	let episodesState = bootstrapEpisodes;
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
@@ -685,12 +717,13 @@
 	// --- Episodes list ----------------------------------------------------------
 
 	/**
-	 * @param episodes
+	 * @param payload - Envelope { items, total, page, perPage, totalPages }.
 	 */
-	function renderEpisodes( episodes ) {
+	function renderEpisodes( payload ) {
+		episodesState = normalizeEpisodesPayload( payload );
 		episodesList.innerHTML = '';
 
-		if ( ! Array.isArray( episodes ) || episodes.length === 0 ) {
+		if ( episodesState.total === 0 ) {
 			const empty = document.createElement( 'p' );
 			empty.className = 'jetpack-create-ai-podcast__episodes-empty';
 			empty.textContent = data.i18n.episodesEmpty;
@@ -701,7 +734,7 @@
 		const list = document.createElement( 'ul' );
 		list.className = 'jetpack-create-ai-podcast__episodes-items';
 
-		episodes.forEach( episode => {
+		episodesState.items.forEach( episode => {
 			const row = document.createElement( 'li' );
 			row.className = 'jetpack-create-ai-podcast__episode';
 
@@ -751,6 +784,138 @@
 		} );
 
 		episodesList.appendChild( list );
+
+		if ( episodesState.totalPages > 1 ) {
+			episodesList.appendChild( buildEpisodesPager() );
+		}
+	}
+
+	/**
+	 * Build a numbered pager (Prev · 1 · 2 · 3 · Next) with elision when
+	 * total pages exceed the visible window. Mirrors the wp-admin
+	 * WP_List_Table interaction model: aria-current="page" on the active
+	 * button, disabled state on Prev/Next at boundaries.
+	 */
+	function buildEpisodesPager() {
+		const { page, perPage, total, totalPages } = episodesState;
+		const nav = document.createElement( 'nav' );
+		nav.className = 'jetpack-create-ai-podcast__pagination';
+		nav.setAttribute( 'aria-label', data.i18n.paginationLabel );
+
+		const start = total === 0 ? 0 : ( page - 1 ) * perPage + 1;
+		const end = Math.min( total, page * perPage );
+
+		const summary = document.createElement( 'span' );
+		summary.className = 'jetpack-create-ai-podcast__pagination-summary';
+		summary.textContent = sprintf( data.i18n.paginationSummary, start, end, total );
+		nav.appendChild( summary );
+
+		const controls = document.createElement( 'div' );
+		controls.className = 'jetpack-create-ai-podcast__pagination-controls';
+
+		const makeBtn = ( label, targetPage, options = {} ) => {
+			const btn = document.createElement( 'button' );
+			btn.type = 'button';
+			btn.className =
+				'jetpack-create-ai-podcast__pagination-button' +
+				( options.kind ? ' jetpack-create-ai-podcast__pagination-button--' + options.kind : '' );
+			btn.textContent = label;
+			if ( options.ariaLabel ) {
+				btn.setAttribute( 'aria-label', options.ariaLabel );
+			}
+			if ( options.current ) {
+				btn.setAttribute( 'aria-current', 'page' );
+				btn.disabled = true;
+			}
+			if ( options.disabled ) {
+				btn.disabled = true;
+			} else {
+				btn.addEventListener( 'click', () => goToPage( targetPage ) );
+			}
+			return btn;
+		};
+
+		controls.appendChild(
+			makeBtn( data.i18n.paginationPrev, page - 1, {
+				kind: 'prev',
+				disabled: page <= 1,
+			} )
+		);
+
+		buildPageList( page, totalPages ).forEach( token => {
+			if ( token === '…' ) {
+				const ellipsis = document.createElement( 'span' );
+				ellipsis.className = 'jetpack-create-ai-podcast__pagination-ellipsis';
+				ellipsis.setAttribute( 'aria-hidden', 'true' );
+				ellipsis.textContent = '…';
+				controls.appendChild( ellipsis );
+				return;
+			}
+			controls.appendChild(
+				makeBtn( String( token ), token, {
+					current: token === page,
+					ariaLabel: sprintf( data.i18n.paginationGoTo, token ),
+				} )
+			);
+		} );
+
+		controls.appendChild(
+			makeBtn( data.i18n.paginationNext, page + 1, {
+				kind: 'next',
+				disabled: page >= totalPages,
+			} )
+		);
+
+		nav.appendChild( controls );
+		return nav;
+	}
+
+	/**
+	 * Compute the visible page tokens around the current page. Always shows
+	 * first + last; adds an ellipsis when there's a gap. Keeps the control
+	 * narrow even when there are dozens of pages.
+	 *
+	 * @param current - Current page (1-indexed).
+	 * @param total   - Total page count.
+	 */
+	function buildPageList( current, total ) {
+		if ( total <= 7 ) {
+			return Array.from( { length: total }, ( _, i ) => i + 1 );
+		}
+		const tokens = [ 1 ];
+		const windowStart = Math.max( 2, current - 1 );
+		const windowEnd = Math.min( total - 1, current + 1 );
+		if ( windowStart > 2 ) {
+			tokens.push( '…' );
+		}
+		for ( let i = windowStart; i <= windowEnd; i++ ) {
+			tokens.push( i );
+		}
+		if ( windowEnd < total - 1 ) {
+			tokens.push( '…' );
+		}
+		tokens.push( total );
+		return tokens;
+	}
+
+	async function goToPage( page ) {
+		const clamped = Math.max( 1, Math.min( episodesState.totalPages || 1, page ) );
+		if ( clamped === episodesState.page ) {
+			return;
+		}
+		episodesSection.setAttribute( 'aria-busy', 'true' );
+		renderEpisodesSkeleton();
+		try {
+			const response = await apiCall( {
+				path: `${ data.endpoints.episodes }?page=${ clamped }&per_page=${ EPISODES_PER_PAGE }`,
+				method: 'GET',
+			} );
+			renderEpisodes( response );
+		} catch {
+			renderEpisodes( null );
+		} finally {
+			episodesSection.setAttribute( 'aria-busy', 'false' );
+		}
 	}
 
 	/**
@@ -806,11 +971,14 @@
 
 		let response;
 		try {
-			response = await apiCall( { path: data.endpoints.episodes, method: 'GET' } );
+			response = await apiCall( {
+				path: `${ data.endpoints.episodes }?page=1&per_page=${ EPISODES_PER_PAGE }`,
+				method: 'GET',
+			} );
 		} catch {
 			response = null;
 		}
-		renderEpisodes( Array.isArray( response ) ? response : [] );
+		renderEpisodes( response );
 		episodesSection.setAttribute( 'aria-busy', 'false' );
 	}
 

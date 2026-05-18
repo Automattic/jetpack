@@ -26,9 +26,10 @@ use function Automattic\Jetpack\Podcast\Admin_Pages\Create_AI_Podcast\window_pre
  */
 class Create_AI_Podcast_Page {
 
-	const PAGE_SLUG     = 'create-ai-podcast';
-	const SCRIPT_HANDLE = 'jetpack-create-ai-podcast';
-	const STYLE_HANDLE  = 'jetpack-create-ai-podcast';
+	const PAGE_SLUG         = 'create-ai-podcast';
+	const SCRIPT_HANDLE     = 'jetpack-create-ai-podcast';
+	const STYLE_HANDLE      = 'jetpack-create-ai-podcast';
+	const EPISODES_PER_PAGE = 5;
 
 	/**
 	 * Whether `init()` has wired its hooks.
@@ -187,6 +188,13 @@ class Create_AI_Podcast_Page {
 				'editPost'            => __( 'Edit post', 'jetpack-podcast' ),
 				'statusDraft'         => __( 'Draft', 'jetpack-podcast' ),
 				'statusPublished'     => __( 'Published', 'jetpack-podcast' ),
+				// translators: 1: range start, 2: range end, 3: total count. Example: "Showing 1–5 of 12"
+				'paginationSummary'   => __( 'Showing %1$d–%2$d of %3$d', 'jetpack-podcast' ),
+				'paginationPrev'      => __( 'Previous', 'jetpack-podcast' ),
+				'paginationNext'      => __( 'Next', 'jetpack-podcast' ),
+				// translators: %d: page number. Example: "Go to page 3"
+				'paginationGoTo'      => __( 'Go to page %d', 'jetpack-podcast' ),
+				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
 			),
 		);
 	}
@@ -217,7 +225,7 @@ class Create_AI_Podcast_Page {
 	private static function bootstrap_data_via_proxy(): array {
 		$bootstrap = array(
 			'quota'    => null,
-			'episodes' => array(),
+			'episodes' => self::empty_episodes_envelope(),
 		);
 
 		$quota_request  = new \WP_REST_Request( 'GET', '/wpcom/v2/posts-to-podcast' );
@@ -238,13 +246,143 @@ class Create_AI_Podcast_Page {
 			}
 		}
 
-		$episodes_request  = new \WP_REST_Request( 'GET', '/wpcom/v2/posts-to-podcast/episodes' );
+		$episodes_request = new \WP_REST_Request( 'GET', '/wpcom/v2/posts-to-podcast/episodes' );
+		$episodes_request->set_param( 'page', 1 );
+		$episodes_request->set_param( 'per_page', self::EPISODES_PER_PAGE );
 		$episodes_response = rest_do_request( $episodes_request );
 		if ( $episodes_response instanceof \WP_REST_Response && ! $episodes_response->is_error() ) {
-			$bootstrap['episodes'] = (array) $episodes_response->get_data();
+			$bootstrap['episodes'] = self::normalize_episodes_payload( $episodes_response->get_data() );
 		}
 
 		return $bootstrap;
+	}
+
+	/**
+	 * Replicate the wpcom-side endpoint's active-job payload shape so the
+	 * client can resume polling the "Generating…" notice across reloads on
+	 * Simple sites, the same way it does on Atomic through the proxy.
+	 *
+	 * @param int $blog_id Current blog id.
+	 *
+	 * @return array|\stdClass
+	 */
+	private static function build_active_job_payload_wpcom( int $blog_id ) {
+		if ( ! function_exists( 'posts_to_podcast_get_active_job_record' ) ) {
+			return new \stdClass();
+		}
+		$record = posts_to_podcast_get_active_job_record( $blog_id );
+		if ( null === $record ) {
+			return new \stdClass();
+		}
+
+		$status_map = array(
+			'queued'    => 'pending',
+			'succeeded' => 'complete',
+			'failed'    => 'failed',
+		);
+		$raw        = function_exists( 'get_job_status' ) ? get_job_status( $record['id'] ) : 'queued';
+		$status     = $status_map[ $raw ] ?? 'pending';
+
+		$payload = array(
+			'jobId'     => (int) $record['id'],
+			'status'    => $status,
+			'createdAt' => gmdate( 'c', (int) $record['queued_at'] ),
+		);
+
+		if ( 'complete' === $status && function_exists( 'posts_to_podcast_get_job_result' ) ) {
+			$post_id = posts_to_podcast_get_job_result( $record['id'] );
+			if ( null !== $post_id ) {
+				$payload['postId']  = (int) $post_id;
+				$payload['editUrl'] = (string) get_edit_post_link( $post_id, 'raw' );
+			}
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Replicate the wpcom-side endpoint's upgrade URL builder so the Out of
+	 * credits banner can surface an Upgrade plan CTA even on Simple sites
+	 * (where we don't go through the REST proxy). Returns the Calypso
+	 * checkout URL for the next tier up, or empty when the site is already
+	 * on the top podcast tier.
+	 *
+	 * @param int $blog_id Current blog id.
+	 *
+	 * @return string
+	 */
+	private static function build_upgrade_url_wpcom( int $blog_id ): string {
+		if ( ! class_exists( '\\WPCOM_Features' ) || ! function_exists( 'wpcom_site_has_feature' ) ) {
+			return '';
+		}
+
+		if ( wpcom_site_has_feature( \WPCOM_Features::POSTS_TO_PODCAST_TIER_3, $blog_id ) ) {
+			return '';
+		}
+		if ( wpcom_site_has_feature( \WPCOM_Features::POSTS_TO_PODCAST_TIER_2, $blog_id ) ) {
+			$plan = 'business';
+		} elseif ( wpcom_site_has_feature( \WPCOM_Features::POSTS_TO_PODCAST_TIER_1, $blog_id ) ) {
+			$plan = 'premium';
+		} else {
+			$plan = 'personal';
+		}
+
+		$site_slug = class_exists( '\\WPCOM_Masterbar' )
+			? (string) \WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
+			: '';
+		if ( '' === $site_slug ) {
+			return '';
+		}
+
+		return sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $plan );
+	}
+
+	/**
+	 * Default empty episodes envelope used while the page is still loading
+	 * data or when an upstream request errors.
+	 *
+	 * @return array
+	 */
+	private static function empty_episodes_envelope(): array {
+		return array(
+			'items'      => array(),
+			'total'      => 0,
+			'page'       => 1,
+			'perPage'    => self::EPISODES_PER_PAGE,
+			'totalPages' => 0,
+		);
+	}
+
+	/**
+	 * Accept either the new envelope shape (preferred) or the legacy bare
+	 * array (older sandboxes that haven't shipped the pagination upgrade yet)
+	 * and return the envelope.
+	 *
+	 * @param mixed $payload Upstream response body.
+	 *
+	 * @return array
+	 */
+	private static function normalize_episodes_payload( $payload ): array {
+		if ( is_array( $payload ) && isset( $payload['items'] ) && is_array( $payload['items'] ) ) {
+			return array(
+				'items'      => array_values( $payload['items'] ),
+				'total'      => isset( $payload['total'] ) ? (int) $payload['total'] : count( $payload['items'] ),
+				'page'       => isset( $payload['page'] ) ? max( 1, (int) $payload['page'] ) : 1,
+				'perPage'    => isset( $payload['perPage'] ) ? max( 1, (int) $payload['perPage'] ) : self::EPISODES_PER_PAGE,
+				'totalPages' => isset( $payload['totalPages'] ) ? max( 0, (int) $payload['totalPages'] ) : 0,
+			);
+		}
+		if ( is_array( $payload ) ) {
+			$items = array_values( $payload );
+			return array(
+				'items'      => $items,
+				'total'      => count( $items ),
+				'page'       => 1,
+				'perPage'    => self::EPISODES_PER_PAGE,
+				'totalPages' => count( $items ) > 0 ? 1 : 0,
+			);
+		}
+		return self::empty_episodes_envelope();
 	}
 
 	/**
@@ -260,7 +398,7 @@ class Create_AI_Podcast_Page {
 	private static function bootstrap_data_wpcom(): array {
 		$bootstrap = array(
 			'quota'    => null,
-			'episodes' => array(),
+			'episodes' => self::empty_episodes_envelope(),
 		);
 
 		if ( function_exists( 'is_automattician' ) && ! is_automattician() ) {
@@ -281,19 +419,20 @@ class Create_AI_Podcast_Page {
 				: array();
 			$bootstrap['quota'] = array(
 				'quota'      => $usage,
-				'activeJob'  => new \stdClass(),
-				'upgradeUrl' => '',
+				'activeJob'  => self::build_active_job_payload_wpcom( $blog_id ),
+				'upgradeUrl' => self::build_upgrade_url_wpcom( $blog_id ),
 			);
 		}
 
-		$query = new \WP_Query(
+		$per_page = self::EPISODES_PER_PAGE;
+		$query    = new \WP_Query(
 			array(
 				'post_type'              => 'post',
 				'post_status'            => array( 'draft', 'publish' ),
-				'posts_per_page'         => 20,
+				'posts_per_page'         => $per_page,
+				'paged'                  => 1,
 				'orderby'                => 'date',
 				'order'                  => 'DESC',
-				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
 				'meta_query'             => array(
 					array(
@@ -304,6 +443,7 @@ class Create_AI_Podcast_Page {
 			)
 		);
 
+		$items = array();
 		foreach ( $query->posts as $post ) {
 			$raw_meta = get_post_meta( $post->ID, 'posts_to_podcast_metadata', true );
 			$meta     = is_string( $raw_meta ) ? json_decode( $raw_meta, true ) : null;
@@ -316,7 +456,7 @@ class Create_AI_Podcast_Page {
 				$title = __( '(no title)', 'jetpack-podcast' );
 			}
 
-			$bootstrap['episodes'][] = array(
+			$items[] = array(
 				'id'        => $post->ID,
 				'title'     => $title,
 				'status'    => $post->post_status,
@@ -328,6 +468,15 @@ class Create_AI_Podcast_Page {
 				'duration'  => isset( $audio['durationSeconds'] ) ? (int) round( (float) $audio['durationSeconds'] ) : 0,
 			);
 		}
+
+		$total                 = (int) $query->found_posts;
+		$bootstrap['episodes'] = array(
+			'items'      => $items,
+			'total'      => $total,
+			'page'       => 1,
+			'perPage'    => $per_page,
+			'totalPages' => $per_page > 0 ? (int) ceil( $total / $per_page ) : 0,
+		);
 
 		return $bootstrap;
 	}
