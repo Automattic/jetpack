@@ -193,13 +193,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		select => select( STORE_ID ).isSearchBlocksEnabled(),
 		[]
 	);
-	const pricingArgs = useMemo(
-		() =>
-			isSearchBlocksEnabled
-				? { ...newPricingArgs, items: [ ...newPricingArgs.items, ...searchBlocksPricingItems ] }
-				: newPricingArgs,
-		[ isSearchBlocksEnabled ]
-	);
+	const pricingArgs = useMemo( () => {
+		const baseItems = [ ...newPricingArgs.items ];
+		const prioritySupportIndex = baseItems.findIndex(
+			item => item.name === __( 'Priority support', 'jetpack-search-pkg' )
+		);
+		const insertAt = prioritySupportIndex === -1 ? baseItems.length : prioritySupportIndex;
+		baseItems.splice( insertAt, 0, ...aiAnswersPricingItems );
+		return {
+			...newPricingArgs,
+			items: [ ...baseItems, ...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ) ],
+		};
+	}, [ isSearchBlocksEnabled ] );
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
@@ -321,6 +326,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
 							/>
+							{ aiAnswersPricingItems.map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -410,6 +418,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ false }
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
+							{ aiAnswersPricingItems.map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ false } />
+							) ) }
 							<PricingTableItem isIncluded={ false } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -534,6 +545,19 @@ const searchBlocksPricingItems = [
 		name: __( 'Embedded search page', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
+			'jetpack-search-pkg'
+		),
+	},
+];
+
+// Paid-only feature: advertised on the paid plan column only — the free plan
+// does not include AI Answers.
+const aiAnswersPricingItems = [
+	{
+		id: 'ai-answers',
+		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
 			'jetpack-search-pkg'
 		),
 	},

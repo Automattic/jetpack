@@ -18,9 +18,13 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 			{ children }
 		</div>
 	),
-	PricingTableColumn: ( { children } ) => <div>{ children }</div>,
+	PricingTableColumn: ( { children, primary } ) => (
+		<div data-testid={ primary ? 'col-paid' : 'col-free' }>{ children }</div>
+	),
 	PricingTableHeader: ( { children } ) => <div>{ children }</div>,
-	PricingTableItem: () => <div data-testid="pricing-table-item" />,
+	PricingTableItem: ( { isIncluded } ) => (
+		<div data-testid={ isIncluded ? 'pti-included' : 'pti-excluded' } />
+	),
 	PricingTableContext: { Provider: ( { children } ) => <div>{ children }</div> },
 	IconTooltip: ( { children } ) => <div>{ children }</div>,
 	ThemeProvider: ( { children } ) => <div>{ children }</div>,
@@ -63,7 +67,7 @@ jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
 
-const createSelectMethods = ( { isSearchBlocksEnabled } ) => ( {
+const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
@@ -103,5 +107,19 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage pricing grid — AI Answers (paid-only)', () => {
+	test( 'always shows the AI Answers row regardless of the Search blocks gate', () => {
+		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: false } );
+		const { unmount } = render( <UpsellPage /> );
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		unmount();
+
+		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: true } );
+		render( <UpsellPage /> );
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 	} );
 } );
