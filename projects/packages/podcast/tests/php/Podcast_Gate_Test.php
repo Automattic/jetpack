@@ -60,8 +60,9 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
-	public function test_blog_registered_before_cutoff_grants_access(): void {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
+	public function test_blog_registered_before_cutoff_on_paid_plan_grants_access(): void {
+		$plan                       = Current_Plan::PLAN_DATA['personal'];
+		$plan['product_slug']       = 'jetpack_personal';
 		$plan['features']['active'] = array();
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 
@@ -70,6 +71,18 @@ class Podcast_Gate_Test extends BaseTestCase {
 		);
 
 		$this->assertTrue( Podcast_Gate::has_product_access() );
+	}
+
+	public function test_blog_registered_before_cutoff_on_free_plan_denies_access(): void {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+
+		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
+			'registered' => '2025-01-01 00:00:00',
+		);
+
+		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
 	public function test_blog_registered_on_cutoff_falls_through_to_plan(): void {
