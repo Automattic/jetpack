@@ -18,10 +18,14 @@
 	visibility: hidden;
 }
 
-// Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
 $text: #1e1e1e;
 $muted: #757575;
-$bar-fill: #2271b1;
+
+// Studio Blue, matching the rest of Calypso's defaults. We intentionally don't
+// follow the user's wp-admin color scheme: Calypso Stats doesn't either, and
+// this dashboard only renders on WP.com Simple + WoA, so the wp-admin scheme
+// signal isn't a strong enough match to justify the extra plumbing.
+$bar-fill: #3858e9;
 
 .podcast-stats {
 	padding-block-start: 16px;
@@ -265,11 +269,11 @@ $bar-fill: #2271b1;
 			cursor: pointer;
 
 			&:hover {
-				background: rgba(34, 113, 177, 0.06);
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
 			}
 
 			&:focus-visible {
-				background: rgba(34, 113, 177, 0.06);
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
 				outline: 2px solid $bar-fill;
 				outline-offset: 2px;
 			}
