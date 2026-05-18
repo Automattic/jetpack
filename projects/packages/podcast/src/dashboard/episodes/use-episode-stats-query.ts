@@ -9,10 +9,10 @@ import type { EpisodeStats } from '../types';
  * (no core-data entity), so a thin `apiFetch` + `useState` wrapper. Server
  * caches 5 minutes; refetching on remount is cheap.
  *
- * `premiumRequired` is `true` when the endpoint responds 402
- * (`podcast_premium_required`). The dashboard tab gate normally hides the
- * stats UI before any request fires, so this is a defense-in-depth state for
- * stale gate snapshots and grandfather-edge races.
+ * `premiumRequired` is `true` when the endpoint responds with a
+ * `podcast_premium_required` error code. The dashboard tab gate normally
+ * hides the stats UI before any request fires, so this is a defense-in-depth
+ * state for stale gate snapshots and grandfather-edge races.
  *
  * @param postIds - Episode post IDs (from the visible page of the table).
  * @return         `{ data, premiumRequired }`.
@@ -59,9 +59,8 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 						out.push( ...result.episodes );
 					}
 				} catch ( error ) {
-					const err = error as { data?: { status?: number }; status?: number };
-					const status = err?.data?.status ?? err?.status;
-					if ( status === 402 ) {
+					const err = error as { code?: string };
+					if ( err?.code === 'podcast_premium_required' ) {
 						if ( ! cancelled ) {
 							setData( [] );
 							setPremiumRequired( true );
