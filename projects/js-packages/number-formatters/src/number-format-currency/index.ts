@@ -99,53 +99,34 @@ function getCurrencyFormatter( {
 }
 
 /**
- * ISO 4217 minor-unit exponents.
+ * Smallest-unit exponent overrides for currencies where browser ICU's
+ * `maximumFractionDigits` disagrees with the API's smallest-unit encoding.
  *
- * Used ONLY to convert prices given in the smallest unit (e.g. cents) into
- * major-unit floats when `isSmallestUnit` is set. Display precision (how many
- * decimal digits to render) is still decided by `Intl.NumberFormat` per locale.
+ * Keep this list minimal — the backend is the source of truth for the API's
+ * smallest-unit encoding, so adding speculative entries here risks silent
+ * drift. Only add a currency once we've verified that browsers report a
+ * value the API does not use.
  *
- * Browser ICU data and ISO 4217 disagree for some currencies — notably IDR and HUF
- * which modern Chrome reports as 0-decimal but ISO 4217 defines as exponent 2.
- * The WordPress.com API encodes smallest-unit integers using the ISO exponent,
- * so we must use the same value to invert the conversion. Using the browser's
- * value here produces off-by-100 errors for IDR.
+ * - IDR: modern Chrome / Node 24+ ICU reports 0; the API encodes with exponent 2.
+ * - HUF: same browser/API divergence as IDR.
  */
-const ISO_4217_EXPONENTS: Record< string, number > = {
-	BHD: 3,
-	IQD: 3,
-	JOD: 3,
-	KWD: 3,
-	LYD: 3,
-	OMR: 3,
-	TND: 3,
-	BIF: 0,
-	CLP: 0,
-	DJF: 0,
-	GNF: 0,
-	ISK: 0,
-	JPY: 0,
-	KMF: 0,
-	KRW: 0,
-	MGA: 0,
-	PYG: 0,
-	RWF: 0,
-	UGX: 0,
-	VND: 0,
-	VUV: 0,
-	XAF: 0,
-	XOF: 0,
-	XPF: 0,
+const SMALLEST_UNIT_EXPONENT_OVERRIDES: Record< string, number > = {
+	IDR: 2,
+	HUF: 2,
 };
 
 /**
- * Returns the smallest unit exponent from ISO_4217_EXPONENTS given a currency.
- * Falls back to 2 (most currencies).
+ * Returns the smallest unit exponent for a currency.
+ *
+ * Falls back to the browser-derived display precision for any currency not in
+ * the override map — i.e. existing behavior is preserved for everything except
+ * the explicitly listed currencies.
  * @param currency - The currency code (ISO 4217)
+ * @param fallback - The browser-derived precision to use when no override applies
  * @return number  - The smallest unit exponent
  */
-function getSmallestUnitExponent( currency: string ): number {
-	return ISO_4217_EXPONENTS[ currency ] ?? 2;
+function getSmallestUnitExponent( currency: string, fallback: number ): number {
+	return SMALLEST_UNIT_EXPONENT_OVERRIDES[ currency ] ?? fallback;
 }
 
 /**
@@ -190,7 +171,7 @@ function scaleNumberForPrecision( number: number, currencyPrecision: number ): n
  * Prepares a number for formatting.
  * @param  number            - The number to prepare.
  * @param  currencyPrecision - The display precision (from the browser) to round the result to.
- * @param  currency          - The currency code, used to look up the ISO 4217 exponent for smallest-unit conversion.
+ * @param  currency          - The currency code, used to look up any smallest-unit exponent override.
  * @param  isSmallestUnit    - Whether the number is the smallest unit of a currency.
  * @return {number} The prepared number.
  */
@@ -212,7 +193,7 @@ function prepareNumberForFormatting(
 				number
 			);
 		}
-		const smallestUnitDivisor = 10 ** getSmallestUnitExponent( currency );
+		const smallestUnitDivisor = 10 ** getSmallestUnitExponent( currency, currencyPrecision );
 		return scaleNumberForPrecision( Math.round( number ) / smallestUnitDivisor, currencyPrecision );
 	}
 
