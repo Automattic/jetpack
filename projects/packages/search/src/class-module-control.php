@@ -282,7 +282,7 @@ class Module_Control {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $is_block_theme Whether the active theme is a block theme.
+		 * @param bool $supported Whether the active theme can render Embedded search (defaults to whether it is a block theme).
 		 */
 		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', $is_block_theme );
 	}
