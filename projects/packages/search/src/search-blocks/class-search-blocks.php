@@ -1240,6 +1240,12 @@ class Search_Blocks {
 	 * not a registered visitor-facing filter — it never lands in
 	 * `activeFilters`.
 	 *
+	 * Deliberately not memoized (unlike `is_initial_loading()`): the only
+	 * caller is results-list/render.php, and a page carries one such block,
+	 * so this runs at most once per request. Mirrors `parse_url_filters()`,
+	 * which is likewise uncached. Skipping the static-cache + test-reset
+	 * plumbing keeps the no-shared-state contract the tests rely on.
+	 *
 	 * @return bool
 	 */
 	public static function request_is_product_only(): bool {

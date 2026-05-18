@@ -150,7 +150,7 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 							checked={ attributes?.autoProductView ?? true }
 							onChange={ value => setAttributes( { autoProductView: value } ) }
 							help={ __(
-								'When the search is scoped to products (a ?post_type=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
+								'When the search is scoped to products (a ?post_types[]=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
 								'jetpack-search-pkg'
 							) }
 						/>

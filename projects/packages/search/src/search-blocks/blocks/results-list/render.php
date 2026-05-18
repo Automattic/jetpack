@@ -76,12 +76,15 @@ if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
 // Auto-switch to the product layout when the request is scoped to exactly
-// the `product` post type via the URL (`?post_type=product` or
-// `?post_types[]=product`), so a product search renders as a shop grid
-// without the author hand-picking the layout. Opt-out per block via the
-// `autoProductView` attribute (default on). The non-Woo collapse below is
-// still the final gate, so this can never force `product` on a non-Woo
-// site even if the URL asks for it.
+// the `product` post type via the Jetpack Search `?post_types[]=product`
+// URL parameter, so a product search renders as a shop grid without the
+// author hand-picking the layout. (`request_is_product_only()` also
+// accepts the scalar `?post_type=product`, but that is a WP core query
+// var that reroutes to the WC shop archive before this block renders —
+// see its docblock.) Opt-out per block via the `autoProductView`
+// attribute (default on). The non-Woo collapse below is still the final
+// gate, so this can never force `product` on a non-Woo site even if the
+// URL asks for it.
 $auto_product_view = $attrs['autoProductView'] ?? true;
 if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && Search_Blocks::request_is_product_only() ) {
 	$layout = 'product';
