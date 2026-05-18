@@ -7,7 +7,6 @@ import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
-import type { ReactNode } from 'react';
 
 export type LockedPreviewVariant = 'episodes' | 'stats';
 
@@ -15,113 +14,7 @@ interface LockedPreviewProps {
 	variant: LockedPreviewVariant;
 }
 
-const COPY = {
-	episodes: {
-		title: __( 'Episode dashboard included with Premium', 'jetpack-podcast' ),
-		description: __(
-			'Upgrade to Premium to manage your podcast catalog from a unified dashboard.',
-			'jetpack-podcast'
-		),
-	},
-	stats: {
-		title: __( 'Episode stats included with Premium', 'jetpack-podcast' ),
-		description: __(
-			'Upgrade to Premium to see downloads by episode, app, and country.',
-			'jetpack-podcast'
-		),
-	},
-};
-
-const CTA_LABEL = __( 'Upgrade to Premium', 'jetpack-podcast' );
-
-// Sample data is decorative — aria-hidden + blurred, so "labels" are skeleton
-// bars rather than translated strings translators would never see.
-const EPISODE_ROW_IDS = [ 0, 1, 2, 3, 4 ];
-const EPISODE_TAIL_COL_IDS = [ 0, 1, 2, 3 ]; // duration / plays / date / status
-const DOWNLOAD_DAYS = [ 18, 32, 24, 45, 38, 52, 41, 60, 47, 55, 49, 63, 58, 70 ];
-const DOWNLOAD_MAX = Math.max( ...DOWNLOAD_DAYS );
-const BAR_LIST = [ 100, 76, 63, 47 ];
-
 const Skeleton = () => <span className="podcast-locked-preview__cell-skeleton" />;
-
-const EpisodesPreview = () => (
-	<table className="podcast-locked-preview__episodes">
-		<thead>
-			<tr>
-				<th className="podcast-locked-preview__col-media" />
-				<th>
-					<Skeleton />
-				</th>
-				{ EPISODE_TAIL_COL_IDS.map( col => (
-					<th key={ col }>
-						<Skeleton />
-					</th>
-				) ) }
-			</tr>
-		</thead>
-		<tbody>
-			{ EPISODE_ROW_IDS.map( row => (
-				<tr key={ row }>
-					<td className="podcast-locked-preview__col-media">
-						<span className="podcast-locked-preview__thumb" />
-					</td>
-					<td>
-						<span className="podcast-locked-preview__cell-skeleton podcast-locked-preview__cell-skeleton--wide" />
-					</td>
-					{ EPISODE_TAIL_COL_IDS.map( col => (
-						<td key={ col }>
-							<Skeleton />
-						</td>
-					) ) }
-				</tr>
-			) ) }
-		</tbody>
-	</table>
-);
-
-const StatsBarList = () => (
-	<ul className="podcast-locked-preview__bar-list">
-		{ BAR_LIST.map( ( pct, i ) => (
-			<li key={ i }>
-				<span className="podcast-locked-preview__bar" style={ { width: `${ pct }%` } } />
-			</li>
-		) ) }
-	</ul>
-);
-
-const StatsSection = ( { children }: { children: ReactNode } ) => (
-	<section className="podcast-locked-preview__module">
-		<h3>
-			<Skeleton />
-		</h3>
-		{ children }
-	</section>
-);
-
-const StatsPreview = () => (
-	<div className="podcast-locked-preview__stats">
-		<section className="podcast-locked-preview__module podcast-locked-preview__module--chart">
-			<h3>
-				<Skeleton />
-			</h3>
-			<div className="podcast-locked-preview__chart">
-				{ DOWNLOAD_DAYS.map( ( v, i ) => (
-					<span
-						key={ i }
-						className="podcast-locked-preview__chart-bar"
-						style={ { height: `${ ( v / DOWNLOAD_MAX ) * 100 }%` } }
-					/>
-				) ) }
-			</div>
-		</section>
-		<StatsSection>
-			<StatsBarList />
-		</StatsSection>
-		<StatsSection>
-			<StatsBarList />
-		</StatsSection>
-	</div>
-);
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const siteSuffix = getSiteData()?.suffix ?? '';
@@ -138,12 +31,93 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	} )();
 
 	const titleId = useId();
-	const { title, description } = COPY[ variant ];
+	const title =
+		variant === 'episodes'
+			? __( 'Episode dashboard included with Premium', 'jetpack-podcast' )
+			: __( 'Episode stats included with Premium', 'jetpack-podcast' );
+	const description =
+		variant === 'episodes'
+			? __(
+					'Upgrade to Premium to manage your podcast catalog from a unified dashboard.',
+					'jetpack-podcast'
+			  )
+			: __(
+					'Upgrade to Premium to see downloads by episode, app, and country.',
+					'jetpack-podcast'
+			  );
 
 	return (
 		<div className="podcast-locked-preview" role="region" aria-labelledby={ titleId }>
 			<div className="podcast-locked-preview__sample" aria-hidden="true">
-				{ variant === 'episodes' ? <EpisodesPreview /> : <StatsPreview /> }
+				{ variant === 'episodes' ? (
+					<table className="podcast-locked-preview__episodes">
+						<thead>
+							<tr>
+								<th className="podcast-locked-preview__col-media" />
+								{ [ 0, 1, 2, 3, 4 ].map( col => (
+									<th key={ col }>
+										<Skeleton />
+									</th>
+								) ) }
+							</tr>
+						</thead>
+						<tbody>
+							{ [ 0, 1, 2, 3, 4 ].map( row => (
+								<tr key={ row }>
+									<td className="podcast-locked-preview__col-media">
+										<span className="podcast-locked-preview__thumb" />
+									</td>
+									<td>
+										<span className="podcast-locked-preview__cell-skeleton podcast-locked-preview__cell-skeleton--wide" />
+									</td>
+									{ [ 0, 1, 2, 3 ].map( col => (
+										<td key={ col }>
+											<Skeleton />
+										</td>
+									) ) }
+								</tr>
+							) ) }
+						</tbody>
+					</table>
+				) : (
+					<div className="podcast-locked-preview__stats">
+						<section className="podcast-locked-preview__module podcast-locked-preview__module--chart">
+							<h3>
+								<Skeleton />
+							</h3>
+							<div className="podcast-locked-preview__chart">
+								{ [ 18, 32, 24, 45, 38, 52, 41, 60, 47, 55, 49, 63, 58, 70 ].map(
+									( v, i, days ) => (
+										<span
+											key={ i }
+											className="podcast-locked-preview__chart-bar"
+											style={ {
+												height: `${ ( v / Math.max( ...days ) ) * 100 }%`,
+											} }
+										/>
+									)
+								) }
+							</div>
+						</section>
+						{ [ 0, 1 ].map( section => (
+							<section key={ section } className="podcast-locked-preview__module">
+								<h3>
+									<Skeleton />
+								</h3>
+								<ul className="podcast-locked-preview__bar-list">
+									{ [ 100, 76, 63, 47 ].map( ( pct, i ) => (
+										<li key={ i }>
+											<span
+												className="podcast-locked-preview__bar"
+												style={ { width: `${ pct }%` } }
+											/>
+										</li>
+									) ) }
+								</ul>
+							</section>
+						) ) }
+					</div>
+				) }
 			</div>
 			<div className="podcast-locked-preview__overlay">
 				<div className="podcast-locked-preview__card">
@@ -158,7 +132,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 						// eslint-disable-next-line jsx-a11y/no-autofocus
 						autoFocus
 					>
-						{ CTA_LABEL }
+						{ __( 'Upgrade to Premium', 'jetpack-podcast' ) }
 					</Button>
 				</div>
 			</div>
