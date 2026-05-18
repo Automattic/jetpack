@@ -21,6 +21,7 @@ import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
 import ConfettiAnimation from './confetti';
 import { PODCAST_APPS } from './podcast-apps';
+import PocketCastsRow from './podcast-apps/pocketcasts/inline-row';
 import './style.scss';
 import SubmitModal from './submit-modal';
 import type { PodcastShowState, PodcatcherId } from '../types';
@@ -220,7 +221,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						</VStack>
 
 						{ pocketcastsApp && (
-							<VStack spacing={ 4 } className="podcast__pocketcasts-featured">
+							<VStack spacing={ 4 }>
 								<VStack spacing={ 1 }>
 									<h3 className="podcast__card-title">
 										{ __( 'One-click submit', 'jetpack-podcast' ) }
@@ -232,35 +233,12 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 										) }
 									</Text>
 								</VStack>
-								<HStack alignment="center" justify="space-between">
-									<HStack alignment="center" spacing={ 4 } expanded={ false }>
-										<span aria-hidden="true">
-											<pocketcastsApp.Logo />
-										</span>
-										<Text weight={ 500 }>{ pocketcastsApp.name }</Text>
-									</HStack>
-									<Tooltip text={ isPocketcastsBlocked ? pocketcastsBlockedTooltip : '' }>
-										<Button
-											variant="primary"
-											// eslint-disable-next-line react/jsx-no-bind
-											onClick={ () => handleSubmitClick( pocketcastsApp.id ) }
-											disabled={ isPocketcastsBlocked }
-											accessibleWhenDisabled
-											aria-label={
-												isPocketcastsBlocked
-													? sprintf(
-															/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
-															__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
-															pocketcastsApp.name,
-															pocketcastsBlockedTooltip
-													  )
-													: undefined
-											}
-										>
-											{ __( 'Submit', 'jetpack-podcast' ) }
-										</Button>
-									</Tooltip>
-								</HStack>
+								<PocketCastsRow
+									app={ pocketcastsApp }
+									isBlocked={ isPocketcastsBlocked }
+									blockedTooltip={ pocketcastsBlockedTooltip }
+									onFirstSave={ handleFirstSave }
+								/>
 							</VStack>
 						) }
 
