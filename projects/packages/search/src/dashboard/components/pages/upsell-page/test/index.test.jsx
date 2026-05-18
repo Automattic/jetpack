@@ -18,9 +18,13 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 			{ children }
 		</div>
 	),
-	PricingTableColumn: ( { children } ) => <div>{ children }</div>,
+	PricingTableColumn: ( { children, primary } ) => (
+		<div data-testid={ primary ? 'col-paid' : 'col-free' }>{ children }</div>
+	),
 	PricingTableHeader: ( { children } ) => <div>{ children }</div>,
-	PricingTableItem: () => <div data-testid="pricing-table-item" />,
+	PricingTableItem: ( { isIncluded } ) => (
+		<div data-testid={ isIncluded ? 'pti-included' : 'pti-excluded' } />
+	),
 	PricingTableContext: { Provider: ( { children } ) => <div>{ children }</div> },
 	IconTooltip: ( { children } ) => <div>{ children }</div>,
 	ThemeProvider: ( { children } ) => <div>{ children }</div>,
@@ -60,7 +64,7 @@ jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
 	hasCheckoutStarted: false,
 } ) );
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import UpsellPage from '../index';
 
 const createSelectMethods = ( {
@@ -139,5 +143,39 @@ describe( 'UpsellPage pricing grid — AI Answers gating', () => {
 
 		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Jetpack Search blocks' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'renders AI Answers included on the paid column and not on the free column', () => {
+		const paidIncluded = () =>
+			within( screen.getByTestId( 'col-paid' ) ).queryAllByTestId( 'pti-included' ).length;
+		const freeExcluded = () =>
+			within( screen.getByTestId( 'col-free' ) ).queryAllByTestId( 'pti-excluded' ).length;
+
+		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: false } );
+		const { unmount } = render( <UpsellPage /> );
+		const paidIncludedOff = paidIncluded();
+		const freeExcludedOff = freeExcluded();
+		unmount();
+
+		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: true } );
+		render( <UpsellPage /> );
+
+		// Enabling AI Answers adds exactly one included cell to the paid column
+		// and exactly one excluded cell to the free column — i.e. paid-only.
+		expect( paidIncluded() ).toBe( paidIncludedOff + 1 );
+		expect( freeExcluded() ).toBe( freeExcludedOff + 1 );
+	} );
+
+	test( 'shows both Search blocks and AI Answers rows when both gates are on', () => {
+		mockSelectMethods = createSelectMethods( {
+			isSearchBlocksEnabled: true,
+			isAiAnswersAvailable: true,
+		} );
+
+		render( <UpsellPage /> );
+
+		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
 	} );
 } );

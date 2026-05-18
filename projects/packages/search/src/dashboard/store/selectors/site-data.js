@@ -14,6 +14,9 @@ const siteDataSelectors = {
 	isWpcom: state => state.siteData?.isWpcom ?? false,
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
+	// Named "Available" rather than "Enabled" to avoid colliding with the
+	// existing `isAiAnswersEnabled` selector (jetpack-settings), which reflects
+	// the site's AI Answers setting; this one mirrors the server feature gate.
 	isAiAnswersAvailable: state => state.siteData?.aiAnswersEnabled ?? false,
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 };

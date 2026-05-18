@@ -92,7 +92,7 @@ class Initial_State {
 				 * dashboard React app can advertise the paid-only AI Answers
 				 * feature on the same signal the back end uses to expose it.
 				 */
-				'aiAnswersEnabled'        => AI_Answers::is_enabled(),
+				'aiAnswersEnabled'        => (bool) AI_Answers::is_enabled(),
 				/**
 				 * Active theme stylesheet — used by the experience-selector to deep-link
 				 * the "Edit search template" action to the right Site Editor entry
