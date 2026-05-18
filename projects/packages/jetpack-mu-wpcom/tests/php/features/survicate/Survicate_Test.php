@@ -305,6 +305,10 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that should_load returns false when WPForTeams reports a P2 site.
 	 *
+	 * Brain Monkey can't redefine namespaced WP / mu-wpcom functions that this code path
+	 * touches (the test bootstrap loads them before Patchwork), so we eval a namespace
+	 * block to declare the WPForTeams stub and use @runInSeparateProcess for isolation.
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
@@ -315,8 +319,6 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 			define( 'IS_WPCOM', true );
 		}
 
-		// Status\Host::is_p2_site() calls \WPForTeams\is_wpforteams_site(); namespaced
-		// functions can't be declared in a method body, so eval a namespace block.
 		eval( 'namespace WPForTeams { function is_wpforteams_site( $blog_id ) { return true; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		$this->set_admin_context();
@@ -426,7 +428,15 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that get_visitor_traits returns is_big_sky_site = 'false' when neither sticker is set.
+	 *
+	 * Runs in a separate process so the absence of has_blog_sticker is not coupled to other
+	 * tests in this file that may eval one in.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_false_by_default() {
 		global $pagenow;
 		$pagenow = 'index.php';
@@ -441,16 +451,23 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that get_visitor_traits returns is_big_sky_site = 'true' when the big-sky-enabled sticker is set.
 	 *
+	 * Note: is_big_sky_site() returns false off-wpcom (get_wpcom_blog_id() is falsy), so we
+	 * set IS_WPCOM to route through get_current_blog_id() and surface a non-zero id. We then
+	 * eval a global-namespace has_blog_sticker stub that wpcom_has_blog_sticker proxies to;
+	 * Brain Monkey can't redefine wpcom_has_blog_sticker here because mu-wpcom's test
+	 * bootstrap loads utils.php before Patchwork.
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_enabled_sticker() {
-		// wpcom_has_blog_sticker() in src/utils.php proxies to the global has_blog_sticker().
-		// This file lives in namespace A8C\FSE, so use an eval'd global namespace block.
-		// function_exists guard defends against future bootstrap changes that pre-declare the stub.
-		eval( 'namespace { if ( ! function_exists( "has_blog_sticker" ) ) { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-enabled"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
@@ -471,7 +488,11 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_free_trial_sticker() {
-		eval( 'namespace { if ( ! function_exists( "has_blog_sticker" ) ) { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "big-sky-free-trial"; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		global $pagenow;
 		$pagenow = 'index.php';
@@ -481,6 +502,32 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$traits = $this->call_private_method( 'get_visitor_traits' );
 
 		$this->assertSame( 'true', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that is_big_sky_site short-circuits to false when no blog ID is available.
+	 *
+	 * Covers the get_wpcom_blog_id() === false path. Without IS_WPCOM / IS_ATOMIC the
+	 * helper returns false, so the guard fires before the sticker check. has_blog_sticker
+	 * is eval'd to return true so a regression that removes the guard would make this
+	 * assertion fail.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_false_when_blog_id_unavailable() {
+		eval( 'namespace { function has_blog_sticker( $sticker, $blog_id ) { return true; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'false', $traits['is_big_sky_site'] );
 	}
 
 	// ---- enqueue_scripts() tests ----

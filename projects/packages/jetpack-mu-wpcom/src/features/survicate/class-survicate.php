@@ -55,7 +55,7 @@ class Survicate {
 			return false;
 		}
 
-		// Network and user admin pages on wpcom are internal tools surfaces; surveys must never reach them.
+		// Network and user admin pages are internal tools surfaces; surveys must never reach them.
 		if ( is_network_admin() || is_user_admin() ) {
 			return false;
 		}
@@ -87,6 +87,9 @@ class Survicate {
 		}
 
 		$blog_id = get_wpcom_blog_id();
+		if ( ! $blog_id ) {
+			return false;
+		}
 
 		return wpcom_has_blog_sticker( 'big-sky-enabled', $blog_id )
 			|| wpcom_has_blog_sticker( 'big-sky-free-trial', $blog_id );
@@ -130,6 +133,7 @@ class Survicate {
 			'site_id'         => $site_id ? (string) $site_id : '',
 			'site_type'       => $site_type,
 			'editor_context'  => $this->get_editor_context(),
+			// Stringified for Survicate's trait targeting UI, which matches on string equality.
 			'is_big_sky_site' => $this->is_big_sky_site() ? 'true' : 'false',
 		);
 	}
