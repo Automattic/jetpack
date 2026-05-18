@@ -35,7 +35,16 @@ type ApiMediaItem = {
 
 type PaginationInfo = { totalItems: number; totalPages: number };
 
-const SUPPORTED_ORDERBY = new Set( [ 'title', 'date' ] );
+const SUPPORTED_ORDERBY = new Set( [ 'title', 'date', 'slug' ] );
+
+// DataViews field id → /wp/v2/media `orderby` value. Fields not in
+// this map are forwarded as-is and filtered by SUPPORTED_ORDERBY.
+// Attachment slugs are auto-generated from the upload filename, so
+// orderby=slug approximates a filename sort.
+const SORT_FIELD_MAP: Record< string, string > = {
+	uploadDate: 'date',
+	filename: 'slug',
+};
 
 const PRIVACY_TO_INT: Record< LibraryItemPrivacy, 0 | 1 | 2 > = {
 	public: 0,
@@ -86,7 +95,8 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 		per_page: view.perPage ?? 12,
 	};
 
-	const sortField = view.sort?.field === 'uploadDate' ? 'date' : view.sort?.field;
+	const rawSortField = view.sort?.field;
+	const sortField = rawSortField ? SORT_FIELD_MAP[ rawSortField ] ?? rawSortField : undefined;
 	if ( sortField && SUPPORTED_ORDERBY.has( sortField ) ) {
 		args.orderby = sortField;
 		args.order = view.sort?.direction ?? 'desc';

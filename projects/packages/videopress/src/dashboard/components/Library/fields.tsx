@@ -86,7 +86,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 				{ item.filename }
 			</Text>
 		),
-		enableSorting: false,
+		enableSorting: true,
 	},
 	{
 		id: 'type',
@@ -114,7 +114,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'Duration', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.durationSeconds,
 		render: ( { item } ) => formatDuration( item.durationSeconds ),
-		enableSorting: true,
+		enableSorting: false,
 	},
 	{
 		id: 'privacy',
@@ -134,6 +134,6 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'File size', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.fileSizeBytes,
 		render: ( { item } ) => formatBytes( item.fileSizeBytes ),
-		enableSorting: true,
+		enableSorting: false,
 	},
 ];

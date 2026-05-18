@@ -27,7 +27,11 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 };
 
 const GRID_VISIBLE_FIELDS = [ 'filename' ];
-const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'fileSize', 'uploadDate', 'privacy' ];
+// `fileSize` is intentionally omitted: it's only populated for local
+// (non-VideoPress) uploads today, so it's blank for most rows. Users
+// who want the column can still toggle it on via the DataViews column-
+// visibility control.
+const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'uploadDate', 'privacy' ];
 
 const DEFAULT_VIEW: View = {
 	type: 'grid',
