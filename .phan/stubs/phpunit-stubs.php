@@ -28877,7 +28877,7 @@ final readonly class Version
 }
 namespace SebastianBergmann\CliParser;
 
-final class Parser
+final readonly class Parser
 {
     /**
      * @param list<string> $argv
