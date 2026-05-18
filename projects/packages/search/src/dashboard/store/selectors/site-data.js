@@ -17,6 +17,9 @@ const siteDataSelectors = {
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
+	// Defaults to true so Embedded is never blocked when the flag is absent
+	// (older initial state) — fail open rather than hide a working option.
+	isBlockTheme: state => state.siteData?.themeSupportsBlocks ?? true,
 };
 
 export default siteDataSelectors;

@@ -15,4 +15,18 @@ describe( 'siteDataSelectors', () => {
 	test( 'returns an empty Reader Chat guidelines URL by default', () => {
 		expect( siteDataSelectors.getReaderChatGuidelinesUrl( {} ) ).toBe( '' );
 	} );
+
+	test( 'reports theme block support from siteData', () => {
+		expect( siteDataSelectors.isBlockTheme( { siteData: { themeSupportsBlocks: false } } ) ).toBe(
+			false
+		);
+		expect( siteDataSelectors.isBlockTheme( { siteData: { themeSupportsBlocks: true } } ) ).toBe(
+			true
+		);
+	} );
+
+	test( 'fails open to true when theme block support is absent', () => {
+		expect( siteDataSelectors.isBlockTheme( {} ) ).toBe( true );
+		expect( siteDataSelectors.isBlockTheme( { siteData: {} } ) ).toBe( true );
+	} );
 } );
