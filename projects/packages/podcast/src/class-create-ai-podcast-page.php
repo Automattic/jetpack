@@ -73,6 +73,20 @@ class Create_AI_Podcast_Page {
 	 */
 	public static function on_load() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'admin_head-media_page_create-ai-podcast', array( __CLASS__, 'render_resource_hints' ) );
+	}
+
+	/**
+	 * On wpcom Simple sites every wp.apiFetch call is routed through the
+	 * wpcom-proxy iframe at public-api.wordpress.com. The iframe load adds a
+	 * full DNS + TLS round-trip before our prefetched quota/episodes requests
+	 * can leave the page. Preconnect shaves that off.
+	 */
+	public static function render_resource_hints() {
+		?>
+		<link rel="preconnect" href="https://public-api.wordpress.com" crossorigin>
+		<link rel="dns-prefetch" href="//public-api.wordpress.com">
+		<?php
 	}
 
 	/**
@@ -112,11 +126,13 @@ class Create_AI_Podcast_Page {
 	private static function build_localized_data(): array {
 		return array(
 			'endpoints' => array(
-				'enqueue' => '/wpcom/v2/posts-to-podcast',
-				'job'     => '/wpcom/v2/posts-to-podcast/jobs/',
-				'quota'   => '/wpcom/v2/posts-to-podcast',
-				'posts'   => '/wp/v2/posts',
+				'enqueue'  => '/wpcom/v2/posts-to-podcast',
+				'job'      => '/wpcom/v2/posts-to-podcast/jobs/',
+				'quota'    => '/wpcom/v2/posts-to-podcast',
+				'posts'    => '/wp/v2/posts',
+				'episodes' => '/wpcom/v2/posts-to-podcast/episodes',
 			),
+			'bootstrap' => self::bootstrap_data(),
 			'presets'   => array(
 				'window' => window_presets(),
 				'length' => length_presets(),
@@ -136,23 +152,184 @@ class Create_AI_Podcast_Page {
 				'failed'              => __( 'Generation failed.', 'jetpack-podcast' ),
 				'timedOut'            => __( 'Generation is taking longer than expected. Check your drafts.', 'jetpack-podcast' ),
 				'tryAgain'            => __( 'Try again', 'jetpack-podcast' ),
+				'dismiss'             => __( 'Dismiss', 'jetpack-podcast' ),
 				'notAvailable'        => __( 'Create AI Podcast isn\'t available on your current plan.', 'jetpack-podcast' ),
 				// translators: 1: number of credits used, 2: total credits available.
 				'creditsUsed'         => __( '%1$d of %2$d credits used.', 'jetpack-podcast' ),
 				'creditsLabel'        => __( 'Credits', 'jetpack-podcast' ),
 				// translators: 1: number of credits used, 2: total credits available.
 				'creditsCount'        => __( '%1$d / %2$d', 'jetpack-podcast' ),
-				// translators: %s: date when credits reset.
-				'creditsReset'        => __( 'Resets on %s.', 'jetpack-podcast' ),
 				'creditsUnlimited'    => __( 'Unlimited generations available.', 'jetpack-podcast' ),
+				// translators: %d: credits remaining.
+				'creditsRemaining'    => __( '%d remaining', 'jetpack-podcast' ),
+				// translators: %s: relative time, e.g. "in 12 days" or "tomorrow".
+				'creditsResetSummary' => __( 'Resets %s', 'jetpack-podcast' ),
+				'creditsResetMonthly' => __( 'Resets monthly', 'jetpack-podcast' ),
+				'relativeToday'       => __( 'today', 'jetpack-podcast' ),
+				'relativeTomorrow'    => __( 'tomorrow', 'jetpack-podcast' ),
+				// translators: %d: number of days until reset.
+				'relativeDays'        => __( 'in %d days', 'jetpack-podcast' ),
+				// translators: %s: formatted date, e.g. "May 20, 2026".
+				'relativeOn'          => __( 'on %s', 'jetpack-podcast' ),
+				'runningLowTitle'     => __( 'Running low', 'jetpack-podcast' ),
+				'runningLowMessage'   => __( 'Upgrade your plan to keep generating without waiting for the monthly refresh.', 'jetpack-podcast' ),
+				'outOfCreditsTitle'   => __( 'Out of credits', 'jetpack-podcast' ),
+				// translators: %s: relative time, e.g. "in 12 days" or "tomorrow".
+				'outOfCreditsWait'    => __( 'Your credits will refresh %s.', 'jetpack-podcast' ),
+				// translators: %s: relative time, e.g. "in 12 days" or "tomorrow".
+				'outOfCreditsUpgrade' => __( 'Upgrade your plan for more credits, or wait until they refresh %s.', 'jetpack-podcast' ),
 				'noPostsFound'        => __( 'No posts match.', 'jetpack-podcast' ),
 				'loadingPosts'        => __( 'Loading posts…', 'jetpack-podcast' ),
 				'pickPosts'           => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
-				'upgradeRunningLow'   => __( 'Running low on credits.', 'jetpack-podcast' ),
-				'upgradeOutOfCredits' => __( 'You\'re out of credits for this period.', 'jetpack-podcast' ),
 				'upgradeCta'          => __( 'Upgrade plan', 'jetpack-podcast' ),
+				'episodesTitle'       => __( 'Generated podcasts', 'jetpack-podcast' ),
+				'episodesEmpty'       => __( 'No generated podcasts yet.', 'jetpack-podcast' ),
+				'episodesLoading'     => __( 'Loading podcasts…', 'jetpack-podcast' ),
+				'editPost'            => __( 'Edit post', 'jetpack-podcast' ),
+				'statusDraft'         => __( 'Draft', 'jetpack-podcast' ),
+				'statusPublished'     => __( 'Published', 'jetpack-podcast' ),
 			),
 		);
+	}
+
+	/**
+	 * Pre-warm the two initial reads (quota + episodes) server-side via
+	 * rest_do_request so the client can render with data immediately instead
+	 * of waiting on the wpcom-proxy iframe for the first paint. Failures fall
+	 * through silently — the JS island falls back to fetch when an entry is
+	 * null or absent.
+	 *
+	 * @return array{quota: array|null, episodes: array|null}
+	 */
+	private static function bootstrap_data(): array {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return self::bootstrap_data_wpcom();
+		}
+		return self::bootstrap_data_via_proxy();
+	}
+
+	/**
+	 * Atomic / self-hosted path: hit the local Jetpack-side proxy via
+	 * rest_do_request, which forwards to wpcom over HTTPS using the current
+	 * user's Jetpack token.
+	 *
+	 * @return array
+	 */
+	private static function bootstrap_data_via_proxy(): array {
+		$bootstrap = array(
+			'quota'    => null,
+			'episodes' => array(),
+		);
+
+		$quota_request  = new \WP_REST_Request( 'GET', '/wpcom/v2/posts-to-podcast' );
+		$quota_response = rest_do_request( $quota_request );
+		if ( $quota_response instanceof \WP_REST_Response ) {
+			if ( ! $quota_response->is_error() ) {
+				$bootstrap['quota'] = $quota_response->get_data();
+			} else {
+				$status = (int) $quota_response->get_status();
+				if ( 403 === $status || 404 === $status ) {
+					$bootstrap['quota'] = array( 'notAvailable' => true );
+				} else {
+					$bootstrap['quota'] = array(
+						'quota' => 0,
+						'used'  => 0,
+					);
+				}
+			}
+		}
+
+		$episodes_request  = new \WP_REST_Request( 'GET', '/wpcom/v2/posts-to-podcast/episodes' );
+		$episodes_response = rest_do_request( $episodes_request );
+		if ( $episodes_response instanceof \WP_REST_Response && ! $episodes_response->is_error() ) {
+			$bootstrap['episodes'] = (array) $episodes_response->get_data();
+		}
+
+		return $bootstrap;
+	}
+
+	/**
+	 * Simple (wpcom) path: rest_do_request can't reach the posts-to-podcast
+	 * endpoint here — the wpcom REST plugin loader gates the endpoint files
+	 * behind REST_API_PLUGINS, which isn't set in admin context. Call the
+	 * underlying wpcom helpers directly. Permissions are still enforced
+	 * (admin caps required to render this page, automattician gate replicated
+	 * below).
+	 *
+	 * @return array
+	 */
+	private static function bootstrap_data_wpcom(): array {
+		$bootstrap = array(
+			'quota'    => null,
+			'episodes' => array(),
+		);
+
+		if ( function_exists( 'is_automattician' ) && ! is_automattician() ) {
+			$bootstrap['quota'] = array( 'notAvailable' => true );
+			return $bootstrap;
+		}
+
+		if ( ! function_exists( 'require_lib' ) ) {
+			return $bootstrap;
+		}
+		require_lib( 'posts-to-podcast' );
+
+		$blog_id = (int) get_current_blog_id();
+
+		if ( function_exists( '\\Automattic\\Posts_To_Podcast\\get_usage' ) || function_exists( 'posts_to_podcast_get_usage' ) ) {
+			$usage              = function_exists( 'posts_to_podcast_get_usage' )
+				? posts_to_podcast_get_usage( $blog_id )
+				: array();
+			$bootstrap['quota'] = array(
+				'quota'      => $usage,
+				'activeJob'  => new \stdClass(),
+				'upgradeUrl' => '',
+			);
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'post',
+				'post_status'            => array( 'draft', 'publish' ),
+				'posts_per_page'         => 20,
+				'orderby'                => 'date',
+				'order'                  => 'DESC',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'meta_query'             => array(
+					array(
+						'key'     => 'posts_to_podcast_metadata',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		foreach ( $query->posts as $post ) {
+			$raw_meta = get_post_meta( $post->ID, 'posts_to_podcast_metadata', true );
+			$meta     = is_string( $raw_meta ) ? json_decode( $raw_meta, true ) : null;
+			$audio    = ( is_array( $meta ) && isset( $meta['audio'] ) && is_array( $meta['audio'] ) ) ? $meta['audio'] : array();
+			$title    = wp_strip_all_tags(
+				html_entity_decode( (string) get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' )
+			);
+			if ( '' === trim( $title ) ) {
+				$title = '(no title)';
+			}
+
+			$bootstrap['episodes'][] = array(
+				'id'        => $post->ID,
+				'title'     => $title,
+				'status'    => $post->post_status,
+				'date'      => mysql2date( 'c', $post->post_date_gmt, false ),
+				'editUrl'   => get_edit_post_link( $post->ID, 'raw' ),
+				'mediaUrl'  => isset( $audio['url'] ) ? esc_url_raw( (string) $audio['url'] ) : '',
+				'mediaType' => 'audio',
+				'mediaMime' => isset( $audio['mimeType'] ) ? (string) $audio['mimeType'] : '',
+				'duration'  => isset( $audio['durationSeconds'] ) ? (int) round( (float) $audio['durationSeconds'] ) : 0,
+			);
+		}
+
+		return $bootstrap;
 	}
 
 	/**
@@ -169,6 +346,43 @@ class Create_AI_Podcast_Page {
 			</h1>
 
 			<div id="jetpack-create-ai-podcast-app">
+				<section class="jetpack-create-ai-podcast__intro" role="region" aria-labelledby="jetpack-create-ai-podcast-intro-title">
+					<div class="jetpack-create-ai-podcast__intro-body">
+						<p class="jetpack-create-ai-podcast__intro-eyebrow">
+							<svg
+								class="jetpack-create-ai-podcast__intro-wpmark"
+								viewBox="0 0 24 24"
+								width="14"
+								height="14"
+								aria-hidden="true"
+								focusable="false"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-8.6 10a8.6 8.6 0 0 1 .5-2.8l4.7 12.9A8.6 8.6 0 0 1 3.4 12zm8.6 8.6a8.6 8.6 0 0 1-2.4-.34L13 13.6l2.5 6.86a.86.86 0 0 0 .06.1 8.6 8.6 0 0 1-3.56.78zm1.18-12.6c.51-.03.97-.08.97-.08a.35.35 0 0 0-.06-.7s-1.55.12-2.55.12c-.94 0-2.52-.12-2.52-.12a.35.35 0 0 0-.06.7s.43.05.89.08l1.32 3.6-1.85 5.55-3.08-9.15c.51-.03.97-.08.97-.08a.35.35 0 0 0-.06-.7s-1.55.12-2.55.12L7.04 6.04a8.6 8.6 0 0 1 13 1.66 3.49 3.49 0 0 0-.05-.62 2.32 2.32 0 0 0-2.27-2.36c-1.17 0-2 .9-2 1.86 0 .86.5 1.59 1.02 2.46.4.7.86 1.6.86 2.91 0 .9-.34 1.95-.8 3.41l-1.04 3.49zm6 6.13l2.62-7.59a8.55 8.55 0 0 0 .61-3.1 8.59 8.59 0 0 0-.45-2.72 8.6 8.6 0 0 1-2.78 13.41z"/>
+							</svg>
+							<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
+						</p>
+						<h2 id="jetpack-create-ai-podcast-intro-title" class="jetpack-create-ai-podcast__intro-title">
+							<?php echo esc_html__( 'Turn your posts into a podcast episode', 'jetpack-podcast' ); ?>
+						</h2>
+						<p class="jetpack-create-ai-podcast__intro-text">
+							<?php echo esc_html__( 'Pick a date range or a few specific posts and we’ll generate a two-host conversation, complete with narration and a ready-to-publish draft. Edit, refine, and hit Publish when you’re happy.', 'jetpack-podcast' ); ?>
+						</p>
+					</div>
+					<div class="jetpack-create-ai-podcast__intro-art" aria-hidden="true">
+						<svg viewBox="0 0 64 64" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+							<defs>
+								<linearGradient id="jetpack-create-ai-podcast-grad" x1="0" y1="0" x2="1" y2="1">
+									<stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+									<stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+								</linearGradient>
+							</defs>
+							<circle cx="32" cy="32" r="28" fill="url(#jetpack-create-ai-podcast-grad)"/>
+							<path fill="#fff" d="M32 14a8 8 0 0 0-8 8v10a8 8 0 0 0 16 0V22a8 8 0 0 0-8-8zm-12 18a1.5 1.5 0 0 1 3 0 9 9 0 0 0 18 0 1.5 1.5 0 0 1 3 0 12 12 0 0 1-10.5 11.9V48h4.5v3h-12v-3H30v-2.1A12 12 0 0 1 20 32z"/>
+						</svg>
+					</div>
+				</section>
+
 				<div
 					class="jetpack-create-ai-podcast__card jetpack-create-ai-podcast__credits"
 					data-region="credits"
@@ -213,49 +427,74 @@ class Create_AI_Podcast_Page {
 							>
 							<div class="jetpack-create-ai-podcast__posts" data-region="posts"></div>
 						</div>
+
+						<div class="jetpack-create-ai-podcast__advanced" aria-labelledby="jetpack-create-ai-podcast-advanced-title">
+							<div class="jetpack-create-ai-podcast__advanced-header">
+								<h3 id="jetpack-create-ai-podcast-advanced-title" class="jetpack-create-ai-podcast__advanced-title">
+									<?php echo esc_html__( 'Customize', 'jetpack-podcast' ); ?>
+								</h3>
+								<span class="jetpack-create-ai-podcast__soon-pill">
+									<?php echo esc_html__( 'Coming soon', 'jetpack-podcast' ); ?>
+								</span>
+							</div>
+
+							<div class="jetpack-create-ai-podcast__field">
+								<label for="jetpack-create-ai-podcast-length">
+									<?php echo esc_html__( 'Length', 'jetpack-podcast' ); ?>
+								</label>
+								<select id="jetpack-create-ai-podcast-length" name="length" disabled data-locked-disabled="true">
+									<?php foreach ( $length as $opt ) : ?>
+										<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+
+							<div class="jetpack-create-ai-podcast__field">
+								<label for="jetpack-create-ai-podcast-voice">
+									<?php echo esc_html__( 'Voice', 'jetpack-podcast' ); ?>
+								</label>
+								<select id="jetpack-create-ai-podcast-voice" name="voice" disabled data-locked-disabled="true">
+									<?php foreach ( $voice as $opt ) : ?>
+										<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+
+							<div class="jetpack-create-ai-podcast__field">
+								<label for="jetpack-create-ai-podcast-prompt">
+									<?php echo esc_html__( 'Prompt (optional)', 'jetpack-podcast' ); ?>
+								</label>
+								<textarea
+									id="jetpack-create-ai-podcast-prompt"
+									name="prompt"
+									rows="3"
+									disabled
+									data-locked-disabled="true"
+									placeholder="<?php echo esc_attr__( 'Steer the tone, framing, or focus of the episode…', 'jetpack-podcast' ); ?>"
+								></textarea>
+							</div>
+						</div>
+
+						<div class="jetpack-create-ai-podcast__actions">
+							<button type="submit" class="button button-primary button-hero">
+								<?php echo esc_html__( 'Generate', 'jetpack-podcast' ); ?>
+							</button>
+						</div>
 					</section>
-
-					<div class="jetpack-create-ai-podcast__field" hidden>
-						<label for="jetpack-create-ai-podcast-length">
-							<?php echo esc_html__( 'Length', 'jetpack-podcast' ); ?>
-						</label>
-						<select id="jetpack-create-ai-podcast-length" name="length">
-							<?php foreach ( $length as $opt ) : ?>
-								<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
-							<?php endforeach; ?>
-						</select>
-					</div>
-
-					<div class="jetpack-create-ai-podcast__field" hidden>
-						<label for="jetpack-create-ai-podcast-voice">
-							<?php echo esc_html__( 'Voice', 'jetpack-podcast' ); ?>
-						</label>
-						<select id="jetpack-create-ai-podcast-voice" name="voice">
-							<?php foreach ( $voice as $opt ) : ?>
-								<option value="<?php echo esc_attr( $opt['id'] ); ?>"><?php echo esc_html( $opt['label'] ); ?></option>
-							<?php endforeach; ?>
-						</select>
-					</div>
-
-					<div class="jetpack-create-ai-podcast__field" hidden>
-						<label for="jetpack-create-ai-podcast-prompt">
-							<?php echo esc_html__( 'Prompt (optional)', 'jetpack-podcast' ); ?>
-						</label>
-						<textarea
-							id="jetpack-create-ai-podcast-prompt"
-							name="prompt"
-							rows="3"
-						></textarea>
-					</div>
-
-					<div class="jetpack-create-ai-podcast__actions">
-						<button type="submit" class="button button-primary button-hero">
-							<?php echo esc_html__( 'Generate', 'jetpack-podcast' ); ?>
-						</button>
-					</div>
 				</form>
 
 				<div class="jetpack-create-ai-podcast__status" aria-live="polite" data-region="status"></div>
+
+				<section
+					class="jetpack-create-ai-podcast__card jetpack-create-ai-podcast__episodes"
+					data-region="episodes"
+					aria-busy="false"
+				>
+					<h2 class="jetpack-create-ai-podcast__card-title">
+						<?php echo esc_html__( 'Generated podcasts', 'jetpack-podcast' ); ?>
+					</h2>
+					<div class="jetpack-create-ai-podcast__episodes-list" data-region="episodes-list"></div>
+				</section>
 			</div>
 		</div>
 		<?php

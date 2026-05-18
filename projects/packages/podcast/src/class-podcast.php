@@ -84,7 +84,10 @@ class Podcast {
 			if ( is_admin() ) {
 				Create_AI_Podcast_Page::init();
 			}
-			if ( self::is_rest_request() ) {
+			// Register the local proxy in REST and admin contexts: the admin
+			// page bootstraps its initial quota + episodes via rest_do_request
+			// so the first paint doesn't pay the wpcom-proxy iframe round-trip.
+			if ( is_admin() || self::is_rest_request() ) {
 				Posts_To_Podcast_Endpoint::init();
 			}
 		}

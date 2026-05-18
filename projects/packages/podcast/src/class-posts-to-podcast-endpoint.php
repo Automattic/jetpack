@@ -107,6 +107,46 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/episodes',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'read_episodes' ),
+					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Return posts that embed a `jetpack/podcast-episode` block — the surface
+	 * this feature creates on success — newest first. Drafts and published
+	 * posts only; trashed/auto-drafts are excluded.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function read_episodes() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site-not-connected', __( 'Site is not connected to WordPress.com.', 'jetpack-podcast' ), array( 'status' => 400 ) );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/posts-to-podcast/episodes', $blog_id ),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array( 'content-type' => 'application/json' ),
+				'timeout' => 15,
+			),
+			null,
+			'wpcom'
+		);
+
+		return $this->relay_response( $response );
 	}
 
 	/**

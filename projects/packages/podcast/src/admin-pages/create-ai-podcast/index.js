@@ -46,6 +46,15 @@
 		return response;
 	}
 
+	// Initial reads are pre-warmed server-side via wp_localize_script — see
+	// class-create-ai-podcast-page.php::bootstrap_data(). The JS island never
+	// fires the first quota/episodes requests itself; we only fetch on
+	// post-success refresh, where freshness matters.
+	const bootstrapQuota = data?.bootstrap?.quota ?? null;
+	const bootstrapEpisodes = Array.isArray( data?.bootstrap?.episodes )
+		? data.bootstrap.episodes
+		: [];
+
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
 		return;
@@ -59,6 +68,8 @@
 	const sourceRadios = form.querySelectorAll( 'input[name="source"]' );
 	const windowSection = form.querySelector( '[data-source="window"]' );
 	const postsSection = form.querySelector( '[data-source="posts"]' );
+	const episodesSection = root.querySelector( '[data-region="episodes"]' );
+	const episodesList = root.querySelector( '[data-region="episodes-list"]' );
 
 	const selectedPostIds = new Set();
 	let pollTimer = null;
@@ -78,26 +89,53 @@
 		const card = document.createElement( 'div' );
 		card.className = 'jetpack-create-ai-podcast__status-card';
 		card.dataset.tone = tone;
+		card.setAttribute( 'role', tone === 'error' ? 'alert' : 'status' );
+
+		const body = document.createElement( 'div' );
+		body.className = 'jetpack-create-ai-podcast__status-body';
 
 		const text = document.createElement( 'p' );
+		text.className = 'jetpack-create-ai-podcast__status-message';
 		text.textContent = message;
-		card.appendChild( text );
+		body.appendChild( text );
 
-		if ( options?.link ) {
-			const a = document.createElement( 'a' );
-			a.href = options.link.href;
-			a.textContent = options.link.label;
-			a.className = 'button button-secondary';
-			card.appendChild( a );
+		if ( options?.link || options?.action ) {
+			const actions = document.createElement( 'div' );
+			actions.className = 'jetpack-create-ai-podcast__status-actions';
+
+			if ( options?.link ) {
+				const a = document.createElement( 'a' );
+				a.href = options.link.href;
+				a.textContent = options.link.label;
+				a.className = 'jetpack-create-ai-podcast__status-link';
+				actions.appendChild( a );
+			}
+
+			if ( options?.action ) {
+				const btn = document.createElement( 'button' );
+				btn.type = 'button';
+				btn.className = 'button';
+				btn.textContent = options.action.label;
+				btn.addEventListener( 'click', options.action.onClick );
+				actions.appendChild( btn );
+			}
+
+			body.appendChild( actions );
 		}
 
-		if ( options?.action ) {
-			const btn = document.createElement( 'button' );
-			btn.type = 'button';
-			btn.className = 'button';
-			btn.textContent = options.action.label;
-			btn.addEventListener( 'click', options.action.onClick );
-			card.appendChild( btn );
+		card.appendChild( body );
+
+		if ( tone !== 'progress' ) {
+			const dismiss = document.createElement( 'button' );
+			dismiss.type = 'button';
+			dismiss.className = 'jetpack-create-ai-podcast__status-dismiss';
+			dismiss.setAttribute( 'aria-label', data.i18n.dismiss );
+			dismiss.innerHTML =
+				'<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="20" height="20">' +
+				'<path d="M13.06 12l5.47-5.47-1.06-1.06L12 10.94 6.53 5.47 5.47 6.53 10.94 12l-5.47 5.47 1.06 1.06L12 13.06l5.47 5.47 1.06-1.06z" fill="currentColor" />' +
+				'</svg>';
+			dismiss.addEventListener( 'click', clearStatus );
+			card.appendChild( dismiss );
 		}
 
 		statusEl.appendChild( card );
@@ -118,6 +156,10 @@
 	function setFormDisabled( disabled ) {
 		form.dataset.disabled = disabled ? 'true' : 'false';
 		form.querySelectorAll( 'input, select, textarea, button' ).forEach( el => {
+			if ( el.dataset.lockedDisabled === 'true' ) {
+				el.disabled = true;
+				return;
+			}
 			el.disabled = disabled;
 		} );
 	}
@@ -129,6 +171,7 @@
 	 * @param upgradeUrl
 	 */
 	function renderCredits( quota, upgradeUrl ) {
+		creditsEl.setAttribute( 'aria-busy', 'false' );
 		creditsEl.dataset.state = 'visible';
 		creditsEl.innerHTML = '';
 
@@ -188,44 +231,139 @@
 		bar.appendChild( fill );
 		creditsEl.appendChild( bar );
 
-		if ( quota?.resetsAt ) {
-			const resetDate = new Date( quota.resetsAt );
-			if ( ! Number.isNaN( resetDate.getTime() ) ) {
-				const formatted = resetDate.toLocaleDateString( undefined, {
-					month: 'short',
-					day: 'numeric',
-					year: 'numeric',
-				} );
-				const meta = document.createElement( 'div' );
-				meta.className = 'jetpack-create-ai-podcast__credits-meta';
-				meta.textContent = sprintf( data.i18n.creditsReset, formatted );
-				creditsEl.appendChild( meta );
+		const reset = formatResetPhrase( quota?.resetsAt );
+
+		const meta = document.createElement( 'div' );
+		meta.className = 'jetpack-create-ai-podcast__credits-meta';
+
+		const remainingEl = document.createElement( 'span' );
+		remainingEl.textContent = sprintf( data.i18n.creditsRemaining, remaining );
+		meta.appendChild( remainingEl );
+
+		const sep = document.createElement( 'span' );
+		sep.className = 'jetpack-create-ai-podcast__credits-meta-sep';
+		sep.setAttribute( 'aria-hidden', 'true' );
+		sep.textContent = '·';
+		meta.appendChild( sep );
+
+		const resetEl = document.createElement( 'span' );
+		resetEl.className = 'jetpack-create-ai-podcast__credits-meta-reset';
+		resetEl.textContent = reset
+			? sprintf( data.i18n.creditsResetSummary, reset.inline )
+			: data.i18n.creditsResetMonthly;
+		meta.appendChild( resetEl );
+
+		creditsEl.appendChild( meta );
+
+		const isOut = remaining === 0;
+		const isLow = ! isOut && ratio >= 0.7;
+
+		if ( isOut ) {
+			let outMessage = '';
+			if ( reset ) {
+				outMessage = upgradeUrl
+					? sprintf( data.i18n.outOfCreditsUpgrade, reset.inline )
+					: sprintf( data.i18n.outOfCreditsWait, reset.inline );
 			}
+			creditsEl.appendChild(
+				buildBanner( {
+					state: 'out',
+					title: data.i18n.outOfCreditsTitle,
+					message: outMessage,
+					upgradeUrl,
+				} )
+			);
+		} else if ( isLow && upgradeUrl ) {
+			creditsEl.appendChild(
+				buildBanner( {
+					state: 'low',
+					title: data.i18n.runningLowTitle,
+					message: data.i18n.runningLowMessage,
+					upgradeUrl,
+				} )
+			);
+		}
+	}
+
+	/**
+	 * Translate quota.resetsAt into a relative phrase that works both inside
+	 * a sentence (e.g. "your credits refresh {inline}") and as a stand-alone
+	 * summary line (e.g. "Resets {inline}"). Returns null when the timestamp
+	 * is missing or malformed so callers fall back to a generic "monthly"
+	 * blurb.
+	 *
+	 * @param  resetsAt - ISO-8601 reset timestamp.
+	 * @return {{ inline: string, days: number, date: Date } | null} Phrase, days until reset, and parsed Date — or null when input is missing.
+	 */
+	function formatResetPhrase( resetsAt ) {
+		if ( ! resetsAt ) {
+			return null;
+		}
+		const date = new Date( resetsAt );
+		if ( Number.isNaN( date.getTime() ) ) {
+			return null;
 		}
 
-		// Upgrade nudge when usage is high and the site has a higher tier
-		// available. `upgradeUrl` is empty on Business+ so nothing renders there.
-		const shouldNudge = upgradeUrl && ( remaining === 0 || ratio >= 0.7 );
-		if ( shouldNudge ) {
-			const nudge = document.createElement( 'div' );
-			nudge.className = 'jetpack-create-ai-podcast__credits-upgrade';
+		const msPerDay = 24 * 60 * 60 * 1000;
+		const now = new Date();
+		// Compare local-midnight days so the boundary lines up with the
+		// calendar, not the reset's clock-time.
+		const startOfToday = new Date( now.getFullYear(), now.getMonth(), now.getDate() ).getTime();
+		const startOfReset = new Date( date.getFullYear(), date.getMonth(), date.getDate() ).getTime();
+		const days = Math.max( 0, Math.round( ( startOfReset - startOfToday ) / msPerDay ) );
 
-			const message = document.createElement( 'span' );
-			message.className = 'jetpack-create-ai-podcast__credits-upgrade-message';
-			message.textContent =
-				remaining === 0 ? data.i18n.upgradeOutOfCredits : data.i18n.upgradeRunningLow;
+		let inline;
+		if ( days === 0 ) {
+			inline = data.i18n.relativeToday;
+		} else if ( days === 1 ) {
+			inline = data.i18n.relativeTomorrow;
+		} else if ( days <= 30 ) {
+			inline = sprintf( data.i18n.relativeDays, days );
+		} else {
+			const formatted = date.toLocaleDateString( undefined, {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric',
+			} );
+			inline = sprintf( data.i18n.relativeOn, formatted );
+		}
 
+		return { inline, days, date };
+	}
+
+	function buildBanner( { state, title, message, upgradeUrl } ) {
+		const banner = document.createElement( 'div' );
+		banner.className = 'jetpack-create-ai-podcast__credits-banner';
+		banner.dataset.state = state;
+
+		const body = document.createElement( 'div' );
+		body.className = 'jetpack-create-ai-podcast__credits-banner-body';
+
+		const titleEl = document.createElement( 'p' );
+		titleEl.className = 'jetpack-create-ai-podcast__credits-banner-title';
+		titleEl.textContent = title;
+		body.appendChild( titleEl );
+
+		if ( message ) {
+			const messageEl = document.createElement( 'p' );
+			messageEl.className = 'jetpack-create-ai-podcast__credits-banner-message';
+			messageEl.textContent = message;
+			body.appendChild( messageEl );
+		}
+
+		banner.appendChild( body );
+
+		if ( upgradeUrl ) {
 			const cta = document.createElement( 'a' );
-			cta.className = 'button button-primary';
+			cta.className = 'button button-primary jetpack-create-ai-podcast__credits-banner-cta';
 			cta.href = upgradeUrl;
 			cta.target = '_blank';
 			cta.rel = 'noopener noreferrer';
 			cta.textContent = data.i18n.upgradeCta;
-
-			nudge.appendChild( message );
-			nudge.appendChild( cta );
-			creditsEl.appendChild( nudge );
+			banner.appendChild( cta );
 		}
+
+		return banner;
 	}
 
 	/**
@@ -242,17 +380,26 @@
 
 	/**
 	 *
+	 * @param response
 	 */
-	async function fetchInfo() {
+	function applyQuotaResponse( response ) {
+		if ( ! response ) {
+			renderCredits( { quota: 0, used: 0 }, '' );
+			return null;
+		}
+		if ( response.notAvailable || response.error === 'not_available' ) {
+			renderNotAvailable();
+			return null;
+		}
+		const quota = response.quota ?? response;
+		renderCredits( quota, response.upgradeUrl ?? '' );
+		return response;
+	}
+
+	async function refreshInfo() {
 		try {
 			const response = await apiCall( { path: data.endpoints.quota, method: 'GET' } );
-			if ( response?.notAvailable || response?.error === 'not_available' ) {
-				renderNotAvailable();
-				return null;
-			}
-			const quota = response?.quota ?? response;
-			renderCredits( quota, response?.upgradeUrl ?? '' );
-			return response;
+			return applyQuotaResponse( response );
 		} catch ( err ) {
 			const status = err?.data?.status;
 			if ( err?.code === 'rest_forbidden' || status === 403 || status === 404 ) {
@@ -393,20 +540,36 @@
 		setStatus( 'success', data.i18n.succeeded, {
 			link: { href: editUrl, label: data.i18n.editDraft },
 		} );
+		refreshInfo();
+		refreshEpisodes();
 	}
 
 	/**
 	 *
-	 * @param message
+	 * @param err
 	 */
-	function onFailed( message ) {
+	function isEmptyWindowError( err ) {
+		const code = err?.code || '';
+		const message = err?.message || '';
+		return (
+			code === 'no-posts-in-window' ||
+			code === 'no_posts_in_window' ||
+			code === 'no-posts-found' ||
+			/no published posts/i.test( message )
+		);
+	}
+
+	function onFailed( message, options = {} ) {
 		setFormDisabled( false );
-		setStatus( 'error', message || data.i18n.failed, {
-			action: {
-				label: data.i18n.tryAgain,
-				onClick: clearStatus,
-			},
-		} );
+		const statusOptions = options.suppressRetry
+			? undefined
+			: {
+					action: {
+						label: data.i18n.tryAgain,
+						onClick: clearStatus,
+					},
+			  };
+		setStatus( 'error', message || data.i18n.failed, statusOptions );
 	}
 
 	/**
@@ -454,7 +617,13 @@
 				return;
 			}
 			if ( response?.status === 'failed' ) {
-				onFailed( response.errorMessage || response.message );
+				const failureMessage = response.errorMessage || response.message;
+				onFailed( failureMessage, {
+					suppressRetry: isEmptyWindowError( {
+						code: response.errorCode,
+						message: failureMessage,
+					} ),
+				} );
 				return;
 			}
 			startPolling( jobId, startedAt );
@@ -491,9 +660,7 @@
 		const { sourceMode, payload } = buildPayload();
 		if ( sourceMode === 'posts' && ! payload.postIds.length ) {
 			setFormDisabled( false );
-			setStatus( 'error', data.i18n.pickPosts, {
-				action: { label: data.i18n.tryAgain, onClick: clearStatus },
-			} );
+			setStatus( 'error', data.i18n.pickPosts );
 			return;
 		}
 
@@ -511,8 +678,140 @@
 			setStatus( 'progress', data.i18n.polling );
 			startPolling( jobId, parseStartedAt( response.createdAt ) );
 		} catch ( err ) {
-			onFailed( err?.message );
+			onFailed( err?.message, { suppressRetry: isEmptyWindowError( err ) } );
 		}
+	}
+
+	// --- Episodes list ----------------------------------------------------------
+
+	/**
+	 * @param episodes
+	 */
+	function renderEpisodes( episodes ) {
+		episodesList.innerHTML = '';
+
+		if ( ! Array.isArray( episodes ) || episodes.length === 0 ) {
+			const empty = document.createElement( 'p' );
+			empty.className = 'jetpack-create-ai-podcast__episodes-empty';
+			empty.textContent = data.i18n.episodesEmpty;
+			episodesList.appendChild( empty );
+			return;
+		}
+
+		const list = document.createElement( 'ul' );
+		list.className = 'jetpack-create-ai-podcast__episodes-items';
+
+		episodes.forEach( episode => {
+			const row = document.createElement( 'li' );
+			row.className = 'jetpack-create-ai-podcast__episode';
+
+			const header = document.createElement( 'div' );
+			header.className = 'jetpack-create-ai-podcast__episode-header';
+
+			const title = document.createElement( 'span' );
+			title.className = 'jetpack-create-ai-podcast__episode-title';
+			title.textContent = episode.title || '';
+			header.appendChild( title );
+
+			const status = document.createElement( 'span' );
+			status.className = 'jetpack-create-ai-podcast__episode-status';
+			status.dataset.status = episode.status || '';
+			status.textContent =
+				episode.status === 'publish' ? data.i18n.statusPublished : data.i18n.statusDraft;
+			header.appendChild( status );
+
+			row.appendChild( header );
+
+			if ( episode.mediaUrl ) {
+				const player = document.createElement( episode.mediaType === 'video' ? 'video' : 'audio' );
+				player.className = 'jetpack-create-ai-podcast__episode-player';
+				player.controls = true;
+				player.preload = 'none';
+				const source = document.createElement( 'source' );
+				source.src = episode.mediaUrl;
+				if ( episode.mediaMime ) {
+					source.type = episode.mediaMime;
+				}
+				player.appendChild( source );
+				row.appendChild( player );
+			}
+
+			if ( episode.editUrl ) {
+				const actions = document.createElement( 'div' );
+				actions.className = 'jetpack-create-ai-podcast__episode-actions';
+				const edit = document.createElement( 'a' );
+				edit.href = episode.editUrl;
+				edit.className = 'jetpack-create-ai-podcast__episode-edit';
+				edit.textContent = data.i18n.editPost;
+				actions.appendChild( edit );
+				row.appendChild( actions );
+			}
+
+			list.appendChild( row );
+		} );
+
+		episodesList.appendChild( list );
+	}
+
+	/**
+	 *
+	 */
+	function renderEpisodesSkeleton() {
+		episodesList.innerHTML = '';
+		const list = document.createElement( 'ul' );
+		list.className =
+			'jetpack-create-ai-podcast__episodes-items jetpack-create-ai-podcast__episodes-items--skeleton';
+		list.setAttribute( 'aria-hidden', 'true' );
+
+		for ( let i = 0; i < 2; i++ ) {
+			const row = document.createElement( 'li' );
+			row.className = 'jetpack-create-ai-podcast__episode';
+
+			const header = document.createElement( 'div' );
+			header.className = 'jetpack-create-ai-podcast__episode-header';
+			const titleSkel = document.createElement( 'span' );
+			titleSkel.className =
+				'jetpack-create-ai-podcast__skeleton jetpack-create-ai-podcast__skeleton--title';
+			const statusSkel = document.createElement( 'span' );
+			statusSkel.className =
+				'jetpack-create-ai-podcast__skeleton jetpack-create-ai-podcast__skeleton--pill';
+			header.appendChild( titleSkel );
+			header.appendChild( statusSkel );
+			row.appendChild( header );
+
+			const player = document.createElement( 'span' );
+			player.className =
+				'jetpack-create-ai-podcast__skeleton jetpack-create-ai-podcast__skeleton--player';
+			row.appendChild( player );
+
+			const editSkel = document.createElement( 'span' );
+			editSkel.className =
+				'jetpack-create-ai-podcast__skeleton jetpack-create-ai-podcast__skeleton--link';
+			row.appendChild( editSkel );
+
+			list.appendChild( row );
+		}
+
+		episodesList.appendChild( list );
+
+		const srOnly = document.createElement( 'span' );
+		srOnly.className = 'screen-reader-text';
+		srOnly.textContent = data.i18n.episodesLoading;
+		episodesList.appendChild( srOnly );
+	}
+
+	async function refreshEpisodes() {
+		episodesSection.setAttribute( 'aria-busy', 'true' );
+		renderEpisodesSkeleton();
+
+		let response;
+		try {
+			response = await apiCall( { path: data.endpoints.episodes, method: 'GET' } );
+		} catch {
+			response = null;
+		}
+		renderEpisodes( Array.isArray( response ) ? response : [] );
+		episodesSection.setAttribute( 'aria-busy', 'false' );
 	}
 
 	// --- Bootstrapping ----------------------------------------------------------
@@ -569,13 +868,18 @@
 		bindPostsSearch();
 		bindGenerate();
 
-		const info = await fetchInfo();
+		// All initial reads come from data.bootstrap, baked in server-side.
+		// No initial network round-trip required.
+		const info = applyQuotaResponse( bootstrapQuota );
+		renderEpisodes( bootstrapEpisodes );
+		episodesSection.setAttribute( 'aria-busy', 'false' );
+
 		if ( ! info ) {
 			return; // not-available banner already rendered.
 		}
 
-		// The GET endpoint is now the single source of truth: it reports an
-		// `activeJob` whenever one is still running for the current user.
+		// The localized bootstrap mirrors the GET endpoint's shape, including
+		// `activeJob`, so we can resume polling without a client-side fetch.
 		const activeJob = info.activeJob;
 		if ( activeJob && typeof activeJob === 'object' && typeof activeJob.jobId === 'number' ) {
 			resumePolling( activeJob.jobId, parseStartedAt( activeJob.createdAt ) );
