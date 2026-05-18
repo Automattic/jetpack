@@ -25,7 +25,13 @@ function updateBadge( element, count ) {
 	}
 
 	element.ariaHidden = count > 0 ? 'false' : 'true';
-	element.textContent = formatNumber( count );
+
+	const countElement = element.querySelector( '.count' );
+	if ( countElement ) {
+		countElement.textContent = formatNumber( count );
+	} else {
+		element.textContent = formatNumber( count );
+	}
 }
 
 /**
