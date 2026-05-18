@@ -19,6 +19,24 @@ const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
 const editPostUrl = ( postId: number ): string =>
 	`${ ADMIN_URL }post.php?action=edit&post=${ postId }`;
 
+// Server-side filters key off `?podcast_episode=1` to apply the configured
+// podcast category (and, on Premium, prefill the Podcast Episode block).
+const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
+
+const EmptyEpisodes = () => (
+	<div className="podcast__empty-state">
+		<h2 className="podcast__section-heading">
+			{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
+		</h2>
+		<p>
+			{ __( 'Publish a podcast post in your chosen category to see it here.', 'jetpack-podcast' ) }
+		</p>
+		<Button variant="primary" href={ NEW_EPISODE_URL }>
+			{ __( 'Create episode', 'jetpack-podcast' ) }
+		</Button>
+	</div>
+);
+
 interface EpisodeRow {
 	id: number;
 	title: string;
@@ -302,6 +320,10 @@ const EpisodesTab = () => {
 		);
 	}
 
+	// Only show the CTA empty state when the table is empty for real; under an
+	// active search/filter, let DataViews render its own "no results" UI.
+	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+
 	return (
 		<DataViews< EpisodeRow >
 			data={ rows }
@@ -316,6 +338,7 @@ const EpisodesTab = () => {
 			getItemId={ getEpisodeRowId }
 			isLoading={ isLoading }
 			defaultLayouts={ { table: {} } }
+			empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
 			search
 		/>
 	);
