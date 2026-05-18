@@ -21,27 +21,47 @@ use WP_REST_Server;
  */
 class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 
-	const SUPPORTED_LENGTHS       = array( 'short', 'medium', 'long' );
-	const SUPPORTED_VOICE_PRESETS = array( 'witty', 'earnest', 'professional' );
+	const SUPPORTED_LENGTHS                     = array( 'short', 'medium', 'long' );
+	const SUPPORTED_VOICE_PRESETS               = array( 'witty', 'earnest', 'professional' );
+	const REST_NAMESPACE                        = 'wpcom/v2';
+	const REST_BASE                             = 'posts-to-podcast';
+	const POST_PUBLISH_PROMO_DISMISS_REST_ROUTE = 'post-publish-promo/dismiss';
 
 	/**
-	 * Wire up routes if the feature is enabled for this site.
+	 * Whether `init()` has wired its hooks.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
+	 * Wire up routes. Idempotent.
 	 */
 	public static function init() {
-		if ( ! Posts_To_Podcast_Helper::is_enabled() ) {
+		if ( self::$initialized ) {
 			return;
 		}
+		self::$initialized = true;
 
 		$instance = new self();
 		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
 	}
 
 	/**
-	 * Register the GET (feature info), POST (enqueue), and job-status routes.
+	 * Get the REST API path used by apiFetch for post-publish promo dismissal.
+	 *
+	 * @return string
+	 */
+	public static function get_post_publish_promo_dismiss_rest_path() {
+		return '/' . self::REST_NAMESPACE . '/' . self::REST_BASE . '/' . self::POST_PUBLISH_PROMO_DISMISS_REST_ROUTE;
+	}
+
+	/**
+	 * Register feature info, enqueue, job-status, and promo dismissal routes.
 	 */
 	public function register_routes() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'posts-to-podcast';
+		$this->namespace = self::REST_NAMESPACE;
+		$this->rest_base = self::REST_BASE;
 
 		register_rest_route(
 			$this->namespace,
@@ -132,6 +152,18 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/' . self::POST_PUBLISH_PROMO_DISMISS_REST_ROUTE,
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'dismiss_post_publish_promo' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -201,6 +233,21 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				'page'       => $page,
 				'perPage'    => $per_page,
 				'totalPages' => $total_pages,
+			)
+		);
+	}
+
+	/**
+	 * Persist post-publish promo dismissal for the current user and site.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function dismiss_post_publish_promo() {
+		update_user_option( get_current_user_id(), Create_AI_Podcast_Page::POST_PUBLISH_PROMO_DISMISSED_OPTION, 1 );
+
+		return rest_ensure_response(
+			array(
+				'dismissed' => true,
 			)
 		);
 	}

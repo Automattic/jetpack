@@ -52,6 +52,12 @@ class Podcast {
 		// late-registered filter callback still takes effect.
 		Podcast_Episode_Block::register_hooks();
 
+		// Register the local REST routes before request-local rollout gates.
+		// Requests from public-api.wordpress.com may not satisfy those gates,
+		// but the wpcom/v2 routes still need to exist so permission and
+		// callback checks can handle the request.
+		Posts_To_Podcast_Endpoint::init();
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}
@@ -76,19 +82,10 @@ class Podcast {
 		}
 
 		// Posts to Podcast lives behind its own filter so the Create AI
-		// Podcast page and its REST proxy can ship together but ramp
-		// independently of the broader untangle. Only register code in the
-		// context that actually needs it: the page in wp-admin, the REST
-		// routes during REST request processing.
+		// Podcast page can ship independently of the broader untangle.
 		if ( self::is_posts_to_podcast_enabled() ) {
 			if ( is_admin() ) {
 				Create_AI_Podcast_Page::init();
-			}
-			// Register the local proxy in REST and admin contexts: the admin
-			// page bootstraps its initial quota + episodes via rest_do_request
-			// so the first paint doesn't pay the wpcom-proxy iframe round-trip.
-			if ( is_admin() || self::is_rest_request() ) {
-				Posts_To_Podcast_Endpoint::init();
 			}
 		}
 	}
@@ -110,31 +107,6 @@ class Podcast {
 		 * @param bool $enabled Whether to enable Posts to Podcast.
 		 */
 		return (bool) apply_filters( 'jetpack_posts_to_podcast', self::is_proxied_request() );
-	}
-
-	/**
-	 * Whether the current request is a WP REST API request.
-	 *
-	 * `Podcast::init()` typically fires before `REST_REQUEST` is defined
-	 * and before `wp_is_serving_rest_request()` is reliable, so fall back
-	 * to a URL prefix check.
-	 */
-	private static function is_rest_request() {
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			return true;
-		}
-		if ( function_exists( 'wp_is_serving_rest_request' ) && wp_is_serving_rest_request() ) {
-			return true;
-		}
-		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
-			return false;
-		}
-		$path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
-		if ( ! is_string( $path ) ) {
-			return false;
-		}
-		$prefix = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : 'wp-json';
-		return false !== strpos( $path, '/' . trim( $prefix, '/' ) . '/' );
 	}
 
 	/**
