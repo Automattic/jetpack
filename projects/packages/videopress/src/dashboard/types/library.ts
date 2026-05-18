@@ -24,6 +24,7 @@ export interface MockLibraryItem {
 	displayEmbed: boolean;
 	allowDownloads: boolean;
 	shortcode: string;
+	sourceUrl?: string;
 }
 
 export type VideoDetailsPatch = Partial<

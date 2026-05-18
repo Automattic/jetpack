@@ -44,6 +44,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: vp?.guid ? `[videopress ${ vp.guid }]` : '',
+		sourceUrl: raw.source_url,
 	};
 }
 
