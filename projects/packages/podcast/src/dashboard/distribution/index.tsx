@@ -127,13 +127,10 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					issues.length
 			  )
 			: '';
-	// While validation probes are in flight, `issues.length === 0` and
-	// `stepsLeftLabel` is empty — fall back to a loading message so the
-	// disabled Submit buttons still explain themselves on hover/focus.
-	// Note: gating only on `isLoading`, NOT `! isReady`. `isReady` is
-	// derived as `! isLoading && issues.length === 0`, so once loading
-	// finishes with issues outstanding, `! isReady` stays true and would
-	// keep the tooltip stuck on "Checking…" instead of showing the count.
+	// Gates on `isLoading`, NOT `! isReady`. `isReady` is derived as
+	// `! isLoading && issues.length === 0`, so once loading finishes with
+	// issues outstanding `! isReady` stays true and would pin the tooltip
+	// on "Checking…" instead of showing the count.
 	let blockedTooltip = '';
 	if ( ! isEnabled ) {
 		blockedTooltip = __( 'Set a podcast category in Settings first.', 'jetpack-podcast' );
