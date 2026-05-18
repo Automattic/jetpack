@@ -2,7 +2,9 @@
 // draft; hook variant adds cover-media + episode-presence checks for the
 // Distribution Submit gate.
 
-import { useEntityRecord, useEntityRecords } from '@wordpress/core-data';
+import apiFetch from '@wordpress/api-fetch';
+import { useEntityRecord } from '@wordpress/core-data';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings } from './use-podcast-settings';
 import type { PodcastSettings } from '../types';
@@ -10,6 +12,12 @@ import type { PodcastSettings } from '../types';
 interface CoverImageRecord {
 	media_details?: { width?: number; height?: number };
 	mime_type?: string;
+}
+
+interface PodcastStatus {
+	categoryId: number;
+	feedUrl: string;
+	hasPublishedEpisode: boolean;
 }
 
 /**
@@ -90,11 +98,60 @@ const getDistributionIssues = (
 	return issues;
 };
 
+function usePodcastStatus( categoryId: number ): {
+	status: PodcastStatus | undefined;
+	hasResolved: boolean;
+} {
+	const [ status, setStatus ] = useState< PodcastStatus | undefined >( undefined );
+	const [ hasResolved, setHasResolved ] = useState( categoryId <= 0 );
+
+	useEffect( () => {
+		if ( categoryId <= 0 ) {
+			setStatus( undefined );
+			setHasResolved( true );
+			return;
+		}
+
+		let cancelled = false;
+		setStatus( undefined );
+		setHasResolved( false );
+		apiFetch( { path: '/wpcom/v2/podcast/status', method: 'GET' } )
+			.then( response => {
+				if ( cancelled ) {
+					return;
+				}
+				const payload = response as Partial< PodcastStatus >;
+				setStatus( {
+					categoryId: Number( payload.categoryId ?? categoryId ) || categoryId,
+					feedUrl: typeof payload.feedUrl === 'string' ? payload.feedUrl : '',
+					hasPublishedEpisode: payload.hasPublishedEpisode === true,
+				} );
+			} )
+			.catch( () => {
+				if ( cancelled ) {
+					return;
+				}
+				setStatus( { categoryId, feedUrl: '', hasPublishedEpisode: false } );
+			} )
+			.finally( () => {
+				if ( ! cancelled ) {
+					setHasResolved( true );
+				}
+			} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [ categoryId ] );
+
+	return { status, hasResolved };
+}
+
 /**
- * Distribution Submit gate. Reads cover media + an episode probe alongside
- * saved settings; both subqueries are `enabled`-gated.
+ * Distribution Submit gate. Reads cover media + derived podcast status
+ * alongside saved settings; subqueries are `enabled`-gated.
  *
- * @return `{ issues, isReady, isLoading }` — issues suppressed during load.
+ * @return `{ issues, isReady, isLoading, status }` — issues suppressed during load.
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
@@ -108,23 +165,14 @@ export function useValidationIssues() {
 	);
 
 	const categoryId = settings?.podcasting_category_id ?? 0;
-	const { records: episodeProbe, hasResolved: episodeProbeResolved } = useEntityRecords< {
-		id: number;
-	} >(
-		'postType',
-		'post',
-		{ categories: categoryId, per_page: 1, status: 'publish', _fields: 'id' },
-		{ enabled: categoryId > 0 }
-	);
+	const { status, hasResolved: statusResolved } = usePodcastStatus( categoryId );
 
 	const hasPublishedEpisode: boolean | undefined =
-		categoryId > 0 && episodeProbeResolved
-			? Array.isArray( episodeProbe ) && episodeProbe.length > 0
-			: undefined;
+		categoryId > 0 && statusResolved ? status?.hasPublishedEpisode === true : undefined;
 
 	const isLoading =
 		settingsLoading ||
-		( categoryId > 0 && ! episodeProbeResolved ) ||
+		( categoryId > 0 && ! statusResolved ) ||
 		( coverImageId > 0 && ! coverResolved );
 
 	const issues = isLoading
@@ -135,5 +183,6 @@ export function useValidationIssues() {
 		issues,
 		isReady: ! isLoading && issues.length === 0,
 		isLoading,
+		status,
 	};
 }

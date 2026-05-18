@@ -12,7 +12,6 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useEntityRecord } from '@wordpress/core-data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
@@ -78,17 +77,9 @@ interface DistributionTabProps {
 
 const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const { data: settings } = usePodcastSettings();
-	const { issues, isReady, isLoading } = useValidationIssues();
+	const { issues, isReady, isLoading, status } = useValidationIssues();
 	const categoryId = settings?.podcasting_category_id ?? 0;
-	// Pull the configured category record so we can derive the feed URL
-	// (`{category-archive}feed/`) without needing PHP-side script data.
-	const { record: category } = useEntityRecord< { link?: string } >(
-		'taxonomy',
-		'category',
-		categoryId,
-		{ enabled: categoryId > 0 }
-	);
-	const feedUrl = category?.link ? `${ category.link }feed/` : '';
+	const feedUrl = status?.feedUrl ?? '';
 	const isEnabled = categoryId > 0;
 	// Includes isLoading so the buttons don't flash enabled before issues resolve.
 	const isSubmitBlocked = ! isEnabled || ! isReady || isLoading;
