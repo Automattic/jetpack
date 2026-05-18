@@ -3520,7 +3520,9 @@ const { state } = store( 'wpcom-write', {
 
 		// --- Unsupported content warning ---
 		goBack() {
-			if ( window.history.length > 1 ) {
+			const sameOrigin =
+				document.referrer && new URL( document.referrer ).origin === window.location.origin;
+			if ( sameOrigin && window.history.length > 1 ) {
 				window.history.back();
 			} else {
 				window.location.href = state.adminUrl + 'edit.php';
@@ -3773,8 +3775,10 @@ const autosaveReady = setInterval( () => {
 	// Seed the undo history with the initial content so Cmd+Z can return to it.
 	pushToUndoHistory();
 
-	// Focus the unsupported-content warning modal when present on load.
+	// Focus the unsupported-content warning modal when present on load
+	// and prevent background scrolling while the overlay is visible.
 	if ( state.unsupportedWarning ) {
+		document.body.style.overflow = 'hidden';
 		requestAnimationFrame( () => {
 			const btn = document.querySelector( '.bw-unsupported-open-editor:not([hidden])' );
 			if ( btn ) btn.focus();
