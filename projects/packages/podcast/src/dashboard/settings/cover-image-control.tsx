@@ -32,8 +32,6 @@ interface Message {
 	text: string;
 }
 
-// Apple Podcasts minimum cover dimension. Below this on the smaller side,
-// Photon's post-crop output is also below the minimum and Apple rejects.
 const COVER_MIN_PX = 1400;
 
 const CoverImageControl = ( {
