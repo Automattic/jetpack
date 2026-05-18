@@ -345,7 +345,7 @@ class Create_AI_Podcast_Page {
 		}
 
 		$site_slug = class_exists( '\\WPCOM_Masterbar' )
-			? (string) \WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
+			? \WPCOM_Masterbar::get_calypso_site_slug( $blog_id )
 			: '';
 		if ( '' === $site_slug ) {
 			return '';
@@ -492,7 +492,7 @@ class Create_AI_Podcast_Page {
 			'total'      => $total,
 			'page'       => 1,
 			'perPage'    => $per_page,
-			'totalPages' => $per_page > 0 ? (int) ceil( $total / $per_page ) : 0,
+			'totalPages' => (int) ceil( $total / $per_page ),
 		);
 
 		return $bootstrap;
