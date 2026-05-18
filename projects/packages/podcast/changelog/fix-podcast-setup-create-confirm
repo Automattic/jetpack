@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast: collapse the setup modal's Create + Confirm into a single click when inline-creating a category, and block dismissal while that create is in flight.
+Reduce podcast setup to a single click when you create a new category from the setup modal.
