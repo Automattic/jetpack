@@ -158,7 +158,7 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<StatsTab />
+								{ hasAccess ? <StatsTab /> : <LockedPreview variant="stats" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
