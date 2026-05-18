@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: enforce square cover image via a forced 1:1 crop step in the picker.

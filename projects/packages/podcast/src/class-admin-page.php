@@ -80,7 +80,8 @@ class Admin_Page {
 	 * Wire admin-init actions once we know the Podcast page is loading.
 	 */
 	public static function admin_init() {
-		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
+		// Cover-image-control opens a wp.media frame with a Cropper state — both
+		// the JS and the imgAreaSelect/cropper CSS come from wp_enqueue_media().
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 	}
 
