@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: preserve legacy Apple category values when saving settings.

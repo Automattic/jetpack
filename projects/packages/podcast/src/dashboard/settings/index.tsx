@@ -169,6 +169,10 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 				.filter( ( v ): v is string => !! v ),
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 	);
+	const preservedUnknownTopics = useMemo(
+		() => new Set( topicValue.filter( display => ! TOPIC_STORAGE_BY_DISPLAY.has( display ) ) ),
+		[ topicValue ]
+	);
 
 	// Calypso renders three native selects, one per slot, so each pick closes
 	// its dropdown and saves discretely. We use a single `FormTokenField` but
@@ -189,7 +193,11 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			const stored = values
 				.slice( 0, 3 )
 				.map( v => ( typeof v === 'string' ? v : v.value ) )
-				.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
+				.map(
+					display =>
+						TOPIC_STORAGE_BY_DISPLAY.get( display ) ??
+						( preservedUnknownTopics.has( display ) ? display : '' )
+				);
 			commit( {
 				podcasting_category_1: stored[ 0 ] ?? '',
 				podcasting_category_2: stored[ 1 ] ?? '',
@@ -197,7 +205,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			} );
 			topicFieldRef.current?.querySelector< HTMLInputElement >( 'input' )?.blur();
 		},
-		[ commit ]
+		[ commit, preservedUnknownTopics ]
 	);
 
 	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
