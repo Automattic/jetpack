@@ -46,7 +46,7 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 		issues.push( __( 'Pick at least one Apple Podcasts category.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_image ) {
-		issues.push( __( 'Upload a cover image (1400×1400 to 3000×3000 pixels).', 'jetpack-podcast' ) );
+		issues.push( __( 'Upload a cover image at least 1400×1400 pixels.', 'jetpack-podcast' ) );
 	}
 	return issues;
 };

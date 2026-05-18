@@ -62,7 +62,7 @@ const CoverImageControl = ( {
 				setMessage( {
 					level: 'warning',
 					text: __(
-						'Apple Podcasts requires cover images at least 1400×1400 pixels and will reject smaller covers. Upload a larger image.',
+						'Podcast directories require cover images at least 1400×1400 pixels and will reject smaller covers. Upload a larger image.',
 						'jetpack-podcast'
 					),
 				} );
