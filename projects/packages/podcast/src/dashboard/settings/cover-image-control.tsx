@@ -1,7 +1,11 @@
 // Cover-image picker. We accept any image the user picks: the feed renderer
 // routes the URL through Photon with `resize=3000,3000`, which center-crops to
-// a square server-side. A soft notice tells the user we'll auto-crop when the
-// source isn't already 1:1, so the in-feed result isn't a surprise.
+// a square server-side. The picker surfaces two flavors of guidance based on
+// what we can read from the attachment metadata:
+//   • warning — source is below Apple's 1400 px minimum (feed will be rejected).
+//     Note: Photon center-crops to the source's *smaller* dimension, so a
+//     3000×1000 source still produces a 1000×1000 cover.
+//   • notice — source is non-square but large enough; will be center-cropped.
 
 import { Button } from '@wordpress/components';
 import { useCallback, useId, useState } from '@wordpress/element';
@@ -23,6 +27,15 @@ interface MediaUploadAttachment {
 	height?: number;
 }
 
+interface Message {
+	level: 'warning' | 'notice';
+	text: string;
+}
+
+// Apple Podcasts minimum cover dimension. Below this on the smaller side,
+// Photon's post-crop output is also below the minimum and Apple rejects.
+const COVER_MIN_PX = 1400;
+
 const CoverImageControl = ( {
 	imageUrl,
 	imageId,
@@ -30,7 +43,7 @@ const CoverImageControl = ( {
 	onRemove,
 	disabled,
 }: CoverImageControlProps ) => {
-	const [ notice, setNotice ] = useState< string | null >( null );
+	const [ message, setMessage ] = useState< Message | null >( null );
 	const labelId = useId();
 
 	const hasImage = !! imageUrl || imageId > 0;
@@ -44,15 +57,25 @@ const CoverImageControl = ( {
 
 	const handleSelect = useCallback(
 		( att: MediaUploadAttachment ) => {
-			if ( att.width && att.height && att.width !== att.height ) {
-				setNotice(
-					__(
+			const { width, height } = att;
+			if ( width && height && Math.min( width, height ) < COVER_MIN_PX ) {
+				setMessage( {
+					level: 'warning',
+					text: __(
+						'Apple Podcasts requires cover images at least 1400×1400 pixels and will reject smaller covers. Upload a larger image.',
+						'jetpack-podcast'
+					),
+				} );
+			} else if ( width && height && width !== height ) {
+				setMessage( {
+					level: 'notice',
+					text: __(
 						'This image will be center-cropped to a square in your feed. For full control, upload a 1:1 image.',
 						'jetpack-podcast'
-					)
-				);
+					),
+				} );
 			} else {
-				setNotice( null );
+				setMessage( null );
 			}
 			onSelect( att.id, att.url );
 		},
@@ -94,9 +117,14 @@ const CoverImageControl = ( {
 					</Button>
 				) }
 			</div>
-			{ notice && (
-				<p className="podcast__cover-notice" role="status">
-					{ notice }
+			{ message && (
+				<p
+					className={
+						message.level === 'warning' ? 'podcast__cover-warning' : 'podcast__cover-notice'
+					}
+					role={ message.level === 'warning' ? 'alert' : 'status' }
+				>
+					{ message.text }
 				</p>
 			) }
 		</div>
