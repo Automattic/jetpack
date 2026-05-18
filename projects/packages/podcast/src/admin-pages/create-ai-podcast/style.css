@@ -689,8 +689,7 @@
 .jetpack-create-ai-podcast__skeleton {
 	display: block;
 	border-radius: 6px;
-	background:
-		linear-gradient(90deg, #eceef0 0%, #f6f7f7 50%, #eceef0 100%);
+	background: linear-gradient(90deg, #eceef0 0%, #f6f7f7 50%, #eceef0 100%);
 	background-size: 200% 100%;
 	animation: jetpack-create-ai-podcast-shimmer 1.4s ease-in-out infinite;
 }
