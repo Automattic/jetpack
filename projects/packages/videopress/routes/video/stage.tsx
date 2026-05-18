@@ -135,7 +135,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { mutate: deleteVideo } = useDeleteVideo();
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 
 	return (
@@ -150,6 +150,9 @@ const StageReady = ( { video }: StageReadyProps ) => {
 							createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
 							reset( values );
 						},
+						onError: () => {
+							createErrorNotice( __( 'Failed to save video details.', 'jetpack-videopress-pkg' ) );
+						},
 					}
 				);
 			} }
@@ -158,6 +161,9 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					onSuccess: () => {
 						createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
 						navigate( { href: '/library' } );
+					},
+					onError: () => {
+						createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
 					},
 				} );
 			} }

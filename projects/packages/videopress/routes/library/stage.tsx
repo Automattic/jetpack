@@ -96,7 +96,7 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
 	const actions = useMemo(
 		() =>
@@ -122,6 +122,16 @@ const StageInner = () => {
 								)
 							);
 						},
+						onError: () => {
+							createErrorNotice(
+								_n(
+									'Failed to delete video.',
+									'Failed to delete videos.',
+									ids.length,
+									'jetpack-videopress-pkg'
+								)
+							);
+						},
 					} );
 				},
 				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
@@ -137,11 +147,21 @@ const StageInner = () => {
 									)
 								);
 							},
+							onError: () => {
+								createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
+							},
 						}
 					);
 				},
 			} ),
-		[ retryUpload, deleteVideo, updateMeta, openVideoDetails, createSuccessNotice ]
+		[
+			retryUpload,
+			deleteVideo,
+			updateMeta,
+			openVideoDetails,
+			createSuccessNotice,
+			createErrorNotice,
+		]
 	);
 
 	// Splice in-flight uploads at the top of the listing so the user sees
