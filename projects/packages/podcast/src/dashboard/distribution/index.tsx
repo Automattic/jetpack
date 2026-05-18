@@ -234,7 +234,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 								</h3>
 								<Text variant="muted">
 									{ __(
-										'Copy this URL, then submit it to each directory below. Most take a few days to go live.',
+										'Copy this URL, then submit it to each directory through the modals below.',
 										'jetpack-podcast'
 									) }
 								</Text>
@@ -279,15 +279,15 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 													aria-label={
 														isSubmitBlocked
 															? sprintf(
-																	/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Submit button is disabled. */
-																	__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+																	/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Set up button is disabled. */
+																	__( 'Set up %1$s. %2$s', 'jetpack-podcast' ),
 																	app.name,
 																	blockedTooltip
 															  )
 															: undefined
 													}
 												>
-													{ __( 'Submit', 'jetpack-podcast' ) }
+													{ __( 'Set up', 'jetpack-podcast' ) }
 												</Button>
 											</Tooltip>
 										</HStack>
