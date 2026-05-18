@@ -50,10 +50,12 @@ class Podcast_Episode_Block {
 
 	/**
 	 * Whether the new podcast experience is enabled.
+	 *
+	 * Delegates to {@see Podcast::is_enabled()} so the block honors the
+	 * same default (proxied A8C requests) as the rest of the package.
 	 */
 	private static function is_enabled(): bool {
-		/** This filter is documented in projects/packages/podcast/src/class-podcast.php */
-		return (bool) apply_filters( 'jetpack_podcast_untangle', false );
+		return Podcast::is_enabled();
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast Episode block: delegate the untangle gate to Podcast::is_enabled() so the block honors the same default as the rest of the package.
