@@ -122,7 +122,15 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
+// Load the legacy at-pressable-podcasting plugin only when the new
+// jetpack-podcast package is not taking over the feature. See
+// Automattic\Jetpack\Podcast\Podcast::is_enabled() for the gate.
+if (
+	! class_exists( Automattic\Jetpack\Podcast\Podcast::class )
+	|| ! Automattic\Jetpack\Podcast\Podcast::is_enabled()
+) {
+	require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
+}
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
