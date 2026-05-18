@@ -142,7 +142,7 @@ const ISO_4217_EXPONENTS: Record< string, number > = {
  * Returns the smallest unit exponent from ISO_4217_EXPONENTS given a currency.
  * Falls back to 2 (most currencies).
  * @param currency - The currency code (ISO 4217)
- * @return number  - The smalles unit exponent
+ * @return number  - The smallest unit exponent
  */
 function getSmallestUnitExponent( currency: string ): number {
 	return ISO_4217_EXPONENTS[ currency ] ?? 2;
