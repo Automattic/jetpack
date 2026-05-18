@@ -99,6 +99,56 @@ function getCurrencyFormatter( {
 }
 
 /**
+ * ISO 4217 minor-unit exponents.
+ *
+ * Used ONLY to convert prices given in the smallest unit (e.g. cents) into
+ * major-unit floats when `isSmallestUnit` is set. Display precision (how many
+ * decimal digits to render) is still decided by `Intl.NumberFormat` per locale.
+ *
+ * Browser ICU data and ISO 4217 disagree for some currencies — notably IDR and HUF
+ * which modern Chrome reports as 0-decimal but ISO 4217 defines as exponent 2.
+ * The WordPress.com API encodes smallest-unit integers using the ISO exponent,
+ * so we must use the same value to invert the conversion. Using the browser's
+ * value here produces off-by-100 errors for IDR.
+ */
+const ISO_4217_EXPONENTS: Record< string, number > = {
+	BHD: 3,
+	IQD: 3,
+	JOD: 3,
+	KWD: 3,
+	LYD: 3,
+	OMR: 3,
+	TND: 3,
+	BIF: 0,
+	CLP: 0,
+	DJF: 0,
+	GNF: 0,
+	ISK: 0,
+	JPY: 0,
+	KMF: 0,
+	KRW: 0,
+	MGA: 0,
+	PYG: 0,
+	RWF: 0,
+	UGX: 0,
+	VND: 0,
+	VUV: 0,
+	XAF: 0,
+	XOF: 0,
+	XPF: 0,
+};
+
+/**
+ * Returns the smallest unit exponent from ISO_4217_EXPONENTS given a currency.
+ * Falls back to 2 (most currencies).
+ * @param currency - The currency code (ISO 4217)
+ * @return number  - The smalles unit exponent
+ */
+function getSmallestUnitExponent( currency: string ): number {
+	return ISO_4217_EXPONENTS[ currency ] ?? 2;
+}
+
+/**
  * Returns the precision for a given locale and currency.
  * @param  browserSafeLocale - The browser safe locale.
  * @param  currency          - The currency to get the precision for.
@@ -139,15 +189,15 @@ function scaleNumberForPrecision( number: number, currencyPrecision: number ): n
 /**
  * Prepares a number for formatting.
  * @param  number            - The number to prepare.
- * @param  currencyPrecision - The precision to prepare the number for.
+ * @param  currencyPrecision - The display precision (from the browser) to round the result to.
+ * @param  currency          - The currency code, used to look up the ISO 4217 exponent for smallest-unit conversion.
  * @param  isSmallestUnit    - Whether the number is the smallest unit of a currency.
  * @return {number} The prepared number.
  */
 function prepareNumberForFormatting(
 	number: number,
-	// currencyPrecision here must be the precision of the currency, regardless
-	// of what precision is requested for display!
 	currencyPrecision: number,
+	currency: string,
 	isSmallestUnit?: boolean
 ): number {
 	if ( isNaN( number ) ) {
@@ -162,7 +212,7 @@ function prepareNumberForFormatting(
 				number
 			);
 		}
-		const smallestUnitDivisor = 10 ** currencyPrecision;
+		const smallestUnitDivisor = 10 ** getSmallestUnitExponent( currency );
 		return scaleNumberForPrecision( Math.round( number ) / smallestUnitDivisor, currencyPrecision );
 	}
 
@@ -235,6 +285,7 @@ const numberFormatCurrency = ( {
 	const numberAsFloat = prepareNumberForFormatting(
 		number,
 		currencyPrecision ?? 0,
+		validCurrency,
 		isSmallestUnit
 	);
 	const formatter = getCurrencyFormatter( {
@@ -326,6 +377,7 @@ const getCurrencyObject = ( {
 	const numberAsFloat = prepareNumberForFormatting(
 		number,
 		currencyPrecision ?? 0,
+		validCurrency,
 		isSmallestUnit
 	);
 	const formatter = getCurrencyFormatter( {
