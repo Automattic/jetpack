@@ -20,6 +20,43 @@
 	}
 
 	/**
+	 * Fire a wpcom Tracks event via the global _tkq queue. The wpcom Tracks
+	 * client picks it up on its next flush; if the queue isn't installed
+	 * (Atomic without the wpcom client) the push is a silent no-op, which is
+	 * the right tradeoff for instrumentation that must never affect UX.
+	 *
+	 * @param eventName  - Snake-case event name (`wpcom_create_ai_podcast_*`).
+	 * @param properties - Optional event properties; blog_id is auto-attached.
+	 */
+	function recordEvent( eventName, properties = {} ) {
+		try {
+			const payload = { ...properties };
+			const blogIdNum = Number( data.blogId );
+			if ( Number.isFinite( blogIdNum ) && blogIdNum > 0 && payload.blog_id === undefined ) {
+				payload.blog_id = blogIdNum;
+			}
+			window._tkq = window._tkq || [];
+			window._tkq.push( [ 'recordEvent', eventName, payload ] );
+		} catch {
+			// Tracks is best-effort.
+		}
+	}
+
+	/**
+	 * Derive the target plan slug from a Calypso checkout URL so the upgrade
+	 * event can carry which tier the user was offered without us re-deriving
+	 * it from feature flags client-side.
+	 * @param url
+	 */
+	function targetPlanFromUrl( url ) {
+		if ( typeof url !== 'string' || url === '' ) {
+			return '';
+		}
+		const match = url.match( /\/checkout\/[^/]+\/([a-z0-9_-]+)/i );
+		return match ? match[ 1 ] : '';
+	}
+
+	/**
 	 * Strip the `_envelope=1` wrapper that the wpcom proxy unconditionally
 	 * adds to wpcom/v2 requests on Simple sites (see provider-v2.0.js
 	 * `_envelope=1` append). The wrapped shape is `{ code, headers, body }`
@@ -93,6 +130,7 @@
 	}
 
 	let episodesState = bootstrapEpisodes;
+	let lastQuotaSnapshot = null;
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
@@ -147,6 +185,9 @@
 				a.href = options.link.href;
 				a.textContent = options.link.label;
 				a.className = 'jetpack-create-ai-podcast__status-link';
+				if ( typeof options.link.onClick === 'function' ) {
+					a.addEventListener( 'click', options.link.onClick );
+				}
 				actions.appendChild( a );
 			}
 
@@ -297,6 +338,7 @@
 		const isOut = remaining === 0;
 		const isLow = ! isOut && ratio >= 0.7;
 
+		const quotaSummary = { used, quota: total, remaining };
 		if ( isOut ) {
 			let outMessage = '';
 			if ( reset ) {
@@ -310,6 +352,8 @@
 					title: data.i18n.outOfCreditsTitle,
 					message: outMessage,
 					upgradeUrl,
+					quota: quotaSummary,
+					reset,
 				} )
 			);
 		} else if ( isLow && upgradeUrl ) {
@@ -319,6 +363,8 @@
 					title: data.i18n.runningLowTitle,
 					message: data.i18n.runningLowMessage,
 					upgradeUrl,
+					quota: quotaSummary,
+					reset,
 				} )
 			);
 		}
@@ -370,7 +416,27 @@
 		return { inline, days, date };
 	}
 
-	function buildBanner( { state, title, message, upgradeUrl } ) {
+	/**
+	 * How many days ago an episode was created. Returns null when the date
+	 * is missing or doesn't parse, so callers can omit the property.
+	 * @param isoDate
+	 */
+	function episodeAgeDays( isoDate ) {
+		if ( typeof isoDate !== 'string' || isoDate === '' ) {
+			return null;
+		}
+		const parsed = Date.parse( isoDate );
+		if ( Number.isNaN( parsed ) ) {
+			return null;
+		}
+		const ms = Date.now() - parsed;
+		if ( ms < 0 ) {
+			return 0;
+		}
+		return Math.floor( ms / ( 24 * 60 * 60 * 1000 ) );
+	}
+
+	function buildBanner( { state, title, message, upgradeUrl, quota, reset } ) {
 		const banner = document.createElement( 'div' );
 		banner.className = 'jetpack-create-ai-podcast__credits-banner';
 		banner.dataset.state = state;
@@ -399,8 +465,23 @@
 			cta.target = '_blank';
 			cta.rel = 'noopener noreferrer';
 			cta.textContent = data.i18n.upgradeCta;
+			cta.addEventListener( 'click', () => {
+				recordEvent( 'wpcom_create_ai_podcast_upgrade_clicked', {
+					state,
+					target_plan: targetPlanFromUrl( upgradeUrl ),
+					credits_used: quota?.used ?? 0,
+					credits_quota: quota?.quota ?? 0,
+				} );
+			} );
 			banner.appendChild( cta );
 		}
+
+		recordEvent( 'wpcom_create_ai_podcast_quota_banner_shown', {
+			state,
+			has_upgrade_url: !! upgradeUrl,
+			credits_remaining: quota?.remaining ?? 0,
+			days_until_reset: reset ? reset.days : null,
+		} );
 
 		return banner;
 	}
@@ -423,14 +504,17 @@
 	 */
 	function applyQuotaResponse( response ) {
 		if ( ! response ) {
+			lastQuotaSnapshot = null;
 			renderCredits( { quota: 0, used: 0 }, '' );
 			return null;
 		}
 		if ( response.notAvailable || response.error === 'not_available' ) {
+			lastQuotaSnapshot = null;
 			renderNotAvailable();
 			return null;
 		}
 		const quota = response.quota ?? response;
+		lastQuotaSnapshot = quota;
 		renderCredits( quota, response.upgradeUrl ?? '' );
 		return response;
 	}
@@ -577,7 +661,15 @@
 	function onSucceeded( editUrl ) {
 		setFormDisabled( false );
 		setStatus( 'success', data.i18n.succeeded, {
-			link: { href: editUrl, label: data.i18n.editDraft },
+			link: {
+				href: editUrl,
+				label: data.i18n.editDraft,
+				onClick: () => {
+					recordEvent( 'wpcom_create_ai_podcast_draft_opened', {
+						source: 'success_toast',
+					} );
+				},
+			},
 		} );
 		refreshInfo();
 		refreshEpisodes();
@@ -703,6 +795,18 @@
 			return;
 		}
 
+		recordEvent( 'wpcom_create_ai_podcast_generation_requested', {
+			source: sourceMode,
+			length: payload.length,
+			voice_preset: payload.voicePreset,
+			posts_count: Array.isArray( payload.postIds ) ? payload.postIds.length : 0,
+			window_unit: payload.window?.unit || '',
+			window_n: payload.window?.n || 0,
+			has_prompt: !! payload.prompt,
+			credits_remaining: lastQuotaSnapshot?.remaining ?? 0,
+			credits_quota: lastQuotaSnapshot?.quota ?? 0,
+		} );
+
 		try {
 			const response = await apiCall( {
 				path: data.endpoints.enqueue,
@@ -773,6 +877,18 @@
 					source.type = episode.mediaMime;
 				}
 				player.appendChild( source );
+				let playReported = false;
+				player.addEventListener( 'play', () => {
+					if ( playReported ) {
+						return;
+					}
+					playReported = true;
+					recordEvent( 'wpcom_create_ai_podcast_episode_played', {
+						episode_id: episode.id,
+						status: episode.status || '',
+						episode_age_days: episodeAgeDays( episode.date ),
+					} );
+				} );
 				row.appendChild( player );
 			}
 
@@ -783,6 +899,13 @@
 				edit.href = episode.editUrl;
 				edit.className = 'jetpack-create-ai-podcast__episode-edit';
 				edit.textContent = data.i18n.editPost;
+				edit.addEventListener( 'click', () => {
+					recordEvent( 'wpcom_create_ai_podcast_draft_opened', {
+						source: 'episode_list',
+						episode_id: episode.id,
+						status: episode.status || '',
+					} );
+				} );
 				actions.appendChild( edit );
 				row.appendChild( actions );
 			}
@@ -910,6 +1033,10 @@
 		if ( clamped === episodesState.page ) {
 			return;
 		}
+		recordEvent( 'wpcom_create_ai_podcast_episodes_paginated', {
+			page: clamped,
+			total_pages: episodesState.totalPages,
+		} );
 		episodesSection.setAttribute( 'aria-busy', 'true' );
 		renderEpisodesSkeleton();
 		try {
@@ -1048,6 +1175,13 @@
 		const info = applyQuotaResponse( bootstrapQuota );
 		renderEpisodes( bootstrapEpisodes );
 		episodesSection.setAttribute( 'aria-busy', 'false' );
+
+		recordEvent( 'wpcom_create_ai_podcast_page_viewed', {
+			feature_available: info !== null,
+			credits_remaining: lastQuotaSnapshot?.remaining ?? 0,
+			credits_quota: lastQuotaSnapshot?.quota ?? 0,
+			episodes_total: episodesState.total,
+		} );
 
 		if ( ! info ) {
 			return; // not-available banner already rendered.

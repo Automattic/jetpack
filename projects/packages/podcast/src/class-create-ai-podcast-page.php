@@ -132,6 +132,7 @@ class Create_AI_Podcast_Page {
 				'posts'    => '/wp/v2/posts',
 				'episodes' => '/wpcom/v2/posts-to-podcast/episodes',
 			),
+			'blogId'    => self::resolve_blog_id(),
 			'bootstrap' => self::bootstrap_data(),
 			'presets'   => array(
 				'window' => window_presets(),
@@ -197,6 +198,22 @@ class Create_AI_Podcast_Page {
 				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
 			),
 		);
+	}
+
+	/**
+	 * Resolve the wpcom blog id for this site. On Atomic Jetpack stores it
+	 * under the `id` option; on Simple sites it's the current blog id.
+	 *
+	 * @return int
+	 */
+	private static function resolve_blog_id(): int {
+		if ( class_exists( '\\Jetpack_Options' ) ) {
+			$id = (int) \Jetpack_Options::get_option( 'id' );
+			if ( $id > 0 ) {
+				return $id;
+			}
+		}
+		return (int) get_current_blog_id();
 	}
 
 	/**
