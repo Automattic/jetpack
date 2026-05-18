@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Match the placeholder thumbnail size to populated thumbnails in the Episodes list.

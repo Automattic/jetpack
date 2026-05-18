@@ -3,6 +3,10 @@
 	height: 56px;
 	object-fit: cover;
 	border-radius: 4px;
+	// Without this the 1px placeholder border below pushes the empty-state
+	// square to 58x58 (content-box default), so blank rows render visibly
+	// larger than rows with thumbnails.
+	box-sizing: border-box;
 }
 
 .podcast__episode-thumb--placeholder {
