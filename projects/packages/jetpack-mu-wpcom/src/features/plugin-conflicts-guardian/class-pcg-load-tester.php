@@ -61,17 +61,13 @@ class PCG_Load_Tester {
 				array(
 					'timeout'   => self::PROBE_TIMEOUT,
 					// Follow up to 5 redirects (matching `wp_remote_get`'s
-					// default) so canonical http->https / trailing-slash
-					// / non-www->www on the front-end probe and
-					// force_ssl_admin's http->https bounce on the admin
-					// probe both reach a real verdict, with headroom for
-					// multilingual plugins layering a locale redirect on
-					// top. WP emits full-URL Location headers from
-					// `home_url`/`set_url_scheme` so `pcg_probe`/`token`
-					// survives, and Requests re-sends the forwarded
-					// `Cookie:` header on the followed request so the
-					// admin loopback still authenticates after the
-					// scheme bounce.
+					// default). Covers canonical http->https, trailing-
+					// slash, non-www, force_ssl_admin's scheme bounce,
+					// and a multilingual locale redirect layered on top.
+					// Our `pcg_probe`/`token` query survives because WP
+					// emits full-URL Location headers, and the forwarded
+					// `Cookie:` header is re-sent on each hop so admin
+					// auth still validates post-bounce.
 					'redirects' => 5,
 				)
 			);
@@ -274,11 +270,11 @@ class PCG_Load_Tester {
 			return $decoded;
 		}
 
-		// Unfollowed 3xx safety net (shouldn't happen now that we follow
-		// up to 3, but keep for cases Requests refuses — cross-scheme
-		// downgrade, malformed Location, etc.). Treated as ok by callers
-		// since a redirect at this layer means the bootstrap completed
-		// cleanly enough to issue one.
+		// Unfollowed 3xx safety net (shouldn't happen now that Requests
+		// follows up to 5, but keep for cases Requests refuses —
+		// cross-scheme downgrade, malformed Location, etc.). Treated as
+		// ok by callers since a redirect at this layer means the bootstrap
+		// completed cleanly enough to issue one.
 		if ( $code >= 300 && $code < 400 ) {
 			return array(
 				'status' => 'ok-inconclusive',
