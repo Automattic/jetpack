@@ -35,6 +35,12 @@ const CategorySetupModal = ( {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ pickerCreating, setPickerCreating ] = useState( false );
 	const [ pickerSaving, setPickerSaving ] = useState( false );
+	// Tracks the inline-create commit flow from the moment the picker finishes
+	// creating the category until the modal unmounts. The picker flips
+	// `pickerCreating` false before our `onConfirm` runs, so without this gate
+	// the outer Cancel/Confirm row briefly remounts (with `isBusy`) in the
+	// window between picker resolve and modal close — visible as a flash.
+	const [ committingFromCreate, setCommittingFromCreate ] = useState( false );
 
 	const requestClose = useCallback( () => {
 		// Block dismissal while a save is in flight so the in-flight promise
@@ -88,6 +94,7 @@ const CategorySetupModal = ( {
 
 	const handleCreateSuccess = useCallback(
 		( id: number ) => {
+			setCommittingFromCreate( true );
 			onConfirm( id );
 		},
 		[ onConfirm ]
@@ -133,8 +140,10 @@ const CategorySetupModal = ( {
 				{ /* Hide the outer Cancel/Confirm row while the inline create
 				     form is open. The inline form has its own Cancel/Create row
 				     and the create flow commits settings on success, so showing
-				     both rows looks like two competing actions. */ }
-				{ ! pickerCreating && (
+				     both rows looks like two competing actions. Keep it hidden
+				     through the create-driven commit so the row doesn't flash
+				     in for one render as the picker collapses. */ }
+				{ ! pickerCreating && ! committingFromCreate && (
 					<HStack justify="flex-end" spacing={ 3 }>
 						<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
 							{ __( 'Cancel', 'jetpack-podcast' ) }
