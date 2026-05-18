@@ -21,4 +21,5 @@
 /src/dashboard/**/*.js                                   production-exclude
 /src/inline-search/**/*.js                               production-exclude
 /src/instant-search/**/*.js                              production-exclude
+/src/search-blocks/**/*.js                               production-exclude
 /src/widgets/**/*.js                                     production-exclude

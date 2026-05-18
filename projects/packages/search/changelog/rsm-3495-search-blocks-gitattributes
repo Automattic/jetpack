@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Exclude search-blocks source `.js` files from the production build to reduce the distributed package size.
