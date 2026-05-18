@@ -8,6 +8,7 @@
 /.size-limit.js                                          production-exclude
 /jest.url-tests.config.js                                production-exclude
 /postcss.config.js                                       production-exclude
+/docs/**                                                 production-exclude
 /tools/**                                                production-exclude
 /src/**/test/**                                          production-exclude
 /src/**/*.ts                                             production-exclude
