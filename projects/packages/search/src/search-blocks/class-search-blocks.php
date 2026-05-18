@@ -143,15 +143,7 @@ class Search_Blocks {
 
 		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
-			// Priority 11 so this runs *after* WooCommerce's
-			// `ProductSearchResultsTemplate`, which prepends
-			// `product-search-results` at the default priority 10. Both
-			// callbacks `array_unshift()` onto the same hierarchy, so the
-			// later one ends up first; running last is what makes the
-			// Embedded-experience takeover of product searches (see
-			// `should_take_over_search()`) deterministic instead of
-			// dependent on plugin load order.
-			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ), 11 );
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		}
 	}
 
@@ -849,8 +841,7 @@ class Search_Blocks {
 	 * on the same hook.
 	 *
 	 * Gated by `should_take_over_search()` (see that method) so the slug is
-	 * only injected when it can actually resolve — mirroring the guard
-	 * WooCommerce's `ProductSearchResultsTemplate` applies to this same hook.
+	 * only injected when it can actually resolve.
 	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
@@ -875,21 +866,12 @@ class Search_Blocks {
 	 * Whether the Jetpack Search template should replace the theme's search
 	 * template for the current request.
 	 *
-	 * Mirrors the guard WooCommerce's `ProductSearchResultsTemplate` applies
-	 * to the same `search_template_hierarchy` filter: the slug resolves only
-	 * through the block-template system, so prepending it outside a block
-	 * theme — or outside a search request, should the filter ever run out of
-	 * context — is dead weight that can only mis-shape the hierarchy (and on
-	 * a classic theme it could never resolve to our template anyway).
-	 *
-	 * Unlike WooCommerce we deliberately do *not* additionally scope to
-	 * `is_post_type_archive( 'product' )`. The Embedded experience is a
-	 * site-wide opt-in to Jetpack-owned search results — product searches
-	 * included, which Jetpack Search renders with its own WooCommerce-aware
-	 * filter blocks (`filters-product`, `filter-wc-*`). Carving product
-	 * searches back out to WooCommerce's `product-search-results` template
-	 * would contradict that opt-in, so the takeover stays unconditional
-	 * across search routes and independent of whether WooCommerce is active.
+	 * The slug resolves only through the block-template system, so
+	 * prepending it outside a block theme — or outside a search request,
+	 * should the filter ever run out of context — is dead weight that can
+	 * only mis-shape the hierarchy (and on a classic theme it could never
+	 * resolve to our template anyway). Both conditions are therefore
+	 * required before the takeover applies.
 	 *
 	 * @return bool
 	 */

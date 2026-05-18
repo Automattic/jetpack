@@ -416,34 +416,6 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Documented decision (RSM-3498): the Embedded experience is a site-wide
-	 * opt-in, so Jetpack Search owns product-catalog searches too — it must
-	 * win even when WooCommerce already prepended its `product-search-results`
-	 * slug, and that outcome must not depend on the WooCommerce gate. Asserts
-	 * the full WC-on / WC-off matrix.
-	 *
-	 * @param bool $wc_enabled Forced state of the WooCommerce blocks gate.
-	 * @dataProvider provide_woocommerce_gate
-	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_woocommerce_gate' )]
-	public function test_prepend_search_template_takes_over_product_search_regardless_of_woocommerce( bool $wc_enabled ) {
-		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( $wc_enabled );
-		$class  = $this->search_blocks_taking_over();
-		$result = $class::prepend_search_template( array( 'product-search-results', 'search', 'index' ) );
-		$this->assertSame( array( 'jetpack-search', 'product-search-results', 'search', 'index' ), $result );
-	}
-
-	/**
-	 * @return array<string, array{0: bool}>
-	 */
-	public static function provide_woocommerce_gate(): array {
-		return array(
-			'woocommerce active'   => array( true ),
-			'woocommerce inactive' => array( false ),
-		);
-	}
-
-	/**
 	 * `init()` must always register the block-level hooks AND the IA state
 	 * seeding regardless of which experience the site has saved — admins can
 	 * insert Search blocks anywhere blocks are configurable, and those blocks
@@ -520,10 +492,9 @@ class Search_Blocks_Test extends TestCase {
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
 			'register_search_template must hook into init on embedded'
 		);
-		$this->assertSame(
-			11,
+		$this->assertNotFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must hook search_template_hierarchy at priority 11 so it runs after WooCommerce (priority 10) and wins the array_unshift'
+			'prepend_search_template must hook into search_template_hierarchy on embedded'
 		);
 
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
@@ -568,9 +539,7 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'init', array( Search_Blocks::class, 'register_blocks' ) );
 		remove_action( 'init', array( Search_Blocks::class, 'register_search_template' ) );
 		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
-		// Priority must match init()'s add_filter (11) — remove_filter()
-		// defaults to 10 and would otherwise leak the hook across tests.
-		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ), 11 );
+		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
