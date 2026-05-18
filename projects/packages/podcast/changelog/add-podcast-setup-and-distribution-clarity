@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: collapse the setup modal's Create + Confirm into a single click, and make Distribution submit buttons explain why they are disabled.

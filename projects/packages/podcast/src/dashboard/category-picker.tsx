@@ -25,6 +25,10 @@ interface CategoryPickerProps {
 	// containing modal can gate its own Confirm button until the user either
 	// finishes or cancels the inline flow.
 	onCreatingChange?: ( isCreating: boolean ) => void;
+	// Fires once the inline create has saved a new category. The parent can
+	// commit its own save in the same click rather than asking the user to
+	// confirm a second time.
+	onCreateSuccess?: ( id: number ) => void;
 }
 
 const parseErrorMessage = ( error: unknown, fallback: string ): string => {
@@ -47,6 +51,7 @@ const CategoryPicker = ( {
 	onSelect,
 	disabled = false,
 	onCreatingChange,
+	onCreateSuccess,
 }: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -120,7 +125,9 @@ const CategoryPicker = ( {
 			}
 			setIsCreating( false );
 			setNewName( '' );
-			onSelect( Number( result.id ) );
+			const newId = Number( result.id );
+			onSelect( newId );
+			onCreateSuccess?.( newId );
 		} catch ( err ) {
 			setCreateError(
 				parseErrorMessage(
@@ -131,7 +138,7 @@ const CategoryPicker = ( {
 		} finally {
 			setSaving( false );
 		}
-	}, [ trimmedName, saveEntityRecord, onSelect ] );
+	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
 
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },

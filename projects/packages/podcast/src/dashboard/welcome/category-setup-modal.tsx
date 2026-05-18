@@ -59,41 +59,58 @@ const CategorySetupModal = ( {
 		onClose();
 	}, [ saving, onClose ] );
 
-	const onConfirm = useCallback( async () => {
-		if ( ! categoryId ) {
-			return;
-		}
-		setError( null );
-		setSaving( true );
-		try {
-			// Only prefill the title from the site name when the user hasn't
-			// already set one — preserves a custom title from a partial setup.
-			const updates: PodcastSettingsUpdate = { podcasting_category_id: categoryId };
-			if ( ! existingTitle && siteName.trim() ) {
-				updates.podcasting_title = siteName.trim();
+	const onConfirm = useCallback(
+		// `idArg` lets the inline-create path commit the save in the same click,
+		// without waiting for the async `setCategoryId` to flush.
+		async ( idArg?: number ) => {
+			const id = idArg ?? categoryId;
+			if ( ! id ) {
+				return;
 			}
-			await new Promise< void >( ( resolve, reject ) => {
-				saveSettings( updates, {
-					onSuccess: () => resolve(),
-					onError: reject,
-					// Inline Notice below covers the error UX; suppress the hook's
-					// duplicate snackbar. Success is implicit (modal closes and
-					// lands the user on a populated Settings tab).
-					silent: true,
+			setError( null );
+			setSaving( true );
+			try {
+				// Only prefill the title from the site name when the user hasn't
+				// already set one — preserves a custom title from a partial setup.
+				const updates: PodcastSettingsUpdate = { podcasting_category_id: id };
+				if ( ! existingTitle && siteName.trim() ) {
+					updates.podcasting_title = siteName.trim();
+				}
+				await new Promise< void >( ( resolve, reject ) => {
+					saveSettings( updates, {
+						onSuccess: () => resolve(),
+						onError: reject,
+						// Inline Notice below covers the error UX; suppress the hook's
+						// duplicate snackbar. Success is implicit (modal closes and
+						// lands the user on a populated Settings tab).
+						silent: true,
+					} );
 				} );
-			} );
-			onSuccess();
-		} catch ( err ) {
-			setError(
-				parseErrorMessage(
-					err,
-					__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' )
-				)
-			);
-		} finally {
-			setSaving( false );
-		}
-	}, [ categoryId, existingTitle, siteName, saveSettings, onSuccess ] );
+				onSuccess();
+			} catch ( err ) {
+				setError(
+					parseErrorMessage(
+						err,
+						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' )
+					)
+				);
+			} finally {
+				setSaving( false );
+			}
+		},
+		[ categoryId, existingTitle, siteName, saveSettings, onSuccess ]
+	);
+
+	const handleCreateSuccess = useCallback(
+		( id: number ) => {
+			onConfirm( id );
+		},
+		[ onConfirm ]
+	);
+
+	const handleExistingCategoryConfirm = useCallback( () => {
+		onConfirm();
+	}, [ onConfirm ] );
 
 	return (
 		<Modal title={ __( 'Set up your podcast', 'jetpack-podcast' ) } onRequestClose={ requestClose }>
@@ -117,6 +134,7 @@ const CategorySetupModal = ( {
 					onSelect={ setCategoryId }
 					disabled={ saving }
 					onCreatingChange={ setPickerCreating }
+					onCreateSuccess={ handleCreateSuccess }
 				/>
 				<HStack justify="flex-end" spacing={ 3 }>
 					<Button variant="tertiary" onClick={ requestClose } disabled={ saving }>
@@ -124,7 +142,9 @@ const CategorySetupModal = ( {
 					</Button>
 					<Button
 						variant="primary"
-						onClick={ onConfirm }
+						// The inline-create path commits via `handleCreateSuccess`, so
+						// Confirm is only used when the user picks an existing category.
+						onClick={ handleExistingCategoryConfirm }
 						// Block Confirm while the inline create form is open so
 						// the user can't commit a stale `selectedId` with the
 						// half-filled inline form still mounted.
