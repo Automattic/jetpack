@@ -4,6 +4,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
+import { usePosterUrl } from '../../hooks/use-poster-url';
 import type { MockLibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -73,14 +74,15 @@ const CopyIconButton = ( {
  */
 export default function ThumbnailCard( { video, onAddToNewPost }: Props ): ReactElement {
 	const link = linkForVideo( video );
+	const posterUrl = usePosterUrl( video );
 
 	return (
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="row" gap="md" align="start" className="vp-video-details__thumbnail-row">
-					{ video.thumbnailUrl && (
+					{ posterUrl && (
 						<img
-							src={ video.thumbnailUrl }
+							src={ posterUrl }
 							alt=""
 							width={ 240 }
 							height={ 135 }

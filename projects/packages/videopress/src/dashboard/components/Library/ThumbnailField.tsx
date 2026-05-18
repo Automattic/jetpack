@@ -1,6 +1,7 @@
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
+import { usePosterUrl } from '../../hooks/use-poster-url';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
 import type { MockLibraryItem } from '../../types/library';
@@ -20,12 +21,13 @@ type Props = { item: MockLibraryItem };
  */
 export default function ThumbnailField( { item }: Props ) {
 	const { promoteLocal, retryUpload } = useUploadActions();
-	const { type, upload, thumbnailUrl, durationSeconds, id, title } = item;
+	const { type, upload, durationSeconds, id, title } = item;
+	const posterUrl = usePosterUrl( item );
 
 	return (
 		<div className="vp-library__thumbnail">
-			{ thumbnailUrl ? (
-				<img className="vp-library__thumbnail-image" src={ thumbnailUrl } alt={ title } />
+			{ posterUrl ? (
+				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
 			{ type === 'videopress' && upload.status === 'idle' ? (

@@ -14,6 +14,7 @@ type ApiMediaItem = {
 		filesize?: number;
 		width?: number;
 		height?: number;
+		videopress?: { poster?: string };
 	};
 	jetpack_videopress?: {
 		guid?: string;
@@ -23,7 +24,6 @@ type ApiMediaItem = {
 		privacy_setting?: 0 | 1 | 2;
 		is_private?: boolean;
 		description?: string;
-		poster?: string;
 	};
 };
 
@@ -41,7 +41,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		type: vp?.guid ? 'videopress' : 'local',
 		title: raw.title?.rendered ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
-		thumbnailUrl: vp?.poster ?? null,
+		thumbnailUrl: raw.media_details?.videopress?.poster ?? null,
 		durationSeconds: raw.media_details?.length ?? 0,
 		uploadDate: raw.date ?? '',
 		privacy: privacyIntToString( vp?.privacy_setting ),
