@@ -94,7 +94,11 @@ const CoverImageControl = ( {
 					</Button>
 				) }
 			</div>
-			{ notice && <p className="podcast__cover-notice">{ notice }</p> }
+			{ notice && (
+				<p className="podcast__cover-notice" role="status">
+					{ notice }
+				</p>
+			) }
 		</div>
 	);
 };
