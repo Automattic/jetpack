@@ -21,7 +21,7 @@ type Props = { item: MockLibraryItem };
  */
 export default function ThumbnailField( { item }: Props ) {
 	const { promoteLocal, retryUpload } = useUploadActions();
-	const { type, upload, durationSeconds, id, title } = item;
+	const { type, upload, durationSeconds, id, title, isProcessing } = item;
 	const posterUrl = usePosterUrl( item );
 
 	return (
@@ -30,7 +30,18 @@ export default function ThumbnailField( { item }: Props ) {
 				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
-			{ type === 'videopress' && upload.status === 'idle' ? (
+			{ type === 'videopress' && upload.status === 'idle' && isProcessing ? (
+				<Stack
+					direction="column"
+					align="center"
+					justify="center"
+					className="vp-library__processing"
+				>
+					<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+				</Stack>
+			) : null }
+
+			{ type === 'videopress' && upload.status === 'idle' && durationSeconds > 0 ? (
 				<span className="vp-library__thumbnail-duration-badge">
 					{ formatDuration( durationSeconds ) }
 				</span>

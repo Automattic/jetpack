@@ -247,6 +247,7 @@ const startUpload = ( file: StartUploadInput ): void => {
 		displayEmbed: false,
 		allowDownloads: false,
 		shortcode: `[videopress ${ id }]`,
+		isProcessing: false,
 	};
 	dispatch( { type: 'prepend', item } );
 	runUpload( id, true );

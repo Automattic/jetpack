@@ -105,6 +105,7 @@ export function generateMockLibrary( count = 50 ): MockLibraryItem[] {
 			displayEmbed: i % 2 === 0,
 			allowDownloads: i % 3 === 0,
 			shortcode: `[videopress mock-${ i + 1 }]`,
+			isProcessing: false,
 		};
 	} );
 }

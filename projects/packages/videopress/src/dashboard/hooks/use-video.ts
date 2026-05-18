@@ -14,7 +14,7 @@ type ApiMediaItem = {
 		filesize?: number;
 		width?: number;
 		height?: number;
-		videopress?: { poster?: string };
+		videopress?: { poster?: string; duration?: number; finished?: boolean };
 	};
 	jetpack_videopress?: {
 		guid?: string;
@@ -35,14 +35,21 @@ type ApiMediaItem = {
  */
 function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 	const vp = raw.jetpack_videopress;
+	const isVideoPress = Boolean( vp?.guid );
+	const vpDurationMs = raw.media_details?.videopress?.duration;
+	const durationSeconds =
+		vpDurationMs !== undefined ? Math.floor( vpDurationMs / 1000 ) : raw.media_details?.length ?? 0;
+	const poster = raw.media_details?.videopress?.poster;
+	const finished = raw.media_details?.videopress?.finished;
+	const isProcessing = isVideoPress && ( ! poster || finished === false );
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
-		type: vp?.guid ? 'videopress' : 'local',
+		type: isVideoPress ? 'videopress' : 'local',
 		title: raw.title?.rendered ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
-		thumbnailUrl: raw.media_details?.videopress?.poster ?? null,
-		durationSeconds: raw.media_details?.length ?? 0,
+		thumbnailUrl: poster ?? null,
+		durationSeconds,
 		uploadDate: raw.date ?? '',
 		privacy: privacyIntToString( vp?.privacy_setting ),
 		isPrivate: Boolean( vp?.is_private ),
@@ -54,6 +61,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		isProcessing,
 	};
 }
 
@@ -71,6 +79,9 @@ export function useVideo( id: number | string ) {
 			return toLibraryItem( raw );
 		},
 		enabled: Boolean( id ),
+		// Re-fetch every 2s while the backend is still processing this
+		// video so the poster / duration appear without a manual reload.
+		refetchInterval: q => ( q.state.data?.isProcessing ? 2000 : false ),
 	} );
 
 	return {

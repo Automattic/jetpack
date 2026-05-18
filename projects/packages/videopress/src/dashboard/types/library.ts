@@ -27,6 +27,7 @@ export interface MockLibraryItem {
 	allowDownloads: boolean;
 	shortcode: string;
 	sourceUrl?: string;
+	isProcessing: boolean;
 }
 
 export type VideoDetailsPatch = Partial<

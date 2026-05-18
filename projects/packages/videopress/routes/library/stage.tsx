@@ -171,6 +171,7 @@ const StageInner = () => {
 			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
 			.map( u => ( {
 				id: u.id,
+				guid: '',
 				type: 'local' as const,
 				title: u.file.name.replace( /\.[^.]+$/, '' ),
 				filename: u.file.name,
@@ -178,6 +179,7 @@ const StageInner = () => {
 				durationSeconds: 0,
 				uploadDate: new Date().toISOString(),
 				privacy: 'site-default' as LibraryItemPrivacy,
+				isPrivate: false,
 				fileSizeBytes: u.file.size,
 				upload: {
 					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
@@ -188,6 +190,7 @@ const StageInner = () => {
 				displayEmbed: false,
 				allowDownloads: false,
 				shortcode: '',
+				isProcessing: false,
 			} ) );
 		return [ ...inFlight, ...items ];
 	}, [ uploadQueue, items ] );

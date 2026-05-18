@@ -19,7 +19,7 @@ type ApiMediaItem = {
 		filesize?: number;
 		width?: number;
 		height?: number;
-		videopress?: { duration?: number; poster?: string };
+		videopress?: { duration?: number; poster?: string; finished?: boolean };
 	};
 	jetpack_videopress?: {
 		guid?: string;
@@ -124,13 +124,16 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 	const vpDurationMs = raw.media_details?.videopress?.duration;
 	const durationSeconds =
 		vpDurationMs !== undefined ? Math.floor( vpDurationMs / 1000 ) : raw.media_details?.length ?? 0;
+	const poster = raw.media_details?.videopress?.poster;
+	const finished = raw.media_details?.videopress?.finished;
+	const isProcessing = isVideoPress && ( ! poster || finished === false );
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
 		title: raw.title?.rendered ?? raw.slug ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
-		thumbnailUrl: raw.media_details?.videopress?.poster ?? null,
+		thumbnailUrl: poster ?? null,
 		durationSeconds,
 		uploadDate: raw.date ?? '',
 		privacy: privacyIntToString( vp?.privacy_setting ),
@@ -143,6 +146,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		isProcessing,
 	};
 }
 
@@ -180,6 +184,12 @@ export function useLibrary( view: View ) {
 		queryKey: [ 'jetpack-videopress-library', viewToQueryArgs( view ) ],
 		queryFn: () => fetchLibrary( view ),
 		placeholderData: keepPreviousData,
+		// While any item on the current page is still being processed
+		// by the VideoPress backend (no poster yet / finished=false),
+		// re-fetch every 2s so the placeholder is replaced as soon as
+		// the data is ready. React-query pauses this when the tab is
+		// hidden, so it's cheap.
+		refetchInterval: q => ( q.state.data?.items.some( item => item.isProcessing ) ? 2000 : false ),
 	} );
 
 	return {

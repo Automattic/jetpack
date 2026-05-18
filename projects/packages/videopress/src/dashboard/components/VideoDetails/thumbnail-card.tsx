@@ -76,19 +76,30 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	const link = linkForVideo( video );
 	const posterUrl = usePosterUrl( video );
 
+	let thumbnail: ReactElement | null = null;
+	if ( posterUrl ) {
+		thumbnail = (
+			<img
+				src={ posterUrl }
+				alt=""
+				width={ 240 }
+				height={ 135 }
+				className="vp-video-details__thumbnail"
+			/>
+		);
+	} else if ( video.isProcessing ) {
+		thumbnail = (
+			<div className="vp-video-details__thumbnail vp-video-details__thumbnail-processing">
+				<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+			</div>
+		);
+	}
+
 	return (
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="row" gap="md" align="start" className="vp-video-details__thumbnail-row">
-					{ posterUrl && (
-						<img
-							src={ posterUrl }
-							alt=""
-							width={ 240 }
-							height={ 135 }
-							className="vp-video-details__thumbnail"
-						/>
-					) }
+					{ thumbnail }
 					<Stack direction="column" gap="md" className="vp-video-details__thumbnail-meta">
 						<Button
 							variant="outline"

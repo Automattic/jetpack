@@ -22,7 +22,7 @@ const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 };
 
 const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
-	const { upload, type, title } = item;
+	const { upload, type, title, isProcessing } = item;
 	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
 		pill = {
@@ -37,6 +37,11 @@ const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 		pill = {
 			intent: 'high',
 			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+		};
+	} else if ( isProcessing ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {
 		pill = {
