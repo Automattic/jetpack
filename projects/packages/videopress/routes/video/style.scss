@@ -18,6 +18,13 @@
 	text-align: center;
 }
 
+// Empty placeholder shown while the /wp/v2/media/{id} fetch is in flight.
+// Sized to roughly match the editor body height so the layout doesn't
+// jump when the real content arrives.
+.vp-video-details__loading {
+	min-height: 320px;
+}
+
 .vp-video-details__thumbnail {
 	width: 240px;
 	height: 135px;

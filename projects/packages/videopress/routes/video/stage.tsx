@@ -43,6 +43,24 @@ const NotFound = () => (
 	</AdminPage>
 );
 
+// Placeholder shown while /wp/v2/media/{id} is in flight. Mirrors NotFound's
+// AdminPage + breadcrumbs shell so the page chrome stays present rather than
+// blanking out the viewport for the duration of the fetch.
+const Loading = () => (
+	<AdminPage
+		breadcrumbs={
+			<Breadcrumbs
+				items={ [
+					{ label: 'VideoPress', to: '/library' },
+					{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
+				] }
+			/>
+		}
+	>
+		<div className="vp-video-details vp-video-details__loading" aria-busy="true" />
+	</AdminPage>
+);
+
 type EditorProps = {
 	video: MockLibraryItem;
 	onSave: (
@@ -193,7 +211,7 @@ const StageInner = () => {
 	const { video, isLoading } = useVideo( id );
 
 	if ( isLoading ) {
-		return null;
+		return <Loading />;
 	}
 
 	if ( ! video || ! isEditable( video ) ) {
