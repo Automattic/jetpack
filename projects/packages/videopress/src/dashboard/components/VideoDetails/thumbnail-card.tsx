@@ -14,7 +14,10 @@ type Props = {
 
 const dateSettings = getDateSettings();
 
-const linkForVideo = ( video: MockLibraryItem ): string => `https://videopress.com/v/${ video.id }`;
+const linkForVideo = ( video: MockLibraryItem ): string => {
+	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
+	return `https://${ host }/v/${ video.guid || video.id }`;
+};
 
 /**
  * Icon-only button that copies its `text` prop to the clipboard. Uses

@@ -10,6 +10,7 @@ export interface UploadState {
 
 export interface MockLibraryItem {
 	id: string;
+	guid: string;
 	type: LibraryItemType;
 	title: string;
 	filename: string;
@@ -17,6 +18,7 @@ export interface MockLibraryItem {
 	durationSeconds: number;
 	uploadDate: string;
 	privacy: LibraryItemPrivacy;
+	isPrivate: boolean;
 	fileSizeBytes: number;
 	upload: UploadState;
 	description: string;

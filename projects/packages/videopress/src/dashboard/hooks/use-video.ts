@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { buildShortcode } from '../utils/format';
 import { privacyIntToString } from './use-library';
 import type { MockLibraryItem } from '../types/library';
 
@@ -8,13 +9,19 @@ type ApiMediaItem = {
 	title?: { rendered?: string };
 	source_url?: string;
 	date?: string;
-	media_details?: { length?: number; filesize?: number };
+	media_details?: {
+		length?: number;
+		filesize?: number;
+		width?: number;
+		height?: number;
+	};
 	jetpack_videopress?: {
 		guid?: string;
 		rating?: string;
 		display_embed?: 0 | 1 | boolean;
 		allow_download?: 0 | 1 | boolean;
 		privacy_setting?: 0 | 1 | 2;
+		is_private?: boolean;
 		description?: string;
 		poster?: string;
 	};
@@ -30,6 +37,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 	const vp = raw.jetpack_videopress;
 	return {
 		id: String( raw.id ),
+		guid: vp?.guid ?? '',
 		type: vp?.guid ? 'videopress' : 'local',
 		title: raw.title?.rendered ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
@@ -37,13 +45,14 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		durationSeconds: raw.media_details?.length ?? 0,
 		uploadDate: raw.date ?? '',
 		privacy: privacyIntToString( vp?.privacy_setting ),
+		isPrivate: Boolean( vp?.is_private ),
 		fileSizeBytes: raw.media_details?.filesize ?? 0,
 		upload: { status: 'idle', progress: 0 },
 		description: vp?.description ?? '',
 		rating: ( vp?.rating ?? 'G' ) as MockLibraryItem[ 'rating' ],
 		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
-		shortcode: vp?.guid ? `[videopress ${ vp.guid }]` : '',
+		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 	};
 }

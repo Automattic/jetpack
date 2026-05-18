@@ -1,6 +1,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { buildShortcode } from '../utils/format';
 import type { LibraryItemPrivacy, MockLibraryItem } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
@@ -13,13 +14,20 @@ type ApiMediaItem = {
 	source_url?: string;
 	date?: string;
 	mime_type?: string;
-	media_details?: { length?: number; filesize?: number };
+	media_details?: {
+		length?: number;
+		filesize?: number;
+		width?: number;
+		height?: number;
+		videopress?: { duration?: number };
+	};
 	jetpack_videopress?: {
 		guid?: string;
 		rating?: string;
 		display_embed?: 0 | 1 | boolean;
 		allow_download?: 0 | 1 | boolean;
 		privacy_setting?: 0 | 1 | 2;
+		is_private?: boolean;
 		description?: string;
 		caption?: string;
 		poster?: string;
@@ -114,22 +122,27 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 	const vp = raw.jetpack_videopress;
 	const isVideoPress = Boolean( vp?.guid );
+	const vpDurationMs = raw.media_details?.videopress?.duration;
+	const durationSeconds =
+		vpDurationMs !== undefined ? Math.floor( vpDurationMs / 1000 ) : raw.media_details?.length ?? 0;
 	return {
 		id: String( raw.id ),
+		guid: vp?.guid ?? '',
 		type: isVideoPress ? 'videopress' : 'local',
 		title: raw.title?.rendered ?? raw.slug ?? '',
 		filename: raw.source_url?.split( '/' ).pop() ?? '',
 		thumbnailUrl: vp?.poster ?? null,
-		durationSeconds: raw.media_details?.length ?? 0,
+		durationSeconds,
 		uploadDate: raw.date ?? '',
 		privacy: privacyIntToString( vp?.privacy_setting ),
+		isPrivate: Boolean( vp?.is_private ),
 		fileSizeBytes: raw.media_details?.filesize ?? 0,
 		upload: { status: 'idle', progress: 0 },
 		description: vp?.description ?? '',
 		rating: ( vp?.rating ?? 'G' ) as MockLibraryItem[ 'rating' ],
 		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
-		shortcode: vp?.guid ? `[videopress ${ vp.guid }]` : '',
+		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 	};
 }
