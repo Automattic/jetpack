@@ -65,7 +65,7 @@ const Stage = () => {
 					panelId={ TRENDS_PANEL_ID }
 					activeTabId={ KPI_TAB_IDS[ activeMetric ] }
 				/>
-				{ showStorageMeter && <StorageMeterCard usedBytes={ stats.storageUsedBytes } /> }
+				{ showStorageMeter && <StorageMeterCard /> }
 				<div className="vp-overview__row--bottom">
 					<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
 					<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
