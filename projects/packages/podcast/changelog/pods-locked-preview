@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a locked-preview component for free users on the Episodes and Stats panels: a blurred sample of the gated content behind a centered upgrade overlay.
+Dashboard: gate the Episodes tab on Premium product access, with a blurred locked-preview overlay for free users.
