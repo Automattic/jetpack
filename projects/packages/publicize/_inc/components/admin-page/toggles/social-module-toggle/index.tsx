@@ -1,9 +1,13 @@
-import { Text, getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	IconTooltip,
+	Text,
+	getRedirectUrl,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
-import { Link, Notice, Tooltip } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
@@ -92,20 +96,14 @@ const SocialModuleToggle: FC = () => {
 				<Notice.Root intent="info" className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }>
 					<Notice.Description>
 						{ __( 'Unlock advanced sharing options', 'jetpack-publicize-pkg' ) }{ ' ' }
-						<Tooltip.Root>
-							<Tooltip.Trigger
-								aria-label={ __( 'More details', 'jetpack-publicize-pkg' ) }
-								className={ styles[ 'upgrade-tooltip-trigger' ] }
-							>
-								<Icon icon={ info } size={ 16 } />
-							</Tooltip.Trigger>
-							<Tooltip.Popup>
+						<IconTooltip className={ styles[ 'upgrade-tooltip' ] } iconSize={ 16 } offset={ 4 }>
+							<Text variant="body-small">
 								{ __(
 									'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
 									'jetpack-publicize-pkg'
 								) }
-							</Tooltip.Popup>
-						</Tooltip.Root>
+							</Text>
+						</IconTooltip>
 					</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionLink

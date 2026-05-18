@@ -13,7 +13,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * The class to handle the Social Admin Page.
@@ -129,16 +128,6 @@ class Social_Admin_Page {
 		// Dequeue the old Social assets.
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
-
-		// Register polyfills for WP < 7.0 (must run before enqueue).
-		// social-admin-page now depends on wp-theme and wp-private-apis via @wordpress/ui's Tooltip composition.
-		WP_Build_Polyfills::register(
-			'jetpack-publicize',
-			array_merge(
-				WP_Build_Polyfills::SCRIPT_HANDLES,
-				WP_Build_Polyfills::MODULE_IDS
-			)
-		);
 
 		Assets::register_script(
 			'social-admin-page',
