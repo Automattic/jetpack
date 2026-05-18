@@ -3,7 +3,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getPodcastStatsBarFill } from '../lib/bar-fill-color';
 import { formatPodcastDate } from '../lib/format';
 import { getPeriodDayCount } from '../range';
 import SectionCard from './section-card';
@@ -90,11 +89,9 @@ const StatsByDayChart = ( {
 	);
 
 	// @automattic/charts uses options.stroke as the per-series bar color override.
-	const barFill = useMemo( () => getPodcastStatsBarFill(), [] );
-
 	const seriesData = useMemo(
-		() => [ { label: downloadsLabel, data: chartData, options: { stroke: barFill } } ],
-		[ downloadsLabel, chartData, barFill ]
+		() => [ { label: downloadsLabel, data: chartData, options: { stroke: '#3858e9' } } ],
+		[ downloadsLabel, chartData ]
 	);
 
 	const total = useMemo(
