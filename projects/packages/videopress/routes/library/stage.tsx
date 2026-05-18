@@ -9,8 +9,12 @@ import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
 import { libraryFields } from '../../src/dashboard/components/Library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/Library/upload-actions-context';
+import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
+import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { useMockLibrary } from '../../src/dashboard/hooks/use-mock-library';
+import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import './style.scss';
 import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
@@ -43,13 +47,15 @@ const defaultLayouts = {
 	table: { density: 'balanced' as const },
 };
 
-const Stage = () => {
-	const { items, isLoading, startUpload, promoteLocal, retryUpload, deleteItems, setPrivacy } =
-		useMockLibrary();
-	const { isAtLimit } = useFreeTier();
-
+const StageInner = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ selection, setSelection ] = useState< string[] >( [] );
+
+	const { items, isLoading, paginationInfo } = useLibrary( view );
+	const { uploadQueue, startUpload, retryUpload } = useUpload();
+	const { mutate: deleteVideo } = useDeleteVideo();
+	const { mutate: updateMeta } = useUpdateVideoMeta();
+	const { isAtLimit } = useFreeTier();
 
 	const onChangeView = useCallback( ( next: View ) => {
 		setView( current => {
@@ -95,97 +101,76 @@ const Stage = () => {
 	const actions = useMemo(
 		() =>
 			buildLibraryActions( {
-				promoteLocal,
+				promoteLocal: () => {
+					// no-op: the real uploader doesn't have a separate "promote local" step
+				},
 				retryUpload,
 				openVideoDetails,
-				deleteItems: ids => {
-					deleteItems( ids );
-					createSuccessNotice(
-						sprintf(
-							/* translators: %d: number of deleted videos. */
-							_n( '%d video deleted.', '%d videos deleted.', ids.length, 'jetpack-videopress-pkg' ),
-							ids.length
-						)
-					);
+				deleteItems: ( ids: string[] ) => {
+					deleteVideo( ids, {
+						onSuccess: () => {
+							createSuccessNotice(
+								sprintf(
+									/* translators: %d: number of deleted videos. */
+									_n(
+										'%d video deleted.',
+										'%d videos deleted.',
+										ids.length,
+										'jetpack-videopress-pkg'
+									),
+									ids.length
+								)
+							);
+						},
+					} );
 				},
-				setPrivacy: ( id, privacy ) => {
-					setPrivacy( id, privacy );
-					createSuccessNotice(
-						sprintf(
-							/* translators: %s: new privacy label, e.g. "Public". */
-							__( 'Privacy updated to %s.', 'jetpack-videopress-pkg' ),
-							PRIVACY_LABELS[ privacy ]
-						)
+				setPrivacy: ( id: string, privacy: LibraryItemPrivacy ) => {
+					updateMeta(
+						{ id, patch: { privacy } },
+						{
+							onSuccess: () => {
+								createSuccessNotice(
+									sprintf(
+										/* translators: %s: new privacy label. */
+										__( 'Privacy updated to %s.', 'jetpack-videopress-pkg' ),
+										PRIVACY_LABELS[ privacy ]
+									)
+								);
+							},
+						}
 					);
 				},
 			} ),
-		[ promoteLocal, retryUpload, deleteItems, setPrivacy, openVideoDetails, createSuccessNotice ]
+		[ retryUpload, deleteVideo, updateMeta, openVideoDetails, createSuccessNotice ]
 	);
 
-	const filteredData = useMemo< MockLibraryItem[] >( () => {
-		let result = items;
-
-		const search = view.search?.trim().toLowerCase();
-		if ( search ) {
-			result = result.filter(
-				item =>
-					item.title.toLowerCase().includes( search ) ||
-					item.filename.toLowerCase().includes( search )
-			);
-		}
-
-		for ( const filter of view.filters ?? [] ) {
-			const { field, value } = filter;
-			if ( value === undefined || value === null || value === 'all' ) {
-				continue;
-			}
-			result = result.filter( item => {
-				switch ( field ) {
-					case 'type':
-						return item.type === value;
-					case 'privacy':
-						return item.privacy === value;
-					default:
-						return true;
-				}
-			} );
-		}
-
-		if ( view.sort ) {
-			const { field, direction } = view.sort;
-			const dir = direction === 'asc' ? 1 : -1;
-			result = [ ...result ].sort( ( a, b ) => {
-				switch ( field ) {
-					case 'title':
-						return a.title.localeCompare( b.title ) * dir;
-					case 'uploadDate':
-						return ( a.uploadDate < b.uploadDate ? -1 : 1 ) * dir;
-					case 'duration':
-						return ( a.durationSeconds - b.durationSeconds ) * dir;
-					case 'fileSize':
-						return ( a.fileSizeBytes - b.fileSizeBytes ) * dir;
-					default:
-						return 0;
-				}
-			} );
-		}
-
-		return result;
-	}, [ items, view.search, view.filters, view.sort ] );
-
-	const perPage = view.perPage ?? 12;
-	const totalItems = filteredData.length;
-	const totalPages = Math.max( 1, Math.ceil( totalItems / perPage ) );
-	const page = Math.min( view.page ?? 1, totalPages );
-	const pagedData = useMemo(
-		() => filteredData.slice( ( page - 1 ) * perPage, page * perPage ),
-		[ filteredData, page, perPage ]
-	);
-
-	const paginationInfo = useMemo(
-		() => ( { totalItems, totalPages } ),
-		[ totalItems, totalPages ]
-	);
+	// Splice in-flight uploads at the top of the listing so the user sees
+	// their upload immediately, before the next server refetch.
+	const renderedItems = useMemo< MockLibraryItem[] >( () => {
+		const inFlight: MockLibraryItem[] = uploadQueue
+			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			.map( u => ( {
+				id: u.id,
+				type: 'local' as const,
+				title: u.file.name.replace( /\.[^.]+$/, '' ),
+				filename: u.file.name,
+				thumbnailUrl: null,
+				durationSeconds: 0,
+				uploadDate: new Date().toISOString(),
+				privacy: 'site-default' as LibraryItemPrivacy,
+				fileSizeBytes: u.file.size,
+				upload: {
+					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
+					progress: Math.round( u.progress * 100 ),
+				},
+				description: '',
+				rating: 'G' as MockLibraryItem[ 'rating' ],
+				displayEmbed: false,
+				allowDownloads: false,
+				shortcode: '',
+			} ) );
+		return [ ...inFlight, ...items ];
+	}, [ uploadQueue, items ] );
 
 	const getItemId = useCallback( ( item: MockLibraryItem ) => item.id, [] );
 
@@ -224,10 +209,10 @@ const Stage = () => {
 				</>
 			}
 		>
-			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
+			<UploadActionsProvider value={ { promoteLocal: () => {}, retryUpload } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DataViews< MockLibraryItem >
-						data={ pagedData }
+						data={ renderedItems }
 						fields={ libraryFields }
 						actions={ actions }
 						view={ view }
@@ -244,5 +229,11 @@ const Stage = () => {
 		</DashboardLayout>
 	);
 };
+
+const Stage = () => (
+	<QueryClientWrapper>
+		<StageInner />
+	</QueryClientWrapper>
+);
 
 export { Stage as stage };
