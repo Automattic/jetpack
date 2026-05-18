@@ -1,0 +1,82 @@
+.jpb-activity-list {
+	// Clip DataViews to the card's rounded corners so list dividers and
+	// the search/view-actions row don't peek past the border-radius.
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+
+	// Give the search + view-actions row some breathing room from the
+	// card edge; rows below stay flush so dividers run edge-to-edge.
+	.dataviews__view-actions {
+		padding: 16px 16px 8px;
+	}
+
+	// DataViews renders a `role="checkbox"` selection indicator in the
+	// list layout whenever `selection` is driven externally. We drive
+	// selection through row clicks instead, so the checkbox is redundant
+	// and shows up as a visual artifact.
+	.dataviews-selection-checkbox {
+		display: none;
+	}
+
+	// Center the gridicon inside DataViews' 52x52 media placeholder.
+	// Without this the Icon element sits in the top-left of the box.
+	.dataviews-view-list__media-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #757575;
+	}
+
+	// Keep the date + summary metadata on a single line with overflow
+	// ellipsis so long stats don't push title onto a second line.
+	.dataviews-view-list__fields {
+		flex-wrap: nowrap;
+		overflow: hidden;
+	}
+
+	.dataviews-view-list__field-value {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-inline-size: 0;
+	}
+
+	// Vertically center the pagination pieces (label, page-size, prev/next).
+	.dataviews-footer,
+	.dataviews-footer__content,
+	.dataviews-pagination {
+		align-items: center;
+	}
+
+	// Center the gridicon inside DataViews' media tile. The tile's own
+	// background + border come from DataViews's media-wrapper styles, so
+	// we don't add a second border here (that produced two concentric
+	// outlines around the icon).
+	&__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--wp-components-color-foreground, #1e1e1e);
+		flex-shrink: 0;
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__summary {
+		// Trim long summary strings so the description cell stays on one line.
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Keep the date text on a single line — without this the comma in
+	// "May 15, 2026, 9:26 AM" lets the row wrap mid-date, pushing the
+	// summary onto a second visual line at the column's typical width.
+	&__date {
+		white-space: nowrap;
+	}
+}

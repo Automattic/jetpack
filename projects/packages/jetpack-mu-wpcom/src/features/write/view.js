@@ -1128,6 +1128,21 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( altBtn );
 
+		// Captions saved by the editor come back from the server with class
+		// `wp-element-caption` and no `contentEditable`, so without this any
+		// reloaded caption would be uneditable and left-aligned (missing the
+		// `bw-figcaption` style).
+		const existingFigcaption = fig.querySelector( 'figcaption' );
+		if ( existingFigcaption ) {
+			existingFigcaption.classList.add( 'bw-figcaption' );
+			existingFigcaption.contentEditable = 'true';
+			existingFigcaption.setAttribute(
+				'data-placeholder',
+				i18n.writeCaption || 'Write a caption...'
+			);
+			existingFigcaption.addEventListener( 'click', ev => ev.stopPropagation() );
+		}
+
 		// Caption button.
 		const capBtn = document.createElement( 'button' );
 		capBtn.className = 'bw-img-caption-btn';

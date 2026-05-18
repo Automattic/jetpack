@@ -1,4 +1,5 @@
 const mockReaderChatControl = jest.fn();
+const mockSearchSuggestionsControl = jest.fn();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -60,6 +61,11 @@ jest.mock( 'components/reader-chat-control', () => props => {
 	return <div data-testid="reader-chat-control" />;
 } );
 
+jest.mock( 'components/search-suggestions-control', () => props => {
+	mockSearchSuggestionsControl( props );
+	return <div data-testid="search-suggestions-control" />;
+} );
+
 jest.mock( 'components/upsell-nudge', () => () => <div data-testid="instant-search-upsell" /> );
 
 jest.mock( 'store', () => ( {
@@ -85,6 +91,7 @@ const defaultProps = {
 	supportsInstantSearch: true,
 	isTogglingModule: false,
 	isTogglingInstantSearch: false,
+	isSearchSuggestionsEnabled: false,
 	readerChatGuidelinesUrl:
 		'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 };
@@ -92,14 +99,20 @@ const defaultProps = {
 describe( 'ModuleControl', () => {
 	beforeEach( () => {
 		mockReaderChatControl.mockClear();
+		mockSearchSuggestionsControl.mockClear();
 	} );
 
-	test( 'renders the Reader Chat control after the Instant Search setting', () => {
+	test( 'renders the Reader Chat and Search Suggestions controls after the Instant Search setting', () => {
 		render( <ModuleControl { ...defaultProps } /> );
 
-		expect( screen.getAllByTestId( /^(instant-search-toggle|reader-chat-control)$/ ) ).toEqual( [
+		expect(
+			screen.getAllByTestId(
+				/^(instant-search-toggle|reader-chat-control|search-suggestions-control)$/
+			)
+		).toEqual( [
 			screen.getByTestId( 'instant-search-toggle' ),
 			screen.getByTestId( 'reader-chat-control' ),
+			screen.getByTestId( 'search-suggestions-control' ),
 		] );
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
@@ -107,6 +120,16 @@ describe( 'ModuleControl', () => {
 				isEnabled: true,
 				isSaving: false,
 				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				updateOptions: defaultProps.updateOptions,
+			} )
+		);
+		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isEnabled: false,
+				isInstantSearchEnabled: true,
+				supportsInstantSearch: true,
+				isSaving: false,
+				isDisabledFromOverLimit: false,
 				updateOptions: defaultProps.updateOptions,
 			} )
 		);

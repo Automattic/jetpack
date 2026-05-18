@@ -140,7 +140,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'overlay' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                 => 'overlay',
+				'search_suggestions_enabled' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -193,7 +199,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'off' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                 => 'off',
+				'search_suggestions_enabled' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -217,6 +229,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'experience'                    => 'off',
 			'ai_answers_enabled'            => false,
+			'search_suggestions_enabled'    => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -241,6 +254,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'experience'                    => 'overlay',
 			'ai_answers_enabled'            => false,
+			'search_suggestions_enabled'    => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -265,6 +279,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => true,
 			'experience'                    => 'off',
 			'ai_answers_enabled'            => false,
+			'search_suggestions_enabled'    => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -289,6 +304,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'experience'                    => 'off',
 			'ai_answers_enabled'            => false,
+			'search_suggestions_enabled'    => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );

@@ -1224,8 +1224,12 @@
 	background: rgba(33, 113, 177, 0.85);
 }
 
-/* Figcaption */
-.bw-figcaption {
+/* Figcaption.
+ * `.wp-element-caption` is the class on saved markup served by the server
+ * before JS upgrades it to `.bw-figcaption` — match both so reloaded
+ * captions don't flash left-aligned before init runs. */
+.bw-figcaption,
+.bw-content .wp-element-caption {
 	text-align: center;
 	font-size: 0.875rem;
 	color: #999;

@@ -228,9 +228,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 
 			<Card>
 				<CardHeader>
-					<h2 className="podcast__section-heading">
-						{ __( 'Podcast category', 'jetpack-podcast' ) }
-					</h2>
+					<h2 className="podcast__section-heading">{ __( 'Post category', 'jetpack-podcast' ) }</h2>
 				</CardHeader>
 				<CardBody>
 					<VStack spacing={ 3 }>

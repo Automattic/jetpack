@@ -33,6 +33,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_title' );
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
+		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		unset( $GLOBALS['post'] );
@@ -213,6 +214,15 @@ class Customize_Feed_Test extends BaseTestCase {
 			}
 		);
 
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				return 'https://example.com/path/episode.M4A?v=1' === $url ? 9001 : $pre;
+			},
+			10,
+			2
+		);
+
 		$original = '<enclosure url="https://example.com/path/episode.M4A?v=1" length="123" type="audio/m4a" />';
 		$result   = Customize_Feed::rewrite_enclosure( $original );
 
@@ -236,6 +246,15 @@ class Customize_Feed_Test extends BaseTestCase {
 			static function () {
 				return 99;
 			}
+		);
+
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				return 'https://example.com/episode.exe' === $url ? 9002 : $pre;
+			},
+			10,
+			2
 		);
 
 		$original = '<enclosure url="https://example.com/episode.exe" length="1" type="audio/mpeg" />';

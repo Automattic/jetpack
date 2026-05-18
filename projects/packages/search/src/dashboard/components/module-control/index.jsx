@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
 import Card from 'components/card';
 import ReaderChatControl from 'components/reader-chat-control';
+import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
@@ -47,6 +48,7 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
  * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
  * @param {string}   props.readerChatGuidelinesUrl        - Guidelines admin URL, when available.
+ * @param {boolean}  props.isSearchSuggestionsEnabled     - true if search suggestions (autocomplete) is enabled.
  * @return {import('react').Component} Search settings component.
  */
 export default function SearchModuleControl( {
@@ -66,6 +68,7 @@ export default function SearchModuleControl( {
 	isTogglingModule,
 	isTogglingInstantSearch,
 	readerChatGuidelinesUrl,
+	isSearchSuggestionsEnabled,
 } ) {
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
@@ -156,6 +159,15 @@ export default function SearchModuleControl( {
 						isEnabled={ isReaderChatEnabled }
 						isSaving={ isSavingEitherOption }
 						guidelinesUrl={ readerChatGuidelinesUrl }
+						updateOptions={ updateOptions }
+					/>
+
+					<SearchSuggestionsControl
+						isEnabled={ isSearchSuggestionsEnabled }
+						isInstantSearchEnabled={ isInstantSearchEnabled }
+						supportsInstantSearch={ supportsInstantSearch }
+						isSaving={ isSavingEitherOption }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 						updateOptions={ updateOptions }
 					/>
 				</div>

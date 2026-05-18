@@ -1,5 +1,6 @@
 const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
+const mockSearchSuggestionsControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -39,6 +40,10 @@ jest.mock( 'components/experience-selector', () => () => (
 jest.mock( 'components/reader-chat-control', () => props => {
 	mockReaderChatControl( props );
 	return <div data-testid="reader-chat-control" />;
+} );
+jest.mock( 'components/search-suggestions-control', () => props => {
+	mockSearchSuggestionsControl( props );
+	return <div data-testid="search-suggestions-control" />;
 } );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
@@ -85,6 +90,7 @@ const createSelectMethods = () => ( {
 	isReaderChatEnabled: jest.fn( () => true ),
 	isResolving: jest.fn( () => false ),
 	isSearchBlocksEnabled: jest.fn( () => false ),
+	isSearchSuggestionsEnabled: jest.fn( () => false ),
 	isTogglingInstantSearch: jest.fn( () => false ),
 	isTogglingModule: jest.fn( () => false ),
 	isUpdatingJetpackSettings: jest.fn( () => false ),
@@ -97,6 +103,7 @@ describe( 'DashboardPage', () => {
 	beforeEach( () => {
 		mockModuleControl.mockClear();
 		mockReaderChatControl.mockClear();
+		mockSearchSuggestionsControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
@@ -142,6 +149,54 @@ describe( 'DashboardPage', () => {
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
+	} );
+
+	test( 'renders SearchSuggestionsControl below Reader Chat when search blocks is enabled', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		const blocks = screen.getAllByTestId(
+			/^(experience-selector|reader-chat-control|search-suggestions-control)$/
+		);
+		expect( blocks ).toEqual( [
+			screen.getByTestId( 'experience-selector' ),
+			screen.getByTestId( 'reader-chat-control' ),
+			screen.getByTestId( 'search-suggestions-control' ),
+		] );
+		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isEnabled: false,
+				isInstantSearchEnabled: true,
+				supportsInstantSearch: true,
+				isSaving: false,
+				isDisabledFromOverLimit: false,
+				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
+	} );
+
+	test( 'does not render the Search Suggestions card when instant search is disabled', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isInstantSearchEnabled' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.queryByTestId( 'search-suggestions-control' ) ).not.toBeInTheDocument();
+		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'does not render the Search Suggestions card when the plan does not support instant search', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'supportsInstantSearch' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.queryByTestId( 'search-suggestions-control' ) ).not.toBeInTheDocument();
+		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
 	} );
 
 	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {
