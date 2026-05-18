@@ -28,9 +28,12 @@ $jetpack-podcast-episode-gap: 16px;
 		inline-size: 160px;
 		max-inline-size: 40%;
 
+		// Square the poster so the editor preview and the front-end match
+		// what the feed serves (Photon center-crops covers to 1:1).
 		img {
 			inline-size: 100%;
-			block-size: auto;
+			aspect-ratio: 1;
+			object-fit: cover;
 			border-radius: calc(#{$jetpack-podcast-episode-radius} - 2px);
 			display: block;
 		}

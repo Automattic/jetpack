@@ -1,13 +1,20 @@
 .podcast__episode-thumb {
 	width: 56px;
 	height: 56px;
-	object-fit: cover;
+	overflow: hidden;
 	border-radius: 4px;
 }
 
 .podcast__episode-thumb--placeholder {
 	background: #f0f0f1;
 	border: 1px dashed #dcdcde;
+}
+
+.podcast__tab-content .podcast__episode-thumb .podcast__episode-thumb__image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .podcast__empty-state {
