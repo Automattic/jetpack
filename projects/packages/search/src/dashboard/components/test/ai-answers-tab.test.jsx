@@ -76,15 +76,15 @@ const mockUpdateJetpackSettings = jest.fn();
 /**
  * Set up mocked store state for testing.
  *
- * @param {object}  root0                        - Options.
- * @param {boolean} root0.supportsInstantSearch  - Whether the site supports instant search.
- * @param {boolean} root0.isInstantSearchEnabled - Whether instant search is enabled.
- * @param {boolean} root0.isFreePlan             - Whether the site is on a free plan.
- * @param {boolean} root0.isAiAnswersEnabled     - Whether AI Answers is enabled.
+ * @param {object}  root0                    - Options.
+ * @param {boolean} root0.supportsSearch     - Whether the site supports search.
+ * @param {boolean} root0.isSearchEnabled    - Whether search is enabled.
+ * @param {boolean} root0.isFreePlan         - Whether the site is on a free plan.
+ * @param {boolean} root0.isAiAnswersEnabled - Whether AI Answers is enabled.
  */
 function setupStore( {
-	supportsInstantSearch = true,
-	isInstantSearchEnabled = true,
+	supportsSearch = true,
+	isSearchEnabled = true,
 	isFreePlan = false,
 	isAiAnswersEnabled = false,
 } = {} ) {
@@ -93,8 +93,8 @@ function setupStore( {
 	} );
 	useSelect.mockImplementation( fn =>
 		fn( () => ( {
-			supportsInstantSearch: () => supportsInstantSearch,
-			isInstantSearchEnabled: () => isInstantSearchEnabled,
+			supportsSearch: () => supportsSearch,
+			isModuleEnabled: () => isSearchEnabled,
 			isFreePlan: () => isFreePlan,
 			isAiAnswersEnabled: () => isAiAnswersEnabled,
 			getBlogId: () => 1,
@@ -120,16 +120,16 @@ describe( 'AiAnswersTab', () => {
 		expect( screen.getByRole( 'button', { name: /upgrade now/i } ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows upsell banner when instant search is not supported', async () => {
-		setupStore( { supportsInstantSearch: false } );
+	it( 'shows upsell banner when search is not supported', async () => {
+		setupStore( { supportsSearch: false } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
 			expect( screen.getByText( 'Upgrade to use AI Answers' ) ).toBeInTheDocument();
 		} );
 	} );
 
-	it( 'does not show upsell banner for paid plan users with instant search', async () => {
-		setupStore( { supportsInstantSearch: true, isFreePlan: false } );
+	it( 'does not show upsell banner for paid plan users with search', async () => {
+		setupStore( { supportsSearch: true, isFreePlan: false } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
 			expect( screen.queryByText( 'Upgrade to use AI Answers' ) ).not.toBeInTheDocument();
@@ -137,7 +137,7 @@ describe( 'AiAnswersTab', () => {
 	} );
 
 	it( 'settings section is present for paid plan users', async () => {
-		setupStore( { supportsInstantSearch: true, isAiAnswersEnabled: true } );
+		setupStore( { supportsSearch: true, isAiAnswersEnabled: true } );
 		render( <AiAnswersTab /> );
 		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
 	} );
@@ -150,24 +150,24 @@ describe( 'AiAnswersTab', () => {
 		expect( gated ).toHaveClass( 'jp-search-ai-answers-tab__settings--gated' );
 	} );
 
-	it( 'shows warning when instant search is supported but not enabled', async () => {
-		setupStore( { supportsInstantSearch: true, isInstantSearchEnabled: false } );
+	it( 'shows warning when search is supported but not enabled', async () => {
+		setupStore( { supportsSearch: true, isSearchEnabled: false } );
 		render( <AiAnswersTab /> );
 		await expect(
-			screen.findByText( 'Instant Search must be enabled for AI Answers to work.' )
+			screen.findByText( 'Search must be enabled for AI Answers to work.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Enable Instant Search on the Settings tab.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enable Search on the Settings tab.' ) ).toBeInTheDocument();
 	} );
 
-	it( 'toggle is not disabled when instant search is off but AI answers is already on', async () => {
-		setupStore( { isInstantSearchEnabled: false, isAiAnswersEnabled: true } );
+	it( 'toggle is not disabled when search is off but AI answers is already on', async () => {
+		setupStore( { isSearchEnabled: false, isAiAnswersEnabled: true } );
 		render( <AiAnswersTab /> );
 		const toggle = await screen.findByRole( 'checkbox' );
 		expect( toggle ).toBeEnabled();
 	} );
 
-	it( 'toggle is disabled when both instant search and AI answers are off', async () => {
-		setupStore( { isInstantSearchEnabled: false, isAiAnswersEnabled: false } );
+	it( 'toggle is disabled when both search and AI answers are off', async () => {
+		setupStore( { isSearchEnabled: false, isAiAnswersEnabled: false } );
 		render( <AiAnswersTab /> );
 		const toggle = await screen.findByRole( 'checkbox' );
 		expect( toggle ).toBeDisabled();

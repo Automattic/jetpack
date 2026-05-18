@@ -41,6 +41,7 @@ class Search_Blocks_Test extends TestCase {
 			'isPrivateSite',
 			'isWpcom',
 			'searchSuggestionsEnabled',
+			'aiAnswersEnabled',
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
@@ -103,11 +104,19 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertArrayHasKey( 'suggestions', $strings );
 		$this->assertArrayHasKey( 'popularFilters', $strings );
 		$this->assertArrayHasKey( 'articles', $strings );
+		$this->assertArrayHasKey( 'aiAnswer', $strings );
+		$this->assertArrayHasKey( 'aiAnswersFinding', $strings );
+		$this->assertArrayHasKey( 'aiAnswersError', $strings );
+		$this->assertArrayHasKey( 'aiAnswersShowMore', $strings );
+		$this->assertArrayHasKey( 'aiAnswersErrorCode', $strings );
+		$this->assertArrayHasKey( 'aiAnswersExtendedLoading', $strings );
 		$this->assertNotSame( '', $strings['searching'] );
 		$this->assertNotSame( '', $strings['searchSuggestions'] );
+		$this->assertNotSame( '', $strings['aiAnswer'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountSingle'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountPlural'] );
 		$this->assertStringContainsString( '%s', $strings['removeFilter'] );
+		$this->assertStringContainsString( '%s', $strings['aiAnswersErrorCode'] );
 	}
 
 	/**
@@ -130,6 +139,29 @@ class Search_Blocks_Test extends TestCase {
 				delete_option( 'jetpack_search_suggestions_enabled' );
 			} else {
 				update_option( 'jetpack_search_suggestions_enabled', $original );
+			}
+		}
+	}
+
+	/**
+	 * The global AI Answers setting is seeded into the embedded Search Blocks
+	 * runtime so the results-list block can render the answer panel.
+	 */
+	public function test_build_initial_state_seeds_ai_answers_setting() {
+		$original = get_option( 'jetpack_search_ai_answers_enabled', null );
+		try {
+			update_option( 'jetpack_search_ai_answers_enabled', true );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['aiAnswersEnabled'] );
+
+			update_option( 'jetpack_search_ai_answers_enabled', false );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertFalse( $state['aiAnswersEnabled'] );
+		} finally {
+			if ( null === $original || false === $original ) {
+				delete_option( 'jetpack_search_ai_answers_enabled' );
+			} else {
+				update_option( 'jetpack_search_ai_answers_enabled', $original );
 			}
 		}
 	}

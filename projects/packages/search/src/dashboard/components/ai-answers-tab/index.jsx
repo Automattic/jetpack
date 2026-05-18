@@ -16,15 +16,12 @@ import './style.scss';
  * @return {import('react').ReactElement} AiAnswersTab component.
  */
 export default function AiAnswersTab() {
-	const supportsInstantSearch = useSelect(
-		select => select( STORE_ID ).supportsInstantSearch(),
-		[]
-	);
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch(), [] );
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 
-	const { isAiAnswersEnabled, isInstantSearchEnabled, setAiAnswersEnabled } = useSearchSettings();
+	const { isAiAnswersEnabled, isSearchEnabled, setAiAnswersEnabled } = useSearchSettings();
 
 	const { run: sendToCart } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
@@ -41,7 +38,7 @@ export default function AiAnswersTab() {
 
 	const settingsClassName = [
 		'jp-search-ai-answers-tab__settings',
-		isFreePlan || ! supportsInstantSearch ? 'jp-search-ai-answers-tab__settings--gated' : '',
+		isFreePlan || ! supportsSearch ? 'jp-search-ai-answers-tab__settings--gated' : '',
 	]
 		.filter( Boolean )
 		.join( ' ' );
@@ -51,7 +48,7 @@ export default function AiAnswersTab() {
 
 	return (
 		<div className="jp-search-ai-answers-tab">
-			{ ( isFreePlan || ! supportsInstantSearch ) && (
+			{ ( isFreePlan || ! supportsSearch ) && (
 				<div className="jp-search-ai-answers-tab__upsell">
 					<div className="jp-search-dashboard-wrap">
 						<div className="jp-search-dashboard-row">
@@ -94,16 +91,13 @@ export default function AiAnswersTab() {
 							className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4"
 						>
 							{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
-							{ supportsInstantSearch && ! isInstantSearchEnabled && (
+							{ supportsSearch && ! isSearchEnabled && (
 								<Notice.Root intent="warning">
 									<Notice.Title>
-										{ __(
-											'Instant Search must be enabled for AI Answers to work.',
-											'jetpack-search-pkg'
-										) }
+										{ __( 'Search must be enabled for AI Answers to work.', 'jetpack-search-pkg' ) }
 									</Notice.Title>
 									<Notice.Description>
-										{ __( 'Enable Instant Search on the Settings tab.', 'jetpack-search-pkg' ) }
+										{ __( 'Enable Search on the Settings tab.', 'jetpack-search-pkg' ) }
 									</Notice.Description>
 								</Notice.Root>
 							) }
@@ -112,7 +106,7 @@ export default function AiAnswersTab() {
 								checked={ isAiAnswersEnabled }
 								onChange={ setAiAnswersEnabled }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-								disabled={ ! isInstantSearchEnabled && ! isAiAnswersEnabled }
+								disabled={ ! isSearchEnabled && ! isAiAnswersEnabled }
 							/>
 
 							{ ! isLoading && ! isUnavailable && (
@@ -124,13 +118,13 @@ export default function AiAnswersTab() {
 										onChange={ setContent }
 										placeholder={ DEFAULT_PERSONALITY }
 										rows={ 10 }
-										disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
+										disabled={ isSaving || ! isAiAnswersEnabled || ! isSearchEnabled }
 									/>
 									<div className="jp-search-ai-answers-tab__actions">
 										<Button
 											variant="solid"
 											onClick={ savePersonality }
-											disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
+											disabled={ isSaving || ! isAiAnswersEnabled || ! isSearchEnabled }
 										>
 											{ isSaving ? savingLabel : saveLabel }
 										</Button>

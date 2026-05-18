@@ -169,6 +169,7 @@ class Classic_Search {
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_search_suggestions' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_ai_answers' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
@@ -205,6 +206,89 @@ class Classic_Search {
 		);
 
 		Assets::enqueue_script( $handle );
+	}
+
+	/**
+	 * Enqueue AI Answers for theme-rendered search results.
+	 */
+	public function enqueue_ai_answers() {
+		if ( ! AI_Answers::is_enabled() ) {
+			return;
+		}
+		if ( ! $this->jetpack_blog_id || ! is_search() ) {
+			return;
+		}
+
+		$query = get_search_query( false );
+		if ( ! is_string( $query ) || strlen( trim( $query ) ) < 3 ) {
+			return;
+		}
+
+		$handle = 'jetpack-search-ai-answers';
+		Assets::register_script(
+			$handle,
+			'build/inline-search/jp-search-ai-answers.js',
+			Package::get_installed_path() . '/src',
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-search-pkg',
+			)
+		);
+
+		$options                   = Helper::generate_initial_javascript_state();
+		$options['query']          = $query;
+		$options['titleSelectors'] = $this->get_search_title_selectors();
+		$options['strings']        = $this->get_ai_answers_strings();
+
+		wp_add_inline_script(
+			$handle,
+			'window.JetpackSearchAIAnswersOptions = ' . wp_json_encode( $options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+
+		Assets::enqueue_script( $handle );
+	}
+
+	/**
+	 * CSS selectors where the theme-search AI Answers panel should be inserted.
+	 *
+	 * @return array<string>
+	 */
+	private function get_search_title_selectors() {
+		$default_selectors = array(
+			'.wp-block-query-title',
+			'.page-title',
+			'.archive-title',
+			'.entry-title',
+			'.nv-page-title',
+			'.page-subheading',
+		);
+
+		/**
+		 * Filter the selectors where theme-search enhancements appear.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $default_selectors CSS selectors for search title elements.
+		 */
+		return apply_filters( 'jetpack_search_title_selectors', $default_selectors );
+	}
+
+	/**
+	 * Strings for the theme-search AI Answers panel.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_ai_answers_strings() {
+		return array(
+			'aiAnswer'                 => __( 'AI answer', 'jetpack-search-pkg' ),
+			'aiAnswersFinding'         => __( 'Finding an answer', 'jetpack-search-pkg' ),
+			'aiAnswersError'           => __( 'Sorry, an error occurred while generating an answer.', 'jetpack-search-pkg' ),
+			'aiAnswersShowMore'        => __( 'Show more', 'jetpack-search-pkg' ),
+			/* translators: %s: numeric error code. */
+			'aiAnswersErrorCode'       => __( 'Error code: %s', 'jetpack-search-pkg' ),
+			'aiAnswersExtendedLoading' => __( 'Finding a more complete answer…', 'jetpack-search-pkg' ),
+		);
 	}
 
 	/**

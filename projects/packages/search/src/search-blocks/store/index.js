@@ -467,6 +467,22 @@ function* fetchResults( pageHandle ) {
 	return yield response.json();
 }
 
+/**
+ * Notify view bundles that a fresh first-page search started.
+ */
+function dispatchSearchStart() {
+	if ( typeof window === 'undefined' || ! state.aiAnswersEnabled ) {
+		return;
+	}
+	window.dispatchEvent(
+		new CustomEvent( 'jetpack-search:search-start', {
+			detail: {
+				query: state.searchQuery,
+			},
+		} )
+	);
+}
+
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		// UI: popover open flags. Kept as separate booleans so only one
@@ -738,6 +754,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.isLoading = true;
 			state.isLoadingMore = false;
 			state.hasError = false;
+			dispatchSearchStart();
 			state.resultsCountText = computeResultsCountText( state );
 			try {
 				const data = yield* fetchResults( null );

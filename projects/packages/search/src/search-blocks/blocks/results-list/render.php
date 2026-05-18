@@ -128,6 +128,11 @@ if ( '' === $error_message ) {
 	data-wp-init="callbacks.initialize"
 	data-wp-bind--aria-busy="state.isLoading"
 >
+	<div
+		class="jetpack-search-ai-answers"
+		data-jetpack-search-ai-answers
+		hidden
+	></div>
 	<ul
 		class="jetpack-search-results__list"
 		aria-live="polite"

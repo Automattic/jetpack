@@ -142,6 +142,7 @@ describe( 'store actions', () => {
 			homeUrl: 'https://example.com',
 			activeFilters: {},
 			filterConfigs: {},
+			aiAnswersEnabled: false,
 			priceRange: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
@@ -298,6 +299,30 @@ describe( 'store actions', () => {
 		// Slot key must not leak into state — downstream readers key off
 		// `filterKey`, never `effectiveSlug`.
 		expect( state.aggregations[ 'jetpack-search-tag1' ] ).toBeUndefined();
+	} );
+
+	it( 'dispatches a search-start event for AI Answers when enabled', async () => {
+		const listener = jest.fn();
+		window.addEventListener( 'jetpack-search:search-start', listener );
+		state.aiAnswersEnabled = true;
+		state.searchQuery = 'reset password';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+
+		try {
+			await runGenerator( actions.search( { syncUrl: false } ) );
+		} finally {
+			window.removeEventListener( 'jetpack-search:search-start', listener );
+		}
+
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+		expect( listener.mock.calls[ 0 ][ 0 ].detail ).toEqual( { query: 'reset password' } );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
