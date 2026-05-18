@@ -39,6 +39,8 @@ const getSiteSlug = (): string => {
 	}
 };
 
+const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
+
 const getPremiumCheckoutUrl = (): string => {
 	const slug = getSiteSlug();
 	const adminUrl = getSiteData()?.admin_url ?? '';
@@ -47,10 +49,17 @@ const getPremiumCheckoutUrl = (): string => {
 	const returnTo = adminUrl
 		? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
 		: '';
-	const base = slug
-		? `https://wordpress.com/checkout/${ slug }/premium`
-		: 'https://wordpress.com/checkout/premium';
-	return returnTo ? `${ base }?redirect_to=${ encodeURIComponent( returnTo ) }` : base;
+	const url = new URL(
+		slug
+			? `https://wordpress.com/checkout/${ slug }/premium`
+			: 'https://wordpress.com/checkout/premium'
+	);
+	// Calypso threads `source` through its downstream Tracks events.
+	url.searchParams.set( 'source', CHECKOUT_SOURCE );
+	if ( returnTo ) {
+		url.searchParams.set( 'redirect_to', returnTo );
+	}
+	return url.toString();
 };
 
 const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string } > = [
