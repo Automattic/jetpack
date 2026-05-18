@@ -320,6 +320,10 @@ const EpisodesTab = () => {
 		);
 	}
 
+	// Only show the CTA empty state when the table is empty for real; under an
+	// active search/filter, let DataViews render its own "no results" UI.
+	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+
 	return (
 		<DataViews< EpisodeRow >
 			data={ rows }
@@ -334,7 +338,7 @@ const EpisodesTab = () => {
 			getItemId={ getEpisodeRowId }
 			isLoading={ isLoading }
 			defaultLayouts={ { table: {} } }
-			empty={ <EmptyEpisodes /> }
+			empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
 			search
 		/>
 	);
