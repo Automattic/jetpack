@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Show why Submit buttons are disabled on the Distribution tab when your podcast setup is incomplete.
+Pull Pocket Casts out of the Distribution directory list into its own one-click section. Show why directory Submit buttons are disabled when podcast setup is incomplete.

@@ -112,6 +112,23 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const [ showConfetti, setShowConfetti ] = useState( false );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
+	// Pocket Casts auto-submits via the wpcom relay and goes live in minutes,
+	// so it only needs a category + title to send a usable feed. The other
+	// directories run manual review and reject incomplete feeds, so they keep
+	// the full validation gate below.
+	const pocketcastsApp = PODCAST_APPS.find( a => a.id === 'pocketcasts' ) ?? null;
+	const directoryApps = PODCAST_APPS.filter( a => a.id !== 'pocketcasts' );
+	const hasTitle = !! settings?.podcasting_title;
+	const isPocketcastsBlocked = isLoading || ! isEnabled || ! hasTitle;
+	let pocketcastsBlockedTooltip = '';
+	if ( isLoading ) {
+		pocketcastsBlockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+	} else if ( ! isEnabled ) {
+		pocketcastsBlockedTooltip = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
+	} else if ( ! hasTitle ) {
+		pocketcastsBlockedTooltip = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
+	}
+
 	// Single source of truth for "what's blocking submission", so the Notice
 	// header, Submit aria-labels, and Submit tooltips all stay in sync.
 	const stepsLeftLabel =
@@ -202,20 +219,65 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							) }
 						</VStack>
 
+						{ pocketcastsApp && (
+							<VStack spacing={ 4 } className="podcast__pocketcasts-featured">
+								<VStack spacing={ 1 }>
+									<h3 className="podcast__card-title">
+										{ __( 'One-click submit', 'jetpack-podcast' ) }
+									</h3>
+									<Text variant="muted">
+										{ __(
+											'We submit your feed to Pocket Casts. Most shows go live within a few minutes.',
+											'jetpack-podcast'
+										) }
+									</Text>
+								</VStack>
+								<HStack alignment="center" justify="space-between">
+									<HStack alignment="center" spacing={ 4 } expanded={ false }>
+										<span aria-hidden="true">
+											<pocketcastsApp.Logo />
+										</span>
+										<Text weight={ 500 }>{ pocketcastsApp.name }</Text>
+									</HStack>
+									<Tooltip text={ isPocketcastsBlocked ? pocketcastsBlockedTooltip : '' }>
+										<Button
+											variant="primary"
+											// eslint-disable-next-line react/jsx-no-bind
+											onClick={ () => handleSubmitClick( pocketcastsApp.id ) }
+											disabled={ isPocketcastsBlocked }
+											accessibleWhenDisabled
+											aria-label={
+												isPocketcastsBlocked
+													? sprintf(
+															/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
+															__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+															pocketcastsApp.name,
+															pocketcastsBlockedTooltip
+													  )
+													: undefined
+											}
+										>
+											{ __( 'Submit', 'jetpack-podcast' ) }
+										</Button>
+									</Tooltip>
+								</HStack>
+							</VStack>
+						) }
+
 						<VStack spacing={ 4 }>
 							<VStack spacing={ 1 }>
 								<h3 className="podcast__card-title">
-									{ __( 'Podcast directories', 'jetpack-podcast' ) }
+									{ __( 'More directories', 'jetpack-podcast' ) }
 								</h3>
 								<Text variant="muted">
 									{ __(
-										'Submit your podcast to the directories below where you want it to appear. Most take a few days to go live.',
+										'Submit your podcast manually to the directories below. Most take a few days to go live.',
 										'jetpack-podcast'
 									) }
 								</Text>
 							</VStack>
 							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
-								{ PODCAST_APPS.map( app => {
+								{ directoryApps.map( app => {
 									const { Logo } = app;
 									const state = settings?.podcasting_show_states?.[ app.id ] ?? '';
 									return (
