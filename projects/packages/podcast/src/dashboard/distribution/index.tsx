@@ -198,6 +198,13 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			<Card>
 				<CardBody>
 					<VStack spacing={ 8 }>
+						<Text variant="muted">
+							{ __(
+								'We submit your podcast to listening apps like Apple Podcasts, Spotify, and Pocket Casts so people can find and follow it.',
+								'jetpack-podcast'
+							) }
+						</Text>
+
 						{ pocketcastsApp && (
 							<VStack spacing={ 4 }>
 								<VStack spacing={ 1 }>
