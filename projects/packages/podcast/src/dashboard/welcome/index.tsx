@@ -1,4 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import {
 	Button,
@@ -20,45 +21,36 @@ interface WelcomeProps {
 	onEnable: () => void;
 }
 
-// Prefer `site.suffix` since it preserves the full Calypso site fragment
-// (e.g. `example.com::path` for mapped subdirectory sites). Fall back to
-// the admin_url host as a safety net in case suffix is unexpectedly absent.
-const getSiteSlug = (): string => {
-	const data = getSiteData();
-	if ( data?.suffix ) {
-		return data.suffix;
-	}
-	const adminUrl = data?.admin_url ?? '';
-	if ( ! adminUrl ) {
-		return '';
-	}
-	try {
-		return new URL( adminUrl ).host;
-	} catch {
-		return '';
-	}
-};
-
 const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
 
 const getPremiumCheckoutUrl = (): string => {
-	const slug = getSiteSlug();
-	const adminUrl = getSiteData()?.admin_url ?? '';
+	const data = getSiteData();
+	const adminUrl = data?.admin_url ?? '';
+
+	// Prefer `site.suffix` since it preserves the full Calypso site fragment
+	// (e.g. `example.com::path` for mapped subdirectory sites). Fall back to
+	// the admin_url host as a safety net in case suffix is unexpectedly absent.
+	let slug = data?.suffix ?? '';
+	if ( ! slug && adminUrl ) {
+		try {
+			slug = new URL( adminUrl ).host;
+		} catch {
+			// Leave slug empty; we'll fall back to the generic plan picker below.
+		}
+	}
+
+	if ( ! slug ) {
+		return 'https://wordpress.com/checkout/premium';
+	}
+
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
 	// the podcast instead of re-seeing this same pricing card after checkout.
 	const returnTo = adminUrl
 		? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
 		: '';
-	const url = new URL(
-		slug
-			? `https://wordpress.com/checkout/${ slug }/premium`
-			: 'https://wordpress.com/checkout/premium'
-	);
+	const url = new URL( getProductCheckoutUrl( 'premium', slug, returnTo, true ) );
 	// Calypso threads `source` through its downstream Tracks events.
 	url.searchParams.set( 'source', CHECKOUT_SOURCE );
-	if ( returnTo ) {
-		url.searchParams.set( 'redirect_to', returnTo );
-	}
 	return url.toString();
 };
 
@@ -129,12 +121,15 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 ];
 
 const Welcome = ( { onEnable }: WelcomeProps ) => {
+	const premiumCheckoutUrl = getPremiumCheckoutUrl();
+
+	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
+	// still opens checkout in a new tab and "copy link address" shows the URL.
 	const onPremiumClick = useCallback( () => {
 		const currentPlan = getSiteData()?.plan?.product_slug;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_premium_upgrade_clicked', {
 			current_plan: currentPlan ?? '',
 		} );
-		window.location.href = getPremiumCheckoutUrl();
 	}, [] );
 
 	return (
@@ -180,7 +175,9 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 								<ul className="podcast__welcome-plan-features">
 									{ FREE_FEATURES.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
-											<Icon icon={ check } size={ 20 } />
+											<span aria-hidden="true">
+												<Icon icon={ check } size={ 20 } />
+											</span>
 											<Text>{ feature }</Text>
 										</li>
 									) ) }
@@ -211,13 +208,15 @@ const Welcome = ( { onEnable }: WelcomeProps ) => {
 										) }
 									</Text>
 								</VStack>
-								<Button variant="primary" onClick={ onPremiumClick }>
+								<Button variant="primary" href={ premiumCheckoutUrl } onClick={ onPremiumClick }>
 									{ __( 'Start your premium podcast', 'jetpack-podcast' ) }
 								</Button>
 								<ul className="podcast__welcome-plan-features">
 									{ PREMIUM_FEATURES.map( feature => (
 										<li key={ feature } className="podcast__welcome-plan-feature">
-											<Icon icon={ check } size={ 20 } />
+											<span aria-hidden="true">
+												<Icon icon={ check } size={ 20 } />
+											</span>
 											<Text>{ feature }</Text>
 										</li>
 									) ) }
