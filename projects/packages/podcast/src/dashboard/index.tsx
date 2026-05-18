@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +16,11 @@ const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
 const StatsTab = lazy( () => import( './stats' ) );
+const LockedPreview = lazy( () => import( './locked-preview' ) );
+
+// Fail-open: a missing flag means access-granted, so a deploy race never locks
+// grandfathered users out of the Episodes tab.
+const hasProductAccess = (): boolean => getScriptData()?.podcast?.has_product_access !== false;
 
 const TabFallback = () => (
 	<div className="podcast__loading">
@@ -39,6 +44,7 @@ type StageSearch = Record< string, unknown > & { tab?: string };
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
+	const hasAccess = hasProductAccess();
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
@@ -152,7 +158,7 @@ const App = () => {
 					<div className="podcast__tab-content podcast__tab-content--xwide">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<StatsTab />
+								{ hasAccess ? <StatsTab /> : <LockedPreview variant="stats" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
@@ -161,7 +167,7 @@ const App = () => {
 					<div className="podcast__tab-content">
 						<ErrorBoundary>
 							<Suspense fallback={ <TabFallback /> }>
-								<EpisodesTab />
+								{ hasAccess ? <EpisodesTab /> : <LockedPreview variant="episodes" /> }
 							</Suspense>
 						</ErrorBoundary>
 					</div>
