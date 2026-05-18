@@ -412,8 +412,10 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Route through Photon at 3000×3000 if Jetpack Photon is available; pass
-	 * through unchanged otherwise. Apple's spec wants 1400–3000px square art.
+	 * Route through Photon at exactly 3000×3000 so the feed always serves a
+	 * square cover, regardless of the source aspect ratio. `resize` center-crops
+	 * (unlike `fit`, which only constrains within the box); Apple's spec wants
+	 * 1400–3000 px square art and rejects non-square covers.
 	 *
 	 * @param string $url Image URL.
 	 * @return string
@@ -423,7 +425,7 @@ class Customize_Feed {
 			return $url;
 		}
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by Jetpack's Photon module at runtime; guarded by `function_exists` above.
-		return (string) jetpack_photon_url( $url, array( 'fit' => '3000,3000' ), 'https' );
+		return (string) jetpack_photon_url( $url, array( 'resize' => '3000,3000' ), 'https' );
 	}
 
 	/**

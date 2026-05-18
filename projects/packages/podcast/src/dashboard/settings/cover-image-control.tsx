@@ -1,12 +1,12 @@
-// Apple Podcasts requires a square cover between 1400×1400 and 3000×3000.
-// The picker (cover-image-picker.ts) enforces 1:1 via a Cropper subclass and
-// rejects sources below the minimum dimension — this component is just the
-// UI shell around it.
+// Cover-image picker. We accept any image the user picks: the feed renderer
+// routes the URL through Photon with `resize=3000,3000`, which center-crops to
+// a square server-side. A soft notice tells the user we'll auto-crop when the
+// source isn't already 1:1, so the in-feed result isn't a surprise.
 
 import { Button } from '@wordpress/components';
-import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
+import { useCallback, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { disposeCoverImagePicker, openCoverImagePicker } from './cover-image-picker';
+import { MediaUpload } from '@wordpress/media-utils';
 
 interface CoverImageControlProps {
 	imageUrl: string;
@@ -16,6 +16,13 @@ interface CoverImageControlProps {
 	disabled?: boolean;
 }
 
+interface MediaUploadAttachment {
+	id: number;
+	url: string;
+	width?: number;
+	height?: number;
+}
+
 const CoverImageControl = ( {
 	imageUrl,
 	imageId,
@@ -23,14 +30,9 @@ const CoverImageControl = ( {
 	onRemove,
 	disabled,
 }: CoverImageControlProps ) => {
-	const [ error, setError ] = useState< string | null >( null );
-
-	// Route callbacks through refs so the wp.media frame's listeners always
-	// read the latest prop without forcing a frame rebuild.
-	const onSelectRef = useRef( onSelect );
-	onSelectRef.current = onSelect;
-
+	const [ notice, setNotice ] = useState< string | null >( null );
 	const labelId = useId();
+
 	const hasImage = !! imageUrl || imageId > 0;
 
 	// Hoisted out of JSX so terser can't fold them into __(cond?'a':'b') —
@@ -40,19 +42,31 @@ const CoverImageControl = ( {
 	const noImageLabel = __( 'No image set', 'jetpack-podcast' );
 	const triggerLabel = hasImage ? changeLabel : setLabel;
 
-	useEffect( () => {
-		return () => disposeCoverImagePicker();
-	}, [] );
+	const handleSelect = useCallback(
+		( att: MediaUploadAttachment ) => {
+			if ( att.width && att.height && att.width !== att.height ) {
+				setNotice(
+					__(
+						'This image will be center-cropped to a square in your feed. For full control, upload a 1:1 image.',
+						'jetpack-podcast'
+					)
+				);
+			} else {
+				setNotice( null );
+			}
+			onSelect( att.id, att.url );
+		},
+		[ onSelect ]
+	);
 
-	const handleOpen = useCallback( () => {
-		openCoverImagePicker( {
-			onSelect: att => {
-				setError( null );
-				onSelectRef.current( att.id, att.url );
-			},
-			onError: message => setError( message ),
-		} );
-	}, [] );
+	const renderTrigger = useCallback(
+		( { open }: { open: () => void } ) => (
+			<Button variant="secondary" onClick={ open } disabled={ disabled }>
+				{ triggerLabel }
+			</Button>
+		),
+		[ disabled, triggerLabel ]
+	);
 
 	return (
 		<div className="podcast__cover-control" role="group" aria-labelledby={ labelId }>
@@ -67,20 +81,20 @@ const CoverImageControl = ( {
 				) }
 			</div>
 			<div className="podcast__cover-actions">
-				<Button variant="secondary" onClick={ handleOpen } disabled={ disabled }>
-					{ triggerLabel }
-				</Button>
+				<MediaUpload
+					title={ __( 'Select a podcast cover image', 'jetpack-podcast' ) }
+					allowedTypes={ [ 'image' ] }
+					value={ imageId || undefined }
+					onSelect={ handleSelect }
+					render={ renderTrigger }
+				/>
 				{ hasImage && (
 					<Button variant="tertiary" isDestructive onClick={ onRemove } disabled={ disabled }>
 						{ __( 'Remove', 'jetpack-podcast' ) }
 					</Button>
 				) }
 			</div>
-			{ error && (
-				<p className="podcast__cover-error" role="alert">
-					{ error }
-				</p>
-			) }
+			{ notice && <p className="podcast__cover-notice">{ notice }</p> }
 		</div>
 	);
 };
