@@ -17,6 +17,13 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
+const setupGated = ( overrides = {} ) => {
+	mockScriptData( {
+		site: { plan: { features: { active: [] } }, ...overrides.site },
+		social: overrides.social,
+	} );
+};
+
 describe( 'ConnectionTemplateEditor', () => {
 	afterEach( () => {
 		clearMockedScriptData();
@@ -56,17 +63,47 @@ describe( 'ConnectionTemplateEditor', () => {
 		);
 	} );
 
-	test( 'renders nothing when the message-templates feature is off', () => {
+	test( 'renders the locked upsell variant when the message-templates feature is off', () => {
 		setupFeatures( 'social-enhanced-publishing' );
 		setup();
 
-		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
+		render( <ConnectionTemplateEditor connection={ FB } /> );
 
-		expect( container ).toBeEmptyDOMElement();
+		const textarea = screen.getByRole( 'textbox', {
+			name: /Custom message for this connection/i,
+		} );
+		expect( textarea ).toBeDisabled();
+		expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders nothing when the enhanced-publishing plan is off', () => {
+	test( 'renders the locked upsell variant when the enhanced-publishing plan is off', () => {
 		setupFeatures( 'social-message-templates' );
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		const textarea = screen.getByRole( 'textbox', {
+			name: /Custom message for this connection/i,
+		} );
+		expect( textarea ).toBeDisabled();
+		expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toBeInTheDocument();
+	} );
+
+	test( 'surfaces the global default message inside the locked textarea', () => {
+		setupGated( {
+			social: { settings: { messageTemplate: 'Read my latest: {url}' } },
+		} );
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		expect(
+			screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
+		).toHaveValue( 'Read my latest: {url}' );
+	} );
+
+	test( 'renders nothing on Simple sites when the editor is gated', () => {
+		setupGated( { site: { host: 'wpcom' } } );
 		setup();
 
 		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
