@@ -95,6 +95,13 @@ class Initial_State {
 				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).
 				 */
 				'activeThemeStylesheet'      => get_stylesheet(),
+				/**
+				 * Whether the active theme is a block theme. The Embedded search
+				 * experience is built and customized in the Site Editor, which
+				 * classic themes don't have, so the dashboard blocks switching to
+				 * Embedded when this is false.
+				 */
+				'themeSupportsBlocks'        => wp_is_block_theme(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
