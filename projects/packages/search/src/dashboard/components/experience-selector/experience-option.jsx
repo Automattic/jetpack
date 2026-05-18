@@ -16,6 +16,7 @@ import './experience-option.scss';
 
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
+const THEMES_URL = 'themes.php';
 // The Site Editor identifies templates by `<theme-stylesheet>//<template-slug>`
 // even for plugin-registered ones, so the active theme is part of the URL. Built
 // at render time so the link follows theme switches without a re-deploy. Falls
@@ -256,19 +257,25 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			{ isEmbeddedBlockedByTheme ? (
 				isConfirmOpen && (
 					// Informational only: classic themes can't run Embedded
-					// search, so this modal explains why and offers a single
-					// dismiss action — no confirm path that would commit the
+					// search, so this modal explains why and points to theme
+					// management — no confirm path that would commit the
 					// switch. (ConfirmDialog always renders both a confirm and
 					// a cancel button, so Modal is the right primitive here.)
+					// `size="medium"` constrains the width so the explanation
+					// wraps to a readable measure instead of one long line.
 					<Modal
 						title={ __( 'Embedded search needs a block theme', 'jetpack-search-pkg' ) }
 						onRequestClose={ () => setConfirmOpen( false ) }
 						className="jp-search-experience-option__blocked-modal"
+						size="medium"
 					>
 						<p>
-							{ __(
-								'Embedded search is a search page built and customized in the Site Editor. Your active theme is a classic theme, which has no Site Editor, so this experience can’t be used until you switch to a block theme.',
-								'jetpack-search-pkg'
+							{ createInterpolateElement(
+								__(
+									'Embedded search is a search page built and customized in the Site Editor. Your active theme is a classic theme, which has no Site Editor. <a>Switch to a block theme</a> to use this experience.',
+									'jetpack-search-pkg'
+								),
+								{ a: <a href={ THEMES_URL } /> }
 							) }
 						</p>
 						<div className="jp-search-experience-option__blocked-modal-actions">
