@@ -22,7 +22,7 @@ import ConfettiAnimation from './confetti';
 import { PODCAST_APPS } from './podcast-apps';
 import './style.scss';
 import SubmitModal from './submit-modal';
-import type { PodcatcherId } from '../types';
+import type { PodcastShowState, PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
 
 const prefersReducedMotion = (): boolean =>
@@ -36,6 +36,18 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 // validator rejects that shape.
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
+const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
+const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
+
+const StateBadge = ( { state }: { state: PodcastShowState } ) => {
+	if ( state !== 'pending' && state !== 'active' ) {
+		return null;
+	}
+	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
+	return (
+		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>{ label }</span>
+	);
+};
 
 const FeedCopyField = ( { value }: { value: string } ) => {
 	const [ copied, setCopied ] = useState( false );
@@ -170,6 +182,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
 								{ PODCAST_APPS.map( app => {
 									const { Logo } = app;
+									const state = settings?.podcasting_show_states?.[ app.id ] ?? '';
 									return (
 										<HStack
 											as="li"
@@ -178,11 +191,12 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 											justify="space-between"
 											className="podcast__directory-row"
 										>
-											<HStack alignment="center" spacing={ 4 } expanded={ false }>
+											<HStack alignment="center" spacing={ 3 } expanded={ false }>
 												<span aria-hidden="true">
 													<Logo />
 												</span>
 												<Text weight={ 500 }>{ app.name }</Text>
+												<StateBadge state={ state } />
 											</HStack>
 											<Button
 												variant="primary"
