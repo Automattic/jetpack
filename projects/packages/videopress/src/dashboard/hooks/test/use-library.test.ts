@@ -31,6 +31,7 @@ describe( 'viewToQueryArgs', () => {
 			per_page: 12,
 			orderby: 'date',
 			order: 'desc',
+			videopress_hide_already_uploaded: 1,
 		} );
 	} );
 

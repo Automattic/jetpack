@@ -93,6 +93,11 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 		mime_type: 'video/*',
 		page: view.page ?? 1,
 		per_page: view.perPage ?? 12,
+		// Always hide local attachments that already have a VideoPress
+		// sibling (they carry the `_videopress_uploaded_id` post-meta).
+		// The sibling is the row we want to surface; the original local
+		// is a leftover that would let users try to re-upload it.
+		videopress_hide_already_uploaded: 1,
 	};
 
 	const rawSortField = view.sort?.field;

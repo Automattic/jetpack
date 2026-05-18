@@ -83,6 +83,19 @@ export default function ThumbnailField( { item }: Props ) {
 				</Stack>
 			) : null }
 
+			{ upload.status === 'promoting' ? (
+				<Stack
+					direction="column"
+					gap="sm"
+					align="center"
+					justify="center"
+					className="vp-library__progress"
+				>
+					<Text>{ __( 'Uploading…', 'jetpack-videopress-pkg' ) }</Text>
+					<ProgressBar className="vp-library__progress-bar" />
+				</Stack>
+			) : null }
+
 			{ upload.status === 'failed' ? (
 				<Stack
 					direction="column"

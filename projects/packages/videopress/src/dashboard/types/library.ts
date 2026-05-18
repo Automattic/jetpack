@@ -1,6 +1,6 @@
 export type LibraryItemType = 'videopress' | 'local';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
-export type UploadStatus = 'idle' | 'uploading' | 'failed';
+export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'failed';
 export type VideoRating = 'G' | 'PG-13' | 'R';
 
 export interface UploadState {

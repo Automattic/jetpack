@@ -33,6 +33,11 @@ const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 				Math.round( upload.progress )
 			),
 		};
+	} else if ( upload.status === 'promoting' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
+		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
 			intent: 'high',

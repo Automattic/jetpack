@@ -15,6 +15,7 @@ import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
+import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import './style.scss';
 import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
@@ -54,11 +55,16 @@ const defaultLayouts = {
 const StageInner = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ selection, setSelection ] = useState< string[] >( [] );
+	// Local IDs currently being promoted from local-storage to VideoPress.
+	// The upload-from-library endpoint doesn't report progress, so we just
+	// need to know which rows to overlay with an "Uploading…" state.
+	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
 
 	const { items, isLoading, paginationInfo } = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutate: deleteVideo } = useDeleteVideo();
 	const { mutate: updateMeta } = useUpdateVideoMeta();
+	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit } = useFreeTier();
 
 	const onChangeView = useCallback( ( next: View ) => {
@@ -102,12 +108,48 @@ const StageInner = () => {
 
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
+	const promoteLocal = useCallback(
+		( id: string ) => {
+			setPromotingIds( prev => {
+				const next = new Set( prev );
+				next.add( id );
+				return next;
+			} );
+			uploadFromLibrary( id, {
+				onSuccess: () => {
+					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+				},
+				onError: ( error: Error ) => {
+					const reason = error?.message?.trim();
+					createErrorNotice(
+						reason
+							? sprintf(
+									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
+									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
+									reason
+							  )
+							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
+					);
+				},
+				onSettled: () => {
+					setPromotingIds( prev => {
+						if ( ! prev.has( id ) ) {
+							return prev;
+						}
+						const next = new Set( prev );
+						next.delete( id );
+						return next;
+					} );
+				},
+			} );
+		},
+		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+	);
+
 	const actions = useMemo(
 		() =>
 			buildLibraryActions( {
-				promoteLocal: () => {
-					// no-op: the real uploader doesn't have a separate "promote local" step
-				},
+				promoteLocal,
 				retryUpload,
 				openVideoDetails,
 				deleteItems: ( ids: string[] ) => {
@@ -159,6 +201,7 @@ const StageInner = () => {
 				},
 			} ),
 		[
+			promoteLocal,
 			retryUpload,
 			deleteVideo,
 			updateMeta,
@@ -196,8 +239,19 @@ const StageInner = () => {
 				shortcode: '',
 				isProcessing: false,
 			} ) );
-		return [ ...inFlight, ...items ];
-	}, [ uploadQueue, items ] );
+		// Overlay an "uploading"-style state on items currently being
+		// promoted from local-storage to VideoPress, so the title-cell
+		// pill and the thumbnail overlay reflect the in-flight state
+		// without needing a parallel signal at every render site.
+		const overlaid = promotingIds.size
+			? items.map( item =>
+					promotingIds.has( item.id )
+						? { ...item, upload: { status: 'promoting' as const, progress: 0 } }
+						: item
+			  )
+			: items;
+		return [ ...inFlight, ...overlaid ];
+	}, [ uploadQueue, items, promotingIds ] );
 
 	const getItemId = useCallback( ( item: MockLibraryItem ) => item.id, [] );
 
@@ -236,7 +290,7 @@ const StageInner = () => {
 				</>
 			}
 		>
-			<UploadActionsProvider value={ { promoteLocal: () => {}, retryUpload } }>
+			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DataViews< MockLibraryItem >
 						data={ renderedItems }
