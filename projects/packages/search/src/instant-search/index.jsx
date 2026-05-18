@@ -7,6 +7,7 @@ import { render } from 'preact';
 import * as React from 'preact/compat';
 import { Provider } from 'react-redux';
 import SearchApp from './components/search-app';
+import StandaloneSearchSuggestions from './components/standalone-search-suggestions';
 import { buildFilterAggregations } from './lib/api';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { isInCustomizer } from './lib/customize';
@@ -38,11 +39,40 @@ const injectSearchApp = () => {
 	);
 };
 
+const injectStandaloneSuggestions = () => {
+	const options = window[ SERVER_OBJECT_NAME ];
+	const { siteId, searchSuggestionsEnabled } = options;
+	if ( ! searchSuggestionsEnabled || ! siteId ) {
+		return;
+	}
+	const { searchInputSelector } = getThemeOptions( options );
+	const inputs = document.querySelectorAll( searchInputSelector );
+	inputs.forEach( input => {
+		const form = input.closest( 'form' );
+		if ( ! form ) {
+			return;
+		}
+		// Wrap the input in a positioned container so the dropdown can anchor to it.
+		const wrapper = document.createElement( 'div' );
+		wrapper.style.position = 'relative';
+		input.parentNode.insertBefore( wrapper, input );
+		wrapper.appendChild( input );
+		// Render into a separate mount point so Preact doesn't evict the input.
+		const mountPoint = document.createElement( 'div' );
+		wrapper.appendChild( mountPoint );
+		render(
+			<StandaloneSearchSuggestions input={ input } form={ form } siteId={ siteId } />,
+			mountPoint
+		);
+	} );
+};
+
 /**
  * Main function.
  */
 export function initialize() {
 	if ( window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		injectSearchApp();
+		injectStandaloneSuggestions();
 	}
 }

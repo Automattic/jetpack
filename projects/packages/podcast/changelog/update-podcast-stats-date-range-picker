@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast stats dashboard: replace period dropdown with Calypso Stats date range picker (presets, calendar, custom from/to).

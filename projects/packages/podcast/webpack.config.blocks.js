@@ -17,6 +17,7 @@ const sharedWebpackConfig = {
 	entry: {
 		'podcast-episode/editor': './src/blocks/podcast-episode/editor.ts',
 		'podcast-episode/style': './src/blocks/podcast-episode/style.scss',
+		'podcast-episode/view': './src/blocks/podcast-episode/view.ts',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

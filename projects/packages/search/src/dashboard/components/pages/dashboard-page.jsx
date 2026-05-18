@@ -4,13 +4,16 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
+import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
+import SearchSuggestionsControl from 'components/search-suggestions-control';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -66,6 +69,12 @@ export default function DashboardPage( { isLoading = false } ) {
 	const readerChatGuidelinesUrl = useSelect( select =>
 		select( STORE_ID ).getReaderChatGuidelinesUrl()
 	);
+	const aiAgentAccessGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getAIAgentAccessGuidelinesUrl()
+	);
+	const isAIAgentAccessAvailable = useSelect( select =>
+		select( STORE_ID ).isAIAgentAccessAvailable()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -119,6 +128,13 @@ export default function DashboardPage( { isLoading = false } ) {
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
 	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
+	const isSearchSuggestionsEnabled = useSelect( select =>
+		select( STORE_ID ).isSearchSuggestionsEnabled()
+	);
+	const showAIAgentAccessGuidelinesLink =
+		! isReaderChatAvailable ||
+		! isReaderChatEnabled ||
+		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -163,16 +179,18 @@ export default function DashboardPage( { isLoading = false } ) {
 					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 				/>
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-					<Tabs.List>
-						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
-						<Tabs.Tab value="ai-answers">
-							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
-							<span className="jp-search-dashboard-tabs__tab-preview-label">
-								{ __( '(Preview)', 'jetpack-search-pkg' ) }
-							</span>
-						</Tabs.Tab>
-					</Tabs.List>
+					<div className="jp-admin-page-tabs">
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="ai-answers">
+								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
+								<span className="jp-search-dashboard-tabs__tab-preview-label">
+									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
+								</span>
+							</Tabs.Tab>
+						</Tabs.List>
+					</div>
 					<Tabs.Panel value="plan-usage">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
@@ -220,36 +238,74 @@ export default function DashboardPage( { isLoading = false } ) {
 					<Tabs.Panel value="settings">
 						{ isPageLoading && <Loading /> }
 						{ ! isPageLoading && (
-							<div className="jp-search-dashboard-bottom">
-								{ isSearchBlocksEnabled ? (
-									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
-										<div className="jp-search-dashboard-row">
-											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-												<ExperienceSelector />
+							<>
+								<div className="jp-search-dashboard-bottom">
+									{ isSearchBlocksEnabled ? (
+										<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
+											<div className="jp-search-dashboard-row">
+												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+													<ExperienceSelector />
+													{ isReaderChatAvailable && (
+														<div className="jp-search-settings-card">
+															<ReaderChatControl
+																isAvailable={ isReaderChatAvailable }
+																isEnabled={ isReaderChatEnabled }
+																isSaving={ isSavingEitherOption }
+																guidelinesUrl={ readerChatGuidelinesUrl }
+																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+													<AIAgentAccessControl
+														className="jp-search-ai-agent-access-card"
+														guidelinesUrl={ aiAgentAccessGuidelinesUrl }
+														isAvailable={ isAIAgentAccessAvailable }
+														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
+													/>
+													{ supportsInstantSearch && isInstantSearchEnabled && (
+														<div className="jp-search-settings-card">
+															<SearchSuggestionsControl
+																isEnabled={ isSearchSuggestionsEnabled }
+																isInstantSearchEnabled={ isInstantSearchEnabled }
+																supportsInstantSearch={ supportsInstantSearch }
+																isSaving={ isSavingEitherOption }
+																isDisabledFromOverLimit={ isOverLimit }
+																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+												</div>
 											</div>
 										</div>
-									</div>
-								) : (
-									<ModuleControl
-										siteAdminUrl={ siteAdminUrl }
-										updateOptions={ updateOptions }
-										domain={ domain }
-										isDisabledFromOverLimit={ isOverLimit }
-										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-										isReaderChatAvailable={ isReaderChatAvailable }
-										isReaderChatEnabled={ isReaderChatEnabled }
-										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-										supportsSearch={ supportsSearch }
-										supportsInstantSearch={ supportsInstantSearch }
-										isModuleEnabled={ isModuleEnabled }
-										isInstantSearchEnabled={ isInstantSearchEnabled }
-										isSavingEitherOption={ isSavingEitherOption }
-										isTogglingModule={ isTogglingModule }
-										isTogglingInstantSearch={ isTogglingInstantSearch }
-										readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
-									/>
-								) }
-							</div>
+									) : (
+										<ModuleControl
+											siteAdminUrl={ siteAdminUrl }
+											updateOptions={ updateOptions }
+											domain={ domain }
+											isDisabledFromOverLimit={ isOverLimit }
+											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isAIAgentAccessAvailable={ isAIAgentAccessAvailable }
+											isReaderChatAvailable={ isReaderChatAvailable }
+											isReaderChatEnabled={ isReaderChatEnabled }
+											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+											supportsSearch={ supportsSearch }
+											supportsInstantSearch={ supportsInstantSearch }
+											isModuleEnabled={ isModuleEnabled }
+											isInstantSearchEnabled={ isInstantSearchEnabled }
+											isSavingEitherOption={ isSavingEitherOption }
+											isTogglingModule={ isTogglingModule }
+											isTogglingInstantSearch={ isTogglingInstantSearch }
+											aiAgentAccessGuidelinesUrl={ aiAgentAccessGuidelinesUrl }
+											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
+										/>
+									) }
+								</div>
+								<NoticesList
+									notices={ notices }
+									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+								/>
+							</>
 						) }
 					</Tabs.Panel>
 					<Tabs.Panel value="ai-answers">

@@ -2575,11 +2575,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "4a26ea0ff9693aab7a5593ce7c5b787a062178cf"
+                "reference": "165176b0f879970e605cf1219a0c286a0f3fcb0d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
@@ -3822,7 +3824,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "50a49082c2623dd4e295860c6a3d9b6be5b66f4c"
+                "reference": "b3add2c04a4cd1844f5686cbc8515404cbe6d83d"
             },
             "require": {
                 "php": ">=7.2"
@@ -3864,6 +3866,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run build",
+                    "pnpm run test"
                 ]
             },
             "license": [

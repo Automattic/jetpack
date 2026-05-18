@@ -1,9 +1,12 @@
 import { Icon, search, chevronDown } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
+import TextRowPlaceHolder from '../../mocked-search/placeholder';
 import './embedded-preview.scss';
 
 /**
- * Decorative Embedded mockup — `aria-hidden`, strings intentionally not translated.
+ * Decorative Embedded mockup — `aria-hidden`. Text content is rendered with
+ * the dashboard's existing `TextRowPlaceHolder` so the layout reads as a
+ * skeleton, matching the Plan & Usage mocked-search interface.
  *
  * @return {import('react').Element} - The preview.
  */
@@ -12,7 +15,7 @@ export default function EmbeddedPreview() {
 		<Stack direction="column" gap="sm" className="jp-search-embedded-preview" aria-hidden="true">
 			<Stack direction="row" gap="sm" align="center" className="jp-search-embedded-preview__search">
 				<Icon className="jp-search-embedded-preview__search-icon" icon={ search } size={ 14 } />
-				pasta
+				<TextRowPlaceHolder style={ { height: '8px', width: '64px' } } />
 			</Stack>
 			<Stack direction="row" gap="md" className="jp-search-embedded-preview__body">
 				<Stack direction="column" gap="sm" className="jp-search-embedded-preview__results">
@@ -23,63 +26,47 @@ export default function EmbeddedPreview() {
 						justify="end"
 						className="jp-search-embedded-preview__sort"
 					>
-						Sort by
+						<TextRowPlaceHolder style={ { height: '6px', width: '28px' } } />
 						<Stack
 							direction="row"
 							gap="xs"
 							align="center"
 							className="jp-search-embedded-preview__sort-control"
 						>
-							Relevance
+							<TextRowPlaceHolder style={ { height: '6px', width: '36px' } } />
 							<Icon icon={ chevronDown } size={ 12 } />
 						</Stack>
 					</Stack>
-					<Stack
-						direction="row"
-						gap="sm"
-						align="start"
-						className="jp-search-embedded-preview__result"
-					>
-						<div className="jp-search-embedded-preview__result-content">
-							<div className="jp-search-embedded-preview__result-title">
-								10 Easy <mark>Pasta</mark> Recipes
-							</div>
-							<div className="jp-search-embedded-preview__result-meta">Recipes · Jan 2026</div>
-						</div>
-						<span className="jp-search-embedded-preview__result-thumb" />
-					</Stack>
-					<Stack
-						direction="row"
-						gap="sm"
-						align="start"
-						className="jp-search-embedded-preview__result"
-					>
-						<div className="jp-search-embedded-preview__result-content">
-							<div className="jp-search-embedded-preview__result-title">
-								Best <mark>Pasta</mark> Sauces
-							</div>
-							<div className="jp-search-embedded-preview__result-meta">Reviews · Mar 2026</div>
-						</div>
-						<span className="jp-search-embedded-preview__result-thumb" />
-					</Stack>
+					<Result />
+					<Result />
 				</Stack>
 				<Stack direction="column" gap="sm" className="jp-search-embedded-preview__filters">
-					<FilterGroup title="Category" items={ [ 'Recipes', 'Travel' ] } />
-					<FilterGroup title="Tag" items={ [ 'pasta', 'italian' ] } />
+					<FilterGroup itemCount={ 2 } />
+					<FilterGroup itemCount={ 2 } />
 				</Stack>
 			</Stack>
 		</Stack>
 	);
 }
 
-const FilterGroup = ( { title, items } ) => (
+const Result = () => (
+	<Stack direction="row" gap="sm" align="start" className="jp-search-embedded-preview__result">
+		<div className="jp-search-embedded-preview__result-content">
+			<TextRowPlaceHolder style={ { height: '8px', width: '80%' } } />
+			<TextRowPlaceHolder style={ { height: '6px', width: '50%', marginTop: '4px' } } />
+		</div>
+		<span className="jp-search-embedded-preview__result-thumb" />
+	</Stack>
+);
+
+const FilterGroup = ( { itemCount } ) => (
 	<Stack direction="column" gap="xs" className="jp-search-embedded-preview__filter-group">
-		<div className="jp-search-embedded-preview__filter-title">{ title }</div>
+		<TextRowPlaceHolder style={ { height: '6px', width: '40%' } } />
 		<ul className="jp-search-embedded-preview__filter-list">
-			{ items.map( ( item, index ) => (
-				<li key={ item } className={ index === 0 ? 'is-checked' : undefined }>
+			{ Array.from( { length: itemCount } ).map( ( _, index ) => (
+				<li key={ index } className={ index === 0 ? 'is-checked' : undefined }>
 					<span className="jp-search-embedded-preview__checkbox" />
-					{ item }
+					<TextRowPlaceHolder style={ { height: '6px', width: '70%' } } />
 				</li>
 			) ) }
 		</ul>

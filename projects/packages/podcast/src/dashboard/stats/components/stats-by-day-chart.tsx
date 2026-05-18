@@ -14,7 +14,7 @@ type StatsByDayChartProps = {
 	range?: PodcastStatsRange;
 	period: PodcastStatsPeriod;
 	isLoading?: boolean;
-	children?: ReactNode;
+	summary?: ReactNode;
 };
 
 type DownloadDatum = {
@@ -73,7 +73,7 @@ const StatsByDayChart = ( {
 	range,
 	period,
 	isLoading = false,
-	children,
+	summary,
 }: StatsByDayChartProps ) => {
 	const downloadsLabel = __( 'Downloads', 'jetpack-podcast' );
 
@@ -88,8 +88,9 @@ const StatsByDayChart = ( {
 		[ byDay ]
 	);
 
+	// @automattic/charts uses options.stroke as the per-series bar color override.
 	const seriesData = useMemo(
-		() => [ { label: downloadsLabel, data: chartData } ],
+		() => [ { label: downloadsLabel, data: chartData, options: { stroke: '#3858e9' } } ],
 		[ downloadsLabel, chartData ]
 	);
 
@@ -193,7 +194,7 @@ const StatsByDayChart = ( {
 	return (
 		<SectionCard className="podcast-stats-chart" title={ downloadsLabel } metric={ rangeLabel }>
 			{ chartContent }
-			{ children && <div className="podcast-stats-chart__summary">{ children }</div> }
+			{ summary && <div className="podcast-stats-chart__summary">{ summary }</div> }
 		</SectionCard>
 	);
 };

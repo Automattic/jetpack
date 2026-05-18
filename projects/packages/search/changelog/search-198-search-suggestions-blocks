@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search dashboard: restore the "Enable search suggestions" toggle on the Settings tab when the search blocks experience is enabled, so instant search sites can still control autocomplete suggestions.

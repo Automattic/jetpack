@@ -5,6 +5,8 @@ const siteDataSelectors = {
 	getRegistrationNonce: state => state.siteData?.registrationNonce ?? null,
 	getSiteAdminUrl: state => state.siteData?.adminUrl ?? null,
 	getReaderChatGuidelinesUrl: state => state.siteData?.readerChatGuidelinesUrl ?? '',
+	isAIAgentAccessAvailable: state => state.siteData?.aiAgentAccessAvailable ?? false,
+	getAIAgentAccessGuidelinesUrl: state => state.siteData?.aiAgentAccessGuidelinesUrl ?? '',
 	isInstantSearchPromotionActive: state => state.siteData?.showPromotions ?? true,
 	getBlogId: state => state.siteData?.blogId ?? 0,
 	getVersion: state => state.siteData?.version ?? 'development',
@@ -14,6 +16,7 @@ const siteDataSelectors = {
 	isWpcom: state => state.siteData?.isWpcom ?? false,
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
+	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 };
 
 export default siteDataSelectors;

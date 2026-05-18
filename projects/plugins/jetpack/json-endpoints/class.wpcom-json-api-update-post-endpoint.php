@@ -625,7 +625,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		// Set sharing status of the post.
 		if ( $new ) {
 			$sharing_enabled = isset( $sharing ) ? (bool) $sharing : true;
-			if ( false === $sharing_enabled ) {
+			if ( ! $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
 		} elseif ( isset( $sharing ) && true === $sharing ) {

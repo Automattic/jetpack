@@ -9,12 +9,27 @@
 }
 
 .jp-search-inline-preview__search {
+	flex: 1 1 auto;
+	min-width: 0;
 	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-sm);
-	font-size: var(--wpds-typography-font-size-sm);
 	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+// Visual stand-in for the theme's "Search" submit button. Muted neutral
+// fill so it reads as a small UI accent rather than competing with the
+// real "Use <experience>" Save buttons on the page.
+.jp-search-inline-preview__submit {
+	flex: 0 0 auto;
+	padding: 2px 8px;
+	background: var(--wpds-color-bg-interactive-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+	color: var(--wpds-color-fg-content-neutral-weak);
+	font-size: 10px;
+	line-height: 1.4;
 }
 
 .jp-search-inline-preview__search-icon {
@@ -26,22 +41,10 @@
 	padding-inline: var(--wpds-dimension-padding-sm);
 }
 
-.jp-search-inline-preview__line {
-	height: 6px;
-	background: var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-sm);
-
-	&.is-short {
-		width: 70%;
-	}
-}
-
 .jp-search-inline-preview__timing {
 	position: absolute;
 	inset-block-end: var(--wpds-dimension-padding-md);
 	inset-inline-start: var(--wpds-dimension-padding-md);
-	font-size: var(--wpds-typography-font-size-sm);
-	font-weight: 600;
 	// Brand colour reads as "this is faster" rather than the warning intent
 	// that `fg-content-caution` would imply.
 	color: var(--wpds-color-fg-interactive-brand);

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Render the modernized dashboard inside Page from @wordpress/admin-ui and suppress core/plugin admin notices on the modernized page; no effect when the modernization filter is off.

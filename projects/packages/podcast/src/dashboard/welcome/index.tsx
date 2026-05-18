@@ -10,7 +10,7 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, audio, layout, megaphone } from '@wordpress/icons';
+import { Icon, globe, layout, megaphone } from '@wordpress/icons';
 import './style.scss';
 
 interface WelcomeProps {
@@ -22,15 +22,7 @@ const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string 
 		icon: <Icon icon={ megaphone } />,
 		title: __( 'Reach listeners in every app', 'jetpack-podcast' ),
 		body: __(
-			'One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.',
-			'jetpack-podcast'
-		),
-	},
-	{
-		icon: <Icon icon={ audio } />,
-		title: __( 'Works with the editor you already use', 'jetpack-podcast' ),
-		body: __(
-			'Drop an audio block into a post, assign the podcast category, hit publish. That is the whole workflow.',
+			'One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.',
 			'jetpack-podcast'
 		),
 	},
@@ -39,6 +31,14 @@ const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string 
 		title: __( 'One home for writing, email, and audio', 'jetpack-podcast' ),
 		body: __(
 			'One site, one audience, one subscriber list. Your posts, newsletters, and episodes all live in the same place.',
+			'jetpack-podcast'
+		),
+	},
+	{
+		icon: <Icon icon={ globe } />,
+		title: __( 'Own your feed forever', 'jetpack-podcast' ),
+		body: __(
+			'Your podcast lives on your domain with your data and your subscribers. Everything can move with you at any time.',
 			'jetpack-podcast'
 		),
 	},
@@ -54,15 +54,15 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 		number: '2',
 		title: __( 'Publish a post with audio', 'jetpack-podcast' ),
 		body: __(
-			'Add an audio block to any post and assign it to your podcast category.',
+			'Add an audio or podcast episode block to any post and assign it to your podcast category.',
 			'jetpack-podcast'
 		),
 	},
 	{
 		number: '3',
-		title: __( 'Submit your feed once', 'jetpack-podcast' ),
+		title: __( 'Submit your feed', 'jetpack-podcast' ),
 		body: __(
-			'Copy the feed URL, submit it to Apple Podcasts and Spotify, and you are live.',
+			"Use our simple distribution tool to submit to Apple, Spotify, and others. That's it!",
 			'jetpack-podcast'
 		),
 	},
@@ -73,11 +73,11 @@ const Welcome = ( { onEnable }: WelcomeProps ) => (
 		<section className="podcast__welcome-hero">
 			<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
 				<h2 className="podcast__welcome-title">
-					{ __( 'Turn your posts into a podcast', 'jetpack-podcast' ) }
+					{ __( 'Your podcast belongs with your blog', 'jetpack-podcast' ) }
 				</h2>
 				<Text variant="muted">
 					{ __(
-						'Publish audio alongside your writing and get distributed to Apple Podcasts, Spotify, and every major app, without leaving your site.',
+						'Publish your show on the same site as your blog and newsletter. Reach fans on Apple, Spotify, Pocket Casts, and every major podcast app.',
 						'jetpack-podcast'
 					) }
 				</Text>
