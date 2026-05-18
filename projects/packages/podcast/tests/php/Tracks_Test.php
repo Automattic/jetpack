@@ -21,6 +21,7 @@ use WP_Term;
  * events are read out of the bootstrap shim's global buffer.
  *
  * @covers \Automattic\Jetpack\Podcast\Tracks
+ * @covers \Automattic\Jetpack\Podcast\Episode_Query
  */
 #[CoversClass( Tracks::class )]
 #[CoversClass( Episode_Query::class )]
