@@ -373,7 +373,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 	// longer applies, so use shorter copy focused on the user benefit.
 	const promptText = connectionOwner
 		? __(
-				'Connect your user account to unlock more functionalities and use SSO.',
+				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection'
 		  )
 		: __(
