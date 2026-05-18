@@ -233,10 +233,11 @@
 		// `@wordpress/components` `ProgressBar` ships with a fixed default
 		// width and renders narrow inside flex containers. Match the
 		// legacy `VideoStorageMeter` approach of forcing the inner bar
-		// element to fill the strip. Targets `> div` rather than a
-		// `.components-progress-bar` class so we don't couple to a
-		// `__experimentalProgressBar` internal class name.
-		> div {
+		// element to fill the strip. The label is a `<span>`, so the
+		// last direct-child `div` is unambiguously the `ProgressBar`
+		// wrapper — avoids coupling to its internal
+		// `__experimentalProgressBar` class name.
+		> div:last-child {
 			width: 100%;
 		}
 	}

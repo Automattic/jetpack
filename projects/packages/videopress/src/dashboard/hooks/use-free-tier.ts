@@ -4,7 +4,7 @@ export type FreeTierState = {
 	isFree: boolean;
 	isAtomic: boolean;
 	isUnlimited: boolean;
-	uploadCount: number;
+	videoCount: number;
 	limit: number;
 	isAtLimit: boolean;
 };
@@ -75,14 +75,18 @@ function readHasAccess(): boolean {
 export function useFreeTier(): FreeTierState {
 	const { items } = useMockLibrary();
 	const isFree = FREE_OVERRIDE !== null ? FREE_OVERRIDE : ! readHasAccess();
-	const realUploadCount = items.length;
-	const uploadCount = AT_LIMIT_OVERRIDE === true ? FREE_TIER_UPLOAD_LIMIT : realUploadCount;
-	const isAtLimit = isFree && uploadCount >= FREE_TIER_UPLOAD_LIMIT;
+	// Mock-library items are all "completed", so `items.length` matches
+	// the legacy `uploadedVideoCount` semantics here. The Phase 6/8 swap
+	// must filter the real query result to completed uploads (exclude
+	// in-progress and failed) before assigning to `videoCount`.
+	const realVideoCount = items.length;
+	const videoCount = AT_LIMIT_OVERRIDE === true ? FREE_TIER_UPLOAD_LIMIT : realVideoCount;
+	const isAtLimit = isFree && videoCount >= FREE_TIER_UPLOAD_LIMIT;
 	return {
 		isFree,
 		isAtomic: false,
 		isUnlimited: false,
-		uploadCount,
+		videoCount,
 		limit: FREE_TIER_UPLOAD_LIMIT,
 		isAtLimit,
 	};

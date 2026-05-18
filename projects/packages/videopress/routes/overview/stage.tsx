@@ -33,9 +33,9 @@ const Stage = () => {
 		compare,
 		setCompare,
 	} = useMockStats();
-	const { isFree, isAtomic, isUnlimited, uploadCount } = useFreeTier();
+	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
 
-	const showStorageMeter = ! isFree && uploadCount > 0 && ! isUnlimited && ! isAtomic;
+	const showStorageMeter = ! isFree && videoCount > 0 && ! isUnlimited && ! isAtomic;
 
 	return (
 		<DashboardLayout
