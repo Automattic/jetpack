@@ -194,17 +194,20 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		[]
 	);
 	const isAiAnswersAvailable = useSelect( select => select( STORE_ID ).isAiAnswersAvailable(), [] );
-	const pricingArgs = useMemo(
-		() => ( {
+	const pricingArgs = useMemo( () => {
+		const baseItems = [ ...newPricingArgs.items ];
+		if ( isAiAnswersAvailable ) {
+			const prioritySupportIndex = baseItems.findIndex(
+				item => item.name === __( 'Priority support', 'jetpack-search-pkg' )
+			);
+			const insertAt = prioritySupportIndex === -1 ? baseItems.length : prioritySupportIndex;
+			baseItems.splice( insertAt, 0, ...aiAnswersPricingItems );
+		}
+		return {
 			...newPricingArgs,
-			items: [
-				...newPricingArgs.items,
-				...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ),
-				...( isAiAnswersAvailable ? aiAnswersPricingItems : [] ),
-			],
-		} ),
-		[ isSearchBlocksEnabled, isAiAnswersAvailable ]
-	);
+			items: [ ...baseItems, ...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ) ],
+		};
+	}, [ isSearchBlocksEnabled, isAiAnswersAvailable ] );
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
@@ -326,15 +329,15 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
 							/>
+							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
-								<PricingTableItem key={ item.id } isIncluded={ true } />
-							) ) }
-							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
 						</PricingTableColumn>
@@ -418,6 +421,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ false }
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
+							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ false } />
+							) ) }
 							<PricingTableItem isIncluded={ false } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -425,9 +431,6 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
-							) ) }
-							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
-								<PricingTableItem key={ item.id } isIncluded={ false } />
 							) ) }
 						</PricingTableColumn>
 					</PricingTable>
