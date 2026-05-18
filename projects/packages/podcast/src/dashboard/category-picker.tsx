@@ -25,6 +25,10 @@ interface CategoryPickerProps {
 	// containing modal can gate its own Confirm button until the user either
 	// finishes or cancels the inline flow.
 	onCreatingChange?: ( isCreating: boolean ) => void;
+	// Fires while a category-create request is in flight, so a containing
+	// modal can block its own dismissal — otherwise the user can Cancel and
+	// the create resolves into a `onCreateSuccess` after the modal is gone.
+	onSavingChange?: ( saving: boolean ) => void;
 	// Fires once the inline create has saved a new category. The parent can
 	// commit its own save in the same click rather than asking the user to
 	// confirm a second time.
@@ -51,6 +55,7 @@ const CategoryPicker = ( {
 	onSelect,
 	disabled = false,
 	onCreatingChange,
+	onSavingChange,
 	onCreateSuccess,
 }: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
@@ -71,6 +76,10 @@ const CategoryPicker = ( {
 	useEffect( () => {
 		onCreatingChange?.( isCreating );
 	}, [ isCreating, onCreatingChange ] );
+
+	useEffect( () => {
+		onSavingChange?.( saving );
+	}, [ saving, onSavingChange ] );
 
 	const trimmedName = newName.trim();
 

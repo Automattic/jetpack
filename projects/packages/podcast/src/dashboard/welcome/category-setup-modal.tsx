@@ -49,15 +49,18 @@ const CategorySetupModal = ( {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ saving, setSaving ] = useState( false );
 	const [ pickerCreating, setPickerCreating ] = useState( false );
+	const [ pickerSaving, setPickerSaving ] = useState( false );
 
 	const requestClose = useCallback( () => {
 		// Block dismissal while a save is in flight so the in-flight promise
-		// can't mutate settings after the user thought they cancelled.
-		if ( saving ) {
+		// can't mutate settings after the user thought they cancelled. The
+		// picker's own save needs the same gate, because its success callback
+		// reaches back here to commit settings.
+		if ( saving || pickerSaving ) {
 			return;
 		}
 		onClose();
-	}, [ saving, onClose ] );
+	}, [ saving, pickerSaving, onClose ] );
 
 	const onConfirm = useCallback(
 		// `idArg` lets the inline-create path commit the save in the same click,
@@ -134,10 +137,11 @@ const CategorySetupModal = ( {
 					onSelect={ setCategoryId }
 					disabled={ saving }
 					onCreatingChange={ setPickerCreating }
+					onSavingChange={ setPickerSaving }
 					onCreateSuccess={ handleCreateSuccess }
 				/>
 				<HStack justify="flex-end" spacing={ 3 }>
-					<Button variant="tertiary" onClick={ requestClose } disabled={ saving }>
+					<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
 						{ __( 'Cancel', 'jetpack-podcast' ) }
 					</Button>
 					<Button
