@@ -44,3 +44,15 @@
 .learn {
 	text-wrap: nowrap;
 }
+
+.upgrade-tooltip-trigger {
+	display: inline-flex;
+	align-items: center;
+	vertical-align: middle;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	border: 0;
+	color: inherit;
+	cursor: help;
+}
