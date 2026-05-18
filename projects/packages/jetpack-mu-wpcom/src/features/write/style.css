@@ -1204,6 +1204,21 @@
 	font-style: italic;
 }
 
+.bw-content blockquote cite {
+	display: block;
+	font-style: normal;
+	font-size: 0.9em;
+	color: #777;
+	margin-top: 0.5em;
+	outline: none;
+}
+
+.bw-content blockquote cite:empty::before {
+	content: attr(data-placeholder);
+	color: #aaa;
+	pointer-events: none;
+}
+
 .bw-content hr {
 	border: none;
 	height: 1px;

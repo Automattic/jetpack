@@ -15,6 +15,9 @@ import { createUndoHistory } from 'wpcom-write/undo-history';
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
 
+// Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
+let activeBlockquote = null;
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
@@ -700,13 +703,45 @@ function convertToBlocks( html ) {
 				) }" alt="${ escapeAttr( alt ) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
-			// inner may already contain <p> tags from contentEditable.
-			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			// Extract citation from <cite> if present.
+			// Strip lone <br> tags that contentEditable inserts into empty elements.
+			const citeEl = node.querySelector( 'cite' );
+			const rawCitation = citeEl ? citeEl.innerHTML.trim().replace( /^<br\s*\/?>$/, '' ) : '';
+			const citationHtml = rawCitation;
+
+			// Remove <cite> and any trailing <br> from the DOM so they don't
+			// end up inside the serialized <p> tags.
+			if ( citeEl ) {
+				citeEl.remove();
+			}
+			// Strip trailing <br> elements left between quote text and removed <cite>.
+			while (
+				node.lastChild &&
+				node.lastChild.nodeType === Node.ELEMENT_NODE &&
+				node.lastChild.tagName === 'BR'
+			) {
+				node.lastChild.remove();
+			}
+			const bodyInner = node.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+			const quoteInner = bodyInner.startsWith( '<p' ) ? bodyInner : `<p>${ bodyInner }</p>`;
+
 			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
 			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
-			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
+
+			// Build JSON attrs.
+			const attrs = {};
+			if ( hasQuoteAlign ) {
+				attrs.align = align;
+			}
+			if ( citationHtml ) {
+				attrs.citation = citationHtml;
+			}
+			const jsonAttr = Object.keys( attrs ).length ? ` ${ JSON.stringify( attrs ) }` : '';
+
+			const citeHtml = citationHtml ? `<cite>${ citationHtml }</cite>` : '';
+
 			blocks.push(
-				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
 			// Wrap each <li> in wp:list-item block comments.
@@ -1296,6 +1331,15 @@ const contentReady2 = setInterval( () => {
 	// Run the block-structure audit immediately so gap paragraphs are
 	// inserted and the user can start editing right away.
 	ensureBlockStructure();
+
+	// Wire up existing <cite> elements in blockquotes with the placeholder
+	// attribute so the CSS placeholder appears if the user clears the text.
+	contentEl.querySelectorAll( 'blockquote cite' ).forEach( cite => {
+		if ( ! cite.hasAttribute( 'data-placeholder' ) ) {
+			cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+		}
+	} );
+
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
 		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
 		// Input events from the inner contenteditable bubble up to the outer,
@@ -1531,6 +1575,66 @@ function insertNewList( listTag ) {
 }
 
 /**
+ * Find the blockquote element containing the current cursor, if any.
+ *
+ * @return {HTMLElement|null} The blockquote element or null.
+ */
+function getActiveBlockquote() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Check if the current cursor is inside a <cite> element within a blockquote.
+ *
+ * @return {HTMLElement|null} The <cite> element, or null.
+ */
+function getActiveCite() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'CITE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Ensure a blockquote has a <cite> placeholder for attribution.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to add the placeholder to.
+ */
+function ensureCitePlaceholder( blockquote ) {
+	if ( blockquote.querySelector( 'cite' ) ) return;
+	const cite = document.createElement( 'cite' );
+	cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+	blockquote.appendChild( cite );
+}
+
+/**
+ * Remove an empty <cite> placeholder from a blockquote.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to clean up.
+ */
+function removeEmptyCite( blockquote ) {
+	const cite = blockquote.querySelector( 'cite' );
+	if ( cite && ! cite.textContent.trim() ) {
+		cite.remove();
+	}
+}
+
+/**
  * Detect the current formatting state at the cursor position.
  * Updates all toolbar button states.
  */
@@ -1585,6 +1689,30 @@ function updateFormattingState() {
 	// Justify is paragraph-only; disable the toolbar button inside lists,
 	// headings, and quotes where browser justification would look poor.
 	state.cannotJustify = state.insideList || state.formatHeading || state.formatQuote;
+
+	// Citation placeholder lifecycle.
+	const currentBlockquote = getActiveBlockquote();
+	if ( currentBlockquote !== activeBlockquote ) {
+		// Capture dirty state before modifying the DOM, so we can re-sync
+		// the snapshot only when the placeholder is the sole difference.
+		const wasDirty = isDirty();
+
+		// Leaving a blockquote — clean up empty placeholder.
+		if ( activeBlockquote ) {
+			removeEmptyCite( activeBlockquote );
+		}
+		// Entering a blockquote — ensure placeholder exists.
+		if ( currentBlockquote ) {
+			ensureCitePlaceholder( currentBlockquote );
+		}
+		activeBlockquote = currentBlockquote;
+
+		// Re-sync the snapshot only when the editor was clean before the
+		// placeholder DOM change, so real edits stay dirty.
+		if ( ! wasDirty ) {
+			updateSavedSnapshot();
+		}
+	}
 }
 
 /**
@@ -2571,6 +2699,39 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Backspace in an empty <cite>: remove it and move cursor to quote body.
+			if ( event.key === 'Backspace' ) {
+				const cite = getActiveCite();
+				if ( cite && ! cite.textContent.trim() ) {
+					event.preventDefault();
+					const bq = cite.closest( 'blockquote' );
+					cite.remove();
+					if ( bq ) {
+						const lastP = bq.querySelector( 'p:last-of-type' );
+						if ( lastP ) {
+							placeCursorAtEnd( lastP );
+						}
+					}
+					return;
+				}
+			}
+
+			// Enter inside a blockquote <cite>: break out to a new paragraph.
+			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				const cite = getActiveCite();
+				if ( cite ) {
+					const bq = cite.closest( 'blockquote' );
+					if ( bq ) {
+						event.preventDefault();
+						const p = document.createElement( 'p' );
+						p.innerHTML = '<br>';
+						bq.after( p );
+						placeCursorAt( p );
+						return;
+					}
+				}
+			}
+
 			// Enter key: break out of blockquotes/headings and ensure paragraphs.
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
 				const sel = window.getSelection();
@@ -2595,7 +2756,15 @@ const { state } = store( 'wpcom-write', {
 						const textAfterCursor = range.cloneRange();
 						textAfterCursor.selectNodeContents( block );
 						textAfterCursor.setStart( range.endContainer, range.endOffset );
-						const remaining = textAfterCursor.toString().trim();
+
+						// Exclude <cite> text from the "remaining" check so Enter at the
+						// end of quote body text breaks out even when a citation follows.
+						const tmpFrag = textAfterCursor.cloneContents();
+						const citeFrag = tmpFrag.querySelector( 'cite' );
+						if ( citeFrag ) {
+							citeFrag.remove();
+						}
+						const remaining = tmpFrag.textContent.trim();
 
 						if ( ! remaining ) {
 							event.preventDefault();

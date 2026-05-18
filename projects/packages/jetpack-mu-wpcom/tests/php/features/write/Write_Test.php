@@ -777,6 +777,14 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a quote block with a citation attribute returns false (supported).
+	 */
+	public function test_detect_unsupported_quote_block_with_citation() {
+		$content = '<!-- wp:quote {"citation":"Author Name"} --><blockquote class="wp-block-quote"><p>A quote</p><cite>Author Name</cite></blockquote><!-- /wp:quote -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
 	 * Test that a YouTube video embed returns false (supported).
 	 */
 	public function test_detect_unsupported_youtube_embed() {
@@ -1105,7 +1113,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),
-			'quote'     => array( 'align' ),
+			'quote'     => array( 'align', 'citation' ),
 			'separator' => array(),
 		);
 
