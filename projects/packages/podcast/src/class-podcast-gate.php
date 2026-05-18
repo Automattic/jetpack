@@ -33,11 +33,20 @@ class Podcast_Gate {
 			return false;
 		}
 
-		if ( self::blog_created_before_cutoff( $blog_id ) ) {
+		if ( self::is_grandfathered( $blog_id ) ) {
 			return true;
 		}
 
 		return (bool) Current_Plan::supports( self::FEATURE_SLUG );
+	}
+
+	/**
+	 * Whether the blog is grandfathered: registered before the cutoff AND on a paid plan.
+	 *
+	 * @param int $blog_id Blog ID.
+	 */
+	protected static function is_grandfathered( int $blog_id ): bool {
+		return self::blog_created_before_cutoff( $blog_id ) && self::has_paid_plan();
 	}
 
 	/**
@@ -58,5 +67,13 @@ class Podcast_Gate {
 			return false;
 		}
 		return $registered_ts < strtotime( self::GRANDFATHER_CUTOFF_DATE );
+	}
+
+	/**
+	 * Whether the current blog is on any paid plan.
+	 */
+	protected static function has_paid_plan(): bool {
+		$plan = Current_Plan::get();
+		return ! empty( $plan['class'] ) && 'free' !== $plan['class'];
 	}
 }
