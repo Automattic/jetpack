@@ -23,17 +23,19 @@ const editPostUrl = ( postId: number ): string =>
 // podcast category (and, on Premium, prefill the Podcast Episode block).
 const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
 
-// `f.value` of 0, '', or [] is the DataViews "no filter applied" shape.
-const isFilterActive = ( f: { value?: unknown } ): boolean => {
-	const v = f.value;
-	if ( v == null || v === '' ) {
-		return false;
-	}
-	if ( Array.isArray( v ) ) {
-		return v.length > 0;
-	}
-	return true;
-};
+const EmptyEpisodes = () => (
+	<div className="podcast__empty-state">
+		<h2 className="podcast__section-heading">
+			{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
+		</h2>
+		<p>
+			{ __( 'Publish a podcast post in your chosen category to see it here.', 'jetpack-podcast' ) }
+		</p>
+		<Button variant="primary" href={ NEW_EPISODE_URL }>
+			{ __( 'Create episode', 'jetpack-podcast' ) }
+		</Button>
+	</div>
+);
 
 interface EpisodeRow {
 	id: number;
@@ -318,30 +320,6 @@ const EpisodesTab = () => {
 		);
 	}
 
-	// Post-setup empty state; guards keep DataViews' own no-results UI in play
-	// during load and active search/filter.
-	const hasNoEpisodes =
-		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( isFilterActive );
-
-	if ( hasNoEpisodes ) {
-		return (
-			<div className="podcast__empty-state">
-				<h2 className="podcast__section-heading">
-					{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
-				</h2>
-				<p>
-					{ __(
-						'Publish a podcast post in your chosen category to see it here.',
-						'jetpack-podcast'
-					) }
-				</p>
-				<Button variant="primary" href={ NEW_EPISODE_URL }>
-					{ __( 'Create episode', 'jetpack-podcast' ) }
-				</Button>
-			</div>
-		);
-	}
-
 	return (
 		<DataViews< EpisodeRow >
 			data={ rows }
@@ -356,6 +334,7 @@ const EpisodesTab = () => {
 			getItemId={ getEpisodeRowId }
 			isLoading={ isLoading }
 			defaultLayouts={ { table: {} } }
+			empty={ <EmptyEpisodes /> }
 			search
 		/>
 	);
