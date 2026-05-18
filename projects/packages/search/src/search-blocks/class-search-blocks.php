@@ -143,7 +143,15 @@ class Search_Blocks {
 
 		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
-			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+			// Priority 11 so this runs *after* WooCommerce's
+			// `ProductSearchResultsTemplate`, which prepends
+			// `product-search-results` at the default priority 10. Both
+			// callbacks `array_unshift()` onto the same hierarchy, so the
+			// later one ends up first; running last is what makes the
+			// Embedded-experience takeover of product searches (see
+			// `should_take_over_search()`) deterministic instead of
+			// dependent on plugin load order.
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ), 11 );
 		}
 	}
 
@@ -757,9 +765,17 @@ class Search_Blocks {
 	 * DB-stored customizations continue to take precedence: if a site owner
 	 * edits this template in the Site Editor, the `custom` source wins during
 	 * resolution automatically.
+	 *
+	 * Gated on `block_templates_active()` for the same reason
+	 * `prepend_search_template()` is: the registry is only consulted by the
+	 * Site Editor and the block-theme render path, both of which require a
+	 * block theme. Registering on a classic theme is inert and would leave
+	 * registration asymmetric with the (block-theme-only) hierarchy prepend.
+	 * The check is re-evaluated every `init`, so switching to a block theme
+	 * registers the template on the very next request.
 	 */
 	public static function register_search_template() {
-		if ( ! function_exists( 'register_block_template' ) ) {
+		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
 			return;
 		}
 		$content = static::get_search_template_content();
@@ -878,7 +894,22 @@ class Search_Blocks {
 	 * @return bool
 	 */
 	protected static function should_take_over_search(): bool {
-		return is_search() && wp_is_block_theme();
+		return is_search() && static::block_templates_active();
+	}
+
+	/**
+	 * Whether the active theme resolves block templates — the precondition
+	 * shared by template registration and the search-hierarchy takeover.
+	 *
+	 * Single-sourced (rather than two `wp_is_block_theme()` calls) so the
+	 * two surfaces can never drift apart and so tests can flip the
+	 * precondition via a subclass without standing up a block theme in the
+	 * dbless environment.
+	 *
+	 * @return bool
+	 */
+	protected static function block_templates_active(): bool {
+		return wp_is_block_theme();
 	}
 
 	/**

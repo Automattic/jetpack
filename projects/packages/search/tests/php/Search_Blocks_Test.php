@@ -333,6 +333,25 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Subclass that forces `block_templates_active()` true so
+	 * `register_search_template()` can be exercised without standing up a
+	 * block theme in the dbless environment (whose default theme is
+	 * classic). The block-theme gate itself is covered separately by
+	 * `test_register_search_template_skips_on_classic_theme()`.
+	 *
+	 * @return class-string<Search_Blocks>
+	 */
+	private function search_blocks_with_block_templates(): string {
+		return get_class(
+			new class() extends Search_Blocks {
+				protected static function block_templates_active(): bool {
+					return true;
+				}
+			}
+		);
+	}
+
+	/**
 	 * The takeover hinges on `search` being replaced by `jetpack-search` at
 	 * the front of the hierarchy: that's what makes core resolve our plugin
 	 * template instead of the theme's `search.html`.
@@ -491,9 +510,10 @@ class Search_Blocks_Test extends TestCase {
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
 			'register_search_template must hook into init on embedded'
 		);
-		$this->assertNotFalse(
+		$this->assertSame(
+			11,
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must hook into search_template_hierarchy on embedded'
+			'prepend_search_template must hook search_template_hierarchy at priority 11 so it runs after WooCommerce (priority 10) and wins the array_unshift'
 		);
 
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
@@ -538,7 +558,9 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'init', array( Search_Blocks::class, 'register_blocks' ) );
 		remove_action( 'init', array( Search_Blocks::class, 'register_search_template' ) );
 		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
-		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
+		// Priority must match init()'s add_filter (11) — remove_filter()
+		// defaults to 10 and would otherwise leak the hook across tests.
+		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ), 11 );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
@@ -577,7 +599,8 @@ class Search_Blocks_Test extends TestCase {
 			}
 		}
 
-		Search_Blocks::register_search_template();
+		$class = $this->search_blocks_with_block_templates();
+		$class::register_search_template();
 
 		$namespace = $this->invoke_protected( 'get_parent_plugin_slug' );
 		$expected  = $namespace . '//jetpack-search';
@@ -617,17 +640,49 @@ class Search_Blocks_Test extends TestCase {
 		}
 
 		// Stub empty content by temporarily overriding the method's output
-		// via a mock subclass. Simplest: run register_search_template on a
-		// subclass that returns '' from get_search_template_content().
+		// via a mock subclass. block_templates_active() is also forced true
+		// so the early block-theme guard doesn't short-circuit before the
+		// empty-content check — otherwise this would pass for the wrong
+		// reason in the (classic) dbless default theme.
 		$anon = new class() extends Search_Blocks {
 			protected static function get_search_template_content(): string {
 				return '';
+			}
+			protected static function block_templates_active(): bool {
+				return true;
 			}
 		};
 		$anon::register_search_template();
 
 		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
 			$this->assertFalse( $registry->is_registered( $name ), "Template $name should NOT be registered when content is empty." );
+		}
+	}
+
+	/**
+	 * On a classic (non-block) theme the block-template registry is never
+	 * consulted for rendering and there's no Site Editor to surface the
+	 * template, so registration must be a no-op — keeping it symmetric with
+	 * the (block-theme-only) `prepend_search_template()` guard. The dbless
+	 * default theme is classic, so the real guard is exercised here.
+	 */
+	public function test_register_search_template_skips_on_classic_theme() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$this->assertFalse( wp_is_block_theme(), 'dbless default theme is expected to be classic' );
+
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		Search_Blocks::register_search_template();
+
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			$this->assertFalse( $registry->is_registered( $name ), "Template $name must NOT be registered on a classic theme." );
 		}
 	}
 
