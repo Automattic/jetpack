@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: deprecate Status; inline @wordpress/ui Text in consumers.
