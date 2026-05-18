@@ -4,6 +4,25 @@
 body.jetpack_page_jetpack-podcast {
 
 	@include jetpack-admin-page-layout;
+
+	// Align the first tab's content edge with the page header's start.
+	// admin-ui's page header sits at padding-inline 2xl (24px). The shared
+	// `.jp-admin-page-tabs` wrapper adds only 8px (designed for the default
+	// <Tabs.Tab> which ships with padding-inline lg = 16px, so 8 + 16 = 24
+	// matches the header). With `variant="minimal"`, <Tabs.Tab> has 0 inline
+	// padding, so the wrapper has to provide the full 2xl itself.
+	.jp-admin-page-tabs {
+		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	}
+
+	// Re-apply the design token from an unlayered selector. `@wordpress/ui`
+	// declares `font-size: var(--wpds-typography-font-size-md)` inside
+	// `@layer wp-ui-components`, but wp-admin core ships an unlayered
+	// `button { font-size: inherit }` reset that wins, so the tab inherits
+	// 16px instead of the 13px the token specifies.
+	.jp-admin-page-tabs [role="tab"] {
+		font-size: var(--wpds-typography-font-size-md, 13px);
+	}
 }
 
 .podcast__loading {
