@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast: enforce square cover image via a forced 1:1 crop step in the picker.
+Podcast: serve square cover art in the feed by center-cropping via Photon, regardless of source aspect ratio.
