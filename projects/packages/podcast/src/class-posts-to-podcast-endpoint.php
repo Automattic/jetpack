@@ -107,6 +107,102 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/episodes',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'read_episodes' ),
+					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'args'                => array(
+						'page'     => array(
+							'type'    => 'integer',
+							'default' => 1,
+							'minimum' => 1,
+						),
+						'per_page' => array(
+							'type'    => 'integer',
+							'default' => 5,
+							'minimum' => 1,
+							'maximum' => 50,
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Return posts that embed a `jetpack/podcast-episode` block — the surface
+	 * this feature creates on success — newest first. Drafts and published
+	 * posts only; trashed/auto-drafts are excluded.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function read_episodes( WP_REST_Request $request ) {
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = max( 1, min( 50, (int) $request->get_param( 'per_page' ) ) );
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'post',
+				'post_status'            => array( 'draft', 'publish' ),
+				'posts_per_page'         => $per_page,
+				'paged'                  => $page,
+				'orderby'                => 'date',
+				'order'                  => 'DESC',
+				'update_post_term_cache' => false,
+				'meta_query'             => array(
+					array(
+						'key'     => 'posts_to_podcast_metadata',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		$items = array();
+		foreach ( $query->posts as $post ) {
+			$raw_meta = get_post_meta( $post->ID, 'posts_to_podcast_metadata', true );
+			$meta     = is_string( $raw_meta ) ? json_decode( $raw_meta, true ) : null;
+			$audio    = ( is_array( $meta ) && isset( $meta['audio'] ) && is_array( $meta['audio'] ) ) ? $meta['audio'] : array();
+			$title    = wp_strip_all_tags(
+				html_entity_decode( (string) get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' )
+			);
+			if ( '' === trim( $title ) ) {
+				// translators: Fallback shown in the Generated podcasts list when a draft has an empty title.
+				$title = __( '(no title)', 'jetpack-podcast' );
+			}
+
+			$items[] = array(
+				'id'        => $post->ID,
+				'title'     => $title,
+				'status'    => $post->post_status,
+				'date'      => mysql2date( 'c', $post->post_date_gmt, false ),
+				'editUrl'   => get_edit_post_link( $post->ID, 'raw' ),
+				'mediaUrl'  => isset( $audio['url'] ) ? esc_url_raw( (string) $audio['url'] ) : '',
+				'mediaType' => 'audio',
+				'mediaMime' => isset( $audio['mimeType'] ) ? (string) $audio['mimeType'] : '',
+				'duration'  => isset( $audio['durationSeconds'] ) ? (int) round( (float) $audio['durationSeconds'] ) : 0,
+			);
+		}
+
+		$total       = (int) $query->found_posts;
+		$total_pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 0;
+
+		return rest_ensure_response(
+			array(
+				'items'      => $items,
+				'total'      => $total,
+				'page'       => $page,
+				'perPage'    => $per_page,
+				'totalPages' => $total_pages,
+			)
+		);
 	}
 
 	/**
