@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: use server-derived feed URL and episode status in the dashboard.
