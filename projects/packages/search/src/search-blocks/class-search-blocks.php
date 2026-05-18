@@ -758,13 +758,8 @@ class Search_Blocks {
 	 * edits this template in the Site Editor, the `custom` source wins during
 	 * resolution automatically.
 	 *
-	 * Gated on `block_templates_active()` for the same reason
-	 * `prepend_search_template()` is: the registry is only consulted by the
-	 * Site Editor and the block-theme render path, both of which require a
-	 * block theme. Registering on a classic theme is inert and would leave
-	 * registration asymmetric with the (block-theme-only) hierarchy prepend.
-	 * The check is re-evaluated every `init`, so switching to a block theme
-	 * registers the template on the very next request.
+	 * Skipped on classic themes: the registry is only consulted by the Site
+	 * Editor and the block-theme render path. Re-checked every `init`.
 	 */
 	public static function register_search_template() {
 		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
@@ -840,15 +835,16 @@ class Search_Blocks {
 	 * can't accumulate duplicates from a second init pass or another filter
 	 * on the same hook.
 	 *
-	 * Gated by `should_take_over_search()` (see that method) so the slug is
-	 * only injected when it can actually resolve.
+	 * Only takes effect on a block-theme search request — the slug resolves
+	 * only through the block-template system, so injecting it anywhere else
+	 * just mis-shapes the hierarchy.
 	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function prepend_search_template( $templates ) {
-		if ( ! static::should_take_over_search() ) {
-			return (array) $templates;
+		if ( ! is_search() || ! static::block_templates_active() ) {
+			return $templates;
 		}
 		$templates = array_values(
 			array_filter(
@@ -863,30 +859,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether the Jetpack Search template should replace the theme's search
-	 * template for the current request.
-	 *
-	 * The slug resolves only through the block-template system, so
-	 * prepending it outside a block theme — or outside a search request,
-	 * should the filter ever run out of context — is dead weight that can
-	 * only mis-shape the hierarchy (and on a classic theme it could never
-	 * resolve to our template anyway). Both conditions are therefore
-	 * required before the takeover applies.
-	 *
-	 * @return bool
-	 */
-	protected static function should_take_over_search(): bool {
-		return is_search() && static::block_templates_active();
-	}
-
-	/**
-	 * Whether the active theme resolves block templates — the precondition
-	 * shared by template registration and the search-hierarchy takeover.
-	 *
-	 * Single-sourced (rather than two `wp_is_block_theme()` calls) so the
-	 * two surfaces can never drift apart and so tests can flip the
-	 * precondition via a subclass without standing up a block theme in the
-	 * dbless environment.
+	 * Whether the active theme resolves block templates. Wraps
+	 * `wp_is_block_theme()` as an overridable seam so tests can exercise the
+	 * block-theme path without standing up a block theme.
 	 *
 	 * @return bool
 	 */

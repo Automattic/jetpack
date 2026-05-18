@@ -315,33 +315,12 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Subclass that forces `should_take_over_search()` true so the
-	 * array-shaping behavior can be asserted without standing up a block
-	 * theme in the dbless environment. The guard itself is exercised
-	 * separately against real `is_search()` / `wp_is_block_theme()` state.
+	 * Subclass forcing `block_templates_active()` so the block-theme path
+	 * runs without a real block theme in the dbless env.
 	 *
 	 * @return class-string<Search_Blocks>
 	 */
-	private function search_blocks_taking_over(): string {
-		return get_class(
-			new class() extends Search_Blocks {
-				protected static function should_take_over_search(): bool {
-					return true;
-				}
-			}
-		);
-	}
-
-	/**
-	 * Subclass that forces `block_templates_active()` true so
-	 * `register_search_template()` can be exercised without standing up a
-	 * block theme in the dbless environment (whose default theme is
-	 * classic). The block-theme gate itself is covered separately by
-	 * `test_register_search_template_skips_on_classic_theme()`.
-	 *
-	 * @return class-string<Search_Blocks>
-	 */
-	private function search_blocks_with_block_templates(): string {
+	private function block_theme_search_blocks(): string {
 		return get_class(
 			new class() extends Search_Blocks {
 				protected static function block_templates_active(): bool {
@@ -352,64 +331,44 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The takeover hinges on `search` being replaced by `jetpack-search` at
-	 * the front of the hierarchy: that's what makes core resolve our plugin
-	 * template instead of the theme's `search.html`.
+	 * On a block-theme search request the slug is moved to the front of the
+	 * hierarchy, and a pre-existing copy is de-duplicated rather than doubled.
 	 */
-	public function test_prepend_search_template_puts_unique_slug_first() {
-		$class  = $this->search_blocks_taking_over();
-		$result = $class::prepend_search_template( array( 'search', 'index' ) );
-		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
-	}
-
-	/**
-	 * If the slug is already in the hierarchy (e.g. a second init pass or
-	 * another filter already prepended it), the result must not contain
-	 * duplicate `jetpack-search` entries — core would otherwise do two
-	 * identical registry lookups per search request.
-	 */
-	public function test_prepend_search_template_dedupes_existing_slug() {
-		$class  = $this->search_blocks_taking_over();
-		$result = $class::prepend_search_template( array( 'jetpack-search', 'search', 'index' ) );
-		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
-		$this->assertCount( 1, array_keys( $result, 'jetpack-search', true ) );
-	}
-
-	/**
-	 * `prepend_search_template()` must leave the hierarchy untouched when the
-	 * request isn't a search — the filter is structurally only fired from
-	 * `get_search_template()`, but the guard mirrors WooCommerce's defensive
-	 * `is_search()` check so a stray out-of-context invocation can't shove a
-	 * never-resolving slug to the front.
-	 */
-	public function test_prepend_search_template_skips_when_not_a_search() {
+	public function test_prepend_search_template_prepends_unique_slug() {
 		$original_query = $GLOBALS['wp_query'] ?? null;
 		try {
-			$GLOBALS['wp_query'] = new \WP_Query();
-			$this->assertFalse( is_search() );
-			$input  = array( 'search', 'index' );
-			$result = Search_Blocks::prepend_search_template( $input );
-			$this->assertSame( $input, $result );
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+			$class               = $this->block_theme_search_blocks();
+
+			$this->assertSame(
+				array( 'jetpack-search', 'search', 'index' ),
+				$class::prepend_search_template( array( 'search', 'index' ) )
+			);
+			$deduped = $class::prepend_search_template( array( 'jetpack-search', 'search', 'index' ) );
+			$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $deduped );
+			$this->assertCount( 1, array_keys( $deduped, 'jetpack-search', true ) );
 		} finally {
 			$GLOBALS['wp_query'] = $original_query;
 		}
 	}
 
 	/**
-	 * On a classic (non-block) theme the slug can never resolve through the
-	 * block-template system, so — matching WooCommerce's `wp_is_block_theme()`
-	 * guard — the hierarchy is returned unchanged. The dbless environment's
-	 * default theme is classic, so a search route alone isn't enough.
+	 * The hierarchy is returned untouched unless the request is a search on a
+	 * block theme — the slug only resolves through the block-template system.
 	 */
-	public function test_prepend_search_template_skips_on_classic_theme() {
+	public function test_prepend_search_template_skips_outside_block_theme_search() {
 		$original_query = $GLOBALS['wp_query'] ?? null;
 		try {
+			$input = array( 'search', 'index' );
+
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertFalse( is_search() );
+			$this->assertSame( $input, Search_Blocks::prepend_search_template( $input ) );
+
 			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
 			$this->assertTrue( is_search() );
 			$this->assertFalse( wp_is_block_theme(), 'dbless default theme is expected to be classic' );
-			$input  = array( 'search', 'index' );
-			$result = Search_Blocks::prepend_search_template( $input );
-			$this->assertSame( $input, $result );
+			$this->assertSame( $input, Search_Blocks::prepend_search_template( $input ) );
 		} finally {
 			$GLOBALS['wp_query'] = $original_query;
 		}
@@ -578,7 +537,7 @@ class Search_Blocks_Test extends TestCase {
 			}
 		}
 
-		$class = $this->search_blocks_with_block_templates();
+		$class = $this->block_theme_search_blocks();
 		$class::register_search_template();
 
 		$namespace = $this->invoke_protected( 'get_parent_plugin_slug' );
@@ -600,12 +559,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * If the bundled template file can't be read, registration must be a
-	 * no-op — otherwise the slug we prepended to `search_template_hierarchy`
-	 * would resolve to an empty plugin template and take over `/?s=...`
-	 * with a blank page. Simulate the missing-file case with an anonymous
-	 * subclass that overrides `get_search_template_content()` to return ''
-	 * (the actual file is always present in the repo).
+	 * Empty template content must be a no-op — otherwise the prepended slug
+	 * resolves to an empty template and renders a blank `/?s=...` page.
 	 */
 	public function test_register_search_template_skips_when_content_empty() {
 		if ( ! function_exists( 'register_block_template' ) ) {
@@ -618,11 +573,8 @@ class Search_Blocks_Test extends TestCase {
 			}
 		}
 
-		// Stub empty content by temporarily overriding the method's output
-		// via a mock subclass. block_templates_active() is also forced true
-		// so the early block-theme guard doesn't short-circuit before the
-		// empty-content check — otherwise this would pass for the wrong
-		// reason in the (classic) dbless default theme.
+		// block_templates_active() forced true so the block-theme guard
+		// doesn't short-circuit before the empty-content check.
 		$anon = new class() extends Search_Blocks {
 			protected static function get_search_template_content(): string {
 				return '';
@@ -639,11 +591,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * On a classic (non-block) theme the block-template registry is never
-	 * consulted for rendering and there's no Site Editor to surface the
-	 * template, so registration must be a no-op — keeping it symmetric with
-	 * the (block-theme-only) `prepend_search_template()` guard. The dbless
-	 * default theme is classic, so the real guard is exercised here.
+	 * On a classic theme registration must be a no-op. The dbless default
+	 * theme is classic, so the real guard is exercised here.
 	 */
 	public function test_register_search_template_skips_on_classic_theme() {
 		if ( ! function_exists( 'register_block_template' ) ) {
