@@ -130,24 +130,27 @@ const CategorySetupModal = ( {
 					onSavingChange={ setPickerSaving }
 					onCreateSuccess={ handleCreateSuccess }
 				/>
-				<HStack justify="flex-end" spacing={ 3 }>
-					<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
-						{ __( 'Cancel', 'jetpack-podcast' ) }
-					</Button>
-					<Button
-						variant="primary"
-						// The inline-create path commits via `handleCreateSuccess`, so
-						// Confirm is only used when the user picks an existing category.
-						onClick={ handleExistingCategoryConfirm }
-						// Block Confirm while the inline create form is open so
-						// the user can't commit a stale `selectedId` with the
-						// half-filled inline form still mounted.
-						disabled={ ! categoryId || saving || pickerCreating }
-						isBusy={ saving }
-					>
-						{ __( 'Confirm', 'jetpack-podcast' ) }
-					</Button>
-				</HStack>
+				{ /* Hide the outer Cancel/Confirm row while the inline create
+				     form is open. The inline form has its own Cancel/Create row
+				     and the create flow commits settings on success, so showing
+				     both rows looks like two competing actions. */ }
+				{ ! pickerCreating && (
+					<HStack justify="flex-end" spacing={ 3 }>
+						<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
+							{ __( 'Cancel', 'jetpack-podcast' ) }
+						</Button>
+						<Button
+							variant="primary"
+							// The inline-create path commits via `handleCreateSuccess`, so
+							// Confirm is only used when the user picks an existing category.
+							onClick={ handleExistingCategoryConfirm }
+							disabled={ ! categoryId || saving }
+							isBusy={ saving }
+						>
+							{ __( 'Confirm', 'jetpack-podcast' ) }
+						</Button>
+					</HStack>
+				) }
 			</VStack>
 		</Modal>
 	);
