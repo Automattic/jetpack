@@ -87,21 +87,32 @@ const CategorySetupModal = ( {
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' )
 					)
 				);
+				// Re-throw so the inline-create path can reset the picker; the
+				// existing-category caller catches and discards.
+				throw err;
 			}
 		},
 		[ categoryId, existingTitle, siteName, saveSettings, onSuccess ]
 	);
 
 	const handleCreateSuccess = useCallback(
-		( id: number ) => {
+		async ( id: number ) => {
 			setCommittingFromCreate( true );
-			onConfirm( id );
+			try {
+				await onConfirm( id );
+			} catch ( err ) {
+				// Restore the outer Cancel/Confirm row so the user can retry or
+				// dismiss; re-throw so the picker resets its own busy state.
+				setCommittingFromCreate( false );
+				throw err;
+			}
 		},
 		[ onConfirm ]
 	);
 
 	const handleExistingCategoryConfirm = useCallback( () => {
-		onConfirm();
+		// onConfirm's inline Notice owns the error UX; swallow the rejection.
+		onConfirm().catch( () => {} );
 	}, [ onConfirm ] );
 
 	return (
