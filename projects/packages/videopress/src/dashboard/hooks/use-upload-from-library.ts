@@ -20,43 +20,91 @@ export type UploadFromLibraryResult = {
 	mediaId: number;
 };
 
+export type UploadFromLibraryOptions = {
+	/** Delay (ms) between polls and between transient-error retries. */
+	delayMs?: number;
+	/** Maximum total attempts before giving up. */
+	maxAttempts?: number;
+};
+
+const DEFAULT_DELAY_MS = 500;
+const DEFAULT_MAX_ATTEMPTS = 120; // ~1 minute at 500ms cadence.
+
+const sleep = ( ms: number ): Promise< void > =>
+	new Promise( resolve => {
+		if ( ms <= 0 ) {
+			resolve();
+			return;
+		}
+		setTimeout( resolve, ms );
+	} );
+
 /**
- * Recursively POST to `/videopress/v1/upload/{id}` until the endpoint
- * settles on `complete` or `error`. Each call is the pacing mechanism
- * — the server uploads one chunk per request and returns immediately
- * with an in-progress status when more work remains. Matches the
- * legacy `uploadFromLibrary()` semantics exactly.
+ * Walk the `/videopress/v1/upload/{id}` endpoint until it settles on a
+ * terminal status (`complete`, `uploaded`, `error`) or `maxAttempts` is
+ * reached. Each in-progress response (`new` / `resume` / `uploading`)
+ * triggers another POST after `delayMs`. Transient apiFetch failures are
+ * also retried, counting against the same attempt budget. Matches the
+ * legacy `uploadFromLibrary()` semantics but adds a cap so a stuck
+ * backend can't lock the client in a tight loop.
  *
  * @param attachmentId - The numeric or string WordPress attachment ID.
+ * @param options      - Optional polling cadence and retry cap.
  * @return The new VideoPress GUID and media post ID.
  */
-async function uploadFromLibrary(
-	attachmentId: string | number
+export async function uploadFromLibrary(
+	attachmentId: string | number,
+	options: UploadFromLibraryOptions = {}
 ): Promise< UploadFromLibraryResult > {
-	const result = await apiFetch< UploadStatusResponse >( {
-		path: `/videopress/v1/upload/${ attachmentId }`,
-		method: 'POST',
-	} );
-	if ( result.status === 'complete' && result.uploaded_details ) {
-		return {
-			guid: result.uploaded_details.guid,
-			mediaId: result.uploaded_details.media_id,
-		};
+	const delayMs = options.delayMs ?? DEFAULT_DELAY_MS;
+	const maxAttempts = options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
+	const path = `/videopress/v1/upload/${ attachmentId }`;
+
+	let lastError: unknown;
+
+	for ( let attempt = 0; attempt < maxAttempts; attempt += 1 ) {
+		if ( attempt > 0 ) {
+			await sleep( delayMs );
+		}
+
+		let result: UploadStatusResponse;
+		try {
+			result = await apiFetch< UploadStatusResponse >( { path, method: 'POST' } );
+		} catch ( err ) {
+			// Transient apiFetch failure — count against the attempt
+			// budget and try again on the next iteration.
+			lastError = err;
+			continue;
+		}
+
+		if ( result.status === 'complete' && result.uploaded_details ) {
+			return {
+				guid: result.uploaded_details.guid,
+				mediaId: result.uploaded_details.media_id,
+			};
+		}
+		// `uploaded` means the attachment had already been promoted to
+		// VideoPress in a prior session. The library filter
+		// (`videopress_hide_already_uploaded`) normally hides those rows;
+		// this branch is a safety net for any zombie that slips through.
+		if ( result.status === 'uploaded' && result.uploaded_video_guid ) {
+			return {
+				guid: result.uploaded_video_guid,
+				mediaId: Number( result.uploaded_post_id ),
+			};
+		}
+		if ( result.status === 'new' || result.status === 'resume' || result.status === 'uploading' ) {
+			// Keep polling.
+			continue;
+		}
+
+		throw new Error( result.error ?? 'Unexpected upload status.' );
 	}
-	// `uploaded` means the attachment had already been promoted to
-	// VideoPress in a prior session. The library filter
-	// (`videopress_hide_already_uploaded`) normally hides those rows;
-	// this branch is a safety net for any zombie that slips through.
-	if ( result.status === 'uploaded' && result.uploaded_video_guid ) {
-		return {
-			guid: result.uploaded_video_guid,
-			mediaId: Number( result.uploaded_post_id ),
-		};
+
+	if ( lastError instanceof Error ) {
+		throw lastError;
 	}
-	if ( result.status === 'new' || result.status === 'resume' || result.status === 'uploading' ) {
-		return uploadFromLibrary( attachmentId );
-	}
-	throw new Error( result.error ?? 'Unexpected upload status.' );
+	throw new Error( 'Upload from library timed out.' );
 }
 
 /**
@@ -71,7 +119,7 @@ async function uploadFromLibrary(
 export function useUploadFromLibrary() {
 	const client = useQueryClient();
 	return useMutation< UploadFromLibraryResult, Error, string | number >( {
-		mutationFn: uploadFromLibrary,
+		mutationFn: id => uploadFromLibrary( id ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},
