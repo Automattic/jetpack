@@ -135,12 +135,19 @@ const CategoryPicker = ( {
 			setNewName( '' );
 			setSaving( false );
 		} catch ( err ) {
-			setCreateError(
-				parseErrorMessage(
-					err,
-					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
-				)
-			);
+			// WordPress core surfaces `term_exists` with a long parent-aware
+			// message ("A term with the name provided already exists with
+			// this parent."). The picker isn't exposing parent categories,
+			// so substitute a shorter, plain-language message.
+			const code = ( err as { code?: string } )?.code;
+			const message =
+				code === 'term_exists'
+					? __( 'This category already exists.', 'jetpack-podcast' )
+					: parseErrorMessage(
+							err,
+							__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
+					  );
+			setCreateError( message );
 			setSaving( false );
 		}
 	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
