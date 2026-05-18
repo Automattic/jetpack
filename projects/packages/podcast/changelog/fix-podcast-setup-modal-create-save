@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: prevent setup modal dismissal while inline category creation is saving.

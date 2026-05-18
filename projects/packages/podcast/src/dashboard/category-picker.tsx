@@ -22,9 +22,11 @@ interface CategoryPickerProps {
 	onSelect: ( id: number ) => void;
 	disabled?: boolean;
 	// Fires when the inline "create a new category" form opens/closes, so a
-	// containing modal can gate its own Confirm button until the user either
-	// finishes or cancels the inline flow.
+	// containing modal can gate Confirm until the user finishes or cancels.
 	onCreatingChange?: ( isCreating: boolean ) => void;
+	// Fires while the create request is in flight, so a containing modal can
+	// prevent dismissal until the async create settles.
+	onSavingChange?: ( isSaving: boolean ) => void;
 }
 
 const parseErrorMessage = ( error: unknown, fallback: string ): string => {
@@ -47,6 +49,7 @@ const CategoryPicker = ( {
 	onSelect,
 	disabled = false,
 	onCreatingChange,
+	onSavingChange,
 }: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -66,6 +69,10 @@ const CategoryPicker = ( {
 	useEffect( () => {
 		onCreatingChange?.( isCreating );
 	}, [ isCreating, onCreatingChange ] );
+
+	useEffect( () => {
+		onSavingChange?.( saving );
+	}, [ saving, onSavingChange ] );
 
 	const trimmedName = newName.trim();
 

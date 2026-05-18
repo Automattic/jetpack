@@ -49,15 +49,16 @@ const CategorySetupModal = ( {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ saving, setSaving ] = useState( false );
 	const [ pickerCreating, setPickerCreating ] = useState( false );
+	const [ pickerSaving, setPickerSaving ] = useState( false );
 
 	const requestClose = useCallback( () => {
-		// Block dismissal while a save is in flight so the in-flight promise
-		// can't mutate settings after the user thought they cancelled.
-		if ( saving ) {
+		// Block dismissal while a settings save or inline category create is
+		// in flight, so async callbacks can't update a dismissed setup flow.
+		if ( saving || pickerSaving ) {
 			return;
 		}
 		onClose();
-	}, [ saving, onClose ] );
+	}, [ saving, pickerSaving, onClose ] );
 
 	const onConfirm = useCallback( async () => {
 		if ( ! categoryId ) {
@@ -117,9 +118,10 @@ const CategorySetupModal = ( {
 					onSelect={ setCategoryId }
 					disabled={ saving }
 					onCreatingChange={ setPickerCreating }
+					onSavingChange={ setPickerSaving }
 				/>
 				<HStack justify="flex-end" spacing={ 3 }>
-					<Button variant="tertiary" onClick={ requestClose } disabled={ saving }>
+					<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
 						{ __( 'Cancel', 'jetpack-podcast' ) }
 					</Button>
 					<Button
@@ -128,7 +130,7 @@ const CategorySetupModal = ( {
 						// Block Confirm while the inline create form is open so
 						// the user can't commit a stale `selectedId` with the
 						// half-filled inline form still mounted.
-						disabled={ ! categoryId || saving || pickerCreating }
+						disabled={ ! categoryId || saving || pickerCreating || pickerSaving }
 						isBusy={ saving }
 					>
 						{ __( 'Confirm', 'jetpack-podcast' ) }
