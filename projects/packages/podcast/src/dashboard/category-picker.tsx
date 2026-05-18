@@ -69,6 +69,12 @@ const CategoryPicker = ( {
 
 	const trimmedName = newName.trim();
 
+	const resetCreate = useCallback( () => {
+		setIsCreating( false );
+		setNewName( '' );
+		setCreateError( null );
+	}, [] );
+
 	const handleSelectChange = useCallback(
 		( value: string ) => {
 			if ( value === CREATE_NEW ) {
@@ -80,22 +86,18 @@ const CategoryPicker = ( {
 			// Picking a regular option from the dropdown while the inline
 			// create form is open should dismiss it; otherwise the select
 			// snaps back to CREATE_NEW on the next render.
-			setIsCreating( false );
-			setNewName( '' );
-			setCreateError( null );
+			resetCreate();
 			onSelect( Number( value ) || 0 );
 		},
-		[ onSelect ]
+		[ onSelect, resetCreate ]
 	);
 
 	const cancelCreate = useCallback( () => {
 		if ( saving ) {
 			return;
 		}
-		setIsCreating( false );
-		setNewName( '' );
-		setCreateError( null );
-	}, [ saving ] );
+		resetCreate();
+	}, [ saving, resetCreate ] );
 
 	const createCategory = useCallback( async () => {
 		if ( ! trimmedName ) {
