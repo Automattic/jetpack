@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: explain why each Distribution Submit button is disabled. Disabled buttons now carry a Tooltip and aria-label that name the gating reason (no category set, validation in flight, or N setup steps remaining), and the Notice header uses the same count so the two stay in sync.

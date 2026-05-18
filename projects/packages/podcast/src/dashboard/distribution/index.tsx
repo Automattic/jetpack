@@ -4,6 +4,7 @@ import {
 	Card,
 	CardBody,
 	Notice,
+	Tooltip,
 	VisuallyHidden,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
@@ -14,7 +15,7 @@ import {
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
@@ -111,6 +112,37 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const [ showConfetti, setShowConfetti ] = useState( false );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
+	// Single source of truth for "what's blocking submission", so the Notice
+	// header, Submit aria-labels, and Submit tooltips all stay in sync.
+	const stepsLeftLabel =
+		issues.length > 0
+			? sprintf(
+					/* translators: %d: number of remaining setup steps before podcast directory submission is unlocked. */
+					_n(
+						'%d step left before you can submit',
+						'%d steps left before you can submit',
+						issues.length,
+						'jetpack-podcast'
+					),
+					issues.length
+			  )
+			: '';
+	// While validation probes are in flight, `issues.length === 0` and
+	// `stepsLeftLabel` is empty — fall back to a loading message so the
+	// disabled Submit buttons still explain themselves on hover/focus.
+	// Note: gating only on `isLoading`, NOT `! isReady`. `isReady` is
+	// derived as `! isLoading && issues.length === 0`, so once loading
+	// finishes with issues outstanding, `! isReady` stays true and would
+	// keep the tooltip stuck on "Checking…" instead of showing the count.
+	let blockedTooltip = '';
+	if ( ! isEnabled ) {
+		blockedTooltip = __( 'Set a podcast category in Settings first.', 'jetpack-podcast' );
+	} else if ( isLoading ) {
+		blockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+	} else {
+		blockedTooltip = stepsLeftLabel;
+	}
+
 	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_modal_opened', {
 			directory: id,
@@ -132,7 +164,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 		<>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
-					<strong>{ __( 'Almost ready to submit', 'jetpack-podcast' ) }</strong>
+					<strong>{ stepsLeftLabel }</strong>
 					<ul className="podcast__settings-issues">
 						{ issues.map( issue => (
 							<li key={ issue }>{ issue }</li>
@@ -200,28 +232,28 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 												<Text weight={ 500 }>{ app.name }</Text>
 												<StateBadge state={ state } />
 											</HStack>
-											<Button
-												variant="primary"
-												size="compact"
-												// eslint-disable-next-line react/jsx-no-bind
-												onClick={ () => handleSubmitClick( app.id ) }
-												disabled={ isSubmitBlocked }
-												accessibleWhenDisabled
-												aria-label={
-													isSubmitBlocked
-														? sprintf(
-																/* translators: %s is the directory name (Apple Podcasts, Spotify, etc.). */
-																__(
-																	'Submit to %s (finish setting up your podcast first).',
-																	'jetpack-podcast'
-																),
-																app.name
-														  )
-														: undefined
-												}
-											>
-												{ __( 'Submit', 'jetpack-podcast' ) }
-											</Button>
+											<Tooltip text={ isSubmitBlocked ? blockedTooltip : '' }>
+												<Button
+													variant="primary"
+													size="compact"
+													// eslint-disable-next-line react/jsx-no-bind
+													onClick={ () => handleSubmitClick( app.id ) }
+													disabled={ isSubmitBlocked }
+													accessibleWhenDisabled
+													aria-label={
+														isSubmitBlocked
+															? sprintf(
+																	/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Submit button is disabled. */
+																	__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+																	app.name,
+																	blockedTooltip
+															  )
+															: undefined
+													}
+												>
+													{ __( 'Submit', 'jetpack-podcast' ) }
+												</Button>
+											</Tooltip>
 										</HStack>
 									);
 								} ) }
