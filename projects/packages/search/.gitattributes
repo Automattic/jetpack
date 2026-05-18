@@ -8,6 +8,7 @@
 /.size-limit.js                                          production-exclude
 /jest.url-tests.config.js                                production-exclude
 /postcss.config.js                                       production-exclude
+/docs/**                                                 production-exclude
 /tools/**                                                production-exclude
 /src/**/test/**                                          production-exclude
 /src/**/*.ts                                             production-exclude
@@ -15,10 +16,13 @@
 /src/**/*.jsx                                            production-exclude
 /src/**/*.scss                                           production-exclude
 
-# @todo Are there any .js files we actually want to keep, or is everything built and we can do `/src/**/*.js` like above?
+# Source .js is excluded per-directory, not via `/src/**/*.js`, because
+# `src/widgets/js/` has no build step — `class-search-widget.php` enqueues
+# those files straight from source, so they must ship. Every other src
+# subdirectory below is bundled into `/build/**` and its source is dev-only.
 /src/customberg/**/*.js                                  production-exclude
 /src/customizer/**/*.js                                  production-exclude
 /src/dashboard/**/*.js                                   production-exclude
 /src/inline-search/**/*.js                               production-exclude
 /src/instant-search/**/*.js                              production-exclude
-/src/widgets/**/*.js                                     production-exclude
+/src/search-blocks/**/*.js                               production-exclude

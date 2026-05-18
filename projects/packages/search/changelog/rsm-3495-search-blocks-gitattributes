@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Exclude search-blocks source `.js` and the `docs/` planning directory from the production build, and stop excluding `src/widgets/js/` (it has no build step and is enqueued from source at runtime), reducing the distributed package size without dropping runtime assets.
