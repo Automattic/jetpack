@@ -55,8 +55,15 @@
 	font-weight: 600;
 }
 
+.podcast__welcome-plans {
+	padding-inline: clamp(0px, 2vw, 16px);
+}
+
+// `outline` instead of `border` so the highlight doesn't add 1px to the
+// premium card's box and offset it vs the Free card's default 1px Card border.
 .podcast__welcome-plan--premium {
-	border: 2px solid #3858e9;
+	outline: 2px solid #3858e9;
+	outline-offset: -2px;
 }
 
 .podcast__welcome-plan-badge {
