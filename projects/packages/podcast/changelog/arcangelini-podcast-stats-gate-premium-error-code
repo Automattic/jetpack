@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Episode stats: dispatch the premium-required state on the `podcast_premium_required` error code instead of HTTP 402.
