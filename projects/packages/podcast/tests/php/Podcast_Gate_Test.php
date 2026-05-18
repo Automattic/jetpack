@@ -78,7 +78,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 
 		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
-			'registered' => Podcast_Gate::PREMIUM_CUTOFF_DATE . ' 00:00:00',
+			'registered' => Podcast_Gate::GRANDFATHER_CUTOFF_DATE . ' 00:00:00',
 		);
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );

@@ -20,7 +20,7 @@ class Podcast_Gate {
 
 	const FEATURE_SLUG = 'podcasting';
 
-	const PREMIUM_CUTOFF_DATE = '2026-05-18';
+	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**
 	 * Whether the current blog can use Premium podcast features.
@@ -41,7 +41,7 @@ class Podcast_Gate {
 	}
 
 	/**
-	 * Whether the blog predates the Premium cutoff.
+	 * Whether the blog predates the grandfather cutoff.
 	 *
 	 * @param int $blog_id Blog ID.
 	 */
@@ -57,6 +57,6 @@ class Podcast_Gate {
 		if ( false === $registered_ts ) {
 			return false;
 		}
-		return $registered_ts < strtotime( self::PREMIUM_CUTOFF_DATE );
+		return $registered_ts < strtotime( self::GRANDFATHER_CUTOFF_DATE );
 	}
 }
