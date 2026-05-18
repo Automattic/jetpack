@@ -6,8 +6,9 @@ import MostViewedCard from '../../src/dashboard/components/Overview/most-viewed-
 import StorageMeterCard from '../../src/dashboard/components/Overview/storage-meter-card';
 import TopByWatchTimeCard from '../../src/dashboard/components/Overview/top-by-watch-time-card';
 import ViewsTrendsCard from '../../src/dashboard/components/Overview/views-trends-card';
+import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { useMockStats } from '../../src/dashboard/hooks/use-mock-stats';
+import { useStats } from '../../src/dashboard/hooks/use-stats';
 import './style.scss';
 import type { ActiveMetric } from '../../src/dashboard/types/stats';
 
@@ -20,7 +21,7 @@ const KPI_TAB_IDS: Record< ActiveMetric, string > = {
 	watch_time: 'vp-overview-kpi-tab-watch-time',
 };
 
-const Stage = () => {
+const StageInner = () => {
 	const {
 		stats,
 		isLoading,
@@ -32,7 +33,7 @@ const Stage = () => {
 		setActiveMetric,
 		compare,
 		setCompare,
-	} = useMockStats();
+	} = useStats();
 	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
 
 	const showStorageMeter = ! isFree && videoCount > 0 && ! isUnlimited && ! isAtomic;
@@ -74,5 +75,11 @@ const Stage = () => {
 		</DashboardLayout>
 	);
 };
+
+const Stage = () => (
+	<QueryClientWrapper>
+		<StageInner />
+	</QueryClientWrapper>
+);
 
 export { Stage as stage };
