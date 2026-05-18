@@ -198,28 +198,6 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			<Card>
 				<CardBody>
 					<VStack spacing={ 8 }>
-						<VStack spacing={ 4 }>
-							<VStack spacing={ 1 }>
-								<h3 className="podcast__card-title">{ __( 'RSS feed', 'jetpack-podcast' ) }</h3>
-								<Text variant="muted">
-									{ __(
-										'Copy this URL, then submit it to each directory below to publish your podcast.',
-										'jetpack-podcast'
-									) }
-								</Text>
-							</VStack>
-							{ isEnabled && feedUrl ? (
-								<FeedCopyField value={ feedUrl } />
-							) : (
-								<Text variant="muted">
-									{ __(
-										'Set your post category to generate the feed URL you can submit to directories.',
-										'jetpack-podcast'
-									) }
-								</Text>
-							) }
-						</VStack>
-
 						{ pocketcastsApp && (
 							<VStack spacing={ 4 }>
 								<VStack spacing={ 1 }>
@@ -249,11 +227,21 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 								</h3>
 								<Text variant="muted">
 									{ __(
-										'Submit your podcast manually to the directories below. Most take a few days to go live.',
+										'Copy this URL, then submit it to each directory below. Most take a few days to go live.',
 										'jetpack-podcast'
 									) }
 								</Text>
 							</VStack>
+							{ isEnabled && feedUrl ? (
+								<FeedCopyField value={ feedUrl } />
+							) : (
+								<Text variant="muted">
+									{ __(
+										'Set your podcast category to generate the feed URL you can submit to directories.',
+										'jetpack-podcast'
+									) }
+								</Text>
+							) }
 							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
 								{ directoryApps.map( app => {
 									const { Logo } = app;
