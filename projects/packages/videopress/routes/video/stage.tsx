@@ -121,7 +121,7 @@ const Editor = ( {
 				/>
 				<PrivacySharingCard
 					privacy={ values.privacy }
-					allowSharing={ values.allowSharing }
+					displayEmbed={ values.displayEmbed }
 					allowDownloads={ values.allowDownloads }
 					onChange={ update }
 				/>

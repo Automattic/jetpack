@@ -242,7 +242,7 @@ const startUpload = ( file: StartUploadInput ): void => {
 		upload: { status: 'uploading', progress: 0 },
 		description: '',
 		rating: 'G',
-		allowSharing: false,
+		displayEmbed: false,
 		allowDownloads: false,
 		shortcode: `[videopress ${ id }]`,
 	};

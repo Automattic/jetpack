@@ -7,7 +7,7 @@ const baseline = ( video: MockLibraryItem ): VideoDetailsFormValues => ( {
 	title: video.title,
 	description: video.description,
 	privacy: video.privacy,
-	allowSharing: video.allowSharing,
+	displayEmbed: video.displayEmbed,
 	allowDownloads: video.allowDownloads,
 	rating: video.rating,
 } );
@@ -16,7 +16,7 @@ const shallowEqual = ( a: VideoDetailsFormValues, b: VideoDetailsFormValues ): b
 	a.title === b.title &&
 	a.description === b.description &&
 	a.privacy === b.privacy &&
-	a.allowSharing === b.allowSharing &&
+	a.displayEmbed === b.displayEmbed &&
 	a.allowDownloads === b.allowDownloads &&
 	a.rating === b.rating;
 

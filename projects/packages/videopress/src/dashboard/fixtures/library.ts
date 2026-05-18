@@ -100,7 +100,7 @@ export function generateMockLibrary( count = 50 ): MockLibraryItem[] {
 			upload: { status: 'idle', progress: 0 },
 			description: DESCRIPTIONS[ i % DESCRIPTIONS.length ],
 			rating: RATINGS[ i % RATINGS.length ],
-			allowSharing: i % 2 === 0,
+			displayEmbed: i % 2 === 0,
 			allowDownloads: i % 3 === 0,
 			shortcode: `[videopress mock-${ i + 1 }]`,
 		};

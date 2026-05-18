@@ -6,11 +6,11 @@ import type { ReactElement } from 'react';
 
 type Props = {
 	privacy: LibraryItemPrivacy;
-	allowSharing: boolean;
+	displayEmbed: boolean;
 	allowDownloads: boolean;
 	onChange: ( partial: {
 		privacy?: LibraryItemPrivacy;
-		allowSharing?: boolean;
+		displayEmbed?: boolean;
 		allowDownloads?: boolean;
 	} ) => void;
 };
@@ -27,14 +27,14 @@ const PRIVACY_OPTIONS: { label: string; value: LibraryItemPrivacy }[] = [
  *
  * @param props                - Component props.
  * @param props.privacy        - Current privacy value.
- * @param props.allowSharing   - Whether sharing is allowed.
+ * @param props.displayEmbed   - Whether the share menu is displayed.
  * @param props.allowDownloads - Whether downloads are allowed.
  * @param props.onChange       - Partial-update handler from the form hook.
  * @return The card element.
  */
 export default function PrivacySharingCard( {
 	privacy,
-	allowSharing,
+	displayEmbed,
 	allowDownloads,
 	onChange,
 }: Props ): ReactElement {
@@ -54,10 +54,13 @@ export default function PrivacySharingCard( {
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom
-						label={ __( 'Allow sharing', 'jetpack-videopress-pkg' ) }
-						help={ __( 'Let viewers copy a link or embed this video.', 'jetpack-videopress-pkg' ) }
-						checked={ allowSharing }
-						onChange={ next => onChange( { allowSharing: next } ) }
+						label={ __( 'Share', 'jetpack-videopress-pkg' ) }
+						help={ __(
+							'Display share menu and allow viewers to copy a link or embed this video',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ displayEmbed }
+						onChange={ next => onChange( { displayEmbed: next } ) }
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom

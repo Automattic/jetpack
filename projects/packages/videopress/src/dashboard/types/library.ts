@@ -21,7 +21,7 @@ export interface MockLibraryItem {
 	upload: UploadState;
 	description: string;
 	rating: VideoRating;
-	allowSharing: boolean;
+	displayEmbed: boolean;
 	allowDownloads: boolean;
 	shortcode: string;
 }
@@ -29,6 +29,6 @@ export interface MockLibraryItem {
 export type VideoDetailsPatch = Partial<
 	Pick<
 		MockLibraryItem,
-		'title' | 'description' | 'privacy' | 'allowSharing' | 'allowDownloads' | 'rating'
+		'title' | 'description' | 'privacy' | 'displayEmbed' | 'allowDownloads' | 'rating'
 	>
 >;

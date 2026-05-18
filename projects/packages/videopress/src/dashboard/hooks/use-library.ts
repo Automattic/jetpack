@@ -127,7 +127,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		upload: { status: 'idle', progress: 0 },
 		description: vp?.description ?? '',
 		rating: ( vp?.rating ?? 'G' ) as MockLibraryItem[ 'rating' ],
-		allowSharing: Boolean( vp?.display_embed ),
+		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: vp?.guid ? `[videopress ${ vp.guid }]` : '',
 	};
