@@ -202,8 +202,8 @@ describe( 'DashboardPage', () => {
 		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				isEnabled: false,
-				isInstantSearchEnabled: true,
-				supportsInstantSearch: true,
+				isSearchEnabled: true,
+				supportsSearch: true,
 				isSaving: false,
 				isDisabledFromOverLimit: false,
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
@@ -211,20 +211,25 @@ describe( 'DashboardPage', () => {
 		);
 	} );
 
-	test( 'does not render the Search Suggestions card when instant search is disabled', () => {
+	test( 'renders the Search Suggestions card when theme search is active', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 		jest.spyOn( mockSelectMethods, 'isInstantSearchEnabled' ).mockImplementation( () => false );
 
 		render( <DashboardPage /> );
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
 
-		expect( screen.queryByTestId( 'search-suggestions-control' ) ).not.toBeInTheDocument();
-		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
+		expect( screen.getByTestId( 'search-suggestions-control' ) ).toBeInTheDocument();
+		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isSearchEnabled: true,
+				supportsSearch: true,
+			} )
+		);
 	} );
 
-	test( 'does not render the Search Suggestions card when the plan does not support instant search', () => {
+	test( 'does not render the Search Suggestions card when the plan does not support search', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
-		jest.spyOn( mockSelectMethods, 'supportsInstantSearch' ).mockImplementation( () => false );
+		jest.spyOn( mockSelectMethods, 'supportsSearch' ).mockImplementation( () => false );
 
 		render( <DashboardPage /> );
 		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );

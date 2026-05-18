@@ -297,12 +297,12 @@ export default function DashboardPage( { isLoading = false } ) {
 														isAvailable={ isAIAgentAccessAvailable }
 														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
 													/>
-													{ supportsInstantSearch && isInstantSearchEnabled && (
+													{ supportsSearch && isModuleEnabled && (
 														<div className="jp-search-settings-card">
 															<SearchSuggestionsControl
 																isEnabled={ isSearchSuggestionsEnabled }
-																isInstantSearchEnabled={ isInstantSearchEnabled }
-																supportsInstantSearch={ supportsInstantSearch }
+																isSearchEnabled={ isModuleEnabled }
+																supportsSearch={ supportsSearch }
 																isSaving={ isSavingEitherOption }
 																isDisabledFromOverLimit={ isOverLimit }
 																updateOptions={ updateOptions }

@@ -179,8 +179,8 @@ export default function SearchModuleControl( {
 
 					<SearchSuggestionsControl
 						isEnabled={ isSearchSuggestionsEnabled }
-						isInstantSearchEnabled={ isInstantSearchEnabled }
-						supportsInstantSearch={ supportsInstantSearch }
+						isSearchEnabled={ isModuleEnabled }
+						supportsSearch={ supportsSearch }
 						isSaving={ isSavingEitherOption }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 						updateOptions={ updateOptions }

@@ -144,8 +144,8 @@ describe( 'ModuleControl', () => {
 		expect( mockSearchSuggestionsControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				isEnabled: false,
-				isInstantSearchEnabled: true,
-				supportsInstantSearch: true,
+				isSearchEnabled: true,
+				supportsSearch: true,
 				isSaving: false,
 				isDisabledFromOverLimit: false,
 				updateOptions: defaultProps.updateOptions,

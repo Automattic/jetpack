@@ -27,8 +27,8 @@ import SearchSuggestionsControl from '../index.jsx';
 
 const defaultProps = {
 	isEnabled: false,
-	isInstantSearchEnabled: true,
-	supportsInstantSearch: true,
+	isSearchEnabled: true,
+	supportsSearch: true,
 	isSaving: false,
 	isDisabledFromOverLimit: false,
 	updateOptions: jest.fn(),
@@ -41,17 +41,17 @@ describe( 'SearchSuggestionsControl', () => {
 		jest.clearAllMocks();
 	} );
 
-	test( 'renders nothing when the plan does not support instant search', () => {
+	test( 'renders nothing when the plan does not support search', () => {
 		const { container } = render(
-			<SearchSuggestionsControl { ...defaultProps } supportsInstantSearch={ false } />
+			<SearchSuggestionsControl { ...defaultProps } supportsSearch={ false } />
 		);
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	test( 'renders nothing when instant search is disabled', () => {
+	test( 'renders nothing when search is disabled', () => {
 		const { container } = render(
-			<SearchSuggestionsControl { ...defaultProps } isInstantSearchEnabled={ false } />
+			<SearchSuggestionsControl { ...defaultProps } isSearchEnabled={ false } />
 		);
 
 		expect( container ).toBeEmptyDOMElement();

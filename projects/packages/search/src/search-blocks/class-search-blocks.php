@@ -1150,6 +1150,9 @@ class Search_Blocks {
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
+			'searchSuggestionsEnabled'   => function_exists( 'get_option' )
+				? (bool) get_option( 'jetpack_search_suggestions_enabled', false )
+				: false,
 			// Whether the product-format sort keys (rating, price asc/desc)
 			// are valid on this site, plus a JS-side gate any WC-only block
 			// can read. The store threads it into url-state so a
@@ -1517,6 +1520,10 @@ class Search_Blocks {
 				'priceRangeFrom'         => '%s+',
 				'priceRangeUpTo'         => 'Under %s',
 				'priceLabel'             => 'Price',
+				'searchSuggestions'      => 'Search suggestions',
+				'suggestions'            => 'Suggestions',
+				'popularFilters'         => 'Popular Filters',
+				'articles'               => 'Articles',
 			);
 		}
 		return array(
@@ -1541,6 +1548,10 @@ class Search_Blocks {
 			'priceRangeUpTo'         => __( 'Under %s', 'jetpack-search-pkg' ),
 			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
 			'priceLabel'             => __( 'Price', 'jetpack-search-pkg' ),
+			'searchSuggestions'      => __( 'Search suggestions', 'jetpack-search-pkg' ),
+			'suggestions'            => __( 'Suggestions', 'jetpack-search-pkg' ),
+			'popularFilters'         => __( 'Popular Filters', 'jetpack-search-pkg' ),
+			'articles'               => __( 'Articles', 'jetpack-search-pkg' ),
 		);
 	}
 

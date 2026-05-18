@@ -4,19 +4,19 @@ import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 
 const SEARCH_SUGGESTIONS_DESCRIPTION = __(
-	'Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.',
+	'Show autocomplete suggestions as visitors type.',
 	'jetpack-search-pkg'
 );
 
 /**
  * Search suggestions opt-in control. Reads and writes the
  * search_suggestions_enabled option through the Search dashboard settings
- * store. Only applies to the instant search experience.
+ * store. Applies to active Jetpack Search experiences.
  *
  * @param {object}   props                         - Component properties.
  * @param {boolean}  props.isEnabled               - Whether search suggestions are enabled.
- * @param {boolean}  props.isInstantSearchEnabled  - Whether Instant Search is enabled.
- * @param {boolean}  props.supportsInstantSearch   - Whether the plan supports Instant Search.
+ * @param {boolean}  props.isSearchEnabled         - Whether Jetpack Search is enabled.
+ * @param {boolean}  props.supportsSearch          - Whether the plan supports Jetpack Search.
  * @param {boolean}  props.isSaving                - Whether settings are being saved.
  * @param {boolean}  props.isDisabledFromOverLimit - Whether controls are locked due to over-limit usage.
  * @param {Function} props.updateOptions           - Function to update settings.
@@ -24,8 +24,8 @@ const SEARCH_SUGGESTIONS_DESCRIPTION = __(
  */
 export default function SearchSuggestionsControl( {
 	isEnabled,
-	isInstantSearchEnabled,
-	supportsInstantSearch,
+	isSearchEnabled,
+	supportsSearch,
 	isSaving,
 	isDisabledFromOverLimit,
 	updateOptions,
@@ -39,8 +39,7 @@ export default function SearchSuggestionsControl( {
 		analytics.tracks.recordEvent( 'jetpack_search_suggestions_toggle', newOption );
 	}, [ isEnabled, updateOptions, isDisabledFromOverLimit ] );
 
-	// Search suggestions only apply to the instant search experience.
-	if ( ! supportsInstantSearch || ! isInstantSearchEnabled ) {
+	if ( ! supportsSearch || ! isSearchEnabled ) {
 		return null;
 	}
 

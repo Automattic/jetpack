@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use WP_Error;
 use WP_Query;
@@ -167,11 +168,43 @@ class Classic_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_search_suggestions' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
+	}
+
+	/**
+	 * Enqueue autocomplete suggestions for theme-rendered search forms.
+	 */
+	public function enqueue_search_suggestions() {
+		if ( ! get_option( 'jetpack_search_suggestions_enabled', false ) ) {
+			return;
+		}
+		if ( ! $this->jetpack_blog_id ) {
+			return;
+		}
+
+		$handle = 'jetpack-search-suggestions';
+		Assets::register_script(
+			$handle,
+			'build/inline-search/jp-search-suggestions.js',
+			Package::get_installed_path() . '/src',
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-search-pkg',
+			)
+		);
+
+		wp_add_inline_script(
+			$handle,
+			'window.JetpackSearchSuggestionsOptions = ' . wp_json_encode( Helper::generate_initial_javascript_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+
+		Assets::enqueue_script( $handle );
 	}
 
 	/**

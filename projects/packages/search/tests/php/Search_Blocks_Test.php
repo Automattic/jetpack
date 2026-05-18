@@ -40,6 +40,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
+			'searchSuggestionsEnabled',
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
@@ -98,10 +99,39 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertArrayHasKey( 'resultsCountSingle', $strings );
 		$this->assertArrayHasKey( 'resultsCountPlural', $strings );
 		$this->assertArrayHasKey( 'removeFilter', $strings );
+		$this->assertArrayHasKey( 'searchSuggestions', $strings );
+		$this->assertArrayHasKey( 'suggestions', $strings );
+		$this->assertArrayHasKey( 'popularFilters', $strings );
+		$this->assertArrayHasKey( 'articles', $strings );
 		$this->assertNotSame( '', $strings['searching'] );
+		$this->assertNotSame( '', $strings['searchSuggestions'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountSingle'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountPlural'] );
 		$this->assertStringContainsString( '%s', $strings['removeFilter'] );
+	}
+
+	/**
+	 * The global Search Suggestions setting is seeded into the embedded
+	 * Search Blocks runtime so the input block can switch from live-search
+	 * typing to autocomplete suggestions.
+	 */
+	public function test_build_initial_state_seeds_search_suggestions_setting() {
+		$original = get_option( 'jetpack_search_suggestions_enabled', null );
+		try {
+			update_option( 'jetpack_search_suggestions_enabled', true );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertTrue( $state['searchSuggestionsEnabled'] );
+
+			update_option( 'jetpack_search_suggestions_enabled', false );
+			$state = Search_Blocks::build_initial_state();
+			$this->assertFalse( $state['searchSuggestionsEnabled'] );
+		} finally {
+			if ( null === $original || false === $original ) {
+				delete_option( 'jetpack_search_suggestions_enabled' );
+			} else {
+				update_option( 'jetpack_search_suggestions_enabled', $original );
+			}
+		}
 	}
 
 	/**
