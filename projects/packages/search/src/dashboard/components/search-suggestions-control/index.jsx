@@ -44,7 +44,7 @@ export default function SearchSuggestionsControl( {
 		return null;
 	}
 
-	const isToggleDisabled = isSaving || ! isInstantSearchEnabled || isDisabledFromOverLimit;
+	const isToggleDisabled = isSaving || isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search-suggestions jp-search-dashboard-wrap">

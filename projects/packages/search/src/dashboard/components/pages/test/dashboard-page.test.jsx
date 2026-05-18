@@ -188,6 +188,17 @@ describe( 'DashboardPage', () => {
 		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
 	} );
 
+	test( 'does not render the Search Suggestions card when the plan does not support instant search', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'supportsInstantSearch' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.queryByTestId( 'search-suggestions-control' ) ).not.toBeInTheDocument();
+		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
+	} );
+
 	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 		jest.spyOn( mockSelectMethods, 'isReaderChatAvailable' ).mockImplementation( () => false );
