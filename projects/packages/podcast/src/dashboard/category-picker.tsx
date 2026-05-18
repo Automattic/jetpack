@@ -120,11 +120,20 @@ const CategoryPicker = ( {
 					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
 				);
 			}
-			setIsCreating( false );
-			setNewName( '' );
 			const newId = Number( result.id );
 			onSelect( newId );
-			onCreateSuccess?.( newId );
+			if ( onCreateSuccess ) {
+				// Parent will commit the save and unmount the picker. Leave the
+				// inline form mounted and the Create button in its busy state
+				// until that happens — collapsing back to the dropdown for the
+				// frame between picker resolve and modal close is visible as
+				// a flash.
+				onCreateSuccess( newId );
+				return;
+			}
+			setIsCreating( false );
+			setNewName( '' );
+			setSaving( false );
 		} catch ( err ) {
 			setCreateError(
 				parseErrorMessage(
@@ -132,7 +141,6 @@ const CategoryPicker = ( {
 					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
 				)
 			);
-		} finally {
 			setSaving( false );
 		}
 	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
