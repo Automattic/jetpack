@@ -19,7 +19,7 @@ const siteDataSelectors = {
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 	// Defaults to true so Embedded is never blocked when the flag is absent
 	// (older initial state) — fail open rather than hide a working option.
-	themeSupportsBlocks: state => state.siteData?.themeSupportsBlocks ?? true,
+	isBlockTheme: state => state.siteData?.themeSupportsBlocks ?? true,
 };
 
 export default siteDataSelectors;

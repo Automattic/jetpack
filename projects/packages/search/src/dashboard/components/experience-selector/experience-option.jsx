@@ -105,12 +105,12 @@ const getHoverHint = experience => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating, activeThemeStylesheet, themeSupportsBlocks } = useSelect(
+	const { active, isUpdating, activeThemeStylesheet, isBlockTheme } = useSelect(
 		select => ( {
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
-			themeSupportsBlocks: select( STORE_ID ).themeSupportsBlocks(),
+			isBlockTheme: select( STORE_ID ).isBlockTheme(),
 		} ),
 		[]
 	);
@@ -125,7 +125,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	// classic themes don't have. The card stays clickable so the click opens
 	// an explanatory modal instead of silently doing nothing — but the switch
 	// itself is never committed.
-	const isEmbeddedBlockedByTheme = experience === EXPERIENCE.EMBEDDED && ! themeSupportsBlocks;
+	const isEmbeddedBlockedByTheme = experience === EXPERIENCE.EMBEDDED && ! isBlockTheme;
 	const blockedThemeHint = __( 'Embedded search requires a block theme', 'jetpack-search-pkg' );
 
 	const Preview = PREVIEWS[ experience ];

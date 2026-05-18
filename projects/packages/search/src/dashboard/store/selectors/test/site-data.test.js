@@ -17,16 +17,16 @@ describe( 'siteDataSelectors', () => {
 	} );
 
 	test( 'reports theme block support from siteData', () => {
-		expect(
-			siteDataSelectors.themeSupportsBlocks( { siteData: { themeSupportsBlocks: false } } )
-		).toBe( false );
-		expect(
-			siteDataSelectors.themeSupportsBlocks( { siteData: { themeSupportsBlocks: true } } )
-		).toBe( true );
+		expect( siteDataSelectors.isBlockTheme( { siteData: { themeSupportsBlocks: false } } ) ).toBe(
+			false
+		);
+		expect( siteDataSelectors.isBlockTheme( { siteData: { themeSupportsBlocks: true } } ) ).toBe(
+			true
+		);
 	} );
 
 	test( 'fails open to true when theme block support is absent', () => {
-		expect( siteDataSelectors.themeSupportsBlocks( {} ) ).toBe( true );
-		expect( siteDataSelectors.themeSupportsBlocks( { siteData: {} } ) ).toBe( true );
+		expect( siteDataSelectors.isBlockTheme( {} ) ).toBe( true );
+		expect( siteDataSelectors.isBlockTheme( { siteData: {} } ) ).toBe( true );
 	} );
 } );
