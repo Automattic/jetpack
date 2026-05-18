@@ -13,6 +13,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import { parseErrorMessage } from '../parse-error-message';
 import type { PodcastSettingsUpdate } from '../types';
 
 interface CategorySetupModalProps {
@@ -21,21 +22,6 @@ interface CategorySetupModalProps {
 	onClose: () => void;
 	onSuccess: () => void;
 }
-
-const parseErrorMessage = ( error: unknown, fallback: string ): string => {
-	if ( error instanceof Error ) {
-		return error.message;
-	}
-	if (
-		error &&
-		typeof error === 'object' &&
-		'message' in error &&
-		typeof ( error as { message: unknown } ).message === 'string'
-	) {
-		return ( error as { message: string } ).message;
-	}
-	return fallback;
-};
 
 const CategorySetupModal = ( {
 	siteName,
@@ -112,7 +98,15 @@ const CategorySetupModal = ( {
 	}, [ onConfirm ] );
 
 	return (
-		<Modal title={ __( 'Set up your podcast', 'jetpack-podcast' ) } onRequestClose={ requestClose }>
+		<Modal
+			title={ __( 'Set up your podcast', 'jetpack-podcast' ) }
+			onRequestClose={ requestClose }
+			// Belt-and-suspenders: some Modal force-close paths skip
+			// `onRequestClose`, so disable Esc/backdrop dismissal directly
+			// while a save is in flight.
+			shouldCloseOnEsc={ ! ( saving || pickerSaving ) }
+			shouldCloseOnClickOutside={ ! ( saving || pickerSaving ) }
+		>
 			<VStack spacing={ 4 }>
 				<Text weight={ 600 }>
 					{ __( 'Select a post category for your podcast', 'jetpack-podcast' ) }

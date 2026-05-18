@@ -13,6 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCategoriesQuery } from './hooks/use-categories-query';
+import { parseErrorMessage } from './parse-error-message';
 
 // Sentinel for the "create new category" option in the select.
 const CREATE_NEW = '__create_new__';
@@ -34,21 +35,6 @@ interface CategoryPickerProps {
 	// confirm a second time.
 	onCreateSuccess?: ( id: number ) => void;
 }
-
-const parseErrorMessage = ( error: unknown, fallback: string ): string => {
-	if ( error instanceof Error ) {
-		return error.message;
-	}
-	if (
-		error &&
-		typeof error === 'object' &&
-		'message' in error &&
-		typeof ( error as { message: unknown } ).message === 'string'
-	) {
-		return ( error as { message: string } ).message;
-	}
-	return fallback;
-};
 
 const CategoryPicker = ( {
 	selectedId,
