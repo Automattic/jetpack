@@ -122,18 +122,12 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-// Mirrors Automattic\Jetpack\Podcast\Podcast::is_enabled()'s
-// proxied-request default without depending on the Podcast class being
-// resolvable through the autoloader at this point in bootstrap.
-$wpcomsh_podcast_untangle_default = (
-	( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() )
-	|| ! empty( $_SERVER['A8C_PROXIED_REQUEST'] )
-	|| ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-);
-if ( ! apply_filters( 'jetpack_podcast_untangle', $wpcomsh_podcast_untangle_default ) ) {
+if (
+	! class_exists( '\Automattic\Jetpack\Podcast\Podcast' )
+	|| ! \Automattic\Jetpack\Podcast\Podcast::is_enabled()
+) {
 	require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
 }
-unset( $wpcomsh_podcast_untangle_default );
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
