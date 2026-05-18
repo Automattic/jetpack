@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: remove `opacity: 0.6` from the "Required" label so it inherits the full theme text colour. The opacity caused the rendered colour to fall below the WCAG 2.2 SC 1.4.3 minimum contrast ratio of 4.5:1 across multiple widely-used themes (Storefront, Hello Elementor, Astra, OceanWP).
