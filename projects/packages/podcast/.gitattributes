@@ -6,8 +6,8 @@
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
-routes/**/*.tsx         production-exclude
+routes/**           production-exclude
+/src/**/*.ts        production-exclude
+/src/**/*.tsx       production-exclude
+/src/**/*.scss      production-exclude
 webpack.config.blocks.js production-exclude
-/src/blocks/**/*.ts     production-exclude
-/src/blocks/**/*.tsx    production-exclude
-/src/blocks/**/*.scss   production-exclude
