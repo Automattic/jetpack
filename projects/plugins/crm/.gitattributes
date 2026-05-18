@@ -24,5 +24,3 @@
 /codeception.dist.yml                           production-exclude
 /README.md                                      production-exclude
 /sass/**                                        production-exclude
-/vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-composer-plugin/**   production-exclude
