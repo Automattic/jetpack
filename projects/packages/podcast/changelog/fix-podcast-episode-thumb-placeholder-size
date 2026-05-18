@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Match the placeholder thumbnail size to populated thumbnails in the Episodes list.
+Polish Podcast dashboard styles: match placeholder thumbnail size to populated thumbnails, and space out the Distribution tab's warning notice.
