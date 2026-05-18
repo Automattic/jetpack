@@ -14,6 +14,7 @@ export declare global {
 				API: {
 					WP_API_root: string;
 					WP_API_nonce: string;
+					contentNonce: string;
 				};
 				jetpackStatus: {
 					calypsoSlug: string;

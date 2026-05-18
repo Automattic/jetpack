@@ -5,6 +5,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/VideoDetails/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/VideoDetails/header-actions';
@@ -124,11 +125,6 @@ const Editor = ( {
 	);
 };
 
-const guidFromShortcode = ( shortcode?: string ): string | undefined => {
-	const match = shortcode?.match( /\[videopress ([^\]]+)\]/ );
-	return match?.[ 1 ];
-};
-
 type StageReadyProps = { video: MockLibraryItem };
 
 const StageReady = ( { video }: StageReadyProps ) => {
@@ -173,10 +169,18 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				}
 			} }
 			onAddToNewPost={ () => {
-				const guid = guidFromShortcode( video.shortcode );
-				if ( guid ) {
-					window.location.href = `post-new.php?videopress=${ guid }`;
+				const nonce =
+					typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+						? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
+						: undefined;
+				if ( ! video.guid || ! nonce ) {
+					return;
 				}
+				const url = addQueryArgs( 'post-new.php', {
+					videopress_guid: video.guid,
+					_wpnonce: nonce,
+				} );
+				window.open( url, '_blank' );
 			} }
 			chaptersOpen={ chaptersOpen }
 			setChaptersOpen={ setChaptersOpen }

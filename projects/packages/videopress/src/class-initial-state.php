@@ -83,6 +83,7 @@ class Initial_State {
 			'API'           => array(
 				'WP_API_root'  => esc_url_raw( rest_url() ),
 				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+				'contentNonce' => wp_create_nonce( 'videopress-content-nonce' ),
 			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
