@@ -55,9 +55,8 @@ class Create_AI_Podcast_Page {
 	public static function register_menu() {
 		$page_suffix = add_submenu_page(
 			'upload.php',
-			/** "Create AI Podcast" is a product feature name, not translated. */
-			'Create AI Podcast',
-			'Create AI Podcast',
+			__( 'Create AI Podcast', 'jetpack-podcast' ),
+			__( 'Create AI Podcast', 'jetpack-podcast' ),
 			'upload_files',
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render' )
@@ -313,7 +312,8 @@ class Create_AI_Podcast_Page {
 				html_entity_decode( (string) get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' )
 			);
 			if ( '' === trim( $title ) ) {
-				$title = '(no title)';
+				// translators: Fallback shown in the Generated podcasts list when a draft has an empty title.
+				$title = __( '(no title)', 'jetpack-podcast' );
 			}
 
 			$bootstrap['episodes'][] = array(
