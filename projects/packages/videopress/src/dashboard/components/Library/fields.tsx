@@ -107,6 +107,11 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		type: 'datetime',
 		getValue: ( { item } ) => item.uploadDate,
 		format: { datetime: dateSettings.formats.date },
+		// /wp/v2/media exposes only `before` and `after` for date filtering;
+		// surface only the operators we can actually honour so the UI
+		// doesn't offer choices that silently no-op (on / notOn / inclusive
+		// variants / inThePast / over).
+		filterBy: { operators: [ 'before', 'after' ] as Operator[] },
 		enableSorting: true,
 	},
 	{

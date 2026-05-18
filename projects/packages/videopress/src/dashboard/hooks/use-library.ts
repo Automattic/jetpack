@@ -115,8 +115,34 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 			args.videopress_privacy_setting = String(
 				privacyStringToInt( filter.value as LibraryItemPrivacy )
 			);
+		} else if ( filter.field === 'type' ) {
+			// `videopress`: narrow the mime filter to video/videopress and
+			// drop media_type — empirically, setting both broadens the
+			// query and returns non-videopress items too.
+			// `local`: keep the default video filter and add the
+			// no_videopress flag handled by the package's PHP
+			// rest_attachment_query filter.
+			if ( filter.value === 'videopress' ) {
+				delete args.media_type;
+				args.mime_type = 'video/videopress';
+			} else if ( filter.value === 'local' ) {
+				args.no_videopress = 1;
+			}
+		} else if ( filter.field === 'uploadDate' ) {
+			// DataViews emits the value from <input type=datetime-local>
+			// as a local-time string; convert to UTC ISO8601 for the WP
+			// REST API. Only `before` and `after` are supported here
+			// (matching the field's filterBy.operators allowlist).
+			const parsed = new Date( filter.value as string );
+			if ( ! Number.isNaN( parsed.getTime() ) ) {
+				const iso = parsed.toISOString();
+				if ( filter.operator === 'before' ) {
+					args.before = iso;
+				} else if ( filter.operator === 'after' ) {
+					args.after = iso;
+				}
+			}
 		}
-		// `type` filter (local vs videopress) is a client-side partition.
 	}
 
 	return args;
