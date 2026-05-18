@@ -45,8 +45,9 @@ class Episode_Query {
 	private static function blocks_have_podcast_episode_media( array $blocks ): bool {
 		foreach ( $blocks as $block ) {
 			if (
-				isset( $block['blockName'], $block['attrs']['mediaUrl'] ) &&
+				isset( $block['blockName'] ) &&
 				'jetpack/podcast-episode' === $block['blockName'] &&
+				isset( $block['attrs']['mediaUrl'] ) &&
 				is_string( $block['attrs']['mediaUrl'] ) &&
 				'' !== trim( $block['attrs']['mediaUrl'] )
 			) {
@@ -98,7 +99,7 @@ class Episode_Query {
 				}
 			}
 
-			$page++;
+			++$page;
 		} while ( $page <= (int) $query->max_num_pages );
 
 		return false;

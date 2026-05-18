@@ -98,6 +98,12 @@ const getDistributionIssues = (
 	return issues;
 };
 
+/**
+ * Fetch derived podcast status (feed URL + published-episode flag) for a category.
+ *
+ * @param categoryId - Configured podcast category ID; 0 disables the fetch.
+ * @return             `{ status, hasResolved }` — status is undefined while in flight.
+ */
 function usePodcastStatus( categoryId: number ): {
 	status: PodcastStatus | undefined;
 	hasResolved: boolean;
