@@ -383,11 +383,16 @@ class Search_Blocks_Test extends TestCase {
 	 * never-resolving slug to the front.
 	 */
 	public function test_prepend_search_template_skips_when_not_a_search() {
-		$GLOBALS['wp_query'] = new \WP_Query();
-		$this->assertFalse( is_search() );
-		$input  = array( 'search', 'index' );
-		$result = Search_Blocks::prepend_search_template( $input );
-		$this->assertSame( $input, $result );
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertFalse( is_search() );
+			$input  = array( 'search', 'index' );
+			$result = Search_Blocks::prepend_search_template( $input );
+			$this->assertSame( $input, $result );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
 	}
 
 	/**
@@ -397,12 +402,17 @@ class Search_Blocks_Test extends TestCase {
 	 * default theme is classic, so a search route alone isn't enough.
 	 */
 	public function test_prepend_search_template_skips_on_classic_theme() {
-		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
-		$this->assertTrue( is_search() );
-		$this->assertFalse( wp_is_block_theme(), 'dbless default theme is expected to be classic' );
-		$input  = array( 'search', 'index' );
-		$result = Search_Blocks::prepend_search_template( $input );
-		$this->assertSame( $input, $result );
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+			$this->assertTrue( is_search() );
+			$this->assertFalse( wp_is_block_theme(), 'dbless default theme is expected to be classic' );
+			$input  = array( 'search', 'index' );
+			$result = Search_Blocks::prepend_search_template( $input );
+			$this->assertSame( $input, $result );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
 	}
 
 	/**
