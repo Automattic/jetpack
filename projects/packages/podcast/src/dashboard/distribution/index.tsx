@@ -127,15 +127,19 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					issues.length
 			  )
 			: '';
-	// Gates on `isLoading`, NOT `! isReady`. `isReady` is derived as
-	// `! isLoading && issues.length === 0`, so once loading finishes with
-	// issues outstanding `! isReady` stays true and would pin the tooltip
-	// on "Checking…" instead of showing the count.
+	// `isLoading` is checked first because on the initial settings fetch
+	// `categoryId` defaults to 0 (so `! isEnabled` is true) even for sites
+	// that actually have a category set; checking loading first keeps the
+	// tooltip on "Checking…" until settings resolve. Gates on `isLoading`
+	// rather than `! isReady` because `isReady` is `! isLoading && issues
+	// .length === 0`, so once loading finishes with issues outstanding,
+	// `! isReady` stays true and would pin the tooltip on "Checking…"
+	// instead of the count.
 	let blockedTooltip = '';
-	if ( ! isEnabled ) {
-		blockedTooltip = __( 'Set a podcast category in Settings first.', 'jetpack-podcast' );
-	} else if ( isLoading ) {
+	if ( isLoading ) {
 		blockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+	} else if ( ! isEnabled ) {
+		blockedTooltip = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
 	} else {
 		blockedTooltip = stepsLeftLabel;
 	}
