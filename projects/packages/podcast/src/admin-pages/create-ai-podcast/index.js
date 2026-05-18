@@ -74,12 +74,19 @@
 			};
 		}
 		if ( Array.isArray( payload ) ) {
+			// Legacy shape (upstream pre-pagination rollout): a flat list of
+			// every episode. Slice to the configured page size and synthesize
+			// a pager so the UX matches the new envelope behavior. Once the
+			// wpcom-side pagination PR lands and opcache flushes everywhere
+			// this branch falls dormant.
+			const perPage = 5;
+			const total = payload.length;
 			return {
-				items: payload,
-				total: payload.length,
+				items: payload.slice( 0, perPage ),
+				total,
 				page: 1,
-				perPage: 5,
-				totalPages: payload.length > 0 ? 1 : 0,
+				perPage,
+				totalPages: perPage > 0 ? Math.ceil( total / perPage ) : 0,
 			};
 		}
 		return { items: [], total: 0, page: 1, perPage: 5, totalPages: 0 };
