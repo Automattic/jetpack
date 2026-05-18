@@ -28,6 +28,10 @@ class Results_List_Render_Test extends TestCase {
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
+					'autoProductView'  => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
 					'noResultsMessage' => array(
 						'type'    => 'string',
 						'default' => '',
@@ -442,5 +446,180 @@ class Results_List_Render_Test extends TestCase {
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--rating', $markup, "Layout '{$layout}': rating skeleton must be absent." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--title-secondary', $markup, "Layout '{$layout}': title-secondary skeleton must be absent." );
 		}
+	}
+
+	/**
+	 * Render the block with the given post-type request params seeded into
+	 * `$_GET`. Resets the `is_initial_loading()` memo around the render and
+	 * clears the params after so the auto-product-view cases stay isolated
+	 * from one another (the PHPUnit harness reuses one process).
+	 *
+	 * @param array $get        Params to merge into `$_GET` for the render.
+	 * @param array $attributes Block attributes.
+	 * @return string Rendered markup.
+	 */
+	private function render_with_request( array $get, array $attributes = array() ): string {
+		Search_Blocks::reset_initial_loading_cache();
+		foreach ( $get as $key => $value ) {
+			$_GET[ $key ] = $value;
+		}
+		$markup = $this->render( $attributes );
+		foreach ( array_keys( $get ) as $key ) {
+			unset( $_GET[ $key ] );
+		}
+		Search_Blocks::reset_initial_loading_cache();
+		return $markup;
+	}
+
+	/**
+	 * `request_is_product_only()` is true only when the combined post-type
+	 * request resolves to exactly `product` — across the scalar
+	 * `?post_type=` shape, the array `?post_types[]=` shape, or both.
+	 */
+	public function test_request_is_product_only_recognizes_exact_product_scope() {
+		$cases = array(
+			array(
+				'get'      => array( 'post_type' => 'product' ),
+				'expected' => true,
+			),
+			array(
+				'get'      => array( 'post_types' => array( 'product' ) ),
+				'expected' => true,
+			),
+			array(
+				'get'      => array(
+					'post_type'  => 'product',
+					'post_types' => array( 'product' ),
+				),
+				'expected' => true,
+			),
+			array(
+				'get'      => array( 'post_types' => array( 'product', 'post' ) ),
+				'expected' => false,
+			),
+			array(
+				'get'      => array(
+					'post_type'  => 'product',
+					'post_types' => array( 'post' ),
+				),
+				'expected' => false,
+			),
+			array(
+				'get'      => array( 'post_type' => 'post' ),
+				'expected' => false,
+			),
+			array(
+				'get'      => array( 'post_type' => '' ),
+				'expected' => false,
+			),
+			array(
+				'get'      => array( 'post_types' => 'product' ),
+				'expected' => true,
+			),
+			array(
+				'get'      => array(),
+				'expected' => false,
+			),
+		);
+		foreach ( $cases as $case ) {
+			$get = $case['get'];
+			foreach ( $get as $k => $v ) {
+				$_GET[ $k ] = $v;
+			}
+			$this->assertSame(
+				$case['expected'],
+				Search_Blocks::request_is_product_only(),
+				'Unexpected result for ' . wp_json_encode( $get, JSON_UNESCAPED_SLASHES )
+			);
+			foreach ( array_keys( $get ) as $k ) {
+				unset( $_GET[ $k ] );
+			}
+		}
+	}
+
+	/**
+	 * A `?post_type=product` request auto-switches the Results List to the
+	 * product layout on a Woo site even though the saved layout is the
+	 * default `expanded` and the author never picked `product`.
+	 */
+	public function test_scalar_post_type_product_auto_switches_to_product_layout() {
+		$markup = $this->render_with_request( array( 'post_type' => 'product' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__price', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__rating', $markup );
+	}
+
+	/**
+	 * The array `?post_types[]=product` shape behaves identically to the
+	 * scalar shape.
+	 */
+	public function test_array_post_types_product_auto_switches_to_product_layout() {
+		$markup = $this->render_with_request( array( 'post_types' => array( 'product' ) ) );
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * The auto-switch overrides the saved layout — a block saved as
+	 * `compact` still renders as a product grid for a product search.
+	 */
+	public function test_auto_switch_overrides_saved_layout() {
+		$markup = $this->render_with_request(
+			array( 'post_type' => 'product' ),
+			array( 'layout' => 'compact' )
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--compact', $markup );
+	}
+
+	/**
+	 * A mixed post-type request keeps the saved layout — product cards must
+	 * not render for non-product results.
+	 */
+	public function test_mixed_post_types_keep_saved_layout() {
+		$markup = $this->render_with_request(
+			array( 'post_types' => array( 'product', 'post' ) ),
+			array( 'layout' => 'expanded' )
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * With no post-type request param the saved layout is respected.
+	 */
+	public function test_no_post_type_param_keeps_saved_layout() {
+		$markup = $this->render( array( 'layout' => 'compact' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--compact', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * `autoProductView` off pins the saved layout even for an exact
+	 * `?post_type=product` request.
+	 */
+	public function test_auto_product_view_off_pins_saved_layout() {
+		$markup = $this->render_with_request(
+			array( 'post_type' => 'product' ),
+			array(
+				'layout'          => 'compact',
+				'autoProductView' => false,
+			)
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--compact', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * On a non-Woo site a `?post_type=product` request must never produce
+	 * the product layout — the existing non-Woo collapse stays the final
+	 * gate, so the auto-switch can't force WC-shaped markup onto a site
+	 * whose index has no price/rating fields.
+	 */
+	public function test_non_woo_site_never_auto_switches_to_product() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$markup = $this->render_with_request( array( 'post_type' => 'product' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__price', $markup );
 	}
 }
