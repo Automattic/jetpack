@@ -832,10 +832,17 @@ class Search_Blocks {
 	 * can't accumulate duplicates from a second init pass or another filter
 	 * on the same hook.
 	 *
+	 * Gated by `should_take_over_search()` (see that method) so the slug is
+	 * only injected when it can actually resolve — mirroring the guard
+	 * WooCommerce's `ProductSearchResultsTemplate` applies to this same hook.
+	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function prepend_search_template( $templates ) {
+		if ( ! static::should_take_over_search() ) {
+			return (array) $templates;
+		}
 		$templates = array_values(
 			array_filter(
 				(array) $templates,
@@ -846,6 +853,32 @@ class Search_Blocks {
 		);
 		array_unshift( $templates, self::SEARCH_TEMPLATE_SLUG );
 		return $templates;
+	}
+
+	/**
+	 * Whether the Jetpack Search template should replace the theme's search
+	 * template for the current request.
+	 *
+	 * Mirrors the guard WooCommerce's `ProductSearchResultsTemplate` applies
+	 * to the same `search_template_hierarchy` filter: the slug resolves only
+	 * through the block-template system, so prepending it outside a block
+	 * theme — or outside a search request, should the filter ever run out of
+	 * context — is dead weight that can only mis-shape the hierarchy (and on
+	 * a classic theme it could never resolve to our template anyway).
+	 *
+	 * Unlike WooCommerce we deliberately do *not* additionally scope to
+	 * `is_post_type_archive( 'product' )`. The Embedded experience is a
+	 * site-wide opt-in to Jetpack-owned search results — product searches
+	 * included, which Jetpack Search renders with its own WooCommerce-aware
+	 * filter blocks (`filters-product`, `filter-wc-*`). Carving product
+	 * searches back out to WooCommerce's `product-search-results` template
+	 * would contradict that opt-in, so the takeover stays unconditional
+	 * across search routes and independent of whether WooCommerce is active.
+	 *
+	 * @return bool
+	 */
+	protected static function should_take_over_search(): bool {
+		return is_search() && wp_is_block_theme();
 	}
 
 	/**

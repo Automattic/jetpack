@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: Only prepend the Jetpack Search template to the search template hierarchy on block themes during an actual search request, mirroring WooCommerce's ProductSearchResultsTemplate guard so the slug is never injected where it cannot resolve.

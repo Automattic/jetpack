@@ -315,12 +315,31 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Subclass that forces `should_take_over_search()` true so the
+	 * array-shaping behavior can be asserted without standing up a block
+	 * theme in the dbless environment. The guard itself is exercised
+	 * separately against real `is_search()` / `wp_is_block_theme()` state.
+	 *
+	 * @return class-string<Search_Blocks>
+	 */
+	private function search_blocks_taking_over(): string {
+		return get_class(
+			new class() extends Search_Blocks {
+				protected static function should_take_over_search(): bool {
+					return true;
+				}
+			}
+		);
+	}
+
+	/**
 	 * The takeover hinges on `search` being replaced by `jetpack-search` at
 	 * the front of the hierarchy: that's what makes core resolve our plugin
 	 * template instead of the theme's `search.html`.
 	 */
 	public function test_prepend_search_template_puts_unique_slug_first() {
-		$result = Search_Blocks::prepend_search_template( array( 'search', 'index' ) );
+		$class  = $this->search_blocks_taking_over();
+		$result = $class::prepend_search_template( array( 'search', 'index' ) );
 		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
 	}
 
@@ -331,9 +350,68 @@ class Search_Blocks_Test extends TestCase {
 	 * identical registry lookups per search request.
 	 */
 	public function test_prepend_search_template_dedupes_existing_slug() {
-		$result = Search_Blocks::prepend_search_template( array( 'jetpack-search', 'search', 'index' ) );
+		$class  = $this->search_blocks_taking_over();
+		$result = $class::prepend_search_template( array( 'jetpack-search', 'search', 'index' ) );
 		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
 		$this->assertCount( 1, array_keys( $result, 'jetpack-search', true ) );
+	}
+
+	/**
+	 * `prepend_search_template()` must leave the hierarchy untouched when the
+	 * request isn't a search — the filter is structurally only fired from
+	 * `get_search_template()`, but the guard mirrors WooCommerce's defensive
+	 * `is_search()` check so a stray out-of-context invocation can't shove a
+	 * never-resolving slug to the front.
+	 */
+	public function test_prepend_search_template_skips_when_not_a_search() {
+		$GLOBALS['wp_query'] = new \WP_Query();
+		$this->assertFalse( is_search() );
+		$input  = array( 'search', 'index' );
+		$result = Search_Blocks::prepend_search_template( $input );
+		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * On a classic (non-block) theme the slug can never resolve through the
+	 * block-template system, so — matching WooCommerce's `wp_is_block_theme()`
+	 * guard — the hierarchy is returned unchanged. The dbless environment's
+	 * default theme is classic, so a search route alone isn't enough.
+	 */
+	public function test_prepend_search_template_skips_on_classic_theme() {
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+		$this->assertTrue( is_search() );
+		$this->assertFalse( wp_is_block_theme(), 'dbless default theme is expected to be classic' );
+		$input  = array( 'search', 'index' );
+		$result = Search_Blocks::prepend_search_template( $input );
+		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * Documented decision (RSM-3498): the Embedded experience is a site-wide
+	 * opt-in, so Jetpack Search owns product-catalog searches too — it must
+	 * win even when WooCommerce already prepended its `product-search-results`
+	 * slug, and that outcome must not depend on the WooCommerce gate. Asserts
+	 * the full WC-on / WC-off matrix.
+	 *
+	 * @param bool $wc_enabled Forced state of the WooCommerce blocks gate.
+	 * @dataProvider provide_woocommerce_gate
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_woocommerce_gate' )]
+	public function test_prepend_search_template_takes_over_product_search_regardless_of_woocommerce( bool $wc_enabled ) {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( $wc_enabled );
+		$class  = $this->search_blocks_taking_over();
+		$result = $class::prepend_search_template( array( 'product-search-results', 'search', 'index' ) );
+		$this->assertSame( array( 'jetpack-search', 'product-search-results', 'search', 'index' ), $result );
+	}
+
+	/**
+	 * @return array<string, array{0: bool}>
+	 */
+	public static function provide_woocommerce_gate(): array {
+		return array(
+			'woocommerce active'   => array( true ),
+			'woocommerce inactive' => array( false ),
+		);
 	}
 
 	/**
