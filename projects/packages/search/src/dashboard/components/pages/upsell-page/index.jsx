@@ -193,21 +193,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		select => select( STORE_ID ).isSearchBlocksEnabled(),
 		[]
 	);
-	const isAiAnswersAvailable = useSelect( select => select( STORE_ID ).isAiAnswersAvailable(), [] );
 	const pricingArgs = useMemo( () => {
 		const baseItems = [ ...newPricingArgs.items ];
-		if ( isAiAnswersAvailable ) {
-			const prioritySupportIndex = baseItems.findIndex(
-				item => item.name === __( 'Priority support', 'jetpack-search-pkg' )
-			);
-			const insertAt = prioritySupportIndex === -1 ? baseItems.length : prioritySupportIndex;
-			baseItems.splice( insertAt, 0, ...aiAnswersPricingItems );
-		}
+		const prioritySupportIndex = baseItems.findIndex(
+			item => item.name === __( 'Priority support', 'jetpack-search-pkg' )
+		);
+		const insertAt = prioritySupportIndex === -1 ? baseItems.length : prioritySupportIndex;
+		baseItems.splice( insertAt, 0, ...aiAnswersPricingItems );
 		return {
 			...newPricingArgs,
 			items: [ ...baseItems, ...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ) ],
 		};
-	}, [ isSearchBlocksEnabled, isAiAnswersAvailable ] );
+	}, [ isSearchBlocksEnabled ] );
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
@@ -329,7 +326,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
 							/>
-							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+							{ aiAnswersPricingItems.map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
 							<PricingTableItem isIncluded={ true } />
@@ -421,7 +418,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ false }
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
-							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+							{ aiAnswersPricingItems.map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ false } />
 							) ) }
 							<PricingTableItem isIncluded={ false } />
@@ -553,9 +550,8 @@ const searchBlocksPricingItems = [
 	},
 ];
 
-// Paid-only row gated behind the `jetpack_search_ai_answers_enabled` flag
-// (mirrored to the dashboard as `aiAnswersEnabled`). Advertised on the paid
-// plan column only — the free plan does not include AI Answers.
+// Paid-only feature: advertised on the paid plan column only — the free plan
+// does not include AI Answers.
 const aiAnswersPricingItems = [
 	{
 		id: 'ai-answers',

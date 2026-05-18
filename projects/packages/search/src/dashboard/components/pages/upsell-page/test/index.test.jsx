@@ -64,13 +64,10 @@ jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
 	hasCheckoutStarted: false,
 } ) );
 
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
 
-const createSelectMethods = ( {
-	isSearchBlocksEnabled = false,
-	isAiAnswersAvailable = false,
-} ) => ( {
+const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
@@ -89,7 +86,6 @@ const createSelectMethods = ( {
 	getAdditionalUnitPrice: jest.fn( () => 1 ),
 	getAdditionalUnitQuantity: jest.fn( () => 1000 ),
 	isSearchBlocksEnabled: jest.fn( () => isSearchBlocksEnabled ),
-	isAiAnswersAvailable: jest.fn( () => isAiAnswersAvailable ),
 } );
 
 describe( 'UpsellPage pricing grid — Search blocks gating', () => {
@@ -114,68 +110,16 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 	} );
 } );
 
-describe( 'UpsellPage pricing grid — AI Answers gating', () => {
-	test( 'hides the AI Answers row when not available', () => {
-		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: false } );
-
-		render( <UpsellPage /> );
-
-		expect( screen.queryByText( 'AI Answers (Preview)' ) ).not.toBeInTheDocument();
-		// Sanity: the base grid still renders.
-		expect( screen.getByText( 'Spelling correction' ) ).toBeInTheDocument();
-	} );
-
-	test( 'shows the AI Answers row when available', () => {
-		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: true } );
-
-		render( <UpsellPage /> );
-
-		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
-	} );
-
-	test( 'gates AI Answers independently of Search blocks', () => {
-		mockSelectMethods = createSelectMethods( {
-			isSearchBlocksEnabled: false,
-			isAiAnswersAvailable: true,
-		} );
-
-		render( <UpsellPage /> );
-
-		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Jetpack Search blocks' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renders AI Answers included on the paid column and not on the free column', () => {
-		const paidIncluded = () =>
-			within( screen.getByTestId( 'col-paid' ) ).queryAllByTestId( 'pti-included' ).length;
-		const freeExcluded = () =>
-			within( screen.getByTestId( 'col-free' ) ).queryAllByTestId( 'pti-excluded' ).length;
-
-		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: false } );
+describe( 'UpsellPage pricing grid — AI Answers (paid-only)', () => {
+	test( 'always shows the AI Answers row regardless of the Search blocks gate', () => {
+		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: false } );
 		const { unmount } = render( <UpsellPage /> );
-		const paidIncludedOff = paidIncluded();
-		const freeExcludedOff = freeExcluded();
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
 		unmount();
 
-		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: true } );
+		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: true } );
 		render( <UpsellPage /> );
-
-		// Enabling AI Answers adds exactly one included cell to the paid column
-		// and exactly one excluded cell to the free column — i.e. paid-only.
-		expect( paidIncluded() ).toBe( paidIncludedOff + 1 );
-		expect( freeExcluded() ).toBe( freeExcludedOff + 1 );
-	} );
-
-	test( 'shows both Search blocks and AI Answers rows when both gates are on', () => {
-		mockSelectMethods = createSelectMethods( {
-			isSearchBlocksEnabled: true,
-			isAiAnswersAvailable: true,
-		} );
-
-		render( <UpsellPage /> );
-
-		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 	} );
 } );
