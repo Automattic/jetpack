@@ -4,11 +4,13 @@ describe( 'search suggestions API helpers', () => {
 	const originalFetch = global.fetch;
 
 	beforeEach( () => {
-		jest.spyOn( global, 'fetch' ).mockImplementation();
+		// eslint-disable-next-line jest/prefer-spy-on
+		global.fetch = jest.fn();
 	} );
 
 	afterEach( () => {
 		global.fetch = originalFetch;
+		jest.restoreAllMocks();
 	} );
 
 	test( 'parses taxonomy and term from WPCOM suggestion URLs', () => {
