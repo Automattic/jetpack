@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -58,40 +59,42 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'             => esc_url_raw( rest_url() ),
-				'wpcomOriginApiUrl'       => $this->get_wp_api_root(),
-				'WP_API_nonce'            => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce'       => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'purchaseToken'           => $this->get_purchase_token(),
+				'WP_API_root'                => esc_url_raw( rest_url() ),
+				'wpcomOriginApiUrl'          => $this->get_wp_api_root(),
+				'WP_API_nonce'               => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce'          => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'purchaseToken'              => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions'          => apply_filters( 'jetpack_show_promotions', true ),
-				'adminUrl'                => esc_url( admin_url() ),
-				'readerChatGuidelinesUrl' => $this->get_reader_chat_guidelines_url(),
-				'blogId'                  => Jetpack_Options::get_option( 'id', 0 ),
-				'version'                 => Package::VERSION,
-				'calypsoSlug'             => ( new Status() )->get_site_suffix(),
-				'title'                   => get_bloginfo( 'name' ),
-				'postTypes'               => $this->get_post_types_with_labels(),
-				'isWpcom'                 => Helper::is_wpcom(),
+				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
+				'adminUrl'                   => esc_url( admin_url() ),
+				'readerChatGuidelinesUrl'    => $this->get_reader_chat_guidelines_url(),
+				'aiAgentAccessAvailable'     => $this->is_ai_agent_access_available(),
+				'aiAgentAccessGuidelinesUrl' => $this->get_ai_agent_access_guidelines_url(),
+				'blogId'                     => Jetpack_Options::get_option( 'id', 0 ),
+				'version'                    => Package::VERSION,
+				'calypsoSlug'                => ( new Status() )->get_site_suffix(),
+				'title'                      => get_bloginfo( 'name' ),
+				'postTypes'                  => $this->get_post_types_with_labels(),
+				'isWpcom'                    => Helper::is_wpcom(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'isPlanJustUpgraded'      => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				'isPlanJustUpgraded'         => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
 				/**
 				 * Whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
 				 * Mirrors the `jetpack_search_blocks_enabled` server-side filter so the
 				 * dashboard React app can gate the new feature-selection UI on the
 				 * same flag the back end uses to register the blocks themselves.
 				 */
-				'searchBlocksEnabled'     => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
 				/**
 				 * Active theme stylesheet — used by the experience-selector to deep-link
 				 * the "Edit search template" action to the right Site Editor entry
 				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).
 				 */
-				'activeThemeStylesheet'   => get_stylesheet(),
+				'activeThemeStylesheet'      => get_stylesheet(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -131,11 +134,81 @@ class Initial_State {
 	 * @return string Guidelines admin URL, or an empty string when unavailable.
 	 */
 	protected function get_reader_chat_guidelines_url() {
+		return $this->get_guidelines_url();
+	}
+
+	/**
+	 * Get the AI Agent Access guidelines admin page URL when it is registered.
+	 *
+	 * The guidelines page is controlled outside Jetpack. Returning an empty
+	 * URL lets the dashboard hide the link when that page is unavailable.
+	 *
+	 * @return string Guidelines admin URL, or an empty string when unavailable.
+	 */
+	protected function get_ai_agent_access_guidelines_url() {
+		return $this->get_guidelines_url();
+	}
+
+	/**
+	 * Get the Guidelines admin page URL when it is registered.
+	 *
+	 * @return string Guidelines admin URL, or an empty string when unavailable.
+	 */
+	protected function get_guidelines_url() {
 		if ( ! function_exists( 'menu_page_url' ) ) {
 			return '';
 		}
 
 		return esc_url_raw( menu_page_url( 'guidelines-wp-admin', false ) );
+	}
+
+	/**
+	 * Check whether the AI Agent Access toggle should be available.
+	 *
+	 * The feature is rollout-gated to proxied Automattic contexts so regular
+	 * site owners, and non-proxied staff, do not see unfinished controls.
+	 *
+	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 *
+	 * @return bool
+	 */
+	protected function is_ai_agent_access_available() {
+		return $this->is_automattic_proxied_request();
+	}
+
+	/**
+	 * Check whether the current request is coming from a proxied Automattic context.
+	 *
+	 * Keep this check local to the rollout gate so WPCOM environments with older
+	 * vendored Jetpack packages do not fatal during bootstrap.
+	 *
+	 * @return bool
+	 */
+	protected function is_automattic_proxied_request() {
+		if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
+			return true;
+		}
+
+		if (
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
+			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+			Constants::is_true( 'A8C_PROXIED_REQUEST' )
+		) {
+			return true;
+		}
+
+		if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
+				case 1:
+				case 2:
+				case 3: // Pressable.
+				case 32:
+				case 118: // Commerce garden client (ciab).
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

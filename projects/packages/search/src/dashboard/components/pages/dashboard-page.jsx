@@ -4,6 +4,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
+import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
@@ -68,6 +69,12 @@ export default function DashboardPage( { isLoading = false } ) {
 	const readerChatGuidelinesUrl = useSelect( select =>
 		select( STORE_ID ).getReaderChatGuidelinesUrl()
 	);
+	const aiAgentAccessGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getAIAgentAccessGuidelinesUrl()
+	);
+	const isAIAgentAccessAvailable = useSelect( select =>
+		select( STORE_ID ).isAIAgentAccessAvailable()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -124,6 +131,10 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isSearchSuggestionsEnabled = useSelect( select =>
 		select( STORE_ID ).isSearchSuggestionsEnabled()
 	);
+	const showAIAgentAccessGuidelinesLink =
+		! isReaderChatAvailable ||
+		! isReaderChatEnabled ||
+		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -245,6 +256,12 @@ export default function DashboardPage( { isLoading = false } ) {
 															/>
 														</div>
 													) }
+													<AIAgentAccessControl
+														className="jp-search-ai-agent-access-card"
+														guidelinesUrl={ aiAgentAccessGuidelinesUrl }
+														isAvailable={ isAIAgentAccessAvailable }
+														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
+													/>
 													{ supportsInstantSearch && isInstantSearchEnabled && (
 														<div className="jp-search-settings-card">
 															<SearchSuggestionsControl
@@ -267,6 +284,7 @@ export default function DashboardPage( { isLoading = false } ) {
 											domain={ domain }
 											isDisabledFromOverLimit={ isOverLimit }
 											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isAIAgentAccessAvailable={ isAIAgentAccessAvailable }
 											isReaderChatAvailable={ isReaderChatAvailable }
 											isReaderChatEnabled={ isReaderChatEnabled }
 											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -277,6 +295,7 @@ export default function DashboardPage( { isLoading = false } ) {
 											isSavingEitherOption={ isSavingEitherOption }
 											isTogglingModule={ isTogglingModule }
 											isTogglingInstantSearch={ isTogglingInstantSearch }
+											aiAgentAccessGuidelinesUrl={ aiAgentAccessGuidelinesUrl }
 											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
 											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
 										/>

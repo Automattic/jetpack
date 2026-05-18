@@ -1,6 +1,7 @@
 const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 const mockSearchSuggestionsControl = jest.fn();
+const mockAIAgentAccessControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -45,6 +46,10 @@ jest.mock( 'components/search-suggestions-control', () => props => {
 	mockSearchSuggestionsControl( props );
 	return <div data-testid="search-suggestions-control" />;
 } );
+jest.mock( 'components/ai-agent-access-control', () => props => {
+	mockAIAgentAccessControl( props );
+	return <div data-testid="ai-agent-access-control" />;
+} );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
@@ -72,6 +77,9 @@ const createSelectMethods = () => ( {
 	getReaderChatGuidelinesUrl: jest.fn(
 		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
 	),
+	getAIAgentAccessGuidelinesUrl: jest.fn(
+		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
+	),
 	getSearchModuleStatus: jest.fn(),
 	getSearchPlanInfo: jest.fn(),
 	getSearchStats: jest.fn(),
@@ -86,6 +94,7 @@ const createSelectMethods = () => ( {
 	isNewPricing202208: jest.fn( () => false ),
 	isOverLimit: jest.fn( () => false ),
 	isPlanJustUpgraded: jest.fn( () => false ),
+	isAIAgentAccessAvailable: jest.fn( () => true ),
 	isReaderChatAvailable: jest.fn( () => true ),
 	isReaderChatEnabled: jest.fn( () => true ),
 	isResolving: jest.fn( () => false ),
@@ -104,6 +113,7 @@ describe( 'DashboardPage', () => {
 		mockModuleControl.mockClear();
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
+		mockAIAgentAccessControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
@@ -112,7 +122,7 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
-	test( 'passes Reader Chat settings to the Search settings control', () => {
+	test( 'passes Reader Chat and AI Agent Access settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 
 		// The settings control lives in the Settings tab, which isn't visible until selected.
@@ -121,6 +131,9 @@ describe( 'DashboardPage', () => {
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 		expect( mockModuleControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
+				aiAgentAccessGuidelinesUrl:
+					'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				isAIAgentAccessAvailable: true,
 				isReaderChatAvailable: true,
 				isReaderChatEnabled: true,
 				readerChatGuidelinesUrl:
@@ -128,10 +141,12 @@ describe( 'DashboardPage', () => {
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
+		expect( mockSelectMethods.getAIAgentAccessGuidelinesUrl ).toHaveBeenCalled();
+		expect( mockSelectMethods.isAIAgentAccessAvailable ).toHaveBeenCalled();
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
 	} );
 
-	test( 'renders ReaderChatControl alongside ExperienceSelector when search blocks is enabled', () => {
+	test( 'renders ReaderChatControl and AIAgentAccessControl alongside ExperienceSelector when search blocks is enabled', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 
 		render( <DashboardPage /> );
@@ -139,6 +154,7 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
@@ -147,6 +163,14 @@ describe( 'DashboardPage', () => {
 				isSaving: false,
 				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
+		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				className: 'jp-search-ai-agent-access-card',
+				isAvailable: true,
+				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
+				showGuidelinesLink: false,
 			} )
 		);
 	} );
