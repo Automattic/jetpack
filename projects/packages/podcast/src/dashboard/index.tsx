@@ -52,30 +52,35 @@ const App = () => {
 	// pre-set-up default has to be Settings. Returning, set-up users land on Stats.
 	const defaultTab: TabName = isSetUp ? 'stats' : 'settings';
 
-	// Pre-setup, only Settings is usable; a `?tab=stats` deep link must not land
-	// a keyboard user on a panel whose own tab is rendered disabled.
-	const isTabAvailable = ( name: TabName ): boolean => isSetUp || name === 'settings';
-
+	// Pre-setup, only Settings is usable; ignore deep links to disabled tabs so a
+	// keyboard user can't land on a panel whose own tab is rendered disabled.
 	const requestedTab: TabName | null = isValidTab( search.tab ) ? search.tab : null;
 	const activeTab: TabName =
-		requestedTab && isTabAvailable( requestedTab ) ? requestedTab : defaultTab;
+		requestedTab && ( isSetUp || requestedTab === 'settings' ) ? requestedTab : defaultTab;
 
 	const navigate = useNavigate();
+
+	// `@wordpress/route`'s types don't model the search-updater form; isolate the
+	// cast here so callers stay clean.
+	const updateSearch = useCallback(
+		( updater: ( prev: Record< string, unknown > ) => Record< string, unknown > ) => {
+			navigate( { search: updater } as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	const handleTabChange = useCallback(
 		( next: string | null ) => {
 			if ( ! isValidTab( next ) ) {
 				return;
 			}
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					// Default tab keeps a clean URL.
-					tab: next === defaultTab ? undefined : next,
-				} ),
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+			updateSearch( prev => ( {
+				...prev,
+				// Default tab keeps a clean URL.
+				tab: next === defaultTab ? undefined : next,
+			} ) );
 		},
-		[ navigate, defaultTab ]
+		[ updateSearch, defaultTab ]
 	);
 
 	const handleEnable = useCallback( () => {
@@ -93,17 +98,14 @@ const App = () => {
 	// a `tab: undefined` URL would bounce the user there before they finish.
 	const focusActiveTabOnNextRender = useRef( false );
 
+	const tablistRef = useRef< HTMLDivElement >( null );
+
 	const handleSetupSuccess = useCallback( () => {
 		setSetupModalOpen( false );
 		setHasEnabled( true );
 		focusActiveTabOnNextRender.current = true;
-		navigate( {
-			search: ( prev: Record< string, unknown > ) => ( {
-				...prev,
-				tab: 'settings',
-			} ),
-		} as unknown as Parameters< typeof navigate >[ 0 ] );
-	}, [ navigate ] );
+		updateSearch( prev => ( { ...prev, tab: 'settings' } ) );
+	}, [ updateSearch ] );
 
 	// Modal close + Welcome unmount drops keyboard focus to document.body.
 	// Move it onto the newly-mounted Settings tab once the tablist renders.
@@ -112,8 +114,9 @@ const App = () => {
 			return;
 		}
 		focusActiveTabOnNextRender.current = false;
-		const tab = document.querySelector< HTMLElement >( '[role="tab"][aria-selected="true"]' );
-		tab?.focus();
+		tablistRef.current
+			?.querySelector< HTMLElement >( '[role="tab"][aria-selected="true"]' )
+			?.focus();
 	}, [ showWelcome ] );
 
 	const goToSettings = useCallback( () => {
@@ -124,13 +127,8 @@ const App = () => {
 	// via the deep-link gate.
 	const handleAfterDisable = useCallback( () => {
 		setHasEnabled( false );
-		navigate( {
-			search: ( prev: Record< string, unknown > ) => ( {
-				...prev,
-				tab: undefined,
-			} ),
-		} as unknown as Parameters< typeof navigate >[ 0 ] );
-	}, [ navigate ] );
+		updateSearch( prev => ( { ...prev, tab: undefined } ) );
+	}, [ updateSearch ] );
 
 	if ( isLoading ) {
 		return (
@@ -170,7 +168,7 @@ const App = () => {
 	return (
 		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-				<div className="jp-admin-page-tabs">
+				<div className="jp-admin-page-tabs" ref={ tablistRef }>
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
 							{ __( 'Stats', 'jetpack-podcast' ) }

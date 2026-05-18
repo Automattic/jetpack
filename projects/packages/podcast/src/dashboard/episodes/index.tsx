@@ -21,7 +21,19 @@ const editPostUrl = ( postId: number ): string =>
 
 // Server-side filters key off `?podcast_episode=1` to apply the configured
 // podcast category (and, on Premium, prefill the Podcast Episode block).
-const newEpisodeUrl = (): string => `${ ADMIN_URL }post-new.php?podcast_episode=1`;
+const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
+
+// `f.value` of 0, '', or [] is the DataViews "no filter applied" shape.
+const isFilterActive = ( f: { value?: unknown } ): boolean => {
+	const v = f.value;
+	if ( v == null || v === '' ) {
+		return false;
+	}
+	if ( Array.isArray( v ) ) {
+		return v.length > 0;
+	}
+	return true;
+};
 
 interface EpisodeRow {
 	id: number;
@@ -306,11 +318,10 @@ const EpisodesTab = () => {
 		);
 	}
 
-	// Post-setup, no posts in the chosen category yet. Loading guard avoids
-	// flashing the empty state before the first page resolves, and the
-	// search/filter guard preserves DataViews' no-results UI when filtering.
+	// Post-setup empty state; guards keep DataViews' own no-results UI in play
+	// during load and active search/filter.
 	const hasNoEpisodes =
-		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( f => f.value );
+		! isLoading && rows.length === 0 && ! view.search && ! view.filters?.some( isFilterActive );
 
 	if ( hasNoEpisodes ) {
 		return (
@@ -324,7 +335,7 @@ const EpisodesTab = () => {
 						'jetpack-podcast'
 					) }
 				</p>
-				<Button variant="primary" href={ newEpisodeUrl() }>
+				<Button variant="primary" href={ NEW_EPISODE_URL }>
 					{ __( 'Create episode', 'jetpack-podcast' ) }
 				</Button>
 			</div>
