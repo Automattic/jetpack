@@ -309,7 +309,7 @@ class Create_AI_Podcast_Page {
 		if ( 'complete' === $status && function_exists( 'posts_to_podcast_get_job_result' ) ) {
 			$post_id = posts_to_podcast_get_job_result( $record['id'] );
 			if ( null !== $post_id ) {
-				$payload['postId']  = (int) $post_id;
+				$payload['postId']  = $post_id;
 				$payload['editUrl'] = (string) get_edit_post_link( $post_id, 'raw' );
 			}
 		}
