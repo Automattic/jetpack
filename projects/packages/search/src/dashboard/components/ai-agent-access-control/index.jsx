@@ -51,6 +51,11 @@ export default function AIAgentAccessControl( {
 
 		apiFetch( { path: settingsPath } )
 			.then( settings => {
+				if ( isWpcom && settings?.available === false ) {
+					setIsSettingAvailable( false );
+					return;
+				}
+
 				if ( settings && Object.prototype.hasOwnProperty.call( settings, settingsKey ) ) {
 					setIsEnabled( Boolean( settings[ settingsKey ] ) );
 					setIsSettingAvailable( true );
@@ -65,7 +70,7 @@ export default function AIAgentAccessControl( {
 			.finally( () => {
 				setIsLoading( false );
 			} );
-	}, [ isAvailable, settingsKey, settingsPath ] );
+	}, [ isAvailable, isWpcom, settingsKey, settingsPath ] );
 
 	const toggle = useCallback(
 		next => {

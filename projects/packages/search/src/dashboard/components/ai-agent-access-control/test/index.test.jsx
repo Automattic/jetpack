@@ -223,6 +223,16 @@ describe( 'AIAgentAccessControl', () => {
 		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/ai-agents-settings' } );
 	} );
 
+	test( 'renders nothing when the wpcom ai-agents settings endpoint marks the setting unavailable', async () => {
+		mockIsWpcom( true );
+		apiFetch.mockResolvedValueOnce( { enabled: false, available: false } );
+
+		const { container } = render( <AIAgentAccessControl /> );
+
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	test( 'posts enabled to the wpcom ai-agents settings endpoint', async () => {
 		mockIsWpcom( true );
 		apiFetch.mockResolvedValueOnce( { enabled: false } ).mockResolvedValueOnce( { enabled: true } );
