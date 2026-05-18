@@ -113,9 +113,17 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					issues.length
 			  )
 			: '';
-	const blockedTooltip = ! isEnabled
-		? __( 'Set a podcast category in Settings first.', 'jetpack-podcast' )
-		: stepsLeftLabel;
+	// While validation probes are in flight, `issues.length === 0` and
+	// `stepsLeftLabel` is empty — fall back to a loading message so the
+	// disabled Submit buttons still explain themselves on hover/focus.
+	let blockedTooltip = '';
+	if ( ! isEnabled ) {
+		blockedTooltip = __( 'Set a podcast category in Settings first.', 'jetpack-podcast' );
+	} else if ( isLoading || ! isReady ) {
+		blockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+	} else {
+		blockedTooltip = stepsLeftLabel;
+	}
 
 	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_modal_opened', {
