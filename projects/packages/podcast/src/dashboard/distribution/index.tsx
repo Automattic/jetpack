@@ -227,9 +227,10 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 													aria-label={
 														isSubmitBlocked
 															? sprintf(
-																	/* translators: %s is the directory name (Apple Podcasts, Spotify, etc.). */
-																	__( 'Submit to %s', 'jetpack-podcast' ),
-																	app.name
+																	/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Submit button is disabled. */
+																	__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+																	app.name,
+																	blockedTooltip
 															  )
 															: undefined
 													}
