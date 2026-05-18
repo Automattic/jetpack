@@ -405,10 +405,6 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
-	// When the new jetpack-podcast package is active, register the in-admin
-	// "Jetpack > Podcast" page; otherwise keep the legacy
-	// "Jetpack > Podcasting" Calypso link unchanged. Gate delegates to
-	// {@see Podcast::is_enabled()} for a single source of truth.
 	if ( Podcast::is_enabled() ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
 	} else {
