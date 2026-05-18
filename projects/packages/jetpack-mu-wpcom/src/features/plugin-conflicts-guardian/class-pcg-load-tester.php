@@ -60,16 +60,19 @@ class PCG_Load_Tester {
 				),
 				array(
 					'timeout'   => self::PROBE_TIMEOUT,
-					// Follow up to 3 redirects so canonical http->https /
-					// trailing-slash on the front-end probe and
+					// Follow up to 5 redirects (matching `wp_remote_get`'s
+					// default) so canonical http->https / trailing-slash
+					// / non-www->www on the front-end probe and
 					// force_ssl_admin's http->https bounce on the admin
-					// probe both reach a real verdict. WP emits full-URL
-					// Location headers from `home_url`/`set_url_scheme`
-					// so `pcg_probe`/`token` survives, and Requests
-					// re-sends the forwarded `Cookie:` header on the
-					// followed request so the admin loopback still
-					// authenticates after the scheme bounce.
-					'redirects' => 3,
+					// probe both reach a real verdict, with headroom for
+					// multilingual plugins layering a locale redirect on
+					// top. WP emits full-URL Location headers from
+					// `home_url`/`set_url_scheme` so `pcg_probe`/`token`
+					// survives, and Requests re-sends the forwarded
+					// `Cookie:` header on the followed request so the
+					// admin loopback still authenticates after the
+					// scheme bounce.
+					'redirects' => 5,
 				)
 			);
 		} catch ( \Throwable $t ) {
@@ -245,10 +248,11 @@ class PCG_Load_Tester {
 	 */
 	protected function parse_response( $response ) {
 		if ( $response instanceof \Throwable ) {
-			// Exceeded our 3-redirect budget. The bootstrap was healthy
-			// enough to issue 3+ redirects, so treat as inconclusive
-			// rather than an error. Matched on the typed exception code
-			// so a future upstream wording change doesn't reclassify these.
+			// Exceeded our redirect budget. The bootstrap was healthy
+			// enough to issue several redirects in a row, so treat as
+			// inconclusive rather than an error. Matched on the typed
+			// exception code so a future upstream wording change doesn't
+			// reclassify these.
 			if ( $response instanceof \WpOrg\Requests\Exception && 'toomanyredirects' === $response->getType() ) {
 				return array(
 					'status' => 'ok-inconclusive',
