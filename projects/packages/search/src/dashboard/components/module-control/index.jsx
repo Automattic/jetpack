@@ -47,6 +47,7 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
  * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
  * @param {string}   props.readerChatGuidelinesUrl        - Guidelines admin URL, when available.
+ * @param {boolean}  props.isSearchSuggestionsEnabled     - true if search suggestions (autocomplete) is enabled.
  * @return {import('react').Component} Search settings component.
  */
 export default function SearchModuleControl( {
@@ -66,6 +67,7 @@ export default function SearchModuleControl( {
 	isTogglingModule,
 	isTogglingInstantSearch,
 	readerChatGuidelinesUrl,
+	isSearchSuggestionsEnabled,
 } ) {
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
@@ -115,6 +117,15 @@ export default function SearchModuleControl( {
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
 	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, isDisabledFromOverLimit ] );
 
+	const toggleSearchSuggestions = useCallback( () => {
+		if ( isDisabledFromOverLimit ) {
+			return;
+		}
+		const newOption = { search_suggestions_enabled: ! isSearchSuggestionsEnabled };
+		updateOptions( newOption );
+		analytics.tracks.recordEvent( 'jetpack_search_suggestions_toggle', newOption );
+	}, [ isSearchSuggestionsEnabled, updateOptions, isDisabledFromOverLimit ] );
+
 	return (
 		<div
 			className={ clsx( {
@@ -158,6 +169,16 @@ export default function SearchModuleControl( {
 						guidelinesUrl={ readerChatGuidelinesUrl }
 						updateOptions={ updateOptions }
 					/>
+
+					{ supportsInstantSearch && isInstantSearchEnabled && (
+						<SearchSuggestionsToggle
+							isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
+							isInstantSearchEnabled={ isInstantSearchEnabled }
+							isSavingEitherOption={ isSavingEitherOption }
+							isDisabledFromOverLimit={ isDisabledFromOverLimit }
+							toggleSearchSuggestions={ toggleSearchSuggestions }
+						/>
+					) }
 				</div>
 			</Card>
 		</div>
@@ -306,6 +327,42 @@ const SearchToggle = ( {
 				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ SEARCH_DESCRIPTION }
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const SearchSuggestionsToggle = ( {
+	isSearchSuggestionsEnabled,
+	isInstantSearchEnabled,
+	isSavingEitherOption,
+	isDisabledFromOverLimit,
+	toggleSearchSuggestions,
+} ) => {
+	const isToggleDisabled =
+		isSavingEitherOption || ! isInstantSearchEnabled || isDisabledFromOverLimit;
+
+	return (
+		<div className="jp-form-search-settings-group__toggle is-search-suggestions jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<ToggleControl
+					checked={ !! isSearchSuggestionsEnabled && ! isDisabledFromOverLimit }
+					disabled={ isToggleDisabled }
+					onChange={ toggleSearchSuggestions }
+					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+					label={ __( 'Enable search suggestions', 'jetpack-search-pkg' ) }
+					__nextHasNoMarginBottom={ true }
+				/>
+			</div>
+			<div className="jp-search-dashboard-row">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
+					<p className="jp-form-search-settings-group__toggle-explanation">
+						{ __(
+							'Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.',
+							'jetpack-search-pkg'
+						) }
 					</p>
 				</div>
 			</div>

@@ -639,6 +639,10 @@ class SearchApp extends Component {
 							isVisible={ this.state.isVisible }
 							locale={ this.props.options.locale }
 							onChangeSearch={ this.props.setSearchQuery }
+							onSelectFilter={ ( taxonomy, slug ) => {
+								this.props.setFilter( taxonomy, slug );
+								this.props.setSearchQuery( '' );
+							} }
 							onChangeSort={ this.props.setSort }
 							onLoadNextPage={ this.loadNextPage }
 							overlayTrigger={ this.state.overlayOptions.overlayTrigger }
@@ -656,6 +660,8 @@ class SearchApp extends Component {
 							enableFallbackImage={ this.state.overlayOptions.enableFallbackImage }
 							fallbackImageUrl={ this.state.overlayOptions.fallbackImageUrl }
 							showProductPrice={ this.state.overlayOptions.enableProductPrice }
+							suggestionsEnabled={ !! this.props.options.searchSuggestionsEnabled }
+							siteId={ this.props.options.siteId }
 						/>
 					</Overlay>,
 					document.body
