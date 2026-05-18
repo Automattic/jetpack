@@ -174,7 +174,7 @@ const App = () => {
 	return (
 		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-				<div className="jp-admin-page-tabs" ref={ tablistRef }>
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tablistRef }>
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="stats" disabled={ ! isSetUp }>
 							{ __( 'Stats', 'jetpack-podcast' ) }

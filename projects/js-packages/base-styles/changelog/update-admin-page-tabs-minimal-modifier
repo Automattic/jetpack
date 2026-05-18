@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin page mixin: add `.jp-admin-page-tabs--minimal` modifier for hosts that render `<Tabs.List variant="minimal">`, and re-apply the tab font-size design token from an unlayered selector to defeat wp-admin's `button { font-size: inherit }` reset.
