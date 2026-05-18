@@ -78,10 +78,6 @@ const getDistributionIssues = (
 		if ( mime && mime !== 'image/png' && mime !== 'image/jpeg' ) {
 			issues.push( __( 'Cover image must be a PNG or JPG.', 'jetpack-podcast' ) );
 		}
-		// Non-square sources are auto-cropped by the feed's Photon transform,
-		// so aspect isn't a blocker. But the crop runs on the *smaller* side,
-		// so we gate on min(width, height): a 3000×1000 source still produces
-		// a 1000×1000 cover, which Apple rejects.
 		if ( width && height && Math.min( width, height ) < 1400 ) {
 			issues.push(
 				__(
