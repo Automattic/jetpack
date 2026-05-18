@@ -43,11 +43,10 @@ const CategorySetupModal = ( {
 	onClose,
 	onSuccess,
 }: CategorySetupModalProps ) => {
-	const { mutate: saveSettings } = useUpdatePodcastSettings();
+	const { mutate: saveSettings, isPending: saving } = useUpdatePodcastSettings();
 
 	const [ categoryId, setCategoryId ] = useState( 0 );
 	const [ error, setError ] = useState< string | null >( null );
-	const [ saving, setSaving ] = useState( false );
 	const [ pickerCreating, setPickerCreating ] = useState( false );
 	const [ pickerSaving, setPickerSaving ] = useState( false );
 
@@ -71,7 +70,6 @@ const CategorySetupModal = ( {
 				return;
 			}
 			setError( null );
-			setSaving( true );
 			try {
 				// Only prefill the title from the site name when the user hasn't
 				// already set one — preserves a custom title from a partial setup.
@@ -97,8 +95,6 @@ const CategorySetupModal = ( {
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' )
 					)
 				);
-			} finally {
-				setSaving( false );
 			}
 		},
 		[ categoryId, existingTitle, siteName, saveSettings, onSuccess ]
