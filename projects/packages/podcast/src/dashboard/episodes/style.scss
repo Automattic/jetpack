@@ -1,11 +1,12 @@
 .podcast__episode-thumb {
-	width: 56px;
-	height: 56px;
+	// DataViews ships `.dataviews-column-primary__media img { width: 32px;
+	// height: 32px }` and wins on specificity for the populated <img>, so the
+	// placeholder <div> has to match 32×32 to avoid a visible size mismatch.
+	// box-sizing keeps the 1px dashed border inside the 32px box.
+	width: 32px;
+	height: 32px;
 	object-fit: cover;
 	border-radius: 4px;
-	// Without this the 1px placeholder border below pushes the empty-state
-	// square to 58x58 (content-box default), so blank rows render visibly
-	// larger than rows with thumbnails.
 	box-sizing: border-box;
 }
 
