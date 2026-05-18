@@ -4,6 +4,7 @@ import {
 	Card,
 	CardBody,
 	Notice,
+	VisuallyHidden,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -45,7 +46,10 @@ const StateBadge = ( { state }: { state: PodcastShowState } ) => {
 	}
 	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
 	return (
-		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>{ label }</span>
+		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>
+			<VisuallyHidden as="span">{ __( 'Status:', 'jetpack-podcast' ) } </VisuallyHidden>
+			{ label }
+		</span>
 	);
 };
 
