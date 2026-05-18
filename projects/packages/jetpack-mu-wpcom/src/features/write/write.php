@@ -416,11 +416,18 @@ function wpcom_write_alignment_classes_to_inline( $html ) {
 			$classes = trim( preg_replace( '/\bhas-text-align-(?:left|center|right)\b/', '', $classes ) );
 			$classes = preg_replace( '/  +/', ' ', $classes );
 
-			// Build the new tag with inline style.
-			$class_attr = $classes ? 'class="' . $classes . '" ' : '';
-			$style      = 'style="text-align:' . $align . '"';
+			// Build the new tag, merging alignment into any existing style
+			// attribute to avoid producing invalid duplicate style attrs.
+			$class_attr = $classes ? ' class="' . $classes . '"' : '';
+			$tag        = rtrim( $before ) . $class_attr . $after;
 
-			return $before . $class_attr . $style . $after;
+			if ( preg_match( '/style="[^"]*"/', $tag ) ) {
+				$tag = preg_replace( '/style="/', 'style="text-align:' . $align . ';', $tag, 1 );
+			} else {
+				$tag = preg_replace( '/>$/', ' style="text-align:' . $align . '">', $tag );
+			}
+
+			return $tag;
 		},
 		$html
 	);

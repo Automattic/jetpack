@@ -891,6 +891,18 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that alignment conversion merges into an existing style attribute
+	 * instead of producing invalid duplicate style attrs.
+	 */
+	public function test_alignment_classes_to_inline_with_existing_style() {
+		$html = '<p class="has-text-align-center" style="color:red">Centered</p>';
+		$this->assertSame(
+			'<p style="text-align:center;color:red">Centered</p>',
+			wpcom_write_alignment_classes_to_inline( $html )
+		);
+	}
+
+	/**
 	 * Test that wide-aligned heading returns 'block-editor' (not preserved).
 	 */
 	public function test_detect_unsupported_wide_aligned_heading() {
