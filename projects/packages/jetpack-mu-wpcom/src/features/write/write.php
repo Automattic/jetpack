@@ -349,14 +349,24 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 		// Both are converted to inline styles on load, so they round-trip.
 		// Strip the style attr if it only contains typography.textAlign
 		// with a supported value, so it doesn't trigger the extra-attrs check.
-		$style_align = $attrs['style']['typography']['textAlign'] ?? '';
+		// Justify is paragraph-only.
+		$supported_text_aligns = 'paragraph' === $name
+			? array( 'left', 'center', 'right', 'justify' )
+			: array( 'left', 'center', 'right' );
+		$style_align           = $attrs['style']['typography']['textAlign'] ?? '';
 		if (
 			isset( $attrs['style'] ) &&
 			$style_align &&
-			in_array( $style_align, array( 'left', 'center', 'right' ), true ) &&
+			in_array( $style_align, $supported_text_aligns, true ) &&
 			array( 'typography' => array( 'textAlign' => $style_align ) ) === $attrs['style']
 		) {
 			unset( $attrs['style'] );
+		}
+
+		// Justify uses the canonical class "has-text-align-justify" on paragraph.
+		// Strip it before the extra-attrs check so the paragraph round-trips.
+		if ( 'paragraph' === $name && ( $attrs['className'] ?? '' ) === 'has-text-align-justify' ) {
+			unset( $attrs['className'] );
 		}
 
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
@@ -367,8 +377,9 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 		// Alignment: convertToBlocks() only preserves center and right
 		// (read from style.textAlign). Block-level values like wide/full
 		// are CSS-class-based and silently lost. Left is the default and
-		// renders identically to no alignment, so allow it too.
-		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], array( 'left', 'center', 'right' ), true ) ) {
+		// renders identically to no alignment, so allow it too. Justify
+		// is paragraph-only (display type and narrow quotes look poor).
+		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], $supported_text_aligns, true ) ) {
 			return true;
 		}
 
@@ -405,7 +416,7 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
  */
 function wpcom_write_alignment_classes_to_inline( $html ) {
 	return preg_replace_callback(
-		'/(<(?:p|h[1-6]|blockquote)\b[^>]*?)class="([^"]*has-text-align-(left|center|right)[^"]*)"([^>]*?>)/',
+		'/(<(?:p|h[1-6]|blockquote)\b[^>]*?)class="([^"]*has-text-align-(left|center|right|justify)[^"]*)"([^>]*?>)/',
 		function ( $m ) {
 			$before  = $m[1];
 			$classes = $m[2];
@@ -413,7 +424,7 @@ function wpcom_write_alignment_classes_to_inline( $html ) {
 			$after   = $m[4];
 
 			// Remove the has-text-align-* class.
-			$classes = trim( preg_replace( '/\bhas-text-align-(?:left|center|right)\b/', '', $classes ) );
+			$classes = trim( preg_replace( '/\bhas-text-align-(?:left|center|right|justify)\b/', '', $classes ) );
 			$classes = preg_replace( '/  +/', ' ', $classes );
 
 			// Build the new tag, merging alignment into any existing style
@@ -421,8 +432,13 @@ function wpcom_write_alignment_classes_to_inline( $html ) {
 			$class_attr = $classes ? ' class="' . $classes . '"' : '';
 			$tag        = rtrim( $before ) . $class_attr . $after;
 
-			if ( preg_match( '/style="[^"]*"/', $tag ) ) {
-				$tag = preg_replace( '/style="/', 'style="text-align:' . $align . ';', $tag, 1 );
+			if ( preg_match( '/style="([^"]*)"/', $tag, $sm ) ) {
+				// Skip prepending if the existing style attr already declares
+				// the same text-align (avoids duplicate text-align declarations
+				// when the saved HTML carries both class and inline style).
+				if ( strpos( $sm[1], 'text-align:' . $align ) === false ) {
+					$tag = preg_replace( '/style="/', 'style="text-align:' . $align . ';', $tag, 1 );
+				}
 			} else {
 				$tag = preg_replace( '/>$/', ' style="text-align:' . $align . '">', $tag );
 			}
@@ -601,6 +617,8 @@ function wpcom_write_render_admin_page() {
 			'formatAlignLeft'     => true,
 			'formatAlignCenter'   => false,
 			'formatAlignRight'    => false,
+			'formatAlignJustify'  => false,
+			'cannotJustify'       => false,
 			'formatOList'         => false,
 			'formatUList'         => false,
 			'insideList'          => false,
@@ -727,6 +745,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignleft"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-aligncenter"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignright"></span></button>
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-justify"></span></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Lists -->
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-ul"></span></button>
