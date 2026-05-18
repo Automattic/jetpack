@@ -200,7 +200,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					<VStack spacing={ 8 }>
 						<Text variant="muted">
 							{ __(
-								'We submit your podcast to listening apps like Apple Podcasts, Spotify, and Pocket Casts so people can find and follow it.',
+								'Submit your podcast to the most popular podcast apps so people can find and follow it.',
 								'jetpack-podcast'
 							) }
 						</Text>
@@ -209,11 +209,11 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							<VStack spacing={ 4 }>
 								<VStack spacing={ 1 }>
 									<h3 className="podcast__card-title">
-										{ __( 'One-click submit', 'jetpack-podcast' ) }
+										{ __( 'Automatic submission', 'jetpack-podcast' ) }
 									</h3>
 									<Text variant="muted">
 										{ __(
-											'We submit your feed to Pocket Casts. Most shows go live within a few minutes.',
+											'We submit your feed to Pocket Casts for you. It usually goes live within a few minutes.',
 											'jetpack-podcast'
 										) }
 									</Text>
@@ -230,7 +230,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						<VStack spacing={ 4 }>
 							<VStack spacing={ 1 }>
 								<h3 className="podcast__card-title">
-									{ __( 'More directories', 'jetpack-podcast' ) }
+									{ __( 'Manual submission', 'jetpack-podcast' ) }
 								</h3>
 								<Text variant="muted">
 									{ __(
