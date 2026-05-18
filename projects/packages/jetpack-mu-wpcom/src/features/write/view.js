@@ -531,6 +531,40 @@ function normalizeColorMarkup( container ) {
 }
 
 /**
+ * Normalize inline formatting tags before block serialization.
+ *
+ * document.execCommand produces legacy tags (<b>, <i>, <u>, <strike>) that
+ * Gutenberg's rich text system flags as unknown formatting. Convert them to
+ * the tags Gutenberg's default formats use: <strong>, <em>, <s>, and a span
+ * with text-decoration:underline for <u>.
+ *
+ * @param {HTMLElement} container - The container to normalize in place.
+ */
+function normalizeFormattingTags( container ) {
+	const replacements = [
+		[ 'b', 'strong' ],
+		[ 'i', 'em' ],
+		[ 'strike', 's' ],
+	];
+	for ( const [ from, to ] of replacements ) {
+		container.querySelectorAll( from ).forEach( oldEl => {
+			const newEl = document.createElement( to );
+			newEl.innerHTML = oldEl.innerHTML;
+			oldEl.replaceWith( newEl );
+		} );
+	}
+
+	// <u> has no dedicated tag in Gutenberg's core formats; the core/underline
+	// format uses <span style="text-decoration:underline"> instead.
+	container.querySelectorAll( 'u' ).forEach( u => {
+		const span = document.createElement( 'span' );
+		span.style.textDecoration = 'underline';
+		span.innerHTML = u.innerHTML;
+		u.replaceWith( span );
+	} );
+}
+
+/**
  * Convert contentEditable HTML into WordPress block markup.
  *
  * @param {string} html - The innerHTML from the contenteditable area.
@@ -542,6 +576,10 @@ function convertToBlocks( html ) {
 
 	// Normalize color markup before serialization.
 	normalizeColorMarkup( tmp );
+
+	// Normalize inline formatting tags (<b>/<i>/<u>/<strike>) to the tags
+	// Gutenberg's rich text system expects.
+	normalizeFormattingTags( tmp );
 
 	const blocks = [];
 
