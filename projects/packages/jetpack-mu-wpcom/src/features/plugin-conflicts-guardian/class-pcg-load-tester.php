@@ -60,7 +60,16 @@ class PCG_Load_Tester {
 				),
 				array(
 					'timeout'   => self::PROBE_TIMEOUT,
-					'redirects' => 0,
+					// Follow up to 3 redirects so canonical http->https /
+					// trailing-slash on the front-end probe and
+					// force_ssl_admin's http->https bounce on the admin
+					// probe both reach a real verdict. WP emits full-URL
+					// Location headers from `home_url`/`set_url_scheme`
+					// so `pcg_probe`/`token` survives, and Requests
+					// re-sends the forwarded `Cookie:` header on the
+					// followed request so the admin loopback still
+					// authenticates after the scheme bounce.
+					'redirects' => 3,
 				)
 			);
 		} catch ( \Throwable $t ) {
@@ -73,8 +82,8 @@ class PCG_Load_Tester {
 			delete_transient( self::transient_key( $admin['token'] ) );
 		}
 
-		$front_result = $this->parse_response( $responses['front'], false );
-		$admin_result = $this->parse_response( $responses['admin'], true );
+		$front_result = $this->parse_response( $responses['front'] );
+		$admin_result = $this->parse_response( $responses['admin'] );
 
 		// Log transport-level errors (most often timeouts at PROBE_TIMEOUT)
 		// so we can see how often they fire before deciding whether to
@@ -232,31 +241,44 @@ class PCG_Load_Tester {
 	 *
 	 * @param mixed $response A `WpOrg\Requests\Response`, or an exception
 	 *                        thrown for that single request.
-	 * @param bool  $is_admin True when this was the admin probe.
 	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int,plugin?:string}
 	 */
-	protected function parse_response( $response, $is_admin ) {
+	protected function parse_response( $response ) {
 		if ( $response instanceof \Throwable ) {
+			// Exceeded our 3-redirect budget. The bootstrap was healthy
+			// enough to issue 3+ redirects, so treat as inconclusive
+			// rather than an error. Matched on the typed exception code
+			// so a future upstream wording change doesn't reclassify these.
+			if ( $response instanceof \WpOrg\Requests\Exception && 'toomanyredirects' === $response->getType() ) {
+				return array(
+					'status' => 'ok-inconclusive',
+					'reason' => 'Probe exceeded redirect budget; treating as inconclusive ok.',
+				);
+			}
 			return array(
 				'status' => 'error',
 				'reason' => sprintf( 'Probe request failed: %s', $response->getMessage() ),
 			);
 		}
 
-		$code = (int) ( $response->status_code ?? 0 );
-		$body = (string) ( $response->body ?? '' );
+		$code           = (int) ( $response->status_code ?? 0 );
+		$body           = (string) ( $response->body ?? '' );
+		$redirect_count = (int) ( $response->redirects ?? 0 );
 
 		$decoded = json_decode( $body, true );
 		if ( is_array( $decoded ) && isset( $decoded['status'] ) ) {
 			return $decoded;
 		}
 
-		// Admin probe bounced to login (no/expired cookie). Distinct status so
-		// we can measure how often it fires; treated as ok by callers.
-		if ( $is_admin && ( 301 === $code || 302 === $code ) ) {
+		// Unfollowed 3xx safety net (shouldn't happen now that we follow
+		// up to 3, but keep for cases Requests refuses — cross-scheme
+		// downgrade, malformed Location, etc.). Treated as ok by callers
+		// since a redirect at this layer means the bootstrap completed
+		// cleanly enough to issue one.
+		if ( $code >= 300 && $code < 400 ) {
 			return array(
 				'status' => 'ok-inconclusive',
-				'reason' => 'Admin probe redirected; treating as inconclusive ok.',
+				'reason' => sprintf( 'Probe redirected (HTTP %d); treating as inconclusive ok.', $code ),
 			);
 		}
 
@@ -267,10 +289,21 @@ class PCG_Load_Tester {
 			);
 		}
 
-		// Probe endpoint always emits JSON; a 2xx without one means the
-		// bootstrap was terminated mid-flight (exit/die during load/init/admin_init).
-		// Block, since the same termination would affect matching future requests.
 		if ( $code >= 200 && $code < 300 ) {
+			// We followed at least one redirect and the destination
+			// dropped our probe query (no JSON verdict back). Bootstrap
+			// was healthy enough to render the destination, so treat as
+			// inconclusive rather than fatal.
+			if ( $redirect_count > 0 ) {
+				return array(
+					'status' => 'ok-inconclusive',
+					'reason' => sprintf( 'Probe followed %d redirect(s) but destination dropped the probe query; treating as inconclusive ok.', $redirect_count ),
+				);
+			}
+			// Probe endpoint always emits JSON; a 2xx without one and no
+			// redirect means the bootstrap was terminated mid-flight
+			// (exit/die during load/init/admin_init). Block, since the
+			// same termination would affect future requests.
 			return array(
 				'status'  => 'fatal',
 				'message' => sprintf(
