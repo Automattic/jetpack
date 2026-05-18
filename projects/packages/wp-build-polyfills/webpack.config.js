@@ -20,7 +20,12 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 const packageRoot = __dirname;
 const localRequire = require;
 
-const outputBase = path.join( packageRoot, 'build' );
+// Allow the regression test (or any external driver) to redirect the
+// emitted output base without clobbering the normal `build/` tree, e.g.
+// for asserting against a freshly-rebuilt production bundle in parallel.
+const outputBase = process.env.WP_BUILD_POLYFILLS_OUTPUT_BASE
+	? path.resolve( process.env.WP_BUILD_POLYFILLS_OUTPUT_BASE )
+	: path.join( packageRoot, 'build' );
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -94,6 +99,43 @@ function resolveEntry( packageName, subEntry = null ) {
 
 // ── Shared config ───────────────────────────────────────────────────────────
 
+// Files inside upstream @wordpress packages that import a helper from
+// `@wordpress/data` that is not guaranteed to exist on the runtime
+// `window.wp.data` (i.e. older WordPress Core's bundled `@wordpress/data`).
+// For these specific files, rewrite the `keyedReducer` named import to come
+// from a local copy bundled with the polyfill, so the helper resolves
+// against the inlined implementation instead of the external global. Other
+// `@wordpress/data` symbols (`createReduxStore`, `register`, `useSelect`,
+// `useDispatch`) remain externalized via the DEP plugin's standard path so
+// the notices store registers in the shared `window.wp.data` registry.
+//
+// A custom loader (rather than `Rule.resolve.alias`) is required because the
+// DEP plugin's `externals` callback runs before module resolution, so an
+// alias on `@wordpress/data` is bypassed for the externalized request.
+//
+// Currently only `keyedReducer` is affected — added to `@wordpress/data`
+// 10.45.0 alongside a `@wordpress/notices` 5.45.0 / `@wordpress/core-data`
+// 7.45.0 refactor that consolidated a local copy (see WordPress/gutenberg#77364).
+//
+// The rule's `test` is intentionally restricted to upstream files known to
+// import `keyedReducer` from `@wordpress/data`: `notices` ships it in
+// `store/reducer.{mjs,cjs}`, and `core-data` ships it in
+// `queried-data/reducer.{mjs,cjs}`. The loader itself is also defensive — it
+// is a no-op for files that do not import `keyedReducer` — so the worst-case
+// failure mode on a too-broad path match is a small perf hit, not incorrect
+// rewrites. If a future polyfill addition pulls in another upstream package
+// that imports `keyedReducer` from `@wordpress/data`, extend this `test`
+// regex (and the regression test below) accordingly.
+const wpDataKeyedReducerRule = {
+	test: [
+		// `@wordpress/notices` >= 5.45.0 `store/reducer.{mjs,cjs}`.
+		// `@wordpress/core-data` >= 7.45.0 `queried-data/reducer.{mjs,cjs}`.
+		/[\\/]@wordpress[\\/](?:notices[\\/](?:build|build-module)[\\/]store|core-data[\\/](?:build|build-module)[\\/]queried-data)[\\/]reducer\.(?:m?js|cjs)$/,
+	],
+	enforce: 'pre',
+	loader: path.resolve( packageRoot, 'wp-data-keyed-reducer-loader.js' ),
+};
+
 const sharedConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -106,6 +148,7 @@ const sharedConfig = {
 	},
 	module: {
 		rules: [
+			wpDataKeyedReducerRule,
 			// Transpile @wordpress/* packages from node_modules.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@wordpress/' ],
