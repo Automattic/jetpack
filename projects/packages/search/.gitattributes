@@ -15,7 +15,7 @@
 /src/**/*.jsx                                            production-exclude
 /src/**/*.scss                                           production-exclude
 
-# @todo Are there any .js files we actually want to keep, or is everything build and we can do `/src/**/*.js` like above?
+# @todo Are there any .js files we actually want to keep, or is everything built and we can do `/src/**/*.js` like above?
 /src/customberg/**/*.js                                  production-exclude
 /src/customizer/**/*.js                                  production-exclude
 /src/dashboard/**/*.js                                   production-exclude
