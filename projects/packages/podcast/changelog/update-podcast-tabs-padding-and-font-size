@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Podcast dashboard: align tab strip with page header padding and apply the design-system tab font size.
+Podcast dashboard: opt into the shared `jp-admin-page-tabs--minimal` modifier so the tab strip aligns with the page header and labels use the design-system font size.

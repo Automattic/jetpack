@@ -310,6 +310,23 @@ $jp-breakpoint-mobile: 782px;
 		padding-inline: var(--wpds-dimension-padding-sm, 8px);
 	}
 
+	// Opt-in modifier for hosts that render `<Tabs.List variant="minimal">`.
+	// Minimal tabs ship with `padding-inline: 0`, so the wrapper has to
+	// provide the full 2xl itself to keep the first tab flush with the
+	// header start.
+	.jp-admin-page-tabs--minimal {
+		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+	}
+
+	// Re-apply `--wpds-typography-font-size-md` from an unlayered selector.
+	// `@wordpress/ui` declares the token inside `@layer wp-ui-components`,
+	// but wp-admin core ships an unlayered `button { font-size: inherit }`
+	// reset that always wins layered rules. Remove once upstream wires
+	// `Tabs.Tab` into `@wordpress/ui`'s `global-css-defense` module.
+	.jp-admin-page-tabs [role="tab"] {
+		font-size: var(--wpds-typography-font-size-md, 13px);
+	}
+
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
 	// Match `.folded` and `.auto-fold` explicitly: both outrank the bare
 	// `#wpbody-content` selector on specificity, so the media query needs
