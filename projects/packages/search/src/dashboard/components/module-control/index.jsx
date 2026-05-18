@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
 import Card from 'components/card';
 import ReaderChatControl from 'components/reader-chat-control';
+import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
@@ -117,15 +118,6 @@ export default function SearchModuleControl( {
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
 	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, isDisabledFromOverLimit ] );
 
-	const toggleSearchSuggestions = useCallback( () => {
-		if ( isDisabledFromOverLimit ) {
-			return;
-		}
-		const newOption = { search_suggestions_enabled: ! isSearchSuggestionsEnabled };
-		updateOptions( newOption );
-		analytics.tracks.recordEvent( 'jetpack_search_suggestions_toggle', newOption );
-	}, [ isSearchSuggestionsEnabled, updateOptions, isDisabledFromOverLimit ] );
-
 	return (
 		<div
 			className={ clsx( {
@@ -170,15 +162,14 @@ export default function SearchModuleControl( {
 						updateOptions={ updateOptions }
 					/>
 
-					{ supportsInstantSearch && isInstantSearchEnabled && (
-						<SearchSuggestionsToggle
-							isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
-							isInstantSearchEnabled={ isInstantSearchEnabled }
-							isSavingEitherOption={ isSavingEitherOption }
-							isDisabledFromOverLimit={ isDisabledFromOverLimit }
-							toggleSearchSuggestions={ toggleSearchSuggestions }
-						/>
-					) }
+					<SearchSuggestionsControl
+						isEnabled={ isSearchSuggestionsEnabled }
+						isInstantSearchEnabled={ isInstantSearchEnabled }
+						supportsInstantSearch={ supportsInstantSearch }
+						isSaving={ isSavingEitherOption }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
+						updateOptions={ updateOptions }
+					/>
 				</div>
 			</Card>
 		</div>
@@ -327,42 +318,6 @@ const SearchToggle = ( {
 				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ SEARCH_DESCRIPTION }
-					</p>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const SearchSuggestionsToggle = ( {
-	isSearchSuggestionsEnabled,
-	isInstantSearchEnabled,
-	isSavingEitherOption,
-	isDisabledFromOverLimit,
-	toggleSearchSuggestions,
-} ) => {
-	const isToggleDisabled =
-		isSavingEitherOption || ! isInstantSearchEnabled || isDisabledFromOverLimit;
-
-	return (
-		<div className="jp-form-search-settings-group__toggle is-search-suggestions jp-search-dashboard-wrap">
-			<div className="jp-search-dashboard-row">
-				<ToggleControl
-					checked={ !! isSearchSuggestionsEnabled && ! isDisabledFromOverLimit }
-					disabled={ isToggleDisabled }
-					onChange={ toggleSearchSuggestions }
-					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-					label={ __( 'Enable search suggestions', 'jetpack-search-pkg' ) }
-					__nextHasNoMarginBottom={ true }
-				/>
-			</div>
-			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
-					<p className="jp-form-search-settings-group__toggle-explanation">
-						{ __(
-							'Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.',
-							'jetpack-search-pkg'
-						) }
 					</p>
 				</div>
 			</div>
