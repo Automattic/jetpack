@@ -326,6 +326,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
@@ -411,6 +412,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
 							/>
 							<PricingTableItem isIncluded={ false } />
+							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -511,6 +513,13 @@ const newPricingArgs = {
 			name: __( 'Spelling correction', 'jetpack-search-pkg' ),
 			tooltipInfo: __(
 				'Quick and accurate spelling correction for when your site visitors mistype their search.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Autocomplete', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Suggest search queries as your visitors type, so they can find what they need faster and reach results in a single click.',
 				'jetpack-search-pkg'
 			),
 		},
