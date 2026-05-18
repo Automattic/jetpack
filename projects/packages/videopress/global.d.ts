@@ -27,6 +27,8 @@ export declare global {
 					timezoneString: string;
 					locale: string;
 					hasVideoPressAccess: boolean;
+					isVideoPress1TB?: boolean;
+					isVideoPressUnlimited?: boolean;
 				};
 				assets: {
 					buildUrl: string;
