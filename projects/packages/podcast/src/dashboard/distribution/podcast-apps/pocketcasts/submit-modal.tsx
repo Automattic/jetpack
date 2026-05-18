@@ -26,7 +26,7 @@ import type { PodcastAppModalProps } from '../types';
 const stateLabel = ( state: PodcastShowState ): string => {
 	switch ( state ) {
 		case 'active':
-			return __( 'Submitted', 'jetpack-podcast' );
+			return __( 'Live', 'jetpack-podcast' );
 		case 'pending':
 			return __( 'Pending', 'jetpack-podcast' );
 		default:

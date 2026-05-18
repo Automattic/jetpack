@@ -284,7 +284,9 @@ class Settings {
 
 	/**
 	 * Merge a partial show-states patch into the stored value. Values outside
-	 * SHOW_STATES are dropped; empty string clears.
+	 * SHOW_STATES are dropped; empty string clears. `'active'` → `'pending'` is
+	 * refused so a stale SPA cache can't downgrade a state that `Feed_Detection`
+	 * promoted via real UA evidence (explicit `''` clears still work).
 	 *
 	 * @param mixed $input Incoming patch.
 	 * @return array<string, string>
@@ -306,9 +308,18 @@ class Settings {
 
 			if ( '' === $value ) {
 				unset( $current[ $key ] );
-			} elseif ( in_array( $value, self::SHOW_STATES, true ) ) {
-				$current[ $key ] = $value;
+				continue;
 			}
+
+			if ( ! in_array( $value, self::SHOW_STATES, true ) ) {
+				continue;
+			}
+
+			if ( 'pending' === $value && isset( $current[ $key ] ) && 'active' === $current[ $key ] ) {
+				continue;
+			}
+
+			$current[ $key ] = $value;
 		}
 
 		return $current;
