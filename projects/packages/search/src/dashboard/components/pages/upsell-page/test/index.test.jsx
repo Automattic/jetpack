@@ -63,7 +63,10 @@ jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
 
-const createSelectMethods = ( { isSearchBlocksEnabled } ) => ( {
+const createSelectMethods = ( {
+	isSearchBlocksEnabled = false,
+	isAiAnswersAvailable = false,
+} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
@@ -82,6 +85,7 @@ const createSelectMethods = ( { isSearchBlocksEnabled } ) => ( {
 	getAdditionalUnitPrice: jest.fn( () => 1 ),
 	getAdditionalUnitQuantity: jest.fn( () => 1000 ),
 	isSearchBlocksEnabled: jest.fn( () => isSearchBlocksEnabled ),
+	isAiAnswersAvailable: jest.fn( () => isAiAnswersAvailable ),
 } );
 
 describe( 'UpsellPage pricing grid — Search blocks gating', () => {
@@ -103,5 +107,37 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage pricing grid — AI Answers gating', () => {
+	test( 'hides the AI Answers row when not available', () => {
+		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: false } );
+
+		render( <UpsellPage /> );
+
+		expect( screen.queryByText( 'AI Answers (Preview)' ) ).not.toBeInTheDocument();
+		// Sanity: the base grid still renders.
+		expect( screen.getByText( 'Spelling correction' ) ).toBeInTheDocument();
+	} );
+
+	test( 'shows the AI Answers row when available', () => {
+		mockSelectMethods = createSelectMethods( { isAiAnswersAvailable: true } );
+
+		render( <UpsellPage /> );
+
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+	} );
+
+	test( 'gates AI Answers independently of Search blocks', () => {
+		mockSelectMethods = createSelectMethods( {
+			isSearchBlocksEnabled: false,
+			isAiAnswersAvailable: true,
+		} );
+
+		render( <UpsellPage /> );
+
+		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Jetpack Search blocks' ) ).not.toBeInTheDocument();
 	} );
 } );

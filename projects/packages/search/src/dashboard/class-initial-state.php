@@ -87,6 +87,13 @@ class Initial_State {
 				 */
 				'searchBlocksEnabled'     => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
 				/**
+				 * Whether AI Answers is available, mirroring the
+				 * `jetpack_search_ai_answers_enabled` server-side gate so the
+				 * dashboard React app can advertise the paid-only AI Answers
+				 * feature on the same signal the back end uses to expose it.
+				 */
+				'aiAnswersEnabled'        => AI_Answers::is_enabled(),
+				/**
 				 * Active theme stylesheet — used by the experience-selector to deep-link
 				 * the "Edit search template" action to the right Site Editor entry
 				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).

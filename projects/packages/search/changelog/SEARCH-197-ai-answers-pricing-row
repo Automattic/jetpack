@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Add an "AI Answers (Preview)" row to the pricing comparison grid, included on the paid plan only, gated behind the jetpack_search_ai_answers_enabled flag.

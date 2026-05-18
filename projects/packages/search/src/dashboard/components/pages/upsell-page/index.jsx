@@ -193,12 +193,17 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		select => select( STORE_ID ).isSearchBlocksEnabled(),
 		[]
 	);
+	const isAiAnswersAvailable = useSelect( select => select( STORE_ID ).isAiAnswersAvailable(), [] );
 	const pricingArgs = useMemo(
-		() =>
-			isSearchBlocksEnabled
-				? { ...newPricingArgs, items: [ ...newPricingArgs.items, ...searchBlocksPricingItems ] }
-				: newPricingArgs,
-		[ isSearchBlocksEnabled ]
+		() => ( {
+			...newPricingArgs,
+			items: [
+				...newPricingArgs.items,
+				...( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ),
+				...( isAiAnswersAvailable ? aiAnswersPricingItems : [] ),
+			],
+		} ),
+		[ isSearchBlocksEnabled, isAiAnswersAvailable ]
 	);
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
@@ -329,6 +334,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
 							) ) }
+							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
@@ -417,6 +425,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem isIncluded={ true } />
 							{ ( isSearchBlocksEnabled ? searchBlocksPricingItems : [] ).map( item => (
 								<PricingTableItem key={ item.id } isIncluded={ true } />
+							) ) }
+							{ ( isAiAnswersAvailable ? aiAnswersPricingItems : [] ).map( item => (
+								<PricingTableItem key={ item.id } isIncluded={ false } />
 							) ) }
 						</PricingTableColumn>
 					</PricingTable>
@@ -534,6 +545,20 @@ const searchBlocksPricingItems = [
 		name: __( 'Embedded search page', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			"Don't want to build one yourself? Enable the ready-made Jetpack Search template in a single click for a polished, fully featured search page right out of the box.",
+			'jetpack-search-pkg'
+		),
+	},
+];
+
+// Paid-only row gated behind the `jetpack_search_ai_answers_enabled` flag
+// (mirrored to the dashboard as `aiAnswersEnabled`). Advertised on the paid
+// plan column only — the free plan does not include AI Answers.
+const aiAnswersPricingItems = [
+	{
+		id: 'ai-answers',
+		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		tooltipInfo: __(
+			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results. Available on paid plans.',
 			'jetpack-search-pkg'
 		),
 	},
