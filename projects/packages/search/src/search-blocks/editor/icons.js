@@ -26,6 +26,7 @@ import {
 	cart,
 	category,
 	chevronUpDown,
+	commentContent,
 	currencyDollar,
 	customPostType,
 	filter,
@@ -54,6 +55,7 @@ const BRAND_FOREGROUND = '#069e08';
 const greened = src => ( { src, foreground: BRAND_FOREGROUND } );
 
 const BLOCK_ICONS = {
+	'jetpack-search/ai-answer': greened( commentContent ),
 	'jetpack-search/search-input': greened( search ),
 	'jetpack-search/search-results': greened( listView ),
 	'jetpack-search/results-list': greened( grid ),

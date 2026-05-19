@@ -1308,6 +1308,14 @@ class Search_Blocks {
 			// locale-agnostic — only the display string carries the symbol.
 			'priceCurrencySymbol'        => '$',
 
+			// AI Answers — whether the agent endpoint should be called at all.
+			// Render.php for `jetpack-search/ai-answer` also short-circuits to
+			// an empty string when this is false, so the panel disappears at
+			// SSR time even for a saved post that still has the block in its
+			// content. The JS gate here covers the edge case where the flag
+			// flips off between SSR and hydration.
+			'aiAnswersEnabled'           => AI_Answers::is_enabled(),
+
 			// Display labels for `wc_stock_status` selections, keyed by slug.
 			// Seeded from the status block's static option list so an active-
 			// filters chip for "instock" reads "In stock" rather than the raw
@@ -1546,6 +1554,7 @@ class Search_Blocks {
 	 * @return array<string, string>
 	 */
 	protected static function build_initial_strings(): array {
+		$ai_extended_loading_hints = static::build_ai_extended_loading_hints();
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
 				'searching'               => 'Searching…',
@@ -1562,6 +1571,9 @@ class Search_Blocks {
 				'suggestionLabelQuery'    => 'Suggestions',
 				'suggestionLabelTaxonomy' => 'Popular Filters',
 				'suggestionLabelPost'     => 'Articles',
+				'aiErrorMessage'          => 'Sorry, an error occurred while generating an answer.',
+				'aiErrorCode'             => 'Error code: %s',
+				'aiExtendedLoadingHints'  => $ai_extended_loading_hints,
 			);
 		}
 		return array(
@@ -1592,6 +1604,53 @@ class Search_Blocks {
 			'suggestionLabelTaxonomy' => __( 'Popular Filters', 'jetpack-search-pkg' ),
 			/* translators: Group label for the post-title section of the Search Input autocomplete dropdown. */
 			'suggestionLabelPost'     => __( 'Articles', 'jetpack-search-pkg' ),
+			/* translators: Heading shown on the AI Answer panel when the agent endpoint returns an error. The technical message + HTTP/JSON-RPC code render below this string. */
+			'aiErrorMessage'          => __( 'Sorry, an error occurred while generating an answer.', 'jetpack-search-pkg' ),
+			/* translators: %s: numeric error code. Surfaces the HTTP / JSON-RPC code that came back with the AI Answer failure, under the technical message. */
+			'aiErrorCode'             => __( 'Error code: %s', 'jetpack-search-pkg' ),
+			'aiExtendedLoadingHints'  => $ai_extended_loading_hints,
+		);
+	}
+
+	/**
+	 * Localized rotating loading hints shown while the "Show more" extended
+	 * AI answer streams. Mirrors the overlay's copy verbatim so the two
+	 * surfaces read the same to a visitor switching between them.
+	 *
+	 * @return array<int, string>
+	 */
+	protected static function build_ai_extended_loading_hints(): array {
+		if ( ! function_exists( '__' ) ) {
+			return array(
+				'Searching harder…',
+				'Looking deeper into this…',
+				'Finding a more complete answer…',
+				'Analyzing additional sources…',
+				'Gathering more details…',
+				'Pulling in more context…',
+				'Expanding the search…',
+				'Rolling up my virtual sleeves…',
+				'Digging through the archives…',
+				'Putting on my reading glasses…',
+				'Checking under the digital couch cushions…',
+				'Consulting the oracle…',
+				'Asking a smarter algorithm…',
+			);
+		}
+		return array(
+			__( 'Searching harder…', 'jetpack-search-pkg' ),
+			__( 'Looking deeper into this…', 'jetpack-search-pkg' ),
+			__( 'Finding a more complete answer…', 'jetpack-search-pkg' ),
+			__( 'Analyzing additional sources…', 'jetpack-search-pkg' ),
+			__( 'Gathering more details…', 'jetpack-search-pkg' ),
+			__( 'Pulling in more context…', 'jetpack-search-pkg' ),
+			__( 'Expanding the search…', 'jetpack-search-pkg' ),
+			__( 'Rolling up my virtual sleeves…', 'jetpack-search-pkg' ),
+			__( 'Digging through the archives…', 'jetpack-search-pkg' ),
+			__( 'Putting on my reading glasses…', 'jetpack-search-pkg' ),
+			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
+			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
+			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
 		);
 	}
 

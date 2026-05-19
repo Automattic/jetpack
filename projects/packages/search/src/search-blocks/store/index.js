@@ -1,8 +1,11 @@
 import {
 	store,
 	getContext,
+	getElement,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
+import { markdownToHtml } from '../../instant-search/lib/markdown';
+import { streamAiAnswer } from './ai-stream';
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
 import { isEventInsidePopoverRoot } from './popover-events';
@@ -16,6 +19,77 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+
+// Abort handles for in-flight AI Answer requests. Module-scope so a
+// re-trigger from `actions.search()` can cancel the previous stream — the
+// fetch action would otherwise have no way to reach across action calls to
+// abort.
+let aiBriefController = null;
+let aiExtendedController = null;
+// Last query whose AI answer we kicked off, so re-runs of `actions.search()`
+// triggered by filter/sort changes don't re-spam the agent endpoint for the
+// same text. Mirrors the overlay's `prevProps.searchQuery` comparison.
+let aiLastQuery = null;
+// True when an `ai-answer` block has mounted on the page. Pages without one
+// shouldn't pay for an SSE round-trip on every search — the fetch is a no-op
+// for them. Flipped from the block's `data-wp-init` callback.
+let aiBlockPresent = false;
+
+// Playful rotating loading hints shown under the panel while the extended
+// answer is in flight. Mirrors the overlay copy verbatim so the two surfaces
+// read the same to a user who toggles between them.
+const AI_EXTENDED_LOADING_HINTS = [
+	'Searching harder…',
+	'Looking deeper into this…',
+	'Finding a more complete answer…',
+	'Analyzing additional sources…',
+	'Gathering more details…',
+	'Pulling in more context…',
+	'Expanding the search…',
+	'Rolling up my virtual sleeves…',
+	'Digging through the archives…',
+	'Putting on my reading glasses…',
+	'Checking under the digital couch cushions…',
+	'Consulting the oracle…',
+	'Asking a smarter algorithm…',
+];
+
+/**
+ * Pick a random extended-answer loading hint. Reads `state.strings.ai*` so a
+ * site that ships translated copy via the PHP seed wins over the English
+ * defaults baked into the bundle.
+ *
+ * @param {object} liveState - The IA store state.
+ * @return {string} Loading hint.
+ */
+function pickExtendedLoadingHint( liveState ) {
+	const hints = Array.isArray( liveState.strings?.aiExtendedLoadingHints )
+		? liveState.strings.aiExtendedLoadingHints
+		: AI_EXTENDED_LOADING_HINTS;
+	if ( hints.length === 0 ) {
+		return '';
+	}
+	return hints[ Math.floor( Math.random() * hints.length ) ];
+}
+
+/**
+ * Reset the brief/extended answer state slice. Pulled out so every entry
+ * point that clears the panel (new query, disabled flag flips, etc.) writes
+ * the same shape.
+ */
+function resetAiAnswerState() {
+	state.aiBriefStatus = 'idle';
+	state.aiBriefText = '';
+	state.aiBriefCitations = [];
+	state.aiBriefError = null;
+	state.aiExtendedStatus = 'idle';
+	state.aiExtendedText = '';
+	state.aiExtendedCitations = [];
+	state.aiExtendedError = null;
+	state.aiExtendedLoadingText = '';
+	state.aiShowExtended = false;
+	state.aiSessionId = null;
+}
 
 // `withSyncEvent` opts an action into reading synchronous event APIs
 // (`event.currentTarget`, `event.preventDefault()`) without the
@@ -489,6 +563,31 @@ const { state, actions } = store( NAMESPACE, {
 		// the currently checked option becomes the implicit default.
 		sortMenuFocusedKey: null,
 
+		// AI Answers state. The `jetpack-search/ai-answer` block renders a
+		// panel that streams a brief answer first and (optionally) a longer
+		// "Show more" follow-up. State is split into brief/extended slices so
+		// the show-more flow can run a second SSE request alongside the first
+		// without overwriting its body, then `aiShowExtended` flips reads to
+		// the longer slice. Mirrors the React class state in the overlay's
+		// `search-app.jsx` so a future single-source refactor can merge them.
+		aiBriefStatus: 'idle',
+		aiBriefText: '',
+		aiBriefCitations: [],
+		aiBriefError: null,
+		aiExtendedStatus: 'idle',
+		aiExtendedText: '',
+		aiExtendedCitations: [],
+		aiExtendedError: null,
+		aiExtendedLoadingText: '',
+		aiShowExtended: false,
+		aiSessionId: null,
+		// `aiAnswersEnabled` is intentionally NOT declared here — declaring a
+		// JS default for a PHP-seeded key would overwrite the seeded value at
+		// hydration time (the IA runtime treats the JS-side `state` object as
+		// a defaults bag whose keys win over the seed). The seed is the
+		// source of truth; consumers read `state.aiAnswersEnabled` and the
+		// proxy resolves it through to the hydrated value.
+
 		// `resultsCountText` lives on the seeded state (PHP-side), not as a
 		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
 		// to the right initial string on a deep-link load. See
@@ -711,6 +810,95 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			return checkboxFilterItems( state, filterKey, config );
 		},
+
+		// AI Answers — derived state for the `ai-answer` block bindings. All
+		// of these flip on `aiShowExtended`: while it's false the panel reads
+		// the brief slice, true (after the user clicks Show more) and it
+		// reads the extended slice. Defining the visible-* getters once here
+		// keeps the render.php template free of brief/extended branching.
+		get aiVisibleStatus() {
+			return state.aiShowExtended ? state.aiExtendedStatus : state.aiBriefStatus;
+		},
+		get aiVisibleText() {
+			return state.aiShowExtended ? state.aiExtendedText : state.aiBriefText;
+		},
+		get aiVisibleCitations() {
+			const list = state.aiShowExtended ? state.aiExtendedCitations : state.aiBriefCitations;
+			return list.map( ( { title, url } ) => ( {
+				title,
+				url,
+				// Pre-resolve href on the seeded list so a `data-wp-bind--href`
+				// directive can read a plain string instead of running the
+				// regex check inline (`data-wp-bind` evaluates simple property
+				// paths only, not expressions).
+				href: /^https?:\/\//i.test( url ) ? url : '#',
+			} ) );
+		},
+		get aiVisibleError() {
+			return state.aiShowExtended ? state.aiExtendedError : state.aiBriefError;
+		},
+
+		// Panel-level visibility. `aiPanelHidden` collapses the whole block
+		// to `hidden` until something interesting happens — idle, no answers
+		// enabled, or no query yet — so an empty page or a search-less /
+		// disabled site doesn't reserve a wrapper of padding/border.
+		get aiPanelHidden() {
+			return ! state.aiAnswersEnabled || state.aiVisibleStatus === 'idle';
+		},
+		get aiIsLoading() {
+			return state.aiVisibleStatus === 'loading';
+		},
+		get aiIsError() {
+			return state.aiVisibleStatus === 'error';
+		},
+		// True when the panel has a streaming or final answer to render —
+		// the content region (text + citations) is gated on this so an early
+		// `streaming` event doesn't blink the placeholder loading row off
+		// before the first token paints.
+		get aiHasContent() {
+			return state.aiVisibleStatus === 'streaming' || state.aiVisibleStatus === 'done';
+		},
+		get aiHasCitations() {
+			return state.aiVisibleStatus === 'done' && state.aiVisibleCitations.length > 0;
+		},
+		get aiShowExtendedButton() {
+			return state.aiBriefStatus === 'done' && ! state.aiShowExtended;
+		},
+		get aiExtendedLoadingHintShown() {
+			return (
+				state.aiShowExtended &&
+				( state.aiExtendedStatus === 'loading' || state.aiExtendedStatus === 'streaming' ) &&
+				!! state.aiExtendedLoadingText
+			);
+		},
+
+		// Error sub-fields. The panel surfaces a primary localized message
+		// plus the API/network detail and (when present) the HTTP/JSON-RPC
+		// error code. Splitting them here lets `data-wp-text` bind to plain
+		// strings instead of computing them in the template, and matches the
+		// React overlay's `error.message` + `error.code` shape.
+		get aiErrorPrimary() {
+			return (
+				state.strings?.aiErrorMessage ?? 'Sorry, an error occurred while generating an answer.'
+			);
+		},
+		get aiHasErrorDetail() {
+			return !! state.aiVisibleError?.message;
+		},
+		get aiErrorDetail() {
+			return state.aiVisibleError?.message ?? '';
+		},
+		get aiHasErrorCode() {
+			return state.aiVisibleError?.code != null;
+		},
+		get aiErrorCodeText() {
+			const code = state.aiVisibleError?.code;
+			if ( code == null ) {
+				return '';
+			}
+			const template = state.strings?.aiErrorCode ?? 'Error code: %s';
+			return template.replace( '%s', String( code ) );
+		},
 	},
 
 	actions: {
@@ -746,6 +934,15 @@ const { state, actions } = store( NAMESPACE, {
 			state.isLoadingMore = false;
 			state.hasError = false;
 			state.resultsCountText = computeResultsCountText( state );
+			// Kick the AI answer off alongside the results fetch, but only
+			// when an `ai-answer` block has mounted on the page — pages with
+			// just search-input + results-list shouldn't pay for an SSE
+			// round-trip whose output nothing on the page renders. The
+			// action also gates on enable-flag + query length + a same-query
+			// memo, so filter/sort-only re-calls don't re-spam the agent.
+			if ( aiBlockPresent ) {
+				actions.fetchAiAnswer();
+			}
 			try {
 				const data = yield* fetchResults( null );
 				// A newer `search()` started while this one was in-flight — its
@@ -1180,6 +1377,139 @@ const { state, actions } = store( NAMESPACE, {
 				state.sortMenuFocusedKey = null;
 			}
 		},
+
+		/**
+		 * Start a brief AI answer for the current `state.searchQuery`. Called
+		 * from inside `actions.search()`, so the answer always tracks the
+		 * results fetch.
+		 *
+		 * Bails when: `aiAnswersEnabled` is false (admin toggle disables the
+		 * feature); the query is shorter than 3 chars (matching the overlay
+		 * heuristic); or the query is the same one we already kicked off
+		 * (filter/sort re-triggers `search()` without changing the text, and
+		 * the agent response would be identical).
+		 *
+		 * Aborts any in-flight brief / extended stream from the previous
+		 * query before starting the new one so a slow earlier response can't
+		 * land on top of fresh state.
+		 */
+		fetchAiAnswer() {
+			if ( ! state.aiAnswersEnabled ) {
+				return;
+			}
+			const query = state.searchQuery;
+			if ( ! query || query.length < 3 ) {
+				// Tear down whatever's on screen — a query that dropped below
+				// the threshold (cleared input, deletion) should hide the
+				// panel, not freeze the last answer in place.
+				if ( aiBriefController ) {
+					aiBriefController.abort();
+					aiBriefController = null;
+				}
+				if ( aiExtendedController ) {
+					aiExtendedController.abort();
+					aiExtendedController = null;
+				}
+				resetAiAnswerState();
+				aiLastQuery = null;
+				return;
+			}
+			if ( query === aiLastQuery ) {
+				return;
+			}
+			aiLastQuery = query;
+
+			if ( aiBriefController ) {
+				aiBriefController.abort();
+			}
+			if ( aiExtendedController ) {
+				aiExtendedController.abort();
+				aiExtendedController = null;
+			}
+			aiBriefController = new AbortController();
+
+			resetAiAnswerState();
+			state.aiBriefStatus = 'loading';
+
+			streamAiAnswer( {
+				controller: aiBriefController,
+				query,
+				siteId: state.siteId,
+				filters: state.activeFilters,
+				locale: state.locale,
+				homeUrl: state.homeUrl,
+				format: 'brief',
+				onDelta: chunk => {
+					state.aiBriefStatus = 'streaming';
+					state.aiBriefText += chunk;
+				},
+				onDone: citations => {
+					state.aiBriefStatus = 'done';
+					state.aiBriefCitations = Array.isArray( citations ) ? citations : [];
+				},
+				onError: error => {
+					state.aiBriefStatus = 'error';
+					state.aiBriefError = error;
+				},
+				onSessionId: id => {
+					state.aiSessionId = id;
+				},
+			} );
+		},
+
+		/**
+		 * Trigger the longer "Show more" follow-up. Reuses the session ID the
+		 * brief response handed back so the agent can keep its earlier
+		 * context. No-ops if the brief answer hasn't finished — the brief
+		 * Show-more button is only rendered when `aiBriefStatus === 'done'`,
+		 * but a slow click after a re-fetch could still race the brief.
+		 */
+		showExtendedAiAnswer() {
+			if ( ! state.aiAnswersEnabled ) {
+				return;
+			}
+			if ( state.aiBriefStatus !== 'done' ) {
+				return;
+			}
+			const query = state.searchQuery;
+			if ( ! query || query.length < 3 ) {
+				return;
+			}
+			if ( aiExtendedController ) {
+				aiExtendedController.abort();
+			}
+			aiExtendedController = new AbortController();
+
+			state.aiShowExtended = true;
+			state.aiExtendedStatus = 'loading';
+			state.aiExtendedText = '';
+			state.aiExtendedCitations = [];
+			state.aiExtendedError = null;
+			state.aiExtendedLoadingText = pickExtendedLoadingHint( state );
+
+			streamAiAnswer( {
+				controller: aiExtendedController,
+				query,
+				siteId: state.siteId,
+				filters: state.activeFilters,
+				locale: state.locale,
+				homeUrl: state.homeUrl,
+				format: 'extended',
+				sessionId: state.aiSessionId,
+				onDelta: chunk => {
+					state.aiExtendedStatus = 'streaming';
+					state.aiExtendedText += chunk;
+				},
+				onDone: citations => {
+					state.aiExtendedStatus = 'done';
+					state.aiExtendedCitations = Array.isArray( citations ) ? citations : [];
+				},
+				onError: error => {
+					state.aiExtendedStatus = 'error';
+					state.aiExtendedError = error;
+				},
+			} );
+		},
 	},
 
 	callbacks: {
@@ -1234,6 +1564,45 @@ const { state, actions } = store( NAMESPACE, {
 				// spinner and also drop the skeleton, since no fetch is coming.
 				state.isLoading = false;
 				state.skeletonHidden = true;
+			}
+		},
+
+		/**
+		 * Fires when the `ai-answer` block mounts. Flips the module-scope
+		 * `aiBlockPresent` flag so `actions.search()` knows to dispatch the
+		 * AI fetch alongside the results fetch, and kicks off a first fetch
+		 * for the URL-seeded query so a deep-link load gets an answer
+		 * without the user re-submitting the search input.
+		 */
+		initializeAiAnswer() {
+			aiBlockPresent = true;
+			if ( state.searchQuery && state.searchQuery.length >= 3 ) {
+				actions.fetchAiAnswer();
+			}
+		},
+
+		/**
+		 * Render the AI answer markdown into the panel's content element via
+		 * `innerHTML`. The Interactivity API has no `data-wp-html` directive
+		 * (reactively setting innerHTML is intentionally not built in), so
+		 * the AI Answer block binds `data-wp-watch` to this callback and
+		 * lets the markdown→HTML render run imperatively. The reactive read
+		 * of `state.aiVisibleText` inside `markdownToHtml()` is what wires
+		 * the dependency tracking, so subsequent token writes re-fire it.
+		 *
+		 * Safe because `markdownToHtml()` escapes every text segment before
+		 * stitching in its own tag set — see the inline-format pass in
+		 * `instant-search/lib/markdown.js`.
+		 */
+		renderAiAnswerHtml() {
+			const element = getElement?.();
+			const ref = element?.ref;
+			if ( ! ref ) {
+				return;
+			}
+			const html = markdownToHtml( state.aiVisibleText );
+			if ( ref.innerHTML !== html ) {
+				ref.innerHTML = html;
 			}
 		},
 
