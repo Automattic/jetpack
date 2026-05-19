@@ -13,6 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCategoriesQuery } from './hooks/use-categories-query';
+import { parseErrorMessage } from './parse-error-message';
 
 // Sentinel for the "create new category" option in the select.
 const CREATE_NEW = '__create_new__';
@@ -25,28 +26,22 @@ interface CategoryPickerProps {
 	// containing modal can gate its own Confirm button until the user either
 	// finishes or cancels the inline flow.
 	onCreatingChange?: ( isCreating: boolean ) => void;
+	// Lets the parent block its own dismissal while the create is in flight;
+	// otherwise a late `onCreateSuccess` could land after the user cancelled.
+	onSavingChange?: ( saving: boolean ) => void;
+	// Returning a Promise lets the picker hold its busy state through the
+	// parent's commit and reset only on rejection — on success the parent
+	// unmounts the picker, avoiding a flash back to the dropdown.
+	onCreateSuccess?: ( id: number ) => void | Promise< void >;
 }
-
-const parseErrorMessage = ( error: unknown, fallback: string ): string => {
-	if ( error instanceof Error ) {
-		return error.message;
-	}
-	if (
-		error &&
-		typeof error === 'object' &&
-		'message' in error &&
-		typeof ( error as { message: unknown } ).message === 'string'
-	) {
-		return ( error as { message: string } ).message;
-	}
-	return fallback;
-};
 
 const CategoryPicker = ( {
 	selectedId,
 	onSelect,
 	disabled = false,
 	onCreatingChange,
+	onSavingChange,
+	onCreateSuccess,
 }: CategoryPickerProps ) => {
 	const { data: categories = [], isLoading } = useCategoriesQuery();
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -67,7 +62,17 @@ const CategoryPicker = ( {
 		onCreatingChange?.( isCreating );
 	}, [ isCreating, onCreatingChange ] );
 
+	useEffect( () => {
+		onSavingChange?.( saving );
+	}, [ saving, onSavingChange ] );
+
 	const trimmedName = newName.trim();
+
+	const resetCreate = useCallback( () => {
+		setIsCreating( false );
+		setNewName( '' );
+		setCreateError( null );
+	}, [] );
 
 	const handleSelectChange = useCallback(
 		( value: string ) => {
@@ -80,22 +85,18 @@ const CategoryPicker = ( {
 			// Picking a regular option from the dropdown while the inline
 			// create form is open should dismiss it; otherwise the select
 			// snaps back to CREATE_NEW on the next render.
-			setIsCreating( false );
-			setNewName( '' );
-			setCreateError( null );
+			resetCreate();
 			onSelect( Number( value ) || 0 );
 		},
-		[ onSelect ]
+		[ onSelect, resetCreate ]
 	);
 
 	const cancelCreate = useCallback( () => {
 		if ( saving ) {
 			return;
 		}
-		setIsCreating( false );
-		setNewName( '' );
-		setCreateError( null );
-	}, [ saving ] );
+		resetCreate();
+	}, [ saving, resetCreate ] );
 
 	const createCategory = useCallback( async () => {
 		if ( ! trimmedName ) {
@@ -118,20 +119,38 @@ const CategoryPicker = ( {
 					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
 				);
 			}
+			const newId = Number( result.id );
+			onSelect( newId );
+			if ( onCreateSuccess ) {
+				try {
+					await onCreateSuccess( newId );
+				} catch {
+					setIsCreating( false );
+					setNewName( '' );
+					setSaving( false );
+				}
+				return;
+			}
 			setIsCreating( false );
 			setNewName( '' );
-			onSelect( Number( result.id ) );
+			setSaving( false );
 		} catch ( err ) {
-			setCreateError(
-				parseErrorMessage(
-					err,
-					__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
-				)
-			);
-		} finally {
+			// WordPress core surfaces `term_exists` with a long parent-aware
+			// message ("A term with the name provided already exists with
+			// this parent."). The picker isn't exposing parent categories,
+			// so substitute a shorter, plain-language message.
+			const code = ( err as { code?: string } )?.code;
+			const message =
+				code === 'term_exists'
+					? __( 'This category already exists.', 'jetpack-podcast' )
+					: parseErrorMessage(
+							err,
+							__( 'Could not create the category. Please try again.', 'jetpack-podcast' )
+					  );
+			setCreateError( message );
 			setSaving( false );
 		}
-	}, [ trimmedName, saveEntityRecord, onSelect ] );
+	}, [ trimmedName, saveEntityRecord, onSelect, onCreateSuccess ] );
 
 	const options: Array< { label: string; value: string } > = [
 		{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
