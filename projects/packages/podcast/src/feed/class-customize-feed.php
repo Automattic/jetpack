@@ -132,27 +132,18 @@ class Customize_Feed {
 	 * Channel-level podcast tags (rss2_head).
 	 */
 	public static function output_channel_tags() {
-		/**
-		 * Show summary
-		 */
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
 			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
-		/**
-		 * Show author / talent name
-		 */
 		$author = (string) get_option( 'podcasting_talent_name', '' );
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
-		/**
-		 * Owner contact email
-		 */
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
 			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
@@ -160,33 +151,21 @@ class Customize_Feed {
 			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
 
-		/**
-		 * Copyright notice
-		 */
 		$copyright = (string) get_option( 'podcasting_copyright', '' );
 		if ( '' !== $copyright ) {
 			echo '<copyright>' . esc_xml( wp_strip_all_tags( $copyright ) ) . "</copyright>\n";
 		}
 
-		/**
-		 * Explicit content flag
-		 */
 		$explicit = self::explicit_string();
 		echo '<itunes:explicit>' . esc_html( $explicit ) . "</itunes:explicit>\n";
 		echo '<googleplay:explicit>' . esc_html( $explicit ) . "</googleplay:explicit>\n";
 
-		/**
-		 * Show cover art
-		 */
 		$image = self::show_image_url();
 		if ( '' !== $image ) {
 			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
 			echo "<googleplay:image href='" . esc_url( $image ) . "' />\n";
 		}
 
-		/**
-		 * Categories (up to 3 itunes:category tags)
-		 */
 		echo self::category_tag( (string) get_option( 'podcasting_category_1', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
 		echo self::category_tag( (string) get_option( 'podcasting_category_2', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
 		echo self::category_tag( (string) get_option( 'podcasting_category_3', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
@@ -306,14 +285,9 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Drop posts that wouldn't produce an `<enclosure>` from the podcast feed
-	 * loop. A podcast item without an enclosure is invalid per Apple's spec and
-	 * can take down the whole submission. The `enclosure` post meta is what
-	 * WP's `rss_enclosure()` reads to decide whether to emit the tag, so it's
-	 * the authoritative signal for "will this item carry audio?".
-	 *
-	 * Self-gated to the main podcast-category feed query because `the_posts`
-	 * fires for every `WP_Query` on the request.
+	 * A podcast item without an enclosure is invalid per Apple's spec and can
+	 * take down the whole submission. The `enclosure` post meta is what
+	 * `rss_enclosure()` reads, so it's the authoritative signal here too.
 	 *
 	 * @param WP_Post[] $posts Posts about to be looped over.
 	 * @param \WP_Query $query Query that produced them.
@@ -346,17 +320,15 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Open an output buffer at the top of every `<item>` so `flush_item_buffer`
-	 * can rewrite `<media:*>` URLs before they reach the wire.
+	 * Open the per-item output buffer drained by `flush_item_buffer`.
 	 */
 	public static function start_item_buffer() {
 		ob_start();
 	}
 
 	/**
-	 * Close the per-item buffer and route every non-gravatar `<media:thumbnail>`
-	 * / `<media:content>` URL through Photon at 3000×3000. Gravatar avatars
-	 * are already appropriately sized and aren't part of the cover-art surface.
+	 * Photon-rewrite `<media:*>` URLs emitted by upstream wpcom code that we
+	 * can't filter at the source. Gravatar avatars are already sized.
 	 */
 	public static function flush_item_buffer() {
 		$output = (string) ob_get_clean();
