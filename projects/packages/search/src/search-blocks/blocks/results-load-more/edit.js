@@ -1,11 +1,14 @@
 /**
  * Editor preview for jetpack-search/results-load-more.
  *
- * Includes the (hidden) loading-spinner span render.php emits so the
- * `.jetpack-search-load-more__spinner` CSS hook is available to style. The
- * Inspector exposes a text input for the `buttonLabel` attribute; the saved
- * value (or the translated default) is what render.php prints on the front
- * end.
+ * The inner button carries `wp-block-button__link` + `wp-element-button` so
+ * it picks up the theme's full core/button look (border-radius, hover, etc.)
+ * — and a "Compact" block style trims padding/font for themes whose button
+ * baseline is too large. Includes the (hidden) loading-spinner span
+ * render.php emits so the `.jetpack-search-load-more__spinner` CSS hook is
+ * available to style. The Inspector exposes a text input for the
+ * `buttonLabel` attribute; the saved value (or the translated default) is
+ * what render.php prints on the front end.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
@@ -44,7 +47,7 @@ export default function LoadMoreEdit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				<button
 					type="button"
-					className="wp-element-button jetpack-search-load-more__button"
+					className="jetpack-search-load-more__button wp-block-button__link wp-element-button"
 					disabled
 				>
 					{ buttonLabel }

@@ -7,6 +7,10 @@
 	"category": "jetpack-search",
 	"description": "Loads the next page of results. Powered by Jetpack Search.",
 	"supports": { "html": false, "interactivity": true },
+	"styles": [
+		{ "name": "default", "label": "Default", "isDefault": true },
+		{ "name": "compact", "label": "Compact" }
+	],
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
 		"buttonLabel": { "type": "string", "default": "" }
