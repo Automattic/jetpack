@@ -390,6 +390,8 @@ class Create_AI_Podcast_Page {
 				'relativeDays'        => __( 'in %d days', 'jetpack-podcast' ),
 				// translators: %s: formatted date, e.g. "May 20, 2026".
 				'relativeOn'          => __( 'on %s', 'jetpack-podcast' ),
+				'trialBannerTitle'    => __( 'Try before you buy', 'jetpack-podcast' ),
+				'trialBannerMessage'  => __( 'Generate a podcast from your posts and see how it sounds on your site. Free trial is limited to one podcast episode.', 'jetpack-podcast' ),
 				'runningLowTitle'     => __( 'Running low', 'jetpack-podcast' ),
 				'runningLowMessage'   => __( 'Upgrade your plan to keep generating without waiting for the monthly refresh.', 'jetpack-podcast' ),
 				'outOfCreditsTitle'   => __( 'Out of credits', 'jetpack-podcast' ),
@@ -397,6 +399,7 @@ class Create_AI_Podcast_Page {
 				'outOfCreditsWait'    => __( 'Your credits will refresh %s.', 'jetpack-podcast' ),
 				// translators: %s: relative time, e.g. "in 12 days" or "tomorrow".
 				'outOfCreditsUpgrade' => __( 'Upgrade your plan for more credits, or wait until they refresh %s.', 'jetpack-podcast' ),
+				'outOfTrialCredits'   => __( 'You have used your one-time trial credit. Upgrade your plan for more credits.', 'jetpack-podcast' ),
 				'noPostsFound'        => __( 'No posts match.', 'jetpack-podcast' ),
 				'loadingPosts'        => __( 'Loading posts…', 'jetpack-podcast' ),
 				'pickPosts'           => __( 'Select at least one post to continue.', 'jetpack-podcast' ),
