@@ -23,12 +23,29 @@ import type { MockLibraryItem, VideoRating } from '../../src/dashboard/types/lib
 const isEditable = ( item: MockLibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
 
+/**
+ * Parent breadcrumb item — labelled "VideoPress" in every case, but the
+ * link target depends on where the user arrived from. Overview's ranking
+ * links tag their navigation with `state: { from: 'overview' }`; we read
+ * that here so the breadcrumb routes back to the Overview tab instead of
+ * defaulting to Library. TanStack stores user state on `window.history.state`,
+ * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
+ * doesn't re-export from TanStack). Stable for the lifetime of the mount,
+ * so no reactivity hook is needed.
+ *
+ * @return The parent breadcrumb item.
+ */
+const getParentBreadcrumbItem = (): { label: string; to: string } => {
+	const from = ( window.history.state as { from?: string } | null )?.from;
+	return { label: 'VideoPress', to: from === 'overview' ? '/' : '/library' };
+};
+
 const NotFound = () => (
 	<AdminPage
 		breadcrumbs={
 			<Breadcrumbs
 				items={ [
-					{ label: 'VideoPress', to: '/library' },
+					getParentBreadcrumbItem(),
 					{ label: __( 'Not found', 'jetpack-videopress-pkg' ) },
 				] }
 			/>
@@ -51,7 +68,7 @@ const Loading = () => (
 		breadcrumbs={
 			<Breadcrumbs
 				items={ [
-					{ label: 'VideoPress', to: '/library' },
+					getParentBreadcrumbItem(),
 					{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
 				] }
 			/>
@@ -109,9 +126,7 @@ const Editor = ( {
 	return (
 		<AdminPage
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [ { label: 'VideoPress', to: '/library' }, { label: video.title } ] }
-				/>
+				<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
 			}
 			actions={
 				<HeaderActions
