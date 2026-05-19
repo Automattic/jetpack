@@ -43,12 +43,12 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to false (opt-in). Use this filter to enable the feature
-		 * in specific environments while the feature is under development.
+		 * Defaults to the AI Editorial Review feature flag. Use this filter
+		 * as a host-level kill switch for the whole sidebar entrypoint.
 		 *
 		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_review_mediator_enabled() ) ) {
 			return;
 		}
 
@@ -58,6 +58,10 @@ class Jetpack_AI_Sidebar {
 		add_filter( 'agents_manager_agent_providers', array( __CLASS__, 'register_provider' ), 20 );
 
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
+
+		// Allow jetpack-mu-wpcom's bundled Agents Manager to mount in the
+		// post editor on WordPress.com and Atomic sites.
+		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_in_post_editor' ) );
 
 		// Load AM from CDN if not already present.
 		// Priority 200: runs AFTER the AM class in jetpack-mu-wpcom (priority 101),
@@ -86,7 +90,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -122,7 +126,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -499,6 +503,20 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Enable Agents Manager in the post editor when AI Editorial Review is available.
+	 *
+	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
+	 * @return bool
+	 */
+	public static function enable_agents_manager_in_post_editor( $enabled ): bool {
+		if ( $enabled ) {
+			return true;
+		}
+
+		return self::is_review_mediator_enabled() && self::is_post_editor();
+	}
+
+	/**
 	 * Inject reviewMediatorEnabled into an externally enqueued AM bundle.
 	 *
 	 * The design-intended hook is jetpack_ai_sidebar_agents_manager_data, applied
@@ -519,7 +537,7 @@ class Jetpack_AI_Sidebar {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -555,6 +573,22 @@ class Jetpack_AI_Sidebar {
 
 		$screen = get_current_screen();
 		return $screen && $screen->is_block_editor();
+	}
+
+	/**
+	 * Check if the current screen is the post block editor.
+	 *
+	 * @return bool
+	 */
+	private static function is_post_editor(): bool {
+		if ( ! self::is_block_editor() ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen instanceof \WP_Screen
+			&& 'post' === $screen->base
+			&& 'post' === $screen->post_type;
 	}
 
 	/**
