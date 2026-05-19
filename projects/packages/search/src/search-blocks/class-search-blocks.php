@@ -1316,6 +1316,14 @@ class Search_Blocks {
 			// flips off between SSR and hydration.
 			'aiAnswersEnabled'           => AI_Answers::is_enabled(),
 
+			// Localized rotating loading hints shown while the "Show more"
+			// extended AI answer streams. Lives on the top-level seed (not
+			// under `strings`) because the `strings` map is typed
+			// `array<string,string>` for Phan, and an `array<int,string>`
+			// value would break that contract — splitting it out keeps both
+			// surfaces strictly typed.
+			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
+
 			// Display labels for `wc_stock_status` selections, keyed by slug.
 			// Seeded from the status block's static option list so an active-
 			// filters chip for "instock" reads "In stock" rather than the raw
@@ -1554,7 +1562,6 @@ class Search_Blocks {
 	 * @return array<string, string>
 	 */
 	protected static function build_initial_strings(): array {
-		$ai_extended_loading_hints = static::build_ai_extended_loading_hints();
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
 				'searching'               => 'Searching…',
@@ -1573,7 +1580,6 @@ class Search_Blocks {
 				'suggestionLabelPost'     => 'Articles',
 				'aiErrorMessage'          => 'Sorry, an error occurred while generating an answer.',
 				'aiErrorCode'             => 'Error code: %s',
-				'aiExtendedLoadingHints'  => $ai_extended_loading_hints,
 			);
 		}
 		return array(
@@ -1608,7 +1614,6 @@ class Search_Blocks {
 			'aiErrorMessage'          => __( 'Sorry, an error occurred while generating an answer.', 'jetpack-search-pkg' ),
 			/* translators: %s: numeric error code. Surfaces the HTTP / JSON-RPC code that came back with the AI Answer failure, under the technical message. */
 			'aiErrorCode'             => __( 'Error code: %s', 'jetpack-search-pkg' ),
-			'aiExtendedLoadingHints'  => $ai_extended_loading_hints,
 		);
 	}
 

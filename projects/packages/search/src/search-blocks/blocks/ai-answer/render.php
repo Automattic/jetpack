@@ -12,14 +12,15 @@
 
 namespace Automattic\Jetpack\Search;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
 if ( ! AI_Answers::is_enabled() ) {
 	return '';
 }
 
+// $attributes is injected by WordPress at block-render time via the
+// `render_callback` include scope; static analysis can't see the binding,
+// so both phpcs and Phan need a one-line suppression on the next statement.
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$attrs           = (array) $attributes;
+$attrs           = (array) $attributes; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 $heading_raw     = trim( (string) ( $attrs['heading'] ?? '' ) );
 $heading         = '' === $heading_raw ? __( 'AI answer', 'jetpack-search-pkg' ) : $heading_raw;
 $show_citations  = ! isset( $attrs['showCitations'] ) || $attrs['showCitations'];
@@ -89,7 +90,7 @@ $wrapper_attrs   = get_block_wrapper_attributes(
 		>
 			<template
 				data-wp-each--citation="state.aiVisibleCitations"
-				data-wp-key="context.citation.url"
+				data-wp-key="context.citation.key"
 			>
 				<li>
 					<a

@@ -33,6 +33,13 @@ let aiLastQuery = null;
 // True when an `ai-answer` block has mounted on the page. Pages without one
 // shouldn't pay for an SSE round-trip on every search — the fetch is a no-op
 // for them. Flipped from the block's `data-wp-init` callback.
+//
+// Intentionally never flipped back to `false`. The flag is per-page-load,
+// not per-mount: once an AI Answer block has been on screen during this
+// page, treat AI fetches as in-scope until the next full document load.
+// WordPress's Interactivity runtime isn't a SPA, so a virtual unmount that
+// keeps the document alive isn't a scenario today; if that changes, a
+// matching `cleanup` callback would need to clear this flag.
 let aiBlockPresent = false;
 
 // Playful rotating loading hints shown under the panel while the extended
@@ -55,16 +62,16 @@ const AI_EXTENDED_LOADING_HINTS = [
 ];
 
 /**
- * Pick a random extended-answer loading hint. Reads `state.strings.ai*` so a
- * site that ships translated copy via the PHP seed wins over the English
- * defaults baked into the bundle.
+ * Pick a random extended-answer loading hint. Reads
+ * `state.aiExtendedLoadingHints` so a site that ships translated copy via
+ * the PHP seed wins over the English defaults baked into the bundle.
  *
  * @param {object} liveState - The IA store state.
  * @return {string} Loading hint.
  */
 function pickExtendedLoadingHint( liveState ) {
-	const hints = Array.isArray( liveState.strings?.aiExtendedLoadingHints )
-		? liveState.strings.aiExtendedLoadingHints
+	const hints = Array.isArray( liveState.aiExtendedLoadingHints )
+		? liveState.aiExtendedLoadingHints
 		: AI_EXTENDED_LOADING_HINTS;
 	if ( hints.length === 0 ) {
 		return '';
@@ -824,7 +831,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 		get aiVisibleCitations() {
 			const list = state.aiShowExtended ? state.aiExtendedCitations : state.aiBriefCitations;
-			return list.map( ( { title, url } ) => ( {
+			return list.map( ( { title, url }, index ) => ( {
 				title,
 				url,
 				// Pre-resolve href on the seeded list so a `data-wp-bind--href`
@@ -832,6 +839,11 @@ const { state, actions } = store( NAMESPACE, {
 				// regex check inline (`data-wp-bind` evaluates simple property
 				// paths only, not expressions).
 				href: /^https?:\/\//i.test( url ) ? url : '#',
+				// `index`-prefixed key so a duplicate URL in the agent's
+				// citation list doesn't collide on the IA `data-wp-each --key`
+				// dedupe pass — the runtime would silently drop a duplicate
+				// without it.
+				key: `${ index }-${ url }`,
 			} ) );
 		},
 		get aiVisibleError() {
