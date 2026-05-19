@@ -113,7 +113,9 @@ const RenamerPlugin = {
 				},
 				assets => {
 					for ( const [ name, asset ] of Object.entries( assets ) ) {
-						const m = name.match( /^(css\/(?:grunion|editor-ui))((?:\.min)?)\.rtl\.css$/ );
+						const m = name.match(
+							/^(css\/(?:grunion|grunion-admin|editor-ui))((?:\.min)?)\.rtl\.css$/
+						);
 						if ( m ) {
 							delete assets[ name ];
 							assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;
