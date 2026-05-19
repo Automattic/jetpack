@@ -42,16 +42,18 @@ const CategorySetupModal = ( {
 	// window between picker resolve and modal close — visible as a flash.
 	const [ committingFromCreate, setCommittingFromCreate ] = useState( false );
 
+	const isSaving = saving || pickerSaving;
+
 	const requestClose = useCallback( () => {
 		// Block dismissal while a save is in flight so the in-flight promise
 		// can't mutate settings after the user thought they cancelled. The
 		// picker's own save needs the same gate, because its success callback
 		// reaches back here to commit settings.
-		if ( saving || pickerSaving ) {
+		if ( isSaving ) {
 			return;
 		}
 		onClose();
-	}, [ saving, pickerSaving, onClose ] );
+	}, [ isSaving, onClose ] );
 
 	const onConfirm = useCallback(
 		// `idArg` lets the inline-create path commit the save in the same click,
@@ -122,8 +124,8 @@ const CategorySetupModal = ( {
 			// Belt-and-suspenders: some Modal force-close paths skip
 			// `onRequestClose`, so disable Esc/backdrop dismissal directly
 			// while a save is in flight.
-			shouldCloseOnEsc={ ! ( saving || pickerSaving ) }
-			shouldCloseOnClickOutside={ ! ( saving || pickerSaving ) }
+			shouldCloseOnEsc={ ! isSaving }
+			shouldCloseOnClickOutside={ ! isSaving }
 		>
 			<VStack spacing={ 4 }>
 				<Text weight={ 600 }>
@@ -156,7 +158,7 @@ const CategorySetupModal = ( {
 				     in for one render as the picker collapses. */ }
 				{ ! pickerCreating && ! committingFromCreate && (
 					<HStack justify="flex-end" spacing={ 3 }>
-						<Button variant="tertiary" onClick={ requestClose } disabled={ saving || pickerSaving }>
+						<Button variant="tertiary" onClick={ requestClose } disabled={ isSaving }>
 							{ __( 'Cancel', 'jetpack-podcast' ) }
 						</Button>
 						<Button
