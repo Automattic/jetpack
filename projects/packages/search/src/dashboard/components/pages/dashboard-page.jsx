@@ -157,6 +157,11 @@ export default function DashboardPage( { isLoading = false } ) {
 		! isReaderChatAvailable ||
 		! isReaderChatEnabled ||
 		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const hasAdditionalSettings =
+		isReaderChatAvailable ||
+		isAIAgentAccessAvailable ||
+		( supportsInstantSearch && isInstantSearchEnabled ) ||
+		showWooCommerceProductSearchControl;
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -267,6 +272,14 @@ export default function DashboardPage( { isLoading = false } ) {
 											<div className="jp-search-dashboard-row">
 												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 													<ExperienceSelector />
+													{ hasAdditionalSettings && (
+														<h2
+															id="jp-search-additional-settings-heading"
+															className="jp-search-additional-settings__heading"
+														>
+															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
+														</h2>
+													) }
 													{ isReaderChatAvailable && (
 														<div className="jp-search-settings-card">
 															<ReaderChatControl
