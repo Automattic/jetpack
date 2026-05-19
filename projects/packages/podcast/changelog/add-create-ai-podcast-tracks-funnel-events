@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Create AI Podcast: fire generation_succeeded / generation_failed / generation_timed_out Tracks events from the job poller, and instrument the post-publish podcast promo (shown / clicked / dismissed).

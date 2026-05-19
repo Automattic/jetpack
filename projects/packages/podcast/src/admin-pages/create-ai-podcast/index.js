@@ -227,6 +227,12 @@
 
 	let episodesState = bootstrapEpisodes;
 	let lastQuotaSnapshot = null;
+	// Tracks the in-flight generation so terminal Tracks events
+	// (succeeded / failed / timed_out) can carry the same dimensions as
+	// `wpcom_create_ai_podcast_generation_requested` plus `elapsed_ms`.
+	// `resumed: true` marks the cross-reload bootstrap path where the
+	// requested-dimensions context isn't recoverable.
+	let currentGeneration = null;
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
@@ -756,6 +762,7 @@
 	 */
 	function onSucceeded( editUrl ) {
 		setFormDisabled( false );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_succeeded' );
 		setStatus( 'success', data.i18n.succeeded, {
 			link: {
 				href: editUrl,
@@ -769,6 +776,30 @@
 		} );
 		refreshInfo();
 		refreshEpisodes();
+	}
+
+	/**
+	 * Fire a terminal generation Tracks event with the dimensions captured at
+	 * request time plus elapsed_ms, then clear the in-flight context so a
+	 * later unrelated failure doesn't double-fire. Safe to call when no
+	 * generation is in flight (no-ops).
+	 *
+	 * @param eventName  - Full Tracks event name.
+	 * @param extraProps - Additional event-specific properties (merged in).
+	 */
+	function recordGenerationOutcome( eventName, extraProps = {} ) {
+		const ctx = currentGeneration;
+		if ( ! ctx ) {
+			return;
+		}
+		currentGeneration = null;
+		recordEvent( eventName, {
+			...ctx.props,
+			job_id: ctx.jobId ?? 0,
+			elapsed_ms: ctx.startedAt ? Date.now() - ctx.startedAt : 0,
+			resumed: !! ctx.resumed,
+			...extraProps,
+		} );
 	}
 
 	/**
@@ -801,6 +832,11 @@
 
 	function onFailed( message, options = {} ) {
 		setFormDisabled( false );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_failed', {
+			error_code: options.errorCode || '',
+			error_message: message || '',
+			rate_limited: !! options.rateLimited,
+		} );
 		const statusOptions = options.suppressRetry
 			? undefined
 			: {
@@ -817,6 +853,7 @@
 	 */
 	function onTimedOut() {
 		setFormDisabled( false );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_timed_out' );
 		setStatus( 'error', data.i18n.timedOut, {
 			action: {
 				label: data.i18n.tryAgain,
@@ -861,12 +898,18 @@
 				const failureErr = { code: response.errorCode, message: failureMessage };
 				onFailed( failureMessage, {
 					suppressRetry: isEmptyWindowError( failureErr ) || isRateLimitedError( failureErr ),
+					errorCode: response.errorCode || '',
+					rateLimited: isRateLimitedError( failureErr ),
 				} );
 				return;
 			}
 			startPolling( jobId, startedAt );
 		} catch ( err ) {
-			onFailed( err?.message, { suppressRetry: isRateLimitedError( err ) } );
+			onFailed( err?.message, {
+				suppressRetry: isRateLimitedError( err ),
+				errorCode: err?.code || '',
+				rateLimited: isRateLimitedError( err ),
+			} );
 		}
 	}
 
@@ -902,7 +945,7 @@
 			return;
 		}
 
-		recordEvent( 'wpcom_create_ai_podcast_generation_requested', {
+		const requestedProps = {
 			source: sourceMode,
 			length: payload.length,
 			voice_preset: payload.voicePreset,
@@ -912,7 +955,16 @@
 			has_prompt: !! payload.prompt,
 			credits_remaining: lastQuotaSnapshot?.remaining ?? 0,
 			credits_quota: lastQuotaSnapshot?.quota ?? 0,
-		} );
+		};
+		recordEvent( 'wpcom_create_ai_podcast_generation_requested', requestedProps );
+		// Capture the in-flight context up-front so a failed enqueue (429,
+		// network, etc.) still fires `generation_failed` with the same dims.
+		currentGeneration = {
+			props: requestedProps,
+			startedAt: Date.now(),
+			jobId: null,
+			resumed: false,
+		};
 
 		try {
 			const response = await apiCall( {
@@ -925,11 +977,15 @@
 				onFailed();
 				return;
 			}
+			currentGeneration.jobId = jobId;
+			currentGeneration.startedAt = parseStartedAt( response.createdAt );
 			setStatus( 'progress', data.i18n.polling );
-			startPolling( jobId, parseStartedAt( response.createdAt ) );
+			startPolling( jobId, currentGeneration.startedAt );
 		} catch ( err ) {
 			onFailed( err?.message, {
 				suppressRetry: isEmptyWindowError( err ) || isRateLimitedError( err ),
+				errorCode: err?.code || '',
+				rateLimited: isRateLimitedError( err ),
 			} );
 		}
 	}
@@ -1267,6 +1323,10 @@
 	function resumePolling( jobId, startedAt ) {
 		setFormDisabled( true );
 		setStatus( 'progress', data.i18n.polling );
+		// Bootstrap doesn't carry the original generation_requested dims, so the
+		// terminal Tracks event will only report job_id, elapsed_ms (best-effort
+		// from createdAt), and resumed:true.
+		currentGeneration = { props: {}, startedAt, jobId, resumed: true };
 		startPolling( jobId, startedAt );
 	}
 
