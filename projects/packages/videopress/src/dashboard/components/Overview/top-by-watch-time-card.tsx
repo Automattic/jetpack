@@ -3,6 +3,7 @@ import { Link } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import { formatWatchTime } from '../../utils/format';
 import RankingCard, { type RankingItem } from './ranking-card';
+import VideoTitleLink from './video-title-link';
 import type { TopVideo } from '../../types/stats';
 import type { ReactElement } from 'react';
 
@@ -27,7 +28,7 @@ type Props = {
 export default function TopByWatchTimeCard( { videos, isLoading }: Props ): ReactElement {
 	const items: RankingItem[] = videos.map( v => ( {
 		key: v.id,
-		label: <Link to={ `/video/${ v.id }` }>{ v.title }</Link>,
+		label: <VideoTitleLink to={ `/video/${ v.id }` }>{ v.title }</VideoTitleLink>,
 		value: v.watchTimeSeconds,
 	} ) );
 

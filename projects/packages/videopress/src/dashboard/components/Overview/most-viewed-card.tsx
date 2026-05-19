@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import RankingCard, { type RankingItem } from './ranking-card';
+import VideoTitleLink from './video-title-link';
 import type { TopVideo } from '../../types/stats';
 import type { ReactElement } from 'react';
 
@@ -24,7 +25,7 @@ type Props = {
 export default function MostViewedCard( { videos, isLoading }: Props ): ReactElement {
 	const items: RankingItem[] = videos.map( v => ( {
 		key: v.id,
-		label: <Link to={ `/video/${ v.id }` }>{ v.title }</Link>,
+		label: <VideoTitleLink to={ `/video/${ v.id }` }>{ v.title }</VideoTitleLink>,
 		value: v.views,
 	} ) );
 

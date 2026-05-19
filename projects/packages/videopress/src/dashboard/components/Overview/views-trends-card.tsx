@@ -301,6 +301,7 @@ export default function ViewsTrendsCard( {
 							data={ chartData }
 							showLegend
 							withGradientFill={ false }
+							curveType="monotone"
 							height={ CHART_HEIGHT }
 							options={ chartOptions }
 							renderTooltip={ renderTooltip }
