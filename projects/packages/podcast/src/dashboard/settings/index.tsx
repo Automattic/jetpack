@@ -96,10 +96,15 @@ const useFieldEditor = (
 			onBlur: commit,
 		},
 		onKeyDownSaveOnEnter: event => {
-			if ( event.key === 'Enter' ) {
-				event.preventDefault();
-				commit();
+			// `isComposing` (and the legacy 229 keyCode) is true while an IME
+			// candidate window is open. CJK users press Enter to accept the
+			// candidate; intercepting that keypress would skip the character
+			// and commit the pre-composition value.
+			if ( event.key !== 'Enter' || event.nativeEvent.isComposing || event.keyCode === 229 ) {
+				return;
 			}
+			event.preventDefault();
+			commit();
 		},
 	};
 };
