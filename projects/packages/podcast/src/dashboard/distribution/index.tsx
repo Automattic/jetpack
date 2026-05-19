@@ -38,6 +38,8 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 // validator rejects that shape.
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
+const CHECKING_LABEL = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+const NEED_CATEGORY_LABEL = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
 const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
 // `active` means the feed has been crawled by the directory's bot — not that
 // the show has actually been published in the directory's catalog. "Submitted"
@@ -123,9 +125,9 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const isPocketcastsBlocked = isLoading || ! isEnabled || ! hasTitle;
 	let pocketcastsBlockedTooltip = '';
 	if ( isLoading ) {
-		pocketcastsBlockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+		pocketcastsBlockedTooltip = CHECKING_LABEL;
 	} else if ( ! isEnabled ) {
-		pocketcastsBlockedTooltip = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
+		pocketcastsBlockedTooltip = NEED_CATEGORY_LABEL;
 	} else if ( ! hasTitle ) {
 		pocketcastsBlockedTooltip = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
 	}
@@ -145,19 +147,15 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					issues.length
 			  )
 			: '';
-	// `isLoading` is checked first because on the initial settings fetch
-	// `categoryId` defaults to 0 (so `! isEnabled` is true) even for sites
-	// that actually have a category set; checking loading first keeps the
-	// tooltip on "Checking…" until settings resolve. Gates on `isLoading`
-	// rather than `! isReady` because `isReady` is `! isLoading && issues
-	// .length === 0`, so once loading finishes with issues outstanding,
-	// `! isReady` stays true and would pin the tooltip on "Checking…"
-	// instead of the count.
+	// Check `isLoading` not `! isReady`: once issues exist, `! isReady` stays
+	// true and would pin the tooltip on "Checking…" instead of the count.
+	// Loading is checked first so `categoryId === 0` during the initial fetch
+	// doesn't flash the "Set a category" copy.
 	let blockedTooltip = '';
 	if ( isLoading ) {
-		blockedTooltip = __( 'Checking your podcast setup…', 'jetpack-podcast' );
+		blockedTooltip = CHECKING_LABEL;
 	} else if ( ! isEnabled ) {
-		blockedTooltip = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
+		blockedTooltip = NEED_CATEGORY_LABEL;
 	} else {
 		blockedTooltip = stepsLeftLabel;
 	}
