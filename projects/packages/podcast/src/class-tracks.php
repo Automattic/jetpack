@@ -366,14 +366,11 @@ class Tracks {
 
 	/**
 	 * Filters out posts in the podcast category that aren't actually episodes.
-	 * `core/audio` block + classic-editor attached audio cover the supported
-	 * authoring paths.
 	 *
 	 * @param WP_Post $post Post being checked.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
-		return has_block( 'core/audio', $post )
-			|| ! empty( get_attached_media( 'audio', $post->ID ) );
+		return Episode_Query::post_has_podcast_media( $post );
 	}
 
 	/**

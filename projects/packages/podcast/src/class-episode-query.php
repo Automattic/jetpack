@@ -16,6 +16,11 @@ use WP_Query;
 class Episode_Query {
 
 	/**
+	 * Maximum number of published posts to scan per readiness check.
+	 */
+	private const MAX_POSTS_TO_SCAN = 500;
+
+	/**
 	 * Whether a post carries supported podcast media.
 	 *
 	 * @param WP_Post $post Post being checked.
@@ -23,9 +28,7 @@ class Episode_Query {
 	public static function post_has_podcast_media( WP_Post $post ): bool {
 		return self::has_podcast_episode_block_media( $post )
 			|| has_block( 'core/audio', $post )
-			|| has_block( 'core/video', $post )
-			|| ! empty( get_attached_media( 'audio', $post->ID ) )
-			|| ! empty( get_attached_media( 'video', $post->ID ) );
+			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
 
 	/**
@@ -73,8 +76,9 @@ class Episode_Query {
 			return false;
 		}
 
-		$page = 1;
-		do {
+		$page         = 1;
+		$scanned_posts = 0;
+		while ( $scanned_posts < self::MAX_POSTS_TO_SCAN ) {
 			$query = new WP_Query(
 				array(
 					'post_status'            => 'publish',
@@ -84,23 +88,30 @@ class Episode_Query {
 					'posts_per_page'         => 50,
 					'paged'                  => $page,
 					'ignore_sticky_posts'    => true,
+					'no_found_rows'          => true,
 					'update_post_meta_cache' => false,
 					'update_post_term_cache' => false,
 				)
 			);
 
+			if ( empty( $query->posts ) ) {
+				break;
+			}
+
 			foreach ( $query->posts as $post ) {
-				if (
-					$post instanceof WP_Post &&
-					in_category( $category_id, $post ) &&
-					self::post_has_podcast_media( $post )
-				) {
+				++$scanned_posts;
+
+				if ( $post instanceof WP_Post && self::post_has_podcast_media( $post ) ) {
 					return true;
+				}
+
+				if ( $scanned_posts >= self::MAX_POSTS_TO_SCAN ) {
+					break;
 				}
 			}
 
 			++$page;
-		} while ( $page <= (int) $query->max_num_pages );
+		}
 
 		return false;
 	}
