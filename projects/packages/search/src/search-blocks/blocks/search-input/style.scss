@@ -70,4 +70,64 @@
 			opacity: 1;
 		}
 	}
+
+	// Autocomplete dropdown — only present when the block author enabled
+	// `enableSuggestions`. Positioned absolutely against `.__inside-wrapper`
+	// (which is already `position: relative`) so the dropdown overlays the
+	// page below the input without disrupting layout. Visual tokens are
+	// lifted from instant-search/components/search-suggestions.scss so the
+	// two surfaces stay recognizably the same UI.
+	.jetpack-search-input__suggestions {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		margin: 0;
+		padding: 4px 0 8px;
+		max-height: 60vh;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		background: #fff;
+		border: 1px solid #dcdcde;
+		border-top: none;
+		border-radius: 0 0 4px 4px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		list-style: none;
+
+		&[hidden] {
+			display: none;
+		}
+
+		@media (max-width: 480px) {
+			max-height: 50vh;
+		}
+	}
+
+	.jetpack-search-input__suggestions-label {
+		color: #787c82;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		padding: 8px 16px 4px;
+		text-transform: uppercase;
+	}
+
+	.jetpack-search-input__suggestions-option {
+		cursor: pointer;
+		font-size: 14px;
+		line-height: 1.4;
+		color: #1e1e1e;
+		padding: 10px 20px;
+
+		@media (max-width: 480px) {
+			padding: 13px 20px;
+		}
+
+		&:hover,
+		&.is-active {
+			background: #f0f6fc;
+			color: #0675c4;
+		}
+	}
 }

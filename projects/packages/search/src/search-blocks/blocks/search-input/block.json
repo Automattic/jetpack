@@ -13,7 +13,8 @@
 	"attributes": {
 		"placeholder": { "type": "string", "default": "" },
 		"showIcon": { "type": "boolean", "default": true },
-		"submitOnly": { "type": "boolean", "default": false }
+		"submitOnly": { "type": "boolean", "default": false },
+		"enableSuggestions": { "type": "boolean", "default": false }
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",

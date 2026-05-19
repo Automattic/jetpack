@@ -53,6 +53,7 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const placeholder = ( attributes?.placeholder || '' ).trim() || defaultPlaceholder;
 	const showIcon = attributes?.showIcon !== false;
 	const submitOnly = !! attributes?.submitOnly;
+	const enableSuggestions = !! attributes?.enableSuggestions;
 	return (
 		<>
 			<InspectorControls>
@@ -82,6 +83,16 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						onChange={ value => setAttributes( { submitOnly: value } ) }
 						help={ __(
 							'When enabled, queries fire on Enter or when clearing the field, instead of on every keystroke.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show search suggestions', 'jetpack-search-pkg' ) }
+						checked={ enableSuggestions }
+						onChange={ value => setAttributes( { enableSuggestions: value } ) }
+						help={ __(
+							'Display an autocomplete dropdown with query, category, and post suggestions as the visitor types. Requires a configured Jetpack Search site ID.',
 							'jetpack-search-pkg'
 						) }
 					/>
