@@ -415,6 +415,7 @@ class Create_AI_Podcast_Page {
 				'paginationGoTo'      => __( 'Go to page %d', 'jetpack-podcast' ),
 				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
 				'unexpectedError'     => __( 'An unexpected error occurred.', 'jetpack-podcast' ),
+				'outOfCreditsError'   => __( 'Out of credits.', 'jetpack-podcast' ),
 			),
 		);
 	}

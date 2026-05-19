@@ -68,20 +68,24 @@
 	 */
 	function normalizeApiError( status, body, cause ) {
 		const isRateLimited = status === 429;
+		// Literal fallbacks keep the user from seeing "undefined" if the JS
+		// island ever ships ahead of the PHP i18n bundle that defines these keys.
+		const rateLimitedMessage = data.i18n.outOfCreditsError || 'Out of credits.';
+		const unexpectedMessage = data.i18n.unexpectedError || 'An unexpected error occurred.';
 		if (
 			body &&
 			typeof body === 'object' &&
 			typeof body.message === 'string' &&
 			body.message !== ''
 		) {
+			const extraData =
+				body.data && typeof body.data === 'object' && ! Array.isArray( body.data ) ? body.data : {};
 			const err = new Error( body.message );
 			err.code = body.code || ( isRateLimited ? 'rate_limited' : 'unexpected' );
-			err.data = { status, ...( body.data || {} ) };
+			err.data = { status, ...extraData };
 			return err;
 		}
-		const err = new Error(
-			isRateLimited ? data.i18n.outOfCreditsTitle : data.i18n.unexpectedError
-		);
+		const err = new Error( isRateLimited ? rateLimitedMessage : unexpectedMessage );
 		err.code = isRateLimited ? 'rate_limited' : 'unexpected';
 		err.data = { status };
 		if ( cause ) {
@@ -116,7 +120,7 @@
 			// `parseAndThrowError` — `if (!shouldParseResponse) throw response`).
 			// Recover the status + body so the user sees the right message.
 			if ( err && typeof err.status === 'number' && typeof err.text === 'function' ) {
-				throw normalizeApiError( err.status, await readJsonBody( err ) );
+				throw normalizeApiError( err.status, await readJsonBodyOrNull( err ) );
 			}
 			throw normalizeApiError( null, null, err );
 		}
@@ -135,20 +139,35 @@
 		}
 
 		if ( response && typeof response.text === 'function' ) {
-			return readJsonBody( response );
+			if ( response.status === 204 ) {
+				return null;
+			}
+			const text = await response.text().catch( () => '' );
+			if ( text === '' ) {
+				return null;
+			}
+			try {
+				return JSON.parse( text );
+			} catch {
+				// 2xx with a non-JSON body shouldn't happen for these endpoints —
+				// pre-`parse: false` apiFetch would have thrown `invalid_json` here,
+				// so surface the same fail-fast behavior to callers like
+				// `refreshInfo` that read fields off the resolved value.
+				throw normalizeApiError( response.status, null );
+			}
 		}
 
 		return response;
 	}
 
 	/**
-	 * Read a `Response` body once and try to JSON-parse it. Returns null for
-	 * empty or non-JSON bodies (e.g. edge rate-limit HTML pages) so callers
-	 * can branch on the HTTP status instead of crashing on JSON.parse.
+	 * Best-effort JSON read used only on the error path: returns null for
+	 * empty or non-JSON bodies (e.g. edge rate-limit HTML pages) so the
+	 * caller can fall back to a status-based message via normalizeApiError.
 	 *
 	 * @param response
 	 */
-	async function readJsonBody( response ) {
+	async function readJsonBodyOrNull( response ) {
 		const text = await response.text().catch( () => '' );
 		if ( text === '' ) {
 			return null;
