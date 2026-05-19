@@ -60,14 +60,10 @@ class PCG_Load_Tester {
 				),
 				array(
 					'timeout'   => self::PROBE_TIMEOUT,
-					// Follow up to 5 redirects (matching `wp_remote_get`'s
-					// default). Covers canonical http->https, trailing-
-					// slash, non-www, force_ssl_admin's scheme bounce,
-					// and a multilingual locale redirect layered on top.
-					// Our `pcg_probe`/`token` query survives because WP
-					// emits full-URL Location headers, and the forwarded
-					// `Cookie:` header is re-sent on each hop so admin
-					// auth still validates post-bounce.
+					// Match `wp_remote_get`'s default; covers http->https,
+					// force_ssl_admin's scheme bounce, and locale redirects.
+					// `build_same_host_cookie_hook` keeps admin auth from
+					// leaking if the redirect points off-host.
 					'redirects' => 5,
 				)
 			);
@@ -222,8 +218,8 @@ class PCG_Load_Tester {
 			$query['pcg_admin'] = '1';
 			$cookie_header      = $this->collect_auth_cookie_header();
 			if ( '' !== $cookie_header ) {
-				$headers['Cookie']  = $cookie_header;
-				$options['hooks']   = $this->build_same_host_cookie_hook( $base_url );
+				$headers['Cookie'] = $cookie_header;
+				$options['hooks']  = $this->build_same_host_cookie_hook( $base_url );
 			}
 		}
 
@@ -247,11 +243,9 @@ class PCG_Load_Tester {
 	 */
 	protected function parse_response( $response ) {
 		if ( $response instanceof \Throwable ) {
-			// Exceeded our redirect budget. The bootstrap was healthy
-			// enough to issue several redirects in a row, so treat as
-			// inconclusive rather than an error. Matched on the typed
-			// exception code so a future upstream wording change doesn't
-			// reclassify these.
+			// Bootstrap was healthy enough to issue several redirects in
+			// a row, so treat redirect-budget exhaustion as inconclusive
+			// rather than an error.
 			if ( $response instanceof \WpOrg\Requests\Exception && 'toomanyredirects' === $response->getType() ) {
 				return array(
 					'status' => 'ok-inconclusive',
@@ -273,11 +267,9 @@ class PCG_Load_Tester {
 			return $decoded;
 		}
 
-		// Unfollowed 3xx safety net (shouldn't happen now that Requests
-		// follows up to 5, but keep for cases Requests refuses —
-		// cross-scheme downgrade, malformed Location, etc.). Treated as
-		// ok by callers since a redirect at this layer means the bootstrap
-		// completed cleanly enough to issue one.
+		// 3xx that Requests refused to follow (cross-scheme downgrade,
+		// malformed Location). Treat as ok — bootstrap completed enough
+		// to emit one.
 		if ( $code >= 300 && $code < 400 ) {
 			return array(
 				'status' => 'ok-inconclusive',
@@ -293,10 +285,8 @@ class PCG_Load_Tester {
 		}
 
 		if ( $code >= 200 && $code < 300 ) {
-			// We followed at least one redirect and the destination
-			// dropped our probe query (no JSON verdict back). Bootstrap
-			// was healthy enough to render the destination, so treat as
-			// inconclusive rather than fatal.
+			// Followed a redirect whose destination dropped the probe
+			// query. Bootstrap rendered cleanly, so don't block.
 			if ( $redirect_count > 0 ) {
 				return array(
 					'status' => 'ok-inconclusive',
@@ -305,8 +295,7 @@ class PCG_Load_Tester {
 			}
 			// Probe endpoint always emits JSON; a 2xx without one and no
 			// redirect means the bootstrap was terminated mid-flight
-			// (exit/die during load/init/admin_init). Block, since the
-			// same termination would affect future requests.
+			// (exit/die during load/init/admin_init).
 			return array(
 				'status'  => 'fatal',
 				'message' => sprintf(
@@ -360,8 +349,8 @@ class PCG_Load_Tester {
 		$hooks = new \WpOrg\Requests\Hooks();
 		$hooks->register(
 			'requests.before_redirect',
-			static function ( &$location, &$req_headers, &$req_data, &$options, $return ) use ( $original_host ) {
-				unset( $req_data, $options, $return );
+			static function ( &$location, &$req_headers, &$req_data, &$options, $return_value ) use ( $original_host ) {
+				unset( $req_data, $options, $return_value );
 				if ( ! is_array( $req_headers ) ) {
 					return;
 				}
@@ -369,11 +358,7 @@ class PCG_Load_Tester {
 				if ( '' === $next_host || $next_host === $original_host ) {
 					return;
 				}
-				foreach ( array_keys( $req_headers ) as $name ) {
-					if ( 0 === strcasecmp( (string) $name, 'Cookie' ) ) {
-						unset( $req_headers[ $name ] );
-					}
-				}
+				unset( $req_headers['Cookie'] );
 			}
 		);
 		return $hooks;

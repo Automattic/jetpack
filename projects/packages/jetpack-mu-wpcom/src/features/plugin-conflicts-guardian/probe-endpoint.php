@@ -163,9 +163,7 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 }
 
 /**
- * Get/set the transient key to delete when we emit a verdict. Holding it in
- * a static keeps the responder free of globals while letting the entry point
- * register the key once after token validation.
+ * Get/set the transient key to delete when we emit a verdict.
  *
  * @param string|null $set Key to remember; omit to read the current value.
  * @return string
