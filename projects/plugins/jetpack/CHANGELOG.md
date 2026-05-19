@@ -18,7 +18,7 @@
 - Shortlinks abilities: tighten permission_callback to edit_posts (was is_user_logged_in). [#48334]
 
 ### Improved compatibility
-- Jetpack: migrate Status indicator to @wordpress/ui Text. [#48711]
+- Migrate Status indicator to @wordpress/ui Text. [#48711]
 
 ### Bug fixes
 - Copy Post: fix backslash characters being stripped from post content, title, and excerpt when duplicating a post. [#48870]

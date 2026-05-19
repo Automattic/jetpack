@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.21.2] - 2026-05-19
+### Changed
+- Exclude development files from production builds. [#47365]
+- Replace link-style `Button` components and bare `<a>` tags with `Link` from `@wordpress/ui` in integrations, the responses modal, and response inspector mailto/tel links. Open Akismet-related URLs in a new tab only in the block editor so the dashboard keeps navigation in the same tab. [#48407]
+- Update package dependencies. [#48695]
+
+### Fixed
+- Contact Form: remove `opacity: 0.6` from the "Required" label so it inherits the full theme text colour. The opacity caused the rendered colour to fall below the WCAG 2.2 SC 1.4.3 minimum contrast ratio of 4.5:1 across multiple widely-used themes (Storefront, Hello Elementor, Astra, OceanWP). [#48925]
+- Restore full-width submit button on small screens for horizontal inline forms. The existing mobile media query set `flex-basis: 100%` on the button but had no effect when the parent form used the `is-layout-flex` class (horizontal orientation) because that layout lacks `flex-wrap: wrap`. Adding it at the 480px breakpoint allows the field and button to each stack to a full row on mobile. [#48928]
+
 ## [7.21.1] - 2026-05-11
 ### Changed
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
@@ -2479,6 +2489,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.21.2]: https://github.com/automattic/jetpack-forms/compare/v7.21.1...v7.21.2
 [7.21.1]: https://github.com/automattic/jetpack-forms/compare/v7.21.0...v7.21.1
 [7.21.0]: https://github.com/automattic/jetpack-forms/compare/v7.20.0...v7.21.0
 [7.20.0]: https://github.com/automattic/jetpack-forms/compare/v7.19.0...v7.20.0

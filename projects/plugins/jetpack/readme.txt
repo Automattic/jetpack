@@ -342,7 +342,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Shortlinks abilities: tighten permission_callback to edit_posts (was is_user_logged_in).
 
 #### Improved compatibility
-- Jetpack: migrate Status indicator to @wordpress/ui Text.
+- Migrate Status indicator to @wordpress/ui Text.
 
 #### Bug fixes
 - Copy Post: fix backslash characters being stripped from post content, title, and excerpt when duplicating a post.
