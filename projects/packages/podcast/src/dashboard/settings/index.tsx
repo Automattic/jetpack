@@ -104,7 +104,11 @@ const useFieldEditor = (
 				return;
 			}
 			event.preventDefault();
-			commit();
+			// Blur first so the `stored` resync that lands after the save
+			// can't reset `local` and clobber any characters the user typed
+			// in the same field while the save was in flight. Blur fires
+			// `commit()` via `onBlur`, so we don't double-call it.
+			event.currentTarget.blur();
 		},
 	};
 };
