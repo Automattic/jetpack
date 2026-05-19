@@ -26,16 +26,12 @@ interface CategoryPickerProps {
 	// containing modal can gate its own Confirm button until the user either
 	// finishes or cancels the inline flow.
 	onCreatingChange?: ( isCreating: boolean ) => void;
-	// Fires while a category-create request is in flight, so a containing
-	// modal can block its own dismissal — otherwise the user can Cancel and
-	// the create resolves into a `onCreateSuccess` after the modal is gone.
+	// Lets the parent block its own dismissal while the create is in flight;
+	// otherwise a late `onCreateSuccess` could land after the user cancelled.
 	onSavingChange?: ( saving: boolean ) => void;
-	// Fires once the inline create has saved a new category. The parent can
-	// commit its own save in the same click rather than asking the user to
-	// confirm a second time. Returning a Promise lets the picker hold its
-	// busy state through the parent's commit and only reset on a rejection —
-	// on success the parent unmounts the picker, so leaving state intact
-	// avoids a one-frame flash back to the dropdown.
+	// Returning a Promise lets the picker hold its busy state through the
+	// parent's commit and reset only on rejection — on success the parent
+	// unmounts the picker, avoiding a flash back to the dropdown.
 	onCreateSuccess?: ( id: number ) => void | Promise< void >;
 }
 
@@ -126,10 +122,6 @@ const CategoryPicker = ( {
 			const newId = Number( result.id );
 			onSelect( newId );
 			if ( onCreateSuccess ) {
-				// Parent will commit the save and unmount the picker on success,
-				// so leaving state intact through the commit avoids a one-frame
-				// flash. If the parent's commit rejects, reset so the user isn't
-				// stuck with a busy form and a non-dismissible modal.
 				try {
 					await onCreateSuccess( newId );
 				} catch {

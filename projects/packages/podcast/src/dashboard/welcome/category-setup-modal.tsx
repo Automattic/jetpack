@@ -35,20 +35,16 @@ const CategorySetupModal = ( {
 	const [ error, setError ] = useState< string | null >( null );
 	const [ pickerCreating, setPickerCreating ] = useState( false );
 	const [ pickerSaving, setPickerSaving ] = useState( false );
-	// Tracks the inline-create commit flow from the moment the picker finishes
-	// creating the category until the modal unmounts. The picker flips
-	// `pickerCreating` false before our `onConfirm` runs, so without this gate
-	// the outer Cancel/Confirm row briefly remounts (with `isBusy`) in the
-	// window between picker resolve and modal close — visible as a flash.
+	// The picker flips `pickerCreating` false before our `onConfirm` runs,
+	// so without this gate the outer button row briefly remounts in the gap
+	// before the modal unmounts — visible as a flash.
 	const [ committingFromCreate, setCommittingFromCreate ] = useState( false );
 
 	const isSaving = saving || pickerSaving;
 
 	const requestClose = useCallback( () => {
-		// Block dismissal while a save is in flight so the in-flight promise
-		// can't mutate settings after the user thought they cancelled. The
-		// picker's own save needs the same gate, because its success callback
-		// reaches back here to commit settings.
+		// Otherwise an in-flight save can mutate settings after the user
+		// thought they cancelled.
 		if ( isSaving ) {
 			return;
 		}
@@ -71,9 +67,7 @@ const CategorySetupModal = ( {
 				if ( ! existingTitle && siteName.trim() ) {
 					updates.podcasting_title = siteName.trim();
 				}
-				// Inline Notice below covers the error UX; suppress the hook's
-				// duplicate snackbar. Success is implicit (modal closes and
-				// lands the user on a populated Settings tab).
+				// Inline Notice handles errors; suppress the hook's snackbar.
 				await saveSettings( updates, { silent: true } );
 				onSuccess();
 			} catch ( err ) {
@@ -83,8 +77,7 @@ const CategorySetupModal = ( {
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' )
 					)
 				);
-				// Re-throw so the inline-create path can reset the picker; the
-				// existing-category caller catches and discards.
+				// Lets the inline-create path reset the picker.
 				throw err;
 			}
 		},
@@ -97,9 +90,8 @@ const CategorySetupModal = ( {
 			try {
 				await onConfirm( id );
 			} catch ( err ) {
-				// Restore the outer Cancel/Confirm row so the user can retry or
-				// dismiss; re-throw so the picker resets its own busy state.
 				setCommittingFromCreate( false );
+				// Lets the picker reset its busy state.
 				throw err;
 			}
 		},
@@ -107,7 +99,7 @@ const CategorySetupModal = ( {
 	);
 
 	const handleExistingCategoryConfirm = useCallback( () => {
-		// onConfirm's inline Notice owns the error UX; swallow the rejection.
+		// onConfirm's inline Notice handles the error UX.
 		onConfirm().catch( () => {} );
 	}, [ onConfirm ] );
 
@@ -115,9 +107,7 @@ const CategorySetupModal = ( {
 		<Modal
 			title={ __( 'Set up your podcast', 'jetpack-podcast' ) }
 			onRequestClose={ requestClose }
-			// Belt-and-suspenders: some Modal force-close paths skip
-			// `onRequestClose`, so disable Esc/backdrop dismissal directly
-			// while a save is in flight.
+			// `onRequestClose` doesn't catch every dismissal path; belt-and-suspenders.
 			shouldCloseOnEsc={ ! isSaving }
 			shouldCloseOnClickOutside={ ! isSaving }
 		>
@@ -144,12 +134,6 @@ const CategorySetupModal = ( {
 					onSavingChange={ setPickerSaving }
 					onCreateSuccess={ handleCreateSuccess }
 				/>
-				{ /* Hide the outer Cancel/Confirm row while the inline create
-				     form is open. The inline form has its own Cancel/Create row
-				     and the create flow commits settings on success, so showing
-				     both rows looks like two competing actions. Keep it hidden
-				     through the create-driven commit so the row doesn't flash
-				     in for one render as the picker collapses. */ }
 				{ ! pickerCreating && ! committingFromCreate && (
 					<HStack justify="flex-end" spacing={ 3 }>
 						<Button variant="tertiary" onClick={ requestClose } disabled={ isSaving }>
@@ -157,8 +141,6 @@ const CategorySetupModal = ( {
 						</Button>
 						<Button
 							variant="primary"
-							// The inline-create path commits via `handleCreateSuccess`, so
-							// Confirm is only used when the user picks an existing category.
 							onClick={ handleExistingCategoryConfirm }
 							disabled={ ! categoryId || saving }
 							isBusy={ saving }

@@ -194,9 +194,7 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
 		) => {
-			// Snackbar already covers the failure path when `silent` is false;
-			// swallow so callers without `onError` don't surface "Uncaught (in
-			// promise)" on rejection.
+			// Default no-op keeps the rejection from going uncaught when no `onError` is passed.
 			mutateAsync( updates, { silent } ).then( onSuccess, onError ?? ( () => {} ) );
 		},
 		[ mutateAsync ]
