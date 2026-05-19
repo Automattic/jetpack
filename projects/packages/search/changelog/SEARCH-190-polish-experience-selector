@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search dashboard: Polish the Settings experience selector — promote the section heading to `<h2>` and card titles to `<h3>` so the type scale falls into the page hierarchy cleanly; drop the redundant "title + link" structure in the Embedded and Overlay action rows so only the link remains; tint the active card so it reads as active at a glance rather than relying on the small badge; replace fake search-result text in all previews with skeleton bars so the layout shape, not made-up copy, carries the eye; replace the global Save button with a per-card "Use <experience>" commit button (revealed on hover, always visible on touch) gated by a confirm dialog.

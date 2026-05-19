@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec.

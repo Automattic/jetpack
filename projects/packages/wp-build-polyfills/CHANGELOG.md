@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2026-05-19
+### Fixed
+- Bundle a local `keyedReducer` helper so the notices polyfill keeps working with newer `@wordpress/notices` on WordPress versions that ship an older `@wordpress/data`. Upstream Gutenberg PR https://github.com/WordPress/gutenberg/pull/77364 consolidated `keyedReducer` into `@wordpress/data` 10.45.0, after which `@wordpress/notices` 5.45.0 and `@wordpress/core-data` 7.45.0 began importing it from `@wordpress/data`. Sites running older WordPress Core (whose bundled `@wordpress/data` predates 10.45.0) would hit `undefined is not a function` at polyfill load time. This is a workaround: a webpack loader rewrites the `keyedReducer` named import in the affected upstream files to a local shim, while every other `@wordpress/data` symbol stays externalized to the runtime `window.wp.data` global. A longer-term fix (e.g. shipping a `wp-data` polyfill IIFE, or waiting for Core upgrades to catch up) is out of scope for this change. The loader rule is currently scoped to `@wordpress/notices` and `@wordpress/core-data`; future polyfill additions that pull in other upstream packages importing `keyedReducer` from `@wordpress/data` should extend the rule and regression test. [#48743]
+
 ## [0.1.8] - 2026-05-14
 ### Changed
 - Update dependencies. [#48778]
@@ -51,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.1.9]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.1.5...v0.1.6

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Social: Expose the canonical message-template placeholder catalogue via a REST endpoint.

@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Podcast: composer.lock picks up jetpack-plans transitively from the podcast package; no plugin-level behavior change.

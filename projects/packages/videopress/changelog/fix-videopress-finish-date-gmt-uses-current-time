@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Utility: use stored processing-completion timestamp for finish_date_gmt instead of the current time.

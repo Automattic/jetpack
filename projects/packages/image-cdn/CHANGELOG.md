@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.26] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [0.7.25] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -254,6 +258,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.26]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.25...v0.7.26
 [0.7.25]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.24...v0.7.25
 [0.7.24]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.23...v0.7.24
 [0.7.23]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.22...v0.7.23
