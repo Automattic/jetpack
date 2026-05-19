@@ -257,7 +257,9 @@ class REST_Controller {
 
 		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled, $search_suggestions_enabled );
+		$override_woocommerce_search_template = isset( $request_body['override_woocommerce_search_template'] ) ? (bool) $request_body['override_woocommerce_search_template'] : null;
+
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled, $search_suggestions_enabled, $override_woocommerce_search_template );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -308,6 +310,9 @@ class REST_Controller {
 		if ( $search_suggestions_enabled !== null ) {
 			update_option( 'jetpack_search_suggestions_enabled', $search_suggestions_enabled );
 		}
+		if ( $override_woocommerce_search_template !== null ) {
+			update_option( 'jetpack_search_override_woocommerce_search_template', $override_woocommerce_search_template );
+		}
 
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
@@ -337,8 +342,9 @@ class REST_Controller {
 	 * @param bool|null   $reader_chat - Reader Chat status.
 	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
 	 * @param boolean     $search_suggestions_enabled - New search suggestions status.
+	 * @param boolean     $override_woocommerce_search_template - New WooCommerce search-template override status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null, $override_woocommerce_search_template = null ) {
 		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -352,10 +358,10 @@ class REST_Controller {
 		// lose those fields — the `experience` branch in update_settings() early-returns and
 		// would otherwise drop them.
 		if ( $experience !== null ) {
-			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $override_woocommerce_search_template !== null ) {
 				return new WP_Error(
 					'rest_invalid_arguments',
-					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, or `reader_chat`.', 'jetpack-search-pkg' ),
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -377,6 +383,10 @@ class REST_Controller {
 			// allow updating 'search_suggestions_enabled' without updating/validating other settings.
 			return true;
 		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $override_woocommerce_search_template !== null ) {
+			// allow updating 'override_woocommerce_search_template' without updating/validating other settings.
+			return true;
+		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -392,12 +402,13 @@ class REST_Controller {
 		 */
 	public function get_settings() {
 		$settings = array(
-			'module_active'                 => $this->search_module->is_active(),
-			'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
-			'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
-			'experience'                    => $this->search_module->get_experience(),
-			'ai_answers_enabled'            => AI_Answers::is_enabled(),
-			'search_suggestions_enabled'    => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
+			'module_active'                        => $this->search_module->is_active(),
+			'instant_search_enabled'               => $this->search_module->is_instant_search_enabled(),
+			'swap_classic_to_inline_search'        => $this->search_module->is_swap_classic_to_inline_search(),
+			'experience'                           => $this->search_module->get_experience(),
+			'ai_answers_enabled'                   => AI_Answers::is_enabled(),
+			'search_suggestions_enabled'           => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
+			'override_woocommerce_search_template' => Search_Blocks::woocommerce_search_template_override_enabled(),
 		);
 
 		if ( $this->is_reader_chat_setting_registered() ) {

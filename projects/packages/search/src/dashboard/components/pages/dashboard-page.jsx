@@ -14,7 +14,9 @@ import ModuleControl from 'components/module-control';
 import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import SearchSuggestionsControl from 'components/search-suggestions-control';
+import WooCommerceProductSearchControl from 'components/woocommerce-product-search-control';
 import { STORE_ID } from 'store';
+import { EXPERIENCE } from '../experience-selector/constants';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
@@ -131,6 +133,26 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isSearchSuggestionsEnabled = useSelect( select =>
 		select( STORE_ID ).isSearchSuggestionsEnabled()
 	);
+	const isWooCommerceActive = useSelect( select => select( STORE_ID ).isWooCommerceActive() );
+	const isWooCommerceSearchTemplateOverrideEnabled = useSelect( select =>
+		select( STORE_ID ).isWooCommerceSearchTemplateOverrideEnabled()
+	);
+	const activeExperience = useSelect( select => select( STORE_ID ).getActiveExperience() );
+	const activeThemeStylesheet = useSelect( select =>
+		select( STORE_ID ).getActiveThemeStylesheet()
+	);
+	// Only meaningful for server-rendered templates; Overlay intercepts
+	// client-side so the override would be a no-op there.
+	const showWooCommerceProductSearchControl =
+		isWooCommerceActive &&
+		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
+	// Site Editor identifies plugin templates as `<stylesheet>//<slug>`;
+	// fall back to the Templates list when the stylesheet is unavailable.
+	const wooProductSearchEditUrl = activeThemeStylesheet
+		? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+				activeThemeStylesheet
+		  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
 		! isReaderChatEnabled ||
@@ -271,6 +293,16 @@ export default function DashboardPage( { isLoading = false } ) {
 																isSaving={ isSavingEitherOption }
 																isDisabledFromOverLimit={ isOverLimit }
 																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+													{ showWooCommerceProductSearchControl && (
+														<div className="jp-search-settings-card">
+															<WooCommerceProductSearchControl
+																isEnabled={ isWooCommerceSearchTemplateOverrideEnabled }
+																isSaving={ isSavingEitherOption }
+																updateOptions={ updateOptions }
+																editTemplateUrl={ wooProductSearchEditUrl }
 															/>
 														</div>
 													) }

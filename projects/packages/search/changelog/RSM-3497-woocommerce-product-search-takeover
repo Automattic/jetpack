@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search dashboard: add a "WooCommerce Product Search" control that, when enabled, serves product searches from a dedicated Site-Editor-editable Jetpack Search template instead of WooCommerce's default product search template.

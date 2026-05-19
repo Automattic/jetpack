@@ -89,6 +89,8 @@ class Initial_State {
 				 * same flag the back end uses to register the blocks themselves.
 				 */
 				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				// Gates the WooCommerce Product Search control to stores.
+				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
 				 * Active theme stylesheet — used by the experience-selector to deep-link
 				 * the "Edit search template" action to the right Site Editor entry
