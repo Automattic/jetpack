@@ -129,23 +129,31 @@ function jetpack_activitypub_reader_auth_is_jetpack_signed(): bool {
 }
 
 /**
- * Whether the destination AP plugin is configured for blog-mode actors.
+ * Whether the destination AP plugin is configured to expose a blog actor.
  *
- * The shim deliberately ignores user-mode sites: the wpcom Reader only
- * operates on the blog actor (`user_id=0`), and short-circuiting OAuth for
- * user-mode routes would let admins act for arbitrary individual actors.
+ * Accepts both `'blog'` (blog-only) and `'actor_blog'` (per-user + blog).
+ * On `'actor_blog'` sites the blog actor behaves identically to pure
+ * blog-mode and is the only actor the wpcom Reader operates on — the
+ * route patterns are pinned to `user_id=0`, so widening the grant to
+ * arbitrary user actors is not possible here.
  *
- * Uses a `null` sentinel default so an unset option is treated as "unknown,
- * deny" rather than "blog, grant" — the AP plugin's own option default is
- * `ACTIVITYPUB_ACTOR_MODE` (i.e. `'actor'`), so falling back to `'blog'`
- * here would silently widen the grant surface on fresh installs.
+ * Pure user-mode (`'actor'`) is still rejected: the blog actor doesn't
+ * exist on those sites, so authorizing `user_id=0` routes would be
+ * nonsensical.
+ *
+ * Uses a `null` sentinel default so an unset option is treated as
+ * "unknown, deny" rather than implicitly accepted — the AP plugin's own
+ * option default is `ACTIVITYPUB_ACTOR_MODE` (i.e. `'actor'`), so
+ * falling back to a blog-accepting mode here would silently widen the
+ * grant surface on fresh installs.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
 function jetpack_activitypub_reader_auth_is_blog_mode(): bool {
-	return 'blog' === get_option( 'activitypub_actor_mode', null );
+	$mode = get_option( 'activitypub_actor_mode', null );
+	return 'blog' === $mode || 'actor_blog' === $mode;
 }
 
 /**

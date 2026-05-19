@@ -227,11 +227,15 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Mixed actor_blog mode → false.
+	 * Mixed actor_blog mode → true.
+	 *
+	 * On `actor_blog` sites the blog actor exists alongside per-user actors
+	 * and behaves identically to pure blog-mode. Route patterns are pinned
+	 * to `user_id=0`, so the grant cannot widen to arbitrary user actors.
 	 */
-	public function test_is_blog_mode_actor_blog_false(): void {
+	public function test_is_blog_mode_actor_blog_true(): void {
 		update_option( 'activitypub_actor_mode', 'actor_blog' );
-		$this->assertFalse( jetpack_activitypub_reader_auth_is_blog_mode() );
+		$this->assertTrue( jetpack_activitypub_reader_auth_is_blog_mode() );
 	}
 
 	/**
@@ -357,7 +361,23 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * User-mode AP site → null.
+	 * Mixed `actor_blog` mode → true. The blog actor exists alongside
+	 * per-user actors; route pinning to `user_id=0` keeps the grant
+	 * scoped to the blog actor.
+	 */
+	public function test_check_permission_grants_actor_blog_mode(): void {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'activitypub_actor_mode', 'actor_blog' );
+		self::set_jetpack_signed( 'user' );
+
+		$request = self::make_request( '/activitypub/1.0/actors/0/inbox', 'GET' );
+
+		$this->assertTrue( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
+	}
+
+	/**
+	 * Pure user-mode AP site → null. No blog actor exists, so `user_id=0`
+	 * routes cannot be authorized.
 	 */
 	public function test_check_permission_null_in_user_mode(): void {
 		wp_set_current_user( $this->admin_id );
