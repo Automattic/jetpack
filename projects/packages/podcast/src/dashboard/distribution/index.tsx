@@ -209,7 +209,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							<VStack spacing={ 4 }>
 								<VStack spacing={ 1 }>
 									<h3 className="podcast__card-title">
-										{ __( 'Automatic submission', 'jetpack-podcast' ) }
+										{ __( 'Automattic submission', 'jetpack-podcast' ) }
 									</h3>
 									<Text variant="muted">
 										{ __(
