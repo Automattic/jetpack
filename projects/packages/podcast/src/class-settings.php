@@ -93,12 +93,69 @@ class Settings {
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
 
+		add_action( 'add_option_podcasting_category_id', array( __CLASS__, 'prefill_email_on_activate_added' ), 10, 2 );
+		add_action( 'update_option_podcasting_category_id', array( __CLASS__, 'prefill_email_on_activate_updated' ), 10, 3 );
+
 		add_filter(
 			'jetpack_sync_options_whitelist',
 			static function ( $options ) {
 				return array_merge( $options, self::OPTION_NAMES );
 			}
 		);
+	}
+
+	/**
+	 * `add_option_podcasting_category_id` callback. Fires the one-time email
+	 * prefill on first-ever category assignment.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Newly stored value.
+	 */
+	public static function prefill_email_on_activate_added( $option, $value ): void {
+		unset( $option );
+		self::maybe_prefill_email( 0, (int) $value );
+	}
+
+	/**
+	 * `update_option_podcasting_category_id` callback. Fires the prefill on
+	 * the 0 → non-zero transition. Re-activation is a no-op if the user has
+	 * already saved or cleared the email since.
+	 *
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $value     Newly stored value.
+	 * @param string $option    Option name.
+	 */
+	public static function prefill_email_on_activate_updated( $old_value, $value, $option ): void {
+		unset( $option );
+		self::maybe_prefill_email( (int) $old_value, (int) $value );
+	}
+
+	/**
+	 * Prefill `podcasting_email` with the site admin email on first
+	 * activation, but only if the user has never written the option. Once the
+	 * option exists (even as `''`), this is a no-op: a user-cleared blank
+	 * stays blank.
+	 *
+	 * @param int $old_value Previous category id.
+	 * @param int $value     New category id.
+	 */
+	private static function maybe_prefill_email( int $old_value, int $value ): void {
+		if ( 0 !== $old_value || 0 === $value ) {
+			return;
+		}
+
+		// `null` default distinguishes "option doesn't exist" from "option
+		// stored as empty string". Only the former triggers the prefill.
+		if ( null !== get_option( 'podcasting_email', null ) ) {
+			return;
+		}
+
+		$admin_email = get_option( 'admin_email' );
+		if ( ! is_string( $admin_email ) || '' === $admin_email ) {
+			return;
+		}
+
+		update_option( 'podcasting_email', $admin_email );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: Settings text fields save on Enter, and the email field prefills with the site admin email on first activation.

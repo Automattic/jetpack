@@ -25,6 +25,7 @@ import CoverImageControl from './cover-image-control';
 import './style.scss';
 import { TOPICS } from './topics';
 import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
+import type { KeyboardEvent } from 'react';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
@@ -63,21 +64,41 @@ type StringFieldKey =
 // Per-field editor used by every text/textarea/email control. Holds local
 // state per keystroke, then commits on blur if the value differs from what's
 // saved. Re-syncs from `stored` when the saved value changes externally.
-// Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
+//
+// Spread `fieldProps` onto `<TextControl>` / `<TextareaControl>` for
+// `value` / `onChange` / `onBlur`. Single-line text inputs should also bind
+// `onKeyDownSaveOnEnter` as `onKeyDown`, which commits without waiting for
+// blur. Textareas don't, because Enter is a newline there.
 const useFieldEditor = (
 	stored: string,
 	onCommit: ( value: string ) => void
-): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
+): {
+	fieldProps: {
+		value: string;
+		onChange: ( v: string ) => void;
+		onBlur: () => void;
+	};
+	onKeyDownSaveOnEnter: ( event: KeyboardEvent< HTMLInputElement > ) => void;
+} => {
 	const [ local, setLocal ] = useState( stored );
 	useEffect( () => {
 		setLocal( stored );
 	}, [ stored ] );
+	const commit = () => {
+		if ( local !== stored ) {
+			onCommit( local );
+		}
+	};
 	return {
-		value: local,
-		onChange: setLocal,
-		onBlur: () => {
-			if ( local !== stored ) {
-				onCommit( local );
+		fieldProps: {
+			value: local,
+			onChange: setLocal,
+			onBlur: commit,
+		},
+		onKeyDownSaveOnEnter: event => {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				commit();
 			}
 		},
 	};
@@ -268,25 +289,28 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Title', 'jetpack-podcast' ) }
-							{ ...titleField }
+							{ ...titleField.fieldProps }
+							onKeyDown={ titleField.onKeyDownSaveOnEnter }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
 							label={ __( 'Summary/Description', 'jetpack-podcast' ) }
 							rows={ 4 }
-							{ ...summaryField }
+							{ ...summaryField.fieldProps }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Hosts/Artist/Producer', 'jetpack-podcast' ) }
-							{ ...talentNameField }
+							{ ...talentNameField.fieldProps }
+							onKeyDown={ talentNameField.onKeyDownSaveOnEnter }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Copyright', 'jetpack-podcast' ) }
-							{ ...copyrightField }
+							{ ...copyrightField.fieldProps }
+							onKeyDown={ copyrightField.onKeyDownSaveOnEnter }
 						/>
 					</VStack>
 				</CardBody>
@@ -341,7 +365,8 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'
 							) }
-							{ ...emailField }
+							{ ...emailField.fieldProps }
+							onKeyDown={ emailField.onKeyDownSaveOnEnter }
 						/>
 					</VStack>
 				</CardBody>
