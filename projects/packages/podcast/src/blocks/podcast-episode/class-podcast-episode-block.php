@@ -132,6 +132,22 @@ class Podcast_Episode_Block {
 			)
 		);
 
+		// Surface the podcasting category id to the editor for the auto-assign
+		// nudge. core-data's `root/site` entity hits `/wp/v2/settings`, which is
+		// `manage_options`-only, so authors/editors without that cap couldn't
+		// read it client-side. Anyone with the editor loaded is already cleared
+		// to assign categories to a post, so exposing the integer here is fine.
+		wp_add_inline_script(
+			self::EDITOR_HANDLE,
+			'window.jetpackPodcastEpisodeBlock = ' . wp_json_encode(
+				array(
+					'podcastingCategoryId' => (int) get_option( 'podcasting_category_id', 0 ),
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			) . ';',
+			'before'
+		);
+
 		// Add the script_loader_src rewrite only while the editor script is
 		// in flight, so the filter doesn't run on every front-end script load.
 		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );

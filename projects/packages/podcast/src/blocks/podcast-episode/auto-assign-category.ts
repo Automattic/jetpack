@@ -11,10 +11,20 @@ const PODCAST_BLOCK = 'jetpack/podcast-episode';
  * episodes. Users were inserting the block and publishing without realizing
  * the category was the gate, leaving the post invisible to the feed.
  */
+declare global {
+	interface Window {
+		jetpackPodcastEpisodeBlock?: {
+			podcastingCategoryId?: number;
+		};
+	}
+}
+
 export function registerAutoAssignCategory(): void {
 	const editorStore = select( 'core/editor' ) as
 		| {
 				getCurrentPost: () => {
+					id?: number;
+					status?: string;
 					content?: string | { raw?: string };
 				} | null;
 				getEditedPostAttribute: ( name: string ) => unknown;
@@ -45,9 +55,15 @@ export function registerAutoAssignCategory(): void {
 				return;
 			}
 			const isNew = editorStore.isCleanNewPost?.() ?? false;
+			// Auto-drafts and unsaved new posts have no saved content by
+			// definition, so resolve immediately rather than waiting for
+			// hydration. Without this, the first edit (typing a title,
+			// inserting the block) flips isCleanNewPost to false while
+			// content stays empty, and we'd loop forever.
+			const isFreshDraft = isNew || ! post.id || post.status === 'auto-draft';
 			const content = post.content;
 			const rawContent = typeof content === 'string' ? content : content?.raw ?? '';
-			if ( ! isNew && ! rawContent ) {
+			if ( ! isFreshDraft && ! rawContent ) {
 				// Existing post still hydrating; try again on the next tick.
 				return;
 			}
@@ -67,17 +83,25 @@ export function registerAutoAssignCategory(): void {
 			return;
 		}
 
-		const coreStore = select( 'core' ) as
-			| {
-					getEditedEntityRecord: (
-						kind: string,
-						name: string,
-						key?: number | string
-					) => { podcasting_category_id?: number } | null;
-			  }
-			| undefined;
-		const site = coreStore?.getEditedEntityRecord( 'root', 'site' );
-		const podcastingCategoryId = Number( site?.podcasting_category_id ) || 0;
+		// Prefer the inline-localized category id (readable for any user who
+		// can load the editor). `getEditedEntityRecord('root','site')` hits
+		// `/wp/v2/settings`, which requires `manage_options`, so authors and
+		// editors without that cap would otherwise silently skip the nudge.
+		const localized = Number( window.jetpackPodcastEpisodeBlock?.podcastingCategoryId ) || 0;
+		let podcastingCategoryId = localized;
+		if ( ! podcastingCategoryId ) {
+			const coreStore = select( 'core' ) as
+				| {
+						getEditedEntityRecord: (
+							kind: string,
+							name: string,
+							key?: number | string
+						) => { podcasting_category_id?: number } | null;
+				  }
+				| undefined;
+			const site = coreStore?.getEditedEntityRecord( 'root', 'site' );
+			podcastingCategoryId = Number( site?.podcasting_category_id ) || 0;
+		}
 		if ( ! podcastingCategoryId ) {
 			return;
 		}
