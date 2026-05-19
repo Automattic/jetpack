@@ -1101,6 +1101,15 @@
 	margin: 0 0 1.25em;
 }
 
+/* Editor-preview only: native browser hyphenation for justified paragraphs.
+   Reader-facing rendering of .has-text-align-justify comes from core
+   block-library CSS; reader-facing hyphenation is upstream/theme work. */
+.bw-content p[style*="text-align: justify"],
+.bw-content p[style*="text-align:justify"] {
+	hyphens: auto;
+	-webkit-hyphens: auto;
+}
+
 .bw-content h1,
 .bw-content h2,
 .bw-content h3 {

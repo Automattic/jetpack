@@ -606,25 +606,42 @@ function convertToBlocks( html ) {
 		)
 			continue;
 
-		// Check for text alignment.
+		// Check for text alignment. Justify is paragraph-only — headings and
+		// quotes stay L/C/R because browser justification on display type and
+		// narrow quote columns produces large word-spacing gaps.
+		// Justify uses the canonical wpcom form (className + style.typography.textAlign);
+		// L/C/R uses the legacy `align` attribute + inline style.
 		const align = node.style && node.style.textAlign;
-		const alignAttr =
-			align && [ 'left', 'center', 'right' ].includes( align )
-				? ` style="text-align:${ align }"`
-				: '';
-		const alignJson =
-			align && [ 'left', 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+		const isLcrAlign = align && [ 'left', 'center', 'right' ].includes( align );
+		const isJustify = align === 'justify';
+		const isHeadingAlign = isLcrAlign;
+		let paragraphAlignJson = '';
+		let paragraphStyleAttr = '';
+		let paragraphClassAttr = '';
+		if ( isLcrAlign ) {
+			paragraphAlignJson = `,"align":"${ align }"`;
+			paragraphStyleAttr = ` style="text-align:${ align }"`;
+		} else if ( isJustify ) {
+			paragraphAlignJson =
+				',"align":"justify","className":"has-text-align-justify","style":{"typography":{"textAlign":"justify"}}';
+			paragraphClassAttr = ' class="has-text-align-justify"';
+			// Inline style fallback for consumers that don't ship the
+			// .has-text-align-justify rule (theme exports, RSS, etc.).
+			paragraphStyleAttr = ' style="text-align:justify"';
+		}
+		const headingAlignAttr = isHeadingAlign ? ` style="text-align:${ align }"` : '';
+		const headingAlignJson = isHeadingAlign ? `,"align":"${ align }"` : '';
 
 		if ( tag === 'p' || tag === 'div' ) {
 			blocks.push(
 				`<!-- wp:paragraph${
-					alignJson ? ` {${ alignJson.slice( 1 ) }}` : ''
-				} -->\n<p${ alignAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
+					paragraphAlignJson ? ` {${ paragraphAlignJson.slice( 1 ) }}` : ''
+				} -->\n<p${ paragraphClassAttr }${ paragraphStyleAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
 			);
 		} else if ( /^h[1-6]$/.test( tag ) ) {
 			const level = parseInt( tag.charAt( 1 ), 10 );
 			blocks.push(
-				`<!-- wp:heading {"level":${ level }${ alignJson }} -->\n<${ tag } class="wp-block-heading"${ alignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
+				`<!-- wp:heading {"level":${ level }${ headingAlignJson }} -->\n<${ tag } class="wp-block-heading"${ headingAlignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
 			);
 		} else if ( tag === 'figure' && node.querySelector( 'iframe' ) ) {
 			const iframe = node.querySelector( 'iframe' );
@@ -1507,6 +1524,7 @@ function updateFormattingState() {
 	state.formatAlignLeft = true;
 	state.formatAlignCenter = false;
 	state.formatAlignRight = false;
+	state.formatAlignJustify = false;
 
 	if ( sel.rangeCount ) {
 		let node = sel.anchorNode;
@@ -1530,11 +1548,16 @@ function updateFormattingState() {
 					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
 					state.formatAlignCenter = align === 'center';
 					state.formatAlignRight = align === 'right';
+					state.formatAlignJustify = align === 'justify';
 				}
 			}
 			node = node.parentNode;
 		}
 	}
+
+	// Justify is paragraph-only; disable the toolbar button inside lists,
+	// headings, and quotes where browser justification would look poor.
+	state.cannotJustify = state.insideList || state.formatHeading || state.formatQuote;
 }
 
 /**
@@ -2894,6 +2917,7 @@ const { state } = store( 'wpcom-write', {
 			state.formatAlignLeft = true;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = false;
+			state.formatAlignJustify = false;
 		},
 
 		alignCenter() {
@@ -2902,6 +2926,7 @@ const { state } = store( 'wpcom-write', {
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = true;
 			state.formatAlignRight = false;
+			state.formatAlignJustify = false;
 		},
 
 		alignRight() {
@@ -2910,6 +2935,17 @@ const { state } = store( 'wpcom-write', {
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = true;
+			state.formatAlignJustify = false;
+		},
+
+		alignJustify() {
+			if ( state.cannotJustify ) return;
+			document.execCommand( 'justifyFull' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = false;
+			state.formatAlignJustify = true;
 		},
 
 		// --- Lists ---
