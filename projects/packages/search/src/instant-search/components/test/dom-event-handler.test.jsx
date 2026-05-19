@@ -1,4 +1,3 @@
-import * as React from 'react';
 import DomEventHandler from '../dom-event-handler';
 
 const noop = () => {};
