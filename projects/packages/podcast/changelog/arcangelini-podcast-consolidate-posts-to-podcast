@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Posts to Podcast: consolidate the Create AI Podcast feature into its own posts-to-podcast/ subdirectory and split the post-publish promo out of the page class.

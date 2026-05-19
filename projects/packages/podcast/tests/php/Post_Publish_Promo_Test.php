@@ -8,7 +8,8 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Podcast\Create_AI_Podcast_Page;
+use Automattic\Jetpack\Podcast\Posts_To_Podcast\Endpoint;
+use Automattic\Jetpack\Podcast\Posts_To_Podcast\Post_Publish_Promo;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -17,10 +18,10 @@ require_once __DIR__ . '/mocks/class-wpcom-stats.php';
 require_once __DIR__ . '/mocks/functions-stats.php';
 
 /**
- * @covers \Automattic\Jetpack\Podcast\Create_AI_Podcast_Page
+ * @covers \Automattic\Jetpack\Podcast\Posts_To_Podcast\Post_Publish_Promo
  */
-#[CoversClass( Create_AI_Podcast_Page::class )]
-class Create_AI_Podcast_Page_Test extends BaseTestCase {
+#[CoversClass( Post_Publish_Promo::class )]
+class Post_Publish_Promo_Test extends BaseTestCase {
 
 	/**
 	 * Mock post query count.
@@ -60,7 +61,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 		Constants::clear_constants();
 
 		if ( $this->user_id ) {
-			delete_user_option( $this->user_id, Create_AI_Podcast_Page::POST_PUBLISH_PROMO_DISMISSED_OPTION );
+			delete_user_option( $this->user_id, Post_Publish_Promo::DISMISSED_OPTION );
 		}
 		wp_set_current_user( 0 );
 	}
@@ -72,7 +73,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 		$this->mock_recent_posts( 5 );
 		$this->mock_weekly_visitors( array( 10, 10, 10, 10, 10 ) );
 
-		$this->assertTrue( Create_AI_Podcast_Page::is_post_publish_promo_site_eligible() );
+		$this->assertTrue( Post_Publish_Promo::is_site_eligible() );
 		$this->assertTrue( $this->saw_last_month_date_query );
 		$this->assertSame(
 			array(
@@ -91,7 +92,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 		$this->mock_recent_posts( 5 );
 		$this->mock_weekly_visitors( array( 10, 10, 10, 10, 9 ) );
 
-		$this->assertFalse( Create_AI_Podcast_Page::is_post_publish_promo_site_eligible() );
+		$this->assertFalse( Post_Publish_Promo::is_site_eligible() );
 	}
 
 	/**
@@ -102,7 +103,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 		$this->mock_recent_posts( 5 );
 		$GLOBALS['podcast_promo_stats_get_visitors'] = array( 10, 10, 10, 10, 10 );
 
-		$this->assertTrue( Create_AI_Podcast_Page::is_post_publish_promo_site_eligible() );
+		$this->assertTrue( Post_Publish_Promo::is_site_eligible() );
 		$this->assertSame(
 			array( get_current_blog_id(), gmdate( 'Y-m-d' ), 7, 1 ),
 			$GLOBALS['podcast_promo_stats_get_visitors_args']
@@ -127,7 +128,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertTrue( Create_AI_Podcast_Page::is_post_publish_promo_site_eligible() );
+		$this->assertTrue( Post_Publish_Promo::is_site_eligible() );
 	}
 
 	/**
@@ -144,7 +145,7 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 			)
 		);
 
-		$method = new \ReflectionMethod( Create_AI_Podcast_Page::class, 'is_current_post_published_for_post_publish_promo' );
+		$method = new \ReflectionMethod( Post_Publish_Promo::class, 'is_current_post_published' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -160,10 +161,10 @@ class Create_AI_Podcast_Page_Test extends BaseTestCase {
 		$this->mock_weekly_visitors( array( 50 ) );
 		$this->set_current_test_user();
 
-		$endpoint = new \Automattic\Jetpack\Podcast\Posts_To_Podcast_Endpoint();
+		$endpoint = new Endpoint();
 		$endpoint->dismiss_post_publish_promo();
 
-		$this->assertFalse( Create_AI_Podcast_Page::is_post_publish_promo_site_eligible() );
+		$this->assertFalse( Post_Publish_Promo::is_site_eligible() );
 	}
 
 	/**

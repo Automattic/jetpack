@@ -271,8 +271,8 @@
 	}
 
 	// Initial reads are pre-warmed server-side via wp_localize_script — see
-	// class-create-ai-podcast-page.php::bootstrap_data(). The JS island never
-	// fires the first quota/episodes requests itself; we only fetch on
+	// posts-to-podcast/class-admin-page.php::bootstrap_data(). The JS island
+	// never fires the first quota/episodes requests itself; we only fetch on
 	// post-success refresh, where freshness matters.
 	const bootstrapQuota = data?.bootstrap?.quota ?? null;
 	const bootstrapEpisodes = normalizeEpisodesPayload( data?.bootstrap?.episodes );
@@ -662,6 +662,16 @@
 		return Math.floor( ms / ( 24 * 60 * 60 * 1000 ) );
 	}
 
+	/**
+	 *
+	 * @param root0
+	 * @param root0.state
+	 * @param root0.title
+	 * @param root0.message
+	 * @param root0.upgradeUrl
+	 * @param root0.quota
+	 * @param root0.reset
+	 */
 	function buildBanner( { state, title, message, upgradeUrl, quota, reset } ) {
 		const banner = document.createElement( 'div' );
 		banner.className = 'jetpack-create-ai-podcast__credits-banner';
@@ -745,6 +755,9 @@
 		return response;
 	}
 
+	/**
+	 *
+	 */
 	async function refreshInfo() {
 		try {
 			const response = await apiCall( { path: data.endpoints.quota, method: 'GET' } );
@@ -828,6 +841,9 @@
 		postsRegion.appendChild( ul );
 	}
 
+	/**
+	 *
+	 */
 	function renderPostsLoading() {
 		postsRegion.innerHTML = '';
 		const loading = document.createElement( 'p' );
@@ -850,6 +866,10 @@
 		}
 	}, 300 );
 
+	/**
+	 *
+	 * @param query
+	 */
 	function onSearchPosts( query ) {
 		renderPostsLoading();
 		fetchPosts( query );
@@ -954,6 +974,11 @@
 		return code === 'rate_limited' || code === 'rate-limited' || status === 429;
 	}
 
+	/**
+	 *
+	 * @param message
+	 * @param options
+	 */
 	function onFailed( message, options = {} ) {
 		setFormDisabled( false );
 		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_failed', {
@@ -1316,6 +1341,10 @@
 		return tokens;
 	}
 
+	/**
+	 *
+	 * @param page
+	 */
 	async function goToPage( page ) {
 		const clamped = Math.max( 1, Math.min( episodesState.totalPages || 1, page ) );
 		if ( clamped === episodesState.page ) {
@@ -1387,6 +1416,9 @@
 		episodesList.appendChild( srOnly );
 	}
 
+	/**
+	 *
+	 */
 	async function refreshEpisodes() {
 		episodesSection.setAttribute( 'aria-busy', 'true' );
 		renderEpisodesSkeleton();
@@ -1453,6 +1485,9 @@
 		startPolling( jobId, startedAt );
 	}
 
+	/**
+	 *
+	 */
 	async function bootstrap() {
 		// Bind form interactions in every path: even when we resume an
 		// in-flight job and disable the form, the listeners need to be live

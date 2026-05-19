@@ -19,7 +19,7 @@ export default defineConfig(
 	{
 		// Vanilla-JS admin pages ship without a bundler; JSDoc and sprintf
 		// static-analysis rules don't apply to these files.
-		files: [ 'src/admin-pages/**/*.js' ],
+		files: [ 'src/posts-to-podcast/admin-page/**/*.js' ],
 		rules: {
 			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/require-description': 'off',

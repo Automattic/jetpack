@@ -5,7 +5,7 @@
  * @package automattic/jetpack-podcast
  */
 
-namespace Automattic\Jetpack\Podcast;
+namespace Automattic\Jetpack\Podcast\Posts_To_Podcast;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
@@ -19,7 +19,7 @@ use WP_REST_Server;
  * Forwards `wp.apiFetch` calls from the wp-admin Create tab to the wpcom-side
  * endpoint as the current user (the upstream endpoint requires user identity).
  */
-class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
+class Endpoint extends WP_REST_Controller {
 
 	const SUPPORTED_LENGTHS                     = array( 'short', 'medium', 'long' );
 	const SUPPORTED_VOICE_PRESETS               = array( 'witty', 'earnest', 'professional' );
@@ -70,12 +70,12 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'read_feature_info' ),
-					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permission_check' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'enqueue_generation' ),
-					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
 						'window'      => array(
 							'type'        => 'object',
@@ -117,7 +117,7 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'read_job_status' ),
-					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
 						'job_id' => array(
 							'type'     => 'integer',
@@ -135,7 +135,7 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'read_episodes' ),
-					'permission_callback' => array( Posts_To_Podcast_Helper::class, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
 						'page'     => array(
 							'type'    => 'integer',
@@ -167,6 +167,25 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
+	 * Permission callback for the user-facing routes.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function permission_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to use this feature on this site.', 'jetpack-podcast' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Return posts that embed a `jetpack/podcast-episode` block — the surface
 	 * this feature creates on success — newest first. Drafts and published
 	 * posts only; trashed/auto-drafts are excluded.
@@ -178,6 +197,22 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	public function read_episodes( WP_REST_Request $request ) {
 		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = max( 1, min( 50, (int) $request->get_param( 'per_page' ) ) );
+
+		return rest_ensure_response( self::build_episodes_envelope( $page, $per_page ) );
+	}
+
+	/**
+	 * Build the paginated envelope used by both the REST endpoint and the
+	 * Simple-site server-side bootstrap path.
+	 *
+	 * @param int $page     1-indexed page number.
+	 * @param int $per_page Items per page.
+	 *
+	 * @return array
+	 */
+	public static function build_episodes_envelope( int $page, int $per_page ): array {
+		$page     = max( 1, $page );
+		$per_page = max( 1, min( 50, $per_page ) );
 
 		$query = new \WP_Query(
 			array(
@@ -226,14 +261,12 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 		$total       = (int) $query->found_posts;
 		$total_pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 0;
 
-		return rest_ensure_response(
-			array(
-				'items'      => $items,
-				'total'      => $total,
-				'page'       => $page,
-				'perPage'    => $per_page,
-				'totalPages' => $total_pages,
-			)
+		return array(
+			'items'      => $items,
+			'total'      => $total,
+			'page'       => $page,
+			'perPage'    => $per_page,
+			'totalPages' => $total_pages,
 		);
 	}
 
@@ -243,7 +276,7 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function dismiss_post_publish_promo() {
-		update_user_option( get_current_user_id(), Create_AI_Podcast_Page::POST_PUBLISH_PROMO_DISMISSED_OPTION, 1 );
+		update_user_option( get_current_user_id(), Post_Publish_Promo::DISMISSED_OPTION, 1 );
 
 		return rest_ensure_response(
 			array(

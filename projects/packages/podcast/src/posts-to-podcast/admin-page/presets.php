@@ -10,7 +10,7 @@
  * @package automattic/jetpack-podcast
  */
 
-namespace Automattic\Jetpack\Podcast\Admin_Pages\Create_AI_Podcast;
+namespace Automattic\Jetpack\Podcast\Posts_To_Podcast;
 
 /**
  * Date-range presets for the "from a window" source mode.
