@@ -7,17 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.60.0] - 2026-05-19
 ### Added
+- Add `wp jetpack-search backfill_taxonomy_slot_mapping [--mode=mirror|rebuild]` so operators can backfill the custom-taxonomy → reserved-slot projection without reaching for `wp eval`. [#48849]
 - Add auto-complete search suggestions feature. [#48473]
+- AI Answers: Add a customization dashboard for AI Answers behavior. [#48592]
+- AI Answers: Add a streaming AI answers panel to the instant-search overlay, available on all paid plans. [#48592]
 - REST: Add a `search_experience` parameter (`overlay` | `inline` | `embedded`) to `POST /jetpack/v4/search/plan/activate`, so WordPress.com can set the default experience via the API. The legacy `enable_search` / `enable_instant_search` parameters still work for older callers. [#48848]
 - Search Blocks: Add a `rebuild` mode to the custom-taxonomy slot backfill that wipes and re-mirrors slot taxonomies, cleaning up orphan slot rows from posts that lost their user-side terms. The default `mirror` mode is unchanged. [#48708]
-- Search Blocks: Auto-switch Results List to the Product layout when the URL scopes search to the `product` post type (`?post_types[]=product`). [#48943]
 - Search Blocks: Add an "Auto-switch to Product view" toggle on Results List blocks to opt out per block. [#48943]
+- Search Blocks: Auto-switch Results List to the Product layout when the URL scopes search to the `product` post type (`?post_types[]=product`). [#48943]
 - Search Blocks: Whitelist supported taxonomies in the Custom Taxonomy filter — the `jetpack_search_custom_taxonomy_map` filter now mirrors mapped taxonomies into Jetpack Search's index so custom-taxonomy filtering returns results. [#48684]
 - Search Dashboard: Add AI Agent Access opt-in toggle. [#48362]
 - Search Dashboard: Replace the experience radio list with a 2×2 card grid (Embedded / Overlay / Theme / Off), each carrying its own preview and customization actions. Move the selector into a new Settings tab. [#48563]
-- Add `wp jetpack-search backfill_taxonomy_slot_mapping [--mode=mirror|rebuild]` so operators can backfill the custom-taxonomy → reserved-slot projection without reaching for `wp eval`. [#48849]
-- AI Answers: Add a streaming AI answers panel to the instant-search overlay, available on all paid plans. [#48592]
-- AI Answers: Add a customization dashboard for AI Answers behavior. [#48592]
 
 ### Changed
 - Dashboard: Add "Autocomplete" to the pricing comparison grid, shown as included on both the free and paid plans. [#48899]
@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Dashboard: Persist the active Search dashboard tab in the URL across page refreshes. [#48752]
 - Dashboard: Update the AI Answers Instant Search notice to point to the Settings tab. [#48822]
+- Keep the chosen experience (overlay / inline / embedded) in sync with the legacy `instant_search_enabled` flag on reads and writes, so Sync replicates experience changes correctly — including the inline branch and freshly installed sites. [#48745]
 - Search 3.0: fall back to Theme search when the Embedded experience is configured on a non-block theme, so the search page keeps working instead of resolving to a missing FSE template. The saved Embedded preference is preserved and resumes automatically when the site switches back to a block theme. [#48941]
 - Search Blocks: Only register the Jetpack Search block template and prepend it to the search template hierarchy on block themes during an actual search request, so the slug is never injected where it cannot resolve. [#48935]
 - Search Blocks: trigger the initial search when the URL carries an explicit-but-empty `?s=` so a blank search submission shows the full result set instead of an empty results region. [#48707]
@@ -47,7 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search Dashboard: restore the visible space between "AI Answers" and "(Preview)" in the dashboard tab label. [#48850]
 - Search Dashboard: stop the dashboard from crashing when the WordPress.com plan response is partially populated (missing `plan_usage` or `plan_current` fields). [#48660]
 - Search Dashboard: the "Edit search template" and "Insert pattern" links on the Embedded experience card now use the modern Site Editor URL format, so they open the Jetpack Search template view and pre-filtered patterns library instead of an empty editor. [#48851]
-- Keep the chosen experience (overlay / inline / embedded) in sync with the legacy `instant_search_enabled` flag on reads and writes, so Sync replicates experience changes correctly — including the inline branch and freshly installed sites. [#48745]
 
 ## [0.59.0] - 2026-05-11
 ### Added
