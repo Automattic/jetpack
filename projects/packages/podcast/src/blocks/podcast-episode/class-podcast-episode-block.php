@@ -137,11 +137,14 @@ class Podcast_Episode_Block {
 		// `manage_options`-only, so authors/editors without that cap couldn't
 		// read it client-side. Anyone with the editor loaded is already cleared
 		// to assign categories to a post, so exposing the integer here is fine.
+		// Route through Customize_Feed::resolve_category_id() so legacy sites
+		// that only have the `podcasting_archive` slug get the same fallback
+		// the feed uses, instead of a 0.
 		wp_add_inline_script(
 			self::EDITOR_HANDLE,
 			'window.jetpackPodcastEpisodeBlock = ' . wp_json_encode(
 				array(
-					'podcastingCategoryId' => (int) get_option( 'podcasting_category_id', 0 ),
+					'podcastingCategoryId' => \Automattic\Jetpack\Podcast\Feed\Customize_Feed::resolve_category_id(),
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ';',

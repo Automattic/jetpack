@@ -51,22 +51,15 @@ export function registerAutoAssignCategory(): void {
 
 		if ( savedHadBlock === null ) {
 			const post = editorStore.getCurrentPost();
+			// `getCurrentPost()` returns null only before the initial post
+			// payload lands. Once it resolves to an object, the saved content
+			// is whatever was on the server — empty is a valid value (auto
+			// drafts, blank existing posts) and shouldn't keep us waiting.
 			if ( ! post ) {
 				return;
 			}
-			const isNew = editorStore.isCleanNewPost?.() ?? false;
-			// Auto-drafts and unsaved new posts have no saved content by
-			// definition, so resolve immediately rather than waiting for
-			// hydration. Without this, the first edit (typing a title,
-			// inserting the block) flips isCleanNewPost to false while
-			// content stays empty, and we'd loop forever.
-			const isFreshDraft = isNew || ! post.id || post.status === 'auto-draft';
 			const content = post.content;
 			const rawContent = typeof content === 'string' ? content : content?.raw ?? '';
-			if ( ! isFreshDraft && ! rawContent ) {
-				// Existing post still hydrating; try again on the next tick.
-				return;
-			}
 			savedHadBlock = rawContent.includes( '<!-- wp:' + PODCAST_BLOCK );
 			if ( savedHadBlock ) {
 				return;
