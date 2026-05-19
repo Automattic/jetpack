@@ -31,9 +31,9 @@ const v1 = {
 	},
 	save,
 	migrate( attributes: V1Attributes ) {
-		const next = { ...attributes };
-		delete next.chapters;
-		return next;
+		const { chapters: _legacyChapters, ...rest } = attributes;
+		void _legacyChapters;
+		return rest;
 	},
 };
 

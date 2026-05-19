@@ -205,7 +205,7 @@ class Customize_Feed {
 		}
 
 		$episode_attrs = self::episode_block_attrs( $post );
-		$chapters_url  = isset( $episode_attrs['chaptersUrl'] ) ? esc_url_raw( (string) $episode_attrs['chaptersUrl'] ) : '';
+		$chapters_url  = isset( $episode_attrs['chaptersUrl'] ) ? (string) $episode_attrs['chaptersUrl'] : '';
 		if ( '' !== $chapters_url ) {
 			$chapters_type = isset( $episode_attrs['chaptersType'] ) ? (string) $episode_attrs['chaptersType'] : 'application/json+chapters';
 			echo '<podcast:chapters url="' . esc_url( $chapters_url ) . '" type="' . esc_attr( $chapters_type ) . "\" />\n";
@@ -222,7 +222,9 @@ class Customize_Feed {
 	 * @return array<string, mixed>
 	 */
 	private static function episode_block_attrs( WP_Post $post ): array {
-		if ( ! has_block( 'jetpack/podcast-episode', $post ) ) {
+		// `strpos` precheck keeps the non-episode case (every non-podcast post) cheap;
+		// `parse_blocks()` is only walked for posts that actually contain the block.
+		if ( false === strpos( $post->post_content, '<!-- wp:jetpack/podcast-episode' ) ) {
 			return array();
 		}
 		$blocks = parse_blocks( $post->post_content );

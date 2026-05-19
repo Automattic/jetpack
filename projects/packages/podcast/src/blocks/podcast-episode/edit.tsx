@@ -511,13 +511,12 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									if ( ! media?.url ) {
 										return;
 									}
-									// WP rarely tags files as application/json+chapters, so default to the
-									// spec-blessed type and only carry the upload MIME through when it matches.
-									const mime = media.mime || media.mime_type || '';
+									// WP's MIME map almost never tags files as application/json+chapters, so
+									// always store the spec-blessed type and let the user override via the
+									// format select below if they really need plain application/json.
 									setAttributes( {
 										chaptersUrl: media.url,
-										chaptersType:
-											'application/json+chapters' === mime ? mime : 'application/json+chapters',
+										chaptersType: 'application/json+chapters',
 									} );
 								} }
 								allowedTypes={ [ 'application/json', 'application/json+chapters' ] }

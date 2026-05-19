@@ -328,4 +328,71 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		return $query;
 	}
+
+	public function test_output_namespaces_includes_podcast_2_0_xmlns() {
+		ob_start();
+		Customize_Feed::output_namespaces();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"', $output );
+		$this->assertStringContainsString( 'xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"', $output );
+		$this->assertStringContainsString( 'xmlns:podcast="https://podcastindex.org/namespace/1.0"', $output );
+	}
+
+	public function test_output_item_tags_emits_podcast_chapters_when_url_set() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'           => 88,
+				'post_type'    => 'post',
+				'post_title'   => 'Chaptered Episode',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3","chaptersUrl":"https://example.com/ep-chapters.json","chaptersType":"application/json+chapters"} /-->',
+			)
+		);
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString(
+			'<podcast:chapters url="https://example.com/ep-chapters.json" type="application/json+chapters" />',
+			$output
+		);
+	}
+
+	public function test_output_item_tags_omits_podcast_chapters_when_url_empty() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'           => 89,
+				'post_type'    => 'post',
+				'post_title'   => 'Unchaptered Episode',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
+			)
+		);
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringNotContainsString( '<podcast:chapters', $output );
+	}
+
+	public function test_output_item_tags_defaults_chapters_type_when_attribute_missing() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'           => 90,
+				'post_type'    => 'post',
+				'post_title'   => 'Chaptered Episode',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3","chaptersUrl":"https://example.com/ep-chapters.json"} /-->',
+			)
+		);
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'type="application/json+chapters"', $output );
+	}
 }
