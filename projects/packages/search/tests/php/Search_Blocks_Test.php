@@ -600,7 +600,12 @@ class Search_Blocks_Test extends TestCase {
 	private function registered_script_modules(): array {
 		$modules  = wp_script_modules();
 		$property = new \ReflectionProperty( $modules, 'registered' );
-		$property->setAccessible( true );
+		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
+		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
+		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		return $property->getValue( $modules );
 	}
 
@@ -614,7 +619,9 @@ class Search_Blocks_Test extends TestCase {
 	private function unregister_script_module( string $id ): void {
 		$modules  = wp_script_modules();
 		$property = new \ReflectionProperty( $modules, 'registered' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$registered = $property->getValue( $modules );
 		unset( $registered[ $id ] );
 		$property->setValue( $modules, $registered );
