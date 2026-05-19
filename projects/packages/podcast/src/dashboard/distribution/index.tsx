@@ -38,13 +38,16 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
-const LIVE_LABEL = __( 'Live', 'jetpack-podcast' );
+// `active` means the feed has been crawled by the directory's bot — not that
+// the show has actually been published in the directory's catalog. "Submitted"
+// reflects what we know; "Live" overpromises.
+const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
 
 const StateBadge = ( { state }: { state: PodcastShowState } ) => {
 	if ( state !== 'pending' && state !== 'active' ) {
 		return null;
 	}
-	const label = state === 'active' ? LIVE_LABEL : PENDING_LABEL;
+	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
 	return (
 		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>
 			<VisuallyHidden as="span">{ __( 'Status:', 'jetpack-podcast' ) } </VisuallyHidden>

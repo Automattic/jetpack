@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: rename the Distribution "Live" state badge to "Submitted" — the underlying signal is a crawler hit, not directory publication.
