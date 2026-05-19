@@ -311,7 +311,8 @@
 		bar.appendChild( fill );
 		creditsEl.appendChild( bar );
 
-		const reset = formatResetPhrase( quota?.resetsAt );
+		const resetsNever = quota?.resetsAt === 'never';
+		const reset = resetsNever ? null : formatResetPhrase( quota?.resetsAt );
 
 		const meta = document.createElement( 'div' );
 		meta.className = 'jetpack-create-ai-podcast__credits-meta';
@@ -324,14 +325,20 @@
 		sep.className = 'jetpack-create-ai-podcast__credits-meta-sep';
 		sep.setAttribute( 'aria-hidden', 'true' );
 		sep.textContent = '·';
-		meta.appendChild( sep );
 
 		const resetEl = document.createElement( 'span' );
 		resetEl.className = 'jetpack-create-ai-podcast__credits-meta-reset';
-		resetEl.textContent = reset
-			? sprintf( data.i18n.creditsResetSummary, reset.inline )
-			: data.i18n.creditsResetMonthly;
-		meta.appendChild( resetEl );
+		let resetText = '';
+		if ( reset ) {
+			resetText = sprintf( data.i18n.creditsResetSummary, reset.inline );
+		} else if ( ! resetsNever ) {
+			resetText = data.i18n.creditsResetMonthly;
+		}
+		if ( resetText ) {
+			meta.appendChild( sep );
+			resetEl.textContent = resetText;
+			meta.appendChild( resetEl );
+		}
 
 		creditsEl.appendChild( meta );
 
@@ -345,12 +352,25 @@
 				outMessage = upgradeUrl
 					? sprintf( data.i18n.outOfCreditsUpgrade, reset.inline )
 					: sprintf( data.i18n.outOfCreditsWait, reset.inline );
+			} else if ( resetsNever ) {
+				outMessage = data.i18n.outOfTrialCredits;
 			}
 			creditsEl.appendChild(
 				buildBanner( {
 					state: 'out',
 					title: data.i18n.outOfCreditsTitle,
 					message: outMessage,
+					upgradeUrl,
+					quota: quotaSummary,
+					reset,
+				} )
+			);
+		} else if ( resetsNever ) {
+			creditsEl.appendChild(
+				buildBanner( {
+					state: 'low',
+					title: data.i18n.trialBannerTitle,
+					message: data.i18n.trialBannerMessage,
 					upgradeUrl,
 					quota: quotaSummary,
 					reset,
@@ -374,8 +394,7 @@
 	 * Translate quota.resetsAt into a relative phrase that works both inside
 	 * a sentence (e.g. "your credits refresh {inline}") and as a stand-alone
 	 * summary line (e.g. "Resets {inline}"). Returns null when the timestamp
-	 * is missing or malformed so callers fall back to a generic "monthly"
-	 * blurb.
+	 * is missing or malformed so callers can use generic monthly copy.
 	 *
 	 * @param  resetsAt - ISO-8601 reset timestamp.
 	 * @return {{ inline: string, days: number, date: Date } | null} Phrase, days until reset, and parsed Date — or null when input is missing.
