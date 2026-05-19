@@ -162,4 +162,29 @@ describe( 'ModuleControl', () => {
 			} )
 		);
 	} );
+
+	test( 'does not expose Reader Chat controls when Search is not supported', () => {
+		render( <ModuleControl { ...defaultProps } supportsSearch={ false } /> );
+
+		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isAvailable: false,
+			} )
+		);
+		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				showGuidelinesLink: true,
+			} )
+		);
+	} );
+
+	test( 'disables Reader Chat controls when the Search module group is over limit', () => {
+		render( <ModuleControl { ...defaultProps } isDisabledFromOverLimit /> );
+
+		expect( mockReaderChatControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isSaving: true,
+			} )
+		);
+	} );
 } );

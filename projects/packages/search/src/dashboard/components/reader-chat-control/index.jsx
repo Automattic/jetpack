@@ -13,7 +13,7 @@ const READER_CHAT_DESCRIPTION = __(
  * through the Search dashboard settings store.
  *
  * @param {object}   props               - Component properties.
- * @param {boolean}  props.isAvailable   - Whether the reader_chat setting is available.
+ * @param {boolean}  props.isAvailable   - Whether Reader Chat can be shown for this site.
  * @param {boolean}  props.isEnabled     - Whether Reader Chat is enabled.
  * @param {boolean}  props.isSaving      - Whether settings are being saved.
  * @param {string}   props.guidelinesUrl - Guidelines admin URL, when available.
@@ -34,8 +34,7 @@ export default function ReaderChatControl( {
 		[ updateOptions ]
 	);
 
-	// Hide the entire control when the setting is not registered on this
-	// site (non-proxied / non-dev contexts during rollout).
+	// Hide the control when this site should not expose Reader Chat settings.
 	if ( ! isAvailable ) {
 		return null;
 	}

@@ -155,10 +155,12 @@ export default function DashboardPage( { isLoading = false } ) {
 		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
+		! supportsSearch ||
 		! isReaderChatEnabled ||
 		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 	const hasAdditionalSettings =
-		isReaderChatAvailable ||
+		isReaderChatControlAvailable ||
 		isAIAgentAccessAvailable ||
 		( supportsInstantSearch && isInstantSearchEnabled ) ||
 		showWooCommerceProductSearchControl;
@@ -280,12 +282,12 @@ export default function DashboardPage( { isLoading = false } ) {
 															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
 														</h2>
 													) }
-													{ isReaderChatAvailable && (
+													{ isReaderChatControlAvailable && (
 														<div className="jp-search-settings-card">
 															<ReaderChatControl
-																isAvailable={ isReaderChatAvailable }
+																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption }
+																isSaving={ isSavingEitherOption || isOverLimit }
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>
