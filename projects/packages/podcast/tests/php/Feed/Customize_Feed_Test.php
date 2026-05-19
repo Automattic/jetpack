@@ -300,4 +300,321 @@ class Customize_Feed_Test extends BaseTestCase {
 		// "right answer" and "took the right code path".
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
 	}
+
+	/**
+	 * Invoke a private static method on Customize_Feed via reflection.
+	 *
+	 * @param string $method Method name.
+	 * @param array  $args   Args.
+	 * @return mixed
+	 */
+	private function invoke_private( string $method, array $args ) {
+		$ref = new \ReflectionClass( Customize_Feed::class );
+		$fn  = $ref->getMethod( $method );
+		return $fn->invokeArgs( null, $args );
+	}
+
+	/**
+	 * Capture stdout from a private static emit_* call.
+	 *
+	 * @param string $method Method name.
+	 * @param array  $args   Args.
+	 * @return string
+	 */
+	private function capture_emit( string $method, array $args ): string {
+		ob_start();
+		$this->invoke_private( $method, $args );
+		return (string) ob_get_clean();
+	}
+
+	private function make_episode_post( string $content ): WP_Post {
+		return new WP_Post(
+			(object) array(
+				'ID'           => 1,
+				'post_content' => $content,
+			)
+		);
+	}
+
+	public function test_episode_block_attrs_returns_attrs_for_first_block() {
+		$post = $this->make_episode_post(
+			'<!-- wp:jetpack/podcast-episode {"episodeNumber":7,"seasonNumber":2} /-->'
+		);
+
+		$attrs = $this->invoke_private( 'episode_block_attrs', array( $post ) );
+
+		$this->assertSame( 7, $attrs['episodeNumber'] );
+		$this->assertSame( 2, $attrs['seasonNumber'] );
+	}
+
+	public function test_episode_block_attrs_returns_empty_for_non_podcast_post() {
+		$post = $this->make_episode_post( '<p>Just a plain post, no blocks.</p>' );
+
+		$this->assertSame( array(), $this->invoke_private( 'episode_block_attrs', array( $post ) ) );
+	}
+
+	public function test_episode_block_attrs_first_wins_when_multiple_blocks() {
+		$post = $this->make_episode_post(
+			'<!-- wp:jetpack/podcast-episode {"episodeNumber":1} /-->'
+			. '<!-- wp:jetpack/podcast-episode {"episodeNumber":99} /-->'
+		);
+
+		$attrs = $this->invoke_private( 'episode_block_attrs', array( $post ) );
+
+		$this->assertSame( 1, $attrs['episodeNumber'] );
+	}
+
+	public function test_emit_episode_number_emits_both_namespaces() {
+		$xml = $this->capture_emit( 'emit_episode_number', array( array( 'episodeNumber' => 12 ) ) );
+
+		$this->assertStringContainsString( '<itunes:episode>12</itunes:episode>', $xml );
+		$this->assertStringContainsString( '<podcast:episode>12</podcast:episode>', $xml );
+	}
+
+	public function test_emit_episode_number_skips_zero_and_negative() {
+		$this->assertSame( '', $this->capture_emit( 'emit_episode_number', array( array( 'episodeNumber' => 0 ) ) ) );
+		$this->assertSame( '', $this->capture_emit( 'emit_episode_number', array( array( 'episodeNumber' => -3 ) ) ) );
+		$this->assertSame( '', $this->capture_emit( 'emit_episode_number', array( array() ) ) );
+	}
+
+	public function test_emit_season_number_emits_both_namespaces() {
+		$xml = $this->capture_emit( 'emit_season_number', array( array( 'seasonNumber' => 4 ) ) );
+
+		$this->assertStringContainsString( '<itunes:season>4</itunes:season>', $xml );
+		$this->assertStringContainsString( '<podcast:season>4</podcast:season>', $xml );
+	}
+
+	public function test_emit_episode_type_emits_only_trailer_and_bonus() {
+		$this->assertSame( '', $this->capture_emit( 'emit_episode_type', array( array( 'episodeType' => 'full' ) ) ) );
+		$this->assertSame( '', $this->capture_emit( 'emit_episode_type', array( array() ) ) );
+
+		$this->assertStringContainsString(
+			'<itunes:episodeType>trailer</itunes:episodeType>',
+			$this->capture_emit( 'emit_episode_type', array( array( 'episodeType' => 'trailer' ) ) )
+		);
+		$this->assertStringContainsString(
+			'<itunes:episodeType>bonus</itunes:episodeType>',
+			$this->capture_emit( 'emit_episode_type', array( array( 'episodeType' => 'bonus' ) ) )
+		);
+	}
+
+	public function test_emit_explicit_override_only_emits_on_mismatch() {
+		update_option( 'podcasting_explicit', false );
+
+		// Channel says false, item says false → no tag.
+		$this->assertSame( '', $this->capture_emit( 'emit_explicit_override', array( array( 'explicit' => false ) ) ) );
+
+		// Channel says false, item says true → emit "true".
+		$xml = $this->capture_emit( 'emit_explicit_override', array( array( 'explicit' => true ) ) );
+		$this->assertStringContainsString( '<itunes:explicit>true</itunes:explicit>', $xml );
+
+		// Attr missing entirely → no tag.
+		$this->assertSame( '', $this->capture_emit( 'emit_explicit_override', array( array() ) ) );
+	}
+
+	public function test_emit_transcript_emits_url_and_validated_type() {
+		$xml = $this->capture_emit(
+			'emit_transcript',
+			array(
+				array(
+					'transcriptUrl'  => 'https://example.com/t.vtt',
+					'transcriptType' => 'text/vtt',
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'url="https://example.com/t.vtt"', $xml );
+		$this->assertStringContainsString( 'type="text/vtt"', $xml );
+		$this->assertStringContainsString( '<podcast:transcript', $xml );
+	}
+
+	public function test_emit_transcript_skips_when_url_blank() {
+		$this->assertSame(
+			'',
+			$this->capture_emit( 'emit_transcript', array( array( 'transcriptUrl' => '   ' ) ) )
+		);
+	}
+
+	public function test_emit_transcript_falls_back_to_vtt_for_unknown_type() {
+		$xml = $this->capture_emit(
+			'emit_transcript',
+			array(
+				array(
+					'transcriptUrl'  => 'https://example.com/t.vtt',
+					'transcriptType' => 'application/evil',
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'type="text/vtt"', $xml );
+	}
+
+	public function test_emit_location_emits_name_only() {
+		$xml = $this->capture_emit( 'emit_location', array( array( 'locationName' => 'Lagos, Nigeria' ) ) );
+
+		$this->assertStringContainsString( '<podcast:location>Lagos, Nigeria</podcast:location>', $xml );
+	}
+
+	public function test_emit_location_skips_when_blank() {
+		$this->assertSame( '', $this->capture_emit( 'emit_location', array( array( 'locationName' => '' ) ) ) );
+		$this->assertSame( '', $this->capture_emit( 'emit_location', array( array() ) ) );
+	}
+
+	public function test_emit_license_with_url() {
+		$xml = $this->capture_emit(
+			'emit_license',
+			array(
+				array(
+					'license'    => 'CC BY 4.0',
+					'licenseUrl' => 'https://creativecommons.org/licenses/by/4.0/',
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'url="https://creativecommons.org/licenses/by/4.0/"', $xml );
+		$this->assertStringContainsString( '>CC BY 4.0</podcast:license>', $xml );
+	}
+
+	public function test_emit_license_name_only_when_url_blank() {
+		$xml = $this->capture_emit(
+			'emit_license',
+			array( array( 'license' => 'All rights reserved' ) )
+		);
+
+		$this->assertStringContainsString( '<podcast:license>All rights reserved</podcast:license>', $xml );
+		$this->assertStringNotContainsString( 'url=', $xml );
+	}
+
+	public function test_emit_license_skips_when_name_blank() {
+		$this->assertSame(
+			'',
+			$this->capture_emit(
+				'emit_license',
+				array(
+					array(
+						'license'    => '',
+						'licenseUrl' => 'https://example.com/license',
+					),
+				)
+			)
+		);
+	}
+
+	public function test_emit_people_one_tag_per_entry() {
+		$xml = $this->capture_emit(
+			'emit_people',
+			array(
+				array(
+					'people' => array(
+						array(
+							'name' => 'Ada Lovelace',
+							'role' => 'host',
+							'href' => 'https://example.com/ada',
+						),
+						array(
+							'name' => 'Grace Hopper',
+							'role' => 'guest',
+						),
+						array( 'name' => '' ), // Skipped.
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 2, substr_count( $xml, '<podcast:person' ) );
+		$this->assertStringContainsString( 'role="host"', $xml );
+		$this->assertStringContainsString( 'href="https://example.com/ada"', $xml );
+		$this->assertStringContainsString( '>Ada Lovelace</podcast:person>', $xml );
+		$this->assertStringContainsString( '>Grace Hopper</podcast:person>', $xml );
+	}
+
+	public function test_emit_soundbites_emits_per_entry() {
+		$xml = $this->capture_emit(
+			'emit_soundbites',
+			array(
+				array(
+					'soundbites' => array(
+						array(
+							'startTime' => 30,
+							'duration'  => 15,
+							'title'     => 'Best moment',
+						),
+						array(
+							'startTime' => 120,
+							'duration'  => 5,
+						),
+						array( 'startTime' => 99 ), // Skipped — no duration.
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 2, substr_count( $xml, '<podcast:soundbite' ) );
+		$this->assertStringContainsString( 'startTime="30"', $xml );
+		$this->assertStringContainsString( 'duration="15"', $xml );
+		$this->assertStringContainsString( '>Best moment</podcast:soundbite>', $xml );
+		// Title-less entry uses the self-closing form.
+		$this->assertMatchesRegularExpression( '/startTime="120" duration="5" \/>/', $xml );
+	}
+
+	public function test_emit_alternate_enclosures_wraps_sources() {
+		$xml = $this->capture_emit(
+			'emit_alternate_enclosures',
+			array(
+				array(
+					'alternateEnclosures' => array(
+						array(
+							'type'    => 'audio/aac',
+							'length'  => 12345,
+							'bitrate' => 96000,
+							'sources' => array(
+								array( 'uri' => 'https://cdn.example.com/ep.aac' ),
+								array( 'uri' => 'https://mirror.example.com/ep.aac' ),
+							),
+						),
+						array(
+							// Flat shape (block's current schema): single URL, no sources array.
+							'type'    => 'audio/mpeg',
+							'bitrate' => 128000,
+							'url'     => 'https://example.com/ep.mp3',
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 2, substr_count( $xml, '<podcast:alternateEnclosure' ) );
+		$this->assertSame( 3, substr_count( $xml, '<podcast:source' ) );
+		$this->assertStringContainsString( 'type="audio/aac"', $xml );
+		$this->assertStringContainsString( 'length="12345"', $xml );
+		$this->assertStringContainsString( 'bitrate="96000"', $xml );
+		$this->assertStringContainsString( 'uri="https://cdn.example.com/ep.aac"', $xml );
+		$this->assertStringContainsString( 'uri="https://example.com/ep.mp3"', $xml );
+	}
+
+	public function test_emit_alternate_enclosures_skips_entries_without_sources() {
+		$this->assertSame(
+			'',
+			$this->capture_emit(
+				'emit_alternate_enclosures',
+				array(
+					array(
+						'alternateEnclosures' => array(
+							array( 'type' => 'audio/aac' ), // No url, no sources.
+						),
+					),
+				)
+			)
+		);
+	}
+
+	public function test_output_namespaces_includes_podcast_namespace() {
+		ob_start();
+		Customize_Feed::output_namespaces();
+		$xml = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'xmlns:itunes=', $xml );
+		$this->assertStringContainsString( 'xmlns:googleplay=', $xml );
+		$this->assertStringContainsString( 'xmlns:podcast="https://podcastindex.org/namespace/1.0"', $xml );
+	}
 }
