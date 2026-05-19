@@ -63,7 +63,7 @@ export function buildLibraryActions( api: Api ): Action< MockLibraryItem >[] {
 		},
 		{
 			id: 'set-privacy-site',
-			label: __( 'Use site default', 'jetpack-videopress-pkg' ),
+			label: __( 'Reset to site default', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
 			isEligible: item => item.type === 'videopress' && item.privacy !== 'site-default',
 			callback: items => {
