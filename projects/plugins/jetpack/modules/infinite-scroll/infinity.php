@@ -638,6 +638,9 @@ class The_Neverending_Home_Page {
 
 		// grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
 
 		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
@@ -901,7 +904,8 @@ class The_Neverending_Home_Page {
 				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
 			) {
-				$post_type = $taxonomy->object_type[0];
+				// It seems [0] doesn't work, as sometimes plugins can deregister a taxonomy but not reindex.
+				$post_type = reset( $taxonomy->object_type );
 			}
 		}
 
