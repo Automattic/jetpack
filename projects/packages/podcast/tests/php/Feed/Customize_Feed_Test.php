@@ -99,15 +99,15 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_category_tag_emits_single_category() {
 		$xml = Customize_Feed::category_tag( 'Technology' );
 
-		$this->assertStringContainsString( "<itunes:category text='Technology' />", $xml );
+		$this->assertStringContainsString( '<itunes:category text="Technology" />', $xml );
 		$this->assertStringNotContainsString( '</itunes:category>', $xml );
 	}
 
 	public function test_category_tag_emits_nested_subcategory() {
 		$xml = Customize_Feed::category_tag( 'Technology,Tech News' );
 
-		$this->assertStringContainsString( "<itunes:category text='Technology'>", $xml );
-		$this->assertStringContainsString( "<itunes:category text='Tech News' />", $xml );
+		$this->assertStringContainsString( '<itunes:category text="Technology">', $xml );
+		$this->assertStringContainsString( '<itunes:category text="Tech News" />', $xml );
 		$this->assertStringContainsString( '</itunes:category>', $xml );
 	}
 
@@ -115,8 +115,8 @@ class Customize_Feed_Test extends BaseTestCase {
 		// 'Tech News' on its own was a legacy malformed value; should be promoted to Technology > Tech News.
 		$xml = Customize_Feed::category_tag( 'Tech News' );
 
-		$this->assertStringContainsString( "<itunes:category text='Technology'>", $xml );
-		$this->assertStringContainsString( "<itunes:category text='Tech News' />", $xml );
+		$this->assertStringContainsString( '<itunes:category text="Technology">', $xml );
+		$this->assertStringContainsString( '<itunes:category text="Tech News" />', $xml );
 	}
 
 	/**

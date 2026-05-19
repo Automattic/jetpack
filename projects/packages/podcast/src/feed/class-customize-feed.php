@@ -164,7 +164,7 @@ class Customize_Feed {
 		 */
 		$image = self::show_image_url();
 		if ( '' !== $image ) {
-			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
+			echo '<itunes:image href="' . esc_url( $image ) . '" />' . "\n";
 		}
 
 		/**
@@ -436,10 +436,10 @@ class Customize_Feed {
 		// well-formed XML after esc_attr().
 		$splits = explode( ',', $category );
 		if ( 2 === count( $splits ) ) {
-			return "<itunes:category text='" . ent2ncr( esc_attr( $splits[0] ) ) . "'>\n"
-				. "\t<itunes:category text='" . ent2ncr( esc_attr( $splits[1] ) ) . "' />\n"
+			return '<itunes:category text="' . ent2ncr( esc_attr( $splits[0] ) ) . '">' . "\n"
+				. "\t" . '<itunes:category text="' . ent2ncr( esc_attr( $splits[1] ) ) . '" />' . "\n"
 				. "</itunes:category>\n";
 		}
-		return "<itunes:category text='" . ent2ncr( esc_attr( $category ) ) . "' />\n";
+		return '<itunes:category text="' . ent2ncr( esc_attr( $category ) ) . '" />' . "\n";
 	}
 }

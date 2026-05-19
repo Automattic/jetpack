@@ -274,7 +274,7 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertStringContainsString( "<itunes:image href='https://example.com/cover.jpg'", $xml );
+		$this->assertStringContainsString( '<itunes:image href="https://example.com/cover.jpg"', $xml );
 		$this->assertStringNotContainsString( 'googleplay', $xml );
 	}
 

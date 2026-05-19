@@ -70,7 +70,7 @@ class Episode_Block_Tags {
 		if ( '' === trim( $url ) ) {
 			return;
 		}
-		echo "<itunes:image href='" . esc_url( Customize_Feed::maybe_photon( $url ) ) . "' />\n";
+		echo '<itunes:image href="' . esc_url( Customize_Feed::maybe_photon( $url ) ) . '" />' . "\n";
 	}
 
 	/**
