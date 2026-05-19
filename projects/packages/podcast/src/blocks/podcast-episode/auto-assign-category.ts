@@ -51,11 +51,18 @@ export function registerAutoAssignCategory(): void {
 
 		if ( savedHadBlock === null ) {
 			const post = editorStore.getCurrentPost();
-			// `getCurrentPost()` returns null only before the initial post
-			// payload lands. Once it resolves to an object, the saved content
-			// is whatever was on the server — empty is a valid value (auto
-			// drafts, blank existing posts) and shouldn't keep us waiting.
 			if ( ! post ) {
+				return;
+			}
+			// `getCurrentPost()` returns `{}` while the post entity is still
+			// resolving, which would look identical to an empty saved post.
+			// Wait for either a real id (existing post) or a confirmed
+			// fresh-draft signal before reading content; without this guard
+			// an existing post that already has the block could be flagged
+			// as "fresh insert" and get re-categorized on load.
+			const isFreshDraft =
+				( editorStore.isCleanNewPost?.() ?? false ) || post.status === 'auto-draft';
+			if ( ! post.id && ! isFreshDraft ) {
 				return;
 			}
 			const content = post.content;
