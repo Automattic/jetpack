@@ -362,5 +362,4 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 
 		return $this->relay_response( $response );
 	}
-
 }
