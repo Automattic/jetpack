@@ -67,6 +67,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'blaze_abilities_prepare_campaign_enabled' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_tracks_event' );
+		remove_all_filters( 'jetpack_blaze_prepare_campaign_payment_methods' );
 		remove_all_actions( 'wp_after_execute_ability' );
 		unset( $GLOBALS['wp_rest_server'] );
 	}
@@ -898,6 +899,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'text_snippet', $properties );
 		$this->assertArrayHasKey( 'cta_text', $properties );
 		$this->assertArrayHasKey( 'main_image_url', $properties );
+		$this->assertArrayHasKey( 'payment_method_id', $properties );
 		$this->assertArrayHasKey( 'languages', $properties );
 		$this->assertArrayHasKey( 'countries', $properties );
 		$this->assertArrayHasKey( 'devices', $properties );
@@ -918,6 +920,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Blaze public page topic IDs', $properties['interests']['description'] );
 		$this->assertContains( 'IAB8_IAB18', $properties['interests']['items']['enum'] );
 		$this->assertNotContains( 'IAB18', $properties['interests']['items']['enum'] );
+		$this->assertStringContainsString( 'existing saved payment method', $properties['payment_method_id']['description'] );
 
 		$output_properties = $ability['output_schema']['properties'];
 		$this->assertContains( 'message', $ability['output_schema']['required'] );
@@ -945,6 +948,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
 		$this->assertContains( 'destination', $output_properties['campaign_summary']['required'] );
 		$this->assertContains( 'chat_native_submit', $output_properties['submit_eligibility']['required'] );
+		$this->assertContains( 'selected_payment_method', $output_properties['submit_eligibility']['required'] );
+		$this->assertContains( 'available_payment_methods', $output_properties['submit_eligibility']['required'] );
 		$this->assertContains( 'material_fields', $output_properties['material_edit_policy']['required'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
@@ -989,6 +994,23 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			sprintf( '/sites/%d/wordads/dsp/api/v1.1/forecast', self::TEST_SITE_ID ),
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
+	 * Register a test payment methods route for the preparer's proxied DSP request.
+	 *
+	 * @param callable $callback Route callback.
+	 */
+	private function register_payment_methods_route( callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/payments/methods', self::TEST_SITE_ID ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => $callback,
 				'permission_callback' => '__return_true',
 			)
@@ -1254,6 +1276,21 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	 */
 	public function test_wrapped_prepare_campaign_marks_chat_native_submit_eligible() {
 		$ctx = $this->make_test_post();
+		$this->register_payment_methods_route(
+			static function () {
+				return array(
+					'payment_methods' => array(
+						array(
+							'id'         => 'pm_default',
+							'type'       => 'card',
+							'card_brand' => 'visa',
+							'last4'      => '4242',
+							'is_default' => true,
+						),
+					),
+				);
+			}
+		);
 
 		$args = array(
 			'execute_callback' => array( Blaze_Abilities::class, 'prepare_campaign' ),
@@ -1273,9 +1310,52 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['submit_eligibility']['chat_native_submit'] );
 		$this->assertSame( 'saved_payment_method', $result['submit_eligibility']['payment_method'] );
+		$this->assertSame( 'pm_default', $result['submit_eligibility']['selected_payment_method']['id'] );
+		$this->assertSame( 'Visa ending in 4242', $result['submit_eligibility']['selected_payment_method']['label'] );
 		$this->assertArrayHasKey( 'approval_block', $result );
 		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
 		$this->assertSame( 'blaze.approval.confirm_prepared_campaign', $result['approval_block']['confirmation_label_key'] );
+	}
+
+	/**
+	 * Sites without a usable saved payment method still get prepare/preview
+	 * output, but chat-native submit remains blocked in favor of the Blaze UI.
+	 */
+	public function test_wrapped_prepare_campaign_blocks_chat_native_submit_without_saved_payment_method() {
+		$ctx = $this->make_test_post();
+		$this->register_payment_methods_route(
+			static function () {
+				return array(
+					'payment_methods' => array(),
+				);
+			}
+		);
+
+		$args = array(
+			'execute_callback' => array( Blaze_Abilities::class, 'prepare_campaign' ),
+			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
+		);
+
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		$result  = call_user_func(
+			$wrapped['execute_callback'],
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 14,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'pending_merchant_review', $result['status'] );
+		$this->assertNotEmpty( $result['fallback_url'] );
+		$this->assertFalse( $result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'missing_saved_payment_method', $result['submit_eligibility']['payment_method'] );
+		$this->assertSame( 'saved_payment_method_required', $result['submit_eligibility']['reason'] );
+		$this->assertNull( $result['submit_eligibility']['selected_payment_method'] );
+		$this->assertSame( array(), $result['submit_eligibility']['available_payment_methods'] );
+		$this->assertArrayNotHasKey( 'approval_block', $result );
+		$this->assertStringContainsString( 'Review URL: ' . $result['fallback_url'], $result['message'] );
 	}
 
 	/**

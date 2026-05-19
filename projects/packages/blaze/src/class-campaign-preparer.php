@@ -73,8 +73,9 @@ class Campaign_Preparer {
 		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
 		$forecast        = self::request_forecast( $prefill, $intent );
 		$summary         = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
-		$package         = self::build_prepared_campaign_identity( $prefill, $summary );
-		$eligibility     = self::build_submit_eligibility( $args, $prefill, $prefill_url );
+		$payment_context = self::resolve_payment_context( $args, $prefill );
+		$package         = self::build_prepared_campaign_identity( $prefill, $summary, $payment_context['selected_payment_method'] );
+		$eligibility     = self::build_submit_eligibility( $args, $prefill, $prefill_url, $payment_context );
 
 		$proposal = array(
 			'status'               => 'pending_merchant_review',
@@ -301,15 +302,17 @@ class Campaign_Preparer {
 	/**
 	 * Build the immutable package identity for a prepared campaign.
 	 *
-	 * @param array $prefill Recommended campaign prefill payload.
-	 * @param array $summary Structured campaign summary.
+	 * @param array      $prefill                 Recommended campaign prefill payload.
+	 * @param array      $summary                 Structured campaign summary.
+	 * @param array|null $selected_payment_method Selected saved payment method summary.
 	 * @return array
 	 */
-	private static function build_prepared_campaign_identity( array $prefill, array $summary ): array {
+	private static function build_prepared_campaign_identity( array $prefill, array $summary, $selected_payment_method = null ): array {
 		$identity_payload = array(
-			'contract_version' => 'v1',
-			'prefill'          => $prefill,
-			'campaign_summary' => $summary,
+			'contract_version'        => 'v1',
+			'prefill'                 => $prefill,
+			'campaign_summary'        => $summary,
+			'selected_payment_method' => $selected_payment_method,
 		);
 		$hash             = hash( 'sha256', (string) wp_json_encode( $identity_payload, JSON_UNESCAPED_SLASHES ) );
 
@@ -318,6 +321,259 @@ class Campaign_Preparer {
 			'hash'    => $hash,
 			'version' => 'v1',
 		);
+	}
+
+	/**
+	 * Resolve saved payment methods for chat-native submit.
+	 *
+	 * @param array $args    Preparation input.
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @return array
+	 */
+	private static function resolve_payment_context( array $args, array $prefill ): array {
+		/**
+		 * Filters existing saved payment methods available to the prepared
+		 * campaign.
+		 *
+		 * Return an array of payment methods when known, an empty array when no
+		 * usable methods exist, or null when the caller cannot determine saved
+		 * payment method eligibility.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|null $payment_methods Existing saved payment methods.
+		 * @param array      $args            Preparation input.
+		 * @param array      $prefill         Recommended campaign prefill payload.
+		 */
+		$payment_methods = apply_filters( 'jetpack_blaze_prepare_campaign_payment_methods', null, $args, $prefill );
+
+		if ( is_array( $payment_methods ) ) {
+			$methods             = self::normalize_payment_methods( $payment_methods );
+			$requested_method_id = isset( $args['payment_method_id'] ) ? (string) $args['payment_method_id'] : '';
+			$selected            = self::select_payment_method( $methods, $requested_method_id );
+
+			return array(
+				'known'                       => true,
+				'available_payment_methods'  => $methods,
+				'selected_payment_method'    => $selected,
+				'requested_payment_method_id' => $requested_method_id,
+			);
+		}
+
+		return array(
+			'known'                       => false,
+			'available_payment_methods'  => array(),
+			'selected_payment_method'    => null,
+			'requested_payment_method_id' => isset( $args['payment_method_id'] ) ? (string) $args['payment_method_id'] : '',
+		);
+	}
+
+	/**
+	 * Normalize saved payment methods into a compact safe display summary.
+	 *
+	 * @param array $payment_methods Raw payment methods.
+	 * @return array
+	 */
+	private static function normalize_payment_methods( array $payment_methods ): array {
+		$normalized = array();
+
+		foreach ( $payment_methods as $payment_method ) {
+			if ( ! is_array( $payment_method ) ) {
+				continue;
+			}
+
+			$method = self::normalize_payment_method( $payment_method );
+			if ( null !== $method ) {
+				$normalized[] = $method;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize one saved payment method.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return array|null
+	 */
+	private static function normalize_payment_method( array $payment_method ) {
+		$id = self::first_non_empty_string( $payment_method, array( 'id', 'payment_method_id', 'paymentMethodId', 'token_id', 'tokenId' ) );
+		if ( '' === $id || ! self::is_usable_payment_method( $payment_method ) ) {
+			return null;
+		}
+
+		$card      = isset( $payment_method['card'] ) && is_array( $payment_method['card'] ) ? $payment_method['card'] : array();
+		$type      = self::first_non_empty_string( $payment_method, array( 'type', 'payment_method_type', 'paymentMethodType', 'method' ) );
+		$brand     = self::first_non_empty_string( $payment_method, array( 'brand', 'card_brand', 'cardBrand' ) );
+		$last4     = self::first_non_empty_string( $payment_method, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+		$exp_month = self::first_integer( $payment_method, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
+		$exp_year  = self::first_integer( $payment_method, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+
+		if ( '' === $brand ) {
+			$brand = self::first_non_empty_string( $card, array( 'brand', 'card_brand', 'cardBrand' ) );
+		}
+		if ( '' === $last4 ) {
+			$last4 = self::first_non_empty_string( $card, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+		}
+		if ( null === $exp_month ) {
+			$exp_month = self::first_integer( $card, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
+		}
+		if ( null === $exp_year ) {
+			$exp_year = self::first_integer( $card, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+		}
+		if ( '' === $type ) {
+			$type = '' !== $last4 ? 'card' : 'saved_payment_method';
+		}
+
+		$summary = array(
+			'id'         => $id,
+			'type'       => $type,
+			'brand'      => $brand,
+			'last4'      => $last4,
+		);
+
+		if ( null !== $exp_month ) {
+			$summary['exp_month'] = $exp_month;
+		}
+		if ( null !== $exp_year ) {
+			$summary['exp_year'] = $exp_year;
+		}
+
+		$summary['label']      = self::build_payment_method_label( $type, $brand, $last4 );
+		$summary['is_default'] = self::is_default_payment_method( $payment_method );
+
+		return $summary;
+	}
+
+	/**
+	 * Whether a saved payment method is usable for chat-native submit.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return bool
+	 */
+	private static function is_usable_payment_method( array $payment_method ): bool {
+		foreach ( array( 'usable', 'is_usable', 'isUsable', 'eligible', 'enabled' ) as $key ) {
+			if ( array_key_exists( $key, $payment_method ) ) {
+				return (bool) $payment_method[ $key ];
+			}
+		}
+
+		foreach ( array( 'invalid', 'disabled', 'expired' ) as $key ) {
+			if ( ! empty( $payment_method[ $key ] ) ) {
+				return false;
+			}
+		}
+
+		if ( isset( $payment_method['status'] ) ) {
+			$status = strtolower( (string) $payment_method['status'] );
+			return in_array( $status, array( 'active', 'valid', 'usable', 'enabled' ), true );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether a saved payment method is the server-owned default.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return bool
+	 */
+	private static function is_default_payment_method( array $payment_method ): bool {
+		foreach ( array( 'is_default', 'isDefault', 'default' ) as $key ) {
+			if ( array_key_exists( $key, $payment_method ) ) {
+				return (bool) $payment_method[ $key ];
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Select the requested saved payment method, the default, or the first usable.
+	 *
+	 * @param array  $payment_methods     Normalized payment methods.
+	 * @param string $requested_method_id Requested payment method ID.
+	 * @return array|null
+	 */
+	private static function select_payment_method( array $payment_methods, string $requested_method_id ) {
+		if ( '' !== $requested_method_id ) {
+			foreach ( $payment_methods as $method ) {
+				if ( isset( $method['id'] ) && $requested_method_id === (string) $method['id'] ) {
+					return $method;
+				}
+			}
+
+			return null;
+		}
+
+		foreach ( $payment_methods as $method ) {
+			if ( ! empty( $method['is_default'] ) ) {
+				return $method;
+			}
+		}
+
+		return $payment_methods[0] ?? null;
+	}
+
+	/**
+	 * Build a compact display label for a saved payment method.
+	 *
+	 * @param string $type  Payment method type.
+	 * @param string $brand Payment brand.
+	 * @param string $last4 Last four digits.
+	 * @return string
+	 */
+	private static function build_payment_method_label( string $type, string $brand, string $last4 ): string {
+		if ( '' !== $last4 ) {
+			$display_brand = '' !== $brand ? ucwords( str_replace( array( '_', '-' ), ' ', $brand ) ) : __( 'Card', 'jetpack-blaze' );
+			return sprintf(
+				/* translators: 1: payment card brand, 2: last four digits. */
+				__( '%1$s ending in %2$s', 'jetpack-blaze' ),
+				$display_brand,
+				$last4
+			);
+		}
+
+		if ( '' !== $brand ) {
+			return ucwords( str_replace( array( '_', '-' ), ' ', $brand ) );
+		}
+
+		return ucwords( str_replace( array( '_', '-' ), ' ', $type ) );
+	}
+
+	/**
+	 * Return the first non-empty string field from an array.
+	 *
+	 * @param array $source Source array.
+	 * @param array $keys   Candidate keys.
+	 * @return string
+	 */
+	private static function first_non_empty_string( array $source, array $keys ): string {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && '' !== (string) $source[ $key ] ) {
+				return (string) $source[ $key ];
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Return the first integer field from an array.
+	 *
+	 * @param array $source Source array.
+	 * @param array $keys   Candidate keys.
+	 * @return int|null
+	 */
+	private static function first_integer( array $source, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && is_numeric( $source[ $key ] ) ) {
+				return (int) $source[ $key ];
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -419,12 +675,44 @@ class Campaign_Preparer {
 	/**
 	 * Build chat-native submit eligibility hints.
 	 *
-	 * @param array  $args         Preparation input.
-	 * @param array  $prefill      Recommended campaign prefill payload.
-	 * @param string $fallback_url Blaze widget/dashboard fallback URL.
+	 * @param array  $args            Preparation input.
+	 * @param array  $prefill         Recommended campaign prefill payload.
+	 * @param string $fallback_url    Blaze widget/dashboard fallback URL.
+	 * @param array  $payment_context Saved payment method context.
 	 * @return array
 	 */
-	private static function build_submit_eligibility( array $args, array $prefill, string $fallback_url ): array {
+	private static function build_submit_eligibility( array $args, array $prefill, string $fallback_url, array $payment_context ): array {
+		if ( $payment_context['known'] ) {
+			$base = array(
+				'fallback_url'                       => $fallback_url,
+				'selected_payment_method'            => $payment_context['selected_payment_method'],
+				'available_payment_methods'          => $payment_context['available_payment_methods'],
+				'supports_payment_method_switching' => count( $payment_context['available_payment_methods'] ) > 1,
+			);
+
+			if ( is_array( $payment_context['selected_payment_method'] ) ) {
+				return array_merge(
+					array(
+						'chat_native_submit' => true,
+						'payment_method'     => 'saved_payment_method',
+						'reason'             => null,
+					),
+					$base
+				);
+			}
+
+			return array_merge(
+				array(
+					'chat_native_submit' => false,
+					'payment_method'     => 'missing_saved_payment_method',
+					'reason'             => '' !== $payment_context['requested_payment_method_id']
+						? 'requested_payment_method_unavailable'
+						: 'saved_payment_method_required',
+				),
+				$base
+			);
+		}
+
 		/**
 		 * Filters whether the prepared campaign can use an existing saved payment
 		 * method for chat-native submit.
@@ -441,24 +729,35 @@ class Campaign_Preparer {
 		 */
 		$has_saved_payment_method = apply_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', null, $args, $prefill );
 
+		$base = array(
+			'fallback_url'                       => $fallback_url,
+			'selected_payment_method'            => null,
+			'available_payment_methods'          => array(),
+			'supports_payment_method_switching' => false,
+		);
+
 		if ( true === $has_saved_payment_method ) {
-			return array(
-				'chat_native_submit' => true,
-				'payment_method'     => 'saved_payment_method',
-				'reason'             => null,
-				'fallback_url'       => $fallback_url,
+			return array_merge(
+				array(
+					'chat_native_submit' => true,
+					'payment_method'     => 'saved_payment_method',
+					'reason'             => null,
+				),
+				$base
 			);
 		}
 
-		return array(
-			'chat_native_submit' => false,
-			'payment_method'     => false === $has_saved_payment_method
-				? 'missing_saved_payment_method'
-				: 'unknown',
-			'reason'             => false === $has_saved_payment_method
-				? 'saved_payment_method_required'
-				: 'payment_eligibility_unknown',
-			'fallback_url'       => $fallback_url,
+		return array_merge(
+			array(
+				'chat_native_submit' => false,
+				'payment_method'     => false === $has_saved_payment_method
+					? 'missing_saved_payment_method'
+					: 'unknown',
+				'reason'             => false === $has_saved_payment_method
+					? 'saved_payment_method_required'
+					: 'payment_eligibility_unknown',
+			),
+			$base
 		);
 	}
 
@@ -496,9 +795,10 @@ class Campaign_Preparer {
 				'cadence',
 				'schedule',
 				'targeting',
+				'payment_method',
 			),
 			'message'            => __(
-				'Changing destination, creative, budget, cadence, schedule, or targeting requires preparing a new Blaze campaign package before approval or submit.',
+				'Changing destination, creative, budget, cadence, schedule, targeting, or payment method requires preparing a new Blaze campaign package before approval or submit.',
 				'jetpack-blaze'
 			),
 		);

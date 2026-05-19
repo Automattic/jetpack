@@ -45,6 +45,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		unset( $GLOBALS['wp_rest_server'] );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method' );
+		remove_all_filters( 'jetpack_blaze_prepare_campaign_payment_methods' );
 	}
 
 	/**
@@ -211,6 +212,72 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertContains( 'creative', $result['material_edit_policy']['material_fields'] );
 		$this->assertContains( 'budget', $result['material_edit_policy']['material_fields'] );
 		$this->assertContains( 'targeting', $result['material_edit_policy']['material_fields'] );
+	}
+
+	/**
+	 * Saved payment details are summarized compactly and become part of the
+	 * prepared identity so switching methods requires fresh approval.
+	 */
+	public function test_prepare_selects_saved_payment_method_for_chat_native_submit() {
+		add_filter(
+			'jetpack_blaze_prepare_campaign_payment_methods',
+			static function () {
+				return array(
+					array(
+						'id'         => 'pm_backup',
+						'type'       => 'card',
+						'card_brand' => 'visa',
+						'last4'      => '4242',
+						'is_default' => false,
+					),
+					array(
+						'id'         => 'pm_default',
+						'type'       => 'card',
+						'card_brand' => 'mastercard',
+						'last4'      => '5555',
+						'exp_month'  => 8,
+						'exp_year'   => 2030,
+						'is_default' => true,
+					),
+				);
+			}
+		);
+
+		$ctx = $this->make_test_post();
+
+		$default_result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+		$switched_result = Campaign_Preparer::prepare(
+			array(
+				'target_urn'         => $ctx['target_urn'],
+				'payment_method_id'  => 'pm_backup',
+			)
+		);
+
+		$this->assertIsArray( $default_result );
+		$this->assertIsArray( $switched_result );
+		$this->assertTrue( $default_result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'saved_payment_method', $default_result['submit_eligibility']['payment_method'] );
+		$this->assertSame(
+			array(
+				'id'         => 'pm_default',
+				'type'       => 'card',
+				'brand'      => 'mastercard',
+				'last4'      => '5555',
+				'exp_month'  => 8,
+				'exp_year'   => 2030,
+				'label'      => 'Mastercard ending in 5555',
+				'is_default' => true,
+			),
+			$default_result['submit_eligibility']['selected_payment_method']
+		);
+		$this->assertCount( 2, $default_result['submit_eligibility']['available_payment_methods'] );
+		$this->assertSame( 'pm_backup', $switched_result['submit_eligibility']['selected_payment_method']['id'] );
+		$this->assertNotSame( $default_result['prepared_campaign']['id'], $switched_result['prepared_campaign']['id'] );
+		$this->assertContains( 'payment_method', $default_result['material_edit_policy']['material_fields'] );
 	}
 
 	/**
