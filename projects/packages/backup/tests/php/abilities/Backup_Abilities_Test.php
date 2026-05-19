@@ -485,6 +485,87 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Wpcom can answer the enqueue endpoint with HTTP 200 and a body of
+	 * `{ success: false, error: ... }` — meaning the service was reached
+	 * but declined the request. The ability must report that as a failure
+	 * rather than claiming the backup was enqueued.
+	 */
+	public function test_request_backup_returns_wp_error_when_upstream_reports_unsuccess(): void {
+		wp_set_current_user( $this->admin_id );
+
+		$mock = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'success' => false,
+						'error'   => 'Backup service declined.',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			);
+		};
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
+		add_filter( 'pre_http_request', $mock );
+
+		$result = Backup_Abilities::execute_request_backup( array() );
+
+		remove_filter( 'pre_http_request', $mock );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_backup_data_unavailable', $result->get_error_code() );
+	}
+
+	/**
+	 * Happy path: wpcom returns HTTP 200 with `{ success: true }`, the ability
+	 * should report the backup as enqueued.
+	 */
+	public function test_request_backup_returns_enqueued_when_upstream_reports_success(): void {
+		wp_set_current_user( $this->admin_id );
+
+		$mock = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
+		add_filter( 'pre_http_request', $mock );
+
+		$result = Backup_Abilities::execute_request_backup( array() );
+
+		remove_filter( 'pre_http_request', $mock );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['enqueued'] );
+		$this->assertNotEmpty( $result['message'] );
+	}
+
+	/**
+	 * Mock a Jetpack user connection so wpcom-as-user requests are signed.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name  Option name.
+	 * @return mixed
+	 */
+	public function mock_jetpack_connection_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return 'test.blogtoken';
+			case 'id':
+				return '999';
+			case 'user_tokens':
+				$user_id = get_current_user_id();
+				if ( $user_id ) {
+					return array( $user_id => sprintf( 'token%d.secret%d.%d', $user_id, $user_id, $user_id ) );
+				}
+		}
+		return $value;
+	}
+
+	/**
 	 * Regression: the Abilities API may hand the callback non-array input
 	 * (string, null, etc.) before `additionalProperties:false` validation
 	 * rejects it. Callbacks must not fatal — they should treat unrecognised

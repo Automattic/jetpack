@@ -740,8 +740,10 @@ class Backup_Abilities extends Registrar {
 	public static function execute_request_backup( $input = null ) {
 		unset( $input );
 
+		// wpcom can return HTTP 200 with `{ success: false, error: ... }`; treat
+		// that as a failure rather than reporting the backup was enqueued.
 		$result = self::unwrap_response( Jetpack_Backup::enqueue_backup() );
-		if ( null === $result ) {
+		if ( ! is_array( $result ) || empty( $result['success'] ) ) {
 			return new WP_Error(
 				'jetpack_backup_data_unavailable',
 				__( 'The backup service did not accept the request. The connection to WordPress.com may be temporarily unavailable; retry shortly.', 'jetpack-backup-pkg' )
