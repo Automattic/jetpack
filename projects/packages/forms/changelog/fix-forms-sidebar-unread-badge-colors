@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix unread submissions counter badge colors in the admin sidebar.
