@@ -466,17 +466,18 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * UI feature flag for Review Mediator. Server still gates execution.
-	 * Reuses the existing dev-mode predicate (proxied requests + known
-	 * dev hosts) — same precedent as Image Studio.
+	 * UI feature flag for AI Editorial Review.
+	 *
+	 * Server-side permission checks still gate execution. This site-side flag
+	 * controls whether the sidebar suggestion is exposed, while keeping a
+	 * feature-specific filter available as a kill switch.
 	 *
 	 * @return bool
 	 */
 	private static function is_review_mediator_enabled(): bool {
 		return (bool) apply_filters(
 			'jetpack_ai_review_mediator_enabled',
-			// Intentionally site-side: wpcom uses A8C user/proxy context for backend execution.
-			self::is_dev_mode()
+			true
 		);
 	}
 
@@ -510,7 +511,7 @@ class Jetpack_AI_Sidebar {
 	 * redeploy.
 	 *
 	 * Skipped on WordPress.com Simple — wpcom's data extension owns the predicate
-	 * there with stricter A8C+proxied checks.
+	 * there, including any wpcom_review_mediator_enabled kill-switch override.
 	 *
 	 * @return void
 	 */

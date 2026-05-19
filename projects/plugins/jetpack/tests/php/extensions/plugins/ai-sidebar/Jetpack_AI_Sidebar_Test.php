@@ -304,15 +304,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Default off when no dev-mode signal is present and no filter override.
+	 * Default on when no dev-mode signal is present and no filter override.
 	 */
-	public function test_maybe_enqueue_am_hides_review_mediator_by_default() {
+	public function test_maybe_enqueue_am_exposes_review_mediator_by_default() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -404,6 +404,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_review_mediator() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_false' );
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
