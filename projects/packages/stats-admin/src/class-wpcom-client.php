@@ -40,7 +40,7 @@ class WPCOM_Client {
 		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' ) && ! static::should_bypass_cache();
 
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = $cache_key !== null ? $cache_key : self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
+		$cache_key = $cache_key ?? self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
 			$response_body_content = get_transient( $cache_key );
@@ -116,7 +116,7 @@ class WPCOM_Client {
 		if ( $error_code !== null || $response_code !== 200 ) {
 			return new WP_Error(
 				$error_code,
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}

@@ -957,12 +957,12 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	public function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
 		if ( isset( $plugins_action_links['hello.php'] ) ) {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
+			$only_plugins_we_care_about['hello.php'] = $plugins_action_links['hello.php'] ?? '';
 		} else {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello-dolly/hello.php'] ) ? $plugins_action_links['hello-dolly/hello.php'] : '';
+			$only_plugins_we_care_about['hello.php'] = $plugins_action_links['hello-dolly/hello.php'] ?? '';
 		}
 
-		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
+		$only_plugins_we_care_about['jetpack/jetpack.php'] = $plugins_action_links['jetpack/jetpack.php'] ?? '';
 		return $only_plugins_we_care_about;
 	}
 

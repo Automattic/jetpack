@@ -582,6 +582,7 @@ class The_Neverending_Home_Page {
 				continue;
 			}
 
+			// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing -- probably would be safe to collapse, but not changing just in case.
 			$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 			if ( 'modified' === $orderby || false === $post_date ) {
@@ -683,9 +684,9 @@ class The_Neverending_Home_Page {
 			return false;
 		}
 
-		$post      = end( self::wp_query()->posts );
-		$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ?
-			self::wp_query()->query_vars['orderby'] : '';
+		$post = end( self::wp_query()->posts );
+		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing -- probably would be safe to collapse, but not changing just in case.
+		$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 		$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 		switch ( $orderby ) {
 			case 'modified':
@@ -711,7 +712,7 @@ class The_Neverending_Home_Page {
 			$query = self::wp_query();
 		}
 
-		$orderby = isset( $query->query_vars['orderby'] ) ? $query->query_vars['orderby'] : '';
+		$orderby = $query->query_vars['orderby'] ?? '';
 
 		switch ( $orderby ) {
 			case 'modified':

@@ -73,7 +73,7 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 */
 	protected function get_jetpack_connection_status() {
 		$status = REST_Connector::connection_status();
-		return isset( $status->data ) ? $status->data : array();
+		return $status->data ?? array();
 	}
 
 	/**

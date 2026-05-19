@@ -1052,7 +1052,7 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$variant       = $attributes['variant'] ?? 'line';
 		$is_dots_style = $variant === 'dots';
 
 		// Build custom CSS variables for progress indicator colors
@@ -1169,7 +1169,7 @@ class Contact_Form_Plugin {
 		return array(
 			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'], JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) : '',
 			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
-			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
+			'stylevariationstyles'     => $block_support_styles['style'] ?? '',
 		);
 	}
 
@@ -1743,7 +1743,7 @@ class Contact_Form_Plugin {
 			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
 
 			// This is lame - no core API for getting a widget by ID
-			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
+			$widget = $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ?? false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
 				// prevent PHP notices by populating widget args
@@ -1843,8 +1843,8 @@ class Contact_Form_Plugin {
 				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
 					$postdata = generate_postdata( $post );
 					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-					$paged    = isset( $page ) ? $page : 1;
-					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+					$paged    = $page ?? 1;
+					$content  = $postdata['pages'][ $paged - 1 ] ?? $post->post_content;
 				} else {
 					$content = $post->post_content;
 				}
@@ -1854,7 +1854,7 @@ class Contact_Form_Plugin {
 		}
 
 		// In future version we will be able to skip this step.
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		$form = Contact_Form::$forms[ $hash ] ?? null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -2149,7 +2149,7 @@ class Contact_Form_Plugin {
 	 * @param array $widget The widget data.
 	 */
 	public function track_current_widget( $widget ) {
-		$this->current_widget_id = isset( $widget['id'] ) ? $widget['id'] : '';
+		$this->current_widget_id = $widget['id'] ?? '';
 	}
 
 	/**
@@ -2446,13 +2446,13 @@ class Contact_Form_Plugin {
 	 */
 	public function get_post_meta_for_csv_export( $post_id, $has_json_data = false ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
-		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		$all_fields     = $content_fields['_feedback_all_fields'] ?? array();
 		$md             = $has_json_data
 			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md['93_ip_address']    = $content_fields['_feedback_ip'] ?? 0;
 
 		// add the email_marketing_consent to the post meta.
 		$md['90_consent'] = 0;
@@ -2991,7 +2991,7 @@ class Contact_Form_Plugin {
 					$results[ $trimmed_field_name ] = array();
 				}
 				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
+				$results[ $trimmed_field_name ][] = $compiled_fields[ $trimmed_field_name ] ?? '';
 			}
 
 			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
@@ -3967,12 +3967,12 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		// Get min, max, and default from the parent block's attributes.
 		$parent_attrs     = $block->parsed_block['attrs'] ?? array();
-		$atts['min']      = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
-		$atts['max']      = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
-		$atts['default']  = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
-		$atts['step']     = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
-		$atts['minLabel'] = isset( $parent_attrs['minLabel'] ) ? $parent_attrs['minLabel'] : '';
-		$atts['maxLabel'] = isset( $parent_attrs['maxLabel'] ) ? $parent_attrs['maxLabel'] : '';
+		$atts['min']      = $parent_attrs['min'] ?? 0;
+		$atts['max']      = $parent_attrs['max'] ?? 100;
+		$atts['default']  = $parent_attrs['default'] ?? 0;
+		$atts['step']     = $parent_attrs['step'] ?? 1;
+		$atts['minLabel'] = $parent_attrs['minLabel'] ?? '';
+		$atts['maxLabel'] = $parent_attrs['maxLabel'] ?? '';
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

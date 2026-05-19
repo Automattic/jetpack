@@ -300,10 +300,10 @@ class Jetpack_Redux_State_Helper {
 		$content = wp_kses_post( $post['content'] );
 		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
 
-		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$post_title = $post['title'] ?? null;
 		$title      = wp_kses( $post_title, array() );
 
-		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		$post_thumbnail = $post['post_thumbnail'] ?? null;
 		if ( ! empty( $post_thumbnail ) ) {
 			$photon_image = new Image_CDN_Image(
 				array(

@@ -176,7 +176,7 @@ class Critical_CSS_State {
 	}
 
 	public function get_error_message() {
-		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
+		return $this->state['status_error'] ?? null;
 	}
 
 	public function is_generated() {

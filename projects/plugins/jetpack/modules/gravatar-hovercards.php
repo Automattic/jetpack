@@ -212,10 +212,10 @@ function grofiles_get_avatar( $avatar, $author ) {
 					}
 				}
 
-				$profile      = isset( $response_body->entry[0] ) ? $response_body->entry[0] : null;
-				$display_name = isset( $profile->displayName ) ? $profile->displayName : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$location     = isset( $profile->currentLocation ) ? $profile->currentLocation : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$description  = isset( $profile->aboutMe ) ? $profile->aboutMe : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$profile      = $response_body->entry[0] ?? null;
+				$display_name = $profile->displayName ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$location     = $profile->currentLocation ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$description  = $profile->aboutMe ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				$avatar = '
 					<figure data-amp-lightbox="true">
