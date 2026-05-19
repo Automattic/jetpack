@@ -218,6 +218,9 @@ class Classic_Search {
 		if ( ! $this->jetpack_blog_id || ! is_search() ) {
 			return;
 		}
+		if ( Module_Control::EXPERIENCE_INLINE !== ( new Module_Control() )->get_experience() ) {
+			return;
+		}
 
 		$query = get_search_query( false );
 		if ( ! is_string( $query ) || strlen( trim( $query ) ) < 3 ) {
