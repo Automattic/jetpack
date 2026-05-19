@@ -41,7 +41,7 @@ function createContainer( options ) {
 	}
 
 	const container = document.createElement( 'div' );
-	container.className = 'jetpack-search-ai-answers';
+	container.className = 'jetpack-search-ai-answers jetpack-search-ai-answers--theme';
 	container.hidden = true;
 
 	if ( target.matches?.( 'main, body' ) ) {

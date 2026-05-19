@@ -1,6 +1,11 @@
 .jetpack-search-ai-answers {
 	margin-block-end: 1rem;
 
+	&--theme {
+		margin-block-start: 0.5rem;
+		margin-block-end: 1.5rem;
+	}
+
 	&[hidden] {
 		display: none;
 	}
@@ -23,6 +28,10 @@
 		text-transform: uppercase;
 	}
 
+	&--theme .jp-search-answers-panel__heading {
+		padding-block-start: 0.75rem;
+	}
+
 	.jp-search-answers-panel--error {
 		border-color: #d63638;
 	}
@@ -38,6 +47,12 @@
 	.jp-search-answers-panel__loading,
 	.jp-search-answers-panel__content {
 		padding-block-end: 0.875rem;
+	}
+
+	&--theme .jp-search-answers-panel__error,
+	&--theme .jp-search-answers-panel__loading,
+	&--theme .jp-search-answers-panel__content {
+		padding-block-end: 1rem;
 	}
 
 	.jp-search-answers-panel__error-message {
@@ -70,6 +85,10 @@
 		font-style: italic;
 		margin: 0;
 		padding-block-end: 0.875rem;
+	}
+
+	&--theme .jp-search-answers-panel__loading-hint {
+		padding-block-end: 1rem;
 	}
 
 	.jp-search-answers-panel__text {
