@@ -320,18 +320,29 @@ function getContent() {
 }
 
 /**
- * Whether the editor has anything worth saving — non-empty title or
- * non-empty content. Used by actions that need a real post to navigate
- * to before they can do their job.
+ * Whether the editor has anything worth saving — non-empty title, any
+ * text content, or a media/separator block. Used by actions that need a
+ * real post to navigate to before they can do their job, and by the
+ * client-side empty-save guard.
  *
- * @return {boolean} True when there's title or content text.
+ * textContent rather than innerHTML so structural-only markup like
+ * <p><br></p> doesn't count as content. Figures and separators have no
+ * textContent but are still valid content, so check for them too.
+ *
+ * @return {boolean} True when there's title, text, or a media/separator block.
  */
 function hasWritableContent() {
 	if ( state.title && state.title.trim() ) {
 		return true;
 	}
 	const content = getContent();
-	return !! ( content && content.textContent.trim() );
+	if ( ! content ) {
+		return false;
+	}
+	if ( content.textContent.trim() ) {
+		return true;
+	}
+	return !! content.querySelector( 'figure, hr' );
 }
 
 /**
