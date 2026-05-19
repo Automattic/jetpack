@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Create AI Podcast: show "Out of credits" for 429 responses and "An unexpected error occurred." for other non-JSON failures, instead of "The response is not a valid JSON response."

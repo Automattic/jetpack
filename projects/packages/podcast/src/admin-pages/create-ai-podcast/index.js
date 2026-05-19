@@ -57,17 +57,70 @@
 	}
 
 	/**
-	 * Strip the `_envelope=1` wrapper that the wpcom proxy unconditionally
-	 * adds to wpcom/v2 requests on Simple sites (see provider-v2.0.js
-	 * `_envelope=1` append). The wrapped shape is `{ code, headers, body }`
-	 * (see WPCOM_JSON_API::wrap_http_envelope). We unwrap to `body` for 2xx
-	 * and throw the body for non-2xx so callers' try/catch paths fire the
-	 * same way they do for native apiFetch errors on Atomic.
+	 * Normalize a failed response into an Error whose `.message` is safe to
+	 * surface to the user. When the body parsed as a structured WP error
+	 * (`{ code, message, data }`), use that message verbatim. Otherwise pick
+	 * the i18n fallback for 429 (no credits) or any other status (generic).
+	 *
+	 * @param status - HTTP status code, or null when no response reached us.
+	 * @param body   - Parsed response body, or null if the response wasn't JSON.
+	 * @param cause  - Optional underlying error to attach as `Error.cause`.
+	 */
+	function normalizeApiError( status, body, cause ) {
+		const isRateLimited = status === 429;
+		if (
+			body &&
+			typeof body === 'object' &&
+			typeof body.message === 'string' &&
+			body.message !== ''
+		) {
+			const err = new Error( body.message );
+			err.code = body.code || ( isRateLimited ? 'rate_limited' : 'unexpected' );
+			err.data = { status, ...( body.data || {} ) };
+			return err;
+		}
+		const err = new Error(
+			isRateLimited ? data.i18n.outOfCreditsTitle : data.i18n.unexpectedError
+		);
+		err.code = isRateLimited ? 'rate_limited' : 'unexpected';
+		err.data = { status };
+		if ( cause ) {
+			err.cause = cause;
+		}
+		return err;
+	}
+
+	/**
+	 * Issue an apiFetch and normalize the response into either the JSON body
+	 * (for 2xx) or a thrown Error (for non-2xx / non-JSON). Uses `parse: false`
+	 * so we keep the HTTP status when the response body isn't JSON — e.g. an
+	 * Atomic-edge rate-limit page returns a `text/html` 429, which the default
+	 * apiFetch path would surface only as `invalid_json` with no status code.
+	 *
+	 * Handles two response shapes: (1) the wpcom-proxy envelope
+	 * `{ code, headers, body }` that Simple sites get for /wpcom/v2/ requests
+	 * (see WPCOM_JSON_API::wrap_http_envelope) — the proxy middleware ignores
+	 * `parse: false` and returns this object directly; (2) a native `Response`
+	 * from `parse: false`, which we read once via `.text()` and try to
+	 * JSON-parse ourselves.
 	 *
 	 * @param opts
 	 */
 	async function apiCall( opts ) {
-		const response = await apiFetch( opts );
+		let response;
+		try {
+			response = await apiFetch( { ...opts, parse: false } );
+		} catch ( err ) {
+			// apiFetch's default fetch handler throws the raw `Response` directly
+			// on non-2xx when parse:false (see wp-includes/js/dist/api-fetch.js
+			// `parseAndThrowError` — `if (!shouldParseResponse) throw response`).
+			// Recover the status + body so the user sees the right message.
+			if ( err && typeof err.status === 'number' && typeof err.text === 'function' ) {
+				throw normalizeApiError( err.status, await readJsonBody( err ) );
+			}
+			throw normalizeApiError( null, null, err );
+		}
+
 		if (
 			response &&
 			typeof response === 'object' &&
@@ -76,11 +129,35 @@
 			'headers' in response
 		) {
 			if ( response.code < 200 || response.code >= 300 ) {
-				throw response.body || { code: 'unknown', message: `HTTP ${ response.code }` };
+				throw normalizeApiError( response.code, response.body );
 			}
 			return response.body;
 		}
+
+		if ( response && typeof response.text === 'function' ) {
+			return readJsonBody( response );
+		}
+
 		return response;
+	}
+
+	/**
+	 * Read a `Response` body once and try to JSON-parse it. Returns null for
+	 * empty or non-JSON bodies (e.g. edge rate-limit HTML pages) so callers
+	 * can branch on the HTTP status instead of crashing on JSON.parse.
+	 *
+	 * @param response
+	 */
+	async function readJsonBody( response ) {
+		const text = await response.text().catch( () => '' );
+		if ( text === '' ) {
+			return null;
+		}
+		try {
+			return JSON.parse( text );
+		} catch {
+			return null;
+		}
 	}
 
 	// Initial reads are pre-warmed server-side via wp_localize_script — see
@@ -690,6 +767,19 @@
 		);
 	}
 
+	/**
+	 * Treat both the wpcom monthly-quota 429 (`rate-limited` / `rate_limited`)
+	 * and any other 429 (e.g. edge rate-limit) as out-of-credits — retrying
+	 * immediately wouldn't help in either case.
+	 *
+	 * @param err
+	 */
+	function isRateLimitedError( err ) {
+		const code = err?.code || '';
+		const status = err?.data?.status;
+		return code === 'rate_limited' || code === 'rate-limited' || status === 429;
+	}
+
 	function onFailed( message, options = {} ) {
 		setFormDisabled( false );
 		const statusOptions = options.suppressRetry
@@ -749,17 +839,15 @@
 			}
 			if ( response?.status === 'failed' ) {
 				const failureMessage = response.errorMessage || response.message;
+				const failureErr = { code: response.errorCode, message: failureMessage };
 				onFailed( failureMessage, {
-					suppressRetry: isEmptyWindowError( {
-						code: response.errorCode,
-						message: failureMessage,
-					} ),
+					suppressRetry: isEmptyWindowError( failureErr ) || isRateLimitedError( failureErr ),
 				} );
 				return;
 			}
 			startPolling( jobId, startedAt );
-		} catch {
-			onFailed();
+		} catch ( err ) {
+			onFailed( err?.message, { suppressRetry: isRateLimitedError( err ) } );
 		}
 	}
 
@@ -821,7 +909,9 @@
 			setStatus( 'progress', data.i18n.polling );
 			startPolling( jobId, parseStartedAt( response.createdAt ) );
 		} catch ( err ) {
-			onFailed( err?.message, { suppressRetry: isEmptyWindowError( err ) } );
+			onFailed( err?.message, {
+				suppressRetry: isEmptyWindowError( err ) || isRateLimitedError( err ),
+			} );
 		}
 	}
 

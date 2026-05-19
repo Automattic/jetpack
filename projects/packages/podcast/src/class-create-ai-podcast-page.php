@@ -414,6 +414,7 @@ class Create_AI_Podcast_Page {
 				// translators: %d: page number. Example: "Go to page 3"
 				'paginationGoTo'      => __( 'Go to page %d', 'jetpack-podcast' ),
 				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
+				'unexpectedError'     => __( 'An unexpected error occurred.', 'jetpack-podcast' ),
 			),
 		);
 	}
