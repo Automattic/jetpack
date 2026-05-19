@@ -366,6 +366,7 @@ class Create_AI_Podcast_Page {
 			'i18n'      => array(
 				'submitting'          => __( 'Submitting…', 'jetpack-podcast' ),
 				'polling'             => __( 'Generating your episode…', 'jetpack-podcast' ),
+				'pollingSubtext'      => __( "This usually takes about 3 minutes. You can leave this page and come back — we'll keep working in the background.", 'jetpack-podcast' ),
 				'succeeded'           => __( 'Episode draft ready.', 'jetpack-podcast' ),
 				'editDraft'           => __( 'Edit draft', 'jetpack-podcast' ),
 				'failed'              => __( 'Generation failed.', 'jetpack-podcast' ),

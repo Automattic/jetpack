@@ -287,6 +287,13 @@
 		card.dataset.tone = tone;
 		card.setAttribute( 'role', tone === 'error' ? 'alert' : 'status' );
 
+		if ( tone === 'progress' ) {
+			const spinner = document.createElement( 'span' );
+			spinner.className = 'jetpack-create-ai-podcast__status-spinner';
+			spinner.setAttribute( 'aria-hidden', 'true' );
+			card.appendChild( spinner );
+		}
+
 		const body = document.createElement( 'div' );
 		body.className = 'jetpack-create-ai-podcast__status-body';
 
@@ -294,6 +301,13 @@
 		text.className = 'jetpack-create-ai-podcast__status-message';
 		text.textContent = message;
 		body.appendChild( text );
+
+		if ( options?.subtext ) {
+			const subtext = document.createElement( 'p' );
+			subtext.className = 'jetpack-create-ai-podcast__status-subtext';
+			subtext.textContent = options.subtext;
+			body.appendChild( subtext );
+		}
 
 		if ( options?.link || options?.action ) {
 			const actions = document.createElement( 'div' );
@@ -996,7 +1010,7 @@
 			}
 			currentGeneration.jobId = jobId;
 			currentGeneration.startedAt = parseStartedAt( response.createdAt );
-			setStatus( 'progress', data.i18n.polling );
+			setStatus( 'progress', data.i18n.polling, { subtext: data.i18n.pollingSubtext } );
 			startPolling( jobId, currentGeneration.startedAt );
 		} catch ( err ) {
 			onFailed( err?.message, {
@@ -1339,7 +1353,7 @@
 	 */
 	function resumePolling( jobId, startedAt ) {
 		setFormDisabled( true );
-		setStatus( 'progress', data.i18n.polling );
+		setStatus( 'progress', data.i18n.polling, { subtext: data.i18n.pollingSubtext } );
 		// Bootstrap doesn't carry the original generation_requested dims, so the
 		// terminal Tracks event will only report job_id, elapsed_ms (best-effort
 		// from createdAt), and resumed:true.
