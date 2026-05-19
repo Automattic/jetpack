@@ -141,11 +141,18 @@ class Customize_Feed {
 		}
 
 		/**
-		 * Owner contact email
+		 * Owner contact info. Apple's spec lists `<itunes:owner>` as a recommended
+		 * channel tag and notes both `<itunes:name>` and `<itunes:email>` should
+		 * be included when present — fall back to the site name when no talent
+		 * name is configured so the element is always well-formed.
 		 */
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
-			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
+			$owner_name = '' !== $author ? $author : wp_strip_all_tags( (string) get_bloginfo( 'name' ) );
+			echo '<itunes:owner>'
+				. '<itunes:name>' . esc_xml( $owner_name ) . '</itunes:name>'
+				. '<itunes:email>' . esc_xml( $email ) . '</itunes:email>'
+				. "</itunes:owner>\n";
 			echo '<googleplay:owner>' . esc_xml( $email ) . "</googleplay:owner>\n";
 			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
