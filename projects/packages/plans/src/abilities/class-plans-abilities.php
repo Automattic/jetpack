@@ -19,11 +19,9 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 /**
  * Registers Jetpack Plans abilities with the WordPress Abilities API.
  *
- * Exposes three read-only abilities so AI agents can inspect the site's active
- * Jetpack plan, enumerate available plans the site could move to, and mint a
- * WordPress.com checkout URL for a chosen plan. All three abilities are
- * idempotent and free of side effects (the purchase-URL mint constructs a URL
- * without making the purchase).
+ * Exposes two read-only abilities so AI agents can inspect the site's active
+ * Jetpack plan and enumerate the Jetpack plans the site could move to. Both
+ * abilities are idempotent and free of side effects.
  */
 class Plans_Abilities extends Registrar {
 
@@ -53,6 +51,41 @@ class Plans_Abilities extends Registrar {
 	}
 
 	/**
+	 * Whether a catalog product slug belongs to a Jetpack plan.
+	 *
+	 * Every Jetpack plan WordPress.com sells has a `jetpack_`-prefixed
+	 * product slug (jetpack_free, jetpack_personal, jetpack_security_t1_yearly,
+	 * jetpack_complete, …) — this is the same set wpcom groups under
+	 * Store_Product_List::get_active_jetpack_plans(). Non-Jetpack WordPress.com
+	 * hosting plans use unprefixed slugs (value_bundle, business-bundle, …),
+	 * so the prefix check cleanly separates the two.
+	 *
+	 * @param string $slug Catalog `product_slug`.
+	 * @return bool
+	 */
+	private static function is_jetpack_plan_slug( string $slug ): bool {
+		return 0 === strpos( $slug, 'jetpack_' );
+	}
+
+	/**
+	 * Whether a catalog plan can still be purchased.
+	 *
+	 * WordPress.com keeps discontinued/legacy plans in the catalog so existing
+	 * subscribers retain them, flagging them with the Store_Product `available`
+	 * field — documented upstream as "If the product is sellable, this will be
+	 * 'yes'." We treat the field strictly: only an explicit `yes` keeps a plan,
+	 * so legacy plans (jetpack_business, jetpack_personal, the daily/realtime
+	 * security plans, …) drop out without hardcoding a list that would rot.
+	 *
+	 * @param object|array $plan Plan entry from the WP.com catalog.
+	 * @return bool
+	 */
+	private static function is_purchasable_plan( $plan ): bool {
+		$available = self::read_field( $plan, 'available' );
+		return is_string( $available ) && 'yes' === strtolower( $available );
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public static function get_category_slug(): string {
@@ -77,7 +110,6 @@ class Plans_Abilities extends Registrar {
 		return array(
 			'jetpack-plans/get-current-plan' => self::spec_get_current_plan(),
 			'jetpack-plans/list-plans'       => self::spec_list_plans(),
-			'jetpack-plans/get-purchase-url' => self::spec_get_purchase_url(),
 		);
 	}
 
@@ -135,7 +167,7 @@ class Plans_Abilities extends Registrar {
 	private static function spec_list_plans(): array {
 		return array(
 			'label'               => __( 'List available Jetpack plans', 'jetpack-plans' ),
-			'description'         => __( 'Enumerate Jetpack plans the site could move to as a list of { slug, name, monthly_price, currency, features, upgrade_url } objects. The catalog comes from WordPress.com — call this before jetpack-plans/get-purchase-url to discover valid plan slugs. Optional `category` filter narrows the catalog: "security" returns only Jetpack Security plans; "performance" is currently a synonym for the full catalog (Jetpack does not publish a separate performance bucket); "all" (default) returns everything. monthly_price is the recurring price normalized to a single month for comparison; currency is an ISO-4217 code (e.g. "USD"). Read-only.', 'jetpack-plans' ),
+			'description'         => __( 'Enumerate the Jetpack plans the site could move to as a list of { slug, name, monthly_price, currency, features, upgrade_url } objects. The catalog comes from WordPress.com and is filtered to Jetpack plans that can still be purchased — non-Jetpack WordPress.com hosting plans and discontinued/legacy Jetpack plans (e.g. jetpack_business) are excluded. Optional `category` filter narrows it further: "security" returns only Jetpack Security plans; "performance" is currently a synonym for the full Jetpack catalog (Jetpack does not publish a separate performance bucket); "all" (default) returns every Jetpack plan. monthly_price is the recurring price normalized to a single month for comparison; currency is an ISO-4217 code (e.g. "USD"); upgrade_url is the WordPress.com checkout URL for that plan. Read-only.', 'jetpack-plans' ),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
@@ -167,50 +199,6 @@ class Plans_Abilities extends Registrar {
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'list_plans' ),
-			'permission_callback' => array( __CLASS__, 'can_view_plans' ),
-			'meta'                => array(
-				'annotations'  => array(
-					'readonly'    => true,
-					'destructive' => false,
-					'idempotent'  => true,
-				),
-				'show_in_rest' => true,
-			),
-		);
-	}
-
-	/**
-	 * Spec: jetpack-plans/get-purchase-url.
-	 */
-	private static function spec_get_purchase_url(): array {
-		return array(
-			'label'               => __( 'Get a WordPress.com checkout URL for a plan', 'jetpack-plans' ),
-			'description'         => __( 'Build the WordPress.com checkout URL for a given plan slug as { slug, purchase_url, expires_at_check }. Read-only — this only mints the URL, it does not start a purchase or charge anyone. Input requires `plan_slug` (call jetpack-plans/list-plans first to enumerate valid slugs); an optional `redirect` URL is forwarded to checkout as the post-purchase destination. expires_at_check echoes the current plan\'s expires_at so the caller can detect whether the upgrade is replacing an active paid plan. Fails with jetpack_plans_missing_plan_slug when plan_slug is absent or empty, jetpack_plans_invalid_plan_slug when the slug does not appear in the catalog, jetpack_plans_invalid_redirect when redirect is not an http(s) URL, or jetpack_plans_site_unidentified when the site\'s WordPress.com identifier cannot be resolved (connect the site to Jetpack first).', 'jetpack-plans' ),
-			'input_schema'        => array(
-				'type'                 => 'object',
-				'required'             => array( 'plan_slug' ),
-				'properties'           => array(
-					'plan_slug' => array(
-						'type'        => 'string',
-						'description' => __( 'Canonical product slug from jetpack-plans/list-plans (e.g. "jetpack_security_t1_yearly").', 'jetpack-plans' ),
-					),
-					'redirect'  => array(
-						'type'        => 'string',
-						'description' => __( 'Optional absolute http(s) URL to redirect the user to after checkout completes.', 'jetpack-plans' ),
-						'format'      => 'uri',
-					),
-				),
-				'additionalProperties' => false,
-			),
-			'output_schema'       => array(
-				'type'       => 'object',
-				'properties' => array(
-					'slug'             => array( 'type' => 'string' ),
-					'purchase_url'     => array( 'type' => 'string' ),
-					'expires_at_check' => array( 'type' => array( 'string', 'null' ) ),
-				),
-			),
-			'execute_callback'    => array( __CLASS__, 'get_purchase_url' ),
 			'permission_callback' => array( __CLASS__, 'can_view_plans' ),
 			'meta'                => array(
 				'annotations'  => array(
@@ -327,6 +315,22 @@ class Plans_Abilities extends Registrar {
 				continue;
 			}
 
+			// The WordPress.com /plans catalog mixes Jetpack plans with
+			// non-Jetpack WordPress.com hosting plans (Personal, Premium,
+			// Business, eCommerce, …). Only Jetpack plans are purchasable
+			// through this surface, so drop everything else.
+			if ( ! self::is_jetpack_plan_slug( $slug ) ) {
+				continue;
+			}
+
+			// The catalog still carries discontinued/legacy plans (e.g.
+			// jetpack_business, jetpack_personal) so existing subscribers keep
+			// them, but they can no longer be purchased. Only surface plans
+			// WordPress.com still sells.
+			if ( ! self::is_purchasable_plan( $plan ) ) {
+				continue;
+			}
+
 			if ( 'security' === $category && ! in_array( $slug, $security, true ) ) {
 				continue;
 			}
@@ -342,79 +346,6 @@ class Plans_Abilities extends Registrar {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Execute: get-purchase-url.
-	 *
-	 * Mints a WordPress.com checkout URL for the requested plan slug. Validates
-	 * inputs strictly: missing/empty slug, slug not in catalog, malformed
-	 * redirect, and unresolved site identifier all return targeted WP_Error
-	 * codes that tell the caller what to fix.
-	 *
-	 * @param array|null $input Input matching the ability's input_schema.
-	 * @return array|\WP_Error
-	 */
-	public static function get_purchase_url( $input = null ) {
-		$input = is_array( $input ) ? $input : array();
-
-		if ( ! isset( $input['plan_slug'] ) || ! is_string( $input['plan_slug'] ) || '' === $input['plan_slug'] ) {
-			return new \WP_Error(
-				'jetpack_plans_missing_plan_slug',
-				__( 'A plan_slug (string) is required. Call jetpack-plans/list-plans first to enumerate valid slugs.', 'jetpack-plans' )
-			);
-		}
-		$plan_slug = $input['plan_slug'];
-
-		$redirect = null;
-		if ( isset( $input['redirect'] ) ) {
-			if ( ! is_string( $input['redirect'] ) || '' === $input['redirect'] ) {
-				return new \WP_Error(
-					'jetpack_plans_invalid_redirect',
-					__( 'redirect must be a non-empty http(s) URL.', 'jetpack-plans' )
-				);
-			}
-			$scheme = wp_parse_url( $input['redirect'], PHP_URL_SCHEME );
-			if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
-				return new \WP_Error(
-					'jetpack_plans_invalid_redirect',
-					__( 'redirect must be a non-empty http(s) URL.', 'jetpack-plans' )
-				);
-			}
-			$redirect = $input['redirect'];
-		}
-
-		$plan = static::lookup_plan( $plan_slug );
-		if ( null === $plan ) {
-			return new \WP_Error(
-				'jetpack_plans_invalid_plan_slug',
-				__( 'Unknown plan slug. Call jetpack-plans/list-plans to enumerate valid slugs.', 'jetpack-plans' )
-			);
-		}
-
-		$site_suffix = static::resolve_site_suffix();
-		if ( '' === $site_suffix ) {
-			return new \WP_Error(
-				'jetpack_plans_site_unidentified',
-				__( 'Could not resolve this site\'s WordPress.com identifier. Connect the site to Jetpack first.', 'jetpack-plans' )
-			);
-		}
-
-		$url = self::build_checkout_url( $plan_slug, $plan, $site_suffix, $redirect );
-		if ( null === $url ) {
-			return new \WP_Error(
-				'jetpack_plans_invalid_plan_slug',
-				__( 'The plan slug exists in the catalog but is not purchasable through Jetpack checkout.', 'jetpack-plans' )
-			);
-		}
-
-		$current = static::fetch_current_plan();
-
-		return array(
-			'slug'             => $plan_slug,
-			'purchase_url'     => $url,
-			'expires_at_check' => self::normalize_expiry( $current ),
-		);
 	}
 
 	/*
@@ -446,17 +377,6 @@ class Plans_Abilities extends Registrar {
 	 */
 	protected static function fetch_catalog() {
 		return Plans::get_plans();
-	}
-
-	/**
-	 * Look up a single catalog entry by slug. Wraps {@see Plans::get_plan()}
-	 * so tests can stub it.
-	 *
-	 * @param string $plan_slug Plan slug.
-	 * @return object|array|null
-	 */
-	protected static function lookup_plan( string $plan_slug ) {
-		return Plans::get_plan( $plan_slug );
 	}
 
 	/**

@@ -147,7 +147,7 @@ class Plans_Abilities_Test extends TestCase {
 		$abilities = Plans_Abilities::get_abilities();
 		$this->assertArrayHasKey( 'jetpack-plans/get-current-plan', $abilities );
 		$this->assertArrayHasKey( 'jetpack-plans/list-plans', $abilities );
-		$this->assertArrayHasKey( 'jetpack-plans/get-purchase-url', $abilities );
+		$this->assertArrayNotHasKey( 'jetpack-plans/get-purchase-url', $abilities );
 	}
 
 	// -------------------- Registrar wiring --------------------
@@ -226,7 +226,6 @@ class Plans_Abilities_Test extends TestCase {
 
 		$this->assertTrue( wp_has_ability( 'jetpack-plans/get-current-plan' ) );
 		$this->assertFalse( wp_has_ability( 'jetpack-plans/list-plans' ) );
-		$this->assertTrue( wp_has_ability( 'jetpack-plans/get-purchase-url' ) );
 	}
 
 	/**
@@ -355,7 +354,9 @@ class Plans_Abilities_Test extends TestCase {
 		$result = Plans_Abilities_Test_Stub::list_plans( array() );
 
 		$this->assertIsArray( $result );
-		$this->assertCount( 3, $result );
+		// The sample catalog has two Jetpack plans plus the non-Jetpack
+		// `value_bundle`; only the Jetpack plans are returned.
+		$this->assertCount( 2, $result );
 		$first = $result[0];
 		$this->assertArrayHasKey( 'slug', $first );
 		$this->assertArrayHasKey( 'name', $first );
@@ -364,6 +365,34 @@ class Plans_Abilities_Test extends TestCase {
 		$this->assertArrayHasKey( 'features', $first );
 		$this->assertArrayHasKey( 'upgrade_url', $first );
 		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.test/', (string) $first['upgrade_url'] );
+	}
+
+	/**
+	 * Non-Jetpack WordPress.com plans in the catalog are excluded.
+	 */
+	public function test_list_plans_excludes_non_jetpack_plans() {
+		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
+
+		$result = Plans_Abilities_Test_Stub::list_plans( array() );
+
+		$slugs = array_column( $result, 'slug' );
+		$this->assertContains( 'jetpack_personal', $slugs );
+		$this->assertContains( 'jetpack_security_t1_yearly', $slugs );
+		$this->assertNotContains( 'value_bundle', $slugs );
+	}
+
+	/**
+	 * Discontinued Jetpack plans (catalog `available` !== 'yes') are excluded
+	 * even though they are still Jetpack-slugged and returned by the catalog.
+	 */
+	public function test_list_plans_excludes_discontinued_plans() {
+		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
+
+		$result = Plans_Abilities_Test_Stub::list_plans( array() );
+
+		$slugs = array_column( $result, 'slug' );
+		$this->assertNotContains( 'jetpack_business', $slugs );
+		$this->assertContains( 'jetpack_security_t1_yearly', $slugs );
 	}
 
 	/**
@@ -416,119 +445,14 @@ class Plans_Abilities_Test extends TestCase {
 		$this->assertSame( array(), $result );
 	}
 
-	// -------------------- get-purchase-url --------------------
-
-	/**
-	 * Happy-path purchase URL mints a checkout link rooted at the site fragment.
-	 */
-	public function test_get_purchase_url_happy_path() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array( 'plan_slug' => 'jetpack_security_t1_yearly' ) );
-
-		$this->assertIsArray( $result );
-		$this->assertSame( 'jetpack_security_t1_yearly', $result['slug'] );
-		$this->assertStringStartsWith( 'https://wordpress.com/checkout/example.test/', $result['purchase_url'] );
-		$this->assertArrayHasKey( 'expires_at_check', $result );
-	}
-
-	/**
-	 * Purchase URL uses the catalog's `path_slug` when it differs from `product_slug`.
-	 */
-	public function test_get_purchase_url_honors_path_slug() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array( 'plan_slug' => 'value_bundle' ) );
-
-		$this->assertIsArray( $result );
-		// `value_bundle` has path_slug `premium`; checkout URL uses path_slug, not product_slug.
-		$this->assertStringContainsString( '/premium', $result['purchase_url'] );
-	}
-
-	/**
-	 * `redirect` is appended as a `redirect_to` query arg.
-	 */
-	public function test_get_purchase_url_with_redirect_query_arg() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url(
-			array(
-				'plan_slug' => 'jetpack_security_t1_yearly',
-				'redirect'  => 'https://example.test/done',
-			)
-		);
-
-		$this->assertIsArray( $result );
-		$this->assertStringContainsString( 'redirect_to=', $result['purchase_url'] );
-	}
-
-	/**
-	 * Missing `plan_slug` returns the documented WP_Error code.
-	 */
-	public function test_get_purchase_url_missing_slug_returns_wp_error() {
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array() );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_missing_plan_slug', $result->get_error_code() );
-	}
-
-	/**
-	 * Empty-string `plan_slug` is treated as missing, not unknown.
-	 */
-	public function test_get_purchase_url_empty_slug_returns_wp_error() {
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array( 'plan_slug' => '' ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_missing_plan_slug', $result->get_error_code() );
-	}
-
-	/**
-	 * Unknown `plan_slug` returns `jetpack_plans_invalid_plan_slug`.
-	 */
-	public function test_get_purchase_url_unknown_slug_returns_wp_error() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array( 'plan_slug' => 'nope' ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_invalid_plan_slug', $result->get_error_code() );
-	}
-
-	/**
-	 * Non-http(s) `redirect` values are rejected (e.g. `javascript:`).
-	 */
-	public function test_get_purchase_url_rejects_non_http_redirect() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url(
-			array(
-				'plan_slug' => 'jetpack_security_t1_yearly',
-				'redirect'  => 'javascript:alert(1)',
-			)
-		);
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_invalid_redirect', $result->get_error_code() );
-	}
-
-	/**
-	 * Empty site suffix surfaces as `jetpack_plans_site_unidentified`.
-	 */
-	public function test_get_purchase_url_unidentified_site_returns_wp_error() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog(), '' );
-
-		$result = Plans_Abilities_Test_Stub::get_purchase_url( array( 'plan_slug' => 'jetpack_security_t1_yearly' ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_site_unidentified', $result->get_error_code() );
-	}
-
 	// -------------------- Test fixtures --------------------
 
 	/**
-	 * Catalog fixture covering: a personal-tier plan with a path_slug, a
-	 * security-tier plan whose slug is in Current_Plan::PLAN_DATA['security'],
-	 * and a premium plan with a divergent path_slug.
+	 * Catalog fixture covering: a purchasable personal-tier Jetpack plan with a
+	 * path_slug, a purchasable security-tier plan whose slug is in
+	 * Current_Plan::PLAN_DATA['security'], a non-Jetpack premium plan (filtered
+	 * out by slug), and a discontinued Jetpack plan flagged available => 'no'
+	 * (filtered out as unpurchasable).
 	 */
 	private static function sample_catalog(): array {
 		return array(
@@ -539,6 +463,7 @@ class Plans_Abilities_Test extends TestCase {
 				'raw_price'          => 39.0,
 				'bill_period'        => 365,
 				'currency_code'      => 'USD',
+				'available'          => 'yes',
 				'features_highlight' => array( 'akismet', 'support' ),
 			),
 			(object) array(
@@ -548,6 +473,7 @@ class Plans_Abilities_Test extends TestCase {
 				'raw_price'          => 299.0,
 				'bill_period'        => 365,
 				'currency_code'      => 'USD',
+				'available'          => 'yes',
 				'features_highlight' => array( 'backup', 'scan' ),
 			),
 			(object) array(
@@ -557,7 +483,18 @@ class Plans_Abilities_Test extends TestCase {
 				'raw_price'          => 99.0,
 				'bill_period'        => 365,
 				'currency_code'      => 'USD',
+				'available'          => 'yes',
 				'features_highlight' => array( 'vaultpress', 'videopress' ),
+			),
+			(object) array(
+				'product_slug'       => 'jetpack_business',
+				'product_name_short' => 'Professional',
+				'path_slug'          => 'jetpack_business',
+				'raw_price'          => 299.0,
+				'bill_period'        => 365,
+				'currency_code'      => 'USD',
+				'available'          => 'no',
+				'features_highlight' => array( 'backup', 'scan' ),
 			),
 		);
 	}
