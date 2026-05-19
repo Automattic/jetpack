@@ -6,9 +6,10 @@
 		display: none;
 	}
 
-	// The button itself relies on the active theme's `wp-element-button`
-	// styles (theme.json → styles.elements.button) — we only own the
-	// disabled visual since theme.json doesn't define one.
+	// The button carries `wp-block-button__link` + `wp-element-button` so it
+	// inherits the theme's full core/button look (border-radius, hover) and
+	// renders pixel-identical to a regular core/button on the same theme.
+	// We only own the disabled visual since theme.json doesn't define one.
 	.jetpack-search-load-more__button {
 		cursor: pointer;
 
@@ -16,6 +17,17 @@
 			opacity: 0.5;
 			cursor: not-allowed;
 		}
+	}
+
+	// `is-style-compact` lands on the block root (wrapper); the slim metrics
+	// target the inner button. Two-class specificity beats theme.json's
+	// single-class `.wp-element-button` rules so it wins without `!important`.
+	&.is-style-compact .jetpack-search-load-more__button {
+		padding: 0.25em 0.75em;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		min-width: 0;
+		width: auto;
 	}
 
 	.jetpack-search-load-more__spinner {
