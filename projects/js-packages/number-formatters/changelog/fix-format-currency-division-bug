@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Currency formatting: use ISO 4217 minor-unit exponent for smallest-unit conversion to correctly format IDR and other currencies where browser ICU disagrees with ISO 4217.
