@@ -1055,12 +1055,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case Jetpack_Newsletter_Category_Helper::NEWSLETTER_CATEGORIES_OPTION:
 					if ( ! is_array( $value ) || empty( $value ) ) {
+						$updated = true;
 						break;
 					}
 
 					// If we are already current, do nothing
 					$current_value = Jetpack_Newsletter_Category_Helper::get_category_ids();
 					if ( $value === $current_value ) {
+						$updated = true;
 						break;
 					}
 
