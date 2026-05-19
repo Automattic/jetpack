@@ -17,16 +17,24 @@ interface LockedPreviewProps {
 const Skeleton = () => <span className="podcast-locked-preview__cell-skeleton" />;
 
 const LockedPreview = ( { variant }: LockedPreviewProps ) => {
-	const siteSuffix = getSiteData()?.suffix ?? '';
-	const returnUrl = window.location.href;
+	const data = getSiteData();
+	const siteSuffix = data?.suffix ?? '';
+	const adminUrl = data?.admin_url ?? '';
+	const cancelTo = window.location.href;
 	const checkoutUrl = ( () => {
 		if ( ! siteSuffix ) {
 			return 'https://wordpress.com/pricing';
 		}
-		// `getProductCheckoutUrl` sets `redirect_to`; the cart's close button
-		// reads `cancel_to`, so both need to point back to the dashboard.
-		const url = new URL( getProductCheckoutUrl( 'premium', siteSuffix, returnUrl, true ) );
-		url.searchParams.set( 'cancel_to', returnUrl );
+		// `redirect_to` lands on the Settings tab so the new podcaster picks
+		// a category before anything else (the rest of the dashboard is empty
+		// until that's done, and `?tab=settings` also bypasses the Welcome
+		// gate). `cancel_to` keeps the original page so a cart close returns
+		// the user to where they were.
+		const settingsUrl = adminUrl
+			? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
+			: '';
+		const url = new URL( getProductCheckoutUrl( 'premium', siteSuffix, settingsUrl, true ) );
+		url.searchParams.set( 'cancel_to', cancelTo );
 		return url.toString();
 	} )();
 
