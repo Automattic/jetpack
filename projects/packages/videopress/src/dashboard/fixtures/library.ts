@@ -89,6 +89,7 @@ export function generateMockLibrary( count = 50 ): MockLibraryItem[] {
 
 		return {
 			id: `mock-${ i + 1 }`,
+			guid: type === 'videopress' ? `mock${ i + 1 }` : '',
 			type,
 			title,
 			filename,
@@ -96,13 +97,15 @@ export function generateMockLibrary( count = 50 ): MockLibraryItem[] {
 			durationSeconds,
 			uploadDate,
 			privacy,
+			isPrivate: privacy === 'private',
 			fileSizeBytes,
 			upload: { status: 'idle', progress: 0 },
 			description: DESCRIPTIONS[ i % DESCRIPTIONS.length ],
 			rating: RATINGS[ i % RATINGS.length ],
-			allowSharing: i % 2 === 0,
+			displayEmbed: i % 2 === 0,
 			allowDownloads: i % 3 === 0,
 			shortcode: `[videopress mock-${ i + 1 }]`,
+			isProcessing: false,
 		};
 	} );
 }

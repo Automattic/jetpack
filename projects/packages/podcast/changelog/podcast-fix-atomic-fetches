@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: proxy stats and Pocket Casts submit through Jetpack REST routes so the dashboard works on Atomic.

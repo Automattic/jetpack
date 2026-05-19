@@ -16,16 +16,17 @@ import type {
 
 // Raw WPCOM `sites/{id}/stats/video-plays?complete_stats=true` shape.
 // Each day carries a per-period `total` ({ views, impressions,
-// watch_time }) and a per-video `data[]` array. Per-video watch_time
-// / views fields are best-effort: confirmed empty for sites with no
-// traffic but undocumented for sites with plays — the transformer
-// falls back to the per-video plays count when they're absent.
+// watch_time in hours }) and a per-video `data[]` array. Per-video
+// entries have `post_id`, `title`, `views`, `impressions`,
+// `watch_time` (hours), and `retention_rate`. `plays` is NOT
+// returned in complete-stats mode.
 type VideoPlayEntry = {
 	post_id?: number | string;
 	title?: string;
-	plays?: number;
 	views?: number;
+	impressions?: number;
 	watch_time?: number;
+	retention_rate?: number;
 };
 
 type DayEntry = {
@@ -116,8 +117,8 @@ function computeWindows( rangeDays: number ): {
 /**
  * TanStack Query options for one `stats/video-plays` window. Server-side
  * forces `complete_stats=true`, so each day entry carries
- * `total.{views,impressions,watch_time}` and a per-video `plays[]`
- * list.
+ * `total.{views,impressions,watch_time}` (watch_time in hours) and a
+ * per-video `data[]` array. The `plays` field is not present.
  *
  * @param params - Window parameters.
  * @return queryOptions ready to pass to `useQuery` / `useQueries`.
@@ -179,13 +180,9 @@ function sumTotal(
 
 /**
  * Aggregate per-video metrics across every day in the response, keyed
- * by `post_id` (falling back to `title` when WPCOM omits the id).
- *
- * Per-video `views` / `watch_time` are not consistently documented for
- * `stats/video-plays?complete_stats=true`; when they're absent we fall
- * back to using the per-video `plays` count for both. That keeps the
- * Top-by-watch-time card from breaking before Phase 8 confirms the
- * shape against a real paid site.
+ * by `post_id` (falling back to `title` when WPCOM omits the id). Hours
+ * → seconds conversion happens at the boundary so consumers see
+ * `watchTimeSeconds` accurately.
  *
  * @param response - One `stats/video-plays` response, or undefined.
  * @return Map keyed by stable per-video key → cumulative metrics.
@@ -204,9 +201,10 @@ function aggregateTopVideos( response: VideoPlaysResponse | undefined ): Map< st
 			if ( ! id ) {
 				continue;
 			}
-			const plays = entry.plays ?? 0;
-			const views = entry.views ?? plays;
-			const watch = entry.watch_time ?? plays;
+			const views = entry.views ?? 0;
+			// WPCOM returns watch_time in hours; convert at boundary so the
+			// downstream `watchTimeSeconds` name stays accurate.
+			const watch = ( entry.watch_time ?? 0 ) * 3600;
 			const existing = acc.get( id );
 			if ( existing ) {
 				existing.views += views;
@@ -288,7 +286,7 @@ function bucketDays(
 		const existing = buckets.get( key );
 		const views = day.total?.views ?? 0;
 		const impressions = day.total?.impressions ?? 0;
-		const watchTime = day.total?.watch_time ?? 0;
+		const watchTime = ( day.total?.watch_time ?? 0 ) * 3600;
 		if ( existing ) {
 			existing.views += views;
 			existing.impressions += impressions;
@@ -332,8 +330,8 @@ export function transformVideoPlays(
 			previousPeriod: sumTotal( previous, 'impressions' ),
 		},
 		watchTimeSeconds: {
-			current: sumTotal( current, 'watch_time' ),
-			previousPeriod: sumTotal( previous, 'watch_time' ),
+			current: sumTotal( current, 'watch_time' ) * 3600,
+			previousPeriod: sumTotal( previous, 'watch_time' ) * 3600,
 		},
 		series: buildSeries( current, previous, granularity ),
 		topVideos: [ ...topVideos ].sort( ( a, b ) => b.views - a.views ).slice( 0, TOP_VIDEOS_LIMIT ),

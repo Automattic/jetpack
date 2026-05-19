@@ -253,25 +253,6 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'uri="https://example.com/ep.mp3"', $xml );
 	}
 
-	public function test_cover_art_emits_itunes_image_with_photon_url() {
-		$xml = $this->render_from_attrs(
-			array(
-				'coverArt' => array(
-					'id'  => 42,
-					'url' => 'https://example.com/cover.jpg',
-				),
-			)
-		);
-
-		$this->assertStringContainsString( '<itunes:image href="https://example.com/cover.jpg"', $xml );
-		$this->assertStringNotContainsString( 'googleplay', $xml );
-	}
-
-	public function test_cover_art_skips_when_url_missing() {
-		$this->assertSame( '', $this->render_from_attrs( array( 'coverArt' => array() ) ) );
-		$this->assertSame( '', $this->render_from_attrs( array( 'coverArt' => array( 'url' => '' ) ) ) );
-	}
-
 	public function test_alternate_enclosures_skips_entries_without_type() {
 		// `type` is required by the Podcasting 2.0 spec — skip rather than emit invalid markup.
 		$this->assertSame(

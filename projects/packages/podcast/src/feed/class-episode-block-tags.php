@@ -27,7 +27,7 @@ class Episode_Block_Tags {
 	 * @param WP_Post $post Episode post.
 	 */
 	public static function render( WP_Post $post ): void {
-		$attrs = self::find_block_attrs( $post );
+		$attrs = self::get_block_attrs( $post );
 		if ( empty( $attrs ) ) {
 			return;
 		}
@@ -41,12 +41,12 @@ class Episode_Block_Tags {
 	 * @param array<string, mixed> $attrs Block attrs.
 	 */
 	public static function render_from_attrs( array $attrs ): void {
-		self::emit_cover_art( $attrs );
 		self::emit_episode_number( $attrs );
 		self::emit_season_number( $attrs );
 		self::emit_episode_type( $attrs );
 		self::emit_explicit_override( $attrs );
 		self::emit_transcript( $attrs );
+		self::emit_chapters( $attrs );
 		self::emit_location( $attrs );
 		self::emit_license( $attrs );
 		self::emit_people( $attrs );
@@ -55,22 +55,18 @@ class Episode_Block_Tags {
 	}
 
 	/**
-	 * `<itunes:image>` from the block's `coverArt` attr, Photon-resized to
-	 * 3000×3000 to match Apple's square-cover requirement. Nothing emits
-	 * when no cover is set — the channel-level cover applies to the item
-	 * by default.
+	 * `<podcast:chapters url="…" type="…" />` from the block's `chaptersUrl`
+	 * / `chaptersType` attrs. Skip if no URL is set.
 	 *
 	 * @param array $attrs Block attrs.
 	 */
-	private static function emit_cover_art( array $attrs ): void {
-		if ( empty( $attrs['coverArt'] ) || ! is_array( $attrs['coverArt'] ) ) {
+	private static function emit_chapters( array $attrs ): void {
+		$url = isset( $attrs['chaptersUrl'] ) ? trim( (string) $attrs['chaptersUrl'] ) : '';
+		if ( '' === $url ) {
 			return;
 		}
-		$url = isset( $attrs['coverArt']['url'] ) ? (string) $attrs['coverArt']['url'] : '';
-		if ( '' === trim( $url ) ) {
-			return;
-		}
-		echo '<itunes:image href="' . esc_url( Customize_Feed::maybe_photon( $url ) ) . '" />' . "\n";
+		$type = isset( $attrs['chaptersType'] ) ? (string) $attrs['chaptersType'] : 'application/json+chapters';
+		echo '<podcast:chapters url="' . esc_url( $url ) . '" type="' . esc_attr( $type ) . '" />' . "\n";
 	}
 
 	/**
@@ -83,7 +79,7 @@ class Episode_Block_Tags {
 	 * @param WP_Post $post Episode post.
 	 * @return array<string, mixed>
 	 */
-	private static function find_block_attrs( WP_Post $post ): array {
+	public static function get_block_attrs( WP_Post $post ): array {
 		// Skip the parse_blocks() regex pass entirely if our specific block
 		// marker isn't even in the content — tighter than has_blocks(), which
 		// only checks for `<!-- wp:`.

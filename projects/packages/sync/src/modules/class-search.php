@@ -1775,6 +1775,10 @@ class Search extends Module {
 		'jetpack_search_inf_scroll',
 		'jetpack_search_show_powered_by',
 		'jetpack_search_experience',
+		'jetpack_search_ai_answers_enabled',
+		'jetpack_search_suggestions_enabled',
+		'jetpack_search_override_woocommerce_search_template',
+		'reader_chat',
 		'instant_search_enabled',
 	); // end options.
 

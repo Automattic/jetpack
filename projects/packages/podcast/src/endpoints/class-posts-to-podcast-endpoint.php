@@ -21,6 +21,8 @@ use WP_REST_Server;
  */
 class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 
+	use Relay_Response;
+
 	const SUPPORTED_LENGTHS                     = array( 'short', 'medium', 'long' );
 	const SUPPORTED_VOICE_PRESETS               = array( 'witty', 'earnest', 'professional' );
 	const REST_NAMESPACE                        = 'wpcom/v2';
@@ -359,29 +361,5 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 		);
 
 		return $this->relay_response( $response );
-	}
-
-	/**
-	 * Relay an upstream Connection\Client response back to the local REST client.
-	 * Preserves the upstream HTTP status code so 202/4xx/5xx mappings flow through.
-	 *
-	 * @param array|\WP_Error $response The raw response from Client::wpcom_json_api_request_as_user.
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	private function relay_response( $response ) {
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$code    = (int) wp_remote_retrieve_response_code( $response );
-		$body    = wp_remote_retrieve_body( $response );
-		$decoded = json_decode( $body, true );
-
-		$rest_response = rest_ensure_response( null === $decoded ? $body : $decoded );
-		if ( $code >= 100 && $code < 600 ) {
-			$rest_response->set_status( $code );
-		}
-		return $rest_response;
 	}
 }

@@ -237,7 +237,6 @@ class Podcast_Episode_Block {
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
-		$chapters       = isset( $attributes['chapters'] ) && is_array( $attributes['chapters'] ) ? $attributes['chapters'] : array();
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
 		$license_url    = isset( $attributes['licenseUrl'] ) ? esc_url_raw( $attributes['licenseUrl'] ) : '';
@@ -246,8 +245,9 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
-		// Only ship the click-to-seek script on episodes that actually have chapters or soundbites to wire.
-		if ( ! empty( $chapters ) || ! empty( $soundbites ) ) {
+		// Only ship the click-to-seek script on episodes that actually have soundbites to wire.
+		// Chapters are hosted as an external JSON file and consumed by Podcasting 2.0 players directly.
+		if ( ! empty( $soundbites ) ) {
 			self::enqueue_view_script();
 		}
 
@@ -457,50 +457,6 @@ class Podcast_Episode_Block {
 								</li>
 							<?php endforeach; ?>
 						</ul>
-					<?php endif; ?>
-
-					<?php
-					$rendered_chapters = array();
-					foreach ( $chapters as $chapter ) {
-						if ( ! is_array( $chapter ) || ! isset( $chapter['startTime'] ) ) {
-							continue;
-						}
-						$rendered_chapters[] = array(
-							'startTime' => (float) $chapter['startTime'],
-							'title'     => isset( $chapter['title'] ) ? trim( (string) $chapter['title'] ) : '',
-						);
-					}
-					usort(
-						$rendered_chapters,
-						static function ( $a, $b ) {
-							return $a['startTime'] <=> $b['startTime'];
-						}
-					);
-					?>
-					<?php if ( ! empty( $rendered_chapters ) ) : ?>
-						<ol class="jetpack-podcast-episode__chapters">
-							<?php foreach ( $rendered_chapters as $chapter ) : ?>
-								<?php $chapter_start_seconds = (int) floor( max( 0, $chapter['startTime'] ) ); ?>
-								<li
-									class="jetpack-podcast-episode__chapter"
-									itemprop="hasPart"
-									itemscope
-									itemtype="https://schema.org/Clip"
-								>
-									<meta itemprop="startOffset" content="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>" />
-									<button
-										type="button"
-										class="jetpack-podcast-episode__chapter-button"
-										data-start-time="<?php echo esc_attr( (string) $chapter_start_seconds ); ?>"
-									>
-										<time class="jetpack-podcast-episode__chapter-time"><?php echo esc_html( self::format_seconds_label( $chapter['startTime'] ) ); ?></time>
-										<?php if ( '' !== $chapter['title'] ) : ?>
-											<span class="jetpack-podcast-episode__chapter-title" itemprop="name"><?php echo esc_html( $chapter['title'] ); ?></span>
-										<?php endif; ?>
-									</button>
-								</li>
-							<?php endforeach; ?>
-						</ol>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $alternate_enclosures ) ) : ?>

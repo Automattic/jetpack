@@ -22,7 +22,7 @@ const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 };
 
 const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
-	const { upload, type, title } = item;
+	const { upload, type, title, isProcessing } = item;
 	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
 		pill = {
@@ -33,10 +33,20 @@ const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 				Math.round( upload.progress )
 			),
 		};
+	} else if ( upload.status === 'promoting' ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Uploading…', 'jetpack-videopress-pkg' ),
+		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
 			intent: 'high',
 			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+		};
+	} else if ( isProcessing ) {
+		pill = {
+			intent: 'informational',
+			label: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {
 		pill = {
@@ -81,7 +91,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 				{ item.filename }
 			</Text>
 		),
-		enableSorting: false,
+		enableSorting: true,
 	},
 	{
 		id: 'type',
@@ -102,6 +112,11 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		type: 'datetime',
 		getValue: ( { item } ) => item.uploadDate,
 		format: { datetime: dateSettings.formats.date },
+		// /wp/v2/media exposes only `before` and `after` for date filtering;
+		// surface only the operators we can actually honour so the UI
+		// doesn't offer choices that silently no-op (on / notOn / inclusive
+		// variants / inThePast / over).
+		filterBy: { operators: [ 'before', 'after' ] as Operator[] },
 		enableSorting: true,
 	},
 	{
@@ -109,7 +124,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'Duration', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.durationSeconds,
 		render: ( { item } ) => formatDuration( item.durationSeconds ),
-		enableSorting: true,
+		enableSorting: false,
 	},
 	{
 		id: 'privacy',
@@ -129,6 +144,6 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'File size', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.fileSizeBytes,
 		render: ( { item } ) => formatBytes( item.fileSizeBytes ),
-		enableSorting: true,
+		enableSorting: false,
 	},
 ];

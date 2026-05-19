@@ -37,7 +37,6 @@ export interface OverviewStats {
 	series: StatsSeriesPoint[];
 	topVideos: TopVideo[];
 	topVideosByWatchTime: TopVideo[];
-	storageUsedBytes: number;
 }
 
 export const DATE_RANGE_DAYS: Record< DateRange, number > = {

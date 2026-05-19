@@ -7,8 +7,7 @@
  * to keep root-level selectors collision-safe.
  */
 
-.jetpack-podcast-episode__person-editor,
-.jetpack-podcast-episode__chapter-row {
+.jetpack-podcast-episode__person-editor {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -20,9 +19,8 @@
 	border-radius: 4px;
 }
 
-// Alternate the row background so a stack of chapter / person editors
-// reads as distinct cards instead of merging visually.
-.jetpack-podcast-episode__chapter-row--alt,
+// Alternate the row background so a stack of person editors reads as
+// distinct cards instead of merging visually.
 .jetpack-podcast-episode__person-editor--alt {
 	background: #f6f7f7;
 }

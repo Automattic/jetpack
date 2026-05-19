@@ -231,6 +231,7 @@ const startUpload = ( file: StartUploadInput ): void => {
 	const id = `upload-${ Date.now() }-${ Math.random().toString( 36 ).slice( 2, 7 ) }`;
 	const item: MockLibraryItem = {
 		id,
+		guid: '',
 		type: 'local',
 		title: name.replace( /\.[^.]+$/, '' ) || 'Untitled',
 		filename: name,
@@ -238,13 +239,15 @@ const startUpload = ( file: StartUploadInput ): void => {
 		durationSeconds: 0,
 		uploadDate: new Date().toISOString(),
 		privacy: 'site-default',
+		isPrivate: false,
 		fileSizeBytes: sizeBytes,
 		upload: { status: 'uploading', progress: 0 },
 		description: '',
 		rating: 'G',
-		allowSharing: false,
+		displayEmbed: false,
 		allowDownloads: false,
 		shortcode: `[videopress ${ id }]`,
+		isProcessing: false,
 	};
 	dispatch( { type: 'prepend', item } );
 	runUpload( id, true );

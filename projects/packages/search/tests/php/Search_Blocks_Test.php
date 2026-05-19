@@ -593,6 +593,142 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Read the private `registered` map off the WP_Script_Modules singleton.
+	 *
+	 * @return array<string,array> Registered script modules keyed by id.
+	 */
+	private function registered_script_modules(): array {
+		$modules  = wp_script_modules();
+		$property = new \ReflectionProperty( $modules, 'registered' );
+		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
+		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
+		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		return $property->getValue( $modules );
+	}
+
+	/**
+	 * Drop a script module from the WP_Script_Modules singleton. The class
+	 * exposes no public unregister, and the registry persists for the whole
+	 * PHPUnit process, so reach into the private map to keep tests isolated.
+	 *
+	 * @param string $id Script module id.
+	 */
+	private function unregister_script_module( string $id ): void {
+		$modules  = wp_script_modules();
+		$property = new \ReflectionProperty( $modules, 'registered' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$registered = $property->getValue( $modules );
+		unset( $registered[ $id ] );
+		$property->setValue( $modules, $registered );
+	}
+
+	/**
+	 * Place a fixture `store/index.asset.php` at the path
+	 * `register_store_script_module()` reads, without clobbering a real
+	 * build. Returns a cleanup callback that restores the prior state
+	 * (original contents, or removal of anything this created).
+	 *
+	 * @param array $asset Asset array to write.
+	 * @return callable Cleanup callback.
+	 */
+	private function stub_store_asset_file( array $asset ): callable {
+		$dir  = Package::get_installed_path() . 'build/search-blocks/store';
+		$file = $dir . '/index.asset.php';
+
+		$created_dirs = array();
+		foreach ( array( Package::get_installed_path() . 'build', Package::get_installed_path() . 'build/search-blocks', $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		$had_file = file_exists( $file );
+		$original = $had_file ? file_get_contents( $file ) : null;
+		$export   = var_export( $asset, true );
+		file_put_contents( $file, "<?php return $export;\n" );
+
+		return static function () use ( $file, $had_file, $original, $created_dirs ) {
+			if ( $had_file ) {
+				file_put_contents( $file, $original );
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				// Only directories this fixture created, and only while
+				// empty — scandir() returns just '.' and '..' for an empty
+				// dir, so guard on that instead of silencing rmdir().
+				if ( is_dir( $d ) && 2 === count( scandir( $d ) ) ) {
+					rmdir( $d );
+				}
+			}
+		};
+	}
+
+	/**
+	 * The shared store must register as the `jetpack-search/store` Script
+	 * Module, sourced from the built `store/index.js` with the deps/version
+	 * declared in its generated asset file — that's what lets WordPress
+	 * resolve the dependency each block's view module declares instead of
+	 * shipping the store inlined per block.
+	 */
+	public function test_register_store_script_module_registers_shared_module() {
+		$cleanup = $this->stub_store_asset_file(
+			array(
+				'dependencies' => array( '@wordpress/interactivity' ),
+				'version'      => 'test-store-version',
+			)
+		);
+
+		try {
+			Search_Blocks::register_store_script_module();
+
+			$registered = $this->registered_script_modules();
+			$this->assertArrayHasKey( 'jetpack-search/store', $registered, 'Shared store must be registered as a script module.' );
+
+			$module = $registered['jetpack-search/store'];
+			$this->assertStringContainsString( 'build/search-blocks/store/index.js', $module['src'] );
+			$this->assertSame( 'test-store-version', $module['version'] );
+			$this->assertContains(
+				'@wordpress/interactivity',
+				array_column( $module['dependencies'], 'id' ),
+				'Store module must carry the dependencies from its asset file.'
+			);
+		} finally {
+			$this->unregister_script_module( 'jetpack-search/store' );
+			$cleanup();
+		}
+	}
+
+	/**
+	 * No build present (the common case in a fresh checkout / CI unit job):
+	 * the method must bail without registering anything or erroring, so
+	 * block registration is unaffected.
+	 */
+	public function test_register_store_script_module_noop_without_asset_file() {
+		$base = Package::get_installed_path() . 'build/search-blocks/store/index.asset.php';
+		if ( file_exists( $base ) ) {
+			$this->markTestSkipped( 'A real build asset file is present; the missing-file path cannot be exercised here.' );
+		}
+
+		// A prior test may have registered it in the process-wide singleton.
+		$this->unregister_script_module( 'jetpack-search/store' );
+
+		Search_Blocks::register_store_script_module();
+
+		$this->assertArrayNotHasKey(
+			'jetpack-search/store',
+			$this->registered_script_modules(),
+			'Without an asset file the store module must not be registered.'
+		);
+	}
+
+	/**
 	 * Off the Embedded experience, the template-override hooks
 	 * (`register_search_template` / `prepend_search_template`) must NOT be
 	 * registered — `/?s=…` should resolve to the theme's `search.html`, not
