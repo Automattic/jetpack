@@ -1130,13 +1130,13 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * `Manager::get_authorization_url()` should include `already_authorized=1`
+	 * `Manager::get_authorization_url()` should include `has_connected_owner=1`
 	 * in the URL when the site already has a connection owner, and omit the
 	 * parameter entirely when it does not. Calypso uses this signal in the
 	 * `from=jetpack-connector` flow to render secondary-connection content
 	 * instead of blocking the user.
 	 */
-	public function test_get_authorization_url_includes_already_authorized_when_owner_connected() {
+	public function test_get_authorization_url_includes_has_connected_owner_when_owner_connected() {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'secondary_conn_test_user',
@@ -1158,7 +1158,7 @@ class ManagerTest extends TestCase {
 
 		$this->reset_plugin_storage();
 
-		// Owner connected -> already_authorized=1 should be present.
+		// Owner connected -> has_connected_owner=1 should be present.
 		$manager_with_owner = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->onlyMethods( array( 'get_tokens', 'has_connected_owner', 'get_assumed_site_creation_date' ) )
 			->getMock();
@@ -1167,7 +1167,7 @@ class ManagerTest extends TestCase {
 		$manager_with_owner->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
 
 		$url = $manager_with_owner->get_authorization_url();
-		$this->assertStringContainsString( 'already_authorized=1', $url );
+		$this->assertStringContainsString( 'has_connected_owner=1', $url );
 
 		// No owner connected -> parameter should be omitted entirely.
 		$manager_without_owner = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
@@ -1178,7 +1178,7 @@ class ManagerTest extends TestCase {
 		$manager_without_owner->method( 'get_assumed_site_creation_date' )->willReturn( '2020-01-01 00:00:00' );
 
 		$url = $manager_without_owner->get_authorization_url();
-		$this->assertStringNotContainsString( 'already_authorized=', $url );
+		$this->assertStringNotContainsString( 'has_connected_owner=', $url );
 
 		wp_delete_user( $user_id );
 	}

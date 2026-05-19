@@ -2134,7 +2134,7 @@ class Manager {
 		// Signal to Calypso that the site already has a connection owner so the
 		// authorize page can show secondary-connection content where appropriate.
 		if ( $this->has_connected_owner() ) {
-			$body_args['already_authorized'] = true;
+			$body_args['has_connected_owner'] = true;
 		}
 
 		/**
