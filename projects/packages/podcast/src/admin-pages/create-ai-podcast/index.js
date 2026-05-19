@@ -137,22 +137,20 @@
 			// `parseAndThrowError` — `if (!shouldParseResponse) throw response`).
 			// Recover the status + body so the user sees the right message.
 			if ( err && typeof err.status === 'number' && typeof err.text === 'function' ) {
-				throw normalizeApiError( err.status, await readJsonBodyOrNull( err ) );
+				throw normalizeApiError( err.status, unwrapEnvelope( await readJsonBodyOrNull( err ) ) );
 			}
 			throw normalizeApiError( null, null, err );
 		}
 
-		if (
-			response &&
-			typeof response === 'object' &&
-			'body' in response &&
-			'code' in response &&
-			'headers' in response
-		) {
-			if ( response.code < 200 || response.code >= 300 ) {
-				throw normalizeApiError( response.code, response.body );
+		// Plain-object envelope returned directly by a middleware that ignores
+		// `parse: false` (e.g. an older wpcom-proxy path).
+		const envelope = asEnvelope( response );
+		if ( envelope ) {
+			const httpCode = envelopeCode( envelope );
+			if ( httpCode < 200 || httpCode >= 300 ) {
+				throw normalizeApiError( httpCode, envelope.body );
 			}
-			return response.body;
+			return envelope.body;
 		}
 
 		if ( response && typeof response.text === 'function' ) {
@@ -163,8 +161,9 @@
 			if ( text === '' ) {
 				return null;
 			}
+			let parsed;
 			try {
-				return JSON.parse( text );
+				parsed = JSON.parse( text );
 			} catch {
 				// 2xx with a non-JSON body shouldn't happen for these endpoints —
 				// pre-`parse: false` apiFetch would have thrown `invalid_json` here,
@@ -172,9 +171,67 @@
 				// `refreshInfo` that read fields off the resolved value.
 				throw normalizeApiError( response.status, null );
 			}
+			// On wpcom Simple sites apiFetch appends `_envelope=1` to /wpcom/v2
+			// requests, so a 2xx HTTP response wraps the real payload inside
+			// `{ body, status, headers }` (WP REST envelope) or
+			// `{ body, code, headers }` (wpcom JSON API envelope). Unwrap so
+			// callers see the inner payload — otherwise e.g. the job poller
+			// reads `response.status` and gets `200` instead of `"complete"`.
+			const innerEnvelope = asEnvelope( parsed );
+			if ( innerEnvelope ) {
+				const httpCode = envelopeCode( innerEnvelope );
+				if ( httpCode < 200 || httpCode >= 300 ) {
+					throw normalizeApiError( httpCode, innerEnvelope.body );
+				}
+				return innerEnvelope.body;
+			}
+			return parsed;
 		}
 
 		return response;
+	}
+
+	/**
+	 * Returns the value if it looks like a `_envelope=1` response wrapper, else
+	 * null. Accepts both shapes Jetpack/wpcom emit in the wild: the wpcom JSON
+	 * API uses `code` for the HTTP status; WP core's REST envelope uses
+	 * `status`. Native `Response` objects also expose `body`/`headers`/`status`,
+	 * so guard against them via the `.text()` method check.
+	 *
+	 * @param value
+	 */
+	function asEnvelope( value ) {
+		if (
+			value &&
+			typeof value === 'object' &&
+			typeof value.text !== 'function' &&
+			'body' in value &&
+			'headers' in value &&
+			( 'code' in value || 'status' in value )
+		) {
+			return value;
+		}
+		return null;
+	}
+
+	/**
+	 * @param envelope
+	 */
+	function envelopeCode( envelope ) {
+		return typeof envelope.code === 'number' ? envelope.code : envelope.status;
+	}
+
+	/**
+	 * If `value` is a `{ body, ... }` envelope, return `body`; otherwise return
+	 * `value` unchanged. Used on the error path so structured error payloads
+	 * delivered inside an envelope still reach `normalizeApiError` as the bare
+	 * `{ code, message, data }` object the WP REST framework produces.
+	 *
+	 * @param value
+	 */
+	function unwrapEnvelope( value ) {
+		const envelope = asEnvelope( value );
+		return envelope ? envelope.body : value;
 	}
 
 	/**
@@ -885,12 +942,11 @@
 	function onTimedOut() {
 		setFormDisabled( false );
 		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_timed_out' );
-		setStatus( 'error', data.i18n.timedOut, {
-			action: {
-				label: data.i18n.tryAgain,
-				onClick: clearStatus,
-			},
-		} );
+		// No retry button: the worker may still finish on the wpcom side, so
+		// clicking "Try again" would only consume another credit on top of the
+		// in-flight job. The bootstrap-resume path picks up the result when the
+		// user revisits the page.
+		setStatus( 'error', data.i18n.timedOut );
 	}
 
 	/**
