@@ -11,9 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
-- Update package dependencies. [#48695]
-- Update package dependencies. [#48696]
-- Update package dependencies. [#48910]
+- Update package dependencies. [#48695] [#48696] [#48910]
 
 ### Fixed
 - Social Previews: Update template placeholders when editing the post title or content. [#48635]

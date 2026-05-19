@@ -31,8 +31,7 @@
 - Internal: regenerate composer.lock to pick up the podcast package's new automattic/jetpack-connection dependency. [#48774]
 - Tests: cover the Search options that ship with the Search sync module's default-option whitelist. [#48745]
 - Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
-- Update package dependencies. [#48683]
-- Update package dependencies. [#48695]
+- Update package dependencies. [#48683] [#48695]
 - Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
 
 ## 15.9-a.1 - 2026-05-11
