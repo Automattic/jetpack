@@ -5,7 +5,9 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
+import { Stack, Text } from '@wordpress/ui';
 
 import './style.scss';
 
@@ -101,13 +103,14 @@ const PostPublishPodcastPromo = () => {
 		return null;
 	}
 
+	const title = __( 'Your post is live. Ready for the podcast version?', 'jetpack-podcast' );
+
 	return (
 		<Modal
 			className="jetpack-post-publish-podcast-promo-modal"
-			title=""
-			aria={ {
-				labelledby: 'jetpack-post-publish-podcast-promo-modal-title',
-			} }
+			size="small"
+			contentLabel={ title }
+			isDismissible={ false }
 			onRequestClose={ handleRequestClose }
 		>
 			<div className="jetpack-post-publish-podcast-promo-modal__hero">
@@ -159,21 +162,26 @@ const PostPublishPodcastPromo = () => {
 						/>
 					</svg>
 				</div>
+				<Button
+					className="jetpack-post-publish-podcast-promo-modal__close"
+					icon={ close }
+					label={ __( 'Close', 'jetpack-podcast' ) }
+					onClick={ handleRequestClose }
+				/>
 			</div>
-			<div className="jetpack-post-publish-podcast-promo-modal__body">
-				<h1
-					id="jetpack-post-publish-podcast-promo-modal-title"
-					className="jetpack-post-publish-podcast-promo-modal__title"
-				>
-					{ __( 'Your post is live. Ready for the podcast version?', 'jetpack-podcast' ) }
-				</h1>
-				<p className="jetpack-post-publish-podcast-promo-modal__description">
-					{ __(
-						'Give your audience another way to enjoy your content. Pick a date range or a few posts, and we’ll turn them into a two-host podcast episode.',
-						'jetpack-podcast'
-					) }
-				</p>
-				<div className="jetpack-post-publish-podcast-promo-modal__actions">
+			<Stack className="jetpack-post-publish-podcast-promo-modal__body" direction="column" gap="lg">
+				<Stack direction="column" gap="sm">
+					<Text className="jetpack-post-publish-podcast-promo-modal__title" render={ <h1 /> }>
+						{ title }
+					</Text>
+					<Text className="jetpack-post-publish-podcast-promo-modal__description" render={ <p /> }>
+						{ __(
+							'Give your audience another way to enjoy your content. Pick a date range or a few posts, and we’ll turn them into a two-host podcast episode.',
+							'jetpack-podcast'
+						) }
+					</Text>
+				</Stack>
+				<div>
 					<Button
 						className="jetpack-post-publish-podcast-promo-modal__primary-action"
 						variant="primary"
@@ -182,7 +190,7 @@ const PostPublishPodcastPromo = () => {
 						{ __( 'Create podcast episode', 'jetpack-podcast' ) }
 					</Button>
 				</div>
-			</div>
+			</Stack>
 		</Modal>
 	);
 };
