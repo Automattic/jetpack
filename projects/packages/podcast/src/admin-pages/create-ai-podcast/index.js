@@ -143,7 +143,8 @@
 		}
 
 		// Plain-object envelope returned directly by a middleware that ignores
-		// `parse: false` (e.g. an older wpcom-proxy path).
+		// `parse: false` (some older wpcom-proxy paths return the wpcom JSON API
+		// envelope object verbatim).
 		const envelope = asEnvelope( response );
 		if ( envelope ) {
 			const httpCode = envelopeCode( envelope );
@@ -153,31 +154,34 @@
 			return envelope.body;
 		}
 
-		if ( response && typeof response.text === 'function' ) {
-			if ( response.status === 204 ) {
+		// Response-like object: either a native `Response` (Atomic / self-hosted
+		// with `parse: false`) or the wpcom-proxy hybrid that spreads the body
+		// fields on top of pseudo-Response fields (`status`, `ok`, `json`,
+		// `blob`, `headers`). On the hybrid, reading body fields off the spread
+		// is unsafe — any body key named `status` is overwritten by the HTTP
+		// status, so e.g. `body.status: "complete"` becomes `200`. `.json()`
+		// always returns the pristine body, so route both shapes through it.
+		if ( response && typeof response.json === 'function' && typeof response.status === 'number' ) {
+			const httpStatus = response.status;
+			if ( httpStatus === 204 ) {
 				return null;
 			}
-			const text = await response.text().catch( () => '' );
-			if ( text === '' ) {
-				return null;
-			}
-			let parsed;
+			let body;
 			try {
-				parsed = JSON.parse( text );
+				body = await response.json();
 			} catch {
 				// 2xx with a non-JSON body shouldn't happen for these endpoints —
 				// pre-`parse: false` apiFetch would have thrown `invalid_json` here,
 				// so surface the same fail-fast behavior to callers like
 				// `refreshInfo` that read fields off the resolved value.
-				throw normalizeApiError( response.status, null );
+				throw normalizeApiError( httpStatus, null );
 			}
 			// On wpcom Simple sites apiFetch appends `_envelope=1` to /wpcom/v2
-			// requests, so a 2xx HTTP response wraps the real payload inside
-			// `{ body, status, headers }` (WP REST envelope) or
+			// requests, so a 2xx HTTP response can additionally wrap the real
+			// payload inside `{ body, status, headers }` (WP REST envelope) or
 			// `{ body, code, headers }` (wpcom JSON API envelope). Unwrap so
-			// callers see the inner payload — otherwise e.g. the job poller
-			// reads `response.status` and gets `200` instead of `"complete"`.
-			const innerEnvelope = asEnvelope( parsed );
+			// callers see the inner payload.
+			const innerEnvelope = asEnvelope( body );
 			if ( innerEnvelope ) {
 				const httpCode = envelopeCode( innerEnvelope );
 				if ( httpCode < 200 || httpCode >= 300 ) {
@@ -185,7 +189,10 @@
 				}
 				return innerEnvelope.body;
 			}
-			return parsed;
+			if ( httpStatus < 200 || httpStatus >= 300 ) {
+				throw normalizeApiError( httpStatus, body );
+			}
+			return body;
 		}
 
 		return response;
@@ -242,15 +249,25 @@
 	 * @param response
 	 */
 	async function readJsonBodyOrNull( response ) {
-		const text = await response.text().catch( () => '' );
-		if ( text === '' ) {
-			return null;
+		if ( response && typeof response.json === 'function' ) {
+			try {
+				return await response.json();
+			} catch {
+				return null;
+			}
 		}
-		try {
-			return JSON.parse( text );
-		} catch {
-			return null;
+		if ( response && typeof response.text === 'function' ) {
+			const text = await response.text().catch( () => '' );
+			if ( text === '' ) {
+				return null;
+			}
+			try {
+				return JSON.parse( text );
+			} catch {
+				return null;
+			}
 		}
+		return null;
 	}
 
 	// Initial reads are pre-warmed server-side via wp_localize_script — see
