@@ -757,9 +757,12 @@ class Search_Blocks {
 	 * DB-stored customizations continue to take precedence: if a site owner
 	 * edits this template in the Site Editor, the `custom` source wins during
 	 * resolution automatically.
+	 *
+	 * Skipped on classic themes: the registry is only consulted by the Site
+	 * Editor and the block-theme render path. Re-checked every `init`.
 	 */
 	public static function register_search_template() {
-		if ( ! function_exists( 'register_block_template' ) ) {
+		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
 			return;
 		}
 		$content = static::get_search_template_content();
@@ -832,10 +835,17 @@ class Search_Blocks {
 	 * can't accumulate duplicates from a second init pass or another filter
 	 * on the same hook.
 	 *
+	 * Only takes effect on a block-theme search request — the slug resolves
+	 * only through the block-template system, so injecting it anywhere else
+	 * just mis-shapes the hierarchy.
+	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function prepend_search_template( $templates ) {
+		if ( ! is_search() || ! static::block_templates_active() ) {
+			return $templates;
+		}
 		$templates = array_values(
 			array_filter(
 				(array) $templates,
@@ -846,6 +856,17 @@ class Search_Blocks {
 		);
 		array_unshift( $templates, self::SEARCH_TEMPLATE_SLUG );
 		return $templates;
+	}
+
+	/**
+	 * Whether the active theme resolves block templates. Wraps
+	 * `wp_is_block_theme()` as an overridable seam so tests can exercise the
+	 * block-theme path without standing up a block theme.
+	 *
+	 * @return bool
+	 */
+	protected static function block_templates_active(): bool {
+		return wp_is_block_theme();
 	}
 
 	/**
