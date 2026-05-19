@@ -326,22 +326,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.9-a.1 - 2026-05-11
+### 15.9-a.3 - 2026-05-19
 #### Enhancements
-- AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component.
-- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
-- Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos.
-- Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it.
+- Abilities API: register Shortlinks_Abilities for the WP.me Shortlinks module on WP 6.9+ behind the jetpack_wp_abilities_enabled gate.
+- AI Assistant: Add AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants (Claude, ChatGPT, etc.) answer reader questions using the blog's content.
+- Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, setting a per-frequency default donation amount, and configuring the suggested custom amount. At least one frequency must remain enabled.
+- Donations Block: Add Gutenberg style settings (border, color, typography, spacing) and custom controls for active tab and selected amount colors.
+- Donations Block: Add Security inspector panel with configurable minimum and maximum donation amounts to help prevent fraudulent transactions.
+- Donations Block: Inherit colors and typography from the active theme, and let the Donate button pick up theme button styles.
+- Image Studio: Only allow video clip generation on sites where Image Studio is enabled and the plan supports video uploads.
+- Performance settings: simplify the Search section to a short intro and a link to the Search dashboard, so the experience picker (embedded, overlay, theme search) lives in one place instead of being partially duplicated under Performance.
+- Related Posts abilities: expose result cap as configurable per_page input (max 20).
+- Related Posts: register a get-related-posts ability with the WordPress Abilities API on WP 6.9+ so agents can fetch related posts for a single post through the standard wp-abilities/v1 REST surface.
+- Search: Add an auto-complete feature that suggests search queries as users type.
+- Shortlinks abilities: tighten permission_callback to edit_posts (was is_user_logged_in).
 
 #### Improved compatibility
-- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
+- Jetpack: migrate Status indicator to @wordpress/ui Text.
 
 #### Bug fixes
-- AI Page: Update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout applies again.
-- Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles.
-- Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names.
-- Social: Fall back to the site-wide social message template when no per-post share message is set.
-- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded.
+- Copy Post: fix backslash characters being stripped from post content, title, and excerpt when duplicating a post.
+- Jetpack AI: improve the MCP settings UI — fix Back-button navigation, change setup instructions to unordered lists, correct the "All enabled" label vertical alignment, and tighten toggle help-text spacing.
+- Jetpack AI: route the MCP "Upgrade plan" CTA through the standard checkout workflow so non-WordPress.com hosts (Pressable, self-hosted) reach a valid destination instead of a "you don't have access to that site" page, and remove WordPress.com-specific copy from the upsell.
 
 --------
 

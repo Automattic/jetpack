@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social: Expose the canonical message-template placeholder catalogue via a REST endpoint. [#48769]
 
 ### Changed
-- Social: Simplify preview render API by using the connction id as the source of truth. [#48827]
+- Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
 - Update package dependencies. [#48695]
 - Update package dependencies. [#48696]
 - Update package dependencies. [#48910]
