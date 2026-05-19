@@ -16,9 +16,16 @@ use WP_Query;
 class Episode_Query {
 
 	/**
+	 * Batch size for each query page during episode scans.
+	 *
+	 * @var int
+	 */
+	private const POSTS_PER_PAGE = 50;
+
+	/**
 	 * Maximum number of published posts to scan per readiness check to keep
 	 * dashboard status calls bounded on large sites while still covering typical
-	 * show catalogs (50 posts/page x 10 pages).
+	 * show catalogs (self::POSTS_PER_PAGE x 10 pages).
 	 *
 	 * @var int
 	 */
@@ -83,13 +90,15 @@ class Episode_Query {
 		$page = 1;
 		$scanned_posts = 0;
 		while ( $scanned_posts < self::MAX_POSTS_TO_SCAN ) {
+			$posts_per_page = min( self::POSTS_PER_PAGE, self::MAX_POSTS_TO_SCAN - $scanned_posts );
+
 			$query = new WP_Query(
 				array(
 					'post_status'            => 'publish',
 					'post_type'              => 'post',
 					'cat'                    => $category_id,
 					'post__not_in'           => $exclude_post_id > 0 ? array( $exclude_post_id ) : array(),
-					'posts_per_page'         => 50,
+					'posts_per_page'         => $posts_per_page,
 					'paged'                  => $page,
 					'ignore_sticky_posts'    => true,
 					'no_found_rows'          => true,
