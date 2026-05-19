@@ -29,6 +29,13 @@ if ( '' === $label ) {
 	$label = __( 'Clear filters', 'jetpack-search-pkg' );
 }
 
+// The button below carries `wp-block-button__link` so it inherits the
+// theme's full core/button look (border-radius, hover, etc.). That class is
+// only styled when the core Button block's stylesheet is on the page —
+// without a core/button on the page, the handle isn't auto-enqueued and the
+// class is inert. Pull it in explicitly so this block stands alone.
+wp_enqueue_style( 'wp-block-button' );
+
 // Mirror `state.hasActiveFilters` on the server so the button paints
 // pre-hidden on a fresh URL — otherwise a flash of the button appears
 // before JS hydrates and applies the data-wp-bind--hidden binding.
@@ -57,13 +64,11 @@ if ( ! $has_any_active && is_array( $seeded_price ) ) {
 		data-wp-bind--hidden="!state.hasActiveFilters"<?php endif; ?>
 	<?php echo $hide_when_inactive && ! $has_any_active ? 'hidden' : ''; ?>
 >
-	<div class="wp-block-button is-style-outline has-custom-font-size has-small-font-size">
-		<button
-			type="button"
-			class="wp-block-button__link wp-element-button"
-			data-wp-on--click="actions.clearFilters"
-		>
-			<?php echo esc_html( $label ); ?>
-		</button>
-	</div>
+	<button
+		type="button"
+		class="jetpack-search-clear-filters__button wp-block-button__link wp-element-button"
+		data-wp-on--click="actions.clearFilters"
+	>
+		<?php echo esc_html( $label ); ?>
+	</button>
 </div>
