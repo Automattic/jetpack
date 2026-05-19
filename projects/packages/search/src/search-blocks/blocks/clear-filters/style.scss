@@ -7,9 +7,11 @@
 		display: none;
 	}
 
-	// The button takes the theme's `wp-element-button` baseline instead of
-	// the core Button block's heavier `wp-block-button__link` styling, which
-	// renders oversized on some themes.
+	// The button carries `wp-block-button__link` + `wp-element-button` so it
+	// inherits the theme's full core/button look (border-radius, hover) and
+	// renders pixel-identical to a regular core/button on the same theme —
+	// without the `.wp-block-button` parent wrapper that was the actual
+	// source of the oversized rendering on some themes.
 	&__button {
 		cursor: pointer;
 	}

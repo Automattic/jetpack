@@ -59,7 +59,7 @@ if ( ! $has_any_active && is_array( $seeded_price ) ) {
 >
 	<button
 		type="button"
-		class="jetpack-search-clear-filters__button wp-element-button"
+		class="jetpack-search-clear-filters__button wp-block-button__link wp-element-button"
 		data-wp-on--click="actions.clearFilters"
 	>
 		<?php echo esc_html( $label ); ?>
