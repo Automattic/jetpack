@@ -554,6 +554,8 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 			wp_next_scheduled( 'jp_sitemap_cron_hook' ),
 			'No new cron event should be scheduled when a build is in flight.'
 		);
+		// Nothing queued → no next run time to report.
+		$this->assertNull( $result['next_scheduled_at'] );
 	}
 
 	/**
@@ -573,6 +575,8 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 		// The previously-scheduled tick should still be the next one (i.e. we
 		// didn't stack a new one at time() that would overshadow it).
 		$this->assertSame( $future, wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+		// next_scheduled_at reflects that pending tick as a UTC string.
+		$this->assertSame( gmdate( 'Y-m-d H:i:s', $future ), $result['next_scheduled_at'] );
 	}
 
 	/**
@@ -589,10 +593,13 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['dispatched'] );
 		$this->assertSame( 'queued', $result['status'] );
+		$scheduled = wp_next_scheduled( 'jp_sitemap_cron_hook' );
 		$this->assertNotFalse(
-			wp_next_scheduled( 'jp_sitemap_cron_hook' ),
+			$scheduled,
 			'A cron event should be scheduled after a successful dispatch.'
 		);
+		// The freshly-scheduled tick is reported as a UTC string.
+		$this->assertSame( gmdate( 'Y-m-d H:i:s', $scheduled ), $result['next_scheduled_at'] );
 	}
 
 	/**

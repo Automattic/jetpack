@@ -126,7 +126,7 @@ class Sitemaps_Abilities extends Registrar {
 
 			'jetpack-sitemaps/request-rebuild' => array(
 				'label'               => __( 'Request a Jetpack Sitemaps rebuild', 'jetpack' ),
-				'description'         => __( 'Dispatch a full sitemap regeneration by scheduling the existing `jp_sitemap_cron_hook` cron event. Returns { dispatched, status } where status is one of "queued" (a single-event cron tick was just scheduled), "running" (a build is already in flight per the `jetpack-sitemap-state-lock` transient), or "already_running" (alias of "running"; surfaced so callers can branch on either spelling). Idempotent — calling this while a build is already in flight or already queued returns dispatched=false and the matching status rather than stacking duplicate cron events.', 'jetpack' ),
+				'description'         => __( 'Dispatch a full sitemap regeneration by scheduling the existing `jp_sitemap_cron_hook` cron event. Returns { dispatched, status, next_scheduled_at } where status is one of "queued" (a single-event cron tick was just scheduled), "running" (a build is already in flight per the `jetpack-sitemap-state-lock` transient), or "already_running" (alias of "running"; surfaced so callers can branch on either spelling). `next_scheduled_at` is the next `jp_sitemap_cron_hook` tick as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when nothing is scheduled (e.g. status=running with no future tick queued) — it tells the caller when the build they queued (or the one already pending) will actually run. Idempotent — calling this while a build is already in flight or already queued returns dispatched=false and the matching status rather than stacking duplicate cron events.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -134,11 +134,12 @@ class Sitemaps_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'dispatched' => array( 'type' => 'boolean' ),
-						'status'     => array(
+						'dispatched'        => array( 'type' => 'boolean' ),
+						'status'            => array(
 							'type' => 'string',
 							'enum' => array( 'queued', 'running', 'already_running' ),
 						),
+						'next_scheduled_at' => array( 'type' => array( 'string', 'null' ) ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'request_rebuild' ),
@@ -220,29 +221,36 @@ class Sitemaps_Abilities extends Registrar {
 	 * 3. Otherwise schedule a single-event cron tick to fire immediately and
 	 *    return `dispatched=true`, `status=queued`.
 	 *
+	 * Every branch also returns `next_scheduled_at` (see
+	 * `get_next_scheduled_at()`) so the caller learns when the queued/pending
+	 * build will actually run without a follow-up status read.
+	 *
 	 * @param array|null $input Ability input (no parameters accepted).
 	 * @return array
 	 */
 	public static function request_rebuild( $input = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
 		if ( static::is_build_running() ) {
 			return array(
-				'dispatched' => false,
-				'status'     => 'running',
+				'dispatched'        => false,
+				'status'            => 'running',
+				'next_scheduled_at' => static::get_next_scheduled_at(),
 			);
 		}
 
 		if ( static::is_build_queued() ) {
 			return array(
-				'dispatched' => false,
-				'status'     => 'queued',
+				'dispatched'        => false,
+				'status'            => 'queued',
+				'next_scheduled_at' => static::get_next_scheduled_at(),
 			);
 		}
 
 		static::schedule_rebuild();
 
 		return array(
-			'dispatched' => true,
-			'status'     => 'queued',
+			'dispatched'        => true,
+			'status'            => 'queued',
+			'next_scheduled_at' => static::get_next_scheduled_at(),
 		);
 	}
 
@@ -412,5 +420,25 @@ class Sitemaps_Abilities extends Registrar {
 	 */
 	protected static function schedule_rebuild(): void {
 		wp_schedule_single_event( time(), self::CRON_HOOK );
+	}
+
+	/**
+	 * When the next `jp_sitemap_cron_hook` build tick is scheduled, as a UTC
+	 * "Y-m-d H:i:s" string, or null when nothing is scheduled.
+	 *
+	 * Returned alongside the dispatch result so callers immediately know when
+	 * the build they queued (or the one already pending) will actually run,
+	 * without a second round-trip. Null in the `running` case when the lock is
+	 * held but no future tick is queued.
+	 *
+	 * UTC string (not `human_time_diff()`) for an unambiguous, locale-stable,
+	 * machine-parseable value consistent with the rest of the sitemaps surface.
+	 */
+	protected static function get_next_scheduled_at(): ?string {
+		$timestamp = wp_next_scheduled( self::CRON_HOOK );
+		if ( false === $timestamp ) {
+			return null;
+		}
+		return gmdate( 'Y-m-d H:i:s', $timestamp );
 	}
 }
