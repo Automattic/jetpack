@@ -255,10 +255,22 @@ class Podcast_Episode_Block {
 			$transcript_url = '';
 		}
 
-		$author_id        = (int) $post->post_author;
-		$title            = get_the_title( $post );
-		$author_name      = get_the_author_meta( 'display_name', $author_id );
-		$author_url       = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
+		$author_id = (int) $post->post_author;
+		$title     = get_the_title( $post );
+
+		// Byline prefers the show-level host (Podcasting settings → talent
+		// name) so episodes attribute to the show, not whoever happened to
+		// publish the post. Falls back to post author when the setting is
+		// empty. The settings field has no URL, so the link wrapper is only
+		// kept on the author fallback.
+		$talent_name = trim( (string) get_option( 'podcasting_talent_name', '' ) );
+		if ( '' !== $talent_name ) {
+			$author_name = $talent_name;
+			$author_url  = '';
+		} else {
+			$author_name = get_the_author_meta( 'display_name', $author_id );
+			$author_url  = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
+		}
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
 		$episode_url      = get_permalink( $post );

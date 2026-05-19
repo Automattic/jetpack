@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: Episode block byline uses the show host from Podcasting settings, falling back to the post author.

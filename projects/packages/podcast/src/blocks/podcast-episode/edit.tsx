@@ -291,6 +291,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	const [ siteShowCover ] = useEntityProp< string >( 'root', 'site', 'podcasting_image' );
 	const showCoverUrl = siteShowCover || '';
 
+	const [ siteTalentName ] = useEntityProp< string >( 'root', 'site', 'podcasting_talent_name' );
+
 	const postAuthor = useSelect(
 		select => {
 			const author = authorId
@@ -302,6 +304,11 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		},
 		[ authorId ]
 	);
+
+	// Byline prefers the show-level host (Podcasting settings → talent name)
+	// so episodes attribute to the show, not whoever happened to publish the
+	// post. Falls back to post author when the setting is empty.
+	const bylineName = ( siteTalentName || '' ).trim() || postAuthor;
 
 	const featuredImageUrl = useSelect(
 		select => {
@@ -690,10 +697,10 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						{ postTitle || __( 'Untitled episode', 'jetpack-podcast' ) }
 					</h3>
 
-					{ ( postAuthor || postDate || duration ) && (
+					{ ( bylineName || postDate || duration ) && (
 						<p className="jetpack-podcast-episode__byline">
-							{ postAuthor && (
-								<span className="jetpack-podcast-episode__author">{ postAuthor }</span>
+							{ bylineName && (
+								<span className="jetpack-podcast-episode__author">{ bylineName }</span>
 							) }
 							{ postDate && (
 								<time className="jetpack-podcast-episode__date">
