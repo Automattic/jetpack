@@ -120,6 +120,12 @@ body.jetpack_page_jetpack-search .jp-search-dashboard-page {
 	}
 }
 
+.jp-search-additional-settings__heading {
+	margin: var(--wpds-dimension-padding-3xl) 0 0;
+	font-size: var(--wpds-typography-font-size-xl);
+	line-height: var(--wpds-typography-line-height-md);
+}
+
 .jp-search-settings-card,
 .jp-search-ai-agent-access-card {
 	box-sizing: border-box;
