@@ -195,7 +195,7 @@ class Create_AI_Podcast_Page {
 		/**
 		 * Filters the minimum posts published in the last month needed for the Posts to Podcast post-publish promo.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.0.0
 		 *
 		 * @param int $minimum Minimum number of published posts.
 		 */
@@ -240,7 +240,7 @@ class Create_AI_Podcast_Page {
 		/**
 		 * Filters the minimum visitors in the last week needed for the Posts to Podcast post-publish promo.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.0.0
 		 *
 		 * @param int $minimum Minimum number of visitors.
 		 */

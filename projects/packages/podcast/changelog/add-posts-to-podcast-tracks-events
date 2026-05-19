@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Create AI Podcast: emit client-side tracks events for page view, generation request, episode plays, draft opens, pagination, and the quota banner / upgrade CTAs.

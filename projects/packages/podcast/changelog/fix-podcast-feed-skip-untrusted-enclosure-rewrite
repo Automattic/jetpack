@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: skip rewriting the RSS enclosure URL through the stats endpoint when the URL does not resolve to a local attachment, so externally hosted enclosures stay playable.

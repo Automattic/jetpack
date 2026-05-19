@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Create AI Podcast: map 429 responses (including non-JSON edge rate-limit pages) to "Out of credits" and other non-JSON failures to "An unexpected error occurred." instead of "The response is not a valid JSON response."; decode HTML entities in the posts-picker titles so values like "&nbsp;" no longer render literally; add an "Experimental" badge to the intro banner; instrument the generation poller and post-publish promo with Tracks events for funnel analysis.

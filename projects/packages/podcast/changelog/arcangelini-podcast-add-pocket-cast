@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Pocket Casts: replace the 3-step submit modal with a one-click Relay API flow that reflects pending/submitted state on the button and surfaces rejection reasons inline.
