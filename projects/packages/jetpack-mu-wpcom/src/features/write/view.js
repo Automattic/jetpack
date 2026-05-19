@@ -3800,8 +3800,11 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
-		const content = getContent();
-		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
+		// Use textContent rather than innerHTML so structural-only markup
+		// (e.g. <p><br></p> left over from clearing the editor) doesn't
+		// pass the client-side guard and reach the server, which would
+		// return a confusing "title, content, or excerpt is empty" error.
+		if ( ! hasWritableContent() ) {
 			state.message = i18n.pleaseWriteSomething || 'Please write something';
 			setTimeout( () => {
 				state.message = '';
