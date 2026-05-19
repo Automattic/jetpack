@@ -1,6 +1,12 @@
 /**
  * Editor preview for jetpack-search/clear-filters.
  *
+ * A neutral wrapper `<div>` is the block root (so it follows theme block
+ * layout); the inner button takes the theme's `wp-element-button` baseline
+ * rather than the core Button block's heavier `wp-block-button__link`
+ * styling, which renders oversized on some themes. The "Compact" block style
+ * trims it further for themes whose button baseline is still too large.
+ *
  * Always renders the button at full opacity in the editor — the live block
  * hides itself when no filter is active, but a hidden affordance is hard to
  * style or position. The "hide when inactive" toggle in the inspector is
@@ -53,11 +59,13 @@ export default function ClearFiltersEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="wp-block-button is-style-outline has-custom-font-size has-small-font-size">
-					<button type="button" className="wp-block-button__link wp-element-button" disabled>
-						{ previewLabel }
-					</button>
-				</div>
+				<button
+					type="button"
+					className="jetpack-search-clear-filters__button wp-element-button"
+					disabled
+				>
+					{ previewLabel }
+				</button>
 			</div>
 		</>
 	);

@@ -1,7 +1,27 @@
 .jetpack-search-clear-filters {
-	display: flex;
-
+	// The block root is a neutral wrapper `<div>` so it inherits the active
+	// theme's block-layout alignment (a bare `<button>` root gets
+	// `wp-element-button`'s `margin:0` and breaks out of the content column —
+	// the same reason core/button wraps its button in `.wp-block-button`).
 	&[hidden] {
 		display: none;
+	}
+
+	// The button takes the theme's `wp-element-button` baseline instead of
+	// the core Button block's heavier `wp-block-button__link` styling, which
+	// renders oversized on some themes.
+	&__button {
+		cursor: pointer;
+	}
+
+	// `is-style-compact` lands on the block root (wrapper); the slim metrics
+	// target the inner button. Two-class specificity beats theme.json's
+	// single-class `.wp-element-button` rules so it wins without `!important`.
+	&.is-style-compact &__button {
+		padding: 0.25em 0.75em;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		min-width: 0;
+		width: auto;
 	}
 }
