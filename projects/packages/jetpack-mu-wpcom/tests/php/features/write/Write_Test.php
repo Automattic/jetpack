@@ -1080,7 +1080,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// Read enough of the function body to capture all block types.
 		// If convertToBlocks() grows past this, the assertion below will
 		// catch missing types. Increase as needed.
-		$fn_body = substr( $view_js, $fn_start, 6000 );
+		$fn_body = substr( $view_js, $fn_start, 10000 );
 
 		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
 		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );

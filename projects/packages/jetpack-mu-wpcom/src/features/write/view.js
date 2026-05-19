@@ -706,8 +706,7 @@ function convertToBlocks( html ) {
 			// Extract citation from <cite> if present.
 			// Strip lone <br> tags that contentEditable inserts into empty elements.
 			const citeEl = node.querySelector( 'cite' );
-			const rawCitation = citeEl ? citeEl.innerHTML.trim().replace( /^<br\s*\/?>$/, '' ) : '';
-			const citationHtml = rawCitation;
+			const citationHtml = citeEl ? citeEl.innerHTML.trim().replace( /^<br\s*\/?>$/, '' ) : '';
 
 			// Remove <cite> and any trailing <br> from the DOM so they don't
 			// end up inside the serialized <p> tags.
@@ -736,7 +735,18 @@ function convertToBlocks( html ) {
 			if ( citationHtml ) {
 				attrs.citation = citationHtml;
 			}
-			const jsonAttr = Object.keys( attrs ).length ? ` ${ JSON.stringify( attrs ) }` : '';
+			// Escape characters that WordPress core escapes inside block
+			// comment attributes (see serializeAttributes in @wordpress/blocks).
+			const jsonAttr = Object.keys( attrs ).length
+				? ' ' +
+				  JSON.stringify( attrs )
+						.replaceAll( '\\\\', '\\u005c' )
+						.replaceAll( '--', '\\u002d\\u002d' )
+						.replaceAll( '<', '\\u003c' )
+						.replaceAll( '>', '\\u003e' )
+						.replaceAll( '&', '\\u0026' )
+						.replaceAll( '\\"', '\\u0022' )
+				: '';
 
 			const citeHtml = citationHtml ? `<cite>${ citationHtml }</cite>` : '';
 
@@ -2716,8 +2726,9 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Enter inside a blockquote <cite>: break out to a new paragraph.
+			// Enter key: handle cite break-out and blockquote/heading break-out.
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				// Inside a blockquote <cite>: break out to a new paragraph.
 				const cite = getActiveCite();
 				if ( cite ) {
 					const bq = cite.closest( 'blockquote' );
@@ -2730,10 +2741,8 @@ const { state } = store( 'wpcom-write', {
 						return;
 					}
 				}
-			}
 
-			// Enter key: break out of blockquotes/headings and ensure paragraphs.
-			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				// Break out of blockquotes/headings and ensure paragraphs.
 				const sel = window.getSelection();
 				if ( sel.rangeCount ) {
 					let node = sel.anchorNode;
