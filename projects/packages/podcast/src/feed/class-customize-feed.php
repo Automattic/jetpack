@@ -38,6 +38,11 @@ class Customize_Feed {
 		self::$registered = true;
 
 		add_action( 'wp', array( __CLASS__, 'maybe_register_feed_hooks' ) );
+
+		// `the_posts` fires during query execution — before the `wp` action —
+		// so it has to be registered up-front and self-gated to the podcast
+		// feed query, rather than wired conditionally in `maybe_register_feed_hooks`.
+		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
 
 	/**
@@ -67,7 +72,6 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
-		add_filter( 'the_excerpt_rss', array( __CLASS__, 'pass_through_empty_excerpt' ), 1000 );
 
 		Feed_Detection::detect_and_record();
 	}
@@ -122,27 +126,18 @@ class Customize_Feed {
 	 * Channel-level podcast tags (rss2_head).
 	 */
 	public static function output_channel_tags() {
-		/**
-		 * Show summary
-		 */
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
 			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
-		/**
-		 * Show author / talent name
-		 */
 		$author = (string) get_option( 'podcasting_talent_name', '' );
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
-		/**
-		 * Owner contact email
-		 */
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
 			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
@@ -150,33 +145,21 @@ class Customize_Feed {
 			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
 
-		/**
-		 * Copyright notice
-		 */
 		$copyright = (string) get_option( 'podcasting_copyright', '' );
 		if ( '' !== $copyright ) {
 			echo '<copyright>' . esc_xml( wp_strip_all_tags( $copyright ) ) . "</copyright>\n";
 		}
 
-		/**
-		 * Explicit content flag
-		 */
 		$explicit = self::explicit_string();
 		echo '<itunes:explicit>' . esc_html( $explicit ) . "</itunes:explicit>\n";
 		echo '<googleplay:explicit>' . esc_html( $explicit ) . "</googleplay:explicit>\n";
 
-		/**
-		 * Show cover art
-		 */
 		$image = self::show_image_url();
 		if ( '' !== $image ) {
 			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
 			echo "<googleplay:image href='" . esc_url( $image ) . "' />\n";
 		}
 
-		/**
-		 * Categories (up to 3 itunes:category tags)
-		 */
 		echo self::category_tag( (string) get_option( 'podcasting_category_1', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
 		echo self::category_tag( (string) get_option( 'podcasting_category_2', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
 		echo self::category_tag( (string) get_option( 'podcasting_category_3', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
@@ -211,10 +194,9 @@ class Customize_Feed {
 			echo "<googleplay:image href='" . esc_url( $episode_image ) . "' />\n";
 		}
 
-		// Re-applying `the_excerpt_rss` here is intentional: `get_the_excerpt()`
-		// doesn't run the filter chain itself, so this gets the same trimmed +
-		// `pass_through_empty_excerpt`-suppressed value WP would emit in the
-		// item's `<description>`.
+		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
+		// the item's `<description>` ends up emitting — `get_the_excerpt()`
+		// doesn't run the filter chain itself.
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
@@ -297,24 +279,35 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Suppress the auto-generated excerpt fallback when the post itself has
-	 * none. WP's default behavior is to derive an excerpt from `post_content`
-	 * via `wp_trim_excerpt`, which produces noise in the podcast feed; users
-	 * expect empty when they didn't write one.
+	 * A podcast item without an enclosure is invalid per Apple's spec and can
+	 * take down the whole submission. The `enclosure` post meta is what
+	 * `rss_enclosure()` reads, so it's the authoritative signal here too.
 	 *
-	 * Inspect `$post->post_excerpt` directly — `get_the_excerpt()` would have
-	 * already run the auto-generation chain by the time we ask, so it's never
-	 * `''` for any post that has content.
-	 *
-	 * @param string $output Existing excerpt.
-	 * @return string
+	 * @param WP_Post[] $posts Posts about to be looped over.
+	 * @param \WP_Query $query Query that produced them.
+	 * @return WP_Post[]
 	 */
-	public static function pass_through_empty_excerpt( $output ) {
-		global $post;
-		if ( $post instanceof WP_Post && '' === trim( (string) $post->post_excerpt ) ) {
-			return '';
+	public static function filter_posts_with_enclosure( $posts, $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
+			return $posts;
 		}
-		return $output;
+		$category_id = self::resolve_category_id();
+		if ( 0 === $category_id ) {
+			return $posts;
+		}
+		$queried = $query->get_queried_object();
+		if ( ! $queried || ! isset( $queried->term_id ) || (int) $queried->term_id !== $category_id ) {
+			return $posts;
+		}
+		return array_values(
+			array_filter(
+				$posts,
+				static function ( $post ) {
+					return $post instanceof WP_Post
+						&& ! empty( get_post_meta( $post->ID, 'enclosure', false ) );
+				}
+			)
+		);
 	}
 
 	/**
