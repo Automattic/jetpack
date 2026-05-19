@@ -755,35 +755,23 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 				'class Sidebar_Signals {}'
 			);
 		}
-		if ( ! interface_exists( 'Sidebar_Layout_Storage' ) ) {
-			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
-				'interface Sidebar_Layout_Storage {
-					public function get_layouts( int $user_id ): array;
-					public function put_layouts( int $user_id, array $layouts ): bool;
-				}'
-			);
-		}
-		if ( ! class_exists( 'WP_User_Meta_Storage' ) ) {
-			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
-				'class WP_User_Meta_Storage implements Sidebar_Layout_Storage {
-					private const META_KEY = "wpcom_admin_sidebar_layouts";
-					public function get_layouts( int $user_id ): array {
-						$value = get_user_meta( $user_id, self::META_KEY, true );
-						return is_array( $value ) ? $value : array();
-					}
-					public function put_layouts( int $user_id, array $layouts ): bool {
-						return (bool) update_user_meta( $user_id, self::META_KEY, $layouts );
-					}
-				}'
-			);
-		}
 
-		// Skip when a real classifier is present — we don't want to clobber
+		// Skip when a real classifier is present. We don't want to clobber
 		// the host's classifier state from a Jetpack unit test.
 		// @phan-suppress-next-line PhanUndeclaredClassReference -- Sidebar_Classifier is the stub eval'd above or the real WPCOM mu-plugin class.
 		if ( ! method_exists( 'Sidebar_Classifier', 'set_model' ) ) {
 			$this->markTestSkipped( 'Real Sidebar_Classifier is loaded; stub-driven test is not applicable.' );
 		}
+
+		$menu = array(
+			array( 'Dashboard', 'read', 'index.php', '', 'menu-top', 'menu-dashboard', 'dashicons-dashboard' ),
+			array( 'No Signal', 'read', 'no-signal', '', 'menu-top', 'menu-no-signal', 'dashicons-admin-generic' ),
+			array( 'Jetpack', 'read', 'jetpack', '', 'menu-top', 'menu-jetpack', 'dashicons-admin-plugins' ),
+			array( 'Nested', 'read', 'nested-plugin', '', 'menu-top', 'menu-nested-plugin', 'dashicons-admin-plugins' ),
+		);
+
+		// The classifier is present, but gating can still leave no nav model.
+		$legacy_response_with_no_model = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model(
@@ -815,9 +803,32 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 						'source'        => 'plugin',
 						'reassignable'  => true,
 						'default_group' => null,
+						'_weight'       => 77,
+					),
+					array(
+						'itemId'        => 'plugin:parent/parent.php:-:parent-plugin',
+						'menuSlug'      => 'parent-plugin',
+						'source'        => 'plugin',
+						'reassignable'  => true,
+						'default_group' => null,
+						'children'      => array(
+							array(
+								'itemId'         => 'plugin:nested/nested.php:-:nested-plugin',
+								'menuSlug'       => 'nested-plugin',
+								'source'         => 'plugin',
+								'reassignable'   => true,
+								'default_group'  => null,
+								'default_weight' => 88,
+							),
+						),
 					),
 				),
 				'groups'       => array(
+					array(
+						'id'       => '',
+						'title'    => 'Nameless Group',
+						'children' => array(),
+					),
 					array(
 						'id'       => 'plugins',
 						'title'    => 'My Plugins',
@@ -849,6 +860,31 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			)
 		);
 
+		$layout_response_without_storage = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
+
+		if ( ! interface_exists( 'Sidebar_Layout_Storage' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
+				'interface Sidebar_Layout_Storage {
+					public function get_layouts( int $user_id ): array;
+					public function put_layouts( int $user_id, array $layouts ): bool;
+				}'
+			);
+		}
+		if ( ! class_exists( 'WP_User_Meta_Storage' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
+				'class WP_User_Meta_Storage implements Sidebar_Layout_Storage {
+					private const META_KEY = "wpcom_admin_sidebar_layouts";
+					public function get_layouts( int $user_id ): array {
+						$value = get_user_meta( $user_id, self::META_KEY, true );
+						return is_array( $value ) ? $value : array();
+					}
+					public function put_layouts( int $user_id, array $layouts ): bool {
+						return (bool) update_user_meta( $user_id, self::META_KEY, $layouts );
+					}
+				}'
+			);
+		}
+
 		$layout_delta = array(
 			'version'    => 1,
 			'updated_at' => 12345,
@@ -870,22 +906,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			)
 		);
 
-		// Drive the response through `prepare_menu_for_response` directly so
-		// the test isn't coupled to the live $menu/$submenu globals built by
-		// `wp-admin/menu.php`.
-		$endpoint = new WPCOM_REST_API_V2_Endpoint_Admin_Menu();
-
-		// `index.php` matches the stub's top-level entry; `jetpack` matches
-		// the grouped child.
-		$menu = array(
-			array( 'Dashboard', 'read', 'index.php', '', 'menu-top', 'menu-dashboard', 'dashicons-dashboard' ),
-			array( 'No Signal', 'read', 'no-signal', '', 'menu-top', 'menu-no-signal', 'dashicons-admin-generic' ),
-			array( 'Jetpack', 'read', 'jetpack', '', 'menu-top', 'menu-jetpack', 'dashicons-admin-plugins' ),
-		);
-
-		$response = $endpoint->prepare_menu_for_response( $menu );
+		$response = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
+		wp_set_current_user( 0 );
+		$layout_response_without_user = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
+		wp_set_current_user( static::$user_id );
 		delete_user_meta( static::$user_id, 'wpcom_admin_sidebar_layouts' );
-		$empty_layout_response = $endpoint->prepare_menu_for_response( $menu );
+		$empty_layout_response = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
 		update_user_meta(
 			static::$user_id,
 			'wpcom_admin_sidebar_layouts',
@@ -893,12 +919,38 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 				get_current_blog_id() => array( 'version' => 2 ),
 			)
 		);
-		$invalid_layout_response = $endpoint->prepare_menu_for_response( $menu );
+		$invalid_layout_response = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
+		Sidebar_Classifier::set_model(
+			array(
+				'version'      => 1,
+				'generated_at' => 0,
+				'site_id'      => 1,
+				'user_id'      => 1,
+				'top_level'    => array(
+					array(
+						'itemId'        => 'core:core:-:index.php',
+						'menuSlug'      => 'index.php',
+						'source'        => 'core',
+						'reassignable'  => false,
+						'default_group' => null,
+					),
+				),
+				'groups'       => array(),
+			)
+		);
+		$response_with_empty_groups = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->prepare_menu_for_response( $menu );
 
 		// Reset stub state for any subsequent tests.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model( null );
 		delete_user_meta( static::$user_id, 'wpcom_admin_sidebar_layouts' );
+
+		$this->assertIsArray( $legacy_response_with_no_model );
+		$this->assertArrayNotHasKey( 'menu', $legacy_response_with_no_model );
+		$this->assertArrayNotHasKey( 'layoutDelta', $layout_response_without_storage );
+		$this->assertArrayNotHasKey( 'layoutDelta', $layout_response_without_user );
 
 		$this->assertIsArray( $response );
 		$this->assertArrayHasKey( 'menu', $response );
@@ -928,6 +980,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			'plugin:no-signal/no-signal.php:-:no-signal',
 			$by_slug['no-signal']['itemId']
 		);
+		$this->assertSame( 77, $by_slug['no-signal']['default_weight'] );
+
+		// Recursed child entries can still hydrate menu rows by slug.
+		$this->assertSame( 'plugin:nested/nested.php:-:nested-plugin', $by_slug['nested-plugin']['itemId'] );
+		$this->assertSame( 88, $by_slug['nested-plugin']['default_weight'] );
 
 		// Grouped plugin item: group_id set, attention signal flowed through.
 		$this->assertSame( 'plugins', $by_slug['jetpack']['group_id'] );
@@ -964,5 +1021,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			),
 			$invalid_layout_response['layoutDelta']
 		);
+		$this->assertSame( array(), $response_with_empty_groups['groups'] );
 	}
 }
