@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Abilities API: register My Jetpack reads (list-products)
+Abilities API: register My Jetpack reads (list-products, list-plans). list-plans returns the purchasable Jetpack bundles (Security, Growth, Complete) from the product registry.

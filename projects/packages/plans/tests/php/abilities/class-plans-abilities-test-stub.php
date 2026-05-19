@@ -1,9 +1,8 @@
 <?php
 /**
- * Test-only subclass of Plans_Abilities that overrides the protected seams
- * (catalog fetch, current-plan fetch, site-suffix resolver) so the success
- * path can be exercised without a remote WordPress.com call or a real Jetpack
- * site connection.
+ * Test-only subclass of Plans_Abilities that overrides the current-plan fetch
+ * seam so the success path can be exercised without round-tripping through the
+ * option cache or a real Jetpack site connection.
  *
  * @package automattic/jetpack-plans
  */
@@ -11,26 +10,12 @@
 use Automattic\Jetpack\Plans\Abilities\Plans_Abilities;
 
 /**
- * Test-only subclass overriding Plans_Abilities's protected seams.
+ * Test-only subclass overriding Plans_Abilities's protected seam.
  *
- * Each seam reads from a static fixture so tests can drive the abilities
+ * The seam reads from a static fixture so tests can drive the ability
  * deterministically from inside the test method.
  */
 class Plans_Abilities_Test_Stub extends Plans_Abilities {
-
-	/**
-	 * Seeded catalog returned by fetch_catalog().
-	 *
-	 * @var mixed
-	 */
-	public static $catalog = null;
-
-	/**
-	 * Seeded site suffix returned by resolve_site_suffix().
-	 *
-	 * @var string
-	 */
-	public static $site_suffix = 'example.test';
 
 	/**
 	 * Seeded active plan returned by fetch_current_plan(); null falls through
@@ -41,20 +26,18 @@ class Plans_Abilities_Test_Stub extends Plans_Abilities {
 	public static $current_plan = null;
 
 	/**
-	 * Reset all fixtures to deterministic defaults.
+	 * Reset fixtures to deterministic defaults.
 	 *
-	 * @param mixed      $catalog       Seeded catalog.
-	 * @param string     $site_suffix   Seeded site suffix.
+	 * The first two parameters are retained for call-site compatibility but
+	 * unused — only the active plan is stubbed now.
+	 *
+	 * @param mixed      $catalog       Unused.
+	 * @param string     $site_suffix   Unused.
 	 * @param array|null $current_plan  Seeded active plan (null => fall through to parent).
 	 */
 	public static function reset( $catalog = null, string $site_suffix = 'example.test', $current_plan = null ): void {
-		self::$catalog      = $catalog;
-		self::$site_suffix  = $site_suffix;
+		unset( $catalog, $site_suffix );
 		self::$current_plan = $current_plan;
-	}
-
-	protected static function fetch_catalog() {
-		return self::$catalog;
 	}
 
 	protected static function fetch_current_plan(): array {
@@ -62,9 +45,5 @@ class Plans_Abilities_Test_Stub extends Plans_Abilities {
 			return self::$current_plan;
 		}
 		return parent::fetch_current_plan();
-	}
-
-	protected static function resolve_site_suffix(): string {
-		return self::$site_suffix;
 	}
 }

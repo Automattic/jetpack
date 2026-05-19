@@ -12,7 +12,6 @@ namespace Automattic\Jetpack\Plans\Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use PHPUnit\Framework\TestCase;
 use Plans_Abilities_Test_Stub;
-use WP_Error;
 
 require_once __DIR__ . '/class-plans-abilities-test-stub.php';
 
@@ -141,12 +140,13 @@ class Plans_Abilities_Test extends TestCase {
 	}
 
 	/**
-	 * The exact ability slug set this PR ships is present.
+	 * The package ships exactly one ability: get-current-plan. Listing the
+	 * plans the site could move to lives in the My Jetpack package now.
 	 */
 	public function test_expected_ability_slugs_are_present() {
 		$abilities = Plans_Abilities::get_abilities();
-		$this->assertArrayHasKey( 'jetpack-plans/get-current-plan', $abilities );
-		$this->assertArrayHasKey( 'jetpack-plans/list-plans', $abilities );
+		$this->assertSame( array( 'jetpack-plans/get-current-plan' ), array_keys( $abilities ) );
+		$this->assertArrayNotHasKey( 'jetpack-plans/list-plans', $abilities );
 		$this->assertArrayNotHasKey( 'jetpack-plans/get-purchase-url', $abilities );
 	}
 
@@ -203,7 +203,7 @@ class Plans_Abilities_Test extends TestCase {
 	}
 
 	/**
-	 * The per-ability registration filter can deny-list a single ability.
+	 * The per-ability registration filter can deny-list an ability by slug.
 	 */
 	public function test_per_ability_should_register_filter_can_skip_an_ability() {
 		if ( ! function_exists( 'wp_has_ability' ) ) {
@@ -213,7 +213,7 @@ class Plans_Abilities_Test extends TestCase {
 		add_filter(
 			'jetpack_wp_abilities_should_register',
 			static function ( $enabled, $type, $slug ) {
-				if ( 'ability' === $type && 'jetpack-plans/list-plans' === $slug ) {
+				if ( 'ability' === $type && 'jetpack-plans/get-current-plan' === $slug ) {
 					return false;
 				}
 				return $enabled;
@@ -224,8 +224,7 @@ class Plans_Abilities_Test extends TestCase {
 
 		$this->fire_abilities_lifecycle();
 
-		$this->assertTrue( wp_has_ability( 'jetpack-plans/get-current-plan' ) );
-		$this->assertFalse( wp_has_ability( 'jetpack-plans/list-plans' ) );
+		$this->assertFalse( wp_has_ability( 'jetpack-plans/get-current-plan' ) );
 	}
 
 	/**
@@ -341,161 +340,5 @@ class Plans_Abilities_Test extends TestCase {
 		$this->assertSame( '2030-01-01T00:00:00+00:00', $result['expires_at'] );
 		$this->assertContains( 'akismet', $result['features'] );
 		$this->assertContains( 'payments', $result['supports'] );
-	}
-
-	// -------------------- list-plans --------------------
-
-	/**
-	 * The list-plans ability returns a uniform compact shape per catalog entry.
-	 */
-	public function test_list_plans_returns_compact_shape_per_entry() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array() );
-
-		$this->assertIsArray( $result );
-		// The sample catalog has two Jetpack plans plus the non-Jetpack
-		// `value_bundle`; only the Jetpack plans are returned.
-		$this->assertCount( 2, $result );
-		$first = $result[0];
-		$this->assertArrayHasKey( 'slug', $first );
-		$this->assertArrayHasKey( 'name', $first );
-		$this->assertArrayHasKey( 'monthly_price', $first );
-		$this->assertArrayHasKey( 'currency', $first );
-		$this->assertArrayHasKey( 'features', $first );
-		$this->assertArrayHasKey( 'upgrade_url', $first );
-		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.test/', (string) $first['upgrade_url'] );
-	}
-
-	/**
-	 * Non-Jetpack WordPress.com plans in the catalog are excluded.
-	 */
-	public function test_list_plans_excludes_non_jetpack_plans() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array() );
-
-		$slugs = array_column( $result, 'slug' );
-		$this->assertContains( 'jetpack_personal', $slugs );
-		$this->assertContains( 'jetpack_security_t1_yearly', $slugs );
-		$this->assertNotContains( 'value_bundle', $slugs );
-	}
-
-	/**
-	 * Discontinued Jetpack plans (catalog `available` !== 'yes') are excluded
-	 * even though they are still Jetpack-slugged and returned by the catalog.
-	 */
-	public function test_list_plans_excludes_discontinued_plans() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array() );
-
-		$slugs = array_column( $result, 'slug' );
-		$this->assertNotContains( 'jetpack_business', $slugs );
-		$this->assertContains( 'jetpack_security_t1_yearly', $slugs );
-	}
-
-	/**
-	 * `category=security` narrows the catalog to Jetpack Security plans.
-	 */
-	public function test_list_plans_filters_to_security_category() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array( 'category' => 'security' ) );
-
-		$this->assertIsArray( $result );
-		$slugs = array_column( $result, 'slug' );
-		$this->assertContains( 'jetpack_security_t1_yearly', $slugs );
-		$this->assertNotContains( 'jetpack_personal', $slugs );
-	}
-
-	/**
-	 * An unknown category filter value returns a typed WP_Error.
-	 */
-	public function test_list_plans_rejects_unknown_category() {
-		Plans_Abilities_Test_Stub::reset( self::sample_catalog() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array( 'category' => 'bogus' ) );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_invalid_category', $result->get_error_code() );
-	}
-
-	/**
-	 * A transport failure (non-array catalog body) surfaces as a WP_Error.
-	 */
-	public function test_list_plans_surfaces_unavailable_catalog_as_wp_error() {
-		Plans_Abilities_Test_Stub::reset( 'transient remote failure body' );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array() );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_plans_catalog_unavailable', $result->get_error_code() );
-	}
-
-	/**
-	 * An empty catalog returns an empty array, not a WP_Error.
-	 */
-	public function test_list_plans_uniform_shape_with_empty_catalog() {
-		Plans_Abilities_Test_Stub::reset( array() );
-
-		$result = Plans_Abilities_Test_Stub::list_plans( array() );
-
-		$this->assertIsArray( $result );
-		$this->assertSame( array(), $result );
-	}
-
-	// -------------------- Test fixtures --------------------
-
-	/**
-	 * Catalog fixture covering: a purchasable personal-tier Jetpack plan with a
-	 * path_slug, a purchasable security-tier plan whose slug is in
-	 * Current_Plan::PLAN_DATA['security'], a non-Jetpack premium plan (filtered
-	 * out by slug), and a discontinued Jetpack plan flagged available => 'no'
-	 * (filtered out as unpurchasable).
-	 */
-	private static function sample_catalog(): array {
-		return array(
-			(object) array(
-				'product_slug'       => 'jetpack_personal',
-				'product_name_short' => 'Personal',
-				'path_slug'          => 'personal',
-				'raw_price'          => 39.0,
-				'bill_period'        => 365,
-				'currency_code'      => 'USD',
-				'available'          => 'yes',
-				'features_highlight' => array( 'akismet', 'support' ),
-			),
-			(object) array(
-				'product_slug'       => 'jetpack_security_t1_yearly',
-				'product_name_short' => 'Security',
-				'path_slug'          => 'jetpack_security_t1_yearly',
-				'raw_price'          => 299.0,
-				'bill_period'        => 365,
-				'currency_code'      => 'USD',
-				'available'          => 'yes',
-				'features_highlight' => array( 'backup', 'scan' ),
-			),
-			(object) array(
-				'product_slug'       => 'value_bundle',
-				'product_name_short' => 'Premium',
-				'path_slug'          => 'premium',
-				'raw_price'          => 99.0,
-				'bill_period'        => 365,
-				'currency_code'      => 'USD',
-				'available'          => 'yes',
-				'features_highlight' => array( 'vaultpress', 'videopress' ),
-			),
-			(object) array(
-				'product_slug'       => 'jetpack_business',
-				'product_name_short' => 'Professional',
-				'path_slug'          => 'jetpack_business',
-				'raw_price'          => 299.0,
-				'bill_period'        => 365,
-				'currency_code'      => 'USD',
-				'available'          => 'no',
-				'features_highlight' => array( 'backup', 'scan' ),
-			),
-		);
 	}
 }

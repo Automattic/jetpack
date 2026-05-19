@@ -55,6 +55,7 @@ class My_Jetpack_Abilities extends Registrar {
 	public static function get_abilities(): array {
 		return array(
 			'jetpack-my-jetpack/list-products' => self::spec_list_products(),
+			'jetpack-my-jetpack/list-plans'    => self::spec_list_plans(),
 		);
 	}
 
@@ -138,6 +139,76 @@ class My_Jetpack_Abilities extends Registrar {
 		);
 	}
 
+	/**
+	 * Spec: jetpack-my-jetpack/list-plans.
+	 *
+	 * The purchasable Jetpack bundle plans (Security, Growth, Complete) as the
+	 * Jetpack offering currently sells them. Sourced from the My Jetpack
+	 * product registry — the same definitions that drive the Jetpack pricing
+	 * UI — so discontinued/legacy plans never appear.
+	 */
+	private static function spec_list_plans(): array {
+		$plan_entry_schema = array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => array(
+				'slug'     => array(
+					'type'        => 'string',
+					'description' => __( 'Canonical WordPress.com product slug for the plan (e.g. "jetpack_security_t1_yearly", "jetpack_growth_yearly", "jetpack_complete").', 'jetpack-my-jetpack' ),
+				),
+				'name'     => array(
+					'type'        => 'string',
+					'description' => __( 'Display name of the bundle (e.g. "Jetpack Security").', 'jetpack-my-jetpack' ),
+				),
+				'price'    => array(
+					'type'        => array( 'number', 'null' ),
+					'description' => __( 'Full (non-promotional) price for one billing term, or null when pricing is unavailable.', 'jetpack-my-jetpack' ),
+				),
+				'currency' => array(
+					'type'        => array( 'string', 'null' ),
+					'description' => __( 'ISO-4217 currency code for `price` (e.g. "USD"), or null when pricing is unavailable.', 'jetpack-my-jetpack' ),
+				),
+				'term'     => array(
+					'type'        => array( 'string', 'null' ),
+					'description' => __( 'Billing term `price` covers (e.g. "year"), or null when pricing is unavailable.', 'jetpack-my-jetpack' ),
+				),
+				'features' => array(
+					'type'        => 'array',
+					'items'       => array( 'type' => 'string' ),
+					'description' => __( 'Headline features included in the bundle.', 'jetpack-my-jetpack' ),
+				),
+			),
+		);
+
+		return array(
+			'label'               => __( 'List purchasable Jetpack plans', 'jetpack-my-jetpack' ),
+			'description'         => __(
+				'Return the Jetpack bundle plans the site can currently purchase (Security, Growth, Complete) as a uniform array of { slug, name, price, currency, term, features } entries. The set comes from the Jetpack product registry that powers the pricing UI, so discontinued/legacy plans (jetpack_personal, jetpack_premium, jetpack_business, the daily/realtime security plans, …) are never returned. Individual add-on products are covered by jetpack-my-jetpack/list-products. Read-only and idempotent; takes no arguments.',
+				'jetpack-my-jetpack'
+			),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'  => 'array',
+				'items' => $plan_entry_schema,
+			),
+			'execute_callback'    => array( __CLASS__, 'list_plans' ),
+			'permission_callback' => array( __CLASS__, 'can_view_my_jetpack' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
+		);
+	}
+
 	/*
 	---------------------------------------------------------------------
 	 * Permission callbacks
@@ -190,6 +261,51 @@ class My_Jetpack_Abilities extends Registrar {
 		}
 
 		return $entries;
+	}
+
+	/**
+	 * Execute: list-plans.
+	 *
+	 * Walks the My Jetpack product registry, keeps the bundle products
+	 * (Security, Growth, Complete), and projects each to a compact plan entry.
+	 * Because the registry only knows the plans Jetpack currently sells,
+	 * legacy plans never appear.
+	 *
+	 * @param array|null $input Ability input (no parameters accepted).
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function list_plans( $input = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
+		$plans = array();
+		foreach ( Products::get_products_slugs() as $product_slug ) {
+			$class = Products::get_product_class( $product_slug );
+			if ( ! $class || ! $class::is_bundle_product() ) {
+				continue;
+			}
+
+			$slug = (string) $class::get_wpcom_product_slug();
+			if ( '' === $slug ) {
+				continue;
+			}
+
+			$pricing  = static::get_plan_pricing( $class );
+			$features = array();
+			foreach ( (array) $class::get_features() as $feature ) {
+				if ( is_string( $feature ) && '' !== $feature ) {
+					$features[] = $feature;
+				}
+			}
+
+			$plans[] = array(
+				'slug'     => $slug,
+				'name'     => (string) $class::get_title(),
+				'price'    => isset( $pricing['full_price'] ) && is_numeric( $pricing['full_price'] ) ? (float) $pricing['full_price'] : null,
+				'currency' => isset( $pricing['currency_code'] ) && is_string( $pricing['currency_code'] ) && '' !== $pricing['currency_code'] ? $pricing['currency_code'] : null,
+				'term'     => isset( $pricing['product_term'] ) && is_string( $pricing['product_term'] ) && '' !== $pricing['product_term'] ? $pricing['product_term'] : null,
+				'features' => $features,
+			);
+		}
+
+		return $plans;
 	}
 
 	/*
@@ -261,5 +377,19 @@ class My_Jetpack_Abilities extends Registrar {
 			return 'feature';
 		}
 		return 'product';
+	}
+
+	/**
+	 * Read a bundle product's pricing details.
+	 *
+	 * Wraps the product class's own pricing accessor so tests can stub the
+	 * remote-backed call. Always returns an array.
+	 *
+	 * @param string $class Fully-qualified bundle product class name.
+	 * @return array<string, mixed>
+	 */
+	protected static function get_plan_pricing( string $class ): array {
+		$pricing = $class::get_pricing_for_ui();
+		return is_array( $pricing ) ? $pricing : array();
 	}
 }

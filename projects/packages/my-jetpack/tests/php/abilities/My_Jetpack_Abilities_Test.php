@@ -11,8 +11,11 @@ namespace Automattic\Jetpack\My_Jetpack\Abilities;
 
 use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\WP_Abilities\Registrar;
+use My_Jetpack_Abilities_List_Plans_Stub;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+
+require_once __DIR__ . '/class-my-jetpack-abilities-list-plans-stub.php';
 
 /**
  * Tests for My_Jetpack_Abilities.
@@ -201,8 +204,9 @@ class My_Jetpack_Abilities_Test extends TestCase {
 	 */
 	public function test_abilities_map_is_namespaced_and_complete() {
 		$abilities = My_Jetpack_Abilities::get_abilities();
-		$this->assertCount( 1, $abilities );
+		$this->assertCount( 2, $abilities );
 		$this->assertArrayHasKey( 'jetpack-my-jetpack/list-products', $abilities );
+		$this->assertArrayHasKey( 'jetpack-my-jetpack/list-plans', $abilities );
 		foreach ( array_keys( $abilities ) as $slug ) {
 			$this->assertStringStartsWith( 'jetpack-my-jetpack/', $slug );
 		}
@@ -439,5 +443,61 @@ class My_Jetpack_Abilities_Test extends TestCase {
 	public function test_list_products_with_empty_string_slug_returns_full_list() {
 		$result = My_Jetpack_Abilities::list_products( array( 'slug' => '' ) );
 		$this->assertSameSize( Products::get_products_slugs(), $result );
+	}
+
+	// -------------------- list-plans --------------------
+
+	/**
+	 * The list-plans ability returns only the bundle plans (Security, Growth,
+	 * Complete), never individual products or legacy plans, with the
+	 * documented shape.
+	 */
+	public function test_list_plans_returns_only_current_bundles() {
+		My_Jetpack_Abilities_List_Plans_Stub::reset();
+		$result = My_Jetpack_Abilities_List_Plans_Stub::list_plans();
+
+		$this->assertIsArray( $result );
+		$slugs = array_column( $result, 'slug' );
+
+		// Exactly the three current bundles, sourced from the registry.
+		sort( $slugs );
+		$this->assertSame(
+			array( 'jetpack_complete', 'jetpack_growth_yearly', 'jetpack_security_t1_yearly' ),
+			$slugs
+		);
+
+		// No legacy plans.
+		$this->assertNotContains( 'jetpack_business', $slugs );
+		$this->assertNotContains( 'jetpack_premium', $slugs );
+		$this->assertNotContains( 'jetpack_personal', $slugs );
+		$this->assertNotContains( 'jetpack_security_daily', $slugs );
+
+		$first = $result[0];
+		foreach ( array( 'slug', 'name', 'price', 'currency', 'term', 'features' ) as $key ) {
+			$this->assertArrayHasKey( $key, $first );
+		}
+		$this->assertArrayNotHasKey( 'upgrade_url', $first );
+		$this->assertIsArray( $first['features'] );
+		$this->assertSame( 49.0, $first['price'] );
+		$this->assertSame( 'USD', $first['currency'] );
+		$this->assertSame( 'year', $first['term'] );
+	}
+
+	/**
+	 * Pricing seam failures degrade gracefully: the plan is still listed with
+	 * null price fields rather than dropped or fatal.
+	 */
+	public function test_list_plans_tolerates_missing_pricing() {
+		My_Jetpack_Abilities_List_Plans_Stub::$pricing = array();
+		$result                                        = My_Jetpack_Abilities_List_Plans_Stub::list_plans();
+		My_Jetpack_Abilities_List_Plans_Stub::reset();
+
+		$this->assertNotEmpty( $result );
+		foreach ( $result as $plan ) {
+			$this->assertNull( $plan['price'] );
+			$this->assertNull( $plan['currency'] );
+			$this->assertNull( $plan['term'] );
+			$this->assertNotSame( '', $plan['slug'] );
+		}
 	}
 }
