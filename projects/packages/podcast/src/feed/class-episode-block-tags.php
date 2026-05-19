@@ -84,7 +84,10 @@ class Episode_Block_Tags {
 	 * @return array<string, mixed>
 	 */
 	private static function find_block_attrs( WP_Post $post ): array {
-		if ( ! has_blocks( $post->post_content ) ) {
+		// Skip the parse_blocks() regex pass entirely if our specific block
+		// marker isn't even in the content — tighter than has_blocks(), which
+		// only checks for `<!-- wp:`.
+		if ( false === strpos( $post->post_content, '<!-- wp:jetpack/podcast-episode' ) ) {
 			return array();
 		}
 		foreach ( parse_blocks( $post->post_content ) as $block ) {
