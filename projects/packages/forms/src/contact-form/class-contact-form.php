@@ -539,7 +539,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
+			$cipher = $data['cipher'] ?? 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -1695,7 +1695,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$images = self::get_images( $field_data['value'] );
 			$files  = self::get_files( $field_data['value'] );
 			$rating = self::get_rating( $field_data['value'] );
-			$type   = isset( $field_data['type'] ) ? $field_data['type'] : 'text';
+			$type   = $field_data['type'] ?? 'text';
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
@@ -1746,7 +1746,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
 			$rating     = isset( $value['rating'] ) ? (int) $value['rating'] : 0;
 			$max_rating = isset( $value['maxRating'] ) ? (int) $value['maxRating'] : 5;
-			$icon_style = isset( $value['iconStyle'] ) ? $value['iconStyle'] : 'stars';
+			$icon_style = $value['iconStyle'] ?? 'stars';
 
 			// Generate translated screen reader text.
 			$icon_label = 'hearts' === $icon_style
@@ -1943,7 +1943,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$has_files      = ! empty( $submission['files'] );
 					$has_rating     = ! empty( $submission['rating'] );
 					$show_plain_val = ! $has_url && ! $has_images && ! $has_files && ! $has_rating;
-					$field_type     = isset( $submission['type'] ) ? $submission['type'] : 'text';
+					$field_type     = $submission['type'] ?? 'text';
 
 					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">';
 
@@ -2212,7 +2212,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$file_links = array();
 			foreach ( $files as $file ) {
 				if ( ! empty( $file['file_id'] ) ) {
-					$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 					$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
 
 					$html = esc_html( $file_name );
@@ -2346,7 +2346,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Don't try to parse contact form fields if not inside a contact form (????)
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
-			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+			$type = $attributes['type'] ?? null;
 
 			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
 				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
@@ -3423,12 +3423,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// For URL fields, extract the display text value (original user input without auto-added protocol).
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'url' ) {
 			// Prefer displayValue (raw input) over url (which may have https:// prepended).
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : ( isset( $value['url'] ) ? $value['url'] : '' );
+			return $value['displayValue'] ?? ( $value['url'] ?? '' );
 		}
 
 		// For rating fields, return the displayValue (e.g., "3/5") for text fallback.
 		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'rating' ) {
-			return isset( $value['displayValue'] ) ? $value['displayValue'] : '';
+			return $value['displayValue'] ?? '';
 		}
 
 		// For file upload fields, we want to show the file name and size

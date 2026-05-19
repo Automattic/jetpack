@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter Categories: stop returning 400 when saving the same category selection that's already stored.

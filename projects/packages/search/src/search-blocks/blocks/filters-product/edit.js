@@ -19,10 +19,19 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 const TEMPLATE = [
 	[ 'jetpack-search/filter-post-type', { mode: 'include', postTypes: [ 'product' ] } ],
+	[ 'jetpack-search/active-filters' ],
 	[ 'jetpack-search/clear-filters' ],
-	[ 'jetpack-search/filter-wc-stock-status' ],
-	[ 'jetpack-search/filter-wc-rating' ],
+	[
+		'jetpack-search/filter-checkbox',
+		{ filterType: 'taxonomy', taxonomy: 'product_cat', displayStyle: 'chips' },
+	],
+	[
+		'jetpack-search/filter-checkbox',
+		{ filterType: 'taxonomy', taxonomy: 'product_brand', displayStyle: 'chips' },
+	],
+	[ 'jetpack-search/filter-wc-rating', { enabledStars: [ 4 ] } ],
 	[ 'jetpack-search/filter-wc-price' ],
+	[ 'jetpack-search/filter-wc-stock-status' ],
 ];
 
 const ALLOWED = [

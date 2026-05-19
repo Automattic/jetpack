@@ -103,7 +103,7 @@ function enrich_media_files( $media_files ) {
  * @return array $media_file_enriched
  */
 function enrich_image_meta( $media_file ) {
-	$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
+	$attachment_id = $media_file['id'] ?? null;
 	$image         = wp_get_attachment_image_src( $attachment_id, 'full', false );
 	if ( ! $image ) {
 		return $media_file;
@@ -141,7 +141,7 @@ function enrich_image_meta( $media_file ) {
  * @return array $media_file_enriched
  */
 function enrich_video_meta( $media_file ) {
-	$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
+	$attachment_id = $media_file['id'] ?? null;
 	$video_meta    = wp_get_attachment_metadata( $attachment_id );
 	if ( ! $video_meta ) {
 		return $media_file;
@@ -201,10 +201,10 @@ function render_image( $media ) {
 
 	// if image does not match.
 	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ?? '' ) ) {
-		$width  = isset( $media['width'] ) ? $media['width'] : null;
-		$height = isset( $media['height'] ) ? $media['height'] : null;
-		$title  = isset( $media['title'] ) ? $media['title'] : '';
-		$alt    = isset( $media['alt'] ) ? $media['alt'] : '';
+		$width  = $media['width'] ?? null;
+		$height = $media['height'] ?? null;
+		$title  = $media['title'] ?? '';
+		$alt    = $media['alt'] ?? '';
 		return sprintf(
 			'<img
 				title="%1$s"
@@ -375,7 +375,7 @@ function render_static_slide( $media_files ) {
  * @return string
  */
 function render_top_right_icon( $settings ) {
-	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
+	$show_slide_count = $settings['showSlideCount'] ?? false;
 	$slide_count      = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
 	if ( $show_slide_count ) {
 		// Render the story block icon along with the slide count.
@@ -430,7 +430,7 @@ function render_pagination_bullet( $slide_index, $class_name = '' ) {
  * @return string
  */
 function render_pagination( $settings ) {
-	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
+	$show_slide_count = $settings['showSlideCount'] ?? false;
 	if ( $show_slide_count ) {
 		return '';
 	}
@@ -466,7 +466,7 @@ function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$media_files              = isset( $attributes['mediaFiles'] ) ? enrich_media_files( $attributes['mediaFiles'] ) : array();
-	$settings_from_attributes = isset( $attributes['settings'] ) ? $attributes['settings'] : array();
+	$settings_from_attributes = $attributes['settings'] ?? array();
 
 	$settings = array_merge(
 		$settings_from_attributes,

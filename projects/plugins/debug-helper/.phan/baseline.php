@@ -10,7 +10,6 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredClassMethod : 65+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanUndeclaredClassStaticProperty : 4 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanUndeclaredConstantOfClass : 3 occurrences
@@ -29,10 +28,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
+        'modules/class-autoloader-debug-helper.php' => ['PhanEmptyForeach', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstantOfClass', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeReturnType'],
         'modules/class-broken-token.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-cookie-state.php' => ['PhanUndeclaredClassMethod'],
-        'modules/class-idc-simulator.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanUndeclaredClassMethod'],
+        'modules/class-idc-simulator.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-jetpack-sync-debug-helper.php' => ['PhanNonClassMethodCall'],
         'modules/class-modules-helper.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-protect-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],

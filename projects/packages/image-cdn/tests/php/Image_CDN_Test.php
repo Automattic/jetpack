@@ -1478,7 +1478,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		// This verifies the file has uploaded. Just a bit of defensive testing.
 		$this->assertEquals( 201, $response->get_status() );
 
-		$large_url = isset( $data['media_details']['sizes']['large']['source_url'] ) ? $data['media_details']['sizes']['large']['source_url'] : false;
+		$large_url = $data['media_details']['sizes']['large']['source_url'] ?? false;
 
 		if ( ! $large_url ) {
 			$this->fail( 'REST API media upload failed to return the expected data.' );

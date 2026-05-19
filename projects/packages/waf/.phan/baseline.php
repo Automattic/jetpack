@@ -11,7 +11,6 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
@@ -35,7 +34,7 @@ return [
         'src/class-waf-constants.php' => ['PhanCoalescingNeverNull', 'PhanUndeclaredConstant'],
         'src/class-waf-operators.php' => ['PhanTypeMismatchReturn'],
         'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgument'],
-        'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
+        'src/class-waf-runtime.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
     ],

@@ -2,6 +2,7 @@ const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 const mockSearchSuggestionsControl = jest.fn();
 const mockAIAgentAccessControl = jest.fn();
+const mockWooCommerceProductSearchControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
 
@@ -50,6 +51,10 @@ jest.mock( 'components/ai-agent-access-control', () => props => {
 	mockAIAgentAccessControl( props );
 	return <div data-testid="ai-agent-access-control" />;
 } );
+jest.mock( 'components/woocommerce-product-search-control', () => props => {
+	mockWooCommerceProductSearchControl( props );
+	return <div data-testid="woocommerce-product-search-control" />;
+} );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
 jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
@@ -84,6 +89,7 @@ const createSelectMethods = () => ( {
 	getSearchPlanInfo: jest.fn(),
 	getSearchStats: jest.fn(),
 	getSiteAdminUrl: jest.fn( () => 'https://example.com/wp-admin/' ),
+	getActiveThemeStylesheet: jest.fn( () => 'twentytwentyfive' ),
 	getSiteTitle: jest.fn( () => 'Example Site' ),
 	getTierMaximumRecords: jest.fn( () => 100 ),
 	hasStartedResolution: jest.fn( () => true ),
@@ -100,6 +106,9 @@ const createSelectMethods = () => ( {
 	isResolving: jest.fn( () => false ),
 	isSearchBlocksEnabled: jest.fn( () => false ),
 	isSearchSuggestionsEnabled: jest.fn( () => false ),
+	isWooCommerceActive: jest.fn( () => false ),
+	isWooCommerceSearchTemplateOverrideEnabled: jest.fn( () => false ),
+	getActiveExperience: jest.fn( () => 'embedded' ),
 	isTogglingInstantSearch: jest.fn( () => false ),
 	isTogglingModule: jest.fn( () => false ),
 	isUpdatingJetpackSettings: jest.fn( () => false ),
@@ -114,6 +123,7 @@ describe( 'DashboardPage', () => {
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
 		mockAIAgentAccessControl.mockClear();
+		mockWooCommerceProductSearchControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
@@ -221,6 +231,61 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.queryByTestId( 'search-suggestions-control' ) ).not.toBeInTheDocument();
 		expect( mockSearchSuggestionsControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'renders WooCommerceProductSearchControl when WooCommerce is active and the experience is Embedded', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'embedded' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'woocommerce-product-search-control' ) ).toBeInTheDocument();
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				isEnabled: true,
+				isSaving: false,
+				updateOptions: mockDispatchMethods.updateJetpackSettings,
+			} )
+		);
+	} );
+
+	test( 'renders WooCommerceProductSearchControl for the Theme search (inline) experience', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'inline' );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'woocommerce-product-search-control' ) ).toBeInTheDocument();
+	} );
+
+	test( 'hides WooCommerceProductSearchControl on non-WooCommerce sites', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.queryByTestId( 'woocommerce-product-search-control' ) ).not.toBeInTheDocument();
+		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
+	} );
+
+	test( 'hides WooCommerceProductSearchControl under the Overlay experience (moot — instant search intercepts)', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'overlay' );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.queryByTestId( 'woocommerce-product-search-control' ) ).not.toBeInTheDocument();
+		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
 	} );
 
 	test( 'does not render Reader Chat card in the experience selector path when unavailable', () => {

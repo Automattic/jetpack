@@ -172,7 +172,7 @@ class Jetpack_XMLRPC_Methods {
 		$nonce = wp_generate_password( 10, false );
 		$hmac  = hash_hmac( 'md5', $nonce . $output, $token->secret );
 
-		wp_set_current_user( isset( $old_user->ID ) ? $old_user->ID : 0 );
+		wp_set_current_user( $old_user->ID ?? 0 );
 
 		return array(
 			(string) $output,

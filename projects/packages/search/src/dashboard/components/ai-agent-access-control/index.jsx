@@ -127,7 +127,7 @@ export default function AIAgentAccessControl( {
 				/>
 			</div>
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ AI_AGENT_ACCESS_DESCRIPTION }
 					</p>

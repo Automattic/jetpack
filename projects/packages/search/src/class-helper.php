@@ -181,7 +181,7 @@ class Helper {
 					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
 
-				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
+				$type = $widget_filter['type'] ?? '';
 
 				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
 				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {

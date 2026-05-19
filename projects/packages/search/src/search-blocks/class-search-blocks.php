@@ -49,6 +49,19 @@ class Search_Blocks {
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
+	 * Slug for the dedicated Jetpack product-search template, registered and
+	 * fronted (in place of WooCommerce's) when the override is on. Separate
+	 * from `SEARCH_TEMPLATE_SLUG` so it's its own Site Editor entry.
+	 */
+	const PRODUCT_SEARCH_TEMPLATE_SLUG = 'jetpack-search-product-results';
+
+	/**
+	 * Mirror of `ProductSearchResultsTemplate::SLUG`, copied to avoid a hard
+	 * dependency on the WooCommerce class.
+	 */
+	const WC_PRODUCT_SEARCH_TEMPLATE_SLUG = 'product-search-results';
+
+	/**
 	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
 	 * method's local `static` so tests can clear it between cases via
 	 * `reset_initial_loading_cache()` — function-local statics aren't
@@ -144,6 +157,16 @@ class Search_Blocks {
 		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		}
+
+		// Priority 20: after WooCommerce's priority-10 prepend (so the
+		// result is load-order independent), leaving 11-19 free for other
+		// integrations. The WC/product-search guard lives in the callback,
+		// which runs late enough to satisfy woocommerce_blocks_enabled()'s
+		// load-order contract.
+		if ( static::woocommerce_search_template_override_enabled() ) {
+			add_action( 'init', array( static::class, 'register_product_search_template' ) );
+			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
 	}
 
@@ -244,6 +267,29 @@ class Search_Blocks {
 	 */
 	public static function reset_woocommerce_blocks_enabled_cache(): void {
 		self::$woocommerce_blocks_enabled_cache = null;
+	}
+
+	/**
+	 * The `jetpack_search_override_woocommerce_search_template` opt-in
+	 * (default off), set from the Search dashboard.
+	 *
+	 * @return bool
+	 */
+	public static function woocommerce_search_template_override_enabled(): bool {
+		return (bool) get_option( 'jetpack_search_override_woocommerce_search_template', false );
+	}
+
+	/**
+	 * Mirrors WooCommerce's own `ProductSearchResultsTemplate` guard so the
+	 * override only touches requests WooCommerce would itself reroute.
+	 *
+	 * @return bool
+	 */
+	protected static function is_woocommerce_product_search(): bool {
+		return self::woocommerce_blocks_enabled()
+			&& is_search()
+			&& is_post_type_archive( 'product' )
+			&& static::block_templates_active();
 	}
 
 	/**
@@ -785,6 +831,52 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Product-search counterpart of `get_search_template_content()`. Seeds
+	 * from `templates/jetpack-search-product-results.html` (a copy of the search
+	 * layout for now; product-specific blocks land in a follow-up).
+	 *
+	 * @return string Block markup for the product-search template.
+	 */
+	protected static function get_product_search_template_content(): string {
+		static $content = null;
+		if ( null !== $content ) {
+			return $content;
+		}
+		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$content = str_replace(
+			'{{FILTER_HEADING}}',
+			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+			$raw
+		);
+		return $content;
+	}
+
+	/**
+	 * Register the dedicated Jetpack product-search template. Counterpart of
+	 * `register_search_template()`; same Site Editor / DB-customization
+	 * semantics and empty-content / classic-theme bail-outs.
+	 */
+	public static function register_product_search_template() {
+		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
+			return;
+		}
+		$content = static::get_product_search_template_content();
+		if ( '' === $content ) {
+			return;
+		}
+		register_block_template(
+			static::get_parent_plugin_slug() . '//' . self::PRODUCT_SEARCH_TEMPLATE_SLUG,
+			array(
+				'title'       => __( 'Jetpack Search Product Results', 'jetpack-search-pkg' ),
+				'description' => __( 'Displays WooCommerce product search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
+				'content'     => $content,
+			)
+		);
+	}
+
+	/**
 	 * Directory slug of the plugin that should own the template in the
 	 * Site Editor UI.
 	 *
@@ -839,11 +931,19 @@ class Search_Blocks {
 	 * only through the block-template system, so injecting it anywhere else
 	 * just mis-shapes the hierarchy.
 	 *
+	 * WooCommerce product-search carve-out: override off → leave the
+	 * hierarchy to WooCommerce's prepend; override on → fall through here,
+	 * then `route_woocommerce_product_search_template()` swaps WooCommerce's
+	 * slug for `jetpack-search-product-results`.
+	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function prepend_search_template( $templates ) {
 		if ( ! is_search() || ! static::block_templates_active() ) {
+			return $templates;
+		}
+		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
 			return $templates;
 		}
 		$templates = array_values(
@@ -867,6 +967,34 @@ class Search_Blocks {
 	 */
 	protected static function block_templates_active(): bool {
 		return wp_is_block_theme();
+	}
+
+	/**
+	 * Front the dedicated `jetpack-search-product-results` template for a WooCommerce
+	 * product search: drop WooCommerce's `product-search-results` slug and
+	 * unshift ours so it resolves first (ahead of any `jetpack-search`
+	 * prepended for the generic search route). Registered at priority 20
+	 * only when the override is on; no-op outside a WooCommerce product
+	 * search.
+	 *
+	 * @param string[] $templates Template hierarchy slugs.
+	 * @return string[]
+	 */
+	public static function route_woocommerce_product_search_template( $templates ) {
+		if ( ! static::is_woocommerce_product_search() ) {
+			return $templates;
+		}
+		$templates = array_values(
+			array_filter(
+				(array) $templates,
+				static function ( $slug ) {
+					return self::WC_PRODUCT_SEARCH_TEMPLATE_SLUG !== $slug
+						&& self::PRODUCT_SEARCH_TEMPLATE_SLUG !== $slug;
+				}
+			)
+		);
+		array_unshift( $templates, self::PRODUCT_SEARCH_TEMPLATE_SLUG );
+		return $templates;
 	}
 
 	/**
