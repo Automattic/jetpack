@@ -14,7 +14,7 @@
 namespace Automattic\Jetpack\Connection\Abilities;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Package_Version;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Options;
 
@@ -30,7 +30,7 @@ use Jetpack_Options;
  */
 class Connection_Abilities extends Registrar {
 
-	const CATEGORY_SLUG = 'jetpack-connection';
+	const CATEGORY_SLUG = 'jetpack';
 
 	/**
 	 * {@inheritDoc}
@@ -45,8 +45,8 @@ class Connection_Abilities extends Registrar {
 	public static function get_category_definition(): array {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
-			'label'       => 'Jetpack Connection',
-			'description' => __( 'Abilities for inspecting the site\'s Jetpack connection state.', 'jetpack-connection' ),
+			'label'       => 'Jetpack',
+			'description' => __( 'Abilities provided by Jetpack.', 'jetpack-connection' ),
 		);
 	}
 
@@ -55,7 +55,7 @@ class Connection_Abilities extends Registrar {
 	 */
 	public static function get_abilities(): array {
 		return array(
-			'jetpack-connection/get-connection-status' => self::spec_get_connection_status(),
+			'jetpack/get-connection-status' => self::spec_get_connection_status(),
 		);
 	}
 
@@ -66,13 +66,13 @@ class Connection_Abilities extends Registrar {
 	 */
 
 	/**
-	 * Spec: jetpack-connection/get-connection-status.
+	 * Spec: jetpack/get-connection-status.
 	 */
 	private static function spec_get_connection_status(): array {
 		return array(
 			'label'               => __( 'Get Jetpack connection status', 'jetpack-connection' ),
 			'description'         => __(
-				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_connected, user_connected, master_user, plan_class, blog_id, registration_url, jetpack_version }. `site_connected` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `plan_class` is the slug of the currently active Jetpack/WordPress.com plan (e.g. "free", "personal", "premium", "business"), or null when no plan is known. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_connected` is false; null once the site is connected. `jetpack_version` is the running Jetpack plugin version, or null when the constant is not defined. Read-only and idempotent — safe to poll.',
+				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_connected, user_connected, master_user, blog_id, registration_url, connection_version }. `site_connected` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_connected` is false; null once the site is connected. `connection_version` is the running Jetpack Connection package version. Read-only and idempotent — safe to poll.',
 				'jetpack-connection'
 			),
 			'input_schema'        => array(
@@ -83,13 +83,12 @@ class Connection_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site_connected'   => array( 'type' => 'boolean' ),
-					'user_connected'   => array( 'type' => 'boolean' ),
-					'master_user'      => array( 'type' => array( 'integer', 'null' ) ),
-					'plan_class'       => array( 'type' => array( 'string', 'null' ) ),
-					'blog_id'          => array( 'type' => array( 'integer', 'null' ) ),
-					'registration_url' => array( 'type' => array( 'string', 'null' ) ),
-					'jetpack_version'  => array( 'type' => array( 'string', 'null' ) ),
+					'site_connected'     => array( 'type' => 'boolean' ),
+					'user_connected'     => array( 'type' => 'boolean' ),
+					'master_user'        => array( 'type' => array( 'integer', 'null' ) ),
+					'blog_id'            => array( 'type' => array( 'integer', 'null' ) ),
+					'registration_url'   => array( 'type' => array( 'string', 'null' ) ),
+					'connection_version' => array( 'type' => 'string' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_connection_status' ),
@@ -150,26 +149,13 @@ class Connection_Abilities extends Registrar {
 		$blog_id_raw = Jetpack_Options::get_option( 'id' );
 		$blog_id     = is_numeric( $blog_id_raw ) && (int) $blog_id_raw > 0 ? (int) $blog_id_raw : null;
 
-		// The active plan is stored by the Jetpack plugin under `jetpack_active_plan`,
-		// not as one of the connection package's own option names — read it directly
-		// from the options table. Absent on connection-only consumers (Boost, Search,
-		// etc.), in which case `plan_class` is null.
-		$plan      = get_option( 'jetpack_active_plan' );
-		$plan_slug = is_array( $plan ) && isset( $plan['product_slug'] ) && is_string( $plan['product_slug'] ) && '' !== $plan['product_slug']
-			? (string) $plan['product_slug']
-			: null;
-
-		$jetpack_version_raw = Constants::get_constant( 'JETPACK__VERSION' );
-		$jetpack_version     = is_string( $jetpack_version_raw ) && '' !== $jetpack_version_raw ? $jetpack_version_raw : null;
-
 		return array(
-			'site_connected'   => $site_connected,
-			'user_connected'   => $user_connected,
-			'master_user'      => $master_user,
-			'plan_class'       => $plan_slug,
-			'blog_id'          => $blog_id,
-			'registration_url' => $site_connected ? null : self::registration_url(),
-			'jetpack_version'  => $jetpack_version,
+			'site_connected'     => $site_connected,
+			'user_connected'     => $user_connected,
+			'master_user'        => $master_user,
+			'blog_id'            => $blog_id,
+			'registration_url'   => $site_connected ? null : self::registration_url(),
+			'connection_version' => Package_Version::PACKAGE_VERSION,
 		);
 	}
 

@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Connection\Abilities;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Package_Version;
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -131,10 +132,10 @@ class Connection_Abilities_Test extends TestCase {
 	// --- Abstract getters --------------------------------------------------.
 
 	/**
-	 * The category slug must be the namespaced "jetpack-connection".
+	 * The category slug must be the top-level "jetpack".
 	 */
-	public function test_category_slug_is_jetpack_connection(): void {
-		$this->assertSame( 'jetpack-connection', Connection_Abilities::get_category_slug() );
+	public function test_category_slug_is_jetpack(): void {
+		$this->assertSame( 'jetpack', Connection_Abilities::get_category_slug() );
 	}
 
 	/**
@@ -155,7 +156,7 @@ class Connection_Abilities_Test extends TestCase {
 		$abilities = Connection_Abilities::get_abilities();
 		$this->assertSame(
 			array(
-				'jetpack-connection/get-connection-status',
+				'jetpack/get-connection-status',
 			),
 			array_keys( $abilities )
 		);
@@ -361,16 +362,17 @@ class Connection_Abilities_Test extends TestCase {
 		$this->assertFalse( $out['site_connected'] );
 		$this->assertFalse( $out['user_connected'] );
 		$this->assertNull( $out['master_user'] );
-		$this->assertNull( $out['plan_class'] );
+		$this->assertArrayNotHasKey( 'plan_class', $out );
+		$this->assertArrayNotHasKey( 'jetpack_version', $out );
 		$this->assertNull( $out['blog_id'] );
 		$this->assertIsString( $out['registration_url'] );
 		$this->assertNotSame( '', $out['registration_url'] );
-		$this->assertNull( $out['jetpack_version'] );
+		$this->assertSame( Package_Version::PACKAGE_VERSION, $out['connection_version'] );
 	}
 
 	/**
 	 * With a connected Manager stub and the full set of options populated,
-	 * the read must surface blog_id, master_user, plan_class and version,
+	 * the read must surface blog_id, master_user, and connection_version,
 	 * and return a null `registration_url` (the site is already connected).
 	 */
 	public function test_get_connection_status_reports_connected_state_with_options_set(): void {
@@ -382,8 +384,6 @@ class Connection_Abilities_Test extends TestCase {
 		);
 		Jetpack_Options::update_option( 'id', 12345 );
 		Jetpack_Options::update_option( 'master_user', 42 );
-		update_option( 'jetpack_active_plan', array( 'product_slug' => 'jetpack_premium' ) );
-		Constants::set_constant( 'JETPACK__VERSION', '99.9' );
 
 		$out = Connection_Abilities::get_connection_status();
 
@@ -391,8 +391,9 @@ class Connection_Abilities_Test extends TestCase {
 		$this->assertTrue( $out['user_connected'] );
 		$this->assertSame( 42, $out['master_user'] );
 		$this->assertSame( 12345, $out['blog_id'] );
-		$this->assertSame( 'jetpack_premium', $out['plan_class'] );
+		$this->assertArrayNotHasKey( 'plan_class', $out );
+		$this->assertArrayNotHasKey( 'jetpack_version', $out );
 		$this->assertNull( $out['registration_url'], 'registration_url must be null once the site is connected.' );
-		$this->assertSame( '99.9', $out['jetpack_version'] );
+		$this->assertSame( Package_Version::PACKAGE_VERSION, $out['connection_version'] );
 	}
 }
