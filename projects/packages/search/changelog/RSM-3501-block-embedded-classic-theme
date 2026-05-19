@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search dashboard: block switching to Embedded search on classic themes, with an explanatory modal, since Embedded search is built in the Site Editor which classic themes lack.

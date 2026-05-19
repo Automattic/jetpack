@@ -140,7 +140,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'overlay' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                           => 'overlay',
+				'search_suggestions_enabled'           => false,
+				'override_woocommerce_search_template' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -193,7 +200,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 			'ai_answers_enabled'            => false,
 		);
-		$expected     = array_merge( $new_settings, array( 'experience' => 'off' ) );
+		$expected     = array_merge(
+			$new_settings,
+			array(
+				'experience'                           => 'off',
+				'search_suggestions_enabled'           => false,
+				'override_woocommerce_search_template' => false,
+			)
+		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -212,11 +226,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active' => false,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -236,11 +252,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'instant_search_enabled' => true,
 		);
 		$expected     = array(
-			'module_active'                 => true,
-			'instant_search_enabled'        => true,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'overlay',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => true,
+			'instant_search_enabled'               => true,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'overlay',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -260,11 +278,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => true,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => true,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => true,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -284,11 +304,13 @@ class REST_Controller_Test extends Search_TestCase {
 			'swap_classic_to_inline_search' => false,
 		);
 		$expected     = array(
-			'module_active'                 => false,
-			'instant_search_enabled'        => false,
-			'swap_classic_to_inline_search' => false,
-			'experience'                    => 'off',
-			'ai_answers_enabled'            => false,
+			'module_active'                        => false,
+			'instant_search_enabled'               => false,
+			'swap_classic_to_inline_search'        => false,
+			'experience'                           => 'off',
+			'ai_answers_enabled'                   => false,
+			'search_suggestions_enabled'           => false,
+			'override_woocommerce_search_template' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -451,6 +473,9 @@ class REST_Controller_Test extends Search_TestCase {
 	 */
 	public function test_update_settings_experience_embedded() {
 		wp_set_current_user( $this->admin_id );
+		// Embedded only reports back as 'embedded' on a block theme; force the
+		// seam true so this exercises persistence, not the non-block fallback.
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -461,6 +486,8 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertTrue( $data['module_active'] );
 		$this->assertFalse( $data['instant_search_enabled'] );
 		$this->assertEquals( 'embedded', $data['experience'] );
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 	}
 
 	/**
@@ -548,6 +575,10 @@ class REST_Controller_Test extends Search_TestCase {
 					'experience'                    => 'inline',
 					'swap_classic_to_inline_search' => true,
 				),
+				array(
+					'experience'                           => 'embedded',
+					'override_woocommerce_search_template' => true,
+				),
 			) as $body
 		) {
 			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -564,6 +595,7 @@ class REST_Controller_Test extends Search_TestCase {
 	 */
 	public function test_get_settings_returns_persisted_experience() {
 		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 
 		// Save experience=embedded.
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -577,6 +609,8 @@ class REST_Controller_Test extends Search_TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'embedded', $response->get_data()['experience'] );
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 	}
 
 	/**
@@ -610,6 +644,34 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * The override option round-trips through the settings endpoint on
+	 * its own and persists to its backing option.
+	 */
+	public function test_update_settings_override_woocommerce_search_template_toggles() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'override_woocommerce_search_template' => true ), JSON_UNESCAPED_SLASHES )
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['override_woocommerce_search_template'] );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_override_woocommerce_search_template' ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'override_woocommerce_search_template' => false ), JSON_UNESCAPED_SLASHES )
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['override_woocommerce_search_template'] );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_override_woocommerce_search_template' ) );
 	}
 
 	/**
@@ -649,6 +711,66 @@ class REST_Controller_Test extends Search_TestCase {
 		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . '}' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * `POST /jetpack/v4/search/plan/activate` with the canonical `search_experience`
+	 * parameter writes the experience option and routes through `update_experience`.
+	 */
+	public function test_activate_plan_admin_with_search_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"embedded"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'embedded', get_option( 'jetpack_search_experience' ) );
+	}
+
+	/**
+	 * `POST /jetpack/v4/search/plan/activate` rejects an unknown `search_experience`
+	 * value with a 400 `invalid_experience` error.
+	 */
+	public function test_activate_plan_admin_with_invalid_search_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"bogus"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
+	}
+
+	/**
+	 * `search_experience: "off"` is reserved for `/plan/deactivate`. Sending it to
+	 * the activate endpoint must not silently deactivate Search.
+	 */
+	public function test_activate_plan_admin_rejects_off_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":"off"}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Non-string `search_experience` payloads must surface as a 400, not a TypeError
+	 * from `update_experience(string $experience)`.
+	 */
+	public function test_activate_plan_admin_rejects_non_string_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( '{"search_plan_info":' . Search_TestCase::PLAN_INFO_FIXTURE . ',"search_experience":["overlay"]}' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_experience', $response->get_data()['code'] );
 	}
 
 	/**

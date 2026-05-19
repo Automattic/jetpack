@@ -222,6 +222,47 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Enabling Instant Search must also write 'overlay' to the canonical
+	 * experience option so is_instant_search_enabled() agrees. Without this
+	 * sync, a stale 'embedded' / 'inline' in the experience option keeps
+	 * the canonical read at false even after the legacy boolean flips true.
+	 */
+	public function test_enable_instant_search_syncs_experience_overlay() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		static::$search_module->enable_instant_search();
+
+		$this->assertEquals(
+			Module_Control::EXPERIENCE_OVERLAY,
+			get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY )
+		);
+		$this->assertTrue( static::$search_module->is_instant_search_enabled() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The legacy ModuleControl toggle, when turning Instant Search off,
+	 * clears the canonical experience option so a stale 'overlay' doesn't
+	 * keep is_instant_search_enabled() returning true.
+	 */
+	public function test_update_instant_search_status_false_clears_experience() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+
+		static::$search_module->update_instant_search_status( false );
+
+		$this->assertSame( '', get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
 	 * Inactive module always reads as 'off' regardless of any saved experience
 	 * option — off lives in jetpack_active_modules, not in the package's option.
 	 */
@@ -237,9 +278,14 @@ class Module_Control_Test extends Search_TestCase {
 
 	/**
 	 * Saved 'embedded' / 'overlay' values are returned when the module is active.
+	 *
+	 * 'embedded' only renders on a block theme, so the assertion forces the
+	 * block-theme seam true to isolate the saved-value behaviour from the
+	 * non-block-theme fallback covered separately below.
 	 */
 	public function test_get_experience_returns_saved_value() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
@@ -247,6 +293,51 @@ class Module_Control_Test extends Search_TestCase {
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
 
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Saved 'embedded' falls back to 'inline' (Theme search) on a non-block
+	 * theme so the search page keeps working instead of resolving to a missing
+	 * FSE template. The saved option must stay 'embedded' so the experience
+	 * resumes once the site switches back to a block theme.
+	 */
+	public function test_get_experience_embedded_falls_back_to_inline_on_non_block_theme() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		$this->assertEquals( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
+		$this->assertEquals(
+			Module_Control::EXPERIENCE_EMBEDDED,
+			get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ),
+			'The saved experience option must be preserved across the fallback.'
+		);
+
+		// Switching back to a block theme restores the embedded experience without a re-save.
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The non-block-theme fallback only affects 'embedded' — 'overlay' is
+	 * theme-agnostic (modal overlay) and must be unaffected.
+	 */
+	public function test_get_experience_overlay_unaffected_by_non_block_theme() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}

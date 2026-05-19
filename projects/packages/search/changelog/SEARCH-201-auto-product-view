@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: Results List auto-switches to the Product layout when the search is scoped to exactly the `product` post type via the `?post_types[]=product` URL parameter. On WooCommerce sites this takes effect for existing Results List blocks immediately after the update (no author action needed); opt out per block via the new "Auto-switch to Product view" toggle in the editor.

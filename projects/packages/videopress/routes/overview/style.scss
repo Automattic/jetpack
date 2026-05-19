@@ -224,4 +224,26 @@
 		font-weight: var(--wpds-typography-font-weight-medium, 499);
 		padding-right: var(--wpds-dimension-padding-lg, 16px);
 	}
+
+	&__storage-meter {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		// `@wordpress/components` `ProgressBar` ships with a fixed default
+		// width and renders narrow inside flex containers. Match the
+		// legacy `VideoStorageMeter` approach of forcing the inner bar
+		// element to fill the strip. The label is a `<span>`, so the
+		// last direct-child `div` is unambiguously the `ProgressBar`
+		// wrapper — avoids coupling to its internal
+		// `__experimentalProgressBar` class name.
+		> div:last-child {
+			width: 100%;
+		}
+	}
+
+	&__storage-meter-label {
+		font-size: 13px;
+		color: #50575e;
+	}
 }

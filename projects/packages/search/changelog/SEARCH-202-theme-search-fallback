@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search 3.0: fall back to Theme search when the Embedded experience is configured on a non-block theme, so the search page keeps working instead of resolving to a missing FSE template. The saved Embedded preference is preserved and resumes automatically when the site switches back to a block theme.

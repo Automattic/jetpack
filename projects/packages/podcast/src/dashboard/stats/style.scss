@@ -1,17 +1,31 @@
 @use "@automattic/charts/dist/index.css";
 
-// Match other dashboard tabs; avoid --wp-admin-theme-color-darker-20.
+// @automattic/date-range-picker uses Calypso dashboard CSS variables we don't
+// have here; re-color its trigger button with wp-admin tokens, and hide the
+// calendar's bounded month-nav chevrons (the API never serves dates beyond
+// today or older than a year, so the disabled arrows are dead weight).
+.daterange-input__field.components-button {
+	background: #fff;
+	border-color: #949494;
+}
+
+.daterange-input__field svg,
+.daterange-input__text {
+	color: #1e1e1e;
+}
+
+.daterange-calendar button[aria-disabled="true"] {
+	visibility: hidden;
+}
+
 $text: #1e1e1e;
 $muted: #757575;
-$bar-fill: #2271b1;
 
-%eyebrow {
-	font-size: 11px;
-	font-weight: 500;
-	color: $muted;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-}
+// Studio Blue, matching the rest of Calypso's defaults. We intentionally don't
+// follow the user's wp-admin color scheme: Calypso Stats doesn't either, and
+// this dashboard only renders on WP.com Simple + WoA, so the wp-admin scheme
+// signal isn't a strong enough match to justify the extra plumbing.
+$bar-fill: #3858e9;
 
 .podcast-stats {
 	padding-block-start: 16px;
@@ -134,10 +148,9 @@ $bar-fill: #2271b1;
 	}
 }
 
+// Inline metric tiles. Display-only; typography is owned by Heading/Text,
+// so only layout lives here.
 .podcast-stats-summary {
-	list-style: none;
-	margin: 0;
-	padding: 0;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: 0;
@@ -148,35 +161,6 @@ $bar-fill: #2271b1;
 
 		&:not(:first-child) {
 			border-inline-start: 1px solid #e0e0e0;
-		}
-	}
-
-	&__heading {
-
-		@extend %eyebrow;
-
-		margin-bottom: 6px;
-	}
-
-	&__value {
-		font-size: 24px;
-		font-weight: 500;
-		line-height: 1.2;
-		color: $text;
-	}
-
-	&__note {
-
-		@extend %eyebrow;
-
-		margin-top: 4px;
-	}
-
-	&--standalone {
-		gap: 12px;
-
-		.podcast-stats-summary__tile {
-			border-inline-start: 0;
 		}
 	}
 }
@@ -248,11 +232,12 @@ $bar-fill: #2271b1;
 	}
 
 	&__list-title {
-
-		@extend %eyebrow;
-
 		margin: 0 0 8px;
-		font-size: 12px;
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: $muted;
 	}
 }
 
@@ -270,14 +255,13 @@ $bar-fill: #2271b1;
 
 	&__row {
 		position: relative;
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		align-items: center;
-		gap: 8px;
 		padding: 6px 8px;
 		border-radius: 4px;
 		width: 100%;
 		text-align: start;
+		// Reset UA <button> grey on clickable rows (Top episodes); is-clickable
+		// hover/focus rules override.
+		background: transparent;
 		border: 0;
 		cursor: default;
 
@@ -285,35 +269,34 @@ $bar-fill: #2271b1;
 			cursor: pointer;
 
 			&:hover {
-				background: rgba(34, 113, 177, 0.06);
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
 			}
 
 			&:focus-visible {
-				background: rgba(34, 113, 177, 0.06);
+				background: color-mix(in sRGB, $bar-fill 6%, transparent);
 				outline: 2px solid $bar-fill;
 				outline-offset: 2px;
 			}
 		}
 	}
 
+	&__content {
+		position: relative;
+	}
+
 	&__leading {
-		grid-column: 1;
+		display: inline-flex;
+		flex: 0 0 auto;
 	}
 
 	&__label {
-		grid-column: 2;
+		flex: 1;
 		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		color: $text;
 	}
 
 	&__value {
-		grid-column: 3;
+		flex: 0 0 auto;
 		font-variant-numeric: tabular-nums;
-		font-size: 12px;
-		color: $muted;
 	}
 
 	&__bar {

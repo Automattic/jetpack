@@ -22,6 +22,7 @@
 		"clean": "rm -rf src/build/ src/build-module/",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
+		"test": "node --test --test-reporter spec src/features/write/test/undo-history.test.mjs",
 		"typecheck": "tsgo --build",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
 	},

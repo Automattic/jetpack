@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Gate the "Jetpack Search blocks" and "Embedded search page" pricing rows behind the `jetpack_search_blocks_enabled` flag, matching the front-end gating of the Search blocks.

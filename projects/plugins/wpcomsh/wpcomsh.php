@@ -122,7 +122,12 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
+if (
+	! class_exists( '\Automattic\Jetpack\Podcast\Podcast' )
+	|| ! \Automattic\Jetpack\Podcast\Podcast::is_enabled()
+) {
+	require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
+}
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';

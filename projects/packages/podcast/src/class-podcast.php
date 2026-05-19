@@ -52,6 +52,12 @@ class Podcast {
 		// late-registered filter callback still takes effect.
 		Podcast_Episode_Block::register_hooks();
 
+		// Register the local REST routes before request-local rollout gates.
+		// Requests from public-api.wordpress.com may not satisfy those gates,
+		// but the wpcom/v2 routes still need to exist so permission and
+		// callback checks can handle the request.
+		Posts_To_Podcast_Endpoint::init();
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}
@@ -74,6 +80,33 @@ class Podcast {
 		if ( is_admin() ) {
 			Admin_Page::init();
 		}
+
+		// Posts to Podcast lives behind its own filter so the Create AI
+		// Podcast page can ship independently of the broader untangle.
+		if ( self::is_posts_to_podcast_enabled() ) {
+			if ( is_admin() ) {
+				Create_AI_Podcast_Page::init();
+			}
+		}
+	}
+
+	/**
+	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
+	 * proxy) is enabled for the current request.
+	 *
+	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
+	 * A8C-proxied requests so Automatticians dogfood it, and can be flipped
+	 * globally via the `jetpack_posts_to_podcast` filter.
+	 */
+	public static function is_posts_to_podcast_enabled() {
+		/**
+		 * Master switch for the Posts to Podcast (Create AI Podcast) feature.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable Posts to Podcast.
+		 */
+		return (bool) apply_filters( 'jetpack_posts_to_podcast', self::is_proxied_request() );
 	}
 
 	/**

@@ -1,3 +1,0 @@
-Significance: patch
-Type: added
-Comment: New `strip-unminified-prod` bin that wp-build consumers run in their `build-production` chain to drop unminified `.js`/`.css` siblings and collapse the SCRIPT_DEBUG ternary in the generated PHP loaders. No user-facing change.

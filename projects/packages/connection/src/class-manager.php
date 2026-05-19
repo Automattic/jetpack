@@ -469,7 +469,7 @@ class Manager {
 			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
 			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
-			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
+			'url'       => wp_unslash( ( $_SERVER['HTTP_HOST'] ?? null ) . ( $_SERVER['REQUEST_URI'] ?? null ) ), // Temp - will get real signature URL later.
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
@@ -1051,7 +1051,7 @@ class Manager {
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Get the WordPress.com email before disconnecting the user
 			$wpcom_user_data = $this->get_connected_user_data( $user_id );
-			$wpcom_email     = isset( $wpcom_user_data['email'] ) ? $wpcom_user_data['email'] : null;
+			$wpcom_email     = $wpcom_user_data['email'] ?? null;
 
 			// Disconnect the user locally.
 			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
@@ -1282,9 +1282,7 @@ class Manager {
 		}
 
 		$stats_options = get_option( 'stats_options' );
-		$stats_id      = isset( $stats_options['blog_id'] )
-			? $stats_options['blog_id']
-			: null;
+		$stats_id      = $stats_options['blog_id'] ?? null;
 
 		/* This action is documented in src/class-package-version-tracker.php */
 		$package_versions = apply_filters( 'jetpack_package_versions', array() );
@@ -1390,7 +1388,7 @@ class Manager {
 			);
 		}
 
-		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
+		$alternate_authorization_url = $registration_details->alternate_authorization_url ?? '';
 
 		add_filter(
 			'jetpack_register_site_rest_response',
@@ -2489,7 +2487,7 @@ class Manager {
 	 * @return array the same array, since this method doesn't add or remove anything.
 	 */
 	public function xmlrpc_methods( $methods ) {
-		$this->raw_post_data = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'] ?? null;
 		return $methods;
 	}
 

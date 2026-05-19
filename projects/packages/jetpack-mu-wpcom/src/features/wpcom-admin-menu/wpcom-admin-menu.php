@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
+use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
@@ -404,10 +405,7 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
-	// When the `jetpack_podcast_untangle` filter is on, register the new
-	// "Jetpack > Podcast" in-admin page from the jetpack-podcast package.
-	// Otherwise keep the legacy "Jetpack > Podcasting" Calypso link unchanged.
-	if ( apply_filters( 'jetpack_podcast_untangle', false ) ) {
+	if ( Podcast::is_enabled() ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
 	} else {
 		add_submenu_page(

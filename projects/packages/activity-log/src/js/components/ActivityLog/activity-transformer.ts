@@ -75,6 +75,7 @@ export const transformActivityLogEntry = ( entry: ActivityLogEntry ): Activity =
 		activityUnparsedTs: published ?? '',
 		activityTs: parseTimestamp( published ),
 		activityActor: {
+			actorId: actor?.id,
 			actorAvatarUrl: actor?.icon?.url,
 			actorName: actor?.name,
 			actorRole: actor?.role,

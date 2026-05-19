@@ -319,7 +319,7 @@ abstract class Publicize_Base {
 		}
 
 		$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
-		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
+		return is_array( $connections ) && count( $connections ) > 0;
 	}
 
 	/**
@@ -1425,7 +1425,7 @@ abstract class Publicize_Base {
 		$submit_post = $this->should_submit_post_pre_checks( $post );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
-		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
+		$admin_page = $_POST[ $this->ADMIN_PAGE ] ?? null;
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )

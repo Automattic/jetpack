@@ -181,7 +181,7 @@ class Helper {
 					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
 
-				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
+				$type = $widget_filter['type'] ?? '';
 
 				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
 				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
@@ -928,6 +928,7 @@ class Helper {
 			'locale'                      => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'                => $posts_per_page,
 			'siteId'                      => self::get_wpcom_site_id(),
+			'searchSuggestionsEnabled'    => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
 			'postTypes'                   => $post_type_labels,
 			'webpackPublicPath'           => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'             => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,

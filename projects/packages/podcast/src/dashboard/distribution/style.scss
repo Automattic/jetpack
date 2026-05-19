@@ -20,6 +20,27 @@
 	}
 }
 
+.podcast__state-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: 0.02em;
+}
+
+.podcast__state-badge--pending {
+	background: #fcf2c3;
+	color: #674d00;
+}
+
+.podcast__state-badge--active {
+	background: #d3f5d6;
+	color: #00542b;
+}
+
 .podcast__feed-copy {
 	display: flex;
 	align-items: center;

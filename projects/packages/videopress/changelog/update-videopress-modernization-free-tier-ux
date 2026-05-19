@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Comment: Free-tier UX (Notice, disabled Upload, storage meter) for the modernized dashboard. Gated behind rsm_jetpack_ui_modernization_videopress.

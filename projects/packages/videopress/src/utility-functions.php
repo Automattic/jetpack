@@ -244,10 +244,10 @@ function videopress_get_transcoding_status( $post_id ) {
 	$info = (object) $meta['file_statuses'];
 
 	$status = array(
-		'std_mp4' => isset( $info->mp4 ) ? $info->mp4 : null,
-		'std_ogg' => isset( $info->ogg ) ? $info->ogg : null,
-		'dvd_mp4' => isset( $info->dvd ) ? $info->dvd : null,
-		'hd_mp4'  => isset( $info->hd ) ? $info->hd : null,
+		'std_mp4' => $info->mp4 ?? null,
+		'std_ogg' => $info->ogg ?? null,
+		'dvd_mp4' => $info->dvd ?? null,
+		'hd_mp4'  => $info->hd ?? null,
 	);
 
 	return $status;
@@ -525,10 +525,14 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 
 	if ( $meta && isset( $meta['videopress'] ) ) {
 		$videopress_meta             = $meta['videopress'];
-		$video_info->rating          = isset( $videopress_meta['rating'] ) ? $videopress_meta['rating'] : null;
-		$video_info->allow_download  = isset( $videopress_meta['allow_download'] ) ? $videopress_meta['allow_download'] : 0;
-		$video_info->display_embed   = isset( $videopress_meta['display_embed'] ) ? $videopress_meta['display_embed'] : 0;
+		$video_info->rating          = $videopress_meta['rating'] ?? null;
+		$video_info->allow_download  = $videopress_meta['allow_download'] ?? 0;
+		$video_info->display_embed   = $videopress_meta['display_embed'] ?? 0;
 		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : $videopress_meta['privacy_setting'];
+
+		if ( ! empty( $videopress_meta['finished'] ) ) {
+			$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s', (int) $videopress_meta['finished'] );
+		}
 	}
 
 	/** Make sure we are keeping some meta keys updated for filtering purposes */
@@ -537,10 +541,6 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	}
 	if ( get_post_meta( $post_id, 'videopress_privacy_setting', true ) !== $video_info->privacy_setting ) {
 		update_post_meta( $post_id, 'videopress_privacy_setting', $video_info->privacy_setting );
-	}
-
-	if ( videopress_is_finished_processing( $post_id ) ) {
-		$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s' );
 	}
 
 	return $video_info;
