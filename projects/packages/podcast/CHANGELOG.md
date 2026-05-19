@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-19
+### Security
+- Podcast: escape title overrides, descriptions, and iTunes category attribute values for the RSS feed to prevent malformed XML. [#48876]
+
+### Added
+- Add a Free and Premium plan card to the podcast welcome screen so users can see what podcasting includes per plan before they enable. [#48800]
+- Add the Podcast Episode block. Embeds a single podcast episode from an audio or video file with Podcasting 2.0 metadata. Registration is gated behind the `jetpack_podcast_untangle` filter (default off). [#48546]
+- Create AI Podcast: emit client-side tracks events for page view, generation request, episode plays, draft opens, pagination, and the quota banner / upgrade CTAs. [#48900]
+- Dashboard: gate the Episodes tab on Premium product access, with a blurred locked-preview overlay for free users. [#48885]
+- Default the untangle gate to enabled for A8C-proxied requests so Automatticians dogfood the new package on Simple and Atomic. [#48699]
+- Distribution tab: show Pending/Live state badges next to each podcast directory. [#48915]
+- Pocket Casts: replace the 3-step submit modal with a one-click Relay API flow that reflects pending/submitted state on the button and surfaces rejection reasons inline. [#48732]
+- Podcast: add product-access gate (Podcast_Gate::has_product_access) and grandfather sticker constant. [#48702]
+- Podcast Welcome: require a category when enabling podcasting. [#48825]
+- Posts to Podcast: Add an editor modal inviting eligible sites to create a podcast episode after publishing a post. [#48902]
+- Posts to Podcast: new Media > Create AI Podcast wp-admin page for generating podcast episode drafts from posts via the wpcom-side pipeline. Pick posts to include or use a recent-posts window, steer the output with a free-form prompt, watch a remaining-credits indicator backed by the quota-snapshot endpoint, and resume polling across page reloads. The page is plain PHP plus a vanilla-JS island — no React or wp-build chassis for this surface. Feature is wpcom-only; self-hosted Jetpack sites don't see the menu. [#48774]
+- Stats tab: render show- and episode-level podcast download stats. [#48614]
+
+### Changed
+- Build: Run webpack and wp-build scripts concurrently. [#48794]
+- Create AI Podcast: map 429 responses (including non-JSON edge rate-limit pages) to "Out of credits" and other non-JSON failures to "An unexpected error occurred." instead of "The response is not a valid JSON response."; decode HTML entities in the posts-picker titles so values like "&nbsp;" no longer render literally; add an "Experimental" badge to the intro banner; instrument the generation poller and post-publish promo with Tracks events for funnel analysis. [#48949]
+- Create AI Podcast: visual polish, floating toast notices, dismissible notices, generated episodes list, server-side bootstrap, and credits panel with reset messaging. [#48900]
+- Distribution: refresh Apple Podcasts, Spotify, YouTube Music, Amazon Music, and Podcast Index logos with current brand marks. Rename the YouTube directory to YouTube Music. Map matching slugs in the Stats "By app" and "Top app" labels. [#48879]
+- Episodes stats: detect 402 responses from the episode stats endpoint as a Premium-required state. [#48703]
+- Episode stats: dispatch the premium-required state on the `podcast_premium_required` error code instead of HTTP 402. [#48885]
+- Exclude development files from production builds. [#47365]
+- Podcast: grandfather Premium access by site registration date; drop the sticker-based grandfathering path. [#48894]
+- Podcast: narrow grandfather rule to sites registered before the cutoff that are also on a paid plan. [#48905]
+- Podcast: serve square cover art in the feed by center-cropping via Photon, regardless of source aspect ratio. [#48938]
+- Podcast: visual polish on the Stats tab — keep horizontal padding at narrow widths, lighter card headers, and integer-only axis ticks on the Downloads chart. [#48722]
+- Podcast dashboard: opt into the shared `jp-admin-page-tabs--minimal` modifier so the tab strip aligns with the page header and labels use the design-system font size. [#48908]
+- Podcast dashboard: reorder tabs so Stats appears first, followed by Episodes, Distribution, and Settings. [#48789]
+- Podcast Episode: enrich front-end schema.org markup and make chapter / soundbite list items click-to-seek in the audio player. [#48793]
+- Podcast Episode block: delegate the untangle gate to Podcast::is_enabled() so the block honors the same default as the rest of the package. [#48907]
+- Podcast Episodes: fall back to the show cover image when an episode has no featured image. [#48790]
+- Podcast Episodes: open the episode stats drilldown from a play-count click in the Episodes tab. [#48792]
+- Podcast Settings: create new categories inline without leaving the podcast dashboard. [#48791]
+- Podcast stats: rebuild summary tiles and bar list rows on @wordpress/components primitives. [#48742]
+- Podcast stats dashboard: replace period dropdown with Calypso Stats date range picker (presets, calendar, custom from/to). [#48742]
+- Polish the podcast setup flow: pin the post-setup destination to Settings, add a lead-in to the category picker modal, and surface a "+ Create episode" CTA on the empty Episodes state. [#48882]
+- Settings: Add a "Cover image" subheading above the cover image control and rename the "Podcast category" section to "Post category". [#48880]
+- Stats: Use Studio Blue (#3858e9) for bar colors on every surface, matching Calypso defaults. [#48888]
+- Stats tab: Align Top episodes, By app, and Locations cards with the WordPress.com Stats card module look (real border, larger header, and 24px padding). [#48761]
+- Update welcome screen copy to lead with the blog and newsletter story, and refresh the feature boxes and how-it-works steps. [#48796]
+
+### Fixed
+- Always show the Disable podcasting card on the settings tab, and return the user to the welcome screen after disabling, so the back-out flow works before a category has been chosen. [#48797]
+- Create AI Podcast: Clarify that free trial credits do not reset. [#48957]
+- Create AI Podcast: serve the generated-episodes list directly from the site database so it works on Atomic installs. [#48900]
+- Distribution: revert Podcast Index logo to previous version. [#48922]
+- Podcast: enqueue WP media library so the cover image selector loads. [#48720]
+- Podcast: skip rewriting the RSS enclosure URL through the stats endpoint when the URL does not resolve to a local attachment, so externally hosted enclosures stay playable. [#48878]
+- Polish Podcast dashboard styles: match placeholder thumbnail size to populated thumbnails, and space out the Distribution tab's warning notice. [#48920]
+
 ## 0.1.0 - 2026-05-11
 ### Added
 - Add initial package gated behind the `jetpack_podcast_untangle` filter. [#48556]
@@ -17,3 +71,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
+
+[1.0.0]: https://github.com/Automattic/jetpack-podcast/compare/v0.1.0...v1.0.0

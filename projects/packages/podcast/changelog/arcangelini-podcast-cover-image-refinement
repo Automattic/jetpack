@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Podcast: serve square cover art in the feed by center-cropping via Photon, regardless of source aspect ratio.
