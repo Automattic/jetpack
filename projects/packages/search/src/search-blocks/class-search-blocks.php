@@ -562,6 +562,8 @@ class Search_Blocks {
 			);
 		}
 
+		self::register_store_script_module();
+
 		$blocks_dir = __DIR__ . '/blocks';
 		$block_dirs = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
 
@@ -582,6 +584,35 @@ class Search_Blocks {
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
+	}
+
+	/**
+	 * Register the shared store as the `jetpack-search/store` Script Module.
+	 *
+	 * Every interactive block's `view.js` imports this bare specifier instead
+	 * of inlining the ~1,250-line store; the build externalizes it (see
+	 * `tools/webpack.blocks.config.js`) and writes the dependency into each
+	 * block's generated `.asset.php`, so WordPress resolves it to this single
+	 * module and ships the store once instead of ~14 duplicated copies.
+	 */
+	public static function register_store_script_module() {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		$base_path  = Package::get_installed_path() . 'build/search-blocks/store/';
+		$asset_file = $base_path . 'index.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+
+		wp_register_script_module(
+			'jetpack-search/store',
+			plugins_url( 'index.js', $base_path . 'index.js' ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? false
+		);
 	}
 
 	/**
