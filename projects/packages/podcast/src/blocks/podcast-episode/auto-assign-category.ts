@@ -38,14 +38,15 @@ export function registerAutoAssignCategory(): void {
 		return;
 	}
 
-	let alreadyAssigned = false;
 	// `null` = haven't resolved the saved post content yet. Once resolved, the
 	// value tells us whether the block was already present in the saved
 	// version (so we shouldn't re-touch the user's category choice).
 	let savedHadBlock: boolean | null = null;
 
-	subscribe( () => {
-		if ( alreadyAssigned || savedHadBlock === true ) {
+	// Capture the unsubscribe so we can stop watching once the listener is done.
+	const unsubscribe = subscribe( () => {
+		if ( savedHadBlock === true ) {
+			unsubscribe();
 			return;
 		}
 
@@ -69,12 +70,13 @@ export function registerAutoAssignCategory(): void {
 			const rawContent = typeof content === 'string' ? content : content?.raw ?? '';
 			savedHadBlock = rawContent.includes( '<!-- wp:' + PODCAST_BLOCK );
 			if ( savedHadBlock ) {
+				unsubscribe();
 				return;
 			}
 		}
 
 		const blockEditor = select( 'core/block-editor' ) as
-			| { getBlocksByName: ( name: string ) => string[] }
+			| { getBlocksByName: ( name: string ) => unknown[] }
 			| undefined;
 		if ( ! blockEditor ) {
 			return;
@@ -87,9 +89,13 @@ export function registerAutoAssignCategory(): void {
 		// can load the editor). `getEditedEntityRecord('root','site')` hits
 		// `/wp/v2/settings`, which requires `manage_options`, so authors and
 		// editors without that cap would otherwise silently skip the nudge.
-		const localized = Number( window.jetpackPodcastEpisodeBlock?.podcastingCategoryId ) || 0;
-		let podcastingCategoryId = localized;
-		if ( ! podcastingCategoryId ) {
+		// Check window object presence explicitly: a localized value of 0 means
+		// "no category configured" and should NOT fall through to the core-data
+		// path (which would trigger an unnecessary /wp/v2/settings request).
+		let podcastingCategoryId: number;
+		if ( window.jetpackPodcastEpisodeBlock !== undefined ) {
+			podcastingCategoryId = window.jetpackPodcastEpisodeBlock.podcastingCategoryId ?? 0;
+		} else {
 			const coreStore = select( 'core' ) as
 				| {
 						getEditedEntityRecord: (
@@ -110,11 +116,16 @@ export function registerAutoAssignCategory(): void {
 		if ( ! Array.isArray( currentCategories ) ) {
 			return;
 		}
+
+		// We've detected the block for the first time this session — unsubscribe
+		// regardless of whether we need to assign the category, so we don't
+		// re-add it later if the user explicitly removes it.
+		unsubscribe();
+
 		if ( currentCategories.includes( podcastingCategoryId ) ) {
 			return;
 		}
 
-		alreadyAssigned = true;
 		( dispatch( 'core/editor' ) as { editPost: ( patch: object ) => void } ).editPost( {
 			categories: [ ...currentCategories, podcastingCategoryId ],
 		} );
