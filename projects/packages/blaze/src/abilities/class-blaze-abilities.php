@@ -506,8 +506,25 @@ class Blaze_Abilities extends Registrar {
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
-					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'message', 'campaign_preview', 'forecast_summary', 'intent', 'forecast', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
+					'description' => __( 'Chat-ready prepared campaign package plus a deep-link to the Blaze UI for fallback review and submit.', 'jetpack-blaze' ),
+					'required'    => array(
+						'status',
+						'message',
+						'campaign_preview',
+						'forecast_summary',
+						'prepared_campaign',
+						'rendered_preview',
+						'campaign_summary',
+						'fallback_url',
+						'submit_eligibility',
+						'material_edit_policy',
+						'intent',
+						'forecast',
+						'assumptions',
+						'recommendations',
+						'prefill_url',
+						'prefill',
+					),
 					'properties'  => array(
 						'status'           => array(
 							'type'        => 'string',
@@ -555,6 +572,83 @@ class Blaze_Abilities extends Registrar {
 						'forecast_summary' => array(
 							'type'        => 'string',
 							'description' => __( 'Human-readable forecast summary for the recommended option, or a fallback note when forecasts are unavailable.', 'jetpack-blaze' ),
+						),
+						'prepared_campaign' => array(
+							'type'        => 'object',
+							'description' => __( 'Immutable prepared package identity. Later submit actions must use this identity so the merchant approves the exact package being submitted.', 'jetpack-blaze' ),
+							'required'    => array( 'id', 'hash', 'version' ),
+							'properties'  => array(
+								'id'      => array(
+									'type' => 'string',
+								),
+								'hash'    => array(
+									'type' => 'string',
+								),
+								'version' => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'rendered_preview'  => array(
+							'type'        => 'object',
+							'description' => __( 'Blaze-owned rendered preview artifact for chat clients. Clients should render this instead of composing ad HTML themselves.', 'jetpack-blaze' ),
+							'required'    => array( 'type', 'html' ),
+							'properties'  => array(
+								'type' => array(
+									'type' => 'string',
+									'enum' => array( 'html' ),
+								),
+								'html' => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'campaign_summary' => array(
+							'type'        => 'object',
+							'description' => __( 'Structured campaign summary for chat display: destination, creative, budget, cadence, schedule, targeting, and source context.', 'jetpack-blaze' ),
+							'required'    => array(
+								'destination',
+								'creative',
+								'budget',
+								'cadence',
+								'schedule',
+								'targeting_summary',
+								'source_context',
+							),
+						),
+						'fallback_url'     => array(
+							'type'        => 'string',
+							'format'      => 'uri',
+							'description' => __( 'Blaze widget or dashboard URL that can review and submit this prepared package when chat-native submit is unavailable or the merchant wants the full UI.', 'jetpack-blaze' ),
+						),
+						'submit_eligibility' => array(
+							'type'        => 'object',
+							'description' => __( 'Hints that tell chat clients whether chat-native submit can proceed or whether the merchant should use fallback_url.', 'jetpack-blaze' ),
+							'required'    => array( 'chat_native_submit', 'payment_method', 'reason', 'fallback_url' ),
+							'properties'  => array(
+								'chat_native_submit' => array(
+									'type' => 'boolean',
+								),
+								'payment_method'     => array(
+									'type' => array( 'string', 'boolean' ),
+								),
+								'reason'             => array(
+									'type' => array( 'string', 'null' ),
+								),
+								'fallback_url'       => array(
+									'type'   => 'string',
+									'format' => 'uri',
+								),
+							),
+						),
+						'approval_block'   => array(
+							'type'        => 'object',
+							'description' => __( 'Approval wording keys and exact package identity, present when a saved payment method makes chat-native submit eligible.', 'jetpack-blaze' ),
+						),
+						'material_edit_policy' => array(
+							'type'        => 'object',
+							'description' => __( 'Fields that require a new prepare-campaign call before approval or submit because they change the prepared package identity.', 'jetpack-blaze' ),
+							'required'    => array( 'requires_reprepare', 'material_fields', 'message' ),
 						),
 						'intent'           => array(
 							'type'        => 'string',
@@ -1583,7 +1677,18 @@ class Blaze_Abilities extends Registrar {
 			// Future write-path guardrails (per-session spend ceiling, Picard
 			// moderation gating) plug in here. Tracked separately as ADS-989.
 
-			$result = call_user_func( $original_callback, $input );
+			$adds_saved_payment_hint = self::ABILITY_PREPARE_CAMPAIGN === $ability_name;
+			if ( $adds_saved_payment_hint ) {
+				add_filter( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', '__return_true' );
+			}
+
+			try {
+				$result = call_user_func( $original_callback, $input );
+			} finally {
+				if ( $adds_saved_payment_hint ) {
+					remove_filter( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', '__return_true' );
+				}
+			}
 
 			if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
 				self::record_prepare_campaign_event( is_wp_error( $result ) ? 'failed' : 'succeeded', is_array( $input ) ? $input : array(), $result );

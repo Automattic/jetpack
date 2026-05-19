@@ -44,6 +44,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		unset( $GLOBALS['wp_rest_server'] );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method' );
 	}
 
 	/**
@@ -144,6 +145,72 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'assumptions', $result );
 		$this->assertArrayHasKey( 'recommendations', $result );
 		$this->assertArrayNotHasKey( 'budget_options', $result );
+	}
+
+	/**
+	 * Chat clients get a complete Blaze-owned package without composing ad HTML
+	 * or campaign defaults themselves.
+	 */
+	public function test_prepare_returns_chat_ready_prepared_campaign_package() {
+		add_filter( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', '__return_true' );
+
+		$ctx = $this->make_test_post();
+
+		$args = array(
+			'target_urn'    => $ctx['target_urn'],
+			'budget_total'  => 75,
+			'duration_days' => 10,
+			'languages'     => array( 'en', 'es' ),
+			'countries'     => array( 'US' ),
+			'devices'       => array( 'mobile' ),
+			'interests'     => array( 'IAB8_IAB18' ),
+		);
+
+		$result = Campaign_Preparer::prepare( $args );
+		$again  = Campaign_Preparer::prepare( $args );
+
+		$this->assertIsArray( $result );
+		$this->assertIsArray( $again );
+
+		$this->assertArrayHasKey( 'prepared_campaign', $result );
+		$this->assertSame( $result['prepared_campaign'], $again['prepared_campaign'] );
+		$this->assertSame( 1, preg_match( '/^[a-f0-9]{64}$/', $result['prepared_campaign']['hash'] ) );
+		$this->assertSame( $result['prepared_campaign']['hash'], $result['prepared_campaign']['id'] );
+		$this->assertSame( 'v1', $result['prepared_campaign']['version'] );
+
+		$this->assertArrayHasKey( 'rendered_preview', $result );
+		$this->assertSame( 'html', $result['rendered_preview']['type'] );
+		$this->assertStringContainsString( 'data-blaze-prepared-campaign-id="' . $result['prepared_campaign']['id'] . '"', $result['rendered_preview']['html'] );
+		$this->assertStringContainsString( 'Test product page', $result['rendered_preview']['html'] );
+		$this->assertStringContainsString( 'A short summary about the product.', $result['rendered_preview']['html'] );
+
+		$this->assertSame( $result['prefill_url'], $result['fallback_url'] );
+
+		$summary = $result['campaign_summary'];
+		foreach ( array( 'destination', 'creative', 'budget', 'cadence', 'schedule', 'targeting_summary', 'source_context' ) as $section ) {
+			$this->assertArrayHasKey( $section, $summary );
+		}
+		$this->assertSame( get_permalink( $ctx['post_id'] ), $summary['destination']['url'] );
+		$this->assertSame( 'Test product page', $summary['creative']['heading'] );
+		$this->assertSame( 'A short summary about the product.', $summary['creative']['copy'] );
+		$this->assertSame( 75.0, $summary['budget']['total']['amount'] );
+		$this->assertSame( 10, $summary['cadence']['duration_days'] );
+		$this->assertSame( array( 'US' ), $summary['targeting_summary']['countries'] );
+		$this->assertSame( array( 'en', 'es' ), $summary['targeting_summary']['languages'] );
+		$this->assertSame( array( 'mobile' ), $summary['targeting_summary']['devices'] );
+		$this->assertSame( $ctx['target_urn'], $summary['source_context']['target_urn'] );
+		$this->assertSame( 'post', $summary['source_context']['post_type'] );
+
+		$this->assertTrue( $result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'saved_payment_method', $result['submit_eligibility']['payment_method'] );
+		$this->assertArrayHasKey( 'approval_block', $result );
+		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
+		$this->assertSame( 'blaze.approval.confirm_prepared_campaign', $result['approval_block']['confirmation_label_key'] );
+
+		$this->assertTrue( $result['material_edit_policy']['requires_reprepare'] );
+		$this->assertContains( 'creative', $result['material_edit_policy']['material_fields'] );
+		$this->assertContains( 'budget', $result['material_edit_policy']['material_fields'] );
+		$this->assertContains( 'targeting', $result['material_edit_policy']['material_fields'] );
 	}
 
 	/**

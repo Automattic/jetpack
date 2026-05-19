@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Blaze: Return chat-ready prepared campaign package details from prepare-campaign.

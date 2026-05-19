@@ -923,11 +923,29 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertContains( 'message', $ability['output_schema']['required'] );
 		$this->assertContains( 'campaign_preview', $ability['output_schema']['required'] );
 		$this->assertContains( 'forecast_summary', $ability['output_schema']['required'] );
+		$this->assertContains( 'prepared_campaign', $ability['output_schema']['required'] );
+		$this->assertContains( 'rendered_preview', $ability['output_schema']['required'] );
+		$this->assertContains( 'campaign_summary', $ability['output_schema']['required'] );
+		$this->assertContains( 'fallback_url', $ability['output_schema']['required'] );
+		$this->assertContains( 'submit_eligibility', $ability['output_schema']['required'] );
+		$this->assertContains( 'material_edit_policy', $ability['output_schema']['required'] );
 		$this->assertArrayHasKey( 'message', $output_properties );
 		$this->assertArrayHasKey( 'campaign_preview', $output_properties );
 		$this->assertArrayHasKey( 'forecast_summary', $output_properties );
+		$this->assertArrayHasKey( 'prepared_campaign', $output_properties );
+		$this->assertArrayHasKey( 'rendered_preview', $output_properties );
+		$this->assertArrayHasKey( 'campaign_summary', $output_properties );
+		$this->assertArrayHasKey( 'fallback_url', $output_properties );
+		$this->assertArrayHasKey( 'submit_eligibility', $output_properties );
+		$this->assertArrayHasKey( 'approval_block', $output_properties );
+		$this->assertArrayHasKey( 'material_edit_policy', $output_properties );
 		$this->assertContains( 'ad_heading', $output_properties['campaign_preview']['required'] );
 		$this->assertArrayHasKey( 'landing_page', $output_properties['campaign_preview']['properties'] );
+		$this->assertContains( 'id', $output_properties['prepared_campaign']['required'] );
+		$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
+		$this->assertContains( 'destination', $output_properties['campaign_summary']['required'] );
+		$this->assertContains( 'chat_native_submit', $output_properties['submit_eligibility']['required'] );
+		$this->assertContains( 'material_fields', $output_properties['material_edit_policy']['required'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
 		$this->assertArrayHasKey( 'assumptions', $output_properties );
@@ -1228,6 +1246,36 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 14, $prefill['duration_days'] );
 		$this->assertTrue( $prefill['is_evergreen'] );
 		$this->assertSame( 'VIEWS', $prefill['objective'] );
+	}
+
+	/**
+	 * Registered prepare-campaign executions that pass the Blaze setup guard
+	 * expose approval wording for chat-native submit.
+	 */
+	public function test_wrapped_prepare_campaign_marks_chat_native_submit_eligible() {
+		$ctx = $this->make_test_post();
+
+		$args = array(
+			'execute_callback' => array( Blaze_Abilities::class, 'prepare_campaign' ),
+			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
+		);
+
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		$result  = call_user_func(
+			$wrapped['execute_callback'],
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 14,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'saved_payment_method', $result['submit_eligibility']['payment_method'] );
+		$this->assertArrayHasKey( 'approval_block', $result );
+		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
+		$this->assertSame( 'blaze.approval.confirm_prepared_campaign', $result['approval_block']['confirmation_label_key'] );
 	}
 
 	/**

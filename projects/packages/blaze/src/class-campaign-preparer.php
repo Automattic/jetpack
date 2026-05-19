@@ -72,19 +72,31 @@ class Campaign_Preparer {
 		$prefill         = self::build_prefill_payload( $args, $post, $intent, $budget_context );
 		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
 		$forecast        = self::request_forecast( $prefill, $intent );
+		$summary         = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
+		$package         = self::build_prepared_campaign_identity( $prefill, $summary );
+		$eligibility     = self::build_submit_eligibility( $args, $prefill, $prefill_url );
 
 		$proposal = array(
-			'status'          => 'pending_merchant_review',
-			'intent'          => $intent,
-			'forecast'        => $forecast,
-			'assumptions'     => $assumptions,
-			'recommendations' => $recommendations,
-			'prefill_url'     => $prefill_url,
-			'prefill'         => $prefill,
+			'status'               => 'pending_merchant_review',
+			'prepared_campaign'    => $package,
+			'rendered_preview'     => self::build_rendered_preview( $prefill, $package ),
+			'campaign_summary'     => $summary,
+			'fallback_url'         => $prefill_url,
+			'submit_eligibility'   => $eligibility,
+			'material_edit_policy' => self::build_material_edit_policy(),
+			'intent'               => $intent,
+			'forecast'             => $forecast,
+			'assumptions'          => $assumptions,
+			'recommendations'      => $recommendations,
+			'prefill_url'          => $prefill_url,
+			'prefill'              => $prefill,
 		);
 
 		if ( $budget_context['include_options'] ) {
 			$proposal['budget_options'] = $budget_context['options'];
+		}
+		if ( $eligibility['chat_native_submit'] ) {
+			$proposal['approval_block'] = self::build_approval_block( $package );
 		}
 
 		return $proposal;
@@ -284,6 +296,212 @@ class Campaign_Preparer {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Build the immutable package identity for a prepared campaign.
+	 *
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @param array $summary Structured campaign summary.
+	 * @return array
+	 */
+	private static function build_prepared_campaign_identity( array $prefill, array $summary ): array {
+		$identity_payload = array(
+			'contract_version' => 'v1',
+			'prefill'          => $prefill,
+			'campaign_summary' => $summary,
+		);
+		$hash             = hash( 'sha256', (string) wp_json_encode( $identity_payload, JSON_UNESCAPED_SLASHES ) );
+
+		return array(
+			'id'      => $hash,
+			'hash'    => $hash,
+			'version' => 'v1',
+		);
+	}
+
+	/**
+	 * Build a Blaze-owned HTML preview artifact for chat clients.
+	 *
+	 * @param array $prefill  Recommended campaign prefill payload.
+	 * @param array $package  Prepared campaign identity.
+	 * @return array
+	 */
+	private static function build_rendered_preview( array $prefill, array $package ): array {
+		$image = isset( $prefill['main_image'] ) && is_array( $prefill['main_image'] ) ? $prefill['main_image'] : array();
+
+		$html  = '<article class="blaze-prepared-campaign-preview" data-blaze-prepared-campaign-id="';
+		$html .= esc_attr( $package['id'] ) . '">';
+		$html .= '<div class="blaze-prepared-campaign-preview__body">';
+		if ( ! empty( $image['url'] ) ) {
+			$html .= '<img class="blaze-prepared-campaign-preview__image" src="';
+			$html .= esc_url( (string) $image['url'] ) . '" alt="" />';
+		}
+		$html .= '<h3 class="blaze-prepared-campaign-preview__heading">';
+		$html .= esc_html( $prefill['site_name'] ?? '' ) . '</h3>';
+		$html .= '<p class="blaze-prepared-campaign-preview__copy">';
+		$html .= esc_html( $prefill['text_snippet'] ?? '' ) . '</p>';
+		$html .= '<span class="blaze-prepared-campaign-preview__cta">';
+		$html .= esc_html( $prefill['cta_text'] ?? '' ) . '</span>';
+		$html .= '</div>';
+		$html .= '</article>';
+
+		return array(
+			'type' => 'html',
+			'html' => $html,
+		);
+	}
+
+	/**
+	 * Build structured campaign summary values for chat display.
+	 *
+	 * @param \WP_Post $post           The target post.
+	 * @param array    $prefill        Recommended campaign prefill payload.
+	 * @param string   $intent         Inferred campaign intent.
+	 * @param array    $budget_context Resolved budget defaults and options.
+	 * @return array
+	 */
+	private static function build_campaign_summary( $post, array $prefill, string $intent, array $budget_context ): array {
+		$duration_days = isset( $prefill['duration_days'] ) ? max( 1, (int) $prefill['duration_days'] ) : self::DEFAULT_DURATION_DAYS;
+		$budget        = isset( $prefill['budget'] ) && is_array( $prefill['budget'] ) ? $prefill['budget'] : array();
+		$total_amount  = isset( $budget['amount'] ) ? (float) $budget['amount'] : self::DEFAULT_BUDGET_TOTAL;
+		$currency      = isset( $budget['currency'] ) ? (string) $budget['currency'] : $budget_context['currency'];
+		$start_date    = gmdate( 'Y-m-d' );
+		$end_date      = gmdate( 'Y-m-d', strtotime( '+' . ( $duration_days - 1 ) . ' days' ) );
+
+		return array(
+			'destination'       => array(
+				'url'        => isset( $prefill['target_url'] ) ? (string) $prefill['target_url'] : '',
+				'target_urn' => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
+			),
+			'creative'          => array(
+				'heading'        => isset( $prefill['site_name'] ) ? (string) $prefill['site_name'] : '',
+				'copy'           => isset( $prefill['text_snippet'] ) ? (string) $prefill['text_snippet'] : '',
+				'call_to_action' => isset( $prefill['cta_text'] ) ? (string) $prefill['cta_text'] : '',
+				'image_url'      => isset( $prefill['main_image']['url'] ) ? (string) $prefill['main_image']['url'] : '',
+			),
+			'budget'            => array(
+				'mode'  => isset( $budget['mode'] ) ? (string) $budget['mode'] : 'total',
+				'total' => array(
+					'amount'   => $total_amount,
+					'currency' => $currency,
+				),
+				'daily' => array(
+					'amount'   => round( $total_amount / $duration_days, 2 ),
+					'currency' => $currency,
+				),
+			),
+			'cadence'           => array(
+				'duration_days' => $duration_days,
+				'is_evergreen'  => isset( $prefill['is_evergreen'] ) ? (bool) $prefill['is_evergreen'] : true,
+			),
+			'schedule'          => array(
+				'start_date' => $start_date,
+				'end_date'   => $end_date,
+				'time_zone'  => self::get_site_timezone(),
+			),
+			'targeting_summary' => array(
+				'countries'   => isset( $prefill['countries'] ) ? array_values( (array) $prefill['countries'] ) : array(),
+				'languages'   => isset( $prefill['languages'] ) ? array_values( (array) $prefill['languages'] ) : array(),
+				'devices'     => isset( $prefill['devices'] ) ? array_values( (array) $prefill['devices'] ) : array(),
+				'page_topics' => isset( $prefill['page_topics'] ) ? array_values( (array) $prefill['page_topics'] ) : array(),
+			),
+			'source_context'    => array(
+				'source'     => 'wordpress_post',
+				'post_id'    => (int) $post->ID,
+				'post_type'  => (string) $post->post_type,
+				'target_urn' => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
+				'intent'     => $intent,
+			),
+		);
+	}
+
+	/**
+	 * Build chat-native submit eligibility hints.
+	 *
+	 * @param array  $args         Preparation input.
+	 * @param array  $prefill      Recommended campaign prefill payload.
+	 * @param string $fallback_url Blaze widget/dashboard fallback URL.
+	 * @return array
+	 */
+	private static function build_submit_eligibility( array $args, array $prefill, string $fallback_url ): array {
+		/**
+		 * Filters whether the prepared campaign can use an existing saved payment
+		 * method for chat-native submit.
+		 *
+		 * Return true when the site/user has a saved payment method available,
+		 * false when Blaze knows one is missing, or null when eligibility is
+		 * unknown and the caller should use the fallback URL.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool|null $has_saved_payment_method Saved-payment eligibility.
+		 * @param array     $args                     Preparation input.
+		 * @param array     $prefill                  Recommended campaign prefill payload.
+		 */
+		$has_saved_payment_method = apply_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', null, $args, $prefill );
+
+		if ( true === $has_saved_payment_method ) {
+			return array(
+				'chat_native_submit' => true,
+				'payment_method'     => 'saved_payment_method',
+				'reason'             => null,
+				'fallback_url'       => $fallback_url,
+			);
+		}
+
+		return array(
+			'chat_native_submit' => false,
+			'payment_method'     => false === $has_saved_payment_method
+				? 'missing_saved_payment_method'
+				: 'unknown',
+			'reason'             => false === $has_saved_payment_method
+				? 'saved_payment_method_required'
+				: 'payment_eligibility_unknown',
+			'fallback_url'       => $fallback_url,
+		);
+	}
+
+	/**
+	 * Build approval wording data for chat-native submit.
+	 *
+	 * @param array $package Prepared campaign identity.
+	 * @return array
+	 */
+	private static function build_approval_block( array $package ): array {
+		return array(
+			'prepared_campaign_id'     => $package['id'],
+			'prepared_campaign_hash'   => $package['hash'],
+			'title_key'                => 'blaze.approval.title',
+			'body_key'                 => 'blaze.approval.body',
+			'confirmation_label_key'   => 'blaze.approval.confirm_prepared_campaign',
+			'approval_statement'       => __( 'Approve this exact prepared Blaze campaign package for submission.', 'jetpack-blaze' ),
+			'requires_exact_identity'  => true,
+			'requires_reprepare_edits' => true,
+		);
+	}
+
+	/**
+	 * Describe which edits invalidate the prepared package identity.
+	 *
+	 * @return array
+	 */
+	private static function build_material_edit_policy(): array {
+		return array(
+			'requires_reprepare' => true,
+			'material_fields'    => array(
+				'destination',
+				'creative',
+				'budget',
+				'cadence',
+				'schedule',
+				'targeting',
+			),
+			'message'            => __(
+				'Changing destination, creative, budget, cadence, schedule, or targeting requires preparing a new Blaze campaign package before approval or submit.',
+				'jetpack-blaze'
+			),
+		);
 	}
 
 	/**
