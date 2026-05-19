@@ -4,6 +4,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
+import { usePosterUrl } from '../../hooks/use-poster-url';
 import type { MockLibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -14,7 +15,10 @@ type Props = {
 
 const dateSettings = getDateSettings();
 
-const linkForVideo = ( video: MockLibraryItem ): string => `https://videopress.com/v/${ video.id }`;
+const linkForVideo = ( video: MockLibraryItem ): string => {
+	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
+	return `https://${ host }/v/${ video.guid || video.id }`;
+};
 
 /**
  * Icon-only button that copies its `text` prop to the clipboard. Uses
@@ -70,20 +74,32 @@ const CopyIconButton = ( {
  */
 export default function ThumbnailCard( { video, onAddToNewPost }: Props ): ReactElement {
 	const link = linkForVideo( video );
+	const posterUrl = usePosterUrl( video );
+
+	let thumbnail: ReactElement | null = null;
+	if ( posterUrl ) {
+		thumbnail = (
+			<img
+				src={ posterUrl }
+				alt=""
+				width={ 240 }
+				height={ 135 }
+				className="vp-video-details__thumbnail"
+			/>
+		);
+	} else if ( video.isProcessing ) {
+		thumbnail = (
+			<div className="vp-video-details__thumbnail vp-video-details__thumbnail-processing">
+				<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+			</div>
+		);
+	}
 
 	return (
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="row" gap="md" align="start" className="vp-video-details__thumbnail-row">
-					{ video.thumbnailUrl && (
-						<img
-							src={ video.thumbnailUrl }
-							alt=""
-							width={ 240 }
-							height={ 135 }
-							className="vp-video-details__thumbnail"
-						/>
-					) }
+					{ thumbnail }
 					<Stack direction="column" gap="md" className="vp-video-details__thumbnail-meta">
 						<Button
 							variant="outline"

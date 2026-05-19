@@ -1,6 +1,7 @@
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
+import { usePosterUrl } from '../../hooks/use-poster-url';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
 import type { MockLibraryItem } from '../../types/library';
@@ -20,15 +21,27 @@ type Props = { item: MockLibraryItem };
  */
 export default function ThumbnailField( { item }: Props ) {
 	const { promoteLocal, retryUpload } = useUploadActions();
-	const { type, upload, thumbnailUrl, durationSeconds, id, title } = item;
+	const { type, upload, durationSeconds, id, title, isProcessing } = item;
+	const posterUrl = usePosterUrl( item );
 
 	return (
 		<div className="vp-library__thumbnail">
-			{ thumbnailUrl ? (
-				<img className="vp-library__thumbnail-image" src={ thumbnailUrl } alt={ title } />
+			{ posterUrl ? (
+				<img className="vp-library__thumbnail-image" src={ posterUrl } alt={ title } />
 			) : null }
 
-			{ type === 'videopress' && upload.status === 'idle' ? (
+			{ type === 'videopress' && upload.status === 'idle' && isProcessing ? (
+				<Stack
+					direction="column"
+					align="center"
+					justify="center"
+					className="vp-library__processing"
+				>
+					<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+				</Stack>
+			) : null }
+
+			{ type === 'videopress' && upload.status === 'idle' && durationSeconds > 0 ? (
 				<span className="vp-library__thumbnail-duration-badge">
 					{ formatDuration( durationSeconds ) }
 				</span>
@@ -67,6 +80,19 @@ export default function ThumbnailField( { item }: Props ) {
 				>
 					<Text className="vp-library__progress-percent">{ Math.round( upload.progress ) }%</Text>
 					<ProgressBar className="vp-library__progress-bar" value={ upload.progress } />
+				</Stack>
+			) : null }
+
+			{ upload.status === 'promoting' ? (
+				<Stack
+					direction="column"
+					gap="sm"
+					align="center"
+					justify="center"
+					className="vp-library__progress"
+				>
+					<Text>{ __( 'Uploading…', 'jetpack-videopress-pkg' ) }</Text>
+					<ProgressBar className="vp-library__progress-bar" />
 				</Stack>
 			) : null }
 

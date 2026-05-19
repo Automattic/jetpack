@@ -76,6 +76,21 @@
 		color: #1e1e1e;
 	}
 
+	// "Processing" overlay shown while the VideoPress backend is still
+	// transcoding a freshly uploaded video. Sits above the (absent) image
+	// and below the duration badge. Hidden in narrow table-mode cells —
+	// the "Processing" pill in the title cell carries the state there.
+	&__processing {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #1e1e1e;
+
+		@container (max-width: 120px) {
+			display: none;
+		}
+	}
+
 	&__hover-action {
 		position: absolute;
 		inset: 0;

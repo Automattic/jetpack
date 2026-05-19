@@ -83,26 +83,28 @@ class Initial_State {
 			'API'           => array(
 				'WP_API_root'  => esc_url_raw( rest_url() ),
 				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+				'contentNonce' => wp_create_nonce( 'videopress-content-nonce' ),
 			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
 			'siteData'      => array(
-				'id'                  => Jetpack_Options::get_option( 'id' ),
-				'title'               => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl'            => esc_url_raw( admin_url() ),
-				'slug'                => is_string( $home_host ) ? $home_host : '',
-				'gmtOffset'           => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
-				'timezoneString'      => is_string( $timezone_string ) ? $timezone_string : '',
-				'locale'              => str_replace( '_', '-', (string) get_locale() ),
-				// Paid-tier capability check. Drives the free-tier UX
-				// (callout / DataViews configuration) once designer input
-				// lands. Backed by `Product::get_site_features_from_wpcom()`,
-				// which caches the WPCOM `/sites/%d/features` response in a
-				// 15-second site transient. On a cache miss this issues a
-				// synchronous WPCOM request that blocks page rendering until
-				// it returns.
-				'hasVideoPressAccess' => self::has_videopress_access(),
+				'id'                    => Jetpack_Options::get_option( 'id' ),
+				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
+				'adminUrl'              => esc_url_raw( admin_url() ),
+				'slug'                  => is_string( $home_host ) ? $home_host : '',
+				'gmtOffset'             => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
+				'timezoneString'        => is_string( $timezone_string ) ? $timezone_string : '',
+				'locale'                => str_replace( '_', '-', (string) get_locale() ),
+				// Paid-tier capability check. Drives the free-tier UX (callout /
+				// DataViews configuration) once designer input lands. Backed by
+				// `Product::get_site_features_from_wpcom()`, which caches the WPCOM
+				// `/sites/%d/features` response in a 15-second site transient. On a
+				// cache miss this issues a synchronous WPCOM request that blocks
+				// page rendering until it returns.
+				'hasVideoPressAccess'   => self::has_videopress_access(),
+				'isVideoPress1TB'       => self::has_videopress_feature( 'videopress-1tb-storage' ),
+				'isVideoPressUnlimited' => self::has_videopress_feature( 'videopress-unlimited-storage' ),
 			),
 			'assets'        => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
@@ -111,7 +113,7 @@ class Initial_State {
 	}
 
 	/**
-	 * Whether the site has a paid VideoPress plan.
+	 * Whether the site has any paid VideoPress feature flag active.
 	 *
 	 * Matches the active-features check used by the existing
 	 * `videopress/v1/features` REST endpoint: any of the storage tiers
@@ -121,6 +123,18 @@ class Initial_State {
 	 * @return bool
 	 */
 	public static function has_videopress_access() {
+		return self::has_videopress_feature( 'videopress-1tb-storage' )
+			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
+			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );
+	}
+
+	/**
+	 * Whether the named feature appears in the WPCOM active-features list.
+	 *
+	 * @param string $feature_slug Feature slug as returned by WPCOM (e.g. `videopress-1tb-storage`).
+	 * @return bool
+	 */
+	private static function has_videopress_feature( $feature_slug ) {
 		$features = Product::get_site_features_from_wpcom();
 
 		if ( is_wp_error( $features ) ) {
@@ -129,9 +143,7 @@ class Initial_State {
 
 		$active = $features['active'] ?? array();
 
-		return in_array( 'videopress-1tb-storage', $active, true )
-			|| in_array( 'videopress-unlimited-storage', $active, true )
-			|| ( ( new Host() )->is_wpcom_platform() && in_array( 'videopress', $active, true ) );
+		return in_array( $feature_slug, $active, true );
 	}
 
 	/**
