@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: Prevent the search modal from triggering on third-party form submissions. Forms embedding an input named "s" (e.g. ActiveCampaign sign-up widgets) would incorrectly open the search overlay and block the submission. The fix checks that the form's action URL shares the same origin as the site before intercepting.
