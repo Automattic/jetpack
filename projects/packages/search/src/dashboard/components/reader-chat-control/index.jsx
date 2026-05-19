@@ -1,5 +1,6 @@
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 
 const READER_CHAT_DESCRIPTION = __(
@@ -47,7 +48,14 @@ export default function ReaderChatControl( {
 					disabled={ isSaving }
 					onChange={ toggle }
 					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
-					label={ __( 'Enable Reader Chat', 'jetpack-search-pkg' ) }
+					label={
+						<>
+							{ __( 'Enable Reader Chat', 'jetpack-search-pkg' ) }
+							<Badge intent="informational" className="jp-reader-chat-control__preview-badge">
+								{ __( 'Preview', 'jetpack-search-pkg' ) }
+							</Badge>
+						</>
+					}
 					__nextHasNoMarginBottom
 				/>
 			</div>
