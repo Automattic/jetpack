@@ -263,4 +263,81 @@ class Customize_Feed_Test extends BaseTestCase {
 		// "right answer" and "took the right code path".
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
 	}
+
+	public function test_filter_posts_with_enclosure_passes_through_non_array_posts() {
+		$query = $this->createStub( \WP_Query::class );
+
+		$this->assertSame( 'not-an-array', Customize_Feed::filter_posts_with_enclosure( 'not-an-array', $query ) );
+	}
+
+	public function test_filter_posts_with_enclosure_passes_through_when_query_arg_is_not_wp_query() {
+		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
+
+		$this->assertSame( $posts, Customize_Feed::filter_posts_with_enclosure( $posts, 'not-a-query' ) );
+	}
+
+	public function test_filter_posts_with_enclosure_passes_through_non_feed_query() {
+		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
+		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );
+
+		$this->assertSame( $posts, Customize_Feed::filter_posts_with_enclosure( $posts, $query ) );
+	}
+
+	public function test_filter_posts_with_enclosure_passes_through_when_no_podcast_category_configured() {
+		// No `podcasting_category_id` option set → `resolve_category_id()` returns 0.
+		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
+		$query = $this->build_podcast_feed_query_mock( 17 );
+
+		$this->assertSame( $posts, Customize_Feed::filter_posts_with_enclosure( $posts, $query ) );
+	}
+
+	public function test_filter_posts_with_enclosure_passes_through_when_queried_term_does_not_match() {
+		update_option( 'podcasting_category_id', 17 );
+
+		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
+		$query = $this->build_podcast_feed_query_mock( 999 );
+
+		$this->assertSame( $posts, Customize_Feed::filter_posts_with_enclosure( $posts, $query ) );
+	}
+
+	public function test_filter_posts_with_enclosure_drops_posts_without_enclosure_meta() {
+		update_option( 'podcasting_category_id', 17 );
+
+		$with_enclosure    = new WP_Post( (object) array( 'ID' => 100 ) );
+		$without_enclosure = new WP_Post( (object) array( 'ID' => 200 ) );
+		add_post_meta( 100, 'enclosure', "https://example.com/ep.mp3\n12345\naudio/mpeg" );
+
+		$query = $this->build_podcast_feed_query_mock( 17 );
+
+		$result = Customize_Feed::filter_posts_with_enclosure( array( $with_enclosure, $without_enclosure ), $query );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 100, $result[0]->ID );
+
+		delete_post_meta( 100, 'enclosure' );
+	}
+
+	/**
+	 * Build a `WP_Query` mock pre-stubbed for the podcast-feed happy path,
+	 * with optional per-method overrides.
+	 *
+	 * @param int   $queried_term_id Term ID returned from `get_queried_object()`.
+	 * @param array $overrides       Map of method-name => return value to override defaults.
+	 */
+	private function build_podcast_feed_query_mock( int $queried_term_id, array $overrides = array() ) {
+		$defaults = array(
+			'is_main_query' => true,
+			'is_feed'       => true,
+			'is_category'   => true,
+		);
+		$stubs    = array_merge( $defaults, $overrides );
+
+		$query = $this->createStub( \WP_Query::class );
+		foreach ( $stubs as $method => $value ) {
+			$query->method( $method )->willReturn( $value );
+		}
+		$query->method( 'get_queried_object' )->willReturn( (object) array( 'term_id' => $queried_term_id ) );
+
+		return $query;
+	}
 }
