@@ -191,9 +191,9 @@ class Customize_Feed {
 		// post's featured image. Either way, photon-resize to 3000×3000 to
 		// honour Apple's square-cover requirement. When neither is present
 		// the channel-level `<itunes:image>` applies as default per spec.
-		$attrs       = Episode_Block_Tags::get_block_attrs( $post );
-		$cover_url   = isset( $attrs['coverArt']['url'] ) ? trim( (string) $attrs['coverArt']['url'] ) : '';
-		$item_image  = '' !== $cover_url ? self::maybe_photon( $cover_url ) : self::episode_image_url( $post->ID );
+		$attrs      = Episode_Block_Tags::get_block_attrs( $post );
+		$cover_url  = isset( $attrs['coverArt']['url'] ) ? trim( (string) $attrs['coverArt']['url'] ) : '';
+		$item_image = '' !== $cover_url ? self::maybe_photon( $cover_url ) : self::episode_image_url( $post->ID );
 		if ( '' !== $item_image ) {
 			echo '<itunes:image href="' . esc_url( $item_image ) . '" />' . "\n";
 		}

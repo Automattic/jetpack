@@ -100,8 +100,8 @@ class Episode_Block_Tags {
 	 * @param array $attrs Block attrs.
 	 */
 	private static function emit_episode_number( array $attrs ): void {
-		$value = isset( $attrs['episodeNumber'] ) ? (int) $attrs['episodeNumber'] : 0;
-		if ( $value <= 0 ) {
+		$value = $attrs['episodeNumber'] ?? 0;
+		if ( (int) $value <= 0 ) {
 			return;
 		}
 		echo '<itunes:episode>' . (int) $value . "</itunes:episode>\n";
@@ -114,8 +114,8 @@ class Episode_Block_Tags {
 	 * @param array $attrs Block attrs.
 	 */
 	private static function emit_season_number( array $attrs ): void {
-		$value = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;
-		if ( $value <= 0 ) {
+		$value = $attrs['seasonNumber'] ?? 0;
+		if ( (int) $value <= 0 ) {
 			return;
 		}
 		echo '<itunes:season>' . (int) $value . "</itunes:season>\n";
