@@ -556,15 +556,36 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The override only applies to the server-rendered experiences. With the
-	 * option still on after the site switches to Overlay (client-side) or Off,
-	 * `init()` must NOT register the product-search hooks — a stale option
-	 * from a since-switched experience can't keep rerouting the hierarchy.
-	 * Mirrors the dashboard's Embedded|Inline visibility gate.
+	 * The override only applies to the server-rendered experiences, mirroring
+	 * the dashboard's Embedded|Inline visibility gate. With the option on it
+	 * registers under Inline (server-rendered theme search); with the option
+	 * still on after the site switches to Overlay (client-side) or Off it must
+	 * NOT register — a stale option from a since-switched experience can't keep
+	 * rerouting the hierarchy.
 	 */
-	public function test_init_does_not_register_product_search_hooks_when_experience_not_server_rendered() {
+	public function test_init_gates_product_search_hooks_on_server_rendered_experience() {
 		try {
 			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+
+			// Inline (allowed): module active, no experience opt-in saved, so
+			// get_experience() resolves to 'inline' — the override applies.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			Search_Blocks::init();
+
+			$this->assertNotFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must hook when experience is Inline'
+			);
+			$this->assertSame(
+				20,
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must hook at priority 20 when experience is Inline'
+			);
 
 			// Overlay: module active, experience explicitly saved as overlay.
 			$this->reset_search_blocks_hooks();
