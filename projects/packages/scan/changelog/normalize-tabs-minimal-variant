@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Scan: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier.
+Scan: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0.

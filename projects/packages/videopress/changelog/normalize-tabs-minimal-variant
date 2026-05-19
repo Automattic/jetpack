@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-VideoPress: Migrate dashboard tabs from default to minimal variant; align via shared jp-admin-page-tabs--minimal wrapper modifier.
+VideoPress: Migrate dashboard tabs from default to minimal variant; align via shared jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0.
