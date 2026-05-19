@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: collapse the per-directory `production-exclude` rules for `src/**/*.js` into a single broad exclude with an explicit carve-out for `src/widgets/**/*.js` (which has no build step and must ship).
