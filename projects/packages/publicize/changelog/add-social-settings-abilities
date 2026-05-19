@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register Jetpack Social settings abilities (jetpack-social/get-settings, jetpack-social/update-settings) from the Publicize package so they work in both the Jetpack plugin and the standalone Social plugin, behind the jetpack_wp_abilities_enabled gate.

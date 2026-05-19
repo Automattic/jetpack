@@ -2,20 +2,21 @@
 /**
  * Unit tests for the Social_Settings_Abilities Registrar subclass.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-publicize
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
 
-namespace Automattic\Jetpack\Social\Abilities;
+namespace Automattic\Jetpack\Publicize\Abilities;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Social_Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
- * @covers \Automattic\Jetpack\Social\Abilities\Social_Settings_Abilities
+ * @covers \Automattic\Jetpack\Publicize\Abilities\Social_Settings_Abilities
  */
 #[CoversClass( Social_Settings_Abilities::class )]
 class Social_Settings_Abilities_Test extends BaseTestCase {
@@ -31,6 +32,12 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		// `build_settings_snapshot()` calls `is_sig_available()`, which reads
+		// the request-scoped `Current_Plan` cache. Clear it so this test neither
+		// reads a plan cached by earlier tests nor leaks its own cached plan
+		// into later tests (e.g. Social_Image_Generator_Settings_Test).
+		self::reset_active_plan_cache();
 
 		$this->admin_id      = wp_insert_user(
 			array(
@@ -48,6 +55,26 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 		);
 
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+
+		// In a real Jetpack plugin install `class_exists( 'Jetpack' )` makes the
+		// publicize module discoverable; in the standalone Social plugin
+		// `Jetpack_Social::social_filter_available_modules()` registers it as an
+		// available standalone module. The publicize package test env has
+		// neither, so mirror the standalone-plugin filter here — otherwise
+		// `Modules::is_active( 'publicize' )` (availability-filtered) can never
+		// report true even after the module is activated.
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'mock_publicize_available' ) );
+	}
+
+	/**
+	 * Mirror Jetpack_Social::social_filter_available_modules() so the publicize
+	 * module counts as available in the package test environment.
+	 *
+	 * @param array $modules Available standalone module slugs.
+	 * @return array
+	 */
+	public function mock_publicize_available( $modules ): array {
+		return array_merge( array( 'publicize' ), (array) $modules );
 	}
 
 	/**
@@ -58,6 +85,7 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'mock_publicize_available' ) );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 
 		delete_option( Social_Settings::OPTION_PREFIX . Social_Settings::MESSAGE_TEMPLATE );
@@ -68,7 +96,25 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 		delete_option( 'jetpack_active_modules' );
 
 		$this->deregister_social_abilities();
+
+		// Clear the Current_Plan cache so a plan resolved during this test does
+		// not bleed into other tests.
+		self::reset_active_plan_cache();
+
 		parent::tearDown();
+	}
+
+	/**
+	 * Force the next `Current_Plan::get()` to re-read from the option store.
+	 */
+	private static function reset_active_plan_cache(): void {
+		$reflection = new \ReflectionClass( Current_Plan::class );
+		$property   = $reflection->getProperty( 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**

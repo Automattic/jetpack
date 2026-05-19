@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Abilities\Social_Settings_Abilities;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -86,6 +87,16 @@ class Publicize_Setup {
 		 * Social admin page is to be always registered.
 		 */
 		Social_Admin_Page::init();
+
+		/**
+		 * Register the Jetpack Social settings abilities (WordPress Abilities
+		 * API). Always wired — regardless of whether Publicize is enabled —
+		 * so the `jetpack-social/*` abilities are available in both the
+		 * Jetpack plugin and the standalone Social plugin. Registration is
+		 * still gated behind the `jetpack_wp_abilities_enabled` filter inside
+		 * `Registrar::init()`.
+		 */
+		Social_Settings_Abilities::init();
 
 		if ( ! $is_wpcom_simple ) {
 			/**

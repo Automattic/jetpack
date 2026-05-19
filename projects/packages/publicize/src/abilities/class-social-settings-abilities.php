@@ -2,22 +2,22 @@
 /**
  * Jetpack Social Settings Abilities Registration.
  *
- * Registers Jetpack Social plugin settings abilities with the WordPress
- * Abilities API so AI agents can read and update the site-wide auto-share,
- * share-message, and image-generator defaults through the standard
- * `wp-abilities/v1` REST surface.
+ * Registers Jetpack Social settings abilities with the WordPress Abilities API
+ * so AI agents can read and update the site-wide auto-share, share-message, and
+ * image-generator defaults through the standard `wp-abilities/v1` REST surface.
  *
- * Connection management abilities live in the publicize package
- * (`Automattic\Jetpack\Publicize\Abilities\Publicize_Abilities`); this class
- * only exposes the plugin's settings surface so the two registrations stay
- * decoupled and the Social plugin owns the user-facing settings catalog.
+ * This lives in the Publicize package — shared by both the Jetpack plugin
+ * (Social/Publicize module) and the standalone Jetpack Social plugin — so the
+ * settings abilities register in every context where Social is available, not
+ * only in the standalone plugin. Registration is wired from
+ * `Publicize_Setup::pre_initialization()`.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-publicize
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9; suppressions for older-WP compatibility runs.
 
-namespace Automattic\Jetpack\Social\Abilities;
+namespace Automattic\Jetpack\Publicize\Abilities;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Social_Settings;
@@ -26,20 +26,19 @@ use Jetpack_Social;
 use WP_Error;
 
 /**
- * Registers Jetpack Social plugin settings abilities.
+ * Registers Jetpack Social settings abilities.
  *
  * Exposes a small, agent-friendly settings surface:
  *
  * - `jetpack-social/get-settings`    — read the current site-wide Social
- *   plugin settings (auto-share toggle, share message template, image
- *   generator defaults, UTM defaults, social notes toggle).
+ *   settings (auto-share toggle, share message template, image generator
+ *   defaults, UTM defaults, social notes toggle).
  * - `jetpack-social/update-settings` — update one or more fields; idempotent
  *   when the desired state already matches.
  *
  * Storage is delegated to the publicize package's `Settings` class (which
  * owns the persisted options) and to `Automattic\Jetpack\Modules` (which
- * owns the publicize module on/off switch). The plugin keeps responsibility
- * for the public settings catalog.
+ * owns the publicize module on/off switch).
  */
 class Social_Settings_Abilities extends Registrar {
 
@@ -60,7 +59,7 @@ class Social_Settings_Abilities extends Registrar {
 		return array(
 			// "Jetpack Social" is a product name and should not be translated.
 			'label'       => 'Jetpack Social',
-			'description' => __( 'Abilities for reading and updating Jetpack Social plugin settings.', 'jetpack-social' ),
+			'description' => __( 'Abilities for reading and updating Jetpack Social settings.', 'jetpack-publicize-pkg' ),
 		);
 	}
 
@@ -73,27 +72,27 @@ class Social_Settings_Abilities extends Registrar {
 			'properties' => array(
 				'auto_share_enabled'       => array(
 					'type'        => 'boolean',
-					'description' => __( 'Whether auto-sharing (the Publicize module) is enabled.', 'jetpack-social' ),
+					'description' => __( 'Whether auto-sharing (the Publicize module) is enabled.', 'jetpack-publicize-pkg' ),
 				),
 				'share_message_template'   => array(
 					'type'        => 'string',
-					'description' => __( 'Site-wide default share message template. Supports {title}, {excerpt}, and {url} placeholders.', 'jetpack-social' ),
+					'description' => __( 'Site-wide default share message template. Supports {title}, {excerpt}, and {url} placeholders.', 'jetpack-publicize-pkg' ),
 				),
 				'image_generator_enabled'  => array(
 					'type'        => 'boolean',
-					'description' => __( 'Whether the Social Image Generator is enabled by default for new posts.', 'jetpack-social' ),
+					'description' => __( 'Whether the Social Image Generator is enabled by default for new posts.', 'jetpack-publicize-pkg' ),
 				),
 				'image_generator_template' => array(
 					'type'        => array( 'string', 'null' ),
-					'description' => __( 'The default Social Image Generator template slug. Null when the feature is not available.', 'jetpack-social' ),
+					'description' => __( 'The default Social Image Generator template slug. Null when the feature is not available.', 'jetpack-publicize-pkg' ),
 				),
 				'utm_enabled'              => array(
 					'type'        => 'boolean',
-					'description' => __( 'Whether UTM parameters are appended to shared links.', 'jetpack-social' ),
+					'description' => __( 'Whether UTM parameters are appended to shared links.', 'jetpack-publicize-pkg' ),
 				),
 				'social_notes_enabled'     => array(
 					'type'        => 'boolean',
-					'description' => __( 'Whether the Social Notes short-form custom post type is enabled.', 'jetpack-social' ),
+					'description' => __( 'Whether the Social Notes short-form custom post type is enabled.', 'jetpack-publicize-pkg' ),
 				),
 				'supports'                 => array(
 					'type'       => 'object',
@@ -113,28 +112,28 @@ class Social_Settings_Abilities extends Registrar {
 			'properties'           => array(
 				'auto_share_enabled'       => array(
 					'type'        => 'boolean',
-					'description' => __( 'Enable or disable the Publicize module (auto-sharing).', 'jetpack-social' ),
+					'description' => __( 'Enable or disable the Publicize module (auto-sharing).', 'jetpack-publicize-pkg' ),
 				),
 				'share_message_template'   => array(
 					'type'        => 'string',
-					'description' => __( 'Site-wide default share message template. Empty string clears the template.', 'jetpack-social' ),
+					'description' => __( 'Site-wide default share message template. Empty string clears the template.', 'jetpack-publicize-pkg' ),
 					'maxLength'   => Social_Settings::MESSAGE_TEMPLATE_MAX_LENGTH,
 				),
 				'image_generator_enabled'  => array(
 					'type'        => 'boolean',
-					'description' => __( 'Enable or disable the Social Image Generator by default.', 'jetpack-social' ),
+					'description' => __( 'Enable or disable the Social Image Generator by default.', 'jetpack-publicize-pkg' ),
 				),
 				'image_generator_template' => array(
 					'type'        => 'string',
-					'description' => __( 'Set the default Social Image Generator template slug.', 'jetpack-social' ),
+					'description' => __( 'Set the default Social Image Generator template slug.', 'jetpack-publicize-pkg' ),
 				),
 				'utm_enabled'              => array(
 					'type'        => 'boolean',
-					'description' => __( 'Enable or disable UTM parameters on shared links.', 'jetpack-social' ),
+					'description' => __( 'Enable or disable UTM parameters on shared links.', 'jetpack-publicize-pkg' ),
 				),
 				'social_notes_enabled'     => array(
 					'type'        => 'boolean',
-					'description' => __( 'Enable or disable the Social Notes custom post type.', 'jetpack-social' ),
+					'description' => __( 'Enable or disable the Social Notes custom post type.', 'jetpack-publicize-pkg' ),
 				),
 			),
 		);
@@ -145,22 +144,22 @@ class Social_Settings_Abilities extends Registrar {
 				'settings'       => $settings_schema,
 				'changed'        => array(
 					'type'        => 'boolean',
-					'description' => __( 'True when at least one stored value was updated.', 'jetpack-social' ),
+					'description' => __( 'True when at least one stored value was updated.', 'jetpack-publicize-pkg' ),
 				),
 				'changed_fields' => array(
 					'type'        => 'array',
 					'items'       => array( 'type' => 'string' ),
-					'description' => __( 'Keys whose stored value changed.', 'jetpack-social' ),
+					'description' => __( 'Keys whose stored value changed.', 'jetpack-publicize-pkg' ),
 				),
 			),
 		);
 
 		return array(
 			'jetpack-social/get-settings'    => array(
-				'label'               => __( 'Get Jetpack Social plugin settings', 'jetpack-social' ),
+				'label'               => __( 'Get Jetpack Social settings', 'jetpack-publicize-pkg' ),
 				'description'         => __(
 					'Return the site-wide Jetpack Social settings: { auto_share_enabled, share_message_template, image_generator_enabled, image_generator_template, utm_enabled, social_notes_enabled, supports }. Read-only and idempotent. Requires the administrator capability (`manage_options`) — the same cap the plugin\'s REST settings controller enforces.',
-					'jetpack-social'
+					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -182,10 +181,10 @@ class Social_Settings_Abilities extends Registrar {
 			),
 
 			'jetpack-social/update-settings' => array(
-				'label'               => __( 'Update Jetpack Social plugin settings', 'jetpack-social' ),
+				'label'               => __( 'Update Jetpack Social settings', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Update one or more Jetpack Social plugin settings. Accepts any subset of { auto_share_enabled, share_message_template, image_generator_enabled, image_generator_template, utm_enabled, social_notes_enabled }. Returns the resulting settings plus { changed, changed_fields }. Idempotent — when the desired values already match the stored values, returns changed=false. Requires the administrator capability (`manage_options`).',
-					'jetpack-social'
+					'Update one or more Jetpack Social settings. Accepts any subset of { auto_share_enabled, share_message_template, image_generator_enabled, image_generator_template, utm_enabled, social_notes_enabled }. Returns the resulting settings plus { changed, changed_fields }. Idempotent — when the desired values already match the stored values, returns changed=false. Requires the administrator capability (`manage_options`).',
+					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => $update_input_schema,
 				'output_schema'       => $update_output_schema,
@@ -285,7 +284,7 @@ class Social_Settings_Abilities extends Registrar {
 					if ( ! is_string( $value ) ) {
 						return new WP_Error(
 							self::ERROR_PREFIX . 'invalid_image_generator_template',
-							__( 'image_generator_template must be a string.', 'jetpack-social' ),
+							__( 'image_generator_template must be a string.', 'jetpack-publicize-pkg' ),
 							array( 'status' => 400 )
 						);
 					}
@@ -407,8 +406,8 @@ class Social_Settings_Abilities extends Registrar {
 			return new WP_Error(
 				self::ERROR_PREFIX . 'module_toggle_failed',
 				$enabled
-					? __( 'Failed to activate the Publicize module.', 'jetpack-social' )
-					: __( 'Failed to deactivate the Publicize module.', 'jetpack-social' ),
+					? __( 'Failed to activate the Publicize module.', 'jetpack-publicize-pkg' )
+					: __( 'Failed to deactivate the Publicize module.', 'jetpack-publicize-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
