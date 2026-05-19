@@ -133,7 +133,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	return (
 		<>
 			{ issues.length > 0 && (
-				<Notice status="warning" isDismissible={ false }>
+				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
 					<strong>{ __( 'Almost ready to submit', 'jetpack-podcast' ) }</strong>
 					<ul className="podcast__settings-issues">
 						{ issues.map( issue => (
