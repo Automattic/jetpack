@@ -32,7 +32,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 		// the user to where they were.
 		const settingsUrl = adminUrl
 			? `${ adminUrl.replace( /\/$/, '' ) }/admin.php?page=jetpack-podcast&tab=settings`
-			: '';
+			: cancelTo;
 		const url = new URL( getProductCheckoutUrl( 'premium', siteSuffix, settingsUrl, true ) );
 		url.searchParams.set( 'cancel_to', cancelTo );
 		return url.toString();
