@@ -73,12 +73,6 @@ class Customize_Feed {
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 
-		// Buffer per-item output so we can rewrite `<media:thumbnail>` /
-		// `<media:content>` URLs (emitted by wpcom upstream of this package)
-		// through Photon — matches the `<itunes:image>` square-cover handling.
-		add_action( 'rss2_item', array( __CLASS__, 'start_item_buffer' ), 1 );
-		add_action( 'rss2_item', array( __CLASS__, 'flush_item_buffer' ), PHP_INT_MAX );
-
 		Feed_Detection::detect_and_record();
 	}
 
@@ -317,32 +311,6 @@ class Customize_Feed {
 				}
 			)
 		);
-	}
-
-	/**
-	 * Open the per-item output buffer drained by `flush_item_buffer`.
-	 */
-	public static function start_item_buffer() {
-		ob_start();
-	}
-
-	/**
-	 * Photon-rewrite `<media:*>` URLs emitted by upstream wpcom code that we
-	 * can't filter at the source. Gravatar avatars are already sized.
-	 */
-	public static function flush_item_buffer() {
-		$output = (string) ob_get_clean();
-		$output = (string) preg_replace_callback(
-			'#(<media:(?:thumbnail|content)\s[^>]*\burl=")([^"]+)(")#i',
-			static function ( array $matches ) {
-				if ( false !== strpos( $matches[2], 'gravatar.com' ) ) {
-					return $matches[0];
-				}
-				return $matches[1] . esc_url( self::maybe_photon( $matches[2] ) ) . $matches[3];
-			},
-			$output
-		);
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered RSS output is already escaped by upstream emitters; only URL attributes are rewritten and re-escaped above.
 	}
 
 	/**

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Podcast feed: skip items without an enclosure, restore episode descriptions, and route per-item media URLs through Photon.
+Podcast feed: skip items without an enclosure and restore episode descriptions.
