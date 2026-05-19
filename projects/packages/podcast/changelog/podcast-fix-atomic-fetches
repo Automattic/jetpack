@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: fetch stats and Pocket Casts submit via wpcom-proxy-request so the dashboard works on Atomic.

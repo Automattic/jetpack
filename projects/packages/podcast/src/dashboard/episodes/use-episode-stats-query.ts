@@ -1,12 +1,11 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
-import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import { addQueryArgs } from '@wordpress/url';
+import wpcomRequest from 'wpcom-proxy-request';
 import type { EpisodeStats } from '../types';
 
 /**
  * Read plays + duration for a set of episode post IDs. Custom wpcom endpoint
- * (no core-data entity), so a thin `apiFetch` + `useState` wrapper. Server
+ * (no core-data entity), so a thin `wpcomRequest` + `useState` wrapper. Server
  * caches 5 minutes; refetching on remount is cheap.
  *
  * `premiumRequired` is `true` when the endpoint responds with a
@@ -47,10 +46,10 @@ export function useEpisodeStatsQuery( postIds: number[] ): {
 				}
 				const chunk = ids.slice( i, i + 50 );
 				try {
-					const result = ( await apiFetch( {
-						path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
-							post_ids: chunk.join( ',' ),
-						} ),
+					const result = ( await wpcomRequest( {
+						path: `/sites/${ blogId }/podcast-stats/episode-totals`,
+						apiNamespace: 'wpcom/v2',
+						query: new URLSearchParams( { post_ids: chunk.join( ',' ) } ).toString(),
 						method: 'GET',
 					} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
 					if ( Array.isArray( result ) ) {

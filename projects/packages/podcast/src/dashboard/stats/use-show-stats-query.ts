@@ -1,7 +1,6 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
-import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { addQueryArgs } from '@wordpress/url';
+import wpcomRequest from 'wpcom-proxy-request';
 import { resolveSelectionRange } from './range';
 import type {
 	PodcastShowStats,
@@ -65,8 +64,10 @@ export function useShowStatsQuery(
 		}
 		let cancelled = false;
 		setOverviewError( false );
-		apiFetch< PodcastStatsOverviewResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/overview`, { limit } ),
+		wpcomRequest< PodcastStatsOverviewResponse >( {
+			path: `/sites/${ blogId }/podcast-stats/overview`,
+			apiNamespace: 'wpcom/v2',
+			query: new URLSearchParams( { limit: String( limit ) } ).toString(),
 			method: 'GET',
 		} )
 			.then( response => {
@@ -91,12 +92,14 @@ export function useShowStatsQuery(
 		}
 		let cancelled = false;
 		setSummaryError( false );
-		apiFetch< PodcastStatsSummaryResponse >( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats`, {
+		wpcomRequest< PodcastStatsSummaryResponse >( {
+			path: `/sites/${ blogId }/podcast-stats`,
+			apiNamespace: 'wpcom/v2',
+			query: new URLSearchParams( {
 				from,
 				to,
-				limit,
-			} ),
+				limit: String( limit ),
+			} ).toString(),
 			method: 'GET',
 		} )
 			.then( response => {

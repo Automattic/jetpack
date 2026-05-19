@@ -1,9 +1,9 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
-import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import wpcomRequest from 'wpcom-proxy-request';
 
 // Stable shape from
 // wpcom: wp-content/rest-api-plugins/endpoints/podcast-distribution.php.
@@ -84,8 +84,9 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 		}
 		setIsSubmitting( true );
 		setErrorMessage( null );
-		apiFetch< PocketCastsSubmitResponse >( {
-			path: `/wpcom/v2/sites/${ blogId }/podcast-distribution/pocket-casts/submit`,
+		wpcomRequest< PocketCastsSubmitResponse >( {
+			path: `/sites/${ blogId }/podcast-distribution/pocket-casts/submit`,
+			apiNamespace: 'wpcom/v2',
 			method: 'POST',
 		} )
 			.then( response => {
