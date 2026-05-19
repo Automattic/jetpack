@@ -358,13 +358,17 @@ class PCG_Load_Tester {
 				if ( ! is_array( $req_headers ) ) {
 					return;
 				}
-				$next            = wp_parse_url( (string) $location );
-				$next_host       = isset( $next['host'] ) ? strtolower( (string) $next['host'] ) : $original_host;
-				$next_scheme     = isset( $next['scheme'] ) ? strtolower( (string) $next['scheme'] ) : $original_scheme;
-				$same_host       = '' !== $next_host && $next_host === $original_host;
+				$next             = wp_parse_url( (string) $location );
+				$next_host        = isset( $next['host'] ) ? strtolower( (string) $next['host'] ) : $original_host;
+				$next_scheme      = isset( $next['scheme'] ) ? strtolower( (string) $next['scheme'] ) : $original_scheme;
+				$same_host        = '' !== $next_host && $next_host === $original_host;
 				$scheme_downgrade = 'https' === $original_scheme && 'https' !== $next_scheme;
 				if ( ! $same_host || $scheme_downgrade ) {
-					unset( $req_headers['Cookie'] );
+					foreach ( array_keys( $req_headers ) as $key ) {
+						if ( 0 === strcasecmp( (string) $key, 'Cookie' ) ) {
+							unset( $req_headers[ $key ] );
+						}
+					}
 				}
 			}
 		);
