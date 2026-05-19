@@ -8,6 +8,4 @@ build/**          production-include
 /_inc/**           production-exclude
 /jest-globals.js   production-exclude
 /postcss.config.js production-exclude
-routes/**/*.ts     production-exclude
-routes/**/*.tsx    production-exclude
-routes/**/*.scss   production-exclude
+routes/**          production-exclude
