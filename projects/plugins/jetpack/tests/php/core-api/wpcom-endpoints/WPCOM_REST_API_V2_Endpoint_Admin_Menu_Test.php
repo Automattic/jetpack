@@ -755,6 +755,28 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 				'class Sidebar_Signals {}'
 			);
 		}
+		if ( ! interface_exists( 'Sidebar_Layout_Storage' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
+				'interface Sidebar_Layout_Storage {
+					public function get_layouts( int $user_id ): array;
+					public function put_layouts( int $user_id, array $layouts ): bool;
+				}'
+			);
+		}
+		if ( ! class_exists( 'WP_User_Meta_Storage' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
+				'class WP_User_Meta_Storage implements Sidebar_Layout_Storage {
+					private const META_KEY = "wpcom_admin_sidebar_layouts";
+					public function get_layouts( int $user_id ): array {
+						$value = get_user_meta( $user_id, self::META_KEY, true );
+						return is_array( $value ) ? $value : array();
+					}
+					public function put_layouts( int $user_id, array $layouts ): bool {
+						return (bool) update_user_meta( $user_id, self::META_KEY, $layouts );
+					}
+				}'
+			);
+		}
 
 		// Skip when a real classifier is present — we don't want to clobber
 		// the host's classifier state from a Jetpack unit test.
@@ -772,9 +794,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 				'user_id'      => 1,
 				'top_level'    => array(
 					array(
-						'menuSlug'      => 'index.php',
-						'default_group' => null,
-						'signal'        => array(
+						'itemId'         => 'core:core:-:index.php',
+						'menuSlug'       => 'index.php',
+						'source'         => 'core',
+						'reassignable'   => false,
+						'default_weight' => 10,
+						'default_group'  => null,
+						'signal'         => array(
 							'count'         => null,
 							'numeric_badge' => null,
 							'badge'         => null,
@@ -782,6 +808,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 							'inline_icon'   => null,
 							'attention'     => false,
 						),
+					),
+					array(
+						'itemId'        => 'plugin:no-signal/no-signal.php:-:no-signal',
+						'menuSlug'      => 'no-signal',
+						'source'        => 'plugin',
+						'reassignable'  => true,
+						'default_group' => null,
 					),
 				),
 				'groups'       => array(
@@ -791,9 +824,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 						'icon'     => null,
 						'children' => array(
 							array(
-								'menuSlug'      => 'jetpack',
-								'default_group' => 'plugins',
-								'signal'        => array(
+								'itemId'         => 'plugin:jetpack/jetpack.php:-:jetpack',
+								'menuSlug'       => 'jetpack',
+								'source'         => 'plugin',
+								'reassignable'   => true,
+								'default_weight' => 999,
+								'default_group'  => 'plugins',
+								'signal'         => array(
 									'count'         => 3,
 									'numeric_badge' => null,
 									'badge'         => '3',
@@ -812,6 +849,27 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			)
 		);
 
+		$layout_delta = array(
+			'version'    => 1,
+			'updated_at' => 12345,
+			'overrides'  => array(
+				array(
+					'itemId'   => 'plugin:jetpack/jetpack.php:-:jetpack',
+					'position' => array(
+						'kind'  => 'top_level',
+						'index' => 2,
+					),
+				),
+			),
+		);
+		update_user_meta(
+			static::$user_id,
+			'wpcom_admin_sidebar_layouts',
+			array(
+				get_current_blog_id() => $layout_delta,
+			)
+		);
+
 		// Drive the response through `prepare_menu_for_response` directly so
 		// the test isn't coupled to the live $menu/$submenu globals built by
 		// `wp-admin/menu.php`.
@@ -821,18 +879,31 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		// the grouped child.
 		$menu = array(
 			array( 'Dashboard', 'read', 'index.php', '', 'menu-top', 'menu-dashboard', 'dashicons-dashboard' ),
+			array( 'No Signal', 'read', 'no-signal', '', 'menu-top', 'menu-no-signal', 'dashicons-admin-generic' ),
 			array( 'Jetpack', 'read', 'jetpack', '', 'menu-top', 'menu-jetpack', 'dashicons-admin-plugins' ),
 		);
 
 		$response = $endpoint->prepare_menu_for_response( $menu );
+		delete_user_meta( static::$user_id, 'wpcom_admin_sidebar_layouts' );
+		$empty_layout_response = $endpoint->prepare_menu_for_response( $menu );
+		update_user_meta(
+			static::$user_id,
+			'wpcom_admin_sidebar_layouts',
+			array(
+				get_current_blog_id() => array( 'version' => 2 ),
+			)
+		);
+		$invalid_layout_response = $endpoint->prepare_menu_for_response( $menu );
 
 		// Reset stub state for any subsequent tests.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model( null );
+		delete_user_meta( static::$user_id, 'wpcom_admin_sidebar_layouts' );
 
 		$this->assertIsArray( $response );
 		$this->assertArrayHasKey( 'menu', $response );
 		$this->assertArrayHasKey( 'groups', $response );
+		$this->assertArrayHasKey( 'layoutDelta', $response );
 
 		$by_slug = array();
 		foreach ( $response['menu'] as $item ) {
@@ -840,24 +911,58 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		}
 
 		$this->assertArrayHasKey( 'index-php', $by_slug );
+		$this->assertArrayHasKey( 'no-signal', $by_slug );
 		$this->assertArrayHasKey( 'jetpack', $by_slug );
 
 		// Top-level core item: matched, no group, signal attached but inert.
 		$this->assertNull( $by_slug['index-php']['group_id'] );
 		$this->assertSame( false, $by_slug['index-php']['signal']['attention'] );
+		$this->assertSame( 'core:core:-:index.php', $by_slug['index-php']['itemId'] );
+		$this->assertSame( 'core', $by_slug['index-php']['source'] );
+		$this->assertFalse( $by_slug['index-php']['reassignable'] );
+		$this->assertSame( 10, $by_slug['index-php']['default_weight'] );
+
+		// A matched item without signal data keeps the field explicit and null.
+		$this->assertNull( $by_slug['no-signal']['signal'] );
+		$this->assertSame(
+			'plugin:no-signal/no-signal.php:-:no-signal',
+			$by_slug['no-signal']['itemId']
+		);
 
 		// Grouped plugin item: group_id set, attention signal flowed through.
 		$this->assertSame( 'plugins', $by_slug['jetpack']['group_id'] );
 		$this->assertSame( 3, $by_slug['jetpack']['signal']['count'] );
 		$this->assertTrue( $by_slug['jetpack']['signal']['attention'] );
+		$this->assertSame( 'plugin:jetpack/jetpack.php:-:jetpack', $by_slug['jetpack']['itemId'] );
+		$this->assertSame( 'plugin', $by_slug['jetpack']['source'] );
+		$this->assertTrue( $by_slug['jetpack']['reassignable'] );
+		$this->assertSame( 999, $by_slug['jetpack']['default_weight'] );
 
 		// Top-level groups row mirrors the classifier's group shape.
 		$this->assertCount( 1, $response['groups'] );
 		$group = $response['groups'][0];
 		$this->assertSame( 'plugins', $group['id'] );
 		$this->assertSame( 'My Plugins', $group['label'] );
-		$this->assertTrue( $group['default_expanded'] );
+		$this->assertFalse( $group['default_expanded'] );
 		$this->assertTrue( $group['signal']['attention'] );
 		$this->assertSame( 3, $group['signal']['count'] );
+
+		$this->assertSame( $layout_delta, $response['layoutDelta'] );
+		$this->assertSame(
+			array(
+				'version'    => 1,
+				'updated_at' => 0,
+				'overrides'  => array(),
+			),
+			$empty_layout_response['layoutDelta']
+		);
+		$this->assertSame(
+			array(
+				'version'    => 1,
+				'updated_at' => 0,
+				'overrides'  => array(),
+			),
+			$invalid_layout_response['layoutDelta']
+		);
 	}
 }

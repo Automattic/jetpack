@@ -184,10 +184,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// only happens when classifier data is available so non-WPCOM Jetpack
 		// installs continue to receive the legacy flat-array shape.
 		if ( null !== $this->sidebar_nav_groups ) {
-			return array(
+			$response = array(
 				'menu'   => $data,
 				'groups' => $this->prepare_groups_for_response(),
 			);
+
+			$layout_delta = $this->get_sidebar_layout_delta();
+			if ( null !== $layout_delta ) {
+				$response['layoutDelta'] = $layout_delta;
+			}
+
+			return $response;
 		}
 
 		return $data;
@@ -307,15 +314,29 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$item['group_id'] = $nav_entry['default_group'] ?? null;
 		$item['signal']   = $this->map_signal_from_nav_entry( $nav_entry );
 
+		if ( isset( $nav_entry['itemId'] ) && '' !== $nav_entry['itemId'] ) {
+			$item['itemId'] = (string) $nav_entry['itemId'];
+		}
+		if ( isset( $nav_entry['source'] ) && '' !== $nav_entry['source'] ) {
+			$item['source'] = (string) $nav_entry['source'];
+		}
+		if ( isset( $nav_entry['reassignable'] ) ) {
+			$item['reassignable'] = (bool) $nav_entry['reassignable'];
+		}
+		if ( isset( $nav_entry['default_weight'] ) ) {
+			$item['default_weight'] = (int) $nav_entry['default_weight'];
+		} elseif ( isset( $nav_entry['_weight'] ) ) {
+			$item['default_weight'] = (int) $nav_entry['_weight'];
+		}
+
 		return $item;
 	}
 
 	/**
 	 * Build the response-shape `groups[]` array from the cached classifier rows.
 	 *
-	 * Each element carries the group's stable id, label, default expansion
-	 * state (always true; see `default_expanded` in the schema contract) and
-	 * the aggregated signal that the classifier already computed.
+	 * Each element carries the group's stable id, label, default collapsed
+	 * state and the aggregated signal that the classifier already computed.
 	 *
 	 * @return array
 	 */
@@ -333,7 +354,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$groups[] = array(
 				'id'               => (string) $group['id'],
 				'label'            => isset( $group['title'] ) ? (string) $group['title'] : '',
-				'default_expanded' => true,
+				'default_expanded' => false,
 				'signal'           => array(
 					'attention' => ! empty( $signal['attention'] ),
 					'count'     => isset( $signal['count'] ) ? (int) $signal['count'] : 0,
@@ -341,6 +362,85 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			);
 		}
 		return $groups;
+	}
+
+	/**
+	 * Read the saved Calypso-compatible layout delta from the public plugin's
+	 * storage adapter. Returns null when the public plugin storage API is not
+	 * loaded, which keeps non-redesigned hosts on the legacy contract.
+	 *
+	 * @return array|null
+	 */
+	private function get_sidebar_layout_delta() {
+		if ( ! interface_exists( 'Sidebar_Layout_Storage' ) || ! class_exists( 'WP_User_Meta_Storage' ) ) {
+			return null;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return null;
+		}
+
+		$site_id = (int) get_current_blog_id();
+		$storage = $this->get_sidebar_layout_storage();
+		// @phan-suppress-next-line PhanUndeclaredMethod -- concrete storage implementations provide get_layouts().
+		$layouts = $storage->get_layouts( $user_id );
+
+		if ( isset( $layouts[ $site_id ] ) && is_array( $layouts[ $site_id ] ) ) {
+			return $this->normalize_sidebar_layout_delta( $layouts[ $site_id ] );
+		}
+
+		return $this->empty_sidebar_layout_delta();
+	}
+
+	/**
+	 * Resolve the public plugin storage adapter. Mirrors Sidebar_Data_Planner.
+	 *
+	 * @return object
+	 */
+	private function get_sidebar_layout_storage() {
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- WP_User_Meta_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by class_exists() above.
+		$default = new WP_User_Meta_Storage();
+		$bound   = apply_filters( 'wp_admin_sidebar_storage', $default );
+		$bound   = apply_filters_deprecated(
+			'wpcom_admin_sidebar_storage',
+			array( $bound ),
+			'0.1.0',
+			'wp_admin_sidebar_storage'
+		);
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Sidebar_Layout_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by interface_exists() above.
+		return $bound instanceof Sidebar_Layout_Storage ? $bound : $default;
+	}
+
+	/**
+	 * Normalize a stored LayoutDelta into the response shape Calypso expects.
+	 *
+	 * @param array $delta Stored layout delta.
+	 * @return array
+	 */
+	private function normalize_sidebar_layout_delta( array $delta ) {
+		if ( ! isset( $delta['overrides'] ) || ! is_array( $delta['overrides'] ) ) {
+			return $this->empty_sidebar_layout_delta();
+		}
+
+		return array(
+			'version'    => isset( $delta['version'] ) ? (int) $delta['version'] : 1,
+			'updated_at' => isset( $delta['updated_at'] ) ? (int) $delta['updated_at'] : 0,
+			'overrides'  => array_values( $delta['overrides'] ),
+		);
+	}
+
+	/**
+	 * Empty-delta shape used when a redesigned host has no saved layout yet.
+	 *
+	 * @return array
+	 */
+	private function empty_sidebar_layout_delta() {
+		return array(
+			'version'    => 1,
+			'updated_at' => 0,
+			'overrides'  => array(),
+		);
 	}
 
 	/**
@@ -377,86 +477,118 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'title'      => 'Admin Menu',
 			'type'       => 'object',
 			'properties' => array(
-				'count'      => array(
+				'count'          => array(
 					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
-				'icon'       => array(
+				'icon'           => array(
 					'description' => 'Menu item icon. Dashicon slug or base64-encoded SVG.',
 					'type'        => 'string',
 				),
-				'inlineText' => array(
+				'inlineText'     => array(
 					'description' => 'Additional text to be added inline with the menu title.',
 					'type'        => 'string',
 				),
-				'inlineIcon' => array(
+				'inlineIcon'     => array(
 					'description' => 'Dashicon slug to be displayed inline with the menu title.',
 					'type'        => 'string',
 				),
-				'badge'      => array(
+				'badge'          => array(
 					'description' => 'Badge to be added inline with the menu title.',
 					'type'        => 'string',
 				),
-				'slug'       => array(
+				'slug'           => array(
 					'type' => 'string',
 				),
-				'children'   => array(
+				'children'       => array(
 					'items' => array(
-						'count'    => array(
+						'count'          => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
 							'type'        => 'integer',
 						),
-						'parent'   => array(
+						'parent'         => array(
 							'type' => 'string',
 						),
-						'slug'     => array(
+						'slug'           => array(
 							'type' => 'string',
 						),
-						'title'    => array(
+						'title'          => array(
 							'type' => 'string',
 						),
-						'type'     => array(
+						'type'           => array(
 							'enum' => array( 'submenu-item' ),
 							'type' => 'string',
 						),
-						'url'      => array(
+						'url'            => array(
 							'format' => 'uri',
 							'type'   => 'string',
 						),
-						'group_id' => array(
+						'itemId'         => array(
+							'description' => 'Compound sidebar item id emitted by the wp-admin-sidebar classifier. Only present when the classifier is loaded.',
+							'type'        => 'string',
+						),
+						'source'         => array(
+							'description' => 'Classifier source kind, e.g. core, plugin, or wpcom. Only present when the classifier is loaded.',
+							'type'        => 'string',
+						),
+						'default_weight' => array(
+							'description' => 'Default ordering hint from the classifier. Only present when the classifier exposes it.',
+							'type'        => 'integer',
+						),
+						'reassignable'   => array(
+							'description' => 'Whether the sidebar customizer may move this item. Only present when the classifier is loaded.',
+							'type'        => 'boolean',
+						),
+						'group_id'       => array(
 							'description' => 'Group this submenu belongs to (e.g., "plugins"). Null for non-grouped items. Only present when the wp-admin-sidebar classifier is loaded.',
 							'type'        => array( 'string', 'null' ),
 						),
-						'signal'   => $signal_schema,
+						'signal'         => $signal_schema,
 					),
 					'type'  => 'array',
 				),
-				'title'      => array(
+				'title'          => array(
 					'type' => 'string',
 				),
-				'type'       => array(
+				'type'           => array(
 					'enum' => array( 'separator', 'menu-item' ),
 					'type' => 'string',
 				),
-				'url'        => array(
+				'url'            => array(
 					'format' => 'uri',
 					'type'   => 'string',
 				),
-				'group_id'   => array(
+				'itemId'         => array(
+					'description' => 'Compound sidebar item id emitted by the wp-admin-sidebar classifier. Only present when the classifier is loaded.',
+					'type'        => 'string',
+				),
+				'source'         => array(
+					'description' => 'Classifier source kind, e.g. core, plugin, or wpcom. Only present when the classifier is loaded.',
+					'type'        => 'string',
+				),
+				'default_weight' => array(
+					'description' => 'Default ordering hint from the classifier. Only present when the classifier exposes it.',
+					'type'        => 'integer',
+				),
+				'reassignable'   => array(
+					'description' => 'Whether the sidebar customizer may move this item. Only present when the classifier is loaded.',
+					'type'        => 'boolean',
+				),
+				'group_id'       => array(
 					'description' => 'Group this top-level item belongs to (e.g., "plugins"). Null for non-grouped items. Only present when the wp-admin-sidebar classifier is loaded.',
 					'type'        => array( 'string', 'null' ),
 				),
-				'signal'     => $signal_schema,
+				'signal'         => $signal_schema,
 				// When the public `wp-admin-sidebar` plugin is loaded the
 				// response wraps the existing per-item array in `menu` and
 				// adds a sibling `groups` array. The wrapper is omitted on
 				// hosts where the classifier is not installed; consumers
 				// that ignore the new keys see the legacy flat-array shape.
-				'menu'       => array(
+				'menu'           => array(
 					'description' => 'Top-level menu items (only present when the wp-admin-sidebar classifier is loaded; otherwise the response root itself is the menu list).',
 					'type'        => 'array',
 				),
-				'groups'     => array(
+				'groups'         => array(
 					'description' => 'Synthetic group rows describing the sidebar grouping shape. Only present when the wp-admin-sidebar classifier is loaded; empty array if no plugin items grouped.',
 					'type'        => 'array',
 					'items'       => array(
@@ -470,6 +602,34 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 								'properties' => array(
 									'attention' => array( 'type' => 'boolean' ),
 									'count'     => array( 'type' => 'integer' ),
+								),
+							),
+						),
+					),
+				),
+				'layoutDelta'    => array(
+					'description' => 'Saved per-user sidebar layout delta. Only present when the wp-admin-sidebar storage API is loaded.',
+					'type'        => array( 'object', 'null' ),
+					'properties'  => array(
+						'version'    => array( 'type' => 'integer' ),
+						'updated_at' => array( 'type' => 'integer' ),
+						'overrides'  => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'itemId'   => array( 'type' => 'string' ),
+									'position' => array(
+										'type'       => 'object',
+										'properties' => array(
+											'kind'     => array(
+												'type' => 'string',
+												'enum' => array( 'top_level', 'in_group' ),
+											),
+											'group_id' => array( 'type' => 'string' ),
+											'index'    => array( 'type' => 'integer' ),
+										),
+									),
 								),
 							),
 						),
