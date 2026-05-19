@@ -705,15 +705,21 @@ class Backup_Abilities extends Registrar {
 	 * can't be unambiguously parsed (instead of strtotime's `false`, which
 	 * is also a valid timestamp for 1969-12-31).
 	 *
-	 * @param mixed $value Source value (string, int, or anything else).
+	 * Fractional numeric strings (e.g. rewind_id "1778804242.107") are
+	 * accepted — the fractional part is truncated.
+	 *
+	 * @param mixed $value Source value (string, int, float, or anything else).
 	 * @return int|null
 	 */
 	private static function parse_timestamp( $value ): ?int {
 		if ( is_int( $value ) ) {
 			return $value;
 		}
+		if ( is_float( $value ) ) {
+			return (int) $value;
+		}
 		if ( is_string( $value ) && '' !== $value ) {
-			if ( ctype_digit( $value ) ) {
+			if ( is_numeric( $value ) ) {
 				return (int) $value;
 			}
 			$ts = strtotime( $value );

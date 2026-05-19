@@ -553,8 +553,24 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertSame( '2026-05-13T12:30:00Z', $item['started'] );
 		$this->assertSame( '2026-05-13T12:30:00Z', $item['last_updated'] );
 		$this->assertSame( 'finished', $item['status'], 'success/backup_complete event must surface as "finished" to match the legacy vocabulary.' );
+		$this->assertSame( 1747143000, $item['period'], 'period must be the integer unix-ts portion of the fractional rewind_id.' );
 		$this->assertTrue( $item['is_rewindable'] );
 		$this->assertFalse( $item['has_warnings'] );
+	}
+
+	/**
+	 * Rewind ids ship as numeric strings with a fractional attempt counter
+	 * (e.g. "1778804242.107"). `parse_timestamp` must accept those and
+	 * truncate the fractional part rather than returning null — otherwise
+	 * activity-log-derived items always carry `period: null`.
+	 */
+	public function test_parse_timestamp_accepts_fractional_numeric_strings(): void {
+		$this->assertSame( 1778804242, $this->call_private( 'parse_timestamp', array( '1778804242.107' ) ) );
+		$this->assertSame( 1778804242, $this->call_private( 'parse_timestamp', array( '1778804242' ) ) );
+		$this->assertSame( 1778804242, $this->call_private( 'parse_timestamp', array( 1778804242 ) ) );
+		$this->assertSame( 1778804242, $this->call_private( 'parse_timestamp', array( 1778804242.999 ) ) );
+		$this->assertNull( $this->call_private( 'parse_timestamp', array( 'not-a-date' ) ) );
+		$this->assertNull( $this->call_private( 'parse_timestamp', array( '' ) ) );
 	}
 
 	public function test_summarize_backup_event_marks_warning_status(): void {
