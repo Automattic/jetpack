@@ -50,6 +50,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		$this->reset_sidebar_hooks();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		update_option( 'jetpack_offline_mode', '0' );
 		Status_Cache::clear();
@@ -75,11 +76,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_transient( AiAssistantPlugin\AM_ASSET_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AM_ASSET_DC_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
-		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
-		remove_all_filters( 'agents_manager_agent_providers' );
-		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
-		remove_all_filters( 'jetpack_ai_review_mediator_enabled' );
-		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_offline_mode' );
@@ -93,6 +90,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
 		parent::tear_down();
+	}
+
+	/**
+	 * Reset sidebar hooks that may be registered by plugin bootstrap or earlier tests.
+	 */
+	private function reset_sidebar_hooks() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
+		remove_all_filters( 'jetpack_ai_review_mediator_enabled' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ), 200 );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_review_mediator_flag' ), 250 );
 	}
 
 	/**
