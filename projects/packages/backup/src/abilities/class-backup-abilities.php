@@ -679,9 +679,6 @@ class Backup_Abilities extends Registrar {
 		if ( 'success' === $status_raw || false !== strpos( $name, 'backup_complete' ) ) {
 			return 'finished';
 		}
-		if ( in_array( $status_raw, array( 'error', 'warning' ), true ) ) {
-			return $status_raw;
-		}
 		return $status_raw;
 	}
 
