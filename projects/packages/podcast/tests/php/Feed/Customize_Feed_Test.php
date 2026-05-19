@@ -264,18 +264,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
 	}
 
-	public function test_filter_posts_with_enclosure_passes_through_non_array_posts() {
-		$query = $this->createStub( \WP_Query::class );
-
-		$this->assertSame( 'not-an-array', Customize_Feed::filter_posts_with_enclosure( 'not-an-array', $query ) );
-	}
-
-	public function test_filter_posts_with_enclosure_passes_through_when_query_arg_is_not_wp_query() {
-		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
-
-		$this->assertSame( $posts, Customize_Feed::filter_posts_with_enclosure( $posts, 'not-a-query' ) );
-	}
-
 	public function test_filter_posts_with_enclosure_passes_through_non_feed_query() {
 		$posts = array( new WP_Post( (object) array( 'ID' => 1 ) ) );
 		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );

@@ -288,9 +288,6 @@ class Customize_Feed {
 	 * @return WP_Post[]
 	 */
 	public static function filter_posts_with_enclosure( $posts, $query ) {
-		if ( ! is_array( $posts ) || ! $query instanceof \WP_Query ) {
-			return $posts;
-		}
 		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
 			return $posts;
 		}
