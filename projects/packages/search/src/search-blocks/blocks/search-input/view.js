@@ -162,13 +162,13 @@ store( NAMESPACE, {
 					ctx.activeOptionId = '';
 					return;
 				case 'Enter': {
+					const { actions } = store( NAMESPACE );
 					if ( suggestionsEnabled && ctx.showSuggestions && ctx.activeIndex >= 0 ) {
 						const row = rowAtOptionIndex( rows, ctx.activeIndex );
 						if ( row ) {
 							event.preventDefault();
 							cancelPendingSearch( input );
 							cancelPendingSuggestions( input );
-							const { actions } = store( NAMESPACE );
 							actions.acceptSuggestion( row );
 							return;
 						}
@@ -180,7 +180,6 @@ store( NAMESPACE, {
 					}
 					cancelPendingSearch( input );
 					cancelPendingSuggestions( input );
-					const { actions } = store( NAMESPACE );
 					actions.search();
 					break;
 				}
@@ -251,8 +250,15 @@ store( NAMESPACE, {
 			const { state, actions } = store( NAMESPACE );
 
 			// Close the dropdown on the originating input. The action is
-			// dispatched from the suggestion `<li>` so getContext() resolves
-			// to the wrapper's context — same instance the input lives in.
+			// dispatched from either the input's keydown handler (wrapper
+			// scope) or the suggestion `<li>`'s click handler (row scope
+			// nested under the same wrapper). The Interactivity API merges
+			// the `data-wp-each` row entries onto the wrapper's context, and
+			// writes to keys that exist on the wrapper proxy (`showSuggestions`,
+			// `activeIndex`, `activeOptionId`, `rows`) propagate up through
+			// the same reactive signal — verified empirically by clicking a
+			// suggestion row and watching the dropdown close. Only writes to
+			// `ctx.row` itself would be absorbed by the each scope.
 			const ctx = getContext();
 			if ( ctx ) {
 				ctx.showSuggestions = false;

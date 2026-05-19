@@ -45,7 +45,6 @@ $context_json = $enable_suggestions
 			'activeIndex'     => -1,
 			'activeOptionId'  => '',
 			'rows'            => array(),
-			'isLoading'       => false,
 			'listboxId'       => $listbox_id,
 		),
 		JSON_HEX_AMP | JSON_UNESCAPED_SLASHES

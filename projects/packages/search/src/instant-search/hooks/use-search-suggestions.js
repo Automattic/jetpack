@@ -22,6 +22,11 @@ export default function useSearchSuggestions( { query, siteId, enabled } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const abortRef = useRef( null );
 
+	// `debounce(fn, 0)` defers to the next event loop tick rather than
+	// coalescing keystrokes — the calling `SearchForm` component owns the
+	// real (150 ms) debounce via its own blur timeout. Don't add a non-zero
+	// delay here without also revisiting the form-side timing or both
+	// debounces will compound.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const run = useCallback(
 		debounce( async ( q, sId ) => {
