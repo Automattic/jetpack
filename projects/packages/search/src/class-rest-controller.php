@@ -341,8 +341,8 @@ class REST_Controller {
 	 * @param string|null $experience - Experience value.
 	 * @param bool|null   $reader_chat - Reader Chat status.
 	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
-	 * @param boolean     $search_suggestions_enabled - New search suggestions status.
-	 * @param boolean     $override_woocommerce_search_template - New WooCommerce search-template override status.
+	 * @param bool|null   $search_suggestions_enabled - New search suggestions status.
+	 * @param bool|null   $override_woocommerce_search_template - New WooCommerce search-template override status.
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null, $override_woocommerce_search_template = null ) {
 		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
@@ -358,10 +358,10 @@ class REST_Controller {
 		// lose those fields — the `experience` branch in update_settings() early-returns and
 		// would otherwise drop them.
 		if ( $experience !== null ) {
-			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $override_woocommerce_search_template !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $ai_answers_enabled !== null || $search_suggestions_enabled !== null || $override_woocommerce_search_template !== null ) {
 				return new WP_Error(
 					'rest_invalid_arguments',
-					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, `ai_answers_enabled`, `search_suggestions_enabled`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
 					array( 'status' => 400 )
 				);
 			}

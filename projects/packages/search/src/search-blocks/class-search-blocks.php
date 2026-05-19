@@ -154,7 +154,9 @@ class Search_Blocks {
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 
-		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+		$experience = ( new Module_Control() )->get_experience();
+
+		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		}
@@ -164,7 +166,16 @@ class Search_Blocks {
 		// integrations. The WC/product-search guard lives in the callback,
 		// which runs late enough to satisfy woocommerce_blocks_enabled()'s
 		// load-order contract.
-		if ( static::woocommerce_search_template_override_enabled() ) {
+		//
+		// Gated to the server-rendered experiences (Embedded / Theme search):
+		// Overlay intercepts client-side so the override is a no-op there, and
+		// the dashboard hides the toggle in that state — mirror it server-side
+		// so a stale option from a since-switched experience can't keep
+		// rerouting the template hierarchy.
+		if (
+			static::woocommerce_search_template_override_enabled()
+			&& in_array( $experience, array( Module_Control::EXPERIENCE_EMBEDDED, Module_Control::EXPERIENCE_INLINE ), true )
+		) {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}

@@ -556,6 +556,58 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The override only applies to the server-rendered experiences. With the
+	 * option still on after the site switches to Overlay (client-side) or Off,
+	 * `init()` must NOT register the product-search hooks — a stale option
+	 * from a since-switched experience can't keep rerouting the hierarchy.
+	 * Mirrors the dashboard's Embedded|Inline visibility gate.
+	 */
+	public function test_init_does_not_register_product_search_hooks_when_experience_not_server_rendered() {
+		try {
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+
+			// Overlay: module active, experience explicitly saved as overlay.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+			Search_Blocks::init();
+
+			$this->assertFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must not hook when experience is Overlay'
+			);
+			$this->assertFalse(
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must not hook when experience is Overlay'
+			);
+
+			// Off: module inactive, get_experience() resolves to 'off'.
+			$this->reset_search_blocks_hooks();
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			$this->set_module_active( false );
+			Search_Blocks::init();
+
+			$this->assertFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must not hook when the module is off'
+			);
+			$this->assertFalse(
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must not hook when the module is off'
+			);
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		}
+	}
+
+	/**
 	 * `init()` must always register the block-level hooks AND the IA state
 	 * seeding regardless of which experience the site has saved — admins can
 	 * insert Search blocks anywhere blocks are configurable, and those blocks
