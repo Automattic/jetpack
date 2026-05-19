@@ -206,7 +206,7 @@ export default function DashboardPage( { isLoading = false } ) {
 					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 				/>
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-					<div className="jp-admin-page-tabs">
+					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>

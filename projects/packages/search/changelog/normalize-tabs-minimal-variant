@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier.
