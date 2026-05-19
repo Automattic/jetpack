@@ -27,7 +27,11 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 	'site-default': __( 'Site default', 'jetpack-videopress-pkg' ),
 };
 
-const GRID_VISIBLE_FIELDS = [ 'filename' ];
+// Grid tiles already lead with the thumbnail + title; the filename
+// below repeats information the title implies and clutters the tile.
+// Keep it hidden by default — users who want it can still toggle it
+// on via the DataViews field-visibility control.
+const GRID_VISIBLE_FIELDS: string[] = [];
 // `fileSize` is intentionally omitted: it's only populated for local
 // (non-VideoPress) uploads today, so it's blank for most rows. Users
 // who want the column can still toggle it on via the DataViews column-
