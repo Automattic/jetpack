@@ -1,3 +1,4 @@
+import { registerAutoAssignCategory } from './auto-assign-category';
 import metadata from './block.json';
 import edit from './edit';
 import save from './save';
@@ -9,3 +10,5 @@ registerJetpackBlockFromMetadata( metadata, {
 	edit,
 	save,
 } );
+
+registerAutoAssignCategory();

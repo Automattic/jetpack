@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: Inserting a Podcast Episode block now auto-assigns the configured podcast category if the post doesn't already have it.
