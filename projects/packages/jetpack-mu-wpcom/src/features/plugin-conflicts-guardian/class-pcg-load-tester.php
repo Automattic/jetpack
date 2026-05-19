@@ -217,11 +217,13 @@ class PCG_Load_Tester {
 			'token'     => $token,
 		);
 		$headers = array();
+		$options = array();
 		if ( $is_admin ) {
 			$query['pcg_admin'] = '1';
 			$cookie_header      = $this->collect_auth_cookie_header();
 			if ( '' !== $cookie_header ) {
-				$headers['Cookie'] = $cookie_header;
+				$headers['Cookie']  = $cookie_header;
+				$options['hooks']   = $this->build_same_host_cookie_hook( $base_url );
 			}
 		}
 
@@ -231,6 +233,7 @@ class PCG_Load_Tester {
 				'url'     => add_query_arg( $query, $base_url ),
 				'type'    => 'GET',
 				'headers' => $headers,
+				'options' => $options,
 			),
 		);
 	}
@@ -340,6 +343,40 @@ class PCG_Load_Tester {
 			$pairs[] = $name . '=' . wp_unslash( $value );
 		}
 		return implode( '; ', $pairs );
+	}
+
+	/**
+	 * Build a Hooks instance that strips the forwarded `Cookie:` header on
+	 * any redirect whose host differs from the original. Defends against a
+	 * misconfigured site whose admin URL redirects off-host: we'd otherwise
+	 * leak admin auth cookies to the third party.
+	 *
+	 * @param string $original_url Initial probe URL whose host is the trust boundary.
+	 * @return \WpOrg\Requests\Hooks
+	 */
+	protected function build_same_host_cookie_hook( $original_url ) {
+		$original_host = strtolower( (string) wp_parse_url( $original_url, PHP_URL_HOST ) );
+
+		$hooks = new \WpOrg\Requests\Hooks();
+		$hooks->register(
+			'requests.before_redirect',
+			static function ( &$location, &$req_headers, &$req_data, &$options, $return ) use ( $original_host ) {
+				unset( $req_data, $options, $return );
+				if ( ! is_array( $req_headers ) ) {
+					return;
+				}
+				$next_host = strtolower( (string) wp_parse_url( (string) $location, PHP_URL_HOST ) );
+				if ( '' === $next_host || $next_host === $original_host ) {
+					return;
+				}
+				foreach ( array_keys( $req_headers ) as $name ) {
+					if ( 0 === strcasecmp( (string) $name, 'Cookie' ) ) {
+						unset( $req_headers[ $name ] );
+					}
+				}
+			}
+		);
+		return $hooks;
 	}
 
 	/**
