@@ -43,6 +43,7 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		delete_option( 'podcasting_image' );
+		delete_option( 'podcasting_talent_name' );
 		delete_option( 'date_format' );
 		WP_Block_Supports::$block_to_render = null;
 		parent::tear_down();
@@ -323,6 +324,98 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Spanish dub (es, 128 kbps, audio/mpeg)', $result );
 		$this->assertStringContainsString( 'hreflang="es"', $result );
 		$this->assertStringNotContainsString( 'not-a-url', $result );
+	}
+
+	public function test_byline_uses_talent_name_when_set() {
+		update_option( 'podcasting_talent_name', 'The Show Host' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'byline_post_author',
+				'user_pass'    => 'pass',
+				'user_email'   => 'byline_pa@example.com',
+				'display_name' => 'Post Author Name',
+			)
+		);
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Byline Episode',
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			)
+		);
+
+		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_user( $user_id );
+
+		$this->assertStringContainsString( 'The Show Host', $result );
+		$this->assertStringNotContainsString( 'Post Author Name', $result );
+	}
+
+	public function test_byline_talent_name_has_no_author_url_link() {
+		update_option( 'podcasting_talent_name', 'The Show Host' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'byline_url_author',
+				'user_pass'    => 'pass',
+				'user_email'   => 'byline_url@example.com',
+				'user_url'     => 'https://example.com/author-profile',
+				'display_name' => 'Linked Author',
+			)
+		);
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Byline Episode',
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			)
+		);
+
+		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_user( $user_id );
+
+		// Schema.org Person markup must still be present.
+		$this->assertStringContainsString( 'itemprop="author" itemscope itemtype="https://schema.org/Person"', $result );
+		// The talent name itself must appear.
+		$this->assertStringContainsString( 'The Show Host', $result );
+		// No link to the post author URL must appear (no other <a> elements in a
+		// basic render without people / alternate-enclosures / transcript / license).
+		$this->assertStringNotContainsString( '<a href=', $result );
+	}
+
+	public function test_byline_post_author_fallback_links_when_author_has_url() {
+		// Ensure the talent-name option is absent so the post-author path is taken.
+		delete_option( 'podcasting_talent_name' );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'byline_fallback_author',
+				'user_pass'    => 'pass',
+				'user_email'   => 'byline_fb@example.com',
+				'user_url'     => 'https://example.com/fallback-author',
+				'display_name' => 'Fallback Author',
+			)
+		);
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Byline Episode',
+				'post_status' => 'publish',
+				'post_author' => $user_id,
+			)
+		);
+
+		$result = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_user( $user_id );
+
+		$this->assertStringContainsString( 'Fallback Author', $result );
+		$this->assertStringContainsString( '<a href="https://example.com/fallback-author" itemprop="url">', $result );
 	}
 
 	public function test_filter_editor_script_src_rewrites_scheme_for_editor_handle() {
