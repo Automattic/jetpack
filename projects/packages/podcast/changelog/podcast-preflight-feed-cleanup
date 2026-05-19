@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: strip the blavatar, site-icon, and rss-cloud channel tags from the podcast RSS feed so the output stays iTunes-compliant once the untangle filter is flipped globally.

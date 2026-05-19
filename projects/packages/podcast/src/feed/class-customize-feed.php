@@ -54,6 +54,13 @@ class Customize_Feed {
 			return;
 		}
 
+		// Strip channel-level tags that conflict with the iTunes-compliant
+		// header: blavatar / site-icon `<image>` duplicates `<itunes:image>`,
+		// and `<cloud …/>` from rsscloud isn't part of the podcast spec.
+		remove_action( 'rss2_head', 'rss2_blavatar' );
+		remove_action( 'rss2_head', 'rss2_site_icon' );
+		remove_action( 'rss2_head', 'rsscloud_add_rss_cloud_element' );
+
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
