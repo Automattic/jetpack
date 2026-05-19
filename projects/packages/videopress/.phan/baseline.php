@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 5 occurrences
@@ -30,12 +29,9 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall'],
-        'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-block-editor-extensions.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
-        'src/class-initializer.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/class-data.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
@@ -44,10 +40,9 @@ return [
         'src/class-videopresstoken.php' => ['PhanTypeMismatchReturn'],
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
-        'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/utility-functions.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
         'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass'],
         'tests/php/VideoPress_Uploader_Test.php' => ['PhanTypeMismatchArgument'],

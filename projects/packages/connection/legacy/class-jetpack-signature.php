@@ -83,12 +83,12 @@ class Jetpack_Signature {
 		$port = $this->get_current_request_port();
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- Sniff misses the esc_url_raw wrapper.
-		$this->current_request_url = esc_url_raw( wp_unslash( "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ) ) );
+		$this->current_request_url = esc_url_raw( wp_unslash( "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . ( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 
 		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
 		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
-			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+			$body = $GLOBALS['HTTP_RAW_POST_DATA'] ?? null;
 
 			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
 			// and encoded on the Jetpack side.
@@ -127,7 +127,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		$method = isset( $override['method'] ) ? $override['method'] : ( isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : null );
+		$method = $override['method'] ?? ( isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : null );
 		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $this->current_request_url, $body, true );
 	}
 
@@ -247,7 +247,7 @@ class Jetpack_Signature {
 			// Normalized Query String.
 		);
 
-		$normalized_request_pieces      = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
+		$normalized_request_pieces      = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( $parsed['query'] ?? '' ) );
 		$flat_normalized_request_pieces = array();
 		foreach ( $normalized_request_pieces as $piece ) {
 			if ( is_array( $piece ) ) {

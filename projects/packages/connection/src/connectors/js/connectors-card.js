@@ -368,20 +368,26 @@ function ConnectedPluginsSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+	// When a connection owner is already linked, the viewing admin is
+	// connecting as a secondary user — the site-registration framing no
+	// longer applies, so use shorter copy focused on the user benefit.
+	const promptText = connectionOwner
+		? __(
+				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
+				'jetpack-connection'
+		  )
+		: __(
+				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
+				'jetpack-connection'
+		  );
+
 	return createElement(
 		HStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement(
 			'div',
 			{ className: 'jetpack-connector__connect-prompt-text' },
-			createElement(
-				Text,
-				{ size: 13 },
-				__(
-					'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-					'jetpack-connection'
-				)
-			)
+			createElement( Text, { size: 13 }, promptText )
 		),
 		createElement(
 			Button,

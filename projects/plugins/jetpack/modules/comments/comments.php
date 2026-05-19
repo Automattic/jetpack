@@ -89,7 +89,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function set_default_color_theme_based_on_theme_settings() {
 		if ( function_exists( 'twentyeleven_get_theme_options' ) ) {
 			$theme_options      = twentyeleven_get_theme_options();
-			$theme_color_scheme = isset( $theme_options['color_scheme'] ) ? $theme_options['color_scheme'] : 'transparent';
+			$theme_color_scheme = $theme_options['color_scheme'] ?? 'transparent';
 		} else {
 			$theme_color_scheme = get_theme_mod( 'color_scheme', 'transparent' );
 		}

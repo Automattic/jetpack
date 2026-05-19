@@ -9,11 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentNullable : 60+ occurrences
+    // PhanTypeMismatchArgumentNullable : 65+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanAbstractStaticMethodCallInStatic : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
@@ -33,7 +32,7 @@ return [
         'src/products/class-crm.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-extras.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
-        'src/products/class-jetpack-ai.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/products/class-jetpack-ai.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-module-product.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
