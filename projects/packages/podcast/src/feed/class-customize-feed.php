@@ -203,12 +203,6 @@ class Customize_Feed {
 			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
-		$episode_image = self::episode_image_url( $post->ID );
-		if ( '' !== $episode_image ) {
-			echo "<itunes:image href='" . esc_url( $episode_image ) . "' />\n";
-			echo "<googleplay:image href='" . esc_url( $episode_image ) . "' />\n";
-		}
-
 		// Re-applying `the_excerpt_rss` here is intentional: `get_the_excerpt()`
 		// doesn't run the filter chain itself, so this gets the same trimmed +
 		// `pass_through_empty_excerpt`-suppressed value WP would emit in the
@@ -405,23 +399,6 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Episode-level image URL — the post's featured image, or `''` if none.
-	 *
-	 * @param int $post_id Episode post ID.
-	 * @return string
-	 */
-	private static function episode_image_url( int $post_id ): string {
-		if ( ! has_post_thumbnail( $post_id ) ) {
-			return '';
-		}
-		$src = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'full' );
-		if ( ! is_array( $src ) || empty( $src[0] ) ) {
-			return '';
-		}
-		return self::maybe_photon( $src[0] );
-	}
-
-	/**
 	 * Route through Photon at exactly 3000×3000 so the feed always serves a
 	 * square cover, regardless of the source aspect ratio. `resize` center-crops
 	 * (unlike `fit`, which only constrains within the box); Apple's spec wants
@@ -430,7 +407,7 @@ class Customize_Feed {
 	 * @param string $url Image URL.
 	 * @return string
 	 */
-	private static function maybe_photon( string $url ): string {
+	public static function maybe_photon( string $url ): string {
 		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return $url;
 		}

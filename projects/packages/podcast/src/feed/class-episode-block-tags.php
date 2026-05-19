@@ -41,6 +41,7 @@ class Episode_Block_Tags {
 	 * @param array<string, mixed> $attrs Block attrs.
 	 */
 	public static function render_from_attrs( array $attrs ): void {
+		self::emit_cover_art( $attrs );
 		self::emit_episode_number( $attrs );
 		self::emit_season_number( $attrs );
 		self::emit_episode_type( $attrs );
@@ -51,6 +52,27 @@ class Episode_Block_Tags {
 		self::emit_people( $attrs );
 		self::emit_soundbites( $attrs );
 		self::emit_alternate_enclosures( $attrs );
+	}
+
+	/**
+	 * `<itunes:image>` + `<googleplay:image>` from the block's `coverArt` attr,
+	 * Photon-resized to 3000×3000 to match Apple's square-cover requirement.
+	 * Nothing emits when no cover is set — the channel-level cover applies
+	 * to the item by default.
+	 *
+	 * @param array $attrs Block attrs.
+	 */
+	private static function emit_cover_art( array $attrs ): void {
+		if ( empty( $attrs['coverArt'] ) || ! is_array( $attrs['coverArt'] ) ) {
+			return;
+		}
+		$url = isset( $attrs['coverArt']['url'] ) ? (string) $attrs['coverArt']['url'] : '';
+		if ( '' === trim( $url ) ) {
+			return;
+		}
+		$resized = Customize_Feed::maybe_photon( $url );
+		echo "<itunes:image href='" . esc_url( $resized ) . "' />\n";
+		echo "<googleplay:image href='" . esc_url( $resized ) . "' />\n";
 	}
 
 	/**
