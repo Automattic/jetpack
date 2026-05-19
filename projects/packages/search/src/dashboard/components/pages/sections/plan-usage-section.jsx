@@ -1,7 +1,6 @@
-import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
@@ -300,17 +299,17 @@ const getUpgradeMessages = () => {
 };
 
 const UpgradeTrigger = ( { upgradeMessage, ctaCallback } ) => {
-	// const upgradeMessage = type && getUpgradeMessages()[ type ];
-	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: ctaCallback };
+	if ( ! upgradeMessage ) {
+		return null;
+	}
 
 	return (
-		<>
-			{ triggerData && (
-				<ThemeProvider>
-					<ContextualUpgradeTrigger { ...triggerData } />
-				</ThemeProvider>
-			) }
-		</>
+		<Notice.Root intent="info">
+			<Notice.Description>{ upgradeMessage.description }</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ ctaCallback }>{ upgradeMessage.cta }</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 };
 

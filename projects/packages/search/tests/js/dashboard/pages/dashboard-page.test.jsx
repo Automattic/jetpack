@@ -8,7 +8,6 @@ jest.mock(
 		Button: ( { children, ...rest } ) => <button { ...rest }>{ children }</button>,
 		Container: ( { children } ) => <div>{ children }</div>,
 		Col: ( { children } ) => <div>{ children }</div>,
-		ContextualUpgradeTrigger: ( { children } ) => <div>{ children }</div>,
 		DonutMeter: () => <div data-testid="donut-meter" />,
 		Gridicon: () => <span data-testid="gridicon" />,
 		IconTooltip: ( { children } ) => <div>{ children }</div>,
