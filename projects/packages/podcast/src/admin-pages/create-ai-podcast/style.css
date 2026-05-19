@@ -55,11 +55,19 @@
 	max-width: 540px;
 }
 
+.jetpack-create-ai-podcast__intro-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 8px;
+}
+
 .jetpack-create-ai-podcast__intro-eyebrow {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	margin: 0 0 8px;
+	margin: 0;
 	padding: 4px 10px;
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.16);
@@ -68,6 +76,11 @@
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: #fff;
+}
+
+.jetpack-create-ai-podcast__intro-eyebrow--experimental {
+	background: rgba(255, 196, 80, 0.28);
+	color: #ffe6a8;
 }
 
 .jetpack-create-ai-podcast__intro-wpmark {

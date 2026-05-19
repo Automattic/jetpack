@@ -734,10 +734,15 @@ class Create_AI_Podcast_Page {
 			<div id="jetpack-create-ai-podcast-app">
 				<section class="jetpack-create-ai-podcast__intro" role="region" aria-labelledby="jetpack-create-ai-podcast-intro-title">
 					<div class="jetpack-create-ai-podcast__intro-body">
-						<p class="jetpack-create-ai-podcast__intro-eyebrow">
-							<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
-							<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
-						</p>
+						<div class="jetpack-create-ai-podcast__intro-badges">
+							<p class="jetpack-create-ai-podcast__intro-eyebrow">
+								<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
+								<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
+							</p>
+							<p class="jetpack-create-ai-podcast__intro-eyebrow jetpack-create-ai-podcast__intro-eyebrow--experimental">
+								<span><?php echo esc_html__( 'Experimental', 'jetpack-podcast' ); ?></span>
+							</p>
+						</div>
 						<h2 id="jetpack-create-ai-podcast-intro-title" class="jetpack-create-ai-podcast__intro-title">
 							<?php echo esc_html__( 'Turn your posts into a podcast episode', 'jetpack-podcast' ); ?>
 						</h2>
