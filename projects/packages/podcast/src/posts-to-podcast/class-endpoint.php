@@ -186,9 +186,10 @@ class Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Return posts that embed a `jetpack/podcast-episode` block — the surface
-	 * this feature creates on success — newest first. Drafts and published
-	 * posts only; trashed/auto-drafts are excluded.
+	 * Return posts carrying the `posts_to_podcast_metadata` post meta — the
+	 * marker set by the wpcom-side job worker when a generation completes —
+	 * newest first. Drafts and published posts only; trashed/auto-drafts are
+	 * excluded.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
