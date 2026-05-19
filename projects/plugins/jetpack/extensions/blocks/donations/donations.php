@@ -299,7 +299,7 @@ function render_block( $attr, $content ) {
  *
  * Extracted so it can be tested independently of the full render pipeline.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param array  $attr     Block attributes.
  * @param string $currency Currency code (e.g. 'USD').

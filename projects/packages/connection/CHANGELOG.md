@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.6] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [8.3.5] - 2026-05-14
 ### Changed
 - Connection: Include the comma-separated list of connection-using plugin slugs on every authorize URL, not only those built by the connectors card flow. [#48713]
@@ -1825,6 +1829,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6
 [8.3.5]: https://github.com/Automattic/jetpack-connection/compare/v8.3.4...v8.3.5
 [8.3.4]: https://github.com/Automattic/jetpack-connection/compare/v8.3.3...v8.3.4
 [8.3.3]: https://github.com/Automattic/jetpack-connection/compare/v8.3.2...v8.3.3

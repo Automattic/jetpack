@@ -1,3 +1,7 @@
+## [3.3.15] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [3.3.14] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -332,6 +336,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.15]: https://github.com/Automattic/social-logos/compare/v3.3.14...v3.3.15
 [3.3.14]: https://github.com/Automattic/social-logos/compare/v3.3.13...v3.3.14
 [3.3.13]: https://github.com/Automattic/social-logos/compare/v3.3.12...v3.3.13
 [3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12

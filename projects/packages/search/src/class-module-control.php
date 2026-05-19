@@ -280,7 +280,7 @@ class Module_Control {
 		 * Defaults to `wp_is_block_theme()`. Sites whose classic theme provides
 		 * block-template support through other means can force this true.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.60.0
 		 *
 		 * @param bool $supported Whether the active theme can render Embedded search (defaults to whether it is a block theme).
 		 */

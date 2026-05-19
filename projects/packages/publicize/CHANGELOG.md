@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.81.0] - 2026-05-19
+### Added
+- Social: Expose the canonical message-template placeholder catalog via a REST endpoint. [#48769]
+
+### Changed
+- Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
+- Update package dependencies. [#48695] [#48696] [#48910]
+
+### Fixed
+- Social Previews: Update template placeholders when editing the post title or content. [#48635]
+- Social: Avoid disabling connection rows while saving per-connection message templates. [#48641]
+- Social: Enable per-network customization by default when a custom connection template exists. [#48785]
+
 ## [0.80.0] - 2026-05-11
 ### Added
 - Social: Add a global message template editor to the Social admin page. [#48560]
@@ -1438,6 +1451,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.81.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.2...v0.79.0
 [0.78.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.1...v0.78.2

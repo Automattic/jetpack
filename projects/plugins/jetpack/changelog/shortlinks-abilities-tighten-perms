@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Shortlinks abilities: tighten permission_callback to edit_posts (was is_user_logged_in)

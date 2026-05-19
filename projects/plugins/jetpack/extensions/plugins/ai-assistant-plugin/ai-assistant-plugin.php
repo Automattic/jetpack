@@ -58,7 +58,7 @@ Jetpack_Reader_Chat::init();
  * lets site owners opt in to AI assistants answering reader questions using
  * their blog's content.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return void
  */
@@ -91,7 +91,7 @@ add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
  *
  * IMPORTANT: Only use for feature gating, not for authorization.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return bool
  */
@@ -105,7 +105,7 @@ function is_proxied_request(): bool {
  * Keep this check local to the rollout gate so WPCOM environments with older
  * vendored Jetpack packages do not fatal during bootstrap.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return bool
  */
@@ -143,7 +143,7 @@ function is_automattic_proxied_request(): bool {
  * locally via /wp/v2/settings. Syncing the option keeps connected sites and
  * the WP.com-hosted ability permission gate aligned.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param array $options Option names allowed to sync.
  * @return array Updated option names.

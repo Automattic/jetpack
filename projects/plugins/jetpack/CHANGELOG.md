@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.3 - 2026-05-19
+### Enhancements
+- Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
+- AI Assistant: Add an AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants answer reader questions using the blog's content. [#48362]
+- Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, setting a per-frequency default donation amount, and configuring the suggested custom amount. At least one frequency must remain enabled. [#48799]
+- Donations Block: Add Gutenberg style settings (border, color, typography, spacing) and custom controls for active tab and selected amount colors. [#48415]
+- Donations Block: Add Security inspector panel with configurable minimum and maximum donation amounts to help prevent fraudulent transactions. [#48492]
+- Donations Block: Inherit colors and typography from the active theme, and let the Donate button pick up theme button styles. [#48415]
+- Image Studio: Only allow video clip generation on sites where Image Studio is enabled and the plan supports video uploads. [#48712]
+- Performance settings: Simplify the Search section and link to the Search dashboard so experience selection happens in one place. [#48773]
+- Related Posts: Add configurable result limits for related-post agent requests. [#48335]
+- Related Posts: Register WordPress Abilities API support for fetching related posts. [#48335]
+- Search: Add an auto-complete feature that suggests search queries as users type. [#48473]
+- Shortlinks: Require edit-posts access for Shortlinks ability requests. [#48334]
+
+### Improved compatibility
+- Migrate Status indicator to @wordpress/ui Text. [#48711]
+
+### Bug fixes
+- Copy Post: Fix backslash characters being stripped from post content, title, and excerpt when duplicating a post. [#48870]
+- Jetpack AI: Improve MCP settings UI navigation, setup-list formatting, label alignment, and toggle spacing. [#48524]
+- Jetpack AI: Send non-WordPress.com hosts through the standard checkout workflow for the MCP "Upgrade plan" CTA, and remove WordPress.com-specific upsell copy. [#48661]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Composer: drop the automattic/jetpack-podcast dependency. The package is only consumed via jetpack-mu-wpcom and was never initialized from the Jetpack plugin. [#48907]
+- General: update composer.lock files. [#48743]
+- Internal: regenerate composer.lock to pick up the podcast package's new automattic/jetpack-connection dependency. [#48774]
+- Tests: cover the Search options that ship with the Search sync module's default-option whitelist. [#48745]
+- Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
+- Update package dependencies. [#48683] [#48695]
+- Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
+
 ## 15.9-a.1 - 2026-05-11
 ### Enhancements
 - AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component. [#48471]

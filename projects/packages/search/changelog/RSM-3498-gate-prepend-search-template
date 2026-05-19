@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: Only register the Jetpack Search block template and prepend it to the search template hierarchy on block themes during an actual search request, so the slug is never injected where it cannot resolve.
