@@ -3697,6 +3697,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.44.0
         version: 6.44.0(webpack@5.105.2)
+      '@wordpress/editor':
+        specifier: 14.44.0
+        version: 14.44.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
@@ -3718,6 +3721,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/plugins':
+        specifier: 7.44.0
+        version: 7.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.44.0
         version: 4.44.0(react@18.3.1)
