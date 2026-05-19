@@ -85,7 +85,13 @@ describe( 'DomEventHandler.handleSubmit', () => {
 
 	it( 'does not intercept form submissions with a malformed action URL', () => {
 		const handler = makeHandler();
-		const event = makeSubmitEvent( 'not-a-valid-url' );
+		// Use a plain mock target so `action` is not resolved by jsdom into an
+		// absolute URL. An empty string passed to `new URL()` throws a TypeError,
+		// which exercises the catch-and-return branch in handleSubmit.
+		const event = {
+			target: { action: '' },
+			preventDefault,
+		};
 		handler.handleSubmit( event );
 
 		expect( preventDefault ).not.toHaveBeenCalled();
