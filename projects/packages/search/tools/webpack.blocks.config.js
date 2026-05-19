@@ -27,7 +27,12 @@ function readBlockViewEntries() {
 
 const blockViewEntries = readBlockViewEntries();
 
-// Also include the shared store module so it can be imported by view.js files.
+// The shared store is emitted as its own ESM bundle and registered as the
+// `jetpack-search/store` WordPress Script Module. Every block `view.js`
+// imports that bare specifier; DependencyExtractionPlugin externalizes it
+// (see `requestToExternalModule` below) so the store ships once instead of
+// being inlined into all ~14 view bundles.
+const STORE_MODULE_ID = 'jetpack-search/store';
 const storeIndexPath = path.join( __dirname, '../src/search-blocks/store/index.js' );
 const storeEntries = fs.existsSync( storeIndexPath ) ? { 'store/index': storeIndexPath } : {};
 
@@ -55,6 +60,14 @@ module.exports = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			// Lets the `store/index` entry (and Jest, via moduleNameMapper)
+			// resolve the same bare specifier the view bundles import.
+			// In the view bundles DependencyExtractionPlugin intercepts it
+			// first and externalizes it, so this alias never inlines it there.
+			[ STORE_MODULE_ID ]: storeIndexPath,
+		},
 		modules: [
 			path.resolve( __dirname, '../src/search-blocks' ),
 			'node_modules',
@@ -83,7 +96,19 @@ module.exports = {
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: false },
+			DependencyExtractionPlugin: {
+				injectPolyfill: false,
+				// Keep the shared store out of every view bundle: emit a bare
+				// `import 'jetpack-search/store'` and let WordPress resolve it
+				// to the registered Script Module. Returning undefined for
+				// everything else preserves the default `@wordpress/*`
+				// externalization (useDefaults stays on).
+				requestToExternalModule( request ) {
+					if ( request === STORE_MODULE_ID ) {
+						return STORE_MODULE_ID;
+					}
+				},
+			},
 			// I18nLoaderPlugin tries to inject @wordpress/jp-i18n-loader as an
 			// import, which isn't supported by the DependencyExtractionPlugin
 			// in ESM/module output mode. Disable for this build.
