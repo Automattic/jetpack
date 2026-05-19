@@ -43,6 +43,23 @@
 	}
 
 	/**
+	 * Decode HTML entities and strip tags from a WP REST `title.rendered`
+	 * payload (e.g. `Hello&nbsp;World!` or `Foo &amp; <em>bar</em>`) so it
+	 * can be assigned to `textContent` without leaking literal entity
+	 * sequences. Parses via a detached `<div>` so no scripts execute.
+	 *
+	 * @param html
+	 */
+	function decodeTitle( html ) {
+		if ( typeof html !== 'string' || html === '' ) {
+			return '';
+		}
+		const tmp = document.createElement( 'div' );
+		tmp.innerHTML = html;
+		return tmp.textContent || '';
+	}
+
+	/**
 	 * Derive the target plan slug from a Calypso checkout URL so the upgrade
 	 * event can carry which tier the user was offered without us re-deriving
 	 * it from feature flags client-side.
@@ -680,7 +697,7 @@
 			} );
 
 			const title = document.createElement( 'span' );
-			title.textContent = post.title?.rendered || `#${ post.id }`;
+			title.textContent = decodeTitle( post.title?.rendered ) || `#${ post.id }`;
 
 			const date = document.createElement( 'span' );
 			date.className = 'date';
