@@ -75,9 +75,12 @@ class Users_Connection_Admin {
 		}
 
 		if ( ( new Manager() )->is_user_connected( $user_id ) ) {
+			$logo_url = plugins_url( 'connectors/images/jetpack-icon.svg', __FILE__ );
+
 			return sprintf(
-				'<span title="%1$s" class="jetpack-connection-status">%2$s</span>',
+				'<span title="%1$s" class="jetpack-connection-status"><img src="%2$s" alt="" class="jetpack-connection-status__logo" width="16" height="16" decoding="async" loading="lazy" />%3$s</span>',
 				esc_attr__( 'This user has connected their WordPress.com account.', 'jetpack-connection' ),
+				esc_url( $logo_url ),
 				esc_html__( 'Connected', 'jetpack-connection' )
 			);
 		}
@@ -154,6 +157,15 @@ class Users_Connection_Admin {
 			}
 			.column-user_jetpack {
 				width: 140px;
+			}
+			.jetpack-connection-status {
+				display: inline-flex;
+				align-items: center;
+				column-gap: 6px;
+			}
+			.jetpack-connection-status__logo {
+				flex-shrink: 0;
+				display: block;
 			}
 			/* Show tooltip on hover and focus */
 			.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
