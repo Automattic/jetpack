@@ -16,7 +16,11 @@ use WP_Query;
 class Episode_Query {
 
 	/**
-	 * Maximum number of published posts to scan per readiness check.
+	 * Maximum number of published posts to scan per readiness check to keep
+	 * dashboard status calls bounded on large sites while still covering typical
+	 * show catalogs (50 posts/page x 10 pages).
+	 *
+	 * @var int
 	 */
 	private const MAX_POSTS_TO_SCAN = 500;
 
@@ -76,7 +80,7 @@ class Episode_Query {
 			return false;
 		}
 
-		$page         = 1;
+		$page = 1;
 		$scanned_posts = 0;
 		while ( $scanned_posts < self::MAX_POSTS_TO_SCAN ) {
 			$query = new WP_Query(
@@ -101,12 +105,8 @@ class Episode_Query {
 			foreach ( $query->posts as $post ) {
 				++$scanned_posts;
 
-				if ( $post instanceof WP_Post && self::post_has_podcast_media( $post ) ) {
+				if ( self::post_has_podcast_media( $post ) ) {
 					return true;
-				}
-
-				if ( $scanned_posts >= self::MAX_POSTS_TO_SCAN ) {
-					break;
 				}
 			}
 
