@@ -38,6 +38,11 @@ class Customize_Feed {
 		self::$registered = true;
 
 		add_action( 'wp', array( __CLASS__, 'maybe_register_feed_hooks' ) );
+
+		// `the_posts` fires during query execution — before the `wp` action —
+		// so it has to be registered up-front and self-gated to the podcast
+		// feed query, rather than wired conditionally in `maybe_register_feed_hooks`.
+		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
 
 	/**
@@ -67,7 +72,12 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
-		add_filter( 'the_excerpt_rss', array( __CLASS__, 'pass_through_empty_excerpt' ), 1000 );
+
+		// Buffer per-item output so we can rewrite `<media:thumbnail>` /
+		// `<media:content>` URLs (emitted by wpcom upstream of this package)
+		// through Photon — matches the `<itunes:image>` square-cover handling.
+		add_action( 'rss2_item', array( __CLASS__, 'start_item_buffer' ), 1 );
+		add_action( 'rss2_item', array( __CLASS__, 'flush_item_buffer' ), PHP_INT_MAX );
 
 		Feed_Detection::detect_and_record();
 	}
@@ -141,18 +151,11 @@ class Customize_Feed {
 		}
 
 		/**
-		 * Owner contact info. Apple's spec lists `<itunes:owner>` as a recommended
-		 * channel tag and notes both `<itunes:name>` and `<itunes:email>` should
-		 * be included when present — fall back to the site name when no talent
-		 * name is configured so the element is always well-formed.
+		 * Owner contact email
 		 */
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
-			$owner_name = '' !== $author ? $author : wp_strip_all_tags( (string) get_bloginfo( 'name' ) );
-			echo '<itunes:owner>'
-				. '<itunes:name>' . esc_xml( $owner_name ) . '</itunes:name>'
-				. '<itunes:email>' . esc_xml( $email ) . '</itunes:email>'
-				. "</itunes:owner>\n";
+			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
 			echo '<googleplay:owner>' . esc_xml( $email ) . "</googleplay:owner>\n";
 			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
@@ -304,24 +307,71 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Suppress the auto-generated excerpt fallback when the post itself has
-	 * none. WP's default behavior is to derive an excerpt from `post_content`
-	 * via `wp_trim_excerpt`, which produces noise in the podcast feed; users
-	 * expect empty when they didn't write one.
+	 * Drop posts that wouldn't produce an `<enclosure>` from the podcast feed
+	 * loop. A podcast item without an enclosure is invalid per Apple's spec and
+	 * can take down the whole submission. The `enclosure` post meta is what
+	 * WP's `rss_enclosure()` reads to decide whether to emit the tag, so it's
+	 * the authoritative signal for "will this item carry audio?".
 	 *
-	 * Inspect `$post->post_excerpt` directly — `get_the_excerpt()` would have
-	 * already run the auto-generation chain by the time we ask, so it's never
-	 * `''` for any post that has content.
+	 * Self-gated to the main podcast-category feed query because `the_posts`
+	 * fires for every `WP_Query` on the request.
 	 *
-	 * @param string $output Existing excerpt.
-	 * @return string
+	 * @param WP_Post[] $posts Posts about to be looped over.
+	 * @param \WP_Query $query Query that produced them.
+	 * @return WP_Post[]
 	 */
-	public static function pass_through_empty_excerpt( $output ) {
-		global $post;
-		if ( $post instanceof WP_Post && '' === trim( (string) $post->post_excerpt ) ) {
-			return '';
+	public static function filter_posts_with_enclosure( $posts, $query ) {
+		if ( ! is_array( $posts ) || ! $query instanceof \WP_Query ) {
+			return $posts;
 		}
-		return $output;
+		if ( ! $query->is_main_query() || ! $query->is_feed() || ! $query->is_category() ) {
+			return $posts;
+		}
+		$category_id = self::resolve_category_id();
+		if ( 0 === $category_id ) {
+			return $posts;
+		}
+		$queried = $query->get_queried_object();
+		if ( ! $queried || ! isset( $queried->term_id ) || (int) $queried->term_id !== $category_id ) {
+			return $posts;
+		}
+		return array_values(
+			array_filter(
+				$posts,
+				static function ( $post ) {
+					return $post instanceof WP_Post
+						&& ! empty( get_post_meta( $post->ID, 'enclosure', false ) );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Open an output buffer at the top of every `<item>` so `flush_item_buffer`
+	 * can rewrite `<media:*>` URLs before they reach the wire.
+	 */
+	public static function start_item_buffer() {
+		ob_start();
+	}
+
+	/**
+	 * Close the per-item buffer and route every non-gravatar `<media:thumbnail>`
+	 * / `<media:content>` URL through Photon at 3000×3000. Gravatar avatars
+	 * are already appropriately sized and aren't part of the cover-art surface.
+	 */
+	public static function flush_item_buffer() {
+		$output = (string) ob_get_clean();
+		$output = (string) preg_replace_callback(
+			'#(<media:(?:thumbnail|content)\s[^>]*\burl=")([^"]+)(")#i',
+			static function ( array $matches ) {
+				if ( false !== strpos( $matches[2], 'gravatar.com' ) ) {
+					return $matches[0];
+				}
+				return $matches[1] . esc_url( self::maybe_photon( $matches[2] ) ) . $matches[3];
+			},
+			$output
+		);
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered RSS output is already escaped by upstream emitters; only URL attributes are rewritten and re-escaped above.
 	}
 
 	/**
