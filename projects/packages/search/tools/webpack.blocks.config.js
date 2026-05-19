@@ -98,14 +98,18 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: false,
-				// Keep the shared store out of every view bundle: emit a bare
-				// `import 'jetpack-search/store'` and let WordPress resolve it
-				// to the registered Script Module. Returning undefined for
-				// everything else preserves the default `@wordpress/*`
-				// externalization (useDefaults stays on).
+				// Keep the shared store out of every view bundle: emit a
+				// static `import 'jetpack-search/store'` and let WordPress
+				// resolve it to the registered Script Module. The `module `
+				// prefix forces webpack's ESM external type for this request
+				// (DEWP otherwise defaults externals to `import`, which turns
+				// a binding-less side-effect import into an async `import()`
+				// and a forbidden top-level await — `validate-es` rejects it).
+				// Returning undefined for everything else preserves the
+				// default `@wordpress/*` externalization (useDefaults stays on).
 				requestToExternalModule( request ) {
 					if ( request === STORE_MODULE_ID ) {
-						return STORE_MODULE_ID;
+						return `module ${ STORE_MODULE_ID }`;
 					}
 				},
 			},
