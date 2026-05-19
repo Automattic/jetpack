@@ -82,4 +82,13 @@ describe( 'DomEventHandler.handleSubmit', () => {
 
 		expect( preventDefault ).not.toHaveBeenCalled();
 	} );
+
+	it( 'does not intercept form submissions with a malformed action URL', () => {
+		const handler = makeHandler();
+		const event = makeSubmitEvent( 'not-a-valid-url' );
+		handler.handleSubmit( event );
+
+		expect( preventDefault ).not.toHaveBeenCalled();
+		expect( showResults ).not.toHaveBeenCalled();
+	} );
 } );
