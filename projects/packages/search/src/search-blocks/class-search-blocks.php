@@ -108,6 +108,17 @@ class Search_Blocks {
 	private static $supported_custom_taxonomies_cache = null;
 
 	/**
+	 * Cached rendered HTML for the overlay template. Filled during
+	 * `wp_enqueue_scripts` so the embedded blocks' view-module enqueues
+	 * land before `wp_print_import_map()` runs (footer priority 1) — that
+	 * walk is what puts `jetpack-search/store` into the importmap, and
+	 * deferring the render to footer priority 10 misses it.
+	 *
+	 * @var string|null
+	 */
+	private static $block_template_overlay_rendered_html = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -179,6 +190,32 @@ class Search_Blocks {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
+
+		if ( static::is_block_template_overlay_enabled() ) {
+			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
+			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
+		}
+	}
+
+	/**
+	 * Whether the legacy instant-search overlay should be replaced by the
+	 * server-rendered Search blocks template (jetpack-search.html).
+	 *
+	 * Opt-in only — the legacy overlay (`Instant_Search` + `SearchApp`) is the
+	 * default and is fully bypassed when this returns true. Callers must also
+	 * make sure the Search blocks themselves are registered (the package's
+	 * `jetpack_search_blocks_enabled` filter); without them the rendered
+	 * markup would have no hydration counterparts on the page.
+	 *
+	 * @return bool
+	 */
+	public static function is_block_template_overlay_enabled(): bool {
+		/**
+		 * Opt into the experimental Search blocks overlay.
+		 *
+		 * @param bool $enabled Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false );
 	}
 
 	/**
@@ -870,6 +907,172 @@ class Search_Blocks {
 				'content'     => $content,
 			)
 		);
+	}
+
+	/**
+	 * Read the dedicated overlay-template markup (`jetpack-search-overlay.html`).
+	 *
+	 * Distinct from `get_search_template_content()`: that one wraps the
+	 * search blocks inside `header` / `main` / `footer` template-parts so
+	 * the result renders as a full page. The overlay needs only the main
+	 * region — a modal isn't a page — so it ships as its own file rather
+	 * than runtime-stripping the page template's wrappers.
+	 *
+	 * Memoized like the page template: the markup is identical every
+	 * request, so the file read + placeholder substitution happen once
+	 * per process.
+	 *
+	 * @return string Block markup for the overlay body.
+	 */
+	protected static function get_overlay_template_content(): string {
+		static $content = null;
+		if ( null !== $content ) {
+			return $content;
+		}
+		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$content = str_replace(
+			'{{FILTER_HEADING}}',
+			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+			$raw
+		);
+		return $content;
+	}
+
+	/**
+	 * Echo the Search-blocks overlay shell into `wp_footer`.
+	 *
+	 * Server-renders `jetpack-search.html` once per request (template-part
+	 * comments stripped), wraps it in a hidden modal container, and prints
+	 * the result. Block markup carries `data-wp-interactive` directives, so
+	 * the Interactivity API's standard `DOMContentLoaded` hydration picks it
+	 * up — no client-side fetch and no private-API re-hydration needed.
+	 *
+	 * Caller (`init()`) gates this on `is_block_template_overlay_enabled()`,
+	 * so the action isn't even registered when the legacy overlay is in use.
+	 */
+	public static function print_block_template_overlay() {
+		$rendered = self::$block_template_overlay_rendered_html;
+		if ( null === $rendered || '' === $rendered ) {
+			return;
+		}
+		$config = wp_json_encode(
+			array(
+				'searchInputSelector'    => 'input[name="s"]:not(.jetpack-search-input__field), #searchform input.search-field, .search-form input.search-field, .searchform input.search-field',
+				'overlayTriggerSelector' => '.jetpack-search-block-overlay-trigger, .jetpack-instant-search__open-overlay-button, header#site-header .search-toggle[data-toggle-target]',
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+		?>
+		<script id="jetpack-search-block-overlay-config">window.JetpackSearchBlockOverlay=<?php echo $config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode + JSON_HEX_* flags. ?>;</script>
+		<?php
+		// `<template>` keeps `data-wp-interactive` regions out of
+		// `document.querySelectorAll`, so the IA runtime's one-shot
+		// DOMContentLoaded hydration walk skips them; the bootstrap
+		// clones the content into the shell on first open and hydrates
+		// there.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output.
+		printf( '<template id="jetpack-search-block-overlay-template">%s</template>', $rendered );
+		?>
+		<div
+			id="jetpack-search-block-overlay"
+			class="jetpack-search-block-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-label="<?php echo esc_attr__( 'Search', 'jetpack-search-pkg' ); ?>"
+			hidden
+		>
+			<button
+				type="button"
+				class="jetpack-search-block-overlay__close"
+				aria-label="<?php echo esc_attr__( 'Close search', 'jetpack-search-pkg' ); ?>"
+			>&times;</button>
+			<div class="jetpack-search-block-overlay__content"></div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Register + enqueue the overlay-bootstrap Script Module that wires
+	 * theme-defined search triggers (input, form, button) to the rendered
+	 * overlay shell, plus a minimal inline stylesheet for the modal chrome.
+	 * Config (trigger selectors) is emitted alongside the overlay HTML in
+	 * `print_block_template_overlay()` so it's guaranteed to land in the
+	 * page before the deferred module imports it.
+	 */
+	public static function enqueue_block_template_overlay_assets() {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+		$base_path  = Package::get_installed_path() . 'build/search-blocks/overlay-bootstrap/';
+		$asset_file = $base_path . 'index.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+		wp_register_script_module(
+			'jetpack-search/overlay-bootstrap',
+			plugins_url( 'index.js', $base_path . 'index.js' ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? false
+		);
+		wp_enqueue_script_module( 'jetpack-search/overlay-bootstrap' );
+
+		wp_register_style( 'jetpack-search-block-overlay', false, array(), $asset['version'] ?? false );
+		wp_enqueue_style( 'jetpack-search-block-overlay' );
+		wp_add_inline_style( 'jetpack-search-block-overlay', static::block_template_overlay_inline_css() );
+
+		// Render the template content now (during `wp_enqueue_scripts`) so
+		// the view-module enqueues triggered by `do_blocks()` are in place
+		// before the importmap is printed in `wp_footer` priority 1.
+		// `wp_footer` priority 10 (where `print_block_template_overlay`
+		// runs) is too late — the importmap walk has already happened and
+		// `jetpack-search/store` would be missing from it.
+		self::$block_template_overlay_rendered_html = trim(
+			do_blocks( static::get_overlay_template_content() )
+		);
+	}
+
+	/**
+	 * Minimal CSS for the overlay shell. Block-rendered content brings its
+	 * own styling; this only handles the modal chrome (positioning, scrim,
+	 * close button) and the hidden/visible toggle.
+	 *
+	 * @return string
+	 */
+	protected static function block_template_overlay_inline_css(): string {
+		return <<<'CSS'
+.jetpack-search-block-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	background: #fff;
+	overflow-y: auto;
+	padding: 2rem 1.5rem;
+}
+.jetpack-search-block-overlay[hidden] {
+	display: none;
+}
+.jetpack-search-block-overlay__close {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	font-size: 1.75rem;
+	line-height: 1;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+}
+.jetpack-search-block-overlay__content {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+body.jetpack-search-block-overlay-open {
+	overflow: hidden;
+}
+CSS;
 	}
 
 	/**

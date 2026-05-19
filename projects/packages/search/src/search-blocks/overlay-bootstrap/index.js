@@ -1,0 +1,217 @@
+/**
+ * Bootstraps the Search blocks overlay.
+ *
+ * Perf shape: the rendered template lives inside a `<template>` element, whose
+ * `[data-wp-interactive]` regions are invisible to `document.querySelectorAll`
+ * and so are skipped by the IA runtime's DOMContentLoaded hydration walk. On
+ * first open the bootstrap clones the template content into the visible shell
+ * and hydrates the freshly-added regions via `@wordpress/interactivity`'s
+ * `privateApis`. Subsequent opens just toggle the `hidden` attribute.
+ */
+
+const PRIVATE_API_CONSENT =
+	'I acknowledge that using private APIs means my theme or plugin will inevitably break in the next version of WordPress.';
+
+const OVERLAY_ID = 'jetpack-search-block-overlay';
+const TEMPLATE_ID = 'jetpack-search-block-overlay-template';
+const BODY_OPEN_CLASS = 'jetpack-search-block-overlay-open';
+const CONFIG_GLOBAL = 'JetpackSearchBlockOverlay';
+
+const config = ( typeof window !== 'undefined' && window[ CONFIG_GLOBAL ] ) || {};
+const triggerSelector = config.overlayTriggerSelector || '';
+const searchInputSelector = config.searchInputSelector || '';
+
+let lastFocusedTrigger = null;
+let hydrated = false;
+
+/**
+ * Look up the overlay root element by id.
+ *
+ * @return {HTMLElement|null} The overlay root element, if rendered.
+ */
+function getOverlay() {
+	return document.getElementById( OVERLAY_ID );
+}
+
+/**
+ * Whether the overlay is currently visible.
+ *
+ * @param {HTMLElement|null} overlay - The overlay root.
+ * @return {boolean} True if the overlay is rendered and not hidden.
+ */
+function isOpen( overlay ) {
+	return overlay && ! overlay.hasAttribute( 'hidden' );
+}
+
+/**
+ * Move the rendered template content into the overlay shell and hydrate
+ * its Interactivity API regions. Idempotent — runs once, then bails.
+ */
+async function ensureHydrated() {
+	if ( hydrated ) {
+		return;
+	}
+	hydrated = true;
+	const overlay = getOverlay();
+	const template = document.getElementById( TEMPLATE_ID );
+	const content = overlay?.querySelector( '.jetpack-search-block-overlay__content' );
+	if ( ! overlay || ! template || ! content ) {
+		return;
+	}
+	content.appendChild( template.content.cloneNode( true ) );
+
+	// Hydration uses the WP Interactivity API's private surface. There is
+	// no public API for hydrating content inserted after DOMContentLoaded.
+	// If the privateApis contract changes, the catch leaves the overlay
+	// rendered-but-inert rather than crashing the page; the IA store
+	// reading from a static seed already covers initial display.
+	try {
+		const ia = await import( '@wordpress/interactivity' );
+		if ( typeof ia.privateApis !== 'function' ) {
+			return;
+		}
+		const apis = ia.privateApis( PRIVATE_API_CONSENT );
+		if ( typeof apis.render !== 'function' || typeof apis.toVdom !== 'function' ) {
+			return;
+		}
+		const regions = content.querySelectorAll( '[data-wp-interactive]' );
+		for ( const region of regions ) {
+			apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
+		}
+	} catch ( e ) {
+		// eslint-disable-next-line no-console
+		console.warn( '[jetpack-search] overlay hydration failed', e );
+	}
+}
+
+/**
+ * Show the overlay and move focus into it.
+ *
+ * @param {HTMLElement|null} [triggerEl] - Element that opened the overlay; receives focus on close.
+ */
+async function openOverlay( triggerEl ) {
+	const overlay = getOverlay();
+	if ( ! overlay || isOpen( overlay ) ) {
+		return;
+	}
+	lastFocusedTrigger = triggerEl || overlay.ownerDocument?.activeElement || null;
+	await ensureHydrated();
+	overlay.removeAttribute( 'hidden' );
+	document.body.classList.add( BODY_OPEN_CLASS );
+	const input = overlay.querySelector( 'input[type="search"]' );
+	if ( input ) {
+		input.focus();
+	}
+}
+
+/**
+ * Hide the overlay and restore focus to the element that opened it.
+ */
+function closeOverlay() {
+	const overlay = getOverlay();
+	if ( ! overlay || ! isOpen( overlay ) ) {
+		return;
+	}
+	overlay.setAttribute( 'hidden', '' );
+	document.body.classList.remove( BODY_OPEN_CLASS );
+	if ( lastFocusedTrigger && typeof lastFocusedTrigger.focus === 'function' ) {
+		lastFocusedTrigger.focus();
+	}
+	lastFocusedTrigger = null;
+}
+
+/**
+ * Document-level click handler: opens the overlay when a configured trigger is clicked.
+ *
+ * @param {MouseEvent} event - The click event.
+ */
+function handleTriggerClick( event ) {
+	if ( ! triggerSelector ) {
+		return;
+	}
+	const trigger = event.target.closest( triggerSelector );
+	if ( ! trigger ) {
+		return;
+	}
+	const overlay = getOverlay();
+	if ( ! overlay || overlay.contains( trigger ) ) {
+		return;
+	}
+	event.preventDefault();
+	openOverlay( trigger );
+}
+
+/**
+ * Document-level submit handler: intercepts theme search forms and routes them into the overlay.
+ *
+ * @param {SubmitEvent} event - The submit event.
+ */
+async function handleFormSubmit( event ) {
+	if ( ! searchInputSelector ) {
+		return;
+	}
+	const form = event.target;
+	if ( ! ( form instanceof HTMLFormElement ) ) {
+		return;
+	}
+	const overlay = getOverlay();
+	if ( ! overlay || overlay.contains( form ) ) {
+		return;
+	}
+	const sourceInput = form.querySelector( searchInputSelector );
+	if ( ! sourceInput ) {
+		return;
+	}
+	event.preventDefault();
+	await openOverlay( sourceInput );
+	const overlayInput = overlay.querySelector( 'input[type="search"]' );
+	if ( overlayInput ) {
+		overlayInput.value = sourceInput.value || '';
+		overlayInput.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+	}
+}
+
+/**
+ * Document-level keydown handler: closes the overlay on Escape.
+ *
+ * @param {KeyboardEvent} event - The keydown event.
+ */
+function handleKeydown( event ) {
+	if ( event.key !== 'Escape' ) {
+		return;
+	}
+	const overlay = getOverlay();
+	if ( isOpen( overlay ) ) {
+		event.preventDefault();
+		closeOverlay();
+	}
+}
+
+/**
+ * Overlay-scoped click handler: close button + scrim-click dismissal.
+ *
+ * @param {MouseEvent} event - The click event.
+ */
+function handleOverlayClick( event ) {
+	const overlay = getOverlay();
+	if ( ! isOpen( overlay ) ) {
+		return;
+	}
+	if ( event.target.closest( '.jetpack-search-block-overlay__close' ) ) {
+		event.preventDefault();
+		closeOverlay();
+		return;
+	}
+	// Click on the scrim (the overlay root itself, not its inner content) closes.
+	if ( event.target === overlay ) {
+		closeOverlay();
+	}
+}
+
+document.addEventListener( 'click', handleTriggerClick, true );
+document.addEventListener( 'submit', handleFormSubmit, true );
+document.addEventListener( 'keydown', handleKeydown );
+const overlayEl = getOverlay();
+if ( overlayEl ) {
+	overlayEl.addEventListener( 'click', handleOverlayClick );
+}

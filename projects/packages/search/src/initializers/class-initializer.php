@@ -147,6 +147,15 @@ class Initializer {
 		// so their callback runs after this default.
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 		Search_Blocks::init();
+
+		// When the experimental block-template overlay is on, the legacy
+		// instant-search overlay must not boot — both would otherwise own
+		// `?s=`, popstate, and the overlay-trigger selectors. Skipping at
+		// the init filter is cleaner than dequeuing the preact bundle after
+		// it's been enqueued.
+		if ( Search_Blocks::is_block_template_overlay_enabled() ) {
+			add_filter( 'jetpack_search_init_instant_search', '__return_false' );
+		}
 	}
 
 	/**
