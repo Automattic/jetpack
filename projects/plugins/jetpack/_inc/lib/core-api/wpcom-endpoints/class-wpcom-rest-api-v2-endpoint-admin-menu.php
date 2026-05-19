@@ -383,7 +383,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		$site_id = (int) get_current_blog_id();
 		$storage = $this->get_sidebar_layout_storage();
-		// @phan-suppress-next-line PhanUndeclaredMethod -- concrete storage implementations provide get_layouts().
 		$layouts = $storage->get_layouts( $user_id );
 
 		if ( isset( $layouts[ $site_id ] ) && is_array( $layouts[ $site_id ] ) ) {
@@ -399,7 +398,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return object
 	 */
 	private function get_sidebar_layout_storage() {
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- WP_User_Meta_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by class_exists() above.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- WP_User_Meta_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by class_exists() above.
 		$default = new WP_User_Meta_Storage();
 		$bound   = apply_filters( 'wp_admin_sidebar_storage', $default );
 		$bound   = apply_filters_deprecated(
@@ -408,7 +407,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'0.1.0',
 			'wp_admin_sidebar_storage'
 		);
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- Sidebar_Layout_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by interface_exists() above.
+		// @phan-suppress-next-line PhanUndeclaredClassInstanceof -- Sidebar_Layout_Storage is provided by WPCOM's wp-admin-sidebar mu-plugin; guarded by interface_exists() above.
 		return $bound instanceof Sidebar_Layout_Storage ? $bound : $default;
 	}
 
