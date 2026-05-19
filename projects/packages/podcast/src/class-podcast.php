@@ -70,7 +70,7 @@ class Podcast {
 		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
 		Settings::register();
 
-		// Wire the RSS feed customizations (`<itunes:*>`, `<googleplay:*>`,
+		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 

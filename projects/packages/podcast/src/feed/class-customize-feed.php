@@ -15,7 +15,7 @@ use WP_Post;
 
 /**
  * Hooks into RSS2 rendering when the current request is the podcast category
- * feed, adding `<itunes:*>` / `<googleplay:*>` tags at channel and item level
+ * feed, adding `<itunes:*>` + `<podcast:*>` tags at channel and item level
  * and rewriting `<enclosure>` URLs through the WPCOM stats endpoint.
  */
 class Customize_Feed {
@@ -77,11 +77,10 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Add iTunes + Google Play + Podcasting 2.0 XML namespaces to the `<rss>` open tag.
+	 * Add iTunes and Podcasting 2.0 XML namespaces to the `<rss>` open tag.
 	 */
 	public static function output_namespaces() {
 		echo "\n\t" . 'xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"' . "\n";
-		echo "\t" . 'xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"' . "\n";
 		echo "\t" . 'xmlns:podcast="https://podcastindex.org/namespace/1.0"' . "\n";
 	}
 
@@ -130,20 +129,16 @@ class Customize_Feed {
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
 		$author = (string) get_option( 'podcasting_talent_name', '' );
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
 			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
-			echo '<googleplay:owner>' . esc_xml( $email ) . "</googleplay:owner>\n";
-			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
 
 		$copyright = (string) get_option( 'podcasting_copyright', '' );
@@ -151,14 +146,14 @@ class Customize_Feed {
 			echo '<copyright>' . esc_xml( wp_strip_all_tags( $copyright ) ) . "</copyright>\n";
 		}
 
-		$explicit = self::explicit_string();
-		echo '<itunes:explicit>' . esc_html( $explicit ) . "</itunes:explicit>\n";
-		echo '<googleplay:explicit>' . esc_html( $explicit ) . "</googleplay:explicit>\n";
+		/**
+		 * Explicit content flag
+		 */
+		echo '<itunes:explicit>' . esc_html( self::explicit_string() ) . "</itunes:explicit>\n";
 
 		$image = self::show_image_url();
 		if ( '' !== $image ) {
-			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
-			echo "<googleplay:image href='" . esc_url( $image ) . "' />\n";
+			echo '<itunes:image href="' . esc_url( $image ) . '" />' . "\n";
 		}
 
 		echo self::category_tag( (string) get_option( 'podcasting_category_1', '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped XML fragment.
@@ -182,17 +177,6 @@ class Customize_Feed {
 		}
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
-		}
-
-		// Per Apple / Google Play spec, the channel-level `<itunes:explicit>`
-		// applies to every item by default. We don't store a per-episode
-		// override, so emitting it here would just be redundant XML.
-
-		$episode_image = self::episode_image_url( $post->ID );
-		if ( '' !== $episode_image ) {
-			echo "<itunes:image href='" . esc_url( $episode_image ) . "' />\n";
-			echo "<googleplay:image href='" . esc_url( $episode_image ) . "' />\n";
 		}
 
 		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
@@ -201,39 +185,25 @@ class Customize_Feed {
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</googleplay:description>\n";
 		}
 
-		$episode_attrs = self::episode_block_attrs( $post );
-		$chapters_url  = isset( $episode_attrs['chaptersUrl'] ) ? (string) $episode_attrs['chaptersUrl'] : '';
-		if ( '' !== $chapters_url ) {
-			$chapters_type = isset( $episode_attrs['chaptersType'] ) ? (string) $episode_attrs['chaptersType'] : 'application/json+chapters';
-			echo '<podcast:chapters url="' . esc_url( $chapters_url ) . '" type="' . esc_attr( $chapters_type ) . "\" />\n";
+		// Per-item cover art: prefer the block's `coverArt`, fall back to the
+		// post's featured image. Either way, photon-resize to 3000×3000 to
+		// honour Apple's square-cover requirement. When neither is present
+		// the channel-level `<itunes:image>` applies as default per spec.
+		$attrs      = Episode_Block_Tags::get_block_attrs( $post );
+		$cover_url  = isset( $attrs['coverArt']['url'] ) ? trim( (string) $attrs['coverArt']['url'] ) : '';
+		$item_image = '' !== $cover_url ? self::maybe_photon( $cover_url ) : self::episode_image_url( $post->ID );
+		if ( '' !== $item_image ) {
+			echo '<itunes:image href="' . esc_url( $item_image ) . '" />' . "\n";
 		}
-	}
 
-	/**
-	 * Read the attributes of the first `jetpack/podcast-episode` block on a post.
-	 * Returns an empty array when the post has no episode block or the block has
-	 * no attributes. Lightweight stand-in for the helper introduced by PR 2 — when
-	 * that lands, callers can route through the shared version instead.
-	 *
-	 * @param WP_Post $post Episode post.
-	 * @return array<string, mixed>
-	 */
-	private static function episode_block_attrs( WP_Post $post ): array {
-		// `strpos` precheck keeps the non-episode case (every non-podcast post) cheap;
-		// `parse_blocks()` is only walked for posts that actually contain the block.
-		if ( false === strpos( $post->post_content, '<!-- wp:jetpack/podcast-episode' ) ) {
-			return array();
+		// Block-driven iTunes + Podcasting 2.0 tags. Legacy audio posts
+		// without the block contribute nothing — they keep their pre-block
+		// behavior intact aside from the cover art handled above.
+		if ( ! empty( $attrs ) ) {
+			Episode_Block_Tags::render_from_attrs( $attrs );
 		}
-		$blocks = parse_blocks( $post->post_content );
-		foreach ( $blocks as $block ) {
-			if ( isset( $block['blockName'] ) && 'jetpack/podcast-episode' === $block['blockName'] ) {
-				return is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
-			}
-		}
-		return array();
 	}
 
 	/**
@@ -344,7 +314,7 @@ class Customize_Feed {
 
 	/**
 	 * Stored explicit value, normalized to the `'true'`/`'false'` strings the
-	 * iTunes / Google Play specs require. Reuses `Settings::sanitize_explicit`
+	 * iTunes spec requires. Reuses `Settings::sanitize_explicit`
 	 * so legacy `'yes'`/`'no'`/`'clean'` and modern boolean storage both work.
 	 *
 	 * @return string
@@ -427,7 +397,9 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Episode-level image URL — the post's featured image, or `''` if none.
+	 * Episode-level image URL — the post's featured image, Photon-resized,
+	 * or `''` when no featured image is set. Used as the fallback per-item
+	 * cover when the block doesn't supply its own.
 	 *
 	 * @param int $post_id Episode post ID.
 	 * @return string
@@ -452,7 +424,7 @@ class Customize_Feed {
 	 * @param string $url Image URL.
 	 * @return string
 	 */
-	private static function maybe_photon( string $url ): string {
+	public static function maybe_photon( string $url ): string {
 		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return $url;
 		}
@@ -492,10 +464,10 @@ class Customize_Feed {
 		// well-formed XML after esc_attr().
 		$splits = explode( ',', $category );
 		if ( 2 === count( $splits ) ) {
-			return "<itunes:category text='" . ent2ncr( esc_attr( $splits[0] ) ) . "'>\n"
-				. "\t<itunes:category text='" . ent2ncr( esc_attr( $splits[1] ) ) . "' />\n"
+			return '<itunes:category text="' . ent2ncr( esc_attr( $splits[0] ) ) . '">' . "\n"
+				. "\t" . '<itunes:category text="' . ent2ncr( esc_attr( $splits[1] ) ) . '" />' . "\n"
 				. "</itunes:category>\n";
 		}
-		return "<itunes:category text='" . ent2ncr( esc_attr( $category ) ) . "' />\n";
+		return '<itunes:category text="' . ent2ncr( esc_attr( $category ) ) . '" />' . "\n";
 	}
 }
