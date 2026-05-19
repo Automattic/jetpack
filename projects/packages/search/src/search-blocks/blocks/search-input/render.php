@@ -79,6 +79,7 @@ $context_json = $enable_suggestions
 			<?php if ( $enable_suggestions ) : ?>
 			role="combobox"
 			aria-autocomplete="list"
+			aria-haspopup="listbox"
 			aria-controls="<?php echo esc_attr( $listbox_id ); ?>"
 			data-suggestions-enabled="true"
 			data-wp-bind--aria-expanded="context.showSuggestions"
