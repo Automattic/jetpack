@@ -49,13 +49,6 @@ class Sitemaps_Abilities extends Registrar {
 	private const STATE_LOCK_TRANSIENT = 'jetpack-sitemap-state-lock';
 
 	/**
-	 * Option written by the sitemap state machine. Used to derive
-	 * `last_build_at` from the master sitemap's `lastmod` projection without
-	 * touching the librarian / wp_posts.
-	 */
-	private const STATE_OPTION = 'jetpack-sitemap-state';
-
-	/**
 	 * {@inheritDoc}
 	 *
 	 * Sitemaps abilities live under the WordPress core `site` category — it is
@@ -94,7 +87,7 @@ class Sitemaps_Abilities extends Registrar {
 		return array(
 			'jetpack-sitemaps/get-status'      => array(
 				'label'               => __( 'Get Jetpack Sitemaps status', 'jetpack' ),
-				'description'         => __( 'Return the current state of the Jetpack-generated XML sitemaps as { active, url, last_build_at, post_count, page_count, news_sitemap_enabled, master_sitemap_url, last_error }. `active` reflects whether the Sitemaps module is on. `url` and `master_sitemap_url` both point at the public sitemap.xml entry point (kept as separate keys for forward-compatibility with per-type URLs). `last_build_at` is the most recent master-sitemap timestamp in "YYYY-MM-DD HH:mm:ss" UTC format, or null when no master sitemap has been generated yet. `news_sitemap_enabled` reflects the `jetpack_news_sitemap_include_in_robotstxt` filter (default true). `last_error` is currently always null — the module does not surface a structured error log; the field is reserved for forward compatibility. These abilities are only registered while the Sitemaps module is active; if they are absent from wp_get_abilities(), activate the Sitemaps module first.', 'jetpack' ),
+				'description'         => __( 'Return the current state of the Jetpack-generated XML sitemaps as { active, url, post_count, page_count, news_sitemap_enabled, sitemaps }. `active` reflects whether the Sitemaps module is on. `url` is the public sitemap.xml entry point. `post_count` / `page_count` are the published `post` / `page` counts (the same baseline the WordPress core sitemap uses). `news_sitemap_enabled` reflects the `jetpack_news_sitemap_include_in_robotstxt` filter (default true). `sitemaps` is the list of child sitemaps actually present in the served sitemap.xml index — each entry is `{ loc, lastmod }`, where `lastmod` is the W3C datetime string the sitemap exposes (or null when that entry omits one). `sitemaps` is an empty array until a master sitemap has been generated. These abilities are only registered while the Sitemaps module is active; if they are absent from wp_get_abilities(), activate the Sitemaps module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -104,12 +97,19 @@ class Sitemaps_Abilities extends Registrar {
 					'properties' => array(
 						'active'               => array( 'type' => 'boolean' ),
 						'url'                  => array( 'type' => 'string' ),
-						'last_build_at'        => array( 'type' => array( 'string', 'null' ) ),
 						'post_count'           => array( 'type' => 'integer' ),
 						'page_count'           => array( 'type' => 'integer' ),
 						'news_sitemap_enabled' => array( 'type' => 'boolean' ),
-						'master_sitemap_url'   => array( 'type' => 'string' ),
-						'last_error'           => array( 'type' => array( 'string', 'null' ) ),
+						'sitemaps'             => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'       => 'object',
+								'properties' => array(
+									'loc'     => array( 'type' => 'string' ),
+									'lastmod' => array( 'type' => array( 'string', 'null' ) ),
+								),
+							),
+						),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'get_status' ),
@@ -181,34 +181,27 @@ class Sitemaps_Abilities extends Registrar {
 	 *
 	 * Surfaces an opinionated, agent-friendly projection of the module's state:
 	 * - `active` from `Jetpack::is_module_active`.
-	 * - `url` / `master_sitemap_url` from `jetpack_sitemap_uri()`, the same
-	 *   helper the public sitemap router uses.
-	 * - `last_build_at` from `jetpack-sitemap-state.max[JP_MASTER_SITEMAP_TYPE].lastmod`,
-	 *   the state machine's own projection — null until the first master
-	 *   sitemap completes.
+	 * - `url` from `jetpack_sitemap_uri()`, the same helper the public sitemap
+	 *   router uses.
 	 * - `post_count` / `page_count` from `wp_count_posts()->publish`, the
 	 *   same baseline used by the WordPress core sitemap. Cheap; no joins.
 	 * - `news_sitemap_enabled` from the `jetpack_news_sitemap_include_in_robotstxt`
 	 *   filter (the same filter that controls news-sitemap robots.txt inclusion).
-	 * - `last_error` always null for now; reserved for forward compatibility
-	 *   when the module starts tracking a structured error log.
+	 * - `sitemaps` from the served master sitemap document itself (see
+	 *   `get_sitemap_entries()`) — the real child-sitemap list with each
+	 *   entry's own `lastmod`, rather than a synthetic last-build timestamp.
 	 *
 	 * @param array|null $input Ability input (no parameters accepted).
 	 * @return array
 	 */
 	public static function get_status( $input = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
-		$active             = Jetpack::is_module_active( self::MODULE_SLUG );
-		$master_sitemap_url = static::get_master_sitemap_url();
-
 		return array(
-			'active'               => $active,
-			'url'                  => $master_sitemap_url,
-			'last_build_at'        => static::get_last_build_at(),
+			'active'               => Jetpack::is_module_active( self::MODULE_SLUG ),
+			'url'                  => static::get_master_sitemap_url(),
 			'post_count'           => static::count_published( 'post' ),
 			'page_count'           => static::count_published( 'page' ),
 			'news_sitemap_enabled' => static::is_news_sitemap_enabled(),
-			'master_sitemap_url'   => $master_sitemap_url,
-			'last_error'           => null,
+			'sitemaps'             => static::get_sitemap_entries(),
 		);
 	}
 
@@ -270,36 +263,89 @@ class Sitemaps_Abilities extends Registrar {
 	}
 
 	/**
-	 * Most recent master-sitemap timestamp from the state machine's
-	 * `max[JP_MASTER_SITEMAP_TYPE].lastmod` projection, or null when no
-	 * master sitemap has been completed yet.
+	 * Raw master-sitemap XML — the exact document the public `sitemap.xml`
+	 * router serves, read straight from storage via the librarian (no HTTP
+	 * loopback). Returns an empty string when no master sitemap has been
+	 * generated yet, or when the Sitemaps module helpers are unavailable.
 	 *
-	 * @return string|null
+	 * Extracted as a protected seam so tests can feed a known document without
+	 * a librarian / wp_posts.
 	 */
-	protected static function get_last_build_at() {
-		$state = get_option( self::STATE_OPTION );
-		if ( ! is_array( $state ) || empty( $state['max'] ) || ! is_array( $state['max'] ) ) {
-			return null;
+	protected static function get_master_sitemap_xml(): string {
+		if (
+			! class_exists( 'Jetpack_Sitemap_Librarian' )
+			|| ! function_exists( 'jp_sitemap_filename' )
+			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+		) {
+			return '';
 		}
 
-		$master_type = defined( 'JP_MASTER_SITEMAP_TYPE' ) ? JP_MASTER_SITEMAP_TYPE : 'jp_sitemap_master';
-		if ( empty( $state['max'][ $master_type ] ) || ! is_array( $state['max'][ $master_type ] ) ) {
-			return null;
+		$librarian = new \Jetpack_Sitemap_Librarian();
+
+		return (string) $librarian->get_sitemap_text(
+			\jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+			JP_MASTER_SITEMAP_TYPE
+		);
+	}
+
+	/**
+	 * The child-sitemap entries actually present in the served master
+	 * sitemap, as a list of `[ 'loc' => string, 'lastmod' => string|null ]`.
+	 *
+	 * Parses the same `<sitemapindex>` document `sitemap.xml` serves rather
+	 * than deriving freshness from the `jetpack-sitemap-state` option: that
+	 * option can read its initial/reset shape (no `max` projection) even while
+	 * a fully-built sitemap.xml is being served, so it is not a reliable
+	 * "what does the sitemap actually contain" source.
+	 *
+	 * Returns an empty array when no master sitemap exists yet or the stored
+	 * document does not parse.
+	 *
+	 * @return array<int, array{loc:string, lastmod:string|null}>
+	 */
+	protected static function get_sitemap_entries(): array {
+		$xml = static::get_master_sitemap_xml();
+		if ( '' === $xml ) {
+			return array();
 		}
 
-		$lastmod = $state['max'][ $master_type ]['lastmod'] ?? null;
-		if ( ! is_string( $lastmod ) || '' === $lastmod ) {
-			return null;
+		$previous = libxml_use_internal_errors( true );
+		$document = new \DOMDocument();
+		// Source is Jetpack's own stored sitemap (not user input) and PHP 8+
+		// disables external-entity loading by default; LIBXML_NONET is belt-
+		// and-suspenders against any network/entity fetch during parsing.
+		$loaded = $document->loadXML( $xml, LIBXML_NONET );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+
+		if ( ! $loaded ) {
+			return array();
 		}
 
-		// `Jetpack_Sitemap_State::initial()` seeds `last-modified` to the unix
-		// epoch as a sentinel for "never". Surface that as null here so agents
-		// don't misread the epoch as a real timestamp.
-		if ( '1970-01-01 00:00:00' === $lastmod ) {
-			return null;
+		$entries = array();
+		foreach ( $document->getElementsByTagName( 'sitemap' ) as $sitemap_node ) {
+			$loc_nodes = $sitemap_node->getElementsByTagName( 'loc' );
+			if ( 0 === $loc_nodes->length ) {
+				continue;
+			}
+
+			$loc = trim( $loc_nodes->item( 0 )->textContent );
+			if ( '' === $loc ) {
+				continue;
+			}
+
+			$lastmod_nodes = $sitemap_node->getElementsByTagName( 'lastmod' );
+			$lastmod       = $lastmod_nodes->length > 0
+				? trim( $lastmod_nodes->item( 0 )->textContent )
+				: '';
+
+			$entries[] = array(
+				'loc'     => $loc,
+				'lastmod' => '' === $lastmod ? null : $lastmod,
+			);
 		}
 
-		return $lastmod;
+		return $entries;
 	}
 
 	/**

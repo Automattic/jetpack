@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sitemaps abilities: simplify get-status output — drop the duplicate master_sitemap_url and the reserved last_error, replace the state-derived last_build_at with a `sitemaps` list reflecting the child sitemaps actually present in the served sitemap.xml (each with its own lastmod)

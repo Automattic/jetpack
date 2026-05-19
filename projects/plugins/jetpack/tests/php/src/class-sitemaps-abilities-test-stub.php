@@ -1,8 +1,9 @@
 <?php
 /**
  * Test-only subclass of Sitemaps_Abilities that overrides the protected seams
- * (master sitemap URL, post counts) so the success path can be exercised
- * without a real permalink/rewrite stack or `wp_count_posts()` factory data.
+ * (master sitemap URL, raw master sitemap XML, post counts) so the success
+ * path can be exercised without a real permalink/rewrite stack, a stored
+ * sitemap, or a `wp_count_posts()` factory.
  *
  * Tests for the dispatch / lock / cron logic do NOT need this stub — they
  * exercise the real `Sitemaps_Abilities::request_rebuild()` and assert on
@@ -17,10 +18,8 @@ use Automattic\Jetpack\Plugin\Abilities\Sitemaps_Abilities;
  * Test-only subclass overriding Sitemaps_Abilities's protected seams.
  *
  * - get_master_sitemap_url(): returns the seeded URL.
- * - get_last_build_at(): returns the seeded timestamp or, when null, falls
- *   through to the parent implementation (so tests that set the
- *   `jetpack-sitemap-state` option directly still exercise the real
- *   derivation logic).
+ * - get_master_sitemap_xml(): returns the seeded raw master-sitemap XML, so
+ *   the real `get_sitemap_entries()` parser runs against a known document.
  * - count_published(): returns counts from the seeded map.
  */
 class Sitemaps_Abilities_Test_Stub extends Sitemaps_Abilities {
@@ -33,13 +32,13 @@ class Sitemaps_Abilities_Test_Stub extends Sitemaps_Abilities {
 	public static $master_sitemap_url = '';
 
 	/**
-	 * Seeded last build timestamp. When null, the parent implementation runs
-	 * so tests can exercise the real `jetpack-sitemap-state` derivation by
-	 * just seeding the option.
+	 * Seeded raw master-sitemap XML. The real `get_sitemap_entries()` parser
+	 * runs against this so parsing logic is covered by the same tests that
+	 * cover the status projection.
 	 *
-	 * @var string|null
+	 * @var string
 	 */
-	public static $last_build_at = null;
+	public static $master_sitemap_xml = '';
 
 	/**
 	 * Seeded post-type → published-count map. Missing keys return 0.
@@ -53,17 +52,17 @@ class Sitemaps_Abilities_Test_Stub extends Sitemaps_Abilities {
 	 */
 	public static function reset(): void {
 		self::$master_sitemap_url = '';
-		self::$last_build_at      = null;
+		self::$master_sitemap_xml = '';
 		self::$counts             = array();
 	}
 
 	/**
-	 * Expose the parent's `get_last_build_at()` for direct unit tests.
+	 * Expose the parent's `get_sitemap_entries()` parser for direct unit tests.
 	 *
-	 * @return string|null
+	 * @return array<int, array{loc:string, lastmod:string|null}>
 	 */
-	public static function call_get_last_build_at() {
-		return parent::get_last_build_at();
+	public static function call_get_sitemap_entries(): array {
+		return parent::get_sitemap_entries();
 	}
 
 	/**
@@ -74,16 +73,10 @@ class Sitemaps_Abilities_Test_Stub extends Sitemaps_Abilities {
 	}
 
 	/**
-	 * Return the seeded timestamp, or fall through to the real implementation
-	 * when no override is set.
-	 *
-	 * @return string|null
+	 * Return the seeded raw master-sitemap XML instead of reading the librarian.
 	 */
-	protected static function get_last_build_at() {
-		if ( null !== self::$last_build_at ) {
-			return self::$last_build_at;
-		}
-		return parent::get_last_build_at();
+	protected static function get_master_sitemap_xml(): string {
+		return self::$master_sitemap_xml;
 	}
 
 	/**

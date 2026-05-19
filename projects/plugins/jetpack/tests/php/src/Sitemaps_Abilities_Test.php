@@ -48,6 +48,15 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Defensive isolation: cron events / sitemap state can leak across
+		// tests within a shared process if a prior test's tear_down did not
+		// run (fatal/out-of-order). Mirror tear_down's cleanup at the start of
+		// every test so request_rebuild assertions on wp_next_scheduled()
+		// start from a known-empty state regardless of run order.
+		delete_transient( 'jetpack-sitemap-state-lock' );
+		delete_option( 'jetpack-sitemap-state' );
+		wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );
+
 		$this->admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'sitemaps_abilities_admin_' . wp_generate_password( 8, false, false ),
@@ -378,8 +387,8 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 	 */
 
 	/**
-	 * Module inactive: returns the full shape with `active=false` and
-	 * `last_build_at=null`. Status reads are not gated on the module — agents
+	 * Module inactive: returns the simplified shape with `active=false` and an
+	 * empty `sitemaps` list. Status reads are not gated on the module — agents
 	 * should be able to see "sitemaps are off" without an error.
 	 */
 	public function test_get_status_returns_inactive_when_module_off() {
@@ -392,25 +401,29 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertFalse( $result['active'] );
 		$this->assertSame( 'https://example.test/sitemap.xml', $result['url'] );
-		$this->assertSame( 'https://example.test/sitemap.xml', $result['master_sitemap_url'] );
-		$this->assertNull( $result['last_build_at'] );
 		$this->assertSame( 0, $result['post_count'] );
 		$this->assertSame( 0, $result['page_count'] );
 		$this->assertTrue( $result['news_sitemap_enabled'] );
-		$this->assertNull( $result['last_error'] );
+		$this->assertSame( array(), $result['sitemaps'] );
+
+		// Simplified shape: no URL duplication, no synthetic last-build
+		// scalar, no reserved-but-always-null error field.
+		$this->assertArrayNotHasKey( 'master_sitemap_url', $result );
+		$this->assertArrayNotHasKey( 'last_build_at', $result );
+		$this->assertArrayNotHasKey( 'last_error', $result );
 	}
 
 	/**
-	 * Happy path: module active, state machine has recorded a master-sitemap
-	 * timestamp, counts come back from the wp_count_posts seam, and the news
-	 * filter is left at its default-true.
+	 * Happy path: module active, a master sitemap exists, and `sitemaps`
+	 * reflects the child-sitemap entries actually present in the served
+	 * sitemap.xml (loc + lastmod), parsed from the stored master.
 	 */
 	public function test_get_status_returns_full_shape_when_module_active() {
 		wp_set_current_user( $this->admin_id );
 		$this->activate_sitemaps_module();
 
 		Sitemaps_Abilities_Test_Stub::$master_sitemap_url = 'https://example.test/sitemap.xml';
-		Sitemaps_Abilities_Test_Stub::$last_build_at      = '2026-01-15 12:34:56';
+		Sitemaps_Abilities_Test_Stub::$master_sitemap_xml = self::sample_sitemapindex();
 		Sitemaps_Abilities_Test_Stub::$counts             = array(
 			'post' => 42,
 			'page' => 7,
@@ -420,11 +433,23 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['active'] );
-		$this->assertSame( '2026-01-15 12:34:56', $result['last_build_at'] );
+		$this->assertSame( 'https://example.test/sitemap.xml', $result['url'] );
 		$this->assertSame( 42, $result['post_count'] );
 		$this->assertSame( 7, $result['page_count'] );
 		$this->assertTrue( $result['news_sitemap_enabled'] );
-		$this->assertNull( $result['last_error'] );
+		$this->assertSame(
+			array(
+				array(
+					'loc'     => 'https://example.test/sitemap-1.xml',
+					'lastmod' => '2026-04-19T14:09:16Z',
+				),
+				array(
+					'loc'     => 'https://example.test/image-sitemap-1.xml',
+					'lastmod' => '2026-03-19T14:48:36Z',
+				),
+			),
+			$result['sitemaps']
+		);
 	}
 
 	/**
@@ -443,46 +468,70 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * `last_build_at` derivation from `jetpack-sitemap-state`: the state
-	 * machine seeds `lastmod` to the epoch sentinel when nothing has been
-	 * built yet, and we must surface that as null (not a real-looking
-	 * timestamp).
+	 * Section: get_sitemap_entries — reflect the real served sitemap.xml
+	 *
+	 * `get-status` surfaces the child-sitemap entries actually present in the
+	 * stored master sitemap (the same document the public sitemap.xml router
+	 * serves), rather than a synthetic last-build timestamp derived from the
+	 * `jetpack-sitemap-state` option (which reads null even while a real
+	 * sitemap.xml is being served).
 	 */
-	public function test_get_last_build_at_returns_null_for_epoch_sentinel() {
-		update_option(
-			'jetpack-sitemap-state',
-			array(
-				'max' => array(
-					'jp_sitemap_master' => array(
-						'number'  => 0,
-						'lastmod' => '1970-01-01 00:00:00',
-					),
-				),
-			)
-		);
+	public function test_get_sitemap_entries_parses_sitemapindex() {
+		Sitemaps_Abilities_Test_Stub::$master_sitemap_xml = self::sample_sitemapindex();
 
-		$this->assertNull( Sitemaps_Abilities_Test_Stub::call_get_last_build_at() );
+		$this->assertSame(
+			array(
+				array(
+					'loc'     => 'https://example.test/sitemap-1.xml',
+					'lastmod' => '2026-04-19T14:09:16Z',
+				),
+				array(
+					'loc'     => 'https://example.test/image-sitemap-1.xml',
+					'lastmod' => '2026-03-19T14:48:36Z',
+				),
+			),
+			Sitemaps_Abilities_Test_Stub::call_get_sitemap_entries()
+		);
 	}
 
-	public function test_get_last_build_at_returns_state_machine_timestamp() {
-		update_option(
-			'jetpack-sitemap-state',
-			array(
-				'max' => array(
-					'jp_sitemap_master' => array(
-						'number'  => 3,
-						'lastmod' => '2026-02-01 03:14:15',
-					),
-				),
-			)
-		);
-
-		$this->assertSame( '2026-02-01 03:14:15', Sitemaps_Abilities_Test_Stub::call_get_last_build_at() );
+	public function test_get_sitemap_entries_returns_empty_array_when_no_master() {
+		Sitemaps_Abilities_Test_Stub::$master_sitemap_xml = '';
+		$this->assertSame( array(), Sitemaps_Abilities_Test_Stub::call_get_sitemap_entries() );
 	}
 
-	public function test_get_last_build_at_returns_null_when_state_option_missing() {
-		// No option seeded — fresh install, no builds ever.
-		$this->assertNull( Sitemaps_Abilities_Test_Stub::call_get_last_build_at() );
+	public function test_get_sitemap_entries_returns_empty_array_for_malformed_xml() {
+		Sitemaps_Abilities_Test_Stub::$master_sitemap_xml = '<sitemapindex><sitemap><loc>broken';
+		$this->assertSame( array(), Sitemaps_Abilities_Test_Stub::call_get_sitemap_entries() );
+	}
+
+	public function test_get_sitemap_entries_tolerates_missing_lastmod() {
+		Sitemaps_Abilities_Test_Stub::$master_sitemap_xml =
+			'<?xml version="1.0" encoding="UTF-8"?>'
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+			. '<sitemap><loc>https://example.test/sitemap-1.xml</loc></sitemap>'
+			. '</sitemapindex>';
+
+		$this->assertSame(
+			array(
+				array(
+					'loc'     => 'https://example.test/sitemap-1.xml',
+					'lastmod' => null,
+				),
+			),
+			Sitemaps_Abilities_Test_Stub::call_get_sitemap_entries()
+		);
+	}
+
+	/**
+	 * Two-entry sitemapindex fixture mirroring the real master sitemap shape
+	 * (default sitemaps.org namespace, loc + lastmod per child).
+	 */
+	private static function sample_sitemapindex(): string {
+		return '<?xml version="1.0" encoding="UTF-8"?>'
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+			. '<sitemap><loc>https://example.test/sitemap-1.xml</loc><lastmod>2026-04-19T14:09:16Z</lastmod></sitemap>'
+			. '<sitemap><loc>https://example.test/image-sitemap-1.xml</loc><lastmod>2026-03-19T14:48:36Z</lastmod></sitemap>'
+			. '</sitemapindex>';
 	}
 
 	/**
