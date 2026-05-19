@@ -370,6 +370,10 @@ class Tracks {
 	 * @param int $current_post_id Post being published (excluded from the check).
 	 */
 	private static function is_first_episode_for_site( int $category_id, int $current_post_id ): bool {
+		if ( get_option( 'podcast_show_launched_tracked', false ) ) {
+			return false;
+		}
+
 		return ! Episode_Query::has_published_episode( $category_id, $current_post_id );
 	}
 

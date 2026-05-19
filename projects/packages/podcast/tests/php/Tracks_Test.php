@@ -253,6 +253,34 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcast_show_launched' ) );
 	}
 
+	public function test_first_episode_is_false_when_show_launch_already_tracked() {
+		$cat_id = $this->configure_podcast_category();
+		$post   = $this->insert_post_in_category( $cat_id );
+
+		update_option( 'podcast_show_launched_tracked', time(), false );
+
+		$query_ran = false;
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( &$query_ran ) {
+				if ( 'post' === $query->get( 'post_type' ) ) {
+					$query_ran = true;
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		Tracks::record_episode_published( $post->ID, $post, false, null );
+
+		$events = $this->events_named( 'wpcom_podcast_episode_published' );
+		$this->assertCount( 1, $events );
+		$this->assertFalse( $events[0]['properties']['is_first_episode_for_site'] );
+		$this->assertFalse( $query_ran );
+		$this->assertEmpty( $this->events_named( 'wpcom_podcast_show_launched' ) );
+	}
+
 	public function test_media_uploaded_emits_for_audio_when_podcasting_enabled() {
 		$this->configure_podcast_category();
 
