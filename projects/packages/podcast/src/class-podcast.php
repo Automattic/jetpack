@@ -68,7 +68,10 @@ class Podcast {
 
 		Tracks::init();
 
-		if ( is_admin() || self::is_rest_request() ) {
+		// `class_exists()` guards a mid-deploy window where the loader (this
+		// file) may land before `class-podcast-status-endpoint.php` on
+		// non-atomic deploys.
+		if ( ( is_admin() || self::is_rest_request() ) && class_exists( Podcast_Status_Endpoint::class ) ) {
 			Podcast_Status_Endpoint::init();
 		}
 

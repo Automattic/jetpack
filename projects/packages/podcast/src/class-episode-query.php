@@ -16,6 +16,22 @@ use WP_Query;
 class Episode_Query {
 
 	/**
+	 * Batch size for each query page during episode scans.
+	 *
+	 * @var int
+	 */
+	private const POSTS_PER_PAGE = 50;
+
+	/**
+	 * Maximum number of published posts to scan per readiness check to keep
+	 * dashboard status calls bounded on large sites while still covering typical
+	 * show catalogs (self::POSTS_PER_PAGE x 10 pages).
+	 *
+	 * @var int
+	 */
+	private const MAX_POSTS_TO_SCAN = 500;
+
+	/**
 	 * Whether a post carries supported podcast media.
 	 *
 	 * @param WP_Post $post Post being checked.
@@ -23,9 +39,7 @@ class Episode_Query {
 	public static function post_has_podcast_media( WP_Post $post ): bool {
 		return self::has_podcast_episode_block_media( $post )
 			|| has_block( 'core/audio', $post )
-			|| has_block( 'core/video', $post )
-			|| ! empty( get_attached_media( 'audio', $post->ID ) )
-			|| ! empty( get_attached_media( 'video', $post->ID ) );
+			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
 
 	/**
@@ -45,8 +59,9 @@ class Episode_Query {
 	private static function blocks_have_podcast_episode_media( array $blocks ): bool {
 		foreach ( $blocks as $block ) {
 			if (
-				isset( $block['blockName'], $block['attrs']['mediaUrl'] ) &&
+				isset( $block['blockName'] ) &&
 				'jetpack/podcast-episode' === $block['blockName'] &&
+				isset( $block['attrs']['mediaUrl'] ) &&
 				is_string( $block['attrs']['mediaUrl'] ) &&
 				'' !== trim( $block['attrs']['mediaUrl'] )
 			) {
@@ -73,33 +88,39 @@ class Episode_Query {
 		}
 
 		$page = 1;
-		do {
+		$scanned_posts = 0;
+		while ( $scanned_posts < self::MAX_POSTS_TO_SCAN ) {
+			$posts_per_page = min( self::POSTS_PER_PAGE, self::MAX_POSTS_TO_SCAN - $scanned_posts );
+
 			$query = new WP_Query(
 				array(
 					'post_status'            => 'publish',
 					'post_type'              => 'post',
 					'cat'                    => $category_id,
 					'post__not_in'           => $exclude_post_id > 0 ? array( $exclude_post_id ) : array(),
-					'posts_per_page'         => 50,
+					'posts_per_page'         => $posts_per_page,
 					'paged'                  => $page,
 					'ignore_sticky_posts'    => true,
+					'no_found_rows'          => true,
 					'update_post_meta_cache' => false,
 					'update_post_term_cache' => false,
 				)
 			);
 
+			if ( empty( $query->posts ) ) {
+				break;
+			}
+
 			foreach ( $query->posts as $post ) {
-				if (
-					$post instanceof WP_Post &&
-					in_category( $category_id, $post ) &&
-					self::post_has_podcast_media( $post )
-				) {
+				++$scanned_posts;
+
+				if ( self::post_has_podcast_media( $post ) ) {
 					return true;
 				}
 			}
 
-			$page++;
-		} while ( $page <= (int) $query->max_num_pages );
+			++$page;
+		}
 
 		return false;
 	}

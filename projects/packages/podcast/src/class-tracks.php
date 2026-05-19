@@ -93,7 +93,7 @@ class Tracks {
 
 			// Match the RSS feed's definition of an episode — must carry
 			// podcast media, not just sit in the podcast category.
-			if ( ! Episode_Query::post_has_podcast_media( $post ) ) {
+			if ( ! self::has_podcast_media( $post ) ) {
 				return;
 			}
 
@@ -361,6 +361,15 @@ class Tracks {
 			}
 		}
 		return wp_get_current_user();
+	}
+
+	/**
+	 * Filters out posts in the podcast category that aren't actually episodes.
+	 *
+	 * @param WP_Post $post Post being checked.
+	 */
+	private static function has_podcast_media( WP_Post $post ): bool {
+		return Episode_Query::post_has_podcast_media( $post );
 	}
 
 	/**

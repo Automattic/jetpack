@@ -18,6 +18,14 @@ use WP_REST_Server;
 class Podcast_Status_Endpoint extends WP_REST_Controller {
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'podcast/status';
+	}
+
+	/**
 	 * Wire the route when the podcast package is enabled.
 	 */
 	public static function init() {
@@ -29,9 +37,6 @@ class Podcast_Status_Endpoint extends WP_REST_Controller {
 	 * Register the status route.
 	 */
 	public function register_routes() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'podcast/status';
-
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base,

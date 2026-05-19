@@ -14,6 +14,7 @@ use WP_Term;
 
 /**
  * @covers \Automattic\Jetpack\Podcast\Podcast_Status_Endpoint
+ * @covers \Automattic\Jetpack\Podcast\Episode_Query
  */
 #[CoversClass( Podcast_Status_Endpoint::class )]
 #[CoversClass( Episode_Query::class )]
