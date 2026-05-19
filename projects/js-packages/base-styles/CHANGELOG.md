@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.3] - 2026-05-19
 ### Changed
-- Admin page mixin: add `.jp-admin-page-tabs--minimal` modifier for hosts that render `<Tabs.List variant="minimal">`, and re-apply the tab font-size design token from an unlayered selector to defeat wp-admin's `button { font-size: inherit }` reset. [#48908]
+- Admin page tabs: Add a minimal-tabs modifier and restore the intended tab font size in WP Admin. [#48908]
 
 ## [1.2.2] - 2026-05-14
 ### Added

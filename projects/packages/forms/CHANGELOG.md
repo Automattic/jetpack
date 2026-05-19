@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.21.2] - 2026-05-19
 ### Changed
 - Exclude development files from production builds. [#47365]
-- Replace link-style `Button` components and bare `<a>` tags with `Link` from `@wordpress/ui` in integrations, the responses modal, and response inspector mailto/tel links. Open Akismet-related URLs in a new tab only in the block editor so the dashboard keeps navigation in the same tab. [#48407]
 - Update package dependencies. [#48695]
+- Use `@wordpress/ui` links in integrations, response modals, and mail/phone links, keeping dashboard navigation in the same tab where appropriate. [#48407]
 
 ### Fixed
-- Contact Form: remove `opacity: 0.6` from the "Required" label so it inherits the full theme text colour. The opacity caused the rendered colour to fall below the WCAG 2.2 SC 1.4.3 minimum contrast ratio of 4.5:1 across multiple widely-used themes (Storefront, Hello Elementor, Astra, OceanWP). [#48925]
-- Restore full-width submit button on small screens for horizontal inline forms. The existing mobile media query set `flex-basis: 100%` on the button but had no effect when the parent form used the `is-layout-flex` class (horizontal orientation) because that layout lacks `flex-wrap: wrap`. Adding it at the 480px breakpoint allows the field and button to each stack to a full row on mobile. [#48928]
+- Contact Form: Restore full theme text color for the "Required" label so it meets WCAG contrast requirements across common themes. [#48925]
+- Contact Form: Restore full-width submit buttons on small screens for horizontal inline forms. [#48928]
 
 ## [7.21.1] - 2026-05-11
 ### Changed

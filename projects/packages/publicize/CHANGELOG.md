@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.81.0] - 2026-05-19
 ### Added
-- Social: Expose the canonical message-template placeholder catalogue via a REST endpoint. [#48769]
+- Social: Expose the canonical message-template placeholder catalog via a REST endpoint. [#48769]
 
 ### Changed
 - Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Social Previews: Update template placeholders when editing the post title or content. [#48635]
-- Social: avoid disabling connection rows while saving per-connection message templates. [#48641]
+- Social: Avoid disabling connection rows while saving per-connection message templates. [#48641]
 - Social: Enable per-network customization by default when a custom connection template exists. [#48785]
 
 ## [0.80.0] - 2026-05-11

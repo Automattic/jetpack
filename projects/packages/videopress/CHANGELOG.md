@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.36.10] - 2026-05-19
 ### Added
-- Comment: Free-tier UX (Notice, disabled Upload, storage meter) for the modernized dashboard. Gated behind rsm_jetpack_ui_modernization_videopress. [#48843]
+- Add free-tier notice, disabled upload controls, and a storage meter to the modernized dashboard. [#48843]
 
 ### Changed
 - Exclude development files from production builds. [#47365]
 
 ### Fixed
-- Utility: use stored processing-completion timestamp for finish_date_gmt instead of the current time. [#48886]
+- Use the stored processing-completion timestamp for `finish_date_gmt` instead of the current time. [#48886]
 
 ## [0.36.9] - 2026-05-14
 ### Added

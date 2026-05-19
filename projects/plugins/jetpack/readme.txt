@@ -328,26 +328,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.9-a.3 - 2026-05-19
 #### Enhancements
-- Abilities API: register Shortlinks_Abilities for the WP.me Shortlinks module on WP 6.9+ behind the jetpack_wp_abilities_enabled gate.
-- AI Assistant: Add AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants (Claude, ChatGPT, etc.) answer reader questions using the blog's content.
+- Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+.
+- AI Assistant: Add an AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants answer reader questions using the blog's content.
 - Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, setting a per-frequency default donation amount, and configuring the suggested custom amount. At least one frequency must remain enabled.
 - Donations Block: Add Gutenberg style settings (border, color, typography, spacing) and custom controls for active tab and selected amount colors.
 - Donations Block: Add Security inspector panel with configurable minimum and maximum donation amounts to help prevent fraudulent transactions.
 - Donations Block: Inherit colors and typography from the active theme, and let the Donate button pick up theme button styles.
 - Image Studio: Only allow video clip generation on sites where Image Studio is enabled and the plan supports video uploads.
-- Performance settings: simplify the Search section to a short intro and a link to the Search dashboard, so the experience picker (embedded, overlay, theme search) lives in one place instead of being partially duplicated under Performance.
-- Related Posts abilities: expose result cap as configurable per_page input (max 20).
-- Related Posts: register a get-related-posts ability with the WordPress Abilities API on WP 6.9+ so agents can fetch related posts for a single post through the standard wp-abilities/v1 REST surface.
+- Performance settings: Simplify the Search section and link to the Search dashboard so experience selection happens in one place.
+- Related Posts: Add configurable result limits for related-post agent requests.
+- Related Posts: Register WordPress Abilities API support for fetching related posts.
 - Search: Add an auto-complete feature that suggests search queries as users type.
-- Shortlinks abilities: tighten permission_callback to edit_posts (was is_user_logged_in).
+- Shortlinks: Require edit-posts access for Shortlinks ability requests.
 
 #### Improved compatibility
 - Migrate Status indicator to @wordpress/ui Text.
 
 #### Bug fixes
-- Copy Post: fix backslash characters being stripped from post content, title, and excerpt when duplicating a post.
-- Jetpack AI: improve the MCP settings UI — fix Back-button navigation, change setup instructions to unordered lists, correct the "All enabled" label vertical alignment, and tighten toggle help-text spacing.
-- Jetpack AI: route the MCP "Upgrade plan" CTA through the standard checkout workflow so non-WordPress.com hosts (Pressable, self-hosted) reach a valid destination instead of a "you don't have access to that site" page, and remove WordPress.com-specific copy from the upsell.
+- Copy Post: Fix backslash characters being stripped from post content, title, and excerpt when duplicating a post.
+- Jetpack AI: Improve MCP settings UI navigation, setup-list formatting, label alignment, and toggle spacing.
+- Jetpack AI: Send non-WordPress.com hosts through the standard checkout workflow for the MCP "Upgrade plan" CTA, and remove WordPress.com-specific upsell copy.
 
 --------
 
