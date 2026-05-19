@@ -3847,6 +3847,13 @@ async function savePost( postStatus, isAutosave = false ) {
 
 // --- Autosave timer and recovery ---
 
+// Disable browser scroll restoration so the editor always starts at the top.
+// Without this, refreshing while scrolled down restores the old scroll offset.
+if ( 'scrollRestoration' in history ) {
+	history.scrollRestoration = 'manual';
+}
+window.scrollTo( 0, 0 );
+
 // Start the autosave interval once the content area is ready.
 const autosaveReady = setInterval( () => {
 	const contentEl = document.querySelector( '.bw-content' );
