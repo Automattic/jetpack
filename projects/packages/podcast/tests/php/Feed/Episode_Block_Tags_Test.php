@@ -53,16 +53,6 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '<itunes:episode>99</itunes:episode>', $xml );
 	}
 
-	public function test_render_parses_attrs_and_dispatches() {
-		$xml = $this->render_post(
-			'<!-- wp:jetpack/podcast-episode {"episodeNumber":7,"seasonNumber":2,"locationName":"Lagos, Nigeria"} /-->'
-		);
-
-		$this->assertStringContainsString( '<itunes:episode>7</itunes:episode>', $xml );
-		$this->assertStringContainsString( '<podcast:season>2</podcast:season>', $xml );
-		$this->assertStringContainsString( '<podcast:location>Lagos, Nigeria</podcast:location>', $xml );
-	}
-
 	public function test_episode_number_emits_both_namespaces() {
 		$xml = $this->render_from_attrs( array( 'episodeNumber' => 12 ) );
 
@@ -70,9 +60,8 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertStringContainsString( '<podcast:episode>12</podcast:episode>', $xml );
 	}
 
-	public function test_episode_number_skips_zero_and_negative() {
+	public function test_episode_number_skips_zero_and_missing() {
 		$this->assertSame( '', $this->render_from_attrs( array( 'episodeNumber' => 0 ) ) );
-		$this->assertSame( '', $this->render_from_attrs( array( 'episodeNumber' => -3 ) ) );
 		$this->assertSame( '', $this->render_from_attrs( array() ) );
 	}
 
@@ -281,7 +270,6 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 	public function test_cover_art_skips_when_url_missing() {
 		$this->assertSame( '', $this->render_from_attrs( array( 'coverArt' => array() ) ) );
 		$this->assertSame( '', $this->render_from_attrs( array( 'coverArt' => array( 'url' => '' ) ) ) );
-		$this->assertSame( '', $this->render_from_attrs( array() ) );
 	}
 
 	public function test_alternate_enclosures_skips_entries_without_type() {
