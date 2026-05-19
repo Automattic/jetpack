@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Migrate page tabs from default to minimal variant; align via shared jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0.

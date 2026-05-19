@@ -55,7 +55,7 @@ export default function ScanPage( { activeTab, children }: Props ): JSX.Element 
 			actions={ headerActions }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-				<div className="jp-admin-page-tabs">
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="active">{ __( 'Active threats', 'jetpack-scan-page' ) }</Tabs.Tab>
 						<Tabs.Tab value="history">{ __( 'History', 'jetpack-scan-page' ) }</Tabs.Tab>
