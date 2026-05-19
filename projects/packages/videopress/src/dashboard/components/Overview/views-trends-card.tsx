@@ -266,7 +266,7 @@ export default function ViewsTrendsCard( {
 	return (
 		<Card.Root id={ panelId } role="tabpanel" aria-labelledby={ activeTabId } tabIndex={ 0 }>
 			<Card.Header>
-				<Stack direction="row" justify="space-between" align="center" expanded>
+				<Stack direction="row" justify="space-between" align="center">
 					<Card.Title>{ config.title }</Card.Title>
 					<Stack direction="row" gap="sm">
 						{ compareOptions.length > 1 && (

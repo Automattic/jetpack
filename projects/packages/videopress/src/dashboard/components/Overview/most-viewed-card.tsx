@@ -36,6 +36,7 @@ export default function MostViewedCard( { videos, isLoading }: Props ): ReactEle
 			valueColumnHeader={ __( 'VIEWS', 'jetpack-videopress-pkg' ) }
 			items={ items }
 			isLoading={ isLoading }
+			emptyMessage={ __( 'No videos viewed in the chosen period.', 'jetpack-videopress-pkg' ) }
 			footer={
 				<Stack direction="row" justify="center" className="vp-overview__ranking-footer">
 					<Link to="/library">{ __( 'See all videos', 'jetpack-videopress-pkg' ) }</Link>

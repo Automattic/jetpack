@@ -39,6 +39,7 @@ export default function TopByWatchTimeCard( { videos, isLoading }: Props ): Reac
 			valueColumnHeader={ __( 'WATCH TIME', 'jetpack-videopress-pkg' ) }
 			items={ items }
 			isLoading={ isLoading }
+			emptyMessage={ __( 'No videos watched in the chosen period.', 'jetpack-videopress-pkg' ) }
 			formatValue={ formatWatchTime }
 			footer={
 				<Stack direction="row" justify="center" className="vp-overview__ranking-footer">
