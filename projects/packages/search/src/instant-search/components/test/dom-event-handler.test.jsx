@@ -1,4 +1,3 @@
-import { render } from '@testing-library/react';
 import * as React from 'react';
 import DomEventHandler from '../dom-event-handler';
 
@@ -29,6 +28,12 @@ describe( 'DomEventHandler.handleSubmit', () => {
 		preventDefault = jest.fn();
 	} );
 
+	/**
+	 * Creates a mock submit event targeting a form with the given action URL.
+	 *
+	 * @param {string} action - The form action URL.
+	 * @return {object} A mock submit event with `target` and `preventDefault`.
+	 */
 	function makeSubmitEvent( action ) {
 		const input = document.createElement( 'input' );
 		input.name = 's';
@@ -42,24 +47,20 @@ describe( 'DomEventHandler.handleSubmit', () => {
 		};
 	}
 
-	function renderHandler( extraProps = {} ) {
-		return render(
-			<DomEventHandler
-				{ ...defaultProps }
-				setSearchQuery={ setSearchQuery }
-				showResults={ showResults }
-				{ ...extraProps }
-			/>
-		);
+	/**
+	 * Creates a DomEventHandler instance with test props injected.
+	 *
+	 * @param {object} extraProps - Additional props to merge.
+	 * @return {DomEventHandler} The handler instance.
+	 */
+	function makeHandler( extraProps = {} ) {
+		const handler = new DomEventHandler( defaultProps );
+		handler.props = { ...defaultProps, setSearchQuery, showResults, ...extraProps };
+		return handler;
 	}
 
 	it( 'intercepts same-origin form submissions', () => {
-		const { instance } = renderHandler();
-		// Access the class instance via the rendered component ref is not straightforward with RTL;
-		// call handleSubmit directly on a new instance.
-		const handler = new DomEventHandler( defaultProps );
-		handler.props = { ...defaultProps, setSearchQuery, showResults };
-
+		const handler = makeHandler();
 		const event = makeSubmitEvent( window.location.origin + '/search' );
 		handler.handleSubmit( event );
 
@@ -67,9 +68,7 @@ describe( 'DomEventHandler.handleSubmit', () => {
 	} );
 
 	it( 'does not intercept third-party form submissions', () => {
-		const handler = new DomEventHandler( defaultProps );
-		handler.props = { ...defaultProps, setSearchQuery, showResults };
-
+		const handler = makeHandler();
 		const event = makeSubmitEvent( 'https://third-party.example.com/subscribe' );
 		handler.handleSubmit( event );
 
@@ -78,9 +77,7 @@ describe( 'DomEventHandler.handleSubmit', () => {
 	} );
 
 	it( 'does not intercept form submissions with a different subdomain', () => {
-		const handler = new DomEventHandler( defaultProps );
-		handler.props = { ...defaultProps, setSearchQuery, showResults };
-
+		const handler = makeHandler();
 		const event = makeSubmitEvent( 'https://other.example.com/form' );
 		handler.handleSubmit( event );
 
