@@ -366,6 +366,7 @@ class Create_AI_Podcast_Page {
 			'i18n'      => array(
 				'submitting'          => __( 'Submitting…', 'jetpack-podcast' ),
 				'polling'             => __( 'Generating your episode…', 'jetpack-podcast' ),
+				'pollingSubtext'      => __( "This usually takes about 3 minutes. You can leave this page and come back — we'll keep working in the background.", 'jetpack-podcast' ),
 				'succeeded'           => __( 'Episode draft ready.', 'jetpack-podcast' ),
 				'editDraft'           => __( 'Edit draft', 'jetpack-podcast' ),
 				'failed'              => __( 'Generation failed.', 'jetpack-podcast' ),
@@ -417,6 +418,8 @@ class Create_AI_Podcast_Page {
 				// translators: %d: page number. Example: "Go to page 3"
 				'paginationGoTo'      => __( 'Go to page %d', 'jetpack-podcast' ),
 				'paginationLabel'     => __( 'Episodes pagination', 'jetpack-podcast' ),
+				'unexpectedError'     => __( 'An unexpected error occurred.', 'jetpack-podcast' ),
+				'outOfCreditsError'   => __( 'Out of credits.', 'jetpack-podcast' ),
 			),
 		);
 	}
@@ -735,10 +738,15 @@ class Create_AI_Podcast_Page {
 			<div id="jetpack-create-ai-podcast-app">
 				<section class="jetpack-create-ai-podcast__intro" role="region" aria-labelledby="jetpack-create-ai-podcast-intro-title">
 					<div class="jetpack-create-ai-podcast__intro-body">
-						<p class="jetpack-create-ai-podcast__intro-eyebrow">
-							<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
-							<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
-						</p>
+						<div class="jetpack-create-ai-podcast__intro-badges">
+							<p class="jetpack-create-ai-podcast__intro-eyebrow">
+								<span class="jetpack-create-ai-podcast__intro-wpmark" aria-hidden="true"></span>
+								<span><?php echo esc_html__( 'WordPress.com exclusive', 'jetpack-podcast' ); ?></span>
+							</p>
+							<p class="jetpack-create-ai-podcast__intro-eyebrow jetpack-create-ai-podcast__intro-eyebrow--experimental">
+								<span><?php echo esc_html__( 'Experimental', 'jetpack-podcast' ); ?></span>
+							</p>
+						</div>
 						<h2 id="jetpack-create-ai-podcast-intro-title" class="jetpack-create-ai-podcast__intro-title">
 							<?php echo esc_html__( 'Turn your posts into a podcast episode', 'jetpack-podcast' ); ?>
 						</h2>

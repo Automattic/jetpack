@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Modal } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
@@ -8,6 +9,17 @@ import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 
 import './style.scss';
+
+const recordPromoEvent = (
+	eventName: string,
+	properties: Record< string, string | number | boolean > = {}
+): void => {
+	try {
+		jetpackAnalytics.tracks.recordEvent( eventName, properties );
+	} catch {
+		// Tracks is best-effort — never let it break the editor.
+	}
+};
 
 type PromoData = {
 	createUrl: string;
@@ -31,12 +43,13 @@ const PostPublishPodcastPromo = () => {
 	const [ isClosedForSession, setIsClosedForSession ] = useState( false );
 	const openedAt = useRef( 0 );
 
-	const { isPostPublished, isPublishingPost, postType } = useSelect( select => {
+	const { isPostPublished, isPublishingPost, postType, postId } = useSelect( select => {
 		const editor = select( editorStore );
 		return {
 			isPostPublished: editor.isCurrentPostPublished(),
 			isPublishingPost: editor.isPublishingPost(),
 			postType: editor.getCurrentPostType(),
+			postId: editor.getCurrentPostId(),
 		};
 	}, [] );
 	const wasPublishingPost = usePrevious( isPublishingPost );
@@ -57,6 +70,9 @@ const PostPublishPodcastPromo = () => {
 			window.setTimeout( () => {
 				openedAt.current = Date.now();
 				setIsOpen( true );
+				recordPromoEvent( 'wpcom_post_publish_podcast_promo_shown', {
+					post_id: Number( postId ) || 0,
+				} );
 			} );
 		}
 	}, [
@@ -64,6 +80,7 @@ const PostPublishPodcastPromo = () => {
 		isClosedForSession,
 		isPostPublished,
 		isPublishingPost,
+		postId,
 		postType,
 		wasPostPublished,
 		wasPublishingPost,
@@ -75,13 +92,17 @@ const PostPublishPodcastPromo = () => {
 				return;
 			}
 
+			recordPromoEvent( 'wpcom_post_publish_podcast_promo_dismissed', {
+				post_id: Number( postId ) || 0,
+				time_to_dismiss_ms: openedAt.current ? Date.now() - openedAt.current : 0,
+			} );
 			if ( data ) {
 				apiFetch( { path: data.dismissPath, method: 'POST' } ).catch( () => {} );
 			}
 			setIsClosedForSession( true );
 			setIsOpen( false );
 		},
-		[ data ]
+		[ data, postId ]
 	);
 
 	const handleRequestClose = useCallback( () => closeModal(), [ closeModal ] );
@@ -90,12 +111,16 @@ const PostPublishPodcastPromo = () => {
 		if ( ! data ) {
 			return;
 		}
+		recordPromoEvent( 'wpcom_post_publish_podcast_promo_clicked', {
+			post_id: Number( postId ) || 0,
+			time_to_click_ms: openedAt.current ? Date.now() - openedAt.current : 0,
+		} );
 		apiFetch( { path: data.dismissPath, method: 'POST' } )
 			.catch( () => {} )
 			.finally( () => {
 				( window.top || window ).location.href = data.createUrl;
 			} );
-	}, [ data ] );
+	}, [ data, postId ] );
 
 	if ( ! data || ! isOpen ) {
 		return null;

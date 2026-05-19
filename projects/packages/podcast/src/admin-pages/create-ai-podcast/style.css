@@ -55,11 +55,19 @@
 	max-width: 540px;
 }
 
+.jetpack-create-ai-podcast__intro-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 8px;
+}
+
 .jetpack-create-ai-podcast__intro-eyebrow {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	margin: 0 0 8px;
+	margin: 0;
 	padding: 4px 10px;
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.16);
@@ -68,6 +76,11 @@
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: #fff;
+}
+
+.jetpack-create-ai-podcast__intro-eyebrow--experimental {
+	background: rgba(255, 196, 80, 0.28);
+	color: #ffe6a8;
 }
 
 .jetpack-create-ai-podcast__intro-wpmark {
@@ -412,7 +425,8 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.jetpack-create-ai-podcast__posts-loading::before {
+	.jetpack-create-ai-podcast__posts-loading::before,
+	.jetpack-create-ai-podcast__status-spinner {
 		animation: none;
 	}
 }
@@ -534,6 +548,18 @@
 	background: #d63638;
 }
 
+.jetpack-create-ai-podcast__status-spinner {
+	flex: none;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-top: 2px;
+	border: 2px solid rgba(34, 113, 177, 0.25);
+	border-top-color: #2271b1;
+	border-radius: 50%;
+	animation: jetpack-create-ai-podcast-spin 800ms linear infinite;
+}
+
 .jetpack-create-ai-podcast__status-body {
 	flex: 1;
 	min-width: 0;
@@ -544,6 +570,14 @@
 	font-size: 13px;
 	line-height: 1.5;
 	color: #1d2327;
+	font-weight: 600;
+}
+
+.jetpack-create-ai-podcast__status-subtext {
+	margin: 4px 0 0;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #50575e;
 }
 
 .jetpack-create-ai-podcast__status-actions {

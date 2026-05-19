@@ -43,6 +43,23 @@
 	}
 
 	/**
+	 * Decode HTML entities and strip tags from a WP REST `title.rendered`
+	 * payload (e.g. `Hello&nbsp;World!` or `Foo &amp; <em>bar</em>`) so it
+	 * can be assigned to `textContent` without leaking literal entity
+	 * sequences. Parses via a detached `<div>` so no scripts execute.
+	 *
+	 * @param html
+	 */
+	function decodeTitle( html ) {
+		if ( typeof html !== 'string' || html === '' ) {
+			return '';
+		}
+		const tmp = document.createElement( 'div' );
+		tmp.innerHTML = html;
+		return tmp.textContent || '';
+	}
+
+	/**
 	 * Derive the target plan slug from a Calypso checkout URL so the upgrade
 	 * event can carry which tier the user was offered without us re-deriving
 	 * it from feature flags client-side.
@@ -57,30 +74,200 @@
 	}
 
 	/**
-	 * Strip the `_envelope=1` wrapper that the wpcom proxy unconditionally
-	 * adds to wpcom/v2 requests on Simple sites (see provider-v2.0.js
-	 * `_envelope=1` append). The wrapped shape is `{ code, headers, body }`
-	 * (see WPCOM_JSON_API::wrap_http_envelope). We unwrap to `body` for 2xx
-	 * and throw the body for non-2xx so callers' try/catch paths fire the
-	 * same way they do for native apiFetch errors on Atomic.
+	 * Normalize a failed response into an Error whose `.message` is safe to
+	 * surface to the user. When the body parsed as a structured WP error
+	 * (`{ code, message, data }`), use that message verbatim. Otherwise pick
+	 * the i18n fallback for 429 (no credits) or any other status (generic).
+	 *
+	 * @param status - HTTP status code, or null when no response reached us.
+	 * @param body   - Parsed response body, or null if the response wasn't JSON.
+	 * @param cause  - Optional underlying error to attach as `Error.cause`.
+	 */
+	function normalizeApiError( status, body, cause ) {
+		const isRateLimited = status === 429;
+		// Literal fallbacks keep the user from seeing "undefined" if the JS
+		// island ever ships ahead of the PHP i18n bundle that defines these keys.
+		const rateLimitedMessage = data.i18n.outOfCreditsError || 'Out of credits.';
+		const unexpectedMessage = data.i18n.unexpectedError || 'An unexpected error occurred.';
+		if (
+			body &&
+			typeof body === 'object' &&
+			typeof body.message === 'string' &&
+			body.message !== ''
+		) {
+			const extraData =
+				body.data && typeof body.data === 'object' && ! Array.isArray( body.data ) ? body.data : {};
+			const err = new Error( body.message );
+			err.code = body.code || ( isRateLimited ? 'rate_limited' : 'unexpected' );
+			err.data = { status, ...extraData };
+			return err;
+		}
+		const err = new Error( isRateLimited ? rateLimitedMessage : unexpectedMessage );
+		err.code = isRateLimited ? 'rate_limited' : 'unexpected';
+		err.data = { status };
+		if ( cause ) {
+			err.cause = cause;
+		}
+		return err;
+	}
+
+	/**
+	 * Issue an apiFetch and normalize the response into either the JSON body
+	 * (for 2xx) or a thrown Error (for non-2xx / non-JSON). Uses `parse: false`
+	 * so we keep the HTTP status when the response body isn't JSON — e.g. an
+	 * Atomic-edge rate-limit page returns a `text/html` 429, which the default
+	 * apiFetch path would surface only as `invalid_json` with no status code.
+	 *
+	 * Handles two response shapes: (1) the wpcom-proxy envelope
+	 * `{ code, headers, body }` that Simple sites get for /wpcom/v2/ requests
+	 * (see WPCOM_JSON_API::wrap_http_envelope) — the proxy middleware ignores
+	 * `parse: false` and returns this object directly; (2) a native `Response`
+	 * from `parse: false`, which we read once via `.text()` and try to
+	 * JSON-parse ourselves.
 	 *
 	 * @param opts
 	 */
 	async function apiCall( opts ) {
-		const response = await apiFetch( opts );
-		if (
-			response &&
-			typeof response === 'object' &&
-			'body' in response &&
-			'code' in response &&
-			'headers' in response
-		) {
-			if ( response.code < 200 || response.code >= 300 ) {
-				throw response.body || { code: 'unknown', message: `HTTP ${ response.code }` };
+		let response;
+		try {
+			response = await apiFetch( { ...opts, parse: false } );
+		} catch ( err ) {
+			// apiFetch's default fetch handler throws the raw `Response` directly
+			// on non-2xx when parse:false (see wp-includes/js/dist/api-fetch.js
+			// `parseAndThrowError` — `if (!shouldParseResponse) throw response`).
+			// Recover the status + body so the user sees the right message.
+			if ( err && typeof err.status === 'number' && typeof err.text === 'function' ) {
+				throw normalizeApiError( err.status, unwrapEnvelope( await readJsonBodyOrNull( err ) ) );
 			}
-			return response.body;
+			throw normalizeApiError( null, null, err );
 		}
+
+		// Plain-object envelope returned directly by a middleware that ignores
+		// `parse: false` (some older wpcom-proxy paths return the wpcom JSON API
+		// envelope object verbatim).
+		const envelope = asEnvelope( response );
+		if ( envelope ) {
+			const httpCode = envelopeCode( envelope );
+			if ( httpCode < 200 || httpCode >= 300 ) {
+				throw normalizeApiError( httpCode, envelope.body );
+			}
+			return envelope.body;
+		}
+
+		// Response-like object: either a native `Response` (Atomic / self-hosted
+		// with `parse: false`) or the wpcom-proxy hybrid that spreads the body
+		// fields on top of pseudo-Response fields (`status`, `ok`, `json`,
+		// `blob`, `headers`). On the hybrid, reading body fields off the spread
+		// is unsafe — any body key named `status` is overwritten by the HTTP
+		// status, so e.g. `body.status: "complete"` becomes `200`. `.json()`
+		// always returns the pristine body, so route both shapes through it.
+		if ( response && typeof response.json === 'function' && typeof response.status === 'number' ) {
+			const httpStatus = response.status;
+			if ( httpStatus === 204 ) {
+				return null;
+			}
+			let body;
+			try {
+				body = await response.json();
+			} catch {
+				// 2xx with a non-JSON body shouldn't happen for these endpoints —
+				// pre-`parse: false` apiFetch would have thrown `invalid_json` here,
+				// so surface the same fail-fast behavior to callers like
+				// `refreshInfo` that read fields off the resolved value.
+				throw normalizeApiError( httpStatus, null );
+			}
+			// On wpcom Simple sites apiFetch appends `_envelope=1` to /wpcom/v2
+			// requests, so a 2xx HTTP response can additionally wrap the real
+			// payload inside `{ body, status, headers }` (WP REST envelope) or
+			// `{ body, code, headers }` (wpcom JSON API envelope). Unwrap so
+			// callers see the inner payload.
+			const innerEnvelope = asEnvelope( body );
+			if ( innerEnvelope ) {
+				const httpCode = envelopeCode( innerEnvelope );
+				if ( httpCode < 200 || httpCode >= 300 ) {
+					throw normalizeApiError( httpCode, innerEnvelope.body );
+				}
+				return innerEnvelope.body;
+			}
+			if ( httpStatus < 200 || httpStatus >= 300 ) {
+				throw normalizeApiError( httpStatus, body );
+			}
+			return body;
+		}
+
 		return response;
+	}
+
+	/**
+	 * Returns the value if it looks like a `_envelope=1` response wrapper, else
+	 * null. Accepts both shapes Jetpack/wpcom emit in the wild: the wpcom JSON
+	 * API uses `code` for the HTTP status; WP core's REST envelope uses
+	 * `status`. Native `Response` objects also expose `body`/`headers`/`status`,
+	 * so guard against them via the `.text()` method check.
+	 *
+	 * @param value
+	 */
+	function asEnvelope( value ) {
+		if (
+			value &&
+			typeof value === 'object' &&
+			typeof value.text !== 'function' &&
+			'body' in value &&
+			'headers' in value &&
+			( 'code' in value || 'status' in value )
+		) {
+			return value;
+		}
+		return null;
+	}
+
+	/**
+	 * @param envelope
+	 */
+	function envelopeCode( envelope ) {
+		return typeof envelope.code === 'number' ? envelope.code : envelope.status;
+	}
+
+	/**
+	 * If `value` is a `{ body, ... }` envelope, return `body`; otherwise return
+	 * `value` unchanged. Used on the error path so structured error payloads
+	 * delivered inside an envelope still reach `normalizeApiError` as the bare
+	 * `{ code, message, data }` object the WP REST framework produces.
+	 *
+	 * @param value
+	 */
+	function unwrapEnvelope( value ) {
+		const envelope = asEnvelope( value );
+		return envelope ? envelope.body : value;
+	}
+
+	/**
+	 * Best-effort JSON read used only on the error path: returns null for
+	 * empty or non-JSON bodies (e.g. edge rate-limit HTML pages) so the
+	 * caller can fall back to a status-based message via normalizeApiError.
+	 *
+	 * @param response
+	 */
+	async function readJsonBodyOrNull( response ) {
+		if ( response && typeof response.json === 'function' ) {
+			try {
+				return await response.json();
+			} catch {
+				return null;
+			}
+		}
+		if ( response && typeof response.text === 'function' ) {
+			const text = await response.text().catch( () => '' );
+			if ( text === '' ) {
+				return null;
+			}
+			try {
+				return JSON.parse( text );
+			} catch {
+				return null;
+			}
+		}
+		return null;
 	}
 
 	// Initial reads are pre-warmed server-side via wp_localize_script — see
@@ -131,6 +318,12 @@
 
 	let episodesState = bootstrapEpisodes;
 	let lastQuotaSnapshot = null;
+	// Tracks the in-flight generation so terminal Tracks events
+	// (succeeded / failed / timed_out) can carry the same dimensions as
+	// `wpcom_create_ai_podcast_generation_requested` plus `elapsed_ms`.
+	// `resumed: true` marks the cross-reload bootstrap path where the
+	// requested-dimensions context isn't recoverable.
+	let currentGeneration = null;
 
 	const root = document.getElementById( 'jetpack-create-ai-podcast-app' );
 	if ( ! root ) {
@@ -168,6 +361,13 @@
 		card.dataset.tone = tone;
 		card.setAttribute( 'role', tone === 'error' ? 'alert' : 'status' );
 
+		if ( tone === 'progress' ) {
+			const spinner = document.createElement( 'span' );
+			spinner.className = 'jetpack-create-ai-podcast__status-spinner';
+			spinner.setAttribute( 'aria-hidden', 'true' );
+			card.appendChild( spinner );
+		}
+
 		const body = document.createElement( 'div' );
 		body.className = 'jetpack-create-ai-podcast__status-body';
 
@@ -175,6 +375,13 @@
 		text.className = 'jetpack-create-ai-podcast__status-message';
 		text.textContent = message;
 		body.appendChild( text );
+
+		if ( options?.subtext ) {
+			const subtext = document.createElement( 'p' );
+			subtext.className = 'jetpack-create-ai-podcast__status-subtext';
+			subtext.textContent = options.subtext;
+			body.appendChild( subtext );
+		}
 
 		if ( options?.link || options?.action ) {
 			const actions = document.createElement( 'div' );
@@ -597,7 +804,7 @@
 			} );
 
 			const title = document.createElement( 'span' );
-			title.textContent = post.title?.rendered || `#${ post.id }`;
+			title.textContent = decodeTitle( post.title?.rendered ) || `#${ post.id }`;
 
 			const date = document.createElement( 'span' );
 			date.className = 'date';
@@ -679,6 +886,7 @@
 	 */
 	function onSucceeded( editUrl ) {
 		setFormDisabled( false );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_succeeded' );
 		setStatus( 'success', data.i18n.succeeded, {
 			link: {
 				href: editUrl,
@@ -692,6 +900,30 @@
 		} );
 		refreshInfo();
 		refreshEpisodes();
+	}
+
+	/**
+	 * Fire a terminal generation Tracks event with the dimensions captured at
+	 * request time plus elapsed_ms, then clear the in-flight context so a
+	 * later unrelated failure doesn't double-fire. Safe to call when no
+	 * generation is in flight (no-ops).
+	 *
+	 * @param eventName  - Full Tracks event name.
+	 * @param extraProps - Additional event-specific properties (merged in).
+	 */
+	function recordGenerationOutcome( eventName, extraProps = {} ) {
+		const ctx = currentGeneration;
+		if ( ! ctx ) {
+			return;
+		}
+		currentGeneration = null;
+		recordEvent( eventName, {
+			...ctx.props,
+			job_id: ctx.jobId ?? 0,
+			elapsed_ms: ctx.startedAt ? Date.now() - ctx.startedAt : 0,
+			resumed: !! ctx.resumed,
+			...extraProps,
+		} );
 	}
 
 	/**
@@ -709,8 +941,26 @@
 		);
 	}
 
+	/**
+	 * Treat both the wpcom monthly-quota 429 (`rate-limited` / `rate_limited`)
+	 * and any other 429 (e.g. edge rate-limit) as out-of-credits — retrying
+	 * immediately wouldn't help in either case.
+	 *
+	 * @param err
+	 */
+	function isRateLimitedError( err ) {
+		const code = err?.code || '';
+		const status = err?.data?.status;
+		return code === 'rate_limited' || code === 'rate-limited' || status === 429;
+	}
+
 	function onFailed( message, options = {} ) {
 		setFormDisabled( false );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_failed', {
+			error_code: options.errorCode || '',
+			error_message: message || '',
+			rate_limited: !! options.rateLimited,
+		} );
 		const statusOptions = options.suppressRetry
 			? undefined
 			: {
@@ -727,12 +977,12 @@
 	 */
 	function onTimedOut() {
 		setFormDisabled( false );
-		setStatus( 'error', data.i18n.timedOut, {
-			action: {
-				label: data.i18n.tryAgain,
-				onClick: clearStatus,
-			},
-		} );
+		recordGenerationOutcome( 'wpcom_create_ai_podcast_generation_timed_out' );
+		// No retry button: the worker may still finish on the wpcom side, so
+		// clicking "Try again" would only consume another credit on top of the
+		// in-flight job. The bootstrap-resume path picks up the result when the
+		// user revisits the page.
+		setStatus( 'error', data.i18n.timedOut );
 	}
 
 	/**
@@ -768,17 +1018,21 @@
 			}
 			if ( response?.status === 'failed' ) {
 				const failureMessage = response.errorMessage || response.message;
+				const failureErr = { code: response.errorCode, message: failureMessage };
 				onFailed( failureMessage, {
-					suppressRetry: isEmptyWindowError( {
-						code: response.errorCode,
-						message: failureMessage,
-					} ),
+					suppressRetry: isEmptyWindowError( failureErr ) || isRateLimitedError( failureErr ),
+					errorCode: response.errorCode || '',
+					rateLimited: isRateLimitedError( failureErr ),
 				} );
 				return;
 			}
 			startPolling( jobId, startedAt );
-		} catch {
-			onFailed();
+		} catch ( err ) {
+			onFailed( err?.message, {
+				suppressRetry: isRateLimitedError( err ),
+				errorCode: err?.code || '',
+				rateLimited: isRateLimitedError( err ),
+			} );
 		}
 	}
 
@@ -814,7 +1068,7 @@
 			return;
 		}
 
-		recordEvent( 'wpcom_create_ai_podcast_generation_requested', {
+		const requestedProps = {
 			source: sourceMode,
 			length: payload.length,
 			voice_preset: payload.voicePreset,
@@ -824,7 +1078,16 @@
 			has_prompt: !! payload.prompt,
 			credits_remaining: lastQuotaSnapshot?.remaining ?? 0,
 			credits_quota: lastQuotaSnapshot?.quota ?? 0,
-		} );
+		};
+		recordEvent( 'wpcom_create_ai_podcast_generation_requested', requestedProps );
+		// Capture the in-flight context up-front so a failed enqueue (429,
+		// network, etc.) still fires `generation_failed` with the same dims.
+		currentGeneration = {
+			props: requestedProps,
+			startedAt: Date.now(),
+			jobId: null,
+			resumed: false,
+		};
 
 		try {
 			const response = await apiCall( {
@@ -837,10 +1100,16 @@
 				onFailed();
 				return;
 			}
-			setStatus( 'progress', data.i18n.polling );
-			startPolling( jobId, parseStartedAt( response.createdAt ) );
+			currentGeneration.jobId = jobId;
+			currentGeneration.startedAt = parseStartedAt( response.createdAt );
+			setStatus( 'progress', data.i18n.polling, { subtext: data.i18n.pollingSubtext } );
+			startPolling( jobId, currentGeneration.startedAt );
 		} catch ( err ) {
-			onFailed( err?.message, { suppressRetry: isEmptyWindowError( err ) } );
+			onFailed( err?.message, {
+				suppressRetry: isEmptyWindowError( err ) || isRateLimitedError( err ),
+				errorCode: err?.code || '',
+				rateLimited: isRateLimitedError( err ),
+			} );
 		}
 	}
 
@@ -1176,7 +1445,11 @@
 	 */
 	function resumePolling( jobId, startedAt ) {
 		setFormDisabled( true );
-		setStatus( 'progress', data.i18n.polling );
+		setStatus( 'progress', data.i18n.polling, { subtext: data.i18n.pollingSubtext } );
+		// Bootstrap doesn't carry the original generation_requested dims, so the
+		// terminal Tracks event will only report job_id, elapsed_ms (best-effort
+		// from createdAt), and resumed:true.
+		currentGeneration = { props: {}, startedAt, jobId, resumed: true };
 		startPolling( jobId, startedAt );
 	}
 
