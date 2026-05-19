@@ -221,10 +221,9 @@ class Customize_Feed {
 			echo "<googleplay:image href='" . esc_url( $episode_image ) . "' />\n";
 		}
 
-		// Re-applying `the_excerpt_rss` here is intentional: `get_the_excerpt()`
-		// doesn't run the filter chain itself, so this gets the same trimmed +
-		// `pass_through_empty_excerpt`-suppressed value WP would emit in the
-		// item's `<description>`.
+		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
+		// the item's `<description>` ends up emitting — `get_the_excerpt()`
+		// doesn't run the filter chain itself.
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";

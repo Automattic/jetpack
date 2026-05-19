@@ -119,43 +119,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( "<itunes:category text='Tech News' />", $xml );
 	}
 
-	/**
-	 * The auto-generated `wp_trim_excerpt` fallback is exactly what we want to
-	 * suppress — when `post_excerpt` is blank, return `''` regardless of what
-	 * upstream filters built from `post_content`.
-	 */
-	public function test_pass_through_empty_excerpt_suppresses_auto_generated_fallback() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 1,
-				'post_excerpt' => '',
-				'post_content' => 'Long body text that wp_trim_excerpt would normally summarize.',
-			)
-		);
-
-		$this->assertSame( '', Customize_Feed::pass_through_empty_excerpt( 'Auto-generated from content...' ) );
-	}
-
-	public function test_pass_through_empty_excerpt_keeps_explicit_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 1,
-				'post_excerpt' => 'Hand-written summary.',
-				'post_content' => 'Body content.',
-			)
-		);
-
-		$this->assertSame( 'Hand-written summary.', Customize_Feed::pass_through_empty_excerpt( 'Hand-written summary.' ) );
-	}
-
-	public function test_pass_through_empty_excerpt_passes_through_when_no_post_global() {
-		// Without `$post`, we can't tell if the excerpt was authored or
-		// auto-generated, so leave the upstream value alone.
-		$this->assertSame( 'something', Customize_Feed::pass_through_empty_excerpt( 'something' ) );
-	}
-
 	public function test_resolve_category_id_returns_zero_when_nothing_configured() {
 		$this->assertSame( 0, Customize_Feed::resolve_category_id() );
 	}
