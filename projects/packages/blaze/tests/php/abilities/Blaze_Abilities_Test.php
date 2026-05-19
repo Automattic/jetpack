@@ -951,6 +951,13 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertContains( 'selected_payment_method', $output_properties['submit_eligibility']['required'] );
 		$this->assertContains( 'available_payment_methods', $output_properties['submit_eligibility']['required'] );
 		$this->assertContains( 'material_fields', $output_properties['material_edit_policy']['required'] );
+		$this->assertContains( 'non_material_fields', $output_properties['material_edit_policy']['required'] );
+		$this->assertContains( 'approval_contract', $output_properties['approval_block']['required'] );
+		$this->assertContains( 'approval_event', $output_properties['approval_block']['required'] );
+		$this->assertContains( 'charge_acknowledgement', $output_properties['approval_block']['required'] );
+		$this->assertArrayHasKey( 'approval_contract', $output_properties['approval_block']['properties'] );
+		$this->assertArrayHasKey( 'approval_event_required_fields', $output_properties['approval_block']['properties'] );
+		$this->assertArrayHasKey( 'charge_acknowledgement', $output_properties['approval_block']['properties'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
 		$this->assertArrayHasKey( 'assumptions', $output_properties );
@@ -1314,7 +1321,13 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'Visa ending in 4242', $result['submit_eligibility']['selected_payment_method']['label'] );
 		$this->assertArrayHasKey( 'approval_block', $result );
 		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
-		$this->assertSame( 'blaze.approval.confirm_prepared_campaign', $result['approval_block']['confirmation_label_key'] );
+		$this->assertSame( 'blaze.approval.confirm_prepared_campaign.v1', $result['approval_block']['confirmation_label_key'] );
+		$this->assertSame( $result['prepared_campaign']['hash'], $result['approval_block']['approval_contract']['prepared_campaign_hash'] );
+		$this->assertSame( 50.0, $result['approval_block']['approval_contract']['charge']['max_amount'] );
+		$this->assertSame( 'pm_default', $result['approval_block']['approval_contract']['selected_payment_method_id'] );
+		$this->assertSame( 'blaze.approval.charge_acknowledgement', $result['approval_block']['charge_acknowledgement']['template_key'] );
+		$this->assertContains( 'approved_at', $result['approval_block']['approval_event_required_fields'] );
+		$this->assertContains( 'idempotency_key', $result['approval_block']['approval_event_required_fields'] );
 	}
 
 	/**

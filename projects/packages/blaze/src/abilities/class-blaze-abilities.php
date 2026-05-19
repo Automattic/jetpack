@@ -660,11 +660,76 @@ class Blaze_Abilities extends Registrar {
 						'approval_block'   => array(
 							'type'        => 'object',
 							'description' => __( 'Approval wording keys and exact package identity, present when a saved payment method makes chat-native submit eligible.', 'jetpack-blaze' ),
+							'required'    => array(
+								'prepared_campaign_id',
+								'prepared_campaign_hash',
+								'title_key',
+								'body_key',
+								'confirmation_label_key',
+								'approval_statement',
+								'approval_contract',
+								'approval_event',
+								'approval_event_required_fields',
+								'charge_acknowledgement',
+								'requires_exact_identity',
+								'requires_reprepare_edits',
+							),
+							'properties'  => array(
+								'prepared_campaign_id' => array(
+									'type'        => 'string',
+									'description' => __( 'Prepared campaign package ID that must be echoed by the approval event.', 'jetpack-blaze' ),
+								),
+								'prepared_campaign_hash' => array(
+									'type'        => 'string',
+									'description' => __( 'Prepared campaign package hash that must be echoed by the approval event.', 'jetpack-blaze' ),
+								),
+								'title_key'   => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the approval title.', 'jetpack-blaze' ),
+								),
+								'body_key'    => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the approval body.', 'jetpack-blaze' ),
+								),
+								'confirmation_label_key' => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the explicit approval control label.', 'jetpack-blaze' ),
+								),
+								'approval_statement' => array(
+									'type'        => 'string',
+									'description' => __( 'Canonical fallback approval wording owned by Blaze.', 'jetpack-blaze' ),
+								),
+								'approval_contract' => array(
+									'type'        => 'object',
+									'description' => __( 'Language-independent approval contract containing the exact package identity, terms/policy versions, charge terms, cancellation wording version, payment method, user, and site.', 'jetpack-blaze' ),
+								),
+								'approval_event' => array(
+									'type'        => 'object',
+									'description' => __( 'Approval event template. Clients must set approved_at and submit the full structured event; normal chat text is not approval.', 'jetpack-blaze' ),
+								),
+								'approval_event_required_fields' => array(
+									'type'        => 'array',
+									'description' => __( 'Fields required for a valid structured approval event.', 'jetpack-blaze' ),
+									'items'       => array(
+										'type' => 'string',
+									),
+								),
+								'charge_acknowledgement' => array(
+									'type'        => 'object',
+									'description' => __( 'Localization key and live prepared values for rendering the widget-equivalent charge acknowledgement.', 'jetpack-blaze' ),
+								),
+								'requires_exact_identity' => array(
+									'type' => 'boolean',
+								),
+								'requires_reprepare_edits' => array(
+									'type' => 'boolean',
+								),
+							),
 						),
 						'material_edit_policy' => array(
 							'type'        => 'object',
 							'description' => __( 'Fields that require a new prepare-campaign call before approval or submit because they change the prepared package identity.', 'jetpack-blaze' ),
-							'required'    => array( 'requires_reprepare', 'material_fields', 'message' ),
+							'required'    => array( 'requires_reprepare', 'material_fields', 'non_material_fields', 'message' ),
 						),
 						'intent'           => array(
 							'type'        => 'string',
