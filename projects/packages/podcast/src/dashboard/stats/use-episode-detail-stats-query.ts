@@ -1,6 +1,6 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import wpcomRequest from 'wpcom-proxy-request';
+import { addQueryArgs } from '@wordpress/url';
 import { resolveSelectionRange } from './range';
 import type {
 	PodcastEpisodeDetailStats,
@@ -27,8 +27,7 @@ export function useEpisodeDetailStatsQuery(
 	const { from, to } = resolveSelectionRange( selection );
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId || ! postId ) {
+		if ( ! postId ) {
 			setData( undefined );
 			setIsLoading( false );
 			setIsError( false );
@@ -39,10 +38,8 @@ export function useEpisodeDetailStatsQuery(
 		setIsLoading( true );
 		setIsError( false );
 
-		wpcomRequest< PodcastEpisodeDetailStatsResponse >( {
-			path: `/sites/${ blogId }/podcast-stats/episode/${ postId }`,
-			apiNamespace: 'wpcom/v2',
-			query: new URLSearchParams( { from, to } ).toString(),
+		apiFetch< PodcastEpisodeDetailStatsResponse >( {
+			path: addQueryArgs( `/wpcom/v2/podcast-stats/episode/${ postId }`, { from, to } ),
 			method: 'GET',
 		} )
 			.then( response => {

@@ -1,6 +1,6 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import wpcomRequest from 'wpcom-proxy-request';
+import { addQueryArgs } from '@wordpress/url';
 import { resolveSelectionRange } from './range';
 import type {
 	PodcastShowStats,
@@ -58,16 +58,10 @@ export function useShowStatsQuery(
 	const { from, to } = range;
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		let cancelled = false;
 		setOverviewError( false );
-		wpcomRequest< PodcastStatsOverviewResponse >( {
-			path: `/sites/${ blogId }/podcast-stats/overview`,
-			apiNamespace: 'wpcom/v2',
-			query: new URLSearchParams( { limit: String( limit ) } ).toString(),
+		apiFetch< PodcastStatsOverviewResponse >( {
+			path: addQueryArgs( '/wpcom/v2/podcast-stats/overview', { limit } ),
 			method: 'GET',
 		} )
 			.then( response => {
@@ -86,20 +80,10 @@ export function useShowStatsQuery(
 	}, [ limit ] );
 
 	useEffect( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			return;
-		}
 		let cancelled = false;
 		setSummaryError( false );
-		wpcomRequest< PodcastStatsSummaryResponse >( {
-			path: `/sites/${ blogId }/podcast-stats`,
-			apiNamespace: 'wpcom/v2',
-			query: new URLSearchParams( {
-				from,
-				to,
-				limit: String( limit ),
-			} ).toString(),
+		apiFetch< PodcastStatsSummaryResponse >( {
+			path: addQueryArgs( '/wpcom/v2/podcast-stats', { from, to, limit } ),
 			method: 'GET',
 		} )
 			.then( response => {

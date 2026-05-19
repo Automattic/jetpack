@@ -1,9 +1,8 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import wpcomRequest from 'wpcom-proxy-request';
 
 // Stable shape from
 // wpcom: wp-content/rest-api-plugins/endpoints/podcast-distribution.php.
@@ -75,18 +74,10 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 	const { invalidateResolution } = useDispatch( coreStore );
 
 	const submit = useCallback( () => {
-		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-		if ( ! blogId ) {
-			setErrorMessage(
-				__( 'We couldn’t reach Pocket Casts right now. Please try again.', 'jetpack-podcast' )
-			);
-			return;
-		}
 		setIsSubmitting( true );
 		setErrorMessage( null );
-		wpcomRequest< PocketCastsSubmitResponse >( {
-			path: `/sites/${ blogId }/podcast-distribution/pocket-casts/submit`,
-			apiNamespace: 'wpcom/v2',
+		apiFetch< PocketCastsSubmitResponse >( {
+			path: '/wpcom/v2/podcast-distribution/pocket-casts/submit',
 			method: 'POST',
 		} )
 			.then( response => {
