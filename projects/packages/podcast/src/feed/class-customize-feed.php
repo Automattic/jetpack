@@ -77,11 +77,12 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Add iTunes + Google Play XML namespaces to the `<rss>` open tag.
+	 * Add iTunes + Google Play + Podcasting 2.0 XML namespaces to the `<rss>` open tag.
 	 */
 	public static function output_namespaces() {
 		echo "\n\t" . 'xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"' . "\n";
 		echo "\t" . 'xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"' . "\n";
+		echo "\t" . 'xmlns:podcast="https://podcastindex.org/namespace/1.0"' . "\n";
 	}
 
 	/**
@@ -202,6 +203,37 @@ class Customize_Feed {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</googleplay:description>\n";
 		}
+
+		$episode_attrs = self::episode_block_attrs( $post );
+		$chapters_url  = isset( $episode_attrs['chaptersUrl'] ) ? (string) $episode_attrs['chaptersUrl'] : '';
+		if ( '' !== $chapters_url ) {
+			$chapters_type = isset( $episode_attrs['chaptersType'] ) ? (string) $episode_attrs['chaptersType'] : 'application/json+chapters';
+			echo '<podcast:chapters url="' . esc_url( $chapters_url ) . '" type="' . esc_attr( $chapters_type ) . "\" />\n";
+		}
+	}
+
+	/**
+	 * Read the attributes of the first `jetpack/podcast-episode` block on a post.
+	 * Returns an empty array when the post has no episode block or the block has
+	 * no attributes. Lightweight stand-in for the helper introduced by PR 2 — when
+	 * that lands, callers can route through the shared version instead.
+	 *
+	 * @param WP_Post $post Episode post.
+	 * @return array<string, mixed>
+	 */
+	private static function episode_block_attrs( WP_Post $post ): array {
+		// `strpos` precheck keeps the non-episode case (every non-podcast post) cheap;
+		// `parse_blocks()` is only walked for posts that actually contain the block.
+		if ( false === strpos( $post->post_content, '<!-- wp:jetpack/podcast-episode' ) ) {
+			return array();
+		}
+		$blocks = parse_blocks( $post->post_content );
+		foreach ( $blocks as $block ) {
+			if ( isset( $block['blockName'] ) && 'jetpack/podcast-episode' === $block['blockName'] ) {
+				return is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			}
+		}
+		return array();
 	}
 
 	/**
