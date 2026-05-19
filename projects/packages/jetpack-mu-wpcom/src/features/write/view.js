@@ -3769,6 +3769,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				categories: selectedCats,
 				...tagData,
 				featured_media: state.featuredMediaId || 0,
+				wpcom_write_editor_used: true,
 			},
 		} );
 
@@ -3800,6 +3801,14 @@ async function savePost( postStatus, isAutosave = false ) {
 			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+
+			// Track publish event client-side for reliable Write editor attribution.
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_post_published',
+				{ post_id: post.id, is_update: isUpdate },
+			] );
 			setTimeout( () => {
 				// Hide the page before navigating so the bfcache snapshot
 				// stores it hidden — prevents a flash of stale content if

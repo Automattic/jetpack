@@ -481,6 +481,10 @@ function wpcom_write_render_admin_page() {
 			$post_status        = $edit_post->post_status;
 			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
 			$unsupported_type   = wpcom_write_detect_unsupported_content( $edit_post->post_content );
+
+			// Track that this post was last edited in the Write editor,
+			// matching the pattern used by the block and classic editors.
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
 		} else {
 			$edit_post_id = 0;
 		}

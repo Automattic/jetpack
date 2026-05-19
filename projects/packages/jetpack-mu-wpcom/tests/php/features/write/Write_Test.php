@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-block-editor/functions.editor-type.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/write/write.php';
 
 /**
@@ -1052,5 +1053,139 @@ class Write_Test extends \WorDBless\BaseTestCase {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Test that loading an existing post in the Write editor sets the last editor meta.
+	 */
+	public function test_existing_post_sets_last_editor_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		// Simulate opening the post in the Write editor.
+		$_GET['post'] = $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that loading an existing post overwrites a previous editor meta value.
+	 */
+	public function test_existing_post_overwrites_previous_editor_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		// Simulate the post was previously edited in the block editor.
+		update_post_meta( $post_id, '_last_editor_used_jetpack', 'block-editor' );
+
+		$_GET['post'] = $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that saving a post via REST with wpcom_write_editor_used sets last-editor meta.
+	 */
+	public function test_rest_save_with_write_editor_signal_sets_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'REST Signal Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $post_id ) );
+		$request->set_body_params(
+			array(
+				'title'                   => 'Updated via Write',
+				'wpcom_write_editor_used' => true,
+			)
+		);
+
+		rest_get_server()->dispatch( $request );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that saving a post via REST without the signal does not set last-editor meta.
+	 */
+	public function test_rest_save_without_write_editor_signal_does_not_set_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'REST No Signal Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $post_id ) );
+		$request->set_body_params(
+			array(
+				'title' => 'Updated without Write',
+			)
+		);
+
+		rest_get_server()->dispatch( $request );
+
+		$this->assertEmpty( get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that a user without edit_post capability cannot trigger the meta update.
+	 */
+	public function test_remember_write_editor_without_capability_does_not_set_meta() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Capability Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		// Switch to a subscriber who cannot edit this post.
+		wp_set_current_user( $this->subscriber_id );
+
+		$request = new \WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $post_id ) );
+		$request->set_body_params(
+			array(
+				'wpcom_write_editor_used' => true,
+			)
+		);
+
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_write_editor( get_post( $post_id ), $request );
+
+		$this->assertEmpty( get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
 	}
 }
