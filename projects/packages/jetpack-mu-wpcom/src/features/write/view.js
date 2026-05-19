@@ -328,6 +328,67 @@ function getContent() {
 const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
 const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
 
+// Cache of media library size lookups keyed by attachment ID.  Populated
+// at upload time from the API response, then again lazily when the user
+// changes the size of a figure loaded from a saved post.
+const mediaSizesCache = new Map();
+
+/**
+ * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
+ *
+ * @param {HTMLImageElement} img - The image element.
+ * @return {number|null} Numeric attachment ID, or null when the class is absent.
+ */
+function getMediaIdFromImg( img ) {
+	if ( ! img ) return null;
+	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
+	return match ? parseInt( match[ 1 ], 10 ) : null;
+}
+
+/**
+ * Get the registered media-library sizes for an attachment, caching the
+ * result. Returns null for images without a media library ID (e.g. inserted
+ * from an external URL).
+ *
+ * @param {number} id - Attachment ID.
+ * @return {Promise<Object|null>} Resolves to the sizes object, or null.
+ */
+async function fetchMediaSizes( id ) {
+	if ( mediaSizesCache.has( id ) ) return mediaSizesCache.get( id );
+	try {
+		const media = await window.wp.apiFetch( { path: `/wp/v2/media/${ id }` } );
+		const sizes = media.media_details?.sizes || null;
+		mediaSizesCache.set( id, sizes );
+		return sizes;
+	} catch {
+		mediaSizesCache.set( id, null );
+		return null;
+	}
+}
+
+/**
+ * Swap an image's src to the registered media-library URL for the given
+ * size, plus update width/height attributes so the rendered size is right
+ * everywhere — block editor, published page, RSS.
+ *
+ * No-op if the image isn't in the media library or the requested size
+ * isn't registered (theme/plugin chose not to generate it).
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug ('thumbnail' / 'medium' / 'large' / 'full').
+ */
+async function applyMediaSizeToFigure( fig, slug ) {
+	const img = fig.querySelector( 'img' );
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return;
+	const sizes = await fetchMediaSizes( id );
+	const target = sizes?.[ slug ] || sizes?.full;
+	if ( ! target?.source_url ) return;
+	img.src = target.source_url;
+	if ( target.width ) img.setAttribute( 'width', target.width );
+	if ( target.height ) img.setAttribute( 'height', target.height );
+}
+
 /**
  * Read alignment preset from a figure's classList.
  *
@@ -376,6 +437,7 @@ function sizeLabelForSlug( slug ) {
 function syncFigureStateFromDom( fig ) {
 	if ( ! fig ) {
 		state.figureSelected = false;
+		state.figureHasMediaId = false;
 		state.figureSizeSlug = '';
 		state.sizeLabel = sizeLabelForSlug( '' );
 		return;
@@ -383,6 +445,7 @@ function syncFigureStateFromDom( fig ) {
 	const align = getFigureAlign( fig );
 	const slug = getFigureSizeSlug( fig );
 	state.figureSelected = true;
+	state.figureHasMediaId = !! getMediaIdFromImg( fig.querySelector( 'img' ) );
 	state.figureSizeSlug = slug;
 	state.sizeLabel = sizeLabelForSlug( slug );
 	state.formatAlignLeft = align === 'left' || align === '';
@@ -811,18 +874,21 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 
-			// Read figure classes for alignment + size preset. These map to
-			// core wp:image attributes so the published markup matches what
-			// the block editor would emit, and the block editor can edit
-			// these images without surprises.
+			// Read figure classes for alignment + size preset and the
+			// `wp-image-<id>` class for the media library attachment ID.
+			// These map to core wp:image attributes so the published markup
+			// matches what the block editor would emit, and the block editor
+			// can re-open these images without surprises.
 			const imageAlign = [ 'left', 'center', 'right' ].find( a =>
 				node.classList.contains( 'align' + a )
 			);
 			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
 				node.classList.contains( 'size-' + s )
 			);
+			const mediaId = getMediaIdFromImg( img );
 
 			const imageAttrs = [];
+			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
 			if ( imageAlign ) imageAttrs.push( `"align":"${ imageAlign }"` );
 			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
 			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
@@ -831,12 +897,14 @@ function convertToBlocks( html ) {
 			if ( imageAlign ) figureClasses.push( 'align' + imageAlign );
 			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
 
+			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
 			blocks.push(
 				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
 					' '
 				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
 					alt
-				) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// Extract citation from <cite> if present.
@@ -1622,6 +1690,9 @@ async function uploadFileToMedia( file ) {
 			state.featuredMediaId = media.id;
 		}
 		state.uploadedMediaId = media.id;
+		// Prime the cache so insertImageFromUrl can use it without a
+		// second REST roundtrip.
+		mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 
 		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
@@ -3337,6 +3408,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeSmall() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'thumbnail' );
+			applyMediaSizeToFigure( selectedFigure, 'thumbnail' );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3344,6 +3416,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeMedium() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'medium' );
+			applyMediaSizeToFigure( selectedFigure, 'medium' );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3351,6 +3424,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeLarge() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'large' );
+			applyMediaSizeToFigure( selectedFigure, 'large' );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3358,6 +3432,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeFull() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'full' );
+			applyMediaSizeToFigure( selectedFigure, 'full' );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3703,6 +3778,12 @@ const { state } = store( 'wpcom-write', {
 
 		updateImageUrl() {
 			const el = getElement();
+			// Typing in the URL field overrides any pending upload — clear
+			// the media ID so insertImageFromUrl doesn't apply uploaded-size
+			// behavior to a manually pasted external URL.
+			if ( state.uploadedMediaId && el.ref.value !== state.imageUrl ) {
+				state.uploadedMediaId = 0;
+			}
 			state.imageUrl = el.ref.value;
 		},
 
@@ -3716,13 +3797,25 @@ const { state } = store( 'wpcom-write', {
 
 			restoreSelection();
 			const figure = document.createElement( 'figure' );
-			// Default new images to the Large size preset, matching the
-			// block editor's default for new uploads.
-			figure.className = 'bw-image-figure size-large';
 			const img = document.createElement( 'img' );
 			img.src = state.imageUrl;
 			img.alt = state.imageAlt || '';
-			figure.appendChild( img );
+
+			if ( state.uploadedMediaId ) {
+				// Media-library image: tag it for round-trip with the block
+				// editor and swap src to the Large-sized URL so the natural
+				// img dimensions match the chosen preset.
+				img.className = 'wp-image-' + state.uploadedMediaId;
+				figure.className = 'bw-image-figure size-large';
+				figure.appendChild( img );
+				applyMediaSizeToFigure( figure, 'large' );
+			} else {
+				// External URL (no media library entry, no resized files):
+				// no size preset — the Size dropdown will stay hidden when
+				// this figure is selected, matching block editor behavior.
+				figure.className = 'bw-image-figure';
+				figure.appendChild( img );
+			}
 
 			const p = insertMediaBlock( figure );
 			if ( p ) {

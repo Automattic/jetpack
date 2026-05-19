@@ -378,6 +378,15 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 			unset( $attrs['className'] );
 		}
 
+		// The block editor stamps `linkDestination: "none"` onto image
+		// blocks by default, even when the user never set a link.  Strip
+		// that no-op value so block-editor-created images round-trip into
+		// Write.  Actual link configurations (media / attachment / custom)
+		// still flag as unsupported below since Write has no image-link UI.
+		if ( 'image' === $name && ( $attrs['linkDestination'] ?? '' ) === 'none' ) {
+			unset( $attrs['linkDestination'] );
+		}
+
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
 		if ( ! empty( $extra ) ) {
 			return true;
@@ -653,6 +662,7 @@ function wpcom_write_render_admin_page() {
 			'formatUList'         => false,
 			'insideList'          => false,
 			'figureSelected'      => false,
+			'figureHasMediaId'    => false,
 			'figureSizeSlug'      => '',
 			'sizeLabel'           => __( 'Large', 'jetpack-mu-wpcom' ),
 			'showSizeMenu'        => false,
@@ -808,8 +818,9 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.cannotAlign" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-aligncenter"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.cannotAlign" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignright"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-justify"></span></button>
-			<!-- Image size (only enabled when a figure is selected) -->
-			<div class="bw-tool-with-menu bw-tool-size" hidden data-wp-bind--hidden="!state.figureSelected">
+			<!-- Image size (only enabled when a media-library image is selected;
+				URL-pasted images have no registered sizes to swap between) -->
+			<div class="bw-tool-with-menu bw-tool-size" hidden data-wp-bind--hidden="!state.figureHasMediaId">
 				<button class="bw-tool bw-tool-size-toggle" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="-1" data-wp-bind--aria-expanded="state.showSizeMenu" data-wp-on--click="actions.toggleSizeMenu" title="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>">
 					<span class="bw-tool-label" data-wp-text="state.sizeLabel"><?php echo esc_html__( 'Default', 'jetpack-mu-wpcom' ); ?></span>
 					<span class="bw-tool-caret">&#9662;</span>

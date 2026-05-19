@@ -829,6 +829,31 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that an image with linkDestination:none (the no-op default the
+	 * block editor stamps onto images) round-trips into Write.
+	 */
+	public function test_detect_unsupported_image_with_no_op_link_destination() {
+		$content = '<!-- wp:image {"id":443,"sizeSlug":"medium","linkDestination":"none","align":"right"} --><figure class="wp-block-image alignright size-medium"><img src="test.jpg" alt="" class="wp-image-443"/></figure><!-- /wp:image -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with a real link configuration returns 'block-editor'.
+	 * Write has no UI for image links, so any non-"none" linkDestination
+	 * should bounce to the block editor.
+	 */
+	public function test_detect_unsupported_image_with_real_link_destination() {
+		foreach ( array( 'media', 'attachment', 'custom' ) as $dest ) {
+			$content = '<!-- wp:image {"linkDestination":"' . $dest . '"} --><figure class="wp-block-image"><a href="http://example.com/"><img src="test.jpg" alt=""/></a></figure><!-- /wp:image -->';
+			$this->assertSame(
+				'block-editor',
+				wpcom_write_detect_unsupported_content( $content ),
+				"linkDestination={$dest} should bounce to block editor"
+			);
+		}
+	}
+
+	/**
 	 * Test that a supported quote block returns false.
 	 */
 	public function test_detect_unsupported_quote_block() {
@@ -1169,7 +1194,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$js_attrs = array(
 			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
 			'heading'   => array( 'align', 'level' ),
-			'image'     => array( 'align', 'sizeSlug' ),
+			'image'     => array( 'align', 'id', 'sizeSlug' ),
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),
@@ -1182,7 +1207,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// but safely ignores them.  Any PHP attr not in $js_attrs and not
 		// listed here is an error — it would let unsupported content through.
 		$php_extras = array(
-			'image' => array( 'alt', 'id' ),
+			'image' => array( 'alt' ),
 		);
 
 		foreach ( $js_attrs as $block => $expected ) {
