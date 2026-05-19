@@ -1,7 +1,7 @@
 // Pocket Casts ships its own submit endpoint
-// (`/wpcom/v2/sites/<blog_id>/podcast-distribution/pocket-casts/submit`), so this
-// app replaces the default 3-step modal with a single-click flow whose button
-// reflects the last-known state and the relay's verdict on submit.
+// (`/wpcom/v2/podcast-distribution/pocket-casts/submit`, proxied to wpcom), so
+// this app replaces the default 3-step modal with a single-click flow whose
+// button reflects the last-known state and the relay's verdict on submit.
 
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {

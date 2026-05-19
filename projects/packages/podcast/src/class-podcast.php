@@ -57,6 +57,8 @@ class Podcast {
 		// but the wpcom/v2 routes still need to exist so permission and
 		// callback checks can handle the request.
 		Posts_To_Podcast_Endpoint::init();
+		Podcast_Stats_Endpoint::init();
+		Podcast_Distribution_Endpoint::init();
 
 		if ( ! self::is_enabled() ) {
 			return;
