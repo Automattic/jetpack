@@ -1220,6 +1220,62 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Whether the current request is scoped to exactly the `product` post
+	 * type via the URL. In practice this is driven by the Jetpack Search
+	 * array shape `?post_types[]=product` — the shape store/url-state.js
+	 * writes and round-trips. The scalar `?post_type=product` is also
+	 * accepted for completeness, but a top-level `?post_type=product` is a
+	 * WordPress core query var that reroutes the request to the product
+	 * post-type archive (the WooCommerce shop template) before any Jetpack
+	 * Search block renders, so it does not reach this code on a normal
+	 * search page; it only matters for a custom search context that carries
+	 * the scalar param within the Search template.
+	 *
+	 * Used by results-list/render.php to auto-switch to the product layout
+	 * for a product search without the author hand-picking it. "Exactly
+	 * product" is deliberate: a mixed request (e.g.
+	 * `?post_types[]=product&post_types[]=post`) keeps the saved layout so
+	 * non-product results never render as product cards. Reads `$_GET`
+	 * directly rather than `parse_url_filters()` because post-type scope is
+	 * not a registered visitor-facing filter — it never lands in
+	 * `activeFilters`.
+	 *
+	 * Deliberately not memoized (unlike `is_initial_loading()`): the only
+	 * caller is results-list/render.php, and a page carries one such block,
+	 * so this runs at most once per request. Mirrors `parse_url_filters()`,
+	 * which is likewise uncached. Skipping the static-cache + test-reset
+	 * plumbing keeps the no-shared-state contract the tests rely on.
+	 *
+	 * @return bool
+	 */
+	public static function request_is_product_only(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
+		$raw = wp_unslash( $_GET );
+		if ( ! is_array( $raw ) ) {
+			return false;
+		}
+
+		$requested = array();
+		foreach ( array( 'post_type', 'post_types' ) as $param ) {
+			if ( ! isset( $raw[ $param ] ) ) {
+				continue;
+			}
+			$values = is_array( $raw[ $param ] ) ? $raw[ $param ] : array( $raw[ $param ] );
+			foreach ( $values as $value ) {
+				if ( ! is_scalar( $value ) ) {
+					continue;
+				}
+				$slug = sanitize_key( (string) $value );
+				if ( '' !== $slug ) {
+					$requested[ $slug ] = true;
+				}
+			}
+		}
+
+		return array( 'product' ) === array_keys( $requested );
+	}
+
+	/**
 	 * Pre-hydration view state for a filter block's wrapper. Centralizes the
 	 * seeded-state read shared by filter-checkbox and filter-date so each
 	 * render.php branches on a single struct rather than re-deriving the
