@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast Episode: swap inline chapters editor for a chapters JSON file uploader; feed now emits podcast:chapters.
