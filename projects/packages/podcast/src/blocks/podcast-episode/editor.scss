@@ -58,11 +58,14 @@
 		border-color: var(--wp-admin-theme-color, #007cba);
 	}
 
+	// Mirror what the feed serves: Photon center-crops the cover to a square,
+	// so the picker preview does too (via aspect-ratio + object-fit) to avoid
+	// the editor showing one composition and the feed showing another.
 	img {
 		display: block;
 		width: 100%;
-		height: auto;
-		max-width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
 	}
 }
 

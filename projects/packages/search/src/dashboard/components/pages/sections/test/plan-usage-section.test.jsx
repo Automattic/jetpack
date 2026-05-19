@@ -1,18 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import PlanUsageSection from '../plan-usage-section';
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	ContextualUpgradeTrigger: ( { description, cta } ) => (
-		<div data-testid="upgrade-trigger">
-			<span data-testid="upgrade-description">{ description }</span>
-			<span data-testid="upgrade-cta">{ cta }</span>
-		</div>
-	),
-	ThemeProvider: ( { children } ) => <>{ children }</>,
-} ) );
-
 jest.mock( '@wordpress/ui', () => ( {
 	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
+	Notice: {
+		Root: ( { children } ) => <div data-testid="upgrade-trigger">{ children }</div>,
+		Description: ( { children } ) => <span data-testid="upgrade-description">{ children }</span>,
+		Actions: ( { children } ) => <div>{ children }</div>,
+		ActionButton: ( { children, onClick } ) => (
+			<button data-testid="upgrade-cta" onClick={ onClick }>
+				{ children }
+			</button>
+		),
+	},
 } ) );
 
 jest.mock( '../../../donut-meter-container', () => {
