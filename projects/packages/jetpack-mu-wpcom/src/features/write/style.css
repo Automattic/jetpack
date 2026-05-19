@@ -583,6 +583,67 @@
 	font-weight: 700;
 }
 
+/* Image size dropdown — mirrors heading dropdown styling for consistency. */
+.bw-tool-with-menu {
+	position: relative;
+	flex-shrink: 0;
+	display: inline-flex;
+}
+
+.bw-tool-with-menu[hidden] {
+	display: none;
+}
+
+.bw-tool-size-toggle {
+	width: auto;
+	padding: 0 8px;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.bw-size-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 4px;
+	min-width: 140px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-size-menu:not([hidden]) {
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-size-menu[hidden] {
+	display: none;
+}
+
+.bw-size-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 14px;
+	color: #333;
+	transition: background 0.1s ease;
+}
+
+.bw-size-option:hover {
+	background: #f5f5f5;
+}
+
 /* Text color menu */
 .bw-color-menu {
 	position: absolute;
@@ -1290,6 +1351,77 @@
 	position: relative;
 }
 
+/* Image alignment.
+ * Core wp:image emits these classes on the figure and they map to the
+ * align attribute we serialize in convertToBlocks().  alignleft / alignright
+ * float so adjacent text wraps; aligncenter centers a block-level figure. */
+.bw-content figure.alignleft {
+	float: left;
+	margin: 0.5em 1.5em 1em 0;
+	max-width: 50%;
+}
+
+.bw-content figure.alignright {
+	float: right;
+	margin: 0.5em 0 1em 1.5em;
+	max-width: 50%;
+}
+
+.bw-content figure.aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.aligncenter img {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Image size presets.
+ * Map to core wp:image sizeSlug values; Full is the default (no constraint).
+ * Centering is handled here too so a small/medium/large image is laid out
+ * sensibly even before the user adds an alignment. */
+.bw-content figure.size-thumbnail img {
+	max-width: 150px;
+}
+
+.bw-content figure.size-medium img {
+	max-width: 50%;
+}
+
+.bw-content figure.size-large img {
+	max-width: 75%;
+}
+
+.bw-content figure.size-full img {
+	max-width: 100%;
+}
+
+.bw-content figure.size-thumbnail,
+.bw-content figure.size-medium,
+.bw-content figure.size-large {
+	text-align: center;
+}
+
+/* When a sized image is also floated (alignleft/alignright), constrain the
+ * figure's overall width to match the chosen size so the float doesn't take
+ * the full column width. */
+.bw-content figure.alignleft.size-thumbnail,
+.bw-content figure.alignright.size-thumbnail {
+	max-width: 150px;
+}
+
+.bw-content figure.alignleft.size-medium,
+.bw-content figure.alignright.size-medium {
+	max-width: 50%;
+}
+
+.bw-content figure.alignleft.size-large,
+.bw-content figure.alignright.size-large {
+	max-width: 75%;
+}
+
 .bw-content figure .bw-img-controls,
 .bw-content .bw-image-figure .bw-img-controls {
 	position: relative;
@@ -1320,7 +1452,8 @@
 }
 
 .bw-img-controls:hover .bw-img-delete,
-.bw-img-controls:focus-within .bw-img-delete {
+.bw-img-controls:focus-within .bw-img-delete,
+figure.bw-figure-selected .bw-img-delete {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -1357,7 +1490,8 @@
 }
 
 .bw-img-controls:hover .bw-img-alt,
-.bw-img-controls:focus-within .bw-img-alt {
+.bw-img-controls:focus-within .bw-img-alt,
+figure.bw-figure-selected .bw-img-alt {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -1411,7 +1545,8 @@
 }
 
 .bw-img-controls:hover .bw-img-caption-btn,
-.bw-img-controls:focus-within .bw-img-caption-btn {
+.bw-img-controls:focus-within .bw-img-caption-btn,
+figure.bw-figure-selected .bw-img-caption-btn {
 	opacity: 1;
 	transform: scale(1);
 }
