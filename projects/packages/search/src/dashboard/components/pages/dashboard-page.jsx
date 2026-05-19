@@ -160,7 +160,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const hasAdditionalSettings =
 		isReaderChatAvailable ||
 		isAIAgentAccessAvailable ||
-		( supportsInstantSearch && isInstantSearchEnabled );
+		( supportsInstantSearch && isInstantSearchEnabled ) ||
+		showWooCommerceProductSearchControl;
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
