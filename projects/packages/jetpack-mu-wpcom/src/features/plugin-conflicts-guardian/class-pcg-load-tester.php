@@ -336,29 +336,36 @@ class PCG_Load_Tester {
 
 	/**
 	 * Build a Hooks instance that strips the forwarded `Cookie:` header on
-	 * any redirect whose host differs from the original. Defends against a
-	 * misconfigured site whose admin URL redirects off-host: we'd otherwise
-	 * leak admin auth cookies to the third party.
+	 * any redirect that leaves the original origin: off-host, or an
+	 * https→http scheme downgrade on the same host. Defends against
+	 * leaking admin auth cookies (we forward `Cookie:` manually, so
+	 * Requests won't enforce browser `Secure` semantics for us).
+	 * Relative redirects inherit the original origin and pass through.
 	 *
-	 * @param string $original_url Initial probe URL whose host is the trust boundary.
+	 * @param string $original_url Initial probe URL whose origin is the trust boundary.
 	 * @return \WpOrg\Requests\Hooks
 	 */
 	protected function build_same_host_cookie_hook( $original_url ) {
-		$original_host = strtolower( (string) wp_parse_url( $original_url, PHP_URL_HOST ) );
+		$original        = wp_parse_url( $original_url );
+		$original_host   = isset( $original['host'] ) ? strtolower( (string) $original['host'] ) : '';
+		$original_scheme = isset( $original['scheme'] ) ? strtolower( (string) $original['scheme'] ) : '';
 
 		$hooks = new \WpOrg\Requests\Hooks();
 		$hooks->register(
 			'requests.before_redirect',
-			static function ( &$location, &$req_headers, &$req_data, &$options, $return_value ) use ( $original_host ) {
+			static function ( &$location, &$req_headers, &$req_data, &$options, $return_value ) use ( $original_host, $original_scheme ) {
 				unset( $req_data, $options, $return_value );
 				if ( ! is_array( $req_headers ) ) {
 					return;
 				}
-				$next_host = strtolower( (string) wp_parse_url( (string) $location, PHP_URL_HOST ) );
-				if ( '' === $next_host || $next_host === $original_host ) {
-					return;
+				$next            = wp_parse_url( (string) $location );
+				$next_host       = isset( $next['host'] ) ? strtolower( (string) $next['host'] ) : $original_host;
+				$next_scheme     = isset( $next['scheme'] ) ? strtolower( (string) $next['scheme'] ) : $original_scheme;
+				$same_host       = '' !== $next_host && $next_host === $original_host;
+				$scheme_downgrade = 'https' === $original_scheme && 'https' !== $next_scheme;
+				if ( ! $same_host || $scheme_downgrade ) {
+					unset( $req_headers['Cookie'] );
 				}
-				unset( $req_headers['Cookie'] );
 			}
 		);
 		return $hooks;
