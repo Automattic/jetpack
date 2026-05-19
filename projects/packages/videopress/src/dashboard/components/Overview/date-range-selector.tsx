@@ -1,6 +1,7 @@
-import { DropdownMenu } from '@wordpress/components';
+import { Dropdown, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import type { DateRange } from '../../types/stats';
 import type { ReactElement } from 'react';
 
@@ -31,10 +32,16 @@ function label( value: DateRange ): string {
 }
 
 /**
- * Header-action date-range pill. Clicking opens a DropdownMenu with the
- * four range presets; selecting one fires `onChange` and dismisses the
- * menu. Rendered in DashboardLayout's `actions` slot from
+ * Header-action date-range pill. Clicking opens a menu with the four
+ * range presets; selecting one fires `onChange` and dismisses the menu.
+ * Rendered in DashboardLayout's `actions` slot from
  * `routes/overview/stage.tsx`.
+ *
+ * The toggle is a `@wordpress/ui` Button in `tone="neutral"` so the
+ * styling matches Backup's overview filter row (`<Button variant="outline"
+ * tone="neutral">`). `@wordpress/components`'s `DropdownMenu` wraps a
+ * Button whose `variant` axis has no `neutral` option, so we fall back
+ * to the lower-level `<Dropdown>` primitive and render a custom toggle.
  *
  * @param props          - Component props.
  * @param props.value    - Currently selected range.
@@ -43,16 +50,35 @@ function label( value: DateRange ): string {
  */
 export default function DateRangeSelector( { value, onChange }: Props ): ReactElement {
 	return (
-		<DropdownMenu
-			icon={ calendar }
-			label={ label( value ) }
-			text={ label( value ) }
-			toggleProps={ { variant: 'secondary', size: 'compact' } }
-			controls={ ORDER.map( option => ( {
-				title: label( option ),
-				isActive: option === value,
-				onClick: () => onChange( option ),
-			} ) ) }
+		<Dropdown
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<Button
+					variant="outline"
+					tone="neutral"
+					onClick={ onToggle }
+					aria-expanded={ isOpen }
+					aria-haspopup="menu"
+				>
+					<Button.Icon icon={ calendar } />
+					{ label( value ) }
+				</Button>
+			) }
+			renderContent={ ( { onClose } ) => (
+				<MenuGroup>
+					{ ORDER.map( option => (
+						<MenuItem
+							key={ option }
+							isSelected={ option === value }
+							onClick={ () => {
+								onChange( option );
+								onClose();
+							} }
+						>
+							{ label( option ) }
+						</MenuItem>
+					) ) }
+				</MenuGroup>
+			) }
 		/>
 	);
 }
