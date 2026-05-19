@@ -282,8 +282,12 @@ class Sitemaps_Abilities extends Registrar {
 
 		$librarian = new \Jetpack_Sitemap_Librarian();
 
+		// jp_sitemap_filename() is documented `@param string $number`; for the
+		// master type it returns 'sitemap.xml' and ignores the number, but it
+		// must be non-null and string-typed to satisfy the contract (the
+		// int-`0` router call site predates this and is Phan-baselined).
 		return (string) $librarian->get_sitemap_text(
-			\jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+			\jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, '0' ),
 			JP_MASTER_SITEMAP_TYPE
 		);
 	}
