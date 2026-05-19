@@ -575,8 +575,8 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 		// The previously-scheduled tick should still be the next one (i.e. we
 		// didn't stack a new one at time() that would overshadow it).
 		$this->assertSame( $future, wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
-		// next_scheduled_at reflects that pending tick as a UTC string.
-		$this->assertSame( gmdate( 'Y-m-d H:i:s', $future ), $result['next_scheduled_at'] );
+		// next_scheduled_at reflects that pending tick as an ISO 8601 UTC string.
+		$this->assertSame( gmdate( 'Y-m-d\TH:i:s\Z', $future ), $result['next_scheduled_at'] );
 	}
 
 	/**
@@ -598,8 +598,8 @@ class Sitemaps_Abilities_Test extends WP_UnitTestCase {
 			$scheduled,
 			'A cron event should be scheduled after a successful dispatch.'
 		);
-		// The freshly-scheduled tick is reported as a UTC string.
-		$this->assertSame( gmdate( 'Y-m-d H:i:s', $scheduled ), $result['next_scheduled_at'] );
+		// The freshly-scheduled tick is reported as an ISO 8601 UTC string.
+		$this->assertSame( gmdate( 'Y-m-d\TH:i:s\Z', $scheduled ), $result['next_scheduled_at'] );
 	}
 
 	/**

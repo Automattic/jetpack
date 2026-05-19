@@ -126,7 +126,7 @@ class Sitemaps_Abilities extends Registrar {
 
 			'jetpack-sitemaps/request-rebuild' => array(
 				'label'               => __( 'Request a Jetpack Sitemaps rebuild', 'jetpack' ),
-				'description'         => __( 'Dispatch a full sitemap regeneration by scheduling the existing `jp_sitemap_cron_hook` cron event. Returns { dispatched, status, next_scheduled_at } where status is one of "queued" (a single-event cron tick was just scheduled), "running" (a build is already in flight per the `jetpack-sitemap-state-lock` transient), or "already_running" (alias of "running"; surfaced so callers can branch on either spelling). `next_scheduled_at` is the next `jp_sitemap_cron_hook` tick as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when nothing is scheduled (e.g. status=running with no future tick queued) — it tells the caller when the build they queued (or the one already pending) will actually run. Idempotent — calling this while a build is already in flight or already queued returns dispatched=false and the matching status rather than stacking duplicate cron events.', 'jetpack' ),
+				'description'         => __( 'Dispatch a full sitemap regeneration by scheduling the existing `jp_sitemap_cron_hook` cron event. Returns { dispatched, status, next_scheduled_at } where status is one of "queued" (a single-event cron tick was just scheduled), "running" (a build is already in flight per the `jetpack-sitemap-state-lock` transient), or "already_running" (alias of "running"; surfaced so callers can branch on either spelling). `next_scheduled_at` is the next `jp_sitemap_cron_hook` tick as an ISO 8601 UTC string with an explicit `Z` zone designator (e.g. `2026-05-19T19:33:20Z`), or null when nothing is scheduled (e.g. status=running with no future tick queued) — it tells the caller when the build they queued (or the one already pending) will actually run. Idempotent — calling this while a build is already in flight or already queued returns dispatched=false and the matching status rather than stacking duplicate cron events.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -423,22 +423,25 @@ class Sitemaps_Abilities extends Registrar {
 	}
 
 	/**
-	 * When the next `jp_sitemap_cron_hook` build tick is scheduled, as a UTC
-	 * "Y-m-d H:i:s" string, or null when nothing is scheduled.
+	 * When the next `jp_sitemap_cron_hook` build tick is scheduled, as an
+	 * ISO 8601 UTC string (e.g. `2026-05-19T19:33:20Z`), or null when nothing
+	 * is scheduled.
 	 *
 	 * Returned alongside the dispatch result so callers immediately know when
 	 * the build they queued (or the one already pending) will actually run,
 	 * without a second round-trip. Null in the `running` case when the lock is
 	 * held but no future tick is queued.
 	 *
-	 * UTC string (not `human_time_diff()`) for an unambiguous, locale-stable,
-	 * machine-parseable value consistent with the rest of the sitemaps surface.
+	 * ISO 8601 with the explicit `Z` zone designator (not `human_time_diff()`,
+	 * not a bare "Y-m-d H:i:s") so the timezone is unambiguous and the value is
+	 * locale-stable and machine-parseable — the same format the `sitemaps[]`
+	 * `lastmod` values use in `get-status`.
 	 */
 	protected static function get_next_scheduled_at(): ?string {
 		$timestamp = wp_next_scheduled( self::CRON_HOOK );
 		if ( false === $timestamp ) {
 			return null;
 		}
-		return gmdate( 'Y-m-d H:i:s', $timestamp );
+		return gmdate( 'Y-m-d\TH:i:s\Z', $timestamp );
 	}
 }
