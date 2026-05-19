@@ -29,7 +29,7 @@ const CategorySetupModal = ( {
 	onClose,
 	onSuccess,
 }: CategorySetupModalProps ) => {
-	const { mutate: saveSettings, isPending: saving } = useUpdatePodcastSettings();
+	const { mutateAsync: saveSettings, isPending: saving } = useUpdatePodcastSettings();
 
 	const [ categoryId, setCategoryId ] = useState( 0 );
 	const [ error, setError ] = useState< string | null >( null );
@@ -71,16 +71,10 @@ const CategorySetupModal = ( {
 				if ( ! existingTitle && siteName.trim() ) {
 					updates.podcasting_title = siteName.trim();
 				}
-				await new Promise< void >( ( resolve, reject ) => {
-					saveSettings( updates, {
-						onSuccess: () => resolve(),
-						onError: reject,
-						// Inline Notice below covers the error UX; suppress the hook's
-						// duplicate snackbar. Success is implicit (modal closes and
-						// lands the user on a populated Settings tab).
-						silent: true,
-					} );
-				} );
+				// Inline Notice below covers the error UX; suppress the hook's
+				// duplicate snackbar. Success is implicit (modal closes and
+				// lands the user on a populated Settings tab).
+				await saveSettings( updates, { silent: true } );
 				onSuccess();
 			} catch ( err ) {
 				setError(

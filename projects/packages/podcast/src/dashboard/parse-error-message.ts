@@ -7,16 +7,6 @@
  * @return           A string suitable for rendering in a Notice or aria-label.
  */
 export const parseErrorMessage = ( error: unknown, fallback: string ): string => {
-	if ( error instanceof Error ) {
-		return error.message;
-	}
-	if (
-		error &&
-		typeof error === 'object' &&
-		'message' in error &&
-		typeof ( error as { message: unknown } ).message === 'string'
-	) {
-		return ( error as { message: string } ).message;
-	}
-	return fallback;
+	const message = ( error as { message?: unknown } )?.message;
+	return typeof message === 'string' ? message : fallback;
 };
