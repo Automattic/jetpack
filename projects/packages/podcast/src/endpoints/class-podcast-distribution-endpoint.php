@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -20,6 +21,8 @@ use WP_REST_Server;
  * origins, so we proxy server-to-server with the user's token.
  */
 class Podcast_Distribution_Endpoint extends WP_REST_Controller {
+
+	use Relay_Response;
 
 	const REST_NAMESPACE = 'wpcom/v2';
 	const REST_BASE      = 'podcast-distribution';
@@ -108,28 +111,5 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 		);
 
 		return $this->relay_response( $response );
-	}
-
-	/**
-	 * Relay an upstream Connection\Client response back to the local REST client.
-	 *
-	 * @param array|\WP_Error $response The raw response from Connection\Client.
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	private function relay_response( $response ) {
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$code    = (int) wp_remote_retrieve_response_code( $response );
-		$body    = wp_remote_retrieve_body( $response );
-		$decoded = json_decode( $body, true );
-
-		$rest_response = rest_ensure_response( null === $decoded ? $body : $decoded );
-		if ( $code >= 100 && $code < 600 ) {
-			$rest_response->set_status( $code );
-		}
-		return $rest_response;
 	}
 }

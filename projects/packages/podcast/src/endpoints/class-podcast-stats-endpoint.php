@@ -25,6 +25,8 @@ use WP_REST_Server;
  */
 class Podcast_Stats_Endpoint extends WP_REST_Controller {
 
+	use Relay_Response;
+
 	const REST_NAMESPACE = 'wpcom/v2';
 	const REST_BASE      = 'podcast-stats';
 
@@ -270,29 +272,5 @@ class Podcast_Stats_Endpoint extends WP_REST_Controller {
 		);
 
 		return $this->relay_response( $response );
-	}
-
-	/**
-	 * Relay an upstream Connection\Client response back to the local REST client.
-	 * Preserves the upstream HTTP status code so 4xx/5xx mappings flow through.
-	 *
-	 * @param array|\WP_Error $response The raw response from Connection\Client.
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	private function relay_response( $response ) {
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$code    = (int) wp_remote_retrieve_response_code( $response );
-		$body    = wp_remote_retrieve_body( $response );
-		$decoded = json_decode( $body, true );
-
-		$rest_response = rest_ensure_response( null === $decoded ? $body : $decoded );
-		if ( $code >= 100 && $code < 600 ) {
-			$rest_response->set_status( $code );
-		}
-		return $rest_response;
 	}
 }
