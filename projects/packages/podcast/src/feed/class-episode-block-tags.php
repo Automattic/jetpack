@@ -299,6 +299,12 @@ class Episode_Block_Tags {
 				continue;
 			}
 
+			// `type` is required per spec; skip the entry rather than emit invalid markup.
+			$type = isset( $alt['type'] ) ? trim( (string) $alt['type'] ) : '';
+			if ( '' === $type ) {
+				continue;
+			}
+
 			$sources = array();
 			if ( ! empty( $alt['sources'] ) && is_array( $alt['sources'] ) ) {
 				foreach ( $alt['sources'] as $src ) {
@@ -315,10 +321,7 @@ class Episode_Block_Tags {
 				continue;
 			}
 
-			$opener = '<podcast:alternateEnclosure';
-			if ( ! empty( $alt['type'] ) ) {
-				$opener .= ' type="' . esc_attr( (string) $alt['type'] ) . '"';
-			}
+			$opener = '<podcast:alternateEnclosure type="' . esc_attr( $type ) . '"';
 			if ( ! empty( $alt['length'] ) ) {
 				$opener .= ' length="' . (int) $alt['length'] . '"';
 			}

@@ -284,6 +284,23 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertSame( '', $this->render_from_attrs( array() ) );
 	}
 
+	public function test_alternate_enclosures_skips_entries_without_type() {
+		// `type` is required by the Podcasting 2.0 spec — skip rather than emit invalid markup.
+		$this->assertSame(
+			'',
+			$this->render_from_attrs(
+				array(
+					'alternateEnclosures' => array(
+						array(
+							'bitrate' => 128000,
+							'url'     => 'https://example.com/ep.mp3',
+						),
+					),
+				)
+			)
+		);
+	}
+
 	public function test_alternate_enclosures_skips_entries_without_sources() {
 		$this->assertSame(
 			'',
