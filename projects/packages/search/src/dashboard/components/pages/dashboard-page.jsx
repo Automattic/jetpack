@@ -272,7 +272,10 @@ export default function DashboardPage( { isLoading = false } ) {
 												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 													<ExperienceSelector />
 													{ hasAdditionalSettings && (
-														<h2 className="jp-search-additional-settings__heading">
+														<h2
+															id="jp-search-additional-settings-heading"
+															className="jp-search-additional-settings__heading"
+														>
 															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
 														</h2>
 													) }
