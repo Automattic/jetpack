@@ -55,10 +55,10 @@ class Episode_Block_Tags {
 	}
 
 	/**
-	 * `<itunes:image>` + `<googleplay:image>` from the block's `coverArt` attr,
-	 * Photon-resized to 3000×3000 to match Apple's square-cover requirement.
-	 * Nothing emits when no cover is set — the channel-level cover applies
-	 * to the item by default.
+	 * `<itunes:image>` from the block's `coverArt` attr, Photon-resized to
+	 * 3000×3000 to match Apple's square-cover requirement. Nothing emits
+	 * when no cover is set — the channel-level cover applies to the item
+	 * by default.
 	 *
 	 * @param array $attrs Block attrs.
 	 */
@@ -70,9 +70,7 @@ class Episode_Block_Tags {
 		if ( '' === trim( $url ) ) {
 			return;
 		}
-		$resized = Customize_Feed::maybe_photon( $url );
-		echo "<itunes:image href='" . esc_url( $resized ) . "' />\n";
-		echo "<googleplay:image href='" . esc_url( $resized ) . "' />\n";
+		echo "<itunes:image href='" . esc_url( Customize_Feed::maybe_photon( $url ) ) . "' />\n";
 	}
 
 	/**

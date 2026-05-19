@@ -15,7 +15,7 @@ use WP_Post;
 
 /**
  * Hooks into RSS2 rendering when the current request is the podcast category
- * feed, adding `<itunes:*>` / `<googleplay:*>` tags at channel and item level
+ * feed, adding `<itunes:*>` + `<podcast:*>` tags at channel and item level
  * and rewriting `<enclosure>` URLs through the WPCOM stats endpoint.
  */
 class Customize_Feed {
@@ -73,12 +73,10 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Add iTunes, Google Play, and Podcasting 2.0 XML namespaces to the
-	 * `<rss>` open tag.
+	 * Add iTunes and Podcasting 2.0 XML namespaces to the `<rss>` open tag.
 	 */
 	public static function output_namespaces() {
 		echo "\n\t" . 'xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"' . "\n";
-		echo "\t" . 'xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"' . "\n";
 		echo "\t" . 'xmlns:podcast="https://podcastindex.org/namespace/1.0"' . "\n";
 	}
 
@@ -130,7 +128,6 @@ class Customize_Feed {
 		$summary = (string) get_option( 'podcasting_summary', '' );
 		if ( '' !== $summary ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</googleplay:description>\n";
 		}
 
 		/**
@@ -139,7 +136,6 @@ class Customize_Feed {
 		$author = (string) get_option( 'podcasting_talent_name', '' );
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
 		/**
@@ -148,8 +144,6 @@ class Customize_Feed {
 		$email = wp_strip_all_tags( (string) get_option( 'podcasting_email', '' ) );
 		if ( '' !== $email ) {
 			echo '<itunes:owner><itunes:email>' . esc_xml( $email ) . "</itunes:email></itunes:owner>\n";
-			echo '<googleplay:owner>' . esc_xml( $email ) . "</googleplay:owner>\n";
-			echo '<googleplay:email>' . esc_xml( $email ) . "</googleplay:email>\n";
 		}
 
 		/**
@@ -163,9 +157,7 @@ class Customize_Feed {
 		/**
 		 * Explicit content flag
 		 */
-		$explicit = self::explicit_string();
-		echo '<itunes:explicit>' . esc_html( $explicit ) . "</itunes:explicit>\n";
-		echo '<googleplay:explicit>' . esc_html( $explicit ) . "</googleplay:explicit>\n";
+		echo '<itunes:explicit>' . esc_html( self::explicit_string() ) . "</itunes:explicit>\n";
 
 		/**
 		 * Show cover art
@@ -173,7 +165,6 @@ class Customize_Feed {
 		$image = self::show_image_url();
 		if ( '' !== $image ) {
 			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
-			echo "<googleplay:image href='" . esc_url( $image ) . "' />\n";
 		}
 
 		/**
@@ -200,7 +191,6 @@ class Customize_Feed {
 		}
 		if ( '' !== $author ) {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
-			echo '<googleplay:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
 		// Re-applying `the_excerpt_rss` here is intentional: `get_the_excerpt()`
@@ -210,7 +200,6 @@ class Customize_Feed {
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
-			echo '<googleplay:description>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</googleplay:description>\n";
 		}
 
 		// Per-episode metadata sourced from the `jetpack/podcast-episode`
@@ -316,7 +305,7 @@ class Customize_Feed {
 
 	/**
 	 * Stored explicit value, normalized to the `'true'`/`'false'` strings the
-	 * iTunes / Google Play specs require. Reuses `Settings::sanitize_explicit`
+	 * iTunes spec requires. Reuses `Settings::sanitize_explicit`
 	 * so legacy `'yes'`/`'no'`/`'clean'` and modern boolean storage both work.
 	 *
 	 * @return string

@@ -301,13 +301,13 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
 	}
 
-	public function test_output_namespaces_includes_podcast_namespace() {
+	public function test_output_namespaces_declares_itunes_and_podcast() {
 		ob_start();
 		Customize_Feed::output_namespaces();
 		$xml = (string) ob_get_clean();
 
 		$this->assertStringContainsString( 'xmlns:itunes=', $xml );
-		$this->assertStringContainsString( 'xmlns:googleplay=', $xml );
 		$this->assertStringContainsString( 'xmlns:podcast="https://podcastindex.org/namespace/1.0"', $xml );
+		$this->assertStringNotContainsString( 'googleplay', $xml );
 	}
 }

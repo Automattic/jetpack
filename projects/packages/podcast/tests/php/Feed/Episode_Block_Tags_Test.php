@@ -264,7 +264,7 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'uri="https://example.com/ep.mp3"', $xml );
 	}
 
-	public function test_cover_art_emits_both_namespaces_with_photon_url() {
+	public function test_cover_art_emits_itunes_image_with_photon_url() {
 		$xml = $this->render_from_attrs(
 			array(
 				'coverArt' => array(
@@ -275,7 +275,7 @@ class Episode_Block_Tags_Test extends BaseTestCase {
 		);
 
 		$this->assertStringContainsString( "<itunes:image href='https://example.com/cover.jpg'", $xml );
-		$this->assertStringContainsString( "<googleplay:image href='https://example.com/cover.jpg'", $xml );
+		$this->assertStringNotContainsString( 'googleplay', $xml );
 	}
 
 	public function test_cover_art_skips_when_url_missing() {
