@@ -767,7 +767,15 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			array( 'Dashboard', 'read', 'index.php', '', 'menu-top', 'menu-dashboard', 'dashicons-dashboard' ),
 			array( 'No Signal', 'read', 'no-signal', '', 'menu-top', 'menu-no-signal', 'dashicons-admin-generic' ),
 			array( 'Jetpack', 'read', 'jetpack', '', 'menu-top', 'menu-jetpack', 'dashicons-admin-plugins' ),
+			array( 'WooCommerce', 'read', 'woocommerce', '', 'menu-top', 'menu-woocommerce', 'dashicons-admin-plugins' ),
 			array( 'Nested', 'read', 'nested-plugin', '', 'menu-top', 'menu-nested-plugin', 'dashicons-admin-plugins' ),
+		);
+		global $submenu;
+		$previous_submenu = $submenu;
+		$submenu          = array(
+			'jetpack' => array(
+				array( 'Jetpack Dashboard', 'read', 'jetpack', '', 'menu-top' ),
+			),
 		);
 
 		// The classifier is present, but gating can still leave no nav model.
@@ -835,13 +843,29 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 						'icon'     => null,
 						'children' => array(
 							array(
-								'itemId'         => 'plugin:jetpack/jetpack.php:-:jetpack',
-								'menuSlug'       => 'jetpack',
-								'source'         => 'plugin',
-								'reassignable'   => true,
-								'default_weight' => 999,
-								'default_group'  => 'plugins',
-								'signal'         => array(
+								'itemId'        => 'plugin:woocommerce/woocommerce.php:-:woocommerce',
+								'menuSlug'      => 'woocommerce',
+								'source'        => 'plugin',
+								'reassignable'  => true,
+								'default_group' => 'plugins',
+							),
+							array(
+								'itemId'        => 'plugin:jetpack/jetpack.php:-:jetpack',
+								'menuSlug'      => 'jetpack',
+								'source'        => 'plugin',
+								'reassignable'  => true,
+								'default_group' => 'plugins',
+								'children'      => array(
+									array(
+										'itemId'        => 'plugin:jetpack/jetpack.php:jetpack:jetpack',
+										'menuSlug'      => 'jetpack',
+										'parent'        => 'jetpack',
+										'source'        => 'plugin',
+										'reassignable'  => true,
+										'default_group' => 'plugins',
+									),
+								),
+								'signal'        => array(
 									'count'         => 3,
 									'numeric_badge' => null,
 									'badge'         => '3',
@@ -946,6 +970,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Sidebar_Classifier is the stub eval'd above.
 		Sidebar_Classifier::set_model( null );
 		delete_user_meta( static::$user_id, 'wpcom_admin_sidebar_layouts' );
+		$submenu = $previous_submenu;
 
 		$this->assertIsArray( $legacy_response_with_no_model );
 		$this->assertArrayNotHasKey( 'menu', $legacy_response_with_no_model );
@@ -965,6 +990,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertArrayHasKey( 'index-php', $by_slug );
 		$this->assertArrayHasKey( 'no-signal', $by_slug );
 		$this->assertArrayHasKey( 'jetpack', $by_slug );
+		$this->assertArrayHasKey( 'woocommerce', $by_slug );
 
 		// Top-level core item: matched, no group, signal attached but inert.
 		$this->assertNull( $by_slug['index-php']['group_id'] );
@@ -991,9 +1017,32 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertSame( 3, $by_slug['jetpack']['signal']['count'] );
 		$this->assertTrue( $by_slug['jetpack']['signal']['attention'] );
 		$this->assertSame( 'plugin:jetpack/jetpack.php:-:jetpack', $by_slug['jetpack']['itemId'] );
+		$this->assertSame(
+			'plugin:jetpack/jetpack.php:jetpack:jetpack',
+			$by_slug['jetpack']['children'][0]['itemId']
+		);
 		$this->assertSame( 'plugin', $by_slug['jetpack']['source'] );
 		$this->assertTrue( $by_slug['jetpack']['reassignable'] );
-		$this->assertSame( 999, $by_slug['jetpack']['default_weight'] );
+		$this->assertSame( 1, $by_slug['jetpack']['default_weight'] );
+		$this->assertSame( 'plugins', $by_slug['woocommerce']['group_id'] );
+		$this->assertNull( $by_slug['woocommerce']['signal'] );
+		$this->assertSame( 0, $by_slug['woocommerce']['default_weight'] );
+		$this->assertSame(
+			array( 'woocommerce', 'jetpack' ),
+			array_values(
+				array_map(
+					static function ( $item ) {
+						return $item['slug'];
+					},
+					array_filter(
+						$response['menu'],
+						static function ( $item ) {
+							return isset( $item['group_id'] ) && 'plugins' === $item['group_id'];
+						}
+					)
+				)
+			)
+		);
 
 		// Top-level groups row mirrors the classifier's group shape.
 		$this->assertCount( 1, $response['groups'] );

@@ -184,6 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// only happens when classifier data is available so non-WPCOM Jetpack
 		// installs continue to receive the legacy flat-array shape.
 		if ( null !== $this->sidebar_nav_groups ) {
+			$data     = $this->order_sidebar_grouped_items( $data );
 			$response = array(
 				'menu'   => $data,
 				'groups' => $this->prepare_groups_for_response(),
@@ -230,10 +231,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		$index   = array();
-		$collect = static function ( array $items ) use ( &$index, &$collect ) {
-			foreach ( $items as $item ) {
+		$collect = function ( array $items ) use ( &$index, &$collect ) {
+			foreach ( $items as $position => $item ) {
 				if ( isset( $item['menuSlug'] ) && '' !== $item['menuSlug'] ) {
-					$index[ $item['menuSlug'] ] = $item;
+					if ( ! isset( $item['default_weight'] ) && ! isset( $item['_weight'] ) ) {
+						$item['default_weight'] = (int) $position;
+					}
+					$parent_slug = array_key_exists( 'parent', $item ) && null !== $item['parent'] ? (string) $item['parent'] : null;
+					$index[ $this->get_sidebar_nav_index_key( $item['menuSlug'], $parent_slug ) ] = $item;
+					if ( ! isset( $index[ $item['menuSlug'] ] ) ) {
+						$index[ $item['menuSlug'] ] = $item;
+					}
 				}
 				if ( ! empty( $item['children'] ) && is_array( $item['children'] ) ) {
 					$collect( $item['children'] );
@@ -259,16 +267,86 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
+	 * Keep grouped items in the classifier's child order while preserving the
+	 * relative position of ungrouped top-level rows. The public classifier
+	 * sorts each group before exposing the nav model, but Calypso receives a
+	 * flat `menu` array and buckets grouped items in response order.
+	 *
+	 * @param array $items Prepared top-level menu items.
+	 * @return array Prepared items with grouped rows sorted per group.
+	 */
+	private function order_sidebar_grouped_items( array $items ) {
+		$grouped_items = array();
+		foreach ( $items as $item ) {
+			if ( isset( $item['group_id'] ) && is_string( $item['group_id'] ) && '' !== $item['group_id'] ) {
+				$grouped_items[ $item['group_id'] ][] = $item;
+			}
+		}
+
+		if ( empty( $grouped_items ) ) {
+			return $items;
+		}
+
+		foreach ( $grouped_items as &$group_items ) {
+			usort(
+				$group_items,
+				static function ( $a, $b ) {
+					$wa = (int) ( $a['default_weight'] ?? PHP_INT_MAX );
+					$wb = (int) ( $b['default_weight'] ?? PHP_INT_MAX );
+					if ( $wa === $wb ) {
+						return strcmp( (string) ( $a['itemId'] ?? $a['slug'] ?? '' ), (string) ( $b['itemId'] ?? $b['slug'] ?? '' ) );
+					}
+					return $wa <=> $wb;
+				}
+			);
+		}
+		unset( $group_items );
+
+		$group_offsets = array();
+		foreach ( $items as $index => $item ) {
+			if ( ! isset( $item['group_id'] ) || ! is_string( $item['group_id'] ) || '' === $item['group_id'] ) {
+				continue;
+			}
+
+			$group_id = $item['group_id'];
+			$offset   = $group_offsets[ $group_id ] ?? 0;
+			if ( isset( $grouped_items[ $group_id ][ $offset ] ) ) {
+				$items[ $index ] = $grouped_items[ $group_id ][ $offset ];
+			}
+			$group_offsets[ $group_id ] = $offset + 1;
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Look up the classifier nav-model entry for a given menu slug.
 	 *
-	 * @param string $menu_slug Menu slug as registered in `$menu` / `$submenu`.
+	 * @param string      $menu_slug   Menu slug as registered in `$menu` / `$submenu`.
+	 * @param string|null $parent_slug Parent menu slug, or null for top-level items.
 	 * @return array|null Nav-model entry or null if the slug is not in the index.
 	 */
-	private function get_sidebar_nav_entry( $menu_slug ) {
+	private function get_sidebar_nav_entry( $menu_slug, $parent_slug = null ) {
 		if ( null === $this->sidebar_nav_index || '' === $menu_slug ) {
 			return null;
 		}
+		$key = $this->get_sidebar_nav_index_key( $menu_slug, $parent_slug );
+		if ( isset( $this->sidebar_nav_index[ $key ] ) ) {
+			return $this->sidebar_nav_index[ $key ];
+		}
 		return $this->sidebar_nav_index[ $menu_slug ] ?? null;
+	}
+
+	/**
+	 * Compose an index key that distinguishes top-level rows from submenu rows
+	 * sharing the same raw menu slug.
+	 *
+	 * @param string      $menu_slug   Menu slug as registered in `$menu` / `$submenu`.
+	 * @param string|null $parent_slug Parent menu slug, or null for top-level items.
+	 * @return string Index key.
+	 */
+	private function get_sidebar_nav_index_key( $menu_slug, $parent_slug = null ) {
+		return ( null === $parent_slug ? '' : (string) $parent_slug ) . "\0" . (string) $menu_slug;
 	}
 
 	/**
@@ -300,12 +378,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * Attach classifier-derived `group_id` + `signal` fields to a prepared item.
 	 * No-op when the classifier index is not available or the slug isn't found.
 	 *
-	 * @param array  $item      Prepared item (top-level or submenu).
-	 * @param string $menu_slug Raw menu slug used to look up the nav entry.
+	 * @param array       $item        Prepared item (top-level or submenu).
+	 * @param string      $menu_slug   Raw menu slug used to look up the nav entry.
+	 * @param string|null $parent_slug Parent menu slug, or null for top-level items.
 	 * @return array Item with fields possibly added.
 	 */
-	private function attach_sidebar_fields( array $item, $menu_slug ) {
-		$nav_entry = $this->get_sidebar_nav_entry( $menu_slug );
+	private function attach_sidebar_fields( array $item, $menu_slug, $parent_slug = null ) {
+		$nav_entry = $this->get_sidebar_nav_entry( $menu_slug, $parent_slug );
 		if ( null === $nav_entry ) {
 			return $item;
 		}
@@ -744,7 +823,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// Additive: classifier-derived fields. Same lookup contract as the
 		// top-level branch above; submenu rows live under their own `menuSlug`
 		// in the nav model.
-		$item = $this->attach_sidebar_fields( $item, $submenu_item[2] );
+		$item = $this->attach_sidebar_fields( $item, $submenu_item[2], $menu_item[2] );
 
 		return $item;
 	}
