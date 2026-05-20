@@ -12,6 +12,7 @@ import {
 	BaseControl,
 	Button,
 	ExternalLink,
+	Notice,
 	PanelBody,
 	Placeholder,
 	SelectControl,
@@ -502,42 +503,30 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						</BaseControl.VisualLabel>
 						<p className="components-base-control__help">
 							{ __(
-								'Upload a chapters JSON file or link to one. Podcasting 2.0 players fetch the file directly and display chapter markers in their UI.',
+								'Link to a chapters JSON file hosted on a public URL. Podcasting 2.0 players fetch the file directly and display chapter markers in their UI.',
 								'jetpack-podcast'
 							) }
 						</p>
-						<MediaUploadCheck>
-							<MediaUpload
-								onSelect={ ( media: MediaAttachment ) => {
-									if ( ! media?.url ) {
-										return;
-									}
-									// WP's MIME map almost never tags files as application/json+chapters, so
-									// always store the spec-blessed type and let the user override via the
-									// format select below if they really need plain application/json.
-									setAttributes( {
-										chaptersUrl: media.url,
-										chaptersType: 'application/json+chapters',
-									} );
-								} }
-								allowedTypes={ [ 'application/json', 'application/json+chapters' ] }
-								render={ ( { open }: { open: () => void } ) => (
-									<Button variant="secondary" onClick={ open }>
-										{ chaptersUrl
-											? __( 'Replace chapters file', 'jetpack-podcast' )
-											: __( 'Upload chapters file', 'jetpack-podcast' ) }
-									</Button>
-								) }
-							/>
-						</MediaUploadCheck>
 						<TextControl
-							label={ __( 'Or paste a chapters file URL', 'jetpack-podcast' ) }
+							label={ __( 'Chapters file URL', 'jetpack-podcast' ) }
 							type="url"
 							value={ chaptersUrl || '' }
 							onChange={ value => setAttributes( { chaptersUrl: value } ) }
 							__nextHasNoMarginBottom
 							__next40pxDefaultSize
 						/>
+						{ chaptersUrl && ! /\.json(?:\?|#|$)/i.test( chaptersUrl ) && (
+							<Notice
+								status="warning"
+								isDismissible={ false }
+								className="jetpack-podcast-episode__chapters-warning"
+							>
+								{ __(
+									'Chapter files typically end in .json. Players may reject this URL if it doesn’t serve JSON.',
+									'jetpack-podcast'
+								) }
+							</Notice>
+						) }
 						{ chaptersUrl && (
 							<Button
 								variant="link"
@@ -549,7 +538,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 									} )
 								}
 							>
-								{ __( 'Remove chapters file', 'jetpack-podcast' ) }
+								{ __( 'Remove chapters URL', 'jetpack-podcast' ) }
 							</Button>
 						) }
 						<SelectControl

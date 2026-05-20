@@ -72,8 +72,26 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
+		add_filter( 'the_excerpt_rss', array( __CLASS__, 'filter_excerpt_to_manual_only' ) );
 
 		Feed_Detection::detect_and_record();
+	}
+
+	/**
+	 * Restrict per-item `<description>` (and the `<itunes:summary>` we mirror
+	 * from it) to the post's manual excerpt — never the auto-generated one.
+	 *
+	 * Default WP behavior pipes the post body through `wp_trim_excerpt()` when
+	 * the post has no manual excerpt, which leaks paragraph + heading text from
+	 * below the Podcast Episode block into the description that Apple Podcasts
+	 * and Spotify present to listeners. Authors with no excerpt set should see
+	 * an empty description, not a flattened body.
+	 *
+	 * @return string Manual excerpt, or empty string when none is set.
+	 */
+	public static function filter_excerpt_to_manual_only(): string {
+		global $post;
+		return $post instanceof WP_Post ? (string) $post->post_excerpt : '';
 	}
 
 	/**
@@ -179,10 +197,9 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
-		// the item's `<description>` ends up emitting — `get_the_excerpt()`
-		// doesn't run the filter chain itself.
-		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
+		// Mirror what the `<description>` emits (manual excerpt, never the
+		// auto-generated body trim — see `filter_excerpt_to_manual_only()`).
+		$excerpt = self::filter_excerpt_to_manual_only();
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
