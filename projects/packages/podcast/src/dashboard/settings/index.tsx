@@ -16,7 +16,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -25,6 +25,7 @@ import CoverImageControl from './cover-image-control';
 import './style.scss';
 import { TOPICS } from './topics';
 import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
+import type { FocusEvent } from 'react';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
@@ -170,34 +171,49 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 	);
 
-	// Calypso renders three native selects, one per slot, so each pick closes
-	// its dropdown and saves discretely. We use a single `FormTokenField` but
-	// match that UX: save on every change, then blur the input so the
-	// suggestions list closes before the save's re-render lands. Without the
-	// blur, the open list visibly flickers when the field receives a fresh
-	// `value` prop reference.
-	//
-	// The `querySelector('input')` below relies on `FormTokenField` rendering
-	// exactly one `<input>` inside the wrapper div. If that internal shape
-	// changes upstream, this becomes a no-op (no thrown error) but the flicker
-	// returns; replace with a forwarded ref API if `@wordpress/components`
-	// gains one.
-	const topicFieldRef = useRef< HTMLDivElement >( null );
+	// Topics save on blur, not on every chip add/remove. Saving per change
+	// caused the suggestions dropdown to close and reopen on each pick: the
+	// `value` prop got a fresh reference after the round-trip, which `FormTokenField`
+	// reads as a reason to reset its internal state. Holding a local draft until
+	// focus leaves the wrapper keeps the dropdown stable while the user picks
+	// multiple topics.
+	const [ draftTopics, setDraftTopics ] = useState< string[] >( topicValue );
 
-	const handleTopicsChange = useCallback(
-		( values: ( string | { value: string } )[] ) => {
-			const stored = values
-				.slice( 0, 3 )
-				.map( v => ( typeof v === 'string' ? v : v.value ) )
-				.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
-			commit( {
+	// Re-sync from server when the saved values change externally (e.g. a
+	// successful save merges new data into `draft`, or a different tab updates
+	// the settings).
+	useEffect( () => {
+		setDraftTopics( topicValue );
+	}, [ topicValue ] );
+
+	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {
+		const next = values.slice( 0, 3 ).map( v => ( typeof v === 'string' ? v : v.value ) );
+		setDraftTopics( next );
+	}, [] );
+
+	const handleTopicsBlur = useCallback(
+		( event: FocusEvent< HTMLDivElement > ) => {
+			// Focus is bouncing between the input and a suggestion inside the
+			// same wrapper — not a real "user is done" signal.
+			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
+				return;
+			}
+			const stored = draftTopics.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
+			const next = {
 				podcasting_category_1: stored[ 0 ] ?? '',
 				podcasting_category_2: stored[ 1 ] ?? '',
 				podcasting_category_3: stored[ 2 ] ?? '',
-			} );
-			topicFieldRef.current?.querySelector< HTMLInputElement >( 'input' )?.blur();
+			};
+			if (
+				next.podcasting_category_1 === ( draft?.podcasting_category_1 ?? '' ) &&
+				next.podcasting_category_2 === ( draft?.podcasting_category_2 ?? '' ) &&
+				next.podcasting_category_3 === ( draft?.podcasting_category_3 ?? '' )
+			) {
+				return;
+			}
+			commit( next );
 		},
-		[ commit ]
+		[ draftTopics, draft, commit ]
 	);
 
 	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
@@ -305,13 +321,13 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							) }
 						</Text>
 						<VStack spacing={ 1 }>
-							<div ref={ topicFieldRef }>
+							<div onBlur={ handleTopicsBlur }>
 								<FormTokenField
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
-									value={ topicValue }
+									value={ draftTopics }
 									suggestions={ TOPIC_SUGGESTIONS }
 									onChange={ handleTopicsChange }
 									maxLength={ 3 }
