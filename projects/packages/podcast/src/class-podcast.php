@@ -114,24 +114,19 @@ class Podcast {
 	/**
 	 * Whether the Podcast untangle is enabled for the current request.
 	 *
-	 * Defaults to true for A8C-proxied requests so Automatticians dogfood
-	 * the new package; everyone else stays on the legacy stack until the
-	 * `jetpack_podcast_untangle` filter is flipped globally.
+	 * Defaults to true — the new package owns the experience on Simple
+	 * and Atomic. The filter remains as an escape hatch for forcing the
+	 * legacy stack back on (rollback, test fixtures, per-site overrides).
 	 */
 	public static function is_enabled() {
 		/**
 		 * Master switch for the Podcast untangle.
 		 *
-		 * While the legacy podcasting code is still the source of truth on
-		 * Simple and Atomic sites, this filter stays false for non-proxied
-		 * requests. Subsequent PRs layer the new wp-admin SPA, REST
-		 * integration, and feed customization on top of this gate.
-		 *
 		 * @since 0.1.0
 		 *
 		 * @param bool $enabled Whether to enable the new Podcast package.
 		 */
-		return (bool) apply_filters( 'jetpack_podcast_untangle', self::is_proxied_request() );
+		return (bool) apply_filters( 'jetpack_podcast_untangle', true );
 	}
 
 	/**

@@ -122,6 +122,14 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
+/**
+ * Atomic-side safety net for the Podcast untangle. The package now defaults
+ * the gate to true on its own, so this filter is redundant in steady state —
+ * keep it as a belt-and-suspenders pin until the legacy
+ * at-pressable-podcasting vendor is removed in the Phase D cleanup.
+ */
+add_filter( 'jetpack_podcast_untangle', '__return_true' );
+
 if (
 	! class_exists( '\Automattic\Jetpack\Podcast\Podcast' )
 	|| ! \Automattic\Jetpack\Podcast\Podcast::is_enabled()
