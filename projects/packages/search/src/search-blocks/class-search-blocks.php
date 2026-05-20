@@ -170,6 +170,7 @@ class Search_Blocks {
 		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+			Theme_Chrome_Slug_Resolver::register_hooks();
 		}
 
 		// Priority 20: after WooCommerce's priority-10 prepend (so the
@@ -857,19 +858,10 @@ class Search_Blocks {
 	 * @return string Block markup for a complete page template.
 	 */
 	protected static function get_search_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
-		}
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
-			'{{FILTER_HEADING}}',
-			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
-			$raw
-		);
-		return $content;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return static::substitute_template_placeholders( $raw );
 	}
 
 	/**
@@ -901,7 +893,7 @@ class Search_Blocks {
 		if ( '' === $content ) {
 			return;
 		}
-		register_block_template(
+		static::replace_block_template(
 			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
 			array(
 				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
@@ -1216,19 +1208,63 @@ CSS;
 	 * @return string Block markup for the product-search template.
 	 */
 	protected static function get_product_search_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
-		}
 		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
-			'{{FILTER_HEADING}}',
-			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return static::substitute_template_placeholders( $raw );
+	}
+
+	/**
+	 * Substitute {{FILTER_HEADING}} / {{HEADER_SLUG}} / {{FOOTER_SLUG}}
+	 * in a bundled template's raw markup. Empty input passes through so
+	 * the "missing-file" bail-out in the registrars still fires.
+	 *
+	 * @param string $raw Raw template-file contents.
+	 * @return string
+	 */
+	protected static function substitute_template_placeholders( string $raw ): string {
+		if ( '' === $raw ) {
+			return $raw;
+		}
+		$slugs = static::resolve_chrome_slugs();
+		return str_replace(
+			array( '{{FILTER_HEADING}}', '{{HEADER_SLUG}}', '{{FOOTER_SLUG}}' ),
+			array(
+				esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+				$slugs['header'],
+				$slugs['footer'],
+			),
 			$raw
 		);
-		return $content;
+	}
+
+	/**
+	 * Active theme's chrome slugs. Seam — tests override to inject
+	 * canned values; the resolver itself lives in
+	 * Theme_Chrome_Slug_Resolver.
+	 *
+	 * @return array{header:string,footer:string}
+	 */
+	protected static function resolve_chrome_slugs(): array {
+		return Theme_Chrome_Slug_Resolver::resolve();
+	}
+
+	/**
+	 * Idempotent wrapper around register_block_template — unregisters
+	 * first so a stale entry from a prior init (long-lived PHP-FPM
+	 * worker) is replaced rather than triggering doing_it_wrong.
+	 *
+	 * @param string              $name Fully-qualified template name.
+	 * @param array<string,mixed> $args Args for register_block_template().
+	 */
+	protected static function replace_block_template( string $name, array $args ) {
+		if ( class_exists( '\WP_Block_Templates_Registry' ) ) {
+			$registry = \WP_Block_Templates_Registry::get_instance();
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+		register_block_template( $name, $args );
 	}
 
 	/**
@@ -1244,7 +1280,7 @@ CSS;
 		if ( '' === $content ) {
 			return;
 		}
-		register_block_template(
+		static::replace_block_template(
 			static::get_parent_plugin_slug() . '//' . self::PRODUCT_SEARCH_TEMPLATE_SLUG,
 			array(
 				'title'       => __( 'Jetpack Search Product Results', 'jetpack-search-pkg' ),
