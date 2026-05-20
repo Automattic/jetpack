@@ -1418,6 +1418,14 @@
 	margin-right: auto;
 }
 
+/* Non-floated figures clear preceding floats so a centered or default-aligned
+ * image never visually overlaps a previous alignleft/alignright figure.  An
+ * alignleft + alignright pair can still sit side-by-side, matching the block
+ * editor. */
+.bw-content figure:not(.alignleft):not(.alignright) {
+	clear: both;
+}
+
 .bw-content figure .bw-img-controls,
 .bw-content .bw-image-figure .bw-img-controls {
 	position: relative;

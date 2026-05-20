@@ -213,6 +213,11 @@ function stripRuntimeFigureControls( root ) {
 	root
 		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
 		.forEach( el => el.remove() );
+	// Selection is UI state, not content — don't persist it in snapshots.
+	// applyUndoSnapshot re-adds the class to the matching figure on restore.
+	root.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
+		el.classList.remove( 'bw-figure-selected' );
+	} );
 }
 
 /**
@@ -242,9 +247,41 @@ function captureUndoSnapshot() {
 function applyUndoSnapshot( snapshot ) {
 	const content = getContent();
 	if ( content ) {
+		// Remember the currently-selected figure's media ID so we can
+		// re-link selection after innerHTML replaces the DOM nodes.
+		// Otherwise selectedFigure points to a detached node and the user
+		// loses their working context across undo/redo.
+		const prevMediaId = selectedFigure
+			? getMediaIdFromImg( selectedFigure.querySelector( 'img' ) )
+			: null;
+
 		content.innerHTML = snapshot.html;
 		ensureBlockStructure();
 		restoreUndoCursor( content, snapshot.cursor );
+
+		// Re-link figure selection.  Match by wp-image-N (stable across
+		// edits); if the figure no longer exists in the restored DOM,
+		// clear selection state.  Snapshots may carry a stale
+		// `bw-figure-selected` class — strip it so only the figure we
+		// actively re-select keeps the visual indicator.
+		content.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
+			el.classList.remove( 'bw-figure-selected' );
+		} );
+		const restoredFigure = prevMediaId
+			? content.querySelector( `.wp-image-${ prevMediaId }` )?.closest( 'figure' )
+			: null;
+		if ( restoredFigure ) {
+			selectedFigure = restoredFigure;
+			restoredFigure.classList.add( 'bw-figure-selected' );
+			syncFigureStateFromDom( restoredFigure );
+			// Snapshots without a saved range cause restoreUndoCursor to
+			// drop a fallback caret in the first paragraph.  Hide it so the
+			// figure looks like the active focus target.
+			window.getSelection()?.removeAllRanges();
+		} else if ( selectedFigure ) {
+			selectedFigure = null;
+			syncFigureStateFromDom( null );
+		}
 	}
 	const titleEl = document.querySelector( '.bw-title' );
 	if ( titleEl ) {
@@ -448,7 +485,7 @@ function syncFigureStateFromDom( fig ) {
 	state.figureHasMediaId = !! getMediaIdFromImg( fig.querySelector( 'img' ) );
 	state.figureSizeSlug = slug;
 	state.sizeLabel = sizeLabelForSlug( slug );
-	state.formatAlignLeft = align === 'left' || align === '';
+	state.formatAlignLeft = align === 'left';
 	state.formatAlignCenter = align === 'center';
 	state.formatAlignRight = align === 'right';
 	state.formatAlignJustify = false;
@@ -472,6 +509,11 @@ function selectImageFigure( fig ) {
 	selectedFigure = fig;
 	fig.classList.add( 'bw-figure-selected' );
 	syncFigureStateFromDom( fig );
+	// Hide the blinking text caret so focus appears to be on the figure.
+	// All entry points (click, focusin, keyboard) want this — keyboard
+	// Backspace/Delete additionally saves the range first so Escape can
+	// restore it.
+	window.getSelection()?.removeAllRanges();
 }
 
 /**
@@ -1419,6 +1461,17 @@ function addDeleteButtons() {
 			// figure so the toolbar reflects this image and a keyboard user
 			// can Shift+Tab to the toolbar to align or resize it.
 			fig.addEventListener( 'focusin', () => selectImageFigure( fig ) );
+			// Auto-deselect when focus leaves the figure entirely so a tab
+			// past the last control doesn't leave a stale blue outline +
+			// sticky toolbar state behind.  Preserve selection when focus
+			// is going to the toolbar — the user still needs to act on the
+			// figure from there.
+			fig.addEventListener( 'focusout', e => {
+				if ( fig.contains( e.relatedTarget ) ) return;
+				if ( e.relatedTarget?.closest( '.bw-toolbar' ) ) return;
+				if ( selectedFigure !== fig ) return;
+				clearFigureSelection( false );
+			} );
 		}
 
 		// Wrap img in a positioning container so buttons stay anchored to the image.
@@ -1525,6 +1578,18 @@ function addDeleteButtons() {
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
 			figcaption.focus();
+		} );
+		// Tab from Caption (the last image control) hops into the content
+		// area rather than out to browser chrome — most users have just
+		// finished acting on the image and want to resume typing.  Shift+Tab
+		// keeps its default backward-traversal behavior.
+		capBtn.addEventListener( 'keydown', e => {
+			if ( e.key !== 'Tab' || e.shiftKey ) return;
+			const next = fig.nextElementSibling;
+			if ( ! next ) return;
+			e.preventDefault();
+			placeCursorAt( next );
+			getContent()?.focus();
 		} );
 		controls.appendChild( capBtn );
 
@@ -2770,10 +2835,23 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Escape deselects a keyboard-selected figure.
+			// Escape deselects a figure.  When the user reached the figure
+			// via click or focusin (no preFigureSelectionRange saved), put
+			// the caret at the start of the paragraph after the figure so
+			// Escape consistently returns focus to the content area.
 			if ( event.key === 'Escape' && selectedFigure ) {
 				event.preventDefault();
+				if ( ! preFigureSelectionRange ) {
+					const next = selectedFigure.nextElementSibling;
+					if ( next ) {
+						const range = document.createRange();
+						range.setStart( next, 0 );
+						range.collapse( true );
+						preFigureSelectionRange = range;
+					}
+				}
 				clearFigureSelection();
+				getContent()?.focus();
 				return;
 			}
 
@@ -3412,7 +3490,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeSmall() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'thumbnail' );
-			applyMediaSizeToFigure( selectedFigure, 'thumbnail' );
+			applyMediaSizeToFigure( selectedFigure, 'thumbnail' ).then( pushToUndoHistory );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3420,7 +3498,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeMedium() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'medium' );
-			applyMediaSizeToFigure( selectedFigure, 'medium' );
+			applyMediaSizeToFigure( selectedFigure, 'medium' ).then( pushToUndoHistory );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3428,7 +3506,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeLarge() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'large' );
-			applyMediaSizeToFigure( selectedFigure, 'large' );
+			applyMediaSizeToFigure( selectedFigure, 'large' ).then( pushToUndoHistory );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3436,7 +3514,7 @@ const { state } = store( 'wpcom-write', {
 		setSizeFull() {
 			if ( ! selectedFigure ) return;
 			setFigureSize( selectedFigure, 'full' );
-			applyMediaSizeToFigure( selectedFigure, 'full' );
+			applyMediaSizeToFigure( selectedFigure, 'full' ).then( pushToUndoHistory );
 			syncFigureStateFromDom( selectedFigure );
 			state.showSizeMenu = false;
 		},
@@ -3449,6 +3527,7 @@ const { state } = store( 'wpcom-write', {
 				const next = getFigureAlign( selectedFigure ) === 'left' ? '' : 'left';
 				setFigureAlign( selectedFigure, next );
 				syncFigureStateFromDom( selectedFigure );
+				pushToUndoHistory();
 				return;
 			}
 			const bq = getActiveBlockquote();
@@ -3476,6 +3555,7 @@ const { state } = store( 'wpcom-write', {
 				const next = getFigureAlign( selectedFigure ) === 'center' ? '' : 'center';
 				setFigureAlign( selectedFigure, next );
 				syncFigureStateFromDom( selectedFigure );
+				pushToUndoHistory();
 				return;
 			}
 			const bq = getActiveBlockquote();
@@ -3503,6 +3583,7 @@ const { state } = store( 'wpcom-write', {
 				const next = getFigureAlign( selectedFigure ) === 'right' ? '' : 'right';
 				setFigureAlign( selectedFigure, next );
 				syncFigureStateFromDom( selectedFigure );
+				pushToUndoHistory();
 				return;
 			}
 			const bq = getActiveBlockquote();
@@ -3808,9 +3889,12 @@ const { state } = store( 'wpcom-write', {
 			if ( state.uploadedMediaId ) {
 				// Media-library image: tag it for round-trip with the block
 				// editor and swap src to the Large-sized URL so the natural
-				// img dimensions match the chosen preset.
+				// img dimensions match the chosen preset. Default to
+				// aligncenter so the toolbar's center button reflects the
+				// figure's visual state (sized figures are centered via the
+				// size-* margin-auto rules).
 				img.className = 'wp-image-' + state.uploadedMediaId;
-				figure.className = 'bw-image-figure size-large';
+				figure.className = 'bw-image-figure size-large aligncenter';
 				figure.appendChild( img );
 				applyMediaSizeToFigure( figure, 'large' );
 			} else {
