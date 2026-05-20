@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-AI Sidebar: Enable AI Editorial Review by default while preserving the feature-specific kill switch.
+Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.

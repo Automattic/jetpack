@@ -4,7 +4,7 @@
  *
  * Loads the Agents Manager gutenberg variant from the widgets.wp.com CDN
  * (following the Image Studio pattern) and registers the Jetpack AI
- * provider for title optimization.
+ * provider for Jetpack AI tools.
  *
  * @package automattic/jetpack
  */
@@ -43,12 +43,12 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to the AI Editorial Review feature flag. Use this filter
-		 * as a host-level kill switch for the whole sidebar entrypoint.
+		 * Defaults to the Jetpack AI Sidebar Preview gate. Use this filter as
+		 * a host-level kill switch for the whole sidebar entrypoint.
 		 *
 		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_review_mediator_enabled() ) ) {
+		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_jetpack_ai_sidebar_preview_enabled() ) ) {
 			return;
 		}
 
@@ -68,16 +68,16 @@ class Jetpack_AI_Sidebar {
 		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_am' ), 200 );
 
-		// Always enqueue the IIFE bundle in the block editor — it registers
+		// Enqueue the IIFE bundle in the preview post editor — it registers
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
 		// can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
 
-		// Patch reviewMediatorEnabled into agentsManagerData when AM was
-		// enqueued by an external host (Big Sky on Atomic, etc.) and the
+		// Patch Jetpack AI Sidebar Preview data into agentsManagerData when AM
+		// was enqueued by an external host (Big Sky on Atomic, etc.) and the
 		// jetpack_ai_sidebar_agents_manager_data filter never fired. Priority
 		// 250 runs after both mu-wpcom (101) and the CDN loader above (200).
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_review_mediator_flag' ), 250 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -85,12 +85,12 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Load AM from CDN if not already present and we're in the block editor.
+	 * Load AM from CDN if not already present and we're in the preview post editor.
 	 *
 	 * @return void
 	 */
 	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -120,13 +120,13 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Enqueue the IIFE bundle that registers Jetpack AI abilities.
 	 *
-	 * This runs independently of AM/provider registration so abilities
+	 * This runs independently of AM/provider registration so preview abilities
 	 * are available even when Big Sky standalone is the active UI.
 	 *
 	 * @return void
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -270,8 +270,10 @@ class Jetpack_AI_Sidebar {
 		$filtered = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
 		$am_data  = is_array( $filtered ) ? $filtered : $am_data;
 
-		// Direct CDN-loader fallback. Jetpack owns this flag; hosts can override via jetpack_ai_review_mediator_enabled.
-		$am_data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
+		// Direct CDN-loader fallback. Jetpack owns these defaults; hosts can
+		// override via the AI Editorial Review and preview filters.
+		$am_data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
+		$am_data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $am_data;
 	}
 
@@ -402,6 +404,13 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
+		// The provider IIFE is only enqueued in the post editor. Avoid registering
+		// the ESM wrapper on other block-editor surfaces, where AM may import it
+		// before window.__JetpackAIProvider exists.
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+			return $providers;
+		}
+
 		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
 		// re-exports from window.__JetpackAIProvider at import time; if the
 		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
@@ -478,10 +487,54 @@ class Jetpack_AI_Sidebar {
 	 *
 	 * @return bool
 	 */
-	private static function is_review_mediator_enabled(): bool {
+	private static function is_ai_editorial_review_enabled(): bool {
 		return (bool) apply_filters(
-			'jetpack_ai_review_mediator_enabled',
+			'jetpack_ai_editorial_review_enabled',
 			true
+		);
+	}
+
+	/**
+	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
+	 *
+	 * AI Editorial Review remains a feature inside the preview. Hosts can open
+	 * the preview independently in the future while keeping AI Editorial Review
+	 * behind its own feature-specific gate.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
+		return (bool) apply_filters(
+			'jetpack_ai_sidebar_preview_enabled',
+			self::is_ai_editorial_review_enabled()
+		);
+	}
+
+	/**
+	 * Preview configuration consumed by the Agents Manager and Jetpack AI provider bundles.
+	 *
+	 * @return array Preview mode and feature availability.
+	 */
+	private static function get_jetpack_ai_sidebar_preview_config(): array {
+		$features = array(
+			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
+			'blockTransformations'    => true,
+			'optimizeTitleSuggestion' => false,
+			'chatHistory'             => false,
+			'supportGuides'           => false,
+		);
+
+		/**
+		 * Filter the feature set exposed in Jetpack AI Sidebar Preview.
+		 *
+		 * @param array $features Associative array of preview feature flags.
+		 */
+		$filtered_features = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
+		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
+
+		return array(
+			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
+			'features' => $features,
 		);
 	}
 
@@ -496,14 +549,19 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		// Set Jetpack's default for externally emitted payloads. Hosts that need
-		// an intentional review-mediator override should use jetpack_ai_review_mediator_enabled.
-		$data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
+			return $data;
+		}
+
+		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
+		// intentional overrides should use the AI Editorial Review and preview filters.
+		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
+		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $data;
 	}
 
 	/**
-	 * Enable Agents Manager in the post editor when AI Editorial Review is available.
+	 * Enable Agents Manager in the post editor when Jetpack AI Sidebar Preview is available.
 	 *
 	 * @param mixed $enabled Existing Agents Manager block-editor gate value.
 	 * @return bool
@@ -513,31 +571,31 @@ class Jetpack_AI_Sidebar {
 			return true;
 		}
 
-		return self::is_review_mediator_enabled() && self::is_post_editor();
+		return self::is_jetpack_ai_sidebar_preview_enabled() && self::is_post_editor() && self::has_ai_features();
 	}
 
 	/**
-	 * Inject reviewMediatorEnabled into an externally enqueued AM bundle.
+	 * Inject Jetpack AI Sidebar Preview data into an externally enqueued AM bundle.
 	 *
 	 * The design-intended hook is jetpack_ai_sidebar_agents_manager_data, applied
 	 * by jetpack-mu-wpcom Agents_Manager::enqueue_scripts(). On Atomic the bundled
 	 * mu-wpcom (via wpcomsh) lags this PR, so the filter never fires and the
-	 * client gets agentsManagerData without our flag. This `before` script runs
+	 * client gets agentsManagerData without our fields. This `before` script runs
 	 * after the upstream `before` that declares the const (added earlier) but
 	 * before the AM bundle reads it, so the field is set when AM initialises.
 	 * Gives Atomic parity with Jurassic Ninja without depending on a wpcomsh
 	 * redeploy.
 	 *
 	 * Skipped on WordPress.com Simple — wpcom's data extension owns the predicate
-	 * there, including any wpcom_review_mediator_enabled kill-switch override.
+	 * there, including any WordPress.com-specific kill-switch override.
 	 *
 	 * @return void
 	 */
-	public static function maybe_patch_review_mediator_flag(): void {
+	public static function maybe_patch_jetpack_ai_sidebar_preview_data(): void {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
-		if ( ! self::is_post_editor() || ! self::has_ai_features() ) {
+		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() || ! self::is_post_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
@@ -547,15 +605,20 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		$payload = wp_json_encode(
-			self::is_review_mediator_enabled(),
+		$ai_editorial_review_payload = wp_json_encode(
+			self::is_ai_editorial_review_enabled(),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+		$preview_payload             = wp_json_encode(
+			self::get_jetpack_ai_sidebar_preview_config(),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
-				. ' agentsManagerData.reviewMediatorEnabled = ' . $payload . ';'
+				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
+				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
 				. ' }',
 			'before'
 		);
