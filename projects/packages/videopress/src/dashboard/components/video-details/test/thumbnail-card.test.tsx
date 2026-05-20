@@ -84,20 +84,17 @@ function wrapper( { children }: { children: ReactNode } ) {
 	return createElement( QueryClientProvider, { client }, children );
 }
 
-/** Shorthand for accessing window as a plain object in tests. */
-const win = window as Record< string, unknown >;
-
 beforeEach( () => {
 	mockedApiFetch.mockReset();
 	mockedSelectImage.mockReset();
 	mockSuccessNotice.mockReset();
 	mockErrorNotice.mockReset();
 	// Provide window.wp.media so canUploadImage is true for upload-mode tests.
-	win.wp = { media: jest.fn() };
+	( window as unknown as { wp?: { media?: unknown } } ).wp = { media: jest.fn() };
 } );
 
 afterEach( () => {
-	delete win.wp;
+	delete ( window as unknown as { wp?: { media?: unknown } } ).wp;
 } );
 
 describe( 'ThumbnailCard — update flow', () => {

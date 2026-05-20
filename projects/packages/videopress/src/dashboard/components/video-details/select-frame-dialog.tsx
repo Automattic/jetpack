@@ -4,6 +4,25 @@ import { Icon, video } from '@wordpress/icons';
 import { Button, Dialog } from '@wordpress/ui';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 
+// Exported for unit testing.
+export const END_GUARD_SECONDS = 0.05;
+
+/**
+ * Convert a scrubbed time (seconds) to the millisecond `at_time` the poster
+ * endpoint expects, clamped into [0, duration - END_GUARD_SECONDS]. The upper
+ * guard mirrors the legacy behaviour: the VideoPress poster generator fails
+ * when the requested frame sits too close to the end of the media.
+ *
+ * @param seconds         - The scrubbed time in seconds.
+ * @param durationSeconds - The video's duration in seconds.
+ * @return The clamped timestamp in whole milliseconds.
+ */
+export function frameTimeToMs( seconds: number, durationSeconds: number ): number {
+	const upper = Math.max( 0, durationSeconds - END_GUARD_SECONDS );
+	const clamped = Math.min( Math.max( seconds, 0 ), upper );
+	return Math.round( clamped * 1000 );
+}
+
 type FrameScrubberProps = {
 	src: string;
 	onChange: ( ms: number | null ) => void;
@@ -45,7 +64,7 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 		setMaxDuration( next );
 		const initial = next / 2;
 		setCurrentTime( initial );
-		onChange( Math.round( initial * 1000 ) );
+		onChange( frameTimeToMs( initial, next ) );
 	};
 
 	const handleRangeChange = ( v: number | undefined ) => {
@@ -53,7 +72,7 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 			return;
 		}
 		setCurrentTime( v );
-		onChange( Math.round( v * 1000 ) );
+		onChange( frameTimeToMs( v, maxDuration ) );
 	};
 
 	if ( hasError ) {
