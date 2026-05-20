@@ -45,7 +45,9 @@ export async function selectImageFromMediaLibrary(): Promise< Attachment | null 
 			resolve( { id: sel.id, url: sel.url } );
 		} );
 		frame.on( 'close', () => {
-			// `close` fires after `select` on confirm — defer so `select` resolves first.
+			// When the user confirms, wp.media fires `select` then `close` in the same
+			// tick. Deferring the null-resolve lets the `select` handler win; the
+			// `resolved` flag is the real guard against close overwriting the result.
 			setTimeout( () => {
 				if ( ! resolved ) {
 					resolve( null );

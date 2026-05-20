@@ -58,6 +58,23 @@ describe( 'selectImageFromMediaLibrary', () => {
 		await expect( promise ).resolves.toBeNull();
 	} );
 
+	it( 'keeps the selection when close fires right after select', async () => {
+		const frame = makeMediaFrame();
+		( window as unknown as { wp: { media: jest.Mock } } ).wp = {
+			media: jest.fn( () => frame ),
+		};
+
+		const promise = selectImageFromMediaLibrary();
+		frame.handlers.select();
+		frame.handlers.close();
+		await new Promise( resolve => setTimeout( resolve, 0 ) ); // flush the deferred null-resolve
+
+		await expect( promise ).resolves.toEqual( {
+			id: 77,
+			url: 'https://example.test/img.png',
+		} );
+	} );
+
 	it( 'rejects when window.wp.media is unavailable', async () => {
 		await expect( selectImageFromMediaLibrary() ).rejects.toThrow( /wp\.media/ );
 	} );
