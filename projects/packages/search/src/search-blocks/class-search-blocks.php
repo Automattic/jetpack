@@ -1640,6 +1640,8 @@ class Search_Blocks {
 				'Checking under the digital couch cushions…',
 				'Consulting the oracle…',
 				'Asking a smarter algorithm…',
+				'Brewing a fresh batch of insights…',
+				'Unleashing the full power of search…',
 			);
 		}
 		return array(
@@ -1656,6 +1658,8 @@ class Search_Blocks {
 			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
 			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
 			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
+			__( 'Brewing a fresh batch of insights…', 'jetpack-search-pkg' ),
+			__( 'Unleashing the full power of search…', 'jetpack-search-pkg' ),
 		);
 	}
 

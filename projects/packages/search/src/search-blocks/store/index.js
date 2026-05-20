@@ -59,6 +59,8 @@ const AI_EXTENDED_LOADING_HINTS = [
 	'Checking under the digital couch cushions…',
 	'Consulting the oracle…',
 	'Asking a smarter algorithm…',
+	'Brewing a fresh batch of insights…',
+	'Unleashing the full power of search…',
 ];
 
 /**
