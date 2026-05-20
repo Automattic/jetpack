@@ -40,6 +40,7 @@ class Settings_Test extends BaseTestCase {
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_actions( 'current_screen' );
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
+		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
@@ -85,13 +86,16 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that add_wp_admin_menu registers the menu when connected.
+	 * Test that add_wp_admin_menu registers the menu when connected and the
+	 * subscriptions module is active.
 	 */
 	public function test_add_wp_admin_menu_registers_menu_when_connected() {
 		// Simulate connected state.
 		\Jetpack_Options::update_option( 'id', 1234 );
 		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
 		( new Connection_Manager() )->reset_connection_status();
+
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
 
 		$settings = new Settings();
 		$settings->add_wp_admin_menu();
@@ -100,6 +104,58 @@ class Settings_Test extends BaseTestCase {
 			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
 			'Newsletter menu should be registered when site is connected'
 		);
+	}
+
+	/**
+	 * Test that the modernized dashboard skips registering the menu when the
+	 * subscriptions module is inactive.
+	 */
+	public function test_add_wp_admin_menu_does_not_register_menu_when_module_inactive() {
+		// Simulate connected state; leave the subscriptions module inactive.
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		// Modernization defaults to true; the module is off, so the menu is skipped.
+		$settings = new Settings();
+		$settings->add_wp_admin_menu();
+
+		$this->assertFalse(
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			'Newsletter menu should not be registered on the modernized dashboard when the subscriptions module is off'
+		);
+	}
+
+	/**
+	 * Test that the legacy (unmodernized) dashboard still registers the menu when
+	 * the subscriptions module is inactive — the module gate must not change
+	 * non-modernized behavior.
+	 */
+	public function test_add_wp_admin_menu_registers_menu_when_module_inactive_but_not_modernized() {
+		// Simulate connected state; leave the subscriptions module inactive.
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		// Opt out of modernization so the legacy code path runs.
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		$settings = new Settings();
+		$settings->add_wp_admin_menu();
+
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			'Legacy Newsletter menu should still register when the subscriptions module is off'
+		);
+	}
+
+	/**
+	 * Mock the subscriptions module being active.
+	 *
+	 * @return string[]
+	 */
+	public function mock_subscriptions_active() {
+		return array( 'subscriptions' );
 	}
 
 	/**

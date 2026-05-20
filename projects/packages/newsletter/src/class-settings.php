@@ -155,6 +155,13 @@ class Settings {
 			return;
 		}
 
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+			return;
+		}
+
 		$host = new Host();
 
 		// should_show_menu_item() controls visibility of the menu item.
@@ -203,6 +210,13 @@ class Settings {
 	 * (999999) when the Jetpack menu already exists.
 	 */
 	public function add_wp_admin_submenu() {
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+			return;
+		}
+
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
 		$callback    = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
