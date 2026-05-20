@@ -107,6 +107,10 @@
 		height: auto;
 		aspect-ratio: 16 / 9;
 	}
+
+	.vp-video-details__thumbnail-wrapper {
+		width: 100%;
+	}
 }
 
 .vp-video-details__thumbnail-wrapper {
@@ -135,6 +139,7 @@
 .vp-video-details__thumbnail-updating {
 	position: absolute;
 	inset: 0;
+	z-index: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -189,11 +194,4 @@
 
 .vp-frame-scrubber__range {
 	margin-top: 12px;
-}
-
-@media (max-width: 600px) {
-
-	.vp-video-details__thumbnail-wrapper {
-		width: 100%;
-	}
 }
