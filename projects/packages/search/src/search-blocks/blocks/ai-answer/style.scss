@@ -1,10 +1,24 @@
+// The AI Answer block intentionally ships no card chrome (background,
+// border, shadow) and no hardcoded brand colours. It inherits typography,
+// foreground colour, link colour, and link-hover treatment from the theme
+// so the panel reads as a first-class section of the page rather than a
+// floating widget. Subtle separation comes from `color-mix(currentColor)`
+// — the same idiom the filter blocks use for their pill backgrounds —
+// which adapts to a dark theme by sampling whatever the theme already
+// chose for body text.
+// All spacing uses theme preset tokens (`--wp--preset--spacing--*`) when
+// available, with `em` fallbacks tied to local font-size so a classic
+// theme without preset spacing still renders sensibly.
+
 .wp-block-jetpack-search-ai-answer {
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-	margin: 0 0 1rem;
-	overflow: hidden;
+	margin-block: 0 var(--wp--preset--spacing--40, 1.5rem);
+	padding-block: var(--wp--preset--spacing--30, 0.75rem);
+	// A subtle inline-start accent rule reads as "callout" without
+	// imposing a background. Border colour is sampled from the theme via
+	// `currentColor` at 30% so it always has contrast against the page
+	// surface without picking a specific palette colour.
+	border-inline-start: 3px solid color-mix(in sRGB, currentColor 30%, transparent);
+	padding-inline-start: var(--wp--preset--spacing--30, 1rem);
 
 	&[hidden] {
 		display: none;
@@ -12,24 +26,22 @@
 }
 
 .jp-search-answers-panel__heading {
-	color: #50575e;
-	font-size: 11px;
+	font-size: 0.75em;
 	font-weight: 600;
-	letter-spacing: 0.08em;
-	margin: 0;
-	padding: 14px 18px 8px;
+	letter-spacing: 0.06em;
+	margin: 0 0 0.5em;
+	opacity: 0.7;
 	text-transform: uppercase;
 }
 
 .jp-search-answers-panel__loading,
 .jp-search-answers-panel__loading-hint {
 	align-items: center;
-	color: #50575e;
+	color: inherit;
 	display: flex;
-	font-size: 13px;
-	gap: 8px;
-	margin: 0;
-	padding: 0 18px 14px;
+	gap: 0.5em;
+	margin: 0.5em 0 0;
+	opacity: 0.7;
 }
 
 .jp-search-answers-panel__loading-hint {
@@ -37,29 +49,30 @@
 }
 
 .jp-search-answers-panel__error {
-	padding: 0 18px 14px;
-}
-
-.jp-search-answers-panel__error-message {
-	color: #b32d2e;
-	font-size: 13px;
-	margin: 0 0 4px;
-}
-
-.jp-search-answers-panel__error-detail {
-	color: #50575e;
-	font-size: 12px;
 	margin: 0;
 }
 
+.jp-search-answers-panel__error-message {
+	margin: 0 0 0.25em;
+}
+
+.jp-search-answers-panel__error-detail {
+	font-size: 0.875em;
+	margin: 0;
+	opacity: 0.7;
+}
+
 .jp-search-answers-panel__content {
-	padding: 0 18px 14px;
+	margin: 0;
 }
 
 .jp-search-answers-panel__text {
-	font-size: 13px;
 	line-height: 1.6;
 
+	// Headings stay in-flow rather than mimicking the theme's body
+	// heading scale — the answer is one block of prose, so internal
+	// headings need to be visually subordinate to the panel's own
+	// heading ("AI ANSWER") and to any surrounding page headings.
 	h2,
 	h3,
 	h4 {
@@ -90,29 +103,26 @@
 		font-style: italic;
 	}
 
-	a {
-		color: #2271b1;
-		text-decoration: underline;
-	}
+	// Links inherit the theme's link colour cascade entirely — no
+	// `color:` override here. The same applies to `:hover` / `:focus-visible`.
 }
 
 .jp-search-answers-panel__toggle {
 	align-items: center;
 	background: none;
-	border: none;
-	border-top: 1px solid #f0f0f0;
-	color: #2271b1;
+	border: 0;
+	color: inherit;
 	cursor: pointer;
-	display: flex;
-	font-size: 12px;
-	font-weight: 500;
-	gap: 6px;
-	justify-content: center;
-	padding: 9px 0;
-	width: 100%;
+	display: inline-flex;
+	font: inherit;
+	font-size: 0.875em;
+	gap: 0.4em;
+	margin-top: 0.5em;
+	padding: 0;
+	text-decoration: underline;
 
 	&:hover {
-		background: #f6f7f7;
+		opacity: 0.7;
 	}
 }
 
@@ -120,32 +130,30 @@
 	border-bottom: 1.5px solid currentColor;
 	border-right: 1.5px solid currentColor;
 	display: inline-block;
-	height: 6px;
+	height: 0.4em;
 	transform: rotate(45deg);
-	width: 6px;
+	width: 0.4em;
 }
 
 .jp-search-answers-panel__citations {
-	border-top: 1px solid #f0f0f0;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px 12px;
-	justify-content: flex-end;
+	font-size: 0.875em;
+	gap: 0.5em 1em;
 	list-style: none;
-	margin: 6px 0 0;
-	padding: 10px 0 0;
+	margin: 0.75em 0 0;
+	padding: 0;
 
 	li {
-		font-size: 12px;
-		line-height: 1.5;
+		margin: 0;
 	}
 
+	// Anchor colour inherits from the theme's link cascade. The `inline-flex`
+	// is purely to align the external-link icon vertically with the title.
 	a {
 		align-items: center;
-		color: #2271b1;
 		display: inline-flex;
-		gap: 4px;
-		text-decoration: underline;
+		gap: 0.25em;
 	}
 }
 
@@ -153,6 +161,8 @@
 	flex-shrink: 0;
 }
 
+// Inline three-dot loading ellipsis. Reuses `currentColor` so it tints to
+// the inherited foreground rather than picking its own brand colour.
 @keyframes jp-search-animated-ellipsis-bounce {
 
 	0%,
