@@ -1139,6 +1139,27 @@ class Search_Blocks_Test extends TestCase {
 					'footer' => null,
 				),
 			),
+			'two template-parts with the same slug are preserved (deliberate theme choice, not the single-part dedup)' => array(
+				'<!-- wp:template-part {"slug":"site-shell"} /-->' . "\n"
+				. '<main></main>' . "\n"
+				. '<!-- wp:template-part {"slug":"site-shell"} /-->',
+				array(
+					'header' => 'site-shell',
+					'footer' => 'site-shell',
+				),
+			),
+			'slug with unsafe characters is rejected (guards JSON round-trip in substitute_template_placeholders)' => array(
+				// parse_blocks() preserves attrs verbatim from the JSON; if it ever
+				// surfaced a slug containing characters that would break the
+				// `{"slug":"..."}` re-insertion (a quote, a brace, a newline), we
+				// drop it and let the resolver fall back to the default.
+				'<!-- wp:template-part {"slug":"valid"} /-->' . "\n"
+				. '<!-- wp:template-part {"slug":"has space"} /-->',
+				array(
+					'header' => 'valid',
+					'footer' => null,
+				),
+			),
 			'nested template-parts in a wrapper are ignored' => array(
 				'<!-- wp:group --><div class="wp-block-group">'
 				. '<!-- wp:template-part {"slug":"buried-header"} /-->'

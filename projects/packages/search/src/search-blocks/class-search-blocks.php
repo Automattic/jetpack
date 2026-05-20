@@ -924,13 +924,25 @@ class Search_Blocks {
 	 * block themes that ship only variant slugs leave the chrome empty).
 	 *
 	 * Resolution order: theme's `search.html`, then `index.html`, then
-	 * `header`/`footer` defaults. Not memoized — the sub-helpers are
-	 * cheap, the resolver runs at most once per request, and skipping the
-	 * cache keeps tests and theme switches well-behaved.
+	 * `header`/`footer` defaults.
+	 *
+	 * Per-request memo keyed by `get_called_class()` and the active
+	 * stylesheet. Both `register_search_template()` and
+	 * `register_product_search_template()` fire on `init` and each go
+	 * through `substitute_template_placeholders()`, so caching at this
+	 * level halves the `get_block_template()` work without touching the
+	 * registrar wiring. Keying by `get_called_class()` keeps anonymous
+	 * test subclasses with different `get_active_theme_template_content()`
+	 * stubs from polluting each other's results.
 	 *
 	 * @return array{header:string,footer:string}
 	 */
 	protected static function resolve_theme_chrome_slugs(): array {
+		static $cache = array();
+		$key          = get_called_class() . '|' . get_stylesheet();
+		if ( isset( $cache[ $key ] ) ) {
+			return $cache[ $key ];
+		}
 		$defaults = array(
 			'header' => 'header',
 			'footer' => 'footer',
@@ -940,13 +952,15 @@ class Search_Blocks {
 			$content = static::get_active_theme_template_content( 'index' );
 		}
 		if ( null === $content ) {
+			$cache[ $key ] = $defaults;
 			return $defaults;
 		}
-		$found = static::extract_chrome_slugs( $content );
-		return array(
+		$found         = static::extract_chrome_slugs( $content );
+		$cache[ $key ] = array(
 			'header' => $found['header'] ?? $defaults['header'],
 			'footer' => $found['footer'] ?? $defaults['footer'],
 		);
+		return $cache[ $key ];
 	}
 
 	/**
@@ -981,12 +995,21 @@ class Search_Blocks {
 	 * Pure function (no globals, no I/O) so unit tests can feed it fixture
 	 * markup directly.
 	 *
+	 * Slugs that contain anything outside `[a-zA-Z0-9_-]` are dropped —
+	 * the value is re-inserted unescaped into block-grammar JSON in
+	 * `substitute_template_placeholders()`, so accepting an arbitrary
+	 * string would let a malformed theme template break the JSON
+	 * round-trip. WordPress template-part slugs are filename-derived in
+	 * practice and never contain other characters, so the guard rejects
+	 * what would have been broken markup anyway.
+	 *
 	 * @param string $template_content Block markup to scan.
 	 * @return array{header:?string,footer:?string}
 	 */
 	protected static function extract_chrome_slugs( string $template_content ): array {
 		$header = null;
 		$footer = null;
+		$count  = 0;
 		if ( '' === $template_content || ! function_exists( 'parse_blocks' ) ) {
 			return array(
 				'header' => $header,
@@ -998,18 +1021,21 @@ class Search_Blocks {
 				continue;
 			}
 			$slug = $block['attrs']['slug'] ?? null;
-			if ( ! is_string( $slug ) || '' === $slug ) {
+			if ( ! is_string( $slug ) || '' === $slug || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $slug ) ) {
 				continue;
 			}
 			if ( null === $header ) {
 				$header = $slug;
 			}
 			$footer = $slug;
+			++$count;
 		}
 		// A template with a single top-level template-part is almost always
 		// a header-only template (e.g. some minimalist 404s). Don't promote
-		// it to the footer slot — fall back to the default instead.
-		if ( $header === $footer ) {
+		// it to the footer slot. Two distinct template-parts that happen to
+		// share a slug — uncommon, but a deliberate theme choice — are
+		// preserved as-is.
+		if ( $count < 2 ) {
 			$footer = null;
 		}
 		return array(
