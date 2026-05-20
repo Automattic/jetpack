@@ -859,8 +859,9 @@ class Search_Blocks {
 		if ( '' === $content ) {
 			return;
 		}
-		register_block_template(
-			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
+		$name = static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG;
+		static::replace_block_template(
+			$name,
 			array(
 				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
 				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
@@ -938,20 +939,30 @@ class Search_Blocks {
 	 * 4. The `header` / `footer` defaults so the registered template
 	 *    stays valid markup on classic or otherwise-empty themes.
 	 *
-	 * Per-request memo keyed by `get_called_class()` and the active
-	 * stylesheet. Both `register_search_template()` and
-	 * `register_product_search_template()` fire on `init` and each go
-	 * through `substitute_template_placeholders()`, so caching at this
-	 * level halves the `get_block_template()` work without touching the
-	 * registrar wiring. Keying by `get_called_class()` keeps anonymous
-	 * test subclasses with different `get_active_theme_template_content()`
-	 * stubs from polluting each other's results.
+	 * Per-request memo keyed by `get_called_class()`, the active
+	 * stylesheet, and `$_SERVER['REQUEST_TIME_FLOAT']`. The request-time
+	 * component is critical: PHP-FPM workers persist function-local
+	 * statics across requests, so a key without it would freeze the
+	 * resolved slugs at whatever the theme had on the worker's first
+	 * request — site-owner theme switches and Site Editor edits to the
+	 * theme's search.html wouldn't take effect until the worker
+	 * recycled. Keying by `get_called_class()` keeps anonymous test
+	 * subclasses with different `get_active_theme_template_content()`
+	 * stubs from polluting each other.
 	 *
 	 * @return array{header:string,footer:string}
 	 */
 	protected static function resolve_theme_chrome_slugs(): array {
 		static $cache = array();
-		$key          = get_called_class() . '|' . get_stylesheet();
+		// $_SERVER['REQUEST_TIME_FLOAT'] is a PHP-set float used only as a
+		// per-request cache discriminator (never echoed, never stored), so
+		// the standard "unslash + sanitize" treatment for user input doesn't
+		// apply. Cast to float and back to string to satisfy phpcs without
+		// changing meaning.
+		$request_id = isset( $_SERVER['REQUEST_TIME_FLOAT'] )
+			? (string) (float) $_SERVER['REQUEST_TIME_FLOAT'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			: (string) microtime( true );
+		$key        = get_called_class() . '|' . get_stylesheet() . '|' . $request_id;
 		if ( isset( $cache[ $key ] ) ) {
 			return $cache[ $key ];
 		}
@@ -1158,14 +1169,41 @@ class Search_Blocks {
 		if ( '' === $content ) {
 			return;
 		}
-		register_block_template(
-			static::get_parent_plugin_slug() . '//' . self::PRODUCT_SEARCH_TEMPLATE_SLUG,
+		$name = static::get_parent_plugin_slug() . '//' . self::PRODUCT_SEARCH_TEMPLATE_SLUG;
+		static::replace_block_template(
+			$name,
 			array(
 				'title'       => __( 'Jetpack Search Product Results', 'jetpack-search-pkg' ),
 				'description' => __( 'Displays WooCommerce product search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
 				'content'     => $content,
 			)
 		);
+	}
+
+	/**
+	 * Idempotent `register_block_template()` wrapper. Unregisters the
+	 * existing entry (if any) before registering, so the chrome-slug
+	 * resolution stays fresh across site-owner theme switches inside a
+	 * long-lived PHP-FPM worker. Without the unregister step, WP's
+	 * `WP_Block_Templates_Registry::register()` would reject the
+	 * second-and-later call with `_doing_it_wrong()` and the worker
+	 * would keep serving stale content until it recycled.
+	 *
+	 * Tests can override this seam to assert against a single
+	 * registration path without manipulating the registry singleton.
+	 *
+	 * @param string              $name Fully-qualified template name
+	 *                                  (`<plugin>//<slug>`).
+	 * @param array<string,mixed> $args Args for `register_block_template()`.
+	 */
+	protected static function replace_block_template( string $name, array $args ) {
+		if ( class_exists( '\WP_Block_Templates_Registry' ) ) {
+			$registry = \WP_Block_Templates_Registry::get_instance();
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+		register_block_template( $name, $args );
 	}
 
 	/**

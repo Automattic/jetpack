@@ -1547,6 +1547,73 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Long-lived PHP-FPM workers keep `WP_Block_Templates_Registry`
+	 * alive across requests, and `register_block_template()` rejects
+	 * a second call with the same name as a `_doing_it_wrong()` error.
+	 * `register_search_template()` must therefore unregister-before-
+	 * register so that a site-owner theme switch (or an edit to the
+	 * theme's `search.html` in the Site Editor) propagates to the
+	 * registered template without waiting for the worker to recycle.
+	 *
+	 * Simulated here by calling the registrar twice with different
+	 * stubbed chrome slugs and asserting the second value wins.
+	 */
+	public function test_register_search_template_replaces_existing_registration() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		$first = get_class(
+			new class() extends Search_Blocks {
+				protected static function block_templates_active(): bool {
+					return true;
+				}
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"old-header"} /-->'
+							. '<!-- wp:template-part {"slug":"old-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$first::register_search_template();
+
+		// Simulate a theme switch / Site Editor edit between requests.
+		$second = get_class(
+			new class() extends Search_Blocks {
+				protected static function block_templates_active(): bool {
+					return true;
+				}
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"new-header"} /-->'
+							. '<!-- wp:template-part {"slug":"new-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$second::register_search_template();
+
+		$expected   = $this->invoke_protected( 'get_parent_plugin_slug' ) . '//jetpack-search';
+		$registered = $registry->get_registered( $expected );
+		$this->assertNotNull( $registered );
+		$this->assertStringContainsString( '"slug":"new-header"', $registered->content );
+		$this->assertStringContainsString( '"slug":"new-footer"', $registered->content );
+		$this->assertStringNotContainsString( '"slug":"old-header"', $registered->content );
+		$this->assertStringNotContainsString( '"slug":"old-footer"', $registered->content );
+
+		$registry->unregister( $expected );
+	}
+
+	/**
 	 * Counterpart to the search-template substitution check: the
 	 * product-results template ships through the same placeholder
 	 * pipeline, so a fix to one must apply to the other.
