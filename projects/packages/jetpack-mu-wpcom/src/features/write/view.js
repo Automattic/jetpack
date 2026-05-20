@@ -744,6 +744,106 @@ function normalizeFormattingTags( container ) {
 	} );
 }
 
+// Tags whose subtree is preserved on paste. Anything not listed here and not
+// in PASTE_DROP_TAGS is unwrapped — its children stay, but the element itself
+// is removed along with every attribute it carried.
+const PASTE_ALLOWED_TAGS = new Set( [
+	'P',
+	'BR',
+	'H1',
+	'H2',
+	'H3',
+	'H4',
+	'H5',
+	'H6',
+	'UL',
+	'OL',
+	'LI',
+	'BLOCKQUOTE',
+	'A',
+	'STRONG',
+	'B',
+	'EM',
+	'I',
+	'U',
+	'S',
+	'STRIKE',
+	'CODE',
+] );
+
+// Tags whose subtree is discarded entirely on paste — they carry no useful
+// content for the editor and unwrapping would dump CSS or script source as text.
+const PASTE_DROP_TAGS = new Set( [
+	'SCRIPT',
+	'STYLE',
+	'META',
+	'LINK',
+	'HEAD',
+	'TITLE',
+	'NOSCRIPT',
+] );
+
+/**
+ * Sanitize pasted HTML in place inside `container`.
+ *
+ * Source-document typography (font-size, font-family, color, background,
+ * line-height, font-weight) leaks into the editor via `style` attributes
+ * and wrapper tags, producing visible mismatches with the editor's own
+ * styling. This walks the tree depth-first, drops non-content subtrees
+ * (script/style/meta/etc.), unwraps tags that aren't in the allowlist
+ * (keeping their text and children), and strips every attribute except
+ * `href` on links.
+ *
+ * Google Docs wraps copied content in an outer `<b id="docs-internal-guid-…">`
+ * with a counteracting `style="font-weight:normal"`. Once we strip that style
+ * the bare `<b>` would bold the entire paste, so we unwrap any element with
+ * a `docs-internal-guid` id before deciding what to do with its tag.
+ *
+ * @param {Element} container - The container to sanitize in place.
+ */
+function sanitizePasteFragment( container ) {
+	for ( const child of Array.from( container.childNodes ) ) {
+		if ( child.nodeType === Node.ELEMENT_NODE ) {
+			sanitizePasteNode( child );
+		}
+	}
+}
+
+/**
+ * Sanitize a single element from a pasted fragment in place. Called by
+ * sanitizePasteFragment for each element child; see that function for the
+ * tag/attribute policy.
+ *
+ * @param {Element} el - Element to sanitize.
+ */
+function sanitizePasteNode( el ) {
+	const tag = el.tagName;
+
+	if ( PASTE_DROP_TAGS.has( tag ) ) {
+		el.remove();
+		return;
+	}
+
+	// Recurse first so children are already cleaned before we unwrap.
+	sanitizePasteFragment( el );
+
+	const id = el.getAttribute( 'id' );
+	if ( id && id.startsWith( 'docs-internal-guid' ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	if ( ! PASTE_ALLOWED_TAGS.has( tag ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	for ( const attr of Array.from( el.attributes ) ) {
+		if ( tag === 'A' && attr.name === 'href' ) continue;
+		el.removeAttribute( attr.name );
+	}
+}
+
 /**
  * Convert contentEditable HTML into WordPress block markup.
  *
@@ -1657,16 +1757,34 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
 
-		// Highlight text + paste URL → create a link.
 		content.addEventListener( 'paste', event => {
 			const sel = window.getSelection();
-			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+			if ( ! sel.rangeCount ) return;
 
-			const pasted = event.clipboardData.getData( 'text/plain' );
-			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
-				event.preventDefault();
-				document.execCommand( 'createLink', false, pasted.trim() );
+			// Highlight text + paste URL → create a link. Only fires when
+			// something is selected; with a collapsed cursor a pasted URL
+			// should land as plain link text via the sanitizer path below.
+			if ( ! sel.isCollapsed ) {
+				const pastedText = event.clipboardData.getData( 'text/plain' );
+				if ( pastedText && /^https?:\/\/\S+$/i.test( pastedText.trim() ) ) {
+					event.preventDefault();
+					document.execCommand( 'createLink', false, pastedText.trim() );
+					return;
+				}
 			}
+
+			// Strip source typography (font-size, font-family, color, etc.)
+			// from rich-text pastes so they inherit the editor's styling.
+			// Plain-text pastes have no text/html payload — fall through to
+			// the browser default, which inserts a clean text node.
+			const html = event.clipboardData.getData( 'text/html' );
+			if ( ! html ) return;
+
+			event.preventDefault();
+			const tmp = document.createElement( 'div' );
+			tmp.innerHTML = html;
+			sanitizePasteFragment( tmp );
+			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
 	}, 200 );
 }
