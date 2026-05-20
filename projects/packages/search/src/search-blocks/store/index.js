@@ -818,19 +818,46 @@ const { state, actions } = store( NAMESPACE, {
 			return checkboxFilterItems( state, filterKey, config );
 		},
 
-		// AI Answers — derived state for the `ai-answer` block bindings. All
-		// of these flip on `aiShowExtended`: while it's false the panel reads
-		// the brief slice, true (after the user clicks Show more) and it
-		// reads the extended slice. Defining the visible-* getters once here
-		// keeps the render.php template free of brief/extended branching.
+		// AI Answers — derived state for the `ai-answer` block bindings. The
+		// visible slice flips on `aiShowExtended` *and* on whether the
+		// extended response has actually finished: while extended is still
+		// `loading` or `streaming`, keep showing the brief content so the
+		// panel doesn't collapse to a "Finding an answer" placeholder for
+		// the few seconds it takes to come back. The extended-loading hint
+		// at the bottom of the panel provides the in-flight signal during
+		// that window; the content swap happens in one move when extended
+		// reaches `done`. Without this we get a visible "reset" on click
+		// (RSM-3591 in-review feedback).
 		get aiVisibleStatus() {
-			return state.aiShowExtended ? state.aiExtendedStatus : state.aiBriefStatus;
+			if ( ! state.aiShowExtended ) {
+				return state.aiBriefStatus;
+			}
+			// Extended error surfaces immediately — failures aren't worth
+			// hiding behind the brief content.
+			if ( state.aiExtendedStatus === 'error' ) {
+				return 'error';
+			}
+			// Once extended is done, fully swap to it.
+			if ( state.aiExtendedStatus === 'done' ) {
+				return 'done';
+			}
+			// Otherwise (extended is loading or streaming) hold the brief
+			// content visible — its status is already `done` at this point
+			// because `aiShowExtendedButton` only renders the trigger after
+			// the brief finishes.
+			return state.aiBriefStatus;
 		},
 		get aiVisibleText() {
-			return state.aiShowExtended ? state.aiExtendedText : state.aiBriefText;
+			if ( state.aiShowExtended && state.aiExtendedStatus === 'done' ) {
+				return state.aiExtendedText;
+			}
+			return state.aiBriefText;
 		},
 		get aiVisibleCitations() {
-			const list = state.aiShowExtended ? state.aiExtendedCitations : state.aiBriefCitations;
+			const list =
+				state.aiShowExtended && state.aiExtendedStatus === 'done'
+					? state.aiExtendedCitations
+					: state.aiBriefCitations;
 			return list.map( ( { title, url }, index ) => ( {
 				title,
 				url,
@@ -847,7 +874,13 @@ const { state, actions } = store( NAMESPACE, {
 			} ) );
 		},
 		get aiVisibleError() {
-			return state.aiShowExtended ? state.aiExtendedError : state.aiBriefError;
+			// Only surface the extended error once it actually failed, so a
+			// brief-stage error doesn't get masked by an extended slice
+			// that hasn't started yet.
+			if ( state.aiShowExtended && state.aiExtendedError ) {
+				return state.aiExtendedError;
+			}
+			return state.aiBriefError;
 		},
 
 		// Panel-level visibility. `aiPanelHidden` collapses the whole block

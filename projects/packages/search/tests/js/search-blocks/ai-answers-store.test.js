@@ -95,23 +95,47 @@ describe( 'AI Answers store slice', () => {
 		expect( state.aiPanelHidden ).toBe( false );
 	} );
 
-	it( 'visible-* getters flip from brief to extended on aiShowExtended', () => {
+	it( 'visible-* getters hold the brief while extended is still loading/streaming, then swap on done', () => {
 		state.aiBriefText = 'short';
 		state.aiBriefCitations = [ { title: 'A', url: 'https://a' } ];
 		state.aiBriefStatus = 'done';
 		state.aiExtendedText = 'long';
 		state.aiExtendedCitations = [ { title: 'B', url: 'https://b' } ];
-		state.aiExtendedStatus = 'streaming';
+		state.aiExtendedStatus = 'loading';
 
+		// Pre-click: brief drives the visible slice.
 		expect( state.aiVisibleText ).toBe( 'short' );
-		expect( state.aiVisibleCitations ).toHaveLength( 1 );
+		expect( state.aiVisibleStatus ).toBe( 'done' );
 		expect( state.aiVisibleCitations[ 0 ].title ).toBe( 'A' );
 
+		// User clicks Show more → extended is loading, but the panel must
+		// keep showing the brief so it doesn't collapse to a "Finding an
+		// answer" placeholder (the bug that prompted this test).
 		state.aiShowExtended = true;
+		expect( state.aiVisibleText ).toBe( 'short' );
+		expect( state.aiVisibleStatus ).toBe( 'done' );
+		expect( state.aiVisibleCitations[ 0 ].title ).toBe( 'A' );
 
+		// Extended now streaming — still brief content, status still done.
+		state.aiExtendedStatus = 'streaming';
+		expect( state.aiVisibleText ).toBe( 'short' );
+		expect( state.aiVisibleStatus ).toBe( 'done' );
+
+		// Extended finishes — one clean swap to the longer answer.
+		state.aiExtendedStatus = 'done';
 		expect( state.aiVisibleText ).toBe( 'long' );
-		expect( state.aiVisibleStatus ).toBe( 'streaming' );
+		expect( state.aiVisibleStatus ).toBe( 'done' );
 		expect( state.aiVisibleCitations[ 0 ].title ).toBe( 'B' );
+	} );
+
+	it( 'aiVisibleStatus surfaces an extended error immediately rather than masking it with the brief', () => {
+		state.aiBriefText = 'short';
+		state.aiBriefStatus = 'done';
+		state.aiShowExtended = true;
+		state.aiExtendedError = { message: 'Bad Gateway', code: 502, source: 'http' };
+		state.aiExtendedStatus = 'error';
+		expect( state.aiVisibleStatus ).toBe( 'error' );
+		expect( state.aiVisibleError.code ).toBe( 502 );
 	} );
 
 	it( 'aiVisibleCitations marks non-http hrefs as `#` so a bad URL never lands on a `data-wp-bind--href`', () => {
