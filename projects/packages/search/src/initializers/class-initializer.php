@@ -74,19 +74,14 @@ class Initializer {
 			return;
 		}
 
-		// Initialize search package.
-		if ( ! static::init_search( $blog_id ) ) {
-			// The block-template overlay path provides the search UI via
-			// `Search_Blocks` rather than the legacy instant/classic
-			// experiences, so `init_search()` legitimately returns falsy
-			// (both branches are skipped) without being an abort. Without
-			// this carve-out, the legacy `jetpack_search_abort` action
-			// would fire and `jetpack_search_loaded` would not — which
-			// would silently break anything hooked to the loaded action.
-			if ( Search_Blocks::is_block_template_overlay_enabled() ) {
-				do_action( 'jetpack_search_loaded' );
-				return;
-			}
+		// Initialize search package. The block-template overlay path
+		// intentionally skips both instant and classic init (Search_Blocks
+		// owns the UI), so a falsy return there is by design — not an
+		// abort. Anything else falsy is a real failure.
+		$initialized = static::init_search( $blog_id )
+			|| Search_Blocks::is_block_template_overlay_enabled();
+
+		if ( ! $initialized ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'jetpack_search_init_search', null );
 			return;
@@ -159,11 +154,11 @@ class Initializer {
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 		Search_Blocks::init();
 
-		// When the experimental block-template overlay is on, the legacy
-		// instant-search overlay must not boot — both would otherwise own
-		// `?s=`, popstate, and the overlay-trigger selectors. Skipping at
-		// the init filter is cleaner than dequeuing the preact bundle after
-		// it's been enqueued.
+		// Experimental block-template overlay (off by default; see
+		// `Search_Blocks::is_block_template_overlay_enabled()`): bypass the
+		// preact `SearchApp` so it doesn't race the block overlay for
+		// `?s=`, popstate, and theme search-trigger selectors. Suppressing
+		// at the init filter is cleaner than dequeuing post-enqueue.
 		if ( Search_Blocks::is_block_template_overlay_enabled() ) {
 			add_filter( 'jetpack_search_init_instant_search', '__return_false' );
 		}

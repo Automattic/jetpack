@@ -199,19 +199,21 @@ class Search_Blocks {
 
 	/**
 	 * Whether the legacy instant-search overlay should be replaced by the
-	 * server-rendered Search blocks template (jetpack-search.html).
+	 * server-rendered Search blocks template
+	 * (`templates/jetpack-search-overlay.html`).
 	 *
-	 * Opt-in only — the legacy overlay (`Instant_Search` + `SearchApp`) is the
-	 * default and is fully bypassed when this returns true. Callers must also
-	 * make sure the Search blocks themselves are registered (the package's
-	 * `jetpack_search_blocks_enabled` filter); without them the rendered
-	 * markup would have no hydration counterparts on the page.
+	 * EXPERIMENTAL — off by default; not production-ready. Opt-in requires
+	 * both this filter AND `jetpack_search_blocks_enabled` to be true, since
+	 * the rendered markup needs the Search blocks themselves registered to
+	 * have anything to hydrate. When on, the legacy `SearchApp` is fully
+	 * bypassed via the `jetpack_search_init_instant_search` filter.
 	 *
 	 * @return bool
 	 */
 	public static function is_block_template_overlay_enabled(): bool {
 		/**
-		 * Opt into the experimental Search blocks overlay.
+		 * Opt into the experimental Search blocks overlay. Off by default.
+		 * Do not enable in production until this feature graduates.
 		 *
 		 * @param bool $enabled Default false.
 		 */
