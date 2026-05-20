@@ -15,6 +15,29 @@ Current slug shapes — match one if it fits, but new shapes are fine when nothi
 
 Titles aim to read naturally in the inserter, not mirror the slug shape — "Sort By" not "Results Sort", "Collapsible Filters" not "Filters Popover".
 
+## Shared store / bundles
+
+`store/` is a single shared module, not per-block code. A block `view.js` that
+needs store actions/state imports the bare specifier:
+
+```js
+import 'jetpack-search/store';
+```
+
+**Never** `import '../../store'` (relative) — that inlines the whole ~1,250-line
+store into the block's view bundle, and with ~14 interactive blocks that's the
+store shipped ~14 times. The blocks build (`tools/webpack.blocks.config.js`)
+externalizes `jetpack-search/store` via `DependencyExtractionPlugin`'s
+`requestToExternalModule`, so the bare specifier compiles to a dependency on the
+`jetpack-search/store` WordPress Script Module (registered in
+`Search_Blocks::register_store_script_module()`), shipped once and cached.
+
+The same specifier is mapped back to `store/index.js` for Jest
+(`jest*.config.js` `moduleNameMapper`) and for `import/no-unresolved`
+(`eslint.config.mjs` `import/core-modules`). A pure store importer compiles to
+~1 KB; `.size-limit.js` guards `results-list.js` so a regression that re-inlines
+the store trips CI.
+
 ## CSS classes
 
 WordPress derives `.wp-block-jetpack-search-{bare-slug}` from the full block name. For blocks whose bare slug already starts with `search-` the segment repeats (`.wp-block-jetpack-search-search-input`); that's harmless and only used internally.

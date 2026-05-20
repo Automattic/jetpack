@@ -18,10 +18,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class Initial_State_Test extends Search_TestCase {
 
 	/**
+	 * Original blog_public option value.
+	 *
+	 * @var mixed
+	 */
+	private $original_blog_public;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		$this->original_blog_public = get_option( 'blog_public', 1 );
 		$this->unregister_guidelines_page();
 	}
 
@@ -34,6 +42,7 @@ class Initial_State_Test extends Search_TestCase {
 		Constants::clear_single_constant( 'A8C_PROXIED_REQUEST' );
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		update_option( 'blog_public', $this->original_blog_public );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
 	}
@@ -130,6 +139,18 @@ class Initial_State_Test extends Search_TestCase {
 		$state = ( new Initial_State() )->get_initial_state();
 
 		$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
+	}
+
+	/**
+	 * Test that the AI Agent Access toggle is unavailable on private sites.
+	 */
+	public function test_ai_agent_access_available_is_false_for_private_sites() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		update_option( 'blog_public', -1 );
+
+		$state = ( new Initial_State() )->get_initial_state();
+
+		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
 	}
 
 	/**

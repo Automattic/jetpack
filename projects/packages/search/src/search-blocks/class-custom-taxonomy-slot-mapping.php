@@ -130,7 +130,7 @@ class Custom_Taxonomy_Slot_Mapping {
 		 * query rewrite. A site enables the feature by returning a non-empty
 		 * map from this filter.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.60.0
 		 *
 		 * @param array<string, string> $map Empty by default; entries shape
 		 *                                   `[ 'user_slug' => 'jetpack-search-tagN' ]`.
@@ -139,7 +139,7 @@ class Custom_Taxonomy_Slot_Mapping {
 		if ( ! is_array( $raw ) ) {
 			$msg = esc_html__( 'The jetpack_search_custom_taxonomy_map filter must return an array of user-slug => jetpack-search-tagN pairs.', 'jetpack-search-pkg' );
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is esc_html__() output.
-			_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+			_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg 0.60.0' );
 			self::$map_cache = array();
 			return self::$map_cache;
 		}
@@ -158,14 +158,14 @@ class Custom_Taxonomy_Slot_Mapping {
 				/* translators: 1: invalid slot value, 2: user-facing taxonomy slug */
 				$msg = sprintf( esc_html__( 'Invalid Jetpack Search slot "%1$s" for taxonomy "%2$s"; expected one of jetpack-search-tag0…jetpack-search-tag9.', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $user_slug ) );
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
-				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg 0.60.0' );
 				continue;
 			}
 			if ( isset( $slot_owner[ $slot ] ) ) {
 				/* translators: 1: slot, 2: first user-facing slug that owns the slot, 3: second user-facing slug attempting to claim it */
 				$msg = sprintf( esc_html__( 'Slot "%1$s" is already mapped to "%2$s"; ignoring duplicate mapping from "%3$s".', 'jetpack-search-pkg' ), esc_html( $slot ), esc_html( $slot_owner[ $slot ] ), esc_html( $user_slug ) );
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
-				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg $$next-version$$' );
+				_doing_it_wrong( 'jetpack_search_custom_taxonomy_map', $msg, 'jetpack-search-pkg 0.60.0' );
 				continue;
 			}
 			$map[ $user_slug ]   = $slot;
@@ -407,7 +407,7 @@ class Custom_Taxonomy_Slot_Mapping {
 			/* translators: %s: invalid mode value passed to backfill(). */
 			$msg = sprintf( esc_html__( 'Unknown backfill mode "%s"; expected one of mirror | rebuild.', 'jetpack-search-pkg' ), esc_html( $mode ) );
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $msg is sprintf() of esc_html__() with esc_html()-wrapped args.
-			_doing_it_wrong( __METHOD__, $msg, 'jetpack-search-pkg $$next-version$$' );
+			_doing_it_wrong( __METHOD__, $msg, 'jetpack-search-pkg 0.60.0' );
 			$mode = 'mirror';
 		}
 

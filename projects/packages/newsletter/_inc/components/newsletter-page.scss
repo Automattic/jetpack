@@ -57,29 +57,6 @@ body.jetpack_page_jetpack-newsletter {
 		}
 	}
 
-	// Tabs row: sticks at the top of the body wrapper (which itself starts
-	// directly below the sticky page header), so the bar stays in view while
-	// the panel content scrolls underneath. The wrapper carries the
-	// full-width separator + inline padding while the nested `Tabs.List`
-	// keeps its native `width: fit-content` so the animated active-tab
-	// indicator slides smoothly between tabs.
-	// The selector mirrors admin-ui's
-	// `.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > *`
-	// rule so the `flex: 0 0 auto` here outweighs the `flex: 1 1 auto`
-	// admin-ui sprays across body-wrapper children. Without that boost the
-	// tabs row collapses to ~24px and the tab buttons clip out of view.
-	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > .jetpack-newsletter-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
-		box-sizing: border-box;
-		flex: 0 0 auto;
-		padding-inline: $jetpack-newsletter-inset;
-		position: sticky;
-		top: 0;
-		width: 100%;
-		z-index: 9;
-	}
-
 	.jetpack-newsletter-page__content--padded {
 		padding: $jetpack-newsletter-inset;
 	}

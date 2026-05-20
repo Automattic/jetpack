@@ -556,6 +556,79 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The override only applies to the server-rendered experiences, mirroring
+	 * the dashboard's Embedded|Inline visibility gate. With the option on it
+	 * registers under Inline (server-rendered theme search); with the option
+	 * still on after the site switches to Overlay (client-side) or Off it must
+	 * NOT register — a stale option from a since-switched experience can't keep
+	 * rerouting the hierarchy.
+	 */
+	public function test_init_gates_product_search_hooks_on_server_rendered_experience() {
+		try {
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+
+			// Inline (allowed): module active, no experience opt-in saved, so
+			// get_experience() resolves to 'inline' — the override applies.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			Search_Blocks::init();
+
+			$this->assertNotFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must hook when experience is Inline'
+			);
+			$this->assertSame(
+				20,
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must hook at priority 20 when experience is Inline'
+			);
+
+			// Overlay: module active, experience explicitly saved as overlay.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+			Search_Blocks::init();
+
+			$this->assertFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must not hook when experience is Overlay'
+			);
+			$this->assertFalse(
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must not hook when experience is Overlay'
+			);
+
+			// Off: module inactive, get_experience() resolves to 'off'.
+			$this->reset_search_blocks_hooks();
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			$this->set_module_active( false );
+			Search_Blocks::init();
+
+			$this->assertFalse(
+				has_action( 'init', array( Search_Blocks::class, 'register_product_search_template' ) ),
+				'register_product_search_template must not hook when the module is off'
+			);
+			$this->assertFalse(
+				has_filter(
+					'search_template_hierarchy',
+					array( Search_Blocks::class, 'route_woocommerce_product_search_template' )
+				),
+				'route_woocommerce_product_search_template must not hook when the module is off'
+			);
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		}
+	}
+
+	/**
 	 * `init()` must always register the block-level hooks AND the IA state
 	 * seeding regardless of which experience the site has saved — admins can
 	 * insert Search blocks anywhere blocks are configurable, and those blocks
@@ -589,6 +662,142 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertNotFalse(
 			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
 			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
+		);
+	}
+
+	/**
+	 * Read the private `registered` map off the WP_Script_Modules singleton.
+	 *
+	 * @return array<string,array> Registered script modules keyed by id.
+	 */
+	private function registered_script_modules(): array {
+		$modules  = wp_script_modules();
+		$property = new \ReflectionProperty( $modules, 'registered' );
+		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
+		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
+		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		return $property->getValue( $modules );
+	}
+
+	/**
+	 * Drop a script module from the WP_Script_Modules singleton. The class
+	 * exposes no public unregister, and the registry persists for the whole
+	 * PHPUnit process, so reach into the private map to keep tests isolated.
+	 *
+	 * @param string $id Script module id.
+	 */
+	private function unregister_script_module( string $id ): void {
+		$modules  = wp_script_modules();
+		$property = new \ReflectionProperty( $modules, 'registered' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$registered = $property->getValue( $modules );
+		unset( $registered[ $id ] );
+		$property->setValue( $modules, $registered );
+	}
+
+	/**
+	 * Place a fixture `store/index.asset.php` at the path
+	 * `register_store_script_module()` reads, without clobbering a real
+	 * build. Returns a cleanup callback that restores the prior state
+	 * (original contents, or removal of anything this created).
+	 *
+	 * @param array $asset Asset array to write.
+	 * @return callable Cleanup callback.
+	 */
+	private function stub_store_asset_file( array $asset ): callable {
+		$dir  = Package::get_installed_path() . 'build/search-blocks/store';
+		$file = $dir . '/index.asset.php';
+
+		$created_dirs = array();
+		foreach ( array( Package::get_installed_path() . 'build', Package::get_installed_path() . 'build/search-blocks', $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		$had_file = file_exists( $file );
+		$original = $had_file ? file_get_contents( $file ) : null;
+		$export   = var_export( $asset, true );
+		file_put_contents( $file, "<?php return $export;\n" );
+
+		return static function () use ( $file, $had_file, $original, $created_dirs ) {
+			if ( $had_file ) {
+				file_put_contents( $file, $original );
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				// Only directories this fixture created, and only while
+				// empty — scandir() returns just '.' and '..' for an empty
+				// dir, so guard on that instead of silencing rmdir().
+				if ( is_dir( $d ) && 2 === count( scandir( $d ) ) ) {
+					rmdir( $d );
+				}
+			}
+		};
+	}
+
+	/**
+	 * The shared store must register as the `jetpack-search/store` Script
+	 * Module, sourced from the built `store/index.js` with the deps/version
+	 * declared in its generated asset file — that's what lets WordPress
+	 * resolve the dependency each block's view module declares instead of
+	 * shipping the store inlined per block.
+	 */
+	public function test_register_store_script_module_registers_shared_module() {
+		$cleanup = $this->stub_store_asset_file(
+			array(
+				'dependencies' => array( '@wordpress/interactivity' ),
+				'version'      => 'test-store-version',
+			)
+		);
+
+		try {
+			Search_Blocks::register_store_script_module();
+
+			$registered = $this->registered_script_modules();
+			$this->assertArrayHasKey( 'jetpack-search/store', $registered, 'Shared store must be registered as a script module.' );
+
+			$module = $registered['jetpack-search/store'];
+			$this->assertStringContainsString( 'build/search-blocks/store/index.js', $module['src'] );
+			$this->assertSame( 'test-store-version', $module['version'] );
+			$this->assertContains(
+				'@wordpress/interactivity',
+				array_column( $module['dependencies'], 'id' ),
+				'Store module must carry the dependencies from its asset file.'
+			);
+		} finally {
+			$this->unregister_script_module( 'jetpack-search/store' );
+			$cleanup();
+		}
+	}
+
+	/**
+	 * No build present (the common case in a fresh checkout / CI unit job):
+	 * the method must bail without registering anything or erroring, so
+	 * block registration is unaffected.
+	 */
+	public function test_register_store_script_module_noop_without_asset_file() {
+		$base = Package::get_installed_path() . 'build/search-blocks/store/index.asset.php';
+		if ( file_exists( $base ) ) {
+			$this->markTestSkipped( 'A real build asset file is present; the missing-file path cannot be exercised here.' );
+		}
+
+		// A prior test may have registered it in the process-wide singleton.
+		$this->unregister_script_module( 'jetpack-search/store' );
+
+		Search_Blocks::register_store_script_module();
+
+		$this->assertArrayNotHasKey(
+			'jetpack-search/store',
+			$this->registered_script_modules(),
+			'Without an asset file the store module must not be registered.'
 		);
 	}
 

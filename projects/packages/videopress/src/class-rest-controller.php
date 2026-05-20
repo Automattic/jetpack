@@ -108,9 +108,11 @@ class Rest_Controller {
 	 *
 	 * Forwards the whitelisted query params to WPCOM (REST v1.1, blog-signed
 	 * — matching the existing `Stats::fetch_video_plays` path) and forces
-	 * `complete_stats=true` so each day entry carries `total.views`,
-	 * `total.impressions`, and `total.watch_time` alongside the per-video
-	 * `plays[]` list the Overview's top-N cards consume.
+	 * `complete_stats=true`. In complete-stats mode, each day entry carries
+	 * `total.views`, `total.impressions`, and `total.watch_time` (in hours)
+	 * plus a per-video `data[]` array whose entries have `post_id`, `title`,
+	 * `views`, `impressions`, `watch_time` (hours), and `retention_rate`.
+	 * The `plays` field is NOT returned in complete-stats mode.
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return mixed Decoded JSON response from WPCOM, or WP_Error on failure.

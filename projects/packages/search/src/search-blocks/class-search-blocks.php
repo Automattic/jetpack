@@ -154,7 +154,9 @@ class Search_Blocks {
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 
-		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+		$experience = ( new Module_Control() )->get_experience();
+
+		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
 			add_action( 'init', array( static::class, 'register_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		}
@@ -164,7 +166,16 @@ class Search_Blocks {
 		// integrations. The WC/product-search guard lives in the callback,
 		// which runs late enough to satisfy woocommerce_blocks_enabled()'s
 		// load-order contract.
-		if ( static::woocommerce_search_template_override_enabled() ) {
+		//
+		// Gated to the server-rendered experiences (Embedded / Theme search):
+		// Overlay intercepts client-side so the override is a no-op there, and
+		// the dashboard hides the toggle in that state — mirror it server-side
+		// so a stale option from a since-switched experience can't keep
+		// rerouting the template hierarchy.
+		if (
+			static::woocommerce_search_template_override_enabled()
+			&& in_array( $experience, array( Module_Control::EXPERIENCE_EMBEDDED, Module_Control::EXPERIENCE_INLINE ), true )
+		) {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
@@ -562,6 +573,8 @@ class Search_Blocks {
 			);
 		}
 
+		self::register_store_script_module();
+
 		$blocks_dir = __DIR__ . '/blocks';
 		$block_dirs = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
 
@@ -582,6 +595,35 @@ class Search_Blocks {
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
+	}
+
+	/**
+	 * Register the shared store as the `jetpack-search/store` Script Module.
+	 *
+	 * Every interactive block's `view.js` imports this bare specifier instead
+	 * of inlining the ~1,250-line store; the build externalizes it (see
+	 * `tools/webpack.blocks.config.js`) and writes the dependency into each
+	 * block's generated `.asset.php`, so WordPress resolves it to this single
+	 * module and ships the store once instead of ~14 duplicated copies.
+	 */
+	public static function register_store_script_module() {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		$base_path  = Package::get_installed_path() . 'build/search-blocks/store/';
+		$asset_file = $base_path . 'index.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+
+		wp_register_script_module(
+			'jetpack-search/store',
+			plugins_url( 'index.js', $base_path . 'index.js' ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? false
+		);
 	}
 
 	/**
@@ -1266,6 +1308,22 @@ class Search_Blocks {
 			// locale-agnostic — only the display string carries the symbol.
 			'priceCurrencySymbol'        => '$',
 
+			// AI Answers — whether the agent endpoint should be called at all.
+			// Render.php for `jetpack-search/ai-answer` also short-circuits to
+			// an empty string when this is false, so the panel disappears at
+			// SSR time even for a saved post that still has the block in its
+			// content. The JS gate here covers the edge case where the flag
+			// flips off between SSR and hydration.
+			'aiAnswersEnabled'           => AI_Answers::is_enabled(),
+
+			// Localized rotating loading hints shown while the "Show more"
+			// extended AI answer streams. Lives on the top-level seed (not
+			// under `strings`) because the `strings` map is typed
+			// `array<string,string>` for Phan, and an `array<int,string>`
+			// value would break that contract — splitting it out keeps both
+			// surfaces strictly typed.
+			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
+
 			// Display labels for `wc_stock_status` selections, keyed by slug.
 			// Seeded from the status block's static option list so an active-
 			// filters chip for "instock" reads "In stock" rather than the raw
@@ -1506,41 +1564,108 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'              => 'Searching…',
-				'resultsCountSingle'     => 'Found %d result',
-				'resultsCountPlural'     => 'Found %d results',
-				'removeFilter'           => 'Remove %s',
-				'ratingStarsTop'         => '5 stars',
-				'ratingStarsAndUpSingle' => '%d star and up',
-				'ratingStarsAndUpPlural' => '%d stars and up',
-				'priceRangeFromTo'       => '%1$s – %2$s',
-				'priceRangeFrom'         => '%s+',
-				'priceRangeUpTo'         => 'Under %s',
-				'priceLabel'             => 'Price',
+				'searching'               => 'Searching…',
+				'resultsCountSingle'      => 'Found %d result',
+				'resultsCountPlural'      => 'Found %d results',
+				'removeFilter'            => 'Remove %s',
+				'ratingStarsTop'          => '5 stars',
+				'ratingStarsAndUpSingle'  => '%d star and up',
+				'ratingStarsAndUpPlural'  => '%d stars and up',
+				'priceRangeFromTo'        => '%1$s – %2$s',
+				'priceRangeFrom'          => '%s+',
+				'priceRangeUpTo'          => 'Under %s',
+				'priceLabel'              => 'Price',
+				'suggestionLabelQuery'    => 'Suggestions',
+				'suggestionLabelTaxonomy' => 'Popular Filters',
+				'suggestionLabelPost'     => 'Articles',
+				'aiErrorMessage'          => 'Sorry, an error occurred while generating an answer.',
+				'aiErrorCode'             => 'Error code: %s',
 			);
 		}
 		return array(
-			'searching'              => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searching'               => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountSingle'     => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			'resultsCountSingle'      => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountPlural'     => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountPlural'      => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'           => __( 'Remove %s', 'jetpack-search-pkg' ),
+			'removeFilter'            => __( 'Remove %s', 'jetpack-search-pkg' ),
 			/* translators: Active-filter chip label for the 5-star row. The 5-star row is "exactly 5 stars" — no "& up" affordance — because there is no higher rating. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsTop'         => __( '5 stars', 'jetpack-search-pkg' ),
+			'ratingStarsTop'          => __( '5 stars', 'jetpack-search-pkg' ),
 			/* translators: %d: rating threshold (singular form, i.e. 1). Active-filter chip label for the "1 star and up" threshold row. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsAndUpSingle' => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
+			'ratingStarsAndUpSingle'  => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: rating threshold (plural form, i.e. 2-4). Active-filter chip label for the "X stars and up" threshold rows. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsAndUpPlural' => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
+			'ratingStarsAndUpPlural'  => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
 			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
-			'priceRangeFromTo'       => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			'priceRangeFromTo'        => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
 			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: $10+" filter pill (no upper bound) — compact "and above" form aligned with mainstream e-commerce filter chips. */
-			'priceRangeFrom'         => __( '%s+', 'jetpack-search-pkg' ),
+			'priceRangeFrom'          => __( '%s+', 'jetpack-search-pkg' ),
 			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Under $50" filter pill (no lower bound) — mirrors Amazon/eBay/Walmart's "Under $X" convention. */
-			'priceRangeUpTo'         => __( 'Under %s', 'jetpack-search-pkg' ),
+			'priceRangeUpTo'          => __( 'Under %s', 'jetpack-search-pkg' ),
 			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
-			'priceLabel'             => __( 'Price', 'jetpack-search-pkg' ),
+			'priceLabel'              => __( 'Price', 'jetpack-search-pkg' ),
+			/* translators: Group label for the typed-query suggestions section of the Search Input autocomplete dropdown. */
+			'suggestionLabelQuery'    => __( 'Suggestions', 'jetpack-search-pkg' ),
+			/* translators: Group label for the taxonomy (category / tag) section of the Search Input autocomplete dropdown. */
+			'suggestionLabelTaxonomy' => __( 'Popular Filters', 'jetpack-search-pkg' ),
+			/* translators: Group label for the post-title section of the Search Input autocomplete dropdown. */
+			'suggestionLabelPost'     => __( 'Articles', 'jetpack-search-pkg' ),
+			/* translators: Heading shown on the AI Answer panel when the agent endpoint returns an error. The technical message + HTTP/JSON-RPC code render below this string. */
+			'aiErrorMessage'          => __( 'Sorry, an error occurred while generating an answer.', 'jetpack-search-pkg' ),
+			/* translators: %s: numeric error code. Surfaces the HTTP / JSON-RPC code that came back with the AI Answer failure, under the technical message. */
+			'aiErrorCode'             => __( 'Error code: %s', 'jetpack-search-pkg' ),
+		);
+	}
+
+	/**
+	 * Localized rotating loading hints shown while the "Show more" extended
+	 * AI answer streams. Mirrors the overlay's copy verbatim so the two
+	 * surfaces read the same to a visitor switching between them.
+	 *
+	 * @return array<int, string>
+	 */
+	protected static function build_ai_extended_loading_hints(): array {
+		// Source strings deliberately omit a trailing `…`. The block's
+		// render.php emits an animated three-dot ellipsis right after the
+		// label, so a static one in the source would read as a doubled
+		// "Searching harder… …". The overlay strips the trailing `…` for
+		// the same reason — keeping the source clean here means the two
+		// surfaces share the same translation keys.
+		if ( ! function_exists( '__' ) ) {
+			return array(
+				'Searching harder',
+				'Looking deeper into this',
+				'Finding a more complete answer',
+				'Analyzing additional sources',
+				'Gathering more details',
+				'Pulling in more context',
+				'Expanding the search',
+				'Rolling up my virtual sleeves',
+				'Digging through the archives',
+				'Putting on my reading glasses',
+				'Checking under the digital couch cushions',
+				'Consulting the oracle',
+				'Asking a smarter algorithm',
+				'Brewing a fresh batch of insights',
+				'Unleashing the full power of search',
+			);
+		}
+		return array(
+			__( 'Searching harder', 'jetpack-search-pkg' ),
+			__( 'Looking deeper into this', 'jetpack-search-pkg' ),
+			__( 'Finding a more complete answer', 'jetpack-search-pkg' ),
+			__( 'Analyzing additional sources', 'jetpack-search-pkg' ),
+			__( 'Gathering more details', 'jetpack-search-pkg' ),
+			__( 'Pulling in more context', 'jetpack-search-pkg' ),
+			__( 'Expanding the search', 'jetpack-search-pkg' ),
+			__( 'Rolling up my virtual sleeves', 'jetpack-search-pkg' ),
+			__( 'Digging through the archives', 'jetpack-search-pkg' ),
+			__( 'Putting on my reading glasses', 'jetpack-search-pkg' ),
+			__( 'Checking under the digital couch cushions', 'jetpack-search-pkg' ),
+			__( 'Consulting the oracle', 'jetpack-search-pkg' ),
+			__( 'Asking a smarter algorithm', 'jetpack-search-pkg' ),
+			__( 'Brewing a fresh batch of insights', 'jetpack-search-pkg' ),
+			__( 'Unleashing the full power of search', 'jetpack-search-pkg' ),
 		);
 	}
 

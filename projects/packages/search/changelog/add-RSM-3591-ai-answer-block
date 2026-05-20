@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search: add an AI Answer block (`jetpack-search/ai-answer`) so authors can surface the AI Answers panel inside the embedded search template — previously only the instant-search overlay could render it.

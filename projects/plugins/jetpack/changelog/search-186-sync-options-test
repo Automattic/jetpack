@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Tests: cover the Search options that ship with the Search sync module's default-option whitelist.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.4] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [0.28.3] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -533,6 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.28.4]: https://github.com/Automattic/jetpack-waf/compare/v0.28.3...v0.28.4
 [0.28.3]: https://github.com/Automattic/jetpack-waf/compare/v0.28.2...v0.28.3
 [0.28.2]: https://github.com/Automattic/jetpack-waf/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/Automattic/jetpack-waf/compare/v0.28.0...v0.28.1

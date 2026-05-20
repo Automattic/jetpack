@@ -7,15 +7,41 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
-	max-width: 880px;
+	max-width: 660px;
 	margin-inline: auto;
 	padding-block: 24px;
 	padding-inline: 24px;
 }
 
+// `width: 100%` is required because the wrapper is a flex child of the
+// dashboard tabpanel (column-flex); without an explicit cross-axis size
+// a `display: flex` flex item is sized to its content, leaving
+// `max-width` unable to extend it. The `> *` rule has the same role for
+// inner @wordpress/ui Card.Root children (display: flex). Both gated to
+// non-mobile so the mobile breakpoint keeps cards content-sized with
+// natural breathing room instead of stretching edge-to-edge of the
+// viewport.
+@media (min-width: 600px) {
+
+	.vp-video-details {
+		width: 100%;
+	}
+
+	.vp-video-details > * {
+		width: 100%;
+	}
+}
+
 .vp-video-details__not-found {
 	padding: 48px 24px;
 	text-align: center;
+}
+
+// Empty placeholder shown while the /wp/v2/media/{id} fetch is in flight.
+// Sized to roughly match the editor body height so the layout doesn't
+// jump when the real content arrives.
+.vp-video-details__loading {
+	min-height: 320px;
 }
 
 .vp-video-details__thumbnail {
@@ -24,6 +50,18 @@
 	object-fit: cover;
 	border-radius: 4px;
 	flex-shrink: 0;
+}
+
+// "Processing" placeholder shown in place of the poster <img> while
+// the VideoPress backend is still transcoding the upload. Shares the
+// .vp-video-details__thumbnail class for size and border-radius, plus
+// this modifier for the centered text + neutral background.
+.vp-video-details__thumbnail-processing {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f0f0f0;
+	color: #1e1e1e;
 }
 
 .vp-video-details__thumbnail-meta {

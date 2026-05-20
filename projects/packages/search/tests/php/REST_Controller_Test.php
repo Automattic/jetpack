@@ -579,6 +579,14 @@ class REST_Controller_Test extends Search_TestCase {
 					'experience'                           => 'embedded',
 					'override_woocommerce_search_template' => true,
 				),
+				array(
+					'experience'                 => 'embedded',
+					'search_suggestions_enabled' => true,
+				),
+				array(
+					'experience'         => 'embedded',
+					'ai_answers_enabled' => true,
+				),
 			) as $body
 		) {
 			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );

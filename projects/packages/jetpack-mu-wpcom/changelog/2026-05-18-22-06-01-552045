@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: disable browser scroll restoration so the editor always starts at the top on refresh

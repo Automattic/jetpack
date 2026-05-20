@@ -20,6 +20,11 @@ class Podcast_Gate {
 
 	const FEATURE_SLUG = 'podcasting';
 
+	/**
+	 * Launch-day cutoff for the paying-blog grandfather rule. Paid blogs
+	 * registered before this date keep Premium podcast features without
+	 * needing the `podcasting` plan feature.
+	 */
 	const GRANDFATHER_CUTOFF_DATE = '2026-05-18';
 
 	/**

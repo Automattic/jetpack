@@ -168,6 +168,13 @@
 		margin-top: 8px;
 	}
 
+	&__ranking-empty {
+		display: block;
+		padding: 24px 12px;
+		text-align: center;
+		color: #646970;
+	}
+
 	// Loading-state placeholder block. No animation — quiet until data arrives.
 	&__skeleton-block {
 		display: inline-block;

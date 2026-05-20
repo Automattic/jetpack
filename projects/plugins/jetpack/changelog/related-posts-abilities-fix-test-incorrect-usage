@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Related Posts abilities: drop test-only setExpectedIncorrectUsage assertions that fail on CI

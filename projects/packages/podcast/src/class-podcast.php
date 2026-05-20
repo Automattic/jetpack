@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '1.0.1';
 
 	/**
 	 * Whether the class has been initialized.
@@ -57,6 +57,8 @@ class Podcast {
 		// but the wpcom/v2 routes still need to exist so permission and
 		// callback checks can handle the request.
 		Posts_To_Podcast_Endpoint::init();
+		Podcast_Stats_Endpoint::init();
+		Podcast_Distribution_Endpoint::init();
 
 		if ( ! self::is_enabled() ) {
 			return;
@@ -68,7 +70,7 @@ class Podcast {
 		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
 		Settings::register();
 
-		// Wire the RSS feed customizations (`<itunes:*>`, `<googleplay:*>`,
+		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 

@@ -182,7 +182,20 @@ class Initial_State {
 	 * @return bool
 	 */
 	protected function is_ai_agent_access_available() {
-		return $this->is_automattic_proxied_request();
+		return $this->is_automattic_proxied_request() && ! $this->is_private_site();
+	}
+
+	/**
+	 * Check whether the current site is private.
+	 *
+	 * @return bool
+	 */
+	protected function is_private_site() {
+		if ( function_exists( 'is_private_blog' ) ) {
+			return (bool) \is_private_blog();
+		}
+
+		return -1 === (int) get_option( 'blog_public', 1 );
 	}
 
 	/**

@@ -57,7 +57,7 @@
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
-		"@wordpress/ui": "0.11.0",
+		"@wordpress/ui": "0.13.0",
 		"@wordpress/url": "4.44.0"
 	},
 	"devDependencies": {

@@ -123,10 +123,7 @@ export default function NewsletterPage( {
 		>
 			{ subscribersEnabled ? (
 				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-					{ /* Wrapper carries the full-width bottom border. The Tabs.List
-					     inside keeps its native `width: fit-content` so the
-					     animated active-tab indicator slides smoothly. */ }
-					<div className="jetpack-newsletter-page__tabs-row">
+					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>

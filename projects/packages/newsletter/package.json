@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-newsletter",
-	"version": "0.8.7",
+	"version": "0.8.8",
 	"private": true,
 	"description": "Jetpack Newsletter functionality",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/newsletter/#readme",
@@ -61,7 +61,7 @@
 		"@wordpress/primitives": "4.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
-		"@wordpress/ui": "0.11.0",
+		"@wordpress/ui": "0.13.0",
 		"@wordpress/url": "4.44.0",
 		"debug": "4.4.3"
 	},

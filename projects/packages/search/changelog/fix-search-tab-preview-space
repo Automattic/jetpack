@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Dashboard: restore the visible space between "AI Answers" and "(Preview)" in the dashboard tab label — the new flex-based `Tabs.Tab` layout was collapsing the previous JSX whitespace, so move a non-breaking space inside the preview span.
