@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: surface a Show notes textarea in the Podcast Episode block (synced with the post Excerpt) so authors know where the episode description in Apple Podcasts / Spotify / Pocket Casts comes from. Strip non-podcast RSS chrome from the feed: drop content:encoded (full post body + image EXIF), media:content (avatar + post images), per-item categories, and the comments-link cluster.

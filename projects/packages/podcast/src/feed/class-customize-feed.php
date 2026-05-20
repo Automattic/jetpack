@@ -74,6 +74,22 @@ class Customize_Feed {
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
 		add_filter( 'the_excerpt_rss', array( __CLASS__, 'filter_excerpt_to_manual_only' ) );
 
+		// Prune RSS chrome that podcatchers don't read. Cuts payload size and
+		// keeps incidental post data (body content, gravatar URLs, image EXIF,
+		// comments metadata) out of a feed whose only job is to deliver
+		// podcast episode metadata + the audio enclosure.
+		//
+		// - option_rss_use_excerpt -> suppresses content:encoded (full post body, incl. EXIF in image attrs).
+		// - comments_open + get_comments_number -> together suppress per-item comments / wfw:commentRss / slash:comments.
+		// - the_category_rss -> suppresses per-item category tags (channel itunes:category is the podcatcher signal).
+		// - removing wpcom mrss.php hooks -> suppresses media:content for author gravatar + post images.
+		add_filter( 'option_rss_use_excerpt', '__return_true' );
+		add_filter( 'comments_open', '__return_false' );
+		add_filter( 'get_comments_number', '__return_zero' );
+		add_filter( 'the_category_rss', '__return_empty_string' );
+		remove_action( 'rss2_item', 'mrss_item', 10 );
+		remove_action( 'rss2_item', 'mrss_news_item' );
+
 		Feed_Detection::detect_and_record();
 	}
 
