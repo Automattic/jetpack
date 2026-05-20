@@ -242,7 +242,7 @@ describe( 'useUpdateVideoPoster — setQueryData patches existing cached item on
 		expect( cached?.title ).toBe( 'My video' );
 	} );
 
-	it( 'does not call setQueryData if there is no pre-seeded item in the cache', async () => {
+	it( 'calls setQueryData but leaves the cache absent when no item is pre-seeded', async () => {
 		mockedApiFetch
 			.mockResolvedValueOnce( { data: { generating: false, poster: 'NEW_POSTER' } } )
 			.mockResolvedValueOnce( {} );
@@ -268,6 +268,104 @@ describe( 'useUpdateVideoPoster — setQueryData patches existing cached item on
 		// `old` (undefined), so the key stays absent.
 		const cached = client.getQueryData( [ LIBRARY_QUERY_KEY, 'item', '99' ] );
 		expect( cached ).toBeUndefined();
+	} );
+} );
+
+describe( 'useUpdateVideoPoster — poll exhaustion (max attempts reached)', () => {
+	it( 'does not POST meta or patch the cache when all polls return generating:true, but still invalidates the list', async () => {
+		jest.useFakeTimers();
+
+		// POST returns generating:true; every subsequent GET also returns generating:true.
+		mockedApiFetch.mockResolvedValueOnce( { data: { generating: true } } ); // POST /poster
+		for ( let i = 0; i < POSTER_POLL_MAX_ATTEMPTS; i++ ) {
+			mockedApiFetch.mockResolvedValueOnce( { data: { generating: true } } ); // GET poll
+		}
+
+		const { wrapper, invalidateSpy, setQueryDataSpy } = makeWrapper();
+		setQueryDataSpy.mockClear();
+
+		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+
+		let mutationPromise: Promise< { poster?: string } >;
+		act( () => {
+			mutationPromise = result.current.mutateAsync( {
+				id: '42',
+				guid: 'abc123',
+				source: 'frame',
+				atTimeMs: 1000,
+			} );
+		} );
+
+		// Drive all POSTER_POLL_MAX_ATTEMPTS polls.
+		for ( let i = 0; i < POSTER_POLL_MAX_ATTEMPTS; i++ ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( POSTER_POLL_INTERVAL_MS );
+			} );
+		}
+
+		// Let the mutation finish.
+		await act( async () => {
+			// @ts-expect-error — mutationPromise is assigned inside act above
+			await mutationPromise;
+		} );
+
+		await waitFor( () => expect( result.current.isSuccess ).toBe( true ) );
+
+		// The meta endpoint should never have been called.
+		const metaCalls = mockedApiFetch.mock.calls.filter(
+			( [ opts ] ) => opts?.path === '/wpcom/v2/videopress/meta'
+		);
+		expect( metaCalls ).toHaveLength( 0 );
+
+		// setQueryData should not have patched any thumbnail (no poster URL).
+		expect( setQueryDataSpy ).not.toHaveBeenCalled();
+
+		// The library list key should still be invalidated.
+		expect( invalidateSpy ).toHaveBeenCalledWith( {
+			queryKey: [ LIBRARY_QUERY_KEY ],
+		} );
+	} );
+} );
+
+describe( 'useUpdateVideoPoster — POST returns {} (no data field)', () => {
+	it( 'skips polling, skips meta POST, resolves successfully, and still invalidates the list', async () => {
+		// POST returns a bare {} — no data property at all.
+		mockedApiFetch.mockResolvedValueOnce( {} );
+
+		const { wrapper, invalidateSpy, setQueryDataSpy } = makeWrapper();
+		setQueryDataSpy.mockClear();
+		invalidateSpy.mockClear();
+
+		const { result } = renderHook( () => useUpdateVideoPoster(), { wrapper } );
+
+		await act( async () => {
+			await result.current.mutateAsync( {
+				id: '42',
+				guid: 'abc123',
+				source: 'frame',
+				atTimeMs: 1000,
+			} );
+		} );
+
+		await waitFor( () => expect( result.current.isSuccess ).toBe( true ) );
+
+		// No GET poll should have occurred.
+		const getCalls = mockedApiFetch.mock.calls.filter( ( [ opts ] ) => opts?.method === 'GET' );
+		expect( getCalls ).toHaveLength( 0 );
+
+		// No meta POST should have occurred.
+		const metaCalls = mockedApiFetch.mock.calls.filter(
+			( [ opts ] ) => opts?.path === '/wpcom/v2/videopress/meta'
+		);
+		expect( metaCalls ).toHaveLength( 0 );
+
+		// setQueryData should not have been called (no poster to persist).
+		expect( setQueryDataSpy ).not.toHaveBeenCalled();
+
+		// The library list key should be invalidated regardless.
+		expect( invalidateSpy ).toHaveBeenCalledWith( {
+			queryKey: [ LIBRARY_QUERY_KEY ],
+		} );
 	} );
 } );
 
