@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-05-20
+### Added
+- Podcast feed: surface per-episode metadata (transcript, location, license, people, soundbites, alternate enclosures, episode/season numbers) from the Podcast Episode block.
+
+### Changed
+- Podcast: rename the Distribution "Live" state badge to "Submitted" — the underlying signal is a crawler hit, not directory publication.
+- Podcast Episode: swap inline chapters editor for a chapters JSON file uploader; feed now emits podcast:chapters.
+
+### Fixed
+- Podcast: proxy stats and Pocket Casts submit through Jetpack REST routes so the dashboard works on Atomic.
+- Podcast: stop leaking body content into the episode RSS description, and drop the broken chapters JSON upload button in favor of a URL-only field with a soft warning when the URL doesn't look like JSON.
+- Podcast feed: skip items without an enclosure and restore episode descriptions.
+- Podcast feed: strip the blavatar, site-icon, and rss-cloud channel tags from the podcast RSS feed so the output stays iTunes-compliant once the untangle filter is flipped globally.
+- Podcast settings + block polish from the regression sweep: decode HTML entities in the episode block title preview, defer Podcast Topics saves until focus leaves the field, persist empty Summary values, and align the block's season/episode number inputs with the feed's positive-integer requirement.
+- Reduce podcast setup to a single click when you create a new category from the setup modal.
+
 ## [1.0.0] - 2026-05-19
 ### Security
 - Podcast: escape title overrides, descriptions, and iTunes category attribute values for the RSS feed to prevent malformed XML. [#48876]
@@ -72,4 +88,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.0.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-podcast/compare/v0.1.0...v1.0.0

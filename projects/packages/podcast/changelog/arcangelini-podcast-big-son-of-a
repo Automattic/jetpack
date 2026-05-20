@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast settings + block polish from the regression sweep: decode HTML entities in the episode block title preview, defer Podcast Topics saves until focus leaves the field, persist empty Summary values, and align the block's season/episode number inputs with the feed's positive-integer requirement.
