@@ -564,6 +564,20 @@ class Campaign_Preparer {
 	}
 
 	/**
+	 * Polyfill array_is_list() for the package PHP support floor.
+	 *
+	 * @param array $array Array to inspect.
+	 * @return bool
+	 */
+	private static function is_list_array( array $array ): bool {
+		if ( array() === $array ) {
+			return true;
+		}
+
+		return array_keys( $array ) === range( 0, count( $array ) - 1 );
+	}
+
+	/**
 	 * Resolve saved payment methods for chat-native submit.
 	 *
 	 * @param array $args    Preparation input.
