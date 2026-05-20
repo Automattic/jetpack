@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search block template: resolve header/footer template-part slugs from the active theme's own search.html so the search page chrome matches what the theme designed, instead of always referencing the plain header/footer parts.

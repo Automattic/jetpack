@@ -808,29 +808,26 @@ class Search_Blocks {
 	 * footer template parts so the plugin-registered template renders the
 	 * same page users get from inserting the pattern directly. Markup lives
 	 * in `templates/jetpack-search.html` — the canonical block-theme format
-	 * for block templates — with a `{{FILTER_HEADING}}` placeholder for the
-	 * filter-sidebar heading so that string still goes through `esc_html__()`.
+	 * for block templates — with placeholders for the filter-sidebar heading
+	 * (`{{FILTER_HEADING}}`, kept on the PHP side so it still goes through
+	 * `esc_html__()`) and the header/footer template-part slugs
+	 * (`{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}`, resolved per-theme so the
+	 * chrome matches the active theme's own `search.html` — see
+	 * `resolve_theme_chrome_slugs()`).
 	 *
-	 * Memoized: `register_search_template()` runs on every `init`, and the
-	 * template markup is identical every request, so read the file and run
-	 * the translation substitution once per process.
+	 * Not memoized: `register_search_template()` runs once per request
+	 * (the `init` hook fires once), and `file_get_contents` + the shared
+	 * placeholder substitution are both sub-millisecond on a ~2 KB
+	 * template. Caching here would survive across tests and theme
+	 * switches in unhelpful ways.
 	 *
 	 * @return string Block markup for a complete page template.
 	 */
 	protected static function get_search_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
-		}
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
-			'{{FILTER_HEADING}}',
-			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
-			$raw
-		);
-		return $content;
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return static::substitute_template_placeholders( $raw );
 	}
 
 	/**
@@ -875,24 +872,150 @@ class Search_Blocks {
 	/**
 	 * Product-search counterpart of `get_search_template_content()`. Seeds
 	 * from `templates/jetpack-search-product-results.html` (a copy of the search
-	 * layout for now; product-specific blocks land in a follow-up).
+	 * layout for now; product-specific blocks land in a follow-up). Shares
+	 * the placeholder substitution.
 	 *
 	 * @return string Block markup for the product-search template.
 	 */
 	protected static function get_product_search_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
-		}
 		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
-			'{{FILTER_HEADING}}',
-			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return static::substitute_template_placeholders( $raw );
+	}
+
+	/**
+	 * Run the shared placeholder substitution over a bundled template's raw
+	 * markup. Returns the empty string unchanged so callers can keep their
+	 * "no readable template file → skip registration" bail-out.
+	 *
+	 * Substitutions:
+	 * - `{{FILTER_HEADING}}` → translated, escaped sidebar heading.
+	 * - `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` → slugs the active theme's own
+	 *   `search.html` (or `index.html`) uses for its `wp:template-part`
+	 *   blocks, so the rendered chrome matches what the theme designed for
+	 *   search rather than always picking the plain `header`/`footer` parts.
+	 *
+	 * @param string $raw Raw template-file contents.
+	 * @return string Markup with placeholders resolved.
+	 */
+	protected static function substitute_template_placeholders( string $raw ): string {
+		if ( '' === $raw ) {
+			return $raw;
+		}
+		$slugs = static::resolve_theme_chrome_slugs();
+		return str_replace(
+			array( '{{FILTER_HEADING}}', '{{HEADER_SLUG}}', '{{FOOTER_SLUG}}' ),
+			array(
+				esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+				$slugs['header'],
+				$slugs['footer'],
+			),
 			$raw
 		);
-		return $content;
+	}
+
+	/**
+	 * Resolve the template-part slugs the active theme uses to wrap its own
+	 * search results — so our registered template matches the theme's
+	 * design instead of always referencing the plain `header`/`footer`
+	 * parts (which on themes like Twenty Twenty-Two leave a search page
+	 * that looks disconnected from the rest of the site, and on bespoke
+	 * block themes that ship only variant slugs leave the chrome empty).
+	 *
+	 * Resolution order: theme's `search.html`, then `index.html`, then
+	 * `header`/`footer` defaults. Not memoized — the sub-helpers are
+	 * cheap, the resolver runs at most once per request, and skipping the
+	 * cache keeps tests and theme switches well-behaved.
+	 *
+	 * @return array{header:string,footer:string}
+	 */
+	protected static function resolve_theme_chrome_slugs(): array {
+		$defaults = array(
+			'header' => 'header',
+			'footer' => 'footer',
+		);
+		$content  = static::get_active_theme_template_content( 'search' );
+		if ( null === $content ) {
+			$content = static::get_active_theme_template_content( 'index' );
+		}
+		if ( null === $content ) {
+			return $defaults;
+		}
+		$found = static::extract_chrome_slugs( $content );
+		return array(
+			'header' => $found['header'] ?? $defaults['header'],
+			'footer' => $found['footer'] ?? $defaults['footer'],
+		);
+	}
+
+	/**
+	 * Fetch the resolved markup for an active-theme template (e.g.
+	 * `search`, `index`). Wraps `get_block_template()` as an overridable
+	 * seam so tests can return canned markup without standing up a real
+	 * block theme.
+	 *
+	 * @param string $template_name Bare template slug (no `theme//` prefix).
+	 * @return string|null Markup, or null if the template doesn't resolve.
+	 */
+	protected static function get_active_theme_template_content( string $template_name ): ?string {
+		if ( ! function_exists( 'get_block_template' ) ) {
+			return null;
+		}
+		$tmpl = get_block_template( get_stylesheet() . '//' . $template_name, 'wp_template' );
+		if ( ! $tmpl || empty( $tmpl->content ) ) {
+			return null;
+		}
+		return (string) $tmpl->content;
+	}
+
+	/**
+	 * Pull the first and last top-level `core/template-part` slugs out of a
+	 * piece of template markup. The first one is treated as the header and
+	 * the last as the footer — matches how every Twenty* search/index
+	 * template (and the overwhelming majority of community block themes)
+	 * wraps its content. Nested template-parts are ignored on purpose: a
+	 * theme that buries its chrome inside a wrapper falls back to the
+	 * `header`/`footer` defaults higher up the chain.
+	 *
+	 * Pure function (no globals, no I/O) so unit tests can feed it fixture
+	 * markup directly.
+	 *
+	 * @param string $template_content Block markup to scan.
+	 * @return array{header:?string,footer:?string}
+	 */
+	protected static function extract_chrome_slugs( string $template_content ): array {
+		$header = null;
+		$footer = null;
+		if ( '' === $template_content || ! function_exists( 'parse_blocks' ) ) {
+			return array(
+				'header' => $header,
+				'footer' => $footer,
+			);
+		}
+		foreach ( parse_blocks( $template_content ) as $block ) {
+			if ( 'core/template-part' !== ( $block['blockName'] ?? '' ) ) {
+				continue;
+			}
+			$slug = $block['attrs']['slug'] ?? null;
+			if ( ! is_string( $slug ) || '' === $slug ) {
+				continue;
+			}
+			if ( null === $header ) {
+				$header = $slug;
+			}
+			$footer = $slug;
+		}
+		// A template with a single top-level template-part is almost always
+		// a header-only template (e.g. some minimalist 404s). Don't promote
+		// it to the footer slot — fall back to the default instead.
+		if ( $header === $footer ) {
+			$footer = null;
+		}
+		return array(
+			'header' => $header,
+			'footer' => $footer,
+		);
 	}
 
 	/**

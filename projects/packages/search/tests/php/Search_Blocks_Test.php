@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -1076,6 +1077,275 @@ class Search_Blocks_Test extends TestCase {
 		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
 			$this->assertFalse( $registry->is_registered( $name ), "Template $name must NOT be registered on a classic theme." );
 		}
+	}
+
+	/**
+	 * `extract_chrome_slugs()` lifts the first and last top-level
+	 * `core/template-part` slugs out of a piece of template markup. Covers
+	 * the standard "header then footer" shape and the variant shape
+	 * (e.g. Twenty Twenty-Two-style `header-large-dark`) so we can prove
+	 * the resolver doesn't silently downgrade to the plain `header` /
+	 * `footer` defaults when a theme uses something fancier.
+	 *
+	 * Nested `template-part` references inside an inner wrapper must NOT
+	 * be promoted — the resolver only walks the top level and a theme
+	 * burying its chrome in a wrapper should fall back to the defaults
+	 * higher up the chain.
+	 *
+	 * @dataProvider provider_extract_chrome_slugs
+	 *
+	 * @param string                               $content  Template markup.
+	 * @param array{header:?string,footer:?string} $expected Expected extracted slugs.
+	 */
+	#[DataProvider( 'provider_extract_chrome_slugs' )]
+	public function test_extract_chrome_slugs( string $content, array $expected ) {
+		$ref = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame( $expected, $ref->invoke( null, $content ) );
+	}
+
+	/**
+	 * Fixtures for `test_extract_chrome_slugs`.
+	 *
+	 * @return array<string, array{0:string, 1:array{header:?string,footer:?string}}>
+	 */
+	public static function provider_extract_chrome_slugs(): array {
+		return array(
+			'standard header + footer (TT3/4/5 shape)' => array(
+				'<!-- wp:template-part {"slug":"header","tagName":"header"} /-->' . "\n"
+				. '<main></main>' . "\n"
+				. '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->',
+				array(
+					'header' => 'header',
+					'footer' => 'footer',
+				),
+			),
+			'variant slugs (bespoke theme with no plain header.html)' => array(
+				'<!-- wp:template-part {"slug":"header-large-dark"} /-->' . "\n"
+				. '<main></main>' . "\n"
+				. '<!-- wp:template-part {"slug":"site-footer"} /-->',
+				array(
+					'header' => 'header-large-dark',
+					'footer' => 'site-footer',
+				),
+			),
+			'single template-part is treated as header-only, footer falls back' => array(
+				'<!-- wp:template-part {"slug":"header"} /-->' . "\n"
+				. '<main></main>',
+				array(
+					'header' => 'header',
+					'footer' => null,
+				),
+			),
+			'nested template-parts in a wrapper are ignored' => array(
+				'<!-- wp:group --><div class="wp-block-group">'
+				. '<!-- wp:template-part {"slug":"buried-header"} /-->'
+				. '</div><!-- /wp:group -->',
+				array(
+					'header' => null,
+					'footer' => null,
+				),
+			),
+			'no template-parts at all yields nulls'    => array(
+				'<main><p>No chrome here.</p></main>',
+				array(
+					'header' => null,
+					'footer' => null,
+				),
+			),
+			'empty markup yields nulls'                => array(
+				'',
+				array(
+					'header' => null,
+					'footer' => null,
+				),
+			),
+		);
+	}
+
+	/**
+	 * `resolve_theme_chrome_slugs()` prefers the active theme's
+	 * `search.html`, falls back to `index.html`, and finally to the
+	 * hard-coded `header`/`footer` defaults. Stubs the template-content
+	 * fetch so the resolver can be exercised without a real block theme
+	 * in the dbless env.
+	 */
+	public function test_resolve_theme_chrome_slugs_prefers_search_template() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"header-large-dark"} /-->'
+							. '<!-- wp:template-part {"slug":"footer"} /-->';
+					}
+					if ( 'index' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"index-header"} /-->'
+							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'header-large-dark',
+				'footer' => 'footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * When the theme has no `search.html`, the resolver walks to
+	 * `index.html`. Covers the gap themes like Twenty Twenty-Three's
+	 * earlier releases had where only `index.html` shipped.
+	 */
+	public function test_resolve_theme_chrome_slugs_falls_back_to_index_template() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'index' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"index-header"} /-->'
+							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'index-header',
+				'footer' => 'index-footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * When neither template resolves the slugs must fall back to the
+	 * hard-coded `header` / `footer` defaults so the registered template
+	 * stays valid markup on classic-themed or otherwise empty sites.
+	 */
+	public function test_resolve_theme_chrome_slugs_falls_back_to_defaults() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					unset( $template_name ); // stub: neither template resolves, regardless of name.
+					return null;
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'header',
+				'footer' => 'footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * End-to-end check: `register_search_template()` must register markup
+	 * that references the resolved chrome slugs (not the raw
+	 * `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` placeholders, which would
+	 * crash the template-part renderer at runtime).
+	 */
+	public function test_register_search_template_substitutes_chrome_slug_placeholders() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function block_templates_active(): bool {
+					return true;
+				}
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"header-large-dark"} /-->'
+							. '<!-- wp:template-part {"slug":"custom-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$cls::register_search_template();
+
+		$expected   = $this->invoke_protected( 'get_parent_plugin_slug' ) . '//jetpack-search';
+		$registered = $registry->get_registered( $expected );
+		$this->assertNotNull( $registered, "Template $expected should be registered." );
+		$this->assertStringContainsString( '"slug":"header-large-dark"', $registered->content );
+		$this->assertStringContainsString( '"slug":"custom-footer"', $registered->content );
+		$this->assertStringNotContainsString( '{{HEADER_SLUG}}', $registered->content );
+		$this->assertStringNotContainsString( '{{FOOTER_SLUG}}', $registered->content );
+		// Defaults must not leak in when a theme-resolved slug is available.
+		$this->assertStringNotContainsString( '"slug":"header"', $registered->content );
+		$this->assertStringNotContainsString( '"slug":"footer"', $registered->content );
+
+		$registry->unregister( $expected );
+	}
+
+	/**
+	 * Counterpart to the search-template substitution check: the
+	 * product-results template ships through the same placeholder
+	 * pipeline, so a fix to one must apply to the other.
+	 */
+	public function test_register_product_search_template_substitutes_chrome_slug_placeholders() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search-product-results', 'jetpack//jetpack-search-product-results' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function block_templates_active(): bool {
+					return true;
+				}
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"shop-header"} /-->'
+							. '<!-- wp:template-part {"slug":"shop-footer"} /-->';
+					}
+					return null;
+				}
+			}
+		);
+		$cls::register_product_search_template();
+
+		$expected   = $this->invoke_protected( 'get_parent_plugin_slug' ) . '//jetpack-search-product-results';
+		$registered = $registry->get_registered( $expected );
+		$this->assertNotNull( $registered );
+		$this->assertStringContainsString( '"slug":"shop-header"', $registered->content );
+		$this->assertStringContainsString( '"slug":"shop-footer"', $registered->content );
+		$this->assertStringNotContainsString( '{{HEADER_SLUG}}', $registered->content );
+		$this->assertStringNotContainsString( '{{FOOTER_SLUG}}', $registered->content );
+
+		$registry->unregister( $expected );
 	}
 
 	/**
