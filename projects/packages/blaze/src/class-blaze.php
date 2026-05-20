@@ -9,6 +9,8 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
+use Automattic\Jetpack\Blaze\Landing_Page_CPT;
+use Automattic\Jetpack\Blaze\Landing_Page_Dispatcher;
 use Automattic\Jetpack\Blaze\REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -59,6 +61,10 @@ class Blaze {
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Hidden CPT used to host AI-generated landing pages for promoted products.
+		Landing_Page_CPT::init();
+		// Forward Woo product promote-requested events to WPCOM (DSP enqueue).
+		Landing_Page_Dispatcher::init();
 	}
 
 	/**

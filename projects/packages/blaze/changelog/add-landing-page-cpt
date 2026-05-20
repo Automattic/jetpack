@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a hidden `blaze_landing_page` custom post type with random-slug public URLs and a server-to-server REST endpoint (`POST /jetpack/v4/blaze/landing-pages`) so AI-generated landing pages can be created from WPCOM/DSP without surfacing in any merchant UI.
