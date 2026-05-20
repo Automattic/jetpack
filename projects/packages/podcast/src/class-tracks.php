@@ -261,8 +261,8 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` when a `/wp/v2/settings` write
-	 * touches any podcasting option. Pass-through filter on the response.
+	 * Emit `wpcom_podcasting_settings_saved` after a write to the dedicated
+	 * podcast settings endpoint. Pass-through filter on the response.
 	 *
 	 * @param mixed                 $response Pass-through.
 	 * @param array                 $handler  Route handler.
@@ -273,7 +273,7 @@ class Tracks {
 		unset( $handler );
 
 		try {
-			if ( ! $request instanceof WP_REST_Request || '/wp/v2/settings' !== $request->get_route() ) {
+			if ( ! $request instanceof WP_REST_Request || '/wpcom/v2/podcast/settings' !== $request->get_route() ) {
 				return $response;
 			}
 			if ( ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true ) ) {

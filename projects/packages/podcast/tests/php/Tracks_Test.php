@@ -299,7 +299,7 @@ class Tracks_Test extends BaseTestCase {
 		update_option( 'podcasting_email', 'host@example.com' );
 		update_option( 'podcasting_talent_name', 'Jane Host' );
 
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/podcast/settings' );
 		$request->set_param( 'podcasting_title', 'New Title' );
 
 		Tracks::record_settings_saved( new WP_REST_Response( array(), 200 ), array(), $request );
@@ -313,7 +313,7 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	public function test_settings_saved_skips_settings_writes_without_podcasting_fields() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/podcast/settings' );
 		$request->set_param( 'title', 'New Site Title' );
 
 		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
@@ -322,7 +322,7 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	public function test_settings_saved_suppressed_when_response_is_an_error() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/podcast/settings' );
 		$request->set_param( 'podcasting_title', 'New Title' );
 
 		Tracks::record_settings_saved(

@@ -15,14 +15,19 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
-	public function test_register_settings_exposes_every_option_to_rest() {
+	public function test_register_settings_registers_every_option_without_rest_exposure() {
 		Settings::register_settings();
 
 		$registered = get_registered_settings();
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-			$this->assertNotEmpty( $registered[ $name ]['show_in_rest'], "$name should declare show_in_rest" );
+			// REST exposure now lives on the dedicated Settings_Endpoint
+			// controller; podcasting_* keys must not appear in /wp/v2/settings.
+			$this->assertFalse(
+				! empty( $registered[ $name ]['show_in_rest'] ),
+				"$name must not declare show_in_rest (the dedicated endpoint owns REST exposure)"
+			);
 		}
 	}
 

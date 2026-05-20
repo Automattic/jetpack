@@ -1,8 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { refetchPodcastSettings } from '../../../hooks/use-podcast-settings';
 
 // Stable shape from
 // wpcom: wp-content/rest-api-plugins/endpoints/podcast-distribution.php.
@@ -61,8 +60,8 @@ export function extractRejectionReasons( pcc: unknown ): string[] {
  * State + dispatcher for the Pocket Casts feed submission.
  *
  * Calls the wpcom relay; the relay persists `podcasting_show_states.pocketcasts`
- * on the server for pending/active/rejected, so we drop the core-data cache on
- * those responses to keep the SPA in sync.
+ * on the server for pending/active/rejected, so we refetch the podcast settings
+ * cache on those responses to keep the SPA in sync.
  *
  * @return `{ submit, isSubmitting, result, errorMessage }` — `result.state`
  * is the discriminator the UI switches on.
@@ -71,7 +70,6 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
 	const [ result, setResult ] = useState< PocketCastsSubmitResponse | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
-	const { invalidateResolution } = useDispatch( coreStore );
 
 	const submit = useCallback( () => {
 		setIsSubmitting( true );
@@ -89,8 +87,8 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 					);
 				} else {
 					// Endpoint persists `podcasting_show_states` for pending/active/rejected;
-					// drop the core-data cache so the next settings read picks it up.
-					invalidateResolution( 'getEntityRecord', [ 'root', 'site', undefined ] );
+					// refetch so the next settings read reflects the new state.
+					refetchPodcastSettings().catch( () => {} );
 				}
 			} )
 			.catch( () => {
@@ -101,7 +99,7 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 			.finally( () => {
 				setIsSubmitting( false );
 			} );
-	}, [ invalidateResolution ] );
+	}, [] );
 
 	return { submit, isSubmitting, result, errorMessage };
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: move settings to a dedicated wpcom/v2 REST endpoint.

@@ -22,7 +22,7 @@ import {
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -203,11 +203,24 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		postId
 	);
 
-	// Source the show-level cover from the same REST surface the dashboard
-	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
-	// class-settings.php). No more localized window globals.
-	const [ siteShowCover ] = useEntityProp< string >( 'root', 'site', 'podcasting_image' );
-	const showCoverUrl = siteShowCover || '';
+	// Source the show-level cover from the dedicated podcast settings endpoint
+	// (the dashboard reads the same surface). Single-shot fetch per editor
+	// session — falls back to '' until it resolves, matching the prior null
+	// behaviour of `useEntityProp`.
+	const [ showCoverUrl, setShowCoverUrl ] = useState< string >( '' );
+	useEffect( () => {
+		let cancelled = false;
+		apiFetch< { podcasting_image?: string } >( { path: '/wpcom/v2/podcast/settings' } )
+			.then( settings => {
+				if ( ! cancelled && typeof settings?.podcasting_image === 'string' ) {
+					setShowCoverUrl( settings.podcasting_image );
+				}
+			} )
+			.catch( () => {} );
+		return () => {
+			cancelled = true;
+		};
+	}, [] );
 
 	const postAuthor = useSelect(
 		select => {
