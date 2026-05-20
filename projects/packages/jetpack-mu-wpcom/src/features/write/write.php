@@ -482,9 +482,13 @@ function wpcom_write_render_admin_page() {
 			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
 			$unsupported_type   = wpcom_write_detect_unsupported_content( $edit_post->post_content );
 
-			// Track that this post was last edited in the Write editor,
-			// matching the pattern used by the block and classic editors.
-			\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			// Only track the last editor when the post is actually editable
+			// in Write. Posts with unsupported content show a warning modal
+			// and are never editable, so recording Write as the last editor
+			// would be misleading.
+			if ( ! $unsupported_type ) {
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			}
 		} else {
 			$edit_post_id = 0;
 		}
