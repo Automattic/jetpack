@@ -810,6 +810,56 @@ function sanitizePasteFragment( container ) {
 }
 
 /**
+ * Promote inline-style formatting on pasted elements to semantic tags.
+ *
+ * Google Docs and Word commonly express bold/italic/underline/strikethrough
+ * as inline `font-weight`, `font-style`, and `text-decoration` styles on
+ * <span>s rather than as semantic tags. The main sanitize pass strips style
+ * attributes and unwraps <span>, which would lose the formatting. This walks
+ * every styled element once before sanitization and wraps its children in
+ * <strong>/<em>/<u>/<s> so the formatting survives the unwrap.
+ *
+ * @param {Element} container - The container to walk.
+ */
+function promotePasteFormatting( container ) {
+	for ( const el of container.querySelectorAll( '[style]' ) ) {
+		const fontWeight = el.style.fontWeight;
+		if ( fontWeight === 'bold' || fontWeight === 'bolder' || parseInt( fontWeight, 10 ) >= 600 ) {
+			wrapPasteChildren( el, 'strong' );
+		}
+		if ( el.style.fontStyle === 'italic' || el.style.fontStyle === 'oblique' ) {
+			wrapPasteChildren( el, 'em' );
+		}
+		// `text-decoration` is the legacy/shorthand property; `text-decoration-line`
+		// is what the CSSOM exposes when the parser splits the shorthand. Check
+		// both — sources vary.
+		const decoration = el.style.textDecorationLine || el.style.textDecoration || '';
+		if ( decoration.includes( 'underline' ) ) {
+			wrapPasteChildren( el, 'u' );
+		}
+		if ( decoration.includes( 'line-through' ) ) {
+			wrapPasteChildren( el, 's' );
+		}
+	}
+}
+
+/**
+ * Move every child of `el` into a freshly created `<tagName>` wrapper, then
+ * re-attach the wrapper as `el`'s sole child. No-op when `el` has no children.
+ *
+ * @param {Element} el      - Element whose children should be wrapped.
+ * @param {string}  tagName - Wrapper element tag name.
+ */
+function wrapPasteChildren( el, tagName ) {
+	if ( ! el.firstChild ) return;
+	const wrapper = document.createElement( tagName );
+	while ( el.firstChild ) {
+		wrapper.appendChild( el.firstChild );
+	}
+	el.appendChild( wrapper );
+}
+
+/**
  * Sanitize a single element from a pasted fragment in place. Called by
  * sanitizePasteFragment for each element child; see that function for the
  * tag/attribute policy.
@@ -1783,6 +1833,7 @@ if ( typeof MutationObserver !== 'undefined' ) {
 			event.preventDefault();
 			const tmp = document.createElement( 'div' );
 			tmp.innerHTML = html;
+			promotePasteFormatting( tmp );
 			sanitizePasteFragment( tmp );
 			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
