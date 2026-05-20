@@ -214,6 +214,10 @@ export default function SidebarOptions() {
 						checked={ aiAnswersEnabled }
 						disabled={ isDisabled }
 						label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+						help={ __(
+							'Generate AI-powered answers to visitor queries using your site’s content.',
+							'jetpack-search-pkg'
+						) }
 						onChange={ setAiAnswersEnabled }
 						__nextHasNoMarginBottom={ true }
 					/>
