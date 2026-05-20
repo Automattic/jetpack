@@ -3,18 +3,16 @@
  * AI Answer block render.
  *
  * Renders the panel scaffold that the Interactivity store hydrates with the
- * streaming brief / extended AI answer. Server-side bails to an empty string
- * when AI Answers is disabled site-wide so the block disappears without the
- * author touching saved post content.
+ * streaming brief / extended AI answer. The author's decision to insert the
+ * block in their post content is the only switch — there's no site-wide
+ * option gate here. The `jetpack_search_ai_answers_enabled` option still
+ * governs the instant-search overlay's AI Answers, which is the default UX
+ * on any search page; the embedded block is an explicit opt-in surface.
  *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
-
-if ( ! AI_Answers::is_enabled() ) {
-	return '';
-}
 
 // $attributes is injected by WordPress at block-render time via the
 // `render_callback` include scope; static analysis can't see the binding,

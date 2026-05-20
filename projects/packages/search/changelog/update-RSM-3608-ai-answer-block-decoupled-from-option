@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search: the AI Answer block (`jetpack-search/ai-answer`) no longer gates on the site-wide `jetpack_search_ai_answers_enabled` option — block presence in post content is the only switch. The option still governs the instant-search overlay.

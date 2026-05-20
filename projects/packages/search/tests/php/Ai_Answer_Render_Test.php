@@ -12,10 +12,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the ai-answer block's render template.
  *
- * Asserts that render output is gated by `AI_Answers::is_enabled()`, and that
- * the attribute-driven affordances (heading, citations region, Show-more
- * button) appear / disappear in the markup the way the front-end consumer
- * expects.
+ * Asserts that render output is independent of the site-wide
+ * `jetpack_search_ai_answers_enabled` option (block presence in post
+ * content is the opt-in signal — the option only governs the overlay),
+ * and that the attribute-driven affordances (heading, citations region,
+ * Show-more button) appear / disappear in the markup the way the
+ * front-end consumer expects.
  */
 class Ai_Answer_Render_Test extends TestCase {
 
@@ -56,16 +58,6 @@ class Ai_Answer_Render_Test extends TestCase {
 		\unregister_block_type( 'jetpack-search/ai-answer' );
 	}
 
-	protected function setUp(): void {
-		parent::setUp();
-		update_option( 'jetpack_search_ai_answers_enabled', true );
-	}
-
-	protected function tearDown(): void {
-		delete_option( 'jetpack_search_ai_answers_enabled' );
-		parent::tearDown();
-	}
-
 	/**
 	 * Render the ai-answer block via `do_blocks()`.
 	 *
@@ -79,16 +71,37 @@ class Ai_Answer_Render_Test extends TestCase {
 		return do_blocks( '<!-- wp:jetpack-search/ai-answer ' . $json . ' /-->' );
 	}
 
-	public function test_disabled_renders_nothing() {
+	public function test_renders_panel_wrapper_independent_of_site_option() {
+		// The block is its own opt-in surface: presence of the block in
+		// post content is the only switch. The site-wide AI Answers option
+		// only governs the instant-search overlay; flipping it must not
+		// affect the embedded block's render.
 		update_option( 'jetpack_search_ai_answers_enabled', false );
-		$markup = $this->render();
-		$this->assertSame( '', trim( $markup ) );
-	}
+		$markup_with_option_off = $this->render();
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+		$markup_with_option_unset = $this->render();
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$markup_with_option_on = $this->render();
+		delete_option( 'jetpack_search_ai_answers_enabled' );
 
-	public function test_enabled_renders_panel_wrapper() {
-		$markup = $this->render();
-		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
-		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
+		foreach (
+			array(
+				'option off'   => $markup_with_option_off,
+				'option unset' => $markup_with_option_unset,
+				'option on'    => $markup_with_option_on,
+			) as $label => $markup
+		) {
+			$this->assertStringContainsString(
+				'jp-search-answers-panel',
+				$markup,
+				"Block wrapper should render with the site option $label."
+			);
+			$this->assertStringContainsString(
+				'data-wp-interactive="jetpack-search"',
+				$markup,
+				"Interactivity directive should render with the site option $label."
+			);
+		}
 	}
 
 	public function test_default_heading_is_ai_answer() {

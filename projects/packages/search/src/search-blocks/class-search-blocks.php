@@ -1308,14 +1308,6 @@ class Search_Blocks {
 			// locale-agnostic — only the display string carries the symbol.
 			'priceCurrencySymbol'        => '$',
 
-			// AI Answers — whether the agent endpoint should be called at all.
-			// Render.php for `jetpack-search/ai-answer` also short-circuits to
-			// an empty string when this is false, so the panel disappears at
-			// SSR time even for a saved post that still has the block in its
-			// content. The JS gate here covers the edge case where the flag
-			// flips off between SSR and hydration.
-			'aiAnswersEnabled'           => AI_Answers::is_enabled(),
-
 			// Localized rotating loading hints shown while the "Show more"
 			// extended AI answer streams. Lives on the top-level seed (not
 			// under `strings`) because the `strings` map is typed

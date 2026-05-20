@@ -595,12 +595,6 @@ const { state, actions } = store( NAMESPACE, {
 		aiExtendedLoadingText: '',
 		aiShowExtended: false,
 		aiSessionId: null,
-		// `aiAnswersEnabled` is intentionally NOT declared here — declaring a
-		// JS default for a PHP-seeded key would overwrite the seeded value at
-		// hydration time (the IA runtime treats the JS-side `state` object as
-		// a defaults bag whose keys win over the seed). The seed is the
-		// source of truth; consumers read `state.aiAnswersEnabled` and the
-		// proxy resolves it through to the hydrated value.
 
 		// `resultsCountText` lives on the seeded state (PHP-side), not as a
 		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
@@ -891,11 +885,11 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		// Panel-level visibility. `aiPanelHidden` collapses the whole block
-		// to `hidden` until something interesting happens — idle, no answers
-		// enabled, or no query yet — so an empty page or a search-less /
-		// disabled site doesn't reserve a wrapper of padding/border.
+		// to `hidden` until something interesting happens — idle status,
+		// or no query yet — so an empty / search-less page doesn't reserve
+		// a wrapper of padding/border.
 		get aiPanelHidden() {
-			return ! state.aiAnswersEnabled || state.aiVisibleStatus === 'idle';
+			return state.aiVisibleStatus === 'idle';
 		},
 		get aiIsLoading() {
 			return state.aiVisibleStatus === 'loading';
@@ -990,7 +984,7 @@ const { state, actions } = store( NAMESPACE, {
 			// when an `ai-answer` block has mounted on the page — pages with
 			// just search-input + results-list shouldn't pay for an SSE
 			// round-trip whose output nothing on the page renders. The
-			// action also gates on enable-flag + query length + a same-query
+			// action also gates on query length (≥ 3 chars) and a same-query
 			// memo, so filter/sort-only re-calls don't re-spam the agent.
 			if ( aiBlockPresent ) {
 				actions.fetchAiAnswer();
@@ -1435,20 +1429,16 @@ const { state, actions } = store( NAMESPACE, {
 		 * from inside `actions.search()`, so the answer always tracks the
 		 * results fetch.
 		 *
-		 * Bails when: `aiAnswersEnabled` is false (admin toggle disables the
-		 * feature); the query is shorter than 3 chars (matching the overlay
-		 * heuristic); or the query is the same one we already kicked off
-		 * (filter/sort re-triggers `search()` without changing the text, and
-		 * the agent response would be identical).
+		 * Bails when the query is shorter than 3 chars (matching the
+		 * overlay heuristic) or when the query is the same one we already
+		 * kicked off (filter/sort re-triggers `search()` without changing
+		 * the text, and the agent response would be identical).
 		 *
 		 * Aborts any in-flight brief / extended stream from the previous
 		 * query before starting the new one so a slow earlier response can't
 		 * land on top of fresh state.
 		 */
 		fetchAiAnswer() {
-			if ( ! state.aiAnswersEnabled ) {
-				return;
-			}
 			const query = state.searchQuery;
 			if ( ! query || query.length < 3 ) {
 				// Tear down whatever's on screen — a query that dropped below
@@ -1517,9 +1507,6 @@ const { state, actions } = store( NAMESPACE, {
 		 * but a slow click after a re-fetch could still race the brief.
 		 */
 		showExtendedAiAnswer() {
-			if ( ! state.aiAnswersEnabled ) {
-				return;
-			}
 			if ( state.aiBriefStatus !== 'done' ) {
 				return;
 			}
