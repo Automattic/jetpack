@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forward the `jetpack_blaze_woo_product_promote_requested` event to a WPCOM internal endpoint via `wpcom_json_api_request_as_blog`, so DSP can enqueue a Blaze landing-page job when a merchant publishes a Woo product with the Promote-with-Blaze opt-in checked.

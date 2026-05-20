@@ -9,9 +9,12 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Blaze\Landing_Page_CPT;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -56,6 +59,124 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_blaze_settings' ),
 			)
 		);
+
+		// Landing pages — server-to-server only, signed by WPCOM as blog.
+		register_rest_route(
+			static::$namespace,
+			'landing-pages',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'upsert_landing_page' ),
+				'permission_callback' => array( $this, 'can_wpcom_manage_landing_pages' ),
+				'args'                => self::landing_page_args(),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'landing-pages/(?P<slug>[A-Za-z0-9\-_]+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'upsert_landing_page' ),
+					'permission_callback' => array( $this, 'can_wpcom_manage_landing_pages' ),
+					'args'                => self::landing_page_args(),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_landing_page' ),
+					'permission_callback' => array( $this, 'can_wpcom_manage_landing_pages' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Argument schema for the landing-page upsert endpoints.
+	 *
+	 * @return array
+	 */
+	private static function landing_page_args() {
+		return array(
+			'html'        => array(
+				'type'     => 'string',
+				'required' => true,
+			),
+			'title'       => array(
+				'type' => 'string',
+			),
+			'mode'        => array(
+				'type'     => 'string',
+				'enum'     => array( 'woocommerce' ),
+				'required' => true,
+			),
+			'product_id'  => array(
+				'type'     => 'integer',
+				'required' => true,
+			),
+			'campaign_id' => array(
+				'type' => 'integer',
+			),
+		);
+	}
+
+	/**
+	 * Permission check for landing-page mutations.
+	 *
+	 * The merchant site never grants UI access; only requests signed by
+	 * WPCOM as the blog (via `wpcom_json_api_request_as_blog`) are allowed.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function can_wpcom_manage_landing_pages() {
+		if ( Rest_Authentication::is_signed_with_blog_token() ) {
+			return true;
+		}
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Create or update a landing page.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function upsert_landing_page( WP_REST_Request $request ) {
+		$slug_from_url = $request->get_param( 'slug' );
+		$args          = array(
+			'html'        => (string) $request->get_param( 'html' ),
+			'title'       => (string) $request->get_param( 'title' ),
+			'mode'        => (string) $request->get_param( 'mode' ),
+			'product_id'  => (int) $request->get_param( 'product_id' ),
+			'campaign_id' => (int) $request->get_param( 'campaign_id' ),
+		);
+		if ( ! empty( $slug_from_url ) ) {
+			$args['slug'] = (string) $slug_from_url;
+		}
+
+		$result = Landing_Page_CPT::upsert( $args );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Delete a landing page by slug.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function delete_landing_page( WP_REST_Request $request ) {
+		$slug    = (string) $request->get_param( 'slug' );
+		$deleted = Landing_Page_CPT::delete_by_slug( $slug );
+		if ( ! $deleted ) {
+			return new WP_Error(
+				'jetpack_blaze_landing_not_found',
+				__( 'Landing page not found.', 'jetpack-blaze' ),
+				array( 'status' => 404 )
+			);
+		}
+		return rest_ensure_response( array( 'deleted' => true ) );
 	}
 
 	/**
