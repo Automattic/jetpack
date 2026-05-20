@@ -2073,7 +2073,7 @@ class Blaze_Abilities extends Registrar {
 			return null;
 		}
 
-		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/payments/methods', (int) $site_id );
+		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/payment-methods', (int) $site_id );
 		$request = new WP_REST_Request( 'GET', $route );
 
 		$response = rest_do_request( $request );

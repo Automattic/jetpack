@@ -658,23 +658,44 @@ class Campaign_Preparer {
 		}
 
 		$card      = isset( $payment_method['card'] ) && is_array( $payment_method['card'] ) ? $payment_method['card'] : array();
+		$info      = isset( $payment_method['info'] ) && is_array( $payment_method['info'] ) ? $payment_method['info'] : array();
 		$type      = self::first_non_empty_string( $payment_method, array( 'type', 'payment_method_type', 'paymentMethodType', 'method' ) );
 		$brand     = self::first_non_empty_string( $payment_method, array( 'brand', 'card_brand', 'cardBrand' ) );
-		$last4     = self::first_non_empty_string( $payment_method, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+		$last4     = self::first_non_empty_string( $payment_method, array( 'last4', 'last_4', 'last_digits', 'lastDigits', 'card_last4', 'cardLast4' ) );
 		$exp_month = self::first_integer( $payment_method, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
 		$exp_year  = self::first_integer( $payment_method, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
 
 		if ( '' === $brand ) {
 			$brand = self::first_non_empty_string( $card, array( 'brand', 'card_brand', 'cardBrand' ) );
 		}
+		if ( '' === $brand ) {
+			$brand = self::first_non_empty_string( $info, array( 'brand', 'type', 'card_brand', 'cardBrand' ) );
+		}
 		if ( '' === $last4 ) {
-			$last4 = self::first_non_empty_string( $card, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+			$last4 = self::first_non_empty_string( $card, array( 'last4', 'last_4', 'last_digits', 'lastDigits', 'card_last4', 'cardLast4' ) );
+		}
+		if ( '' === $last4 ) {
+			$last4 = self::first_non_empty_string( $info, array( 'last4', 'last_4', 'last_digits', 'lastDigits', 'card_last4', 'cardLast4' ) );
 		}
 		if ( null === $exp_month ) {
 			$exp_month = self::first_integer( $card, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
 		}
+		if ( null === $exp_month ) {
+			$expiring  = isset( $info['expiring'] ) && is_array( $info['expiring'] ) ? $info['expiring'] : array();
+			$exp_month = self::first_integer( $info, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
+			if ( null === $exp_month ) {
+				$exp_month = self::first_integer( $expiring, array( 'month' ) );
+			}
+		}
 		if ( null === $exp_year ) {
 			$exp_year = self::first_integer( $card, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+		}
+		if ( null === $exp_year ) {
+			$expiring = isset( $info['expiring'] ) && is_array( $info['expiring'] ) ? $info['expiring'] : array();
+			$exp_year = self::first_integer( $info, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+			if ( null === $exp_year ) {
+				$exp_year = self::first_integer( $expiring, array( 'year' ) );
+			}
 		}
 		if ( '' === $type ) {
 			$type = '' !== $last4 ? 'card' : 'saved_payment_method';
