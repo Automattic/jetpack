@@ -8,8 +8,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 namespace Automattic\Jetpack\Plugin\Abilities;
 
 use Automattic\Jetpack\Connection\Client;

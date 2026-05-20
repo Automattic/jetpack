@@ -8,8 +8,6 @@
  * @since 1.0.0
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Ability API added in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this line when we drop WP <6.9.
-
 namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
