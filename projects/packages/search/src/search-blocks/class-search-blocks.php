@@ -1157,7 +1157,9 @@ class Search_Blocks {
 	width: 60px;
 	height: 60px;
 	padding: 0;
-	font-size: 1.25rem;
+	font-size: 1em;
+	font-weight: 400;
+	line-height: 1;
 }
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
 	padding: 0 2em 2em;
