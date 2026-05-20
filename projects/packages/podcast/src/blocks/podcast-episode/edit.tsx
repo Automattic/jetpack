@@ -15,6 +15,7 @@ import {
 	PanelBody,
 	Placeholder,
 	SelectControl,
+	TextareaControl,
 	TextControl,
 	ToggleControl,
 	ToolbarGroup,
@@ -202,6 +203,15 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		'featured_media',
 		postId
 	);
+	// `post_excerpt` is the show notes — feed `<description>` / `<itunes:summary>`
+	// read from here. Bound to the same REST field as the sidebar Excerpt panel
+	// so the two controls stay in sync.
+	const [ postExcerpt, setPostExcerpt ] = useEntityProp< string >(
+		'postType',
+		postType,
+		'excerpt',
+		postId
+	);
 
 	// Source the show-level cover from the same REST surface the dashboard
 	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
@@ -359,6 +369,17 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Episode', 'jetpack-podcast' ) }>
+					<TextareaControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show notes', 'jetpack-podcast' ) }
+						help={ __(
+							'Episode description shown in Apple Podcasts, Spotify, and Pocket Casts. Synced with the post’s Excerpt.',
+							'jetpack-podcast'
+						) }
+						value={ postExcerpt || '' }
+						onChange={ setPostExcerpt }
+						rows={ 4 }
+					/>
 					<TextControl
 						label={ __( 'Season number', 'jetpack-podcast' ) }
 						type="number"
