@@ -31,38 +31,6 @@ const COUNT_VIEW: View = {
 	sort: { field: 'date', direction: 'desc' },
 };
 
-type Override = boolean | null;
-
-/**
- * Parse a `?vp_free=…` / `?vp_at_limit=…`-style query param into a
- * tri-state override: `true` when present and truthy, `false` when
- * present and falsy, `null` when absent.
- *
- * Designer/QA toggles are read once on first call and frozen. They are
- * deliberately non-reactive because they require a full page reload to
- * change in practice.
- *
- * @param search - The query string (with or without leading `?`).
- * @param key    - Param name to read.
- * @return The override, or `null` when absent.
- */
-function parseOverride( search: string, key: string ): Override {
-	const params = new URLSearchParams( search );
-	if ( ! params.has( key ) ) {
-		return null;
-	}
-	const raw = params.get( key );
-	if ( raw === null ) {
-		return null;
-	}
-	const normalized = raw.toLowerCase();
-	return ! ( normalized === '0' || normalized === 'false' || normalized === '' );
-}
-
-const SEARCH = typeof window === 'undefined' ? '' : window.location.search;
-const FREE_OVERRIDE: Override = parseOverride( SEARCH, 'vp_free' );
-const AT_LIMIT_OVERRIDE: Override = parseOverride( SEARCH, 'vp_at_limit' );
-
 /**
  * Free-tier state derived from real data sources: server-side library
  * count via useLibrary, in-flight uploads via useUpload, plan-tier flags
@@ -78,14 +46,13 @@ export function useFreeTier(): FreeTierState {
 			? JPVIDEOPRESS_INITIAL_STATE?.siteData
 			: undefined;
 
-	const isFree = FREE_OVERRIDE !== null ? FREE_OVERRIDE : ! siteData?.hasVideoPressAccess;
+	const isFree = ! siteData?.hasVideoPressAccess;
 
 	const completed = paginationInfo?.totalItems ?? 0;
 	const inFlight = uploadQueue.filter(
 		u => u.status === 'uploading' || u.status === 'pending'
 	).length;
-	const realVideoCount = completed + inFlight;
-	const videoCount = AT_LIMIT_OVERRIDE === true ? FREE_TIER_UPLOAD_LIMIT : realVideoCount;
+	const videoCount = completed + inFlight;
 
 	const isAtomic = isWoASite();
 	const isUnlimited = useIsVideoPressUnlimited();
