@@ -427,10 +427,15 @@ class SearchApp extends Component {
 
 	getAiAnswer = () => {
 		const query = this.props.searchQuery;
-		// Prefer the props options so customberg's live overrides win; falls back
-		// to the page-load snapshot on the public-facing overlay.
-		const options = this.props.options || window[ SERVER_OBJECT_NAME ] || {};
+		const options = window[ SERVER_OBJECT_NAME ] || {};
 		const siteId = options.siteId;
+		// Honour a props-level override of the AI Answers gate when one is
+		// passed (customberg drives the preview from React state); otherwise
+		// fall back to the page-load snapshot used by the public overlay.
+		const aiAnswersEnabled =
+			this.props.options && this.props.options.aiAnswersEnabled !== undefined
+				? this.props.options.aiAnswersEnabled
+				: options.aiAnswersEnabled;
 
 		const idleState = {
 			aiBriefStatus: 'idle',
@@ -452,7 +457,7 @@ class SearchApp extends Component {
 		}
 
 		// Respect the admin's AI Answers toggle.
-		if ( options.aiAnswersEnabled === false ) {
+		if ( aiAnswersEnabled === false ) {
 			this.setState( idleState );
 			return;
 		}
