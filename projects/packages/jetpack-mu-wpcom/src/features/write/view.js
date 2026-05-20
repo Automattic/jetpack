@@ -889,9 +889,29 @@ function sanitizePasteNode( el ) {
 	}
 
 	for ( const attr of Array.from( el.attributes ) ) {
-		if ( tag === 'A' && attr.name === 'href' ) continue;
+		if ( tag === 'A' && attr.name === 'href' && isSafePasteHref( attr.value ) ) continue;
 		el.removeAttribute( attr.name );
 	}
+}
+
+/**
+ * Whether `href` is safe to preserve on a pasted link. Allows http(s),
+ * mailto, tel, and same-document/relative URLs; everything else (notably
+ * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
+ * can't smuggle script execution past the sanitizer.
+ *
+ * @param {string} href - The href value to check.
+ * @return {boolean} True when the href is safe to keep.
+ */
+function isSafePasteHref( href ) {
+	if ( ! href ) return false;
+	const trimmed = href.trim();
+	if ( ! trimmed ) return false;
+	// Relative / same-document / query / fragment URLs have no scheme.
+	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
+		return true;
+	}
+	return /^(https?:|mailto:|tel:)/i.test( trimmed );
 }
 
 /**
@@ -1831,8 +1851,12 @@ if ( typeof MutationObserver !== 'undefined' ) {
 			if ( ! html ) return;
 
 			event.preventDefault();
-			const tmp = document.createElement( 'div' );
-			tmp.innerHTML = html;
+			// DOMParser parses the markup inertly — scripts don't run, images
+			// and iframes don't load, and inline event handlers don't fire. The
+			// sanitizer then strips everything outside the allowlist before we
+			// hand the result to execCommand for insertion at the caret.
+			const parsed = new DOMParser().parseFromString( html, 'text/html' );
+			const tmp = parsed.body;
 			promotePasteFormatting( tmp );
 			sanitizePasteFragment( tmp );
 			document.execCommand( 'insertHTML', false, tmp.innerHTML );
