@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add optional autocomplete suggestions dropdown to the Search Input block — query, taxonomy, and post suggestions powered by the WPCOM search-suggestions endpoint. Authors opt in per block via the new "Show search suggestions" inspector toggle. Taxonomy picks apply as an inline filter when a matching filter block is on the page, otherwise navigate to the archive URL.

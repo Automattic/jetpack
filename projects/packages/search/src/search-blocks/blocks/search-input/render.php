@@ -19,18 +19,44 @@ $placeholder = trim( (string) ( $attributes['placeholder'] ?? '' ) );
 if ( '' === $placeholder ) {
 	$placeholder = __( 'Search…', 'jetpack-search-pkg' );
 }
-$show_icon   = (bool) ( $attributes['showIcon'] ?? true );
-$submit_only = ! empty( $attributes['submitOnly'] );
+$show_icon          = (bool) ( $attributes['showIcon'] ?? true );
+$submit_only        = ! empty( $attributes['submitOnly'] );
+$enable_suggestions = ! empty( $attributes['enableSuggestions'] );
 // Read the URL-derived query through the shared helper so the SSR
 // `value=` matches the Interactivity store's seeded `searchQuery`.
 // The helper picks `s` vs `q` based on `is_search()` and applies the
 // same sanitize_text_field + trim WP would have applied to `s`.
 $initial_query = Search_Blocks::parse_url_search_query();
 $input_id      = wp_unique_id( 'jetpack-search-input-' );
+// A separate id pair is generated for the listbox + status region so the
+// input's `aria-controls` / `aria-activedescendant` can resolve to stable
+// DOM ids. Only generated (and only emitted) when suggestions are on, to
+// keep the default DOM untouched for authors who haven't opted in.
+$listbox_id = $enable_suggestions ? wp_unique_id( 'jetpack-search-suggestions-' ) : '';
+// `data-wp-context` seeds the per-instance Interactivity state. Keeping it
+// per-block (rather than on the shared `jetpack-search` store) means a
+// header + sidebar Search Input on the same page never share a dropdown's
+// `showSuggestions` / `activeIndex` — each instance owns its own UI state
+// while still pulling the query from the shared `state.searchQuery`.
+$context_json = $enable_suggestions
+	? wp_json_encode(
+		array(
+			'showSuggestions' => false,
+			'activeIndex'     => -1,
+			'activeOptionId'  => '',
+			'rows'            => array(),
+			'listboxId'       => $listbox_id,
+		),
+		JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
+	)
+	: '';
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
+	<?php if ( $enable_suggestions ) : ?>
+	data-wp-context='<?php echo esc_attr( $context_json ); ?>'
+	<?php endif; ?>
 >
 	<label class="jetpack-search-input__label screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>">
 		<?php esc_html_e( 'Search', 'jetpack-search-pkg' ); ?>
@@ -47,10 +73,20 @@ $input_id      = wp_unique_id( 'jetpack-search-input-' );
 			class="jetpack-search-input__field"
 			placeholder="<?php echo esc_attr( $placeholder ); ?>"
 			value="<?php echo esc_attr( $initial_query ); ?>"
-			<?php
-			if ( $submit_only ) :
-				?>
-				data-submit-only="true"<?php endif; ?>
+			<?php if ( $submit_only ) : ?>
+			data-submit-only="true"
+			<?php endif; ?>
+			<?php if ( $enable_suggestions ) : ?>
+			role="combobox"
+			aria-autocomplete="list"
+			aria-haspopup="listbox"
+			aria-controls="<?php echo esc_attr( $listbox_id ); ?>"
+			data-suggestions-enabled="true"
+			data-wp-bind--aria-expanded="context.showSuggestions"
+			data-wp-bind--aria-activedescendant="context.activeOptionId"
+			data-wp-on--focus="actions.onSearchFocus"
+			data-wp-on--blur="actions.onSearchBlur"
+			<?php endif; ?>
 			data-wp-bind--value="state.searchQuery"
 			data-wp-on--input="actions.onSearchInput"
 			data-wp-on--keydown="actions.onSearchKeydown"
@@ -62,5 +98,40 @@ $input_id      = wp_unique_id( 'jetpack-search-input-' );
 			data-wp-on--click="actions.clearSearch"
 			aria-label="<?php echo esc_attr__( 'Clear search', 'jetpack-search-pkg' ); ?>"
 		>&#10005;</button>
+		<?php if ( $enable_suggestions ) : ?>
+		<ul
+			id="<?php echo esc_attr( $listbox_id ); ?>"
+			class="jetpack-search-input__suggestions"
+			role="listbox"
+			aria-label="<?php echo esc_attr__( 'Search suggestions', 'jetpack-search-pkg' ); ?>"
+			data-wp-bind--hidden="!context.showSuggestions"
+			hidden
+		>
+			<template
+				data-wp-each--row="context.rows"
+				data-wp-each-key="context.row.key"
+			>
+				<li
+					class="jetpack-search-input__suggestions-label"
+					role="presentation"
+					data-wp-bind--hidden="!context.row.isHeader"
+					data-wp-text="context.row.label"
+				></li>
+				<li
+					class="jetpack-search-input__suggestions-option"
+					role="option"
+					data-wp-bind--hidden="context.row.isHeader"
+					data-wp-bind--id="context.row.optionId"
+					data-wp-bind--aria-selected="state.isRowActive"
+					data-wp-class--is-active="state.isRowActive"
+					data-wp-on--mousedown="actions.onSuggestionMousedown"
+					data-wp-on--click="actions.onSuggestionClick"
+					tabindex="-1"
+				>
+					<span data-wp-text="context.row.text"></span>
+				</li>
+			</template>
+		</ul>
+		<?php endif; ?>
 	</div>
 </div>

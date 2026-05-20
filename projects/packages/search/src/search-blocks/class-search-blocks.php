@@ -1548,41 +1548,50 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'              => 'Searching…',
-				'resultsCountSingle'     => 'Found %d result',
-				'resultsCountPlural'     => 'Found %d results',
-				'removeFilter'           => 'Remove %s',
-				'ratingStarsTop'         => '5 stars',
-				'ratingStarsAndUpSingle' => '%d star and up',
-				'ratingStarsAndUpPlural' => '%d stars and up',
-				'priceRangeFromTo'       => '%1$s – %2$s',
-				'priceRangeFrom'         => '%s+',
-				'priceRangeUpTo'         => 'Under %s',
-				'priceLabel'             => 'Price',
+				'searching'               => 'Searching…',
+				'resultsCountSingle'      => 'Found %d result',
+				'resultsCountPlural'      => 'Found %d results',
+				'removeFilter'            => 'Remove %s',
+				'ratingStarsTop'          => '5 stars',
+				'ratingStarsAndUpSingle'  => '%d star and up',
+				'ratingStarsAndUpPlural'  => '%d stars and up',
+				'priceRangeFromTo'        => '%1$s – %2$s',
+				'priceRangeFrom'          => '%s+',
+				'priceRangeUpTo'          => 'Under %s',
+				'priceLabel'              => 'Price',
+				'suggestionLabelQuery'    => 'Suggestions',
+				'suggestionLabelTaxonomy' => 'Popular Filters',
+				'suggestionLabelPost'     => 'Articles',
 			);
 		}
 		return array(
-			'searching'              => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searching'               => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountSingle'     => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			'resultsCountSingle'      => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountPlural'     => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountPlural'      => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'           => __( 'Remove %s', 'jetpack-search-pkg' ),
+			'removeFilter'            => __( 'Remove %s', 'jetpack-search-pkg' ),
 			/* translators: Active-filter chip label for the 5-star row. The 5-star row is "exactly 5 stars" — no "& up" affordance — because there is no higher rating. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsTop'         => __( '5 stars', 'jetpack-search-pkg' ),
+			'ratingStarsTop'          => __( '5 stars', 'jetpack-search-pkg' ),
 			/* translators: %d: rating threshold (singular form, i.e. 1). Active-filter chip label for the "1 star and up" threshold row. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsAndUpSingle' => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
+			'ratingStarsAndUpSingle'  => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: rating threshold (plural form, i.e. 2-4). Active-filter chip label for the "X stars and up" threshold rows. Mirrors the row's aria-label in filter-wc-rating/render.php. */
-			'ratingStarsAndUpPlural' => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
+			'ratingStarsAndUpPlural'  => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
 			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
-			'priceRangeFromTo'       => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			'priceRangeFromTo'        => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
 			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: $10+" filter pill (no upper bound) — compact "and above" form aligned with mainstream e-commerce filter chips. */
-			'priceRangeFrom'         => __( '%s+', 'jetpack-search-pkg' ),
+			'priceRangeFrom'          => __( '%s+', 'jetpack-search-pkg' ),
 			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Under $50" filter pill (no lower bound) — mirrors Amazon/eBay/Walmart's "Under $X" convention. */
-			'priceRangeUpTo'         => __( 'Under %s', 'jetpack-search-pkg' ),
+			'priceRangeUpTo'          => __( 'Under %s', 'jetpack-search-pkg' ),
 			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
-			'priceLabel'             => __( 'Price', 'jetpack-search-pkg' ),
+			'priceLabel'              => __( 'Price', 'jetpack-search-pkg' ),
+			/* translators: Group label for the typed-query suggestions section of the Search Input autocomplete dropdown. */
+			'suggestionLabelQuery'    => __( 'Suggestions', 'jetpack-search-pkg' ),
+			/* translators: Group label for the taxonomy (category / tag) section of the Search Input autocomplete dropdown. */
+			'suggestionLabelTaxonomy' => __( 'Popular Filters', 'jetpack-search-pkg' ),
+			/* translators: Group label for the post-title section of the Search Input autocomplete dropdown. */
+			'suggestionLabelPost'     => __( 'Articles', 'jetpack-search-pkg' ),
 		);
 	}
 

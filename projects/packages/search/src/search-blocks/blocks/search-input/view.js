@@ -1,9 +1,14 @@
 import { store } from '@wordpress/interactivity';
 import 'jetpack-search/store';
+import {
+	clearSuggestionsContext,
+	handleInputForSuggestions,
+	handleKeydownForSuggestions,
+} from './suggestions';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
-const DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 300;
 
 // Per-input debounce state. Keyed by the input element itself so two
 // search-input blocks on the same page (e.g. header + sidebar) don't
@@ -20,15 +25,14 @@ function scheduleSearch( input ) {
 	clearTimeout( debounceTimers.get( input ) );
 	const timer = setTimeout( () => {
 		debounceTimers.delete( input );
-		const { actions } = store( NAMESPACE );
-		actions.search();
-	}, DEBOUNCE_MS );
+		store( NAMESPACE ).actions.search();
+	}, SEARCH_DEBOUNCE_MS );
 	debounceTimers.set( input, timer );
 }
 
 /**
- * Cancel any in-flight debounce for a single input — used when a keystroke
- * should fire a search immediately (e.g. Enter).
+ * Cancel any in-flight search debounce for a single input — used when a
+ * keystroke should fire a search immediately (e.g. Enter).
  *
  * @param {HTMLInputElement} input - The input whose timer should be cleared.
  */
@@ -48,16 +52,25 @@ store( NAMESPACE, {
 			// fewer requests than the default live-search debounce produces.
 			if ( event.target.dataset.submitOnly === 'true' ) {
 				cancelPendingSearch( event.target );
-				return;
+			} else {
+				scheduleSearch( event.target );
 			}
-			scheduleSearch( event.target );
+			// Delegated to ./suggestions.js — short-circuits on non-suggestions
+			// inputs, so this stays a single unconditional call.
+			handleInputForSuggestions( event.target );
 		},
 
 		onSearchKeydown( event ) {
+			// The suggestions layer claims ArrowUp / ArrowDown / Escape
+			// outright, and `Enter` only when a row is highlighted. Any
+			// other keystroke — including an unclaimed Enter — falls
+			// through to the default search dispatch below.
+			if ( handleKeydownForSuggestions( event, event.target ) ) {
+				return;
+			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				const { actions } = store( NAMESPACE );
-				actions.search();
+				store( NAMESPACE ).actions.search();
 			}
 		},
 
@@ -69,6 +82,7 @@ store( NAMESPACE, {
 		*clearSearch() {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
+			clearSuggestionsContext();
 			yield actions.search();
 		},
 	},
