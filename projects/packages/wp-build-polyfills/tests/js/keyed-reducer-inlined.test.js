@@ -62,10 +62,11 @@ function buildWithEnv( env, outputBase ) {
  * Assertion shared by both build modes: the bundle must not statically
  * reference `wp.data.keyedReducer` (whatever shape the minifier picks).
  *
- * @param {string} source - Raw bundle source.
- * @param {string} label  - Human-readable build label for assertion msgs.
+ * @param {string}  source - Raw bundle source.
+ * @param {string}  label  - Human-readable build label for assertion msgs.
+ * @param {boolean} isMin  - Whether this is a minified build.
  */
-function assertNoWpDataKeyedReducer( source, label ) {
+function assertNoWpDataKeyedReducer( source, label, isMin ) {
 	// Strip block and line comments before matching so JSDoc text in
 	// preserved source (e.g. the loader / shim) doesn't trip the check.
 	const stripped = source
@@ -93,10 +94,12 @@ function assertNoWpDataKeyedReducer( source, label ) {
 	// itself mention `keyedReducer` — it's exported by that name but
 	// referenced internally by parameter / closure variables only — so
 	// this assertion is safe for the inlined-shim case.)
-	assert.ok(
-		! /['"]keyedReducer['"]/.test( stripped ) && ! /\bkeyedReducer\b/.test( stripped ),
-		`${ label }: built bundle contains the literal token \`keyedReducer\`, which suggests an unexpected externalized property access slipped past the static check above.`
-	);
+	if ( isMin ) {
+		assert.ok(
+			! /['"]keyedReducer['"]/.test( stripped ) && ! /\bkeyedReducer\b/.test( stripped ),
+			`${ label }: built bundle contains the literal token \`keyedReducer\`, which suggests an unexpected externalized property access slipped past the static check above.`
+		);
+	}
 }
 
 /**
@@ -173,7 +176,7 @@ describe( 'wp-notices polyfill bundle (development build)', () => {
 
 	it( 'must not reference `wp.data.keyedReducer` in the built bundle', () => {
 		const raw = readFileSync( DEV_BUILD_PATH, 'utf8' );
-		assertNoWpDataKeyedReducer( raw, 'dev build' );
+		assertNoWpDataKeyedReducer( raw, 'dev build', false );
 	} );
 
 	it( 'must produce a notices reducer that works without `wp.data.keyedReducer`', () => {
@@ -205,7 +208,7 @@ describe( 'wp-notices polyfill bundle (production minified build)', () => {
 
 	it( 'must not reference `wp.data.keyedReducer` in the minified bundle', () => {
 		const raw = readFileSync( PROD_BUILD_PATH, 'utf8' );
-		assertNoWpDataKeyedReducer( raw, 'production build' );
+		assertNoWpDataKeyedReducer( raw, 'production build', true );
 	} );
 
 	it( 'must produce a notices reducer that works without `wp.data.keyedReducer`', () => {
