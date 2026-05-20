@@ -22,7 +22,11 @@ const triggerSelector = config.overlayTriggerSelector || '';
 const searchInputSelector = config.searchInputSelector || '';
 
 let lastFocusedTrigger = null;
-let hydrated = false;
+// Holds the in-flight hydration promise. Storing the promise (rather than a
+// boolean flag) means concurrent `openOverlay()` calls all `await` the same
+// hydration job instead of one racing past it while the import is still
+// resolving.
+let hydrationPromise = null;
 
 /**
  * Look up the overlay root element by id.
@@ -45,43 +49,54 @@ function isOpen( overlay ) {
 
 /**
  * Move the rendered template content into the overlay shell and hydrate
- * its Interactivity API regions. Idempotent — runs once, then bails.
+ * its Interactivity API regions. Idempotent and concurrency-safe — the
+ * first call kicks off the work and stores the promise; subsequent calls
+ * (including those racing in while the dynamic import is still resolving)
+ * await the same job.
+ *
+ * @return {Promise<void>} Resolves when hydration is complete (or no-ops if there is nothing to hydrate).
  */
-async function ensureHydrated() {
-	if ( hydrated ) {
-		return;
+function ensureHydrated() {
+	if ( hydrationPromise ) {
+		return hydrationPromise;
 	}
-	hydrated = true;
-	const overlay = getOverlay();
-	const template = document.getElementById( TEMPLATE_ID );
-	const content = overlay?.querySelector( '.jetpack-search-block-overlay__content' );
-	if ( ! overlay || ! template || ! content ) {
-		return;
-	}
-	content.appendChild( template.content.cloneNode( true ) );
+	hydrationPromise = ( async () => {
+		const overlay = getOverlay();
+		const template = document.getElementById( TEMPLATE_ID );
+		const content = overlay?.querySelector( '.jetpack-search-block-overlay__content' );
+		if ( ! overlay || ! template || ! content ) {
+			return;
+		}
+		content.appendChild( template.content.cloneNode( true ) );
 
-	// Hydration uses the WP Interactivity API's private surface. There is
-	// no public API for hydrating content inserted after DOMContentLoaded.
-	// If the privateApis contract changes, the catch leaves the overlay
-	// rendered-but-inert rather than crashing the page; the IA store
-	// reading from a static seed already covers initial display.
-	try {
-		const ia = await import( '@wordpress/interactivity' );
-		if ( typeof ia.privateApis !== 'function' ) {
-			return;
+		// Hydration uses the WP Interactivity API's private surface. There is
+		// no public API for hydrating content inserted after DOMContentLoaded.
+		// If the privateApis contract changes, the catch leaves the overlay
+		// rendered-but-inert rather than crashing the page; the IA store
+		// reading from a static seed already covers initial display.
+		try {
+			const ia = await import( '@wordpress/interactivity' );
+			if ( typeof ia.privateApis !== 'function' ) {
+				return;
+			}
+			const apis = ia.privateApis( PRIVATE_API_CONSENT );
+			if (
+				typeof apis.render !== 'function' ||
+				typeof apis.toVdom !== 'function' ||
+				typeof apis.getRegionRootFragment !== 'function'
+			) {
+				return;
+			}
+			const regions = content.querySelectorAll( '[data-wp-interactive]' );
+			for ( const region of regions ) {
+				apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
+			}
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.warn( '[jetpack-search] overlay hydration failed', e );
 		}
-		const apis = ia.privateApis( PRIVATE_API_CONSENT );
-		if ( typeof apis.render !== 'function' || typeof apis.toVdom !== 'function' ) {
-			return;
-		}
-		const regions = content.querySelectorAll( '[data-wp-interactive]' );
-		for ( const region of regions ) {
-			apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
-		}
-	} catch ( e ) {
-		// eslint-disable-next-line no-console
-		console.warn( '[jetpack-search] overlay hydration failed', e );
-	}
+	} )();
+	return hydrationPromise;
 }
 
 /**
@@ -171,19 +186,52 @@ async function handleFormSubmit( event ) {
 	}
 }
 
+const FOCUSABLE_SELECTOR = [
+	'a[href]',
+	'button:not([disabled])',
+	'input:not([disabled]):not([type="hidden"])',
+	'select:not([disabled])',
+	'textarea:not([disabled])',
+	'[tabindex]:not([tabindex="-1"])',
+].join( ',' );
+
 /**
- * Document-level keydown handler: closes the overlay on Escape.
+ * Document-level keydown handler: closes on Escape and traps Tab inside the
+ * open overlay so keyboard users can't fall out into the inert background
+ * content. The overlay's PHP shell declares `role="dialog" aria-modal="true"`,
+ * which assistive tech treats as a modal — without a trap that contract is
+ * violated for keyboard navigation.
  *
  * @param {KeyboardEvent} event - The keydown event.
  */
 function handleKeydown( event ) {
-	if ( event.key !== 'Escape' ) {
+	const overlay = getOverlay();
+	if ( ! isOpen( overlay ) ) {
 		return;
 	}
-	const overlay = getOverlay();
-	if ( isOpen( overlay ) ) {
+	if ( event.key === 'Escape' ) {
 		event.preventDefault();
 		closeOverlay();
+		return;
+	}
+	if ( event.key !== 'Tab' ) {
+		return;
+	}
+	const activeEl = overlay.ownerDocument?.activeElement;
+	const focusable = Array.from( overlay.querySelectorAll( FOCUSABLE_SELECTOR ) ).filter(
+		el => el.offsetParent !== null || el === activeEl
+	);
+	if ( focusable.length === 0 ) {
+		return;
+	}
+	const first = focusable[ 0 ];
+	const last = focusable[ focusable.length - 1 ];
+	if ( event.shiftKey && activeEl === first ) {
+		event.preventDefault();
+		last.focus();
+	} else if ( ! event.shiftKey && activeEl === last ) {
+		event.preventDefault();
+		first.focus();
 	}
 }
 
