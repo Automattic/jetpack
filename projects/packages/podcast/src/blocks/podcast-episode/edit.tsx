@@ -23,6 +23,7 @@ import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import metadata from './block.json';
@@ -361,7 +362,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					<TextControl
 						label={ __( 'Season number', 'jetpack-podcast' ) }
 						type="number"
-						min={ 0 }
+						min={ 1 }
 						value={ seasonNumber ?? '' }
 						onChange={ value =>
 							setAttributes( {
@@ -374,7 +375,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					<TextControl
 						label={ __( 'Episode number', 'jetpack-podcast' ) }
 						type="number"
-						min={ 0 }
+						min={ 1 }
 						value={ episodeNumber ?? '' }
 						onChange={ value =>
 							setAttributes( {
@@ -672,7 +673,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					) }
 
 					<h3 className="jetpack-podcast-episode__title">
-						{ postTitle || __( 'Untitled episode', 'jetpack-podcast' ) }
+						{ postTitle
+							? decodeEntities( postTitle )
+							: __( 'Untitled episode', 'jetpack-podcast' ) }
 					</h3>
 
 					{ ( postAuthor || postDate || duration ) && (
