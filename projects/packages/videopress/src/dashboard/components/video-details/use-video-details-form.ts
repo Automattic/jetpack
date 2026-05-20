@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import type { MockLibraryItem, VideoDetailsPatch } from '../../types/library';
+import type { LibraryItem, VideoDetailsPatch } from '../../types/library';
 
 export type VideoDetailsFormValues = Required< VideoDetailsPatch >;
 
-const baseline = ( video: MockLibraryItem ): VideoDetailsFormValues => ( {
+const baseline = ( video: LibraryItem ): VideoDetailsFormValues => ( {
 	title: video.title,
 	description: video.description,
 	privacy: video.privacy,
@@ -28,10 +28,10 @@ const shallowEqual = ( a: VideoDetailsFormValues, b: VideoDetailsFormValues ): b
  * If `video.id` changes (user navigates between details pages), state
  * re-baselines to the new video's values.
  *
- * @param video - The mock video record to edit.
+ * @param video - The video record to edit.
  * @return Form-state controls.
  */
-export function useVideoDetailsForm( video: MockLibraryItem ) {
+export function useVideoDetailsForm( video: LibraryItem ) {
 	const [ values, setValues ] = useState< VideoDetailsFormValues >( () => baseline( video ) );
 	const [ base, setBase ] = useState< VideoDetailsFormValues >( () => baseline( video ) );
 

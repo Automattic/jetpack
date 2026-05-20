@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import RankingCard, { type RankingItem } from './ranking-card';
+import VideoTitleLink from './video-title-link';
 import type { TopVideo } from '../../types/stats';
 import type { ReactElement } from 'react';
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 /**
- * "Most viewed" card. Rows link to the Phase 4 details screen at
+ * "Most viewed" card. Rows link to the details screen at
  * `/video/$id`; the footer "See all videos" link routes to the Library
  * tab.
  *
@@ -24,7 +25,7 @@ type Props = {
 export default function MostViewedCard( { videos, isLoading }: Props ): ReactElement {
 	const items: RankingItem[] = videos.map( v => ( {
 		key: v.id,
-		label: <Link to={ `/video/${ v.id }` }>{ v.title }</Link>,
+		label: <VideoTitleLink to={ `/video/${ v.id }` }>{ v.title }</VideoTitleLink>,
 		value: v.views,
 	} ) );
 
@@ -36,6 +37,7 @@ export default function MostViewedCard( { videos, isLoading }: Props ): ReactEle
 			valueColumnHeader={ __( 'VIEWS', 'jetpack-videopress-pkg' ) }
 			items={ items }
 			isLoading={ isLoading }
+			emptyMessage={ __( 'No videos viewed in the chosen period.', 'jetpack-videopress-pkg' ) }
 			footer={
 				<Stack direction="row" justify="center" className="vp-overview__ranking-footer">
 					<Link to="/library">{ __( 'See all videos', 'jetpack-videopress-pkg' ) }</Link>

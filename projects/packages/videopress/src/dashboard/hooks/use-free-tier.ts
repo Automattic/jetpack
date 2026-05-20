@@ -16,13 +16,17 @@ export type FreeTierState = {
 const FREE_TIER_UPLOAD_LIMIT = 1;
 
 // Minimal View used only to read totalItems from the listing query.
-// `perPage: 1` keeps the payload tiny.
+// `perPage: 1` keeps the payload tiny. The `type: 'videopress'` filter
+// is load-bearing: the free-tier upload cap applies to VideoPress-hosted
+// videos only, not to local video attachments, so the count must
+// exclude them — otherwise a site with even one local (non-VideoPress)
+// video attachment would falsely gate a free user's first upload.
 const COUNT_VIEW: View = {
 	type: 'table',
 	page: 1,
 	perPage: 1,
 	fields: [],
-	filters: [],
+	filters: [ { field: 'type', value: 'videopress', operator: 'is' } ],
 	search: '',
 	sort: { field: 'date', direction: 'desc' },
 };

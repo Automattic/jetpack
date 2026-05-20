@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import type { MockLibraryItem } from '../types/library';
+import type { LibraryItem } from '../types/library';
 
 const PLAYBACK_JWT_PATH = '/wpcom/v2/videopress/playback-jwt';
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
@@ -45,7 +45,7 @@ export function usePlaybackToken( guid: string, enabled: boolean ): string | und
  * @param video - The library item whose poster URL is needed.
  * @return The poster URL ready to use as an <img> src, or null.
  */
-export function usePosterUrl( video: MockLibraryItem ): string | null {
+export function usePosterUrl( video: LibraryItem ): string | null {
 	const { thumbnailUrl, isPrivate, guid } = video;
 	const token = usePlaybackToken( guid, isPrivate );
 

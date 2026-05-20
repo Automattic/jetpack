@@ -6,7 +6,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../DashboardTabs';
+import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
 import './style.scss';
 import type { ReactNode } from 'react';
 

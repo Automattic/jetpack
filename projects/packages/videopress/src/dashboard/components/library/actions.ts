@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import type { LibraryItemPrivacy, MockLibraryItem } from '../../types/library';
+import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 
 type Api = {
@@ -10,7 +10,7 @@ type Api = {
 	openVideoDetails: ( id: string ) => void;
 };
 
-const isVideoPressIdle = ( item: MockLibraryItem ) =>
+const isVideoPressIdle = ( item: LibraryItem ) =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
 
 /**
@@ -22,7 +22,7 @@ const isVideoPressIdle = ( item: MockLibraryItem ) =>
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
  */
-export function buildLibraryActions( api: Api ): Action< MockLibraryItem >[] {
+export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 	return [
 		{
 			id: 'edit-details',
@@ -63,7 +63,7 @@ export function buildLibraryActions( api: Api ): Action< MockLibraryItem >[] {
 		},
 		{
 			id: 'set-privacy-site',
-			label: __( 'Use site default', 'jetpack-videopress-pkg' ),
+			label: __( 'Reset to site default', 'jetpack-videopress-pkg' ),
 			supportsBulk: false,
 			isEligible: item => item.type === 'videopress' && item.privacy !== 'site-default',
 			callback: items => {

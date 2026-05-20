@@ -3,6 +3,7 @@ import { Link } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import { formatWatchTime } from '../../utils/format';
 import RankingCard, { type RankingItem } from './ranking-card';
+import VideoTitleLink from './video-title-link';
 import type { TopVideo } from '../../types/stats';
 import type { ReactElement } from 'react';
 
@@ -14,9 +15,9 @@ type Props = {
 /**
  * "Top videos by watch time" card. Mirrors `MostViewedCard` but ranks
  * by per-video `watchTimeSeconds` and formats values with
- * `formatWatchTime` (e.g. "1.1 h", "12 min"). Rows link to the Phase 4
- * details screen at `/video/$id`; the footer "See all videos" link
- * routes to the Library tab.
+ * `formatWatchTime` (e.g. "1.1 h", "12 min"). Rows link to the details
+ * screen at `/video/$id`; the footer "See all videos" link routes to
+ * the Library tab.
  *
  * @param props           - Component props.
  * @param props.videos    - Top videos by watch time for the active range.
@@ -27,7 +28,7 @@ type Props = {
 export default function TopByWatchTimeCard( { videos, isLoading }: Props ): ReactElement {
 	const items: RankingItem[] = videos.map( v => ( {
 		key: v.id,
-		label: <Link to={ `/video/${ v.id }` }>{ v.title }</Link>,
+		label: <VideoTitleLink to={ `/video/${ v.id }` }>{ v.title }</VideoTitleLink>,
 		value: v.watchTimeSeconds,
 	} ) );
 
@@ -39,6 +40,7 @@ export default function TopByWatchTimeCard( { videos, isLoading }: Props ): Reac
 			valueColumnHeader={ __( 'WATCH TIME', 'jetpack-videopress-pkg' ) }
 			items={ items }
 			isLoading={ isLoading }
+			emptyMessage={ __( 'No videos watched in the chosen period.', 'jetpack-videopress-pkg' ) }
 			formatValue={ formatWatchTime }
 			footer={
 				<Stack direction="row" justify="center" className="vp-overview__ranking-footer">

@@ -5,17 +5,17 @@ import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
-import type { MockLibraryItem } from '../../types/library';
+import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
 type Props = {
-	video: MockLibraryItem;
+	video: LibraryItem;
 	onAddToNewPost: () => void;
 };
 
 const dateSettings = getDateSettings();
 
-const linkForVideo = ( video: MockLibraryItem ): string => {
+const linkForVideo = ( video: LibraryItem ): string => {
 	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
 	return `https://${ host }/v/${ video.guid || video.id }`;
 };

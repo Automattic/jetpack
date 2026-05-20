@@ -6,29 +6,46 @@ import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
-import ChaptersHelpModal from '../../src/dashboard/components/VideoDetails/chapters-help-modal';
-import HeaderActions from '../../src/dashboard/components/VideoDetails/header-actions';
-import PrivacySharingCard from '../../src/dashboard/components/VideoDetails/privacy-sharing-card';
-import RatingCard from '../../src/dashboard/components/VideoDetails/rating-card';
-import ThumbnailCard from '../../src/dashboard/components/VideoDetails/thumbnail-card';
-import { useVideoDetailsForm } from '../../src/dashboard/components/VideoDetails/use-video-details-form';
-import VideoDetailsCard from '../../src/dashboard/components/VideoDetails/video-details-card';
+import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
+import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
+import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
+import RatingCard from '../../src/dashboard/components/video-details/rating-card';
+import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
+import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
+import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
-import type { MockLibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
-const isEditable = ( item: MockLibraryItem ): boolean =>
+const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
+
+/**
+ * Parent breadcrumb item — labelled "VideoPress" in every case, but the
+ * link target depends on where the user arrived from. Overview's ranking
+ * links tag their navigation with `state: { from: 'overview' }`; we read
+ * that here so the breadcrumb routes back to the Overview tab instead of
+ * defaulting to Library. TanStack stores user state on `window.history.state`,
+ * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
+ * doesn't re-export from TanStack). Stable for the lifetime of the mount,
+ * so no reactivity hook is needed.
+ *
+ * @return The parent breadcrumb item.
+ */
+const getParentBreadcrumbItem = (): { label: string; to: string } => {
+	const from = ( window.history.state as { from?: string } | null )?.from;
+	return { label: 'VideoPress', to: from === 'overview' ? '/' : '/library' };
+};
 
 const NotFound = () => (
 	<AdminPage
 		breadcrumbs={
 			<Breadcrumbs
 				items={ [
-					{ label: 'VideoPress', to: '/library' },
+					getParentBreadcrumbItem(),
 					{ label: __( 'Not found', 'jetpack-videopress-pkg' ) },
 				] }
 			/>
@@ -51,7 +68,7 @@ const Loading = () => (
 		breadcrumbs={
 			<Breadcrumbs
 				items={ [
-					{ label: 'VideoPress', to: '/library' },
+					getParentBreadcrumbItem(),
 					{ label: __( 'Loading…', 'jetpack-videopress-pkg' ) },
 				] }
 			/>
@@ -62,7 +79,7 @@ const Loading = () => (
 );
 
 type EditorProps = {
-	video: MockLibraryItem;
+	video: LibraryItem;
 	onSave: (
 		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
 		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
@@ -109,9 +126,7 @@ const Editor = ( {
 	return (
 		<AdminPage
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [ { label: 'VideoPress', to: '/library' }, { label: video.title } ] }
-				/>
+				<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
 			}
 			actions={
 				<HeaderActions
@@ -143,7 +158,7 @@ const Editor = ( {
 	);
 };
 
-type StageReadyProps = { video: MockLibraryItem };
+type StageReadyProps = { video: LibraryItem };
 
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();

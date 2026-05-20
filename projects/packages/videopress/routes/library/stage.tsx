@@ -5,11 +5,11 @@ import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
-import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
-import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
-import { libraryFields } from '../../src/dashboard/components/Library/fields';
-import { UploadActionsProvider } from '../../src/dashboard/components/Library/upload-actions-context';
-import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
+import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
+import { libraryFields } from '../../src/dashboard/components/library/fields';
+import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
+import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -17,7 +17,7 @@ import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-m
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import './style.scss';
-import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
+import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
 
@@ -27,7 +27,11 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 	'site-default': __( 'Site default', 'jetpack-videopress-pkg' ),
 };
 
-const GRID_VISIBLE_FIELDS = [ 'filename' ];
+// Grid tiles already lead with the thumbnail + title; the filename
+// below repeats information the title implies and clutters the tile.
+// Keep it hidden by default — users who want it can still toggle it
+// on via the DataViews field-visibility control.
+const GRID_VISIBLE_FIELDS: string[] = [];
 // `fileSize` is intentionally omitted: it's only populated for local
 // (non-VideoPress) uploads today, so it's blank for most rows. Users
 // who want the column can still toggle it on via the DataViews column-
@@ -213,8 +217,8 @@ const StageInner = () => {
 
 	// Splice in-flight uploads at the top of the listing so the user sees
 	// their upload immediately, before the next server refetch.
-	const renderedItems = useMemo< MockLibraryItem[] >( () => {
-		const inFlight: MockLibraryItem[] = uploadQueue
+	const renderedItems = useMemo< LibraryItem[] >( () => {
+		const inFlight: LibraryItem[] = uploadQueue
 			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
 			.map( u => ( {
 				id: u.id,
@@ -233,7 +237,7 @@ const StageInner = () => {
 					progress: Math.round( u.progress * 100 ),
 				},
 				description: '',
-				rating: 'G' as MockLibraryItem[ 'rating' ],
+				rating: 'G' as LibraryItem[ 'rating' ],
 				displayEmbed: false,
 				allowDownloads: false,
 				shortcode: '',
@@ -253,7 +257,7 @@ const StageInner = () => {
 		return [ ...inFlight, ...overlaid ];
 	}, [ uploadQueue, items, promotingIds ] );
 
-	const getItemId = useCallback( ( item: MockLibraryItem ) => item.id, [] );
+	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
 	return (
 		<DashboardLayout
@@ -292,7 +296,7 @@ const StageInner = () => {
 		>
 			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
-					<DataViews< MockLibraryItem >
+					<DataViews< LibraryItem >
 						data={ renderedItems }
 						fields={ libraryFields }
 						actions={ actions }

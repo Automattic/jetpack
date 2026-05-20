@@ -1,8 +1,8 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
-import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
-import QueryClientWrapper from '../../src/dashboard/components/QueryClientWrapper';
+import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useSettings, useUpdateSettings } from '../../src/dashboard/hooks/use-settings';
 import './style.scss';
 

@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { mockApiFetch } from '../../test-utils/mock-api-fetch';
+import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { useFreeTier } from '../use-free-tier';
 
@@ -45,5 +45,45 @@ describe( 'useFreeTier', () => {
 		// 0 completed (server total) + 1 in-flight = 1; free tier limit = 1 → at limit
 		expect( result.current.videoCount ).toBe( 1 );
 		expect( result.current.isAtLimit ).toBe( true );
+	} );
+
+	// Regression: the listing call that drives the free-tier count must
+	// restrict to VideoPress-hosted videos (`mime_type=video/videopress`).
+	// Without the filter, local video attachments were counted toward the
+	// free-tier upload cap and falsely gated a free user's first upload.
+	it( 'counts only VideoPress-hosted videos, not local attachments', async () => {
+		mockApiFetch( async ( { parse } ) => {
+			if ( parse === false ) {
+				return {
+					headers: {
+						get: ( key: string ) => ( key === 'X-WP-Total' ? '0' : '0' ),
+					},
+					json: async () => [],
+				};
+			}
+			return {
+				isVideoPressSupported: true,
+				isVideoPress1TBSupported: false,
+				isVideoPressUnlimitedSupported: false,
+			};
+		} );
+
+		renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => {
+			const calls = getApiFetchMock().mock.calls.map(
+				( [ args ] ) => ( args as { path?: string } )?.path ?? ''
+			);
+			expect( calls.some( path => path.includes( '/wp/v2/media' ) ) ).toBe( true );
+		} );
+
+		const mediaPaths = getApiFetchMock()
+			.mock.calls.map( ( [ args ] ) => ( args as { path?: string } )?.path ?? '' )
+			.filter( path => path.includes( '/wp/v2/media' ) );
+		expect( mediaPaths.length ).toBeGreaterThan( 0 );
+		for ( const path of mediaPaths ) {
+			expect( path ).toContain( 'mime_type=video%2Fvideopress' );
+			expect( path ).not.toContain( 'media_type=video' );
+		}
 	} );
 } );

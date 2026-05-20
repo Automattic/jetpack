@@ -2,15 +2,15 @@ import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
-import ThumbnailField from './ThumbnailField';
-import type { MockLibraryItem } from '../../types/library';
+import ThumbnailField from './thumbnail-field';
+import type { LibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
 const dateSettings = getDateSettings();
 
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
 
-const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
+const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
 	switch ( privacy ) {
 		case 'public':
 			return __( 'Public', 'jetpack-videopress-pkg' );
@@ -21,7 +21,7 @@ const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 	}
 };
 
-const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
+const TitleCell = ( { item }: { item: LibraryItem } ) => {
 	const { upload, type, title, isProcessing } = item;
 	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
@@ -66,7 +66,7 @@ const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 	);
 };
 
-export const libraryFields: Field< MockLibraryItem >[] = [
+export const libraryFields: Field< LibraryItem >[] = [
 	{
 		id: 'thumbnail',
 		label: __( 'Thumbnail', 'jetpack-videopress-pkg' ),
