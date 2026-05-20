@@ -60,9 +60,6 @@ const toString = ( value: unknown ): string => {
 	return String( value );
 };
 
-const numericKey = ( key: keyof PodcastSettings ) =>
-	key === 'podcasting_category_id' || key === 'podcasting_image_id';
-
 const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_id',
 	'podcasting_title',
@@ -84,7 +81,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	const out: Record< string, unknown > = {};
 	for ( const key of PODCAST_KEYS ) {
 		const value = raw[ key ];
-		if ( numericKey( key ) ) {
+		if ( key === 'podcasting_category_id' || key === 'podcasting_image_id' ) {
 			out[ key ] = typeof value === 'number' ? value : Number( value ?? 0 ) || 0;
 		} else if ( key === 'podcasting_explicit' ) {
 			out[ key ] = Boolean( value );

@@ -46,6 +46,12 @@ class Settings_Endpoint extends WP_REST_Controller {
 
 	/**
 	 * Register GET (full record) and POST/PUT/PATCH (partial update) routes.
+	 *
+	 * The update `args` schema is intentionally top-level type coercion only —
+	 * the registered `sanitize_callback`s do the real validation when
+	 * {@see update_option()} fires `sanitize_option_{$name}`. Strict schema
+	 * validation here would 400 a whole patch on one bad field; the SPA depends
+	 * on silent-drop semantics.
 	 */
 	public function register_routes() {
 		$this->namespace = self::REST_NAMESPACE;
@@ -64,7 +70,22 @@ class Settings_Endpoint extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'permission_check' ),
-					'args'                => self::update_args(),
+					'args'                => array(
+						'podcasting_category_id' => array( 'type' => 'integer' ),
+						'podcasting_title'       => array( 'type' => 'string' ),
+						'podcasting_talent_name' => array( 'type' => 'string' ),
+						'podcasting_summary'     => array( 'type' => 'string' ),
+						'podcasting_copyright'   => array( 'type' => 'string' ),
+						'podcasting_explicit'    => array( 'type' => array( 'boolean', 'string' ) ),
+						'podcasting_image'       => array( 'type' => 'string' ),
+						'podcasting_image_id'    => array( 'type' => 'integer' ),
+						'podcasting_category_1'  => array( 'type' => 'string' ),
+						'podcasting_category_2'  => array( 'type' => 'string' ),
+						'podcasting_category_3'  => array( 'type' => 'string' ),
+						'podcasting_email'       => array( 'type' => 'string' ),
+						'podcasting_show_urls'   => array( 'type' => 'object' ),
+						'podcasting_show_states' => array( 'type' => 'object' ),
+					),
 				),
 			)
 		);
@@ -140,33 +161,6 @@ class Settings_Endpoint extends WP_REST_Controller {
 			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
 			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
 			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
-		);
-	}
-
-	/**
-	 * Top-level type coercion only — the registered `sanitize_callback`s do the
-	 * real validation when {@see update_option()} fires `sanitize_option_{$name}`.
-	 * Strict schema validation here would 400 a whole patch on one bad field; the
-	 * SPA depends on silent-drop semantics.
-	 *
-	 * @return array<string, array<string, mixed>>
-	 */
-	private static function update_args() {
-		return array(
-			'podcasting_category_id' => array( 'type' => 'integer' ),
-			'podcasting_title'       => array( 'type' => 'string' ),
-			'podcasting_talent_name' => array( 'type' => 'string' ),
-			'podcasting_summary'     => array( 'type' => 'string' ),
-			'podcasting_copyright'   => array( 'type' => 'string' ),
-			'podcasting_explicit'    => array( 'type' => array( 'boolean', 'string' ) ),
-			'podcasting_image'       => array( 'type' => 'string' ),
-			'podcasting_image_id'    => array( 'type' => 'integer' ),
-			'podcasting_category_1'  => array( 'type' => 'string' ),
-			'podcasting_category_2'  => array( 'type' => 'string' ),
-			'podcasting_category_3'  => array( 'type' => 'string' ),
-			'podcasting_email'       => array( 'type' => 'string' ),
-			'podcasting_show_urls'   => array( 'type' => 'object' ),
-			'podcasting_show_states' => array( 'type' => 'object' ),
 		);
 	}
 }
