@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: surface the Pocket Casts show URL in the submit modal after a reload, not just immediately after submission.

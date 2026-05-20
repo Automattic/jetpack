@@ -67,6 +67,12 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 	const liveState = result ? liveStateFromResult( result.state ) : null;
 	const effectiveState: PodcastShowState = liveState ?? storedState;
 
+	// Relay persists `share_link` to `podcasting_show_urls.pocketcasts` on
+	// active responses, so reopening the modal still has a URL even though
+	// `result` is null until the next submit.
+	const storedShareLink = settings?.podcasting_show_urls?.pocketcasts ?? '';
+	const effectiveShareLink = result?.share_link ?? storedShareLink;
+
 	const rejectionReasons = useMemo(
 		() => ( result?.state === 'rejected' ? extractRejectionReasons( result.pcc ) : [] ),
 		[ result ]
@@ -126,9 +132,9 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 					</Text>
 				) }
 
-				{ result?.state === 'active' && result.share_link && (
+				{ effectiveState === 'active' && effectiveShareLink && (
 					<Text as="p" variant="muted">
-						<ExternalLink href={ result.share_link }>
+						<ExternalLink href={ effectiveShareLink }>
 							{ __( 'View on Pocket Casts', 'jetpack-podcast' ) }
 						</ExternalLink>
 					</Text>
