@@ -72,7 +72,7 @@
 		"@wordpress/browserslist-config": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"concurrently": "9.2.1",
-		"jest": "30.3.0",
+		"jest": "30.4.2",
 		"livereload": "0.10.3",
 		"path-browserify": "1.0.1",
 		"postcss": "8.5.14",
