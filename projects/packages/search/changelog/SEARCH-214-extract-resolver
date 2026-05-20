@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search blocks: extract the theme chrome-slug resolver into its own class for clarity.

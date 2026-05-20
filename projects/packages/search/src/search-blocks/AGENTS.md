@@ -2,6 +2,12 @@
 
 Notes for contributors (and AI agents) working in `src/search-blocks/`.
 
+## Comment discipline
+
+Default to no comments. PHP docblocks: one short sentence of intent — never restate the method name, never narrate what the body does. Inline comments only when the **why** isn't visible in the code (a workaround, a hidden constraint, a counter-intuitive choice, a security gate). Linter-required docblocks (phpcs short description, JSDoc on exports) get the minimum the rule accepts.
+
+Multi-paragraph rationale, design ladders, "discovered while…" stories — those go in the commit message and the PR body, not in the file. Reviewers and future agents read the source; long context here just rots.
+
 ## Naming
 
 All blocks use the `jetpack-search/*` namespace (mirrors the composer package `automattic/jetpack-search`).

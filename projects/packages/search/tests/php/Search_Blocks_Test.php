@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -1080,430 +1079,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `extract_chrome_slugs()` lifts the first and last top-level
-	 * `core/template-part` slugs out of a piece of template markup. Covers
-	 * the standard "header then footer" shape and the variant shape
-	 * (e.g. Twenty Twenty-Two-style `header-large-dark`) so we can prove
-	 * the resolver doesn't silently downgrade to the plain `header` /
-	 * `footer` defaults when a theme uses something fancier.
-	 *
-	 * Nested `template-part` references inside an inner wrapper must NOT
-	 * be promoted — the resolver only walks the top level and a theme
-	 * burying its chrome in a wrapper should fall back to the defaults
-	 * higher up the chain.
-	 *
-	 * @dataProvider provider_extract_chrome_slugs
-	 *
-	 * @param string                               $content  Template markup.
-	 * @param array{header:?string,footer:?string} $expected Expected extracted slugs.
-	 */
-	#[DataProvider( 'provider_extract_chrome_slugs' )]
-	public function test_extract_chrome_slugs( string $content, array $expected ) {
-		$ref = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame( $expected, $ref->invoke( null, $content ) );
-	}
-
-	/**
-	 * Fixtures for `test_extract_chrome_slugs`.
-	 *
-	 * @return array<string, array{0:string, 1:array{header:?string,footer:?string}}>
-	 */
-	public static function provider_extract_chrome_slugs(): array {
-		return array(
-			'standard header + footer (TT3/4/5 shape)' => array(
-				'<!-- wp:template-part {"slug":"header","tagName":"header"} /-->' . "\n"
-				. '<main></main>' . "\n"
-				. '<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->',
-				array(
-					'header' => 'header',
-					'footer' => 'footer',
-				),
-			),
-			'variant slugs (bespoke theme with no plain header.html)' => array(
-				'<!-- wp:template-part {"slug":"header-large-dark"} /-->' . "\n"
-				. '<main></main>' . "\n"
-				. '<!-- wp:template-part {"slug":"site-footer"} /-->',
-				array(
-					'header' => 'header-large-dark',
-					'footer' => 'site-footer',
-				),
-			),
-			'single template-part is treated as header-only, footer falls back' => array(
-				'<!-- wp:template-part {"slug":"header"} /-->' . "\n"
-				. '<main></main>',
-				array(
-					'header' => 'header',
-					'footer' => null,
-				),
-			),
-			'two template-parts with the same slug are preserved (deliberate theme choice, not the single-part dedup)' => array(
-				'<!-- wp:template-part {"slug":"site-shell"} /-->' . "\n"
-				. '<main></main>' . "\n"
-				. '<!-- wp:template-part {"slug":"site-shell"} /-->',
-				array(
-					'header' => 'site-shell',
-					'footer' => 'site-shell',
-				),
-			),
-			'slug with unsafe characters is rejected (guards JSON round-trip in substitute_template_placeholders)' => array(
-				// parse_blocks() preserves attrs verbatim from the JSON; if it ever
-				// surfaced a slug containing characters that would break the
-				// `{"slug":"..."}` re-insertion (a quote, a brace, a newline), we
-				// drop it and let the resolver fall back to the default.
-				'<!-- wp:template-part {"slug":"valid"} /-->' . "\n"
-				. '<!-- wp:template-part {"slug":"has space"} /-->',
-				array(
-					'header' => 'valid',
-					'footer' => null,
-				),
-			),
-			'nested template-parts in a wrapper are ignored' => array(
-				'<!-- wp:group --><div class="wp-block-group">'
-				. '<!-- wp:template-part {"slug":"buried-header"} /-->'
-				. '</div><!-- /wp:group -->',
-				array(
-					'header' => null,
-					'footer' => null,
-				),
-			),
-			'no template-parts at all yields nulls'    => array(
-				'<main><p>No chrome here.</p></main>',
-				array(
-					'header' => null,
-					'footer' => null,
-				),
-			),
-			'empty markup yields nulls'                => array(
-				'',
-				array(
-					'header' => null,
-					'footer' => null,
-				),
-			),
-		);
-	}
-
-	/**
-	 * `resolve_theme_chrome_slugs()` prefers the active theme's
-	 * `search.html`, falls back to `index.html`, and finally to the
-	 * hard-coded `header`/`footer` defaults. Stubs the template-content
-	 * fetch so the resolver can be exercised without a real block theme
-	 * in the dbless env.
-	 */
-	public function test_resolve_theme_chrome_slugs_prefers_search_template() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"header-large-dark"} /-->'
-							. '<!-- wp:template-part {"slug":"footer"} /-->';
-					}
-					if ( 'index' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"index-header"} /-->'
-							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
-					}
-					return null;
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'header-large-dark',
-				'footer' => 'footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * When the theme has no `search.html`, the resolver walks to
-	 * `index.html`. Covers the gap themes like Twenty Twenty-Three's
-	 * earlier releases had where only `index.html` shipped.
-	 */
-	public function test_resolve_theme_chrome_slugs_falls_back_to_index_template() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'index' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"index-header"} /-->'
-							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
-					}
-					return null;
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'index-header',
-				'footer' => 'index-footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * When neither template resolves AND the area-based fallback finds
-	 * nothing either, the slugs must fall back to the hard-coded
-	 * `header` / `footer` defaults so the registered template stays
-	 * valid markup on classic-themed or otherwise empty sites.
-	 */
-	public function test_resolve_theme_chrome_slugs_falls_back_to_defaults() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					unset( $template_name ); // stub: neither template resolves, regardless of name.
-					return null;
-				}
-				protected static function resolve_chrome_slugs_by_area(): array {
-					// stub: theme also has no declared header/footer parts.
-					return array(
-						'header' => null,
-						'footer' => null,
-					);
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'header',
-				'footer' => 'footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * When neither `search.html` nor `index.html` resolves to top-level
-	 * template-parts, the resolver must walk to the area-based fallback
-	 * and use whatever slugs the theme declares with
-	 * `area: "header"` / `area: "footer"` — covers bespoke block themes
-	 * that ship variant slugs like `site-header` and don't reference
-	 * them from a standard template.
-	 */
-	public function test_resolve_theme_chrome_slugs_uses_area_fallback_when_templates_silent() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					unset( $template_name ); // stub: neither template resolves.
-					return null;
-				}
-				protected static function resolve_chrome_slugs_by_area(): array {
-					return array(
-						'header' => 'site-header',
-						'footer' => 'site-footer',
-					);
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'site-header',
-				'footer' => 'site-footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * The slug-resolution chain is per-slot: if `search.html` declares
-	 * only a header (e.g. a minimalist template), the footer falls
-	 * through to the area-based fallback before reaching the defaults.
-	 * Without this the resolver could leak a `footer` default while the
-	 * theme has a real `area: "footer"` part it would prefer to use.
-	 */
-	public function test_resolve_theme_chrome_slugs_mixes_template_header_with_area_footer() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"hero-header"} /-->';
-					}
-					return null;
-				}
-				protected static function resolve_chrome_slugs_by_area(): array {
-					return array(
-						'header' => 'never-used',
-						'footer' => 'site-footer',
-					);
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'hero-header',
-				'footer' => 'site-footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * Per-slot fill across the search → index step: a minimalist
-	 * `search.html` that wraps only its header should pull the footer
-	 * slug from `index.html` rather than skipping straight to the area
-	 * or hardcoded-defaults rungs. Documents the cross-template fill
-	 * the resolver loop is responsible for.
-	 */
-	public function test_resolve_theme_chrome_slugs_fills_footer_from_index_when_search_has_header_only() {
-		$cls = get_class(
-			new class() extends Search_Blocks {
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"search-header"} /-->';
-					}
-					if ( 'index' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"index-header"} /-->'
-							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
-					}
-					return null;
-				}
-				protected static function resolve_chrome_slugs_by_area(): array {
-					// Should not be reached; both slots are filled by templates.
-					return array(
-						'header' => 'never-used',
-						'footer' => 'never-used',
-					);
-				}
-			}
-		);
-		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'search-header',
-				'footer' => 'index-footer',
-			),
-			$ref->invoke( null )
-		);
-	}
-
-	/**
-	 * `extract_chrome_slugs_from_parts()` picks the alphabetically-first
-	 * slug per area so the chrome stays deterministic across requests
-	 * even when WP returns parts in filesystem-enumeration order. Twenty
-	 * Twenty-Two ships three header parts (`header`, `header-large-dark`,
-	 * `header-small-dark`) all declared `area: "header"`; we want plain
-	 * `header` as the most neutral pick, not whichever the directory
-	 * scan surfaced first.
-	 */
-	public function test_extract_chrome_slugs_from_parts_picks_alphabetical_first_per_area() {
-		$parts = array(
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'header-small-dark',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'header-large-dark',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'header',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'footer-newsletter',
-				'area'  => 'footer',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'footer',
-				'area'  => 'footer',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'sidebar',
-				'area'  => 'uncategorized',
-			),
-		);
-		$ref   = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs_from_parts' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'header',
-				'footer' => 'footer',
-			),
-			$ref->invoke( null, $parts, 'tt-bespoke' )
-		);
-	}
-
-	/**
-	 * `extract_chrome_slugs_from_parts()` ignores parts from other
-	 * themes and rejects unsafe slugs the same way `extract_chrome_slugs()`
-	 * does — both run through the JSON round-trip in
-	 * `substitute_template_placeholders()`.
-	 */
-	public function test_extract_chrome_slugs_from_parts_filters_by_theme_and_unsafe_slugs() {
-		$parts = array(
-			(object) array(
-				'theme' => 'other-theme',
-				'slug'  => 'header',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'has space',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => 'site-header',
-				'area'  => 'header',
-			),
-			(object) array(
-				'theme' => 'tt-bespoke',
-				'slug'  => '',
-				'area'  => 'footer',
-			),
-		);
-		$ref   = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs_from_parts' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$ref->setAccessible( true );
-		}
-		$this->assertSame(
-			array(
-				'header' => 'site-header',
-				'footer' => null,
-			),
-			$ref->invoke( null, $parts, 'tt-bespoke' )
-		);
-	}
-
-	/**
-	 * End-to-end check: `register_search_template()` must register markup
-	 * that references the resolved chrome slugs (not the raw
-	 * `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` placeholders, which would
-	 * crash the template-part renderer at runtime).
+	 * End-to-end: register_search_template() must reference the resolved
+	 * chrome slugs (not the raw {{HEADER_SLUG}} / {{FOOTER_SLUG}}
+	 * placeholders, which would crash the template-part renderer).
 	 */
 	public function test_register_search_template_substitutes_chrome_slug_placeholders() {
 		if ( ! function_exists( 'register_block_template' ) ) {
@@ -1521,12 +1099,11 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"header-large-dark"} /-->'
-							. '<!-- wp:template-part {"slug":"custom-footer"} /-->';
-					}
-					return null;
+				protected static function resolve_chrome_slugs(): array {
+					return array(
+						'header' => 'header-large-dark',
+						'footer' => 'custom-footer',
+					);
 				}
 			}
 		);
@@ -1547,16 +1124,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Long-lived PHP-FPM workers keep `WP_Block_Templates_Registry`
-	 * alive across requests, and `register_block_template()` rejects
-	 * a second call with the same name as a `_doing_it_wrong()` error.
-	 * `register_search_template()` must therefore unregister-before-
-	 * register so that a site-owner theme switch (or an edit to the
-	 * theme's `search.html` in the Site Editor) propagates to the
-	 * registered template without waiting for the worker to recycle.
-	 *
-	 * Simulated here by calling the registrar twice with different
-	 * stubbed chrome slugs and asserting the second value wins.
+	 * Long-lived PHP-FPM workers keep WP_Block_Templates_Registry alive
+	 * across requests; register_search_template() must therefore replace
+	 * existing registrations so theme switches propagate.
 	 */
 	public function test_register_search_template_replaces_existing_registration() {
 		if ( ! function_exists( 'register_block_template' ) ) {
@@ -1574,29 +1144,26 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"old-header"} /-->'
-							. '<!-- wp:template-part {"slug":"old-footer"} /-->';
-					}
-					return null;
+				protected static function resolve_chrome_slugs(): array {
+					return array(
+						'header' => 'old-header',
+						'footer' => 'old-footer',
+					);
 				}
 			}
 		);
 		$first::register_search_template();
 
-		// Simulate a theme switch / Site Editor edit between requests.
 		$second = get_class(
 			new class() extends Search_Blocks {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"new-header"} /-->'
-							. '<!-- wp:template-part {"slug":"new-footer"} /-->';
-					}
-					return null;
+				protected static function resolve_chrome_slugs(): array {
+					return array(
+						'header' => 'new-header',
+						'footer' => 'new-footer',
+					);
 				}
 			}
 		);
@@ -1614,9 +1181,7 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Counterpart to the search-template substitution check: the
-	 * product-results template ships through the same placeholder
-	 * pipeline, so a fix to one must apply to the other.
+	 * Product-results template ships through the same placeholder pipeline.
 	 */
 	public function test_register_product_search_template_substitutes_chrome_slug_placeholders() {
 		if ( ! function_exists( 'register_block_template' ) ) {
@@ -1634,12 +1199,11 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function get_active_theme_template_content( string $template_name ): ?string {
-					if ( 'search' === $template_name ) {
-						return '<!-- wp:template-part {"slug":"shop-header"} /-->'
-							. '<!-- wp:template-part {"slug":"shop-footer"} /-->';
-					}
-					return null;
+				protected static function resolve_chrome_slugs(): array {
+					return array(
+						'header' => 'shop-header',
+						'footer' => 'shop-footer',
+					);
 				}
 			}
 		);

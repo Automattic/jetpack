@@ -801,61 +801,29 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Build the full search page template content.
+	 * Build the bundled search-template markup with placeholders substituted.
 	 *
-	 * Mirrors the "Blog Search Page" pattern's layout (see
-	 * `src/search-blocks/patterns/blog-search.php`) wrapped in header/main/
-	 * footer template parts so the plugin-registered template renders the
-	 * same page users get from inserting the pattern directly. Markup lives
-	 * in `templates/jetpack-search.html` — the canonical block-theme format
-	 * for block templates — with placeholders for the filter-sidebar heading
-	 * (`{{FILTER_HEADING}}`, kept on the PHP side so it still goes through
-	 * `esc_html__()`) and the header/footer template-part slugs
-	 * (`{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}`, resolved per-theme so the
-	 * chrome matches the active theme's own `search.html` — see
-	 * `resolve_theme_chrome_slugs()`).
-	 *
-	 * Not memoized: `register_search_template()` runs once per request
-	 * (the `init` hook fires once), and `file_get_contents` + the shared
-	 * placeholder substitution are both sub-millisecond on a ~2 KB
-	 * template. Caching here would survive across tests and theme
-	 * switches in unhelpful ways.
-	 *
-	 * @return string Block markup for a complete page template.
+	 * @return string
 	 */
 	protected static function get_search_template_content(): string {
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
 		return static::substitute_template_placeholders( $raw );
 	}
 
 	/**
-	 * Register the Jetpack Search page template with the block-template
-	 * registry so it surfaces in the Site Editor's Templates list and can be
-	 * resolved via the template hierarchy.
-	 *
-	 * Uses `register_block_template()` (WP 6.7+). Jetpack requires WP 6.8+,
-	 * so the function is always present at runtime — the function_exists
-	 * guard is defensive for phpstan/phan and edge environments.
-	 *
-	 * DB-stored customizations continue to take precedence: if a site owner
-	 * edits this template in the Site Editor, the `custom` source wins during
-	 * resolution automatically.
-	 *
-	 * Skipped on classic themes: the registry is only consulted by the Site
-	 * Editor and the block-theme render path. Re-checked every `init`.
+	 * Register the Jetpack Search template (Site Editor + template hierarchy).
+	 * DB-stored Site Editor customizations take precedence at render time.
 	 */
 	public static function register_search_template() {
 		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
 			return;
 		}
 		$content = static::get_search_template_content();
-		// Skip registration if the bundled template file is missing or
-		// unreadable. Since this template's slug is prepended to the
-		// search hierarchy, registering with empty content would take
-		// over `/?s=...` and render a blank page; bailing here lets core
-		// fall through to the theme's `search.html` instead.
+		// Empty content would take over /?s=... with a blank page (the slug
+		// is prepended to the search hierarchy). Bail so core falls through
+		// to the theme's search.html.
 		if ( '' === $content ) {
 			return;
 		}
@@ -871,40 +839,30 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Product-search counterpart of `get_search_template_content()`. Seeds
-	 * from `templates/jetpack-search-product-results.html` (a copy of the search
-	 * layout for now; product-specific blocks land in a follow-up). Shares
-	 * the placeholder substitution.
+	 * Product-search counterpart of get_search_template_content().
 	 *
-	 * @return string Block markup for the product-search template.
+	 * @return string
 	 */
 	protected static function get_product_search_template_content(): string {
 		$template_path = __DIR__ . '/templates/jetpack-search-product-results.html';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
 		$raw = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
 		return static::substitute_template_placeholders( $raw );
 	}
 
 	/**
-	 * Run the shared placeholder substitution over a bundled template's raw
-	 * markup. Returns the empty string unchanged so callers can keep their
-	 * "no readable template file → skip registration" bail-out.
-	 *
-	 * Substitutions:
-	 * - `{{FILTER_HEADING}}` → translated, escaped sidebar heading.
-	 * - `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` → slugs the active theme's own
-	 *   `search.html` (or `index.html`) uses for its `wp:template-part`
-	 *   blocks, so the rendered chrome matches what the theme designed for
-	 *   search rather than always picking the plain `header`/`footer` parts.
+	 * Replace {{FILTER_HEADING}} / {{HEADER_SLUG}} / {{FOOTER_SLUG}} in a
+	 * bundled template's raw markup. Empty input passes through so the
+	 * "missing-file" bail-out in the registrars still fires.
 	 *
 	 * @param string $raw Raw template-file contents.
-	 * @return string Markup with placeholders resolved.
+	 * @return string
 	 */
 	protected static function substitute_template_placeholders( string $raw ): string {
 		if ( '' === $raw ) {
 			return $raw;
 		}
-		$slugs = static::resolve_theme_chrome_slugs();
+		$slugs = static::resolve_chrome_slugs();
 		return str_replace(
 			array( '{{FILTER_HEADING}}', '{{HEADER_SLUG}}', '{{FOOTER_SLUG}}' ),
 			array(
@@ -917,249 +875,18 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Resolve the template-part slugs the active theme uses to wrap its own
-	 * search results — so our registered template matches the theme's
-	 * design instead of always referencing the plain `header`/`footer`
-	 * parts (which on themes like Twenty Twenty-Two leave a search page
-	 * that looks disconnected from the rest of the site, and on bespoke
-	 * block themes that ship only variant slugs leave the chrome empty).
-	 *
-	 * Resolution order, per slot (header, footer):
-	 * 1. The slug declared by the theme's own `search.html`
-	 *    (`extract_chrome_slugs()` reads its top-level template-parts).
-	 * 2. Same lookup against `index.html` as a hierarchy fallback.
-	 * 3. The alphabetically-first `wp_template_part` the theme declares
-	 *    with `area: "header"` / `area: "footer"` — covers bespoke themes
-	 *    that ship only variant slugs (e.g. `site-header.html` with no
-	 *    plain `header.html`) and don't reference them from any of the
-	 *    standard templates. Deterministic across requests because we
-	 *    sort by slug; non-trivial only when WP can't find anything via
-	 *    the higher-priority paths (the fast path returns before we ever
-	 *    query `get_block_templates()`).
-	 * 4. The `header` / `footer` defaults so the registered template
-	 *    stays valid markup on classic or otherwise-empty themes.
-	 *
-	 * Per-request memo keyed by `get_called_class()`, the active
-	 * stylesheet, and `$_SERVER['REQUEST_TIME_FLOAT']`. The request-time
-	 * component is critical: PHP-FPM workers persist function-local
-	 * statics across requests, so a key without it would freeze the
-	 * resolved slugs at whatever the theme had on the worker's first
-	 * request — site-owner theme switches and Site Editor edits to the
-	 * theme's search.html wouldn't take effect until the worker
-	 * recycled. Keying by `get_called_class()` keeps anonymous test
-	 * subclasses with different `get_active_theme_template_content()`
-	 * stubs from polluting each other.
+	 * Active theme's chrome slugs (header/footer). Seam — tests override
+	 * to inject canned values; the resolver itself lives in
+	 * Theme_Chrome_Slug_Resolver.
 	 *
 	 * @return array{header:string,footer:string}
 	 */
-	protected static function resolve_theme_chrome_slugs(): array {
-		static $cache = array();
-		// $_SERVER['REQUEST_TIME_FLOAT'] is a PHP-set float used only as a
-		// per-request cache discriminator (never echoed, never stored), so
-		// the standard "unslash + sanitize" treatment for user input doesn't
-		// apply. Cast to float and back to string to satisfy phpcs without
-		// changing meaning.
-		$request_id = isset( $_SERVER['REQUEST_TIME_FLOAT'] )
-			? (string) (float) $_SERVER['REQUEST_TIME_FLOAT'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			: (string) microtime( true );
-		$key        = get_called_class() . '|' . get_stylesheet() . '|' . $request_id;
-		if ( isset( $cache[ $key ] ) ) {
-			return $cache[ $key ];
-		}
-		$defaults = array(
-			'header' => 'header',
-			'footer' => 'footer',
-		);
-		$found    = array(
-			'header' => null,
-			'footer' => null,
-		);
-		foreach ( array( 'search', 'index' ) as $template_name ) {
-			if ( null !== $found['header'] && null !== $found['footer'] ) {
-				break;
-			}
-			$content = static::get_active_theme_template_content( $template_name );
-			if ( null === $content ) {
-				continue;
-			}
-			$extracted       = static::extract_chrome_slugs( $content );
-			$found['header'] = $found['header'] ?? $extracted['header'];
-			$found['footer'] = $found['footer'] ?? $extracted['footer'];
-		}
-		if ( null === $found['header'] || null === $found['footer'] ) {
-			$area_fallback   = static::resolve_chrome_slugs_by_area();
-			$found['header'] = $found['header'] ?? $area_fallback['header'];
-			$found['footer'] = $found['footer'] ?? $area_fallback['footer'];
-		}
-		$cache[ $key ] = array(
-			'header' => $found['header'] ?? $defaults['header'],
-			'footer' => $found['footer'] ?? $defaults['footer'],
-		);
-		return $cache[ $key ];
+	protected static function resolve_chrome_slugs(): array {
+		return Theme_Chrome_Slug_Resolver::resolve();
 	}
 
 	/**
-	 * Area-based fallback for `resolve_theme_chrome_slugs()`. Pulls every
-	 * `wp_template_part` declared by the active theme, then delegates
-	 * the slug selection to `extract_chrome_slugs_from_parts()`.
-	 * Overridable as a seam so tests can stub the fallback without
-	 * standing up a real block theme.
-	 *
-	 * @return array{header:?string,footer:?string}
-	 */
-	protected static function resolve_chrome_slugs_by_area(): array {
-		if ( ! function_exists( 'get_block_templates' ) ) {
-			return array(
-				'header' => null,
-				'footer' => null,
-			);
-		}
-		return static::extract_chrome_slugs_from_parts(
-			get_block_templates( array(), 'wp_template_part' ),
-			get_stylesheet()
-		);
-	}
-
-	/**
-	 * Pick the alphabetically-first slug whose `area` matches each chrome
-	 * slot ("header" / "footer") from a list of `wp_template_part`
-	 * records. Alphabetical sort makes the choice deterministic across
-	 * requests when a theme declares multiple variants in each area:
-	 * Twenty Twenty-Two ships `header`, `header-large-dark`, and
-	 * `header-small-dark` all declared `area: "header"`; sorting picks
-	 * plain `header`, which is the most neutral default.
-	 *
-	 * Parts from other themes (the same registry can return parts that
-	 * came from a child theme via `area`-merging) are filtered by
-	 * `$stylesheet`, and slugs that wouldn't survive the JSON round-trip
-	 * in `substitute_template_placeholders()` are dropped (same guard as
-	 * `extract_chrome_slugs()`).
-	 *
-	 * Pure function (no globals, no I/O) so unit tests can feed it
-	 * fixture part records directly.
-	 *
-	 * @param array  $parts      Array of part records, each with
-	 *                           `theme`, `slug`, `area` properties.
-	 * @param string $stylesheet Active stylesheet — parts whose `theme`
-	 *                           doesn't match are ignored.
-	 * @return array{header:?string,footer:?string}
-	 */
-	protected static function extract_chrome_slugs_from_parts( array $parts, string $stylesheet ): array {
-		$by_area = array(
-			'header' => array(),
-			'footer' => array(),
-		);
-		foreach ( $parts as $part ) {
-			if ( ! isset( $part->theme ) || $part->theme !== $stylesheet ) {
-				continue;
-			}
-			$area = $part->area ?? null;
-			$slug = $part->slug ?? null;
-			if ( ! is_string( $slug ) || '' === $slug || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $slug ) ) {
-				continue;
-			}
-			if ( isset( $by_area[ $area ] ) ) {
-				$by_area[ $area ][] = $slug;
-			}
-		}
-		$out = array(
-			'header' => null,
-			'footer' => null,
-		);
-		foreach ( array( 'header', 'footer' ) as $area ) {
-			if ( ! empty( $by_area[ $area ] ) ) {
-				sort( $by_area[ $area ], SORT_STRING );
-				$out[ $area ] = $by_area[ $area ][0];
-			}
-		}
-		return $out;
-	}
-
-	/**
-	 * Fetch the resolved markup for an active-theme template (e.g.
-	 * `search`, `index`). Wraps `get_block_template()` as an overridable
-	 * seam so tests can return canned markup without standing up a real
-	 * block theme.
-	 *
-	 * @param string $template_name Bare template slug (no `theme//` prefix).
-	 * @return string|null Markup, or null if the template doesn't resolve.
-	 */
-	protected static function get_active_theme_template_content( string $template_name ): ?string {
-		if ( ! function_exists( 'get_block_template' ) ) {
-			return null;
-		}
-		$tmpl = get_block_template( get_stylesheet() . '//' . $template_name, 'wp_template' );
-		if ( ! $tmpl || empty( $tmpl->content ) ) {
-			return null;
-		}
-		return (string) $tmpl->content;
-	}
-
-	/**
-	 * Pull the first and last top-level `core/template-part` slugs out of a
-	 * piece of template markup. The first one is treated as the header and
-	 * the last as the footer — matches how every Twenty* search/index
-	 * template (and the overwhelming majority of community block themes)
-	 * wraps its content. Nested template-parts are ignored on purpose: a
-	 * theme that buries its chrome inside a wrapper falls back to the
-	 * `header`/`footer` defaults higher up the chain.
-	 *
-	 * Pure function (no globals, no I/O) so unit tests can feed it fixture
-	 * markup directly.
-	 *
-	 * Slugs that contain anything outside `[a-zA-Z0-9_-]` are dropped —
-	 * the value is re-inserted unescaped into block-grammar JSON in
-	 * `substitute_template_placeholders()`, so accepting an arbitrary
-	 * string would let a malformed theme template break the JSON
-	 * round-trip. WordPress template-part slugs are filename-derived in
-	 * practice and never contain other characters, so the guard rejects
-	 * what would have been broken markup anyway.
-	 *
-	 * @param string $template_content Block markup to scan.
-	 * @return array{header:?string,footer:?string}
-	 */
-	protected static function extract_chrome_slugs( string $template_content ): array {
-		$header = null;
-		$footer = null;
-		$count  = 0;
-		if ( '' === $template_content || ! function_exists( 'parse_blocks' ) ) {
-			return array(
-				'header' => $header,
-				'footer' => $footer,
-			);
-		}
-		foreach ( parse_blocks( $template_content ) as $block ) {
-			if ( 'core/template-part' !== ( $block['blockName'] ?? '' ) ) {
-				continue;
-			}
-			$slug = $block['attrs']['slug'] ?? null;
-			if ( ! is_string( $slug ) || '' === $slug || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $slug ) ) {
-				continue;
-			}
-			if ( null === $header ) {
-				$header = $slug;
-			}
-			$footer = $slug;
-			++$count;
-		}
-		// A template with a single top-level template-part is almost always
-		// a header-only template (e.g. some minimalist 404s). Don't promote
-		// it to the footer slot. Two distinct template-parts that happen to
-		// share a slug — uncommon, but a deliberate theme choice — are
-		// preserved as-is.
-		if ( $count < 2 ) {
-			$footer = null;
-		}
-		return array(
-			'header' => $header,
-			'footer' => $footer,
-		);
-	}
-
-	/**
-	 * Register the dedicated Jetpack product-search template. Counterpart of
-	 * `register_search_template()`; same Site Editor / DB-customization
-	 * semantics and empty-content / classic-theme bail-outs.
+	 * Counterpart to register_search_template() for the product template.
 	 */
 	public static function register_product_search_template() {
 		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
