@@ -464,6 +464,10 @@ class Blaze_Abilities extends Registrar {
 							'type'        => 'string',
 							'description' => __( 'Optional MIME type for main_image_url. Defaults to image/jpeg when omitted.', 'jetpack-blaze' ),
 						),
+						'payment_method_id'    => array(
+							'type'        => 'string',
+							'description' => __( 'Optional existing saved payment method ID to use for chat-native submit. Omit to let Blaze choose the default saved payment method. This does not add a new payment method.', 'jetpack-blaze' ),
+						),
 						'languages'            => array(
 							'type'        => 'array',
 							'description' => __( 'Optional ISO 639-1 language codes supported by Blaze/DSP (e.g. ["en", "es"]). Infer from the user\'s natural language request when clear, but omit when unsure or unsupported. Defaults to all languages when omitted; the merchant can adjust language targeting in the Blaze review UI.', 'jetpack-blaze' ),
@@ -506,8 +510,25 @@ class Blaze_Abilities extends Registrar {
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
-					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'message', 'campaign_preview', 'forecast_summary', 'intent', 'forecast', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
+					'description' => __( 'Chat-ready prepared campaign package plus a deep-link to the Blaze UI for fallback review and submit.', 'jetpack-blaze' ),
+					'required'    => array(
+						'status',
+						'message',
+						'campaign_preview',
+						'forecast_summary',
+						'prepared_campaign',
+						'rendered_preview',
+						'campaign_summary',
+						'fallback_url',
+						'submit_eligibility',
+						'material_edit_policy',
+						'intent',
+						'forecast',
+						'assumptions',
+						'recommendations',
+						'prefill_url',
+						'prefill',
+					),
 					'properties'  => array(
 						'status'           => array(
 							'type'        => 'string',
@@ -555,6 +576,160 @@ class Blaze_Abilities extends Registrar {
 						'forecast_summary' => array(
 							'type'        => 'string',
 							'description' => __( 'Human-readable forecast summary for the recommended option, or a fallback note when forecasts are unavailable.', 'jetpack-blaze' ),
+						),
+						'prepared_campaign' => array(
+							'type'        => 'object',
+							'description' => __( 'Immutable prepared package identity. Later submit actions must use this identity so the merchant approves the exact package being submitted.', 'jetpack-blaze' ),
+							'required'    => array( 'id', 'hash', 'version' ),
+							'properties'  => array(
+								'id'      => array(
+									'type' => 'string',
+								),
+								'hash'    => array(
+									'type' => 'string',
+								),
+								'version' => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'rendered_preview'  => array(
+							'type'        => 'object',
+							'description' => __( 'Blaze-owned rendered preview artifact for chat clients. Clients should render this instead of composing ad HTML themselves.', 'jetpack-blaze' ),
+							'required'    => array( 'type', 'html' ),
+							'properties'  => array(
+								'type' => array(
+									'type' => 'string',
+									'enum' => array( 'html' ),
+								),
+								'html' => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'campaign_summary' => array(
+							'type'        => 'object',
+							'description' => __( 'Structured campaign summary for chat display: destination, creative, budget, cadence, schedule, targeting, and source context.', 'jetpack-blaze' ),
+							'required'    => array(
+								'destination',
+								'creative',
+								'budget',
+								'cadence',
+								'schedule',
+								'targeting_summary',
+								'source_context',
+							),
+						),
+						'fallback_url'     => array(
+							'type'        => 'string',
+							'format'      => 'uri',
+							'description' => __( 'Blaze widget or dashboard URL that can review and submit this prepared package when chat-native submit is unavailable or the merchant wants the full UI.', 'jetpack-blaze' ),
+						),
+						'submit_eligibility' => array(
+							'type'        => 'object',
+							'description' => __( 'Hints that tell chat clients whether chat-native submit can proceed or whether the merchant should use fallback_url.', 'jetpack-blaze' ),
+							'required'    => array( 'chat_native_submit', 'payment_method', 'reason', 'fallback_url', 'selected_payment_method', 'available_payment_methods' ),
+							'properties'  => array(
+								'chat_native_submit' => array(
+									'type' => 'boolean',
+								),
+								'payment_method'     => array(
+									'type' => array( 'string', 'boolean' ),
+								),
+								'reason'             => array(
+									'type' => array( 'string', 'null' ),
+								),
+								'fallback_url'       => array(
+									'type'   => 'string',
+									'format' => 'uri',
+								),
+								'selected_payment_method' => array(
+									'type'        => array( 'object', 'null' ),
+									'description' => __( 'Compact safe summary of the saved payment method selected for chat-native submit, or null when unavailable.', 'jetpack-blaze' ),
+								),
+								'available_payment_methods' => array(
+									'type'        => 'array',
+									'description' => __( 'Compact safe summaries of usable existing saved payment methods that can be selected by re-running prepare-campaign with payment_method_id.', 'jetpack-blaze' ),
+								),
+								'supports_payment_method_switching' => array(
+									'type'        => 'boolean',
+									'description' => __( 'Whether more than one usable existing saved payment method is available for selection.', 'jetpack-blaze' ),
+								),
+							),
+						),
+						'approval_block'   => array(
+							'type'        => 'object',
+							'description' => __( 'Approval wording keys and exact package identity, present when a saved payment method makes chat-native submit eligible.', 'jetpack-blaze' ),
+							'required'    => array(
+								'prepared_campaign_id',
+								'prepared_campaign_hash',
+								'title_key',
+								'body_key',
+								'confirmation_label_key',
+								'approval_statement',
+								'approval_contract',
+								'approval_event',
+								'approval_event_required_fields',
+								'charge_acknowledgement',
+								'requires_exact_identity',
+								'requires_reprepare_edits',
+							),
+							'properties'  => array(
+								'prepared_campaign_id' => array(
+									'type'        => 'string',
+									'description' => __( 'Prepared campaign package ID that must be echoed by the approval event.', 'jetpack-blaze' ),
+								),
+								'prepared_campaign_hash' => array(
+									'type'        => 'string',
+									'description' => __( 'Prepared campaign package hash that must be echoed by the approval event.', 'jetpack-blaze' ),
+								),
+								'title_key'   => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the approval title.', 'jetpack-blaze' ),
+								),
+								'body_key'    => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the approval body.', 'jetpack-blaze' ),
+								),
+								'confirmation_label_key' => array(
+									'type'        => 'string',
+									'description' => __( 'Localization key for the explicit approval control label.', 'jetpack-blaze' ),
+								),
+								'approval_statement' => array(
+									'type'        => 'string',
+									'description' => __( 'Canonical fallback approval wording owned by Blaze.', 'jetpack-blaze' ),
+								),
+								'approval_contract' => array(
+									'type'        => 'object',
+									'description' => __( 'Language-independent approval contract containing the exact package identity, terms/policy versions, charge terms, cancellation wording version, payment method, user, and site.', 'jetpack-blaze' ),
+								),
+								'approval_event' => array(
+									'type'        => 'object',
+									'description' => __( 'Approval event template. Clients must set approved_at and submit the full structured event; normal chat text is not approval.', 'jetpack-blaze' ),
+								),
+								'approval_event_required_fields' => array(
+									'type'        => 'array',
+									'description' => __( 'Fields required for a valid structured approval event.', 'jetpack-blaze' ),
+									'items'       => array(
+										'type' => 'string',
+									),
+								),
+								'charge_acknowledgement' => array(
+									'type'        => 'object',
+									'description' => __( 'Localization key and live prepared values for rendering the widget-equivalent charge acknowledgement.', 'jetpack-blaze' ),
+								),
+								'requires_exact_identity' => array(
+									'type' => 'boolean',
+								),
+								'requires_reprepare_edits' => array(
+									'type' => 'boolean',
+								),
+							),
+						),
+						'material_edit_policy' => array(
+							'type'        => 'object',
+							'description' => __( 'Fields that require a new prepare-campaign call before approval or submit because they change the prepared package identity.', 'jetpack-blaze' ),
+							'required'    => array( 'requires_reprepare', 'material_fields', 'non_material_fields', 'message' ),
 						),
 						'intent'           => array(
 							'type'        => 'string',
@@ -1583,7 +1758,22 @@ class Blaze_Abilities extends Registrar {
 			// Future write-path guardrails (per-session spend ceiling, Picard
 			// moderation gating) plug in here. Tracked separately as ADS-989.
 
-			$result = call_user_func( $original_callback, $input );
+			$payment_methods_filter = null;
+			if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
+				$payment_methods        = self::get_prepare_campaign_payment_methods();
+				$payment_methods_filter = static function () use ( $payment_methods ) {
+					return $payment_methods;
+				};
+				add_filter( 'jetpack_blaze_prepare_campaign_payment_methods', $payment_methods_filter );
+			}
+
+			try {
+				$result = call_user_func( $original_callback, $input );
+			} finally {
+				if ( null !== $payment_methods_filter ) {
+					remove_filter( 'jetpack_blaze_prepare_campaign_payment_methods', $payment_methods_filter );
+				}
+			}
 
 			if ( self::ABILITY_PREPARE_CAMPAIGN === $ability_name ) {
 				self::record_prepare_campaign_event( is_wp_error( $result ) ? 'failed' : 'succeeded', is_array( $input ) ? $input : array(), $result );
@@ -1593,6 +1783,66 @@ class Blaze_Abilities extends Registrar {
 		};
 
 		return $args;
+	}
+
+	/**
+	 * Fetch usable saved payment methods through the existing Blaze REST proxy.
+	 *
+	 * @return array|null
+	 */
+	private static function get_prepare_campaign_payment_methods() {
+		$site_id = Jetpack_Connection::get_site_id();
+		if ( is_wp_error( $site_id ) || ! $site_id ) {
+			return null;
+		}
+
+		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/payments/methods', (int) $site_id );
+		$request = new WP_REST_Request( 'GET', $route );
+
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return null;
+		}
+
+		return self::extract_payment_methods_response( $response->get_data() );
+	}
+
+	/**
+	 * Extract a payment-method list from known DSP response shapes.
+	 *
+	 * @param mixed $data REST response data.
+	 * @return array|null
+	 */
+	private static function extract_payment_methods_response( $data ) {
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+
+		if ( self::is_list_array( $data ) ) {
+			return $data;
+		}
+
+		foreach ( array( 'payment_methods', 'paymentMethods', 'methods', 'data' ) as $key ) {
+			if ( isset( $data[ $key ] ) && is_array( $data[ $key ] ) ) {
+				return $data[ $key ];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Polyfill array_is_list() for the package PHP support floor.
+	 *
+	 * @param array $array Array to inspect.
+	 * @return bool
+	 */
+	private static function is_list_array( array $array ): bool {
+		if ( array() === $array ) {
+			return true;
+		}
+
+		return array_keys( $array ) === range( 0, count( $array ) - 1 );
 	}
 
 	/**

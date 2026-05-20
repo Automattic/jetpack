@@ -14,6 +14,11 @@ class Campaign_Preparer {
 
 	private const DEFAULT_BUDGET_TOTAL  = 50.0;
 	private const DEFAULT_DURATION_DAYS = 7;
+	private const APPROVAL_VERSION      = 'v1';
+	private const TERMS_URL             = 'https://wordpress.com/tos/';
+	private const TERMS_VERSION         = 'v1';
+	private const AD_POLICY_URL         = 'https://automattic.com/advertising-policy/';
+	private const AD_POLICY_VERSION     = 'v1';
 	private const INTENT_ECOMMERCE      = 'ecommerce';
 	private const INTENT_CONTENT        = 'content';
 	private const INTENT_UNKNOWN        = 'unknown';
@@ -72,22 +77,112 @@ class Campaign_Preparer {
 		$prefill         = self::build_prefill_payload( $args, $post, $intent, $budget_context );
 		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
 		$forecast        = self::request_forecast( $prefill, $intent );
+		$summary            = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
+		$payment_context    = self::resolve_payment_context( $args, $prefill );
+		$terms              = self::get_approval_terms();
+		$advertising_policy = self::get_approval_advertising_policy();
+		$cancellation_terms = self::get_approval_cancellation_terms();
+		$package            = self::build_prepared_campaign_identity( $prefill, $summary, $payment_context['selected_payment_method'], $terms, $advertising_policy );
+		$eligibility        = self::build_submit_eligibility( $args, $prefill, $prefill_url, $payment_context );
 
 		$proposal = array(
-			'status'          => 'pending_merchant_review',
-			'intent'          => $intent,
-			'forecast'        => $forecast,
-			'assumptions'     => $assumptions,
-			'recommendations' => $recommendations,
-			'prefill_url'     => $prefill_url,
-			'prefill'         => $prefill,
+			'status'               => 'pending_merchant_review',
+			'prepared_campaign'    => $package,
+			'rendered_preview'     => self::build_rendered_preview( $prefill, $package ),
+			'campaign_summary'     => $summary,
+			'fallback_url'         => $prefill_url,
+			'submit_eligibility'   => $eligibility,
+			'material_edit_policy' => self::build_material_edit_policy(),
+			'intent'               => $intent,
+			'forecast'             => $forecast,
+			'assumptions'          => $assumptions,
+			'recommendations'      => $recommendations,
+			'prefill_url'          => $prefill_url,
+			'prefill'              => $prefill,
 		);
 
 		if ( $budget_context['include_options'] ) {
 			$proposal['budget_options'] = $budget_context['options'];
 		}
+		if ( $eligibility['chat_native_submit'] && is_array( $payment_context['selected_payment_method'] ) ) {
+			$proposal['approval_block'] = self::build_approval_block(
+				$package,
+				$summary,
+				$payment_context['selected_payment_method'],
+				$terms,
+				$advertising_policy,
+				$cancellation_terms
+			);
+		}
 
 		return $proposal;
+	}
+
+	/**
+	 * Validate a structured approval event against one prepared campaign.
+	 *
+	 * @param array $approval_event Language-independent approval event.
+	 * @param array $proposal       Prepared campaign proposal returned by prepare().
+	 * @return true|\WP_Error
+	 */
+	public static function validate_approval_event( array $approval_event, array $proposal ) {
+		if ( empty( $proposal['approval_block']['approval_contract'] ) || ! is_array( $proposal['approval_block']['approval_contract'] ) ) {
+			return new \WP_Error(
+				'blaze_approval_contract_missing',
+				__( 'The prepared campaign package does not include an approval contract.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$required_fields = array();
+		if (
+			isset( $proposal['approval_block']['approval_event_required_fields'] )
+			&& is_array( $proposal['approval_block']['approval_event_required_fields'] )
+		) {
+			$required_fields = $proposal['approval_block']['approval_event_required_fields'];
+		}
+
+		foreach ( $required_fields as $field ) {
+			if ( ! array_key_exists( $field, $approval_event ) || null === $approval_event[ $field ] || '' === $approval_event[ $field ] ) {
+				return new \WP_Error(
+					'blaze_approval_event_incomplete',
+					sprintf(
+						/* translators: %s: missing approval event field name. */
+						__( 'The approval event is missing required field %s.', 'jetpack-blaze' ),
+						$field
+					),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		$contract = $proposal['approval_block']['approval_contract'];
+		if (
+			(string) ( $contract['prepared_campaign_id'] ?? '' ) !== (string) ( $approval_event['prepared_campaign_id'] ?? '' )
+			|| (string) ( $contract['prepared_campaign_hash'] ?? '' ) !== (string) ( $approval_event['prepared_campaign_hash'] ?? '' )
+		) {
+			return new \WP_Error(
+				'blaze_approval_package_mismatch',
+				__( 'The approval event does not match the prepared campaign package identity.', 'jetpack-blaze' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		foreach ( $contract as $field => $expected_value ) {
+			if ( ! array_key_exists( $field, $approval_event ) || ! self::approval_values_match( $expected_value, $approval_event[ $field ] ) ) {
+				return new \WP_Error(
+					'blaze_approval_contract_mismatch',
+					sprintf(
+						/* translators: %s: mismatched approval event field name. */
+						__( 'The approval event field %s no longer matches the prepared campaign package.', 'jetpack-blaze' ),
+						$field
+					),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -129,6 +224,41 @@ class Campaign_Preparer {
 		$args['target_urn'] = sprintf( 'urn:wpcom:post:%d:%d', (int) $site_id, $target_id );
 
 		return $args;
+	}
+
+	/**
+	 * Compare approval contract values after JSON normalization.
+	 *
+	 * @param mixed $expected_value Expected contract value.
+	 * @param mixed $actual_value   Approval event value.
+	 * @return bool
+	 */
+	private static function approval_values_match( $expected_value, $actual_value ): bool {
+		return wp_json_encode( self::normalize_approval_value( $expected_value ), JSON_UNESCAPED_SLASHES )
+			=== wp_json_encode( self::normalize_approval_value( $actual_value ), JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * Sort associative arrays before comparing approval values.
+	 *
+	 * @param mixed $value Approval value.
+	 * @return mixed
+	 */
+	private static function normalize_approval_value( $value ) {
+		if ( ! is_array( $value ) ) {
+			return $value;
+		}
+
+		$normalized = array();
+		foreach ( $value as $key => $item ) {
+			$normalized[ $key ] = self::normalize_approval_value( $item );
+		}
+
+		if ( ! empty( $normalized ) && array_keys( $normalized ) !== range( 0, count( $normalized ) - 1 ) ) {
+			ksort( $normalized );
+		}
+
+		return $normalized;
 	}
 
 	/**
@@ -284,6 +414,733 @@ class Campaign_Preparer {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Build the immutable package identity for a prepared campaign.
+	 *
+	 * @param array      $prefill                 Recommended campaign prefill payload.
+	 * @param array      $summary                 Structured campaign summary.
+	 * @param array|null $selected_payment_method Selected saved payment method summary.
+	 * @return array
+	 */
+	private static function build_prepared_campaign_identity(
+		array $prefill,
+		array $summary,
+		$selected_payment_method = null,
+		array $terms = array(),
+		array $advertising_policy = array()
+	): array {
+		$identity_payload = array(
+			'contract_version'        => self::APPROVAL_VERSION,
+			'material_campaign'       => self::build_material_campaign_identity( $prefill, $summary ),
+			'selected_payment_method' => $selected_payment_method,
+			'terms'                   => $terms,
+			'advertising_policy'      => $advertising_policy,
+		);
+		$hash             = hash( 'sha256', (string) wp_json_encode( $identity_payload, JSON_UNESCAPED_SLASHES ) );
+
+		return array(
+			'id'      => $hash,
+			'hash'    => $hash,
+			'version' => self::APPROVAL_VERSION,
+		);
+	}
+
+	/**
+	 * Build the material package identity payload.
+	 *
+	 * This intentionally excludes explanatory-only inputs such as revision
+	 * instructions so non-material chat copy changes do not force a new
+	 * approval when the actual campaign package is unchanged.
+	 *
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @param array $summary Structured campaign summary.
+	 * @return array
+	 */
+	private static function build_material_campaign_identity( array $prefill, array $summary ): array {
+		$main_image = isset( $prefill['main_image'] ) && is_array( $prefill['main_image'] ) ? $prefill['main_image'] : array();
+
+		return array(
+			'destination'       => $summary['destination'] ?? array(),
+			'creative'          => array(
+				'heading'         => $summary['creative']['heading'] ?? '',
+				'copy'            => $summary['creative']['copy'] ?? '',
+				'call_to_action'  => $summary['creative']['call_to_action'] ?? '',
+				'image_url'       => $summary['creative']['image_url'] ?? '',
+				'image_mime_type' => $main_image['mime_type'] ?? '',
+				'template'        => $prefill['template'] ?? '',
+			),
+			'budget'            => $summary['budget'] ?? array(),
+			'cadence'           => $summary['cadence'] ?? array(),
+			'schedule'          => $summary['schedule'] ?? array(),
+			'targeting_summary' => $summary['targeting_summary'] ?? array(),
+			'objective'         => $prefill['objective'] ?? '',
+			'target_type'       => $prefill['type'] ?? '',
+		);
+	}
+
+	/**
+	 * Resolve saved payment methods for chat-native submit.
+	 *
+	 * @param array $args    Preparation input.
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @return array
+	 */
+	private static function resolve_payment_context( array $args, array $prefill ): array {
+		/**
+		 * Filters existing saved payment methods available to the prepared
+		 * campaign.
+		 *
+		 * Return an array of payment methods when known, an empty array when no
+		 * usable methods exist, or null when the caller cannot determine saved
+		 * payment method eligibility.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|null $payment_methods Existing saved payment methods.
+		 * @param array      $args            Preparation input.
+		 * @param array      $prefill         Recommended campaign prefill payload.
+		 */
+		$payment_methods = apply_filters( 'jetpack_blaze_prepare_campaign_payment_methods', null, $args, $prefill );
+
+		if ( is_array( $payment_methods ) ) {
+			$methods             = self::normalize_payment_methods( $payment_methods );
+			$requested_method_id = isset( $args['payment_method_id'] ) ? (string) $args['payment_method_id'] : '';
+			$selected            = self::select_payment_method( $methods, $requested_method_id );
+
+			return array(
+				'known'                       => true,
+				'available_payment_methods'  => $methods,
+				'selected_payment_method'    => $selected,
+				'requested_payment_method_id' => $requested_method_id,
+			);
+		}
+
+		return array(
+			'known'                       => false,
+			'available_payment_methods'  => array(),
+			'selected_payment_method'    => null,
+			'requested_payment_method_id' => isset( $args['payment_method_id'] ) ? (string) $args['payment_method_id'] : '',
+		);
+	}
+
+	/**
+	 * Normalize saved payment methods into a compact safe display summary.
+	 *
+	 * @param array $payment_methods Raw payment methods.
+	 * @return array
+	 */
+	private static function normalize_payment_methods( array $payment_methods ): array {
+		$normalized = array();
+
+		foreach ( $payment_methods as $payment_method ) {
+			if ( ! is_array( $payment_method ) ) {
+				continue;
+			}
+
+			$method = self::normalize_payment_method( $payment_method );
+			if ( null !== $method ) {
+				$normalized[] = $method;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize one saved payment method.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return array|null
+	 */
+	private static function normalize_payment_method( array $payment_method ) {
+		$id = self::first_non_empty_string( $payment_method, array( 'id', 'payment_method_id', 'paymentMethodId', 'token_id', 'tokenId' ) );
+		if ( '' === $id || ! self::is_usable_payment_method( $payment_method ) ) {
+			return null;
+		}
+
+		$card      = isset( $payment_method['card'] ) && is_array( $payment_method['card'] ) ? $payment_method['card'] : array();
+		$type      = self::first_non_empty_string( $payment_method, array( 'type', 'payment_method_type', 'paymentMethodType', 'method' ) );
+		$brand     = self::first_non_empty_string( $payment_method, array( 'brand', 'card_brand', 'cardBrand' ) );
+		$last4     = self::first_non_empty_string( $payment_method, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+		$exp_month = self::first_integer( $payment_method, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
+		$exp_year  = self::first_integer( $payment_method, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+
+		if ( '' === $brand ) {
+			$brand = self::first_non_empty_string( $card, array( 'brand', 'card_brand', 'cardBrand' ) );
+		}
+		if ( '' === $last4 ) {
+			$last4 = self::first_non_empty_string( $card, array( 'last4', 'last_4', 'card_last4', 'cardLast4' ) );
+		}
+		if ( null === $exp_month ) {
+			$exp_month = self::first_integer( $card, array( 'exp_month', 'expMonth', 'expiry_month', 'expiryMonth' ) );
+		}
+		if ( null === $exp_year ) {
+			$exp_year = self::first_integer( $card, array( 'exp_year', 'expYear', 'expiry_year', 'expiryYear' ) );
+		}
+		if ( '' === $type ) {
+			$type = '' !== $last4 ? 'card' : 'saved_payment_method';
+		}
+
+		$summary = array(
+			'id'         => $id,
+			'type'       => $type,
+			'brand'      => $brand,
+			'last4'      => $last4,
+		);
+
+		if ( null !== $exp_month ) {
+			$summary['exp_month'] = $exp_month;
+		}
+		if ( null !== $exp_year ) {
+			$summary['exp_year'] = $exp_year;
+		}
+
+		$summary['label']      = self::build_payment_method_label( $type, $brand, $last4 );
+		$summary['is_default'] = self::is_default_payment_method( $payment_method );
+
+		return $summary;
+	}
+
+	/**
+	 * Whether a saved payment method is usable for chat-native submit.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return bool
+	 */
+	private static function is_usable_payment_method( array $payment_method ): bool {
+		foreach ( array( 'usable', 'is_usable', 'isUsable', 'eligible', 'enabled' ) as $key ) {
+			if ( array_key_exists( $key, $payment_method ) ) {
+				return (bool) $payment_method[ $key ];
+			}
+		}
+
+		foreach ( array( 'invalid', 'disabled', 'expired' ) as $key ) {
+			if ( ! empty( $payment_method[ $key ] ) ) {
+				return false;
+			}
+		}
+
+		if ( isset( $payment_method['status'] ) ) {
+			$status = strtolower( (string) $payment_method['status'] );
+			return in_array( $status, array( 'active', 'valid', 'usable', 'enabled' ), true );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether a saved payment method is the server-owned default.
+	 *
+	 * @param array $payment_method Raw payment method.
+	 * @return bool
+	 */
+	private static function is_default_payment_method( array $payment_method ): bool {
+		foreach ( array( 'is_default', 'isDefault', 'default' ) as $key ) {
+			if ( array_key_exists( $key, $payment_method ) ) {
+				return (bool) $payment_method[ $key ];
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Select the requested saved payment method, the default, or the first usable.
+	 *
+	 * @param array  $payment_methods     Normalized payment methods.
+	 * @param string $requested_method_id Requested payment method ID.
+	 * @return array|null
+	 */
+	private static function select_payment_method( array $payment_methods, string $requested_method_id ) {
+		if ( '' !== $requested_method_id ) {
+			foreach ( $payment_methods as $method ) {
+				if ( isset( $method['id'] ) && $requested_method_id === (string) $method['id'] ) {
+					return $method;
+				}
+			}
+
+			return null;
+		}
+
+		foreach ( $payment_methods as $method ) {
+			if ( ! empty( $method['is_default'] ) ) {
+				return $method;
+			}
+		}
+
+		return $payment_methods[0] ?? null;
+	}
+
+	/**
+	 * Build a compact display label for a saved payment method.
+	 *
+	 * @param string $type  Payment method type.
+	 * @param string $brand Payment brand.
+	 * @param string $last4 Last four digits.
+	 * @return string
+	 */
+	private static function build_payment_method_label( string $type, string $brand, string $last4 ): string {
+		if ( '' !== $last4 ) {
+			$display_brand = '' !== $brand ? ucwords( str_replace( array( '_', '-' ), ' ', $brand ) ) : __( 'Card', 'jetpack-blaze' );
+			return sprintf(
+				/* translators: 1: payment card brand, 2: last four digits. */
+				__( '%1$s ending in %2$s', 'jetpack-blaze' ),
+				$display_brand,
+				$last4
+			);
+		}
+
+		if ( '' !== $brand ) {
+			return ucwords( str_replace( array( '_', '-' ), ' ', $brand ) );
+		}
+
+		return ucwords( str_replace( array( '_', '-' ), ' ', $type ) );
+	}
+
+	/**
+	 * Return the first non-empty string field from an array.
+	 *
+	 * @param array $source Source array.
+	 * @param array $keys   Candidate keys.
+	 * @return string
+	 */
+	private static function first_non_empty_string( array $source, array $keys ): string {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && '' !== (string) $source[ $key ] ) {
+				return (string) $source[ $key ];
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Return the first integer field from an array.
+	 *
+	 * @param array $source Source array.
+	 * @param array $keys   Candidate keys.
+	 * @return int|null
+	 */
+	private static function first_integer( array $source, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( isset( $source[ $key ] ) && is_numeric( $source[ $key ] ) ) {
+				return (int) $source[ $key ];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Build a Blaze-owned HTML preview artifact for chat clients.
+	 *
+	 * @param array $prefill  Recommended campaign prefill payload.
+	 * @param array $package  Prepared campaign identity.
+	 * @return array
+	 */
+	private static function build_rendered_preview( array $prefill, array $package ): array {
+		$image = isset( $prefill['main_image'] ) && is_array( $prefill['main_image'] ) ? $prefill['main_image'] : array();
+
+		$html  = '<article class="blaze-prepared-campaign-preview" data-blaze-prepared-campaign-id="';
+		$html .= esc_attr( $package['id'] ) . '">';
+		$html .= '<div class="blaze-prepared-campaign-preview__body">';
+		if ( ! empty( $image['url'] ) ) {
+			$html .= '<img class="blaze-prepared-campaign-preview__image" src="';
+			$html .= esc_url( (string) $image['url'] ) . '" alt="" />';
+		}
+		$html .= '<h3 class="blaze-prepared-campaign-preview__heading">';
+		$html .= esc_html( $prefill['site_name'] ?? '' ) . '</h3>';
+		$html .= '<p class="blaze-prepared-campaign-preview__copy">';
+		$html .= esc_html( $prefill['text_snippet'] ?? '' ) . '</p>';
+		$html .= '<span class="blaze-prepared-campaign-preview__cta">';
+		$html .= esc_html( $prefill['cta_text'] ?? '' ) . '</span>';
+		$html .= '</div>';
+		$html .= '</article>';
+
+		return array(
+			'type' => 'html',
+			'html' => $html,
+		);
+	}
+
+	/**
+	 * Build structured campaign summary values for chat display.
+	 *
+	 * @param \WP_Post $post           The target post.
+	 * @param array    $prefill        Recommended campaign prefill payload.
+	 * @param string   $intent         Inferred campaign intent.
+	 * @param array    $budget_context Resolved budget defaults and options.
+	 * @return array
+	 */
+	private static function build_campaign_summary( $post, array $prefill, string $intent, array $budget_context ): array {
+		$duration_days = isset( $prefill['duration_days'] ) ? max( 1, (int) $prefill['duration_days'] ) : self::DEFAULT_DURATION_DAYS;
+		$budget        = isset( $prefill['budget'] ) && is_array( $prefill['budget'] ) ? $prefill['budget'] : array();
+		$total_amount  = isset( $budget['amount'] ) ? (float) $budget['amount'] : self::DEFAULT_BUDGET_TOTAL;
+		$currency      = isset( $budget['currency'] ) ? (string) $budget['currency'] : $budget_context['currency'];
+		$start_date    = gmdate( 'Y-m-d' );
+		$end_date      = gmdate( 'Y-m-d', strtotime( '+' . ( $duration_days - 1 ) . ' days' ) );
+
+		return array(
+			'destination'       => array(
+				'url'        => isset( $prefill['target_url'] ) ? (string) $prefill['target_url'] : '',
+				'target_urn' => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
+			),
+			'creative'          => array(
+				'heading'        => isset( $prefill['site_name'] ) ? (string) $prefill['site_name'] : '',
+				'copy'           => isset( $prefill['text_snippet'] ) ? (string) $prefill['text_snippet'] : '',
+				'call_to_action' => isset( $prefill['cta_text'] ) ? (string) $prefill['cta_text'] : '',
+				'image_url'      => isset( $prefill['main_image']['url'] ) ? (string) $prefill['main_image']['url'] : '',
+			),
+			'budget'            => array(
+				'mode'  => isset( $budget['mode'] ) ? (string) $budget['mode'] : 'total',
+				'total' => array(
+					'amount'   => $total_amount,
+					'currency' => $currency,
+				),
+				'daily' => array(
+					'amount'   => round( $total_amount / $duration_days, 2 ),
+					'currency' => $currency,
+				),
+			),
+			'cadence'           => array(
+				'duration_days' => $duration_days,
+				'is_evergreen'  => isset( $prefill['is_evergreen'] ) ? (bool) $prefill['is_evergreen'] : true,
+			),
+			'schedule'          => array(
+				'start_date' => $start_date,
+				'end_date'   => $end_date,
+				'time_zone'  => self::get_site_timezone(),
+			),
+			'targeting_summary' => array(
+				'countries'   => isset( $prefill['countries'] ) ? array_values( (array) $prefill['countries'] ) : array(),
+				'languages'   => isset( $prefill['languages'] ) ? array_values( (array) $prefill['languages'] ) : array(),
+				'devices'     => isset( $prefill['devices'] ) ? array_values( (array) $prefill['devices'] ) : array(),
+				'page_topics' => isset( $prefill['page_topics'] ) ? array_values( (array) $prefill['page_topics'] ) : array(),
+			),
+			'source_context'    => array(
+				'source'     => 'wordpress_post',
+				'post_id'    => (int) $post->ID,
+				'post_type'  => (string) $post->post_type,
+				'target_urn' => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
+				'intent'     => $intent,
+			),
+		);
+	}
+
+	/**
+	 * Build chat-native submit eligibility hints.
+	 *
+	 * @param array  $args            Preparation input.
+	 * @param array  $prefill         Recommended campaign prefill payload.
+	 * @param string $fallback_url    Blaze widget/dashboard fallback URL.
+	 * @param array  $payment_context Saved payment method context.
+	 * @return array
+	 */
+	private static function build_submit_eligibility( array $args, array $prefill, string $fallback_url, array $payment_context ): array {
+		if ( $payment_context['known'] ) {
+			$base = array(
+				'fallback_url'                       => $fallback_url,
+				'selected_payment_method'            => $payment_context['selected_payment_method'],
+				'available_payment_methods'          => $payment_context['available_payment_methods'],
+				'supports_payment_method_switching' => count( $payment_context['available_payment_methods'] ) > 1,
+			);
+
+			if ( is_array( $payment_context['selected_payment_method'] ) ) {
+				return array_merge(
+					array(
+						'chat_native_submit' => true,
+						'payment_method'     => 'saved_payment_method',
+						'reason'             => null,
+					),
+					$base
+				);
+			}
+
+			return array_merge(
+				array(
+					'chat_native_submit' => false,
+					'payment_method'     => 'missing_saved_payment_method',
+					'reason'             => '' !== $payment_context['requested_payment_method_id']
+						? 'requested_payment_method_unavailable'
+						: 'saved_payment_method_required',
+				),
+				$base
+			);
+		}
+
+		/**
+		 * Filters whether the prepared campaign can use an existing saved payment
+		 * method for chat-native submit.
+		 *
+		 * Return true when the site/user has a saved payment method available,
+		 * false when Blaze knows one is missing, or null when eligibility is
+		 * unknown and the caller should use the fallback URL.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool|null $has_saved_payment_method Saved-payment eligibility.
+		 * @param array     $args                     Preparation input.
+		 * @param array     $prefill                  Recommended campaign prefill payload.
+		 */
+		$has_saved_payment_method = apply_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', null, $args, $prefill );
+
+		$base = array(
+			'fallback_url'                       => $fallback_url,
+			'selected_payment_method'            => null,
+			'available_payment_methods'          => array(),
+			'supports_payment_method_switching' => false,
+		);
+
+		if ( true === $has_saved_payment_method ) {
+			return array_merge(
+				array(
+					'chat_native_submit' => false,
+					'payment_method'     => 'saved_payment_method',
+					'reason'             => 'selected_payment_method_required',
+				),
+				$base
+			);
+		}
+
+		return array_merge(
+			array(
+				'chat_native_submit' => false,
+				'payment_method'     => false === $has_saved_payment_method
+					? 'missing_saved_payment_method'
+					: 'unknown',
+				'reason'             => false === $has_saved_payment_method
+					? 'saved_payment_method_required'
+					: 'payment_eligibility_unknown',
+			),
+			$base
+		);
+	}
+
+	/**
+	 * Build approval wording data for chat-native submit.
+	 *
+	 * @param array      $package                 Prepared campaign identity.
+	 * @param array      $summary                 Structured campaign summary.
+	 * @param array|null $selected_payment_method Selected saved payment method summary.
+	 * @param array      $terms                   Terms document identity.
+	 * @param array      $advertising_policy      Advertising policy document identity.
+	 * @param array      $cancellation_terms      Cancellation wording identity.
+	 * @return array
+	 */
+	private static function build_approval_block(
+		array $package,
+		array $summary,
+		$selected_payment_method,
+		array $terms,
+		array $advertising_policy,
+		array $cancellation_terms
+	): array {
+		$contract        = self::build_approval_contract( $package, $summary, $selected_payment_method, $terms, $advertising_policy, $cancellation_terms );
+		$idempotency_key = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : hash( 'sha256', wp_rand() . microtime() );
+
+		return array(
+			'prepared_campaign_id'     => $package['id'],
+			'prepared_campaign_hash'   => $package['hash'],
+			'title_key'                => 'blaze.approval.title.v1',
+			'body_key'                 => 'blaze.approval.body.v1',
+			'confirmation_label_key'   => 'blaze.approval.confirm_prepared_campaign.v1',
+			'approval_statement'       => __( 'I approve this exact prepared Blaze campaign package and authorize the charge terms shown here.', 'jetpack-blaze' ),
+			'approval_contract'        => $contract,
+			'approval_event'           => array_merge(
+				$contract,
+				array(
+					'approved_at'     => null,
+					'idempotency_key' => $idempotency_key,
+				)
+			),
+			'approval_event_required_fields' => array(
+				'contract_version',
+				'prepared_campaign_id',
+				'prepared_campaign_hash',
+				'terms',
+				'advertising_policy',
+				'charge',
+				'cancellation',
+				'selected_payment_method_id',
+				'selected_payment_method',
+				'user',
+				'site',
+				'approved_at',
+				'idempotency_key',
+			),
+			'charge_acknowledgement'   => array(
+				'template_key' => 'blaze.approval.charge_acknowledgement',
+				'values'       => array(
+					'max_charge_amount'    => $contract['charge']['max_amount'],
+					'currency'             => $contract['charge']['currency'],
+					'billing_cadence'      => $contract['charge']['billing_cadence'],
+					'start_date'           => $contract['charge']['start_date'],
+					'cancellation_wording' => $contract['cancellation']['wording'],
+					'payment_method_label' => $contract['selected_payment_method']['label'] ?? '',
+				),
+			),
+			'requires_exact_identity'  => true,
+			'requires_reprepare_edits' => true,
+		);
+	}
+
+	/**
+	 * Build the structured approval contract that a later submit action must
+	 * validate before spending money.
+	 *
+	 * @param array      $package                 Prepared campaign identity.
+	 * @param array      $summary                 Structured campaign summary.
+	 * @param array|null $selected_payment_method Selected saved payment method summary.
+	 * @param array      $terms                   Terms document identity.
+	 * @param array      $advertising_policy      Advertising policy document identity.
+	 * @param array      $cancellation_terms      Cancellation wording identity.
+	 * @return array
+	 */
+	private static function build_approval_contract(
+		array $package,
+		array $summary,
+		$selected_payment_method,
+		array $terms,
+		array $advertising_policy,
+		array $cancellation_terms
+	): array {
+		$total_budget = isset( $summary['budget']['total'] ) && is_array( $summary['budget']['total'] ) ? $summary['budget']['total'] : array();
+		$schedule     = isset( $summary['schedule'] ) && is_array( $summary['schedule'] ) ? $summary['schedule'] : array();
+		$site_id      = \Automattic\Jetpack\Connection\Manager::get_site_id();
+
+		if ( is_wp_error( $site_id ) ) {
+			$site_id = 0;
+		}
+
+		return array(
+			'contract_version'           => self::APPROVAL_VERSION,
+			'prepared_campaign_id'       => $package['id'],
+			'prepared_campaign_hash'     => $package['hash'],
+			'terms'                      => $terms,
+			'advertising_policy'         => $advertising_policy,
+			'charge'                     => array(
+				'max_amount'      => isset( $total_budget['amount'] ) ? (float) $total_budget['amount'] : self::DEFAULT_BUDGET_TOTAL,
+				'currency'        => isset( $total_budget['currency'] ) ? (string) $total_budget['currency'] : self::get_site_currency(),
+				'billing_cadence' => 'one_time',
+				'start_date'      => isset( $schedule['start_date'] ) ? (string) $schedule['start_date'] : gmdate( 'Y-m-d' ),
+			),
+			'cancellation'               => $cancellation_terms,
+			'selected_payment_method_id' => isset( $selected_payment_method['id'] ) ? (string) $selected_payment_method['id'] : '',
+			'selected_payment_method'    => is_array( $selected_payment_method ) ? $selected_payment_method : null,
+			'user'                       => array(
+				'id' => get_current_user_id(),
+			),
+			'site'                       => array(
+				'id' => (int) $site_id,
+			),
+		);
+	}
+
+	/**
+	 * Get the terms document identity for approval contracts.
+	 *
+	 * @return array
+	 */
+	private static function get_approval_terms(): array {
+		$defaults = array(
+			'url'     => self::TERMS_URL,
+			'version' => self::TERMS_VERSION,
+		);
+
+		/**
+		 * Filters the Blaze approval terms document identity.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $terms Terms document identity with url and version.
+		 */
+		$terms = apply_filters( 'jetpack_blaze_approval_terms', $defaults );
+
+		return self::normalize_approval_document( is_array( $terms ) ? $terms : array(), $defaults );
+	}
+
+	/**
+	 * Get the advertising policy document identity for approval contracts.
+	 *
+	 * @return array
+	 */
+	private static function get_approval_advertising_policy(): array {
+		$defaults = array(
+			'url'     => self::AD_POLICY_URL,
+			'version' => self::AD_POLICY_VERSION,
+		);
+
+		/**
+		 * Filters the Blaze approval advertising policy document identity.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $policy Advertising policy document identity with url and version.
+		 */
+		$policy = apply_filters( 'jetpack_blaze_approval_advertising_policy', $defaults );
+
+		return self::normalize_approval_document( is_array( $policy ) ? $policy : array(), $defaults );
+	}
+
+	/**
+	 * Get the cancellation wording identity for approval contracts.
+	 *
+	 * @return array
+	 */
+	private static function get_approval_cancellation_terms(): array {
+		return array(
+			'wording' => __( 'You can cancel this campaign from Blaze. Charges may apply for delivery before cancellation, up to the approved maximum.', 'jetpack-blaze' ),
+			'version' => self::APPROVAL_VERSION,
+		);
+	}
+
+	/**
+	 * Normalize approval document identities.
+	 *
+	 * @param array $document Document identity.
+	 * @param array $defaults Default identity.
+	 * @return array
+	 */
+	private static function normalize_approval_document( array $document, array $defaults ): array {
+		$url     = isset( $document['url'] ) && '' !== (string) $document['url'] ? (string) $document['url'] : $defaults['url'];
+		$version = isset( $document['version'] ) && '' !== (string) $document['version'] ? (string) $document['version'] : $defaults['version'];
+
+		return array(
+			'url'     => $url,
+			'version' => $version,
+		);
+	}
+
+	/**
+	 * Describe which edits invalidate the prepared package identity.
+	 *
+	 * @return array
+	 */
+	private static function build_material_edit_policy(): array {
+		return array(
+			'requires_reprepare' => true,
+			'material_fields'    => array(
+				'destination',
+				'creative',
+				'budget',
+				'cadence',
+				'schedule',
+				'targeting',
+				'payment_method',
+				'terms_policy_version',
+			),
+			'non_material_fields' => array(
+				'explanatory_copy',
+				'revision_instruction',
+				'localized_wording',
+			),
+			'message'            => __(
+				'Changing destination, creative, budget, cadence, schedule, targeting, payment method, or terms/policy version requires preparing a new Blaze campaign package before approval or submit.',
+				'jetpack-blaze'
+			),
+		);
 	}
 
 	/**
