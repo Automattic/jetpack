@@ -194,12 +194,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</Stack>
 				<CardCopy experience={ experience } blockOverlayEnabled={ blockOverlayEnabled } />
 			</Stack>
-			{ ( experience === EXPERIENCE.EMBEDDED || experience === EXPERIENCE.OVERLAY_BLOCKS ) && (
-				// Embedded and the blocks-powered Overlay both render the same
-				// Search blocks template — the only difference is *where*
-				// (results page vs modal). They share the same customization
-				// surface (Site Editor template + pattern insertion), so the
-				// action links are identical.
+			{ experience === EXPERIENCE.EMBEDDED && (
 				<Stack
 					direction="row"
 					gap="sm"
@@ -218,6 +213,17 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					/>
 				</Stack>
 			) }
+			{ /*
+			   The blocks-powered Overlay intentionally has no action links
+			   during the experimental phase: the FSE `jetpack-search`
+			   template only registers when Embedded is the active
+			   experience, so an "Edit search template" link would 404 from
+			   here, and the overlay actually renders from a separate
+			   bundled template (`templates/jetpack-search-overlay.html`)
+			   that the Site Editor cannot reach anyway. Skipping the
+			   action row keeps the card honest until the two templates
+			   converge — see SEARCH-213 review thread.
+			*/ }
 			{ experience === EXPERIENCE.OVERLAY && (
 				<Stack
 					direction="row"
@@ -355,17 +361,29 @@ const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 		// While the blocks-powered Overlay is also visible, the legacy
 		// card explicitly names itself as the older preact-based path so
 		// site owners can tell the two cards apart at a glance.
+		//
+		// Each branch returns its own `<p>` rather than putting the two
+		// `__()` calls in a JSX ternary expression — the production
+		// build's translation-string optimizer folds the latter into a
+		// single `__(t?A:B, domain)` and trips strict-literal validation,
+		// breaking the build. Splitting at the JSX-boundary keeps each
+		// `__()` argument unambiguously a string literal.
+		if ( blockOverlayEnabled ) {
+			return (
+				<p className="jp-search-experience-option__description">
+					{ __(
+						'The original preact-powered Instant Search overlay. Customize via the dedicated search screen and widget sidebar.',
+						'jetpack-search-pkg'
+					) }
+				</p>
+			);
+		}
 		return (
 			<p className="jp-search-experience-option__description">
-				{ blockOverlayEnabled
-					? __(
-							'The original preact-powered Instant Search overlay. Customize via the dedicated search screen and widget sidebar.',
-							'jetpack-search-pkg'
-					  )
-					: __(
-							'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
-							'jetpack-search-pkg'
-					  ) }
+				{ __(
+					'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
+					'jetpack-search-pkg'
+				) }
 			</p>
 		);
 	}

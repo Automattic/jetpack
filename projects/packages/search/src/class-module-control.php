@@ -243,11 +243,12 @@ class Module_Control {
 	 * Get the active search experience.
 	 *
 	 * `'off'` is read from the global Jetpack module-active state (not stored in
-	 * this package's option). `'inline'`, `'embedded'`, and `'overlay'` are each
-	 * written as their literal value to `jetpack_search_experience` whenever the
-	 * experience changes, and read straight back here.
+	 * this package's option). `'inline'`, `'embedded'`, `'overlay'`, and
+	 * `'overlay_blocks'` are each written as their literal value to
+	 * `jetpack_search_experience` whenever the experience changes, and read
+	 * straight back here.
 	 *
-	 * @return string One of 'embedded', 'overlay', 'inline', 'off'.
+	 * @return string One of 'embedded', 'overlay', 'overlay_blocks', 'inline', 'off'.
 	 */
 	public function get_experience() {
 		if ( ! $this->is_active() ) {
@@ -405,6 +406,16 @@ class Module_Control {
 				}
 				$this->disable_instant_search();
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY_BLOCKS );
+				return true;
+
+			default:
+				// Unreachable — the `in_array` guard at the top of this
+				// method already restricts $experience to the cases above.
+				// Returning a typed value (rather than falling through to an
+				// implicit `null`) satisfies the static analyzers that flag
+				// switch statements without a `default` branch, and keeps the
+				// method's `bool|WP_Error` contract honest if a future caller
+				// loosens the validation.
 				return true;
 		}
 	}
