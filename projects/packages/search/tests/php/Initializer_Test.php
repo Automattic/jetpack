@@ -21,6 +21,9 @@ class Initializer_Test extends Search_TestCase {
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
 		remove_all_filters( 'jetpack_search_woocommerce_blocks_enabled' );
+		remove_all_filters( 'jetpack_search_overlay_block_template_enabled' );
+		remove_all_filters( 'jetpack_search_init_instant_search' );
+		$this->reset_block_template_overlay_active();
 		$this->remove_search_blocks_hooks();
 		parent::tearDown();
 	}
@@ -84,6 +87,73 @@ class Initializer_Test extends Search_TestCase {
 		);
 	}
 
+	public function test_init_search_blocks_does_not_activate_overlay_when_blocks_gate_off() {
+		// The overlay carve-out in `init()` must read the actually-wired-up
+		// flag, not just the overlay filter — otherwise flipping the
+		// overlay filter on a site without the blocks gate would bypass
+		// the abort path. Confirms `$block_template_overlay_active` stays
+		// false when the blocks gate is off, regardless of the overlay
+		// filter.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		// `jetpack_search_blocks_enabled` defaults false — not registered.
+
+		$this->invoke_init_search_blocks();
+
+		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertFalse(
+			$property->getValue(),
+			'Overlay must not register as active when the blocks gate is off, even if the overlay filter is on.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
+			'The legacy-suppress filter must not be added when the overlay gate is bypassed by the blocks gate.'
+		);
+	}
+
+	public function test_init_search_blocks_activates_overlay_when_both_gates_on() {
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+
+		$this->invoke_init_search_blocks();
+
+		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertTrue(
+			$property->getValue(),
+			'Overlay must register as active when both gates are on.'
+		);
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
+			'The legacy-suppress filter must be added when both gates are on.'
+		);
+	}
+
+	public function test_init_search_blocks_does_not_activate_overlay_when_overlay_gate_off() {
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		// `jetpack_search_overlay_block_template_enabled` defaults false.
+
+		$this->invoke_init_search_blocks();
+
+		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertFalse(
+			$property->getValue(),
+			'Overlay must not register as active when only the blocks gate is on.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
+			'The legacy-suppress filter must not be added when the overlay gate is off.'
+		);
+	}
+
 	public function test_init_search_blocks_sets_woocommerce_blocks_gate_off_by_default_when_enabled() {
 		// Verifies the Phase 1 default — opt-in sites get the non-WC subset
 		// unless they re-enable WC blocks at a later priority.
@@ -112,6 +182,20 @@ class Initializer_Test extends Search_TestCase {
 			$method->setAccessible( true );
 		}
 		$method->invoke( null );
+	}
+
+	/**
+	 * Reset the private `$block_template_overlay_active` flag between
+	 * tests so the overlay carve-out can be exercised cleanly across
+	 * cases. Uses reflection because the property is package-private —
+	 * intentionally not part of the public surface, but tests own it.
+	 */
+	private function reset_block_template_overlay_active(): void {
+		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, false );
 	}
 
 	/**
