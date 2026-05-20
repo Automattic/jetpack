@@ -427,7 +427,9 @@ class SearchApp extends Component {
 
 	getAiAnswer = () => {
 		const query = this.props.searchQuery;
-		const options = window[ SERVER_OBJECT_NAME ] || {};
+		// Prefer the props options so customberg's live overrides win; falls back
+		// to the page-load snapshot on the public-facing overlay.
+		const options = this.props.options || window[ SERVER_OBJECT_NAME ] || {};
 		const siteId = options.siteId;
 
 		const idleState = {
