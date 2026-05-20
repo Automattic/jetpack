@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix a JavaScript error in the editor.
