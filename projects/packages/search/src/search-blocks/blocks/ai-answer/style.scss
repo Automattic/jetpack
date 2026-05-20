@@ -42,6 +42,15 @@
 	gap: 0.5em;
 	margin: 0.5em 0 0;
 	opacity: 0.7;
+
+	// Author `display: flex` wins over UA `[hidden] { display: none }`, so
+	// every `data-wp-bind--hidden`-gated row needs its own override —
+	// without it the row stays on screen with `hidden` attached but no
+	// visual effect. Same idiom the other Search blocks use (e.g.
+	// `results-list/style.scss`'s skeleton-item `[hidden]` rule).
+	&[hidden] {
+		display: none;
+	}
 }
 
 .jp-search-answers-panel__loading-hint {
@@ -121,6 +130,10 @@
 	padding: 0;
 	text-decoration: underline;
 
+	&[hidden] {
+		display: none;
+	}
+
 	&:hover {
 		opacity: 0.7;
 	}
@@ -143,6 +156,10 @@
 	list-style: none;
 	margin: 0.75em 0 0;
 	padding: 0;
+
+	&[hidden] {
+		display: none;
+	}
 
 	li {
 		margin: 0;
