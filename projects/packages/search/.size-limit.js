@@ -19,4 +19,10 @@ module.exports = [
 		path: 'build/search-blocks/results-list.js',
 		limit: '3 KiB',
 	},
+	// `ai-answer.js` is also a pure store importer; the SSE + markdown logic
+	// lives in the shared store module, so the view bundle should stay tiny.
+	{
+		path: 'build/search-blocks/ai-answer.js',
+		limit: '3 KiB',
+	},
 ];
