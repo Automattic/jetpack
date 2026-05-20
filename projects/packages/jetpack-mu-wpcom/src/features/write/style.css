@@ -1351,20 +1351,60 @@
 	position: relative;
 }
 
+/* Image size presets.
+ * Map to core wp:image sizeSlug values; Full is the default (no constraint).
+ * `width` (not max-width) is applied at the figure level so the figure
+ * renders at the same visual width across alignments: a floated figure
+ * with only max-width shrink-to-fits to the img's natural size, while a
+ * block-level figure expands to the cap, producing different widths for
+ * left/right vs. center.  width forces a consistent box. */
+.bw-content figure.size-thumbnail {
+	width: 150px;
+	max-width: 100%;
+}
+
+.bw-content figure.size-medium {
+	width: 50%;
+}
+
+.bw-content figure.size-large {
+	width: 75%;
+}
+
+.bw-content figure.size-full {
+	width: 100%;
+}
+
+.bw-content figure.size-thumbnail,
+.bw-content figure.size-medium,
+.bw-content figure.size-large {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.size-thumbnail img,
+.bw-content figure.size-medium img,
+.bw-content figure.size-large img,
+.bw-content figure.size-full img {
+	max-width: 100%;
+	height: auto;
+}
+
 /* Image alignment.
  * Core wp:image emits these classes on the figure and they map to the
  * align attribute we serialize in convertToBlocks().  alignleft / alignright
- * float so adjacent text wraps; aligncenter centers a block-level figure. */
+ * float so adjacent text wraps; aligncenter centers a block-level figure.
+ * Listed after the size rules so an explicit alignment overrides the
+ * size-driven margin/text-align defaults above. */
 .bw-content figure.alignleft {
 	float: left;
 	margin: 0.5em 1.5em 1em 0;
-	max-width: 50%;
 }
 
 .bw-content figure.alignright {
 	float: right;
 	margin: 0.5em 0 1em 1.5em;
-	max-width: 50%;
 }
 
 .bw-content figure.aligncenter {
@@ -1376,50 +1416,6 @@
 .bw-content figure.aligncenter img {
 	margin-left: auto;
 	margin-right: auto;
-}
-
-/* Image size presets.
- * Map to core wp:image sizeSlug values; Full is the default (no constraint).
- * Centering is handled here too so a small/medium/large image is laid out
- * sensibly even before the user adds an alignment. */
-.bw-content figure.size-thumbnail img {
-	max-width: 150px;
-}
-
-.bw-content figure.size-medium img {
-	max-width: 50%;
-}
-
-.bw-content figure.size-large img {
-	max-width: 75%;
-}
-
-.bw-content figure.size-full img {
-	max-width: 100%;
-}
-
-.bw-content figure.size-thumbnail,
-.bw-content figure.size-medium,
-.bw-content figure.size-large {
-	text-align: center;
-}
-
-/* When a sized image is also floated (alignleft/alignright), constrain the
- * figure's overall width to match the chosen size so the float doesn't take
- * the full column width. */
-.bw-content figure.alignleft.size-thumbnail,
-.bw-content figure.alignright.size-thumbnail {
-	max-width: 150px;
-}
-
-.bw-content figure.alignleft.size-medium,
-.bw-content figure.alignright.size-medium {
-	max-width: 50%;
-}
-
-.bw-content figure.alignleft.size-large,
-.bw-content figure.alignright.size-large {
-	max-width: 75%;
 }
 
 .bw-content figure .bw-img-controls,
