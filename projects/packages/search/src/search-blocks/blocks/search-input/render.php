@@ -19,9 +19,27 @@ $placeholder = trim( (string) ( $attributes['placeholder'] ?? '' ) );
 if ( '' === $placeholder ) {
 	$placeholder = __( 'Search…', 'jetpack-search-pkg' );
 }
-$show_icon          = (bool) ( $attributes['showIcon'] ?? true );
-$submit_only        = ! empty( $attributes['submitOnly'] );
-$enable_suggestions = ! empty( $attributes['enableSuggestions'] );
+$show_icon   = (bool) ( $attributes['showIcon'] ?? true );
+$submit_only = ! empty( $attributes['submitOnly'] );
+// Sanitize the saved `suggestionTypes` array down to a known-good subset of
+// the enum, in the canonical render order, deduplicated. Mirrors the
+// enum in `block.json::attributes.suggestionTypes.items.enum` and the
+// `TYPE_ORDER` constant in `suggestion-rows.js`. Authors can save anything
+// the editor lets them — and a future block-version migration could leave
+// stale strings here — so the front end stays defensive.
+$allowed_suggestion_types = array( 'query', 'taxonomy', 'post' );
+$raw_suggestion_types     = $attributes['suggestionTypes'] ?? $allowed_suggestion_types;
+if ( ! is_array( $raw_suggestion_types ) ) {
+	$raw_suggestion_types = $allowed_suggestion_types;
+}
+$suggestion_types = array_values(
+	array_intersect( $allowed_suggestion_types, array_map( 'strval', $raw_suggestion_types ) )
+);
+// `enableSuggestions` is the author's master kill switch; an empty
+// `suggestionTypes` array collapses to the same outcome (no dropdown). The
+// combined gate keeps the rest of the render path branch-free — no listbox,
+// no combobox attributes, no `data-wp-context` seeded when either says off.
+$enable_suggestions = ! empty( $attributes['enableSuggestions'] ) && ! empty( $suggestion_types );
 // Read the URL-derived query through the shared helper so the SSR
 // `value=` matches the Interactivity store's seeded `searchQuery`.
 // The helper picks `s` vs `q` based on `is_search()` and applies the
@@ -46,6 +64,11 @@ $context_json = $enable_suggestions
 			'activeOptionId'  => '',
 			'rows'            => array(),
 			'listboxId'       => $listbox_id,
+			// `suggestionTypes` is seeded so the view bundle can filter
+			// rows client-side without re-reading the block attribute via
+			// a roundtrip. Per-instance because two Search Input blocks
+			// on the same page could pick different shapes.
+			'suggestionTypes' => $suggestion_types,
 		),
 		JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 	)

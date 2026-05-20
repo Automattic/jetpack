@@ -132,6 +132,74 @@ describe( 'countOptions', () => {
 	} );
 } );
 
+describe( 'buildSuggestionRows enabledTypes filter', () => {
+	const FIXTURE = [
+		{ type: 'query', text: 'q1' },
+		{ type: 'query', text: 'q2' },
+		{ type: 'taxonomy', text: 't1', url: '/c/t1', taxonomy: 'category', slug: 't1' },
+		{ type: 'post', text: 'p1', url: '/p/p1' },
+	];
+
+	it( 'renders only the requested type when enabledTypes is a single-element array', () => {
+		const rows = buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, [ 'query' ] );
+		const headerTypes = rows.filter( r => r.isHeader ).map( r => r.type );
+		const optionTexts = rows.filter( r => ! r.isHeader ).map( r => r.text );
+		expect( headerTypes ).toEqual( [ 'query' ] );
+		expect( optionTexts ).toEqual( [ 'q1', 'q2' ] );
+	} );
+
+	it( 'renders the requested subset in canonical order regardless of input order', () => {
+		const rows = buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, [ 'post', 'query' ] );
+		const headerTypes = rows.filter( r => r.isHeader ).map( r => r.type );
+		expect( headerTypes ).toEqual( [ 'query', 'post' ] );
+	} );
+
+	it( 'returns an empty array when enabledTypes is an empty array', () => {
+		expect( buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, [] ) ).toEqual( [] );
+	} );
+
+	it( 'silently drops unknown strings in enabledTypes', () => {
+		const rows = buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, [
+			'query',
+			'not-a-real-type',
+			'post',
+		] );
+		const headerTypes = rows.filter( r => r.isHeader ).map( r => r.type );
+		expect( headerTypes ).toEqual( [ 'query', 'post' ] );
+	} );
+
+	it( 'falls back to all-enabled when enabledTypes is omitted (backward-compat)', () => {
+		const rows = buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS );
+		const headerTypes = rows.filter( r => r.isHeader ).map( r => r.type );
+		expect( headerTypes ).toEqual( [ 'query', 'taxonomy', 'post' ] );
+	} );
+
+	it( 'falls back to all-enabled when enabledTypes is non-array (null / object)', () => {
+		const all = [ 'query', 'taxonomy', 'post' ];
+		expect(
+			buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, null )
+				.filter( r => r.isHeader )
+				.map( r => r.type )
+		).toEqual( all );
+		expect(
+			buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, { query: true } )
+				.filter( r => r.isHeader )
+				.map( r => r.type )
+		).toEqual( all );
+	} );
+
+	it( 'keeps a contiguous optionIndex sequence after filtering', () => {
+		const rows = buildSuggestionRows( FIXTURE, LISTBOX_ID, LABELS, [ 'query', 'post' ] );
+		const options = rows.filter( r => ! r.isHeader );
+		expect( options.map( r => r.optionIndex ) ).toEqual( [ 0, 1, 2 ] );
+		expect( options.map( r => r.optionId ) ).toEqual( [
+			`${ LISTBOX_ID }-option-0`,
+			`${ LISTBOX_ID }-option-1`,
+			`${ LISTBOX_ID }-option-2`,
+		] );
+	} );
+} );
+
 describe( 'rowAtOptionIndex', () => {
 	it( 'returns the option row matching the given optionIndex', () => {
 		const rows = buildSuggestionRows(

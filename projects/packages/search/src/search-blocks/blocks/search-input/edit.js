@@ -8,9 +8,27 @@
  * and whether queries fire live or only on submit.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import {
+	BaseControl,
+	CheckboxControl,
+	Notice,
+	PanelBody,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+
+// Mirrors the enum on `block.json::attributes.suggestionTypes.items.enum`
+// and the canonical order rendered by `suggestion-rows.js::TYPE_ORDER`.
+// Keep these three in lockstep — a new type means an entry in each plus a
+// matching label in `Search_Blocks::build_initial_strings()`.
+const SUGGESTION_TYPES = [
+	{ value: 'query', label: __( 'Query completions', 'jetpack-search-pkg' ) },
+	{ value: 'taxonomy', label: __( 'Categories & tags', 'jetpack-search-pkg' ) },
+	{ value: 'post', label: __( 'Post titles', 'jetpack-search-pkg' ) },
+];
+const DEFAULT_SUGGESTION_TYPES = SUGGESTION_TYPES.map( t => t.value );
 
 /**
  * Render the magnifying-glass glyph used by the search input, matching the
@@ -54,6 +72,35 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const showIcon = attributes?.showIcon !== false;
 	const submitOnly = !! attributes?.submitOnly;
 	const enableSuggestions = !! attributes?.enableSuggestions;
+	const typesId = useId();
+	// Defensive copy so toggling a checkbox always produces a fresh array —
+	// React-style setAttributes shallow-compares arrays by reference, and a
+	// mutation in-place would skip the save. Falls back to the canonical
+	// default list when the attribute is missing on freshly-inserted blocks
+	// (block.json's default applies on next save, not first render).
+	const suggestionTypes = Array.isArray( attributes?.suggestionTypes )
+		? attributes.suggestionTypes
+		: DEFAULT_SUGGESTION_TYPES;
+	/**
+	 * Toggle a single suggestion type on or off. Preserves the canonical
+	 * `query → taxonomy → post` order in the saved array regardless of the
+	 * click order so two blocks that ended up with the same selection
+	 * serialize identically.
+	 *
+	 * @param {string}  type  - Suggestion type value to toggle.
+	 * @param {boolean} value - True to enable, false to disable.
+	 */
+	const setSuggestionType = ( type, value ) => {
+		const set = new Set( suggestionTypes );
+		if ( value ) {
+			set.add( type );
+		} else {
+			set.delete( type );
+		}
+		setAttributes( {
+			suggestionTypes: DEFAULT_SUGGESTION_TYPES.filter( t => set.has( t ) ),
+		} );
+	};
 	return (
 		<>
 			<InspectorControls>
@@ -92,10 +139,36 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						checked={ enableSuggestions }
 						onChange={ value => setAttributes( { enableSuggestions: value } ) }
 						help={ __(
-							'Display an autocomplete dropdown with query, category, and post suggestions as the visitor types. Requires a configured Jetpack Search site ID.',
+							'Display an autocomplete dropdown as the visitor types. Requires a configured Jetpack Search site ID.',
 							'jetpack-search-pkg'
 						) }
 					/>
+					{ enableSuggestions && (
+						<BaseControl
+							__nextHasNoMarginBottom
+							id={ typesId }
+							label={ __( 'Suggestion types', 'jetpack-search-pkg' ) }
+							help={ __( 'Pick which sections appear in the dropdown.', 'jetpack-search-pkg' ) }
+						>
+							{ SUGGESTION_TYPES.map( ( { value, label } ) => (
+								<CheckboxControl
+									__nextHasNoMarginBottom
+									key={ value }
+									label={ label }
+									checked={ suggestionTypes.includes( value ) }
+									onChange={ checked => setSuggestionType( value, checked ) }
+								/>
+							) ) }
+							{ suggestionTypes.length === 0 && (
+								<Notice status="info" isDismissible={ false }>
+									{ __(
+										'No types selected — the dropdown won’t appear until at least one is enabled.',
+										'jetpack-search-pkg'
+									) }
+								</Notice>
+							) }
+						</BaseControl>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

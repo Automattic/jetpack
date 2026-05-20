@@ -368,11 +368,19 @@ store( NAMESPACE, {
 				}
 			}
 
-			const rows = buildSuggestionRows( suggestions, ctx.listboxId, {
-				query: state.strings?.suggestionLabelQuery ?? '',
-				taxonomy: state.strings?.suggestionLabelTaxonomy ?? '',
-				post: state.strings?.suggestionLabelPost ?? '',
-			} );
+			const rows = buildSuggestionRows(
+				suggestions,
+				ctx.listboxId,
+				{
+					query: state.strings?.suggestionLabelQuery ?? '',
+					taxonomy: state.strings?.suggestionLabelTaxonomy ?? '',
+					post: state.strings?.suggestionLabelPost ?? '',
+				},
+				// Per-instance type selection seeded by render.php. Falls
+				// through to "all enabled" when missing — the helper handles
+				// the non-array shape — so older saved blocks keep working.
+				ctx.suggestionTypes
+			);
 			ctx.rows = rows;
 			ctx.activeIndex = -1;
 			ctx.activeOptionId = '';
