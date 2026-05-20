@@ -23,6 +23,7 @@ class Initializer_Test extends Search_TestCase {
 		remove_all_filters( 'jetpack_search_woocommerce_blocks_enabled' );
 		remove_all_filters( 'jetpack_search_overlay_block_template_enabled' );
 		remove_all_filters( 'jetpack_search_init_instant_search' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		$this->reset_block_template_overlay_active();
 		$this->remove_search_blocks_hooks();
 		parent::tearDown();
@@ -113,9 +114,16 @@ class Initializer_Test extends Search_TestCase {
 		);
 	}
 
-	public function test_init_search_blocks_activates_overlay_when_both_gates_on() {
+	public function test_init_search_blocks_activates_overlay_when_both_gates_on_and_experience_matches() {
 		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
 		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		// The runtime swap also requires the site owner to have selected the
+		// new overlay experience in the dashboard. Without it, the operator-
+		// level filter is a no-op so the legacy and new overlays can coexist.
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+		// `get_experience()` short-circuits to `off` if the module is not
+		// active, so flip the module on for the duration of this test.
+		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
 
 		$this->invoke_init_search_blocks();
 
@@ -125,13 +133,43 @@ class Initializer_Test extends Search_TestCase {
 		}
 		$this->assertTrue(
 			$property->getValue(),
-			'Overlay must register as active when both gates are on.'
+			'Overlay must register as active when both gates are on AND the user has selected the new overlay experience.'
 		);
 		$this->assertSame(
 			10,
 			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
-			'The legacy-suppress filter must be added when both gates are on.'
+			'The legacy-suppress filter must be added when both gates are on and the experience matches.'
 		);
+
+		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+	}
+
+	public function test_init_search_blocks_does_not_activate_overlay_when_experience_does_not_match() {
+		// Operator opted in via the filter, but the site owner left the
+		// experience selector on the legacy Overlay. The runtime must stay
+		// on the legacy path so the two cards remain switchable without
+		// touching any server-side filter.
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
+
+		$this->invoke_init_search_blocks();
+
+		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertFalse(
+			$property->getValue(),
+			'Overlay must stay off when the user has chosen the legacy Overlay experience, even with both filters on.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
+			'The legacy-suppress filter must not be added when the user has chosen the legacy Overlay.'
+		);
+
+		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
 	}
 
 	public function test_init_search_blocks_does_not_activate_overlay_when_overlay_gate_off() {

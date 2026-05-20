@@ -7,10 +7,11 @@ import { Icon, cancelCircleFilled } from '@wordpress/icons';
 import { Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
-import { EXPERIENCE, getExperienceLabel } from './constants';
+import { EXPERIENCE, getCardTitle } from './constants';
 import EmbeddedPreview from './previews/embedded-preview';
 import InlinePreview from './previews/inline-preview';
 import OffPreview from './previews/off-preview';
+import OverlayBlocksPreview from './previews/overlay-blocks-preview';
 import OverlayPreview from './previews/overlay-preview';
 import './experience-option.scss';
 
@@ -31,12 +32,13 @@ const PATTERNS_URL = 'site-editor.php?p=%2Fpattern&search=jetpack-search';
 
 const PREVIEWS = {
 	[ EXPERIENCE.EMBEDDED ]: EmbeddedPreview,
+	[ EXPERIENCE.OVERLAY_BLOCKS ]: OverlayBlocksPreview,
 	[ EXPERIENCE.OVERLAY ]: OverlayPreview,
 	[ EXPERIENCE.INLINE ]: InlinePreview,
 	[ EXPERIENCE.OFF ]: OffPreview,
 };
 
-const getCommitLabel = experience => {
+const getCommitLabel = ( experience, blockOverlayEnabled = false ) => {
 	switch ( experience ) {
 		case EXPERIENCE.EMBEDDED:
 			return _x(
@@ -44,12 +46,27 @@ const getCommitLabel = experience => {
 				'Button label that activates the Embedded search experience',
 				'jetpack-search-pkg'
 			);
-		case EXPERIENCE.OVERLAY:
+		case EXPERIENCE.OVERLAY_BLOCKS:
 			return _x(
 				'Use Overlay search',
-				'Button label that activates the Overlay search experience',
+				'Button label that activates the blocks-powered Overlay search experience',
 				'jetpack-search-pkg'
 			);
+		case EXPERIENCE.OVERLAY:
+			// When the new blocks-powered Overlay is on offer alongside the
+			// legacy one, the commit label disambiguates which path the
+			// click activates. Unflagged sites keep the plain wording.
+			return blockOverlayEnabled
+				? _x(
+						'Use Overlay search (legacy)',
+						'Button label that activates the legacy preact Overlay search experience',
+						'jetpack-search-pkg'
+				  )
+				: _x(
+						'Use Overlay search',
+						'Button label that activates the Overlay search experience',
+						'jetpack-search-pkg'
+				  );
 		case EXPERIENCE.INLINE:
 			return _x(
 				'Use Theme search',
@@ -67,7 +84,7 @@ const getCommitLabel = experience => {
 	}
 };
 
-const getHoverHint = experience => {
+const getHoverHint = ( experience, blockOverlayEnabled = false ) => {
 	if ( experience === EXPERIENCE.OFF ) {
 		return _x(
 			'Click to turn off Jetpack Search',
@@ -82,7 +99,7 @@ const getHoverHint = experience => {
 			'Hover hint on a non-active experience card explaining what clicking the card does',
 			'jetpack-search-pkg'
 		),
-		getExperienceLabel( experience )
+		getCardTitle( experience, blockOverlayEnabled )
 	);
 };
 
@@ -105,15 +122,17 @@ const getHoverHint = experience => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating, activeThemeStylesheet, isBlockTheme } = useSelect(
-		select => ( {
-			active: select( STORE_ID ).getActiveExperience(),
-			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
-			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
-			isBlockTheme: select( STORE_ID ).isBlockTheme(),
-		} ),
-		[]
-	);
+	const { active, isUpdating, activeThemeStylesheet, isBlockTheme, blockOverlayEnabled } =
+		useSelect(
+			select => ( {
+				active: select( STORE_ID ).getActiveExperience(),
+				isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+				activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
+				isBlockTheme: select( STORE_ID ).isBlockTheme(),
+				blockOverlayEnabled: select( STORE_ID ).isBlockOverlayEnabled(),
+			} ),
+			[]
+		);
 	const { saveExperience } = useDispatch( STORE_ID );
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
 
@@ -167,15 +186,20 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			<Stack direction="column" gap="lg" className="jp-search-experience-option__content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
 					<h3 id={ titleId } className="jp-search-experience-option__title">
-						{ getExperienceLabel( experience ) }
+						{ getCardTitle( experience, blockOverlayEnabled ) }
 					</h3>
 					{ isRecommended && (
 						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
 					) }
 				</Stack>
-				<CardCopy experience={ experience } />
+				<CardCopy experience={ experience } blockOverlayEnabled={ blockOverlayEnabled } />
 			</Stack>
-			{ experience === EXPERIENCE.EMBEDDED && (
+			{ ( experience === EXPERIENCE.EMBEDDED || experience === EXPERIENCE.OVERLAY_BLOCKS ) && (
+				// Embedded and the blocks-powered Overlay both render the same
+				// Search blocks template — the only difference is *where*
+				// (results page vs modal). They share the same customization
+				// surface (Site Editor template + pattern insertion), so the
+				// action links are identical.
 				<Stack
 					direction="row"
 					gap="sm"
@@ -236,7 +260,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 							? undefined
 							: isEmbeddedBlockedByTheme
 							? blockedThemeHint
-							: getHoverHint( experience )
+							: getHoverHint( experience, blockOverlayEnabled )
 					}
 					onClick={ () => {
 						if ( commitButtonDisabled ) {
@@ -247,10 +271,10 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					aria-label={
 						// eslint-disable-next-line no-nested-ternary -- three mutually exclusive label states; flattening would duplicate the attribute.
 						disabled
-							? `${ getCommitLabel( experience ) }. ${ upsellHint }`
+							? `${ getCommitLabel( experience, blockOverlayEnabled ) }. ${ upsellHint }`
 							: isEmbeddedBlockedByTheme
-							? `${ getExperienceLabel( experience ) }. ${ blockedThemeHint }`
-							: getCommitLabel( experience )
+							? `${ getCardTitle( experience, blockOverlayEnabled ) }. ${ blockedThemeHint }`
+							: getCommitLabel( experience, blockOverlayEnabled )
 					}
 				/>
 			) }
@@ -293,12 +317,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						setConfirmOpen( false );
 					} }
 					onCancel={ () => setConfirmOpen( false ) }
-					confirmButtonText={ getCommitLabel( experience ) }
+					confirmButtonText={ getCommitLabel( experience, blockOverlayEnabled ) }
 				>
 					{ sprintf(
 						/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
 						__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
-						getExperienceLabel( experience )
+						getCardTitle( experience, blockOverlayEnabled )
 					) }
 				</ConfirmDialog>
 			) }
@@ -306,7 +330,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	);
 }
 
-const CardCopy = ( { experience } ) => {
+const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 	if ( experience === EXPERIENCE.EMBEDDED ) {
 		return (
 			<p className="jp-search-experience-option__description">
@@ -317,13 +341,31 @@ const CardCopy = ( { experience } ) => {
 			</p>
 		);
 	}
-	if ( experience === EXPERIENCE.OVERLAY ) {
+	if ( experience === EXPERIENCE.OVERLAY_BLOCKS ) {
 		return (
 			<p className="jp-search-experience-option__description">
 				{ __(
-					'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
+					'A search-as-you-type overlay rendered from your Search blocks — same filters, sorting, and store as Embedded, but opens over your existing pages.',
 					'jetpack-search-pkg'
 				) }
+			</p>
+		);
+	}
+	if ( experience === EXPERIENCE.OVERLAY ) {
+		// While the blocks-powered Overlay is also visible, the legacy
+		// card explicitly names itself as the older preact-based path so
+		// site owners can tell the two cards apart at a glance.
+		return (
+			<p className="jp-search-experience-option__description">
+				{ blockOverlayEnabled
+					? __(
+							'The original preact-powered Instant Search overlay. Customize via the dedicated search screen and widget sidebar.',
+							'jetpack-search-pkg'
+					  )
+					: __(
+							'A search-as-you-type overlay that opens from any search box on your site (formerly Instant Search).',
+							'jetpack-search-pkg'
+					  ) }
 			</p>
 		);
 	}

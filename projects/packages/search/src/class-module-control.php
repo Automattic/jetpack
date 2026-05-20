@@ -45,11 +45,19 @@ class Module_Control {
 
 	/**
 	 * Valid experience values.
+	 *
+	 * `EXPERIENCE_OVERLAY_BLOCKS` is the experimental blocks-powered overlay
+	 * (server-rendered Search blocks template inside a modal). It is gated
+	 * by the `jetpack_search_overlay_block_template_enabled` filter — the
+	 * dashboard option only appears when the filter is on, and the runtime
+	 * swap from the legacy preact app to the new overlay only kicks in when
+	 * the user has explicitly chosen this experience.
 	 */
-	const EXPERIENCE_OVERLAY  = 'overlay';
-	const EXPERIENCE_EMBEDDED = 'embedded';
-	const EXPERIENCE_INLINE   = 'inline';
-	const EXPERIENCE_OFF      = 'off';
+	const EXPERIENCE_OVERLAY        = 'overlay';
+	const EXPERIENCE_OVERLAY_BLOCKS = 'overlay_blocks';
+	const EXPERIENCE_EMBEDDED       = 'embedded';
+	const EXPERIENCE_INLINE         = 'inline';
+	const EXPERIENCE_OFF            = 'off';
 
 	/**
 	 * Contructor
@@ -111,7 +119,11 @@ class Module_Control {
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return true;
 		}
-		if ( self::EXPERIENCE_INLINE === $saved || self::EXPERIENCE_EMBEDDED === $saved ) {
+		if (
+			self::EXPERIENCE_INLINE === $saved
+			|| self::EXPERIENCE_EMBEDDED === $saved
+			|| self::EXPERIENCE_OVERLAY_BLOCKS === $saved
+		) {
 			return false;
 		}
 
@@ -249,6 +261,9 @@ class Module_Control {
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return self::EXPERIENCE_OVERLAY;
 		}
+		if ( self::EXPERIENCE_OVERLAY_BLOCKS === $saved ) {
+			return self::EXPERIENCE_OVERLAY_BLOCKS;
+		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
 		// `instant_search_enabled` boolean reads as overlay; otherwise inline.
@@ -308,7 +323,13 @@ class Module_Control {
 	 *                      no-op the REST controller treats as success).
 	 */
 	public function update_experience( string $experience ) {
-		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_INLINE, self::EXPERIENCE_OFF );
+		$valid_values = array(
+			self::EXPERIENCE_OVERLAY,
+			self::EXPERIENCE_OVERLAY_BLOCKS,
+			self::EXPERIENCE_EMBEDDED,
+			self::EXPERIENCE_INLINE,
+			self::EXPERIENCE_OFF,
+		);
 		if ( ! in_array( $experience, $valid_values, true ) ) {
 			return new WP_Error(
 				'invalid_experience',
@@ -353,6 +374,20 @@ class Module_Control {
 					return $result;
 				}
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
+				return true;
+
+			case self::EXPERIENCE_OVERLAY_BLOCKS:
+				// The blocks-powered overlay does not boot the legacy preact
+				// `SearchApp`, so we keep `instant_search_enabled` off; the
+				// runtime hookup lives in `Search_Blocks::is_block_template_overlay_enabled()`
+				// which combines the user's experience choice with the
+				// `jetpack_search_overlay_block_template_enabled` server filter.
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				$this->disable_instant_search();
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY_BLOCKS );
 				return true;
 		}
 	}
