@@ -919,8 +919,11 @@ class Search_Blocks {
 	 * than runtime-stripping the page template's wrappers.
 	 *
 	 * Memoized like the page template: the markup is identical every
-	 * request, so the file read + placeholder substitution happen once
-	 * per process.
+	 * request, so the file read happens once per process. Unlike the
+	 * page-template variant, this template has no `{{FILTER_HEADING}}`
+	 * placeholder — the per-filter labels on each filter block render
+	 * the headings directly, matching the legacy overlay's per-filter
+	 * subheading layout.
 	 *
 	 * @return string Block markup for the overlay body.
 	 */
@@ -931,12 +934,7 @@ class Search_Blocks {
 		}
 		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
-			'{{FILTER_HEADING}}',
-			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
-			$raw
-		);
+		$content = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
 		return $content;
 	}
 
@@ -983,12 +981,18 @@ class Search_Blocks {
 			aria-label="<?php echo esc_attr__( 'Search', 'jetpack-search-pkg' ); ?>"
 			hidden
 		>
-			<button
-				type="button"
-				class="jetpack-search-block-overlay__close"
-				aria-label="<?php echo esc_attr__( 'Close search', 'jetpack-search-pkg' ); ?>"
-			>&times;</button>
-			<div class="jetpack-search-block-overlay__content"></div>
+			<div class="jetpack-search-block-overlay__card">
+				<button
+					type="button"
+					class="jetpack-search-block-overlay__close"
+					aria-label="<?php echo esc_attr__( 'Close search', 'jetpack-search-pkg' ); ?>"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor" />
+					</svg>
+				</button>
+				<div class="jetpack-search-block-overlay__content"></div>
+			</div>
 		</div>
 		<?php
 	}
@@ -1043,33 +1047,108 @@ class Search_Blocks {
 	 */
 	protected static function block_template_overlay_inline_css(): string {
 		return <<<'CSS'
+/*
+ * Modal chrome only. The rendered Search blocks bring their own styling
+ * from the active theme; this stylesheet handles only the overlay scrim,
+ * the centered card, the header strip (search input + close button),
+ * open/close animation, and the body-scroll-lock helper. Mirrors the
+ * visual idiom of the legacy `instant-search/components/overlay.scss`.
+ */
 .jetpack-search-block-overlay {
 	position: fixed;
 	inset: 0;
 	z-index: 100000;
-	background: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	background: rgba(31, 31, 31, 0.7);
 	overflow-y: auto;
-	padding: 2rem 1.5rem;
+	padding: 3em 1em;
+	transition: opacity 0.1s ease-in;
 }
 .jetpack-search-block-overlay[hidden] {
 	display: none;
 }
+@media (prefers-reduced-motion: reduce) {
+	.jetpack-search-block-overlay {
+		transition: none;
+	}
+}
+.jetpack-search-block-overlay__card {
+	position: relative;
+	width: 100%;
+	max-width: 1080px;
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+	padding-top: 60px;
+}
 .jetpack-search-block-overlay__close {
 	position: absolute;
-	top: 1rem;
-	right: 1rem;
-	font-size: 1.75rem;
-	line-height: 1;
+	top: 0;
+	right: 0;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	background: transparent;
 	border: 0;
+	border-bottom: 1px solid #e0e0e0;
 	cursor: pointer;
-	padding: 0.25rem 0.5rem;
+	color: inherit;
 }
-.jetpack-search-block-overlay__content {
-	max-width: 1200px;
-	margin: 0 auto;
+.jetpack-search-block-overlay__close:hover,
+.jetpack-search-block-overlay__close:focus-visible {
+	background: #f6f7f7;
 }
+.jetpack-search-block-overlay__close svg {
+	width: 24px;
+	height: 24px;
+}
+/*
+ * The first IA-interactive child of the rendered template is the search
+ * input. Promote it to a 60px header strip flush with the close button so
+ * the two read as a single top bar — matching the legacy header.
+ */
+.jetpack-search-block-overlay__content > .wp-block-group:first-child > .wp-block-jetpack-search-search-input:first-child {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 60px;
+	height: 60px;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	padding: 0 1em;
+	border-bottom: 1px solid #e0e0e0;
+}
+.jetpack-search-block-overlay__content > .wp-block-group:first-child {
+	padding: 0 2em 2em;
+}
+@media (max-width: 781px) {
+	.jetpack-search-block-overlay {
+		padding: 0;
+	}
+	.jetpack-search-block-overlay__card {
+		min-height: 100vh;
+		border-radius: 0;
+		box-shadow: none;
+	}
+	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
+		padding: 0 1em 1em;
+	}
+}
+/*
+ * Body-scroll lock — set `position: fixed` while the overlay is open so
+ * the page underneath doesn't scroll, with the JS side stashing and
+ * restoring scrollY around the toggle to keep the visible position stable.
+ */
 body.jetpack-search-block-overlay-open {
+	position: fixed;
+	left: 0;
+	right: 0;
+	width: 100%;
 	overflow: hidden;
 }
 CSS;

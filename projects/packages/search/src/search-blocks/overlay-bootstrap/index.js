@@ -22,6 +22,7 @@ const triggerSelector = config.overlayTriggerSelector || '';
 const searchInputSelector = config.searchInputSelector || '';
 
 let lastFocusedTrigger = null;
+let savedScrollY = 0;
 // Holds the in-flight hydration promise. Storing the promise (rather than a
 // boolean flag) means concurrent `openOverlay()` calls all `await` the same
 // hydration job instead of one racing past it while the import is still
@@ -112,6 +113,12 @@ async function openOverlay( triggerEl ) {
 	lastFocusedTrigger = triggerEl || overlay.ownerDocument?.activeElement || null;
 	await ensureHydrated();
 	overlay.removeAttribute( 'hidden' );
+	// Body-scroll lock: stash the current scroll position so the underlying
+	// page doesn't snap to 0 when `position: fixed` is applied (and so we
+	// can restore the same position on close). Matches the legacy
+	// `preventBodyScroll()` pattern.
+	savedScrollY = window.scrollY || window.pageYOffset || 0;
+	document.body.style.top = `-${ savedScrollY }px`;
 	document.body.classList.add( BODY_OPEN_CLASS );
 	const input = overlay.querySelector( 'input[type="search"]' );
 	if ( input ) {
@@ -129,6 +136,8 @@ function closeOverlay() {
 	}
 	overlay.setAttribute( 'hidden', '' );
 	document.body.classList.remove( BODY_OPEN_CLASS );
+	document.body.style.top = '';
+	window.scrollTo( 0, savedScrollY );
 	if ( lastFocusedTrigger && typeof lastFocusedTrigger.focus === 'function' ) {
 		lastFocusedTrigger.focus();
 	}
@@ -237,6 +246,8 @@ function handleKeydown( event ) {
 
 /**
  * Overlay-scoped click handler: close button + scrim-click dismissal.
+ * Mirrors the legacy overlay's pattern of dismissing on any click outside
+ * the centered card.
  *
  * @param {MouseEvent} event - The click event.
  */
@@ -250,8 +261,31 @@ function handleOverlayClick( event ) {
 		closeOverlay();
 		return;
 	}
-	// Click on the scrim (the overlay root itself, not its inner content) closes.
-	if ( event.target === overlay ) {
+	// Click on the scrim — anywhere outside the card — closes.
+	if ( ! event.target.closest( '.jetpack-search-block-overlay__card' ) ) {
+		closeOverlay();
+	}
+}
+
+/**
+ * `popstate` handler: keep the overlay's visibility in sync with the URL so
+ * the browser's back/forward navigation behaves like the legacy overlay.
+ * The IA store owns the URL → state mapping; this only owns the
+ * shell's visibility.
+ *
+ * - URL gains `?q=` or `?s=` while the overlay is closed → open it.
+ * - URL drops both while the overlay is open → close it.
+ */
+function handlePopState() {
+	const params = new URLSearchParams( window.location.search );
+	const hasQuery = params.has( 'q' ) || params.has( 's' );
+	const overlay = getOverlay();
+	if ( ! overlay ) {
+		return;
+	}
+	if ( hasQuery && ! isOpen( overlay ) ) {
+		openOverlay( null );
+	} else if ( ! hasQuery && isOpen( overlay ) ) {
 		closeOverlay();
 	}
 }
@@ -259,6 +293,7 @@ function handleOverlayClick( event ) {
 document.addEventListener( 'click', handleTriggerClick, true );
 document.addEventListener( 'submit', handleFormSubmit, true );
 document.addEventListener( 'keydown', handleKeydown );
+window.addEventListener( 'popstate', handlePopState );
 const overlayEl = getOverlay();
 if ( overlayEl ) {
 	overlayEl.addEventListener( 'click', handleOverlayClick );
