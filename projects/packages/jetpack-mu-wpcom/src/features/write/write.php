@@ -498,6 +498,19 @@ function wpcom_write_render_admin_page() {
 		$editor_url = '';
 	}
 
+	// URLs for the topbar "more" menu (Open in block editor / Preview).
+	// Always available when editing an existing post — independent of the
+	// unsupported-content warning's $editor_url which only triggers on load.
+	$block_editor_url = $edit_post_id
+		? admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor__forget' )
+		: '';
+	$preview_url      = '';
+	if ( $edit_post_id ) {
+		$preview_url = 'publish' === $post_status
+			? (string) get_permalink( $edit_post_id )
+			: (string) get_preview_post_link( $edit_post_id );
+	}
+
 	// Determine how the user arrived at the Write editor.
 	// 1. Explicit query param (highest priority).
 	// 2. Infer from HTTP referer.
@@ -629,6 +642,9 @@ function wpcom_write_render_admin_page() {
 			'showRecoveryBanner'  => false,
 			'unsupportedWarning'  => $unsupported_type,
 			'editorUrl'           => $editor_url,
+			'blockEditorUrl'      => $block_editor_url,
+			'previewUrl'          => $preview_url,
+			'showMoreMenu'        => false,
 		)
 	);
 
@@ -685,6 +701,31 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
 			><?php echo 'publish' === $post_status ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-more-wrap" data-wp-on--keydown="actions.handleMoreMenuKeyDown" data-wp-on--focusout="actions.handleMoreMenuFocusOut">
+				<button
+					class="bw-more-toggle"
+					aria-haspopup="menu"
+					aria-expanded="false"
+					data-wp-bind--aria-expanded="state.showMoreMenu"
+					data-wp-on--click="actions.toggleMoreMenu"
+					title="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
+					aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
+				><span class="bw-more-dots" aria-hidden="true">&#x22EE;</span></button>
+				<div class="bw-more-menu" role="menu" aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showMoreMenu">
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.openInBlockEditor"
+					><?php echo esc_html__( 'Open in block editor', 'jetpack-mu-wpcom' ); ?></button>
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.previewPost"
+					><?php echo esc_html__( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
+				</div>
+			</div>
 		</div>
 	</header>
 

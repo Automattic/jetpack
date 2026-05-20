@@ -360,6 +360,97 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the topbar "more" menu is rendered when editing an existing post.
+	 */
+	public function test_more_menu_rendered_when_editing() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$output = $this->render_template( 'Draft', '<p>Hi</p>', $post_id, array(), 'draft' );
+
+		$this->assertStringContainsString( 'class="bw-more-wrap"', $output );
+		$this->assertStringContainsString( 'actions.toggleMoreMenu', $output );
+		$this->assertStringContainsString( 'actions.openInBlockEditor', $output );
+		$this->assertStringContainsString( 'actions.previewPost', $output );
+		$this->assertStringContainsString( 'Open in block editor', $output );
+		$this->assertStringContainsString( '>Preview<', $output );
+	}
+
+	/**
+	 * Test that the topbar "more" menu is also rendered for new posts.
+	 * The actions save first to create the post before navigating.
+	 */
+	public function test_more_menu_rendered_for_new_post() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-more-wrap"', $output );
+		$this->assertStringContainsString( 'actions.openInBlockEditor', $output );
+		$this->assertStringContainsString( 'actions.previewPost', $output );
+	}
+
+	/**
+	 * Test that blockEditorUrl and previewUrl are seeded in state when editing.
+	 */
+	public function test_more_menu_urls_in_state_when_editing() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['post'] = $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'blockEditorUrl', $state );
+		$this->assertArrayHasKey( 'previewUrl', $state );
+		$this->assertArrayHasKey( 'showMoreMenu', $state );
+		$this->assertFalse( $state['showMoreMenu'] );
+
+		// Block editor URL uses the existing classic-editor__forget pattern.
+		$this->assertStringContainsString( 'post.php?post=' . $post_id, $state['blockEditorUrl'] );
+		$this->assertStringContainsString( 'classic-editor__forget', $state['blockEditorUrl'] );
+
+		// Preview URL for a draft should be non-empty.
+		$this->assertNotEmpty( $state['previewUrl'] );
+	}
+
+	/**
+	 * Test that blockEditorUrl and previewUrl are empty for new posts.
+	 */
+	public function test_more_menu_urls_empty_for_new_post() {
+		wp_set_current_user( $this->admin_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( '', $state['blockEditorUrl'] );
+		$this->assertSame( '', $state['previewUrl'] );
+	}
+
+	/**
 	 * Test that the help modal contains the #tag tip.
 	 */
 	public function test_help_modal_contains_hashtag_tip() {

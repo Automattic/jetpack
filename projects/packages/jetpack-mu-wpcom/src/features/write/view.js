@@ -320,6 +320,33 @@ function getContent() {
 }
 
 /**
+ * Whether the editor has anything worth saving — non-empty title, any
+ * text content, or a media/separator block. Used by actions that need a
+ * real post to navigate to before they can do their job, and by the
+ * client-side empty-save guard.
+ *
+ * Checks textContent rather than innerHTML so structural-only markup
+ * like <p><br></p> doesn't count as content. Figures and separators
+ * have no textContent but are still valid content, so check for them
+ * too.
+ *
+ * @return {boolean} True when there's title, text, or a media/separator block.
+ */
+function hasWritableContent() {
+	if ( state.title && state.title.trim() ) {
+		return true;
+	}
+	const content = getContent();
+	if ( ! content ) {
+		return false;
+	}
+	if ( content.textContent.trim() ) {
+		return true;
+	}
+	return !! content.querySelector( 'figure, hr' );
+}
+
+/**
  * Deselect the currently-selected figure, if any, and optionally
  * restore the cursor position saved before the figure was selected.
  *
@@ -3469,6 +3496,148 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		// --- Topbar "more" menu (Open in block editor / Preview) ---
+
+		toggleMoreMenu() {
+			state.showMoreMenu = ! state.showMoreMenu;
+			if ( state.showMoreMenu ) {
+				const close = e => {
+					if ( e.target.closest( '.bw-more-wrap' ) ) return;
+					state.showMoreMenu = false;
+					document.removeEventListener( 'click', close );
+				};
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+			}
+		},
+
+		handleMoreMenuKeyDown( event ) {
+			const wrap = event.currentTarget;
+			const menu = wrap.querySelector( '.bw-more-menu' );
+			const items = menu ? [ ...menu.querySelectorAll( '.bw-more-menu-item' ) ] : [];
+			const onToggle = !! event.target.closest( '.bw-more-toggle' );
+
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showMoreMenu = false;
+				// Defer so the focus-restoration happens after the Interactivity
+				// state update; otherwise focus can land on <body>.
+				const toggle = wrap.querySelector( '.bw-more-toggle' );
+				requestAnimationFrame( () => toggle?.focus() );
+				return;
+			}
+
+			// Open the menu from the toggle with ArrowDown/ArrowUp and move focus
+			// to the first/last item respectively.
+			if ( onToggle && ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) ) {
+				event.preventDefault();
+				state.showMoreMenu = true;
+				const target = event.key === 'ArrowUp' ? items[ items.length - 1 ] : items[ 0 ];
+				requestAnimationFrame( () => target?.focus() );
+				return;
+			}
+
+			if ( ! state.showMoreMenu || ! items.length ) {
+				return;
+			}
+
+			const focused = wrap.ownerDocument.activeElement;
+			const idx = items.indexOf( focused );
+
+			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				let next;
+				if ( idx < 0 ) {
+					next = delta > 0 ? 0 : items.length - 1;
+				} else {
+					next = ( idx + delta + items.length ) % items.length;
+				}
+				items[ next ]?.focus();
+			} else if ( event.key === 'Home' ) {
+				event.preventDefault();
+				items[ 0 ]?.focus();
+			} else if ( event.key === 'End' ) {
+				event.preventDefault();
+				items[ items.length - 1 ]?.focus();
+			}
+		},
+
+		handleMoreMenuFocusOut( event ) {
+			const wrap = event.currentTarget;
+			if ( ! wrap.contains( event.relatedTarget ) ) {
+				state.showMoreMenu = false;
+			}
+		},
+
+		async openInBlockEditor() {
+			state.showMoreMenu = false;
+
+			// New posts need a save to create the underlying post before we
+			// have a URL to navigate to. Surface the same "Please write
+			// something" hint the publish flow shows so the menu doesn't
+			// appear unresponsive on an empty page.
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				state.message = i18n.pleaseWriteSomething || 'Please write something';
+				setTimeout( () => {
+					state.message = '';
+				}, 2500 );
+				return;
+			}
+
+			// For unpublished posts, silently save the draft first so the
+			// block editor opens with current edits (and to create the post
+			// if it's new). For published posts, hand off to the block
+			// editor without auto-saving — we don't want to silently push
+			// unsaved Write edits live.
+			if ( state.postStatus !== 'publish' && ( isDirty() || ! state.editPostId ) ) {
+				await savePost( 'draft', true );
+			}
+			if ( ! state.editPostId ) {
+				// Save failed for some other reason — abort.
+				return;
+			}
+
+			// Prefer the SSR-seeded URL; fall back to building it for posts
+			// created in this session (no SSR-seeded URL yet).
+			const url =
+				state.blockEditorUrl ||
+				state.adminUrl +
+					'post.php?post=' +
+					state.editPostId +
+					'&action=edit&classic-editor__forget';
+			allowLeave = true;
+			window.location.href = url;
+		},
+
+		async previewPost() {
+			state.showMoreMenu = false;
+
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				state.message = i18n.pleaseWriteSomething || 'Please write something';
+				setTimeout( () => {
+					state.message = '';
+				}, 2500 );
+				return;
+			}
+
+			// For unpublished posts, silently save the draft first so preview
+			// reflects current edits (and creates the post if it's new).
+			// For published posts, open the live URL without auto-saving to
+			// avoid silently pushing unsaved edits live.
+			if ( state.postStatus !== 'publish' && ( isDirty() || ! state.editPostId ) ) {
+				await savePost( 'draft', true );
+			}
+			if ( ! state.editPostId ) {
+				return;
+			}
+
+			// Use the SSR-seeded preview URL when available — it includes any
+			// nonce returned by get_preview_post_link(). For posts created in
+			// this session, build the draft preview URL from state.homeUrl.
+			const url = state.previewUrl || state.homeUrl + '?p=' + state.editPostId + '&preview=true';
+			window.open( url, '_blank', 'noopener,noreferrer' );
+		},
+
 		// --- Inline category meta ---
 
 		toggleCatDropdown( event ) {
@@ -3647,8 +3816,11 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
-		const content = getContent();
-		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
+		// Use textContent rather than innerHTML so structural-only markup
+		// (e.g. <p><br></p> left over from clearing the editor) doesn't
+		// pass the client-side guard and reach the server, which would
+		// return a confusing "title, content, or excerpt is empty" error.
+		if ( ! hasWritableContent() ) {
 			state.message = i18n.pleaseWriteSomething || 'Please write something';
 			setTimeout( () => {
 				state.message = '';
