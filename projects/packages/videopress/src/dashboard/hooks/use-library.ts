@@ -2,7 +2,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { buildShortcode } from '../utils/format';
-import type { LibraryItemPrivacy, MockLibraryItem } from '../types/library';
+import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
 const REST_PATH = '/wp/v2/media';
@@ -154,12 +154,12 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 }
 
 /**
- * Transform a raw /wp/v2/media API item into a MockLibraryItem.
+ * Transform a raw /wp/v2/media API item into a LibraryItem.
  *
  * @param raw - The raw media item from the REST API response.
- * @return A normalized MockLibraryItem for the VideoPress library UI.
+ * @return A normalized LibraryItem for the VideoPress library UI.
  */
-function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
+function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const vp = raw.jetpack_videopress;
 	const isVideoPress = Boolean( vp?.guid );
 	const vpDurationMs = raw.media_details?.videopress?.duration;
@@ -182,7 +182,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		fileSizeBytes: raw.media_details?.filesize ?? 0,
 		upload: { status: 'idle', progress: 0 },
 		description: vp?.description ?? '',
-		rating: ( vp?.rating ?? 'G' ) as MockLibraryItem[ 'rating' ],
+		rating: ( vp?.rating ?? 'G' ) as LibraryItem[ 'rating' ],
 		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
@@ -199,7 +199,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
  */
 async function fetchLibrary(
 	view: View
-): Promise< { items: MockLibraryItem[]; paginationInfo: PaginationInfo } > {
+): Promise< { items: LibraryItem[]; paginationInfo: PaginationInfo } > {
 	const args = viewToQueryArgs( view );
 	const response = ( await apiFetch( {
 		path: addQueryArgs( REST_PATH, args ),

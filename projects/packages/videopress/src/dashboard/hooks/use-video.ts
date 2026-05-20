@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { buildShortcode } from '../utils/format';
 import { privacyIntToString } from './use-library';
-import type { MockLibraryItem } from '../types/library';
+import type { LibraryItem } from '../types/library';
 
 type ApiMediaItem = {
 	id: number;
@@ -28,12 +28,12 @@ type ApiMediaItem = {
 };
 
 /**
- * Transform a raw /wp/v2/media API item into a MockLibraryItem.
+ * Transform a raw /wp/v2/media API item into a LibraryItem.
  *
  * @param raw - The raw media item from the REST API response.
- * @return A normalized MockLibraryItem for the VideoPress UI.
+ * @return A normalized LibraryItem for the VideoPress UI.
  */
-function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
+function toLibraryItem( raw: ApiMediaItem ): LibraryItem {
 	const vp = raw.jetpack_videopress;
 	const isVideoPress = Boolean( vp?.guid );
 	const vpDurationMs = raw.media_details?.videopress?.duration;
@@ -56,7 +56,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
 		fileSizeBytes: raw.media_details?.filesize ?? 0,
 		upload: { status: 'idle', progress: 0 },
 		description: vp?.description ?? '',
-		rating: ( vp?.rating ?? 'G' ) as MockLibraryItem[ 'rating' ],
+		rating: ( vp?.rating ?? 'G' ) as LibraryItem[ 'rating' ],
 		displayEmbed: Boolean( vp?.display_embed ),
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
@@ -72,7 +72,7 @@ function toLibraryItem( raw: ApiMediaItem ): MockLibraryItem {
  * @return An object with the video item, loading/error state, and the raw error.
  */
 export function useVideo( id: number | string ) {
-	const query = useQuery< MockLibraryItem >( {
+	const query = useQuery< LibraryItem >( {
 		queryKey: [ 'jetpack-videopress-library', 'item', String( id ) ],
 		queryFn: async () => {
 			const raw = await apiFetch< ApiMediaItem >( { path: `/wp/v2/media/${ id }` } );

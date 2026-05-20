@@ -136,8 +136,7 @@ export function videoPlaysQueryOptions( params: StatsQueryParams ) {
 /**
  * Bucket key for grouping a day-keyed entry into the active
  * granularity. Day → ISO date; weeks → ISO Monday in UTC; months →
- * first-of-month in UTC. Mirrors `fixtures/stats.ts`'s implementation
- * exactly so the chart's tick layout stays stable across mock/real.
+ * first-of-month in UTC.
  *
  * @param iso         - YYYY-MM-DD date.
  * @param granularity - Active bucketing.
@@ -226,7 +225,7 @@ function aggregateTopVideos( response: VideoPlaysResponse | undefined ): Map< st
  * Build chart-series points from the current and previous responses,
  * aligned to the active granularity. Previous-period values map to the
  * matching current-period bucket by ordinal position (bucket 0 of
- * previous → bucket 0 of current), which mirrors `fixtures/stats.ts`.
+ * previous → bucket 0 of current).
  *
  * @param current     - Current-window response.
  * @param previous    - Previous-window response.
@@ -342,10 +341,9 @@ export function transformVideoPlays(
 }
 
 /**
- * Live-data hook for the Overview tab. API mirrors `useMockStats` so
- * Phase 8 swaps it in by changing the import. Settings live in local
- * React state; data is fetched as two `useQuery` calls (current +
- * previous window) coordinated via `useQueries`.
+ * Live-data hook for the Overview tab. Settings live in local React
+ * state; data is fetched as two `useQuery` calls (current + previous
+ * window) coordinated via `useQueries`.
  *
  * @return Stats state and setters.
  */
@@ -372,8 +370,7 @@ export function useStats() {
 
 	// When Watch time becomes the active metric, `secondary` and
 	// `secondary_and_previous_period` no longer make sense (no other
-	// metric shares its unit). Fall back to `previous_period`, matching
-	// the existing useMockStats behavior.
+	// metric shares its unit). Fall back to `previous_period`.
 	const setActiveMetric = useCallback( ( next: ActiveMetric ) => {
 		setActiveMetricRaw( next );
 		if ( next === 'watch_time' ) {
@@ -394,5 +391,3 @@ export function useStats() {
 		setCompare,
 	};
 }
-
-export type UseStats = ReturnType< typeof useStats >;

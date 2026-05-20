@@ -4,9 +4,9 @@ import { Button, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
-import type { MockLibraryItem } from '../../types/library';
+import type { LibraryItem } from '../../types/library';
 
-type Props = { item: MockLibraryItem };
+type Props = { item: LibraryItem };
 
 /**
  * Render the media-area for one DataViews grid card. Layers (priority order):

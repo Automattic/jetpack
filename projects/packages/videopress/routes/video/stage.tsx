@@ -18,9 +18,9 @@ import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
-import type { MockLibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
-const isEditable = ( item: MockLibraryItem ): boolean =>
+const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
 
 /**
@@ -79,7 +79,7 @@ const Loading = () => (
 );
 
 type EditorProps = {
-	video: MockLibraryItem;
+	video: LibraryItem;
 	onSave: (
 		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
 		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
@@ -158,7 +158,7 @@ const Editor = ( {
 	);
 };
 
-type StageReadyProps = { video: MockLibraryItem };
+type StageReadyProps = { video: LibraryItem };
 
 const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();

@@ -8,7 +8,7 @@ export interface UploadState {
 	progress: number;
 }
 
-export interface MockLibraryItem {
+export interface LibraryItem {
 	id: string;
 	guid: string;
 	type: LibraryItemType;
@@ -32,7 +32,7 @@ export interface MockLibraryItem {
 
 export type VideoDetailsPatch = Partial<
 	Pick<
-		MockLibraryItem,
+		LibraryItem,
 		'title' | 'description' | 'privacy' | 'displayEmbed' | 'allowDownloads' | 'rating'
 	>
 >;

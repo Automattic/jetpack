@@ -17,7 +17,7 @@ import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-m
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import './style.scss';
-import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
+import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
 
@@ -217,8 +217,8 @@ const StageInner = () => {
 
 	// Splice in-flight uploads at the top of the listing so the user sees
 	// their upload immediately, before the next server refetch.
-	const renderedItems = useMemo< MockLibraryItem[] >( () => {
-		const inFlight: MockLibraryItem[] = uploadQueue
+	const renderedItems = useMemo< LibraryItem[] >( () => {
+		const inFlight: LibraryItem[] = uploadQueue
 			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
 			.map( u => ( {
 				id: u.id,
@@ -237,7 +237,7 @@ const StageInner = () => {
 					progress: Math.round( u.progress * 100 ),
 				},
 				description: '',
-				rating: 'G' as MockLibraryItem[ 'rating' ],
+				rating: 'G' as LibraryItem[ 'rating' ],
 				displayEmbed: false,
 				allowDownloads: false,
 				shortcode: '',
@@ -257,7 +257,7 @@ const StageInner = () => {
 		return [ ...inFlight, ...overlaid ];
 	}, [ uploadQueue, items, promotingIds ] );
 
-	const getItemId = useCallback( ( item: MockLibraryItem ) => item.id, [] );
+	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
 	return (
 		<DashboardLayout
@@ -296,7 +296,7 @@ const StageInner = () => {
 		>
 			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
-					<DataViews< MockLibraryItem >
+					<DataViews< LibraryItem >
 						data={ renderedItems }
 						fields={ libraryFields }
 						actions={ actions }
