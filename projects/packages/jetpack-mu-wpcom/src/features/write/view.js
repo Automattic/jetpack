@@ -350,20 +350,20 @@ function getMediaIdFromImg( img ) {
  * result. Returns null for images without a media library ID (e.g. inserted
  * from an external URL).
  *
+ * The Promise is cached (not just the resolved value) so two rapid size
+ * changes on the same image share one REST request instead of racing.
+ *
  * @param {number} id - Attachment ID.
  * @return {Promise<Object|null>} Resolves to the sizes object, or null.
  */
-async function fetchMediaSizes( id ) {
+function fetchMediaSizes( id ) {
 	if ( mediaSizesCache.has( id ) ) return mediaSizesCache.get( id );
-	try {
-		const media = await window.wp.apiFetch( { path: `/wp/v2/media/${ id }` } );
-		const sizes = media.media_details?.sizes || null;
-		mediaSizesCache.set( id, sizes );
-		return sizes;
-	} catch {
-		mediaSizesCache.set( id, null );
-		return null;
-	}
+	const promise = window.wp
+		.apiFetch( { path: `/wp/v2/media/${ id }` } )
+		.then( media => media.media_details?.sizes || null )
+		.catch( () => null );
+	mediaSizesCache.set( id, promise );
+	return promise;
 }
 
 /**
