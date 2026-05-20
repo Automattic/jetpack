@@ -1107,24 +1107,74 @@ class Search_Blocks {
 	height: 24px;
 }
 /*
- * The first IA-interactive child of the rendered template is the search
- * input. Promote it to a 60px header strip flush with the close button so
- * the two read as a single top bar — matching the legacy header.
+ * The first child of the rendered template is the search-input block.
+ * Promote it to a 60px header strip flush with the close button so the
+ * two read as a single top bar — matching the legacy `__box` header:
+ * 60px magnifying-glass column on the left, full-width input in the
+ * middle, ×-clear column on the right (before the overlay's own X).
+ * The block's default `border-bottom: 1px solid currentColor` on
+ * `.jetpack-search-input__inside-wrapper` is intentionally suppressed
+ * inside the overlay — the header strip's own border-bottom handles
+ * the visual separation from the results area.
  */
-.jetpack-search-block-overlay__content > .wp-block-group:first-child > .wp-block-jetpack-search-search-input:first-child {
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 60px;
 	height: 60px;
 	margin: 0;
-	display: flex;
-	align-items: center;
-	padding: 0 1em;
+	padding: 0;
 	border-bottom: 1px solid #e0e0e0;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__inside-wrapper {
+	height: 100%;
+	display: flex;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	border-bottom: 0;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__icon {
+	flex: 0 0 60px;
+	width: 60px;
+	height: 60px;
+	padding: 18px;
+	box-sizing: border-box;
+	opacity: 0.5;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__field {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 100%;
+	font-size: 18px;
+	line-height: 1;
+	padding: 0;
+	background: transparent;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__clear {
+	flex: 0 0 60px;
+	width: 60px;
+	height: 60px;
+	padding: 0;
+	font-size: 1.25rem;
 }
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
 	padding: 0 2em 2em;
+}
+/*
+ * The "Found N results" + sort dropdown row sits inside the rendered
+ * `search-results` block. The wp:group inline layout
+ * (`justifyContent: space-between`) does not always emit the matching
+ * core flex-layout class in this context, so we force the row layout
+ * explicitly. Results count anchors left, sort anchors right — matching
+ * the legacy `__search-results-controls` row.
+ */
+.jetpack-search-block-overlay__results-header {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
 }
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
