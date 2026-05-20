@@ -1835,7 +1835,7 @@
 .bw-postpicker-overlay {
 	position: fixed;
 	inset: 0;
-	z-index: 300;
+	z-index: 1000001;
 	background: rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(4px);
 	display: flex;
