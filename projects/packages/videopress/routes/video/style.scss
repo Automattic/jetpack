@@ -45,9 +45,8 @@
 }
 
 .vp-video-details__thumbnail {
-	width: 240px;
-	height: 135px;
-	object-fit: cover;
+	display: block;
+	max-width: 240px;
 	border-radius: 4px;
 	flex-shrink: 0;
 }
@@ -91,20 +90,82 @@
 }
 
 // Mobile: stack the Thumbnail card's two columns vertically. With the
-// thumbnail fixed at 240px and the meta column hosting full-width copy
-// fields + the primary action, anything narrower than ~600px squashes
-// the meta into a barely-readable strip. The thumbnail goes full-width
-// with a 16/9 aspect ratio so it stays the right shape for any column
-// width below the desktop layout.
+// meta column hosting full-width copy fields + the primary action,
+// anything narrower than ~600px squashes the meta into a barely-readable
+// strip. The thumbnail keeps its natural, width-capped size from the base
+// rule so it renders correctly for any aspect ratio.
 @media (max-width: 600px) {
 
 	.vp-video-details__thumbnail-row {
 		flex-direction: column !important;
 	}
+}
 
-	.vp-video-details__thumbnail {
-		width: 100%;
-		height: auto;
-		aspect-ratio: 16 / 9;
+.vp-video-details__thumbnail-wrapper {
+	position: relative;
+	flex-shrink: 0;
+}
+
+// The trigger is the @wordpress/components DropdownMenu wrapper; position it
+// over the thumbnail's top-right corner. Give the toggle button an opaque
+// surface so the pencil icon stays legible over any poster image (light or
+// dark), matching the solid affordance it had as a @wordpress/ui IconButton.
+.vp-thumbnail-update__trigger {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+
+	.components-button {
+		background: rgba(255, 255, 255, 0.9);
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+
+		&:hover:not(:disabled) {
+			background: #fff;
+		}
 	}
+}
+
+.vp-video-details__thumbnail-updating {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.55);
+	color: #fff;
+	border-radius: 4px;
+}
+
+.vp-frame-scrubber {
+	position: relative;
+	width: 100%;
+}
+
+.vp-frame-scrubber__video {
+	display: block;
+	max-width: 100%;
+	// Cap the height so portrait/vertical videos stay within the dialog
+	// instead of overflowing it. Landscape videos still fill the width.
+	max-height: 60vh;
+	margin-inline: auto;
+	background: #000;
+}
+
+.vp-frame-scrubber__spinner {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.vp-frame-scrubber__error {
+	padding: 32px;
+	text-align: center;
+	color: var(--jp-gray-50, #646970);
+}
+
+.vp-frame-scrubber__range {
+	margin-top: 12px;
 }
