@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_Reader_Chat;
 use Automattic\Jetpack\Search\Plan;
@@ -65,6 +66,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		// Remove any wp_enqueue_scripts / wp_footer hooks the class may have added.
 		remove_all_actions( 'wp_enqueue_scripts' );
 		remove_all_actions( 'wp_footer' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		unregister_setting( 'general', 'reader_chat' );
@@ -111,6 +113,27 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Register the WPCOM Search plan test double.
+	 */
+	private function register_wpcom_plan_info_test_double() {
+		$wpcom_plan_info_class = 'Jetpack\Search\Plan_Info';
+		if ( ! class_exists( $wpcom_plan_info_class, false ) ) {
+			require_once __DIR__ . '/class-plan-info.php';
+		} elseif (
+			! property_exists( $wpcom_plan_info_class, 'jetpack_reader_chat_test_double' )
+			|| empty( $wpcom_plan_info_class::$jetpack_reader_chat_test_double )
+		) {
+			$this->markTestSkipped( 'The WPCOM Plan_Info class is already defined.' );
+		}
+
+		$wpcom_plan_info_class::$supports_search = true;
+
+		$wpcom_plan_info_class::$disabled_due_to_overage = false;
+
+		$wpcom_plan_info_class::$blog_id = null;
 	}
 
 	/**
@@ -256,15 +279,20 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that register_settings() exposes reader_chat without a proxied rollout gate.
+	 * Test that register_settings() registers reader_chat without a proxied rollout gate.
 	 */
 	public function test_register_settings_registers_reader_chat_setting() {
 		Jetpack_Reader_Chat::register_settings();
+		$registered_settings = get_registered_settings();
 
 		$this->assertArrayHasKey(
 			'reader_chat',
-			get_registered_settings(),
-			'reader_chat should be registered for the REST settings endpoint.'
+			$registered_settings,
+			'reader_chat should be registered for Search settings.'
+		);
+		$this->assertEmpty(
+			$registered_settings['reader_chat']['show_in_rest'] ?? false,
+			'reader_chat should not be exposed through the core REST settings endpoint.'
 		);
 	}
 
@@ -428,6 +456,81 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Script should not be enqueued when cached Search plan info is missing.'
+		);
+	}
+
+	/**
+	 * Test that WPCOM Simple uses its local Search plan source.
+	 */
+	public function test_enqueue_scripts_uses_wpcom_simple_search_plan_source() {
+		$this->register_wpcom_plan_info_test_double();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->override_ai_features( true );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$this->cache_asset_data();
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$wpcom_plan_info_class = 'Jetpack\Search\Plan_Info';
+		$this->assertSame( get_current_blog_id(), $wpcom_plan_info_class::$blog_id );
+		$this->assertTrue(
+			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
+			'Script should enqueue on WPCOM Simple when the local Search plan source allows Search.'
+		);
+	}
+
+	/**
+	 * Test that WPCOM Simple respects Search overage disables.
+	 */
+	public function test_enqueue_scripts_skips_when_wpcom_simple_search_plan_is_over_limit() {
+		$this->register_wpcom_plan_info_test_double();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$wpcom_plan_info_class = 'Jetpack\Search\Plan_Info';
+
+		$wpcom_plan_info_class::$disabled_due_to_overage = true;
+		$this->override_ai_features( true );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$this->cache_asset_data();
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
+			'Script should not enqueue on WPCOM Simple when Search is disabled due to overage.'
+		);
+	}
+
+	/**
+	 * Test that WPCOM Simple skips plan checks when there is no current blog.
+	 */
+	public function test_enqueue_scripts_skips_when_wpcom_simple_current_blog_is_missing() {
+		$this->register_wpcom_plan_info_test_double();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->override_ai_features( true );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$this->cache_asset_data();
+
+		$wpcom_plan_info_class = 'Jetpack\Search\Plan_Info';
+		$saved_blog_id         = $GLOBALS['blog_id'] ?? null;
+		$GLOBALS['blog_id']    = 0;
+
+		try {
+			Jetpack_Reader_Chat::enqueue_scripts();
+		} finally {
+			if ( null === $saved_blog_id ) {
+				unset( $GLOBALS['blog_id'] );
+			} else {
+				$GLOBALS['blog_id'] = $saved_blog_id;
+			}
+		}
+
+		$this->assertNull(
+			$wpcom_plan_info_class::$blog_id,
+			'Plan_Info should not be constructed when WPCOM has no current blog.'
+		);
+		$this->assertFalse(
+			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
+			'Script should not enqueue on WPCOM Simple when no current blog is available.'
 		);
 	}
 

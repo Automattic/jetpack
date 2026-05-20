@@ -38,8 +38,8 @@ class Jetpack_Reader_Chat {
 	 * @return void
 	 */
 	public static function init(): void {
-		// Register the setting unconditionally so the REST API can flip it even
-		// when the feature is currently disabled.
+		// Register the setting unconditionally so the Search REST endpoint can
+		// flip it even when the feature is currently disabled.
 		add_action( 'init', array( __CLASS__, 'register_settings' ) );
 		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_sync_options_whitelist' ) );
 
@@ -74,8 +74,7 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Register the reader_chat option so it is readable and writable
-	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
+	 * Register the reader_chat option so Search settings can read and write it.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -89,7 +88,6 @@ class Jetpack_Reader_Chat {
 				'type'              => 'boolean',
 				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),
 				'sanitize_callback' => 'rest_sanitize_boolean',
-				'show_in_rest'      => true,
 				'default'           => false,
 			)
 		);
@@ -99,8 +97,8 @@ class Jetpack_Reader_Chat {
 	 * Add Reader Chat's setting to Jetpack Sync's option whitelist.
 	 *
 	 * Atomic and Jurassic Ninja sites write `reader_chat` locally via
-	 * /wp/v2/settings, while the wpcom-hosted agent reads the wpcom-side
-	 * option before serving public chat requests. Syncing the option keeps
+	 * Search settings, while the wpcom-hosted agent reads the wpcom-side option
+	 * before serving public chat requests. Syncing the option keeps
 	 * the local toggle and agent permission gate aligned.
 	 *
 	 * @since 15.9
@@ -395,7 +393,8 @@ class Jetpack_Reader_Chat {
 	/**
 	 * Check whether the current site can serve Reader Chat under its Search plan.
 	 *
-	 * Uses the cached Jetpack Search plan option instead of forcing a remote
+	 * Uses WordPress.com's local Search plan source on Simple sites. Elsewhere,
+	 * uses the cached Jetpack Search plan option instead of forcing a remote
 	 * refresh on public frontend requests.
 	 *
 	 * @return bool
@@ -404,6 +403,24 @@ class Jetpack_Reader_Chat {
 		$plan_access = apply_filters( 'jetpack_reader_chat_has_search_plan_access', null );
 		if ( null !== $plan_access ) {
 			return (bool) $plan_access;
+		}
+
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$blog_id = get_current_blog_id();
+			if ( $blog_id <= 0 ) {
+				return false;
+			}
+
+			if ( function_exists( 'require_lib' ) ) {
+				require_lib( 'jetpack-search' );
+			}
+
+			$wpcom_plan_info_class = '\Jetpack\Search\Plan_Info';
+			if ( class_exists( $wpcom_plan_info_class ) ) {
+				$plan_info = new $wpcom_plan_info_class( $blog_id );
+				return $plan_info->supports_search() && ! $plan_info->is_disabled_due_to_overage();
+			}
 		}
 
 		if ( ! class_exists( Plan::class ) ) {
