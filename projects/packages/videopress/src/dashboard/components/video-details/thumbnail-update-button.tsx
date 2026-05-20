@@ -1,7 +1,7 @@
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { cloud, Icon, media, pencil } from '@wordpress/icons';
-import { Button, IconButton, Popover, VisuallyHidden } from '@wordpress/ui';
-import { useState, type ReactElement } from 'react';
+import { cloud, media, pencil } from '@wordpress/icons';
+import type { ReactElement } from 'react';
 
 type Props = {
 	canSelectFromVideo: boolean;
@@ -12,9 +12,12 @@ type Props = {
 };
 
 /**
- * Overlay button that opens a small popover menu with two actions:
- * "Select from video" and "Upload image". Intended to sit on top of the
- * video thumbnail inside ThumbnailCard so the user can update the poster.
+ * Overlay button that opens the thumbnail-update menu with two actions:
+ * "Select from video" and "Upload image". Uses the same `@wordpress/components`
+ * DropdownMenu as the page header's ⋯ menu so both menus share the design
+ * system's look — including MenuItem's default right-aligned icons. Sits on
+ * top of the video thumbnail inside ThumbnailCard via the
+ * `vp-thumbnail-update__trigger` class.
  *
  * @param props                    - Component props.
  * @param props.canSelectFromVideo - Whether the frame-picker action is available.
@@ -31,59 +34,37 @@ export default function ThumbnailUpdateButton( {
 	onSelectFromVideo,
 	onUploadImage,
 }: Props ): ReactElement {
-	const [ open, setOpen ] = useState( false );
-
 	return (
-		<Popover.Root open={ open } onOpenChange={ setOpen }>
-			<Popover.Trigger
-				disabled={ isBusy }
-				className="vp-thumbnail-update__trigger"
-				render={
-					<IconButton
-						icon={ pencil }
-						label={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
-						size="compact"
-						tone="neutral"
-						variant="solid"
-						focusableWhenDisabled={ false }
-					/>
-				}
-			/>
-			<Popover.Popup role="menu" className="vp-thumbnail-update__menu">
-				<Popover.Arrow />
-				<VisuallyHidden>
-					<Popover.Title>{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }</Popover.Title>
-				</VisuallyHidden>
-				{ /* focusableWhenDisabled={ false } sets the native disabled attribute so a
-				     disabled item leaves the tab order. There's no tooltip explaining the
-				     disabled state, so there's no value in keeping it focusable. */ }
-				<Button
-					role="menuitem"
-					variant="minimal"
-					disabled={ ! canSelectFromVideo }
-					focusableWhenDisabled={ false }
-					onClick={ () => {
-						setOpen( false );
-						onSelectFromVideo();
-					} }
-				>
-					<Icon icon={ media } />
-					{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-				</Button>
-				<Button
-					role="menuitem"
-					variant="minimal"
-					disabled={ ! canUploadImage }
-					focusableWhenDisabled={ false }
-					onClick={ () => {
-						setOpen( false );
-						onUploadImage();
-					} }
-				>
-					<Icon icon={ cloud } />
-					{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
-				</Button>
-			</Popover.Popup>
-		</Popover.Root>
+		<DropdownMenu
+			icon={ pencil }
+			label={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+			className="vp-thumbnail-update__trigger"
+			toggleProps={ { size: 'compact', disabled: isBusy } }
+		>
+			{ ( { onClose } ) => (
+				<MenuGroup>
+					<MenuItem
+						icon={ media }
+						disabled={ ! canSelectFromVideo }
+						onClick={ () => {
+							onSelectFromVideo();
+							onClose();
+						} }
+					>
+						{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+					<MenuItem
+						icon={ cloud }
+						disabled={ ! canUploadImage }
+						onClick={ () => {
+							onUploadImage();
+							onClose();
+						} }
+					>
+						{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+				</MenuGroup>
+			) }
+		</DropdownMenu>
 	);
 }

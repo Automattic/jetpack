@@ -69,8 +69,10 @@ describe( 'ThumbnailUpdateButton', () => {
 			/>
 		);
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
+		// @wordpress/components MenuItem marks a disabled item with aria-disabled
+		// (keeping it focusable) rather than the native disabled attribute.
 		const item = screen.getByRole( 'menuitem', { name: /select from video/i } );
-		expect( item ).toBeDisabled();
+		expect( item ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	it( 'disables Upload image when not allowed', async () => {
@@ -85,7 +87,10 @@ describe( 'ThumbnailUpdateButton', () => {
 			/>
 		);
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		expect( screen.getByRole( 'menuitem', { name: /upload image/i } ) ).toBeDisabled();
+		expect( screen.getByRole( 'menuitem', { name: /upload image/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'disables the trigger when busy', () => {
