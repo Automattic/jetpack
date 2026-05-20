@@ -1,5 +1,5 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { useFeatures } from './use-features';
+import { useIsVideoPressUnlimited } from './use-is-videopress-unlimited';
 import { useLibrary } from './use-library';
 import { useUpload } from './use-upload';
 import type { View } from '@wordpress/dataviews';
@@ -73,7 +73,6 @@ const AT_LIMIT_OVERRIDE: Override = parseOverride( SEARCH, 'vp_at_limit' );
 export function useFreeTier(): FreeTierState {
 	const { paginationInfo } = useLibrary( COUNT_VIEW );
 	const { uploadQueue } = useUpload();
-	const features = useFeatures();
 	const siteData =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
 			? JPVIDEOPRESS_INITIAL_STATE?.siteData
@@ -89,9 +88,7 @@ export function useFreeTier(): FreeTierState {
 	const videoCount = AT_LIMIT_OVERRIDE === true ? FREE_TIER_UPLOAD_LIMIT : realVideoCount;
 
 	const isAtomic = isWoASite();
-	const isUnlimited = Boolean(
-		siteData?.isVideoPressUnlimited || features.data?.isVideoPressUnlimitedSupported
-	);
+	const isUnlimited = useIsVideoPressUnlimited();
 
 	const isAtLimit = isFree && videoCount >= FREE_TIER_UPLOAD_LIMIT;
 
