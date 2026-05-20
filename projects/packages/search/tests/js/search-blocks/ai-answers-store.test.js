@@ -224,6 +224,24 @@ describe( 'AI Answers store slice', () => {
 		expect( state.aiExtendedStatus ).toBe( 'loading' );
 		expect( typeof state.aiExtendedLoadingText ).toBe( 'string' );
 		expect( state.aiExtendedLoadingText.length ).toBeGreaterThan( 0 );
+		// Strip the trailing ellipsis — the animated dots after the text
+		// already signal "in progress".
+		expect( state.aiExtendedLoadingText ).not.toMatch( /…\s*$/ );
+		expect( state.aiExtendedLoadingText ).not.toMatch( /\.{3}\s*$/ );
+	} );
+
+	it( 'showExtendedAiAnswer falls back to a curated hint set when the seed is missing', () => {
+		state.searchQuery = 'tabby cats';
+		state.aiExtendedLoadingHints = undefined;
+		actions.fetchAiAnswer();
+		const briefCall = lastStreamCall();
+		briefCall.onDone( [] );
+		actions.showExtendedAiAnswer();
+		// Even with the JS-side fallback (which keeps the ellipsis in the
+		// source string for the overlay's separate use), the picked hint
+		// must be trimmed.
+		expect( state.aiExtendedLoadingText.length ).toBeGreaterThan( 0 );
+		expect( state.aiExtendedLoadingText ).not.toMatch( /…\s*$/ );
 	} );
 
 	it( 'showExtendedAiAnswer is a no-op until the brief response has finished', () => {

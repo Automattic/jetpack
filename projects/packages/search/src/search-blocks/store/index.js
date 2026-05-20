@@ -66,8 +66,16 @@ const AI_EXTENDED_LOADING_HINTS = [
  * `state.aiExtendedLoadingHints` so a site that ships translated copy via
  * the PHP seed wins over the English defaults baked into the bundle.
  *
+ * Strips a trailing `…` (single character or three dots) before returning —
+ * the source strings end with one for the standalone overlay surface, but
+ * the embedded block already renders an animated three-dot ellipsis right
+ * after the hint, so a static ellipsis baked into the text reads as a
+ * doubled "Searching harder… ●●●". The source strings stay unchanged so
+ * the overlay (which doesn't render the animated dots adjacent to the
+ * label) keeps the existing translations.
+ *
  * @param {object} liveState - The IA store state.
- * @return {string} Loading hint.
+ * @return {string} Loading hint, with any trailing ellipsis stripped.
  */
 function pickExtendedLoadingHint( liveState ) {
 	const hints = Array.isArray( liveState.aiExtendedLoadingHints )
@@ -76,7 +84,8 @@ function pickExtendedLoadingHint( liveState ) {
 	if ( hints.length === 0 ) {
 		return '';
 	}
-	return hints[ Math.floor( Math.random() * hints.length ) ];
+	const raw = hints[ Math.floor( Math.random() * hints.length ) ];
+	return raw.replace( /(?:…|\.{3})\s*$/u, '' ).trimEnd();
 }
 
 /**
