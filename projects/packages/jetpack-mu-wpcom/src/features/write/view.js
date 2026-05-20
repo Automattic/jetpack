@@ -1852,9 +1852,13 @@ if ( typeof MutationObserver !== 'undefined' ) {
 
 			event.preventDefault();
 			// DOMParser parses the markup inertly — scripts don't run, images
-			// and iframes don't load, and inline event handlers don't fire. The
-			// sanitizer then strips everything outside the allowlist before we
-			// hand the result to execCommand for insertion at the caret.
+			// and iframes don't load, and inline event handlers don't fire
+			// during parse. The sanitizer below then drops every dangerous
+			// element/attribute before any of it reaches the live DOM. We use
+			// execCommand('insertHTML') for the final insertion because it
+			// handles caret-aware block-level splitting (e.g. pasting a <p>
+			// inside an existing <p> correctly splits the paragraph) — manual
+			// Range.insertNode produces invalid nested-block markup.
 			const parsed = new DOMParser().parseFromString( html, 'text/html' );
 			const tmp = parsed.body;
 			promotePasteFormatting( tmp );
