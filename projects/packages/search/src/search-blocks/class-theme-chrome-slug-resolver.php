@@ -31,6 +31,10 @@ class Theme_Chrome_Slug_Resolver {
 
 	/**
 	 * Hook invalidation actions. Idempotent — safe to call from init.
+	 *
+	 * `save_post_wp_template_part` is broader than the wp_template hook
+	 * (no narrowing by slug or theme): part edits are rare and even an
+	 * over-eager invalidation is cheap (one extra `compute()` next request).
 	 */
 	public static function register_hooks() {
 		add_action( 'switch_theme', array( static::class, 'invalidate' ) );
@@ -47,13 +51,13 @@ class Theme_Chrome_Slug_Resolver {
 		$stylesheet = (string) get_stylesheet();
 		if ( static::is_preview() ) {
 			// Preview themes: resolve fresh, never read or write the cache.
-			return static::compute( $stylesheet );
+			return static::compute();
 		}
 		$cached = static::read_cache( $stylesheet );
 		if ( null !== $cached ) {
 			return $cached;
 		}
-		$computed = static::compute( $stylesheet );
+		$computed = static::compute();
 		static::write_cache( $stylesheet, $computed );
 		return $computed;
 	}
@@ -91,7 +95,10 @@ class Theme_Chrome_Slug_Resolver {
 	 * Pull the first and last top-level `core/template-part` slugs out of
 	 * template markup. Slugs outside `[a-zA-Z0-9_-]` are rejected so the
 	 * JSON round-trip in the bundled-template substitution can't break.
-	 * A single top-level template-part is treated as header-only.
+	 * A single top-level template-part is treated as header-only. Only
+	 * top-level blocks are walked — parts nested inside `wp:group`
+	 * containers are skipped on purpose (a theme that buries its chrome
+	 * inside a wrapper falls back to the resolver's later rungs).
 	 *
 	 * @param string $template_content Block markup.
 	 * @return array{header:?string,footer:?string}
@@ -131,12 +138,11 @@ class Theme_Chrome_Slug_Resolver {
 
 	/**
 	 * Run the resolution chain. Doesn't touch the cache (caller decides).
+	 * The active stylesheet is implicit via `get_active_theme_template_content()`.
 	 *
-	 * @param string $stylesheet Active stylesheet.
 	 * @return array{header:string,footer:string}
 	 */
-	protected static function compute( string $stylesheet ): array {
-		unset( $stylesheet ); // stylesheet is implicit in `get_active_theme_template_content`.
+	protected static function compute(): array {
 		$found = array(
 			'header' => null,
 			'footer' => null,
@@ -185,6 +191,16 @@ class Theme_Chrome_Slug_Resolver {
 
 	/**
 	 * Persist the resolved slugs to the option-backed cache.
+	 *
+	 * `autoload=false`: the option changes only on theme switches /
+	 * search.html edits, so we don't want it in the `alloptions` payload
+	 * fetched on every request. The first `get_option()` per request
+	 * issues its own DB query (or hits the object cache on sites that
+	 * have one) instead.
+	 *
+	 * Cache-cold race: two concurrent requests can both compute and write
+	 * with last-writer-wins semantics. Same input → same output, so
+	 * correctness isn't affected.
 	 *
 	 * @param string                             $stylesheet Active stylesheet.
 	 * @param array{header:string,footer:string} $slugs      Resolved slugs.

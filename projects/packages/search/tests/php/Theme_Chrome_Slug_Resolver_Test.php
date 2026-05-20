@@ -254,7 +254,7 @@ class Theme_Chrome_Slug_Resolver_Test extends TestCase {
 			),
 			false
 		);
-		Theme_Chrome_Slug_Resolver::maybe_invalidate_on_template_save( 0, (object) array( 'post_name' => 'single' ) );
+		Theme_Chrome_Slug_Resolver::maybe_invalidate_on_template_save( 0, new \WP_Post( (object) array( 'post_name' => 'single' ) ) );
 		$this->assertNotFalse(
 			get_option( Theme_Chrome_Slug_Resolver::OPTION_NAME ),
 			'unrelated template save must not invalidate the cache'
