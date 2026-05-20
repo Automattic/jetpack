@@ -28,7 +28,7 @@ const shallowEqual = ( a: VideoDetailsFormValues, b: VideoDetailsFormValues ): b
  * If `video.id` changes (user navigates between details pages), state
  * re-baselines to the new video's values.
  *
- * @param video - The mock video record to edit.
+ * @param video - The video record to edit.
  * @return Form-state controls.
  */
 export function useVideoDetailsForm( video: MockLibraryItem ) {

@@ -2,7 +2,7 @@ import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
-import ThumbnailField from './ThumbnailField';
+import ThumbnailField from './thumbnail-field';
 import type { MockLibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
