@@ -4,7 +4,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
@@ -19,6 +19,12 @@ type Props = {
 };
 
 const dateSettings = getDateSettings();
+
+// Upper bound on how long we keep showing "Updating…" while waiting for the
+// freshly generated poster <img> to load. The onLoad handler normally clears
+// it sooner; this just guarantees the overlay can't get stuck if onLoad never
+// fires (identical URL, cache hit, or a load error).
+const POSTER_CONFIRM_TIMEOUT_MS = 5000;
 
 const linkForVideo = ( video: LibraryItem ): string => {
 	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
@@ -86,11 +92,47 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const updatePoster = useUpdateVideoPoster();
 	const [ dialogOpen, setDialogOpen ] = useState( false );
+	// True between a poster mutation resolving and the new thumbnail <img>
+	// actually loading. Keeps the "Updating…" overlay up and the success
+	// notice held back so the toast lines up with the visible change rather
+	// than firing a beat early (while the browser is still fetching the image).
+	const [ confirmingPoster, setConfirmingPoster ] = useState( false );
+
+	const finishUpdate = useCallback( () => {
+		setConfirmingPoster( false );
+		createSuccessNotice( __( 'Thumbnail updated.', 'jetpack-videopress-pkg' ) );
+	}, [ createSuccessNotice ] );
+
+	// Safety net: if onLoad never reports back (identical URL, cache hit with no
+	// event, or a load error) don't strand the UI in "Updating…".
+	useEffect( () => {
+		if ( ! confirmingPoster ) {
+			return;
+		}
+		const timer = setTimeout( finishUpdate, POSTER_CONFIRM_TIMEOUT_MS );
+		return () => clearTimeout( timer );
+	}, [ confirmingPoster, finishUpdate ] );
 
 	const notifyResult = {
-		onSuccess: () => createSuccessNotice( __( 'Thumbnail updated.', 'jetpack-videopress-pkg' ) ),
+		onSuccess: ( { poster }: { poster?: string } ) => {
+			// The mutation already wrote the new poster into the cache, so the
+			// <img> below is now pointing at it. Wait for that image to load
+			// before clearing the overlay and notifying. With no poster (e.g.
+			// generation polling exhausted) there's nothing to wait for.
+			if ( poster ) {
+				setConfirmingPoster( true );
+			} else {
+				finishUpdate();
+			}
+		},
 		onError: () =>
 			createErrorNotice( __( 'Failed to update thumbnail.', 'jetpack-videopress-pkg' ) ),
+	};
+
+	const confirmPosterLoad = () => {
+		if ( confirmingPoster ) {
+			finishUpdate();
+		}
 	};
 
 	const handleConfirmFrame = ( atTimeMs: number ) => {
@@ -121,6 +163,8 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 				width={ 240 }
 				height={ 135 }
 				className="vp-video-details__thumbnail"
+				onLoad={ confirmPosterLoad }
+				onError={ confirmPosterLoad }
 			/>
 		);
 	} else if ( video.isProcessing ) {
@@ -132,6 +176,7 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	}
 
 	const showUpdateButton = canEditThumbnail( video );
+	const isUpdating = updatePoster.isPending || confirmingPoster;
 
 	return (
 		<Card.Root>
@@ -143,12 +188,12 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 							<ThumbnailUpdateButton
 								canSelectFromVideo={ Boolean( video.sourceUrl ) }
 								canUploadImage={ Boolean( window.wp?.media ) }
-								isBusy={ updatePoster.isPending }
+								isBusy={ isUpdating }
 								onSelectFromVideo={ () => setDialogOpen( true ) }
 								onUploadImage={ handleUploadImage }
 							/>
 						) }
-						{ updatePoster.isPending && (
+						{ isUpdating && (
 							<div className="vp-video-details__thumbnail-updating">
 								<Text>{ __( 'Updating…', 'jetpack-videopress-pkg' ) }</Text>
 							</div>
