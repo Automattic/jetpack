@@ -115,7 +115,7 @@ class WPCOM_Smart_Dictation {
 			return;
 		}
 
-		if ( self::is_block_editor() && ( self::is_proxied() || self::current_user_is_in_paid_rollout() ) ) {
+		if ( self::is_block_editor() && 'en' === self::determine_iso_639_locale() && ( self::is_proxied() || self::current_user_is_in_paid_rollout() ) ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
 			$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
 			$version    = ( is_array( $asset_file ) && isset( $asset_file['version'] ) )
