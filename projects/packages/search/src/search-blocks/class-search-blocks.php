@@ -1625,41 +1625,47 @@ class Search_Blocks {
 	 * @return array<int, string>
 	 */
 	protected static function build_ai_extended_loading_hints(): array {
+		// Source strings deliberately omit a trailing `…`. The block's
+		// render.php emits an animated three-dot ellipsis right after the
+		// label, so a static one in the source would read as a doubled
+		// "Searching harder… …". The overlay strips the trailing `…` for
+		// the same reason — keeping the source clean here means the two
+		// surfaces share the same translation keys.
 		if ( ! function_exists( '__' ) ) {
 			return array(
-				'Searching harder…',
-				'Looking deeper into this…',
-				'Finding a more complete answer…',
-				'Analyzing additional sources…',
-				'Gathering more details…',
-				'Pulling in more context…',
-				'Expanding the search…',
-				'Rolling up my virtual sleeves…',
-				'Digging through the archives…',
-				'Putting on my reading glasses…',
-				'Checking under the digital couch cushions…',
-				'Consulting the oracle…',
-				'Asking a smarter algorithm…',
-				'Brewing a fresh batch of insights…',
-				'Unleashing the full power of search…',
+				'Searching harder',
+				'Looking deeper into this',
+				'Finding a more complete answer',
+				'Analyzing additional sources',
+				'Gathering more details',
+				'Pulling in more context',
+				'Expanding the search',
+				'Rolling up my virtual sleeves',
+				'Digging through the archives',
+				'Putting on my reading glasses',
+				'Checking under the digital couch cushions',
+				'Consulting the oracle',
+				'Asking a smarter algorithm',
+				'Brewing a fresh batch of insights',
+				'Unleashing the full power of search',
 			);
 		}
 		return array(
-			__( 'Searching harder…', 'jetpack-search-pkg' ),
-			__( 'Looking deeper into this…', 'jetpack-search-pkg' ),
-			__( 'Finding a more complete answer…', 'jetpack-search-pkg' ),
-			__( 'Analyzing additional sources…', 'jetpack-search-pkg' ),
-			__( 'Gathering more details…', 'jetpack-search-pkg' ),
-			__( 'Pulling in more context…', 'jetpack-search-pkg' ),
-			__( 'Expanding the search…', 'jetpack-search-pkg' ),
-			__( 'Rolling up my virtual sleeves…', 'jetpack-search-pkg' ),
-			__( 'Digging through the archives…', 'jetpack-search-pkg' ),
-			__( 'Putting on my reading glasses…', 'jetpack-search-pkg' ),
-			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
-			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
-			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
-			__( 'Brewing a fresh batch of insights…', 'jetpack-search-pkg' ),
-			__( 'Unleashing the full power of search…', 'jetpack-search-pkg' ),
+			__( 'Searching harder', 'jetpack-search-pkg' ),
+			__( 'Looking deeper into this', 'jetpack-search-pkg' ),
+			__( 'Finding a more complete answer', 'jetpack-search-pkg' ),
+			__( 'Analyzing additional sources', 'jetpack-search-pkg' ),
+			__( 'Gathering more details', 'jetpack-search-pkg' ),
+			__( 'Pulling in more context', 'jetpack-search-pkg' ),
+			__( 'Expanding the search', 'jetpack-search-pkg' ),
+			__( 'Rolling up my virtual sleeves', 'jetpack-search-pkg' ),
+			__( 'Digging through the archives', 'jetpack-search-pkg' ),
+			__( 'Putting on my reading glasses', 'jetpack-search-pkg' ),
+			__( 'Checking under the digital couch cushions', 'jetpack-search-pkg' ),
+			__( 'Consulting the oracle', 'jetpack-search-pkg' ),
+			__( 'Asking a smarter algorithm', 'jetpack-search-pkg' ),
+			__( 'Brewing a fresh batch of insights', 'jetpack-search-pkg' ),
+			__( 'Unleashing the full power of search', 'jetpack-search-pkg' ),
 		);
 	}
 

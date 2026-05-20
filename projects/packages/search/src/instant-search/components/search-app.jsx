@@ -483,22 +483,28 @@ class SearchApp extends Component {
 		const options = window[ SERVER_OBJECT_NAME ] || {};
 		const siteId = options.siteId;
 
+		// Source strings deliberately omit a trailing `…` — answers-panel.jsx
+		// appends an animated three-dot ellipsis right after the label, so a
+		// static one would render as a doubled "Searching harder… …".
+		// Mirrors `Search_Blocks::build_ai_extended_loading_hints()` so the
+		// overlay and the embedded `jetpack-search/ai-answer` block share
+		// translation keys.
 		const loadingMessages = [
-			__( 'Searching harder…', 'jetpack-search-pkg' ),
-			__( 'Looking deeper into this…', 'jetpack-search-pkg' ),
-			__( 'Finding a more complete answer…', 'jetpack-search-pkg' ),
-			__( 'Analyzing additional sources…', 'jetpack-search-pkg' ),
-			__( 'Gathering more details…', 'jetpack-search-pkg' ),
-			__( 'Pulling in more context…', 'jetpack-search-pkg' ),
-			__( 'Expanding the search…', 'jetpack-search-pkg' ),
-			__( 'Rolling up my virtual sleeves…', 'jetpack-search-pkg' ),
-			__( 'Digging through the archives…', 'jetpack-search-pkg' ),
-			__( 'Putting on my reading glasses…', 'jetpack-search-pkg' ),
-			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
-			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
-			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
-			__( 'Brewing a fresh batch of insights…', 'jetpack-search-pkg' ),
-			__( 'Unleashing the full power of search…', 'jetpack-search-pkg' ),
+			__( 'Searching harder', 'jetpack-search-pkg' ),
+			__( 'Looking deeper into this', 'jetpack-search-pkg' ),
+			__( 'Finding a more complete answer', 'jetpack-search-pkg' ),
+			__( 'Analyzing additional sources', 'jetpack-search-pkg' ),
+			__( 'Gathering more details', 'jetpack-search-pkg' ),
+			__( 'Pulling in more context', 'jetpack-search-pkg' ),
+			__( 'Expanding the search', 'jetpack-search-pkg' ),
+			__( 'Rolling up my virtual sleeves', 'jetpack-search-pkg' ),
+			__( 'Digging through the archives', 'jetpack-search-pkg' ),
+			__( 'Putting on my reading glasses', 'jetpack-search-pkg' ),
+			__( 'Checking under the digital couch cushions', 'jetpack-search-pkg' ),
+			__( 'Consulting the oracle', 'jetpack-search-pkg' ),
+			__( 'Asking a smarter algorithm', 'jetpack-search-pkg' ),
+			__( 'Brewing a fresh batch of insights', 'jetpack-search-pkg' ),
+			__( 'Unleashing the full power of search', 'jetpack-search-pkg' ),
 		];
 		const aiExtendedLoadingText =
 			loadingMessages[ Math.floor( Math.random() * loadingMessages.length ) ];
