@@ -76,6 +76,17 @@ class Initializer {
 
 		// Initialize search package.
 		if ( ! static::init_search( $blog_id ) ) {
+			// The block-template overlay path provides the search UI via
+			// `Search_Blocks` rather than the legacy instant/classic
+			// experiences, so `init_search()` legitimately returns falsy
+			// (both branches are skipped) without being an abort. Without
+			// this carve-out, the legacy `jetpack_search_abort` action
+			// would fire and `jetpack_search_loaded` would not — which
+			// would silently break anything hooked to the loaded action.
+			if ( Search_Blocks::is_block_template_overlay_enabled() ) {
+				do_action( 'jetpack_search_loaded' );
+				return;
+			}
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
 			do_action( 'jetpack_search_abort', 'jetpack_search_init_search', null );
 			return;
