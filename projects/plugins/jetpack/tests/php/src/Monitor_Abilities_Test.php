@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/class-monitor-abilities-test-stub.php';
 
@@ -585,6 +586,47 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 			array(),
 			$registered_slugs,
 			'Monitor abilities must not be registered while the Monitor module is inactive (modules/monitor.php not loaded).'
+		);
+	}
+
+	// -------------------- normalize_last_status_change --------------------
+
+	/**
+	 * Inputs and expected outputs for the last-status-change normalizer.
+	 *
+	 * Covers every "no transition yet" representation we want to collapse to
+	 * null — empty string (Jetpack Monitor v1's sentinel), whitespace-only,
+	 * MySQL zero-date variants (anticipated Monitor v2), non-strings — plus a
+	 * legitimate timestamp that must pass through verbatim.
+	 *
+	 * @return array<string, array{0: mixed, 1: string|null}>
+	 */
+	public static function provider_normalize_last_status_change(): array {
+		return array(
+			'empty string'                   => array( '', null ),
+			'whitespace only'                => array( "  \t\n", null ),
+			'mysql zero-date'                => array( '0000-00-00 00:00:00', null ),
+			'mysql zero-date no time'        => array( '0000-00-00', null ),
+			'non-string null'                => array( null, null ),
+			'non-string integer'             => array( 0, null ),
+			'non-string false'               => array( false, null ),
+			'unparseable string'             => array( 'not-a-timestamp', null ),
+			'valid timestamp passes through' => array( '2024-01-15 12:34:56', '2024-01-15 12:34:56' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provider_normalize_last_status_change
+	 *
+	 * @param mixed       $input    Raw value from the remote or cache.
+	 * @param string|null $expected Normalized contract value.
+	 */
+	#[DataProvider( 'provider_normalize_last_status_change' )]
+	public function test_normalize_last_status_change_collapses_no_value_representations_to_null( $input, $expected ) {
+		$this->assertSame(
+			$expected,
+			Monitor_Abilities_Test_Stub::expose_normalize_last_status_change( $input ),
+			'normalize_last_status_change should pass legitimate timestamps through unchanged and collapse every "no value" representation to null.'
 		);
 	}
 }

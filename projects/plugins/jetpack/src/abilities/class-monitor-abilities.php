@@ -330,7 +330,7 @@ class Monitor_Abilities extends Registrar {
 	protected static function fetch_last_status_change() {
 		$cached = get_transient( 'monitor_last_downtime' );
 		if ( false !== $cached ) {
-			return is_string( $cached ) && '' !== $cached ? $cached : null;
+			return self::normalize_last_status_change( $cached );
 		}
 
 		$xml = new Jetpack_IXR_Client();
@@ -344,6 +344,37 @@ class Monitor_Abilities extends Registrar {
 
 		$response = $xml->getResponse();
 		set_transient( 'monitor_last_downtime', $response, 10 * MINUTE_IN_SECONDS );
-		return is_string( $response ) && '' !== $response ? $response : null;
+		return self::normalize_last_status_change( $response );
+	}
+
+	/**
+	 * Normalize a `last_status_change` value into the documented contract:
+	 * a `YYYY-MM-DD HH:mm:ss` UTC string, or `null` for "no transition yet".
+	 *
+	 * Jetpack Monitor v1 returns an empty string when no transition has been
+	 * recorded; Monitor v2 may instead surface a MySQL zero-date
+	 * (`0000-00-00 00:00:00`) or some other sentinel. Collapse every "no value"
+	 * representation to `null` so the ability's `null` contract stays stable
+	 * regardless of which backend is active.
+	 *
+	 * @param mixed $value Raw remote/cached value.
+	 * @return string|null Pass-through timestamp string, or null when absent.
+	 */
+	protected static function normalize_last_status_change( $value ) {
+		if ( ! is_string( $value ) ) {
+			return null;
+		}
+
+		$value = trim( $value );
+		if ( '' === $value || 0 === strncmp( $value, '0000-00-00', 10 ) ) {
+			return null;
+		}
+
+		$ts = strtotime( $value );
+		if ( false === $ts || $ts <= 0 ) {
+			return null;
+		}
+
+		return $value;
 	}
 }

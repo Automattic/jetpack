@@ -100,4 +100,15 @@ class Monitor_Abilities_Test_Stub extends Monitor_Abilities {
 		self::$current_state = $enabled;
 		return true;
 	}
+
+	/**
+	 * Public passthrough exposing the protected normalize_last_status_change
+	 * helper so tests can drive it directly without reflection.
+	 *
+	 * @param mixed $value Raw remote/cached value.
+	 * @return string|null
+	 */
+	public static function expose_normalize_last_status_change( $value ) {
+		return parent::normalize_last_status_change( $value );
+	}
 }
