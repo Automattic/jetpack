@@ -22,6 +22,15 @@ export interface NumberFormatParams {
 
 export interface CurrencyOverride {
 	symbol?: string;
+	/**
+	 * Smallest-unit exponent for this currency, used when the browser's ICU
+	 * `maximumFractionDigits` disagrees with the API's smallest-unit encoding.
+	 *
+	 * For example, the WPCOM currencies endpoint sends `{ "IDR": { "decimal": 0 } }`
+	 * to indicate that IDR should be treated as a 0-decimal currency rather than
+	 * the 2 that modern browser ICU reports.
+	 */
+	decimal?: number;
 }
 
 export interface NumberFormatCurrencyParams {
@@ -76,6 +85,17 @@ export interface NumberFormatCurrencyParams {
 	 * sign (eg: `+$35.00`). Has no effect on negative numbers or 0.
 	 */
 	signForPositive?: boolean;
+
+	/**
+	 * Dynamic currency overrides, typically supplied by the host application
+	 * (eg: from a remote endpoint) via `setCurrencyOverrides`.
+	 *
+	 * When provided, entries here take precedence over the hard-coded defaults
+	 * baked into the package on a per-field basis. Anything not specified in
+	 * this map falls back to the hard-coded defaults, so passing a partial map
+	 * is safe.
+	 */
+	currencyOverrides?: Record< string, CurrencyOverride >;
 }
 
 export interface CurrencyObject {
