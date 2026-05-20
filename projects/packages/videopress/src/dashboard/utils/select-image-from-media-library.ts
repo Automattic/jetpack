@@ -8,19 +8,6 @@ type MediaFrame = {
 	open: () => void;
 };
 
-declare global {
-	interface Window {
-		wp?: {
-			media?: ( opts: {
-				title: string;
-				multiple: boolean;
-				library: { type: string };
-				button: { text: string };
-			} ) => MediaFrame;
-		};
-	}
-}
-
 /**
  * Open the WordPress media library picker and prompt the user to select a
  * single image. Resolves with the chosen attachment's `id` and `url`, or
@@ -31,10 +18,19 @@ declare global {
  * @return A Promise that resolves to the selected `{ id, url }` attachment, or `null` if the user closed the frame without selecting.
  */
 export async function selectImageFromMediaLibrary(): Promise< Attachment | null > {
-	if ( ! window.wp?.media ) {
+	const mediaFactory = window.wp?.media as
+		| ( ( opts: {
+				title: string;
+				multiple: boolean;
+				library: { type: string };
+				button: { text: string };
+		  } ) => MediaFrame )
+		| undefined;
+
+	if ( ! mediaFactory ) {
 		throw new Error( 'wp.media is not available' );
 	}
-	const frame = window.wp.media( {
+	const frame = mediaFactory( {
 		title: __( 'Select thumbnail', 'jetpack-videopress-pkg' ),
 		multiple: false,
 		library: { type: 'image' },
