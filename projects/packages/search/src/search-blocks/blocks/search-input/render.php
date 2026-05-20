@@ -119,8 +119,12 @@ $context_json = $enable_suggestions
 			class="jetpack-search-input__clear"
 			data-wp-bind--hidden="!state.searchQuery"
 			data-wp-on--click="actions.clearSearch"
-			aria-label="<?php echo esc_attr__( 'Clear search', 'jetpack-search-pkg' ); ?>"
-		>&#10005;</button>
+		>
+			<?php
+			/* translators: Button is used to clear the search input query. */
+			echo esc_html__( 'clear', 'jetpack-search-pkg' );
+			?>
+		</button>
 		<?php if ( $enable_suggestions ) : ?>
 		<ul
 			id="<?php echo esc_attr( $listbox_id ); ?>"

@@ -108,6 +108,17 @@ class Search_Blocks {
 	private static $supported_custom_taxonomies_cache = null;
 
 	/**
+	 * Cached rendered HTML for the overlay template. Filled during
+	 * `wp_enqueue_scripts` so the embedded blocks' view-module enqueues
+	 * land before `wp_print_import_map()` runs (footer priority 1) — that
+	 * walk is what puts `jetpack-search/store` into the importmap, and
+	 * deferring the render to footer priority 10 misses it.
+	 *
+	 * @var string|null
+	 */
+	private static $block_template_overlay_rendered_html = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -179,6 +190,34 @@ class Search_Blocks {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
+
+		if ( static::is_block_template_overlay_enabled() ) {
+			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
+			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
+		}
+	}
+
+	/**
+	 * Whether the legacy instant-search overlay should be replaced by the
+	 * server-rendered Search blocks template
+	 * (`templates/jetpack-search-overlay.html`).
+	 *
+	 * EXPERIMENTAL — off by default; not production-ready. Opt-in requires
+	 * both this filter AND `jetpack_search_blocks_enabled` to be true, since
+	 * the rendered markup needs the Search blocks themselves registered to
+	 * have anything to hydrate. When on, the legacy `SearchApp` is fully
+	 * bypassed via the `jetpack_search_init_instant_search` filter.
+	 *
+	 * @return bool
+	 */
+	public static function is_block_template_overlay_enabled(): bool {
+		/**
+		 * Opt into the experimental Search blocks overlay. Off by default.
+		 * Do not enable in production until this feature graduates.
+		 *
+		 * @param bool $enabled Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false );
 	}
 
 	/**
@@ -870,6 +909,303 @@ class Search_Blocks {
 				'content'     => $content,
 			)
 		);
+	}
+
+	/**
+	 * Read the dedicated overlay-template markup (`jetpack-search-overlay.html`).
+	 *
+	 * Distinct from `get_search_template_content()`: that one wraps the
+	 * search blocks inside `header` / `main` / `footer` template-parts so
+	 * the result renders as a full page. The overlay needs only the main
+	 * region — a modal isn't a page — so it ships as its own file rather
+	 * than runtime-stripping the page template's wrappers.
+	 *
+	 * Memoized like the page template: the markup is identical every
+	 * request, so the file read happens once per process. Unlike the
+	 * page-template variant, this template has no `{{FILTER_HEADING}}`
+	 * placeholder — the per-filter labels on each filter block render
+	 * the headings directly, matching the legacy overlay's per-filter
+	 * subheading layout.
+	 *
+	 * @return string Block markup for the overlay body.
+	 */
+	protected static function get_overlay_template_content(): string {
+		static $content = null;
+		if ( null !== $content ) {
+			return $content;
+		}
+		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		$content = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return $content;
+	}
+
+	/**
+	 * Echo the Search-blocks overlay shell into `wp_footer`.
+	 *
+	 * Server-renders `jetpack-search.html` once per request (template-part
+	 * comments stripped), wraps it in a hidden modal container, and prints
+	 * the result. Block markup carries `data-wp-interactive` directives, so
+	 * the Interactivity API's standard `DOMContentLoaded` hydration picks it
+	 * up — no client-side fetch and no private-API re-hydration needed.
+	 *
+	 * Caller (`init()`) gates this on `is_block_template_overlay_enabled()`,
+	 * so the action isn't even registered when the legacy overlay is in use.
+	 */
+	public static function print_block_template_overlay() {
+		$rendered = self::$block_template_overlay_rendered_html;
+		if ( null === $rendered || '' === $rendered ) {
+			return;
+		}
+		$config = wp_json_encode(
+			array(
+				'searchInputSelector'    => 'input[name="s"]:not(.jetpack-search-input__field), #searchform input.search-field, .search-form input.search-field, .searchform input.search-field',
+				'overlayTriggerSelector' => '.jetpack-search-block-overlay-trigger, .jetpack-instant-search__open-overlay-button, header#site-header .search-toggle[data-toggle-target]',
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+		?>
+		<script id="jetpack-search-block-overlay-config">window.JetpackSearchBlockOverlay=<?php echo $config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode + JSON_HEX_* flags. ?>;</script>
+		<?php
+		// `<template>` keeps `data-wp-interactive` regions out of
+		// `document.querySelectorAll`, so the IA runtime's one-shot
+		// DOMContentLoaded hydration walk skips them; the bootstrap
+		// clones the content into the shell on first open and hydrates
+		// there.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output.
+		printf( '<template id="jetpack-search-block-overlay-template">%s</template>', $rendered );
+		?>
+		<div
+			id="jetpack-search-block-overlay"
+			class="jetpack-search-block-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-label="<?php echo esc_attr__( 'Search', 'jetpack-search-pkg' ); ?>"
+			hidden
+		>
+			<div class="jetpack-search-block-overlay__card">
+				<button
+					type="button"
+					class="jetpack-search-block-overlay__close"
+					aria-label="<?php echo esc_attr__( 'Close search', 'jetpack-search-pkg' ); ?>"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor" />
+					</svg>
+				</button>
+				<div class="jetpack-search-block-overlay__content"></div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Register + enqueue the overlay-bootstrap Script Module that wires
+	 * theme-defined search triggers (input, form, button) to the rendered
+	 * overlay shell, plus a minimal inline stylesheet for the modal chrome.
+	 * Config (trigger selectors) is emitted alongside the overlay HTML in
+	 * `print_block_template_overlay()` so it's guaranteed to land in the
+	 * page before the deferred module imports it.
+	 */
+	public static function enqueue_block_template_overlay_assets() {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+		$base_path  = Package::get_installed_path() . 'build/search-blocks/overlay-bootstrap/';
+		$asset_file = $base_path . 'index.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+		wp_register_script_module(
+			'jetpack-search/overlay-bootstrap',
+			plugins_url( 'index.js', $base_path . 'index.js' ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? false
+		);
+		wp_enqueue_script_module( 'jetpack-search/overlay-bootstrap' );
+
+		wp_register_style( 'jetpack-search-block-overlay', false, array(), $asset['version'] ?? false );
+		wp_enqueue_style( 'jetpack-search-block-overlay' );
+		wp_add_inline_style( 'jetpack-search-block-overlay', static::block_template_overlay_inline_css() );
+
+		// Render the template content now (during `wp_enqueue_scripts`) so
+		// the view-module enqueues triggered by `do_blocks()` are in place
+		// before the importmap is printed in `wp_footer` priority 1.
+		// `wp_footer` priority 10 (where `print_block_template_overlay`
+		// runs) is too late — the importmap walk has already happened and
+		// `jetpack-search/store` would be missing from it.
+		self::$block_template_overlay_rendered_html = trim(
+			do_blocks( static::get_overlay_template_content() )
+		);
+	}
+
+	/**
+	 * Minimal CSS for the overlay shell. Block-rendered content brings its
+	 * own styling; this only handles the modal chrome (positioning, scrim,
+	 * close button) and the hidden/visible toggle.
+	 *
+	 * @return string
+	 */
+	protected static function block_template_overlay_inline_css(): string {
+		return <<<'CSS'
+/*
+ * Modal chrome only. The rendered Search blocks bring their own styling
+ * from the active theme; this stylesheet handles only the overlay scrim,
+ * the centered card, the header strip (search input + close button),
+ * open/close animation, and the body-scroll-lock helper. Mirrors the
+ * visual idiom of the legacy `instant-search/components/overlay.scss`.
+ */
+.jetpack-search-block-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	background: rgba(31, 31, 31, 0.7);
+	overflow-y: auto;
+	padding: 3em 1em;
+	transition: opacity 0.1s ease-in;
+}
+.jetpack-search-block-overlay[hidden] {
+	display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.jetpack-search-block-overlay {
+		transition: none;
+	}
+}
+.jetpack-search-block-overlay__card {
+	position: relative;
+	width: 100%;
+	max-width: 1080px;
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+	padding-top: 60px;
+}
+.jetpack-search-block-overlay__close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid #e0e0e0;
+	cursor: pointer;
+	color: inherit;
+}
+.jetpack-search-block-overlay__close:hover,
+.jetpack-search-block-overlay__close:focus-visible {
+	background: #f6f7f7;
+}
+.jetpack-search-block-overlay__close svg {
+	width: 24px;
+	height: 24px;
+}
+/*
+ * The first child of the rendered template is the search-input block.
+ * Promote it to a 60px header strip flush with the close button so the
+ * two read as a single top bar — matching the legacy `__box` header:
+ * 60px magnifying-glass column on the left, full-width input in the
+ * middle, ×-clear column on the right (before the overlay's own X).
+ * The block's default `border-bottom: 1px solid currentColor` on
+ * `.jetpack-search-input__inside-wrapper` is intentionally suppressed
+ * inside the overlay — the header strip's own border-bottom handles
+ * the visual separation from the results area.
+ */
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 60px;
+	height: 60px;
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid #e0e0e0;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__inside-wrapper {
+	height: 100%;
+	display: flex;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	border-bottom: 0;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__icon {
+	flex: 0 0 60px;
+	width: 60px;
+	height: 60px;
+	padding: 18px;
+	box-sizing: border-box;
+	opacity: 0.5;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__field {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 100%;
+	font-size: 18px;
+	line-height: 1;
+	padding: 0;
+	background: transparent;
+}
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__clear {
+	flex: 0 0 60px;
+	width: 60px;
+	height: 60px;
+	padding: 0;
+	font-size: 0.875rem;
+	font-weight: 400;
+	line-height: 1;
+}
+.jetpack-search-block-overlay__content > .wp-block-group:first-child {
+	padding: 0 2em 2em;
+}
+/*
+ * The "Found N results" + sort dropdown row sits inside the rendered
+ * `search-results` block. The wp:group inline layout
+ * (`justifyContent: space-between`) does not always emit the matching
+ * core flex-layout class in this context, so we force the row layout
+ * explicitly. Results count anchors left, sort anchors right — matching
+ * the legacy `__search-results-controls` row.
+ */
+.jetpack-search-block-overlay__results-header {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+@media (max-width: 781px) {
+	.jetpack-search-block-overlay {
+		padding: 0;
+	}
+	.jetpack-search-block-overlay__card {
+		min-height: 100vh;
+		border-radius: 0;
+		box-shadow: none;
+	}
+	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
+		padding: 0 1em 1em;
+	}
+}
+/*
+ * Body-scroll lock — set `position: fixed` while the overlay is open so
+ * the page underneath doesn't scroll, with the JS side stashing and
+ * restoring scrollY around the toggle to keep the visible position stable.
+ */
+body.jetpack-search-block-overlay-open {
+	position: fixed;
+	left: 0;
+	right: 0;
+	width: 100%;
+	overflow: hidden;
+}
+CSS;
 	}
 
 	/**
