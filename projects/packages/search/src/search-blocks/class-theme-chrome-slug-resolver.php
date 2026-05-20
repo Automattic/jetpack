@@ -28,8 +28,8 @@ class Theme_Chrome_Slug_Resolver {
 	 * Per-request memo keyed by REQUEST_TIME_FLOAT so the static doesn't
 	 * outlive a single request in long-lived PHP-FPM workers; keyed by
 	 * `get_called_class()` so anonymous test subclasses can stub
-	 * `get_active_theme_template_content()` / `get_active_theme_template_parts()`
-	 * without polluting each other.
+	 * `get_active_theme_template_content()` / `resolve_by_area()` without
+	 * polluting each other.
 	 *
 	 * @return array{header:string,footer:string}
 	 */
