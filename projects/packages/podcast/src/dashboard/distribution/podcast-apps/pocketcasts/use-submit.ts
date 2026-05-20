@@ -57,11 +57,9 @@ export function extractRejectionReasons( pcc: unknown ): string[] {
 }
 
 /**
- * State + dispatcher for the Pocket Casts feed submission.
- *
- * Calls the wpcom relay; the relay persists `podcasting_show_states.pocketcasts`
- * on the server for pending/active/rejected, so we refetch the podcast settings
- * cache on those responses to keep the SPA in sync.
+ * Pocket Casts feed submission. The relay persists
+ * `podcasting_show_states.pocketcasts` server-side for pending/active/rejected,
+ * so we refetch on those responses to keep the SPA in sync.
  *
  * @return `{ submit, isSubmitting, result, errorMessage }` — `result.state`
  * is the discriminator the UI switches on.
@@ -86,8 +84,6 @@ export function usePocketCastsSubmit(): SubmitState & { submit: () => void } {
 							__( 'We couldn’t reach Pocket Casts right now. Please try again.', 'jetpack-podcast' )
 					);
 				} else {
-					// Endpoint persists `podcasting_show_states` for pending/active/rejected;
-					// refetch so the next settings read reflects the new state.
 					refetchPodcastSettings().catch( () => {} );
 				}
 			} )

@@ -261,8 +261,8 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` after a write to the dedicated
-	 * podcast settings endpoint. Pass-through filter on the response.
+	 * Emit `wpcom_podcasting_settings_saved` after a write to the podcast
+	 * settings endpoint. Pass-through filter.
 	 *
 	 * @param mixed                 $response Pass-through.
 	 * @param array                 $handler  Route handler.

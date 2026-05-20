@@ -20,13 +20,12 @@ class Settings_Test extends BaseTestCase {
 
 		$registered = get_registered_settings();
 
+		// REST exposure lives on Settings_Endpoint; podcasting_* must not surface in /wp/v2/settings.
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-			// REST exposure now lives on the dedicated Settings_Endpoint
-			// controller; podcasting_* keys must not appear in /wp/v2/settings.
 			$this->assertFalse(
 				! empty( $registered[ $name ]['show_in_rest'] ),
-				"$name must not declare show_in_rest (the dedicated endpoint owns REST exposure)"
+				"$name must not declare show_in_rest"
 			);
 		}
 	}

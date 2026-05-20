@@ -8,15 +8,12 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Registers the `podcasting_*` options so {@see update_option()} routes through
- * each `sanitize_callback` via the `sanitize_option_{$name}` filter that
- * `register_setting()` attaches. The dedicated `wpcom/v2/podcast/settings`
- * controller ({@see Settings_Endpoint}) is the REST surface — the legacy
- * `/wp/v2/settings` exposure has been retired so the shared response doesn't
- * carry podcast-specific keys.
+ * Registers the `podcasting_*` options so each `sanitize_callback` runs on
+ * {@see update_option()} writes. REST exposure lives on {@see Settings_Endpoint};
+ * `/wp/v2/settings` no longer carries these keys.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —
- * the SPA can PATCH partial entries without losing the rest.
+ * partial PATCHes don't drop unrelated keys.
  */
 class Settings {
 

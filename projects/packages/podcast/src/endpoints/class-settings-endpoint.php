@@ -14,14 +14,11 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * GET/POST `wpcom/v2/podcast/settings` — single-namespace surface for the 14
- * `podcasting_*` options the wp-admin SPA reads and writes. Decouples the SPA
- * from `/wp/v2/settings`, which bloated the shared response with podcast keys
- * and is guarded by a strict shape test in wpcom.
- *
- * Storage stays as plain `wp_options` rows; the same `register_setting()`
- * sanitizers run because {@see update_option()} fires the
- * `sanitize_option_{$name}` filter that `register_setting()` attaches.
+ * Dedicated REST surface for the 14 `podcasting_*` options the wp-admin SPA
+ * reads and writes. Decouples the SPA from `/wp/v2/settings` (which is shape-
+ * guarded in wpcom and bloated by these keys). Storage stays as `wp_options`;
+ * each `register_setting()` sanitizer fires on write because {@see update_option()}
+ * runs the `sanitize_option_{$name}` filter.
  */
 class Settings_Endpoint extends WP_REST_Controller {
 
@@ -29,14 +26,14 @@ class Settings_Endpoint extends WP_REST_Controller {
 	const REST_BASE      = 'podcast/settings';
 
 	/**
-	 * Whether `init()` has wired its hooks.
+	 * Init guard.
 	 *
 	 * @var bool
 	 */
 	private static $initialized = false;
 
 	/**
-	 * Wire up routes. Idempotent.
+	 * Wire the route registration. Idempotent.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -44,8 +41,7 @@ class Settings_Endpoint extends WP_REST_Controller {
 		}
 		self::$initialized = true;
 
-		$instance = new self();
-		add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+		add_action( 'rest_api_init', array( new self(), 'register_routes' ) );
 	}
 
 	/**
@@ -70,14 +66,12 @@ class Settings_Endpoint extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => self::update_args(),
 				),
-				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
 	}
 
 	/**
-	 * Same gate as the wp-admin Podcast page itself — site admins only. Mirrors
-	 * what `/wp/v2/settings` enforces for the `manage_options`-scoped settings.
+	 * Site admins only — same gate as the wp-admin Podcast page.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -93,21 +87,18 @@ class Settings_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * GET /wpcom/v2/podcast/settings — return the full settings record.
+	 * Full settings record.
 	 *
-	 * @param WP_REST_Request|null $request Pass-through; the endpoint takes no query params.
+	 * @param WP_REST_Request $request Unused.
 	 * @return WP_REST_Response
 	 */
-	public function get_item( $request = null ) {
+	public function get_item( $request ) {
 		unset( $request );
 		return rest_ensure_response( $this->collect_settings() );
 	}
 
 	/**
-	 * POST/PUT/PATCH /wpcom/v2/podcast/settings — partial update. Each provided
-	 * key is written via {@see update_option()} so the registered sanitizers
-	 * (host allowlist, state enum, explicit normalization, etc.) run server-side.
-	 * Response is the full merged record.
+	 * Partial update. Returns the full merged record.
 	 *
 	 * @param WP_REST_Request $request Incoming request.
 	 * @return WP_REST_Response
@@ -125,16 +116,12 @@ class Settings_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Build the response body from current option values, coercing each entry to
-	 * the shape the SPA expects (defaults for missing rows, normalized show_urls
-	 * and show_states maps).
+	 * Assemble the response body from stored option values.
 	 *
 	 * @return array<string, mixed>
 	 */
 	private function collect_settings() {
-		$podcatcher_keys = array_keys( Settings::SHOW_URL_HOSTS );
-		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
-
+		$empty_map   = array_fill_keys( array_keys( Settings::SHOW_URL_HOSTS ), '' );
 		$show_urls   = (array) get_option( 'podcasting_show_urls', array() );
 		$show_states = (array) get_option( 'podcasting_show_states', array() );
 
@@ -157,12 +144,10 @@ class Settings_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * REST argument schema for the update route. Top-level type coercion only —
-	 * detailed validation (host allowlist, state enum, explicit normalization)
-	 * runs in each registered `sanitize_callback` when {@see update_option()}
-	 * fires `sanitize_option_{$name}`. Going stricter at the schema layer would
-	 * fail the whole request when one field is bad; the SPA depends on the
-	 * silent-drop semantics the sanitizers provide.
+	 * Top-level type coercion only — the registered `sanitize_callback`s do the
+	 * real validation when {@see update_option()} fires `sanitize_option_{$name}`.
+	 * Strict schema validation here would 400 a whole patch on one bad field; the
+	 * SPA depends on silent-drop semantics.
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
@@ -183,28 +168,5 @@ class Settings_Endpoint extends WP_REST_Controller {
 			'podcasting_show_urls'   => array( 'type' => 'object' ),
 			'podcasting_show_states' => array( 'type' => 'object' ),
 		);
-	}
-
-	/**
-	 * Public item schema for `/wpcom/v2/podcast/settings`. Same field set as
-	 * {@see self::update_args()} with `readonly` defaults — keeps the OPTIONS
-	 * response useful for clients that introspect.
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function get_item_schema() {
-		if ( $this->schema ) {
-			return $this->add_additional_fields_schema( $this->schema );
-		}
-
-		$properties   = self::update_args();
-		$this->schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'podcast-settings',
-			'type'       => 'object',
-			'properties' => $properties,
-		);
-
-		return $this->add_additional_fields_schema( $this->schema );
 	}
 }

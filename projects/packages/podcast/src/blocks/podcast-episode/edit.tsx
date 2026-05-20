@@ -203,10 +203,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		postId
 	);
 
-	// Source the show-level cover from the dedicated podcast settings endpoint
-	// (the dashboard reads the same surface). Single-shot fetch per editor
-	// session — falls back to '' until it resolves, matching the prior null
-	// behaviour of `useEntityProp`.
+	// Show-level cover, fetched from the same endpoint the dashboard reads.
 	const [ showCoverUrl, setShowCoverUrl ] = useState< string >( '' );
 	useEffect( () => {
 		let cancelled = false;

@@ -98,8 +98,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			key === 'podcasting_category_3'
 		) {
 			// Legacy WPCOM stored Apple categories HTML-entity encoded
-			// ("Fashion &amp; Beauty"); decode so the value matches the raw
-			// catalog keys in topics.ts.
+			// ("Fashion &amp; Beauty"); decode to match the catalog keys in topics.ts.
 			out[ key ] = decodeEntities( toString( value ) );
 		} else {
 			out[ key ] = toString( value );
@@ -108,10 +107,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Module-level singleton so every consumer (Settings tab, Distribution tab,
-// the Podcast Episode block in the editor) shares one fetch + one cache. The
-// old `useEntityRecord('root','site')` data came free via core-data's resolver;
-// with a dedicated endpoint we re-implement that dedup here.
+// Module-level singleton so every consumer (Settings + Distribution tabs, the
+// Podcast Episode block) shares one fetch + one cache.
 interface Store {
 	data?: PodcastSettings;
 	error?: unknown;
@@ -160,11 +157,10 @@ const fetchSettings = (): Promise< PodcastSettings > => {
 };
 
 /**
- * Drop the cached settings and refetch. Used after server-side writes that
- * land outside the SPA's normal save path (e.g. the wpcom Pocket Casts relay
- * persists `podcasting_show_states.pocketcasts` directly).
+ * Drop the cache and refetch — for server-side writes outside the SPA save
+ * path (e.g. the Pocket Casts relay persists `podcasting_show_states` directly).
  *
- * @return Promise resolving to the freshly-fetched settings.
+ * @return Freshly-fetched settings.
  */
 export const refetchPodcastSettings = (): Promise< PodcastSettings > => {
 	fetchPromise = null;
@@ -172,11 +168,8 @@ export const refetchPodcastSettings = (): Promise< PodcastSettings > => {
 };
 
 /**
- * Read the current `podcasting_*` settings from `/wpcom/v2/podcast/settings`.
- *
- * Mirrors the prior TanStack-shaped contract (`{ data, isLoading }`). The
- * underlying store is shared module-wide, so multiple components mounting at
- * once only trigger one network request.
+ * Read the current `podcasting_*` settings. Shared module-wide; multiple
+ * components mounting only trigger one network request.
  *
  * @return `{ data, isLoading }` — data is undefined until the first fetch resolves.
  */
@@ -185,9 +178,7 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 
 	useEffect( () => {
 		if ( ! snapshot.data && ! snapshot.error && ! fetchPromise ) {
-			fetchSettings().catch( () => {
-				// Error already captured in the store; nothing more to do here.
-			} );
+			fetchSettings().catch( () => {} );
 		}
 	}, [ snapshot.data, snapshot.error ] );
 
@@ -197,18 +188,15 @@ export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoa
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
-	// Suppress the hook's built-in success/error snackbars when the caller
-	// owns its own user-visible feedback (e.g. a modal with an inline Notice).
+	// Suppress built-in snackbars when the caller renders its own inline feedback.
 	silent?: boolean;
 }
 
 /**
- * Save a partial settings update via the dedicated REST endpoint. The server
- * merges the patch into stored values and returns the full record, which we
- * push back into the shared store so every consumer re-renders with the
- * latest data. Snackbars are dispatched here so callers don't have to.
+ * Partial settings update. Server returns the full merged record, which we
+ * push back into the shared store. Snackbars dispatched here unless silenced.
  *
- * @return `{ mutate, mutateAsync, isPending }` matching the prior TanStack-shaped contract.
+ * @return `{ mutate, mutateAsync, isPending }`.
  */
 export function useUpdatePodcastSettings(): {
 	mutate: ( updates: PodcastSettingsUpdate, callbacks?: MutateCallbacks ) => void;
@@ -260,7 +248,7 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ onSuccess, onError, silent = false }: MutateCallbacks = {}
 		) => {
-			// Default no-op keeps the rejection from going uncaught when no `onError` is passed.
+			// Default no-op so the rejection isn't uncaught when no `onError` is passed.
 			mutateAsync( updates, { silent } ).then( onSuccess, onError ?? ( () => {} ) );
 		},
 		[ mutateAsync ]

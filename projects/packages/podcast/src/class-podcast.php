@@ -65,10 +65,9 @@ class Podcast {
 			return;
 		}
 
-		// Register the `podcasting_*` options so {@see update_option()} runs
-		// each sanitize_callback. REST access is handled by Settings_Endpoint;
-		// on Simple, the legacy WPCOM site-settings filters in the wpcom
-		// mu-plugin remain authoritative for `/rest/v1.4/sites/{id}/settings`.
+		// Run `sanitize_callback`s on option writes. REST access is the
+		// dedicated Settings_Endpoint; on Simple the legacy mu-plugin filters
+		// still own `/rest/v1.4/sites/{id}/settings`.
 		Settings::register();
 
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,

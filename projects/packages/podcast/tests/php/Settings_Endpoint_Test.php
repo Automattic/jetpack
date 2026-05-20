@@ -40,8 +40,6 @@ class Settings_Endpoint_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 
-		// Register sanitizers + the endpoint, then fire rest_api_init once so
-		// routes resolve under WP_REST_Server::dispatch().
 		Settings::register_settings();
 		add_action( 'rest_api_init', array( new Settings_Endpoint(), 'register_routes' ) );
 		do_action( 'rest_api_init' );
@@ -70,9 +68,6 @@ class Settings_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Build a POST request with the given params attached via `set_param` —
-	 * dodges the wp_json_encode-default-flags PHPCS warning in test code.
-	 *
 	 * @param array $params Params to attach.
 	 * @return WP_REST_Request
 	 */
