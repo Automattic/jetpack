@@ -1,5 +1,6 @@
 import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { filesize } from 'filesize';
 import { useIsVideoPressUnlimited } from '../../hooks/use-is-videopress-unlimited';
 import { getStorageUsedBytes, useSite } from '../../hooks/use-site';
@@ -36,16 +37,20 @@ export default function StorageMeterCard(): ReactElement | null {
 	const progressLabel = `${ ( progress * 100 ).toFixed() }%`;
 	const totalLabel = filesize( totalBytes, { base: 10 } );
 	return (
-		<div className="vp-overview__storage-meter">
-			<span className="vp-overview__storage-meter-label">
-				{ sprintf(
-					/* translators: %1$s is the storage percentage, from 0% to 100%, %2$s is the total storage. */
-					__( '%1$s of %2$s of cloud video storage', 'jetpack-videopress-pkg' ),
-					progressLabel,
-					totalLabel
-				) }
-			</span>
-			<ProgressBar value={ Math.min( progress * 100, 100 ) } />
-		</div>
+		<Card.Root>
+			<Card.Content>
+				<div className="vp-overview__storage-meter">
+					<span className="vp-overview__storage-meter-label">
+						{ sprintf(
+							/* translators: %1$s is the storage percentage, from 0% to 100%, %2$s is the total storage. */
+							__( '%1$s of %2$s of cloud video storage', 'jetpack-videopress-pkg' ),
+							progressLabel,
+							totalLabel
+						) }
+					</span>
+					<ProgressBar value={ Math.min( progress * 100, 100 ) } />
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }
