@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-05-20
+### Changed
+- Podcast: default jetpack_podcast_untangle to true. The new package now owns the experience on every Simple and Atomic site by default; the filter stays as an escape hatch for forcing the legacy stack back on.
+
+### Fixed
+- Podcast: surface a Show notes textarea in the Podcast Episode block (synced with the post Excerpt) so authors know where the episode description in Apple Podcasts / Spotify / Pocket Casts comes from. Strip non-podcast RSS chrome from the feed: drop content:encoded (full post body + image EXIF), media:content (avatar + post images), per-item categories, and the comments-link cluster.
+
 ## [1.0.1] - 2026-05-20
 ### Added
 - Podcast feed: surface per-episode metadata (transcript, location, license, people, soundbites, alternate enclosures, episode/season numbers) from the Podcast Episode block.
@@ -88,5 +95,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[1.0.2]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-podcast/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-podcast/compare/v0.1.0...v1.0.0
