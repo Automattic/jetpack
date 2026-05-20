@@ -9,7 +9,6 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
-	BaseControl,
 	CheckboxControl,
 	Notice,
 	PanelBody,
@@ -72,7 +71,6 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const showIcon = attributes?.showIcon !== false;
 	const submitOnly = !! attributes?.submitOnly;
 	const enableSuggestions = !! attributes?.enableSuggestions;
-	const typesId = useId();
 	// Defensive copy so toggling a checkbox always produces a fresh array —
 	// React-style setAttributes shallow-compares arrays by reference, and a
 	// mutation in-place would skip the save. Falls back to the canonical
@@ -81,15 +79,9 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const suggestionTypes = Array.isArray( attributes?.suggestionTypes )
 		? attributes.suggestionTypes
 		: DEFAULT_SUGGESTION_TYPES;
-	/**
-	 * Toggle a single suggestion type on or off. Preserves the canonical
-	 * `query → taxonomy → post` order in the saved array regardless of the
-	 * click order so two blocks that ended up with the same selection
-	 * serialize identically.
-	 *
-	 * @param {string}  type  - Suggestion type value to toggle.
-	 * @param {boolean} value - True to enable, false to disable.
-	 */
+	// Filter against DEFAULT_SUGGESTION_TYPES on every save so two blocks
+	// that ended up with the same selection serialize identically regardless
+	// of click order.
 	const setSuggestionType = ( type, value ) => {
 		const set = new Set( suggestionTypes );
 		if ( value ) {
@@ -144,12 +136,14 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						) }
 					/>
 					{ enableSuggestions && (
-						<BaseControl
-							__nextHasNoMarginBottom
-							id={ typesId }
-							label={ __( 'Suggestion types', 'jetpack-search-pkg' ) }
-							help={ __( 'Pick which sections appear in the dropdown.', 'jetpack-search-pkg' ) }
-						>
+						// `<fieldset>` + `<legend>` instead of `BaseControl`'s label/id pair so
+						// assistive tech announces the checkbox group correctly. BaseControl
+						// only associates one focusable child with its label — a group of
+						// three checkboxes needs the native group semantics.
+						<fieldset className="components-base-control">
+							<legend className="components-base-control__label">
+								{ __( 'Suggestion types', 'jetpack-search-pkg' ) }
+							</legend>
 							{ SUGGESTION_TYPES.map( ( { value, label } ) => (
 								<CheckboxControl
 									__nextHasNoMarginBottom
@@ -167,7 +161,10 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 									) }
 								</Notice>
 							) }
-						</BaseControl>
+							<p className="components-base-control__help">
+								{ __( 'Pick which sections appear in the dropdown.', 'jetpack-search-pkg' ) }
+							</p>
+						</fieldset>
 					) }
 				</PanelBody>
 			</InspectorControls>
