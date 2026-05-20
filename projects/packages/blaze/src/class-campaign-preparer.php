@@ -77,17 +77,19 @@ class Campaign_Preparer {
 		$prefill         = self::build_prefill_payload( $args, $post, $intent, $budget_context );
 		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
 		$forecast        = self::request_forecast( $prefill, $intent );
-		$summary            = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
+		$summary         = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
 		$payment_context    = self::resolve_payment_context( $args, $prefill );
 		$terms              = self::get_approval_terms();
 		$advertising_policy = self::get_approval_advertising_policy();
 		$cancellation_terms = self::get_approval_cancellation_terms();
-		$package            = self::build_prepared_campaign_identity( $prefill, $summary, $payment_context['selected_payment_method'], $terms, $advertising_policy );
+		$submit_payload     = self::build_submit_campaign_payload( $prefill, $summary, $payment_context['selected_payment_method'] );
+		$package            = self::build_prepared_campaign_identity( $submit_payload );
 		$eligibility        = self::build_submit_eligibility( $args, $prefill, $prefill_url, $payment_context );
 
 		$proposal = array(
 			'status'               => 'pending_merchant_review',
 			'prepared_campaign'    => $package,
+			'submit_package'       => self::build_submit_package( $package, $submit_payload, $terms, $advertising_policy ),
 			'rendered_preview'     => self::build_rendered_preview( $prefill, $package ),
 			'campaign_summary'     => $summary,
 			'fallback_url'         => $prefill_url,
@@ -419,26 +421,11 @@ class Campaign_Preparer {
 	/**
 	 * Build the immutable package identity for a prepared campaign.
 	 *
-	 * @param array      $prefill                 Recommended campaign prefill payload.
-	 * @param array      $summary                 Structured campaign summary.
-	 * @param array|null $selected_payment_method Selected saved payment method summary.
+	 * @param array $submit_payload Exact DSP create-campaign payload.
 	 * @return array
 	 */
-	private static function build_prepared_campaign_identity(
-		array $prefill,
-		array $summary,
-		$selected_payment_method = null,
-		array $terms = array(),
-		array $advertising_policy = array()
-	): array {
-		$identity_payload = array(
-			'contract_version'        => self::APPROVAL_VERSION,
-			'material_campaign'       => self::build_material_campaign_identity( $prefill, $summary ),
-			'selected_payment_method' => $selected_payment_method,
-			'terms'                   => $terms,
-			'advertising_policy'      => $advertising_policy,
-		);
-		$hash             = hash( 'sha256', (string) wp_json_encode( $identity_payload, JSON_UNESCAPED_SLASHES ) );
+	private static function build_prepared_campaign_identity( array $submit_payload ): array {
+		$hash = self::stable_hash( $submit_payload );
 
 		return array(
 			'id'      => $hash,
@@ -478,6 +465,102 @@ class Campaign_Preparer {
 			'objective'         => $prefill['objective'] ?? '',
 			'target_type'       => $prefill['type'] ?? '',
 		);
+	}
+
+	/**
+	 * Build the exact DSP create-campaign payload that chat submit will send.
+	 *
+	 * @param array      $prefill                 Recommended campaign prefill payload.
+	 * @param array      $summary                 Structured campaign summary.
+	 * @param array|null $selected_payment_method Selected saved payment method summary.
+	 * @return array
+	 */
+	private static function build_submit_campaign_payload( array $prefill, array $summary, $selected_payment_method ): array {
+		$schedule  = isset( $summary['schedule'] ) && is_array( $summary['schedule'] ) ? $summary['schedule'] : array();
+		$targeting = array();
+
+		foreach ( array( 'countries' => 'locations', 'languages' => 'languages', 'devices' => 'devices', 'page_topics' => 'page_topics' ) as $prefill_key => $targeting_key ) {
+			if ( ! empty( $prefill[ $prefill_key ] ) && is_array( $prefill[ $prefill_key ] ) ) {
+				$targeting[ $targeting_key ] = array_values( $prefill[ $prefill_key ] );
+			}
+		}
+
+		return array(
+			'origin'            => 'mcp_chat',
+			'origin_version'    => self::APPROVAL_VERSION,
+			'target_urn'        => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
+			'type'              => isset( $prefill['type'] ) ? (string) $prefill['type'] : 'post',
+			'payment_method_id' => is_array( $selected_payment_method ) && isset( $selected_payment_method['id'] ) ? (string) $selected_payment_method['id'] : '',
+			'start_date'        => isset( $schedule['start_date'] ) ? (string) $schedule['start_date'] : gmdate( 'Y-m-d' ),
+			'end_date'          => isset( $schedule['end_date'] ) ? (string) $schedule['end_date'] : gmdate( 'Y-m-d' ),
+			'time_zone'         => isset( $schedule['time_zone'] ) ? (string) $schedule['time_zone'] : self::get_site_timezone(),
+			'site_name'         => isset( $prefill['site_name'] ) ? (string) $prefill['site_name'] : '',
+			'text_snippet'      => isset( $prefill['text_snippet'] ) ? (string) $prefill['text_snippet'] : '',
+			'cta_text'          => isset( $prefill['cta_text'] ) ? (string) $prefill['cta_text'] : '',
+			'target_url'        => isset( $prefill['target_url'] ) ? (string) $prefill['target_url'] : '',
+			'url_params'        => '',
+			'main_image'        => isset( $prefill['main_image'] ) && is_array( $prefill['main_image'] ) ? $prefill['main_image'] : array(
+				'url'       => '',
+				'mime_type' => 'image/jpeg',
+			),
+			'budget'            => isset( $prefill['budget'] ) && is_array( $prefill['budget'] ) ? $prefill['budget'] : array(),
+			'objective'         => isset( $prefill['objective'] ) ? (string) $prefill['objective'] : 'views',
+			'is_evergreen'      => isset( $prefill['is_evergreen'] ) ? (bool) $prefill['is_evergreen'] : true,
+			'targeting'         => $targeting,
+		);
+	}
+
+	/**
+	 * Build the submit package clients can pass to submit-prepared-campaign.
+	 *
+	 * @param array $package            Prepared campaign identity.
+	 * @param array $submit_payload     Exact DSP create-campaign payload.
+	 * @param array $terms              Terms document identity.
+	 * @param array $advertising_policy Advertising policy document identity.
+	 * @return array
+	 */
+	private static function build_submit_package( array $package, array $submit_payload, array $terms, array $advertising_policy ): array {
+		return array(
+			'prepared_package_id'     => $package['id'],
+			'prepared_campaign_hash'  => $package['hash'],
+			'prepared_campaign'       => $submit_payload,
+			'accepted_terms_version'  => isset( $terms['version'] ) ? (string) $terms['version'] : '',
+			'accepted_policy_version' => isset( $advertising_policy['version'] ) ? (string) $advertising_policy['version'] : '',
+		);
+	}
+
+	/**
+	 * Stable JSON hash compatible with DSP's submit-prepared-campaign hash.
+	 *
+	 * @param mixed $value Value to hash.
+	 * @return string
+	 */
+	private static function stable_hash( $value ): string {
+		return hash( 'sha256', self::stable_json( $value ) );
+	}
+
+	/**
+	 * Stable JSON encoder: object keys sorted recursively, list order kept.
+	 *
+	 * @param mixed $value Value to encode.
+	 * @return string
+	 */
+	private static function stable_json( $value ): string {
+		if ( is_array( $value ) ) {
+			if ( self::is_list_array( $value ) ) {
+				$encoded = array_map( array( __CLASS__, 'stable_json' ), $value );
+				return '[' . implode( ',', $encoded ) . ']';
+			}
+
+			ksort( $value );
+			$parts = array();
+			foreach ( $value as $key => $item ) {
+				$parts[] = wp_json_encode( (string) $key ) . ':' . self::stable_json( $item );
+			}
+			return '{' . implode( ',', $parts ) . '}';
+		}
+
+		return (string) wp_json_encode( $value );
 	}
 
 	/**
@@ -951,18 +1034,28 @@ class Campaign_Preparer {
 			'approval_event'           => array_merge(
 				$contract,
 				array(
-					'approved_at'     => null,
-					'idempotency_key' => $idempotency_key,
+					'type'                    => 'prepared_campaign.approved',
+					'prepared_package_id'     => $package['id'],
+					'payment_method_id'       => $contract['selected_payment_method_id'],
+					'accepted_terms_version'  => $terms['version'] ?? '',
+					'accepted_policy_version' => $advertising_policy['version'] ?? '',
+					'approved_at'             => null,
+					'idempotency_key'         => $idempotency_key,
 				)
 			),
 			'approval_event_required_fields' => array(
+				'type',
 				'contract_version',
+				'prepared_package_id',
 				'prepared_campaign_id',
 				'prepared_campaign_hash',
 				'terms',
 				'advertising_policy',
+				'accepted_terms_version',
+				'accepted_policy_version',
 				'charge',
 				'cancellation',
+				'payment_method_id',
 				'selected_payment_method_id',
 				'selected_payment_method',
 				'user',

@@ -35,10 +35,11 @@ use WP_REST_Request;
 class Blaze_Abilities extends Registrar {
 
 	const CATEGORY_SLUG                = 'blaze-ads';
-	const ABILITY_LIST_CAMPAIGNS       = 'blaze-ads/list-campaigns';
-	const ABILITY_GET_CAMPAIGN_STATS   = 'blaze-ads/get-campaign-stats';
-	const ABILITY_PREPARE_CAMPAIGN     = 'blaze-ads/prepare-campaign';
-	const ABILITY_STOP_CAMPAIGN        = 'blaze-ads/stop-campaign';
+	const ABILITY_LIST_CAMPAIGNS           = 'blaze-ads/list-campaigns';
+	const ABILITY_GET_CAMPAIGN_STATS       = 'blaze-ads/get-campaign-stats';
+	const ABILITY_PREPARE_CAMPAIGN         = 'blaze-ads/prepare-campaign';
+	const ABILITY_SUBMIT_PREPARED_CAMPAIGN = 'blaze-ads/submit-prepared-campaign';
+	const ABILITY_STOP_CAMPAIGN            = 'blaze-ads/stop-campaign';
 
 	/**
 	 * Slugs we own — used by `opt_into_woo_mcp` and the double-register guard.
@@ -47,6 +48,7 @@ class Blaze_Abilities extends Registrar {
 		self::ABILITY_LIST_CAMPAIGNS,
 		self::ABILITY_GET_CAMPAIGN_STATS,
 		self::ABILITY_PREPARE_CAMPAIGN,
+		self::ABILITY_SUBMIT_PREPARED_CAMPAIGN,
 		self::ABILITY_STOP_CAMPAIGN,
 	);
 
@@ -143,6 +145,21 @@ class Blaze_Abilities extends Registrar {
 			 * @param bool $enabled Whether to register the prepare-campaign ability. Default true.
 			 */
 			if ( ! apply_filters( 'blaze_abilities_prepare_campaign_enabled', true ) ) {
+				return false;
+			}
+		}
+		if ( self::ABILITY_SUBMIT_PREPARED_CAMPAIGN === $slug ) {
+			/**
+			 * Filters whether the Blaze `submit-prepared-campaign` write ability is registered.
+			 *
+			 * Default true. Return false to keep the paid chat submit path out
+			 * of the registry without hiding prepare/list/stats/stop.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $enabled Whether to register submit-prepared-campaign. Default true.
+			 */
+			if ( ! apply_filters( 'blaze_abilities_submit_prepared_campaign_enabled', true ) ) {
 				return false;
 			}
 		}
@@ -517,6 +534,7 @@ class Blaze_Abilities extends Registrar {
 						'campaign_preview',
 						'forecast_summary',
 						'prepared_campaign',
+						'submit_package',
 						'rendered_preview',
 						'campaign_summary',
 						'fallback_url',
@@ -589,6 +607,28 @@ class Blaze_Abilities extends Registrar {
 									'type' => 'string',
 								),
 								'version' => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'submit_package'   => array(
+							'type'        => 'object',
+							'description' => __( 'Exact DSP submit payload and policy versions for the submit-prepared-campaign ability. Clients must add the structured approval event after explicit user approval; ordinary chat text is not approval.', 'jetpack-blaze' ),
+							'required'    => array( 'prepared_package_id', 'prepared_campaign_hash', 'prepared_campaign', 'accepted_terms_version', 'accepted_policy_version' ),
+							'properties'  => array(
+								'prepared_package_id' => array(
+									'type' => 'string',
+								),
+								'prepared_campaign_hash' => array(
+									'type' => 'string',
+								),
+								'prepared_campaign' => array(
+									'type' => 'object',
+								),
+								'accepted_terms_version' => array(
+									'type' => 'string',
+								),
+								'accepted_policy_version' => array(
 									'type' => 'string',
 								),
 							),
@@ -804,15 +844,100 @@ class Blaze_Abilities extends Registrar {
 					),
 				),
 			),
-			self::ABILITY_STOP_CAMPAIGN    => array(
-				'label'               => __( 'Stop a Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Preview or confirm stopping delivery for an existing Blaze campaign. Pass the numeric DSP campaign_id. By default this returns the current campaign context and consequence text without calling the DSP stop endpoint. Set confirm to true only after the merchant explicitly confirms they want to stop serving; confirm mode re-fetches campaign context and delegates stop eligibility to the existing DSP stop endpoint.', 'jetpack-blaze' ),
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'campaign_id' ),
-					'properties'           => array(
-						'campaign_id' => array(
-							'type'        => 'integer',
+			self::ABILITY_SUBMIT_PREPARED_CAMPAIGN => array(
+					'label'               => __( 'Submit an approved prepared Blaze campaign', 'jetpack-blaze' ),
+					'description'         => __( 'Submit one previously prepared Blaze campaign package after explicit structured approval from the merchant. This spends real money. Do not call this from a normal chat phrase such as “looks good”; call it only after the client has rendered the exact approval terms from prepare-campaign and captured a structured approval event for the same prepared package hash, payment method, terms version, policy version, and idempotency key.', 'jetpack-blaze' ),
+					'input_schema'        => array(
+						'type'                 => 'object',
+						'required'             => array( 'idempotency_key', 'prepared_package_id', 'prepared_campaign_hash', 'prepared_campaign', 'accepted_terms_version', 'accepted_policy_version', 'approval' ),
+						'properties'           => array(
+							'idempotency_key'          => array(
+								'type'        => 'string',
+								'description' => __( 'Durable idempotency key from the prepared package approval event.', 'jetpack-blaze' ),
+							),
+							'prepared_package_id'      => array(
+								'type'        => 'string',
+								'description' => __( 'Prepared package ID returned by prepare-campaign.', 'jetpack-blaze' ),
+							),
+							'prepared_campaign_hash'   => array(
+								'type'        => 'string',
+								'description' => __( 'Stable hash of the exact prepared_campaign payload returned by prepare-campaign.', 'jetpack-blaze' ),
+							),
+							'prepared_campaign'        => array(
+								'type'        => 'object',
+								'description' => __( 'Exact DSP campaign payload returned in prepare-campaign submit_package.prepared_campaign. Do not edit this without preparing a new campaign.', 'jetpack-blaze' ),
+							),
+							'accepted_terms_version'   => array(
+								'type'        => 'string',
+								'description' => __( 'Terms version rendered for explicit approval.', 'jetpack-blaze' ),
+							),
+							'accepted_policy_version'  => array(
+								'type'        => 'string',
+								'description' => __( 'Advertising policy version rendered for explicit approval.', 'jetpack-blaze' ),
+							),
+							'approval'                 => array(
+								'type'        => 'object',
+								'description' => __( 'Structured approval event for this exact package. It must include type prepared_campaign.approved and approved_at; ordinary chat text is not approval.', 'jetpack-blaze' ),
+							),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'       => array(
+						'type'        => 'object',
+						'description' => __( 'DSP submit response decorated for chat. Success means the campaign was submitted and is pending approval/moderation, not already running.', 'jetpack-blaze' ),
+						'required'    => array( 'status', 'message', 'campaign_status', 'dashboard_url', 'widget_url', 'selected_payment_method', 'budget', 'source_tracking', 'submit_response' ),
+						'properties'  => array(
+							'status'                  => array(
+								'type' => 'string',
+								'enum' => array( 'submitted_pending_approval' ),
+							),
+							'message'                 => array(
+								'type'        => 'string',
+								'description' => __( 'Human-readable pending confirmation for chat clients.', 'jetpack-blaze' ),
+							),
+							'campaign_status'         => array(
+								'type' => 'string',
+							),
+							'dashboard_url'           => array(
+								'type' => 'string',
+							),
+							'widget_url'              => array(
+								'type' => 'string',
+							),
+							'selected_payment_method' => array(
+								'type' => 'object',
+							),
+							'budget'                  => array(
+								'type' => 'object',
+							),
+							'source_tracking'         => array(
+								'type' => 'object',
+							),
+							'submit_response'         => array(
+								'type' => 'object',
+							),
+						),
+					),
+					'execute_callback'    => array( __CLASS__, 'submit_prepared_campaign' ),
+					'permission_callback' => array( __CLASS__, 'permission_callback' ),
+					'meta'                => array(
+						'show_in_rest' => true,
+						'annotations'  => array(
+							'readonly'    => false,
+							'destructive' => true,
+							'idempotent'  => true,
+						),
+					),
+				),
+			self::ABILITY_STOP_CAMPAIGN        => array(
+					'label'               => __( 'Stop a Blaze campaign', 'jetpack-blaze' ),
+					'description'         => __( 'Preview or confirm stopping delivery for an existing Blaze campaign. Pass the numeric DSP campaign_id. By default this returns the current campaign context and consequence text without calling the DSP stop endpoint. Set confirm to true only after the merchant explicitly confirms they want to stop serving; confirm mode re-fetches campaign context and delegates stop eligibility to the existing DSP stop endpoint.', 'jetpack-blaze' ),
+					'input_schema'        => array(
+						'type'                 => 'object',
+						'required'             => array( 'campaign_id' ),
+						'properties'           => array(
+							'campaign_id' => array(
+								'type'        => 'integer',
 							'description' => __( 'Numeric DSP campaign ID to stop.', 'jetpack-blaze' ),
 							'minimum'     => 1,
 						),
@@ -1104,6 +1229,91 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
+	 * Submit an explicitly approved prepared campaign through the DSP proxy.
+	 *
+	 * @param array $args Ability input — see `get_abilities()` input_schema.
+	 * @return array|\WP_Error
+	 */
+	public static function submit_prepared_campaign( $args = array() ) {
+		$args = is_array( $args ) ? $args : array();
+
+		foreach ( array( 'idempotency_key', 'prepared_package_id', 'prepared_campaign_hash', 'prepared_campaign', 'accepted_terms_version', 'accepted_policy_version', 'approval' ) as $field ) {
+			if ( ! array_key_exists( $field, $args ) || null === $args[ $field ] || '' === $args[ $field ] ) {
+				return new \WP_Error(
+					'blaze_submit_prepared_campaign_missing_field',
+					sprintf(
+						/* translators: %s: missing submit field name. */
+						__( 'The approved prepared campaign submit request is missing %s.', 'jetpack-blaze' ),
+						$field
+					),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		if ( ! is_array( $args['prepared_campaign'] ) || ! is_array( $args['approval'] ) ) {
+			return new \WP_Error(
+				'blaze_submit_prepared_campaign_invalid_payload',
+				__( 'The prepared campaign and approval event must be structured objects.', 'jetpack-blaze' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$route = self::get_dsp_submit_prepared_campaign_route();
+		if ( is_wp_error( $route ) ) {
+			return $route;
+		}
+
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_body_params(
+			array(
+				'idempotency_key'          => (string) $args['idempotency_key'],
+				'prepared_package_id'      => (string) $args['prepared_package_id'],
+				'prepared_campaign_hash'   => (string) $args['prepared_campaign_hash'],
+				'prepared_campaign'        => $args['prepared_campaign'],
+				'accepted_terms_version'   => (string) $args['accepted_terms_version'],
+				'accepted_policy_version'  => (string) $args['accepted_policy_version'],
+				'approval'                 => self::build_dsp_submit_approval_event( $args ),
+			)
+		);
+
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return $response->as_error();
+		}
+
+		$status = $response->get_status();
+		$data   = $response->get_data();
+		if ( $status >= 400 ) {
+			return self::rest_response_to_wp_error( is_array( $data ) ? $data : array(), $status );
+		}
+
+		$submit_response = is_array( $data ) ? $data : array();
+		return self::format_submit_prepared_campaign_response( $submit_response );
+	}
+
+	/**
+	 * Reduce Blaze's rich approval event to the DSP submit contract.
+	 *
+	 * @param array $args Submit ability input.
+	 * @return array
+	 */
+	private static function build_dsp_submit_approval_event( array $args ): array {
+		$approval = isset( $args['approval'] ) && is_array( $args['approval'] ) ? $args['approval'] : array();
+
+		return array(
+			'type'                    => 'prepared_campaign.approved',
+			'prepared_package_id'     => isset( $approval['prepared_package_id'] ) ? (string) $approval['prepared_package_id'] : (string) $args['prepared_package_id'],
+			'prepared_campaign_hash'  => isset( $approval['prepared_campaign_hash'] ) ? (string) $approval['prepared_campaign_hash'] : (string) $args['prepared_campaign_hash'],
+			'idempotency_key'         => isset( $approval['idempotency_key'] ) ? (string) $approval['idempotency_key'] : (string) $args['idempotency_key'],
+			'payment_method_id'       => isset( $approval['payment_method_id'] ) ? (string) $approval['payment_method_id'] : self::get_first_string_value( $args['prepared_campaign'], array( 'payment_method_id' ) ),
+			'accepted_terms_version'  => isset( $approval['accepted_terms_version'] ) ? (string) $approval['accepted_terms_version'] : (string) $args['accepted_terms_version'],
+			'accepted_policy_version' => isset( $approval['accepted_policy_version'] ) ? (string) $approval['accepted_policy_version'] : (string) $args['accepted_policy_version'],
+			'approved_at'             => isset( $approval['approved_at'] ) ? (string) $approval['approved_at'] : '',
+		);
+	}
+
+	/**
 	 * Preview or confirm stopping a Blaze campaign from serving.
 	 *
 	 * Preview mode fetches current campaign context and returns consequence
@@ -1190,6 +1400,20 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
+	 * Build the local REST proxy route for prepared campaign submit.
+	 *
+	 * @return string|\WP_Error
+	 */
+	private static function get_dsp_submit_prepared_campaign_route() {
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		return sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns/submit-prepared-campaign', $site_id );
+	}
+
+	/**
 	 * Build the local REST proxy route for a DSP campaign endpoint.
 	 *
 	 * @param int    $campaign_id Numeric DSP campaign ID.
@@ -1244,11 +1468,64 @@ class Blaze_Abilities extends Registrar {
 			}
 		}
 		if ( '' === $message ) {
-			$message = __( 'The Blaze DSP API could not stop this campaign.', 'jetpack-blaze' );
-		}
+				$message = __( 'The Blaze DSP API could not complete this campaign request.', 'jetpack-blaze' );
+			}
 
 		$data['status'] = $status;
 		return new \WP_Error( $code, $message, $data );
+	}
+
+	/**
+	 * Decorate DSP submit response with chat-safe pending confirmation copy.
+	 *
+	 * @param array $submit_response Raw DSP submit response.
+	 * @return array
+	 */
+	private static function format_submit_prepared_campaign_response( array $submit_response ): array {
+		$dashboard_url = self::get_first_string_value( $submit_response, array( 'dashboard_url', 'widget_url' ) );
+		$widget_url    = self::get_first_string_value( $submit_response, array( 'widget_url', 'dashboard_url' ) );
+
+		return array(
+			'status'                  => 'submitted_pending_approval',
+			'message'                 => self::build_submit_prepared_campaign_message( $submit_response, $dashboard_url ),
+			'campaign_status'         => self::get_first_string_value( $submit_response, array( 'campaign_status', 'status' ) ),
+			'dashboard_url'           => $dashboard_url,
+			'widget_url'              => $widget_url,
+			'selected_payment_method' => isset( $submit_response['selected_payment_method'] ) && is_array( $submit_response['selected_payment_method'] ) ? $submit_response['selected_payment_method'] : array(),
+			'budget'                  => isset( $submit_response['budget'] ) && is_array( $submit_response['budget'] ) ? $submit_response['budget'] : array(),
+			'source_tracking'         => isset( $submit_response['source_tracking'] ) && is_array( $submit_response['source_tracking'] ) ? $submit_response['source_tracking'] : array(),
+			'submit_response'         => $submit_response,
+		);
+	}
+
+	/**
+	 * Build chat-facing submit confirmation.
+	 *
+	 * @param array  $submit_response Raw DSP submit response.
+	 * @param string $dashboard_url   Dashboard URL, when available.
+	 * @return string
+	 */
+	private static function build_submit_prepared_campaign_message( array $submit_response, string $dashboard_url ): string {
+		$campaign_id = self::get_first_string_value( $submit_response, array( 'id', 'campaign_id' ) );
+
+		$message = __( 'Your Blaze campaign has been submitted and is pending approval/moderation. It is not running yet.', 'jetpack-blaze' );
+		if ( '' !== $campaign_id ) {
+			$message .= "\n\n" . sprintf(
+				/* translators: %s: campaign ID. */
+				__( 'Campaign ID: %s', 'jetpack-blaze' ),
+				$campaign_id
+			);
+		}
+		if ( '' !== $dashboard_url ) {
+			$message .= "\n\n" . sprintf(
+				/* translators: %s: Blaze dashboard URL. */
+				__( 'You can view it in Blaze here: %s', 'jetpack-blaze' ),
+				$dashboard_url
+			);
+		}
+
+		$message .= "\n\n" . __( 'You should also receive the normal email confirmation for this campaign.', 'jetpack-blaze' );
+		return $message;
 	}
 
 	/**
