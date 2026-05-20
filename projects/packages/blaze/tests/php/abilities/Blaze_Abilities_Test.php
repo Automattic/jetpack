@@ -66,6 +66,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		remove_all_filters( 'wp_register_ability_args' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'blaze_abilities_prepare_campaign_enabled' );
+		remove_all_filters( 'blaze_abilities_submit_prepared_campaign_enabled' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_tracks_event' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_payment_methods' );
 		remove_all_actions( 'wp_after_execute_ability' );
@@ -214,6 +215,34 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 1, $schema['properties']['campaign_id']['minimum'] );
 		$this->assertSame( 'boolean', $schema['properties']['confirm']['type'] );
 		$this->assertFalse( $schema['properties']['confirm']['default'] );
+	}
+
+	/**
+	 * The submit-prepared-campaign ability is the paid chat submit boundary.
+	 */
+	public function test_submit_prepared_campaign_ability_definition() {
+		$abilities = Blaze_Abilities::get_abilities();
+
+		$this->assertArrayHasKey( Blaze_Abilities::ABILITY_SUBMIT_PREPARED_CAMPAIGN, $abilities );
+		$this->assertContains( Blaze_Abilities::ABILITY_SUBMIT_PREPARED_CAMPAIGN, Blaze_Abilities::OWNED_ABILITY_SLUGS );
+
+		$ability = $abilities[ Blaze_Abilities::ABILITY_SUBMIT_PREPARED_CAMPAIGN ];
+		$this->assertSame( array( Blaze_Abilities::class, 'submit_prepared_campaign' ), $ability['execute_callback'] );
+		$this->assertSame( array( Blaze_Abilities::class, 'permission_callback' ), $ability['permission_callback'] );
+		$this->assertStringContainsString( 'This spends real money', $ability['description'] );
+		$this->assertStringContainsString( 'ordinary chat text is not approval', $ability['input_schema']['properties']['approval']['description'] );
+		$this->assertTrue( $ability['meta']['show_in_rest'] );
+		$this->assertFalse( $ability['meta']['annotations']['readonly'] );
+		$this->assertTrue( $ability['meta']['annotations']['destructive'] );
+		$this->assertTrue( $ability['meta']['annotations']['idempotent'] );
+
+		$this->assertSame(
+			array( 'idempotency_key', 'prepared_package_id', 'prepared_campaign_hash', 'prepared_campaign', 'accepted_terms_version', 'accepted_policy_version', 'approval' ),
+			$ability['input_schema']['required']
+		);
+		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+		$this->assertContains( 'message', $ability['output_schema']['required'] );
+		$this->assertContains( 'submit_response', $ability['output_schema']['required'] );
 	}
 
 	/**
@@ -860,6 +889,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_LIST_CAMPAIGNS ) );
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_GET_CAMPAIGN_STATS ) );
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ) );
+		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_SUBMIT_PREPARED_CAMPAIGN ) );
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_STOP_CAMPAIGN ) );
 
 		// Foreign slug, default false — should remain false (we don't toggle other people's abilities on).
@@ -923,20 +953,22 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'existing saved payment method', $properties['payment_method_id']['description'] );
 
 		$output_properties = $ability['output_schema']['properties'];
-		$this->assertContains( 'message', $ability['output_schema']['required'] );
-		$this->assertContains( 'campaign_preview', $ability['output_schema']['required'] );
-		$this->assertContains( 'forecast_summary', $ability['output_schema']['required'] );
-		$this->assertContains( 'prepared_campaign', $ability['output_schema']['required'] );
-		$this->assertContains( 'rendered_preview', $ability['output_schema']['required'] );
+			$this->assertContains( 'message', $ability['output_schema']['required'] );
+			$this->assertContains( 'campaign_preview', $ability['output_schema']['required'] );
+			$this->assertContains( 'forecast_summary', $ability['output_schema']['required'] );
+			$this->assertContains( 'prepared_campaign', $ability['output_schema']['required'] );
+			$this->assertContains( 'submit_package', $ability['output_schema']['required'] );
+			$this->assertContains( 'rendered_preview', $ability['output_schema']['required'] );
 		$this->assertContains( 'campaign_summary', $ability['output_schema']['required'] );
 		$this->assertContains( 'fallback_url', $ability['output_schema']['required'] );
 		$this->assertContains( 'submit_eligibility', $ability['output_schema']['required'] );
 		$this->assertContains( 'material_edit_policy', $ability['output_schema']['required'] );
 		$this->assertArrayHasKey( 'message', $output_properties );
 		$this->assertArrayHasKey( 'campaign_preview', $output_properties );
-		$this->assertArrayHasKey( 'forecast_summary', $output_properties );
-		$this->assertArrayHasKey( 'prepared_campaign', $output_properties );
-		$this->assertArrayHasKey( 'rendered_preview', $output_properties );
+			$this->assertArrayHasKey( 'forecast_summary', $output_properties );
+			$this->assertArrayHasKey( 'prepared_campaign', $output_properties );
+			$this->assertArrayHasKey( 'submit_package', $output_properties );
+			$this->assertArrayHasKey( 'rendered_preview', $output_properties );
 		$this->assertArrayHasKey( 'campaign_summary', $output_properties );
 		$this->assertArrayHasKey( 'fallback_url', $output_properties );
 		$this->assertArrayHasKey( 'submit_eligibility', $output_properties );
@@ -944,8 +976,10 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'material_edit_policy', $output_properties );
 		$this->assertContains( 'ad_heading', $output_properties['campaign_preview']['required'] );
 		$this->assertArrayHasKey( 'landing_page', $output_properties['campaign_preview']['properties'] );
-		$this->assertContains( 'id', $output_properties['prepared_campaign']['required'] );
-		$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
+			$this->assertContains( 'id', $output_properties['prepared_campaign']['required'] );
+			$this->assertContains( 'prepared_campaign', $output_properties['submit_package']['required'] );
+			$this->assertContains( 'accepted_terms_version', $output_properties['submit_package']['required'] );
+			$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
 		$this->assertContains( 'destination', $output_properties['campaign_summary']['required'] );
 		$this->assertContains( 'chat_native_submit', $output_properties['submit_eligibility']['required'] );
 		$this->assertContains( 'selected_payment_method', $output_properties['submit_eligibility']['required'] );
@@ -1057,6 +1091,83 @@ class Blaze_Abilities_Test extends BaseTestCase {
 				'callback'            => $callback,
 				'permission_callback' => '__return_true',
 			)
+		);
+	}
+
+	/**
+	 * Register a test prepared campaign submit route.
+	 *
+	 * @param callable $callback Route callback.
+	 */
+	private function register_submit_prepared_campaign_route( callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns/submit-prepared-campaign', self::TEST_SITE_ID ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
+	 * Build a valid prepared submit request body for ability tests.
+	 *
+	 * @return array
+	 */
+	private function make_submit_prepared_campaign_body(): array {
+		$prepared_campaign = array(
+			'origin'            => 'mcp_chat',
+			'origin_version'    => 'v1',
+			'target_urn'        => 'urn:wpcom:post:12345:42',
+			'type'              => 'post',
+			'payment_method_id' => 'pm_default',
+			'start_date'        => '2026-05-20',
+			'end_date'          => '2026-05-26',
+			'time_zone'         => 'UTC',
+			'site_name'         => 'Test product page',
+			'text_snippet'      => 'A short summary about the product.',
+			'cta_text'          => 'Learn More',
+			'target_url'        => 'https://example.com/test-product-page',
+			'url_params'        => '',
+			'main_image'        => array(
+				'url'       => 'https://example.com/image.jpg',
+				'mime_type' => 'image/jpeg',
+			),
+			'budget'            => array(
+				'mode'     => 'total',
+				'amount'   => 35,
+				'currency' => 'USD',
+			),
+			'objective'         => 'views',
+			'is_evergreen'      => true,
+			'targeting'         => array(
+				'languages' => array( 'en' ),
+			),
+		);
+
+		$prepared_campaign_hash = str_repeat( 'a', 64 );
+		$idempotency_key        = 'submit-123';
+		$prepared_package_id    = 'pkg-123';
+
+		return array(
+			'idempotency_key'          => $idempotency_key,
+			'prepared_package_id'      => $prepared_package_id,
+			'prepared_campaign_hash'   => $prepared_campaign_hash,
+			'prepared_campaign'        => $prepared_campaign,
+			'accepted_terms_version'   => '2026-05-01',
+			'accepted_policy_version'  => '2026-05-01',
+			'approval'                 => array(
+				'type'                    => 'prepared_campaign.approved',
+				'prepared_package_id'     => $prepared_package_id,
+				'prepared_campaign_hash'  => $prepared_campaign_hash,
+				'idempotency_key'         => $idempotency_key,
+				'payment_method_id'       => 'pm_default',
+				'accepted_terms_version'  => '2026-05-01',
+				'accepted_policy_version' => '2026-05-01',
+				'approved_at'             => '2026-05-20T12:00:00+00:00',
+			),
 		);
 	}
 
@@ -1227,6 +1338,70 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'Campaign cannot be stopped from its current state.', $result->get_error_message() );
 		$data = $result->get_error_data();
 		$this->assertSame( 409, $data['status'] ?? null );
+	}
+
+	/**
+	 * Submit-prepared-campaign delegates the exact approved payload to DSP.
+	 */
+	public function test_submit_prepared_campaign_delegates_to_blaze_rest_route() {
+		$captured_body = null;
+		$body          = $this->make_submit_prepared_campaign_body();
+
+		$this->register_submit_prepared_campaign_route(
+			static function ( $request ) use ( &$captured_body ) {
+				$captured_body = $request->get_body_params();
+				return array(
+					'id'                      => 'campaign-123',
+					'campaign_status'         => 'pending',
+					'dashboard_url'           => '/advertising/campaigns/campaign-123',
+					'widget_url'              => '/advertising/campaigns/campaign-123',
+					'selected_payment_method' => array(
+						'id'      => 'pm_default',
+						'summary' => 'Saved payment method pm_default',
+					),
+					'budget'                  => array(
+						'mode'     => 'total',
+						'amount'   => 35,
+						'currency' => 'USD',
+					),
+					'source_tracking'         => array(
+						'origin'         => 'mcp_chat',
+						'origin_version' => 'v1',
+					),
+				);
+			}
+		);
+
+		$result = Blaze_Abilities::submit_prepared_campaign( $body );
+
+		$this->assertSame( $body, $captured_body );
+		$this->assertIsArray( $result );
+		$this->assertSame( 'submitted_pending_approval', $result['status'] );
+		$this->assertSame( 'pending', $result['campaign_status'] );
+		$this->assertSame( '/advertising/campaigns/campaign-123', $result['dashboard_url'] );
+		$this->assertSame( 'campaign-123', $result['submit_response']['id'] );
+		$this->assertStringContainsString( 'pending approval/moderation', $result['message'] );
+		$this->assertStringContainsString( 'email confirmation', $result['message'] );
+		$this->assertStringContainsString( 'not running yet', strtolower( $result['message'] ) );
+	}
+
+	/**
+	 * DSP submit errors are returned as WP_Error instead of optimistic success.
+	 */
+	public function test_submit_prepared_campaign_passes_through_dsp_error() {
+		$this->register_submit_prepared_campaign_route(
+			static function () {
+				return new WP_Error( 'prepared_campaign_hash_mismatch', 'Prepared campaign body does not match prepared campaign hash', array( 'status' => 422 ) );
+			}
+		);
+
+		$result = Blaze_Abilities::submit_prepared_campaign( $this->make_submit_prepared_campaign_body() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'prepared_campaign_hash_mismatch', $result->get_error_code() );
+		$this->assertSame( 'Prepared campaign body does not match prepared campaign hash', $result->get_error_message() );
+		$data = $result->get_error_data();
+		$this->assertSame( 422, $data['status'] ?? null );
 	}
 
 	/**
