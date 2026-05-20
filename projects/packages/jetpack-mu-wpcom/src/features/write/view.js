@@ -325,9 +325,10 @@ function getContent() {
  * real post to navigate to before they can do their job, and by the
  * client-side empty-save guard.
  *
- * textContent rather than innerHTML so structural-only markup like
- * <p><br></p> doesn't count as content. Figures and separators have no
- * textContent but are still valid content, so check for them too.
+ * Checks textContent rather than innerHTML so structural-only markup
+ * like <p><br></p> doesn't count as content. Figures and separators
+ * have no textContent but are still valid content, so check for them
+ * too.
  *
  * @return {boolean} True when there's title, text, or a media/separator block.
  */
@@ -3583,23 +3584,27 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Save first to preserve unsaved changes (and to create the post
-			// if this is a new draft). Silent autosave so we don't trigger
-			// the publish flow's auto-redirect.
-			if ( isDirty() || ! state.editPostId ) {
-				const status = state.postStatus === 'publish' ? 'publish' : 'draft';
-				await savePost( status, true );
+			// For unpublished posts, silently save the draft first so the
+			// block editor opens with current edits (and to create the post
+			// if it's new). For published posts, hand off to the block
+			// editor without auto-saving — we don't want to silently push
+			// unsaved Write edits live.
+			if ( state.postStatus !== 'publish' && ( isDirty() || ! state.editPostId ) ) {
+				await savePost( 'draft', true );
 			}
 			if ( ! state.editPostId ) {
 				// Save failed for some other reason — abort.
 				return;
 			}
 
+			// Prefer the SSR-seeded URL; fall back to building it for posts
+			// created in this session (no SSR-seeded URL yet).
 			const url =
+				state.blockEditorUrl ||
 				state.adminUrl +
-				'post.php?post=' +
-				state.editPostId +
-				'&action=edit&classic-editor__forget';
+					'post.php?post=' +
+					state.editPostId +
+					'&action=edit&classic-editor__forget';
 			allowLeave = true;
 			window.location.href = url;
 		},
