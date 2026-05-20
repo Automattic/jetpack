@@ -12,7 +12,6 @@ import {
 	BaseControl,
 	Button,
 	ExternalLink,
-	Notice,
 	PanelBody,
 	Placeholder,
 	SelectControl,
@@ -515,18 +514,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							__nextHasNoMarginBottom
 							__next40pxDefaultSize
 						/>
-						{ chaptersUrl && ! /\.json(?:\?|#|$)/i.test( chaptersUrl ) && (
-							<Notice
-								status="warning"
-								isDismissible={ false }
-								className="jetpack-podcast-episode__chapters-warning"
-							>
-								{ __(
-									'Chapter files typically end in .json. Players may reject this URL if it doesn’t serve JSON.',
-									'jetpack-podcast'
-								) }
-							</Notice>
-						) }
 						{ chaptersUrl && (
 							<Button
 								variant="link"

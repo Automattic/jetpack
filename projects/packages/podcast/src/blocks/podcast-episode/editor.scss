@@ -84,10 +84,3 @@
 	display: flex;
 	gap: 12px;
 }
-
-// Soft hint shown when the chapters URL doesn't end in `.json`. Notice itself
-// already paints the warning color; the margin just keeps it from butting
-// directly against the URL input above and the Remove button below.
-.jetpack-podcast-episode__chapters-warning {
-	margin: 8px 0;
-}
