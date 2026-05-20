@@ -923,8 +923,20 @@ class Search_Blocks {
 	 * that looks disconnected from the rest of the site, and on bespoke
 	 * block themes that ship only variant slugs leave the chrome empty).
 	 *
-	 * Resolution order: theme's `search.html`, then `index.html`, then
-	 * `header`/`footer` defaults.
+	 * Resolution order, per slot (header, footer):
+	 * 1. The slug declared by the theme's own `search.html`
+	 *    (`extract_chrome_slugs()` reads its top-level template-parts).
+	 * 2. Same lookup against `index.html` as a hierarchy fallback.
+	 * 3. The alphabetically-first `wp_template_part` the theme declares
+	 *    with `area: "header"` / `area: "footer"` — covers bespoke themes
+	 *    that ship only variant slugs (e.g. `site-header.html` with no
+	 *    plain `header.html`) and don't reference them from any of the
+	 *    standard templates. Deterministic across requests because we
+	 *    sort by slug; non-trivial only when WP can't find anything via
+	 *    the higher-priority paths (the fast path returns before we ever
+	 *    query `get_block_templates()`).
+	 * 4. The `header` / `footer` defaults so the registered template
+	 *    stays valid markup on classic or otherwise-empty themes.
 	 *
 	 * Per-request memo keyed by `get_called_class()` and the active
 	 * stylesheet. Both `register_search_template()` and
@@ -947,20 +959,109 @@ class Search_Blocks {
 			'header' => 'header',
 			'footer' => 'footer',
 		);
-		$content  = static::get_active_theme_template_content( 'search' );
-		if ( null === $content ) {
-			$content = static::get_active_theme_template_content( 'index' );
+		$found    = array(
+			'header' => null,
+			'footer' => null,
+		);
+		foreach ( array( 'search', 'index' ) as $template_name ) {
+			if ( null !== $found['header'] && null !== $found['footer'] ) {
+				break;
+			}
+			$content = static::get_active_theme_template_content( $template_name );
+			if ( null === $content ) {
+				continue;
+			}
+			$extracted       = static::extract_chrome_slugs( $content );
+			$found['header'] = $found['header'] ?? $extracted['header'];
+			$found['footer'] = $found['footer'] ?? $extracted['footer'];
 		}
-		if ( null === $content ) {
-			$cache[ $key ] = $defaults;
-			return $defaults;
+		if ( null === $found['header'] || null === $found['footer'] ) {
+			$area_fallback   = static::resolve_chrome_slugs_by_area();
+			$found['header'] = $found['header'] ?? $area_fallback['header'];
+			$found['footer'] = $found['footer'] ?? $area_fallback['footer'];
 		}
-		$found         = static::extract_chrome_slugs( $content );
 		$cache[ $key ] = array(
 			'header' => $found['header'] ?? $defaults['header'],
 			'footer' => $found['footer'] ?? $defaults['footer'],
 		);
 		return $cache[ $key ];
+	}
+
+	/**
+	 * Area-based fallback for `resolve_theme_chrome_slugs()`. Pulls every
+	 * `wp_template_part` declared by the active theme, then delegates
+	 * the slug selection to `extract_chrome_slugs_from_parts()`.
+	 * Overridable as a seam so tests can stub the fallback without
+	 * standing up a real block theme.
+	 *
+	 * @return array{header:?string,footer:?string}
+	 */
+	protected static function resolve_chrome_slugs_by_area(): array {
+		if ( ! function_exists( 'get_block_templates' ) ) {
+			return array(
+				'header' => null,
+				'footer' => null,
+			);
+		}
+		return static::extract_chrome_slugs_from_parts(
+			get_block_templates( array(), 'wp_template_part' ),
+			get_stylesheet()
+		);
+	}
+
+	/**
+	 * Pick the alphabetically-first slug whose `area` matches each chrome
+	 * slot ("header" / "footer") from a list of `wp_template_part`
+	 * records. Alphabetical sort makes the choice deterministic across
+	 * requests when a theme declares multiple variants in each area:
+	 * Twenty Twenty-Two ships `header`, `header-large-dark`, and
+	 * `header-small-dark` all declared `area: "header"`; sorting picks
+	 * plain `header`, which is the most neutral default.
+	 *
+	 * Parts from other themes (the same registry can return parts that
+	 * came from a child theme via `area`-merging) are filtered by
+	 * `$stylesheet`, and slugs that wouldn't survive the JSON round-trip
+	 * in `substitute_template_placeholders()` are dropped (same guard as
+	 * `extract_chrome_slugs()`).
+	 *
+	 * Pure function (no globals, no I/O) so unit tests can feed it
+	 * fixture part records directly.
+	 *
+	 * @param array  $parts      Array of part records, each with
+	 *                           `theme`, `slug`, `area` properties.
+	 * @param string $stylesheet Active stylesheet — parts whose `theme`
+	 *                           doesn't match are ignored.
+	 * @return array{header:?string,footer:?string}
+	 */
+	protected static function extract_chrome_slugs_from_parts( array $parts, string $stylesheet ): array {
+		$by_area = array(
+			'header' => array(),
+			'footer' => array(),
+		);
+		foreach ( $parts as $part ) {
+			if ( ! isset( $part->theme ) || $part->theme !== $stylesheet ) {
+				continue;
+			}
+			$area = $part->area ?? null;
+			$slug = $part->slug ?? null;
+			if ( ! is_string( $slug ) || '' === $slug || ! preg_match( '/^[a-zA-Z0-9_-]+$/', $slug ) ) {
+				continue;
+			}
+			if ( isset( $by_area[ $area ] ) ) {
+				$by_area[ $area ][] = $slug;
+			}
+		}
+		$out = array(
+			'header' => null,
+			'footer' => null,
+		);
+		foreach ( array( 'header', 'footer' ) as $area ) {
+			if ( ! empty( $by_area[ $area ] ) ) {
+				sort( $by_area[ $area ], SORT_STRING );
+				$out[ $area ] = $by_area[ $area ][0];
+			}
+		}
+		return $out;
 	}
 
 	/**

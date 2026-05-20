@@ -1253,9 +1253,10 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * When neither template resolves the slugs must fall back to the
-	 * hard-coded `header` / `footer` defaults so the registered template
-	 * stays valid markup on classic-themed or otherwise empty sites.
+	 * When neither template resolves AND the area-based fallback finds
+	 * nothing either, the slugs must fall back to the hard-coded
+	 * `header` / `footer` defaults so the registered template stays
+	 * valid markup on classic-themed or otherwise empty sites.
 	 */
 	public function test_resolve_theme_chrome_slugs_falls_back_to_defaults() {
 		$cls = get_class(
@@ -1263,6 +1264,13 @@ class Search_Blocks_Test extends TestCase {
 				protected static function get_active_theme_template_content( string $template_name ): ?string {
 					unset( $template_name ); // stub: neither template resolves, regardless of name.
 					return null;
+				}
+				protected static function resolve_chrome_slugs_by_area(): array {
+					// stub: theme also has no declared header/footer parts.
+					return array(
+						'header' => null,
+						'footer' => null,
+					);
 				}
 			}
 		);
@@ -1276,6 +1284,176 @@ class Search_Blocks_Test extends TestCase {
 				'footer' => 'footer',
 			),
 			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * When neither `search.html` nor `index.html` resolves to top-level
+	 * template-parts, the resolver must walk to the area-based fallback
+	 * and use whatever slugs the theme declares with
+	 * `area: "header"` / `area: "footer"` — covers bespoke block themes
+	 * that ship variant slugs like `site-header` and don't reference
+	 * them from a standard template.
+	 */
+	public function test_resolve_theme_chrome_slugs_uses_area_fallback_when_templates_silent() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					unset( $template_name ); // stub: neither template resolves.
+					return null;
+				}
+				protected static function resolve_chrome_slugs_by_area(): array {
+					return array(
+						'header' => 'site-header',
+						'footer' => 'site-footer',
+					);
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'site-header',
+				'footer' => 'site-footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * The slug-resolution chain is per-slot: if `search.html` declares
+	 * only a header (e.g. a minimalist template), the footer falls
+	 * through to the area-based fallback before reaching the defaults.
+	 * Without this the resolver could leak a `footer` default while the
+	 * theme has a real `area: "footer"` part it would prefer to use.
+	 */
+	public function test_resolve_theme_chrome_slugs_mixes_template_header_with_area_footer() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"hero-header"} /-->';
+					}
+					return null;
+				}
+				protected static function resolve_chrome_slugs_by_area(): array {
+					return array(
+						'header' => 'never-used',
+						'footer' => 'site-footer',
+					);
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'hero-header',
+				'footer' => 'site-footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
+	 * `extract_chrome_slugs_from_parts()` picks the alphabetically-first
+	 * slug per area so the chrome stays deterministic across requests
+	 * even when WP returns parts in filesystem-enumeration order. Twenty
+	 * Twenty-Two ships three header parts (`header`, `header-large-dark`,
+	 * `header-small-dark`) all declared `area: "header"`; we want plain
+	 * `header` as the most neutral pick, not whichever the directory
+	 * scan surfaced first.
+	 */
+	public function test_extract_chrome_slugs_from_parts_picks_alphabetical_first_per_area() {
+		$parts = array(
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'header-small-dark',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'header-large-dark',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'header',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'footer-newsletter',
+				'area'  => 'footer',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'footer',
+				'area'  => 'footer',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'sidebar',
+				'area'  => 'uncategorized',
+			),
+		);
+		$ref   = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs_from_parts' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'header',
+				'footer' => 'footer',
+			),
+			$ref->invoke( null, $parts, 'tt-bespoke' )
+		);
+	}
+
+	/**
+	 * `extract_chrome_slugs_from_parts()` ignores parts from other
+	 * themes and rejects unsafe slugs the same way `extract_chrome_slugs()`
+	 * does — both run through the JSON round-trip in
+	 * `substitute_template_placeholders()`.
+	 */
+	public function test_extract_chrome_slugs_from_parts_filters_by_theme_and_unsafe_slugs() {
+		$parts = array(
+			(object) array(
+				'theme' => 'other-theme',
+				'slug'  => 'header',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'has space',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => 'site-header',
+				'area'  => 'header',
+			),
+			(object) array(
+				'theme' => 'tt-bespoke',
+				'slug'  => '',
+				'area'  => 'footer',
+			),
+		);
+		$ref   = new \ReflectionMethod( Search_Blocks::class, 'extract_chrome_slugs_from_parts' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'site-header',
+				'footer' => null,
+			),
+			$ref->invoke( null, $parts, 'tt-bespoke' )
 		);
 	}
 
