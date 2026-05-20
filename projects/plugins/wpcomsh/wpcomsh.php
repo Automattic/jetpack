@@ -123,10 +123,10 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 /**
- * Atomic-side parallel of the wpcom-default-filters.php flip. Hands the
- * new automattic/jetpack-podcast package the experience on every WoA site
- * regardless of proxy state. The legacy at-pressable-podcasting stack
- * stands down via the gate below.
+ * Atomic-side safety net for the Podcast untangle. The package now defaults
+ * the gate to true on its own, so this filter is redundant in steady state —
+ * keep it as a belt-and-suspenders pin until the legacy
+ * at-pressable-podcasting vendor is removed in the Phase D cleanup.
  */
 add_filter( 'jetpack_podcast_untangle', '__return_true' );
 

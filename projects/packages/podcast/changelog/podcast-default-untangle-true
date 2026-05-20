@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: default jetpack_podcast_untangle to true. The new package now owns the experience on every Simple and Atomic site by default; the filter stays as an escape hatch for forcing the legacy stack back on.
