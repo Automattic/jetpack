@@ -1157,7 +1157,7 @@ class Search_Blocks {
 	width: 60px;
 	height: 60px;
 	padding: 0;
-	font-size: 1em;
+	font-size: 0.875rem;
 	font-weight: 400;
 	line-height: 1;
 }
