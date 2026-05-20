@@ -29,6 +29,40 @@ const SUGGESTION_TYPES = [
 ];
 const DEFAULT_SUGGESTION_TYPES = SUGGESTION_TYPES.map( t => t.value );
 
+// `<fieldset>` carries the right group semantics but browsers apply default
+// border, padding, and inline-size constraints that wreck the inspector's
+// layout, and the WP component classes don't fully override them when applied
+// to a `<legend>` (legend has its own browser typography). Lock the look in
+// with inline-style resets so it matches the surrounding `components-base-control`
+// blocks. Scoped to this one group rather than added to style.scss because the
+// rest of the inspector renders fine with WP's defaults.
+const FIELDSET_STYLE = {
+	border: 0,
+	padding: 0,
+	margin: 0,
+	marginTop: 16,
+	minInlineSize: 'auto',
+};
+const LEGEND_STYLE = {
+	display: 'block',
+	width: '100%',
+	margin: 0,
+	marginBottom: 12,
+	padding: 0,
+	fontSize: 11,
+	fontWeight: 500,
+	lineHeight: 1.4,
+	textTransform: 'uppercase',
+	color: 'inherit',
+};
+const HELP_STYLE = {
+	marginTop: 8,
+	marginBottom: 0,
+	fontSize: 12,
+	fontStyle: 'normal',
+	color: 'rgb(117, 117, 117)',
+};
+
 /**
  * Render the magnifying-glass glyph used by the search input, matching the
  * inline SVG emitted by render.php so the editor preview looks identical.
@@ -140,8 +174,8 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						// assistive tech announces the checkbox group correctly. BaseControl
 						// only associates one focusable child with its label — a group of
 						// three checkboxes needs the native group semantics.
-						<fieldset className="components-base-control">
-							<legend className="components-base-control__label">
+						<fieldset className="components-base-control" style={ FIELDSET_STYLE }>
+							<legend className="components-base-control__label" style={ LEGEND_STYLE }>
 								{ __( 'Suggestion types', 'jetpack-search-pkg' ) }
 							</legend>
 							{ SUGGESTION_TYPES.map( ( { value, label } ) => (
@@ -161,7 +195,7 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 									) }
 								</Notice>
 							) }
-							<p className="components-base-control__help">
+							<p className="components-base-control__help" style={ HELP_STYLE }>
 								{ __( 'Pick which sections appear in the dropdown.', 'jetpack-search-pkg' ) }
 							</p>
 						</fieldset>
