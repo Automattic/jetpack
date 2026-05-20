@@ -1361,6 +1361,48 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Per-slot fill across the search → index step: a minimalist
+	 * `search.html` that wraps only its header should pull the footer
+	 * slug from `index.html` rather than skipping straight to the area
+	 * or hardcoded-defaults rungs. Documents the cross-template fill
+	 * the resolver loop is responsible for.
+	 */
+	public function test_resolve_theme_chrome_slugs_fills_footer_from_index_when_search_has_header_only() {
+		$cls = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_active_theme_template_content( string $template_name ): ?string {
+					if ( 'search' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"search-header"} /-->';
+					}
+					if ( 'index' === $template_name ) {
+						return '<!-- wp:template-part {"slug":"index-header"} /-->'
+							. '<!-- wp:template-part {"slug":"index-footer"} /-->';
+					}
+					return null;
+				}
+				protected static function resolve_chrome_slugs_by_area(): array {
+					// Should not be reached; both slots are filled by templates.
+					return array(
+						'header' => 'never-used',
+						'footer' => 'never-used',
+					);
+				}
+			}
+		);
+		$ref = new \ReflectionMethod( $cls, 'resolve_theme_chrome_slugs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$this->assertSame(
+			array(
+				'header' => 'search-header',
+				'footer' => 'index-footer',
+			),
+			$ref->invoke( null )
+		);
+	}
+
+	/**
 	 * `extract_chrome_slugs_from_parts()` picks the alphabetically-first
 	 * slug per area so the chrome stays deterministic across requests
 	 * even when WP returns parts in filesystem-enumeration order. Twenty
