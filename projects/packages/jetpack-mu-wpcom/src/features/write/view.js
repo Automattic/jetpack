@@ -2412,20 +2412,21 @@ const { state } = store( 'wpcom-write', {
 					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
 					const target = active || document.querySelector( '.bw-slash-item:hover' ) || visible[ 0 ];
 					if ( target ) {
-						// Map menu items to actions by their label text.
-						const label = target.querySelector( 'strong' )?.textContent?.toLowerCase();
+						// Map menu items to actions by their data-action attribute
+						// (not label text, which is translated and would break on non-English sites).
+						const action = target.dataset.action;
 						const { actions: a } = store( 'wpcom-write' );
 						const actionMap = {
 							heading: a.insertHeading,
 							image: a.insertImage,
-							'bulleted list': a.insertBulletedList,
-							'numbered list': a.insertNumberedList,
+							'bulleted-list': a.insertBulletedList,
+							'numbered-list': a.insertNumberedList,
 							video: a.insertVideo,
 							quote: a.insertQuote,
 							divider: a.insertDivider,
 						};
-						if ( actionMap[ label ] ) {
-							actionMap[ label ]();
+						if ( actionMap[ action ] ) {
+							actionMap[ action ]();
 						}
 					}
 					return;

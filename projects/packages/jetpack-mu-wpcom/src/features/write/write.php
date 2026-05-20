@@ -935,31 +935,31 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Slash command menu -->
 	<div class="bw-slash-menu" id="bw-slash-menu" role="listbox" aria-label="<?php echo esc_attr__( 'Insert block', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showSlashMenu">
-		<div class="bw-slash-item" id="bw-slash-opt-heading" role="option" aria-selected="false" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-heading" role="option" aria-selected="false" data-action="heading" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">H</span>
 			<div><strong><?php echo esc_html__( 'Heading', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Large section heading', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-image" role="option" aria-selected="false" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-image" role="option" aria-selected="false" data-action="image" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9653;</span>
 			<div><strong><?php echo esc_html__( 'Image', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Upload or embed an image', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-quote" role="option" aria-selected="false" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-quote" role="option" aria-selected="false" data-action="quote" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&ldquo;</span>
 			<div><strong><?php echo esc_html__( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-bulleted-list" role="option" aria-selected="false" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-bulleted-list" role="option" aria-selected="false" data-action="bulleted-list" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&bull;</span>
 			<div><strong><?php echo esc_html__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An unordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-numbered-list" role="option" aria-selected="false" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-numbered-list" role="option" aria-selected="false" data-action="numbered-list" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">1.</span>
 			<div><strong><?php echo esc_html__( 'Numbered list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An ordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-video" role="option" aria-selected="false" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-video" role="option" aria-selected="false" data-action="video" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9654;</span>
 			<div><strong><?php echo esc_html__( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-divider" role="option" aria-selected="false" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-divider" role="option" aria-selected="false" data-action="divider" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&mdash;</span>
 			<div><strong><?php echo esc_html__( 'Divider', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'A horizontal separator', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
