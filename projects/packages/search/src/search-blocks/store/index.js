@@ -219,6 +219,9 @@ function dateBucketSlug( bucket ) {
  * the visible label as a tiebreaker so two buckets with the same count don't
  * swap positions across re-renders — ES bucket order is unstable on ties.
  *
+ * Sliced to `maxItems` after sorting so retained options and URL-seeded
+ * selections can't push the list past the configured cap.
+ *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
  * @param {object} config      - filterConfigs entry.
@@ -259,7 +262,11 @@ function checkboxFilterItems( sharedState, filterKey, config ) {
 		add( value, bucketLabel( value, valueLabels ), 0 );
 	}
 
-	return sortFilterItems( items, config, sharedState.locale );
+	// Slice after sort so retained options and URL-seeded selections can't
+	// push the list past `maxItems`; the sort already sinks unchecked count=0
+	// items to the bottom so retained-but-now-empty entries drop first.
+	const limit = Math.max( 1, config.maxItems ?? 10 );
+	return sortFilterItems( items, config, sharedState.locale ).slice( 0, limit );
 }
 
 /**
