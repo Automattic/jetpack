@@ -56,7 +56,6 @@ function lastStreamCall() {
 describe( 'AI Answers store slice', () => {
 	beforeEach( () => {
 		mockStreamAiAnswer.mockReset();
-		state.aiAnswersEnabled = true;
 		state.searchQuery = '';
 		state.siteId = 42;
 		state.locale = 'en-US';
@@ -78,14 +77,7 @@ describe( 'AI Answers store slice', () => {
 		state.aiSessionId = null;
 	} );
 
-	it( 'aiPanelHidden is true when aiAnswersEnabled is false', () => {
-		state.aiAnswersEnabled = false;
-		state.aiBriefStatus = 'streaming';
-		expect( state.aiPanelHidden ).toBe( true );
-	} );
-
 	it( 'aiPanelHidden is true when status is idle', () => {
-		state.aiAnswersEnabled = true;
 		state.aiBriefStatus = 'idle';
 		expect( state.aiPanelHidden ).toBe( true );
 	} );
@@ -147,13 +139,6 @@ describe( 'AI Answers store slice', () => {
 		const list = state.aiVisibleCitations;
 		expect( list[ 0 ].href ).toBe( 'https://example.com/safe' );
 		expect( list[ 1 ].href ).toBe( '#' );
-	} );
-
-	it( 'fetchAiAnswer bails when aiAnswersEnabled is false', () => {
-		state.aiAnswersEnabled = false;
-		state.searchQuery = 'something long enough';
-		actions.fetchAiAnswer();
-		expect( mockStreamAiAnswer ).not.toHaveBeenCalled();
 	} );
 
 	it( 'fetchAiAnswer bails when query is shorter than 3 characters', () => {
