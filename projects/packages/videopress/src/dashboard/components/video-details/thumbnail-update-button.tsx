@@ -42,10 +42,13 @@ export default function ThumbnailUpdateButton( {
 			>
 				<Icon icon={ pencil } />
 			</Popover.Trigger>
-			<Popover.Popup className="vp-thumbnail-update__menu">
+			<Popover.Popup role="menu" className="vp-thumbnail-update__menu">
 				<VisuallyHidden>
 					<Popover.Title>{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }</Popover.Title>
 				</VisuallyHidden>
+				{ /* focusableWhenDisabled={ false } sets the native disabled attribute so a
+				     disabled item leaves the tab order. There's no tooltip explaining the
+				     disabled state, so there's no value in keeping it focusable. */ }
 				<Button
 					role="menuitem"
 					variant="minimal"
