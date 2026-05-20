@@ -122,6 +122,14 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
+/**
+ * Atomic-side parallel of the wpcom-default-filters.php flip. Hands the
+ * new automattic/jetpack-podcast package the experience on every WoA site
+ * regardless of proxy state. The legacy at-pressable-podcasting stack
+ * stands down via the gate below.
+ */
+add_filter( 'jetpack_podcast_untangle', '__return_true' );
+
 if (
 	! class_exists( '\Automattic\Jetpack\Podcast\Podcast' )
 	|| ! \Automattic\Jetpack\Podcast\Podcast::is_enabled()
