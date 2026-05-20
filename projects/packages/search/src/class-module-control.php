@@ -338,6 +338,23 @@ class Module_Control {
 			);
 		}
 
+		// Defence-in-depth for the experimental blocks-powered overlay: the
+		// dashboard already hides the option when the
+		// `jetpack_search_overlay_block_template_enabled` filter is off, but
+		// a scripted REST POST could otherwise pre-stage `overlay_blocks` on
+		// a site where operators haven't opted in. Reject the value at the
+		// boundary so the runtime gate isn't the only safety net.
+		if (
+			self::EXPERIENCE_OVERLAY_BLOCKS === $experience
+			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false )
+		) {
+			return new WP_Error(
+				'experience_not_available',
+				esc_html__( 'The blocks-powered Overlay search experience is not enabled on this site.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		switch ( $experience ) {
 			case self::EXPERIENCE_OFF:
 				$this->disable_instant_search();
