@@ -984,7 +984,7 @@ const { state, actions } = store( NAMESPACE, {
 			// when an `ai-answer` block has mounted on the page — pages with
 			// just search-input + results-list shouldn't pay for an SSE
 			// round-trip whose output nothing on the page renders. The
-			// action also gates on enable-flag + query length + a same-query
+			// action also gates on query length (≥ 3 chars) and a same-query
 			// memo, so filter/sort-only re-calls don't re-spam the agent.
 			if ( aiBlockPresent ) {
 				actions.fetchAiAnswer();
