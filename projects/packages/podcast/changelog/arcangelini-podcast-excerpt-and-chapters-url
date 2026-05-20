@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast: stop leaking body content into the episode RSS description, and drop the broken chapters JSON upload button in favor of a URL-only field with a soft warning when the URL doesn't look like JSON.
