@@ -73,9 +73,7 @@ const canEditThumbnail = ( video: LibraryItem ): boolean =>
  * Top-of-page card on the Video details screen. Renders the thumbnail,
  * the "Add video to new post" outlined action, two read-only copy fields
  * (Link to video, Shortcode) using InputControl + IconButton suffix, and
- * two metadata rows (File name, Uploaded on). Also renders the
- * ThumbnailUpdateButton overlay and SelectFrameDialog for VideoPress items
- * that are not currently processing.
+ * two metadata rows (File name, Uploaded on).
  *
  * @param props                - Component props.
  * @param props.video          - The current video record.
@@ -144,7 +142,7 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						{ showUpdateButton && (
 							<ThumbnailUpdateButton
 								canSelectFromVideo={ Boolean( video.sourceUrl ) }
-								canUploadImage={ typeof window !== 'undefined' && Boolean( window.wp?.media ) }
+								canUploadImage={ Boolean( window.wp?.media ) }
 								isBusy={ updatePoster.isPending }
 								onSelectFromVideo={ () => setDialogOpen( true ) }
 								onUploadImage={ handleUploadImage }

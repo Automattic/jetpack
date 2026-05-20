@@ -1,6 +1,5 @@
 import { RangeControl, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, video } from '@wordpress/icons';
 import { Button, Dialog } from '@wordpress/ui';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 
@@ -25,7 +24,7 @@ export function frameTimeToMs( seconds: number, durationSeconds: number ): numbe
 
 type FrameScrubberProps = {
 	src: string;
-	onChange: ( ms: number | null ) => void;
+	onChange: ( ms: number ) => void;
 };
 
 /**
@@ -34,7 +33,7 @@ type FrameScrubberProps = {
  *
  * @param props          - Component props.
  * @param props.src      - Source URL of the video to scrub.
- * @param props.onChange - Called with the selected timestamp in milliseconds, or null when unset.
+ * @param props.onChange - Called with the selected timestamp in milliseconds.
  * @return The frame-scrubber element.
  */
 function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
@@ -50,11 +49,12 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 		}
 	}, [ src ] );
 
-	useEffect( () => {
-		if ( videoRef.current && Number.isFinite( currentTime ) ) {
-			videoRef.current.currentTime = currentTime as number;
+	const seekTo = ( seconds: number ) => {
+		setCurrentTime( seconds );
+		if ( videoRef.current ) {
+			videoRef.current.currentTime = seconds;
 		}
-	}, [ currentTime ] );
+	};
 
 	const handleDurationChange = ( event: React.SyntheticEvent< HTMLVideoElement > ) => {
 		const next = event.currentTarget.duration;
@@ -62,16 +62,21 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 			return;
 		}
 		setMaxDuration( next );
-		const initial = next / 2;
-		setCurrentTime( initial );
-		onChange( frameTimeToMs( initial, next ) );
+		// `durationchange` can fire more than once (adaptive sources update
+		// duration mid-stream). Seed the midpoint only on the first run so a
+		// later event doesn't snap the slider back and discard the user's pick.
+		if ( currentTime === null ) {
+			const initial = next / 2;
+			seekTo( initial );
+			onChange( frameTimeToMs( initial, next ) );
+		}
 	};
 
 	const handleRangeChange = ( v: number | undefined ) => {
 		if ( v === undefined ) {
 			return;
 		}
-		setCurrentTime( v );
+		seekTo( v );
 		onChange( frameTimeToMs( v, maxDuration ) );
 	};
 
@@ -90,7 +95,6 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 					<Spinner />
 				</div>
 			) }
-			<Icon className="vp-frame-scrubber__play" icon={ video } />
 			<video
 				ref={ videoRef }
 				muted

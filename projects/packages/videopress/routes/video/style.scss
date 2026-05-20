@@ -45,9 +45,8 @@
 }
 
 .vp-video-details__thumbnail {
-	width: 240px;
-	height: 135px;
-	object-fit: cover;
+	display: block;
+	max-width: 240px;
 	border-radius: 4px;
 	flex-shrink: 0;
 }
@@ -91,25 +90,14 @@
 }
 
 // Mobile: stack the Thumbnail card's two columns vertically. With the
-// thumbnail fixed at 240px and the meta column hosting full-width copy
-// fields + the primary action, anything narrower than ~600px squashes
-// the meta into a barely-readable strip. The thumbnail goes full-width
-// with a 16/9 aspect ratio so it stays the right shape for any column
-// width below the desktop layout.
+// meta column hosting full-width copy fields + the primary action,
+// anything narrower than ~600px squashes the meta into a barely-readable
+// strip. The thumbnail keeps its natural, width-capped size from the base
+// rule so it renders correctly for any aspect ratio.
 @media (max-width: 600px) {
 
 	.vp-video-details__thumbnail-row {
 		flex-direction: column !important;
-	}
-
-	.vp-video-details__thumbnail {
-		width: 100%;
-		height: auto;
-		aspect-ratio: 16 / 9;
-	}
-
-	.vp-video-details__thumbnail-wrapper {
-		width: 100%;
 	}
 }
 
@@ -122,18 +110,18 @@
 	position: absolute;
 	top: 8px;
 	right: 8px;
-	background: rgba(0, 0, 0, 0.6);
-	color: #fff;
-	border-radius: 4px;
-
-	&:hover:not([disabled]) {
-		background: rgba(0, 0, 0, 0.8);
-	}
 }
 
 .vp-thumbnail-update__menu {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 	min-width: 200px;
 	padding: 4px;
+
+	> button {
+		justify-content: flex-start;
+	}
 }
 
 .vp-video-details__thumbnail-updating {
@@ -151,18 +139,16 @@
 .vp-frame-scrubber {
 	position: relative;
 	width: 100%;
-
-	&:hover .vp-frame-scrubber__play {
-		opacity: 0;
-	}
 }
 
 .vp-frame-scrubber__video {
-	width: 100%;
-	aspect-ratio: 16 / 9;
-	object-fit: cover;
-	background: #000;
 	display: block;
+	max-width: 100%;
+	// Cap the height so portrait/vertical videos stay within the dialog
+	// instead of overflowing it. Landscape videos still fill the width.
+	max-height: 60vh;
+	margin-inline: auto;
+	background: #000;
 }
 
 .vp-frame-scrubber__spinner {
@@ -171,19 +157,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-.vp-frame-scrubber__play {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 80px;
-	height: 80px;
-	transform: translate(-50%, -50%);
-	color: #fff;
-	opacity: 0.85;
-	transition: opacity 0.2s ease-out;
-	pointer-events: none;
 }
 
 .vp-frame-scrubber__error {

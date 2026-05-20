@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { cloud, Icon, media, pencil } from '@wordpress/icons';
-import { Button, Popover, VisuallyHidden } from '@wordpress/ui';
+import { Button, IconButton, Popover, VisuallyHidden } from '@wordpress/ui';
 import { useState, type ReactElement } from 'react';
 
 type Props = {
@@ -36,13 +36,21 @@ export default function ThumbnailUpdateButton( {
 	return (
 		<Popover.Root open={ open } onOpenChange={ setOpen }>
 			<Popover.Trigger
-				aria-label={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
 				disabled={ isBusy }
 				className="vp-thumbnail-update__trigger"
-			>
-				<Icon icon={ pencil } />
-			</Popover.Trigger>
+				render={
+					<IconButton
+						icon={ pencil }
+						label={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+						size="compact"
+						tone="neutral"
+						variant="solid"
+						focusableWhenDisabled={ false }
+					/>
+				}
+			/>
 			<Popover.Popup role="menu" className="vp-thumbnail-update__menu">
+				<Popover.Arrow />
 				<VisuallyHidden>
 					<Popover.Title>{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }</Popover.Title>
 				</VisuallyHidden>
