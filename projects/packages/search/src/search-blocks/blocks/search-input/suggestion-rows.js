@@ -28,24 +28,42 @@ const TYPE_ORDER = [ 'query', 'taxonomy', 'post' ];
  * a Script Module (the blocks build target), so client-side translation
  * isn't an option in this view bundle.
  *
+ * The `enabledTypes` argument is the per-block author selection of which
+ * suggestion sections to render. The canonical render order is preserved
+ * regardless of the order `enabledTypes` was saved in; unknown strings are
+ * dropped silently. Passing `undefined` (or any non-array) means "all
+ * three" so older callers stay backward-compatible.
+ *
  * @param {Array<{type: 'query'|'post'|'taxonomy', text: string, url?: string, taxonomy?: string, slug?: string}>} suggestions
- *                                                                                                                             Flat list returned by `fetchSuggestions`.
- * @param {string}                                                                                                 listboxId   - DOM id of the parent `<ul role="listbox">`. Used to
- *                                                                                                                             bake `optionId` so the input's `aria-activedescendant` can target it.
+ *                                                                                                                                Flat list returned by `fetchSuggestions`.
+ * @param {string}                                                                                                 listboxId      - DOM id of the parent `<ul role="listbox">`. Used to
+ *                                                                                                                                bake `optionId` so the input's `aria-activedescendant` can target it.
  * @param {{query: string, taxonomy: string, post: string}}                                                        labels
- *                                                                                                                             Translated group titles. Missing keys render as the bare type string.
+ *                                                                                                                                Translated group titles. Missing keys render as the bare type string.
+ * @param {Array<string>}                                                                                          [enabledTypes]
+ *                                                                                                                                Subset of TYPE_ORDER the block author enabled. Omit / pass non-array for "all".
  * @return {Array<object>} Rows ready for `data-wp-each`.
  */
-export function buildSuggestionRows( suggestions, listboxId, labels ) {
+export function buildSuggestionRows( suggestions, listboxId, labels, enabledTypes ) {
 	if ( ! Array.isArray( suggestions ) || suggestions.length === 0 ) {
 		return [];
 	}
 
 	const safeLabels = labels ?? {};
+	// Filter TYPE_ORDER to the author's selection while preserving the
+	// canonical render order. `null` / `undefined` / non-array short-circuits
+	// to "all enabled" so older callers (and tests) keep working.
+	const types = Array.isArray( enabledTypes )
+		? TYPE_ORDER.filter( t => enabledTypes.includes( t ) )
+		: TYPE_ORDER;
+	if ( types.length === 0 ) {
+		return [];
+	}
+
 	const rows = [];
 	let optionIndex = 0;
 
-	for ( const type of TYPE_ORDER ) {
+	for ( const type of types ) {
 		const indexed = suggestions
 			.map( ( item, originalIndex ) => ( { item, originalIndex } ) )
 			.filter( ( { item } ) => item.type === type );

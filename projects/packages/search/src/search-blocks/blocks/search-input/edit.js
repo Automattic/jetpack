@@ -8,9 +8,60 @@
  * and whether queries fire live or only on submit.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import {
+	CheckboxControl,
+	Notice,
+	PanelBody,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+
+// Mirrors the enum on `block.json::attributes.suggestionTypes.items.enum`
+// and the canonical order rendered by `suggestion-rows.js::TYPE_ORDER`.
+// Keep these three in lockstep — a new type means an entry in each plus a
+// matching label in `Search_Blocks::build_initial_strings()`.
+const SUGGESTION_TYPES = [
+	{ value: 'query', label: __( 'Query completions', 'jetpack-search-pkg' ) },
+	{ value: 'taxonomy', label: __( 'Categories & tags', 'jetpack-search-pkg' ) },
+	{ value: 'post', label: __( 'Post titles', 'jetpack-search-pkg' ) },
+];
+const DEFAULT_SUGGESTION_TYPES = SUGGESTION_TYPES.map( t => t.value );
+
+// `<fieldset>` carries the right group semantics but browsers apply default
+// border, padding, and inline-size constraints that wreck the inspector's
+// layout, and the WP component classes don't fully override them when applied
+// to a `<legend>` (legend has its own browser typography). Lock the look in
+// with inline-style resets so it matches the surrounding `components-base-control`
+// blocks. Scoped to this one group rather than added to style.scss because the
+// rest of the inspector renders fine with WP's defaults.
+const FIELDSET_STYLE = {
+	border: 0,
+	padding: 0,
+	margin: 0,
+	marginTop: 16,
+	minInlineSize: 'auto',
+};
+const LEGEND_STYLE = {
+	display: 'block',
+	width: '100%',
+	margin: 0,
+	marginBottom: 12,
+	padding: 0,
+	fontSize: 11,
+	fontWeight: 500,
+	lineHeight: 1.4,
+	textTransform: 'uppercase',
+	color: 'inherit',
+};
+const HELP_STYLE = {
+	marginTop: 8,
+	marginBottom: 0,
+	fontSize: 12,
+	fontStyle: 'normal',
+	color: 'rgb(117, 117, 117)',
+};
 
 /**
  * Render the magnifying-glass glyph used by the search input, matching the
@@ -54,6 +105,28 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const showIcon = attributes?.showIcon !== false;
 	const submitOnly = !! attributes?.submitOnly;
 	const enableSuggestions = !! attributes?.enableSuggestions;
+	// Defensive copy so toggling a checkbox always produces a fresh array —
+	// React-style setAttributes shallow-compares arrays by reference, and a
+	// mutation in-place would skip the save. Falls back to the canonical
+	// default list when the attribute is missing on freshly-inserted blocks
+	// (block.json's default applies on next save, not first render).
+	const suggestionTypes = Array.isArray( attributes?.suggestionTypes )
+		? attributes.suggestionTypes
+		: DEFAULT_SUGGESTION_TYPES;
+	// Filter against DEFAULT_SUGGESTION_TYPES on every save so two blocks
+	// that ended up with the same selection serialize identically regardless
+	// of click order.
+	const setSuggestionType = ( type, value ) => {
+		const set = new Set( suggestionTypes );
+		if ( value ) {
+			set.add( type );
+		} else {
+			set.delete( type );
+		}
+		setAttributes( {
+			suggestionTypes: DEFAULT_SUGGESTION_TYPES.filter( t => set.has( t ) ),
+		} );
+	};
 	return (
 		<>
 			<InspectorControls>
@@ -92,10 +165,41 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						checked={ enableSuggestions }
 						onChange={ value => setAttributes( { enableSuggestions: value } ) }
 						help={ __(
-							'Display an autocomplete dropdown with query, category, and post suggestions as the visitor types. Requires a configured Jetpack Search site ID.',
+							'Display an autocomplete dropdown as the visitor types. Requires a configured Jetpack Search site ID.',
 							'jetpack-search-pkg'
 						) }
 					/>
+					{ enableSuggestions && (
+						// `<fieldset>` + `<legend>` instead of `BaseControl`'s label/id pair so
+						// assistive tech announces the checkbox group correctly. BaseControl
+						// only associates one focusable child with its label — a group of
+						// three checkboxes needs the native group semantics.
+						<fieldset className="components-base-control" style={ FIELDSET_STYLE }>
+							<legend className="components-base-control__label" style={ LEGEND_STYLE }>
+								{ __( 'Suggestion types', 'jetpack-search-pkg' ) }
+							</legend>
+							{ SUGGESTION_TYPES.map( ( { value, label } ) => (
+								<CheckboxControl
+									__nextHasNoMarginBottom
+									key={ value }
+									label={ label }
+									checked={ suggestionTypes.includes( value ) }
+									onChange={ checked => setSuggestionType( value, checked ) }
+								/>
+							) ) }
+							{ suggestionTypes.length === 0 && (
+								<Notice status="info" isDismissible={ false }>
+									{ __(
+										'No types selected — the dropdown won’t appear until at least one is enabled.',
+										'jetpack-search-pkg'
+									) }
+								</Notice>
+							) }
+							<p className="components-base-control__help" style={ HELP_STYLE }>
+								{ __( 'Pick which sections appear in the dropdown.', 'jetpack-search-pkg' ) }
+							</p>
+						</fieldset>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

@@ -14,7 +14,12 @@
 		"placeholder": { "type": "string", "default": "" },
 		"showIcon": { "type": "boolean", "default": true },
 		"submitOnly": { "type": "boolean", "default": false },
-		"enableSuggestions": { "type": "boolean", "default": false }
+		"enableSuggestions": { "type": "boolean", "default": false },
+		"suggestionTypes": {
+			"type": "array",
+			"default": [ "query", "taxonomy", "post" ],
+			"items": { "type": "string", "enum": [ "query", "taxonomy", "post" ] }
+		}
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
