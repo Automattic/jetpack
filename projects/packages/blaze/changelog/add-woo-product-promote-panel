@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an opt-in "Promote it free with Blaze Ads" panel to the WooCommerce product editor, gated on the `blaze-featured-woocommerce-site` site sticker and a Jetpack connection.

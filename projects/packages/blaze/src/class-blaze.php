@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
+use Automattic\Jetpack\Blaze\Woo_Product_Panel;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
@@ -59,6 +60,8 @@ class Blaze {
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Promote-with-Blaze opt-in panel on the WooCommerce product editor.
+		Woo_Product_Panel::init();
 	}
 
 	/**
