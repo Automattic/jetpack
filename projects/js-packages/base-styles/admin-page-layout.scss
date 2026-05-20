@@ -206,8 +206,14 @@ $jp-breakpoint-mobile: 782px;
 	// admin-ui 2.0.0 moved internals to CSS Modules (no `.admin-ui-page*`
 	// class hooks anymore). We pass `className="jp-admin-page__page"` from
 	// <AdminPage>; admin-ui forwards it onto the page's outer node. The
-	// header is a stable `<header>` element directly inside that node, so
-	// we anchor to `> header` instead of a class.
+	// page's <Header> is always rendered as the first child of that node, so
+	// we anchor structurally to `> :first-child` instead of a class. We used
+	// to target `> header`, but @wordpress/admin-ui 2.1.0 (Gutenberg PR
+	// WordPress/gutenberg#78001, "Fix nested landmark in header") removed
+	// `render={ <header /> }` from the page header's Stack so the rendered
+	// element changed from `<header>` to `<div>`. `:first-child` matches
+	// regardless of element type, keeping us forward-compatible with 2.1+
+	// AND backward-compatible with 2.0's `<header>`.
 	.jp-admin-page__page {
 		flex: 1 1 auto;
 		min-height: 0;
@@ -216,7 +222,7 @@ $jp-breakpoint-mobile: 782px;
 		flex-direction: column;
 	}
 
-	.jp-admin-page__page > header {
+	.jp-admin-page__page > :first-child {
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
@@ -225,7 +231,7 @@ $jp-breakpoint-mobile: 782px;
 	// strip's own hairline becomes the only divider between header and tab
 	// content. Same `:has()` pattern used elsewhere in this mixin to react
 	// to the page's content shape.
-	.jp-admin-page__page:has(.jp-admin-page-tabs) > header {
+	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
 		border-bottom: none;
 		padding-bottom: 0;
 	}
