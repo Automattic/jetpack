@@ -119,12 +119,12 @@ class Filters_Popover_Render_Test extends TestCase {
 	}
 
 	/**
-	 * The panel must NOT carry the `hidden` HTML attribute, `role="dialog"`,
-	 * or `aria-label` — those were the source of the original a11y bug, where
-	 * responsive mode at ≥992px kept the panel `hidden` from screen readers
-	 * even though CSS overrode the visual `display`. Class-driven visibility
-	 * via `.is-popover-open` keeps sighted and AT users in sync. Regression
-	 * guard for PR feedback by Copilot on filters-popover/style.scss.
+	 * The panel must NOT carry the `hidden` HTML attribute or `role="dialog"` —
+	 * those were the source of the original a11y bug, where responsive mode at
+	 * ≥992px kept the panel `hidden` from screen readers even though CSS
+	 * overrode the visual `display`. Class-driven visibility via
+	 * `.is-popover-open` keeps sighted and AT users in sync. Regression guard
+	 * for PR feedback by Copilot on filters-popover/style.scss.
 	 */
 	public function test_panel_has_no_hidden_attribute_or_dialog_role() {
 		foreach ( array( 'responsive', 'popover-always' ) as $mode ) {
@@ -140,6 +140,28 @@ class Filters_Popover_Render_Test extends TestCase {
 				"mode=$mode: panel must not carry role=\"dialog\""
 			);
 			$this->assertStringNotContainsString( 'data-wp-bind--hidden="!state.isFilterPopoverOpen"', $markup, "mode=$mode" );
+		}
+	}
+
+	/**
+	 * The panel must expose a labelled landmark (`role="region"` +
+	 * `aria-label="Search filters"`) so AT users navigating by landmarks can
+	 * find the filter controls in both the inline-sidebar and popover forms.
+	 * Regression guard for PR feedback by claude[bot] on filters-popover.
+	 */
+	public function test_panel_exposes_search_filters_landmark() {
+		foreach ( array( 'responsive', 'popover-always' ) as $mode ) {
+			$markup = $this->render( array( 'displayMode' => $mode ) );
+			$this->assertSame(
+				1,
+				preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="region"[^>]*>/', $markup ),
+				"mode=$mode: panel must carry role=\"region\""
+			);
+			$this->assertSame(
+				1,
+				preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*aria-label="Search filters"[^>]*>/', $markup ),
+				"mode=$mode: panel must carry aria-label=\"Search filters\""
+			);
 		}
 	}
 }

@@ -93,7 +93,11 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 						</span>
 					</button>
 				) }
-				<div className="jetpack-search-filters-popover__panel">
+				<div
+					className="jetpack-search-filters-popover__panel"
+					role="region"
+					aria-label={ __( 'Search filters', 'jetpack-search-pkg' ) }
+				>
 					<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
 				</div>
 			</div>

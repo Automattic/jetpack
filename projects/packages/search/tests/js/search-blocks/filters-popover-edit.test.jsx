@@ -23,16 +23,17 @@ const renderEdit = ( attributes = {} ) =>
 
 describe( 'FiltersPopoverEdit', () => {
 	describe( 'default (responsive) mode', () => {
-		it( 'renders inline children with no trigger when no displayMode is set', () => {
+		it( 'renders an inline labelled region with no trigger when no displayMode is set', () => {
 			renderEdit();
 			expect( screen.queryByRole( 'button', { name: 'Filter results' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
 		} );
 
 		it( 'falls back to responsive for an unknown displayMode value', () => {
 			renderEdit( { displayMode: 'something-else' } );
 			expect( screen.queryByRole( 'button', { name: 'Filter results' } ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -42,12 +43,13 @@ describe( 'FiltersPopoverEdit', () => {
 		// trigger button being present alongside. Front-end visibility is
 		// class-driven by the Interactivity store — covered by
 		// `Filters_Popover_Render_Test` on the PHP side.
-		it( 'renders the disabled trigger alongside the inline children', () => {
+		it( 'renders the disabled trigger alongside the labelled inline region', () => {
 			renderEdit( { displayMode: 'popover-always' } );
 
 			const trigger = screen.getByRole( 'button', { name: 'Filter results' } );
 			expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
 			expect( trigger ).toBeDisabled();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
 		} );
 	} );

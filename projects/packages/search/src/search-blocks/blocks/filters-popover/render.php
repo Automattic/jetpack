@@ -59,6 +59,8 @@ $wrapper_class = 'jetpack-search-filters-popover is-mode-' . $display_mode;
 	<div
 		id="<?php echo esc_attr( $panel_id ); ?>"
 		class="jetpack-search-filters-popover__panel"
+		role="region"
+		aria-label="<?php esc_attr_e( 'Search filters', 'jetpack-search-pkg' ); ?>"
 	>
 		<?php
 		// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
