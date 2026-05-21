@@ -389,6 +389,24 @@ async function applyMediaSizeToFigure( fig, slug ) {
 	if ( target.height ) img.setAttribute( 'height', target.height );
 }
 
+// In-flight applyMediaSizeToFigure promises. savePost awaits these before
+// cloning content so a save fired between a size click and the REST
+// response doesn't serialize the new size class with the old src.
+const pendingMediaSizeSwaps = new Set();
+
+/**
+ * Register an in-flight applyMediaSizeToFigure promise so savePost can wait
+ * for it before serializing.
+ *
+ * @param {Promise} promise - The applyMediaSizeToFigure call.
+ * @return {Promise} The same promise, for chaining.
+ */
+function trackMediaSizeSwap( promise ) {
+	pendingMediaSizeSwaps.add( promise );
+	promise.finally( () => pendingMediaSizeSwaps.delete( promise ) );
+	return promise;
+}
+
 /**
  * Toggle a size class on a figure, replacing any existing one.
  *
@@ -1431,7 +1449,7 @@ function addDeleteButtons() {
 			menu.hidden = true;
 			menu.setAttribute( 'role', 'menu' );
 			const sizeOptions = [
-				[ 'thumbnail', i18n.sizeSmall || 'Small' ],
+				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
 				[ 'medium', i18n.sizeMedium || 'Medium' ],
 				[ 'large', i18n.sizeLarge || 'Large' ],
 				[ 'full', i18n.sizeFull || 'Full' ],
@@ -1448,7 +1466,7 @@ function addDeleteButtons() {
 					ev.preventDefault();
 					ev.stopPropagation();
 					setFigureSize( fig, slug );
-					applyMediaSizeToFigure( fig, slug ).then( pushToUndoHistory );
+					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
 					closeSizeMenu( true );
 				} );
 				menu.appendChild( opt );
@@ -3699,7 +3717,7 @@ const { state } = store( 'wpcom-write', {
 				img.className = 'wp-image-' + state.uploadedMediaId;
 				figure.className = 'bw-image-figure size-large';
 				figure.appendChild( img );
-				applyMediaSizeToFigure( figure, 'large' );
+				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
 			} else {
 				// External URL (no media library entry, no resized files):
 				// no size preset — the per-image Size button is hidden, matching
@@ -4305,6 +4323,14 @@ async function savePost( postStatus, isAutosave = false ) {
 			savingMessage = i18n.publishing || 'Publishing...';
 		}
 		state.message = savingMessage;
+	}
+
+	// Wait for any in-flight image size swaps to finish so the saved
+	// content's img.src matches its size-* class. Without this, a save
+	// fired between a size click and the REST response would serialize
+	// the new size class with the old src.
+	if ( pendingMediaSizeSwaps.size ) {
+		await Promise.allSettled( [ ...pendingMediaSizeSwaps ] );
 	}
 
 	// Ensure the live DOM has proper structure before cloning — this

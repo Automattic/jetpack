@@ -782,6 +782,16 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that an image with a custom/theme sizeSlug returns 'block-editor'.
+	 * convertToBlocks() only emits the four standard presets, so unknown
+	 * slugs would be silently stripped on save.
+	 */
+	public function test_detect_unsupported_image_with_custom_size_slug() {
+		$content = '<!-- wp:image {"id":123,"sizeSlug":"hero"} --><figure class="wp-block-image size-hero"><img src="test.jpg" alt="" class="wp-image-123"/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
 	 * Test that an image with align (left/center/right) returns 'block-editor'.
 	 * Write has no image-alignment UI, so posts with aligned images bounce
 	 * to the block editor via the unsupported-content modal.
