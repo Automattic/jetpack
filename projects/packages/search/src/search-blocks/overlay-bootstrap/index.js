@@ -298,3 +298,13 @@ const overlayEl = getOverlay();
 if ( overlayEl ) {
 	overlayEl.addEventListener( 'click', handleOverlayClick );
 }
+
+// Honor the URL on initial paint the same way `popstate` does on back/forward:
+// if the page loaded with `?s=` or `?q=`, open the overlay. This matches the
+// legacy instant-search behavior where deep links and core-search-form GET
+// submissions surface results in the overlay without a click.
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', handlePopState, { once: true } );
+} else {
+	handlePopState();
+}
