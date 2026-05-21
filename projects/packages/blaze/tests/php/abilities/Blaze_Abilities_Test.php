@@ -69,6 +69,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		remove_all_filters( 'blaze_abilities_submit_prepared_campaign_enabled' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_tracks_event' );
 		remove_all_filters( 'jetpack_blaze_prepare_campaign_payment_methods' );
+		remove_all_filters( 'jetpack_blaze_prepare_campaign_fallback_user_id' );
 		remove_all_actions( 'wp_after_execute_ability' );
 		unset( $GLOBALS['wp_rest_server'] );
 	}
@@ -1067,14 +1068,14 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	 *
 	 * @param callable $callback Route callback.
 	 */
-	private function register_payment_methods_route( callable $callback ) {
+	private function register_payment_methods_route( callable $callback, ?callable $permission_callback = null ) {
 		register_rest_route(
 			'jetpack/v4/blaze-app',
 			sprintf( '/sites/%d/wordads/dsp/api/v1.1/payment-methods', self::TEST_SITE_ID ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => $callback,
-				'permission_callback' => '__return_true',
+				'permission_callback' => $permission_callback ?? '__return_true',
 			)
 		);
 	}
@@ -1570,6 +1571,78 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( $result['submit_package']['idempotency_key'], $result['approval_block']['approval_event']['idempotency_key'] );
 		$this->assertContains( 'approved_at', $result['approval_block']['approval_event_required_fields'] );
 		$this->assertContains( 'idempotency_key', $result['approval_block']['approval_event_required_fields'] );
+	}
+
+	/**
+	 * Ability execution may not have a current WP user, but the internal
+	 * payment-method proxy still needs an admin-capable user context.
+	 */
+	public function test_wrapped_prepare_campaign_fetches_payment_methods_without_current_user() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'blaze-admin-' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'blaze-admin-' . wp_rand() . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		wp_set_current_user( 0 );
+		add_filter(
+			'jetpack_blaze_prepare_campaign_fallback_user_id',
+			static function () use ( $admin_id ) {
+				return (int) $admin_id;
+			}
+		);
+
+		$ctx                = $this->make_test_post();
+		$permission_user_id = null;
+		$this->register_payment_methods_route(
+			static function () {
+				return array(
+					'payment_methods' => array(
+						array(
+							'id'   => 'PW-3272868',
+							'type' => 'credit_card',
+							'name' => 'Visa ending in 4242',
+							'info' => array(
+								'last_digits' => '4242',
+								'expiring'    => array(
+									'year'  => 2026,
+									'month' => 11,
+								),
+								'type'        => 'Visa',
+							),
+						),
+					),
+				);
+			},
+			static function () use ( &$permission_user_id ) {
+				$permission_user_id = get_current_user_id();
+				return current_user_can( 'manage_options' );
+			}
+		);
+
+		$args    = array(
+			'execute_callback' => array( Blaze_Abilities::class, 'prepare_campaign' ),
+			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
+		);
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
+		$result  = call_user_func(
+			$wrapped['execute_callback'],
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 35,
+				'duration_days' => 7,
+			)
+		);
+
+		$this->assertSame( 0, get_current_user_id() );
+		$this->assertSame( (int) $admin_id, $permission_user_id );
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'PW-3272868', $result['submit_eligibility']['selected_payment_method']['id'] );
+		$this->assertArrayHasKey( 'next_action', $result );
 	}
 
 	/**

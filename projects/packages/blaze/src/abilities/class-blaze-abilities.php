@@ -2236,12 +2236,77 @@ class Blaze_Abilities extends Registrar {
 		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/payment-methods', (int) $site_id );
 		$request = new WP_REST_Request( 'GET', $route );
 
-		$response = rest_do_request( $request );
+		$response = self::do_prepare_campaign_payment_methods_request( $request );
 		if ( $response->is_error() ) {
 			return null;
 		}
 
 		return self::extract_payment_methods_response( $response->get_data() );
+	}
+
+	/**
+	 * Execute the internal payment-method proxy request with a site admin user
+	 * when ability execution has no current WordPress user.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response REST response.
+	 */
+	private static function do_prepare_campaign_payment_methods_request( WP_REST_Request $request ) {
+		if ( get_current_user_id() || current_user_can( 'manage_options' ) ) {
+			return rest_do_request( $request );
+		}
+
+		/**
+		 * Filters the admin-capable user used for internal prepare-campaign
+		 * payment-method proxy calls when ability execution has no current user.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $fallback_user_id Fallback user ID.
+		 */
+		$fallback_user_id = (int) apply_filters( 'jetpack_blaze_prepare_campaign_fallback_user_id', self::get_prepare_campaign_fallback_user_id() );
+		if ( ! $fallback_user_id ) {
+			return rest_do_request( $request );
+		}
+
+		$previous_user_id = get_current_user_id();
+		wp_set_current_user( $fallback_user_id );
+
+		try {
+			return rest_do_request( $request );
+		} finally {
+			wp_set_current_user( $previous_user_id );
+		}
+	}
+
+	/**
+	 * Find an admin-capable user for internal ability-owned REST proxy calls.
+	 *
+	 * @return int User ID, or 0 when unavailable.
+	 */
+	private static function get_prepare_campaign_fallback_user_id(): int {
+		$users = get_users(
+			array(
+				'blog_id' => 0,
+				'fields'  => 'ID',
+			)
+		);
+
+		if ( empty( $users ) ) {
+			return 0;
+		}
+
+		$previous_user_id = get_current_user_id();
+		foreach ( $users as $user_id ) {
+			wp_set_current_user( (int) $user_id );
+			if ( current_user_can( 'manage_options' ) ) {
+				wp_set_current_user( $previous_user_id );
+				return (int) $user_id;
+			}
+		}
+		wp_set_current_user( $previous_user_id );
+
+		return 0;
 	}
 
 	/**

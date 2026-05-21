@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blaze: keep chat submit eligible when prepare fetches saved payment methods without a current WordPress user.
