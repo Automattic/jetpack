@@ -388,11 +388,24 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// "Jetpack > Subscribers" / standalone "Subscribers" wp-admin pages were
-	// retired alongside the Newsletter modernization umbrella (#48530); the
-	// Newsletter page now owns the Subscribers tab. Keep the Calypso link
-	// hidden in case some other layer adds it back.
+	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+
+	// Once the Newsletter modernization filter is on, the unified Newsletter
+	// page owns the Subscribers tab and this standalone submenu is retired.
+	// While the filter is off (the default) we keep the legacy Calypso
+	// "Subscribers" submenu. (The wp-admin subscriber-management variant was
+	// removed with the subscribers-dashboard package and isn't restored.)
+	if ( ! apply_filters( Newsletter_Settings::MODERNIZATION_FILTER, false ) ) {
+		add_submenu_page(
+			'jetpack',
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/subscribers/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	if ( Podcast::is_enabled() ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
@@ -457,6 +470,7 @@ function wpcom_add_jetpack_submenu() {
 			'forms',
 			'earn',
 			'search',
+			'subscribers',
 			'newsletter',
 			'podcast',
 			'podcasting',
