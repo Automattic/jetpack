@@ -126,6 +126,10 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
+		if ( self::is_site_coming_soon_or_unlaunched() ) {
+			return;
+		}
+
 		/**
 		 * Filter to override the AI features check.
 		 *
@@ -171,6 +175,31 @@ class Jetpack_Reader_Chat {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Check whether the current site is Coming Soon or unlaunched.
+	 *
+	 * Reader Chat is a public frontend widget, so it should not mount on sites
+	 * that are still hidden behind launch or Coming Soon visibility.
+	 *
+	 * @return bool Whether the site is hidden by launch or Coming Soon visibility.
+	 */
+	private static function is_site_coming_soon_or_unlaunched(): bool {
+		$status = new Status();
+		if ( $status->is_coming_soon() ) {
+			return true;
+		}
+
+		if ( function_exists( 'require_lib' ) ) {
+			require_lib( 'launch-site' );
+		}
+
+		if ( function_exists( 'WPCOM\\Lib\\Launch_Site\\is_site_launched' ) ) {
+			return ! \WPCOM\Lib\Launch_Site\is_site_launched( get_current_blog_id() );
+		}
+
+		return false;
 	}
 
 	/**

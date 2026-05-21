@@ -61,6 +61,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reader_chat_has_search_plan_access' );
 		remove_all_filters( 'jetpack_sync_options_whitelist' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_all_filters( 'jetpack_is_coming_soon' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_doing_ajax' );
 		// Remove any wp_enqueue_scripts / wp_footer hooks the class may have added.
@@ -392,6 +393,23 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertTrue(
 			wp_style_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Style should be enqueued on a non-singular public frontend page.'
+		);
+	}
+
+	/**
+	 * Test that enqueue_scripts() skips Coming Soon sites.
+	 */
+	public function test_enqueue_scripts_skips_on_coming_soon_site() {
+		$this->override_ai_features( true );
+		$this->cache_asset_data();
+		add_filter( 'jetpack_is_coming_soon', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
+			'Script should not be enqueued on Coming Soon sites.'
 		);
 	}
 
