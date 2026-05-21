@@ -412,7 +412,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_PREPARE_CAMPAIGN         => array(
 				'label'               => __( 'Prepare a Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and Blaze public page topic IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
+				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns chat-ready preview, approval, and fallback data. If submit_eligibility.chat_native_submit is true, chat-native approval/submit is the default continuation: when the merchant says natural language like "Looks good, submit it" or "go ahead and launch it", render the pasteable approval message from approval_block/next_action and wait for that explicit approval before calling submit-prepared-campaign. The Blaze preview/widget link may still be shown for optional review, but it is not the primary path for eligible users. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and Blaze public page topic IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. Do not ask merchants to paste package hashes, idempotency keys, prepared package IDs, or tool names.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array(),
@@ -527,7 +527,7 @@ class Blaze_Abilities extends Registrar {
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
-					'description' => __( 'Chat-ready prepared campaign package plus a deep-link to the Blaze UI for fallback review and submit.', 'jetpack-blaze' ),
+					'description' => __( 'Chat-ready prepared campaign package with preview, optional Blaze UI fallback, and chat-native approval next action when eligible.', 'jetpack-blaze' ),
 					'required'    => array(
 						'status',
 						'message',
@@ -703,7 +703,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'approval_block'       => array(
 							'type'        => 'object',
-							'description' => __( 'Approval wording keys and exact package identity, present when a saved payment method makes chat-native submit eligible.', 'jetpack-blaze' ),
+							'description' => __( 'Approval wording keys, pasteable approval message, and exact package identity, present when a saved payment method makes chat-native submit eligible.', 'jetpack-blaze' ),
 							'required'    => array(
 								'prepared_campaign_id',
 								'prepared_campaign_hash',
@@ -711,6 +711,7 @@ class Blaze_Abilities extends Registrar {
 								'body_key',
 								'confirmation_label_key',
 								'approval_statement',
+								'pasteable_approval_message',
 								'approval_contract',
 								'approval_event',
 								'approval_event_required_fields',
@@ -743,6 +744,10 @@ class Blaze_Abilities extends Registrar {
 									'type'        => 'string',
 									'description' => __( 'Canonical fallback approval wording owned by Blaze.', 'jetpack-blaze' ),
 								),
+								'pasteable_approval_message' => array(
+									'type'        => 'string',
+									'description' => __( 'Plain-language approval sentence the merchant can paste or confirm after reviewing live prepared values. It includes campaign identity, maximum charge, currency, payment method summary, Terms of Service, and Advertising Policy acknowledgement, without exposing package hashes or idempotency keys.', 'jetpack-blaze' ),
+								),
 								'approval_contract'        => array(
 									'type'        => 'object',
 									'description' => __( 'Language-independent approval contract containing the exact package identity, terms/policy versions, charge terms, cancellation wording version, payment method, user, and site.', 'jetpack-blaze' ),
@@ -767,6 +772,51 @@ class Blaze_Abilities extends Registrar {
 								),
 								'requires_reprepare_edits' => array(
 									'type' => 'boolean',
+								),
+							),
+						),
+						'next_action'          => array(
+							'type'        => 'object',
+							'description' => __( 'Default next action for eligible prepared campaigns. When present, chat-native approval/submit is the default path, and the preview URL is optional review rather than widget-only handoff.', 'jetpack-blaze' ),
+							'required'    => array(
+								'type',
+								'default_flow',
+								'chat_native_submit',
+								'requires_explicit_approval',
+								'pasteable_approval_message',
+								'optional_preview_url',
+							),
+							'properties'  => array(
+								'type'                   => array(
+									'type'        => 'string',
+									'description' => __( 'Stable action type. request_explicit_approval means ask the merchant to paste or confirm the approval message before submit.', 'jetpack-blaze' ),
+									'enum'        => array( 'request_explicit_approval' ),
+								),
+								'default_flow'           => array(
+									'type'        => 'string',
+									'description' => __( 'chat_native_submit means the client should continue toward in-chat approval and submit by default.', 'jetpack-blaze' ),
+									'enum'        => array( 'chat_native_submit' ),
+								),
+								'chat_native_submit'     => array(
+									'type' => 'boolean',
+								),
+								'requires_explicit_approval' => array(
+									'type' => 'boolean',
+								),
+								'pasteable_approval_message' => array(
+									'type'        => 'string',
+									'description' => __( 'Approval message to render when the merchant says "submit it", "launch it", "go ahead", or similar plain-language intent.', 'jetpack-blaze' ),
+								),
+								'optional_preview_url'   => array(
+									'type'        => 'string',
+									'format'      => 'uri',
+									'description' => __( 'optional review URL for merchants who want to inspect the campaign in Blaze before approving in chat.', 'jetpack-blaze' ),
+								),
+								'optional_preview_label' => array(
+									'type' => 'string',
+								),
+								'message'                => array(
+									'type' => 'string',
 								),
 							),
 						),
@@ -850,7 +900,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_SUBMIT_PREPARED_CAMPAIGN => array(
 				'label'               => __( 'Submit an approved prepared Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Submit one previously prepared Blaze campaign package after explicit structured approval from the merchant. This spends real money. Do not call this from a normal chat phrase such as “looks good”; call it only after the client has rendered the exact approval terms from prepare-campaign and captured a structured approval event for the same prepared package hash, payment method, terms version, policy version, and idempotency key.', 'jetpack-blaze' ),
+				'description'         => __( 'Submit one previously prepared Blaze campaign package after explicit structured approval from the merchant. This spends real money. Do not call this from a normal chat phrase such as "looks good"; use that phrase to render the pasteable approval message instead. Call this only after the client has rendered the exact approval terms from prepare-campaign and captured a pasted or confirmed approval message, then built a structured approval event internally for the same prepared package hash, payment method, terms version, policy version, and idempotency key.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'idempotency_key', 'prepared_package_id', 'prepared_campaign_hash', 'prepared_campaign', 'accepted_terms_version', 'accepted_policy_version', 'approval' ),
@@ -881,7 +931,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'approval'                => array(
 							'type'        => 'object',
-							'description' => __( 'Structured approval event for this exact package. It must include type prepared_campaign.approved and approved_at; ordinary chat text is not approval.', 'jetpack-blaze' ),
+							'description' => __( 'Structured approval event for this exact package. It must include type prepared_campaign.approved and approved_at; ordinary chat text is not approval, but a merchant pasted or confirmed the rendered pasteable approval message after seeing the live terms is valid approval input for the client to convert into this event.', 'jetpack-blaze' ),
 						),
 					),
 					'additionalProperties' => false,
@@ -1898,6 +1948,13 @@ class Blaze_Abilities extends Registrar {
 		$message .= self::format_text_list( __( 'Assumptions:', 'jetpack-blaze' ), $proposal['assumptions'] ?? array() );
 		$message .= self::format_text_list( __( 'Recommendations:', 'jetpack-blaze' ), $proposal['recommendations'] ?? array() );
 		$message .= "\n" . __( 'Review URL:', 'jetpack-blaze' ) . ' ' . (string) ( $proposal['prefill_url'] ?? '' );
+
+		if ( ! empty( $proposal['next_action'] ) && is_array( $proposal['next_action'] ) ) {
+			$message .= "\n\n" . __( 'Chat submit is available.', 'jetpack-blaze' );
+			$message .= ' ' . __( 'You can preview it in Blaze if you want, but you can also approve and submit from chat.', 'jetpack-blaze' );
+			$message .= "\n" . __( 'To submit from chat, paste this approval message:', 'jetpack-blaze' ) . "\n";
+			$message .= (string) ( $proposal['next_action']['pasteable_approval_message'] ?? '' );
+		}
 
 		return $message;
 	}

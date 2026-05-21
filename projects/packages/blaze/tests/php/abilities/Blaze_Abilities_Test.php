@@ -230,7 +230,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( array( Blaze_Abilities::class, 'submit_prepared_campaign' ), $ability['execute_callback'] );
 		$this->assertSame( array( Blaze_Abilities::class, 'permission_callback' ), $ability['permission_callback'] );
 		$this->assertStringContainsString( 'This spends real money', $ability['description'] );
+		$this->assertStringContainsString( 'pasted or confirmed approval message', $ability['description'] );
 		$this->assertStringContainsString( 'ordinary chat text is not approval', $ability['input_schema']['properties']['approval']['description'] );
+		$this->assertStringContainsString( 'rendered pasteable approval message', $ability['input_schema']['properties']['approval']['description'] );
 		$this->assertTrue( $ability['meta']['show_in_rest'] );
 		$this->assertFalse( $ability['meta']['annotations']['readonly'] );
 		$this->assertTrue( $ability['meta']['annotations']['destructive'] );
@@ -913,6 +915,11 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'blaze-ads/prepare-campaign', $abilities );
 		$this->assertStringContainsString( 'Audience overrides must use stable codes or closed enums', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'If submit_eligibility.chat_native_submit is true', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'default continuation', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'optional review', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'Looks good, submit it', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'Do not ask merchants to paste package hashes', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
 
 		$ability    = $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ];
 		$schema     = $ability['input_schema'];
@@ -976,6 +983,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'fallback_url', $output_properties );
 		$this->assertArrayHasKey( 'submit_eligibility', $output_properties );
 		$this->assertArrayHasKey( 'approval_block', $output_properties );
+		$this->assertArrayHasKey( 'next_action', $output_properties );
 		$this->assertArrayHasKey( 'material_edit_policy', $output_properties );
 		$this->assertContains( 'ad_heading', $output_properties['campaign_preview']['required'] );
 		$this->assertArrayHasKey( 'landing_page', $output_properties['campaign_preview']['properties'] );
@@ -993,10 +1001,16 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertContains( 'non_material_fields', $output_properties['material_edit_policy']['required'] );
 		$this->assertContains( 'approval_contract', $output_properties['approval_block']['required'] );
 		$this->assertContains( 'approval_event', $output_properties['approval_block']['required'] );
+		$this->assertContains( 'pasteable_approval_message', $output_properties['approval_block']['required'] );
 		$this->assertContains( 'charge_acknowledgement', $output_properties['approval_block']['required'] );
 		$this->assertArrayHasKey( 'approval_contract', $output_properties['approval_block']['properties'] );
 		$this->assertArrayHasKey( 'approval_event_required_fields', $output_properties['approval_block']['properties'] );
+		$this->assertArrayHasKey( 'pasteable_approval_message', $output_properties['approval_block']['properties'] );
 		$this->assertArrayHasKey( 'charge_acknowledgement', $output_properties['approval_block']['properties'] );
+		$this->assertContains( 'type', $output_properties['next_action']['required'] );
+		$this->assertContains( 'pasteable_approval_message', $output_properties['next_action']['required'] );
+		$this->assertStringContainsString( 'chat-native approval/submit is the default', $output_properties['next_action']['description'] );
+		$this->assertStringContainsString( 'optional review', $output_properties['next_action']['properties']['optional_preview_url']['description'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
 		$this->assertArrayHasKey( 'assumptions', $output_properties );
@@ -1538,6 +1552,14 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 50.0, $result['approval_block']['approval_contract']['charge']['max_amount'] );
 		$this->assertSame( 'pm_default', $result['approval_block']['approval_contract']['selected_payment_method_id'] );
 		$this->assertSame( 'blaze.approval.charge_acknowledgement', $result['approval_block']['charge_acknowledgement']['template_key'] );
+		$this->assertArrayHasKey( 'next_action', $result );
+		$this->assertSame( 'request_explicit_approval', $result['next_action']['type'] );
+		$this->assertSame( 'chat_native_submit', $result['next_action']['default_flow'] );
+		$this->assertSame( $result['approval_block']['pasteable_approval_message'], $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Chat submit is available', $result['message'] );
+		$this->assertStringContainsString( 'You can preview it in Blaze if you want', $result['message'] );
+		$this->assertStringContainsString( 'To submit from chat, paste this approval message', $result['message'] );
+		$this->assertStringContainsString( $result['next_action']['pasteable_approval_message'], $result['message'] );
 		$this->assertArrayHasKey( 'idempotency_key', $result['submit_package'] );
 		$this->assertSame( $result['submit_package']['idempotency_key'], $result['approval_block']['approval_event']['idempotency_key'] );
 		$this->assertContains( 'approved_at', $result['approval_block']['approval_event_required_fields'] );
@@ -1582,6 +1604,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertNull( $result['submit_eligibility']['selected_payment_method'] );
 		$this->assertSame( array(), $result['submit_eligibility']['available_payment_methods'] );
 		$this->assertArrayNotHasKey( 'approval_block', $result );
+		$this->assertArrayNotHasKey( 'next_action', $result );
 		$this->assertStringContainsString( 'Review URL: ' . $result['fallback_url'], $result['message'] );
 	}
 
