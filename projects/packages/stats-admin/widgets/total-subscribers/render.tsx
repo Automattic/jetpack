@@ -1,19 +1,22 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { SpinningCounter } from './components/spinning-counter';
+import clsx from 'clsx';
 import { useSubscriberCount } from './hooks/use-subscriber-count';
 import styles from './style.module.css';
 
 const queryClient = new QueryClient();
 
 /**
- * Widget body: one large subscriber total with a spinning counter on load.
+ * Widget body: one large subscriber total.
  *
  * @return Widget content.
  */
 function TotalSubscribersContent(): JSX.Element {
 	const { data, isLoading, isError, error } = useSubscriberCount();
+	const formattedCount =
+		data === null || data === undefined ? null : formatNumber( Math.max( 0, data ) );
 
 	return (
 		<Stack
@@ -37,7 +40,15 @@ function TotalSubscribersContent(): JSX.Element {
 						: __( 'Unable to load subscriber count.', 'jetpack-stats-admin' ) }
 				</Text>
 			) : (
-				<SpinningCounter value={ data ?? null } isLoading={ isLoading } />
+				<Text
+					className={ clsx( styles.counter, {
+						[ styles.counterLoading ]: isLoading,
+					} ) }
+					aria-busy={ isLoading }
+					aria-live="polite"
+				>
+					{ isLoading ? '—' : formattedCount }
+				</Text>
 			) }
 		</Stack>
 	);
