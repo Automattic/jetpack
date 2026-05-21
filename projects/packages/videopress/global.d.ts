@@ -19,6 +19,9 @@ export declare global {
 				jetpackStatus: {
 					calypsoSlug: string;
 				};
+				product: {
+					slug: string;
+				};
 				siteData: {
 					id: number | string;
 					title: string;

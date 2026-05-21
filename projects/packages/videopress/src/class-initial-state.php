@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -38,6 +39,16 @@ class Initial_State {
 	const SCRIPT_HANDLE = 'jetpack-videopress-dashboard-wp-admin-prerequisites';
 
 	/**
+	 * WPCOM product slug purchased by the dashboard's upgrade CTA.
+	 *
+	 * Mirrors the product `Plan::get_product()` resolves to
+	 * (`$products->jetpack_videopress`). Kept as a constant rather than read
+	 * from `Plan::get_product()` because that helper issues a synchronous
+	 * WPCOM request, which we don't want to incur on every page render.
+	 */
+	const VIDEOPRESS_PRODUCT_SLUG = 'jetpack_videopress';
+
+	/**
 	 * Register the inline-state enqueue hook.
 	 *
 	 * Hooks `admin_enqueue_scripts` at priority 11 so the wp-build page
@@ -67,6 +78,13 @@ class Initial_State {
 		}
 
 		wp_add_inline_script( self::SCRIPT_HANDLE, ( new self() )->render(), 'before' );
+
+		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
+		// so shared connection-aware hooks — notably
+		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
+		// the modernized dashboard exactly as they do on the legacy one. This
+		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 	}
 
 	/**
@@ -87,6 +105,10 @@ class Initial_State {
 			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
+			),
+			'product'       => array(
+				// Fed to `useProductCheckoutWorkflow` as the product to purchase.
+				'slug' => self::VIDEOPRESS_PRODUCT_SLUG,
 			),
 			'siteData'      => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),

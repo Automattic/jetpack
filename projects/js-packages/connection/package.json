@@ -20,6 +20,7 @@
 	"type": "module",
 	"exports": {
 		".": "./index.jsx",
+		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
 		"./use-connection": "./components/use-connection/index.ts"
 	},
 	"scripts": {
