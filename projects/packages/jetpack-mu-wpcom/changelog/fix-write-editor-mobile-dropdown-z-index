@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix heading and color dropdowns rendering behind the toolbar on mobile.
