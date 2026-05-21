@@ -867,7 +867,10 @@ function wrapPasteChildren( el, tagName ) {
  * @param {Element} el - Element to sanitize.
  */
 function sanitizePasteNode( el ) {
-	const tag = el.tagName;
+	// Normalize to uppercase: HTML-namespaced elements already report uppercase
+	// tagNames, but SVG/MathML-namespaced ones preserve the source casing — so
+	// a pasted <svg><script> would slip past the DROP_TAGS check otherwise.
+	const tag = el.tagName.toUpperCase();
 
 	if ( PASTE_DROP_TAGS.has( tag ) ) {
 		el.remove();
@@ -1850,19 +1853,35 @@ if ( typeof MutationObserver !== 'undefined' ) {
 			const html = event.clipboardData.getData( 'text/html' );
 			if ( ! html ) return;
 
+			const tmp = document.createElement( 'div' );
+			// Element.setHTML is the native HTML Sanitizer API and the only
+			// recognized XSS barrier in this code path. Browsers without it
+			// (older versions of any engine) fall through to the default
+			// paste — the browser's own paste-into-contentEditable
+			// sanitization plus server-side wp_kses_post() still cover XSS;
+			// the only regression is that source typography isn't stripped.
+			if ( typeof tmp.setHTML !== 'function' ) return;
+
 			event.preventDefault();
 			// DOMParser parses the markup inertly — scripts don't run, images
 			// and iframes don't load, and inline event handlers don't fire
-			// during parse. The sanitizer below then drops every dangerous
-			// element/attribute before any of it reaches the live DOM. We use
-			// execCommand('insertHTML') for the final insertion because it
-			// handles caret-aware block-level splitting (e.g. pasting a <p>
-			// inside an existing <p> correctly splits the paragraph) — manual
-			// Range.insertNode produces invalid nested-block markup.
+			// during parse. promotePasteFormatting reads inline styles, and
+			// sanitizePasteFragment reads ids (to unwrap Google Docs' outer
+			// wrapper), so both must run before setHTML's safety baseline
+			// strips those attributes.
 			const parsed = new DOMParser().parseFromString( html, 'text/html' );
-			const tmp = parsed.body;
-			promotePasteFormatting( tmp );
-			sanitizePasteFragment( tmp );
+			promotePasteFormatting( parsed.body );
+			sanitizePasteFragment( parsed.body );
+
+			// Final pass through the browser's native safety baseline:
+			// defense in depth on top of the custom sanitizer above, and
+			// a recognized XSS barrier for static analysis.
+			tmp.setHTML( parsed.body.innerHTML );
+
+			// execCommand('insertHTML') handles caret-aware block-level
+			// splitting (e.g. pasting a <p> inside an existing <p> correctly
+			// splits the paragraph) — manual Range.insertNode produces
+			// invalid nested-block markup.
 			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
 	}, 200 );
