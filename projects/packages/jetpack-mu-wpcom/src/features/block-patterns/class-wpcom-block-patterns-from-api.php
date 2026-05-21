@@ -172,7 +172,7 @@ class Wpcom_Block_Patterns_From_Api {
 					'site'      => $override_source_site ?? self::GUTENPEN_PATTERNS_SOURCE_SITE,
 					'post_type' => 'wp_block',
 				),
-				'/ptk/patterns/' . $this->utils->get_block_patterns_locale()
+				'/gutenpen/patterns'
 			);
 
 			$patterns = $this->utils->remote_get_as_user( $path, '1', 'rest' );
