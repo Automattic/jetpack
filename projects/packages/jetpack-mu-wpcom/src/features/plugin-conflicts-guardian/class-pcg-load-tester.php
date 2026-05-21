@@ -11,8 +11,21 @@
  */
 class PCG_Load_Tester {
 
-	const PROBE_TIMEOUT  = 15;
-	const TOKEN_LIFETIME = 30;
+	const PROBE_TIMEOUT = 15;
+
+	/**
+	 * Probe-token transient TTL, in seconds.
+	 *
+	 * Must outlast the *whole* probe, not a single hop: each followed
+	 * redirect (`redirects => 5`) is a fresh request that re-reads the same
+	 * transient, so the worst case is `PROBE_TIMEOUT` × several hops. The
+	 * old 30s was shorter than that and a slow redirect chain (e.g. the
+	 * force_ssl_admin http→https bounce on a sluggish site) could outlive
+	 * the token, making the endpoint bail with "Invalid or expired probe
+	 * token." `test()` deletes the transient in its `finally` block anyway,
+	 * so a generous TTL never leaks.
+	 */
+	const TOKEN_LIFETIME = 300;
 
 	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
@@ -285,23 +298,41 @@ class PCG_Load_Tester {
 		}
 
 		if ( $code >= 200 && $code < 300 ) {
-			// Followed a redirect whose destination dropped the probe
-			// query. Bootstrap rendered cleanly, so don't block.
+			// Marker present: our endpoint ran but emitted no JSON verdict, so
+			// the bootstrap was terminated mid-flight (exit/die during
+			// load/init/admin_init). That's a real fatal — block it. This is
+			// checked before `redirect_count` on purpose: WP's canonical and
+			// force_ssl_admin http->https redirects preserve the probe query,
+			// so the endpoint still runs (and still emits `X-PCG-Probe`) at
+			// the redirected URL. A non-JSON 200 with the marker is a fatal
+			// even when `redirects > 0`.
+			if ( $this->probe_endpoint_was_reached( $response ) ) {
+				return array(
+					'status'  => 'fatal',
+					'message' => sprintf(
+						'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
+						$code
+					),
+				);
+			}
+			// No marker, but a redirect was followed: the destination dropped
+			// the probe query and landed on a clean page. Bootstrap rendered
+			// fine, so don't block.
 			if ( $redirect_count > 0 ) {
 				return array(
 					'status' => 'ok-inconclusive',
 					'reason' => sprintf( 'Probe followed %d redirect(s) but destination dropped the probe query; treating as inconclusive ok.', $redirect_count ),
 				);
 			}
-			// Probe endpoint always emits JSON; a 2xx without one and no
-			// redirect means the bootstrap was terminated mid-flight
-			// (exit/die during load/init/admin_init).
+			// No marker and no redirect: the loopback never reached our
+			// endpoint — a full-page/edge cache, a security plugin, or a
+			// maintenance page answered with a 200. We learned nothing about
+			// the plugin, so this is an inconclusive transport `error` (logged,
+			// non-blocking) — NOT a fatal. Blocking here would reject a
+			// perfectly healthy plugin.
 			return array(
-				'status'  => 'fatal',
-				'message' => sprintf(
-					'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
-					$code
-				),
+				'status' => 'error',
+				'reason' => sprintf( 'Probe loopback returned HTTP %d without reaching the PCG endpoint (cache or intercepting plugin).', $code ),
 			);
 		}
 
@@ -309,6 +340,21 @@ class PCG_Load_Tester {
 			'status' => 'error',
 			'reason' => sprintf( 'Probe returned HTTP %d without a verdict payload.', $code ),
 		);
+	}
+
+	/**
+	 * Whether the probe endpoint actually executed for this response.
+	 *
+	 * `probe-endpoint.php` sends `X-PCG-Probe: 1` the instant it recognises a
+	 * probe request. Its absence means the loopback was answered by something
+	 * else (cache layer, security plugin, maintenance page) before our code
+	 * ran. Header lookup is case-insensitive via `Requests`' Headers object.
+	 *
+	 * @param \WpOrg\Requests\Response $response Probe response.
+	 * @return bool
+	 */
+	protected function probe_endpoint_was_reached( $response ) {
+		return isset( $response->headers ) && isset( $response->headers['x-pcg-probe'] );
 	}
 
 	/**
