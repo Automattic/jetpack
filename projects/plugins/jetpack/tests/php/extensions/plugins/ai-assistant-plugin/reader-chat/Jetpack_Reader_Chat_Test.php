@@ -70,6 +70,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		delete_option( 'launch-status' );
 		unregister_setting( 'general', 'reader_chat' );
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']  = $this->saved_wp_styles;
@@ -410,6 +411,22 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Script should not be enqueued on Coming Soon sites.'
+		);
+	}
+
+	/**
+	 * Test that enqueue_scripts() skips unlaunched sites.
+	 */
+	public function test_enqueue_scripts_skips_on_unlaunched_site() {
+		$this->override_ai_features( true );
+		$this->cache_asset_data();
+		update_option( 'launch-status', 'unlaunched' );
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
+			'Script should not be enqueued on unlaunched sites.'
 		);
 	}
 

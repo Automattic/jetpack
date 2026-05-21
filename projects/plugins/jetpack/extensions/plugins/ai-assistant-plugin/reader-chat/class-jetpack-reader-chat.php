@@ -191,15 +191,7 @@ class Jetpack_Reader_Chat {
 			return true;
 		}
 
-		if ( function_exists( 'require_lib' ) ) {
-			require_lib( 'launch-site' );
-		}
-
-		if ( function_exists( 'WPCOM\\Lib\\Launch_Site\\is_site_launched' ) ) {
-			return ! \WPCOM\Lib\Launch_Site\is_site_launched( get_current_blog_id() );
-		}
-
-		return false;
+		return 'unlaunched' === get_option( 'launch-status' );
 	}
 
 	/**
