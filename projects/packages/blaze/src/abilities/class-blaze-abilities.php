@@ -1314,6 +1314,10 @@ class Blaze_Abilities extends Registrar {
 			);
 		}
 		if ( $response->is_error() ) {
+			$data = $response->get_data();
+			if ( is_array( $data ) ) {
+				return self::format_submit_prepared_campaign_error( self::rest_response_to_wp_error( $data, $response->get_status() ) );
+			}
 			return self::format_submit_prepared_campaign_error( $response->as_error() );
 		}
 
@@ -1493,13 +1497,29 @@ class Blaze_Abilities extends Registrar {
 	 * @return \WP_Error
 	 */
 	private static function rest_response_to_wp_error( array $data, int $status ): \WP_Error {
-		$code = isset( $data['code'] ) ? (string) $data['code'] : 'blaze_dsp_error';
+		$code = isset( $data['code'] ) ? self::stringify_submit_error_value( $data['code'] ) : '';
+		if ( '' === $code && isset( $data['error']['code'] ) ) {
+			$code = self::stringify_submit_error_value( $data['error']['code'] );
+		}
+		if ( '' === $code ) {
+			$code = 'blaze_dsp_error';
+		}
 
 		$message = '';
 		foreach ( array( 'message', 'errorMessage', 'error' ) as $message_key ) {
-			if ( isset( $data[ $message_key ] ) && '' !== (string) $data[ $message_key ] ) {
-				$message = (string) $data[ $message_key ];
-				break;
+			if ( isset( $data[ $message_key ] ) ) {
+				$maybe_message = self::stringify_submit_error_value( $data[ $message_key ] );
+				if ( '' !== $maybe_message ) {
+					$message = $maybe_message;
+					break;
+				}
+			}
+			if ( isset( $data['error'][ $message_key ] ) ) {
+				$maybe_message = self::stringify_submit_error_value( $data['error'][ $message_key ] );
+				if ( '' !== $maybe_message ) {
+					$message = $maybe_message;
+					break;
+				}
 			}
 		}
 		if ( '' === $message ) {
@@ -1524,12 +1544,27 @@ class Blaze_Abilities extends Registrar {
 			'status'  => 'submit_failed',
 			'message' => __( 'The Blaze campaign was not submitted. No campaign was created by this request.', 'jetpack-blaze' ),
 			'error'   => array(
-				'code'    => $error->get_error_code(),
-				'message' => $error->get_error_message(),
+				'code'    => self::stringify_submit_error_value( $error->get_error_code() ),
+				'message' => self::stringify_submit_error_value( $error->get_error_message() ),
 				'status'  => isset( $data['status'] ) ? (int) $data['status'] : null,
 				'details' => $data,
 			),
 		);
+	}
+
+	/**
+	 * Normalize arbitrary DSP/WP error values for the ability output schema.
+	 *
+	 * @param mixed $value Error code or message value.
+	 * @return string
+	 */
+	private static function stringify_submit_error_value( $value ): string {
+		if ( is_scalar( $value ) || null === $value ) {
+			return (string) $value;
+		}
+
+		$encoded = wp_json_encode( $value, JSON_UNESCAPED_SLASHES );
+		return is_string( $encoded ) ? $encoded : __( 'Unknown submit error.', 'jetpack-blaze' );
 	}
 
 	/**

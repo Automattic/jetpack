@@ -1412,6 +1412,36 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * DSP submit errors with nested messages are stringified for MCP output schema validation.
+	 */
+	public function test_submit_prepared_campaign_stringifies_nested_dsp_error_message() {
+		$this->register_submit_prepared_campaign_route(
+			static function () {
+				return new \WP_REST_Response(
+					array(
+						'error' => array(
+							'code'    => 'payment_method_unavailable',
+							'message' => array(
+								'primary' => 'Payment method is unavailable.',
+							),
+						),
+					),
+					422
+				);
+			}
+		);
+
+		$result = Blaze_Abilities::submit_prepared_campaign( $this->make_submit_prepared_campaign_body() );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'submit_failed', $result['status'] );
+		$this->assertSame( 'payment_method_unavailable', $result['error']['code'] );
+		$this->assertSame( '{"primary":"Payment method is unavailable."}', $result['error']['message'] );
+		$this->assertSame( 422, $result['error']['status'] );
+		$this->assertSame( 'Payment method is unavailable.', $result['error']['details']['error']['message']['primary'] );
+	}
+
+	/**
 	 * Happy path: returns the canonical pending-review shape with
 	 * prefill_url + prefill payload, and the defaults are pulled from
 	 * the target post.
