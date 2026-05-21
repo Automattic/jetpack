@@ -266,11 +266,11 @@ function wpcom_write_allowed_block_attrs() {
 		// id: media-library metadata, not visible formatting.
 		// alt: preserved via HTML element, not block JSON.
 		// sizeSlug: thumbnail/medium/large/full size presets.
-		// Note: `align` (left/center/right) on image is intentionally NOT
-		// allowed here — Write no longer supports image alignment.  Posts
-		// loaded with image align values left/center/right are silently
-		// stripped (see wpcom_write_has_unsupported_blocks); wide/full
-		// still bounce to the block editor.
+		// align: intentionally not in the allowlist — Write has no image-
+		// alignment UI.  Posts authored elsewhere with image align values
+		// left/center/right are silently stripped on load (see
+		// wpcom_write_has_unsupported_blocks); wide/full still bounce to
+		// the block editor.
 		'image'     => array( 'id', 'sizeSlug', 'alt' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align', 'citation' ),
@@ -391,12 +391,12 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 			unset( $attrs['linkDestination'] );
 		}
 
-		// Image alignment (left/center/right) is no longer a Write feature.
-		// Silently drop it for the unsupported-attrs check so old posts load
-		// without bouncing to the block editor; the alignment is also dropped
-		// on save since convertToBlocks() no longer emits the align attr.
-		// wide/full are not stripped here so they still trigger the unsupported
-		// check below (their layout change is too significant to silently drop).
+		// Write has no image-alignment UI; silently drop left/center/right
+		// here so posts authored elsewhere load without bouncing to the
+		// block editor.  The alignment is also dropped on save since
+		// convertToBlocks() doesn't emit the align attr for images.
+		// wide/full are not stripped — their layout change is too
+		// significant to silently drop, so they still bounce below.
 		if (
 			'image' === $name
 			&& in_array( $attrs['align'] ?? '', array( 'left', 'center', 'right' ), true )

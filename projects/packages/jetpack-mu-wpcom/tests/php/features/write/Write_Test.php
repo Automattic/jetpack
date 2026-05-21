@@ -783,9 +783,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that an image with align (left/center/right) returns false.
-	 * Image alignment is no longer a Write feature, but it's silently
-	 * stripped on load so old posts with this attr don't bounce to the
-	 * block editor — the value is just dropped on next save.
+	 * Write has no image-alignment UI; align is silently stripped on load
+	 * so posts authored elsewhere don't bounce to the block editor, and
+	 * the value is just dropped on next save.
 	 */
 	public function test_detect_unsupported_image_with_align() {
 		foreach ( array( 'left', 'center', 'right' ) as $align ) {
