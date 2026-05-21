@@ -228,8 +228,11 @@ class Initial_State {
 			'editorUrl'    => $can_edit ? Overlay_Template::get_editor_url() : null,
 			'resetUrl'     => $can_edit ? Overlay_Template::get_reset_url() : null,
 			// `isCustomized` lets the React dashboard hide "Restore default"
-			// when there's nothing to restore (no singleton post yet).
-			'isCustomized' => $can_edit && Overlay_Template::get_post_id() > 0,
+			// when there's nothing to restore — checks both that the
+			// singleton exists AND that it isn't in the trash (admins can
+			// trash via post.php directly; in that state the front end
+			// already falls back to the bundled template).
+			'isCustomized' => $can_edit && Overlay_Template::is_customized(),
 		);
 	}
 

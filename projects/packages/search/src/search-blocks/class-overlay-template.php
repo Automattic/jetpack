@@ -94,8 +94,32 @@ class Overlay_Template {
 				'show_in_rest'        => true,
 				'rest_base'           => 'jetpack-search-overlay',
 				'supports'            => array( 'editor', 'custom-fields', 'revisions' ),
-				'capability_type'     => 'page',
-				'map_meta_cap'        => true,
+				// Lock every relevant capability to `manage_options` so editing
+				// requires admin, regardless of which entry point (post.php
+				// direct URL, REST API at /wp/v2/jetpack-search-overlay, the
+				// dashboard link) the user takes. The dashboard handlers
+				// already gate on `manage_options` themselves; this prevents
+				// an Editor-role user who happens to know the singleton's
+				// post ID from bypassing that gate via post.php or REST.
+				// `map_meta_cap: false` makes the literal capability names
+				// below the ones WordPress actually checks.
+				'capabilities'        => array(
+					'edit_post'              => 'manage_options',
+					'read_post'              => 'manage_options',
+					'delete_post'            => 'manage_options',
+					'edit_posts'             => 'manage_options',
+					'edit_others_posts'      => 'manage_options',
+					'delete_posts'           => 'manage_options',
+					'delete_others_posts'    => 'manage_options',
+					'publish_posts'          => 'manage_options',
+					'read_private_posts'     => 'manage_options',
+					'delete_private_posts'   => 'manage_options',
+					'delete_published_posts' => 'manage_options',
+					'edit_private_posts'     => 'manage_options',
+					'edit_published_posts'   => 'manage_options',
+					'create_posts'           => 'manage_options',
+				),
+				'map_meta_cap'        => false,
 				'has_archive'         => false,
 				'exclude_from_search' => true,
 				'rewrite'             => false,
@@ -142,6 +166,27 @@ class Overlay_Template {
 	 */
 	public static function get_post_id(): int {
 		return (int) get_option( static::OPTION_POST_ID, 0 );
+	}
+
+	/**
+	 * Whether a live customization exists — the singleton post is set AND
+	 * not in the trash. The trash check matters because `show_ui` is on,
+	 * so an admin could navigate to the post-list and trash the singleton
+	 * directly; the option would still point at the (trashed) post, but
+	 * `get_customized_content()` already returns null for trashed rows so
+	 * the front end falls back to the bundled template. Reflecting that
+	 * in the dashboard means "Restore default" disappears when there's
+	 * nothing the user would perceive as customized.
+	 *
+	 * @return bool
+	 */
+	public static function is_customized(): bool {
+		$post_id = static::get_post_id();
+		if ( ! $post_id ) {
+			return false;
+		}
+		$post = get_post( $post_id );
+		return $post && static::POST_TYPE === $post->post_type && 'trash' !== $post->post_status;
 	}
 
 	/**
