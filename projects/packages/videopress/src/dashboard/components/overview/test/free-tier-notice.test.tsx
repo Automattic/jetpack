@@ -57,16 +57,12 @@ describe( 'FreeTierNotice', () => {
 		const user = userEvent.setup();
 		render( <FreeTierNotice /> );
 
-		const link = screen.getByRole( 'link', { name: 'Upgrade' } );
-		// The CTA is an anchor with a placeholder href; the real `run` cancels the
-		// default before redirecting, but `run` is mocked here, so cancel it
-		// ourselves to keep jsdom from attempting navigation.
-		link.addEventListener( 'click', event => event.preventDefault() );
-		await user.click( link );
+		await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
 		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_videopress_upgrade_trigger_link_click'
 		);
+		// `run` is deferred to a microtask; userEvent's await flushes it.
 		expect( mockRun ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

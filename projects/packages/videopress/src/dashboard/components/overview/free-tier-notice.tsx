@@ -61,8 +61,13 @@ export default function FreeTierNotice(): ReactElement {
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {
+			// Cancel the placeholder-href default, record the click, then defer the
+			// checkout redirect by a microtask so the Tracks pixel is dispatched
+			// before navigation can cancel it. Mirrors the legacy dashboard's
+			// `recordEvent( … ).then( run )`.
+			event.preventDefault();
 			analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT );
-			run( event );
+			void Promise.resolve().then( () => run() );
 		},
 		[ run ]
 	);
