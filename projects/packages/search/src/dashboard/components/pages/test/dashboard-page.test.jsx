@@ -395,4 +395,43 @@ describe( 'DashboardPage', () => {
 			'true'
 		);
 	} );
+
+	test( 'normalizes a plain URL to the canonical #/overview hash on mount', () => {
+		// No hash, no `?tab=` — the canonical default for first-time visitors.
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
+	} );
+
+	test( 'normalizes the current-slug legacy query (?tab=overview) to #/overview on mount', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=overview` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
+		expect( window.location.search ).not.toContain( 'tab=' );
+	} );
+
+	test( 'canonicalizes the URL when an external hashchange lands on a legacy slug', () => {
+		render( <DashboardPage /> );
+
+		act( () => {
+			window.location.hash = '/plan-usage';
+			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+		} );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( window.location.hash ).toBe( '#/overview' );
+	} );
 } );

@@ -61,7 +61,9 @@ const normalizeUrlToHash = tab => {
 	}
 	url.searchParams.delete( LEGACY_TAB_QUERY_PARAM );
 	url.hash = desiredHash;
-	window.history.replaceState( {}, '', url.toString() );
+	// Preserve any existing history.state — assigning {} would clobber state
+	// stashed by other scripts running on the same admin page.
+	window.history.replaceState( window.history.state ?? {}, '', url.toString() );
 };
 
 /**
@@ -79,6 +81,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	// query string so reloads stop carrying it.
 	useEffect( () => {
 		normalizeUrlToHash( activeTab );
+		// Intentional: canonicalize once with the initial `activeTab`. Later
+		// hash changes are handled by the `hashchange` listener below.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -89,7 +93,10 @@ export default function DashboardPage( { isLoading = false } ) {
 		}
 		const onHashChange = () => {
 			const resolved = resolveTabFromLocation();
-			setActiveTab( resolved );
+			// Skip the state update when the resolved tab already matches —
+			// otherwise user-initiated clicks would `setActiveTab` twice (once
+			// in `handleTabChange`, once via the `hashchange` event echo).
+			setActiveTab( prev => ( prev === resolved ? prev : resolved ) );
 			// External nav might have landed on a legacy slug; canonicalize too.
 			normalizeUrlToHash( resolved );
 		};
