@@ -719,6 +719,11 @@ class Search_Blocks {
 						'enum'              => array( 'sidebar', 'tabbed' ),
 						'default'           => 'sidebar',
 						'sanitize_callback' => 'sanitize_key',
+						// Without an explicit validate_callback the enum check
+						// never fires — REST routes only run arg validation
+						// when this is wired up. `rest_validate_request_arg`
+						// is core's general-purpose dispatcher.
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)
@@ -732,11 +737,8 @@ class Search_Blocks {
 	 * @param \WP_REST_Request $request REST request.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public static function rest_get_static_filters( $request ) {
-		$variation = is_object( $request ) && method_exists( $request, 'get_param' )
-			? (string) $request->get_param( 'variation' )
-			: 'sidebar';
-		return Filter_Static::filters_for_variation( $variation );
+	public static function rest_get_static_filters( \WP_REST_Request $request ) {
+		return Filter_Static::filters_for_variation( (string) $request->get_param( 'variation' ) );
 	}
 
 	/**

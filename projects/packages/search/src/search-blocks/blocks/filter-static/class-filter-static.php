@@ -130,10 +130,11 @@ class Filter_Static {
 		}
 		$message = sprintf(
 			/* translators: %s: duplicate filter ID. */
-			__( 'Duplicate static filter "%s" — last registration wins.', 'jetpack-search-pkg' ),
-			$filter_id
+			esc_html__( 'Duplicate static filter "%s" — last registration wins.', 'jetpack-search-pkg' ),
+			esc_html( $filter_id )
 		);
-		_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-search 0.1.0' );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $message is sprintf() of esc_html__() with esc_html()-wrapped arg.
+		_doing_it_wrong( __METHOD__, $message, 'jetpack-search-pkg 7.0.0' );
 	}
 
 	/**
