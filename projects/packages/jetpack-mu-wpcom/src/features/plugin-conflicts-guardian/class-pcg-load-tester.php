@@ -298,35 +298,41 @@ class PCG_Load_Tester {
 		}
 
 		if ( $code >= 200 && $code < 300 ) {
-			// Followed a redirect whose destination dropped the probe
-			// query. Bootstrap rendered cleanly, so don't block.
+			// Marker present: our endpoint ran but emitted no JSON verdict, so
+			// the bootstrap was terminated mid-flight (exit/die during
+			// load/init/admin_init). That's a real fatal — block it. This is
+			// checked before `redirect_count` on purpose: WP's canonical and
+			// force_ssl_admin http->https redirects preserve the probe query,
+			// so the endpoint still runs (and still emits `X-PCG-Probe`) at
+			// the redirected URL. A non-JSON 200 with the marker is a fatal
+			// even when `redirects > 0`.
+			if ( $this->probe_endpoint_was_reached( $response ) ) {
+				return array(
+					'status'  => 'fatal',
+					'message' => sprintf(
+						'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
+						$code
+					),
+				);
+			}
+			// No marker, but a redirect was followed: the destination dropped
+			// the probe query and landed on a clean page. Bootstrap rendered
+			// fine, so don't block.
 			if ( $redirect_count > 0 ) {
 				return array(
 					'status' => 'ok-inconclusive',
 					'reason' => sprintf( 'Probe followed %d redirect(s) but destination dropped the probe query; treating as inconclusive ok.', $redirect_count ),
 				);
 			}
-			// No `X-PCG-Probe` marker means the loopback never reached our
+			// No marker and no redirect: the loopback never reached our
 			// endpoint — a full-page/edge cache, a security plugin, or a
 			// maintenance page answered with a 200. We learned nothing about
 			// the plugin, so this is an inconclusive transport `error` (logged,
 			// non-blocking) — NOT a fatal. Blocking here would reject a
 			// perfectly healthy plugin.
-			if ( ! $this->probe_endpoint_was_reached( $response ) ) {
-				return array(
-					'status' => 'error',
-					'reason' => sprintf( 'Probe loopback returned HTTP %d without reaching the PCG endpoint (cache or intercepting plugin).', $code ),
-				);
-			}
-			// Marker present: our endpoint ran but emitted no JSON verdict, so
-			// the bootstrap was terminated mid-flight (exit/die during
-			// load/init/admin_init). That's a real fatal — block it.
 			return array(
-				'status'  => 'fatal',
-				'message' => sprintf(
-					'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
-					$code
-				),
+				'status' => 'error',
+				'reason' => sprintf( 'Probe loopback returned HTTP %d without reaching the PCG endpoint (cache or intercepting plugin).', $code ),
 			);
 		}
 
