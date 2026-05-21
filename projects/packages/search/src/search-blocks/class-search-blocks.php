@@ -701,9 +701,6 @@ class Search_Blocks {
 	 * needing the editor bundle to localize a snapshot.
 	 */
 	public static function register_rest_routes() {
-		if ( ! function_exists( 'register_rest_route' ) ) {
-			return;
-		}
 		register_rest_route(
 			'jetpack-search/v1',
 			'/static-filters',

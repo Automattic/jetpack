@@ -630,6 +630,26 @@ class Filter_Static_Test extends Search_TestCase {
 	}
 
 	/**
+	 * A logged-in subscriber lacks `edit_posts` — REST should distinguish
+	 * "not authenticated" (401) from "authenticated but not authorised"
+	 * (403). The error-status accuracy matters for any caller doing
+	 * differentiated UI fallbacks.
+	 */
+	public function test_rest_endpoint_forbids_user_without_edit_posts() {
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_subscriber',
+				'user_pass'  => 'dummy_pass_subscriber',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $subscriber_id );
+		$request  = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
+		$response = $this->server->dispatch( $request );
+		$this->assertSame( 403, $response->get_status(), 'Subscriber without edit_posts should be forbidden.' );
+	}
+
+	/**
 	 * Authenticated editors get the configured filters back, scoped to the
 	 * requested variation.
 	 */
