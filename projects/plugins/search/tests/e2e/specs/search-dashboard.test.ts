@@ -53,7 +53,7 @@ test.describe( 'Search Dashboard', () => {
 			).toBeVisible( { timeout: 30000 } );
 
 			// ModuleControl moved into the Settings tab in Search 3.0; the
-			// dashboard now opens on Plan & Usage by default, so the toggles
+			// dashboard now opens on Overview by default, so the toggles
 			// aren't on the initial panel.
 			await page.getByRole( 'tab', { name: 'Settings' } ).click();
 

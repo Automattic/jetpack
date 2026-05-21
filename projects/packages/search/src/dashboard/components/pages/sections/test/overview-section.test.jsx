@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import PlanUsageSection from '../plan-usage-section';
+import OverviewSection from '../overview-section';
 
 jest.mock( '@wordpress/ui', () => ( {
 	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
@@ -52,37 +52,37 @@ const defaultProps = {
 	isPlanJustUpgraded: false,
 };
 
-describe( 'PlanUsageSection', () => {
+describe( 'OverviewSection', () => {
 	it( 'renders usage meters', () => {
-		render( <PlanUsageSection { ...defaultProps } /> );
+		render( <OverviewSection { ...defaultProps } /> );
 		const meters = screen.getAllByTestId( 'donut-meter' );
 		expect( meters ).toHaveLength( 2 );
 	} );
 
 	it( 'renders plan summary', () => {
-		render( <PlanUsageSection { ...defaultProps } /> );
+		render( <OverviewSection { ...defaultProps } /> );
 		expect( screen.getByTestId( 'plan-summary' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders "tell me more" link', () => {
-		render( <PlanUsageSection { ...defaultProps } /> );
+		render( <OverviewSection { ...defaultProps } /> );
 		expect( screen.getByRole( 'link', { name: /record indexing/i } ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not render upgrade trigger for paid plan with no overage', () => {
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ false } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ false } /> );
 		expect( screen.queryByTestId( 'upgrade-trigger' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders upgrade trigger for free plan when should_upgrade is true', () => {
 		const planInfo = makePlanInfo( { should_upgrade: true } );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-trigger' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders search-disabled message when must_upgrade is true', () => {
 		const planInfo = makePlanInfo( { must_upgrade: true } );
-		render( <PlanUsageSection { ...defaultProps } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-description' ) ).toHaveTextContent(
 			/exceeded the limits/i
 		);
@@ -94,7 +94,7 @@ describe( 'PlanUsageSection', () => {
 			upgrade_reason: { records: true, requests: false },
 			months_over_plan_records_limit: 1,
 		} );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-description' ) ).toHaveTextContent( /records/i );
 	} );
 
@@ -104,7 +104,7 @@ describe( 'PlanUsageSection', () => {
 			upgrade_reason: { records: false, requests: true },
 			months_over_plan_requests_limit: 1,
 		} );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-description' ) ).toHaveTextContent( /requests/i );
 	} );
 
@@ -114,7 +114,7 @@ describe( 'PlanUsageSection', () => {
 			upgrade_reason: { records: true, requests: true },
 			months_over_plan_records_limit: 1,
 		} );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-description' ) ).toHaveTextContent(
 			/records and search requests/i
 		);
@@ -125,7 +125,7 @@ describe( 'PlanUsageSection', () => {
 			should_upgrade: true,
 			upgrade_reason: { records: false, requests: false },
 		} );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-description' ) ).toHaveTextContent(
 			/increase your site records/i
 		);
@@ -137,13 +137,13 @@ describe( 'PlanUsageSection', () => {
 			upgrade_reason: { records: true, requests: false },
 			months_over_plan_records_limit: 3,
 		} );
-		render( <PlanUsageSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } isFreePlan={ true } planInfo={ planInfo } /> );
 		expect( screen.getByTestId( 'upgrade-cta' ) ).toHaveTextContent( /continue using/i );
 	} );
 
 	it( 'does not render upgrade trigger when planInfo has no currentUsage', () => {
 		const planInfo = { ...makePlanInfo(), currentUsage: undefined };
-		render( <PlanUsageSection { ...defaultProps } planInfo={ planInfo } /> );
+		render( <OverviewSection { ...defaultProps } planInfo={ planInfo } /> );
 		expect( screen.queryByTestId( 'upgrade-trigger' ) ).not.toBeInTheDocument();
 	} );
 } );

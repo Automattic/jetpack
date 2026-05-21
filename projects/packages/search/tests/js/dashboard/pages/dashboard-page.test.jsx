@@ -141,9 +141,9 @@ const settings = {
 };
 
 describe( '<DashboardPage> branch', () => {
-	test( 'renders Plan & Usage and AI Answers tabs', () => {
+	test( 'renders Overview and AI Answers tabs', () => {
 		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
-		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toBeInTheDocument();
 	} );
 
