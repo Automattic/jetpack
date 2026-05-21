@@ -168,10 +168,7 @@ class Wpcom_Block_Patterns_From_Api {
 
 		if ( $disable_cache || false === $patterns ) {
 			$path = add_query_arg(
-				array(
-					'site'      => $override_source_site ?? self::GUTENPEN_PATTERNS_SOURCE_SITE,
-					'post_type' => 'wp_block',
-				),
+				array(),
 				'/gutenpen/patterns'
 			);
 
