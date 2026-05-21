@@ -1862,12 +1862,21 @@ if ( typeof MutationObserver !== 'undefined' ) {
 			// pass below can read inline styles (to promote bold/italic to
 			// semantic tags), unwrap Google Docs' docs-internal-guid
 			// wrapper, and validate href schemes against a tighter
-			// allowlist than the Sanitizer baseline. Browsers without
-			// setHTML fall through to the default paste — the browser's
-			// own paste-into-contentEditable sanitization plus server-side
-			// wp_kses_post() still cover XSS; the only regression is that
-			// source typography isn't stripped.
-			if ( typeof tmp.setHTML !== 'function' ) return;
+			// allowlist than the Sanitizer baseline.
+			//
+			// Browsers without setHTML (older Chromium/Brave, pre-137 Firefox,
+			// pre-18.4 Safari) fall back to inserting the clipboard's
+			// text/plain representation. That loses formatting but guarantees
+			// no source typography or markup leaks in — and execCommand
+			// 'insertText' isn't an HTML sink, so we don't reintroduce the
+			// CodeQL js/xss flow we eliminated above.
+			if ( typeof tmp.setHTML !== 'function' ) {
+				const text = event.clipboardData.getData( 'text/plain' );
+				if ( ! text ) return;
+				event.preventDefault();
+				document.execCommand( 'insertText', false, text );
+				return;
+			}
 
 			event.preventDefault();
 			tmp.setHTML( html, { sanitizer: { attributes: [ 'style', 'id', 'href' ] } } );
