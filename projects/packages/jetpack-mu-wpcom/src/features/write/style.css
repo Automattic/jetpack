@@ -272,6 +272,7 @@
 	left: 0;
 	right: 0;
 	z-index: 100001;
+	box-sizing: border-box;
 	height: 44px;
 	background: #fef8ee;
 	border-bottom: 1px solid #f0e0c0;
@@ -1892,6 +1893,16 @@
 
 	.bw-editor {
 		padding: 0 16px;
+	}
+
+	.bw-recovery-banner,
+	.bw-disclaimer-banner {
+		padding: 0 16px;
+	}
+
+	.bw-recovery-btn {
+		height: auto;
+		padding: 8px 12px;
 	}
 
 	.bw-btn-draft {
