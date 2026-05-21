@@ -16,7 +16,7 @@ class WPCOM_Smart_Dictation {
 	/**
 	 * Percentage of paid users eligible for Smart Dictation.
 	 */
-	private const PAID_USER_ROLLOUT_PERCENTAGE = 20;
+	private const PAID_USER_ROLLOUT_PERCENTAGE = 50;
 
 	/**
 	 * WPCOM_Smart_Dictation constructor.
