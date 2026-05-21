@@ -73,9 +73,15 @@ wp_interactivity_state(
 			);
 			?>
 		>
-			<?php if ( '' !== $label ) : ?>
-				<legend class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></legend>
-			<?php endif; ?>
+			<?php
+			// Always emit a <legend> so the radio group has an accessible name
+			// — screen readers rely on it for the fieldset's group label. Fall
+			// back to the filter id when both the block-level label override
+			// and the server-supplied name are empty; that is misconfiguration,
+			// but the markup still degrades gracefully.
+			$legend = '' !== $label ? $label : $key;
+			?>
+			<legend class="jetpack-search-filter__title"><?php echo esc_html( $legend ); ?></legend>
 			<ul class="jetpack-search-filter__list">
 				<?php foreach ( $entry['values'] as $option ) : ?>
 					<li class="jetpack-search-filter__item">

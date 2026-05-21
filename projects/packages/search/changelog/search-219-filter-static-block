@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search: new `jetpack-search/filter-static` block — single-select radio filter whose options come from server config via the `jetpack_search_static_filters` (or legacy `jetpack_instant_search_options`) PHP filter. Selections round-trip through scalar `?filter_id=value` URL params.
+Search: add `jetpack-search/filter-static` block — single-select radio filter whose options come from server config via the `jetpack_search_static_filters` (or legacy `jetpack_instant_search_options`) PHP filter. Selections round-trip through scalar `?filter_id=value` URL params.
