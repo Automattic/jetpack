@@ -6,6 +6,7 @@
 namespace Automattic\Jetpack\Podcast\Tests\Feed;
 
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Post;
@@ -36,6 +37,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
+		Jetpack_Options::delete_option( 'id' );
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
 	}
@@ -191,6 +193,63 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString(
 			'url="https://public-api.wordpress.com/wpcom/v2/sites/12345/podcast-play/42.m4a"',
+			$result
+		);
+	}
+
+	public function test_rewrite_enclosure_keeps_original_url_when_blog_id_cannot_be_resolved() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'         => 42,
+				'post_type'  => 'post',
+				'post_title' => 'Test Episode',
+			)
+		);
+
+		// No Jetpack_Options 'id' set, no IS_WPCOM, no filter → no blog ID resolvable.
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				return 'https://example.com/path/episode.mp3' === $url ? 9001 : $pre;
+			},
+			10,
+			2
+		);
+
+		$original = '<enclosure url="https://example.com/path/episode.mp3" length="123" type="audio/mpeg" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString( 'url="https://example.com/path/episode.mp3"', $result );
+		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
+	}
+
+	public function test_rewrite_enclosure_falls_back_to_jetpack_connection_id_when_no_filter_set() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'         => 42,
+				'post_type'  => 'post',
+				'post_title' => 'Test Episode',
+			)
+		);
+
+		Jetpack_Options::update_option( 'id', 111139149 );
+
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				return 'https://example.com/path/episode.mp3' === $url ? 9001 : $pre;
+			},
+			10,
+			2
+		);
+
+		$original = '<enclosure url="https://example.com/path/episode.mp3" length="123" type="audio/mpeg" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/111139149/podcast-play/42.mp3"',
 			$result
 		);
 	}
