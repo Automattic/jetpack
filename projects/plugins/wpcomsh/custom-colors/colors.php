@@ -201,7 +201,7 @@ class Colors_Manager_Common {
 			// If colors are set, print them in the Block Editor as well.
 			if ( self::theme_has_set_colors() ) {
 				self::override_themecolors();
-				add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'print_block_editor_css' ), 20 );
+				add_filter( 'block_editor_settings_all', array( __CLASS__, 'add_block_editor_color_styles' ) );
 			}
 		}
 	}
@@ -1447,6 +1447,40 @@ class Colors_Manager_Common {
 		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
 		wp_enqueue_style( 'custom-colors-editor-css' );
 		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
+	}
+
+	/**
+	 * Add theme color styles to the block editor settings so Gutenberg
+	 * treats them as theme styles, allowing the "Use theme styles"
+	 * toggle to control them.
+	 *
+	 * @param array $editor_settings The block editor settings.
+	 * @return array
+	 */
+	public static function add_block_editor_color_styles( $editor_settings ) {
+		if ( ! self::should_enable_colors() ) {
+			return $editor_settings;
+		}
+
+		$css = self::get_theme_css();
+
+		// Gutenberg 22.6.0+ renders the editor in an iframe for all themes.
+		// #editor no longer exists inside the iframe, so extend any
+		// "#editor .editor-styles-wrapper" selector to also match the
+		// iframe context while keeping the original for older versions.
+		$css = str_replace(
+			'#editor .editor-styles-wrapper',
+			'#editor .editor-styles-wrapper, :root :where(.editor-styles-wrapper)',
+			$css
+		);
+
+		$editor_settings['styles'][] = array(
+			'css'            => $css,
+			'__unstableType' => 'theme',
+			'isGlobalStyles' => false,
+		);
+
+		return $editor_settings;
 	}
 
 	/**
