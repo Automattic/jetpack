@@ -230,6 +230,9 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'request_explicit_approval', $result['next_action']['type'] );
 		$this->assertSame( 'chat_native_submit', $result['next_action']['default_flow'] );
 		$this->assertTrue( $result['next_action']['chat_native_submit'] );
+		$this->assertContains( 'submit it', $result['next_action']['plain_language_submit_intents'] );
+		$this->assertContains( 'launch it', $result['next_action']['plain_language_submit_intents'] );
+		$this->assertContains( 'go ahead', $result['next_action']['plain_language_submit_intents'] );
 		$this->assertSame( $result['prefill_url'], $result['next_action']['optional_preview_url'] );
 		$this->assertSame( $result['approval_block']['pasteable_approval_message'], $result['next_action']['pasteable_approval_message'] );
 		$this->assertStringContainsString( 'Test product page', $result['next_action']['pasteable_approval_message'] );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Blaze: make chat submit the leading next step for eligible prepared campaigns.

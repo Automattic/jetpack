@@ -784,6 +784,7 @@ class Blaze_Abilities extends Registrar {
 								'chat_native_submit',
 								'requires_explicit_approval',
 								'pasteable_approval_message',
+								'plain_language_submit_intents',
 								'optional_preview_url',
 							),
 							'properties'  => array(
@@ -806,6 +807,13 @@ class Blaze_Abilities extends Registrar {
 								'pasteable_approval_message' => array(
 									'type'        => 'string',
 									'description' => __( 'Approval message to render when the merchant says "submit it", "launch it", "go ahead", or similar plain-language intent.', 'jetpack-blaze' ),
+								),
+								'plain_language_submit_intents' => array(
+									'type'        => 'array',
+									'description' => __( 'Plain-language merchant phrases such as "submit it", "launch it", "go ahead", or "looks good" that mean the client should render the pasteable approval message, not refuse or send the merchant to the widget-only flow.', 'jetpack-blaze' ),
+									'items'       => array(
+										'type' => 'string',
+									),
 								),
 								'optional_preview_url'   => array(
 									'type'        => 'string',
@@ -1872,7 +1880,9 @@ class Blaze_Abilities extends Registrar {
 	private static function format_prepare_campaign_message( array $proposal ): string {
 		$preview          = self::build_campaign_preview( $proposal );
 		$forecast_summary = self::build_forecast_summary( $proposal );
-		$message          = __( 'Campaign proposal prepared for review in Blaze.', 'jetpack-blaze' ) . "\n\n";
+		$message          = ! empty( $proposal['next_action'] ) && is_array( $proposal['next_action'] )
+			? __( 'Campaign proposal prepared. Chat submit is available after explicit approval.', 'jetpack-blaze' ) . "\n\n"
+			: __( 'Campaign proposal prepared for review in Blaze.', 'jetpack-blaze' ) . "\n\n";
 
 		$message .= '| ' . __( 'Campaign preview', 'jetpack-blaze' ) . ' | ' . __( 'Prepared value', 'jetpack-blaze' ) . " |\n";
 		$message .= "| --- | --- |\n";

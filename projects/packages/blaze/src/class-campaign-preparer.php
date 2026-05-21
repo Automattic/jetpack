@@ -1182,15 +1182,23 @@ class Campaign_Preparer {
 	 */
 	private static function build_chat_submit_next_action( string $prefill_url, array $approval_block ): array {
 		return array(
-			'type'                       => 'request_explicit_approval',
-			'default_flow'               => 'chat_native_submit',
-			'chat_native_submit'         => true,
-			'requires_explicit_approval' => true,
-			'pasteable_approval_message' => $approval_block['pasteable_approval_message'] ?? '',
-			'optional_preview_url'       => $prefill_url,
-			'optional_preview_label'     => __( 'Preview campaign in Blaze', 'jetpack-blaze' ),
-			'message'                    => __(
-				'Ask the user to paste the approval message before submitting this prepared campaign. The preview link is optional for review, not required when chat-native submit is eligible.',
+			'type'                          => 'request_explicit_approval',
+			'default_flow'                  => 'chat_native_submit',
+			'chat_native_submit'            => true,
+			'requires_explicit_approval'    => true,
+			'pasteable_approval_message'    => $approval_block['pasteable_approval_message'] ?? '',
+			'plain_language_submit_intents' => array(
+				'submit it',
+				'launch it',
+				'go ahead',
+				'looks good',
+				'create the campaign',
+				'run the campaign',
+			),
+			'optional_preview_url'          => $prefill_url,
+			'optional_preview_label'        => __( 'Preview campaign in Blaze', 'jetpack-blaze' ),
+			'message'                       => __(
+				'When the user asks to submit, launch, create, run, or says it looks good in plain language, render the pasteable approval message before submitting this prepared campaign. The preview link is optional for review, not required when chat-native submit is eligible.',
 				'jetpack-blaze'
 			),
 		);

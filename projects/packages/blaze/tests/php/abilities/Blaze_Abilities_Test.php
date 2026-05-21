@@ -1009,7 +1009,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'charge_acknowledgement', $output_properties['approval_block']['properties'] );
 		$this->assertContains( 'type', $output_properties['next_action']['required'] );
 		$this->assertContains( 'pasteable_approval_message', $output_properties['next_action']['required'] );
+		$this->assertContains( 'plain_language_submit_intents', $output_properties['next_action']['required'] );
 		$this->assertStringContainsString( 'chat-native approval/submit is the default', $output_properties['next_action']['description'] );
+		$this->assertStringContainsString( 'submit it', $output_properties['next_action']['properties']['plain_language_submit_intents']['description'] );
 		$this->assertStringContainsString( 'optional review', $output_properties['next_action']['properties']['optional_preview_url']['description'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
@@ -1555,7 +1557,11 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'next_action', $result );
 		$this->assertSame( 'request_explicit_approval', $result['next_action']['type'] );
 		$this->assertSame( 'chat_native_submit', $result['next_action']['default_flow'] );
+		$this->assertContains( 'submit it', $result['next_action']['plain_language_submit_intents'] );
+		$this->assertContains( 'looks good', $result['next_action']['plain_language_submit_intents'] );
 		$this->assertSame( $result['approval_block']['pasteable_approval_message'], $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Campaign proposal prepared. Chat submit is available after explicit approval.', $result['message'] );
+		$this->assertStringNotContainsString( 'Campaign proposal prepared for review in Blaze.', $result['message'] );
 		$this->assertStringContainsString( 'Chat submit is available', $result['message'] );
 		$this->assertStringContainsString( 'You can preview it in Blaze if you want', $result['message'] );
 		$this->assertStringContainsString( 'To submit from chat, paste this approval message', $result['message'] );
