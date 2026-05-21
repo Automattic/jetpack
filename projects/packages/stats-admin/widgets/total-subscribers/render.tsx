@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import SubscriberTrendBackground from './components/subscriber-trend-background';
 import { useSubscriberCount } from './hooks/use-subscriber-count';
 import styles from './style.module.css';
+import type { CSSProperties } from 'react';
 
 const queryClient = new QueryClient();
 
@@ -18,14 +19,13 @@ function TotalSubscribersContent(): JSX.Element {
 	const { data, isLoading, isError, error } = useSubscriberCount();
 	const formattedCount =
 		data === null || data === undefined ? null : formatNumber( Math.max( 0, data ) );
+	const displayText = isLoading ? '—' : formattedCount ?? '0';
+	const counterChars = Math.max( displayText.length, 1 );
 
 	return (
 		<Card.FullBleed className={ styles.container }>
 			<SubscriberTrendBackground />
-			<Stack className={ styles.stack } direction="column" align="center" justify="center" gap="md">
-				<Text variant="body" className={ styles.label }>
-					{ __( 'Newsletter subscribers', 'jetpack-stats-admin' ) }
-				</Text>
+			<Stack className={ styles.stack } direction="column" align="center" justify="center">
 				{ isError ? (
 					<Text variant="body" className={ styles.error }>
 						{ error instanceof Error
@@ -37,10 +37,20 @@ function TotalSubscribersContent(): JSX.Element {
 						className={ clsx( styles.counter, {
 							[ styles.counterLoading ]: isLoading,
 						} ) }
+						style={
+							{
+								'--counter-chars': counterChars,
+							} as CSSProperties
+						}
 						aria-busy={ isLoading }
 						aria-live="polite"
+						aria-label={
+							isLoading
+								? __( 'Loading subscriber count…', 'jetpack-stats-admin' )
+								: __( 'Subscriber count', 'jetpack-stats-admin' )
+						}
 					>
-						{ isLoading ? '—' : formattedCount }
+						{ ! isLoading && formattedCount }
 					</Text>
 				) }
 			</Stack>
