@@ -477,6 +477,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
+		$this->assertStringContainsString( '"agentId":"wp-orchestrator"', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
@@ -491,6 +492,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
+		$this->assertStringContainsString( '"agentId":"wp-orchestrator"', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
 		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
@@ -539,6 +541,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
@@ -558,6 +561,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
 		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
@@ -572,6 +576,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
+		$this->assertArrayNotHasKey( 'agentId', $data );
 		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
 		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
 	}
@@ -594,6 +599,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		// Original payload with Jetpack's authoritative flags is still emitted.
+		$this->assertStringContainsString(
+			'"agentId":"wp-orchestrator"',
+			$this->get_agents_manager_inline_script()
+		);
 		$this->assertStringContainsString(
 			'"aiEditorialReviewEnabled":',
 			$this->get_agents_manager_inline_script()
@@ -710,6 +719,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
 		$this->assertStringContainsString(
+			'agentsManagerData.agentId = "wp-orchestrator"',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
 			'agentsManagerData.aiEditorialReviewEnabled = true',
 			$this->get_agents_manager_inline_script()
 		);
@@ -743,6 +756,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
 		$this->assertStringNotContainsString(
+			'agentsManagerData.agentId',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
 			'agentsManagerData.aiEditorialReviewEnabled',
 			$this->get_agents_manager_inline_script()
 		);
@@ -763,6 +780,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentId',
+			$this->get_agents_manager_inline_script()
+		);
 		$this->assertStringNotContainsString(
 			'agentsManagerData.aiEditorialReviewEnabled',
 			$this->get_agents_manager_inline_script()

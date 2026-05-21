@@ -27,6 +27,7 @@ const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai
 const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
 const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
 const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_AGENT_ID        = 'wp-orchestrator';
 
 /**
  * Handles loading the Agents Manager from CDN and registering the
@@ -272,6 +273,7 @@ class Jetpack_AI_Sidebar {
 
 		// Direct CDN-loader fallback. Jetpack owns these defaults; hosts can
 		// override via the AI Editorial Review and preview filters.
+		$am_data['agentId']                  = AI_SIDEBAR_AGENT_ID;
 		$am_data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$am_data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $am_data;
@@ -555,6 +557,7 @@ class Jetpack_AI_Sidebar {
 
 		// Set Jetpack's defaults for externally emitted payloads. Hosts that need
 		// intentional overrides should use the AI Editorial Review and preview filters.
+		$data['agentId']                  = AI_SIDEBAR_AGENT_ID;
 		$data['aiEditorialReviewEnabled'] = self::is_ai_editorial_review_enabled();
 		$data['jetpackAiSidebarPreview']  = self::get_jetpack_ai_sidebar_preview_config();
 		return $data;
@@ -613,10 +616,15 @@ class Jetpack_AI_Sidebar {
 			self::get_jetpack_ai_sidebar_preview_config(),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
+		$agent_id_payload            = wp_json_encode(
+			AI_SIDEBAR_AGENT_ID,
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
 
 		wp_add_inline_script(
 			'agents-manager',
 			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
+				. ' agentsManagerData.agentId = ' . $agent_id_payload . ';'
 				. ' agentsManagerData.aiEditorialReviewEnabled = ' . $ai_editorial_review_payload . ';'
 				. ' agentsManagerData.jetpackAiSidebarPreview = ' . $preview_payload . ';'
 				. ' }',
