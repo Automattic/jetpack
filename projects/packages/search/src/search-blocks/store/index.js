@@ -1629,21 +1629,37 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			const offset = Number( wrapper.dataset.loadOnScrollOffset );
 			const rootMargin = `0px 0px ${ Number.isFinite( offset ) ? offset : 200 }px 0px`;
+			// IntersectionObserver only fires on intersection *state changes*.
+			// When a page of results is too short to push the sentinel back
+			// outside the rootMargin after a fetch, no further events arrive
+			// and auto-load silently stalls. After each load settles we
+			// `unobserve` + `observe` again so the observer re-delivers its
+			// initial-state event against the current layout; if the sentinel
+			// is still intersecting we get a fresh `isIntersecting: true` and
+			// the next page fires without the user having to nudge the scroll.
+			let pending = false;
 			const observer = new IntersectionObserver(
 				entries => {
 					if ( ! entries.some( e => e.isIntersecting ) ) {
 						return;
 					}
-					// The store's own `*loadMore()` already short-circuits when
-					// there's no `pageHandle` or another request is in flight,
-					// so we don't need to mirror that guard here — but reading
-					// the same derived `showLoadMore` keeps us symmetric with
-					// the wrapper's own visibility binding and avoids a noop
-					// generator step on the first idle intersection after
-					// `state.pageHandle` goes null.
-					if ( state.showLoadMore && ! state.isLoadingMore ) {
-						actions.loadMore();
+					if ( pending || ! state.showLoadMore || state.isLoadingMore ) {
+						return;
 					}
+					pending = true;
+					actions.loadMore();
+					const settle = () => {
+						if ( state.isLoadingMore ) {
+							setTimeout( settle, 100 );
+							return;
+						}
+						pending = false;
+						if ( state.showLoadMore ) {
+							observer.unobserve( sentinel );
+							observer.observe( sentinel );
+						}
+					};
+					setTimeout( settle, 100 );
 				},
 				{ root: null, rootMargin, threshold: 0 }
 			);

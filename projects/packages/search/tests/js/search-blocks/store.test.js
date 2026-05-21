@@ -933,6 +933,9 @@ describe( 'store callbacks', () => {
 		beforeEach( () => {
 			originalIO = global.IntersectionObserver;
 			observerInstances = [];
+			// Direct assignment (not `jest.spyOn`) because jsdom doesn't ship
+			// an IntersectionObserver — spying requires the property to
+			// pre-exist on the object.
 			jest.spyOn( global, 'IntersectionObserver' ).mockImplementation( function ( cb, opts ) {
 				this.cb = cb;
 				this.opts = opts;
@@ -943,7 +946,11 @@ describe( 'store callbacks', () => {
 		} );
 
 		afterEach( () => {
-			global.IntersectionObserver = originalIO;
+			if ( originalIO === undefined ) {
+				delete global.IntersectionObserver;
+			} else {
+				global.IntersectionObserver = originalIO;
+			}
 			captured.element.ref = null;
 		} );
 
@@ -1008,12 +1015,16 @@ describe( 'store callbacks', () => {
 			expect( loadMore ).not.toHaveBeenCalled();
 
 			// Intersecting and showLoadMore (derived from pageHandle && !isLoading) → fetch.
+			// Flip isLoadingMore true to mirror what `*loadMore()` would do; this
+			// proves the in-flight guard prevents a second call.
+			loadMore.mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
 			observer.cb( [ { isIntersecting: true } ] );
 			expect( loadMore ).toHaveBeenCalledTimes( 1 );
 
 			// Already loading more → skipped (the store's own guard would no-op
 			// too, but mirroring the check here avoids a noop generator step).
-			state.isLoadingMore = true;
 			observer.cb( [ { isIntersecting: true } ] );
 			expect( loadMore ).toHaveBeenCalledTimes( 1 );
 
@@ -1022,6 +1033,53 @@ describe( 'store callbacks', () => {
 			state.pageHandle = null;
 			observer.cb( [ { isIntersecting: true } ] );
 			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'no-ops when IntersectionObserver is unavailable in the environment', () => {
+			const saved = global.IntersectionObserver;
+			// Match the `typeof … === 'undefined'` runtime check by removing the
+			// global outright — assigning `undefined` would still leave the
+			// binding declared, which doesn't trip a `typeof` guard.
+			delete global.IntersectionObserver;
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			global.IntersectionObserver = saved;
+		} );
+
+		it( 're-observes the sentinel after a load settles so a short result page does not stall auto-load', () => {
+			jest.useFakeTimers();
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
+
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+			jest.spyOn( observer, 'unobserve' ).mockImplementation();
+
+			// First intersection fires loadMore and schedules a settle probe.
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Probe finds isLoadingMore still true → reschedules itself.
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Fetch settles. Probe re-arms the observer so a sentinel that
+			// never left the rootMargin gets a fresh initial-state event.
+			state.isLoadingMore = false;
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).toHaveBeenCalledTimes( 1 );
+			expect( observer.observe ).toHaveBeenCalledTimes( 2 );
+
+			jest.useRealTimers();
 		} );
 	} );
 } );
