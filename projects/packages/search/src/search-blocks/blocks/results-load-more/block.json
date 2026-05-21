@@ -13,7 +13,9 @@
 	],
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
-		"buttonLabel": { "type": "string", "default": "" }
+		"buttonLabel": { "type": "string", "default": "" },
+		"loadOnScroll": { "type": "boolean", "default": false },
+		"loadOnScrollOffset": { "type": "number", "default": 200 }
 	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/results-load-more.js",

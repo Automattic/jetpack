@@ -1607,6 +1607,67 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Wires the results-load-more block's IntersectionObserver when its
+		 * `loadOnScroll` attribute is on. Returns a teardown that disconnects
+		 * the observer — the Interactivity runtime calls it on unmount and on
+		 * HMR re-init so listeners never leak.
+		 *
+		 * @return {Function|undefined} cleanup callback or undefined when the
+		 * block opted out at render time.
+		 */
+		initLoadMoreObserver() {
+			const wrapper = getElement?.()?.ref;
+			if ( ! wrapper || wrapper.dataset?.loadOnScroll !== '1' ) {
+				return;
+			}
+			if ( typeof IntersectionObserver === 'undefined' ) {
+				return;
+			}
+			const sentinel = wrapper.querySelector( '.jetpack-search-load-more__sentinel' );
+			if ( ! sentinel ) {
+				return;
+			}
+			const offset = Number( wrapper.dataset.loadOnScrollOffset );
+			const rootMargin = `0px 0px ${ Number.isFinite( offset ) ? offset : 200 }px 0px`;
+			// IntersectionObserver only fires on intersection *state changes*.
+			// When a page of results is too short to push the sentinel back
+			// outside the rootMargin after a fetch, no further events arrive
+			// and auto-load silently stalls. After each load settles we
+			// `unobserve` + `observe` again so the observer re-delivers its
+			// initial-state event against the current layout; if the sentinel
+			// is still intersecting we get a fresh `isIntersecting: true` and
+			// the next page fires without the user having to nudge the scroll.
+			let pending = false;
+			const observer = new IntersectionObserver(
+				entries => {
+					if ( ! entries.some( e => e.isIntersecting ) ) {
+						return;
+					}
+					if ( pending || ! state.showLoadMore || state.isLoadingMore ) {
+						return;
+					}
+					pending = true;
+					actions.loadMore();
+					const settle = () => {
+						if ( state.isLoadingMore ) {
+							setTimeout( settle, 100 );
+							return;
+						}
+						pending = false;
+						if ( state.showLoadMore ) {
+							observer.unobserve( sentinel );
+							observer.observe( sentinel );
+						}
+					};
+					setTimeout( settle, 100 );
+				},
+				{ root: null, rootMargin, threshold: 0 }
+			);
+			observer.observe( sentinel );
+			return () => observer.disconnect();
+		},
+
+		/**
 		 * Fires when the `ai-answer` block mounts. Flips the module-scope
 		 * `aiBlockPresent` flag so `actions.search()` knows to dispatch the
 		 * AI fetch alongside the results fetch, and kicks off a first fetch
