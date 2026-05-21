@@ -5,7 +5,13 @@
 	"version": "0.1.0",
 	"title": "Collapsible Filters",
 	"category": "jetpack-search",
-	"description": "Compact filter trigger that opens a popover containing filter checkboxes. Powered by Jetpack Search.",
+	"description": "Filter container — renders inline on wider screens and collapses to a popover trigger below 992px. Powered by Jetpack Search.",
+	"attributes": {
+		"displayMode": {
+			"type": "string",
+			"default": "responsive"
+		}
+	},
 	"supports": {
 		"html": false,
 		"interactivity": true

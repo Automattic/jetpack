@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: filters-popover becomes a responsive container — renders inline at 992px and wider, collapses to the popover trigger below; existing always-collapsed behavior remains opt-in via the new display-mode select.

@@ -1,3 +1,7 @@
+// Match Instant Search's $break-lg so the two Search experiences flip layouts
+// at the same width.
+$jetpack-search-filters-popover-collapse: 992px;
+
 .jetpack-search-filters-popover {
 	position: relative;
 	display: inline-block;
@@ -91,9 +95,52 @@
 			display: none;
 		}
 
-		&--editor {
+		&--editor,
+		&--inline {
 			position: static;
 			box-shadow: none;
+		}
+
+		&--inline[hidden] {
+			// Editor preview for responsive mode renders children inline; the
+			// `hidden` attribute on the wrapper still applies via the rule
+			// above, so neutralise it here for this preview variant only.
+			display: flex;
+		}
+	}
+
+	// Responsive mode: above the collapse threshold the popover is gone — the
+	// container becomes an inline sidebar surface. The trigger button is taken
+	// out of the flow (so its `aria-haspopup` is unreachable too) and the panel
+	// drops every popover-only style (absolute positioning, max-width, chrome,
+	// hidden override) and renders as a vertical stack the way the `filters`
+	// block does.
+	&.is-mode-responsive {
+
+		@media (min-width: $jetpack-search-filters-popover-collapse) {
+			display: block;
+
+			.jetpack-search-filters-popover__trigger {
+				display: none;
+			}
+
+			// Override the `[hidden]` attribute the Interactivity API toggles
+			// below the breakpoint — selector specificity (0,3,1) beats the
+			// base `&__panel[hidden]` rule (0,2,1).
+			.jetpack-search-filters-popover__panel,
+			.jetpack-search-filters-popover__panel[hidden] {
+				position: static;
+				display: flex;
+				min-width: 0;
+				max-width: none;
+				padding: 0;
+				background: transparent;
+				color: inherit;
+				border: none;
+				border-radius: 0;
+				box-shadow: none;
+				z-index: auto;
+			}
 		}
 	}
 }
