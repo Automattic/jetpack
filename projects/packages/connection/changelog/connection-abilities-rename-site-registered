@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection abilities: rename get-connection-status `site_connected` output field to `site_registered` to match site-registration terminology.

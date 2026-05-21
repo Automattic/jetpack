@@ -22,7 +22,7 @@ use Jetpack_Options;
  * Registers Jetpack Connection abilities with the WordPress Abilities API.
  *
  * Exposes a single read-only ability for site-level connection state so AI
- * agents can answer "is this site connected?" without having to
+ * agents can answer "is this site registered?" without having to
  * reverse-engineer Jetpack_Options keys.
  *
  * Writes (registering a new site, disconnecting a user, transferring
@@ -72,7 +72,7 @@ class Connection_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Jetpack connection status', 'jetpack-connection' ),
 			'description'         => __(
-				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_connected, user_connected, master_user, blog_id, registration_url, connection_version }. `site_connected` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_connected` is false; null once the site is connected. `connection_version` is the running Jetpack Connection package version. Read-only and idempotent — safe to poll.',
+				'Return the site-level Jetpack connection state in one zero-argument call. Shape: { site_registered, user_connected, master_user, blog_id, registration_url, connection_version }. `site_registered` is true when the site has a blog id and a blog token. `user_connected` is true when at least one user has linked their WordPress.com account. `master_user` is the local user id of the connection owner (the user who registered the site), or null if there is no owner. `blog_id` is the WordPress.com site id, or null when the site has not been registered. `registration_url` is the wp-admin URL the site owner should visit to register the site when `site_registered` is false; null once the site is registered. `connection_version` is the running Jetpack Connection package version. Read-only and idempotent — safe to poll.',
 				'jetpack-connection'
 			),
 			'input_schema'        => array(
@@ -83,7 +83,7 @@ class Connection_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'site_connected'     => array( 'type' => 'boolean' ),
+					'site_registered'    => array( 'type' => 'boolean' ),
 					'user_connected'     => array( 'type' => 'boolean' ),
 					'master_user'        => array( 'type' => array( 'integer', 'null' ) ),
 					'blog_id'            => array( 'type' => array( 'integer', 'null' ) ),
@@ -140,9 +140,9 @@ class Connection_Abilities extends Registrar {
 	public static function get_connection_status( $input = null ) {
 		unset( $input );
 
-		$manager        = self::get_manager();
-		$site_connected = (bool) $manager->is_connected();
-		$user_connected = (bool) $manager->has_connected_user();
+		$manager         = self::get_manager();
+		$site_registered = (bool) $manager->is_connected();
+		$user_connected  = (bool) $manager->has_connected_user();
 
 		$master_user_raw = Jetpack_Options::get_option( 'master_user' );
 		$master_user     = is_numeric( $master_user_raw ) && (int) $master_user_raw > 0 ? (int) $master_user_raw : null;
@@ -151,11 +151,11 @@ class Connection_Abilities extends Registrar {
 		$blog_id     = is_numeric( $blog_id_raw ) && (int) $blog_id_raw > 0 ? (int) $blog_id_raw : null;
 
 		return array(
-			'site_connected'     => $site_connected,
+			'site_registered'    => $site_registered,
 			'user_connected'     => $user_connected,
 			'master_user'        => $master_user,
 			'blog_id'            => $blog_id,
-			'registration_url'   => $site_connected ? null : self::registration_url(),
+			'registration_url'   => $site_registered ? null : self::registration_url(),
 			'connection_version' => Package_Version::PACKAGE_VERSION,
 		);
 	}

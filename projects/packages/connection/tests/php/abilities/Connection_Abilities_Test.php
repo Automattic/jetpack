@@ -390,7 +390,7 @@ class Connection_Abilities_Test extends TestCase {
 		$out = Connection_Abilities::get_connection_status();
 
 		$this->assertIsArray( $out );
-		$this->assertFalse( $out['site_connected'] );
+		$this->assertFalse( $out['site_registered'] );
 		$this->assertFalse( $out['user_connected'] );
 		$this->assertNull( $out['master_user'] );
 		$this->assertArrayNotHasKey( 'plan_class', $out );
@@ -418,13 +418,13 @@ class Connection_Abilities_Test extends TestCase {
 
 		$out = Connection_Abilities::get_connection_status();
 
-		$this->assertTrue( $out['site_connected'] );
+		$this->assertTrue( $out['site_registered'] );
 		$this->assertTrue( $out['user_connected'] );
 		$this->assertSame( 42, $out['master_user'] );
 		$this->assertSame( 12345, $out['blog_id'] );
 		$this->assertArrayNotHasKey( 'plan_class', $out );
 		$this->assertArrayNotHasKey( 'jetpack_version', $out );
-		$this->assertNull( $out['registration_url'], 'registration_url must be null once the site is connected.' );
+		$this->assertNull( $out['registration_url'], 'registration_url must be null once the site is registered.' );
 		$this->assertSame( Package_Version::PACKAGE_VERSION, $out['connection_version'] );
 	}
 }
