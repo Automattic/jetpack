@@ -1,4 +1,8 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	fetchSubscriberCounts,
+	mapSubscriberCountsFromResponse,
+} from '@automattic/jetpack-shared-extension-utils/fetch-subscriber-counts';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -71,34 +75,6 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	dispatch(
 		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
 	);
-};
-
-const fetchSubscriberCounts = async () => {
-	const response = await apiFetch( {
-		path: addQueryArgs( '/wpcom/v2/subscribers/counts', {
-			subscriber_status: 'active',
-			subscription_status: 'active',
-		} ),
-	} );
-
-	if ( ! response || typeof response !== 'object' ) {
-		throw new Error( 'Unexpected API response' );
-	}
-
-	/**
-	 * WP_Error returns a list of errors with custom names:
-	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
-	 * Since we don't know their names, to get the message, we transform the object
-	 * into an array, and just pick the first message of the first error.
-	 *
-	 * @see https://developer.wordpress.org/reference/classes/wp_error/
-	 */
-	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
-	if ( wpError ) {
-		throw new Error( wpError );
-	}
-
-	return response;
 };
 
 const fetchTotalEmailsSentCount = async ( blogId, postId ) => {
@@ -268,14 +244,7 @@ export const getSubscriberCounts =
 		const lock = executionLock.acquire( SUBSCRIBER_COUNT_EXECUTION_KEY );
 		try {
 			const response = await fetchSubscriberCounts();
-			dispatch(
-				setSubscriberCounts( {
-					totalSubscribers: response.counts.total_subscribers,
-					socialFollowers: response.counts.social_followers,
-					emailSubscribers: response.counts.email_subscribers,
-					paidSubscribers: response.counts.paid_subscribers,
-				} )
-			);
+			dispatch( setSubscriberCounts( mapSubscriberCountsFromResponse( response ) ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

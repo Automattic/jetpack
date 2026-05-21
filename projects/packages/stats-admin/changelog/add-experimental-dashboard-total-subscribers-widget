@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Newsletter subscribers widget for the experimental wp-admin dashboard. Show the widget only when the Stats and Subscriptions modules are active.
