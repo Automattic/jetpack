@@ -70,7 +70,6 @@ let savedRange = null;
 let headingMenuCloseHandler = null;
 let textColorMenuCloseHandler = null;
 let linkPopoverCloseHandler = null;
-let sizeMenuCloseHandler = null;
 
 // Track the previous slash filter so checkSlashCommand only resets the active
 // menu item when the filter text changes, not when the user is navigating.
@@ -87,13 +86,9 @@ let slashMenuEscaped = false;
 // Focus memory persists across Tab-in / Tab-out cycles.
 let lastFocusedToolbarButton = null;
 
-// Track the figure currently "selected" by the first Backspace/Delete press.
-// A second press on the same figure deletes it.
-let selectedFigure = null;
-
-// The cursor range saved before a figure is selected so it can be restored
-// if the user cancels the selection (Escape, click, or typing a letter).
-let preFigureSelectionRange = null;
+// The figure highlighted by the first Backspace/Delete press; a second
+// press on the same figure deletes it.
+let pendingDeleteFigure = null;
 
 let cachedContent = null;
 
@@ -211,12 +206,13 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
+		)
 		.forEach( el => el.remove() );
-	// Selection is UI state, not content — don't persist it in snapshots.
-	// applyUndoSnapshot re-adds the class to the matching figure on restore.
-	root.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
-		el.classList.remove( 'bw-figure-selected' );
+	// Pending-delete highlight is UI state, not content — drop it from snapshots.
+	root.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
+		el.classList.remove( 'bw-figure-pending-delete' );
 	} );
 }
 
@@ -247,41 +243,15 @@ function captureUndoSnapshot() {
 function applyUndoSnapshot( snapshot ) {
 	const content = getContent();
 	if ( content ) {
-		// Remember the currently-selected figure's media ID so we can
-		// re-link selection after innerHTML replaces the DOM nodes.
-		// Otherwise selectedFigure points to a detached node and the user
-		// loses their working context across undo/redo.
-		const prevMediaId = selectedFigure
-			? getMediaIdFromImg( selectedFigure.querySelector( 'img' ) )
-			: null;
-
 		content.innerHTML = snapshot.html;
 		ensureBlockStructure();
 		restoreUndoCursor( content, snapshot.cursor );
-
-		// Re-link figure selection.  Match by wp-image-N (stable across
-		// edits); if the figure no longer exists in the restored DOM,
-		// clear selection state.  Snapshots may carry a stale
-		// `bw-figure-selected` class — strip it so only the figure we
-		// actively re-select keeps the visual indicator.
-		content.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
-			el.classList.remove( 'bw-figure-selected' );
+		// Drop any stale pending-delete highlight from the snapshot, and
+		// reset the local tracker so the next Backspace starts fresh.
+		content.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
+			el.classList.remove( 'bw-figure-pending-delete' );
 		} );
-		const restoredFigure = prevMediaId
-			? content.querySelector( `.wp-image-${ prevMediaId }` )?.closest( 'figure' )
-			: null;
-		if ( restoredFigure ) {
-			selectedFigure = restoredFigure;
-			restoredFigure.classList.add( 'bw-figure-selected' );
-			syncFigureStateFromDom( restoredFigure );
-			// Snapshots without a saved range cause restoreUndoCursor to
-			// drop a fallback caret in the first paragraph.  Hide it so the
-			// figure looks like the active focus target.
-			window.getSelection()?.removeAllRanges();
-		} else if ( selectedFigure ) {
-			selectedFigure = null;
-			syncFigureStateFromDom( null );
-		}
+		pendingDeleteFigure = null;
 	}
 	const titleEl = document.querySelector( '.bw-title' );
 	if ( titleEl ) {
@@ -360,9 +330,8 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image alignment values + size presets we ship. Wide/full alignment and
-// custom widths stay in the block editor (see RSM-3472).
-const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
+// Image size presets we ship. Alignment, wide/full layouts, and custom
+// widths stay in the block editor (see RSM-3472).
 const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
 
 // Cache of media library size lookups keyed by attachment ID.  Populated
@@ -427,107 +396,6 @@ async function applyMediaSizeToFigure( fig, slug ) {
 }
 
 /**
- * Read alignment preset from a figure's classList.
- *
- * @param {Element} fig - The figure element.
- * @return {string} 'left' / 'center' / 'right' / '' when no alignment class set.
- */
-function getFigureAlign( fig ) {
-	return IMAGE_ALIGNS.find( a => fig.classList.contains( 'align' + a ) ) || '';
-}
-
-/**
- * Read size preset from a figure's classList.
- *
- * @param {Element} fig - The figure element.
- * @return {string} A size slug ('thumbnail' / 'medium' / 'large' / 'full') or '' when none set.
- */
-function getFigureSizeSlug( fig ) {
-	return IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) ) || '';
-}
-
-/**
- * Resolve the friendly Size label shown on the toolbar for the given slug.
- *
- * An empty slug maps to "Large" — that's the default for new images, and
- * existing images without a size class render at their natural width which
- * is closest in spirit to the "Large" preset.
- *
- * @param {string} slug - Size slug.
- * @return {string} The label.
- */
-function sizeLabelForSlug( slug ) {
-	const labels = {
-		thumbnail: i18n.sizeSmall || 'Small',
-		medium: i18n.sizeMedium || 'Medium',
-		large: i18n.sizeLarge || 'Large',
-		full: i18n.sizeFull || 'Full',
-	};
-	return labels[ slug ] || labels.large;
-}
-
-/**
- * Mirror the selected figure's alignment + size into reactive toolbar state.
- *
- * @param {Element|null} fig - The selected figure, or null to clear.
- */
-function syncFigureStateFromDom( fig ) {
-	if ( ! fig ) {
-		state.figureSelected = false;
-		state.figureHasMediaId = false;
-		state.figureSizeSlug = '';
-		state.sizeLabel = sizeLabelForSlug( '' );
-		return;
-	}
-	const align = getFigureAlign( fig );
-	const slug = getFigureSizeSlug( fig );
-	state.figureSelected = true;
-	state.figureHasMediaId = !! getMediaIdFromImg( fig.querySelector( 'img' ) );
-	state.figureSizeSlug = slug;
-	state.sizeLabel = sizeLabelForSlug( slug );
-	state.formatAlignLeft = align === 'left';
-	state.formatAlignCenter = align === 'center';
-	state.formatAlignRight = align === 'right';
-	state.formatAlignJustify = false;
-	// Justify has no meaning for an image figure — disable it so the
-	// button state is consistent whether the figure was clicked or reached
-	// via keyboard.  When the selection later moves back into text,
-	// updateFormattingState recomputes this from cursor context.
-	state.cannotJustify = true;
-}
-
-/**
- * Select an image figure (the toolbar will now act on it).
- *
- * @param {Element} fig - The figure element to select.
- */
-function selectImageFigure( fig ) {
-	if ( selectedFigure === fig ) return;
-	if ( selectedFigure ) {
-		selectedFigure.classList.remove( 'bw-figure-selected' );
-	}
-	selectedFigure = fig;
-	fig.classList.add( 'bw-figure-selected' );
-	syncFigureStateFromDom( fig );
-	// Hide the blinking text caret so focus appears to be on the figure.
-	// All entry points (click, focusin, keyboard) want this — keyboard
-	// Backspace/Delete additionally saves the range first so Escape can
-	// restore it.
-	window.getSelection()?.removeAllRanges();
-}
-
-/**
- * Toggle an alignment class on a figure, replacing any existing one.
- *
- * @param {Element} fig   - The figure element.
- * @param {string}  align - 'left' / 'center' / 'right' / '' (clear).
- */
-function setFigureAlign( fig, align ) {
-	IMAGE_ALIGNS.forEach( a => fig.classList.remove( 'align' + a ) );
-	if ( align ) fig.classList.add( 'align' + align );
-}
-
-/**
  * Toggle a size class on a figure, replacing any existing one.
  *
  * @param {Element} fig  - The figure element.
@@ -536,6 +404,16 @@ function setFigureAlign( fig, align ) {
 function setFigureSize( fig, slug ) {
 	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
 	if ( slug ) fig.classList.add( 'size-' + slug );
+}
+
+/**
+ * Clear the two-step Backspace/Delete pending-delete highlight, if any.
+ */
+function clearPendingDelete() {
+	if ( pendingDeleteFigure ) {
+		pendingDeleteFigure.classList.remove( 'bw-figure-pending-delete' );
+		pendingDeleteFigure = null;
+	}
 }
 
 /**
@@ -564,37 +442,6 @@ function hasWritableContent() {
 	}
 	return !! content.querySelector( 'figure, hr' );
 }
-
-/**
- * Deselect the currently-selected figure, if any, and optionally
- * restore the cursor position saved before the figure was selected.
- *
- * @param {boolean} restoreCursor - Whether to restore the saved cursor
- *                                position. Pass false when the caller sets its own cursor (e.g. click).
- */
-function clearFigureSelection( restoreCursor = true ) {
-	if ( selectedFigure ) {
-		selectedFigure.classList.remove( 'bw-figure-selected' );
-		selectedFigure = null;
-		syncFigureStateFromDom( null );
-	}
-	if ( restoreCursor && preFigureSelectionRange ) {
-		const sel = window.getSelection();
-		sel.removeAllRanges();
-		sel.addRange( preFigureSelectionRange );
-	}
-	preFigureSelectionRange = null;
-}
-
-// Deselect figure on any click — don't restore the saved cursor
-// because the click itself places the caret where the user wants it.
-// Toolbar clicks are excluded so the user can click an alignment button
-// after selecting a figure without losing the selection.
-document.addEventListener( 'click', e => {
-	if ( e.target.closest( '.bw-toolbar' ) ) return;
-	if ( e.target.closest( '.bw-figure-selected' ) ) return;
-	clearFigureSelection( false );
-} );
 
 /**
  * If the cursor is at the edge of a block adjacent to a figure, return
@@ -921,14 +768,11 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 
-			// Read figure classes for alignment + size preset and the
-			// `wp-image-<id>` class for the media library attachment ID.
-			// These map to core wp:image attributes so the published markup
-			// matches what the block editor would emit, and the block editor
-			// can re-open these images without surprises.
-			const imageAlign = [ 'left', 'center', 'right' ].find( a =>
-				node.classList.contains( 'align' + a )
-			);
+			// Read figure size class + the `wp-image-<id>` class for the
+			// media library attachment ID.  These map to core wp:image
+			// attributes so the published markup matches what the block
+			// editor would emit, and the block editor can re-open these
+			// images without surprises.
 			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
 				node.classList.contains( 'size-' + s )
 			);
@@ -936,12 +780,10 @@ function convertToBlocks( html ) {
 
 			const imageAttrs = [];
 			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
-			if ( imageAlign ) imageAttrs.push( `"align":"${ imageAlign }"` );
 			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
 			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
 
 			const figureClasses = [ 'wp-block-image' ];
-			if ( imageAlign ) figureClasses.push( 'align' + imageAlign );
 			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
 
 			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
@@ -1441,39 +1283,6 @@ function addDeleteButtons() {
 		// Prevent native contentEditable from modifying figure internals.
 		fig.contentEditable = 'false';
 
-		// Click-to-select: makes the toolbar's alignment + size controls
-		// target this figure. Mobile users get the same affordances as
-		// desktop hover, since selection (not hover) drives control reveal.
-		// Skip when the click is on a control button — those have their own
-		// handlers that stopPropagation.
-		if ( fig.querySelector( 'img' ) ) {
-			fig.addEventListener( 'click', e => {
-				if (
-					e.target.closest( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
-				) {
-					return;
-				}
-				e.stopPropagation();
-				selectImageFigure( fig );
-			} );
-			// Keyboard focus-to-select: tabbing through the page lands on
-			// the X / ALT / Caption buttons. Mirror selection onto the
-			// figure so the toolbar reflects this image and a keyboard user
-			// can Shift+Tab to the toolbar to align or resize it.
-			fig.addEventListener( 'focusin', () => selectImageFigure( fig ) );
-			// Auto-deselect when focus leaves the figure entirely so a tab
-			// past the last control doesn't leave a stale blue outline +
-			// sticky toolbar state behind.  Preserve selection when focus
-			// is going to the toolbar — the user still needs to act on the
-			// figure from there.
-			fig.addEventListener( 'focusout', e => {
-				if ( fig.contains( e.relatedTarget ) ) return;
-				if ( e.relatedTarget?.closest( '.bw-toolbar' ) ) return;
-				if ( selectedFigure !== fig ) return;
-				clearFigureSelection( false );
-			} );
-		}
-
 		// Wrap img in a positioning container so buttons stay anchored to the image.
 		const img = fig.querySelector( 'img' );
 		if ( img && ! img.parentElement.classList.contains( 'bw-img-controls' ) ) {
@@ -1492,7 +1301,6 @@ function addDeleteButtons() {
 		btn.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopPropagation();
-			clearFigureSelection();
 			animateAndDeleteFigure( fig );
 		} );
 		controls.appendChild( btn );
@@ -1579,19 +1387,126 @@ function addDeleteButtons() {
 			fig.appendChild( figcaption );
 			figcaption.focus();
 		} );
-		// Tab from Caption (the last image control) hops into the content
-		// area rather than out to browser chrome — most users have just
-		// finished acting on the image and want to resume typing.  Shift+Tab
-		// keeps its default backward-traversal behavior.
-		capBtn.addEventListener( 'keydown', e => {
-			if ( e.key !== 'Tab' || e.shiftKey ) return;
-			const next = fig.nextElementSibling;
-			if ( ! next ) return;
-			e.preventDefault();
-			placeCursorAt( next );
-			getContent()?.focus();
-		} );
 		controls.appendChild( capBtn );
+
+		// Size button + dropdown (only for media-library images: external
+		// URLs have no registered sizes to swap between).
+		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
+		if ( isMediaLibrary ) {
+			const sizeBtn = document.createElement( 'button' );
+			sizeBtn.className = 'bw-img-size';
+			sizeBtn.textContent = i18n.size || 'Size';
+			sizeBtn.contentEditable = 'false';
+			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
+			sizeBtn.setAttribute( 'aria-expanded', 'false' );
+
+			const menu = document.createElement( 'div' );
+			menu.className = 'bw-img-size-menu';
+			menu.contentEditable = 'false';
+			menu.hidden = true;
+			menu.setAttribute( 'role', 'menu' );
+			const sizeOptions = [
+				[ 'thumbnail', i18n.sizeSmall || 'Small' ],
+				[ 'medium', i18n.sizeMedium || 'Medium' ],
+				[ 'large', i18n.sizeLarge || 'Large' ],
+				[ 'full', i18n.sizeFull || 'Full' ],
+			];
+			sizeOptions.forEach( ( [ slug, label ] ) => {
+				const opt = document.createElement( 'button' );
+				opt.className = 'bw-img-size-option';
+				opt.textContent = label;
+				opt.contentEditable = 'false';
+				opt.setAttribute( 'role', 'menuitem' );
+				opt.tabIndex = -1;
+				opt.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					ev.stopPropagation();
+					setFigureSize( fig, slug );
+					applyMediaSizeToFigure( fig, slug ).then( pushToUndoHistory );
+					closeSizeMenu( true );
+				} );
+				menu.appendChild( opt );
+			} );
+
+			const openSizeMenu = () => {
+				menu.hidden = false;
+				sizeBtn.setAttribute( 'aria-expanded', 'true' );
+				menu.querySelector( '.bw-img-size-option' )?.focus();
+			};
+			const closeSizeMenu = ( returnFocus = false ) => {
+				menu.hidden = true;
+				sizeBtn.setAttribute( 'aria-expanded', 'false' );
+				if ( returnFocus ) sizeBtn.focus();
+			};
+
+			sizeBtn.addEventListener( 'click', ev => {
+				ev.preventDefault();
+				ev.stopPropagation();
+				if ( menu.hidden ) {
+					openSizeMenu();
+				} else {
+					closeSizeMenu();
+				}
+			} );
+
+			// Arrow / Home / End / Escape navigation within the open menu.
+			menu.addEventListener( 'keydown', ev => {
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				const idx = options.indexOf( menu.ownerDocument.activeElement );
+				if ( ev.key === 'ArrowDown' ) {
+					ev.preventDefault();
+					options[ ( idx + 1 ) % options.length ]?.focus();
+				} else if ( ev.key === 'ArrowUp' ) {
+					ev.preventDefault();
+					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
+				} else if ( ev.key === 'Home' ) {
+					ev.preventDefault();
+					options[ 0 ]?.focus();
+				} else if ( ev.key === 'End' ) {
+					ev.preventDefault();
+					options[ options.length - 1 ]?.focus();
+				} else if ( ev.key === 'Escape' ) {
+					ev.preventDefault();
+					closeSizeMenu( true );
+				} else if ( ev.key === 'Tab' ) {
+					// Tab out of the menu closes it.  The browser handles the
+					// focus move; we just clean up state.
+					closeSizeMenu();
+				}
+			} );
+
+			// Close the menu on any click outside it.
+			document.addEventListener( 'click', ev => {
+				if ( menu.hidden ) return;
+				if ( menu.contains( ev.target ) || sizeBtn.contains( ev.target ) ) return;
+				closeSizeMenu();
+			} );
+
+			// Tab from Size (now the last image control) hops into the
+			// content area rather than out to browser chrome.  Shift+Tab
+			// keeps its default backward-traversal behavior.
+			sizeBtn.addEventListener( 'keydown', e => {
+				if ( e.key !== 'Tab' || e.shiftKey ) return;
+				const next = fig.nextElementSibling;
+				if ( ! next ) return;
+				e.preventDefault();
+				placeCursorAt( next );
+				getContent()?.focus();
+			} );
+
+			controls.appendChild( sizeBtn );
+			controls.appendChild( menu );
+		} else {
+			// No size button: Tab from Caption hops into the content area.
+			capBtn.addEventListener( 'keydown', e => {
+				if ( e.key !== 'Tab' || e.shiftKey ) return;
+				const next = fig.nextElementSibling;
+				if ( ! next ) return;
+				e.preventDefault();
+				placeCursorAt( next );
+				getContent()?.focus();
+			} );
+		}
 
 		// Enter inside the figcaption exits to the next block. Attached on every
 		// figure init (not just on first caption-button click) so it survives an
@@ -1952,14 +1867,6 @@ function removeEmptyCite( blockquote ) {
  * Updates all toolbar button states.
  */
 function updateFormattingState() {
-	// If a figure is selected the toolbar should reflect its alignment/size
-	// instead of the text cursor's. syncFigureStateFromDom keeps state in
-	// sync (including disabling Justify) as alignment/size changes happen.
-	if ( state.figureSelected && selectedFigure ) {
-		syncFigureStateFromDom( selectedFigure );
-		return;
-	}
-
 	state.formatBold = document.queryCommandState( 'bold' );
 	state.formatItalic = document.queryCommandState( 'italic' );
 	state.formatUnderline = document.queryCommandState( 'underline' );
@@ -2547,11 +2454,9 @@ const { state } = store( 'wpcom-write', {
 			}
 			return '';
 		},
-		// Disable text-alignment buttons inside lists, but keep them
-		// enabled when an image figure is selected — alignment then
-		// targets the figure instead of the cursor's paragraph.
+		// Disable text-alignment buttons inside lists where they're not meaningful.
 		get cannotAlign() {
-			return state.insideList && ! state.figureSelected;
+			return state.insideList;
 		},
 	},
 
@@ -2793,10 +2698,7 @@ const { state } = store( 'wpcom-write', {
 			// Exception: if focus is inside a figure, let the browser navigate
 			// naturally between the figure's action buttons.
 			if ( ( event.key === 'Tab' && event.shiftKey ) || ( event.altKey && event.key === 'F10' ) ) {
-				if (
-					event.key === 'Tab' &&
-					event.target.closest( 'figure, .bw-image-figure, .bw-video-figure' )
-				) {
+				if ( event.key === 'Tab' && event.target.closest( '.bw-img-controls, figcaption' ) ) {
 					return;
 				}
 				event.preventDefault();
@@ -2835,35 +2737,21 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Escape deselects a figure.  When the user reached the figure
-			// via click or focusin (no preFigureSelectionRange saved), put
-			// the caret at the start of the paragraph after the figure so
-			// Escape consistently returns focus to the content area.
-			if ( event.key === 'Escape' && selectedFigure ) {
+			// Escape clears the two-step delete highlight without removing
+			// the figure, restoring the caret position the user was at.
+			if ( event.key === 'Escape' && pendingDeleteFigure ) {
 				event.preventDefault();
-				if ( ! preFigureSelectionRange ) {
-					const next = selectedFigure.nextElementSibling;
-					if ( next ) {
-						const range = document.createRange();
-						range.setStart( next, 0 );
-						range.collapse( true );
-						preFigureSelectionRange = range;
-					}
-				}
-				clearFigureSelection();
+				clearPendingDelete();
 				getContent()?.focus();
 				return;
 			}
 
-			// Any key other than Backspace/Delete/Escape deselects the figure.
-			// Modifier-only keypresses and Tab/F10 are exempt — modifiers fire
-			// their own keydown before the actual key combo (so pressing
-			// Shift+Tab would otherwise clear on the Shift event), and Tab/F10
-			// move focus to the toolbar where the user needs the figure to
-			// stay selected so alignment/size actions still target it.
-			const exemptKeys = [ 'Backspace', 'Delete', 'Tab', 'F10', 'Shift', 'Control', 'Meta', 'Alt' ];
-			if ( selectedFigure && ! exemptKeys.includes( event.key ) ) {
-				clearFigureSelection();
+			// Any non-deletion keystroke cancels the pending delete.  Modifiers
+			// fire their own keydown so we exempt them — otherwise Shift+letter
+			// would clear on the Shift event before the letter arrives.
+			const pendingExempt = [ 'Backspace', 'Delete', 'Shift', 'Control', 'Meta', 'Alt' ];
+			if ( pendingDeleteFigure && ! pendingExempt.includes( event.key ) ) {
+				clearPendingDelete();
 			}
 
 			// Slash menu keyboard navigation.
@@ -2934,34 +2822,24 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Two-step figure deletion: first Backspace/Delete selects the
-			// adjacent figure, second press deletes it.
+			// Two-step figure deletion: first Backspace/Delete highlights
+			// the adjacent figure, second press deletes it.
 			if ( event.key === 'Backspace' || event.key === 'Delete' ) {
-				// Second press — delete the already-selected figure.
-				// Check this first because the selection was cleared when
-				// the figure was highlighted (no blinking cursor).
-				if ( selectedFigure ) {
+				// Second press — delete the already-highlighted figure.
+				if ( pendingDeleteFigure ) {
 					event.preventDefault();
-					const fig = selectedFigure;
-					clearFigureSelection();
+					const fig = pendingDeleteFigure;
+					clearPendingDelete();
 					animateAndDeleteFigure( fig );
 					return;
 				}
 
-				// First press — select the adjacent figure.
+				// First press — highlight the adjacent figure.
 				const targetFigure = getFigureAdjacentToCursor( event.key );
 				if ( targetFigure ) {
 					event.preventDefault();
-					// Save the cursor position so it can be restored if the
-					// user cancels the selection (Escape, click, or letter).
-					const sel = window.getSelection();
-					if ( sel.rangeCount ) {
-						preFigureSelectionRange = sel.getRangeAt( 0 ).cloneRange();
-					}
-					selectImageFigure( targetFigure );
-					// Hide the blinking cursor so focus appears to move
-					// to the highlighted figure.
-					sel.removeAllRanges();
+					pendingDeleteFigure = targetFigure;
+					targetFigure.classList.add( 'bw-figure-pending-delete' );
 					return;
 				}
 				// No adjacent figure — fall through to native Backspace/Delete.
@@ -3212,7 +3090,7 @@ const { state } = store( 'wpcom-write', {
 
 			// When focus is inside a submenu, arrow navigation is handled by
 			// handleSubmenuKeyDown — don't also move the toolbar focus.
-			const insideSubmenu = focused?.closest( '.bw-heading-menu, .bw-color-menu, .bw-size-menu' );
+			const insideSubmenu = focused?.closest( '.bw-heading-menu, .bw-color-menu' );
 
 			if ( event.key === 'ArrowRight' || event.key === 'ArrowLeft' ) {
 				if ( insideSubmenu ) return;
@@ -3221,11 +3099,8 @@ const { state } = store( 'wpcom-write', {
 					...toolbar.querySelectorAll( ':scope .bw-tool, :scope .bw-tool-heading-toggle' ),
 				].filter(
 					btn =>
-						! btn.closest( '.bw-heading-menu, .bw-color-menu, .bw-size-menu' ) &&
+						! btn.closest( '.bw-heading-menu, .bw-color-menu' ) &&
 						! btn.disabled &&
-						// Skip buttons whose wrapper is `hidden` (e.g. the Size
-						// toggle when no figure is selected) so keyboard nav
-						// doesn't stall on an invisible button.
 						! btn.closest( '[hidden]' )
 				);
 				const idx = buttons.indexOf( focused );
@@ -3238,7 +3113,6 @@ const { state } = store( 'wpcom-write', {
 				event.preventDefault();
 				state.showHeadingMenu = false;
 				state.showTextColorMenu = false;
-				state.showSizeMenu = false;
 				getContent()?.focus();
 				restoreSelection();
 				return;
@@ -3250,15 +3124,12 @@ const { state } = store( 'wpcom-write', {
 				const isHeadingToggle = focused.classList.contains( 'bw-tool-heading-toggle' );
 				const isColorToggle =
 					focused.getAttribute( 'data-wp-on--click' ) === 'actions.toggleTextColorMenu';
-				const isSizeToggle = focused.classList.contains( 'bw-tool-size-toggle' );
-				if ( isHeadingToggle || isColorToggle || isSizeToggle ) {
+				if ( isHeadingToggle || isColorToggle ) {
 					// Let the existing click handler open the menu.
 					event.preventDefault();
 					focused.click();
 					requestAnimationFrame( () => {
-						let menuSelector = '.bw-heading-menu';
-						if ( isColorToggle ) menuSelector = '.bw-color-menu';
-						else if ( isSizeToggle ) menuSelector = '.bw-size-menu';
+						const menuSelector = isColorToggle ? '.bw-color-menu' : '.bw-heading-menu';
 						const menu = toolbar.querySelector( menuSelector );
 						const firstItem = menu?.querySelector( '[role="menuitem"]' );
 						if ( firstItem ) firstItem.focus();
@@ -3315,7 +3186,6 @@ const { state } = store( 'wpcom-write', {
 				event.preventDefault();
 				state.showHeadingMenu = false;
 				state.showTextColorMenu = false;
-				state.showSizeMenu = false;
 				// Return focus to the toggle button that opened this menu.
 				const toggle = menu.previousElementSibling;
 				if ( toggle ) toggle.focus();
@@ -3463,73 +3333,9 @@ const { state } = store( 'wpcom-write', {
 			state.showHeadingMenu = false;
 		},
 
-		// --- Image size dropdown ---
-
-		toggleSizeMenu() {
-			if ( ! state.figureSelected ) return;
-			state.showSizeMenu = ! state.showSizeMenu;
-			state.showHeadingMenu = false;
-			state.showTextColorMenu = false;
-			if ( sizeMenuCloseHandler ) {
-				document.removeEventListener( 'click', sizeMenuCloseHandler );
-				sizeMenuCloseHandler = null;
-			}
-			if ( state.showSizeMenu ) {
-				positionDropdownOnMobile( '.bw-size-menu' );
-				sizeMenuCloseHandler = e => {
-					if ( e.target.closest( '.bw-size-menu' ) || e.target.closest( '.bw-tool-size-toggle' ) )
-						return;
-					state.showSizeMenu = false;
-					document.removeEventListener( 'click', sizeMenuCloseHandler );
-					sizeMenuCloseHandler = null;
-				};
-				setTimeout( () => document.addEventListener( 'click', sizeMenuCloseHandler ), 0 );
-			}
-		},
-
-		setSizeSmall() {
-			if ( ! selectedFigure ) return;
-			setFigureSize( selectedFigure, 'thumbnail' );
-			applyMediaSizeToFigure( selectedFigure, 'thumbnail' ).then( pushToUndoHistory );
-			syncFigureStateFromDom( selectedFigure );
-			state.showSizeMenu = false;
-		},
-
-		setSizeMedium() {
-			if ( ! selectedFigure ) return;
-			setFigureSize( selectedFigure, 'medium' );
-			applyMediaSizeToFigure( selectedFigure, 'medium' ).then( pushToUndoHistory );
-			syncFigureStateFromDom( selectedFigure );
-			state.showSizeMenu = false;
-		},
-
-		setSizeLarge() {
-			if ( ! selectedFigure ) return;
-			setFigureSize( selectedFigure, 'large' );
-			applyMediaSizeToFigure( selectedFigure, 'large' ).then( pushToUndoHistory );
-			syncFigureStateFromDom( selectedFigure );
-			state.showSizeMenu = false;
-		},
-
-		setSizeFull() {
-			if ( ! selectedFigure ) return;
-			setFigureSize( selectedFigure, 'full' );
-			applyMediaSizeToFigure( selectedFigure, 'full' ).then( pushToUndoHistory );
-			syncFigureStateFromDom( selectedFigure );
-			state.showSizeMenu = false;
-		},
-
 		// --- Alignment ---
 
 		alignLeft() {
-			if ( state.figureSelected && selectedFigure ) {
-				// Toggle off if already left-aligned (back to default).
-				const next = getFigureAlign( selectedFigure ) === 'left' ? '' : 'left';
-				setFigureAlign( selectedFigure, next );
-				syncFigureStateFromDom( selectedFigure );
-				pushToUndoHistory();
-				return;
-			}
 			const bq = getActiveBlockquote();
 			if ( bq ) {
 				// Left is the default — remove explicit alignment from
@@ -3551,13 +3357,6 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignCenter() {
-			if ( state.figureSelected && selectedFigure ) {
-				const next = getFigureAlign( selectedFigure ) === 'center' ? '' : 'center';
-				setFigureAlign( selectedFigure, next );
-				syncFigureStateFromDom( selectedFigure );
-				pushToUndoHistory();
-				return;
-			}
 			const bq = getActiveBlockquote();
 			if ( bq ) {
 				// Apply alignment to the blockquote itself so
@@ -3579,13 +3378,6 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignRight() {
-			if ( state.figureSelected && selectedFigure ) {
-				const next = getFigureAlign( selectedFigure ) === 'right' ? '' : 'right';
-				setFigureAlign( selectedFigure, next );
-				syncFigureStateFromDom( selectedFigure );
-				pushToUndoHistory();
-				return;
-			}
 			const bq = getActiveBlockquote();
 			if ( bq ) {
 				flushUndoDebounce();
@@ -3889,18 +3681,15 @@ const { state } = store( 'wpcom-write', {
 			if ( state.uploadedMediaId ) {
 				// Media-library image: tag it for round-trip with the block
 				// editor and swap src to the Large-sized URL so the natural
-				// img dimensions match the chosen preset. Default to
-				// aligncenter so the toolbar's center button reflects the
-				// figure's visual state (sized figures are centered via the
-				// size-* margin-auto rules).
+				// img dimensions match the default preset.
 				img.className = 'wp-image-' + state.uploadedMediaId;
-				figure.className = 'bw-image-figure size-large aligncenter';
+				figure.className = 'bw-image-figure size-large';
 				figure.appendChild( img );
 				applyMediaSizeToFigure( figure, 'large' );
 			} else {
 				// External URL (no media library entry, no resized files):
-				// no size preset — the Size dropdown will stay hidden when
-				// this figure is selected, matching block editor behavior.
+				// no size preset — the per-image Size button is hidden, matching
+				// block editor behavior.
 				figure.className = 'bw-image-figure';
 				figure.appendChild( img );
 			}
@@ -4531,8 +4320,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			p.remove();
 		}
 	} );
-	clone.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
-		el.classList.remove( 'bw-figure-selected' );
+	clone.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
+		el.classList.remove( 'bw-figure-pending-delete' );
 	} );
 	// Also strip the contenteditable attribute from figures — it's a
 	// runtime attribute that shouldn't be persisted.

@@ -783,19 +783,23 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that an image with align (left/center/right) returns false.
+	 * Image alignment is no longer a Write feature, but it's silently
+	 * stripped on load so old posts with this attr don't bounce to the
+	 * block editor — the value is just dropped on next save.
 	 */
 	public function test_detect_unsupported_image_with_align() {
 		foreach ( array( 'left', 'center', 'right' ) as $align ) {
 			$content = '<!-- wp:image {"align":"' . $align . '"} --><figure class="wp-block-image align' . $align . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
 			$this->assertFalse(
 				wpcom_write_detect_unsupported_content( $content ),
-				"align={$align} should be supported"
+				"align={$align} should be silently stripped, not flagged"
 			);
 		}
 	}
 
 	/**
 	 * Test that an image with both align and sizeSlug returns false.
+	 * (align is silently stripped; sizeSlug round-trips normally.)
 	 */
 	public function test_detect_unsupported_image_with_align_and_size_slug() {
 		$content = '<!-- wp:image {"align":"center","sizeSlug":"medium","id":42} --><figure class="wp-block-image aligncenter size-medium"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
@@ -1194,7 +1198,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$js_attrs = array(
 			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
 			'heading'   => array( 'align', 'level' ),
-			'image'     => array( 'align', 'id', 'sizeSlug' ),
+			'image'     => array( 'id', 'sizeSlug' ),
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),

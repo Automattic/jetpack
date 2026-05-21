@@ -145,6 +145,7 @@ add_action(
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+			'size'                 => __( 'Size', 'jetpack-mu-wpcom' ),
 			'sizeSmall'            => __( 'Small', 'jetpack-mu-wpcom' ),
 			'sizeMedium'           => __( 'Medium', 'jetpack-mu-wpcom' ),
 			'sizeLarge'            => __( 'Large', 'jetpack-mu-wpcom' ),
@@ -264,10 +265,13 @@ function wpcom_write_allowed_block_attrs() {
 		'heading'   => array( 'level', 'align' ),
 		// id: media-library metadata, not visible formatting.
 		// alt: preserved via HTML element, not block JSON.
-		// align: left/center/right (wide/full bounce to block editor — see
-		// wpcom_write_has_unsupported_blocks).
 		// sizeSlug: thumbnail/medium/large/full size presets.
-		'image'     => array( 'id', 'sizeSlug', 'alt', 'align' ),
+		// Note: `align` (left/center/right) on image is intentionally NOT
+		// allowed here — Write no longer supports image alignment.  Posts
+		// loaded with image align values left/center/right are silently
+		// stripped (see wpcom_write_has_unsupported_blocks); wide/full
+		// still bounce to the block editor.
+		'image'     => array( 'id', 'sizeSlug', 'alt' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align', 'citation' ),
 		'list'      => array( 'ordered' ),
@@ -385,6 +389,19 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 		// still flag as unsupported below since Write has no image-link UI.
 		if ( 'image' === $name && ( $attrs['linkDestination'] ?? '' ) === 'none' ) {
 			unset( $attrs['linkDestination'] );
+		}
+
+		// Image alignment (left/center/right) is no longer a Write feature.
+		// Silently drop it for the unsupported-attrs check so old posts load
+		// without bouncing to the block editor; the alignment is also dropped
+		// on save since convertToBlocks() no longer emits the align attr.
+		// wide/full are not stripped here so they still trigger the unsupported
+		// check below (their layout change is too significant to silently drop).
+		if (
+			'image' === $name
+			&& in_array( $attrs['align'] ?? '', array( 'left', 'center', 'right' ), true )
+		) {
+			unset( $attrs['align'] );
 		}
 
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
@@ -661,11 +678,6 @@ function wpcom_write_render_admin_page() {
 			'formatOList'         => false,
 			'formatUList'         => false,
 			'insideList'          => false,
-			'figureSelected'      => false,
-			'figureHasMediaId'    => false,
-			'figureSizeSlug'      => '',
-			'sizeLabel'           => __( 'Large', 'jetpack-mu-wpcom' ),
-			'showSizeMenu'        => false,
 			'showRecoveryBanner'  => false,
 			'unsupportedWarning'  => $unsupported_type,
 			'editorUrl'           => $editor_url,
@@ -818,20 +830,6 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.cannotAlign" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-aligncenter"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.cannotAlign" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignright"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-justify"></span></button>
-			<!-- Image size (only enabled when a media-library image is selected;
-				URL-pasted images have no registered sizes to swap between) -->
-			<div class="bw-tool-with-menu bw-tool-size" hidden data-wp-bind--hidden="!state.figureHasMediaId">
-				<button class="bw-tool bw-tool-size-toggle" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="-1" data-wp-bind--aria-expanded="state.showSizeMenu" data-wp-on--click="actions.toggleSizeMenu" title="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>">
-					<span class="bw-tool-label" data-wp-text="state.sizeLabel"><?php echo esc_html__( 'Default', 'jetpack-mu-wpcom' ); ?></span>
-					<span class="bw-tool-caret">&#9662;</span>
-				</button>
-				<div class="bw-size-menu" role="menu" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showSizeMenu" data-wp-on--mousedown="actions.preventToolbarBlur" data-wp-on--keydown="actions.handleSubmenuKeyDown">
-					<button class="bw-size-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setSizeSmall"><?php echo esc_html__( 'Small', 'jetpack-mu-wpcom' ); ?></button>
-					<button class="bw-size-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setSizeMedium"><?php echo esc_html__( 'Medium', 'jetpack-mu-wpcom' ); ?></button>
-					<button class="bw-size-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setSizeLarge"><?php echo esc_html__( 'Large', 'jetpack-mu-wpcom' ); ?></button>
-					<button class="bw-size-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setSizeFull"><?php echo esc_html__( 'Full', 'jetpack-mu-wpcom' ); ?></button>
-				</div>
-			</div>
 			<span class="bw-tool-divider"></span>
 			<!-- Lists -->
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-ul"></span></button>
