@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import SubscriberTrendBackground from './components/subscriber-trend-background';
 import { useSubscriberCount } from './hooks/use-subscriber-count';
 import styles from './style.module.css';
 
@@ -20,6 +21,7 @@ function TotalSubscribersContent(): JSX.Element {
 
 	return (
 		<Card.FullBleed className={ styles.container }>
+			<SubscriberTrendBackground />
 			<Stack className={ styles.stack } direction="column" align="center" justify="center" gap="md">
 				<Text variant="body" className={ styles.label }>
 					{ __( 'Newsletter subscribers', 'jetpack-stats-admin' ) }

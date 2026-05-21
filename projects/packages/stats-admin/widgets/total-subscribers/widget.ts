@@ -9,6 +9,6 @@ import { chartBar } from '@wordpress/icons';
  */
 export default {
 	name: 'jetpack/newsletter-subscribers',
-	title: __( 'Newsletter subscribers', 'jetpack-stats-admin' ),
+	title: __( 'Subscribers', 'jetpack-stats-admin' ),
 	icon: chartBar,
 };

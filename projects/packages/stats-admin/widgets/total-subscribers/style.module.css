@@ -1,4 +1,31 @@
+.container {
+	position: relative;
+	block-size: 100%;
+	overflow: hidden;
+	container-type: size;
+}
+
+.chartBackground {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.chart {
+	block-size: 100%;
+	inline-size: 100%;
+	opacity: 0.45;
+}
+
+.chart [data-testid="responsive-wrapper"] {
+	block-size: 100%;
+	inline-size: 100%;
+}
+
 .stack {
+	position: relative;
+	z-index: 1;
 	block-size: 100%;
 	padding: var(--wpds-dimension-padding-2xl);
 	text-align: center;
@@ -11,7 +38,9 @@
 .counter {
 	display: inline-flex;
 	align-items: baseline;
-	font-size: clamp(2.5rem, 6vw, 4.5rem);
+
+	/* Scale with widget cell size (cqmin), not viewport width. */
+	font-size: clamp(1.5rem, 16cqmin, 4.5rem);
 	font-weight: 600;
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
