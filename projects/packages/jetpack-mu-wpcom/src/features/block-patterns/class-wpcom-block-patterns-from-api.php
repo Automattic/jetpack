@@ -14,7 +14,8 @@ require_once __DIR__ . '/class-wpcom-block-patterns-utils.php';
  * Class Wpcom_Block_Patterns_From_Api
  */
 class Wpcom_Block_Patterns_From_Api {
-	const PATTERN_NAMESPACE = 'a8c/';
+	const PATTERN_NAMESPACE             = 'a8c/';
+	const GUTENPEN_PATTERNS_SOURCE_SITE = 'gutenpenpatternsourcesite.wordpress.com';
 
 	/**
 	 * A collection of utility methods.
@@ -45,6 +46,20 @@ class Wpcom_Block_Patterns_From_Api {
 
 		$pattern_categories = array();
 		$block_patterns     = $this->get_patterns( $patterns_cache_key );
+
+		$gutenpen_patterns_cache_key = sprintf(
+			'gutenpen_patterns_%d',
+			get_current_user_id()
+		);
+
+		// Optimization: On Simple sites, we check if the user is marketed as a gutenpen user. If they never used the feature, then don't make an API call.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! get_user_attribute( get_current_user_id(), 'is_gutenpen_user' ) ) {
+			$gutenpen_patterns = array();
+		} else {
+			$gutenpen_patterns = $this->get_patterns( $gutenpen_patterns_cache_key, self::GUTENPEN_PATTERNS_SOURCE_SITE );
+		}
+
+		$block_patterns = array_merge( $block_patterns, $gutenpen_patterns );
 
 		// Register categories from first pattern in each category.
 		foreach ( (array) $block_patterns as $pattern ) {
@@ -110,10 +125,11 @@ class Wpcom_Block_Patterns_From_Api {
 	 * Returns a list of patterns.
 	 *
 	 * @param string $patterns_cache_key Key to store responses to and fetch responses from cache.
+	 * @param string $source_site        Source site ID or domain.
 	 * @return array The list of patterns.
 	 */
-	private function get_patterns( $patterns_cache_key ) {
-		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', false );
+	private function get_patterns( $patterns_cache_key, $source_site = 'dotcompatterns.wordpress.com' ) {
+		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', null );
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
 		$disable_cache  = ( function_exists( 'is_automattician' ) && is_automattician() ) || $override_source_site || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE );
@@ -123,7 +139,7 @@ class Wpcom_Block_Patterns_From_Api {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'site'      => $override_source_site ?? 'dotcompatterns.wordpress.com',
+						'site'      => $override_source_site ?? $source_site,
 						'post_type' => 'wp_block',
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
