@@ -18,35 +18,43 @@ Instructions:
    - Testing instructions: Step-by-step how to test the changes
    - In the testing instructions, also state what you tested and what you did NOT test, so reviewers know where to focus. If you have a test site where the bug can be reproduced (e.g. a Jurassic Ninja site), include its URL — but never include private `*.wordpress.com` internal site URLs in the PR body; use the p2 shorthand (e.g. `peKye1-1Z1-p2`) instead.
 5. If the diff touches UI (admin pages, blocks, components, CSS/SCSS, or JS/TSX under `projects/plugins/*` or `projects/js-packages/*`), suggest capturing real-screen before/after screenshots on a Jurassic Ninja site via the `jetpack-screenshot` skill and including them in the PR body. Skip the suggestion when the PR is purely backend/docs/tooling.
-6. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags). Always include `--assignee @me`.
+6. Create the PR using `gh pr create`, passing the prepared content via `--title` and `--body-file <path>` (never `--body` — heredoc escaping breaks on backticks and special characters). Always include `--assignee @me`.
 7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review
 8. After the PR is created, follow up on automated feedback (see "After opening the PR" below).
 
-When using `--title` and `--body` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit `--body` to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
+When using `--title` and `--body-file` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit both flags to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
 
 ## Choosing the remote
 
 Automatticians have push access to `Automattic/jetpack` and should push branches directly there, not to a fork. Pushing to a fork breaks workflows that only run for in-repo branches (notably the AI-generated changelog workflow) and makes review harder.
 
-Run these checks before pushing:
+The decision is driven by **whether the authenticated user has push access**, not by what `origin` happens to point at — a public clone can have `origin = Automattic/jetpack` without push rights, and a contributor with push access may still have `origin` pointing at a personal fork.
+
+Run these two checks before pushing:
 
 ```bash
-git remote get-url origin
-gh api repos/Automattic/jetpack --jq .permissions.push 2>/dev/null
+gh api repos/Automattic/jetpack --jq .permissions.push 2>/dev/null   # "true" if user has push access
+git remote -v                                                        # see which remotes exist and where they point
 ```
 
 Then:
-- **Origin already points to `Automattic/jetpack`** → push to origin as normal.
-- **Origin points to a fork AND `.permissions.push` is `true`** → the user is an Automattician pushing to a fork by accident. Tell them once what you're doing and why ("Detected push access to Automattic/jetpack — pushing the branch there directly so CI workflows like the AI changelog bot can run"), then:
-  ```bash
-  git remote add automattic git@github.com:Automattic/jetpack.git  # or rename origin
-  git push -u automattic HEAD
-  ```
-  Open the PR against this remote (`gh pr create` will default to it once the branch tracks it).
-- **`.permissions.push` is `false` or the call errors** → external contributor without push access. Push to origin (the fork) as normal.
 
-Do not ask for confirmation before switching remotes — announce the action and do it. The operation is non-destructive (it only adds a remote and creates a branch on it).
+- **`.permissions.push` is `true`**:
+  - Identify (or create) a remote pointing at `git@github.com:Automattic/jetpack.git`. Inspect `git remote -v`; the repo's `docs/git-workflow.md` uses the name `jetpack`, so prefer that. Make the step idempotent — do not blindly run `git remote add`, it errors if the name is taken:
+    ```bash
+    if git remote get-url jetpack >/dev/null 2>&1; then
+      git remote set-url jetpack git@github.com:Automattic/jetpack.git
+    else
+      git remote add jetpack git@github.com:Automattic/jetpack.git
+    fi
+    ```
+    (If `origin` already points at `Automattic/jetpack`, you can just use `origin` and skip the extra remote.)
+  - Push the branch to that remote with `git push -u <remote> HEAD`. If origin was a fork, tell the user once what you're doing and why ("Detected push access to Automattic/jetpack — pushing the branch there directly so CI workflows like the AI changelog bot can run").
+  - `gh pr create` will default to this remote once the branch tracks it.
+- **`.permissions.push` is `false` or the call errors** → external contributor without push access. Push to whatever `origin` is (typically their fork) and let `gh pr create` open the PR against `Automattic/jetpack`.
+
+Do not ask for confirmation before switching remotes — announce the action and do it. The operation is non-destructive (it only adds/updates a remote and creates a branch on it).
 
 ## After opening the PR
 
