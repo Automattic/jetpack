@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
@@ -97,8 +98,9 @@ class Podcast {
 	 * proxy) is enabled for the current request.
 	 *
 	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
-	 * A8C-proxied requests so Automatticians dogfood it, and can be flipped
-	 * globally via the `jetpack_posts_to_podcast` filter.
+	 * A8C-proxied requests from connected WordPress.com users so
+	 * Automatticians dogfood it, and can be flipped globally via the
+	 * `jetpack_posts_to_podcast` filter.
 	 */
 	public static function is_posts_to_podcast_enabled() {
 		/**
@@ -108,7 +110,23 @@ class Podcast {
 		 *
 		 * @param bool $enabled Whether to enable Posts to Podcast.
 		 */
-		return (bool) apply_filters( 'jetpack_posts_to_podcast', self::is_proxied_request() );
+		$enabled = self::is_proxied_request() && self::is_user_connected( get_current_user_id() );
+
+		return (bool) apply_filters( 'jetpack_posts_to_podcast', $enabled );
+	}
+
+	/**
+	 * Whether a user is connected to WordPress.com.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	private static function is_user_connected( $user_id ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
+		return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 	}
 
 	/**
