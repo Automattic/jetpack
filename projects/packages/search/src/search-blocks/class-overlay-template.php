@@ -291,8 +291,16 @@ class Overlay_Template {
 	 */
 	protected static function ensure_post_exists(): int {
 		$existing = static::get_post_id();
-		if ( $existing && get_post( $existing ) ) {
-			return $existing;
+		if ( $existing ) {
+			$existing_post = get_post( $existing );
+			// Only reuse live singleton posts. If the option points to a trashed
+			// row (or a stale/mismatched ID), treat it as missing so clicking
+			// "Edit the Search overlay" recreates a fresh editable singleton.
+			if ( $existing_post && static::POST_TYPE === $existing_post->post_type && 'trash' !== $existing_post->post_status ) {
+				return $existing;
+			}
+			delete_option( static::OPTION_POST_ID );
+			self::$customized_content_cache = null;
 		}
 		$seed_content = static::read_bundled_template();
 		$post_id      = wp_insert_post(
@@ -316,7 +324,8 @@ class Overlay_Template {
 		// orphaned post would otherwise never be deleted by the reset
 		// flow because that only follows the option pointer.
 		$other_post_id = (int) get_option( static::OPTION_POST_ID, 0 );
-		if ( $other_post_id && get_post( $other_post_id ) ) {
+		$other_post    = $other_post_id ? get_post( $other_post_id ) : null;
+		if ( $other_post && static::POST_TYPE === $other_post->post_type && 'trash' !== $other_post->post_status ) {
 			wp_delete_post( $post_id, true );
 			self::$customized_content_cache = null;
 			return $other_post_id;
