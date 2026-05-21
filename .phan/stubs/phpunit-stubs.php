@@ -32024,6 +32024,18 @@ final class ComparisonFailure extends \RuntimeException
     public function __construct(mixed $expected, mixed $actual, string $expectedAsString, string $actualAsString, string $message = '')
     {
     }
+    /**
+     * @return array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string}
+     */
+    public function __serialize(): array
+    {
+    }
+    /**
+     * @param array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+    }
     public function getActual(): mixed
     {
     }
