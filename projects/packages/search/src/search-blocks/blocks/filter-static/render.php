@@ -84,13 +84,28 @@ wp_interactivity_state(
 			<legend class="jetpack-search-filter__title"><?php echo esc_html( $legend ); ?></legend>
 			<ul class="jetpack-search-filter__list">
 				<?php foreach ( $entry['values'] as $option ) : ?>
-					<li class="jetpack-search-filter__item">
+					<li
+						class="jetpack-search-filter__item"
+						<?php
+						// Per-<li> context exposes this radio's optionValue to
+						// `callbacks.isStaticFilterSelected`, which evaluates
+						// `state.staticFilterSelections[filterKey] === optionValue`
+						// for the `data-wp-bind--checked` directive below. Without
+						// it, radios drift from the store after `clearFilters()` or
+						// `handlePopState()` since the `change` event only fires on
+						// user-initiated transitions.
+						echo wp_kses_data(
+							wp_interactivity_data_wp_context( array( 'optionValue' => $option['value'] ) )
+						);
+						?>
+					>
 						<label>
 							<input
 								type="radio"
 								name="<?php echo esc_attr( $key ); ?>"
 								value="<?php echo esc_attr( $option['value'] ); ?>"
 								data-wp-on--change="actions.onStaticFilterChange"
+								data-wp-bind--checked="callbacks.isStaticFilterSelected"
 								<?php checked( $option['value'], $selected ); ?>
 							/>
 							<span class="jetpack-search-filter__label"><?php echo esc_html( $option['name'] ); ?></span>
