@@ -10,10 +10,6 @@ import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
 
-// Server-side filters key off `?podcast_episode=1` to apply the configured
-// podcast category (and, on Premium, prefill the Podcast Episode block).
-const NEW_EPISODE_URL = getAdminUrl( 'post-new.php?podcast_episode=1' );
-
 const Welcome = lazy( () => import( './welcome' ) );
 const CategorySetupModal = lazy( () => import( './welcome/category-setup-modal' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
@@ -175,12 +171,9 @@ const App = () => {
 		);
 	}
 
-	// Header CTA: visible once the show is configured. Same destination and
-	// label for every plan — the Premium value-add lives inside the editor
-	// (the server-side default-content filter inserts the Podcast Episode block on load),
-	// not at this button. Free users get a plain new post.
+	// Same destination + label for every plan; `New_Episode_Prefill` keys off `?podcast_episode=1`.
 	const headerActions = isSetUp ? (
-		<Button variant="primary" href={ NEW_EPISODE_URL }>
+		<Button variant="primary" href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
 		</Button>
 	) : undefined;

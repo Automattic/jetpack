@@ -82,8 +82,6 @@ class Podcast {
 		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
 		if ( is_admin() ) {
 			Admin_Page::init();
-			// Server-side prefill for `post-new.php?podcast_episode=1` from the
-			// dashboard's "+ Create episode" entry points.
 			New_Episode_Prefill::init();
 		}
 

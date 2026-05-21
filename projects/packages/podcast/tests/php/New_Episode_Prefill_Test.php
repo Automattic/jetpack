@@ -71,10 +71,8 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// WorDBless lacks the term-relationships table, so wp_get_post_categories
-		// can't read the assignment back. Spy on the set_object_terms action
-		// (fires at the end of wp_set_object_terms) to confirm the call was
-		// made with our category.
+		// WorDBless lacks the term-relationships table; spy on set_object_terms
+		// to verify the call instead of reading the assignment back.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy ) {
 			$spy[] = array(
@@ -131,9 +129,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// WorDBless lacks the term-relationships table, so wp_get_post_categories
-		// can't read the assignment back. Spy on the set_object_terms action to
-		// confirm no override call was made for our test post.
+		// Same set_object_terms spy as above; here we assert no call fires.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy, $post_id ) {
 			if ( (int) $object_id === (int) $post_id && 'category' === $taxonomy ) {
@@ -178,12 +174,9 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
-	/**
-	 * Reset static state shared across tests.
-	 */
 	private function reset_prefill_state() {
 		$property = new \ReflectionProperty( New_Episode_Prefill::class, 'handled_post_id' );
-		// setAccessible is required on PHP < 8.1; on 8.5 it's deprecated but not removed.
+		// setAccessible is required on PHP < 8.1; deprecated but still works on later versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
