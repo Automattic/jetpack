@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Newsletter: every site now lands on the unified Subscribers/Settings chassis, the standalone "Subscribers" wp-admin menu and the "Subscribers ↗" Calypso shortcut are retired, and the `subscribers-dashboard` package is removed — Newsletter is the single Subscribers entry point.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Newsletter: on the modernized dashboard, skip registering the Newsletter menu entry when the Subscriptions module is inactive.
