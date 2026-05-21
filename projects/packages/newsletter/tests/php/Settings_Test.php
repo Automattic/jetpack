@@ -116,7 +116,10 @@ class Settings_Test extends BaseTestCase {
 		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
 		( new Connection_Manager() )->reset_connection_status();
 
-		// Modernization defaults to true; the module is off, so the menu is skipped.
+		// Opt into the modernized dashboard (the default is off); with the module
+		// inactive the menu must be skipped.
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_true' );
+
 		$settings = new Settings();
 		$settings->add_wp_admin_menu();
 
@@ -161,12 +164,13 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
 	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be true now that the flag has been flipped.
+	 * `apply_filters` receives — must be false; the feature switch lands in a
+	 * separate PR that flips the default on.
 	 */
-	public function test_is_modernized_defaults_to_true_after_flag_flip() {
-		$this->assertTrue(
+	public function test_is_modernized_defaults_to_false() {
+		$this->assertFalse(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to true after the flag flip.'
+			'Modernization gate must default to false until the flag-flip PR lands.'
 		);
 	}
 
@@ -205,7 +209,8 @@ class Settings_Test extends BaseTestCase {
 	 * `jetpack-newsletter` bundle must NOT be enqueued when modernization is on.
 	 */
 	public function test_load_admin_scripts_enqueues_jp_tracks_on_modernized_surface() {
-		// Default is true post-flip; no filter needed.
+		// Opt into the modernized surface (the default is off).
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_true' );
 		( new Settings() )->load_admin_scripts();
 
 		$this->assertTrue(

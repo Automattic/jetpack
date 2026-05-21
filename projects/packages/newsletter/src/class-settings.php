@@ -486,15 +486,15 @@ class Settings {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Default `true` since PR 6 of the Newsletter modernization rollout
-	 * (umbrella #48530): every Jetpack site now lands on the unified
-	 * Subscribers/Settings chassis. Sites that need the legacy AdminPage
-	 * surface back can opt out with `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
+	 * Defaults to `false`: the modernization prep work ships behind the filter,
+	 * and a separate PR flips the default on so the feature switch lands in
+	 * isolation. Hosts can opt in early with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 
 	/**
