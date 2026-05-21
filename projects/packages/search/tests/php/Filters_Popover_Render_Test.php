@@ -102,11 +102,11 @@ class Filters_Popover_Render_Test extends TestCase {
 	}
 
 	/**
-	 * The trigger button + popover panel scaffolding must render in every mode —
-	 * CSS toggles their visibility, the markup doesn't change. Re-confirms that
-	 * the Interactivity API bindings (`data-wp-bind--*`, `data-wp-on--*`) are
-	 * still emitted so the popover continues to work below the breakpoint and
-	 * in always-collapsed mode.
+	 * The trigger button + panel scaffolding must render in every mode — CSS
+	 * and `.is-popover-open` toggle visibility, the markup itself doesn't
+	 * change. Confirms the Interactivity bindings (`data-wp-on--*`,
+	 * `data-wp-class--*`) are emitted so the runtime popover toggle keeps
+	 * working below the breakpoint and in always-collapsed mode.
 	 */
 	public function test_trigger_and_panel_scaffolding_always_render() {
 		foreach ( array( 'responsive', 'popover-always' ) as $mode ) {
@@ -114,7 +114,32 @@ class Filters_Popover_Render_Test extends TestCase {
 			$this->assertStringContainsString( 'jetpack-search-filters-popover__trigger', $markup, "mode=$mode" );
 			$this->assertStringContainsString( 'jetpack-search-filters-popover__panel', $markup, "mode=$mode" );
 			$this->assertStringContainsString( 'data-wp-on--click="actions.toggleFilterPopover"', $markup, "mode=$mode" );
-			$this->assertStringContainsString( 'data-wp-bind--hidden="!state.isFilterPopoverOpen"', $markup, "mode=$mode" );
+			$this->assertStringContainsString( 'data-wp-class--is-popover-open="state.isFilterPopoverOpen"', $markup, "mode=$mode" );
+		}
+	}
+
+	/**
+	 * The panel must NOT carry the `hidden` HTML attribute, `role="dialog"`,
+	 * or `aria-label` — those were the source of the original a11y bug, where
+	 * responsive mode at ≥992px kept the panel `hidden` from screen readers
+	 * even though CSS overrode the visual `display`. Class-driven visibility
+	 * via `.is-popover-open` keeps sighted and AT users in sync. Regression
+	 * guard for PR feedback by Copilot on filters-popover/style.scss.
+	 */
+	public function test_panel_has_no_hidden_attribute_or_dialog_role() {
+		foreach ( array( 'responsive', 'popover-always' ) as $mode ) {
+			$markup = $this->render( array( 'displayMode' => $mode ) );
+			$this->assertSame(
+				0,
+				preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*\bhidden\b[^>]*>/', $markup ),
+				"mode=$mode: panel must not carry the hidden attribute"
+			);
+			$this->assertSame(
+				0,
+				preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="dialog"[^>]*>/', $markup ),
+				"mode=$mode: panel must not carry role=\"dialog\""
+			);
+			$this->assertStringNotContainsString( 'data-wp-bind--hidden="!state.isFilterPopoverOpen"', $markup, "mode=$mode" );
 		}
 	}
 }

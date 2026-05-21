@@ -3,7 +3,8 @@
  *
  * Two display modes share this block. `responsive` (default) renders children inline,
  * mirroring the ≥992px front-end appearance; CSS swaps in the trigger + popover below.
- * `popover-always` keeps the legacy collapsed trigger + dialog preview at every width.
+ * `popover-always` shows the trigger button to signal the runtime collapse, but children
+ * still render inline so authors can edit them — runtime visibility is class-driven.
  */
 import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
@@ -48,7 +49,7 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 		attributes?.displayMode === 'popover-always' ? 'popover-always' : 'responsive';
 	const isResponsive = displayMode === 'responsive';
 	const blockProps = useBlockProps( {
-		className: `jetpack-search-filters-popover is-mode-${ displayMode }`,
+		className: `jetpack-search-filters-popover is-mode-${ displayMode } is-editor-preview`,
 	} );
 
 	return (
@@ -74,7 +75,6 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 					<button
 						type="button"
 						className="jetpack-search-filters-popover__trigger"
-						aria-haspopup="dialog"
 						aria-expanded="false"
 						disabled
 					>
@@ -93,16 +93,7 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 						</span>
 					</button>
 				) }
-				<div
-					className={
-						isResponsive
-							? 'jetpack-search-filters-popover__panel jetpack-search-filters-popover__panel--inline'
-							: 'jetpack-search-filters-popover__panel jetpack-search-filters-popover__panel--editor'
-					}
-					role={ isResponsive ? 'group' : 'dialog' }
-					aria-label={ __( 'Filters', 'jetpack-search-pkg' ) }
-					hidden={ ! isResponsive }
-				>
+				<div className="jetpack-search-filters-popover__panel">
 					<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
 				</div>
 			</div>

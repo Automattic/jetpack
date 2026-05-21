@@ -27,13 +27,13 @@ $wrapper_class = 'jetpack-search-filters-popover is-mode-' . $display_mode;
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => $wrapper_class ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	data-jetpack-search-popover-root
+	data-wp-class--is-popover-open="state.isFilterPopoverOpen"
 	data-wp-on-window--click="actions.onWindowClickClosePopovers"
 	data-wp-on-window--keydown="actions.onEscapeClosePopovers"
 >
 	<button
 		type="button"
 		class="jetpack-search-filters-popover__trigger"
-		aria-haspopup="dialog"
 		aria-expanded="false"
 		data-wp-bind--aria-expanded="state.isFilterPopoverOpen"
 		disabled
@@ -59,10 +59,6 @@ $wrapper_class = 'jetpack-search-filters-popover is-mode-' . $display_mode;
 	<div
 		id="<?php echo esc_attr( $panel_id ); ?>"
 		class="jetpack-search-filters-popover__panel"
-		role="dialog"
-		aria-label="<?php esc_attr_e( 'Filters', 'jetpack-search-pkg' ); ?>"
-		data-wp-bind--hidden="!state.isFilterPopoverOpen"
-		hidden
 	>
 		<?php
 		// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.

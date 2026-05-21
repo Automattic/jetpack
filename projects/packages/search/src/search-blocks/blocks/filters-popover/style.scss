@@ -66,6 +66,12 @@ $jetpack-search-filters-popover-collapse: 992px;
 		color: var(--wp--preset--color--background, #fff);
 	}
 
+	// Panel base — popover form. Collapsed by default; visibility is driven
+	// by `.is-popover-open` on the root (toggled by the Interactivity store
+	// via `data-wp-class--is-popover-open`) rather than the `hidden`
+	// attribute — overriding `[hidden]` via CSS leaves the attribute set,
+	// which screen readers still respect even though sighted users see the
+	// content.
 	&__panel {
 		position: absolute;
 		inset-inline-end: 0;
@@ -73,7 +79,7 @@ $jetpack-search-filters-popover-collapse: 992px;
 		min-width: 260px;
 		max-width: min(360px, 90vw);
 		z-index: 20;
-		display: flex;
+		display: none;
 		flex-direction: column;
 		gap: 1rem;
 		padding: 12px;
@@ -90,31 +96,16 @@ $jetpack-search-filters-popover-collapse: 992px;
 		border-color: color-mix(in sRGB, currentColor 15%, transparent);
 		border-radius: 4px;
 		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
-
-		&[hidden] {
-			display: none;
-		}
-
-		&--editor,
-		&--inline {
-			position: static;
-			box-shadow: none;
-		}
-
-		&--inline[hidden] {
-			// Editor preview for responsive mode renders children inline; the
-			// `hidden` attribute on the wrapper still applies via the rule
-			// above, so neutralise it here for this preview variant only.
-			display: flex;
-		}
 	}
 
-	// Responsive mode: above the collapse threshold the popover is gone — the
-	// container becomes an inline sidebar surface. The trigger button is taken
-	// out of the flow (so its `aria-haspopup` is unreachable too) and the panel
-	// drops every popover-only style (absolute positioning, max-width, chrome,
-	// hidden override) and renders as a vertical stack the way the `filters`
-	// block does.
+	&.is-popover-open &__panel {
+		display: flex;
+	}
+
+	// Responsive mode above the breakpoint: the popover becomes an inline
+	// sidebar. The trigger is taken out of the flow (its `aria-controls` is
+	// unreachable too, which is correct — the target panel is now an inline
+	// region) and the panel sheds every popover-only style.
 	&.is-mode-responsive {
 
 		@media (min-width: $jetpack-search-filters-popover-collapse) {
@@ -124,11 +115,7 @@ $jetpack-search-filters-popover-collapse: 992px;
 				display: none;
 			}
 
-			// Override the `[hidden]` attribute the Interactivity API toggles
-			// below the breakpoint — selector specificity (0,3,1) beats the
-			// base `&__panel[hidden]` rule (0,2,1).
-			.jetpack-search-filters-popover__panel,
-			.jetpack-search-filters-popover__panel[hidden] {
+			.jetpack-search-filters-popover__panel {
 				position: static;
 				display: flex;
 				min-width: 0;
@@ -142,5 +129,23 @@ $jetpack-search-filters-popover-collapse: 992px;
 				z-index: auto;
 			}
 		}
+	}
+
+	// Editor preview always shows children inline regardless of `displayMode`
+	// so authors can edit them. The popover-always trigger button still
+	// renders to signal the runtime collapse, but the panel doesn't hide
+	// behind it in the canvas.
+	&.is-editor-preview &__panel {
+		position: static;
+		display: flex;
+		min-width: 0;
+		max-width: none;
+		padding: 0;
+		background: transparent;
+		color: inherit;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		z-index: auto;
 	}
 }

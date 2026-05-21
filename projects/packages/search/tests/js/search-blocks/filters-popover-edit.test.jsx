@@ -26,33 +26,29 @@ describe( 'FiltersPopoverEdit', () => {
 		it( 'renders inline children with no trigger when no displayMode is set', () => {
 			renderEdit();
 			expect( screen.queryByRole( 'button', { name: 'Filter results' } ) ).not.toBeInTheDocument();
-			const panel = screen.getByRole( 'group', { name: 'Filters' } );
-			expect( panel ).not.toHaveAttribute( 'hidden' );
 			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
 		} );
 
 		it( 'falls back to responsive for an unknown displayMode value', () => {
 			renderEdit( { displayMode: 'something-else' } );
 			expect( screen.queryByRole( 'button', { name: 'Filter results' } ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'group', { name: 'Filters' } ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'popover-always mode', () => {
-		it( 'renders the closed trigger + dialog preview', () => {
+		// In popover-always mode the editor still renders children inline so
+		// authors can edit them; the visual collapse is signalled by the
+		// trigger button being present alongside. Front-end visibility is
+		// class-driven by the Interactivity store — covered by
+		// `Filters_Popover_Render_Test` on the PHP side.
+		it( 'renders the disabled trigger alongside the inline children', () => {
 			renderEdit( { displayMode: 'popover-always' } );
 
-			expect( screen.getByRole( 'button', { name: 'Filter results' } ) ).toHaveAttribute(
-				'aria-expanded',
-				'false'
-			);
-			const dialog = screen.getByRole( 'dialog', { hidden: true } );
-			expect( dialog ).toHaveAttribute( 'hidden' );
-			expect( dialog ).toHaveAttribute( 'aria-label', 'Filters' );
-			// The dialog being the panel (not a group) is the mode-distinguishing
-			// signal; the `is-mode-*` class is an internal CSS hook covered by
-			// `Filters_Popover_Render_Test` on the PHP side.
-			expect( screen.queryByRole( 'group', { name: 'Filters' } ) ).not.toBeInTheDocument();
+			const trigger = screen.getByRole( 'button', { name: 'Filter results' } );
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+			expect( trigger ).toBeDisabled();
+			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
 		} );
 	} );
 
