@@ -810,7 +810,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 						'menuSlug'      => 'no-signal',
 						'source'        => 'plugin',
 						'reassignable'  => true,
-						'default_group' => null,
+						'default_group' => '',
 						'_weight'       => 77,
 					),
 					array(
@@ -976,6 +976,18 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertArrayNotHasKey( 'menu', $legacy_response_with_no_model );
 		$this->assertArrayNotHasKey( 'layoutDelta', $layout_response_without_storage );
 		$this->assertArrayNotHasKey( 'layoutDelta', $layout_response_without_user );
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				$legacy_response_with_no_model,
+				( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema()
+			)
+		);
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				$response,
+				( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema()
+			)
+		);
 
 		$this->assertIsArray( $response );
 		$this->assertArrayHasKey( 'menu', $response );
@@ -1001,6 +1013,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertSame( 10, $by_slug['index-php']['default_weight'] );
 
 		// A matched item without signal data keeps the field explicit and null.
+		$this->assertNull( $by_slug['no-signal']['group_id'] );
 		$this->assertNull( $by_slug['no-signal']['signal'] );
 		$this->assertSame(
 			'plugin:no-signal/no-signal.php:-:no-signal',
@@ -1009,6 +1022,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertSame( 77, $by_slug['no-signal']['default_weight'] );
 
 		// Recursed child entries can still hydrate menu rows by slug.
+		$this->assertArrayHasKey( 'nested-plugin', $by_slug );
 		$this->assertSame( 'plugin:nested/nested.php:-:nested-plugin', $by_slug['nested-plugin']['itemId'] );
 		$this->assertSame( 88, $by_slug['nested-plugin']['default_weight'] );
 
