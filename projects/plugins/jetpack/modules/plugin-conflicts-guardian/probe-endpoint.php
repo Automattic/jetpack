@@ -63,8 +63,8 @@ function pcg_maybe_handle_probe() {
 	pcg_probe_pending_key( $key );
 	$plugin_mains = is_array( $payload['plugins'] ) ? array_values(
 		array_filter(
-			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
-			static fn( $p ) => '' !== $p
+			array_map( static function ( $p ) { return (string) $p; }, $payload['plugins'] ),
+			static function ( $p ) { return '' !== $p; }
 		)
 	) : array();
 	$mode         = (string) $payload['mode'];
@@ -88,7 +88,7 @@ function pcg_maybe_handle_probe() {
 	$plugin_mains = array_values(
 		array_filter(
 			$plugin_mains,
-			static fn( $p ) => is_file( $p ) && is_readable( $p )
+			static function ( $p ) { return is_file( $p ) && is_readable( $p ); }
 		)
 	);
 	if ( empty( $plugin_mains ) ) {
