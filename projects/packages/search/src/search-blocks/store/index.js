@@ -1641,6 +1641,23 @@ const { state, actions } = store( NAMESPACE, {
 
 	callbacks: {
 		/**
+		 * Reactive `checked` binding for a static-filter radio. Reads the
+		 * per-`<li>` context to know which `filterKey` + `optionValue` pair
+		 * this radio represents, then compares against the store's
+		 * `staticFilterSelections[filterKey]`. Used by
+		 * `jetpack-search/filter-static`'s `render.php` so radios stay in
+		 * lockstep with the store across `clearFilters()`, `handlePopState()`,
+		 * and any other path that mutates `state.staticFilterSelections`
+		 * outside the radio's own `change` event.
+		 *
+		 * @return {boolean} Whether this radio should appear checked.
+		 */
+		isStaticFilterSelected() {
+			const { filterKey, optionValue } = getContext();
+			return state.staticFilterSelections?.[ filterKey ] === optionValue;
+		},
+
+		/**
 		 * Fires when the search-results block mounts. Runs the initial
 		 * search if the URL seeded a query and registers the popstate
 		 * listener. Guarded so multiple blocks on the same page share a

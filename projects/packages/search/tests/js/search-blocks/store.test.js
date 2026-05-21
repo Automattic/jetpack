@@ -942,6 +942,33 @@ describe( 'gateStaticFilterSelections', () => {
 describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
+		captured.context = {};
+	} );
+
+	it( 'isStaticFilterSelected reads filterKey + optionValue from context and compares against the store', () => {
+		// Pin the reactive-binding contract. render.php emits a per-<li>
+		// `data-wp-context` with `{ filterKey, optionValue }`, and each
+		// radio's `data-wp-bind--checked="callbacks.isStaticFilterSelected"`
+		// evaluates to this boolean. Without the binding, radios drift from
+		// the store after `clearFilters()` or `handlePopState()` since the
+		// `change` event only fires on user-initiated transitions.
+		state.staticFilterSelections = { section: 'guides' };
+
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( true );
+
+		captured.context = { filterKey: 'section', optionValue: 'news' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Unregistered key — defensive against a stale context that survives
+		// a filter being deregistered.
+		captured.context = { filterKey: 'missing', optionValue: 'whatever' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Empty slice — clearFilters case. Every radio should report false.
+		state.staticFilterSelections = {};
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
 	} );
 
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
