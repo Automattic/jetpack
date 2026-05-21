@@ -758,6 +758,11 @@ class Jetpack {
 
 		// Register Jetpack module management abilities (WordPress Abilities API, WP 6.9+).
 		\Automattic\Jetpack\Plugin\Abilities\Modules_Abilities::init();
+
+		// Register Connection abilities (WordPress Abilities API, WP 6.9+). Scoped to the
+		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
+		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
+		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
 	}
 
 	/**
