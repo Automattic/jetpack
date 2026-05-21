@@ -1885,7 +1885,7 @@
 	color: #999;
 	margin: 0 0 8px;
 	padding: 0 12px;
-	text-align: right;
+	text-align: end;
 }
 
 .bw-postpicker-list {
@@ -1903,7 +1903,7 @@
 	background: transparent;
 	cursor: pointer;
 	font-family: inherit;
-	text-align: left;
+	text-align: start;
 	transition: background 0.1s ease;
 }
 
@@ -1930,7 +1930,7 @@
 	font-size: 12px;
 	color: #999;
 	flex-shrink: 0;
-	margin-left: 12px;
+	margin-inline-start: 12px;
 }
 
 .bw-postpicker-empty {

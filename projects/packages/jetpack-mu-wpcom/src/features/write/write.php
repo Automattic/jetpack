@@ -124,22 +124,22 @@ add_action(
 
 		// Pass translated strings to JavaScript for dynamic messages.
 		$write_strings = array(
-			'alt'                   => __( 'ALT', 'jetpack-mu-wpcom' ),
-			'caption'               => __( 'Caption', 'jetpack-mu-wpcom' ),
-			'describeImage'         => __( 'Describe this image...', 'jetpack-mu-wpcom' ),
-			'writeCaption'          => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
+			'alt'                  => __( 'ALT', 'jetpack-mu-wpcom' ),
+			'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
+			'describeImage'        => __( 'Describe this image...', 'jetpack-mu-wpcom' ),
+			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message from the upload failure.
-			'uploadFailed'          => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
-			'invalidVideoUrl'       => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
-			'pleaseAddTitle'        => __( 'Please add a title', 'jetpack-mu-wpcom' ),
-			'pleaseWriteSomething'  => __( 'Please write something', 'jetpack-mu-wpcom' ),
-			'savingDraft'           => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
-			'updating'              => __( 'Updating...', 'jetpack-mu-wpcom' ),
-			'publishing'            => __( 'Publishing...', 'jetpack-mu-wpcom' ),
-			'updated'               => __( 'Updated!', 'jetpack-mu-wpcom' ),
-			'published'             => __( 'Published!', 'jetpack-mu-wpcom' ),
-			'draftSaved'            => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			'draftAutosaved'        => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
+			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
+			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
+			'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
+			'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
+			'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
+			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
+			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
+			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message.
 			'error'                 => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'                => __( 'Normal', 'jetpack-mu-wpcom' ),
@@ -152,16 +152,12 @@ add_action(
 			'sizeFull'              => __( 'Full', 'jetpack-mu-wpcom' ),
 			'preview'               => __( 'Preview', 'jetpack-mu-wpcom' ),
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
-			'writingIn'             => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
-			'untitled'              => __( 'Untitled', 'jetpack-mu-wpcom' ),
-			'addCitation'           => __( 'Add citation…', 'jetpack-mu-wpcom' ),
-			'citation'              => __( 'Citation', 'jetpack-mu-wpcom' ),
-			'openPost'              => __( 'Open post', 'jetpack-mu-wpcom' ),
-			'noRecentDrafts'        => __( 'No recent drafts', 'jetpack-mu-wpcom' ),
-			'postPickerPlaceholder' => __( 'Paste a post URL or enter a post ID', 'jetpack-mu-wpcom' ),
-			'go'                    => __( 'Go', 'jetpack-mu-wpcom' ),
-			'postNotFound'          => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
-			'postNoPermission'      => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
+			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
+			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
+			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
+			'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
+			'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -667,7 +663,16 @@ function wpcom_write_render_admin_page() {
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
-		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
+		if ( ! $edit_post ) {
+			$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( ! current_user_can( 'edit_post', $edit_post_id ) ) {
+			$open_post_error = __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( 'post' !== $edit_post->post_type ) {
+			$open_post_error = __( 'Only posts can be opened in Write.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} else {
 			$edit_title = $edit_post->post_title;
 			// Convert video embed blocks to inert placeholder tokens before the
 			// the_content + wp_kses_post pipeline runs.  Tokens survive all filters;
@@ -687,12 +692,6 @@ function wpcom_write_render_admin_page() {
 			if ( ! $unsupported_type ) {
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
 			}
-		} elseif ( ! $edit_post ) {
-			$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
-			$edit_post_id    = 0;
-		} else {
-			$open_post_error = __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' );
-			$edit_post_id    = 0;
 		}
 	}
 

@@ -2907,20 +2907,7 @@ const { state } = store( 'wpcom-write', {
 			if ( state.pendingOpenPost ) {
 				state.pendingOpenPost = false;
 				state.showLeaveConfirm = false;
-				document.documentElement.style.overflow = 'hidden';
-				state.showPostPicker = true;
-				state.openPostError = '';
-				if ( window.wpcomTracksRecordEvent ) {
-					window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
-						has_drafts: state.recentDrafts.length > 0,
-						draft_count: state.recentDrafts.length,
-					} );
-				}
-				requestAnimationFrame( () => {
-					const firstItem = document.querySelector( '.bw-postpicker-item' );
-					const urlInput = document.getElementById( 'bw-postpicker-url-input' );
-					( firstItem || urlInput )?.focus();
-				} );
+				showPostPickerModal();
 				return;
 			}
 			allowLeave = true;
@@ -2946,20 +2933,7 @@ const { state } = store( 'wpcom-write', {
 
 			if ( state.pendingOpenPost ) {
 				state.pendingOpenPost = false;
-				document.documentElement.style.overflow = 'hidden';
-				state.showPostPicker = true;
-				state.openPostError = '';
-				if ( window.wpcomTracksRecordEvent ) {
-					window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
-						has_drafts: state.recentDrafts.length > 0,
-						draft_count: state.recentDrafts.length,
-					} );
-				}
-				requestAnimationFrame( () => {
-					const firstItem = document.querySelector( '.bw-postpicker-item' );
-					const urlInput = document.getElementById( 'bw-postpicker-url-input' );
-					( firstItem || urlInput )?.focus();
-				} );
+				showPostPickerModal();
 				return;
 			}
 			allowLeave = true;
@@ -4499,20 +4473,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			document.documentElement.style.overflow = 'hidden';
-			state.showPostPicker = true;
-			state.openPostError = '';
-			if ( window.wpcomTracksRecordEvent ) {
-				window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
-					has_drafts: state.recentDrafts.length > 0,
-					draft_count: state.recentDrafts.length,
-				} );
-			}
-			requestAnimationFrame( () => {
-				const firstItem = document.querySelector( '.bw-postpicker-item' );
-				const urlInput = document.getElementById( 'bw-postpicker-url-input' );
-				( firstItem || urlInput )?.focus();
-			} );
+			showPostPickerModal();
 		},
 
 		closePostPicker() {
@@ -4819,6 +4780,26 @@ const { state } = store( 'wpcom-write', {
 		},
 	},
 } );
+
+/**
+ * Open the post picker modal, fire a Tracks event, and focus the first item.
+ */
+function showPostPickerModal() {
+	document.documentElement.style.overflow = 'hidden';
+	state.showPostPicker = true;
+	state.openPostError = '';
+	if ( window.wpcomTracksRecordEvent ) {
+		window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
+			has_drafts: state.recentDrafts.length > 0,
+			draft_count: state.recentDrafts.length,
+		} );
+	}
+	requestAnimationFrame( () => {
+		const firstItem = document.querySelector( '.bw-postpicker-item' );
+		const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+		( firstItem || urlInput )?.focus();
+	} );
+}
 
 /**
  * Save or publish the current post via the REST API.
