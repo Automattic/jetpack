@@ -873,18 +873,31 @@ describe( 'gateStaticFilterSelections', () => {
 	it( 'drops keys whose filterConfigs entry is missing', () => {
 		// Stale selections for a since-removed static-filter registration
 		// must not survive a popstate or `initialize()` re-gate.
-		const gated = gateStaticFilterSelections(
+		const { gated, droppedAny } = gateStaticFilterSelections(
 			{ section: 'guides', dropped: 'x' },
 			{ section: { filterKey: 'section', kind: 'static' } }
 		);
 		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'reports droppedAny=false when nothing is dropped', () => {
+		// `initialize()` and `handlePopState` use `droppedAny` to skip the
+		// state write when the gate was a no-op — same idiom as
+		// `gateActiveFilters`.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: 'guides' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( false );
 	} );
 
 	it( 'drops keys whose filterConfigs entry exists but is not kind=static', () => {
 		// A scalar URL param under a dynamic filter key (e.g. someone fat-fingered
 		// `?category=news` instead of `?category[]=news`) must not pollute the
 		// static-filter slice. The kind=static gate keeps the boundary explicit.
-		const gated = gateStaticFilterSelections(
+		const { gated, droppedAny } = gateStaticFilterSelections(
 			{ category: 'news', section: 'guides' },
 			{
 				category: { filterKey: 'category', filterType: 'taxonomy' },
@@ -892,16 +905,18 @@ describe( 'gateStaticFilterSelections', () => {
 			}
 		);
 		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
 	} );
 
 	it( 'drops empty values', () => {
 		// `''` is the "cleared" state — keeping the key would round-trip
 		// through pushStateToUrl and re-emit `?section=` indefinitely.
-		const gated = gateStaticFilterSelections(
+		const { gated, droppedAny } = gateStaticFilterSelections(
 			{ section: '' },
 			{ section: { filterKey: 'section', kind: 'static' } }
 		);
 		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
 	} );
 
 	it( 'returns a null-prototype object so __proto__ pollution cannot survive', () => {
@@ -910,7 +925,7 @@ describe( 'gateStaticFilterSelections', () => {
 		// filterConfigs, and the output object must not inherit anything that
 		// could be misread as a registered key downstream.
 		const selections = JSON.parse( '{"__proto__":"pwn","section":"guides"}' );
-		const gated = gateStaticFilterSelections( selections, {
+		const { gated } = gateStaticFilterSelections( selections, {
 			section: { filterKey: 'section', kind: 'static' },
 		} );
 		expect( gated ).toEqual( { section: 'guides' } );
@@ -918,9 +933,9 @@ describe( 'gateStaticFilterSelections', () => {
 	} );
 
 	it( 'tolerates undefined / null inputs', () => {
-		expect( gateStaticFilterSelections( undefined, {} ) ).toEqual( {} );
-		expect( gateStaticFilterSelections( null, {} ) ).toEqual( {} );
-		expect( gateStaticFilterSelections( { section: 'guides' }, null ) ).toEqual( {} );
+		expect( gateStaticFilterSelections( undefined, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( null, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( { section: 'guides' }, null ).gated ).toEqual( {} );
 	} );
 } );
 

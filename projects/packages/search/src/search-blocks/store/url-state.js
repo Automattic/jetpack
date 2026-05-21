@@ -165,9 +165,12 @@ export function stateToUrlParams( {
 	// links stay interchangeable between the two surfaces. Gated on
 	// `kind === 'static'` so a stale selection for a since-unregistered
 	// filter (e.g. the host site removed its filter hook) can't leak back
-	// into the URL on the next push.
+	// into the URL on the next push. RESERVED_PARAMS check is symmetric
+	// with `urlParamsToState`: a misconfigured filter whose `filter_id`
+	// collides with `s` / `orderby` / `min_price` / `max_price` mustn't
+	// overwrite the search query / sort / price params.
 	for ( const [ key, value ] of Object.entries( staticFilterSelections ) ) {
-		if ( ! value || filterConfigs?.[ key ]?.kind !== 'static' ) {
+		if ( ! value || RESERVED_PARAMS.has( key ) || filterConfigs?.[ key ]?.kind !== 'static' ) {
 			continue;
 		}
 		params.set( key, String( value ) );

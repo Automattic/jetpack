@@ -147,22 +147,26 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
  * Drop static-filter selections whose key isn't registered (or isn't a
  * `kind === 'static'` config). Mirrors `gateActiveFilters` for the
  * scalar-URL counterpart so a stray `?section=x` URL from a deregistered
- * static filter can't survive across renders.
+ * static filter can't survive across renders. Returns `{ gated, droppedAny }`
+ * so callers can write state only when something actually changed — same
+ * contract as `gateActiveFilters`.
  *
  * @param {object} selections    - { [filterKey]: string }.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
- * @return {object} Gated selections.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
  */
 export function gateStaticFilterSelections( selections, filterConfigs ) {
 	const allowedKeys = filterConfigs ?? {};
 	const gated = Object.create( null );
+	let droppedAny = false;
 	for ( const [ key, value ] of Object.entries( selections ?? {} ) ) {
 		if ( ! value || ! Object.hasOwn( allowedKeys, key ) || allowedKeys[ key ]?.kind !== 'static' ) {
+			droppedAny = true;
 			continue;
 		}
 		gated[ key ] = value;
 	}
-	return gated;
+	return { gated, droppedAny };
 }
 
 /**
@@ -1130,19 +1134,6 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Toggle a filter value on or off, then re-run the search.
-		 *
-		 * Multiple selected values under the same filter key are kept in an
-		 * array on `activeFilters`; different filter keys stay separate. How
-		 * the ES clause combines them (OR within a key, AND across keys) is
-		 * the responsibility of `buildFilterClause` — this action is just
-		 * bookkeeping on the selection set.
-		 *
-		 * @param {string} filterKey   - e.g. `category`, `post_types`.
-		 * @param {string} filterValue - e.g. `news`, `post`.
-		 * @yield {Promise} search action.
-		 */
-		/**
 		 * Replace the value of a single-select static filter, then re-run the
 		 * search. Static filters store a scalar value per key (not an array
 		 * like `setFilter`) because each `jetpack-search/filter-static` block
@@ -1168,6 +1159,19 @@ const { state, actions } = store( NAMESPACE, {
 			yield actions.search();
 		},
 
+		/**
+		 * Toggle a filter value on or off, then re-run the search.
+		 *
+		 * Multiple selected values under the same filter key are kept in an
+		 * array on `activeFilters`; different filter keys stay separate. How
+		 * the ES clause combines them (OR within a key, AND across keys) is
+		 * the responsibility of `buildFilterClause` — this action is just
+		 * bookkeeping on the selection set.
+		 *
+		 * @param {string} filterKey   - e.g. `category`, `post_types`.
+		 * @param {string} filterValue - e.g. `news`, `post`.
+		 * @yield {Promise} search action.
+		 */
 		*setFilter( filterKey, filterValue ) {
 			const current = state.activeFilters[ filterKey ] ?? [];
 			const index = current.indexOf( filterValue );
@@ -1311,7 +1315,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.staticFilterSelections = gateStaticFilterSelections(
 				staticFilterSelections,
 				state.filterConfigs
-			);
+			).gated;
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -1665,13 +1669,11 @@ const { state, actions } = store( NAMESPACE, {
 				state.staticFilterSelections &&
 				Object.keys( state.staticFilterSelections ).length > 0
 			) {
-				const gatedStatic = gateStaticFilterSelections(
+				const { gated: gatedStatic, droppedAny: droppedStatic } = gateStaticFilterSelections(
 					state.staticFilterSelections,
 					state.filterConfigs
 				);
-				if (
-					Object.keys( gatedStatic ).length !== Object.keys( state.staticFilterSelections ).length
-				) {
+				if ( droppedStatic ) {
 					state.staticFilterSelections = gatedStatic;
 				}
 			}
