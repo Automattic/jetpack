@@ -552,6 +552,32 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Big Sky's provider should not participate in the Jetpack AI Sidebar surface.
+	 */
+	public function test_add_agents_manager_data_filters_big_sky_provider() {
+		$this->set_block_editor_screen();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName'    => 'gutenberg',
+				'agentProviders' => array(
+					'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+					'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+					array( 'provider' => 'metadata' ),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+				array( 'provider' => 'metadata' ),
+			),
+			$data['agentProviders']
+		);
+	}
+
+	/**
 	 * Preview and AI Editorial Review have separate gates.
 	 */
 	public function test_add_agents_manager_data_allows_preview_without_ai_editorial_review() {
@@ -711,13 +737,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_patch_jetpack_ai_sidebar_preview_data_sets_fields_when_am_enqueued_externally() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		// Simulate external host (mu-wpcom / Big Sky) having enqueued AM and
-		// declared the upstream const.
+		// Simulate an external host having enqueued AM and declared upstream
+		// data with both Jetpack AI Sidebar and Big Sky providers.
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
-		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+		wp_add_inline_script(
+			'agents-manager',
+			'const agentsManagerData = { sectionName: "gutenberg", agentProviders: [ "https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123", "https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs" ] };',
+			'before'
+		);
 
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
+		$this->assertStringContainsString(
+			'agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'/big-sky-plugin/build/calypso-agent-provider/',
+			$this->get_agents_manager_inline_script()
+		);
 		$this->assertStringContainsString(
 			'agentsManagerData.agentId = "wp-orchestrator"',
 			$this->get_agents_manager_inline_script()
