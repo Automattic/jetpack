@@ -167,12 +167,7 @@ class Wpcom_Block_Patterns_From_Api {
 		$disable_cache = ( function_exists( 'is_automattician' ) && is_automattician() ) || $override_source_site || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE );
 
 		if ( $disable_cache || false === $patterns ) {
-			$path = add_query_arg(
-				array(),
-				'/gutenpen/patterns'
-			);
-
-			$patterns = $this->utils->remote_get_as_user( $path, '1', 'rest' );
+			$patterns = $this->utils->remote_get_as_user( '/gutenpen/patterns' );
 
 			if ( ! $disable_cache ) {
 				$this->utils->cache_add( $cache_key, $patterns, 'ptk_patterns', 5 * MINUTE_IN_SECONDS );
