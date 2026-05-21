@@ -1,7 +1,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useSubscriberCount } from './hooks/use-subscriber-count';
 import styles from './style.module.css';
@@ -19,38 +19,30 @@ function TotalSubscribersContent(): JSX.Element {
 		data === null || data === undefined ? null : formatNumber( Math.max( 0, data ) );
 
 	return (
-		<Stack
-			direction="column"
-			align="center"
-			justify="center"
-			gap="md"
-			style={ {
-				blockSize: '100%',
-				padding: 'var(--wpds-dimension-padding-2xl)',
-				textAlign: 'center',
-			} }
-		>
-			<Text variant="body" className={ styles.label }>
-				{ __( 'Newsletter subscribers', 'jetpack-stats-admin' ) }
-			</Text>
-			{ isError ? (
-				<Text variant="body" className={ styles.error }>
-					{ error instanceof Error
-						? error.message
-						: __( 'Unable to load subscriber count.', 'jetpack-stats-admin' ) }
+		<Card.FullBleed className={ styles.container }>
+			<Stack className={ styles.stack } direction="column" align="center" justify="center" gap="md">
+				<Text variant="body" className={ styles.label }>
+					{ __( 'Newsletter subscribers', 'jetpack-stats-admin' ) }
 				</Text>
-			) : (
-				<Text
-					className={ clsx( styles.counter, {
-						[ styles.counterLoading ]: isLoading,
-					} ) }
-					aria-busy={ isLoading }
-					aria-live="polite"
-				>
-					{ isLoading ? '—' : formattedCount }
-				</Text>
-			) }
-		</Stack>
+				{ isError ? (
+					<Text variant="body" className={ styles.error }>
+						{ error instanceof Error
+							? error.message
+							: __( 'Unable to load subscriber count.', 'jetpack-stats-admin' ) }
+					</Text>
+				) : (
+					<Text
+						className={ clsx( styles.counter, {
+							[ styles.counterLoading ]: isLoading,
+						} ) }
+						aria-busy={ isLoading }
+						aria-live="polite"
+					>
+						{ isLoading ? '—' : formattedCount }
+					</Text>
+				) }
+			</Stack>
+		</Card.FullBleed>
 	);
 }
 
