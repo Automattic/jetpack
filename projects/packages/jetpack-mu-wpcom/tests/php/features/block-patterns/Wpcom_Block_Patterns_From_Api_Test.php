@@ -140,9 +140,9 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	/**
 	 *  Tests that we're making a request where we're overriding the source site.
 	 *
-	 *  The override applies to both the dotcompatterns and GutenPen fetches: dotcompatterns goes
-	 *  through remote_get with the full URL, GutenPen goes through remote_get_as_user with the
-	 *  same override propagated into the `site` query arg.
+	 *  The override rewrites the `site` query arg on the dotcompatterns PTK URL. The GutenPen
+	 *  endpoint is dedicated and does not take a `site` arg, so the override only influences its
+	 *  cache behavior (disables caching for that fetch).
 	 */
 	public function test_patterns_request_succeeds_with_override_source_site() {
 		$example_site = function () {
@@ -162,7 +162,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get_as_user' )
-			->with( '/ptk/patterns/fr?site=dotcom&post_type=wp_block', '1', 'rest' );
+			->with( '/gutenpen/patterns' );
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 
