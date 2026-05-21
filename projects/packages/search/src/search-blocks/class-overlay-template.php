@@ -30,8 +30,11 @@ namespace Automattic\Jetpack\Search;
  *    singleton's `post_content`.
  * 4. On the front end, `Search_Blocks::get_overlay_template_content()`
  *    prefers the singleton's content when present.
- * 5. "Restore default" hits `maybe_handle_reset_request()`, which deletes
- *    the singleton; the next request falls back to the bundled file again.
+ * 5. "Restore default" calls the CPT's built-in REST endpoint
+ *    (`DELETE /wp/v2/jetpack-search-overlay/<id>?force=true`) via
+ *    `apiFetch`; the `before_delete_post` hook here cleans up the
+ *    singleton option + per-request cache so subsequent renders fall
+ *    back to the bundled file.
  *
  * Gated behind both `jetpack_search_blocks_enabled` AND
  * `jetpack_search_overlay_block_template_enabled` — only initialized from
@@ -42,12 +45,10 @@ class Overlay_Template {
 	// 20 char max per `register_post_type()`. `jp_` prefix instead of
 	// `jetpack_` to stay under the limit while remaining greppable.
 	const POST_TYPE          = 'jp_search_overlay';
+	const REST_BASE          = 'jetpack-search-overlay';
 	const OPTION_POST_ID     = 'jetpack_search_overlay_template_post_id';
 	const EDITOR_REQUEST_KEY = 'jetpack_search_open_overlay_editor';
-	const RESET_REQUEST_KEY  = 'jetpack_search_reset_overlay_template';
 	const EDITOR_NONCE       = 'jetpack_search_overlay_editor';
-	const RESET_NONCE        = 'jetpack_search_overlay_reset';
-	const REDIRECT_QUERY_ARG = 'jetpack_search_overlay_template';
 
 	/**
 	 * Per-request memo backing `get_customized_content()`. `null` means the
@@ -69,8 +70,33 @@ class Overlay_Template {
 		// singleton's content.
 		add_action( 'init', array( static::class, 'register_post_type' ), 9 );
 		add_action( 'admin_init', array( static::class, 'maybe_handle_editor_request' ) );
-		add_action( 'admin_init', array( static::class, 'maybe_handle_reset_request' ) );
-		add_action( 'admin_notices', array( static::class, 'maybe_render_admin_notices' ) );
+		// Keep the singleton option + per-request cache consistent regardless
+		// of which delete path is taken: the dashboard's AJAX reset, the
+		// REST endpoint, or an admin trashing then permanently deleting via
+		// post.php. `before_delete_post` fires for force-delete too, which
+		// is what wp_delete_post( $id, true ) and REST DELETE ?force=true do.
+		add_action( 'before_delete_post', array( static::class, 'maybe_cleanup_on_singleton_delete' ) );
+	}
+
+	/**
+	 * Reset the option + per-request cache when our singleton post is
+	 * deleted, regardless of which delete path the admin took. Catches
+	 * deletions from any source — REST, post.php, our own dashboard flow
+	 * — so the state never drifts (option still pointing at a deleted
+	 * post would otherwise hide "Restore default" while the front end
+	 * already serves the bundled template).
+	 *
+	 * @param int $post_id The post being deleted.
+	 */
+	public static function maybe_cleanup_on_singleton_delete( $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! $post || static::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+		if ( (int) get_option( static::OPTION_POST_ID, 0 ) === (int) $post_id ) {
+			delete_option( static::OPTION_POST_ID );
+		}
+		self::$customized_content_cache = null;
 	}
 
 	/**
@@ -215,20 +241,23 @@ class Overlay_Template {
 	}
 
 	/**
-	 * Nonce'd admin URL that deletes the singleton (restoring the bundled
-	 * template) and redirects back to the dashboard. Built raw for the
-	 * same reason as `get_editor_url()`.
+	 * REST path used by the dashboard's "Restore default" link to delete
+	 * the singleton via the CPT's built-in REST endpoint
+	 * (`/wp/v2/jetpack-search-overlay/<id>?force=true`). The dashboard
+	 * calls this with `apiFetch({ method: 'DELETE', path: <…> })`; the
+	 * `before_delete_post` cleanup keeps the option + cache in sync.
 	 *
-	 * @return string
+	 * Returns `null` when no singleton exists — the React link is hidden
+	 * by `isCustomized` in that state, so this should never be hit, but
+	 * returning null keeps the type honest.
+	 *
+	 * @return string|null
 	 */
-	public static function get_reset_url(): string {
-		return add_query_arg(
-			array(
-				static::RESET_REQUEST_KEY => '1',
-				'_wpnonce'                => wp_create_nonce( static::RESET_NONCE ),
-			),
-			admin_url( 'admin.php?page=jetpack-search' )
-		);
+	public static function get_reset_rest_path(): ?string {
+		if ( ! static::is_customized() ) {
+			return null;
+		}
+		return '/wp/v2/' . static::REST_BASE . '/' . static::get_post_id() . '?force=true';
 	}
 
 	/**
@@ -251,62 +280,6 @@ class Overlay_Template {
 		}
 		wp_safe_redirect( admin_url( 'post.php?post=' . $post_id . '&action=edit' ) );
 		exit;
-	}
-
-	/**
-	 * Handle the "reset to default" admin request: delete the singleton
-	 * (and the option pointing to it) so the next render falls back to the
-	 * bundled template.
-	 */
-	public static function maybe_handle_reset_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked below.
-		if ( empty( $_GET[ static::RESET_REQUEST_KEY ] ) ) {
-			return;
-		}
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to reset the Search overlay.', 'jetpack-search-pkg' ), '', array( 'response' => 403 ) );
-		}
-		check_admin_referer( static::RESET_NONCE );
-		$post_id = static::get_post_id();
-		if ( $post_id ) {
-			wp_delete_post( $post_id, true );
-			delete_option( static::OPTION_POST_ID );
-			self::$customized_content_cache = null;
-		}
-		wp_safe_redirect(
-			add_query_arg( static::REDIRECT_QUERY_ARG, 'reset', admin_url( 'admin.php?page=jetpack-search' ) )
-		);
-		exit;
-	}
-
-	/**
-	 * Surface the success / restore-default notice — but only on the
-	 * Jetpack Search settings page itself. Without the screen guard the
-	 * notice could surface on any admin page whose URL happens to carry
-	 * the redirect query arg (anyone could land on
-	 * `wp-admin/index.php?jetpack_search_overlay_template=reset`).
-	 */
-	public static function maybe_render_admin_notices() {
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( ! $screen || 'toplevel_page_jetpack-search' !== $screen->id ) {
-			return;
-		}
-		// Read-only query arg used only to flip the success banner on after
-		// the nonce'd reset handler redirected back. No state mutated here,
-		// so nonce verification is intentionally not required.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$redirect_signal = isset( $_GET[ static::REDIRECT_QUERY_ARG ] )
-			? sanitize_text_field( wp_unslash( $_GET[ static::REDIRECT_QUERY_ARG ] ) )
-			: '';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		if ( 'reset' !== $redirect_signal ) {
-			return;
-		}
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p><?php esc_html_e( 'The Search overlay template has been restored to the bundled default.', 'jetpack-search-pkg' ); ?></p>
-		</div>
-		<?php
 	}
 
 	/**

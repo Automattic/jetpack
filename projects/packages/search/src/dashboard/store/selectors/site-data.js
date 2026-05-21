@@ -20,12 +20,14 @@ const siteDataSelectors = {
 	// Editor affordances for the blocks-powered Overlay. Surface in the
 	// Overlay search card when the active experience is `overlay_blocks`
 	// (the PHP gate). Returns the whole config blob so callers can
-	// destructure `{ enabled, editorUrl, resetUrl, isCustomized }` in one go.
+	// destructure `{ enabled, editorUrl, resetRestPath, isCustomized }`
+	// in one go. `resetRestPath` is the apiFetch path the "Restore
+	// default" link DELETEs to roll back the customization.
 	getBlockTemplateOverlayConfig: state =>
 		state.siteData?.blockTemplateOverlay ?? {
 			enabled: false,
 			editorUrl: null,
-			resetUrl: null,
+			resetRestPath: null,
 			isCustomized: false,
 		},
 	isWooCommerceActive: state => state.siteData?.isWooCommerceActive ?? false,

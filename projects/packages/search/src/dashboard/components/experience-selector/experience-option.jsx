@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
 import { Button, Modal, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -140,9 +141,16 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 		} ),
 		[]
 	);
-	const { saveExperience } = useDispatch( STORE_ID );
+	const { saveExperience, successNotice, errorNotice } = useDispatch( STORE_ID );
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
 	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
+	const [ isResetting, setIsResetting ] = useState( false );
+	// Local override after a successful reset: the server-side `isCustomized`
+	// stays true in the initial-state blob the page was rendered with, so
+	// we hide the "Restore default" link client-side once the AJAX DELETE
+	// returns. Cleared if the admin opens the editor again (which would
+	// lazy-create a fresh singleton).
+	const [ justReset, setJustReset ] = useState( false );
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
@@ -242,21 +250,27 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 							label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
 							href={ blockTemplateOverlay.editorUrl }
 							disabled={ linksDisabled }
+							// Re-show "Restore default" on the admin's return
+							// from the editor: the click implies a fresh
+							// singleton is about to be (re-)created on the
+							// server, so the previously-set `justReset` flag
+							// no longer reflects reality.
+							onClick={ () => setJustReset( false ) }
 						/>
 					) }
 					{ blockTemplateOverlay.enabled &&
-						blockTemplateOverlay.resetUrl &&
-						blockTemplateOverlay.isCustomized && (
+						blockTemplateOverlay.resetRestPath &&
+						blockTemplateOverlay.isCustomized &&
+						! justReset && (
 							<CardLink
 								label={ __( 'Restore default', 'jetpack-search-pkg' ) }
-								href={ blockTemplateOverlay.resetUrl }
-								disabled={ linksDisabled }
+								href="#"
+								disabled={ linksDisabled || isResetting }
 								onClick={ event => {
 									// Destructive — open the confirm dialog
-									// instead of navigating directly. The
-									// dialog's confirm handler is the one
-									// that actually follows the `resetUrl`
-									// (server-side delete + redirect back).
+									// instead of running the AJAX delete
+									// directly. The dialog's confirm handler
+									// is the one that fires `apiFetch`.
 									event.preventDefault();
 									setResetConfirmOpen( true );
 								} }
@@ -374,22 +388,44 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			) }
 			{ /*
 				   SEARCH-216 — confirm before nuking the customized overlay
-				   template. Navigating to `resetUrl` triggers a server-side
-				   delete + redirect, so we route through `window.location`
-				   here rather than letting the `<a>` follow the href directly.
+				   template. Sends a DELETE to the CPT's built-in REST
+				   endpoint via `apiFetch`; on success, the local `justReset`
+				   flag hides the link and a notice goes through the
+				   dashboard's global-notices store. No page navigation.
 				*/ }
 			{ experience === EXPERIENCE.OVERLAY_BLOCKS && blockTemplateOverlay.enabled && (
 				<ConfirmDialog
 					isOpen={ isResetConfirmOpen }
-					onConfirm={ () => {
+					onConfirm={ async () => {
 						setResetConfirmOpen( false );
 						// Defensive guard: the dialog can only open via the
-						// `isCustomized && resetUrl` CardLink above, so
-						// `resetUrl` is non-null in practice — avoid
-						// navigating to the literal string "null" if the
-						// gating logic ever shifts.
-						if ( blockTemplateOverlay.resetUrl ) {
-							window.location.href = blockTemplateOverlay.resetUrl;
+						// `isCustomized && resetRestPath` CardLink above, so
+						// `resetRestPath` is non-null in practice — avoid
+						// firing a DELETE to `undefined` if the gating logic
+						// ever shifts.
+						if ( ! blockTemplateOverlay.resetRestPath ) {
+							return;
+						}
+						setIsResetting( true );
+						try {
+							await apiFetch( {
+								path: blockTemplateOverlay.resetRestPath,
+								method: 'DELETE',
+							} );
+							setJustReset( true );
+							successNotice(
+								__(
+									'The Search overlay template has been restored to the bundled default.',
+									'jetpack-search-pkg'
+								)
+							);
+						} catch ( error ) {
+							errorNotice(
+								error?.message ||
+									__( 'Could not restore the Search overlay template.', 'jetpack-search-pkg' )
+							);
+						} finally {
+							setIsResetting( false );
 						}
 					} }
 					onCancel={ () => setResetConfirmOpen( false ) }
