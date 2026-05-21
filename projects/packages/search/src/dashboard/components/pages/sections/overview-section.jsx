@@ -5,7 +5,7 @@ import { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 
-// import './plan-usage-section.scss';
+// import './overview-section.scss';
 
 const usageInfoFromAPIData = apiData => {
 	// Transform the data as necessary.
@@ -234,7 +234,7 @@ const upgradeMessageFromAPIData = apiData => {
 	return upgradeMessageNoOverage();
 };
 
-const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
+const OverviewSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	// For free plan, we want to show the CTA early.
 	// For complete plan, we only show the final CTA once search is already disabled.
 	// It's just because it was added later, and we didn't want to redesign existing CTAs at the time.
@@ -423,4 +423,4 @@ const AboutPlanLimits = () => {
 	);
 };
 
-export default PlanUsageSection;
+export default OverviewSection;

@@ -18,13 +18,15 @@ import WooCommerceProductSearchControl from 'components/woocommerce-product-sear
 import { STORE_ID } from 'store';
 import { EXPERIENCE } from '../experience-selector/constants';
 import FirstRunSection from './sections/first-run-section';
-import PlanUsageSection from './sections/plan-usage-section';
+import OverviewSection from './sections/overview-section';
 import './dashboard-page.scss';
 
-const DEFAULT_TAB = 'plan-usage';
+const DEFAULT_TAB = 'overview';
 // Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
 const TAB_QUERY_PARAM = 'tab';
+// Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
+const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
 
 const getInitialTab = () => {
 	if ( typeof window === 'undefined' ) {
@@ -32,8 +34,9 @@ const getInitialTab = () => {
 	}
 
 	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+	const resolvedTab = LEGACY_TAB_ALIASES[ requestedTab ] ?? requestedTab;
 
-	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+	return VALID_TABS.includes( resolvedTab ) ? resolvedTab : DEFAULT_TAB;
 };
 
 /**
@@ -208,7 +211,7 @@ export default function DashboardPage( { isLoading = false } ) {
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
-							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="ai-answers">
 								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
@@ -218,7 +221,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<Tabs.Panel value="plan-usage">
+					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 							<div className="jp-search-dashboard-row">
@@ -381,7 +384,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection
+					<OverviewSection
 						isFreePlan={ isFreePlan }
 						isPlanJustUpgraded={ isPlanJustUpgraded }
 						planInfo={ planInfo }

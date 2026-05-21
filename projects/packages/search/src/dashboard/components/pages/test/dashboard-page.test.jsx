@@ -57,7 +57,7 @@ jest.mock( 'components/woocommerce-product-search-control', () => props => {
 } );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( '../sections/first-run-section', () => () => <div data-testid="first-run-section" /> );
-jest.mock( '../sections/plan-usage-section', () => () => <div data-testid="plan-usage-section" /> );
+jest.mock( '../sections/overview-section', () => () => <div data-testid="overview-section" /> );
 
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -309,7 +309,7 @@ describe( 'DashboardPage', () => {
 			'aria-selected',
 			'true'
 		);
-		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
 			'aria-selected',
 			'false'
 		);
@@ -322,13 +322,24 @@ describe( 'DashboardPage', () => {
 
 		render( <DashboardPage /> );
 
-		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
 			'aria-selected',
 			'true'
 		);
 		expect( replaceStateSpy ).not.toHaveBeenCalled();
 		expect( window.location.search ).toContain( 'tab=unknown' );
 		replaceStateSpy.mockRestore();
+	} );
+
+	test( 'resolves the legacy plan-usage slug to the Overview tab (backwards compat)', () => {
+		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }&tab=plan-usage` );
+
+		render( <DashboardPage /> );
+
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
 	} );
 
 	test( 'updates the URL tab query string when tabs are changed', async () => {
