@@ -31,23 +31,19 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: () => mockGetSiteType(),
 } ) );
 
-jest.mock( '@automattic/jetpack-components/jetpack-logo', () => ( {
+// `AdminPage` owns the header (logo + title) and the `JetpackFooter`. The mock
+// renders the header slots and a footer marker gated on `showFooter` so the
+// footer-contract tests below can assert the `hideFooter` → `showFooter={false}`
+// wiring without pulling in admin-ui internals.
+jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: () => null,
-} ) );
-
-jest.mock( '@automattic/jetpack-components/jetpack-footer', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="jetpack-footer" />,
-} ) );
-
-jest.mock( '@wordpress/admin-ui', () => ( {
-	Page: ( { children, actions, title, subTitle } ) => (
+	default: ( { children, actions, title, subTitle, showFooter } ) => (
 		<div data-testid="admin-page">
 			<div data-testid="page-title">{ title }</div>
 			<div data-testid="page-subtitle">{ subTitle }</div>
 			<div data-testid="page-actions">{ actions }</div>
 			{ children }
+			{ showFooter && <div data-testid="jetpack-footer" /> }
 		</div>
 	),
 } ) );
@@ -64,7 +60,6 @@ jest.mock( '@wordpress/ui', () => {
 	// into the captured callback so each render rewires `mockTabsOnValueChange`.
 	const tabsRootContext = { onValueChange: () => {} };
 	return {
-		Stack: ( { children } ) => children,
 		Tabs: {
 			Root: ( { onValueChange, children } ) => {
 				tabsRootContext.onValueChange = onValueChange;

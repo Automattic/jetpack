@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newsletter: pin the Subscribers DataViews pagination footer to the viewport bottom by mounting the modernized page on the shared AdminPage layout.
