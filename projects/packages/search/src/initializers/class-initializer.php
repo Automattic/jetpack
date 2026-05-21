@@ -162,9 +162,9 @@ class Initializer {
 		 * requires the site to be connected and on a plan that supports
 		 * Search (paid plans or the free `jetpack_search_free` product).
 		 *
-		 * @param bool $enabled Default false.
+		 * @param bool $enabled Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_search_blocks_enabled', true ) ) {
 			return;
 		}
 

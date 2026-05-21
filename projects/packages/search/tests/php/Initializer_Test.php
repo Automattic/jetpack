@@ -79,7 +79,10 @@ class Initializer_Test extends Search_TestCase {
 	}
 
 	public function test_init_search_blocks_does_not_register_when_feature_flag_off() {
-		// Feature flag defaults to false — no filter registered.
+		// The flag defaults to true, so opt out explicitly to exercise the
+		// kill-switch path.
+		add_filter( 'jetpack_search_blocks_enabled', '__return_false' );
+
 		$this->invoke_init_search_blocks();
 
 		$this->assertFalse(
@@ -96,7 +99,9 @@ class Initializer_Test extends Search_TestCase {
 		// false when the blocks gate is off, regardless of the overlay
 		// filter.
 		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
-		// `jetpack_search_blocks_enabled` defaults false — not registered.
+		// The flag defaults to true, so opt out explicitly to keep the
+		// blocks gate off for this carve-out check.
+		add_filter( 'jetpack_search_blocks_enabled', '__return_false' );
 
 		$this->invoke_init_search_blocks();
 
