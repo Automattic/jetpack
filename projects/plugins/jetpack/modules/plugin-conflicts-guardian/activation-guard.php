@@ -3,7 +3,7 @@
  * Activation guard — blocks plugin activations that fail a pre-flight
  * load probe, so a bad Activate click can't fatal the site.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 add_action( 'load-plugins.php', 'pcg_guard_maybe_block_activation', 0 );
@@ -123,7 +123,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		// Surface a batch-level message so we don't blame an arbitrary plugin.
 		$reason = sprintf(
 			/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
-			__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
+			__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack' ),
 			wp_sprintf_l( '%l', array_keys( $paths ) ),
 			pcg_guard_format_block_reason( $result )
 		);
@@ -226,13 +226,13 @@ function pcg_guard_format_block_reason( $result ) {
 		$where = $line > 0
 			? sprintf(
 				/* translators: location fragment, e.g. "in plugin.php, line 42". 1: file name, 2: line number. */
-				__( 'in %1$s, line %2$d', 'jetpack-mu-wpcom' ),
+				__( 'in %1$s, line %2$d', 'jetpack' ),
 				$file,
 				$line
 			)
 			: sprintf(
 				/* translators: location fragment without a line number, e.g. "in plugin.php". %s: file name. */
-				__( 'in %s', 'jetpack-mu-wpcom' ),
+				__( 'in %s', 'jetpack' ),
 				$file
 			);
 	}
@@ -243,11 +243,11 @@ function pcg_guard_format_block_reason( $result ) {
 	if ( '' !== $where ) {
 		return sprintf(
 			/* translators: %s: location fragment from the strings above, which already begins with "in". */
-			__( 'A fatal PHP error was detected %s.', 'jetpack-mu-wpcom' ),
+			__( 'A fatal PHP error was detected %s.', 'jetpack' ),
 			$where
 		);
 	}
-	return __( 'A fatal PHP error was detected.', 'jetpack-mu-wpcom' );
+	return __( 'A fatal PHP error was detected.', 'jetpack' );
 }
 
 /**
@@ -267,7 +267,7 @@ function pcg_guard_render_block_notice() {
 	}
 	?>
 	<div class="notice notice-error">
-		<p><strong><?php esc_html_e( 'WordPress.com blocked activation because the pre-flight check detected a fatal:', 'jetpack-mu-wpcom' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Jetpack blocked activation because the pre-flight check detected a fatal:', 'jetpack' ); ?></strong></p>
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li>
@@ -279,7 +279,7 @@ function pcg_guard_render_block_notice() {
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
+		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack' ); ?></p>
 	</div>
 	<?php
 }

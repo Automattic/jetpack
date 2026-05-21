@@ -7,7 +7,7 @@
  * (version), and a local copy of the existing files so the rollback can
  * happen without re-downloading anything (backup_path).
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 /**

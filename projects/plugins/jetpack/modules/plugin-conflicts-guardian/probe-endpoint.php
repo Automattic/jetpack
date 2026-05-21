@@ -4,12 +4,20 @@
  *
  * Handles `?pcg_probe=1&token=…` requests fired by PCG_Load_Tester.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
-// Run inline: we're already inside `plugins_loaded` (load_features() priority 10),
-// so registering a hook at priority 0 would be too late.
-pcg_maybe_handle_probe();
+/*
+ * PCG bootstraps from `load-jetpack.php`, which runs while the Jetpack plugin
+ * file is still being included — before `plugins_loaded` fires. Hook the probe
+ * handler at the lowest possible priority so it runs ahead of every other
+ * plugin's `plugins_loaded` callbacks. A plugin under test is `require`d from
+ * inside this callback, so registering at PHP_INT_MIN means the plugin's own
+ * `plugins_loaded` callbacks still fire during the probe no matter which
+ * priority they registered at — closing the gap the old `plugins_loaded`
+ * priority-10 load point left for early-priority callbacks.
+ */
+add_action( 'plugins_loaded', 'pcg_maybe_handle_probe', PHP_INT_MIN );
 
 /**
  * Entry point. Bails when the request isn't a probe.

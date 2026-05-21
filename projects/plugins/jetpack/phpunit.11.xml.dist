@@ -51,6 +51,9 @@
 		<testsuite name="markdown">
 			<directory suffix="Test.php">tests/php/modules/markdown</directory>
 		</testsuite>
+		<testsuite name="plugin-conflicts-guardian">
+			<directory suffix="Test.php">tests/php/modules/plugin-conflicts-guardian</directory>
+		</testsuite>
 		<testsuite name="publicize">
 			<directory suffix="Test.php">tests/php/modules/publicize</directory>
 		</testsuite>

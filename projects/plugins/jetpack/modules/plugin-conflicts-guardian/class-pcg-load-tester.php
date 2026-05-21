@@ -2,7 +2,7 @@
 /**
  * HTTP-based plugin-load probe.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 /**

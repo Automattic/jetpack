@@ -4,7 +4,7 @@
  *
  * See README.md for how it works.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 /**

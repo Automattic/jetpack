@@ -11,7 +11,7 @@
  *   2. WordPress.org versioned ZIP. Fallback for cases where the local
  *      backup is missing or restoration failed.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 /**

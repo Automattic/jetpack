@@ -9,7 +9,7 @@
  *
  * See README.md for the full flow.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 add_filter( 'upgrader_pre_install', 'pcg_healthcheck_capture_snapshot', 10, 2 );
@@ -266,7 +266,7 @@ function pcg_healthcheck_render_notice() {
 	delete_transient( $key );
 	?>
 	<div class="notice notice-error">
-		<p><strong><?php esc_html_e( 'WordPress.com detected a fatal after a plugin update and attempted to restore the previous version:', 'jetpack-mu-wpcom' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Jetpack detected a fatal after a plugin update and attempted to restore the previous version:', 'jetpack' ); ?></strong></p>
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php
 			foreach ( $messages as $plugin => $info ) :
@@ -275,7 +275,7 @@ function pcg_healthcheck_render_notice() {
 				$headline    = '' !== $new_version
 					? sprintf(
 						/* translators: 1: plugin name, 2: version we attempted to upgrade to. */
-						__( '%1$s (update to %2$s)', 'jetpack-mu-wpcom' ),
+						__( '%1$s (update to %2$s)', 'jetpack' ),
 						$name,
 						$new_version
 					)
@@ -305,19 +305,19 @@ function pcg_healthcheck_describe_rollback( $rollback ) {
 		case 'reactivated':
 			return sprintf(
 				/* translators: %s: previous plugin version. */
-				__( 'Restored to version %s and reactivated.', 'jetpack-mu-wpcom' ),
+				__( 'Restored to version %s and reactivated.', 'jetpack' ),
 				$to
 			);
 		case 'restored':
 			return sprintf(
 				/* translators: %s: previous plugin version. */
-				__( 'Restored to version %s; left deactivated.', 'jetpack-mu-wpcom' ),
+				__( 'Restored to version %s; left deactivated.', 'jetpack' ),
 				$to
 			);
 		case 'rollback_unavailable':
-			return __( 'Rollback unavailable (previous version not downloadable); plugin left deactivated.', 'jetpack-mu-wpcom' );
+			return __( 'Rollback unavailable (previous version not downloadable); plugin left deactivated.', 'jetpack' );
 		case 'rollback_failed':
 		default:
-			return __( 'Rollback failed; plugin left deactivated. Please investigate.', 'jetpack-mu-wpcom' );
+			return __( 'Rollback failed; plugin left deactivated. Please investigate.', 'jetpack' );
 	}
 }

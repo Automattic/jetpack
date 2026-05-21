@@ -3,7 +3,7 @@
  * Update guard — refuses plugin installs / updates when the unpacked
  * package contains PHP parse errors.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
 add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
@@ -63,8 +63,8 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 		'pcg_update_parse_error',
 		sprintf(
 			/* translators: 1: install or update, 2: file name, 3: line number, 4: PHP parse-error message. */
-			__( 'WordPress.com blocked the %1$s: the package contains a PHP parse error in %2$s (line %3$d): %4$s', 'jetpack-mu-wpcom' ),
-			'update' === $action ? __( 'update', 'jetpack-mu-wpcom' ) : __( 'install', 'jetpack-mu-wpcom' ),
+			__( 'Jetpack blocked the %1$s: the package contains a PHP parse error in %2$s (line %3$d): %4$s', 'jetpack' ),
+			'update' === $action ? __( 'update', 'jetpack' ) : __( 'install', 'jetpack' ),
 			basename( $first['file'] ),
 			(int) $first['line'],
 			(string) $first['message']

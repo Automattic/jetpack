@@ -2,26 +2,25 @@
 /**
  * Tests for the pure helpers in the Plugin Conflicts Guardian feature.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollback.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-healthcheck.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/pcg-log.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/class-pcg-load-tester.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/activation-guard.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/update-guard.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/class-pcg-snapshot.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/class-pcg-rollback.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/update-healthcheck.php';
 
 /**
  * Exercises the pure / near-pure helpers: transient keying, error-reason
  * formatting, errno-name mapping, the update guard's parse-error sweep, and
  * the upgrader_source_selection filter callback.
  */
-class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
+class Plugin_Conflicts_Guardian_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Absolute path to a temporary directory used by scan tests.

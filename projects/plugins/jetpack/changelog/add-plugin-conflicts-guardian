@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Plugin Conflicts Guardian: new pre-flight safety net that runs an isolated HTTP load probe before a plugin activation and after a plugin update — blocking activations and rolling back updates that would fatal the site. Refuses installs/updates whose package contains PHP parse errors.

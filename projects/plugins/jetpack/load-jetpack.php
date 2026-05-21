@@ -50,6 +50,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.ph
 require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/verification-tools-utils.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/shortcode-utils.php'; // Shortcodes are often referenced in other modules, so making it available early.
 
+// Plugin Conflicts Guardian. Loaded here (not via the module system) so it
+// runs unconditionally and early: its probe endpoint registers on
+// `plugins_loaded` at PHP_INT_MIN, and it must guard activations/updates even
+// on sites with no Jetpack connection. See modules/plugin-conflicts-guardian/README.md.
+require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-xmlrpc-methods.php';
 Jetpack_XMLRPC_Methods::init();
 
