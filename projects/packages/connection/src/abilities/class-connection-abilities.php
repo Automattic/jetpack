@@ -13,7 +13,6 @@
 
 namespace Automattic\Jetpack\Connection\Abilities;
 
-use Automattic\Jetpack\Connection\Jetpack_Connector;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Package_Version;
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -203,15 +202,17 @@ class Connection_Abilities extends Registrar {
 	 * free and cheap to poll. The destination page handles the actual
 	 * registration handshake from there.
 	 *
-	 * WP 7.0+ ships a core "Connectors" screen with a Jetpack card registered
-	 * by {@see Jetpack_Connector}; prefer that on supported sites and fall
-	 * back to the Jetpack admin page on older WP.
+	 * WP 7.0+ ships a core "Connectors" screen at `wp-admin/options-connectors.php`
+	 * with a Jetpack card registered by {@see Jetpack_Connector}. We probe
+	 * for the file directly (rather than a `class_exists()` on the registry)
+	 * because the file is what actually serves the URL — if it isn't on
+	 * disk, the redirect 404s regardless of which classes have loaded.
 	 *
 	 * @return string
 	 */
 	private static function registration_url(): string {
-		if ( class_exists( 'WP_Connector_Registry' ) ) {
-			return admin_url( 'options-general.php?page=' . Jetpack_Connector::GUTENBERG_CONNECTORS_PAGE_SLUG );
+		if ( defined( 'ABSPATH' ) && file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ) {
+			return admin_url( 'options-connectors.php' );
 		}
 		return admin_url( 'admin.php?page=jetpack' );
 	}
