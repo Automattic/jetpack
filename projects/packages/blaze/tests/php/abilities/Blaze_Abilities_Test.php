@@ -1479,7 +1479,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'pending_merchant_review', $result['status'] );
 		$this->assertNotEmpty( $result['prefill_url'] );
 		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
-		$this->assertStringContainsString( $result['prefill_url'], $result['message'] );
+		$this->assertStringContainsString( '[Preview campaign in Blaze](' . $result['prefill_url'] . ')', $result['message'] );
 		$this->assertArrayNotHasKey( 'budget_options', $result );
 		$this->assertSame( 'unavailable', $result['forecast']['status'] );
 		$this->assertSame( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['forecast_summary'] );
@@ -1491,7 +1491,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Forecast: Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['message'] );
 		$this->assertStringContainsString( 'Assumptions:', $result['message'] );
 		$this->assertStringContainsString( 'Recommendations:', $result['message'] );
-		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
+		$this->assertStringContainsString( 'Preview campaign in Blaze', $result['message'] );
+		$this->assertStringNotContainsString( 'Review URL:', $result['message'] );
 		$this->assertStringNotContainsString( 'Budget options:', $result['message'] );
 
 		$prefill = $result['prefill'];
@@ -1684,7 +1685,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( array(), $result['submit_eligibility']['available_payment_methods'] );
 		$this->assertArrayNotHasKey( 'approval_block', $result );
 		$this->assertArrayNotHasKey( 'next_action', $result );
-		$this->assertStringContainsString( 'Review URL: ' . $result['fallback_url'], $result['message'] );
+		$this->assertStringContainsString( '[Preview campaign in Blaze](' . $result['fallback_url'] . ')', $result['message'] );
+		$this->assertStringNotContainsString( 'Review URL:', $result['message'] );
 	}
 
 	/**
@@ -1746,7 +1748,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'views', $result['forecast']['primary_metric'] );
 		$this->assertSame( 'Estimated 1,200-2,400 views and 30-60 clicks for the recommended option.', $result['forecast_summary'] );
 		$this->assertStringContainsString( 'Forecast: Estimated 1,200-2,400 views and 30-60 clicks for the recommended option.', $result['message'] );
-		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
+		$this->assertStringContainsString( '[Preview campaign in Blaze](' . $result['prefill_url'] . ')', $result['message'] );
+		$this->assertStringNotContainsString( 'Review URL:', $result['message'] );
 	}
 
 	/**
@@ -1774,7 +1777,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'forecast_unavailable', $result['forecast']['reason'] );
 		$this->assertSame( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['forecast_summary'] );
 		$this->assertStringContainsString( 'Forecast: Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['message'] );
-		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
+		$this->assertStringContainsString( '[Preview campaign in Blaze](' . $result['prefill_url'] . ')', $result['message'] );
+		$this->assertStringNotContainsString( 'Review URL:', $result['message'] );
 	}
 
 	/**

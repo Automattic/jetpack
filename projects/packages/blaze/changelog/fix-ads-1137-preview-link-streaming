@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blaze: avoid streaming raw prefill URLs in chat-facing prepare messages.

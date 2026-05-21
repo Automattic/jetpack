@@ -555,7 +555,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'message'              => array(
 							'type'        => 'string',
-							'description' => __( 'Primary human-readable response for the MCP client to show to the merchant. Display this Markdown field verbatim in chat before the review link; it includes a campaign preview table and the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
+							'description' => __( 'Primary human-readable response for the MCP client to show to the merchant. Display this Markdown field verbatim in chat. It includes a campaign preview table and a Markdown preview link; the raw prefill_url stays in structured fields to avoid streaming partial long links.', 'jetpack-blaze' ),
 						),
 						'campaign_preview'     => array(
 							'type'        => 'object',
@@ -1955,9 +1955,16 @@ class Blaze_Abilities extends Registrar {
 			}
 		}
 
-		$message .= self::format_text_list( __( 'Assumptions:', 'jetpack-blaze' ), $proposal['assumptions'] ?? array() );
-		$message .= self::format_text_list( __( 'Recommendations:', 'jetpack-blaze' ), $proposal['recommendations'] ?? array() );
-		$message .= "\n" . __( 'Review URL:', 'jetpack-blaze' ) . ' ' . (string) ( $proposal['prefill_url'] ?? '' );
+		$message    .= self::format_text_list( __( 'Assumptions:', 'jetpack-blaze' ), $proposal['assumptions'] ?? array() );
+		$message    .= self::format_text_list( __( 'Recommendations:', 'jetpack-blaze' ), $proposal['recommendations'] ?? array() );
+		$preview_url = (string) ( $proposal['prefill_url'] ?? '' );
+		if ( '' !== $preview_url ) {
+			$message .= "\n" . sprintf(
+				/* translators: %s: Markdown link to preview the campaign in Blaze. */
+				__( 'Preview link: %s', 'jetpack-blaze' ),
+				'[Preview campaign in Blaze](' . $preview_url . ')'
+			);
+		}
 
 		if ( ! empty( $proposal['next_action'] ) && is_array( $proposal['next_action'] ) ) {
 			$message .= "\n\n" . __( 'Chat submit is available.', 'jetpack-blaze' );
