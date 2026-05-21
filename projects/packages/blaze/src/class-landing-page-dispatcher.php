@@ -17,6 +17,7 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Client as Jetpack_Connection_Client;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use WP_Post;
 
 /**
@@ -24,8 +25,14 @@ use WP_Post;
  */
 class Landing_Page_Dispatcher {
 
-	const ENDPOINT_PATH = '/blaze/landing-pages/enqueue';
-	const API_VERSION   = '2';
+	/**
+	 * Path suffix appended to `/sites/{blog_id}/` when calling WPCOM.
+	 * The WPCOM endpoint is site-specific, so the blog id segment is required.
+	 *
+	 * @var string
+	 */
+	const ENDPOINT_PATH_SUFFIX = '/blaze/landing-pages/enqueue';
+	const API_VERSION          = '2';
 
 	/**
 	 * Wire hooks.
@@ -66,14 +73,25 @@ class Landing_Page_Dispatcher {
 		 */
 		$payload = (array) apply_filters( 'jetpack_blaze_landing_dispatch_payload', $payload, (int) $product_id );
 
+		$blog_id = Jetpack_Connection::get_site_id();
+		if ( is_wp_error( $blog_id ) || ! is_numeric( $blog_id ) ) {
+			self::log(
+				'no_blog_id',
+				is_wp_error( $blog_id ) ? $blog_id->get_error_message() : 'not numeric',
+				$product_id
+			);
+			return;
+		}
+		$path = '/sites/' . (int) $blog_id . self::ENDPOINT_PATH_SUFFIX;
+
 		$response = Jetpack_Connection_Client::wpcom_json_api_request_as_blog(
-			self::ENDPOINT_PATH,
+			$path,
 			self::API_VERSION,
 			array(
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
-			wp_json_encode( $payload ),
+			wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 
@@ -87,9 +105,10 @@ class Landing_Page_Dispatcher {
 			return;
 		}
 
+		$body = (string) wp_remote_retrieve_body( $response );
 		self::log(
 			'http_' . $code,
-			(string) wp_remote_retrieve_body( $response ),
+			'' === $body ? '(empty body)' : $body,
 			$product_id
 		);
 	}
