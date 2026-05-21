@@ -782,28 +782,28 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that an image with align (left/center/right) returns false.
-	 * Write has no image-alignment UI; align is silently stripped on load
-	 * so posts authored elsewhere don't bounce to the block editor, and
-	 * the value is just dropped on next save.
+	 * Test that an image with align (left/center/right) returns 'block-editor'.
+	 * Write has no image-alignment UI, so posts with aligned images bounce
+	 * to the block editor via the unsupported-content modal.
 	 */
 	public function test_detect_unsupported_image_with_align() {
 		foreach ( array( 'left', 'center', 'right' ) as $align ) {
 			$content = '<!-- wp:image {"align":"' . $align . '"} --><figure class="wp-block-image align' . $align . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-			$this->assertFalse(
+			$this->assertSame(
+				'block-editor',
 				wpcom_write_detect_unsupported_content( $content ),
-				"align={$align} should be silently stripped, not flagged"
+				"align={$align} should bounce to block editor"
 			);
 		}
 	}
 
 	/**
-	 * Test that an image with both align and sizeSlug returns false.
-	 * (align is silently stripped; sizeSlug round-trips normally.)
+	 * Test that an image with align + sizeSlug returns 'block-editor'.
+	 * sizeSlug round-trips, but align triggers the unsupported modal.
 	 */
 	public function test_detect_unsupported_image_with_align_and_size_slug() {
 		$content = '<!-- wp:image {"align":"center","sizeSlug":"medium","id":42} --><figure class="wp-block-image aligncenter size-medium"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
-		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
 	}
 
 	/**
@@ -837,7 +837,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * block editor stamps onto images) round-trips into Write.
 	 */
 	public function test_detect_unsupported_image_with_no_op_link_destination() {
-		$content = '<!-- wp:image {"id":443,"sizeSlug":"medium","linkDestination":"none","align":"right"} --><figure class="wp-block-image alignright size-medium"><img src="test.jpg" alt="" class="wp-image-443"/></figure><!-- /wp:image -->';
+		$content = '<!-- wp:image {"id":443,"sizeSlug":"medium","linkDestination":"none"} --><figure class="wp-block-image size-medium"><img src="test.jpg" alt="" class="wp-image-443"/></figure><!-- /wp:image -->';
 		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
 	}
 

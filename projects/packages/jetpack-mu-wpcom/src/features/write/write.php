@@ -267,10 +267,8 @@ function wpcom_write_allowed_block_attrs() {
 		// alt: preserved via HTML element, not block JSON.
 		// sizeSlug: thumbnail/medium/large/full size presets.
 		// align: intentionally not in the allowlist — Write has no image-
-		// alignment UI.  Posts authored elsewhere with image align values
-		// left/center/right are silently stripped on load (see
-		// wpcom_write_has_unsupported_blocks); wide/full still bounce to
-		// the block editor.
+		// alignment UI.  Posts with any image alignment bounce to the block
+		// editor via the unsupported-content modal.
 		'image'     => array( 'id', 'sizeSlug', 'alt' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align', 'citation' ),
@@ -389,19 +387,6 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 		// still flag as unsupported below since Write has no image-link UI.
 		if ( 'image' === $name && ( $attrs['linkDestination'] ?? '' ) === 'none' ) {
 			unset( $attrs['linkDestination'] );
-		}
-
-		// Write has no image-alignment UI; silently drop left/center/right
-		// here so posts authored elsewhere load without bouncing to the
-		// block editor.  The alignment is also dropped on save since
-		// convertToBlocks() doesn't emit the align attr for images.
-		// wide/full are not stripped — their layout change is too
-		// significant to silently drop, so they still bounce below.
-		if (
-			'image' === $name
-			&& in_array( $attrs['align'] ?? '', array( 'left', 'center', 'right' ), true )
-		) {
-			unset( $attrs['align'] );
 		}
 
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );

@@ -1512,7 +1512,7 @@
 .bw-img-size-option {
 	display: block;
 	width: 100%;
-	padding: 6px 10px;
+	padding: 6px 10px 6px 24px;
 	border: none;
 	border-radius: 4px;
 	background: transparent;
@@ -1521,11 +1521,23 @@
 	font-family: inherit;
 	font-size: 12px;
 	color: #fff;
+	position: relative;
 	transition: background 0.1s ease;
 }
 
 .bw-img-size-option:hover {
 	background: rgba(255, 255, 255, 0.15);
+}
+
+.bw-img-size-option[aria-checked="true"] {
+	font-weight: 700;
+}
+
+.bw-img-size-option[aria-checked="true"]::before {
+	content: "✓";
+	position: absolute;
+	left: 8px;
+	font-weight: 700;
 }
 
 /* Figcaption.

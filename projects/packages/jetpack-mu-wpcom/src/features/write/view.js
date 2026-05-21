@@ -1425,7 +1425,8 @@ function addDeleteButtons() {
 				opt.className = 'bw-img-size-option';
 				opt.textContent = label;
 				opt.contentEditable = 'false';
-				opt.setAttribute( 'role', 'menuitem' );
+				opt.setAttribute( 'role', 'menuitemradio' );
+				opt.dataset.size = slug;
 				opt.tabIndex = -1;
 				opt.addEventListener( 'click', ev => {
 					ev.preventDefault();
@@ -1438,9 +1439,18 @@ function addDeleteButtons() {
 			} );
 
 			const openSizeMenu = () => {
+				// Mark the option that matches the figure's current size class
+				// (none on figures loaded without an explicit sizeSlug).
+				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				options.forEach( opt => {
+					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
+				} );
 				menu.hidden = false;
 				sizeBtn.setAttribute( 'aria-expanded', 'true' );
-				menu.querySelector( '.bw-img-size-option' )?.focus();
+				// Focus the current option so arrow keys move from there.
+				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
+				focusTarget?.focus();
 			};
 			const closeSizeMenu = ( returnFocus = false ) => {
 				menu.hidden = true;
@@ -1491,30 +1501,8 @@ function addDeleteButtons() {
 				closeSizeMenu();
 			} );
 
-			// Tab from Size (now the last image control) hops into the
-			// content area rather than out to browser chrome.  Shift+Tab
-			// keeps its default backward-traversal behavior.
-			sizeBtn.addEventListener( 'keydown', e => {
-				if ( e.key !== 'Tab' || e.shiftKey ) return;
-				const next = fig.nextElementSibling;
-				if ( ! next ) return;
-				e.preventDefault();
-				placeCursorAt( next );
-				getContent()?.focus();
-			} );
-
 			controls.appendChild( sizeBtn );
 			controls.appendChild( menu );
-		} else {
-			// No size button: Tab from Caption hops into the content area.
-			capBtn.addEventListener( 'keydown', e => {
-				if ( e.key !== 'Tab' || e.shiftKey ) return;
-				const next = fig.nextElementSibling;
-				if ( ! next ) return;
-				e.preventDefault();
-				placeCursorAt( next );
-				getContent()?.focus();
-			} );
 		}
 
 		// Enter inside the figcaption exits to the next block. Attached on every
