@@ -118,7 +118,7 @@ class Overlay_Template {
 				'show_in_admin_bar'   => false,
 				'show_in_nav_menus'   => false,
 				'show_in_rest'        => true,
-				'rest_base'           => 'jetpack-search-overlay',
+				'rest_base'           => static::REST_BASE,
 				'supports'            => array( 'editor', 'custom-fields', 'revisions' ),
 				// Lock every relevant capability to `manage_options` so editing
 				// requires admin, regardless of which entry point (post.php
