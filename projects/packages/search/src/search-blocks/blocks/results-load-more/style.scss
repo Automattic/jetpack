@@ -13,6 +13,15 @@
 	.jetpack-search-load-more__button {
 		cursor: pointer;
 
+		// The button carries `wp-block-button__link` / `wp-element-button`, which
+		// set `display: inline-block` and override the native `hidden` attribute's
+		// `display: none`. The render binding toggles `hidden` during load-more
+		// fetches; re-apply `display: none` so the button actually disappears
+		// while the spinner takes over.
+		&[hidden] {
+			display: none;
+		}
+
 		&:disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
