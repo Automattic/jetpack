@@ -2723,8 +2723,9 @@ p {
 	 *
 	 * Fresh installs receive the module via its "Auto Activate: Yes" header, so this only handles sites
 	 * upgrading from a version where the module defaulted off. It runs once per site (guarded by the
-	 * subscriptions_default_on_migrated option). After it has run, the user's choice to deactivate the
-	 * module again (for example from the My Jetpack Products page) is respected and never reverted.
+	 * subscriptions_default_on_migrated option). Fresh installs are marked as migrated immediately so the
+	 * migration never runs for them. After it has run, the user's choice to deactivate the module again
+	 * (for example from the My Jetpack Products page) is respected and never reverted.
 	 *
 	 * The module requires a connection, so on a disconnected site the migration is deferred without setting
 	 * the guard, allowing a later version bump to retry once the site is connected.
@@ -2733,11 +2734,14 @@ p {
 	 * @param string|false $old_version Previous Jetpack version:timestamp, or false on a fresh install.
 	 */
 	public static function activate_subscriptions_module_for_existing_sites( $version, $old_version ) {
-		if ( ! $old_version ) {
+		if ( get_option( 'jetpack_subscriptions_default_on_migrated' ) ) {
 			return;
 		}
 
-		if ( get_option( 'jetpack_subscriptions_default_on_migrated' ) ) {
+		// Fresh installs get the module via its "Auto Activate: Yes" header. Mark them as migrated so a
+		// later opt-out is never reverted by the existing-site path on a subsequent version bump.
+		if ( ! $old_version ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 			return;
 		}
 
@@ -2745,10 +2749,10 @@ p {
 			return;
 		}
 
-		update_option( 'jetpack_subscriptions_default_on_migrated', true );
-
-		if ( ! self::is_module_active( 'subscriptions' ) ) {
-			self::activate_module( 'subscriptions', false, false );
+		// Mark as migrated only once the module is active, so a transient activation failure is retried on
+		// a later version bump rather than being silently skipped.
+		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
 	}
 
