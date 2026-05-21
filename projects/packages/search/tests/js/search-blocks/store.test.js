@@ -144,6 +144,7 @@ describe( 'store actions', () => {
 			activeFilters: {},
 			filterConfigs: {},
 			priceRange: null,
+			staticFilterSelections: {},
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -580,6 +581,23 @@ describe( 'store actions', () => {
 		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
+	it( 'syncToUrl writes static-filter selections as scalar params alongside other state', () => {
+		// Regression guard: the staticFilterSelections slice must thread
+		// through pushStateToUrl so a shareable URL captures the radio
+		// selection. Scalar `?filter_id=value` format (no `[]`) is the
+		// legacy overlay's contract.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'docs';
+		state.staticFilterSelections = { section: 'guides' };
+		state.filterConfigs = { section: { filterKey: 'section', kind: 'static' } };
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'section=guides' );
+		expect( writtenUrl ).not.toContain( 'section[]' );
+	} );
+
 	it( 'closes open popovers on Escape only', () => {
 		state.isFilterPopoverOpen = true;
 		state.isSortPopoverOpen = true;
@@ -710,6 +728,31 @@ describe( 'store getters', () => {
 
 		state.priceRange = { min: null, max: null };
 		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
+	it( 'hasActiveFilters and activeFilterCount include staticFilterSelections', () => {
+		// Without this contribution, a deep link to `?section=guides` would
+		// leave the active-filters / clear-filters affordances hidden even
+		// though the static filter is constraining results.
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = {};
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
+
+		state.staticFilterSelections = { section: 'guides' };
+		expect( state.hasActiveFilters ).toBe( true );
+		expect( state.activeFilterCount ).toBe( 1 );
+
+		// Combined with dynamic filters — totals add.
+		state.activeFilters = { category: [ 'news', 'wp' ] };
+		expect( state.activeFilterCount ).toBe( 3 );
+
+		// Empty-string entries don't count (they round-trip as 'cleared').
+		state.activeFilters = {};
+		state.staticFilterSelections = { section: '' };
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
