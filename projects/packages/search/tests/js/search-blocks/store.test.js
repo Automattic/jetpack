@@ -933,18 +933,20 @@ describe( 'store callbacks', () => {
 		beforeEach( () => {
 			originalIO = global.IntersectionObserver;
 			observerInstances = [];
-			// jsdom doesn't ship IntersectionObserver; direct assignment lets
-			// us mock it without forcing the test to register a no-op global
-			// first just so `jest.spyOn` can attach to it.
-			// eslint-disable-next-line jest/prefer-spy-on -- nothing to spy on.
+			// jsdom doesn't ship IntersectionObserver, and the instance methods
+			// (`observe`, `unobserve`, `disconnect`) don't exist on a fresh
+			// `this` either — so `jest.spyOn` has nothing to attach to. Direct
+			// assignment is the right tool here.
+			/* eslint-disable jest/prefer-spy-on -- nothing to spy on. */
 			global.IntersectionObserver = jest.fn( function ( cb, opts ) {
 				this.cb = cb;
 				this.opts = opts;
-				jest.spyOn( this, 'observe' ).mockImplementation();
-				jest.spyOn( this, 'unobserve' ).mockImplementation();
-				jest.spyOn( this, 'disconnect' ).mockImplementation();
+				this.observe = jest.fn();
+				this.unobserve = jest.fn();
+				this.disconnect = jest.fn();
 				observerInstances.push( this );
 			} );
+			/* eslint-enable jest/prefer-spy-on */
 		} );
 
 		afterEach( () => {
