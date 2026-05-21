@@ -5,15 +5,31 @@
  * the Interactivity store. The preview here is static markup mirroring the
  * `done` state with a sample answer + citations so authors can see what
  * they're placing without an SSE connection in the editor.
+ *
+ * AI Answer is a paid feature. On sites without a paid Search plan the
+ * preview is replaced with an upgrade Placeholder — mirrors the front-end
+ * gate in render.php so authors don't insert a block that won't render. The
+ * paid-plan flag is localized onto `window.JetpackSearchBlocksConfig`
+ * (`supportsPaidSearch`); the source of truth is the matching PHP gate.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, PanelBody, Placeholder, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const SAMPLE_CITATIONS = [
 	{ title: 'Getting started with WordPress', url: 'https://example.com/getting-started' },
 	{ title: 'Customizing your theme', url: 'https://example.com/customizing' },
 ];
+
+// Editor preview defaults to "paid" when the localized config isn't present
+// (e.g. a Jest harness or a non-enqueued bundle context) so existing tests
+// see the full preview and the gate is opt-in via an explicit `false`.
+const supportsPaidSearch = () =>
+	typeof window === 'undefined' ||
+	! window.JetpackSearchBlocksConfig ||
+	window.JetpackSearchBlocksConfig.supportsPaidSearch !== false;
+
+const UPGRADE_URL = 'https://jetpack.com/upgrade/search/?utm_source=ai-answer-block';
 
 /**
  * Editor preview component.
@@ -24,10 +40,29 @@ const SAMPLE_CITATIONS = [
  * @return {object} Rendered element.
  */
 export default function AiAnswerEdit( { attributes, setAttributes } ) {
+	const blockProps = useBlockProps();
+
+	if ( ! supportsPaidSearch() ) {
+		return (
+			<div { ...blockProps }>
+				<Placeholder
+					label={ __( 'AI Answer', 'jetpack-search-pkg' ) }
+					instructions={ __(
+						'AI Answer is part of the paid Jetpack Search plan. Upgrade to enable AI-generated answers with citations on your search results.',
+						'jetpack-search-pkg'
+					) }
+				>
+					<Button variant="primary" href={ UPGRADE_URL } target="_blank" rel="noopener noreferrer">
+						{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+					</Button>
+				</Placeholder>
+			</div>
+		);
+	}
+
 	const heading = attributes?.heading?.trim() || __( 'AI answer', 'jetpack-search-pkg' );
 	const showCitations = attributes?.showCitations !== false;
 	const enableShowMore = attributes?.enableShowMore !== false;
-	const blockProps = useBlockProps();
 	return (
 		<>
 			<InspectorControls>

@@ -4,15 +4,28 @@
  *
  * Renders the panel scaffold that the Interactivity store hydrates with the
  * streaming brief / extended AI answer. The author's decision to insert the
- * block in their post content is the only switch — there's no site-wide
+ * block in their post content is the only opt-in switch — there's no site-wide
  * option gate here. The `jetpack_search_ai_answers_enabled` option still
  * governs the instant-search overlay's AI Answers, which is the default UX
  * on any search page; the embedded block is an explicit opt-in surface.
+ *
+ * AI Answer is a paid feature, so the render is additionally gated on the
+ * site having a paid Search plan. Free / no-plan sites emit nothing — the
+ * saved block instance is silently hidden on the front end, matching how
+ * WordAds / Premium Content behave when their plan check fails.
  *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
+
+// Paid-plan gate. AI Answer requires Jetpack Search's paid plan; on a free
+// or no-plan site the block contributes nothing to the page (no panel
+// scaffold, no `data-wp-interactive` div, no Interactivity hydration). The
+// editor surface shows an upgrade prompt instead — see `edit.js`.
+if ( ! Search_Blocks::supports_paid_search() ) {
+	return;
+}
 
 // $attributes is injected by WordPress at block-render time via the
 // `render_callback` include scope; static analysis can't see the binding,
