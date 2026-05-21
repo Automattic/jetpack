@@ -27,20 +27,21 @@
 	position: relative;
 	z-index: 1;
 	block-size: 100%;
+	min-inline-size: 0;
 	padding: var(--wpds-dimension-padding-2xl);
 	text-align: center;
 }
 
-.label {
-	color: var(--wpds-color-fg-content-neutral-weak);
-}
-
 .counter {
+	--counter-chars: 1;
+	--counter-fit:
+ calc((100cqw - 2 * var(--wpds-dimension-padding-2xl, 24px)) / (var(--counter-chars) * 0.55));
+
 	display: inline-flex;
 	align-items: baseline;
-
-	/* Scale with widget cell size (cqmin), not viewport width. */
-	font-size: clamp(1.5rem, 16cqmin, 4.5rem);
+	max-inline-size: 100%;
+	white-space: nowrap;
+	font-size: min(2.5rem, max(1.75rem, var(--counter-fit)));
 	font-weight: 600;
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
