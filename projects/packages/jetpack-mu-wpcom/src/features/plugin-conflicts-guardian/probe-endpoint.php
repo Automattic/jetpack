@@ -20,6 +20,18 @@ function pcg_maybe_handle_probe() {
 		return;
 	}
 
+	// Stamp the response the instant we recognise a probe request — before
+	// any bail, redirect, or plugin load. PCG_Load_Tester::parse_response()
+	// uses this header to tell "our endpoint ran but emitted no JSON verdict"
+	// (a plugin terminated the request mid-bootstrap — a real fatal) apart
+	// from "the loopback never reached us at all" (a full-page cache, a
+	// security plugin, or a maintenance page answered with a 200). Only the
+	// former should block an activation; without the marker a cached 200
+	// would be misread as a fatal and block a healthy plugin.
+	if ( ! headers_sent() ) {
+		header( 'X-PCG-Probe: 1' );
+	}
+
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.
 	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
