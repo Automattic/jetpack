@@ -2,10 +2,11 @@
 
 Pre-flight plugin-activation check. When an admin clicks Activate (or finishes an Upload Plugin install), this feature loads the plugin in an isolated HTTP request and refuses the activation if that probe captures a fatal — the site stays up instead of entering recovery mode.
 
-Two independent filters:
+Filters:
 
 - `pcg_guard_activation` — enables the activation probe and the syntax-only install/update gate. Defaults `true`.
 - `pcg_guard_updates` — enables the post-update health check + rollback flow. Defaults `true`.
+- `pcg_log_enabled` — whether to record PCG events (Tracks + logstash + `error_log` fallback). Defaults `true`.
 
 ## Files
 

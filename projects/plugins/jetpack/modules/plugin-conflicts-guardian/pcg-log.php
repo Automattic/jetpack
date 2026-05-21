@@ -27,7 +27,23 @@
  */
 function pcg_log_event( $message, array $extra ) {
 	$message = (string) $message;
-	$extra   = pcg_log_redact_paths( $extra );
+
+	/**
+	 * Filter whether Plugin Conflicts Guardian records an event.
+	 *
+	 * Return false to suppress PCG's whole event dispatch — the Jetpack
+	 * Tracks event, the Atomic logstash dispatch, and the `error_log()`
+	 * fallback — e.g. on sites that don't want the telemetry.
+	 *
+	 * @param bool   $enabled Whether to record the event. Default true.
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties.
+	 */
+	if ( ! apply_filters( 'pcg_log_enabled', true, $message, $extra ) ) {
+		return;
+	}
+
+	$extra = pcg_log_redact_paths( $extra );
 
 	// Jetpack Tracks. The Tracking client no-ops gracefully when it can't
 	// resolve a connected user, so disconnected sites simply emit nothing here.

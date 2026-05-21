@@ -31,41 +31,19 @@ class Plugin_Conflicts_Guardian_Test extends \WP_UnitTestCase {
 	private $tmp_dir = null;
 
 	/**
-	 * Saved `error_log` ini value, restored after each test.
-	 *
-	 * @var string
-	 */
-	private $saved_error_log = '';
-
-	/**
-	 * Scratch file the `error_log` ini points at during a test, so PCG's
-	 * logging fallback (`pcg_log_event()` -> `error_log()`) doesn't trip
-	 * PHPUnit's strict-output check when a test exercises a guard block path.
-	 *
-	 * @var string|false
-	 */
-	private $error_log_file = false;
-
-	/**
-	 * Route error_log() to a scratch file for the duration of the test.
+	 * Suppress PCG's event dispatch for the duration of each test, so its
+	 * `error_log()` logging fallback doesn't trip PHPUnit's strict-output
+	 * check when a test exercises a guard block path.
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->saved_error_log = (string) ini_get( 'error_log' );
-		$this->error_log_file  = tempnam( sys_get_temp_dir(), 'pcg-test-errorlog-' );
-		if ( false !== $this->error_log_file ) {
-			ini_set( 'error_log', $this->error_log_file ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- test-scoped; restored in tear_down().
-		}
+		add_filter( 'pcg_log_enabled', '__return_false' );
 	}
 
 	/**
 	 * Clean up any temp directory and guard filter after each test.
 	 */
 	public function tear_down() {
-		ini_set( 'error_log', $this->saved_error_log ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- restoring the value saved in set_up().
-		if ( false !== $this->error_log_file && file_exists( $this->error_log_file ) ) {
-			unlink( $this->error_log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- scratch file outside the WP tree.
-		}
 		if ( $this->tmp_dir && is_dir( $this->tmp_dir ) ) {
 			$this->rrmdir( $this->tmp_dir );
 			$this->tmp_dir = null;
@@ -79,6 +57,7 @@ class Plugin_Conflicts_Guardian_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pcg_guard_activation' );
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
+		remove_all_filters( 'pcg_log_enabled' );
 		parent::tear_down();
 	}
 
