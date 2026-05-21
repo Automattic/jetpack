@@ -19,6 +19,10 @@
 		},
 		"./components": "./src/components/index.js",
 		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
+		"./fetch-subscriber-counts": {
+			"types": "./src/fetch-subscriber-counts.d.ts",
+			"default": "./src/fetch-subscriber-counts.js"
+		},
 		"./icons": "./src/icons.js",
 		"./site-type-utils": "./src/site-type-utils.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",

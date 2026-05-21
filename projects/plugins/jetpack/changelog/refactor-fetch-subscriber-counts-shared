@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter: Reuse shared fetchSubscriberCounts helper in the membership-products store.

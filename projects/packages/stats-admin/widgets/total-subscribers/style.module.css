@@ -1,0 +1,32 @@
+.label {
+	color: var(--wpds-color-fg-content-neutral-weak);
+}
+
+.counter {
+	display: inline-flex;
+	align-items: baseline;
+	font-size: clamp(2.5rem, 6vw, 4.5rem);
+	font-weight: 600;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.02em;
+	color: var(--wpds-color-fg-content-neutral);
+}
+
+.counterLoading {
+	opacity: 0.85;
+}
+
+.digit {
+	display: inline-block;
+	min-inline-size: 0.55em;
+	text-align: center;
+}
+
+.separator {
+	display: inline-block;
+}
+
+.error {
+	color: var(--wpds-color-fg-content-error);
+}
