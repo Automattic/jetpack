@@ -641,7 +641,11 @@ function wpcom_write_render_admin_page() {
 	$unsupported_type   = false;
 	$open_post_error    = '';
 
-	// Resolve a ?url= param to a post ID via url_to_postid().
+	// Resolve a ?url= param to a post ID.
+	// For same-host URLs, extract ?p= or ?post= query params directly
+	// (covers admin URLs and shortlinks like /?p=123). Then fall back
+	// to url_to_postid() for pretty permalinks — core checks the host
+	// against home_url() internally.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for permalink resolution.
 	if ( ! $edit_post_id && ! empty( $_GET['url'] ) ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -649,15 +653,30 @@ function wpcom_write_render_admin_page() {
 		$url_host  = wp_parse_url( $input_url, PHP_URL_HOST );
 		$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
 
+		// Extract ?p= / ?post= only from same-host URLs to avoid
+		// treating foreign post IDs as local ones.
 		if ( $url_host && $url_host === $home_host ) {
+			$query_str = wp_parse_url( $input_url, PHP_URL_QUERY );
+			if ( $query_str ) {
+				parse_str( $query_str, $query_params );
+				$param_id = 0;
+				if ( ! empty( $query_params['p'] ) ) {
+					$param_id = absint( $query_params['p'] );
+				} elseif ( ! empty( $query_params['post'] ) ) {
+					$param_id = absint( $query_params['post'] );
+				}
+				if ( $param_id ) {
+					$edit_post_id = $param_id;
+				}
+			}
+		}
+		if ( ! $edit_post_id ) {
 			$resolved_id = url_to_postid( $input_url );
 			if ( $resolved_id ) {
 				$edit_post_id = $resolved_id;
 			} else {
 				$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
 			}
-		} else {
-			$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
 		}
 	}
 

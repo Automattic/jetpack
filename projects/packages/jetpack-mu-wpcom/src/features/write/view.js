@@ -95,23 +95,14 @@ function formatRelativeDate( dateStr ) {
 }
 
 /**
- * Extract a numeric post ID from user input.
+ * Check whether raw user input is a bare numeric post ID.
  *
  * @param {string} input - Raw user input from the post picker URL field.
- * @return {number|null} Post ID or null if not parseable as a numeric ID.
+ * @return {number|null} Post ID or null if not a bare numeric string.
  */
 function parsePostId( input ) {
 	const trimmed = input.trim();
 	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
-
-	try {
-		const url = new URL( trimmed, window.location.origin );
-		const p = url.searchParams.get( 'p' ) || url.searchParams.get( 'post' );
-		if ( p && /^\d+$/.test( p ) ) return parseInt( p, 10 );
-	} catch {
-		// Not a valid URL.
-	}
-
 	return null;
 }
 
@@ -4536,24 +4527,21 @@ const { state } = store( 'wpcom-write', {
 				allowLeave = true;
 				window.location.href = state.writeUrl + '&post=' + numericId;
 			} else {
-				// Validate the input looks like a URL before hitting the server.
+				// Reject input that isn't URL-shaped before hitting the server.
 				const normalized = /^https?:\/\//i.test( input ) ? input : 'https://' + input;
-				let inputUrl;
 				try {
-					inputUrl = new URL( normalized );
+					// eslint-disable-next-line no-new
+					new URL( normalized );
 				} catch {
 					state.openPostError =
 						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
 					return;
 				}
-				if ( inputUrl.hostname !== window.location.hostname ) {
-					state.openPostError =
-						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
-					return;
-				}
-				// Permalink resolution requires server-side url_to_postid().
+				// URL validation and permalink resolution happen server-side.
+				// PHP checks this site's accepted hosts before falling back
+				// to url_to_postid().
 				allowLeave = true;
-				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( input );
+				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( normalized );
 			}
 		},
 
