@@ -340,10 +340,8 @@ function wpcom_write_is_transparent_background( $value ) {
  * @return bool True if unsupported color classes are found.
  */
 function wpcom_write_has_unsupported_color_class( $content ) {
-	return (bool) (
-		preg_match( '/class="[^"]*\bhas-(?!inline-color\b)[\w-]+-color\b[^"]*"/', $content ) ||
-		preg_match( "/class='[^']*\bhas-(?!inline-color\b)[\w-]+-color\b[^']*'/", $content )
-	);
+	return preg_match( '/class="[^"]*\bhas-(?!inline-color\b)[\w-]+-color\b[^"]*"/', $content ) ||
+		preg_match( "/class='[^']*\bhas-(?!inline-color\b)[\w-]+-color\b[^']*'/", $content );
 }
 
 /**
