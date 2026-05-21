@@ -86,7 +86,15 @@ function parsePriceBound( raw ) {
  *                                                         read the block-author-configured `queryType`
  *                                                         so the URL also reflects block config when
  *                                                         `filterLogic` has no override for that key.
+ *                                                         Also gates which keys are eligible for
+ *                                                         scalar static-filter serialization.
  * @param {object|null} [state.priceRange]                 - { min, max } price range; either bound may be null.
+ * @param {object}      [state.staticFilterSelections]     - { [filterKey]: string } single-select static
+ *                                                         filter values contributed by
+ *                                                         `jetpack-search/filter-static`. Serialized as
+ *                                                         scalar `?filter_id=value` (not `[]=value`) so
+ *                                                         deep links round-trip with the legacy overlay's
+ *                                                         static-filter URL contract.
  * @param {string}      [state.searchParamName]            - URL key the search query is written under
  *                                                         (`s` on the WP search route, `q`
  *                                                         on non-search pages). Defaults to `s`.
@@ -103,6 +111,7 @@ export function stateToUrlParams( {
 	filterLogic = {},
 	filterConfigs = {},
 	priceRange = null,
+	staticFilterSelections = {},
 	searchParamName = DEFAULT_SEARCH_PARAM,
 	isWooCommerceBlocksEnabled = false,
 } ) {
@@ -151,6 +160,19 @@ export function stateToUrlParams( {
 		}
 	}
 
+	// Static filters write scalar `?filter_id=value` params — matches the
+	// legacy instant-search overlay's static-filter URL contract so deep
+	// links stay interchangeable between the two surfaces. Gated on
+	// `kind === 'static'` so a stale selection for a since-unregistered
+	// filter (e.g. the host site removed its filter hook) can't leak back
+	// into the URL on the next push.
+	for ( const [ key, value ] of Object.entries( staticFilterSelections ) ) {
+		if ( ! value || filterConfigs?.[ key ]?.kind !== 'static' ) {
+			continue;
+		}
+		params.set( key, String( value ) );
+	}
+
 	return params;
 }
 
@@ -174,7 +196,7 @@ export function stateToUrlParams( {
  *                                                       `max_price` range params). Falsy on non-Woo
  *                                                       sites ignores both rather than hydrating
  *                                                       them into store state.
- * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object }} Partial state.
  */
 export function urlParamsToState(
 	params,
@@ -186,6 +208,7 @@ export function urlParamsToState(
 	const allowedSorts = validSortOrders( isWooCommerceBlocksEnabled );
 	const activeFilters = {};
 	const filterLogic = {};
+	const staticFilterSelections = {};
 	const hasFilterConfigGate = filterConfigs && Object.keys( filterConfigs ).length > 0;
 
 	for ( const [ rawKey, value ] of params.entries() ) {
@@ -218,9 +241,27 @@ export function urlParamsToState(
 			}
 			continue;
 		}
+		// Scalar param. Either a static-filter selection (gated by
+		// `filterConfigs[rawKey].kind === 'static'`) or an unrelated scalar we
+		// ignore — keeps arbitrary plugin-emitted params out of state.
 		if ( ! rawKey.endsWith( '[]' ) ) {
+			if (
+				hasFilterConfigGate &&
+				! RESERVED_PARAMS.has( rawKey ) &&
+				filterConfigs[ rawKey ]?.kind === 'static'
+			) {
+				// Last-write wins. A URL like `?section=a&section=b` is already
+				// malformed for a single-select filter; pick the latest value
+				// to mirror the radio-input change handler.
+				const normalized = String( value ?? '' ).trim();
+				if ( normalized ) {
+					staticFilterSelections[ rawKey ] = normalized;
+				}
+			}
 			continue;
 		}
+
+		// Array-shaped param — dynamic facet filter.
 		const filterKey = rawKey.slice( 0, -2 );
 		if ( RESERVED_PARAMS.has( filterKey ) ) {
 			continue;
@@ -283,6 +324,7 @@ export function urlParamsToState(
 		activeFilters,
 		filterLogic,
 		priceRange,
+		staticFilterSelections,
 	};
 }
 
@@ -310,7 +352,7 @@ export function pushStateToUrl( state ) {
  * @param {boolean} [isWooCommerceBlocksEnabled] - Gate for WC-only URL surface (product-format
  *                                               sort keys + `min_price` / `max_price` range params);
  *                                               forwarded to `urlParamsToState`.
- * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null }} Partial state.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object }} Partial state.
  */
 export function readStateFromUrl(
 	filterConfigs = {},
