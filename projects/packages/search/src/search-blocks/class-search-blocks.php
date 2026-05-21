@@ -288,6 +288,12 @@ class Search_Blocks {
 	 * `supports_instant_search()` still rules out the no-plan / no-Search
 	 * case (which `is_free_plan()` returns false for).
 	 *
+	 * No `apply_filters()` wrapper here by design (cf. the
+	 * `jetpack_search_woocommerce_blocks_enabled` filter on the WC gate).
+	 * This is a paid-feature gate — a filter that any plugin could flip
+	 * would defeat its purpose. Tests bypass the probe via
+	 * `set_supports_paid_search_for_testing()`.
+	 *
 	 * @return bool
 	 */
 	public static function supports_paid_search(): bool {
@@ -299,10 +305,27 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Force the `supports_paid_search()` answer to a specific boolean —
+	 * tests only. Pass `null` to clear the override and revive the real
+	 * `Plan` probe (also done by `reset_supports_paid_search_cache()`).
+	 * Mirrors `set_woocommerce_blocks_enabled_for_testing()`, the
+	 * canonical setter pattern documented in `AGENTS.md`.
+	 *
+	 * @internal
+	 *
+	 * @param bool|null $value Forced answer or null to clear.
+	 */
+	public static function set_supports_paid_search_for_testing( ?bool $value ): void {
+		self::$supports_paid_search_cache = $value;
+	}
+
+	/**
 	 * Reset the `supports_paid_search()` memo. Tests only — production
 	 * callers should never need this.
+	 *
+	 * @internal
 	 */
-	public static function reset_supports_paid_search_cache() {
+	public static function reset_supports_paid_search_cache(): void {
 		self::$supports_paid_search_cache = null;
 	}
 
