@@ -1855,28 +1855,24 @@ if ( typeof MutationObserver !== 'undefined' ) {
 
 			const tmp = document.createElement( 'div' );
 			// Element.setHTML is the native HTML Sanitizer API and the only
-			// recognized XSS barrier in this code path. Browsers without it
-			// (older versions of any engine) fall through to the default
-			// paste — the browser's own paste-into-contentEditable
-			// sanitization plus server-side wp_kses_post() still cover XSS;
-			// the only regression is that source typography isn't stripped.
+			// HTML parsing path for pasted markup. The browser's safety
+			// baseline drops <script>, dangerous attributes (onerror,
+			// onclick, etc.), and javascript: URLs before any of it reaches
+			// the live DOM. We allow style/id/href through so the custom
+			// pass below can read inline styles (to promote bold/italic to
+			// semantic tags), unwrap Google Docs' docs-internal-guid
+			// wrapper, and validate href schemes against a tighter
+			// allowlist than the Sanitizer baseline. Browsers without
+			// setHTML fall through to the default paste — the browser's
+			// own paste-into-contentEditable sanitization plus server-side
+			// wp_kses_post() still cover XSS; the only regression is that
+			// source typography isn't stripped.
 			if ( typeof tmp.setHTML !== 'function' ) return;
 
 			event.preventDefault();
-			// DOMParser parses the markup inertly — scripts don't run, images
-			// and iframes don't load, and inline event handlers don't fire
-			// during parse. promotePasteFormatting reads inline styles, and
-			// sanitizePasteFragment reads ids (to unwrap Google Docs' outer
-			// wrapper), so both must run before setHTML's safety baseline
-			// strips those attributes.
-			const parsed = new DOMParser().parseFromString( html, 'text/html' );
-			promotePasteFormatting( parsed.body );
-			sanitizePasteFragment( parsed.body );
-
-			// Final pass through the browser's native safety baseline:
-			// defense in depth on top of the custom sanitizer above, and
-			// a recognized XSS barrier for static analysis.
-			tmp.setHTML( parsed.body.innerHTML );
+			tmp.setHTML( html, { sanitizer: { attributes: [ 'style', 'id', 'href' ] } } );
+			promotePasteFormatting( tmp );
+			sanitizePasteFragment( tmp );
 
 			// execCommand('insertHTML') handles caret-aware block-level
 			// splitting (e.g. pasting a <p> inside an existing <p> correctly
