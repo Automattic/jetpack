@@ -13,6 +13,7 @@
 
 namespace Automattic\Jetpack\Connection\Abilities;
 
+use Automattic\Jetpack\Connection\Jetpack_Connector;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Package_Version;
 use Automattic\Jetpack\WP_Abilities\Registrar;
@@ -193,12 +194,19 @@ class Connection_Abilities extends Registrar {
 	 * Build the wp-admin URL the site owner should visit to register the
 	 * site to WordPress.com. We deliberately return a stable admin URL (no
 	 * secret generation, no XML-RPC roundtrip) so this read stays side-effect
-	 * free and cheap to poll. The Jetpack admin page handles the actual
+	 * free and cheap to poll. The destination page handles the actual
 	 * registration handshake from there.
+	 *
+	 * WP 7.0+ ships a core "Connectors" screen with a Jetpack card registered
+	 * by {@see Jetpack_Connector}; prefer that on supported sites and fall
+	 * back to the Jetpack admin page on older WP.
 	 *
 	 * @return string
 	 */
 	private static function registration_url(): string {
+		if ( class_exists( 'WP_Connector_Registry' ) ) {
+			return admin_url( 'options-general.php?page=' . Jetpack_Connector::GUTENBERG_CONNECTORS_PAGE_SLUG );
+		}
 		return admin_url( 'admin.php?page=jetpack' );
 	}
 }
