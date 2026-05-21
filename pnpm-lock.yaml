@@ -4558,8 +4558,8 @@ importers:
         specifier: 6.46.0
         version: 6.46.0
       '@wordpress/build':
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.0)(browserslist@4.28.2)
+        specifier: 0.13.2-next.v.202605131032.0
+        version: 0.13.2-next.v.202605131032.0(@babel/core@7.29.0)(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -10899,8 +10899,8 @@ packages:
       '@wordpress/theme':
         optional: true
 
-  '@wordpress/build@0.14.0':
-    resolution: {integrity: sha512-ZPXLAinvwNOkVqZ7UMDDpL6V0opHgv/0gsDO0YT5hS17vvdB6pyrHezHN6NeS6Q54Qx3V2iaTlaFwLwiMvybQQ==}
+  '@wordpress/build@0.13.2-next.v.202605131032.0':
+    resolution: {integrity: sha512-L7KyLY2jp1leJ4wmjZk86gEWSOE9MM4BvBDeDSoGoU4wq8c6uAo1NSbRWuabAJkiobMXbsT7zLjRb7qkqJUYig==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
@@ -11086,6 +11086,12 @@ packages:
     peerDependencies:
       react: ^18
 
+  '@wordpress/icons@12.2.0':
+    resolution: {integrity: sha512-Fiw7bmfHDNPjTdCrBF23/9K0VN/GUi73d2ZPZaeWdXhTmIX62T9KYvb1c+WnlBkX7GpXgJO6Q8mypQCY9mw5SQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
+
   '@wordpress/icons@13.1.0':
     resolution: {integrity: sha512-KMZAeYghsLs6e5wKMZ3/Ynrsuu5yZt2gAlMHmZSkWJKQFld++Pz/pEj8nDCJ79z/zx9FO7q4teG49vHHvVosjQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -11256,6 +11262,10 @@ packages:
   '@wordpress/style-engine@2.46.0':
     resolution: {integrity: sha512-3kUcomd7xbqV4KoDA0OIVbKb4HnCnvx4kWrohHfS8+r0gsW4LyMQr66WwV2u44U6eckn83Nw0sK1Jb+4PwWiNw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/style-runtime@0.1.2-next.v.202605131032.0':
+    resolution: {integrity: sha512-7b241OkdjNfGq7yPYmR6wKJaopVBzzMozxK6nTcihX5eDH+rOv2tu87PjYZzV2SyEVzqL3ZZ3VBaASnROUzL5A==}
+    engines: {node: '>=20.10.0', npm: '>=10.2.3'}
 
   '@wordpress/style-runtime@0.2.0':
     resolution: {integrity: sha512-9pLmilkgWqTvIlrnnXbW7ECfEPvCSYOve7btXgYGgMOzrGs12ijnG+kSGGg0aJhEV8OCzQ/QdVBh4s1zQZ0bLQ==}
@@ -24244,10 +24254,10 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.14.0(@babel/core@7.29.0)(browserslist@4.28.2)':
+  '@wordpress/build@0.13.2-next.v.202605131032.0(@babel/core@7.29.0)(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
-      '@wordpress/style-runtime': 0.2.0
+      '@wordpress/style-runtime': 0.1.2-next.v.202605131032.0
       autoprefixer: 10.5.0(postcss@8.5.14)
       browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
       change-case: 4.1.2
@@ -25318,6 +25328,13 @@ snapshots:
       '@wordpress/primitives': 4.46.0(react@18.3.1)
       react: 18.3.1
 
+  '@wordpress/icons@12.2.0(react@18.3.1)':
+    dependencies:
+      '@wordpress/element': 6.46.0
+      '@wordpress/primitives': 4.46.0(react@18.3.1)
+      change-case: 4.1.2
+      react: 18.3.1
+
   '@wordpress/icons@13.1.0(react@18.3.1)':
     dependencies:
       '@wordpress/element': 6.46.0
@@ -25983,6 +26000,8 @@ snapshots:
   '@wordpress/style-engine@2.46.0':
     dependencies:
       change-case: 4.1.2
+
+  '@wordpress/style-runtime@0.1.2-next.v.202605131032.0': {}
 
   '@wordpress/style-runtime@0.2.0': {}
 
