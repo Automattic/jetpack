@@ -21,6 +21,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/plugin-conflicts-guardian/update-hea
  * the upgrader_source_selection filter callback.
  */
 class Plugin_Conflicts_Guardian_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Absolute path to a temporary directory used by scan tests.
