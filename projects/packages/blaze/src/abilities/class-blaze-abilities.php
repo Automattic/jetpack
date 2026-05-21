@@ -888,16 +888,16 @@ class Blaze_Abilities extends Registrar {
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
-					'description' => __( 'DSP submit response decorated for chat. Success means the campaign was submitted and is pending approval/moderation, not already running.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'message', 'campaign_status', 'dashboard_url', 'widget_url', 'selected_payment_method', 'budget', 'source_tracking', 'submit_response' ),
+					'description' => __( 'DSP submit response decorated for chat. Success means the campaign was submitted and is pending approval/moderation, not already running. Failure means the request did not create a campaign.', 'jetpack-blaze' ),
+					'required'    => array( 'status', 'message' ),
 					'properties'  => array(
 						'status'                  => array(
 							'type' => 'string',
-							'enum' => array( 'submitted_pending_approval' ),
+							'enum' => array( 'submitted_pending_approval', 'submit_failed' ),
 						),
 						'message'                 => array(
 							'type'        => 'string',
-							'description' => __( 'Human-readable pending confirmation for chat clients.', 'jetpack-blaze' ),
+							'description' => __( 'Human-readable submit confirmation or failure for chat clients.', 'jetpack-blaze' ),
 						),
 						'campaign_status'         => array(
 							'type' => 'string',
@@ -919,6 +919,24 @@ class Blaze_Abilities extends Registrar {
 						),
 						'submit_response'         => array(
 							'type' => 'object',
+						),
+						'error'                   => array(
+							'type'        => 'object',
+							'description' => __( 'Structured submit failure details when status is submit_failed.', 'jetpack-blaze' ),
+							'properties'  => array(
+								'code'    => array(
+									'type' => 'string',
+								),
+								'message' => array(
+									'type' => 'string',
+								),
+								'status'  => array(
+									'type' => array( 'integer', 'null' ),
+								),
+								'details' => array(
+									'type' => 'object',
+								),
+							),
 						),
 					),
 				),

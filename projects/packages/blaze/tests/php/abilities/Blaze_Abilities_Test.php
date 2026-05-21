@@ -241,8 +241,11 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			$ability['input_schema']['required']
 		);
 		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
-		$this->assertContains( 'message', $ability['output_schema']['required'] );
-		$this->assertContains( 'submit_response', $ability['output_schema']['required'] );
+		$this->assertSame( array( 'status', 'message' ), $ability['output_schema']['required'] );
+		$this->assertContains( 'submitted_pending_approval', $ability['output_schema']['properties']['status']['enum'] );
+		$this->assertContains( 'submit_failed', $ability['output_schema']['properties']['status']['enum'] );
+		$this->assertArrayHasKey( 'submit_response', $ability['output_schema']['properties'] );
+		$this->assertArrayHasKey( 'error', $ability['output_schema']['properties'] );
 	}
 
 	/**
