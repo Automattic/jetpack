@@ -1049,7 +1049,7 @@ class Jetpack_Subscriptions {
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
 		 * not expose the constant yet.
 		 */
-		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 			if (
 				! ( new Host() )->is_wpcom_platform()
 				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
@@ -1087,7 +1087,7 @@ class Jetpack_Subscriptions {
 		 *
 		 * @param bool If the new dashboard is enabled. Default false.
 		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) ) {
 			return;
 		}
 

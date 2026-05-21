@@ -269,7 +269,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -491,15 +491,14 @@ class Settings {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Defaults to `false`: the modernization prep work ships behind the filter,
-	 * and a separate PR flips the default on so the feature switch lands in
-	 * isolation. Hosts can opt in early with
-	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
+	 * Defaults to `true`: the modernized Newsletter dashboard is the shipped
+	 * experience. Hosts can opt out with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

@@ -166,13 +166,13 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
 	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be false; the feature switch lands in a
-	 * separate PR that flips the default on.
+	 * `apply_filters` receives — must be true now that the modernized
+	 * Newsletter dashboard is the shipped experience.
 	 */
-	public function test_is_modernized_defaults_to_false() {
-		$this->assertFalse(
+	public function test_is_modernized_defaults_to_true() {
+		$this->assertTrue(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to false until the flag-flip PR lands.'
+			'Modernization gate must default to true now that the dashboard has shipped.'
 		);
 	}
 

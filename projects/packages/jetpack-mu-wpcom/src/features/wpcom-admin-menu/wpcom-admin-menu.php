@@ -390,10 +390,10 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// Once the Newsletter modernization filter is on, the unified Newsletter
-	// page owns the Subscribers tab and the legacy Calypso "Subscribers" submenu
-	// is retired, replaced by a transitional announcement page that points there.
-	// While the filter is off (the default) we keep the legacy Calypso submenu.
+	// With the Newsletter modernization filter on (the default), the unified
+	// Newsletter page owns the Subscribers tab and the legacy Calypso "Subscribers"
+	// submenu is retired, replaced by a transitional announcement page that points
+	// there. Hosts that opt out of the filter keep the legacy Calypso submenu.
 	// (The wp-admin subscriber-management variant was removed with the
 	// subscribers-dashboard package and isn't restored.)
 	//
@@ -404,7 +404,7 @@ function wpcom_add_jetpack_submenu() {
 	// Newsletter\Settings::MODERNIZATION_FILTER): the newsletter package isn't a
 	// dependency of jetpack-mu-wpcom, and the filter runs unconditionally — ahead
 	// of the class_exists-guarded Subscribers_Announcement use.
-	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
