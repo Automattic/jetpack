@@ -1348,6 +1348,9 @@ const contentReady2 = setInterval( () => {
 		if ( ! cite.hasAttribute( 'data-placeholder' ) ) {
 			cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
 		}
+		if ( ! cite.hasAttribute( 'aria-label' ) ) {
+			cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
+		}
 	} );
 
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
@@ -1629,6 +1632,7 @@ function ensureCitePlaceholder( blockquote ) {
 	if ( blockquote.querySelector( 'cite' ) ) return;
 	const cite = document.createElement( 'cite' );
 	cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+	cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
 	blockquote.appendChild( cite );
 }
 
@@ -4055,6 +4059,10 @@ async function savePost( postStatus, isAutosave = false ) {
 	// runtime attribute that shouldn't be persisted.
 	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
 		el.removeAttribute( 'contenteditable' );
+	} );
+	clone.querySelectorAll( 'blockquote cite' ).forEach( el => {
+		el.removeAttribute( 'data-placeholder' );
+		el.removeAttribute( 'aria-label' );
 	} );
 	stripRuntimeFigureControls( clone );
 

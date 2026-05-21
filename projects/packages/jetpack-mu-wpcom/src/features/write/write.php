@@ -150,6 +150,7 @@ add_action(
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
 			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
 			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
