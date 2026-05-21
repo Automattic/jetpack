@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.7] - 2026-05-21
+### Added
+- Connection: Signal to Calypso that the site already has a connection owner so the authorize page can show appropriate content for secondary user connections. [#48904]
+
+### Changed
+- Connection: Show the Jetpack icon beside the Connected label in the WordPress.com account column on the Users screen. [#48951]
+- Connectors: Show shorter, role-appropriate connect prompt for secondary user connections when the site already has a connection owner. [#48904]
+- Update package dependencies. [#48405]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
 ## [8.3.6] - 2026-05-19
 ### Changed
 - Internal updates.
@@ -1829,6 +1841,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.3.7]: https://github.com/Automattic/jetpack-connection/compare/v8.3.6...v8.3.7
 [8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6
 [8.3.5]: https://github.com/Automattic/jetpack-connection/compare/v8.3.4...v8.3.5
 [8.3.4]: https://github.com/Automattic/jetpack-connection/compare/v8.3.3...v8.3.4

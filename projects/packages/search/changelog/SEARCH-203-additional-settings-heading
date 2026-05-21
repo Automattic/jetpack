@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Search Dashboard: add an "Additional settings" heading above the feature toggles in the search-blocks settings view. The heading only renders when at least one of those settings is available, so it never appears orphaned.
