@@ -299,8 +299,15 @@ class Overlay_Template {
 			if ( $existing_post && static::POST_TYPE === $existing_post->post_type && 'trash' !== $existing_post->post_status ) {
 				return $existing;
 			}
-			delete_option( static::OPTION_POST_ID );
-			self::$customized_content_cache = null;
+			// Force-delete the stale post (typically trashed) before recreating,
+			// so admins who repeatedly trash the singleton don't accumulate
+			// orphan rows. before_delete_post will null the option + cache.
+			if ( $existing_post && static::POST_TYPE === $existing_post->post_type ) {
+				wp_delete_post( $existing, true );
+			} else {
+				delete_option( static::OPTION_POST_ID );
+				self::$customized_content_cache = null;
+			}
 		}
 		$seed_content = static::read_bundled_template();
 		$post_id      = wp_insert_post(
