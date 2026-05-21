@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search Blocks: let authors pick which suggestion sections appear in the Search Input dropdown (query completions, categories & tags, post titles) via a new per-block suggestionTypes attribute. Existing blocks default to all three.

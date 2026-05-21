@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search dashboard: let the toggle description text span the full settings card width instead of wrapping in a narrow 7-column band.

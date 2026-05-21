@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search: Add a "Compact" block style to the Clear Filters block and stop it inheriting the core Button block styling that rendered oversized on some themes — the default now uses the theme's lighter button baseline.

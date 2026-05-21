@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: Add experimental opt-in to replace the legacy instant-search overlay with the server-rendered Search blocks template; gated behind the `jetpack_search_overlay_block_template_enabled` filter (default false).

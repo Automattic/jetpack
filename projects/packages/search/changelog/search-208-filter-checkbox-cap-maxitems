@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: cap the filter-checkbox list at its configured "Maximum items" even after the session has retained options across multiple searches.
