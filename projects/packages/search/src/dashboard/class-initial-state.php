@@ -89,6 +89,16 @@ class Initial_State {
 				 * same flag the back end uses to register the blocks themselves.
 				 */
 				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				/**
+				 * Whether the experimental blocks-powered Overlay search experience
+				 * is available in the Experience Selector. Mirrors the
+				 * `jetpack_search_overlay_block_template_enabled` server-side filter
+				 * so the dashboard React app can gate the new card on the same flag
+				 * the back end uses to enable the runtime swap. Sites that haven't
+				 * opted into the experimental overlay continue to see the four
+				 * original cards unchanged.
+				 */
+				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**

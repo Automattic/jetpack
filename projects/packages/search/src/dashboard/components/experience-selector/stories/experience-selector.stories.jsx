@@ -19,10 +19,16 @@ export default {
 			control: 'boolean',
 			description: 'Seed `sitePlan.supports_only_classic_search` — disables Embedded + Overlay.',
 		},
+		blockOverlayEnabled: {
+			control: 'boolean',
+			description:
+				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter; reveals the new blocks-powered Overlay card and tags the legacy one "(legacy)".',
+		},
 	},
 	args: {
 		isWpcom: false,
 		supportsOnlyClassicSearch: false,
+		blockOverlayEnabled: false,
 	},
 };
 
@@ -64,7 +70,10 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} 
 
 const renderWithStoryArgs = ( settings, args ) => {
 	const sitePlan = { supports_only_classic_search: args.supportsOnlyClassicSearch };
-	const siteData = { isWpcom: args.isWpcom };
+	const siteData = {
+		isWpcom: args.isWpcom,
+		blockOverlayEnabled: args.blockOverlayEnabled,
+	};
 	const registry = createStoreWithSettings( settings, sitePlan, siteData );
 	return (
 		<RegistryProvider value={ registry }>
@@ -194,4 +203,39 @@ export const WpcomSite = args =>
 	);
 WpcomSite.args = {
 	isWpcom: true,
+};
+
+// Blocks-powered Overlay flag on — five cards visible, legacy carries the
+// "(legacy)" suffix. The user has not yet switched, so the legacy card is
+// the active one.
+export const OverlayBlocksAvailable = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
+	);
+OverlayBlocksAvailable.args = {
+	blockOverlayEnabled: true,
+};
+
+// User has opted into the blocks-powered Overlay — the new card is Active,
+// and the legacy card stays selectable as a fallback.
+export const OverlayBlocksActive = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: false,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY_BLOCKS,
+			is_updating: false,
+		},
+		args
+	);
+OverlayBlocksActive.args = {
+	blockOverlayEnabled: true,
 };

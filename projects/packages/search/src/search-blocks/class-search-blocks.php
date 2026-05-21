@@ -203,11 +203,21 @@ class Search_Blocks {
 	 * server-rendered Search blocks template
 	 * (`templates/jetpack-search-overlay.html`).
 	 *
-	 * EXPERIMENTAL — off by default; not production-ready. Opt-in requires
-	 * both this filter AND `jetpack_search_blocks_enabled` to be true, since
-	 * the rendered markup needs the Search blocks themselves registered to
-	 * have anything to hydrate. When on, the legacy `SearchApp` is fully
-	 * bypassed via the `jetpack_search_init_instant_search` filter.
+	 * EXPERIMENTAL — off by default; not production-ready. Two conditions
+	 * must hold for the runtime swap to occur:
+	 *
+	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on.
+	 *      This is the operator-level gate that surfaces the new option in
+	 *      the Experience Selector and registers the overlay assets.
+	 *   2. The site owner has chosen the new overlay experience in the
+	 *      dashboard (`Module_Control::EXPERIENCE_OVERLAY_BLOCKS`).
+	 *
+	 * Both conditions let the legacy and blocks-powered overlays coexist
+	 * on the same site — operators can opt a site into the new path, and
+	 * site owners can still flip back to the legacy experience without
+	 * touching any server-side filter. When both are true the legacy
+	 * `SearchApp` is bypassed via the `jetpack_search_init_instant_search`
+	 * filter (wired in `Initializer::init_search_blocks()`).
 	 *
 	 * @return bool
 	 */
@@ -218,7 +228,10 @@ class Search_Blocks {
 		 *
 		 * @param bool $enabled Default false.
 		 */
-		return (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false );
+		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ) ) {
+			return false;
+		}
+		return Module_Control::EXPERIENCE_OVERLAY_BLOCKS === ( new Module_Control() )->get_experience();
 	}
 
 	/**
