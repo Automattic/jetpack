@@ -149,6 +149,8 @@ add_action(
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
 			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
+			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -260,7 +262,7 @@ function wpcom_write_allowed_block_attrs() {
 		// alt: preserved via HTML element, not block JSON.
 		'image'     => array( 'id', 'sizeSlug', 'alt' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
-		'quote'     => array( 'align' ),
+		'quote'     => array( 'align', 'citation' ),
 		'list'      => array( 'ordered' ),
 		'list-item' => array(),
 		'separator' => array(),
