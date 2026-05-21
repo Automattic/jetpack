@@ -943,6 +943,9 @@ describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
 		captured.context = {};
+		// Reset the static-filter slice so it doesn't leak into later cases
+		// in this describe block.
+		state.staticFilterSelections = {};
 	} );
 
 	it( 'isStaticFilterSelected reads filterKey + optionValue from context and compares against the store', () => {
@@ -967,6 +970,17 @@ describe( 'store callbacks', () => {
 
 		// Empty slice — clearFilters case. Every radio should report false.
 		state.staticFilterSelections = {};
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+	} );
+
+	it( 'isStaticFilterSelected tolerates an undefined staticFilterSelections slice', () => {
+		// The optional-chaining guard (`state.staticFilterSelections?.[…]`)
+		// handles the case where the PHP seed hasn't yet populated the slot
+		// — e.g. on a page with no filter-static block. The comparison
+		// falls through to `undefined === 'guides'`, which is `false`.
+		// Reading the slice directly would crash; this guards the contract.
+		state.staticFilterSelections = undefined;
 		captured.context = { filterKey: 'section', optionValue: 'guides' };
 		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
 	} );
