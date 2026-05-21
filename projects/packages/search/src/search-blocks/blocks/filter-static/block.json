@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-static",
+	"version": "0.1.0",
+	"title": "Static Filter",
+	"category": "jetpack-search",
+	"description": "Single-select radio filter whose options come from server config (the `jetpack_search_static_filters` PHP filter). Mirrors the legacy instant-search static filter widget. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"variation": {
+			"type": "string",
+			"default": "sidebar",
+			"enum": [ "sidebar", "tabbed" ]
+		},
+		"filterId": { "type": "string", "default": "" },
+		"label": { "type": "string", "default": "" }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-static.js",
+	"style": "file:../../../../build/search-blocks/filter-static.css"
+}
