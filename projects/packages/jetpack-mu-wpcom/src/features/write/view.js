@@ -86,9 +86,13 @@ let slashMenuEscaped = false;
 // Focus memory persists across Tab-in / Tab-out cycles.
 let lastFocusedToolbarButton = null;
 
-// The figure highlighted by the first Backspace/Delete press; a second
-// press on the same figure deletes it.
-let pendingDeleteFigure = null;
+// Track the figure currently "selected" by the first Backspace/Delete press.
+// A second press on the same figure deletes it.
+let selectedFigure = null;
+
+// The cursor range saved before a figure is selected so it can be restored
+// if the user cancels the selection (Escape, click, or typing a letter).
+let preFigureSelectionRange = null;
 
 let cachedContent = null;
 
@@ -210,10 +214,6 @@ function stripRuntimeFigureControls( root ) {
 			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
 		)
 		.forEach( el => el.remove() );
-	// Pending-delete highlight is UI state, not content — drop it from snapshots.
-	root.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
-		el.classList.remove( 'bw-figure-pending-delete' );
-	} );
 }
 
 /**
@@ -246,12 +246,6 @@ function applyUndoSnapshot( snapshot ) {
 		content.innerHTML = snapshot.html;
 		ensureBlockStructure();
 		restoreUndoCursor( content, snapshot.cursor );
-		// Drop any stale pending-delete highlight from the snapshot, and
-		// reset the local tracker so the next Backspace starts fresh.
-		content.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
-			el.classList.remove( 'bw-figure-pending-delete' );
-		} );
-		pendingDeleteFigure = null;
 	}
 	const titleEl = document.querySelector( '.bw-title' );
 	if ( titleEl ) {
@@ -407,14 +401,28 @@ function setFigureSize( fig, slug ) {
 }
 
 /**
- * Clear the two-step Backspace/Delete pending-delete highlight, if any.
+ * Deselect the currently-selected figure, if any, and optionally
+ * restore the cursor position saved before the figure was selected.
+ *
+ * @param {boolean} restoreCursor - Whether to restore the saved cursor
+ *                                position. Pass false when the caller sets its own cursor (e.g. click).
  */
-function clearPendingDelete() {
-	if ( pendingDeleteFigure ) {
-		pendingDeleteFigure.classList.remove( 'bw-figure-pending-delete' );
-		pendingDeleteFigure = null;
+function clearFigureSelection( restoreCursor = true ) {
+	if ( selectedFigure ) {
+		selectedFigure.classList.remove( 'bw-figure-selected' );
+		selectedFigure = null;
 	}
+	if ( restoreCursor && preFigureSelectionRange ) {
+		const sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange( preFigureSelectionRange );
+	}
+	preFigureSelectionRange = null;
 }
+
+// Deselect figure on any click — don't restore the saved cursor
+// because the click itself places the caret where the user wants it.
+document.addEventListener( 'click', () => clearFigureSelection( false ) );
 
 /**
  * Whether the editor has anything worth saving — non-empty title, any
@@ -1301,6 +1309,7 @@ function addDeleteButtons() {
 		btn.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopPropagation();
+			clearFigureSelection();
 			animateAndDeleteFigure( fig );
 		} );
 		controls.appendChild( btn );
@@ -2454,10 +2463,6 @@ const { state } = store( 'wpcom-write', {
 			}
 			return '';
 		},
-		// Disable text-alignment buttons inside lists where they're not meaningful.
-		get cannotAlign() {
-			return state.insideList;
-		},
 	},
 
 	actions: {
@@ -2698,7 +2703,10 @@ const { state } = store( 'wpcom-write', {
 			// Exception: if focus is inside a figure, let the browser navigate
 			// naturally between the figure's action buttons.
 			if ( ( event.key === 'Tab' && event.shiftKey ) || ( event.altKey && event.key === 'F10' ) ) {
-				if ( event.key === 'Tab' && event.target.closest( '.bw-img-controls, figcaption' ) ) {
+				if (
+					event.key === 'Tab' &&
+					event.target.closest( 'figure, .bw-image-figure, .bw-video-figure' )
+				) {
 					return;
 				}
 				event.preventDefault();
@@ -2737,21 +2745,16 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Escape clears the two-step delete highlight without removing
-			// the figure, restoring the caret position the user was at.
-			if ( event.key === 'Escape' && pendingDeleteFigure ) {
+			// Escape deselects a keyboard-selected figure.
+			if ( event.key === 'Escape' && selectedFigure ) {
 				event.preventDefault();
-				clearPendingDelete();
-				getContent()?.focus();
+				clearFigureSelection();
 				return;
 			}
 
-			// Any non-deletion keystroke cancels the pending delete.  Modifiers
-			// fire their own keydown so we exempt them — otherwise Shift+letter
-			// would clear on the Shift event before the letter arrives.
-			const pendingExempt = [ 'Backspace', 'Delete', 'Shift', 'Control', 'Meta', 'Alt' ];
-			if ( pendingDeleteFigure && ! pendingExempt.includes( event.key ) ) {
-				clearPendingDelete();
+			// Any key other than Backspace/Delete/Escape deselects the figure.
+			if ( selectedFigure && event.key !== 'Backspace' && event.key !== 'Delete' ) {
+				clearFigureSelection();
 			}
 
 			// Slash menu keyboard navigation.
@@ -2822,24 +2825,35 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Two-step figure deletion: first Backspace/Delete highlights
-			// the adjacent figure, second press deletes it.
+			// Two-step figure deletion: first Backspace/Delete selects the
+			// adjacent figure, second press deletes it.
 			if ( event.key === 'Backspace' || event.key === 'Delete' ) {
-				// Second press — delete the already-highlighted figure.
-				if ( pendingDeleteFigure ) {
+				// Second press — delete the already-selected figure.
+				// Check this first because the selection was cleared when
+				// the figure was highlighted (no blinking cursor).
+				if ( selectedFigure ) {
 					event.preventDefault();
-					const fig = pendingDeleteFigure;
-					clearPendingDelete();
+					const fig = selectedFigure;
+					clearFigureSelection();
 					animateAndDeleteFigure( fig );
 					return;
 				}
 
-				// First press — highlight the adjacent figure.
+				// First press — select the adjacent figure.
 				const targetFigure = getFigureAdjacentToCursor( event.key );
 				if ( targetFigure ) {
 					event.preventDefault();
-					pendingDeleteFigure = targetFigure;
-					targetFigure.classList.add( 'bw-figure-pending-delete' );
+					selectedFigure = targetFigure;
+					targetFigure.classList.add( 'bw-figure-selected' );
+					// Save the cursor position so it can be restored if the
+					// user cancels the selection (Escape, click, or letter).
+					const sel = window.getSelection();
+					if ( sel.rangeCount ) {
+						preFigureSelectionRange = sel.getRangeAt( 0 ).cloneRange();
+					}
+					// Hide the blinking cursor so focus appears to move
+					// to the highlighted figure.
+					sel.removeAllRanges();
 					return;
 				}
 				// No adjacent figure — fall through to native Backspace/Delete.
@@ -3097,12 +3111,7 @@ const { state } = store( 'wpcom-write', {
 				event.preventDefault();
 				const buttons = [
 					...toolbar.querySelectorAll( ':scope .bw-tool, :scope .bw-tool-heading-toggle' ),
-				].filter(
-					btn =>
-						! btn.closest( '.bw-heading-menu, .bw-color-menu' ) &&
-						! btn.disabled &&
-						! btn.closest( '[hidden]' )
-				);
+				].filter( btn => ! btn.closest( '.bw-heading-menu, .bw-color-menu' ) && ! btn.disabled );
 				const idx = buttons.indexOf( focused );
 				const delta = event.key === 'ArrowRight' ? 1 : -1;
 				setToolbarFocus( buttons[ ( idx + delta + buttons.length ) % buttons.length ] );
@@ -3129,7 +3138,7 @@ const { state } = store( 'wpcom-write', {
 					event.preventDefault();
 					focused.click();
 					requestAnimationFrame( () => {
-						const menuSelector = isColorToggle ? '.bw-color-menu' : '.bw-heading-menu';
+						const menuSelector = isHeadingToggle ? '.bw-heading-menu' : '.bw-color-menu';
 						const menu = toolbar.querySelector( menuSelector );
 						const firstItem = menu?.querySelector( '[role="menuitem"]' );
 						if ( firstItem ) firstItem.focus();
@@ -4320,8 +4329,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			p.remove();
 		}
 	} );
-	clone.querySelectorAll( '.bw-figure-pending-delete' ).forEach( el => {
-		el.classList.remove( 'bw-figure-pending-delete' );
+	clone.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
+		el.classList.remove( 'bw-figure-selected' );
 	} );
 	// Also strip the contenteditable attribute from figures — it's a
 	// runtime attribute that shouldn't be persisted.
