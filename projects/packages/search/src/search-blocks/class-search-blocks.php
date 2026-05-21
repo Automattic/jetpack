@@ -87,6 +87,19 @@ class Search_Blocks {
 	private static $is_free_plan_cache = null;
 
 	/**
+	 * Per-request memo backing `supports_paid_search()`. Reads the same
+	 * `Plan::get_plan_info()` option as `is_free_plan_cache`, but answers
+	 * the inverse question — "does the site have a paid Search plan?" —
+	 * which is what paid-only block surfaces (today: AI Answer) gate on.
+	 * Kept separate from `is_free_plan_cache` because the two helpers can
+	 * disagree: a site with no plan info at all is neither on the free
+	 * plan nor on a paid one.
+	 *
+	 * @var bool|null
+	 */
+	private static $supports_paid_search_cache = null;
+
+	/**
 	 * Per-request memo backing `woocommerce_blocks_enabled()`. Centralized here
 	 * (rather than inside any one WC-aware block helper) so every gate that
 	 * needs the answer — block-registration filters that hide WC-only blocks
@@ -257,6 +270,40 @@ class Search_Blocks {
 	 */
 	public static function reset_is_free_plan_cache() {
 		self::$is_free_plan_cache = null;
+	}
+
+	/**
+	 * Whether the site has a paid Jetpack Search subscription. Paid-only
+	 * block surfaces (AI Answer's `render.php` and editor preview) call
+	 * this on every render to decide whether to emit the panel scaffold
+	 * or short-circuit; same cold-cache WPCOM round-trip hazard
+	 * `is_free_plan()` guards against, so memoize the same way.
+	 *
+	 * Why both probes: WPCOM reports `supports_instant_search: true` on
+	 * the free Search plan too — "this plan supports instant search as a
+	 * feature," not "the plan is paid." So `supports_instant_search()`
+	 * alone would let the free plan through. Combining with
+	 * `! is_free_plan()` rules out both the free product
+	 * (`jetpack_search_free`) and the forced-free filter, while
+	 * `supports_instant_search()` still rules out the no-plan / no-Search
+	 * case (which `is_free_plan()` returns false for).
+	 *
+	 * @return bool
+	 */
+	public static function supports_paid_search(): bool {
+		if ( null === self::$supports_paid_search_cache ) {
+			$plan                             = new Plan();
+			self::$supports_paid_search_cache = $plan->supports_instant_search() && ! $plan->is_free_plan();
+		}
+		return self::$supports_paid_search_cache;
+	}
+
+	/**
+	 * Reset the `supports_paid_search()` memo. Tests only — production
+	 * callers should never need this.
+	 */
+	public static function reset_supports_paid_search_cache() {
+		self::$supports_paid_search_cache = null;
 	}
 
 	/**
@@ -574,6 +621,13 @@ class Search_Blocks {
 				array(
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
+					// `supportsPaidSearch` mirrors the PHP gate the AI Answer
+					// block applies in its `render.php` — paid-only block
+					// edits read this flag and swap their preview for an
+					// upgrade Placeholder when it's false. Server-side is
+					// the source of truth; the editor flag just lets the
+					// preview match what the front end will actually emit.
+					'supportsPaidSearch'         => self::supports_paid_search(),
 					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
 					// picker in filter-checkbox/edit.js — only taxonomies in
 					// this list (Jetpack-Search-indexed OR mapped to a

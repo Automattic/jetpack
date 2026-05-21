@@ -59,6 +59,35 @@ class Ai_Answer_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Seed a paid-plan option so the per-render paid-plan gate in
+	 * `render.php` lets through; the assertions in this suite are about
+	 * markup shape, not plan logic. The `supports_paid_search()` memo is
+	 * cleared in setUp / tearDown so cases that explicitly hide the plan
+	 * (`test_renders_nothing_without_paid_search_plan`) get a clean read.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		// Paid Search plan: `supports_instant_search: true` AND a
+		// non-free product_slug. The slug matters because WPCOM also
+		// reports `supports_instant_search: true` on the free plan, so
+		// the gate combines both probes to rule it out.
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function tearDown(): void {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		Search_Blocks::reset_supports_paid_search_cache();
+		parent::tearDown();
+	}
+
+	/**
 	 * Render the ai-answer block via `do_blocks()`.
 	 *
 	 * @param array $attributes Block attributes.
@@ -135,6 +164,39 @@ class Ai_Answer_Render_Test extends TestCase {
 		$markup = $this->render( array( 'enableShowMore' => false ) );
 		$this->assertStringNotContainsString( 'jp-search-answers-panel__toggle', $markup );
 		$this->assertStringNotContainsString( 'showExtendedAiAnswer', $markup );
+	}
+
+	public function test_renders_nothing_without_paid_search_plan() {
+		// Drop the plan and re-prime the memo: a no-plan site must not
+		// emit the panel scaffold (no wrapper, no `data-wp-interactive`
+		// hook). Mirrors how WordAds / Premium Content's render_callbacks
+		// short-circuit when their plan check fails.
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		Search_Blocks::reset_supports_paid_search_cache();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
+	}
+
+	public function test_renders_nothing_on_free_search_plan() {
+		// WPCOM reports `supports_instant_search: true` on the free
+		// Search plan too, so the gate has to combine that probe with
+		// the product_slug check. This case exercises that second probe.
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+		Search_Blocks::reset_supports_paid_search_cache();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
 	public function test_panel_is_hidden_until_status_changes() {
