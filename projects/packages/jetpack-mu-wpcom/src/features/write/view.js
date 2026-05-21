@@ -3122,8 +3122,20 @@ const { state } = store( 'wpcom-write', {
 		// --- Alignment ---
 
 		alignLeft() {
-			document.execCommand( 'justifyLeft' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Left is the default — remove explicit alignment from
+				// the blockquote and any inner paragraphs.
+				flushUndoDebounce();
+				bq.style.removeProperty( 'text-align' );
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyLeft' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = true;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = false;
@@ -3131,8 +3143,20 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignCenter() {
-			document.execCommand( 'justifyCenter' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Apply alignment to the blockquote itself so
+				// convertToBlocks reads it from node.style.textAlign.
+				flushUndoDebounce();
+				bq.style.textAlign = 'center';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyCenter' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = true;
 			state.formatAlignRight = false;
@@ -3140,8 +3164,18 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignRight() {
-			document.execCommand( 'justifyRight' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				flushUndoDebounce();
+				bq.style.textAlign = 'right';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyRight' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = true;
