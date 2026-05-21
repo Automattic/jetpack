@@ -396,7 +396,10 @@ function wpcom_add_jetpack_submenu() {
 	// While the filter is off (the default) we keep the legacy Calypso
 	// "Subscribers" submenu. (The wp-admin subscriber-management variant was
 	// removed with the subscribers-dashboard package and isn't restored.)
-	if ( ! apply_filters( Newsletter_Settings::MODERNIZATION_FILTER, false ) ) {
+	// Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER):
+	// the newsletter package isn't a dependency of jetpack-mu-wpcom, and this runs
+	// unconditionally — ahead of the class_exists-guarded Settings use below.
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
