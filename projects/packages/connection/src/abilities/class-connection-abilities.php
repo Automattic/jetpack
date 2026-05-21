@@ -111,17 +111,18 @@ class Connection_Abilities extends Registrar {
 	 */
 
 	/**
-	 * Permission check: any authenticated user can read connection state.
+	 * Permission check: mirrors the capability used by the Jetpack admin page.
 	 *
 	 * Connection state is not sensitive in itself (the same data is exposed
 	 * on the Jetpack admin page and through several existing REST endpoints),
-	 * but anonymous callers have no legitimate need to inspect it, so we
-	 * still require an authenticated request.
+	 * but subscribers and contributors have no legitimate need to inspect it.
+	 * Gating on `jetpack_admin_page` aligns with how {@see Modules_Abilities}
+	 * scopes its read.
 	 *
 	 * @return bool
 	 */
 	public static function can_view_connection(): bool {
-		return is_user_logged_in();
+		return current_user_can( 'jetpack_admin_page' );
 	}
 
 	/*

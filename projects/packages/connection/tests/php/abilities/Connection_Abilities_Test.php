@@ -327,9 +327,11 @@ class Connection_Abilities_Test extends TestCase {
 	}
 
 	/**
-	 * Any authenticated user (even a subscriber) may read connection state.
+	 * Subscribers must not be able to read connection state — the
+	 * `jetpack_admin_page` capability is what scopes the Jetpack admin page,
+	 * and we mirror that here.
 	 */
-	public function test_can_view_connection_allows_logged_in_user(): void {
+	public function test_can_view_connection_denies_subscriber(): void {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'connection_abilities_subscriber',
@@ -339,7 +341,36 @@ class Connection_Abilities_Test extends TestCase {
 		);
 		wp_set_current_user( (int) $user_id );
 
-		$this->assertTrue( Connection_Abilities::can_view_connection() );
+		$this->assertFalse( Connection_Abilities::can_view_connection() );
+	}
+
+	/**
+	 * Users with the `jetpack_admin_page` capability may read connection state.
+	 */
+	public function test_can_view_connection_allows_user_with_jetpack_admin_page_cap(): void {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'connection_abilities_admin',
+				'user_pass'  => 'pw',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( (int) $user_id );
+
+		// `jetpack_admin_page` is a meta-cap mapped via Jetpack's capability
+		// filter in production; grant it directly here so the test stays
+		// independent of Jetpack's capability mapping plumbing.
+		$grant = static function ( $allcaps ) {
+			$allcaps['jetpack_admin_page'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+
+		try {
+			$this->assertTrue( Connection_Abilities::can_view_connection() );
+		} finally {
+			remove_filter( 'user_has_cap', $grant );
+		}
 	}
 
 	// --- get-connection-status execute -------------------------------------.
