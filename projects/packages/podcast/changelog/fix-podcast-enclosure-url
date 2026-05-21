@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast feed: default the enclosure stats URL blog ID to the Jetpack connection ID so Atomic feeds route to the correct WPCOM site instead of site 1.
