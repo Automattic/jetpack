@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { View } from '@wordpress/dataviews/wp';
 
@@ -144,9 +144,5 @@ export function useViewState( defaultView: View ): [ View, ( next: View ) => voi
 		window.history.replaceState( window.history.state, '', newUrl );
 	}, [ view ] );
 
-	const setView = useCallback( ( next: View ) => {
-		setViewState( next );
-	}, [] );
-
-	return [ view, setView ];
+	return [ view, setViewState ];
 }

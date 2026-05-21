@@ -5,6 +5,7 @@ import { Notice } from '@wordpress/ui';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
 import { useViewState } from '../lib/use-view-state';
@@ -84,9 +85,9 @@ export default function SubscribersDataViews( {
 	const { data, isLoading, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
 
-	// Tracks: mirror Calypso's per-interaction events. Fired off `onChangeView` instead of
-	// individual handlers because DataViews owns the controls; we just diff the previous view
-	// against the next and emit one event per kind of change.
+	// Fired off `onChangeView` rather than per-control handlers because DataViews owns
+	// the controls — we diff the previous view against the next to mirror Calypso's
+	// per-interaction Tracks events.
 	const handleChangeView = useCallback(
 		( nextView: View ) => {
 			if ( ( nextView.search ?? '' ) !== ( view.search ?? '' ) ) {
@@ -138,17 +139,7 @@ export default function SubscribersDataViews( {
 			{
 				id: 'plan',
 				label: __( 'Subscription type', 'jetpack-newsletter' ),
-				getValue: ( { item }: { item: Subscriber } ) => {
-					const plans = item.plans ?? [];
-					const hasNonCompPlan = plans.some( plan => ! plan.is_comp );
-					if ( hasNonCompPlan ) {
-						return 'paid';
-					}
-					if ( plans.length ) {
-						return 'comp';
-					}
-					return 'free';
-				},
+				getValue: ( { item }: { item: Subscriber } ) => getSubscriptionType( item ),
 				render: ( { item }: { item: Subscriber } ) => <SubscriptionTypeCell subscriber={ item } />,
 				elements: [
 					{ label: __( 'Paid', 'jetpack-newsletter' ), value: 'paid' },
