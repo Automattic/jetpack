@@ -424,6 +424,22 @@ function clearFigureSelection( restoreCursor = true ) {
 // because the click itself places the caret where the user wants it.
 document.addEventListener( 'click', () => clearFigureSelection( false ) );
 
+// Close any open per-image Size dropdown on outside click.  One listener
+// total — avoids the per-figure listener accumulation that would otherwise
+// pile up as users insert / undo / redo images over a session.
+// The menu's own trigger button is its previousElementSibling; only clicks
+// on *that* button are exempt, so clicking a different image's Size button
+// still closes the menu (and lets that image's button open its own menu).
+document.addEventListener( 'click', ev => {
+	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
+	if ( ! openMenu ) return;
+	if ( openMenu.contains( ev.target ) ) return;
+	const trigger = openMenu.previousElementSibling;
+	if ( trigger && trigger.contains( ev.target ) ) return;
+	openMenu.hidden = true;
+	trigger?.setAttribute( 'aria-expanded', 'false' );
+} );
+
 /**
  * Whether the editor has anything worth saving — non-empty title, any
  * text content, or a media/separator block. Used by actions that need a
@@ -1439,6 +1455,14 @@ function addDeleteButtons() {
 			} );
 
 			const openSizeMenu = () => {
+				// Close any other image's open Size menu first.  sizeBtn's click
+				// handler stops propagation so the document-level outside-click
+				// listener can't do this for us.
+				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
+					if ( other === menu ) return;
+					other.hidden = true;
+					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
+				} );
 				// Mark the option that matches the figure's current size class
 				// (none on figures loaded without an explicit sizeSlug).
 				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
@@ -1492,13 +1516,6 @@ function addDeleteButtons() {
 					// focus move; we just clean up state.
 					closeSizeMenu();
 				}
-			} );
-
-			// Close the menu on any click outside it.
-			document.addEventListener( 'click', ev => {
-				if ( menu.hidden ) return;
-				if ( menu.contains( ev.target ) || sizeBtn.contains( ev.target ) ) return;
-				closeSizeMenu();
 			} );
 
 			controls.appendChild( sizeBtn );
