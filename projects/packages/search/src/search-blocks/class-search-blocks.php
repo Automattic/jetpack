@@ -322,8 +322,10 @@ class Search_Blocks {
 	/**
 	 * Reset the `supports_paid_search()` memo. Tests only — production
 	 * callers should never need this.
+	 *
+	 * @internal
 	 */
-	public static function reset_supports_paid_search_cache() {
+	public static function reset_supports_paid_search_cache(): void {
 		self::$supports_paid_search_cache = null;
 	}
 
