@@ -1286,18 +1286,19 @@ class Blaze_Abilities extends Registrar {
 			return $route;
 		}
 
-		$request = new WP_REST_Request( 'POST', $route );
-		$request->set_body_params(
-			array(
-				'idempotency_key'         => (string) $args['idempotency_key'],
-				'prepared_package_id'     => (string) $args['prepared_package_id'],
-				'prepared_campaign_hash'  => (string) $args['prepared_campaign_hash'],
-				'prepared_campaign'       => $args['prepared_campaign'],
-				'accepted_terms_version'  => (string) $args['accepted_terms_version'],
-				'accepted_policy_version' => (string) $args['accepted_policy_version'],
-				'approval'                => self::build_dsp_submit_approval_event( $args ),
-			)
+		$submit_body = array(
+			'idempotency_key'         => (string) $args['idempotency_key'],
+			'prepared_package_id'     => (string) $args['prepared_package_id'],
+			'prepared_campaign_hash'  => (string) $args['prepared_campaign_hash'],
+			'prepared_campaign'       => $args['prepared_campaign'],
+			'accepted_terms_version'  => (string) $args['accepted_terms_version'],
+			'accepted_policy_version' => (string) $args['accepted_policy_version'],
+			'approval'                => self::build_dsp_submit_approval_event( $args ),
 		);
+
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( $submit_body, JSON_UNESCAPED_SLASHES ) );
 
 		try {
 			$response = rest_do_request( $request );

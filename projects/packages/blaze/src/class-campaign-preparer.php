@@ -478,11 +478,13 @@ class Campaign_Preparer {
 	 * @return array
 	 */
 	private static function build_submit_campaign_payload( array $prefill, array $summary, $selected_payment_method ): array {
-		$schedule  = isset( $summary['schedule'] ) && is_array( $summary['schedule'] ) ? $summary['schedule'] : array();
-		$targeting = array();
+		$schedule      = isset( $summary['schedule'] ) && is_array( $summary['schedule'] ) ? $summary['schedule'] : array();
+		$cadence       = isset( $summary['cadence'] ) && is_array( $summary['cadence'] ) ? $summary['cadence'] : array();
+		$targeting     = self::build_submit_targeting( $prefill );
+		$start_date    = isset( $schedule['start_date'] ) ? (string) $schedule['start_date'] : gmdate( 'Y-m-d' );
+		$duration_days = isset( $cadence['duration_days'] ) ? max( 1, (int) $cadence['duration_days'] ) : self::DEFAULT_DURATION_DAYS;
 
 		foreach ( array(
-			'countries'   => 'locations',
 			'languages'   => 'languages',
 			'devices'     => 'devices',
 			'page_topics' => 'page_topics',
@@ -492,14 +494,14 @@ class Campaign_Preparer {
 			}
 		}
 
-		return array(
+		$submit_payload = array(
 			'origin'            => 'mcp_chat',
 			'origin_version'    => self::APPROVAL_VERSION,
 			'target_urn'        => isset( $prefill['target_urn'] ) ? (string) $prefill['target_urn'] : '',
 			'type'              => isset( $prefill['type'] ) ? (string) $prefill['type'] : 'post',
 			'payment_method_id' => is_array( $selected_payment_method ) && isset( $selected_payment_method['id'] ) ? (string) $selected_payment_method['id'] : '',
-			'start_date'        => isset( $schedule['start_date'] ) ? (string) $schedule['start_date'] : gmdate( 'Y-m-d' ),
-			'end_date'          => isset( $schedule['end_date'] ) ? (string) $schedule['end_date'] : gmdate( 'Y-m-d' ),
+			'start_date'        => $start_date,
+			'end_date'          => self::get_exclusive_submit_end_date( $start_date, $duration_days ),
 			'time_zone'         => isset( $schedule['time_zone'] ) ? (string) $schedule['time_zone'] : self::get_site_timezone(),
 			'site_name'         => isset( $prefill['site_name'] ) ? (string) $prefill['site_name'] : '',
 			'text_snippet'      => isset( $prefill['text_snippet'] ) ? (string) $prefill['text_snippet'] : '',
@@ -511,10 +513,55 @@ class Campaign_Preparer {
 				'mime_type' => 'image/jpeg',
 			),
 			'budget'            => isset( $prefill['budget'] ) && is_array( $prefill['budget'] ) ? $prefill['budget'] : array(),
-			'objective'         => isset( $prefill['objective'] ) ? (string) $prefill['objective'] : 'views',
+			'objective'         => self::objective_for_submit( isset( $prefill['objective'] ) ? (string) $prefill['objective'] : '' ),
 			'is_evergreen'      => isset( $prefill['is_evergreen'] ) ? (bool) $prefill['is_evergreen'] : true,
-			'targeting'         => $targeting,
 		);
+
+		if ( ! empty( $targeting ) ) {
+			$submit_payload['targeting'] = $targeting;
+		}
+
+		return $submit_payload;
+	}
+
+	/**
+	 * Build DSP-native targeting for chat submit.
+	 *
+	 * The Blaze widget prefill uses ISO country codes, but DSP create-campaign
+	 * expects numeric targeting location IDs. Until prepare resolves those IDs
+	 * through DSP-owned targeting data, omit countries from chat-native submit
+	 * rather than sending invalid values.
+	 *
+	 * @param array $prefill Recommended campaign prefill payload.
+	 * @return array
+	 */
+	private static function build_submit_targeting( array $prefill ): array {
+		$targeting = array();
+
+		foreach ( array(
+			'languages'   => 'languages',
+			'devices'     => 'devices',
+			'page_topics' => 'page_topics',
+		) as $prefill_key => $targeting_key ) {
+			if ( ! empty( $prefill[ $prefill_key ] ) && is_array( $prefill[ $prefill_key ] ) ) {
+				$targeting[ $targeting_key ] = array_values( $prefill[ $prefill_key ] );
+			}
+		}
+
+		return $targeting;
+	}
+
+	/**
+	 * DSP create validates campaign duration as the difference between start
+	 * and end date, so submit uses an exclusive end date.
+	 *
+	 * @param string $start_date    Start date in Y-m-d format.
+	 * @param int    $duration_days Duration in days.
+	 * @return string
+	 */
+	private static function get_exclusive_submit_end_date( string $start_date, int $duration_days ): string {
+		$timestamp = strtotime( $start_date . ' +' . max( 1, $duration_days ) . ' days' );
+		return gmdate( 'Y-m-d', false === $timestamp ? time() : $timestamp );
 	}
 
 	/**
@@ -1599,6 +1646,16 @@ class Campaign_Preparer {
 	 */
 	private static function objective_for_intent( string $intent ): string {
 		return self::INTENT_ECOMMERCE === $intent ? 'CLICKS' : 'VIEWS';
+	}
+
+	/**
+	 * Convert the review/widget objective into DSP's create-campaign enum.
+	 *
+	 * @param string $objective Review objective.
+	 * @return string
+	 */
+	private static function objective_for_submit( string $objective ): string {
+		return 'CLICKS' === strtoupper( $objective ) ? 'traffic' : 'views';
 	}
 
 	/**

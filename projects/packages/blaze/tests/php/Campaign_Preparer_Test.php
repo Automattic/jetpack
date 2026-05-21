@@ -171,7 +171,11 @@ class Campaign_Preparer_Test extends BaseTestCase {
 			}
 		);
 
-		$ctx = $this->make_test_post();
+		$ctx = $this->make_test_post(
+			array(
+				'post_type' => 'product',
+			)
+		);
 
 		$args = array(
 			'target_urn'    => $ctx['target_urn'],
@@ -216,7 +220,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( array( 'en', 'es' ), $summary['targeting_summary']['languages'] );
 		$this->assertSame( array( 'mobile' ), $summary['targeting_summary']['devices'] );
 		$this->assertSame( $ctx['target_urn'], $summary['source_context']['target_urn'] );
-		$this->assertSame( 'post', $summary['source_context']['post_type'] );
+		$this->assertSame( 'product', $summary['source_context']['post_type'] );
 
 		$this->assertTrue( $result['submit_eligibility']['chat_native_submit'] );
 		$this->assertSame( 'saved_payment_method', $result['submit_eligibility']['payment_method'] );
@@ -224,6 +228,10 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'approval_block', $result );
 		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
 		$this->assertSame( 'blaze.approval.confirm_prepared_campaign.v1', $result['approval_block']['confirmation_label_key'] );
+		$this->assertSame( 'traffic', $result['submit_package']['prepared_campaign']['objective'] );
+		$this->assertSame( gmdate( 'Y-m-d', strtotime( '+10 days' ) ), $result['submit_package']['prepared_campaign']['end_date'] );
+		$this->assertArrayNotHasKey( 'locations', $result['submit_package']['prepared_campaign']['targeting'] );
+		$this->assertSame( array( 'en', 'es' ), $result['submit_package']['prepared_campaign']['targeting']['languages'] );
 
 		$this->assertTrue( $result['material_edit_policy']['requires_reprepare'] );
 		$this->assertContains( 'creative', $result['material_edit_policy']['material_fields'] );
@@ -445,7 +453,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 			'image'          => array( 'main_image_url' => 'https://example.com/new.jpg' ),
 			'budget'         => array( 'budget_total' => 125 ),
 			'schedule'       => array( 'duration_days' => 14 ),
-			'targeting'      => array( 'countries' => array( 'CA' ) ),
+			'targeting'      => array( 'languages' => array( 'es' ) ),
 		);
 
 		foreach ( $material_variants as $variant => $overrides ) {

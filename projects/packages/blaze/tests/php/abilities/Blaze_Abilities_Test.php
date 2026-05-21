@@ -1354,7 +1354,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$this->register_submit_prepared_campaign_route(
 			static function ( $request ) use ( &$captured_body ) {
-				$captured_body = $request->get_body_params();
+				$captured_body = json_decode( $request->get_body(), true );
 				return array(
 					'id'                      => 'campaign-123',
 					'campaign_status'         => 'pending',
