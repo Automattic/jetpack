@@ -50,10 +50,7 @@ class New_Episode_Prefill {
 
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
 
-		// Fail closed until `Podcast_Gate` ships so an unqualified call doesn't fatal.
-		$gate = array( __NAMESPACE__ . '\\Podcast_Gate', 'has_product_access' );
-		// @phan-suppress-next-line PhanUndeclaredClassInCallable -- Podcast_Gate is a future class; guarded by is_callable().
-		if ( is_callable( $gate ) && call_user_func( $gate ) ) {
+		if ( Podcast_Gate::has_product_access() ) {
 			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 		}
 	}
