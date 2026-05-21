@@ -210,7 +210,9 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
+		)
 		.forEach( el => el.remove() );
 }
 
@@ -322,6 +324,140 @@ function getContent() {
 	return cachedContent;
 }
 
+// Image size presets we ship. Alignment, wide/full layouts, and custom
+// widths stay in the block editor (see RSM-3472).
+const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
+
+// Cache of media library size lookups keyed by attachment ID.  Populated
+// at upload time from the API response, then again lazily when the user
+// changes the size of a figure loaded from a saved post.
+const mediaSizesCache = new Map();
+
+/**
+ * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
+ *
+ * @param {HTMLImageElement} img - The image element.
+ * @return {number|null} Numeric attachment ID, or null when the class is absent.
+ */
+function getMediaIdFromImg( img ) {
+	if ( ! img ) return null;
+	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
+	return match ? parseInt( match[ 1 ], 10 ) : null;
+}
+
+/**
+ * Get the registered media-library sizes for an attachment, caching the
+ * result. Returns null for images without a media library ID (e.g. inserted
+ * from an external URL).
+ *
+ * The Promise is cached (not just the resolved value) so two rapid size
+ * changes on the same image share one REST request instead of racing.
+ *
+ * @param {number} id - Attachment ID.
+ * @return {Promise<Object|null>} Resolves to the sizes object, or null.
+ */
+function fetchMediaSizes( id ) {
+	if ( mediaSizesCache.has( id ) ) return mediaSizesCache.get( id );
+	const promise = window.wp
+		.apiFetch( { path: `/wp/v2/media/${ id }` } )
+		.then( media => media.media_details?.sizes || null )
+		.catch( () => null );
+	mediaSizesCache.set( id, promise );
+	return promise;
+}
+
+/**
+ * Swap an image's src to the registered media-library URL for the given
+ * size, plus update width/height attributes so the rendered size is right
+ * everywhere — block editor, published page, RSS.
+ *
+ * No-op if the image isn't in the media library or the requested size
+ * isn't registered (theme/plugin chose not to generate it).
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug ('thumbnail' / 'medium' / 'large' / 'full').
+ */
+async function applyMediaSizeToFigure( fig, slug ) {
+	const img = fig.querySelector( 'img' );
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return;
+	const sizes = await fetchMediaSizes( id );
+	const target = sizes?.[ slug ] || sizes?.full;
+	if ( ! target?.source_url ) return;
+	img.src = target.source_url;
+	if ( target.width ) img.setAttribute( 'width', target.width );
+	if ( target.height ) img.setAttribute( 'height', target.height );
+}
+
+// In-flight applyMediaSizeToFigure promises. savePost awaits these before
+// cloning content so a save fired between a size click and the REST
+// response doesn't serialize the new size class with the old src.
+const pendingMediaSizeSwaps = new Set();
+
+/**
+ * Register an in-flight applyMediaSizeToFigure promise so savePost can wait
+ * for it before serializing.
+ *
+ * @param {Promise} promise - The applyMediaSizeToFigure call.
+ * @return {Promise} The same promise, for chaining.
+ */
+function trackMediaSizeSwap( promise ) {
+	pendingMediaSizeSwaps.add( promise );
+	promise.finally( () => pendingMediaSizeSwaps.delete( promise ) );
+	return promise;
+}
+
+/**
+ * Toggle a size class on a figure, replacing any existing one.
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug or '' (clear).
+ */
+function setFigureSize( fig, slug ) {
+	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
+	if ( slug ) fig.classList.add( 'size-' + slug );
+}
+
+/**
+ * Deselect the currently-selected figure, if any, and optionally
+ * restore the cursor position saved before the figure was selected.
+ *
+ * @param {boolean} restoreCursor - Whether to restore the saved cursor
+ *                                position. Pass false when the caller sets its own cursor (e.g. click).
+ */
+function clearFigureSelection( restoreCursor = true ) {
+	if ( selectedFigure ) {
+		selectedFigure.classList.remove( 'bw-figure-selected' );
+		selectedFigure = null;
+	}
+	if ( restoreCursor && preFigureSelectionRange ) {
+		const sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange( preFigureSelectionRange );
+	}
+	preFigureSelectionRange = null;
+}
+
+// Deselect figure on any click — don't restore the saved cursor
+// because the click itself places the caret where the user wants it.
+document.addEventListener( 'click', () => clearFigureSelection( false ) );
+
+// Close any open per-image Size dropdown on outside click.  One listener
+// total — avoids the per-figure listener accumulation that would otherwise
+// pile up as users insert / undo / redo images over a session.
+// The menu's own trigger button is its previousElementSibling; only clicks
+// on *that* button are exempt, so clicking a different image's Size button
+// still closes the menu (and lets that image's button open its own menu).
+document.addEventListener( 'click', ev => {
+	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
+	if ( ! openMenu ) return;
+	if ( openMenu.contains( ev.target ) ) return;
+	const trigger = openMenu.previousElementSibling;
+	if ( trigger && trigger.contains( ev.target ) ) return;
+	openMenu.hidden = true;
+	trigger?.setAttribute( 'aria-expanded', 'false' );
+} );
+
 /**
  * Whether the editor has anything worth saving — non-empty title, any
  * text content, or a media/separator block. Used by actions that need a
@@ -348,30 +484,6 @@ function hasWritableContent() {
 	}
 	return !! content.querySelector( 'figure, hr' );
 }
-
-/**
- * Deselect the currently-selected figure, if any, and optionally
- * restore the cursor position saved before the figure was selected.
- *
- * @param {boolean} restoreCursor - Whether to restore the saved cursor
- *                                position. Pass false when the caller sets its own cursor (e.g. click).
- */
-function clearFigureSelection( restoreCursor = true ) {
-	if ( selectedFigure ) {
-		selectedFigure.classList.remove( 'bw-figure-selected' );
-		selectedFigure = null;
-	}
-	if ( restoreCursor && preFigureSelectionRange ) {
-		const sel = window.getSelection();
-		sel.removeAllRanges();
-		sel.addRange( preFigureSelectionRange );
-	}
-	preFigureSelectionRange = null;
-}
-
-// Deselect figure on any click — don't restore the saved cursor
-// because the click itself places the caret where the user wants it.
-document.addEventListener( 'click', () => clearFigureSelection( false ) );
 
 /**
  * If the cursor is at the edge of a block adjacent to a figure, return
@@ -697,10 +809,33 @@ function convertToBlocks( html ) {
 			const captionHtml = figcaption
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
+
+			// Read figure size class + the `wp-image-<id>` class for the
+			// media library attachment ID.  These map to core wp:image
+			// attributes so the published markup matches what the block
+			// editor would emit, and the block editor can re-open these
+			// images without surprises.
+			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
+				node.classList.contains( 'size-' + s )
+			);
+			const mediaId = getMediaIdFromImg( img );
+
+			const imageAttrs = [];
+			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
+			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
+			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
+
+			const figureClasses = [ 'wp-block-image' ];
+			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
+
+			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ escapeAttr(
-					src
-				) }" alt="${ escapeAttr( alt ) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
+					' '
+				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
+					alt
+				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// Extract citation from <cite> if present.
@@ -1297,6 +1432,114 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( capBtn );
 
+		// Size button + dropdown (only for media-library images: external
+		// URLs have no registered sizes to swap between).
+		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
+		if ( isMediaLibrary ) {
+			const sizeBtn = document.createElement( 'button' );
+			sizeBtn.className = 'bw-img-size';
+			sizeBtn.textContent = i18n.size || 'Size';
+			sizeBtn.contentEditable = 'false';
+			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
+			sizeBtn.setAttribute( 'aria-expanded', 'false' );
+
+			const menu = document.createElement( 'div' );
+			menu.className = 'bw-img-size-menu';
+			menu.contentEditable = 'false';
+			menu.hidden = true;
+			menu.setAttribute( 'role', 'menu' );
+			const sizeOptions = [
+				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
+				[ 'medium', i18n.sizeMedium || 'Medium' ],
+				[ 'large', i18n.sizeLarge || 'Large' ],
+				[ 'full', i18n.sizeFull || 'Full' ],
+			];
+			sizeOptions.forEach( ( [ slug, label ] ) => {
+				const opt = document.createElement( 'button' );
+				opt.className = 'bw-img-size-option';
+				opt.textContent = label;
+				opt.contentEditable = 'false';
+				opt.setAttribute( 'role', 'menuitemradio' );
+				opt.dataset.size = slug;
+				opt.tabIndex = -1;
+				opt.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					ev.stopPropagation();
+					setFigureSize( fig, slug );
+					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
+					closeSizeMenu( true );
+				} );
+				menu.appendChild( opt );
+			} );
+
+			const openSizeMenu = () => {
+				// Close any other image's open Size menu first.  sizeBtn's click
+				// handler stops propagation so the document-level outside-click
+				// listener can't do this for us.
+				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
+					if ( other === menu ) return;
+					other.hidden = true;
+					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
+				} );
+				// Mark the option that matches the figure's current size class
+				// (none on figures loaded without an explicit sizeSlug).
+				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				options.forEach( opt => {
+					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
+				} );
+				menu.hidden = false;
+				sizeBtn.setAttribute( 'aria-expanded', 'true' );
+				// Focus the current option so arrow keys move from there.
+				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
+				focusTarget?.focus();
+			};
+			const closeSizeMenu = ( returnFocus = false ) => {
+				menu.hidden = true;
+				sizeBtn.setAttribute( 'aria-expanded', 'false' );
+				if ( returnFocus ) sizeBtn.focus();
+			};
+
+			sizeBtn.addEventListener( 'click', ev => {
+				ev.preventDefault();
+				ev.stopPropagation();
+				if ( menu.hidden ) {
+					openSizeMenu();
+				} else {
+					closeSizeMenu();
+				}
+			} );
+
+			// Arrow / Home / End / Escape navigation within the open menu.
+			menu.addEventListener( 'keydown', ev => {
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				const idx = options.indexOf( menu.ownerDocument.activeElement );
+				if ( ev.key === 'ArrowDown' ) {
+					ev.preventDefault();
+					options[ ( idx + 1 ) % options.length ]?.focus();
+				} else if ( ev.key === 'ArrowUp' ) {
+					ev.preventDefault();
+					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
+				} else if ( ev.key === 'Home' ) {
+					ev.preventDefault();
+					options[ 0 ]?.focus();
+				} else if ( ev.key === 'End' ) {
+					ev.preventDefault();
+					options[ options.length - 1 ]?.focus();
+				} else if ( ev.key === 'Escape' ) {
+					ev.preventDefault();
+					closeSizeMenu( true );
+				} else if ( ev.key === 'Tab' ) {
+					// Tab out of the menu closes it.  The browser handles the
+					// focus move; we just clean up state.
+					closeSizeMenu();
+				}
+			} );
+
+			controls.appendChild( sizeBtn );
+			controls.appendChild( menu );
+		}
+
 		// Enter inside the figcaption exits to the next block. Attached on every
 		// figure init (not just on first caption-button click) so it survives an
 		// undo that restored a figure with a pre-existing figcaption — the
@@ -1464,6 +1707,9 @@ async function uploadFileToMedia( file ) {
 			state.featuredMediaId = media.id;
 		}
 		state.uploadedMediaId = media.id;
+		// Prime the cache so insertImageFromUrl can use it without a
+		// second REST roundtrip.
+		mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 
 		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
@@ -3441,6 +3687,12 @@ const { state } = store( 'wpcom-write', {
 
 		updateImageUrl() {
 			const el = getElement();
+			// Typing in the URL field overrides any pending upload — clear
+			// the media ID so insertImageFromUrl doesn't apply uploaded-size
+			// behavior to a manually pasted external URL.
+			if ( state.uploadedMediaId && el.ref.value !== state.imageUrl ) {
+				state.uploadedMediaId = 0;
+			}
 			state.imageUrl = el.ref.value;
 		},
 
@@ -3454,11 +3706,25 @@ const { state } = store( 'wpcom-write', {
 
 			restoreSelection();
 			const figure = document.createElement( 'figure' );
-			figure.className = 'bw-image-figure';
 			const img = document.createElement( 'img' );
 			img.src = state.imageUrl;
 			img.alt = state.imageAlt || '';
-			figure.appendChild( img );
+
+			if ( state.uploadedMediaId ) {
+				// Media-library image: tag it for round-trip with the block
+				// editor and swap src to the Large-sized URL so the natural
+				// img dimensions match the default preset.
+				img.className = 'wp-image-' + state.uploadedMediaId;
+				figure.className = 'bw-image-figure size-large';
+				figure.appendChild( img );
+				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
+			} else {
+				// External URL (no media library entry, no resized files):
+				// no size preset — the per-image Size button is hidden, matching
+				// block editor behavior.
+				figure.className = 'bw-image-figure';
+				figure.appendChild( img );
+			}
 
 			const p = insertMediaBlock( figure );
 			if ( p ) {
@@ -4057,6 +4323,14 @@ async function savePost( postStatus, isAutosave = false ) {
 			savingMessage = i18n.publishing || 'Publishing...';
 		}
 		state.message = savingMessage;
+	}
+
+	// Wait for any in-flight image size swaps to finish so the saved
+	// content's img.src matches its size-* class. Without this, a save
+	// fired between a size click and the REST response would serialize
+	// the new size class with the old src.
+	if ( pendingMediaSizeSwaps.size ) {
+		await Promise.allSettled( [ ...pendingMediaSizeSwaps ] );
 	}
 
 	// Ensure the live DOM has proper structure before cloning — this

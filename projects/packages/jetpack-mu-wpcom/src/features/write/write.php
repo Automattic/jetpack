@@ -145,6 +145,11 @@ add_action(
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+			'size'                 => __( 'Size', 'jetpack-mu-wpcom' ),
+			'sizeThumbnail'        => __( 'Thumbnail', 'jetpack-mu-wpcom' ),
+			'sizeMedium'           => __( 'Medium', 'jetpack-mu-wpcom' ),
+			'sizeLarge'            => __( 'Large', 'jetpack-mu-wpcom' ),
+			'sizeFull'             => __( 'Full', 'jetpack-mu-wpcom' ),
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
@@ -258,8 +263,12 @@ function wpcom_write_allowed_block_attrs() {
 	return array(
 		'paragraph' => array( 'align' ),
 		'heading'   => array( 'level', 'align' ),
-		// id/sizeSlug: media-library metadata, not visible formatting.
+		// id: media-library metadata, not visible formatting.
 		// alt: preserved via HTML element, not block JSON.
+		// sizeSlug: thumbnail/medium/large/full size presets.
+		// align: intentionally not in the allowlist — Write has no image-
+		// alignment UI.  Posts with any image alignment bounce to the block
+		// editor via the unsupported-content modal.
 		'image'     => array( 'id', 'sizeSlug', 'alt' ),
 		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
 		'quote'     => array( 'align', 'citation' ),
@@ -371,6 +380,15 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 			unset( $attrs['className'] );
 		}
 
+		// The block editor stamps `linkDestination: "none"` onto image
+		// blocks by default, even when the user never set a link.  Strip
+		// that no-op value so block-editor-created images round-trip into
+		// Write.  Actual link configurations (media / attachment / custom)
+		// still flag as unsupported below since Write has no image-link UI.
+		if ( 'image' === $name && ( $attrs['linkDestination'] ?? '' ) === 'none' ) {
+			unset( $attrs['linkDestination'] );
+		}
+
 		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
 		if ( ! empty( $extra ) ) {
 			return true;
@@ -382,6 +400,13 @@ function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
 		// renders identically to no alignment, so allow it too. Justify
 		// is paragraph-only (display type and narrow quotes look poor).
 		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], $supported_text_aligns, true ) ) {
+			return true;
+		}
+
+		// Image sizeSlug: convertToBlocks() only emits the four standard
+		// presets. Custom or theme-registered slugs (e.g. "hero") would be
+		// silently stripped on save, so bounce them to the block editor.
+		if ( 'image' === $name && isset( $attrs['sizeSlug'] ) && ! in_array( $attrs['sizeSlug'], array( 'thumbnail', 'medium', 'large', 'full' ), true ) ) {
 			return true;
 		}
 
