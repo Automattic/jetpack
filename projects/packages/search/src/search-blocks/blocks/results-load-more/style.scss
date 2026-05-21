@@ -41,4 +41,12 @@
 			display: none;
 		}
 	}
+
+	// 1px sentinel observed by IntersectionObserver when loadOnScroll is on.
+	// Visually inert; the observer's rootMargin handles the trigger distance.
+	.jetpack-search-load-more__sentinel {
+		display: block;
+		height: 1px;
+		width: 100%;
+	}
 }

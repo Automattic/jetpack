@@ -1607,6 +1607,51 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Wires the results-load-more block's IntersectionObserver when its
+		 * `loadOnScroll` attribute is on. Returns a teardown that disconnects
+		 * the observer — the Interactivity runtime calls it on unmount and on
+		 * HMR re-init so listeners never leak.
+		 *
+		 * @return {Function|undefined} cleanup callback or undefined when the
+		 * block opted out at render time.
+		 */
+		initLoadMoreObserver() {
+			const wrapper = getElement?.()?.ref;
+			if ( ! wrapper || wrapper.dataset?.loadOnScroll !== '1' ) {
+				return;
+			}
+			if ( typeof IntersectionObserver === 'undefined' ) {
+				return;
+			}
+			const sentinel = wrapper.querySelector( '.jetpack-search-load-more__sentinel' );
+			if ( ! sentinel ) {
+				return;
+			}
+			const offset = Number( wrapper.dataset.loadOnScrollOffset );
+			const rootMargin = `0px 0px ${ Number.isFinite( offset ) ? offset : 200 }px 0px`;
+			const observer = new IntersectionObserver(
+				entries => {
+					if ( ! entries.some( e => e.isIntersecting ) ) {
+						return;
+					}
+					// The store's own `*loadMore()` already short-circuits when
+					// there's no `pageHandle` or another request is in flight,
+					// so we don't need to mirror that guard here — but reading
+					// the same derived `showLoadMore` keeps us symmetric with
+					// the wrapper's own visibility binding and avoids a noop
+					// generator step on the first idle intersection after
+					// `state.pageHandle` goes null.
+					if ( state.showLoadMore && ! state.isLoadingMore ) {
+						actions.loadMore();
+					}
+				},
+				{ root: null, rootMargin, threshold: 0 }
+			);
+			observer.observe( sentinel );
+			return () => observer.disconnect();
+		},
+
+		/**
 		 * Fires when the `ai-answer` block mounts. Flips the module-scope
 		 * `aiBlockPresent` flag so `actions.search()` knows to dispatch the
 		 * AI fetch alongside the results fetch, and kicks off a first fetch

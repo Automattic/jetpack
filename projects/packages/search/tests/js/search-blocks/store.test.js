@@ -6,6 +6,7 @@ const captured = {
 	actions: {},
 	callbacks: {},
 	context: {},
+	element: { ref: null },
 };
 const originalFetch = global.fetch;
 
@@ -24,6 +25,7 @@ jest.mock(
 			return { state: captured.state, actions: captured.actions };
 		},
 		getContext: () => captured.context,
+		getElement: () => captured.element,
 	} ),
 	{ virtual: true }
 );
@@ -921,6 +923,105 @@ describe( 'store callbacks', () => {
 			// Drop the flag so it doesn't leak into the `handlePopState` describe
 			// below — captured.state is a singleton across the mocked module.
 			fresh.state.hasSearchParam = false;
+		} );
+	} );
+
+	describe( 'initLoadMoreObserver', () => {
+		let originalIO;
+		let observerInstances;
+
+		beforeEach( () => {
+			originalIO = global.IntersectionObserver;
+			observerInstances = [];
+			jest.spyOn( global, 'IntersectionObserver' ).mockImplementation( function ( cb, opts ) {
+				this.cb = cb;
+				this.opts = opts;
+				jest.spyOn( this, 'observe' ).mockImplementation();
+				jest.spyOn( this, 'disconnect' ).mockImplementation();
+				observerInstances.push( this );
+			} );
+		} );
+
+		afterEach( () => {
+			global.IntersectionObserver = originalIO;
+			captured.element.ref = null;
+		} );
+
+		/**
+		 * Build a fake wrapper DOM with the dataset + sentinel render.php emits.
+		 *
+		 * @param {object} dataset - dataset attributes to attach.
+		 * @return {object} fake wrapper element.
+		 */
+		function makeWrapper( dataset ) {
+			const sentinel = { tagName: 'SPAN' };
+			return {
+				dataset,
+				querySelector: jest.fn( () => sentinel ),
+				_sentinel: sentinel,
+			};
+		}
+
+		it( 'no-ops when loadOnScroll is not enabled on the wrapper', () => {
+			captured.element.ref = makeWrapper( {} );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			expect( global.IntersectionObserver ).not.toHaveBeenCalled();
+		} );
+
+		it( 'observes the sentinel with the configured rootMargin and returns a teardown', () => {
+			const wrapper = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '150' } );
+			captured.element.ref = wrapper;
+
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+
+			expect( global.IntersectionObserver ).toHaveBeenCalledTimes( 1 );
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 150px 0px' );
+			expect( observerInstances[ 0 ].observe ).toHaveBeenCalledWith( wrapper._sentinel );
+			expect( typeof cleanup ).toBe( 'function' );
+
+			cleanup();
+			expect( observerInstances[ 0 ].disconnect ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to a 200px rootMargin when the offset is missing or unparseable', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			captured.callbacks.initLoadMoreObserver();
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 200px 0px' );
+		} );
+
+		it( 'fires loadMore() only when showLoadMore is true and a fetch is not already in flight', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation();
+
+			// Seed a state where the next page exists and nothing's loading.
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+
+			// Not intersecting → no fetch.
+			observer.cb( [ { isIntersecting: false } ] );
+			expect( loadMore ).not.toHaveBeenCalled();
+
+			// Intersecting and showLoadMore (derived from pageHandle && !isLoading) → fetch.
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// Already loading more → skipped (the store's own guard would no-op
+			// too, but mirroring the check here avoids a noop generator step).
+			state.isLoadingMore = true;
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// No more pages → skipped.
+			state.isLoadingMore = false;
+			state.pageHandle = null;
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
 } );

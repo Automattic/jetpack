@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add an opt-in "Load on scroll" mode to the Load More block — when enabled, the next page of results fetches automatically as the visitor scrolls toward the end of the list, matching the legacy instant-search overlay's infinite-scroll behaviour.
