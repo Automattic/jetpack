@@ -42,6 +42,12 @@ class Connection_Abilities extends Registrar {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * The `jetpack` ability-category is shared with other Jetpack registrars
+	 * (e.g. the Modules_Abilities class in the Jetpack plugin). Only the first
+	 * registration wins, so the English source string is kept byte-identical
+	 * across registrars to keep the visible category text consistent
+	 * regardless of load order.
 	 */
 	public static function get_category_definition(): array {
 		return array(
