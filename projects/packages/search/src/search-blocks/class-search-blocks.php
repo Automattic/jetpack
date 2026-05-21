@@ -206,6 +206,7 @@ class Search_Blocks {
 		}
 
 		if ( static::is_block_template_overlay_enabled() ) {
+			Overlay_Template::init();
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
 			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
 		}
@@ -1009,11 +1010,26 @@ class Search_Blocks {
 	 * the headings directly, matching the legacy overlay's per-filter
 	 * subheading layout.
 	 *
+	 * Source of truth, in order:
+	 *
+	 *   1. The customized singleton CPT (`Overlay_Template`), if an admin
+	 *      has saved one via the dashboard's "Edit the Search overlay" link.
+	 *   2. The bundled `templates/jetpack-search-overlay.html` file.
+	 *
+	 * Memoized per-request. The customization branch is hit at most once
+	 * per request even when the singleton's content is empty, because
+	 * `Overlay_Template::get_customized_content()` does its own caching.
+	 *
 	 * @return string Block markup for the overlay body.
 	 */
 	protected static function get_overlay_template_content(): string {
 		static $content = null;
 		if ( null !== $content ) {
+			return $content;
+		}
+		$customized = Overlay_Template::get_customized_content();
+		if ( null !== $customized ) {
+			$content = $customized;
 			return $content;
 		}
 		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
