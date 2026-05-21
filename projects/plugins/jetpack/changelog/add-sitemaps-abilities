@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities API: register sitemaps reads + rebuild dispatch
