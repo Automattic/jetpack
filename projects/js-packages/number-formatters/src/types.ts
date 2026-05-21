@@ -24,11 +24,15 @@ export interface CurrencyOverride {
 	symbol?: string;
 	/**
 	 * Smallest-unit exponent for this currency, used when the browser's ICU
-	 * `maximumFractionDigits` disagrees with the API's smallest-unit encoding.
+	 * `maximumFractionDigits` disagrees with the API's smallest-unit encoding,
+	 * or when this package's hard-coded fallback exponent (see
+	 * `SMALLEST_UNIT_EXPONENT_OVERRIDES` in `number-format-currency/index.ts`)
+	 * disagrees with the host application's source of truth.
 	 *
-	 * For example, the WPCOM currencies endpoint sends `{ "IDR": { "decimal": 0 } }`
-	 * to indicate that IDR should be treated as a 0-decimal currency rather than
-	 * the 2 that modern browser ICU reports.
+	 * For example, modern browser ICU (Chrome / Node 24+) reports IDR as
+	 * 0-decimal, but this package's hard-coded fallback applies an exponent of
+	 * 2 for legacy compatibility. The WPCOM currencies endpoint can send
+	 * `{ "IDR": { "decimal": 0 } }` to override that hard-coded 2 back to 0.
 	 */
 	decimal?: number;
 }
@@ -161,7 +165,7 @@ export type FormatCurrency = (
 	currency: string,
 	options?: Omit<
 		NumberFormatCurrencyParams,
-		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation'
+		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation' | 'currencyOverrides'
 	>
 ) => string;
 
@@ -170,6 +174,6 @@ export type GetCurrencyObject = (
 	currency: string,
 	options?: Omit<
 		NumberFormatCurrencyParams,
-		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation'
+		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation' | 'currencyOverrides'
 	>
 ) => CurrencyObject;
