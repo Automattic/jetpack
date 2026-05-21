@@ -316,8 +316,50 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		);
 		$this->assertCount( 2, $default_result['submit_eligibility']['available_payment_methods'] );
 		$this->assertSame( 'pm_backup', $switched_result['submit_eligibility']['selected_payment_method']['id'] );
+		$this->assertSame( 'pm_default', $default_result['submit_package']['prepared_campaign']['payment_method_id'] );
+		$this->assertSame( 'pm_default', $default_result['approval_block']['approval_contract']['selected_payment_method_id'] );
+		$this->assertSame( 'pm_backup', $switched_result['submit_package']['prepared_campaign']['payment_method_id'] );
+		$this->assertSame( 'pm_backup', $switched_result['approval_block']['approval_contract']['selected_payment_method_id'] );
 		$this->assertNotSame( $default_result['prepared_campaign']['id'], $switched_result['prepared_campaign']['id'] );
 		$this->assertContains( 'payment_method', $default_result['material_edit_policy']['material_fields'] );
+	}
+
+	/**
+	 * A requested payment method must come from the current active method list.
+	 */
+	public function test_prepare_blocks_unavailable_requested_payment_method() {
+		add_filter(
+			'jetpack_blaze_prepare_campaign_payment_methods',
+			static function () {
+				return array(
+					array(
+						'id'         => 'PW-3272868',
+						'type'       => 'card',
+						'card_brand' => 'visa',
+						'last4'      => '4242',
+						'is_default' => true,
+					),
+				);
+			}
+		);
+
+		$ctx    = $this->make_test_post();
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn'        => $ctx['target_urn'],
+				'payment_method_id' => 'PS-630976',
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertFalse( $result['submit_eligibility']['chat_native_submit'] );
+		$this->assertSame( 'missing_saved_payment_method', $result['submit_eligibility']['payment_method'] );
+		$this->assertSame( 'requested_payment_method_unavailable', $result['submit_eligibility']['reason'] );
+		$this->assertNull( $result['submit_eligibility']['selected_payment_method'] );
+		$this->assertCount( 1, $result['submit_eligibility']['available_payment_methods'] );
+		$this->assertSame( 'PW-3272868', $result['submit_eligibility']['available_payment_methods'][0]['id'] );
+		$this->assertArrayNotHasKey( 'approval_block', $result );
+		$this->assertArrayNotHasKey( 'next_action', $result );
 	}
 
 	/**
