@@ -117,6 +117,7 @@ class Campaign_Preparer {
 				$cancellation_terms,
 				$idempotency_key
 			);
+			$proposal['next_action']    = self::build_chat_submit_next_action( $prefill_url, $proposal['approval_block'] );
 		}
 
 		return $proposal;
@@ -1122,6 +1123,7 @@ class Campaign_Preparer {
 			'body_key'                       => 'blaze.approval.body.v1',
 			'confirmation_label_key'         => 'blaze.approval.confirm_prepared_campaign.v1',
 			'approval_statement'             => __( 'I approve this exact prepared Blaze campaign package and authorize the charge terms shown here.', 'jetpack-blaze' ),
+			'pasteable_approval_message'     => self::build_pasteable_approval_message( $summary, $contract ),
 			'approval_contract'              => $contract,
 			'approval_event'                 => array_merge(
 				$contract,
@@ -1169,6 +1171,74 @@ class Campaign_Preparer {
 			'requires_exact_identity'        => true,
 			'requires_reprepare_edits'       => true,
 		);
+	}
+
+	/**
+	 * Build the default next action for an eligible chat-native submit.
+	 *
+	 * @param string $prefill_url    Optional Blaze widget/dashboard preview URL.
+	 * @param array  $approval_block Structured approval block.
+	 * @return array
+	 */
+	private static function build_chat_submit_next_action( string $prefill_url, array $approval_block ): array {
+		return array(
+			'type'                       => 'request_explicit_approval',
+			'default_flow'               => 'chat_native_submit',
+			'chat_native_submit'         => true,
+			'requires_explicit_approval' => true,
+			'pasteable_approval_message' => $approval_block['pasteable_approval_message'] ?? '',
+			'optional_preview_url'       => $prefill_url,
+			'optional_preview_label'     => __( 'Preview campaign in Blaze', 'jetpack-blaze' ),
+			'message'                    => __(
+				'Ask the user to paste the approval message before submitting this prepared campaign. The preview link is optional for review, not required when chat-native submit is eligible.',
+				'jetpack-blaze'
+			),
+		);
+	}
+
+	/**
+	 * Build a simple user-facing approval sentence for chat clients.
+	 *
+	 * This deliberately omits package hashes, idempotency keys, and tool names.
+	 *
+	 * @param array $summary  Structured campaign summary.
+	 * @param array $contract Structured approval contract.
+	 * @return string
+	 */
+	private static function build_pasteable_approval_message( array $summary, array $contract ): string {
+		$heading              = isset( $summary['creative']['heading'] ) && '' !== (string) $summary['creative']['heading']
+			? (string) $summary['creative']['heading']
+			: __( 'this Blaze campaign', 'jetpack-blaze' );
+		$charge               = isset( $contract['charge'] ) && is_array( $contract['charge'] ) ? $contract['charge'] : array();
+		$currency             = isset( $charge['currency'] ) && '' !== (string) $charge['currency'] ? (string) $charge['currency'] : self::get_site_currency();
+		$amount               = isset( $charge['max_amount'] ) ? (float) $charge['max_amount'] : self::DEFAULT_BUDGET_TOTAL;
+		$payment_method       = isset( $contract['selected_payment_method'] ) && is_array( $contract['selected_payment_method'] ) ? $contract['selected_payment_method'] : array();
+		$payment_method_label = isset( $payment_method['label'] ) && '' !== (string) $payment_method['label']
+			? (string) $payment_method['label']
+			: __( 'the selected saved payment method', 'jetpack-blaze' );
+
+		return sprintf(
+			/* translators: 1: campaign heading, 2: currency code, 3: maximum charge amount, 4: payment method label. */
+			__( 'I approve submitting this Blaze campaign for %1$s with a maximum charge of %2$s %3$s using %4$s. I agree to the Terms of Service and Advertising Policy.', 'jetpack-blaze' ),
+			$heading,
+			$currency,
+			self::format_approval_amount( $amount ),
+			$payment_method_label
+		);
+	}
+
+	/**
+	 * Format an approval amount for readable charge acknowledgement copy.
+	 *
+	 * @param float $amount Approval amount.
+	 * @return string
+	 */
+	private static function format_approval_amount( float $amount ): string {
+		if ( floor( $amount ) === $amount ) {
+			return (string) (int) $amount;
+		}
+
+		return number_format( $amount, 2, '.', '' );
 	}
 
 	/**

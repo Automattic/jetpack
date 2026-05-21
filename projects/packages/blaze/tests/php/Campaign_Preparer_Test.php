@@ -226,6 +226,19 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'saved_payment_method', $result['submit_eligibility']['payment_method'] );
 		$this->assertSame( 'pm_default', $result['submit_eligibility']['selected_payment_method']['id'] );
 		$this->assertArrayHasKey( 'approval_block', $result );
+		$this->assertArrayHasKey( 'next_action', $result );
+		$this->assertSame( 'request_explicit_approval', $result['next_action']['type'] );
+		$this->assertSame( 'chat_native_submit', $result['next_action']['default_flow'] );
+		$this->assertTrue( $result['next_action']['chat_native_submit'] );
+		$this->assertSame( $result['prefill_url'], $result['next_action']['optional_preview_url'] );
+		$this->assertSame( $result['approval_block']['pasteable_approval_message'], $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Test product page', $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'USD 75', $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Visa ending in 4242', $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Terms of Service', $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Advertising Policy', $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringNotContainsString( $result['prepared_campaign']['hash'], $result['next_action']['pasteable_approval_message'] );
+		$this->assertStringNotContainsString( $result['submit_package']['idempotency_key'], $result['next_action']['pasteable_approval_message'] );
 		$this->assertSame( $result['prepared_campaign']['id'], $result['approval_block']['prepared_campaign_id'] );
 		$this->assertSame( 'blaze.approval.confirm_prepared_campaign.v1', $result['approval_block']['confirmation_label_key'] );
 		$this->assertSame( 'traffic', $result['submit_package']['prepared_campaign']['objective'] );
@@ -382,6 +395,14 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'USD', $acknowledgement_values['currency'] );
 		$this->assertSame( 'one_time', $acknowledgement_values['billing_cadence'] );
 		$this->assertSame( 'Visa ending in 4242', $acknowledgement_values['payment_method_label'] );
+		$this->assertArrayHasKey( 'pasteable_approval_message', $approval_block );
+		$this->assertStringContainsString( 'Test product page', $approval_block['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'USD 75', $approval_block['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Visa ending in 4242', $approval_block['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Terms of Service', $approval_block['pasteable_approval_message'] );
+		$this->assertStringContainsString( 'Advertising Policy', $approval_block['pasteable_approval_message'] );
+		$this->assertStringNotContainsString( $result['prepared_campaign']['hash'], $approval_block['pasteable_approval_message'] );
+		$this->assertStringNotContainsString( $result['submit_package']['idempotency_key'], $approval_block['pasteable_approval_message'] );
 	}
 
 	/**
