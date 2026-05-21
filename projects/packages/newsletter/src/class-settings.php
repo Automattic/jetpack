@@ -155,6 +155,13 @@ class Settings {
 			return;
 		}
 
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+			return;
+		}
+
 		$host = new Host();
 
 		// should_show_menu_item() controls visibility of the menu item.
@@ -201,10 +208,15 @@ class Settings {
 	 *
 	 * This method is called from wpcom-admin-menu.php on Simple sites at late priority
 	 * (999999) when the Jetpack menu already exists.
-	 *
-	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
 	 */
 	public function add_wp_admin_submenu() {
+		// On the modernized dashboard, the Newsletter screen is only useful when the
+		// subscriptions module is active, so skip registering the menu entirely when it
+		// is off. Gated on the modernization flag to leave legacy behavior unchanged.
+		if ( self::is_modernized() && ! $this->is_subscriptions_active() ) {
+			return;
+		}
+
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
 		$callback    = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
@@ -284,9 +296,14 @@ class Settings {
 		// This callback is registered via `admin_enqueue_scripts` from `admin_init`,
 		// which itself fires on `load-{$page_suffix}` in `add_wp_admin_menu()` — so it
 		// only fires on the Newsletter admin page; no need to re-check the page here.
+		// The Tracks transport is required on both surfaces — `analytics.initialize`
+		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
+		// pixel.gif requests fire and the queue grows forever.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
 		if ( self::is_modernized() ) {
-			// wp-build manages its own enqueue pipeline. The legacy newsletter
-			// script, JetpackScriptData, and Tracks are intentionally skipped
+			// wp-build manages the rest of its enqueue pipeline. The legacy
+			// newsletter script and JetpackScriptData are intentionally skipped
 			// for the wp-build dashboard.
 			return;
 		}
@@ -302,9 +319,6 @@ class Settings {
 				'dependencies' => array( 'jetpack-script-data' ),
 			)
 		);
-
-		// Enqueue the Tracks script for analytics.
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -471,6 +485,11 @@ class Settings {
 
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * Defaults to `false`: the modernization prep work ships behind the filter,
+	 * and a separate PR flips the default on so the feature switch lands in
+	 * isolation. Hosts can opt in early with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
 	 *
 	 * @return bool
 	 */

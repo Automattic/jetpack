@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Build the modernized unified Subscribers/Settings dashboard (shared AdminPage layout + DataViews subscribers table) behind the off-by-default `rsm_jetpack_ui_modernization_newsletter` filter. No default behavior change — the filter flip ships in a separate PR.
