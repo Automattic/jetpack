@@ -4,8 +4,7 @@ import analytics from '@automattic/jetpack-analytics';
 // imports `.jpg` assets the wp-build esbuild pipeline has no loader for, so a
 // barrel import fails the build even though the hook itself needs none of it.
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import type { ReactElement } from 'react';
@@ -43,6 +42,10 @@ function getInitialState() {
  * redirecting — keeping anchor semantics (focus, hover) while delegating
  * navigation to the workflow.
  *
+ * Tracks identity is initialized centrally by `useDashboardAnalytics`, so the
+ * click handler only records the event; its `blog_id` is supplied
+ * automatically by `window.jpTracksContext`.
+ *
  * @return The Notice element.
  */
 export default function FreeTierNotice(): ReactElement {
@@ -55,18 +58,6 @@ export default function FreeTierNotice(): ReactElement {
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
-
-	// Identify the WPCOM user for Tracks once, mirroring the legacy
-	// `useAnalyticsTracks` initialization. Guarded for sites with no connected
-	// WPCOM user (e.g. self-hosted, not yet connected). The event's `blog_id`
-	// is supplied automatically by `window.jpTracksContext` (set alongside the
-	// connection state), so it doesn't need to be passed here.
-	useEffect( () => {
-		const wpcomUser = getScriptData()?.user?.current_user?.wpcom;
-		if ( wpcomUser?.ID && wpcomUser?.login ) {
-			analytics.initialize( wpcomUser.ID, wpcomUser.login );
-		}
-	}, [] );
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {

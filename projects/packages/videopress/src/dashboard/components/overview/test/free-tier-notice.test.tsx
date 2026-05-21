@@ -1,6 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FreeTierNotice from '../free-tier-notice';
@@ -18,14 +17,8 @@ jest.mock( '@automattic/jetpack-connection/hooks/use-product-checkout-workflow',
 	default: jest.fn(),
 } ) );
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
-
-const mockedGetScriptData = getScriptData as jest.Mock;
 const mockedCheckoutWorkflow = useProductCheckoutWorkflow as jest.Mock;
 const mockedAnalytics = analytics as unknown as {
-	initialize: jest.Mock;
 	tracks: { recordEvent: jest.Mock };
 };
 
@@ -39,15 +32,12 @@ const DEFAULT_STATE = {
 	siteData: { adminUrl: 'https://example.com/wp-admin/' },
 };
 
-const CONNECTED_USER = { user: { current_user: { wpcom: { ID: 7, login: 'jane' } } } };
-
 let mockRun: jest.Mock;
 
 describe( 'FreeTierNotice', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		setInitialState( DEFAULT_STATE );
-		mockedGetScriptData.mockReturnValue( CONNECTED_USER );
 		mockRun = jest.fn();
 		mockedCheckoutWorkflow.mockReturnValue( { run: mockRun } );
 	} );
@@ -78,18 +68,5 @@ describe( 'FreeTierNotice', () => {
 			'jetpack_videopress_upgrade_trigger_link_click'
 		);
 		expect( mockRun ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'identifies the connected WPCOM user for Tracks on mount', () => {
-		render( <FreeTierNotice /> );
-
-		expect( mockedAnalytics.initialize ).toHaveBeenCalledWith( 7, 'jane' );
-	} );
-
-	it( 'does not identify a user for Tracks when none is connected', () => {
-		mockedGetScriptData.mockReturnValue( { user: { current_user: {} } } );
-		render( <FreeTierNotice /> );
-
-		expect( mockedAnalytics.initialize ).not.toHaveBeenCalled();
 	} );
 } );
