@@ -17,16 +17,6 @@
 	opacity: 0.85;
 }
 
-.digit {
-	display: inline-block;
-	min-inline-size: 0.55em;
-	text-align: center;
-}
-
-.separator {
-	display: inline-block;
-}
-
 .error {
 	color: var(--wpds-color-fg-content-error);
 }
