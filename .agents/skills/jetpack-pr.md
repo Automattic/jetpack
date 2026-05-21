@@ -10,15 +10,53 @@ Instructions:
    - If yes, verify a changelog entry exists in the project's changelog/ directory
    - If no changelog exists, follow the instructions in `.agents/skills/jetpack-changelog.md` first to create one
    - If changes are only to .claude/, docs, or non-project files, skip changelog check
-3. Ensure the branch is pushed to remote (push if needed)
+3. Push the branch to the right remote (see "Choosing the remote" below)
 4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
    - Title: Clear summary of changes
    - Fixes #: Link to issue if applicable (or remove if none)
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
+   - In the testing instructions, also state what you tested and what you did NOT test, so reviewers know where to focus. If you have a test site where the bug can be reproduced (e.g. a Jurassic Ninja site), include its URL — but never include private `*.wordpress.com` internal site URLs in the PR body; use the p2 shorthand (e.g. `peKye1-1Z1-p2`) instead.
 5. If the diff touches UI (admin pages, blocks, components, CSS/SCSS, or JS/TSX under `projects/plugins/*` or `projects/js-packages/*`), suggest capturing real-screen before/after screenshots on a Jurassic Ninja site via the `jetpack-screenshot` skill and including them in the PR body. Skip the suggestion when the PR is purely backend/docs/tooling.
-6. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags)
+6. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags). Always include `--assignee @me`.
 7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review
+8. After the PR is created, follow up on automated feedback (see "After opening the PR" below).
 
 When using `--title` and `--body` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit `--body` to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
+
+## Choosing the remote
+
+Automatticians have push access to `Automattic/jetpack` and should push branches directly there, not to a fork. Pushing to a fork breaks workflows that only run for in-repo branches (notably the AI-generated changelog workflow) and makes review harder.
+
+Run these checks before pushing:
+
+```bash
+git remote get-url origin
+gh api repos/Automattic/jetpack --jq .permissions.push 2>/dev/null
+```
+
+Then:
+- **Origin already points to `Automattic/jetpack`** → push to origin as normal.
+- **Origin points to a fork AND `.permissions.push` is `true`** → the user is an Automattician pushing to a fork by accident. Tell them once what you're doing and why ("Detected push access to Automattic/jetpack — pushing the branch there directly so CI workflows like the AI changelog bot can run"), then:
+  ```bash
+  git remote add automattic git@github.com:Automattic/jetpack.git  # or rename origin
+  git push -u automattic HEAD
+  ```
+  Open the PR against this remote (`gh pr create` will default to it once the branch tracks it).
+- **`.permissions.push` is `false` or the call errors** → external contributor without push access. Push to origin (the fork) as normal.
+
+Do not ask for confirmation before switching remotes — announce the action and do it. The operation is non-destructive (it only adds a remote and creates a branch on it).
+
+## After opening the PR
+
+PRs trigger several bots and CI checks that leave actionable comments (linting, changelog verification, project-version checks, test results, etc.). Before a human reviews:
+
+1. Wait a minute or two, then read the PR's comments and check runs:
+   ```bash
+   gh pr view --comments
+   gh pr checks
+   ```
+2. Address any bot feedback in new commits on the same branch. Common ones: missing changelog entries, lint failures, Phan findings, project version fixups.
+3. Once everything bot-flagged is resolved, leave a comment on the PR noting that automated feedback has been addressed — this signals to human reviewers that the PR is ready.
+4. Optionally, request a GitHub Copilot review on top of human review.
