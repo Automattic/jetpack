@@ -965,10 +965,10 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertContains( 'material_edit_policy', $ability['output_schema']['required'] );
 		$this->assertArrayHasKey( 'message', $output_properties );
 		$this->assertArrayHasKey( 'campaign_preview', $output_properties );
-			$this->assertArrayHasKey( 'forecast_summary', $output_properties );
-			$this->assertArrayHasKey( 'prepared_campaign', $output_properties );
-			$this->assertArrayHasKey( 'submit_package', $output_properties );
-			$this->assertArrayHasKey( 'rendered_preview', $output_properties );
+		$this->assertArrayHasKey( 'forecast_summary', $output_properties );
+		$this->assertArrayHasKey( 'prepared_campaign', $output_properties );
+		$this->assertArrayHasKey( 'submit_package', $output_properties );
+		$this->assertArrayHasKey( 'rendered_preview', $output_properties );
 		$this->assertArrayHasKey( 'campaign_summary', $output_properties );
 		$this->assertArrayHasKey( 'fallback_url', $output_properties );
 		$this->assertArrayHasKey( 'submit_eligibility', $output_properties );
@@ -976,10 +976,12 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'material_edit_policy', $output_properties );
 		$this->assertContains( 'ad_heading', $output_properties['campaign_preview']['required'] );
 		$this->assertArrayHasKey( 'landing_page', $output_properties['campaign_preview']['properties'] );
-			$this->assertContains( 'id', $output_properties['prepared_campaign']['required'] );
-			$this->assertContains( 'prepared_campaign', $output_properties['submit_package']['required'] );
-			$this->assertContains( 'accepted_terms_version', $output_properties['submit_package']['required'] );
-			$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
+		$this->assertContains( 'id', $output_properties['prepared_campaign']['required'] );
+		$this->assertContains( 'idempotency_key', $output_properties['submit_package']['required'] );
+		$this->assertArrayHasKey( 'idempotency_key', $output_properties['submit_package']['properties'] );
+		$this->assertContains( 'prepared_campaign', $output_properties['submit_package']['required'] );
+		$this->assertContains( 'accepted_terms_version', $output_properties['submit_package']['required'] );
+		$this->assertContains( 'html', $output_properties['rendered_preview']['required'] );
 		$this->assertContains( 'destination', $output_properties['campaign_summary']['required'] );
 		$this->assertContains( 'chat_native_submit', $output_properties['submit_eligibility']['required'] );
 		$this->assertContains( 'selected_payment_method', $output_properties['submit_eligibility']['required'] );
@@ -1049,7 +1051,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	private function register_payment_methods_route( callable $callback ) {
 		register_rest_route(
 			'jetpack/v4/blaze-app',
-			sprintf( '/sites/%d/wordads/dsp/api/v1.1/payments/methods', self::TEST_SITE_ID ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/payment-methods', self::TEST_SITE_ID ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => $callback,
@@ -1152,13 +1154,13 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$prepared_package_id    = 'pkg-123';
 
 		return array(
-			'idempotency_key'          => $idempotency_key,
-			'prepared_package_id'      => $prepared_package_id,
-			'prepared_campaign_hash'   => $prepared_campaign_hash,
-			'prepared_campaign'        => $prepared_campaign,
-			'accepted_terms_version'   => '2026-05-01',
-			'accepted_policy_version'  => '2026-05-01',
-			'approval'                 => array(
+			'idempotency_key'         => $idempotency_key,
+			'prepared_package_id'     => $prepared_package_id,
+			'prepared_campaign_hash'  => $prepared_campaign_hash,
+			'prepared_campaign'       => $prepared_campaign,
+			'accepted_terms_version'  => '2026-05-01',
+			'accepted_policy_version' => '2026-05-01',
+			'approval'                => array(
 				'type'                    => 'prepared_campaign.approved',
 				'prepared_package_id'     => $prepared_package_id,
 				'prepared_campaign_hash'  => $prepared_campaign_hash,
@@ -1386,9 +1388,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * DSP submit errors are returned as WP_Error instead of optimistic success.
+	 * DSP submit errors are returned as structured output instead of MCP tool failure.
 	 */
-	public function test_submit_prepared_campaign_passes_through_dsp_error() {
+	public function test_submit_prepared_campaign_returns_structured_dsp_error() {
 		$this->register_submit_prepared_campaign_route(
 			static function () {
 				return new WP_Error( 'prepared_campaign_hash_mismatch', 'Prepared campaign body does not match prepared campaign hash', array( 'status' => 422 ) );
@@ -1397,11 +1399,13 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$result = Blaze_Abilities::submit_prepared_campaign( $this->make_submit_prepared_campaign_body() );
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'prepared_campaign_hash_mismatch', $result->get_error_code() );
-		$this->assertSame( 'Prepared campaign body does not match prepared campaign hash', $result->get_error_message() );
-		$data = $result->get_error_data();
-		$this->assertSame( 422, $data['status'] ?? null );
+		$this->assertIsArray( $result );
+		$this->assertSame( 'submit_failed', $result['status'] );
+		$this->assertStringContainsString( 'not submitted', $result['message'] );
+		$this->assertSame( 'prepared_campaign_hash_mismatch', $result['error']['code'] );
+		$this->assertSame( 'Prepared campaign body does not match prepared campaign hash', $result['error']['message'] );
+		$this->assertSame( 422, $result['error']['status'] );
+		$this->assertSame( 422, $result['error']['details']['status'] );
 	}
 
 	/**
@@ -1501,6 +1505,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 50.0, $result['approval_block']['approval_contract']['charge']['max_amount'] );
 		$this->assertSame( 'pm_default', $result['approval_block']['approval_contract']['selected_payment_method_id'] );
 		$this->assertSame( 'blaze.approval.charge_acknowledgement', $result['approval_block']['charge_acknowledgement']['template_key'] );
+		$this->assertArrayHasKey( 'idempotency_key', $result['submit_package'] );
+		$this->assertSame( $result['submit_package']['idempotency_key'], $result['approval_block']['approval_event']['idempotency_key'] );
 		$this->assertContains( 'approved_at', $result['approval_block']['approval_event_required_fields'] );
 		$this->assertContains( 'idempotency_key', $result['approval_block']['approval_event_required_fields'] );
 	}

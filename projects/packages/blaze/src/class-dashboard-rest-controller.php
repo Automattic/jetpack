@@ -171,6 +171,16 @@ class Dashboard_REST_Controller {
 
 		register_rest_route(
 			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/campaigns/submit-prepared-campaign', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'submit_prepared_dsp_campaign' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/v1.1/forecast', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -1268,6 +1278,16 @@ class Dashboard_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Redirect POST request to WordAds DSP Submit Prepared Campaign endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function submit_prepared_dsp_campaign( $req ) {
+		return $this->edit_dsp_generic( 'v1.1/campaigns/submit-prepared-campaign', $req, array( 'timeout' => 60 ) );
 	}
 
 	/**

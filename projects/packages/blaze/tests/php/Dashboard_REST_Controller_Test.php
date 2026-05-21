@@ -1396,6 +1396,19 @@ class Dashboard_REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the submit prepared campaign route is registered for POST requests.
+	 */
+	public function test_submit_prepared_dsp_campaign_route_is_registered() {
+		$route = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns/submit-prepared-campaign', $this->site_id );
+
+		$routes = $this->server->get_routes();
+
+		$this->assertArrayHasKey( $route, $routes );
+		$this->assertArrayHasKey( 'POST', $routes[ $route ][0]['methods'] );
+		$this->assertSame( array( $this->controller, 'submit_prepared_dsp_campaign' ), $routes[ $route ][0]['callback'] );
+	}
+
+	/**
 	 * Test the create_dsp_campaigns local processing of data (before redirection).
 	 */
 	public function test_create_dsp_campaigns_processed_it_locally() {

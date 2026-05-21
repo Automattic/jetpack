@@ -264,15 +264,15 @@ class Campaign_Preparer_Test extends BaseTestCase {
 
 		$ctx = $this->make_test_post();
 
-		$default_result = Campaign_Preparer::prepare(
+		$default_result  = Campaign_Preparer::prepare(
 			array(
 				'target_urn' => $ctx['target_urn'],
 			)
 		);
 		$switched_result = Campaign_Preparer::prepare(
 			array(
-				'target_urn'         => $ctx['target_urn'],
-				'payment_method_id'  => 'pm_backup',
+				'target_urn'        => $ctx['target_urn'],
+				'payment_method_id' => 'pm_backup',
 			)
 		);
 
@@ -343,6 +343,8 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$approval_block = $result['approval_block'];
 		$this->assertSame( $result['prepared_campaign']['id'], $approval_block['prepared_campaign_id'] );
 		$this->assertSame( $result['prepared_campaign']['hash'], $approval_block['prepared_campaign_hash'] );
+		$this->assertArrayHasKey( 'idempotency_key', $result['submit_package'] );
+		$this->assertSame( $result['submit_package']['idempotency_key'], $approval_block['approval_event']['idempotency_key'] );
 		$this->assertSame( 'blaze.approval.charge_acknowledgement', $approval_block['charge_acknowledgement']['template_key'] );
 		$this->assertSame( 'blaze.approval.body.v1', $approval_block['body_key'] );
 		$this->assertSame( 'blaze.approval.confirm_prepared_campaign.v1', $approval_block['confirmation_label_key'] );
@@ -403,12 +405,12 @@ class Campaign_Preparer_Test extends BaseTestCase {
 
 		$this->assertIsArray( $proposal );
 
-		$approval_event                = $proposal['approval_block']['approval_event'];
-		$approval_event['approved_at'] = '2026-05-19T12:00:00+00:00';
-		$valid_approval                = Campaign_Preparer::validate_approval_event( $approval_event, $proposal );
-		$mismatched_approval           = $approval_event;
+		$approval_event                                = $proposal['approval_block']['approval_event'];
+		$approval_event['approved_at']                 = '2026-05-19T12:00:00+00:00';
+		$valid_approval                                = Campaign_Preparer::validate_approval_event( $approval_event, $proposal );
+		$mismatched_approval                           = $approval_event;
 		$mismatched_approval['prepared_campaign_hash'] = str_repeat( '0', 64 );
-		$mismatched_result = Campaign_Preparer::validate_approval_event( $mismatched_approval, $proposal );
+		$mismatched_result                             = Campaign_Preparer::validate_approval_event( $mismatched_approval, $proposal );
 
 		$this->assertTrue( $valid_approval );
 		$this->assertInstanceOf( WP_Error::class, $mismatched_result );
@@ -416,10 +418,10 @@ class Campaign_Preparer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Material campaign changes alter the prepared package hash so earlier
-	 * approval cannot be reused for a different paid submission.
+	 * Material campaign-body changes alter the prepared campaign hash, while
+	 * terms and policy versions stay in separate submit fields validated by DSP.
 	 */
-	public function test_material_changes_update_prepared_package_hash() {
+	public function test_material_changes_update_prepared_campaign_contract() {
 		add_filter( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', '__return_true' );
 
 		$ctx       = $this->make_test_post();
@@ -437,13 +439,13 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertIsArray( $base );
 
 		$material_variants = array(
-			'title'           => array( 'site_name' => 'Different title' ),
-			'copy'            => array( 'text_snippet' => 'Different ad copy.' ),
-			'call_to_action'  => array( 'cta_text' => 'Buy Now' ),
-			'image'           => array( 'main_image_url' => 'https://example.com/new.jpg' ),
-			'budget'          => array( 'budget_total' => 125 ),
-			'schedule'        => array( 'duration_days' => 14 ),
-			'targeting'       => array( 'countries' => array( 'CA' ) ),
+			'title'          => array( 'site_name' => 'Different title' ),
+			'copy'           => array( 'text_snippet' => 'Different ad copy.' ),
+			'call_to_action' => array( 'cta_text' => 'Buy Now' ),
+			'image'          => array( 'main_image_url' => 'https://example.com/new.jpg' ),
+			'budget'         => array( 'budget_total' => 125 ),
+			'schedule'       => array( 'duration_days' => 14 ),
+			'targeting'      => array( 'countries' => array( 'CA' ) ),
 		);
 
 		foreach ( $material_variants as $variant => $overrides ) {
@@ -464,7 +466,8 @@ class Campaign_Preparer_Test extends BaseTestCase {
 
 		$terms_change = Campaign_Preparer::prepare( $base_args );
 		$this->assertIsArray( $terms_change );
-		$this->assertNotSame( $base['prepared_campaign']['hash'], $terms_change['prepared_campaign']['hash'], 'terms' );
+		$this->assertSame( $base['prepared_campaign']['hash'], $terms_change['prepared_campaign']['hash'], 'terms' );
+		$this->assertSame( 'v2', $terms_change['submit_package']['accepted_terms_version'] );
 
 		remove_all_filters( 'jetpack_blaze_approval_terms' );
 		add_filter(
@@ -479,7 +482,8 @@ class Campaign_Preparer_Test extends BaseTestCase {
 
 		$policy_change = Campaign_Preparer::prepare( $base_args );
 		$this->assertIsArray( $policy_change );
-		$this->assertNotSame( $base['prepared_campaign']['hash'], $policy_change['prepared_campaign']['hash'], 'policy' );
+		$this->assertSame( $base['prepared_campaign']['hash'], $policy_change['prepared_campaign']['hash'], 'policy' );
+		$this->assertSame( 'v2', $policy_change['submit_package']['accepted_policy_version'] );
 	}
 
 	/**

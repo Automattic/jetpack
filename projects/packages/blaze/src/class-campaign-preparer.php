@@ -70,26 +70,27 @@ class Campaign_Preparer {
 			);
 		}
 
-		$intent          = self::infer_intent( $args, $post );
-		$budget_context  = self::resolve_budget_context( $args );
-		$assumptions     = self::build_assumptions( $args, $post, $intent, $budget_context );
-		$recommendations = self::build_recommendations( $intent, $budget_context );
-		$prefill         = self::build_prefill_payload( $args, $post, $intent, $budget_context );
-		$prefill_url     = self::build_prefill_url( $post->ID, $prefill );
-		$forecast        = self::request_forecast( $prefill, $intent );
-		$summary         = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
+		$intent             = self::infer_intent( $args, $post );
+		$budget_context     = self::resolve_budget_context( $args );
+		$assumptions        = self::build_assumptions( $args, $post, $intent, $budget_context );
+		$recommendations    = self::build_recommendations( $intent, $budget_context );
+		$prefill            = self::build_prefill_payload( $args, $post, $intent, $budget_context );
+		$prefill_url        = self::build_prefill_url( $post->ID, $prefill );
+		$forecast           = self::request_forecast( $prefill, $intent );
+		$summary            = self::build_campaign_summary( $post, $prefill, $intent, $budget_context );
 		$payment_context    = self::resolve_payment_context( $args, $prefill );
 		$terms              = self::get_approval_terms();
 		$advertising_policy = self::get_approval_advertising_policy();
 		$cancellation_terms = self::get_approval_cancellation_terms();
 		$submit_payload     = self::build_submit_campaign_payload( $prefill, $summary, $payment_context['selected_payment_method'] );
 		$package            = self::build_prepared_campaign_identity( $submit_payload );
+		$idempotency_key    = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : hash( 'sha256', wp_rand() . microtime() );
 		$eligibility        = self::build_submit_eligibility( $args, $prefill, $prefill_url, $payment_context );
 
 		$proposal = array(
 			'status'               => 'pending_merchant_review',
 			'prepared_campaign'    => $package,
-			'submit_package'       => self::build_submit_package( $package, $submit_payload, $terms, $advertising_policy ),
+			'submit_package'       => self::build_submit_package( $package, $submit_payload, $terms, $advertising_policy, $idempotency_key ),
 			'rendered_preview'     => self::build_rendered_preview( $prefill, $package ),
 			'campaign_summary'     => $summary,
 			'fallback_url'         => $prefill_url,
@@ -113,7 +114,8 @@ class Campaign_Preparer {
 				$payment_context['selected_payment_method'],
 				$terms,
 				$advertising_policy,
-				$cancellation_terms
+				$cancellation_terms,
+				$idempotency_key
 			);
 		}
 
@@ -479,7 +481,12 @@ class Campaign_Preparer {
 		$schedule  = isset( $summary['schedule'] ) && is_array( $summary['schedule'] ) ? $summary['schedule'] : array();
 		$targeting = array();
 
-		foreach ( array( 'countries' => 'locations', 'languages' => 'languages', 'devices' => 'devices', 'page_topics' => 'page_topics' ) as $prefill_key => $targeting_key ) {
+		foreach ( array(
+			'countries'   => 'locations',
+			'languages'   => 'languages',
+			'devices'     => 'devices',
+			'page_topics' => 'page_topics',
+		) as $prefill_key => $targeting_key ) {
 			if ( ! empty( $prefill[ $prefill_key ] ) && is_array( $prefill[ $prefill_key ] ) ) {
 				$targeting[ $targeting_key ] = array_values( $prefill[ $prefill_key ] );
 			}
@@ -513,14 +520,16 @@ class Campaign_Preparer {
 	/**
 	 * Build the submit package clients can pass to submit-prepared-campaign.
 	 *
-	 * @param array $package            Prepared campaign identity.
-	 * @param array $submit_payload     Exact DSP create-campaign payload.
-	 * @param array $terms              Terms document identity.
-	 * @param array $advertising_policy Advertising policy document identity.
+	 * @param array  $package            Prepared campaign identity.
+	 * @param array  $submit_payload     Exact DSP create-campaign payload.
+	 * @param array  $terms              Terms document identity.
+	 * @param array  $advertising_policy Advertising policy document identity.
+	 * @param string $idempotency_key   Durable submit idempotency key.
 	 * @return array
 	 */
-	private static function build_submit_package( array $package, array $submit_payload, array $terms, array $advertising_policy ): array {
+	private static function build_submit_package( array $package, array $submit_payload, array $terms, array $advertising_policy, string $idempotency_key ): array {
 		return array(
+			'idempotency_key'         => $idempotency_key,
 			'prepared_package_id'     => $package['id'],
 			'prepared_campaign_hash'  => $package['hash'],
 			'prepared_campaign'       => $submit_payload,
@@ -555,12 +564,12 @@ class Campaign_Preparer {
 			ksort( $value );
 			$parts = array();
 			foreach ( $value as $key => $item ) {
-				$parts[] = wp_json_encode( (string) $key ) . ':' . self::stable_json( $item );
+				$parts[] = wp_json_encode( (string) $key, JSON_UNESCAPED_SLASHES ) . ':' . self::stable_json( $item );
 			}
 			return '{' . implode( ',', $parts ) . '}';
 		}
 
-		return (string) wp_json_encode( $value );
+		return (string) wp_json_encode( $value, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -608,16 +617,16 @@ class Campaign_Preparer {
 
 			return array(
 				'known'                       => true,
-				'available_payment_methods'  => $methods,
-				'selected_payment_method'    => $selected,
+				'available_payment_methods'   => $methods,
+				'selected_payment_method'     => $selected,
 				'requested_payment_method_id' => $requested_method_id,
 			);
 		}
 
 		return array(
 			'known'                       => false,
-			'available_payment_methods'  => array(),
-			'selected_payment_method'    => null,
+			'available_payment_methods'   => array(),
+			'selected_payment_method'     => null,
 			'requested_payment_method_id' => isset( $args['payment_method_id'] ) ? (string) $args['payment_method_id'] : '',
 		);
 	}
@@ -702,10 +711,10 @@ class Campaign_Preparer {
 		}
 
 		$summary = array(
-			'id'         => $id,
-			'type'       => $type,
-			'brand'      => $brand,
-			'last4'      => $last4,
+			'id'    => $id,
+			'type'  => $type,
+			'brand' => $brand,
+			'last4' => $last4,
 		);
 
 		if ( null !== $exp_month ) {
@@ -959,9 +968,9 @@ class Campaign_Preparer {
 	private static function build_submit_eligibility( array $args, array $prefill, string $fallback_url, array $payment_context ): array {
 		if ( $payment_context['known'] ) {
 			$base = array(
-				'fallback_url'                       => $fallback_url,
-				'selected_payment_method'            => $payment_context['selected_payment_method'],
-				'available_payment_methods'          => $payment_context['available_payment_methods'],
+				'fallback_url'                      => $fallback_url,
+				'selected_payment_method'           => $payment_context['selected_payment_method'],
+				'available_payment_methods'         => $payment_context['available_payment_methods'],
 				'supports_payment_method_switching' => count( $payment_context['available_payment_methods'] ) > 1,
 			);
 
@@ -1005,9 +1014,9 @@ class Campaign_Preparer {
 		$has_saved_payment_method = apply_filters( 'jetpack_blaze_prepare_campaign_has_saved_payment_method', null, $args, $prefill );
 
 		$base = array(
-			'fallback_url'                       => $fallback_url,
-			'selected_payment_method'            => null,
-			'available_payment_methods'          => array(),
+			'fallback_url'                      => $fallback_url,
+			'selected_payment_method'           => null,
+			'available_payment_methods'         => array(),
 			'supports_payment_method_switching' => false,
 		);
 
@@ -1045,6 +1054,7 @@ class Campaign_Preparer {
 	 * @param array      $terms                   Terms document identity.
 	 * @param array      $advertising_policy      Advertising policy document identity.
 	 * @param array      $cancellation_terms      Cancellation wording identity.
+	 * @param string     $idempotency_key         Durable submit idempotency key.
 	 * @return array
 	 */
 	private static function build_approval_block(
@@ -1053,20 +1063,20 @@ class Campaign_Preparer {
 		$selected_payment_method,
 		array $terms,
 		array $advertising_policy,
-		array $cancellation_terms
+		array $cancellation_terms,
+		string $idempotency_key
 	): array {
-		$contract        = self::build_approval_contract( $package, $summary, $selected_payment_method, $terms, $advertising_policy, $cancellation_terms );
-		$idempotency_key = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : hash( 'sha256', wp_rand() . microtime() );
+		$contract = self::build_approval_contract( $package, $summary, $selected_payment_method, $terms, $advertising_policy, $cancellation_terms );
 
 		return array(
-			'prepared_campaign_id'     => $package['id'],
-			'prepared_campaign_hash'   => $package['hash'],
-			'title_key'                => 'blaze.approval.title.v1',
-			'body_key'                 => 'blaze.approval.body.v1',
-			'confirmation_label_key'   => 'blaze.approval.confirm_prepared_campaign.v1',
-			'approval_statement'       => __( 'I approve this exact prepared Blaze campaign package and authorize the charge terms shown here.', 'jetpack-blaze' ),
-			'approval_contract'        => $contract,
-			'approval_event'           => array_merge(
+			'prepared_campaign_id'           => $package['id'],
+			'prepared_campaign_hash'         => $package['hash'],
+			'title_key'                      => 'blaze.approval.title.v1',
+			'body_key'                       => 'blaze.approval.body.v1',
+			'confirmation_label_key'         => 'blaze.approval.confirm_prepared_campaign.v1',
+			'approval_statement'             => __( 'I approve this exact prepared Blaze campaign package and authorize the charge terms shown here.', 'jetpack-blaze' ),
+			'approval_contract'              => $contract,
+			'approval_event'                 => array_merge(
 				$contract,
 				array(
 					'type'                    => 'prepared_campaign.approved',
@@ -1098,7 +1108,7 @@ class Campaign_Preparer {
 				'approved_at',
 				'idempotency_key',
 			),
-			'charge_acknowledgement'   => array(
+			'charge_acknowledgement'         => array(
 				'template_key' => 'blaze.approval.charge_acknowledgement',
 				'values'       => array(
 					'max_charge_amount'    => $contract['charge']['max_amount'],
@@ -1109,8 +1119,8 @@ class Campaign_Preparer {
 					'payment_method_label' => $contract['selected_payment_method']['label'] ?? '',
 				),
 			),
-			'requires_exact_identity'  => true,
-			'requires_reprepare_edits' => true,
+			'requires_exact_identity'        => true,
+			'requires_reprepare_edits'       => true,
 		);
 	}
 
@@ -1248,8 +1258,8 @@ class Campaign_Preparer {
 	 */
 	private static function build_material_edit_policy(): array {
 		return array(
-			'requires_reprepare' => true,
-			'material_fields'    => array(
+			'requires_reprepare'  => true,
+			'material_fields'     => array(
 				'destination',
 				'creative',
 				'budget',
@@ -1264,7 +1274,7 @@ class Campaign_Preparer {
 				'revision_instruction',
 				'localized_wording',
 			),
-			'message'            => __(
+			'message'             => __(
 				'Changing destination, creative, budget, cadence, schedule, targeting, payment method, or terms/policy version requires preparing a new Blaze campaign package before approval or submit.',
 				'jetpack-blaze'
 			),
