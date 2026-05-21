@@ -51,8 +51,10 @@ class PCG_Load_Tester {
 	public function test( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
 		$plugin_mains = array_values(
 			array_filter(
-				array_map( static function ( $p ) { return (string) $p; }, $plugin_mains ),
-				static function ( $p ) { return '' !== $p && is_file( $p ) && is_readable( $p ); }
+				array_map( 'strval', $plugin_mains ),
+				static function ( $p ) {
+					return '' !== $p && is_file( $p ) && is_readable( $p );
+				}
 			)
 		);
 		if ( empty( $plugin_mains ) ) {
@@ -202,7 +204,7 @@ class PCG_Load_Tester {
 	 */
 	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
 		return array(
-			'plugins' => array_values( array_map( static function ( $p ) { return (string) $p; }, $plugin_mains ) ),
+			'plugins' => array_values( array_map( 'strval', $plugin_mains ) ),
 			'mode'    => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
 		);
 	}

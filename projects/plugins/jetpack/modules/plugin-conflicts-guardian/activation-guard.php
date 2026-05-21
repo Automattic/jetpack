@@ -36,7 +36,12 @@ function pcg_guard_maybe_block_activation() {
 		$bulk_raw         = is_array( $_REQUEST['checked'] ?? null ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
 		$plugins_to_check = array_values(
 			array_filter(
-				array_map( static function ( $b ) { return sanitize_text_field( (string) $b ); }, $bulk_raw )
+				array_map(
+					static function ( $b ) {
+						return sanitize_text_field( (string) $b );
+					},
+					$bulk_raw
+				)
 			)
 		);
 		$nonce_action     = 'bulk-plugins';
