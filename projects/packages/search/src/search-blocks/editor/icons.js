@@ -65,6 +65,7 @@ const BLOCK_ICONS = {
 	'jetpack-search/filter-checkbox': greened( formatListBullets ),
 	'jetpack-search/filter-date': greened( calendar ),
 	'jetpack-search/filter-post-type': greened( customPostType ),
+	'jetpack-search/filter-static': greened( postTerms ),
 	'jetpack-search/filter-wc-attribute': greened( tag ),
 	'jetpack-search/filter-wc-price': greened( currencyDollar ),
 	'jetpack-search/filter-wc-rating': greened( starFilled ),

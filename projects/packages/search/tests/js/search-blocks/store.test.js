@@ -32,6 +32,7 @@ import {
 	actions,
 	computeResultsCountText,
 	gateActiveFilters,
+	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
 	state,
 } from '../../../src/search-blocks/store';
@@ -366,6 +367,49 @@ describe( 'store actions', () => {
 		await runGenerator( actions.setFilter( 'category', 'updates' ) );
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'setStaticFilter replaces the per-key value (single-select) and clears when re-picked', async () => {
+		// Static filters are mutually-exclusive radios — unlike setFilter,
+		// each call REPLACES rather than toggles within an array. Re-picking
+		// the currently selected value clears the entry (same UX as the
+		// legacy overlay's setStaticFilter).
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.staticFilterSelections = {};
+
+		await runGenerator( actions.setStaticFilter( 'section', 'news' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'news' } );
+
+		// Picking a different value REPLACES (does not append).
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'guides' } );
+
+		// Re-picking the current value clears the entry — radio "deselect"
+		// affordance preserves the legacy overlay behavior.
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( {} );
+
+		// Different keys stay independent — picking `audience` after a
+		// cleared `section` doesn't resurrect the old `section` entry.
+		await runGenerator( actions.setStaticFilter( 'audience', 'dev' ) );
+		expect( state.staticFilterSelections ).toEqual( { audience: 'dev' } );
+
+		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'clearFilters wipes staticFilterSelections alongside activeFilters + priceRange', async () => {
+		// `clearFilters` is the standalone clear-all button — it must wipe
+		// every facet shape so a user doesn't have to click each filter
+		// type's clear affordance individually.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = { section: 'guides' };
+
+		await runGenerator( actions.clearFilters() );
+
+		expect( state.staticFilterSelections ).toEqual( {} );
+		expect( search ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'clears every facet only when something is active', async () => {
@@ -822,6 +866,61 @@ describe( 'gateActiveFilters', () => {
 		} );
 		expect( gated ).toEqual( {} );
 		expect( droppedAny ).toBe( true );
+	} );
+} );
+
+describe( 'gateStaticFilterSelections', () => {
+	it( 'drops keys whose filterConfigs entry is missing', () => {
+		// Stale selections for a since-removed static-filter registration
+		// must not survive a popstate or `initialize()` re-gate.
+		const gated = gateStaticFilterSelections(
+			{ section: 'guides', dropped: 'x' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+	} );
+
+	it( 'drops keys whose filterConfigs entry exists but is not kind=static', () => {
+		// A scalar URL param under a dynamic filter key (e.g. someone fat-fingered
+		// `?category=news` instead of `?category[]=news`) must not pollute the
+		// static-filter slice. The kind=static gate keeps the boundary explicit.
+		const gated = gateStaticFilterSelections(
+			{ category: 'news', section: 'guides' },
+			{
+				category: { filterKey: 'category', filterType: 'taxonomy' },
+				section: { filterKey: 'section', kind: 'static' },
+			}
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+	} );
+
+	it( 'drops empty values', () => {
+		// `''` is the "cleared" state — keeping the key would round-trip
+		// through pushStateToUrl and re-emit `?section=` indefinitely.
+		const gated = gateStaticFilterSelections(
+			{ section: '' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( {} );
+	} );
+
+	it( 'returns a null-prototype object so __proto__ pollution cannot survive', () => {
+		// Same defence as gateActiveFilters — JSON.parse lets `__proto__`
+		// land as an own property; we must drop it because it isn't in
+		// filterConfigs, and the output object must not inherit anything that
+		// could be misread as a registered key downstream.
+		const selections = JSON.parse( '{"__proto__":"pwn","section":"guides"}' );
+		const gated = gateStaticFilterSelections( selections, {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( Object.getPrototypeOf( gated ) ).toBeNull();
+	} );
+
+	it( 'tolerates undefined / null inputs', () => {
+		expect( gateStaticFilterSelections( undefined, {} ) ).toEqual( {} );
+		expect( gateStaticFilterSelections( null, {} ) ).toEqual( {} );
+		expect( gateStaticFilterSelections( { section: 'guides' }, null ) ).toEqual( {} );
 	} );
 } );
 

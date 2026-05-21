@@ -144,6 +144,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		add_action( 'rest_api_init', array( static::class, 'register_rest_routes' ) );
 		Custom_Taxonomy_Slot_Mapping::init();
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
@@ -559,6 +560,52 @@ class Search_Blocks {
 			'title' => __( 'Jetpack Search', 'jetpack-search-pkg' ),
 		);
 		return $categories;
+	}
+
+	/**
+	 * Register editor-facing REST routes that back the search blocks' inspector
+	 * controls. Currently exposes the site's static-filter configuration so
+	 * the `jetpack-search/filter-static` block's filter picker can list what
+	 * the host site has wired up via `jetpack_search_static_filters` without
+	 * needing the editor bundle to localize a snapshot.
+	 */
+	public static function register_rest_routes() {
+		if ( ! function_exists( 'register_rest_route' ) ) {
+			return;
+		}
+		register_rest_route(
+			'jetpack-search/v1',
+			'/static-filters',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( static::class, 'rest_get_static_filters' ),
+				'permission_callback' => static function () {
+					return function_exists( 'current_user_can' ) && current_user_can( 'edit_posts' );
+				},
+				'args'                => array(
+					'variation' => array(
+						'type'              => 'string',
+						'enum'              => array( 'sidebar', 'tabbed' ),
+						'default'           => 'sidebar',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * REST callback: return the site-configured static filters for a given
+	 * variation. Used by the filter-static block's editor inspector.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function rest_get_static_filters( $request ) {
+		$variation = is_object( $request ) && method_exists( $request, 'get_param' )
+			? (string) $request->get_param( 'variation' )
+			: 'sidebar';
+		return Filter_Static::filters_for_variation( $variation );
 	}
 
 	/**
@@ -1238,6 +1285,13 @@ class Search_Blocks {
 			'activeFilters'              => $active_filters,
 			'filterLogic'                => $filter_logic,
 			'priceRange'                 => $price_range,
+			// Static filters (`jetpack-search/filter-static`) round-trip as
+			// scalar `?filter_id=value` URL params. The block's render.php
+			// merges the URL-seeded selections in alongside its filterConfig
+			// entry so a deep link pre-checks the right radio. Seeded as an
+			// empty object here so JS readers always see a defined shape on
+			// pages without the block.
+			'staticFilterSelections'     => (object) array(),
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
