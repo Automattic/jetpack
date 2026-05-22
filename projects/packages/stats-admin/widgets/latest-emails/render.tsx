@@ -140,7 +140,10 @@ function LatestEmailsContent(): JSX.Element {
 				paginationInfo={ paginationInfo }
 				getItemId={ getLatestEmailItemId }
 				isLoading={ isLoading }
-			/>
+				empty={ <p>{ __( 'You have no email campaigns yet.', 'jetpack-stats-admin' ) }</p> }
+			>
+				<DataViews.Layout />
+			</DataViews>
 		</Card.FullBleed>
 	);
 }

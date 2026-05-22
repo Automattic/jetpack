@@ -104,7 +104,9 @@ export default function LatestResponsesWidget(): JSX.Element {
 				paginationInfo={ paginationInfo }
 				getItemId={ getLatestResponseItemId }
 				isLoading={ isLoading }
-			/>
+			>
+				<DataViews.Layout />
+			</DataViews>
 		</Card.FullBleed>
 	);
 }
