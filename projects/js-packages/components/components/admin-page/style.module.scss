@@ -44,6 +44,19 @@
 		place-items: center;
 	}
 
+	// Keep the header a constant height across tabs. The content row's height
+	// is driven by its tallest child (the `actions` slot), so tabs with
+	// differently-sized action controls — or none at all — render headers of
+	// different heights, which shifts the tab strip below them vertically.
+	// Reserve the standard 40px WP control height as a floor and center the
+	// row's items so a shorter control neither stretches nor collapses it.
+	// The content row is identified by the visual logo slot it contains
+	// (`aria-hidden="true"`), so a breadcrumbs-only header isn't affected.
+	:global(.jp-admin-page__page > header > div:has([aria-hidden="true"])) {
+		min-height: 40px;
+		align-items: center;
+	}
+
 	.admin-page-header {
 		display: flex;
 		align-items: center;
