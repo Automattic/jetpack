@@ -521,6 +521,15 @@ function dateFilterItems( sharedState, filterKey, config ) {
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
 let searchToken = 0;
 
+// Per-instance post-type scope of the Search Input that initiated the current
+// search session. Set by `actions.search()` whenever an input dispatches (an
+// object when that input is scoped, `null` when it isn't); filter / sort /
+// load-more re-runs leave it untouched so the session keeps the active scope.
+// `undefined` (initial) and `null` both fall through to the page-global
+// `state.staticPostTypes` seed in `fetchResults`, so an unscoped input never
+// clobbers a `jetpack-search/filter-post-type` block's contribution.
+let activePostTypeScope;
+
 /**
  * Build the human-readable results-count string from the live store state.
  * Returns "Searching…" while a search is in flight, "Found 42 results" once
@@ -580,7 +589,10 @@ function* fetchResults( pageHandle ) {
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticFilterSelections: state.staticFilterSelections,
-		staticPostTypes: state.staticPostTypes,
+		// The active input's per-instance scope wins over the page-global
+		// `state.staticPostTypes` seed; falls through to the seed when no scoped
+		// input has dispatched (`activePostTypeScope` undefined or null).
+		staticPostTypes: activePostTypeScope ?? state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -1012,18 +1024,33 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Run a search and replace the result list.
 		 *
-		 * @param {object}  [options]         - Options.
-		 * @param {boolean} [options.syncUrl] - Push new state to the URL after a
-		 *                                    successful fetch. Default `true`;
-		 *                                    pass `false` when the search was
-		 *                                    itself triggered by a URL change
-		 *                                    (e.g. `popstate`) so we don't
-		 *                                    bounce a new history entry back
-		 *                                    on top of the one the browser
-		 *                                    just navigated to.
+		 * @param {object}      [options]                 - Options.
+		 * @param {boolean}     [options.syncUrl]         - Push new state to the URL after a
+		 *                                                successful fetch. Default `true`;
+		 *                                                pass `false` when the search was
+		 *                                                itself triggered by a URL change
+		 *                                                (e.g. `popstate`) so we don't
+		 *                                                bounce a new history entry back
+		 *                                                on top of the one the browser
+		 *                                                just navigated to.
+		 * @param {object|null} [options.staticPostTypes] - The initiating Search Input's
+		 *                                                per-instance post-type scope
+		 *                                                (`{ include, exclude }`), or `null`
+		 *                                                for an unscoped input. Present only
+		 *                                                on input-initiated searches; persisted
+		 *                                                as the session's active scope. Re-runs
+		 *                                                from filters / sort / load-more omit
+		 *                                                the key so the active scope survives.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
-		*search( { syncUrl = true } = {} ) {
+		*search( options = {} ) {
+			const { syncUrl = true } = options;
+			// Persist the initiating input's scope (object or null) so subsequent
+			// non-input re-runs reuse it. Omitting the key (every non-input caller)
+			// leaves the active scope untouched.
+			if ( 'staticPostTypes' in options ) {
+				activePostTypeScope = options.staticPostTypes ?? null;
+			}
 			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.isLoadingMore = false;

@@ -17,6 +17,7 @@ import {
 } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PostTypeScopeControl from '../../editor/post-type-control';
 
 // Mirrors the enum on `block.json::attributes.suggestionTypes.items.enum`
 // and the canonical order rendered by `suggestion-rows.js::TYPE_ORDER`.
@@ -200,6 +201,21 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 							</p>
 						</fieldset>
 					) }
+				</PanelBody>
+				<PanelBody title={ __( 'Post types', 'jetpack-search-pkg' ) } initialOpen={ false }>
+					<p className="components-base-control__help" style={ HELP_STYLE }>
+						{ __(
+							'Limit which post types this search returns. Leave the list empty to search everything.',
+							'jetpack-search-pkg'
+						) }
+					</p>
+					<PostTypeScopeControl
+						mode={ attributes?.postTypeMode }
+						postTypes={ attributes?.postTypes }
+						onChange={ ( { mode: postTypeMode, postTypes } ) =>
+							setAttributes( { postTypeMode, postTypes } )
+						}
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

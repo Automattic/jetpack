@@ -31,17 +31,25 @@ class Search_Input_Render_Test extends TestCase {
 			'jetpack-search/search-input',
 			array(
 				'attributes'      => array(
-					'placeholder' => array(
+					'placeholder'  => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'showIcon'    => array(
+					'showIcon'     => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'submitOnly'  => array(
+					'submitOnly'   => array(
 						'type'    => 'boolean',
 						'default' => false,
+					),
+					'postTypeMode' => array(
+						'type'    => 'string',
+						'default' => 'exclude',
+					),
+					'postTypes'    => array(
+						'type'    => 'array',
+						'default' => array(),
 					),
 				),
 				// $attributes is consumed by the included render.php via the
@@ -148,5 +156,68 @@ class Search_Input_Render_Test extends TestCase {
 	public function test_submit_only_default_omits_data_attribute() {
 		$markup = $this->render();
 		$this->assertStringNotContainsString( 'data-submit-only', $markup );
+	}
+
+	/**
+	 * An include scope must seed the per-instance `staticPostTypes` constraint
+	 * into this block's own `data-wp-context` so view.js can hand it to
+	 * `actions.search()` for the searches this input initiates.
+	 */
+	public function test_post_type_include_scope_emits_context() {
+		$markup  = $this->render(
+			array(
+				'postTypeMode' => 'include',
+				'postTypes'    => array( 'post' ),
+			)
+		);
+		$decoded = html_entity_decode( $markup );
+		$this->assertStringContainsString( 'data-wp-context', $markup );
+		$this->assertStringContainsString(
+			'"staticPostTypes":{"include":["post"],"exclude":[]}',
+			$decoded
+		);
+	}
+
+	/**
+	 * An exclude scope must seed the same constraint shape with the slug in the
+	 * exclude list.
+	 */
+	public function test_post_type_exclude_scope_emits_context() {
+		$markup  = $this->render(
+			array(
+				'postTypeMode' => 'exclude',
+				'postTypes'    => array( 'page' ),
+			)
+		);
+		$decoded = html_entity_decode( $markup );
+		$this->assertStringContainsString(
+			'"staticPostTypes":{"include":[],"exclude":["page"]}',
+			$decoded
+		);
+	}
+
+	/**
+	 * With no scope (and no suggestions) the block must not emit a
+	 * `data-wp-context` attribute — the default DOM stays untouched for authors
+	 * who haven't configured a post-type constraint.
+	 */
+	public function test_no_post_type_scope_omits_context() {
+		$markup = $this->render();
+		$this->assertStringNotContainsString( 'data-wp-context', $markup );
+	}
+
+	/**
+	 * Slugs that aren't registered as searchable post types are dropped by
+	 * `Filter_Post_Type::build_constraint()`, collapsing the constraint to
+	 * empty — so no context is emitted for a bogus slug.
+	 */
+	public function test_unknown_post_type_scope_is_dropped() {
+		$markup = $this->render(
+			array(
+				'postTypeMode' => 'include',
+				'postTypes'    => array( 'definitely_not_a_real_post_type' ),
+			)
+		);
+		$this->assertStringNotContainsString( 'data-wp-context', $markup );
 	}
 }

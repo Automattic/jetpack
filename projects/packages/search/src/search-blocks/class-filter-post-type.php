@@ -1,6 +1,6 @@
 <?php
 /**
- * Filter-post-type block helpers.
+ * Post-type scope helpers shared by the search blocks.
  *
  * @package automattic/jetpack-search
  */
@@ -8,11 +8,13 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Server-side helpers for jetpack-search/filter-post-type.
+ * Server-side post-type scope helpers.
  *
- * Single-mode block (`include` OR `exclude`); the helper translates the
- * `{ mode, postTypes }` attributes into the `{ include, exclude }` shape
- * `store/api.js`'s `buildStaticPostTypeClauses()` consumes.
+ * Shared by the standalone `jetpack-search/filter-post-type` block and the
+ * `jetpack-search/search-input` block's post-type setting. Single-mode
+ * (`include` OR `exclude`); translates the `{ mode, postTypes }` attributes
+ * into the `{ include, exclude }` shape `store/api.js`'s
+ * `buildStaticPostTypeClauses()` consumes.
  */
 class Filter_Post_Type {
 

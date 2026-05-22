@@ -147,6 +147,7 @@ describe( 'store actions', () => {
 			filterConfigs: {},
 			priceRange: null,
 			staticFilterSelections: {},
+			staticPostTypes: undefined,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -205,6 +206,38 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.hasError ).toBe( true );
 		expect( state.isLoading ).toBe( false );
+	} );
+
+	it( 'applies a per-instance post-type scope, reuses it across re-runs, and falls back to the global seed for an unscoped input', async () => {
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		// 1. A scoped Search Input dispatches — its include list constrains the
+		//    ES filter clause for the search it initiates.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator(
+			actions.search( { syncUrl: false, staticPostTypes: { include: [ 'post' ], exclude: [] } } )
+		);
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=post'
+		);
+
+		// 2. A filter / sort re-run omits the scope key, so the session keeps the
+		//    active scope rather than dropping the constraint.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=post'
+		);
+
+		// 3. An unscoped input passes null, clearing the active scope and falling
+		//    back to the page-global seed a filter-post-type block contributed.
+		state.staticPostTypes = { include: [ 'page' ], exclude: [] };
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false, staticPostTypes: null } ) );
+		const decoded = decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][post_type]=page' );
+		expect( decoded ).not.toContain( '[post_type]=post&' );
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
