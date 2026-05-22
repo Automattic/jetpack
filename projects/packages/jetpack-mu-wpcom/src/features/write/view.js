@@ -4542,9 +4542,26 @@ const { state } = store( 'wpcom-write', {
 						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
 					return;
 				}
-				// URL validation and permalink resolution happen server-side.
-				// PHP checks this site's accepted hosts before falling back
-				// to url_to_postid().
+
+				// If the pasted URL is same-site and contains a numeric ?p= or
+				// ?post= param, navigate directly with &post=<id> instead of
+				// passing the full URL through &url=. This avoids carrying
+				// unrelated params (preview nonces, tracking params, etc.) into
+				// the address bar and server logs.
+				const homeHost = new URL( state.homeUrl ).hostname;
+				if ( parsed.hostname === homeHost ) {
+					const qp = parsed.searchParams.get( 'p' ) || parsed.searchParams.get( 'post' );
+					const extractedId = qp ? parseInt( qp, 10 ) : 0;
+					if ( extractedId > 0 ) {
+						allowLeave = true;
+						window.location.href = state.writeUrl + '&post=' + extractedId;
+						return;
+					}
+				}
+
+				// Pretty permalinks and other URL shapes: delegate resolution
+				// to PHP's url_to_postid(). Server-side checks the host against
+				// home_url() and enforces edit_post capability.
 				allowLeave = true;
 				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( normalized );
 			}

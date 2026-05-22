@@ -647,7 +647,7 @@ function wpcom_write_render_admin_page() {
 	// to url_to_postid() for pretty permalinks — core checks the host
 	// against home_url() internally.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for permalink resolution.
-	if ( ! $edit_post_id && ! empty( $_GET['url'] ) ) {
+	if ( ! $edit_post_id && ! empty( $_GET['url'] ) && is_scalar( $_GET['url'] ) ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$input_url = esc_url_raw( wp_unslash( $_GET['url'] ) );
 		$url_host  = wp_parse_url( $input_url, PHP_URL_HOST );

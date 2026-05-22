@@ -1837,6 +1837,68 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that ?post[]=99 (array injection) is silently ignored.
+	 */
+	public function test_post_array_param_is_ignored() {
+		wp_set_current_user( $this->admin_id );
+
+		$_GET['post'] = array( 99 );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( 0, $state['editPostId'] );
+		$this->assertSame( '', $state['openPostError'] );
+	}
+
+	/**
+	 * Test that ?url[]=foo (array injection) is silently ignored.
+	 */
+	public function test_url_array_param_is_ignored() {
+		wp_set_current_user( $this->admin_id );
+
+		$_GET['url'] = array( 'https://example.com' );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( 0, $state['editPostId'] );
+		$this->assertSame( '', $state['openPostError'] );
+	}
+
+	/**
+	 * Test that a same-host ?url= containing ?p[]=99 (array in parsed query
+	 * params) does not resolve to post ID 1.
+	 */
+	public function test_url_param_with_array_p_does_not_resolve() {
+		wp_set_current_user( $this->admin_id );
+
+		// p[]=99 causes parse_str() to produce an array; the is_scalar()
+		// guard must reject it so absint() never sees the array.
+		$_GET['url'] = home_url( '/?p[]=99' );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertNotSame( 1, $state['editPostId'] );
+	}
+
+	/**
 	 * Test that a ?url= resolving to a page (not a post) sets openPostError.
 	 */
 	public function test_url_param_resolving_to_page_sets_error() {
