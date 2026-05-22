@@ -199,17 +199,18 @@ class Initializer_Test extends Search_TestCase {
 		);
 	}
 
-	public function test_init_search_blocks_enables_woocommerce_blocks_gate_by_default() {
-		// The WC gate ships on by default — pass `false` as the base value
-		// so the assertion proves the override forces it true regardless of
-		// the `class_exists( 'WooCommerce' )` probe.
+	public function test_init_search_blocks_does_not_override_woocommerce_blocks_gate() {
+		// The WC blocks follow WooCommerce's active state — the initializer no
+		// longer forces the `jetpack_search_woocommerce_blocks_enabled` gate
+		// either way, leaving it a pass-through over the
+		// `class_exists( 'WooCommerce' )` probe.
 		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
 
 		$this->invoke_init_search_blocks();
 
-		$this->assertTrue(
-			(bool) apply_filters( 'jetpack_search_woocommerce_blocks_enabled', false ),
-			'WC-only Search blocks should be enabled by default.'
+		$this->assertFalse(
+			has_filter( 'jetpack_search_woocommerce_blocks_enabled' ),
+			'init_search_blocks() must not register a WC-gate override; the gate follows the WooCommerce probe.'
 		);
 	}
 

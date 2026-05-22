@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Search Blocks: enable the WooCommerce filter blocks by default — flip the `jetpack_search_woocommerce_blocks_enabled` filter to true so every Search-supported site gets the product attribute, price, rating, and stock-status filters out of the box. The filter is retained as a kill-switch (return false to opt out).
+Search Blocks: the WooCommerce filter blocks (product attribute, price, rating, and stock-status filters) now follow WooCommerce's active state instead of being force-disabled, so they register automatically on sites running WooCommerce. The `jetpack_search_woocommerce_blocks_enabled` filter remains available to force the gate either way.
