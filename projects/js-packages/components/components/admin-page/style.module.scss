@@ -15,15 +15,16 @@
 	// https://github.com/WordPress/gutenberg/issues/75428
 
 	// Anchor: `.jp-admin-page__page` is the className we pass to admin-ui's
-	// <Page>; admin-ui 2.0.0 renders the header as a stable <header> element
-	// directly inside that page node — no class hooks anymore.
-	&.without-bottom-border :global(.jp-admin-page__page > header) {
+	// <Page>; admin-ui ≥ 2.1.0 renders the header as a `<div>` (was `<header>`
+	// in 2.0). Target it positionally as `> :first-child` so we don't couple
+	// to the element tag or admin-ui's CSS-Modules-hashed class names.
+	&.without-bottom-border :global(.jp-admin-page__page > :first-child) {
 		border-bottom: none;
 	}
 
 	// Disable sticky header until we make it work better across all pages.
 	// JETPACK-1386
-	:global(.jp-admin-page__page > header) {
+	:global(.jp-admin-page__page > :first-child) {
 		position: relative;
 		z-index: 1;
 	}
@@ -34,12 +35,12 @@
 		clear: both;
 	}
 
-	// admin-ui 2.0.0's header `visual` slot is a 24px grid box but does not
-	// center its contents. Our JetpackLogo is 20px tall, so without this it
-	// pins to the top-left of the cell and looks misaligned vs. the title.
-	// admin-ui ships the slot as `<div aria-hidden="true">` in the header.
+	// admin-ui's header `visual` slot is a 24px grid box but does not center
+	// its contents. Our JetpackLogo is 20px tall, so without this it pins to
+	// the top-left of the cell and looks misaligned vs. the title. admin-ui
+	// ships the slot as `<div aria-hidden="true">` in the header.
 	// TODO: remove once upstream centers contents in `.header-visual`.
-	:global(.jp-admin-page__page > header [aria-hidden="true"]) {
+	:global(.jp-admin-page__page > :first-child [aria-hidden="true"]) {
 		place-items: center;
 	}
 
