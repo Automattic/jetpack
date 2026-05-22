@@ -37,7 +37,7 @@ class Woo_Product_Panel {
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_meta' ) );
 		add_action( 'add_meta_boxes_product', array( __CLASS__, 'register_metabox' ) );
-		add_action( 'save_post_product', array( __CLASS__, 'save_meta' ), 10, 2 );
+		add_action( 'save_post_product', array( __CLASS__, 'save_meta' ), 10, 1 );
 		// Run after save_meta so the checkbox value is persisted before we
 		// decide whether to dispatch.
 		add_action( 'save_post_product', array( __CLASS__, 'maybe_dispatch_promote' ), 20, 2 );
@@ -155,10 +155,9 @@ class Woo_Product_Panel {
 	 * Priority `default` keeps the panel between the Publish box (priority
 	 * `core`) and the Product image box (priority `low`).
 	 *
-	 * @param WP_Post $post The product being edited.
 	 * @return void
 	 */
-	public static function register_metabox( $post ) {
+	public static function register_metabox() {
 		if ( ! self::should_render() ) {
 			return;
 		}
@@ -247,11 +246,10 @@ class Woo_Product_Panel {
 	/**
 	 * Persist the checkbox value when the product is saved.
 	 *
-	 * @param int     $post_id Product ID.
-	 * @param WP_Post $post    The product object.
+	 * @param int $post_id Product ID.
 	 * @return void
 	 */
-	public static function save_meta( $post_id, $post ) {
+	public static function save_meta( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -267,11 +265,6 @@ class Woo_Product_Panel {
 
 		$checked = ! empty( $_POST[ self::META_KEY ] );
 		update_post_meta( $post_id, self::META_KEY, $checked );
-
-		// Allow re-dispatch on the next publish if the product is being unpublished.
-		if ( 'publish' !== $post->post_status ) {
-			delete_post_meta( $post_id, self::PROMOTION_PROCESSED );
-		}
 	}
 
 	/**
@@ -280,6 +273,12 @@ class Woo_Product_Panel {
 	 *
 	 * Runs on `save_post_product` (priority 20) — after `save_meta` has
 	 * persisted the checkbox value for this request.
+	 *
+	 * Dedup is intentionally NOT done here: every publish/update of a
+	 * product with the opt-in checked re-fires the action. Downstream
+	 * consumers are expected to skip if a campaign already exists for
+	 * the product. The `_jetpack_blaze_promote_dispatched` post meta is
+	 * still written as a breadcrumb so the dispatch history is visible.
 	 *
 	 * @param int     $post_id Product ID.
 	 * @param WP_Post $post    Product post object.
@@ -301,11 +300,8 @@ class Woo_Product_Panel {
 		if ( ! (bool) get_post_meta( $post_id, self::META_KEY, true ) ) {
 			return;
 		}
-		if ( (bool) get_post_meta( $post_id, self::PROMOTION_PROCESSED, true ) ) {
-			return;
-		}
 
-		update_post_meta( $post_id, self::PROMOTION_PROCESSED, 1 );
+		update_post_meta( $post_id, self::PROMOTION_PROCESSED, time() );
 
 		/**
 		 * Fires when a WooCommerce product is published with the
