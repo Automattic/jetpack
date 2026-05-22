@@ -177,14 +177,29 @@ if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {
 	 * Settings Description
 	 */
 	function jetpack_cpt_section_callback() {
-		if ( class_exists( 'Redirect' ) ) {
-			?>
-			<p>
-				<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack-classic-theme-helper' ); ?>
-				<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) ); ?>"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
-			</p>
+		$support_url = class_exists( 'Redirect' )
+			? Redirect::get_url( 'jetpack-support-custom-content-types' )
+			: 'https://jetpack.com/support/custom-content-types/';
+		?>
+		<p>
 			<?php
-		}
+			echo wp_kses(
+				sprintf(
+					/* translators: %s is a link to a support article about custom content types */
+					__( 'These features are primarily designed for classic themes. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.', 'jetpack-classic-theme-helper' ),
+					esc_url( $support_url )
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+				)
+			);
+			?>
+		</p>
+		<?php
 	}
 }
 
