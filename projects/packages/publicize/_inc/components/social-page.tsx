@@ -1,10 +1,9 @@
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Page } from '@wordpress/admin-ui';
+import AdminPage from '@automattic/jetpack-components/admin-page';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Stack, Tabs } from '@wordpress/ui';
+import { Tabs } from '@wordpress/ui';
 import './social-page.scss';
 import type { ReactNode } from 'react';
 
@@ -26,10 +25,14 @@ const SUBTITLES: Record< SocialTab, () => string > = {
 };
 
 /**
- * Shared chrome for the unified Social page — owns the `Page` from
- * `@wordpress/admin-ui` plus the Overview / Settings tab nav. Routes
- * exchange tabs via `?tab=` so the `Tabs.Root` mounts once and the
- * active-tab indicator slides between tabs instead of remounting.
+ * Shared chrome for the unified Social page — owns the `AdminPage` from
+ * `@automattic/jetpack-components` plus the Overview / Settings tab nav.
+ * `AdminPage` supplies the Jetpack header (logo + title) and footer and the
+ * shared `jetpack-admin-page-layout-wp-build` layout (fixed-position content
+ * column, scrolling middle, pinned footer); the shell adds the tab bar +
+ * content padding via `social-page.scss`. Routes exchange tabs via `?tab=` so
+ * the `Tabs.Root` mounts once and the active-tab indicator slides between tabs
+ * instead of remounting.
  *
  * @param props           - Component props.
  * @param props.activeTab - Which tab the current route represents.
@@ -56,24 +59,16 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 		[ navigate ]
 	);
 
-	const title = (
-		<Stack direction="row" align="center" gap="sm">
-			<JetpackLogo height={ 20 } showText={ false } />
-			{ /* "Social" is a product name, do not translate. */ }
-			<span>{ PRODUCT_NAME }</span>
-		</Stack>
-	);
-
 	return (
-		<Page
-			title={ title }
-			ariaLabel={ PRODUCT_NAME }
+		<AdminPage
+			apiRoot={ getSiteData()?.rest_root }
+			apiNonce={ getSiteData()?.rest_nonce }
+			title={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
-			hasPadding={ false }
 		>
-			<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-				<div className="jetpack-social-page__tabs-row">
+			<Tabs.Root className="jetpack-social-tabs" value={ activeTab } onValueChange={ onTabChange }>
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-publicize-pkg' ) }</Tabs.Tab>
@@ -83,7 +78,6 @@ export default function SocialPage( { activeTab, actions, children }: Props ): J
 					{ children }
 				</div>
 			</Tabs.Root>
-			<JetpackFooter />
-		</Page>
+		</AdminPage>
 	);
 }

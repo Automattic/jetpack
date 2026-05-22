@@ -1,64 +1,33 @@
-// Page-shell layout for the modernized Social dashboard. Mirrors the
-// Newsletter / Boost shells: the body slot becomes the scroll container so
-// the `Page` header and the tab row stay pinned to the viewport while only
-// the active tab's content scrolls underneath. `@wordpress/admin-ui`
-// already paints `.admin-ui-page` and `.admin-ui-page__header` with the
-// neutral surface tokens, so this file only overrides what's specific to
-// the unified Social layout.
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Layout — the modernized Social dashboard mounts `AdminPage` from
+// `@automattic/jetpack-components`, so the shared
+// `jetpack-admin-page-layout-wp-build` mixin owns the viewport-pinned chrome:
+// fixed-position content column, scrolling middle, pinned `JetpackFooter`, and
+// the sticky `.jp-admin-page-tabs` strip. This file adds only the page-specific
+// pieces: the off-white canvas and the tab content padding.
 
 $jetpack-social-inset: var(--wpds-dimension-padding-2xl, 24px);
 
+// Both body classes: `jetpack_page_*` when Social is a submenu under the
+// Jetpack menu (Jetpack plugin), `toplevel_page_*` when it's a top-level menu
+// (standalone Social plugin).
 body.jetpack_page_jetpack-social,
 body.toplevel_page_jetpack-social {
 
-	// Anchor the page to the stage's height so the body slot below has a
-	// bounded box to fill — see the body-slot rule for the rest of the
-	// app-shell scroll model.
-	.admin-ui-page {
-		block-size: 100%;
-		min-block-size: 0;
-	}
+	// `-wp-build` variant: the modernized dashboard mounts `@wordpress/admin-ui`
+	// 2.x components, so layer that variant's defensive resets (breadcrumb
+	// `ul`/`a` overrides) on top of the shared layout.
+	@include jetpack-admin-page-layout-wp-build;
 
-	// The body slot — `Tabs.Root` in tabbed mode — owns the scrolling so
-	// the sticky header and the `JetpackFooter` stay pinned while the
-	// active tab's content scrolls inside.
-	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) {
-		display: flex;
-		flex: 1 1 auto;
-		flex-direction: column;
-		min-block-size: 0;
-		overflow: auto;
-	}
-
-	// Page header keeps admin-ui's sticky behaviour but drops its bottom
-	// rule — the tab row owns the separator so the two never double-border.
-	// Locking the title row to the action-button height keeps the header
-	// the same size whether the active tab supplies actions or not, so the
-	// tab bar doesn't jump when switching between them.
-	.admin-ui-page__header {
-		border-bottom: 0;
-		padding-block-end: var(--wpds-dimension-padding-xs, 4px);
-
-		> *:first-child {
-			min-block-size: 36px;
-		}
-	}
-
-	// Tabs row: sticks at the top of the body wrapper so the bar stays in
-	// view while the panel content scrolls underneath. The wrapper carries
-	// the full-width separator + inline padding; the nested `Tabs.List`
-	// keeps its native `width: fit-content` so the animated active-tab
-	// indicator slides smoothly between tabs.
-	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > .jetpack-social-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
-		box-sizing: border-box;
-		flex: 0 0 auto;
-		padding-inline: $jetpack-social-inset;
-		position: sticky;
-		top: 0;
-		width: 100%;
-		z-index: 9;
+	// Off-white page surface so white content cards stand out against the
+	// background. `AdminPage` paints `.jp-admin-page` (its outer wrapper) and
+	// `.jp-admin-page__page` (the admin-ui `Page` shell) white by default via
+	// `showBackground`, so both need overriding for every tab to share the canvas.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: #fcfcfc;
 	}
 
 	.jetpack-social-page__content--padded {
