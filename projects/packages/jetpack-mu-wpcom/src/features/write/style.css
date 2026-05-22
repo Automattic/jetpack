@@ -1913,12 +1913,14 @@
 		display: none;
 	}
 
-	/* Toolbar scrolls horizontally on mobile */
+	/* Toolbar scrolls horizontally on mobile. Avoid -webkit-overflow-scrolling:
+	   touch — it's deprecated and historically traps position:fixed descendants
+	   (like .bw-heading-menu / .bw-color-menu) inside this scroll container on
+	   iOS Safari, so the dropdowns can't paint outside the toolbar's bounds. */
 	.bw-toolbar-scroll {
 		justify-content: flex-start;
 		padding: 0 12px;
 		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
 	}
 
@@ -1926,13 +1928,16 @@
 		display: none;
 	}
 
-	/* Escape the overflow scroll container on mobile */
+	/* Escape the overflow scroll container on mobile. Switching to position:
+	   fixed leaves the toolbar's stacking context, so the base z-index of 210
+	   no longer beats .bw-toolbar (99999) — re-declare a value above it. */
 	.bw-heading-menu {
 		position: fixed;
 		top: 104px;
 		left: 16px;
 		transform: none;
 		margin-top: 0;
+		z-index: 100000;
 	}
 
 	.bw-color-menu {
@@ -1942,6 +1947,7 @@
 		left: auto;
 		transform: none;
 		margin-top: 0;
+		z-index: 100000;
 	}
 
 	.bw-color-menu:not([hidden]) {
