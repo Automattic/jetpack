@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -271,6 +272,39 @@ class Search_Blocks_Test extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
+	}
+
+	/**
+	 * The WC gate also requires a WooCommerce new enough to register the
+	 * `product-search-results` template. `woocommerce_version_supported()`
+	 * is the comparison; pin it against explicit versions so the floor is
+	 * Exercised without a live WooCommerce in the test process.
+	 *
+	 * @dataProvider provider_woocommerce_version_supported
+	 *
+	 * @param string|null $version  Version to test, or null for the default path.
+	 * @param bool        $expected Expected support result.
+	 */
+	#[DataProvider( 'provider_woocommerce_version_supported' )]
+	public function test_woocommerce_version_supported( $version, bool $expected ) {
+		$this->assertSame( $expected, Search_Blocks::woocommerce_version_supported( $version ) );
+	}
+
+	/**
+	 * Cases for `test_woocommerce_version_supported`.
+	 *
+	 * @return array<string, array{0: string|null, 1: bool}>
+	 */
+	public static function provider_woocommerce_version_supported(): array {
+		return array(
+			'below floor'       => array( '6.4.0', false ),
+			'at floor'          => array( '6.5.0', true ),
+			'above floor'       => array( '8.0.0', true ),
+			'patch below floor' => array( '6.4.99', false ),
+			'empty/unknown'     => array( '', false ),
+			// No WC_VERSION constant in the test process, so the default path reads unsupported.
+			'default no WC'     => array( null, false ),
+		);
 	}
 
 	/**

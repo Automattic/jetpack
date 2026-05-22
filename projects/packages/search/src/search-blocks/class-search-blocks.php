@@ -62,6 +62,15 @@ class Search_Blocks {
 	const WC_PRODUCT_SEARCH_TEMPLATE_SLUG = 'product-search-results';
 
 	/**
+	 * Lowest WooCommerce version that registers the `product-search-results`
+	 * block template. WooCommerce 6.5 bundled WooCommerce Blocks 7.4, the
+	 * release that first added the template; on anything older the WC-only
+	 * Search features have no template to front and no modern block
+	 * infrastructure to hang off, so the WC gate stays closed.
+	 */
+	const MIN_WOOCOMMERCE_VERSION = '6.5.0';
+
+	/**
 	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
 	 * method's local `static` so tests can clear it between cases via
 	 * `reset_initial_loading_cache()` — function-local statics aren't
@@ -405,10 +414,11 @@ class Search_Blocks {
 	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
 	 * force the gate either way regardless of WC's plugin state — e.g. a
 	 * Woo site hiding WC-only blocks on a non-shop content area, or a
-	 * non-Woo site previewing them in staging. Default is the
-	 * `class_exists( 'WooCommerce', false )` probe. Filter fires once per
-	 * request before the result is memoized, so an expensive callback
-	 * (DB probe, option read) pays its cost at most once.
+	 * non-Woo site previewing them in staging. Default is a
+	 * `class_exists( 'WooCommerce', false )` probe gated on
+	 * `woocommerce_version_supported()`. Filter fires once per request
+	 * before the result is memoized, so an expensive callback (DB probe,
+	 * option read) pays its cost at most once.
 	 *
 	 * @return bool
 	 */
@@ -417,18 +427,21 @@ class Search_Blocks {
 			// Pass `false` so a missing class doesn't fire the autoloader
 			// on non-Woo sites — the gate is hit on every request, and
 			// any upstream autoloader work is wasted when the answer is "no".
-			$probed = class_exists( 'WooCommerce', false );
+			// Also require a WooCommerce new enough to register the
+			// `product-search-results` template (see MIN_WOOCOMMERCE_VERSION).
+			$probed = class_exists( 'WooCommerce', false ) && self::woocommerce_version_supported();
 
 			/**
 			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
 			 * filter variations, and render paths. Default is the
-			 * `class_exists( 'WooCommerce', false )` probe; cast to bool
-			 * before caching so a truthy non-bool return (e.g. `1`)
-			 * doesn't poison strictly-typed callers.
+			 * `class_exists( 'WooCommerce', false )` probe AND a minimum
+			 * WooCommerce version check; cast to bool before caching so a
+			 * truthy non-bool return (e.g. `1`) doesn't poison
+			 * strictly-typed callers.
 			 *
 			 * @since 0.59.0
 			 *
-			 * @param bool $enabled Defaults to the WooCommerce class probe.
+			 * @param bool $enabled Defaults to the WooCommerce class + version probe.
 			 */
 			self::$woocommerce_blocks_enabled_cache = (bool) apply_filters(
 				'jetpack_search_woocommerce_blocks_enabled',
@@ -436,6 +449,27 @@ class Search_Blocks {
 			);
 		}
 		return self::$woocommerce_blocks_enabled_cache;
+	}
+
+	/**
+	 * Whether the active WooCommerce is recent enough to register the
+	 * `product-search-results` block template the WC-only Search features
+	 * depend on (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`). An older or
+	 * absent WooCommerce reads as unsupported.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|null $version WooCommerce version to test; defaults to the
+	 *   live `WC_VERSION` constant. The override exists so tests can pin a
+	 *   version without polluting global constants.
+	 * @return bool
+	 */
+	public static function woocommerce_version_supported( ?string $version = null ): bool {
+		// `constant()` rather than a bare `WC_VERSION` so static analysis
+		// doesn't flag it as undeclared — WooCommerce isn't a dependency of
+		// this package (cf. the mirrored WC_PRODUCT_SEARCH_TEMPLATE_SLUG).
+		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
 	/**
