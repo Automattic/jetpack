@@ -78,7 +78,7 @@ class Users_Connection_Admin {
 			$logo_url = Jetpack_Connector::get_connector_logo_url();
 
 			return sprintf(
-				'<span title="%1$s" class="jetpack-connection-status"><img src="%2$s" alt="" class="jetpack-connection-status__logo" height="16" decoding="async" loading="lazy" />%3$s</span>',
+				'<span title="%1$s" class="jetpack-connection-status"><span class="jetpack-connection-status__icon-slot"><img src="%2$s" alt="" class="jetpack-connection-status__logo" decoding="async" loading="lazy" /></span>%3$s</span>',
 				esc_attr__( 'This user has connected their WordPress.com account.', 'jetpack-connection' ),
 				esc_url( $logo_url ),
 				esc_html__( 'Connected', 'jetpack-connection' )
@@ -156,16 +156,27 @@ class Users_Connection_Admin {
 				left: -170px;
 			}
 			.column-user_jetpack {
-				width: 140px;
+				width: 160px;
+			}
+			td.column-user_jetpack {
+				vertical-align: middle;
 			}
 			.jetpack-connection-status {
 				display: inline-flex;
 				align-items: center;
 				column-gap: 6px;
 			}
-			.jetpack-connection-status__logo {
+			.jetpack-connection-status__icon-slot {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 31px;
 				flex-shrink: 0;
+			}
+			.jetpack-connection-status__logo {
 				display: block;
+				width: 100%;
+				height: auto;
 			}
 			/* Show tooltip on hover and focus */
 			.jetpack-connection-tooltip-icon:hover .jetpack-connection-tooltip,
