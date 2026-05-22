@@ -1,0 +1,22 @@
+.container {
+	block-size: 100%;
+	min-inline-size: 0;
+	overflow: auto;
+}
+
+.titleLink {
+	color: var(--wpds-color-fg-content-neutral);
+	font-weight: 500;
+	text-decoration: none;
+}
+
+.titleLink:hover {
+	color: var(--wpds-color-fg-interactive-neutral-active);
+	text-decoration: underline;
+}
+
+.error {
+	color: var(--wpds-color-fg-content-error);
+	padding: var(--wpds-dimension-padding-lg);
+	text-align: center;
+}

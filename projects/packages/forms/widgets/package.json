@@ -1,0 +1,25 @@
+{
+	"name": "@automattic/jetpack-forms-widgets",
+	"version": "0.0.0",
+	"description": "Dashboard widgets for Jetpack Forms on the experimental wp-admin dashboard.",
+	"private": true,
+	"license": "GPL-2.0-or-later",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@wordpress/core-data": "7.46.0",
+		"@wordpress/data": "10.46.0",
+		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.46.0",
+		"@wordpress/element": "6.46.0",
+		"@wordpress/html-entities": "4.46.0",
+		"@wordpress/i18n": "6.19.0",
+		"@wordpress/icons": "12.2.0",
+		"@wordpress/ui": "0.13.0",
+		"@wordpress/url": "4.46.0"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.28"
+	}
+}

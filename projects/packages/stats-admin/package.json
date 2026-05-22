@@ -28,14 +28,17 @@
 	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/api-fetch": "7.46.0",
+		"@wordpress/dataviews": "14.1.0",
 		"@wordpress/element": "6.46.0",
 		"@wordpress/i18n": "6.19.0",
 		"@wordpress/icons": "12.2.0",
 		"@wordpress/ui": "0.13.0",
+		"@wordpress/url": "4.46.0",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {

@@ -1,0 +1,7 @@
+{
+	"name": "jetpack/latest-responses",
+	"title": "Latest responses",
+	"description": "Recent form responses with source and date.",
+	"category": "jetpack",
+	"presentation": "full-content"
+}
