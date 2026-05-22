@@ -190,6 +190,10 @@
 		},
 		"blockBorderRadius": {
 			"type": [ "string", "object" ]
+		},
+		"variationName": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"example": {}
