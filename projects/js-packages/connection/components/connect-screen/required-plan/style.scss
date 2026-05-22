@@ -82,6 +82,8 @@
 			text-decoration: underline;
 			font: inherit;
 			padding: 0;
+			min-width: calc(var(--spacing-base) * 8);
+			justify-content: center;
 
 			// @wordpress/components Spinner ships with `margin: 5px 11px 0`
 			// for use inside button chrome we no longer have. Zero it out
