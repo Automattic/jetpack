@@ -9,7 +9,9 @@
  *
  * Each landing page is a self-contained HTML document stored in
  * `post_content`. When the public URL is hit, the theme is bypassed and
- * the raw document is served verbatim.
+ * the document is served inside a sandboxed iframe, so its (AI-generated,
+ * attacker-influenceable) markup cannot run scripts or reach the merchant's
+ * origin, cookies, or parent DOM.
  *
  * @package automattic/jetpack-blaze
  */
@@ -134,31 +136,59 @@ class Landing_Page_CPT {
 		nocache_headers();
 		header( 'Content-Type: text/html; charset=utf-8' );
 		header( 'X-Robots-Tag: noindex, nofollow, noarchive', true );
+		// Outer-frame hardening (clickjacking + base-tag hijack). The untrusted
+		// document itself is isolated in the sandboxed iframe built below.
+		header( "Content-Security-Policy: frame-ancestors 'none'; base-uri 'none'", true );
+		header( 'X-Content-Type-Options: nosniff', true );
+		header( 'Referrer-Policy: no-referrer', true );
 
-		$content = (string) $post->post_content;
-		if ( stripos( $content, '<html' ) === false ) {
-			$content = self::wrap_fragment( $post->post_title, $content );
-		}
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content was sanitized at write time.
-		echo $content;
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Wrapper is built from escaped values; the untrusted document is escaped into the iframe srcdoc and isolated by the sandbox.
+		echo self::render_sandboxed( $post->post_title, (string) $post->post_content );
 		exit;
 	}
 
 	/**
-	 * Minimal HTML5 wrapper for HTML fragments (no theme, no admin bar).
+	 * Render the stored landing-page HTML inside a sandboxed iframe.
 	 *
-	 * @param string $title   Document title.
-	 * @param string $content HTML fragment.
-	 * @return string Full HTML document.
+	 * The AI-generated document is attacker-influenceable (product data feeds
+	 * the prompt) and is served on the merchant's own origin, so it is a
+	 * stored-XSS surface. We isolate it in an iframe whose `sandbox` lacks
+	 * `allow-scripts` and `allow-same-origin`: JavaScript cannot execute and
+	 * the content runs in a unique opaque origin with no access to the
+	 * merchant's cookies, storage, or parent DOM. CSS still renders.
+	 *
+	 * The default sandbox keeps the conversion link working (popups +
+	 * user-activated top navigation). The policy is filterable for stricter
+	 * variants.
+	 *
+	 * @param string $title   Document title for the outer frame.
+	 * @param string $content Stored landing-page HTML (full document or fragment).
+	 * @return string Outer HTML document embedding the sandboxed iframe.
 	 */
-	private static function wrap_fragment( $title, $content ) {
+	private static function render_sandboxed( $title, $content ) {
 		$lang = get_bloginfo( 'language' );
+
+		/**
+		 * Filter the iframe `sandbox` policy for rendered landing pages.
+		 *
+		 * Never add `allow-scripts` together with `allow-same-origin`: that
+		 * combination lets the framed document remove its own sandbox.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $sandbox Space-separated sandbox tokens.
+		 */
+		$sandbox = (string) apply_filters(
+			'jetpack_blaze_landing_page_iframe_sandbox',
+			'allow-popups allow-top-navigation-by-user-activation'
+		);
+
 		return sprintf(
-			'<!doctype html><html lang="%1$s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>%2$s</title></head><body>%3$s</body></html>',
+			'<!doctype html><html lang="%1$s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>%2$s</title><style>html,body{margin:0;padding:0;height:100%%}.blaze-lp-frame{border:0;display:block;width:100%%;height:100vh}</style></head><body><iframe class="blaze-lp-frame" sandbox="%3$s" referrerpolicy="no-referrer" title="%2$s" srcdoc="%4$s"></iframe></body></html>',
 			esc_attr( $lang ),
 			esc_html( $title ),
-			$content
+			esc_attr( $sandbox ),
+			esc_attr( $content )
 		);
 	}
 
@@ -212,6 +242,7 @@ class Landing_Page_CPT {
 	public static function generate_slug() {
 		$bytes = random_bytes( self::SLUG_BYTES );
 		// Base64-url, no padding.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Benign: URL-safe encoding of random bytes for a slug, not obfuscation.
 		return rtrim( strtr( base64_encode( $bytes ), '+/', '-_' ), '=' );
 	}
 
@@ -222,14 +253,11 @@ class Landing_Page_CPT {
 	 * the post is updated. Otherwise a new one is created with a fresh
 	 * random slug.
 	 *
-	 * @param array $args {
-	 *     @type string $html        Required. AI-generated HTML.
-	 *     @type string $title       Optional. Defaults to product name.
-	 *     @type string $mode        Required. e.g. 'woocommerce'.
-	 *     @type int    $product_id  Required.
-	 *     @type int    $campaign_id Optional.
-	 *     @type string $slug        Optional. Existing slug to upsert.
-	 * }
+	 * @param array $args Upsert arguments: `html` (required AI-generated HTML),
+	 *                    `title` (defaults to product name), `mode` (required,
+	 *                    e.g. 'woocommerce'), `product_id` (required),
+	 *                    `campaign_id`, and `slug` (optional existing slug to
+	 *                    upsert in place).
 	 * @return array|\WP_Error { id, slug, url } or WP_Error.
 	 */
 	public static function upsert( array $args ) {
@@ -248,8 +276,8 @@ class Landing_Page_CPT {
 			? sanitize_text_field( $args['title'] )
 			: sprintf( 'Blaze landing — product %d', $product_id );
 
-		$slug         = isset( $args['slug'] ) ? sanitize_title( $args['slug'] ) : '';
-		$existing_id  = 0;
+		$slug        = isset( $args['slug'] ) ? sanitize_title( $args['slug'] ) : '';
+		$existing_id = 0;
 		if ( '' !== $slug ) {
 			$existing = get_page_by_path( $slug, OBJECT, self::POST_TYPE );
 			if ( $existing instanceof WP_Post ) {
@@ -269,11 +297,22 @@ class Landing_Page_CPT {
 			'post_content' => wp_slash( $sanitized_html ),
 		);
 
-		if ( $existing_id > 0 ) {
-			$postarr['ID'] = $existing_id;
-			$post_id       = wp_update_post( $postarr, true );
-		} else {
-			$post_id = wp_insert_post( $postarr, true );
+		// The HTML is a complete, self-contained document that we already
+		// sanitized (scripts/JS stripped) in self::sanitize_html(). Blog-token
+		// REST requests run as a user without `unfiltered_html`, so KSES would
+		// strip `<!doctype>`, `<html>`, `<head>` and `<style>` tags on save —
+		// keeping the CSS as visible text and breaking the page. Disable the
+		// KSES content filters around the write and restore them right after.
+		kses_remove_filters();
+		try {
+			if ( $existing_id > 0 ) {
+				$postarr['ID'] = $existing_id;
+				$post_id       = wp_update_post( $postarr, true );
+			} else {
+				$post_id = wp_insert_post( $postarr, true );
+			}
+		} finally {
+			kses_init_filters();
 		}
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;
