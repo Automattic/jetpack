@@ -1,4 +1,4 @@
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import 'jetpack-search/store';
 import {
 	clearSuggestionsContext,
@@ -19,15 +19,32 @@ const debounceTimers = new WeakMap();
 /**
  * Start (or restart) the debounced search for a single input.
  *
- * @param {HTMLInputElement} input - The input whose timer should be reset.
+ * `staticPostTypes` is captured synchronously by the caller (the debounce fires
+ * outside the Interactivity element context, where `getContext()` is no longer
+ * available) and handed to `actions.search()` so this input's post-type scope
+ * overrides the page-global one for the search it initiates.
+ *
+ * @param {HTMLInputElement}                            input           - The input whose timer should be reset.
+ * @param {{include: string[], exclude: string[]}|null} staticPostTypes - This input's scope, or null.
  */
-function scheduleSearch( input ) {
+function scheduleSearch( input, staticPostTypes ) {
 	clearTimeout( debounceTimers.get( input ) );
 	const timer = setTimeout( () => {
 		debounceTimers.delete( input );
-		store( NAMESPACE ).actions.search();
+		store( NAMESPACE ).actions.search( { staticPostTypes } );
 	}, SEARCH_DEBOUNCE_MS );
 	debounceTimers.set( input, timer );
+}
+
+/**
+ * Read the post-type scope seeded into this input's `data-wp-context`. Returns
+ * null when the input has no scope so `actions.search()` clears any scope a
+ * previously-used input left active and falls back to the page-global seed.
+ *
+ * @return {{include: string[], exclude: string[]}|null} The scope, or null.
+ */
+function readPostTypeScope() {
+	return getContext()?.staticPostTypes ?? null;
 }
 
 /**
@@ -46,6 +63,9 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
+			// Captured here (synchronously, inside the element context) so the
+			// debounced fire can apply this input's post-type scope.
+			const staticPostTypes = readPostTypeScope();
 			// `submitOnly` inputs still keep `state.searchQuery` in sync so
 			// bindings render the typed value, but defer the actual API call
 			// until Enter / the clear button — useful for sites that want
@@ -53,7 +73,7 @@ store( NAMESPACE, {
 			if ( event.target.dataset.submitOnly === 'true' ) {
 				cancelPendingSearch( event.target );
 			} else {
-				scheduleSearch( event.target );
+				scheduleSearch( event.target, staticPostTypes );
 			}
 			// Delegated to ./suggestions.js — short-circuits on non-suggestions
 			// inputs, so this stays a single unconditional call.
@@ -70,7 +90,7 @@ store( NAMESPACE, {
 			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				store( NAMESPACE ).actions.search();
+				store( NAMESPACE ).actions.search( { staticPostTypes: readPostTypeScope() } );
 			}
 		},
 
@@ -83,7 +103,10 @@ store( NAMESPACE, {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
 			clearSuggestionsContext();
-			yield actions.search();
+			// Read the scope before the first yield — `getContext()` needs the
+			// synchronous element context the clear button runs in.
+			const staticPostTypes = readPostTypeScope();
+			yield actions.search( { staticPostTypes } );
 		},
 	},
 } );
