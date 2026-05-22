@@ -158,6 +158,12 @@ describe( 'filterHasContent', () => {
 			)
 		).toBe( true );
 	} );
+
+	it( 'is true when a non-date filter has an active selection', () => {
+		expect(
+			filterHasContent( state( { activeFilters: { category: [ 'news' ] } } ), 'category' )
+		).toBe( true );
+	} );
 } );
 
 describe( 'hasAnyActiveFilter', () => {
