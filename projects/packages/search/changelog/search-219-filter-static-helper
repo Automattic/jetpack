@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Search: internal — new `Filter_Static` helper class and `/wp-json/jetpack-search/v1/static-filters` REST endpoint, plus a `staticFilterSelections` seed slot on the shared Interactivity state. Foundation for the upcoming `jetpack-search/filter-static` block; no user-visible change on its own.
+Search: internal — new `Filter_Static` helper class, plus a `staticFilterSelections` seed slot on the shared Interactivity state. Foundation for the upcoming `jetpack-search/filter-static` block; no user-visible change on its own.

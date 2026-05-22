@@ -8,40 +8,21 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
-use WP_REST_Request;
-use WP_REST_Server;
 
 /**
  * Tests for the Filter_Static helpers that back the
- * `jetpack-search/filter-static` block. Extends Search_TestCase so the
- * REST-endpoint cases can dispatch through a real WP_REST_Server with
- * admin/editor users; the helper-only cases pay only a small WorDBless
- * setup cost.
+ * `jetpack-search/filter-static` block.
  */
 class Filter_Static_Test extends Search_TestCase {
 
 	/**
-	 * REST Server, populated in setUp so REST-endpoint cases can dispatch.
-	 *
-	 * @var WP_REST_Server|null
-	 */
-	protected $server;
-
-	/**
 	 * Reset the per-request memo before each test so registrations from a
-	 * prior case don't leak into the next. Wire up a real REST server so
-	 * the endpoint cases can dispatch.
+	 * prior case don't leak into the next.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		Filter_Static::reset_cache_for_testing();
 		$_GET = array();
-
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-		$this->server   = $wp_rest_server;
-		add_action( 'rest_api_init', array( Search_Blocks::class, 'register_rest_routes' ) );
-		do_action( 'rest_api_init' );
 	}
 
 	/**
@@ -50,12 +31,10 @@ class Filter_Static_Test extends Search_TestCase {
 	 * Filter_Static reads.
 	 */
 	public function tearDown(): void {
-		remove_action( 'rest_api_init', array( Search_Blocks::class, 'register_rest_routes' ) );
 		remove_all_filters( 'jetpack_search_static_filters' );
 		remove_all_filters( 'jetpack_instant_search_options' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
-		$_GET         = array();
-		$this->server = null;
+		$_GET = array();
 		Filter_Static::reset_cache_for_testing();
 		parent::tearDown();
 	}
@@ -615,134 +594,5 @@ class Filter_Static_Test extends Search_TestCase {
 		$this->assertCount( 1, $configs );
 		$this->assertSame( 'Blocks-side override', $configs[0]['name'] );
 		$this->assertSame( 'b', $configs[0]['values'][0]['value'] );
-	}
-
-	/**
-	 * The editor REST endpoint surfaces the configured filters to authors so
-	 * they can pick one in the block inspector. Editors (and anything with
-	 * `edit_posts`) should be allowed; logged-out visitors must not be.
-	 */
-	public function test_rest_endpoint_requires_edit_posts_capability() {
-		wp_set_current_user( 0 );
-		$request  = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
-		$response = $this->server->dispatch( $request );
-		$this->assertSame( 401, $response->get_status(), 'Anonymous request should be unauthorized.' );
-	}
-
-	/**
-	 * A logged-in subscriber lacks `edit_posts` — REST should distinguish
-	 * "not authenticated" (401) from "authenticated but not authorised"
-	 * (403). The error-status accuracy matters for any caller doing
-	 * differentiated UI fallbacks.
-	 */
-	public function test_rest_endpoint_forbids_user_without_edit_posts() {
-		$subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'dummy_subscriber',
-				'user_pass'  => 'dummy_pass_subscriber',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $subscriber_id );
-		$request  = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
-		$response = $this->server->dispatch( $request );
-		$this->assertSame( 403, $response->get_status(), 'Subscriber without edit_posts should be forbidden.' );
-	}
-
-	/**
-	 * Authenticated editors get the configured filters back, scoped to the
-	 * requested variation.
-	 */
-	public function test_rest_endpoint_returns_filters_for_authenticated_editor() {
-		add_filter(
-			'jetpack_search_static_filters',
-			static function () {
-				return array(
-					array(
-						'filter_id' => 'section',
-						'name'      => 'Section',
-						'variation' => 'sidebar',
-						'values'    => array(
-							array(
-								'name'  => 'News',
-								'value' => 'news',
-							),
-						),
-					),
-					array(
-						'filter_id' => 'audience',
-						'name'      => 'Audience',
-						'variation' => 'tabbed',
-						'values'    => array(
-							array(
-								'name'  => 'Devs',
-								'value' => 'dev',
-							),
-						),
-					),
-				);
-			}
-		);
-		wp_set_current_user( $this->editor_id );
-
-		$request = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
-		$request->set_query_params( array( 'variation' => 'sidebar' ) );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-		$data = $response->get_data();
-		$this->assertCount( 1, $data, 'Should return only filters whose variation matches.' );
-		$this->assertSame( 'section', $data[0]['filter_id'] );
-	}
-
-	/**
-	 * The `variation` arg is enum-validated against `sidebar` / `tabbed`. A
-	 * value that survives `sanitize_key` but isn't a member of the enum
-	 * (e.g. `'invalid'`) must be rejected so the parameter typing surfaces
-	 * misconfiguration to the caller rather than silently coercing it.
-	 *
-	 * (Garbage values that fail sanitize_key — e.g. `'sidebar; DROP TABLE'`
-	 * — are coerced first and may end up matching the enum; that's the
-	 * intentional defence-in-depth ordering of sanitize_callback before
-	 * arg validation.)
-	 */
-	public function test_rest_endpoint_rejects_invalid_variation() {
-		wp_set_current_user( $this->admin_id );
-		$request = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
-		$request->set_query_params( array( 'variation' => 'invalid' ) );
-		$response = $this->server->dispatch( $request );
-		$this->assertSame( 400, $response->get_status() );
-	}
-
-	/**
-	 * Default `variation` is `sidebar` when the param is omitted — matches
-	 * the block.json attribute default so the editor inspector's initial
-	 * dropdown state and the REST round-trip agree.
-	 */
-	public function test_rest_endpoint_defaults_variation_to_sidebar() {
-		add_filter(
-			'jetpack_search_static_filters',
-			static function () {
-				return array(
-					array(
-						'filter_id' => 'section',
-						'name'      => 'Section',
-						'variation' => 'sidebar',
-						'values'    => array(
-							array(
-								'name'  => 'News',
-								'value' => 'news',
-							),
-						),
-					),
-				);
-			}
-		);
-		wp_set_current_user( $this->admin_id );
-		$request  = new WP_REST_Request( 'GET', '/jetpack-search/v1/static-filters' );
-		$response = $this->server->dispatch( $request );
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertCount( 1, $response->get_data() );
-		$this->assertSame( 'section', $response->get_data()[0]['filter_id'] );
 	}
 }
