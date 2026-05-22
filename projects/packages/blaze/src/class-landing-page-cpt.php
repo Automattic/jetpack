@@ -38,6 +38,15 @@ class Landing_Page_CPT {
 	const META_CAMPAIGN   = '_blaze_landing_campaign_id';
 
 	/**
+	 * The landing-page HTML document is stored base64-encoded in this protected
+	 * meta key, NOT in post_content. WPCOM/Atomic run content sanitization on
+	 * post_content (KSES + platform filters) that strips `<style>`/`<head>`,
+	 * which would break the page even with KSES disabled. Base64 in meta is
+	 * opaque to every sanitizer and round-trips intact on Simple/Atomic/JN.
+	 */
+	const META_HTML = '_blaze_landing_html';
+
+	/**
 	 * Wire hooks.
 	 *
 	 * @return void
@@ -143,8 +152,29 @@ class Landing_Page_CPT {
 		header( 'Referrer-Policy: no-referrer', true );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Wrapper is built from escaped values; the untrusted document is escaped into the iframe srcdoc and isolated by the sandbox.
-		echo self::render_sandboxed( $post->post_title, (string) $post->post_content );
+		echo self::render_sandboxed( $post->post_title, self::get_stored_html( $post ) );
 		exit;
+	}
+
+	/**
+	 * Read the stored landing-page HTML for a post.
+	 *
+	 * Primary storage is the base64-encoded META_HTML meta. Falls back to
+	 * post_content for any legacy entries written before the meta switch.
+	 *
+	 * @param WP_Post $post Landing-page post.
+	 * @return string HTML document.
+	 */
+	private static function get_stored_html( $post ) {
+		$encoded = (string) get_post_meta( $post->ID, self::META_HTML, true );
+		if ( '' !== $encoded ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Benign: decoding our own stored HTML document, not obfuscation.
+			$decoded = base64_decode( $encoded, true );
+			if ( false !== $decoded && '' !== $decoded ) {
+				return $decoded;
+			}
+		}
+		return (string) $post->post_content;
 	}
 
 	/**
@@ -289,35 +319,31 @@ class Landing_Page_CPT {
 			$slug = self::generate_slug();
 		}
 
+		// The HTML document lives in META_HTML (base64), not post_content —
+		// see that constant's note. post_content is left empty so platform
+		// content sanitizers have nothing to mangle.
 		$postarr = array(
 			'post_type'    => self::POST_TYPE,
 			'post_status'  => 'publish',
 			'post_title'   => $title,
 			'post_name'    => $slug,
-			'post_content' => wp_slash( $sanitized_html ),
+			'post_content' => '',
 		);
 
-		// The HTML is a complete, self-contained document that we already
-		// sanitized (scripts/JS stripped) in self::sanitize_html(). Blog-token
-		// REST requests run as a user without `unfiltered_html`, so KSES would
-		// strip `<!doctype>`, `<html>`, `<head>` and `<style>` tags on save —
-		// keeping the CSS as visible text and breaking the page. Disable the
-		// KSES content filters around the write and restore them right after.
-		kses_remove_filters();
-		try {
-			if ( $existing_id > 0 ) {
-				$postarr['ID'] = $existing_id;
-				$post_id       = wp_update_post( $postarr, true );
-			} else {
-				$post_id = wp_insert_post( $postarr, true );
-			}
-		} finally {
-			kses_init_filters();
+		if ( $existing_id > 0 ) {
+			$postarr['ID'] = $existing_id;
+			$post_id       = wp_update_post( $postarr, true );
+		} else {
+			$post_id = wp_insert_post( $postarr, true );
 		}
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;
 		}
 
+		// Store the document base64-encoded so no content/meta sanitizer can
+		// strip its <style>/<head>; render_raw_document decodes it.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Benign: opaque-storing our own HTML to survive platform sanitizers, not obfuscation.
+		update_post_meta( $post_id, self::META_HTML, base64_encode( $sanitized_html ) );
 		update_post_meta( $post_id, self::META_MODE, $mode );
 		update_post_meta( $post_id, self::META_PRODUCT_ID, $product_id );
 		if ( ! empty( $args['campaign_id'] ) ) {
