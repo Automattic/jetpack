@@ -1919,7 +1919,7 @@
 		display: none;
 	}
 
-	.bw-more-save-draft {
+	.bw-more-save-draft:not([hidden]) {
 		display: block;
 	}
 
