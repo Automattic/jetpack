@@ -108,7 +108,7 @@
 		"@wordpress/browserslist-config": "6.46.0",
 		"@wordpress/build": "0.13.0",
 		"autoprefixer": "10.4.20",
-		"babel-jest": "30.4.0",
+		"babel-jest": "30.4.1",
 		"browserslist": "^4.24.0",
 		"concurrently": "9.2.1",
 		"jest": "30.4.2",
