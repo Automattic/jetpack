@@ -170,7 +170,7 @@ class Search_Input_Render_Test extends TestCase {
 				'postTypes'    => array( 'post' ),
 			)
 		);
-		$decoded = html_entity_decode( $markup );
+		$decoded = html_entity_decode( $markup, ENT_QUOTES | ENT_HTML401 );
 		$this->assertStringContainsString( 'data-wp-context', $markup );
 		$this->assertStringContainsString(
 			'"staticPostTypes":{"include":["post"],"exclude":[]}',
@@ -189,7 +189,7 @@ class Search_Input_Render_Test extends TestCase {
 				'postTypes'    => array( 'page' ),
 			)
 		);
-		$decoded = html_entity_decode( $markup );
+		$decoded = html_entity_decode( $markup, ENT_QUOTES | ENT_HTML401 );
 		$this->assertStringContainsString(
 			'"staticPostTypes":{"include":[],"exclude":["page"]}',
 			$decoded

@@ -203,7 +203,13 @@ export default function PostTypeScopeControl( { mode, postTypes, onChange } ) {
 				label={
 					activeMode === MODE_INCLUDE
 						? __( 'Post types to include', 'jetpack-search-pkg' )
-						: __( 'Post types to exclude', 'jetpack-search-pkg' )
+						: __(
+								'Post types to exclude',
+								'jetpack-search-pkg',
+								/* dummy arg so the minifier can't fold both branches into
+								   `__( cond ? a : b )` — that yields a non-literal msgid and
+								   fails the production i18n-string check. */ 0
+						  )
 				}
 				value={ toTokens( slugs, labelBySlug ) }
 				suggestions={ suggestionList }
