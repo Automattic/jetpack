@@ -1,6 +1,7 @@
-import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
+import { TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
@@ -102,14 +103,15 @@ const ConnectScreenVisual: FC< Props > = ( {
 			<div className="jp-connection__connect-screen__tos">
 				<TermsOfService agreeButtonLabel={ buttonLabel } />
 			</div>
-			<ActionButton
-				label={ buttonLabel }
-				onClick={ handleButtonClick }
-				displayError={ displayButtonError || isOfflineMode }
-				errorMessage={ getErrorMessage( errorCode, isOfflineMode ) }
-				isLoading={ buttonIsLoading }
-				isDisabled={ isOfflineMode }
-			/>
+			<Button onClick={ handleButtonClick } loading={ buttonIsLoading } disabled={ isOfflineMode }>
+				{ buttonLabel }
+			</Button>
+			{ ( displayButtonError || isOfflineMode ) && (
+				<p className="jp-action-button__error">
+					{ getErrorMessage( errorCode, isOfflineMode ) ||
+						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+				</p>
+			) }
 			<span className="jp-connection__connect-screen__loading-message" role="status">
 				{ buttonIsLoading ? loadingLabel || __( 'Loading', 'jetpack-connection-js' ) : '' }
 			</span>
