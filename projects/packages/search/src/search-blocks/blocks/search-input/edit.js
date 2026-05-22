@@ -209,6 +209,10 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 							'jetpack-search-pkg'
 						) }
 					</p>
+					{ /* The mode is stored as `postTypeMode` (not `mode`, which the
+						   standalone filter-post-type block uses) to avoid colliding
+						   with any future generic `mode` attribute on this block. The
+						   shared control only ever sees it as the neutral `mode` prop. */ }
 					<PostTypeScopeControl
 						mode={ attributes?.postTypeMode }
 						postTypes={ attributes?.postTypes }

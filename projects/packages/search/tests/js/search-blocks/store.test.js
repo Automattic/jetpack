@@ -36,6 +36,7 @@ import {
 	gateActiveFilters,
 	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
+	resetActivePostTypeScopeForTesting,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -134,6 +135,9 @@ describe( 'store helpers round-trip', () => {
 describe( 'store actions', () => {
 	beforeEach( () => {
 		Object.assign( actions, originalActions );
+		// The active per-instance scope lives in a module variable the state
+		// reset below can't reach, so clear it explicitly to keep cases isolated.
+		resetActivePostTypeScopeForTesting();
 		Object.assign( state, {
 			siteId: 123,
 			searchQuery: 'old query',
@@ -238,6 +242,21 @@ describe( 'store actions', () => {
 		const decoded = decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] );
 		expect( decoded ).toContain( 'filter[bool][must][0][term][post_type]=page' );
 		expect( decoded ).not.toContain( '[post_type]=post&' );
+	} );
+
+	it( 'reuses the active per-instance scope on popstate (omits the scope key)', async () => {
+		// A back/forward restore re-runs search without a `staticPostTypes` key
+		// so the session-local scope from the last input survives — the scope is
+		// never serialized to the URL, so passing one here would be wrong.
+		state.searchParamName = 's';
+		state.isWooCommerceBlocksEnabled = false;
+		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
+		await runGenerator( actions.handlePopState() );
+		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
+		const arg = searchSpy.mock.calls[ 0 ][ 0 ];
+		expect( arg ).toEqual( { syncUrl: false } );
+		expect( 'staticPostTypes' in arg ).toBe( false );
+		searchSpy.mockRestore();
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {

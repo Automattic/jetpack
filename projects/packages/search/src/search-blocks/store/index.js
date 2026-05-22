@@ -531,6 +531,16 @@ let searchToken = 0;
 let activePostTypeScope;
 
 /**
+ * Reset the module-level active post-type scope. Tests only — the `beforeEach`
+ * in `store.test.js` can reset `state`/`actions` but not this module variable,
+ * so it would otherwise leak across cases (mirrors the Reflection reset of
+ * `Filter_Post_Type::$searchable_cache` on the PHP side).
+ */
+export function resetActivePostTypeScopeForTesting() {
+	activePostTypeScope = undefined;
+}
+
+/**
  * Build the human-readable results-count string from the live store state.
  * Returns "Searching…" while a search is in flight, "Found 42 results" once
  * a query resolves with hits, or an empty string in every other case
@@ -1343,6 +1353,11 @@ const { state, actions } = store( NAMESPACE, {
 				staticFilterSelections,
 				state.filterConfigs
 			).gated;
+			// No `staticPostTypes` key: a back/forward restore reuses the active
+			// per-instance scope from the last input interaction rather than the
+			// URL, because that scope is session-local and never serialized — a
+			// fresh load of the same URL won't carry it. Accepted trade-off of
+			// per-instance (vs. URL-round-tripped) scope.
 			yield actions.search( { syncUrl: false } );
 		},
 
