@@ -265,6 +265,12 @@
 	outline: none;
 }
 
+/* "Save draft" only appears in the kebab menu on narrow screens
+   where the standalone toolbar button is hidden. */
+.bw-more-save-draft {
+	display: none;
+}
+
 /* ===== Recovery banner ===== */
 .bw-recovery-banner {
 	position: fixed;
@@ -2034,6 +2040,10 @@
 
 	.bw-btn-draft {
 		display: none;
+	}
+
+	.bw-more-save-draft:not([hidden]) {
+		display: block;
 	}
 
 	/* Toolbar scrolls horizontally on mobile. Avoid -webkit-overflow-scrolling:

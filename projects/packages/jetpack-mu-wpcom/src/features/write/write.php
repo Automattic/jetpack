@@ -947,6 +947,14 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				><span class="bw-more-dots" aria-hidden="true">&#x22EE;</span></button>
 				<div class="bw-more-menu" role="menu" aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showMoreMenu">
 					<button
+						class="bw-more-menu-item bw-more-save-draft"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.saveDraftFromMenu"
+						data-wp-bind--hidden="state.isPublishedPost"
+						<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
+					><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
+					<button
 						class="bw-more-menu-item"
 						role="menuitem"
 						tabindex="-1"

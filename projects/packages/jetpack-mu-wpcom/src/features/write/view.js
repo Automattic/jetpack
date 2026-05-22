@@ -4700,6 +4700,11 @@ const { state } = store( 'wpcom-write', {
 			await savePost( 'draft' );
 		},
 
+		async saveDraftFromMenu() {
+			state.showMoreMenu = false;
+			await savePost( 'draft' );
+		},
+
 		/**
 		 * Perform a periodic autosave if the editor is dirty.
 		 */
