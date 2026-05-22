@@ -1705,7 +1705,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "23570b38e03807551c02f7b067c3438356a06c1e"
+                "reference": "cf05c9c2f01203015deb326754fbb0e2ec33a087"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1775,7 +1775,7 @@
                     "pnpm run watch:hot"
                 ],
                 "build-production": [
-                    "pnpm run build-production-concurrently"
+                    "pnpm run build-production"
                 ]
             },
             "license": [
