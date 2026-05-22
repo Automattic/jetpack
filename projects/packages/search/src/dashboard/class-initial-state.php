@@ -99,6 +99,15 @@ class Initial_State {
 				 * original cards unchanged.
 				 */
 				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ),
+				/**
+				 * Editor affordances for the experimental blocks-powered overlay.
+				 * Surfaces in the new Overlay search card so admins can edit the
+				 * rendered template via the standard block editor on `post.php` —
+				 * works on both block and classic themes. URLs are null for any
+				 * visitor without `manage_options`; the action handlers also
+				 * enforce that capability server-side.
+				 */
+				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
@@ -193,6 +202,44 @@ class Initial_State {
 	 */
 	protected function is_ai_agent_access_available() {
 		return $this->is_automattic_proxied_request() && ! $this->is_private_site();
+	}
+
+	/**
+	 * Build the block-template overlay editor config exposed to the dashboard.
+	 *
+	 * The action handlers gate on `current_user_can( 'manage_options' )`
+	 * server-side, so non-admins can't actually drive the flow. We also
+	 * skip emitting the nonce'd URLs (and the singleton-id lookup that
+	 * decides `isCustomized`) to those users — useless to them and
+	 * needlessly leaks internal URL shape.
+	 *
+	 * `enabled` mirrors `Search_Blocks::is_block_template_overlay_enabled()`,
+	 * which itself requires both the operator-level filter AND the site
+	 * owner having activated the `overlay_blocks` experience — so the
+	 * editor surface only appears when the new overlay is actually live.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 */
+	protected function get_block_template_overlay_config(): array {
+		$enabled  = Search_Blocks::is_block_template_overlay_enabled();
+		$can_edit = $enabled && current_user_can( 'manage_options' );
+		return array(
+			'enabled'       => $enabled,
+			'editorUrl'     => $can_edit ? Overlay_Template::get_editor_url() : null,
+			// `resetRestPath` is the path the dashboard sends to `apiFetch`
+			// as a DELETE — hits the CPT's built-in REST endpoint
+			// (`/wp/v2/jetpack-search-overlay/<id>?force=true`) so the
+			// reset happens via AJAX with no page navigation. Null when
+			// there's nothing to reset; the link is also gated on
+			// `isCustomized`.
+			'resetRestPath' => $can_edit ? Overlay_Template::get_reset_rest_path() : null,
+			// `isCustomized` lets the React dashboard hide "Restore default"
+			// when there's nothing to restore — checks both that the
+			// singleton exists AND that it isn't in the trash (admins can
+			// trash via post.php directly; in that state the front end
+			// already falls back to the bundled template).
+			'isCustomized'  => $can_edit && Overlay_Template::is_customized(),
+		);
 	}
 
 	/**

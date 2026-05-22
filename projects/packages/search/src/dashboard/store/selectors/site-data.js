@@ -17,6 +17,19 @@ const siteDataSelectors = {
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
 	isBlockOverlayEnabled: state => state.siteData?.blockOverlayEnabled ?? false,
+	// Editor affordances for the blocks-powered Overlay. Surface in the
+	// Overlay search card when the active experience is `overlay_blocks`
+	// (the PHP gate). Returns the whole config blob so callers can
+	// destructure `{ enabled, editorUrl, resetRestPath, isCustomized }`
+	// in one go. `resetRestPath` is the apiFetch path the "Restore
+	// default" link DELETEs to roll back the customization.
+	getBlockTemplateOverlayConfig: state =>
+		state.siteData?.blockTemplateOverlay ?? {
+			enabled: false,
+			editorUrl: null,
+			resetRestPath: null,
+			isCustomized: false,
+		},
 	isWooCommerceActive: state => state.siteData?.isWooCommerceActive ?? false,
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 	// Defaults to true so Embedded is never blocked when the flag is absent
