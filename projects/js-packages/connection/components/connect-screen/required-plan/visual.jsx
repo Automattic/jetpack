@@ -1,7 +1,11 @@
-import { getRedirectUrl, PricingCard, TermsOfService } from '@automattic/jetpack-components';
+import {
+	ActionButton,
+	getRedirectUrl,
+	PricingCard,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
@@ -41,9 +45,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 		__( 'Already have a subscription? <connectButton/>', 'jetpack-connection-js' ),
 		{
 			connectButton: (
-				<Button onClick={ handleButtonClick } loading={ buttonIsLoading }>
-					{ __( 'Log in to get started', 'jetpack-connection-js' ) }
-				</Button>
+				<ActionButton
+					label={ __( 'Log in to get started', 'jetpack-connection-js' ) }
+					onClick={ handleButtonClick }
+					isLoading={ buttonIsLoading }
+				/>
 			),
 		}
 	);
@@ -86,19 +92,14 @@ const ConnectScreenRequiredPlanVisual = props => {
 						priceAfter={ priceAfter }
 					>
 						<TermsOfService agreeButtonLabel={ buttonLabel } />
-						<Button
+						<ActionButton
+							label={ buttonLabel }
 							onClick={ handleButtonClick }
-							loading={ buttonIsLoading }
-							disabled={ isOfflineMode }
-						>
-							{ buttonLabel }
-						</Button>
-						{ ( displayButtonError || isOfflineMode ) && (
-							<p className="jp-action-button__error">
-								{ errorMessage ||
-									__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
-							</p>
-						) }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
+							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
+						/>
 					</PricingCard>
 				</div>
 
