@@ -1,4 +1,4 @@
-import { DataViews } from '@wordpress/dataviews/wp';
+import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -17,7 +17,7 @@ import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
-import type { Action, Field, View } from '@wordpress/dataviews/wp';
+import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
 
