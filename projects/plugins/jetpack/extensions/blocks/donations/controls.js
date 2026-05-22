@@ -52,6 +52,7 @@ const Controls = props => {
 	const recordSettingChange = useCallback(
 		( settingName, settingValue ) => {
 			tracks.recordEvent( 'jetpack_donations_setting_changed', {
+				feature: 'donations',
 				surface: 'block_editor',
 				setting_name: settingName,
 				setting_value: settingValue,

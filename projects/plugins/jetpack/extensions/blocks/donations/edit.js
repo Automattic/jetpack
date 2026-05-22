@@ -94,6 +94,7 @@ const Edit = props => {
 		}
 		blockLoadedFiredClientIds.add( clientId );
 		tracks.recordEvent( 'jetpack_donations_block_loaded', {
+			feature: 'donations',
 			surface: 'block_editor',
 			is_user_connected: !! isUserConnected,
 			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,

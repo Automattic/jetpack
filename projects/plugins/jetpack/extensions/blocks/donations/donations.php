@@ -731,6 +731,7 @@ function build_block_published_event_props( $block, $post, $index, $block_count,
 	$tabs_appearance   = $attrs['tabsAppearance'] ?? 'tabs';
 
 	return array(
+		'feature'                   => 'donations',
 		'surface'                   => 'server',
 		'stripe_connected'          => (bool) $stripe_connected,
 		'post_id'                   => (int) $post->ID,
