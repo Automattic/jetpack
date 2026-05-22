@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: Replace self-imports via package name with relative imports for clarity and to remove circular-dep risk.

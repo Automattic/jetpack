@@ -1,7 +1,7 @@
 import { getCurrencyObject } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import LoadingPlaceholder from '../loading-placeholder/index.tsx';
 import TermsOfService from '../terms-of-service/index.tsx';
 import type { PricingCardProps } from './types.ts';
 import type { CurrencyObject } from '@automattic/number-formatters';
