@@ -52,7 +52,9 @@
 	// row's items so a shorter control neither stretches nor collapses it.
 	// The content row is identified by the visual logo slot it contains
 	// (`aria-hidden="true"`), so a breadcrumbs-only header isn't affected.
-	:global(.jp-admin-page__page > header > div:has([aria-hidden="true"])) {
+	// `> :first-child` targets the page header positionally (a `<div>` in
+	// admin-ui ≥ 2.1, a `<header>` in 2.0) — matching the sibling rules above.
+	:global(.jp-admin-page__page > :first-child > div:has([aria-hidden="true"])) {
 		min-height: 40px;
 		align-items: center;
 	}
