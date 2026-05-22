@@ -75,7 +75,6 @@
 }
 
 .blaze-lp-headline {
-	font-family: inherit;
 	font-size: clamp(2rem, 4.2vw, 3.25rem);
 	line-height: 1.1;
 	margin: 0 0 0.75rem;

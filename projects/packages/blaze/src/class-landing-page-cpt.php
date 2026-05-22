@@ -259,8 +259,13 @@ class Landing_Page_CPT {
 
 	/**
 	 * Pick an accent color from the active theme's palette so the landing's own
-	 * accents (CTA, dividers) match the store. Skips the usual neutral slugs and
-	 * returns the first "brand" color, or '' when none can be determined.
+	 * accents (CTA, dividers) match the store.
+	 *
+	 * The earlier "first non-neutral slug" approach grabbed pale secondary tints.
+	 * Instead we drop obvious neutrals, prefer well-known brand slugs
+	 * (primary/accent/brand), and otherwise choose the most saturated color at a
+	 * usable lightness — that reliably lands on the brand color (e.g. a gold)
+	 * rather than a near-white cream.
 	 *
 	 * @return string Hex color or ''.
 	 */
@@ -275,11 +280,14 @@ class Landing_Page_CPT {
 		} elseif ( is_array( $palette ) ) {
 			$colors = $palette;
 		}
-		$skip = array( 'base', 'background', 'foreground', 'contrast', 'text', 'white', 'black', 'light', 'dark' );
+
+		$skip       = array( 'base', 'background', 'foreground', 'contrast', 'text', 'white', 'black', 'light', 'dark', 'neutral' );
+		$prefer     = array( 'primary', 'accent', 'brand' );
+		$candidates = array();
 		foreach ( $colors as $color ) {
 			$slug = isset( $color['slug'] ) ? strtolower( (string) $color['slug'] ) : '';
-			$hex  = isset( $color['color'] ) ? (string) $color['color'] : '';
-			if ( '' === $slug || '' === $hex ) {
+			$hex  = isset( $color['color'] ) ? sanitize_hex_color( (string) $color['color'] ) : null;
+			if ( '' === $slug || ! $hex ) {
 				continue;
 			}
 			$is_neutral = false;
@@ -290,13 +298,57 @@ class Landing_Page_CPT {
 				}
 			}
 			if ( ! $is_neutral ) {
-				$clean = sanitize_hex_color( $hex );
-				if ( $clean ) {
-					return $clean;
+				$candidates[ $slug ] = $hex;
+			}
+		}
+		if ( empty( $candidates ) ) {
+			return '';
+		}
+
+		foreach ( $prefer as $needle ) {
+			foreach ( $candidates as $slug => $hex ) {
+				if ( false !== strpos( $slug, $needle ) ) {
+					return $hex;
 				}
 			}
 		}
-		return '';
+
+		$best     = '';
+		$best_sat = -1.0;
+		foreach ( $candidates as $hex ) {
+			list( $sat, $light ) = self::hex_saturation_lightness( $hex );
+			if ( $light < 0.15 || $light > 0.82 ) {
+				continue;
+			}
+			if ( $sat > $best_sat ) {
+				$best_sat = $sat;
+				$best     = $hex;
+			}
+		}
+		// If everything was too light/dark, fall back to the first candidate.
+		return '' !== $best ? $best : reset( $candidates );
+	}
+
+	/**
+	 * Compute the HSL saturation and lightness (0..1) of a hex color.
+	 *
+	 * @param string $hex A sanitized hex color (#rgb or #rrggbb).
+	 * @return array{0:float,1:float} [ saturation, lightness ].
+	 */
+	private static function hex_saturation_lightness( $hex ) {
+		$hex = ltrim( $hex, '#' );
+		if ( 3 === strlen( $hex ) ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		}
+		$r   = hexdec( substr( $hex, 0, 2 ) ) / 255;
+		$g   = hexdec( substr( $hex, 2, 2 ) ) / 255;
+		$b   = hexdec( substr( $hex, 4, 2 ) ) / 255;
+		$max = max( $r, $g, $b );
+		$min = min( $r, $g, $b );
+		$l   = ( $max + $min ) / 2;
+		$d   = $max - $min;
+		$s   = $d > 0.0 ? $d / ( 1 - abs( 2 * $l - 1 ) ) : 0.0;
+		return array( $s, $l );
 	}
 
 	/**
