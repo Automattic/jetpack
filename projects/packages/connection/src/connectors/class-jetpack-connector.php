@@ -423,7 +423,7 @@ class Jetpack_Connector {
 	 *
 	 * @return string Logo URL.
 	 */
-	private static function get_connector_logo_url() {
+	public static function get_connector_logo_url() {
 		$plugins = Plugin_Storage::get_all();
 
 		$has_woo = false;

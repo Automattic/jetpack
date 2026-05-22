@@ -75,10 +75,10 @@ class Users_Connection_Admin {
 		}
 
 		if ( ( new Manager() )->is_user_connected( $user_id ) ) {
-			$logo_url = plugins_url( 'connectors/images/jetpack-icon.svg', __FILE__ );
+			$logo_url = Jetpack_Connector::get_connector_logo_url();
 
 			return sprintf(
-				'<span title="%1$s" class="jetpack-connection-status"><img src="%2$s" alt="" class="jetpack-connection-status__logo" width="16" height="16" decoding="async" loading="lazy" />%3$s</span>',
+				'<span title="%1$s" class="jetpack-connection-status"><img src="%2$s" alt="" class="jetpack-connection-status__logo" height="16" decoding="async" loading="lazy" />%3$s</span>',
 				esc_attr__( 'This user has connected their WordPress.com account.', 'jetpack-connection' ),
 				esc_url( $logo_url ),
 				esc_html__( 'Connected', 'jetpack-connection' )
