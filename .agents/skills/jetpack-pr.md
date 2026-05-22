@@ -27,7 +27,7 @@ When using `--title` and `--body-file` with `gh pr create`, the template is not 
 
 ## Choosing the remote
 
-Automatticians have push access to `Automattic/jetpack` and should push branches directly there, not to a fork. Pushing to a fork breaks workflows that only run for in-repo branches (notably the AI-generated changelog workflow) and makes review harder.
+Automatticians have push access to `Automattic/jetpack` and should push branches directly there, not to a fork. Branches in the canonical repo get full CI signal (fork PRs have restricted access to GitHub Actions secrets, so some workflows and labels behave differently or don't run at all), and reviewers can push follow-up commits to the branch — both make review faster.
 
 The decision is driven by **whether the authenticated user has push access**, not by what `origin` happens to point at — a public clone can have `origin = Automattic/jetpack` without push rights, and a contributor with push access may still have `origin` pointing at a personal fork.
 
@@ -50,9 +50,11 @@ Then:
     fi
     ```
     (If `origin` already points at `Automattic/jetpack`, you can just use `origin` and skip the extra remote.)
-  - Push the branch to that remote with `git push -u <remote> HEAD`. If origin was a fork, tell the user once what you're doing and why ("Detected push access to Automattic/jetpack — pushing the branch there directly so CI workflows like the AI changelog bot can run").
+  - Push the branch to that remote with `git push -u <remote> HEAD`. If origin was a fork, tell the user once what you're doing and why ("Detected push access to Automattic/jetpack — pushing the branch there directly so reviewers and bots have full CI signal").
   - `gh pr create` will default to this remote once the branch tracks it.
-- **`.permissions.push` is `false` or the call errors** → external contributor without push access. Push to whatever `origin` is (typically their fork) and let `gh pr create` open the PR against `Automattic/jetpack`.
+- **`.permissions.push` is `false` or the call errors** → external contributor without push access. Check `git remote -v` for a writable remote (typically a personal fork). Two sub-cases:
+  - **A fork remote exists** (e.g. `origin` points at `<user>/jetpack`) → push to it as normal. `gh pr create` will open the PR against `Automattic/jetpack`.
+  - **No fork remote exists** (e.g. the user cloned `Automattic/jetpack` directly without forking first) → don't try to push to the canonical remote. Ask the user once whether to run `gh repo fork --remote --remote-name=fork Automattic/jetpack` to create their fork and add it as a `fork` remote, then push the branch to `fork`. Don't do this silently — creating a fork creates a publicly-visible repository under the user's account.
 
 Do not ask for confirmation before switching remotes — announce the action and do it. The operation is non-destructive (it only adds/updates a remote and creates a branch on it).
 
