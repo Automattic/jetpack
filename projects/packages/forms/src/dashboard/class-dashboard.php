@@ -167,9 +167,6 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
-		require_once __DIR__ . '/class-dashboard-widgets-loader.php';
-		Dashboard_Widgets_Loader::init();
-
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
 

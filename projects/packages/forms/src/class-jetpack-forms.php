@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_Widgets_Loader;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -21,6 +22,9 @@ class Jetpack_Forms {
 	 */
 	public static function load_contact_form() {
 		Util::init();
+
+		require_once __DIR__ . '/dashboard/class-dashboard-widgets-loader.php';
+		Dashboard_Widgets_Loader::init();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();

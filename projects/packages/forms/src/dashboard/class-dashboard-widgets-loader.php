@@ -31,7 +31,8 @@ class Dashboard_Widgets_Loader {
 			require_once $build_file;
 		}
 
-		add_action( 'init', array( __CLASS__, 'maybe_bootstrap' ), 1 );
+		// Priority 20: after Contact_Form_Plugin::init (9) registers the feedback post type.
+		add_action( 'init', array( __CLASS__, 'maybe_bootstrap' ), 20 );
 	}
 
 	/**
@@ -52,7 +53,7 @@ class Dashboard_Widgets_Loader {
 
 		self::$bootstrapped = true;
 
-		add_action( 'init', array( __CLASS__, 'register_widget_types' ), 11 );
+		self::register_widget_types();
 		add_filter( 'dashboard-wp-admin_boot_dependencies', array( __CLASS__, 'add_widget_modules_to_boot_deps' ) );
 	}
 
@@ -77,18 +78,31 @@ class Dashboard_Widgets_Loader {
 			return false;
 		}
 
+		return class_exists( WP_Widget_Type_Registry::class );
+	}
+
+	/**
+	 * Whether the current user can manage form responses (required to show widgets).
+	 *
+	 * @return bool
+	 */
+	private static function current_user_can_manage_responses() {
 		$feedback_post_type = get_post_type_object( 'feedback' );
-		if ( ! $feedback_post_type || ! current_user_can( $feedback_post_type->cap->edit_posts ) ) {
+		if ( ! $feedback_post_type ) {
 			return false;
 		}
 
-		return class_exists( WP_Widget_Type_Registry::class );
+		return current_user_can( $feedback_post_type->cap->edit_posts );
 	}
 
 	/**
 	 * Registers Jetpack Forms widgets in the shared widget type registry.
 	 */
 	public static function register_widget_types() {
+		if ( ! self::current_user_can_manage_responses() ) {
+			return;
+		}
+
 		if ( ! class_exists( WP_Widget_Type_Registry::class ) ) {
 			return;
 		}
