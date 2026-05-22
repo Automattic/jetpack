@@ -116,7 +116,7 @@ class Users_Connection_Admin {
 			'jetpack-users-connection',
 			'jetpackConnectionTooltips',
 			array(
-				'columnTooltip' => esc_html__( 'Connecting a WordPress.com account unlocks Jetpack’s full suite of features including secure logins.', 'jetpack-connection' ),
+				'columnTooltip' => esc_html( self::get_column_tooltip_text() ),
 			)
 		);
 	}
@@ -174,6 +174,43 @@ class Users_Connection_Admin {
 			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Build the column header tooltip text based on which plugin families use the connection.
+	 *
+	 * @return string Tooltip text.
+	 */
+	private static function get_column_tooltip_text() {
+		$plugins = Plugin_Storage::get_all();
+
+		$has_woo = false;
+		$has_a4a = false;
+
+		if ( is_array( $plugins ) ) {
+			foreach ( array_keys( $plugins ) as $slug ) {
+				if ( str_starts_with( $slug, 'woocommerce' ) ) {
+					$has_woo = true;
+				}
+				if ( str_starts_with( $slug, 'automattic' ) ) {
+					$has_a4a = true;
+				}
+			}
+		}
+
+		if ( $has_woo && $has_a4a ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack, WooCommerce, and Automattic for Agencies including secure logins.', 'jetpack-connection' );
+		}
+
+		if ( $has_woo ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and WooCommerce including secure logins.', 'jetpack-connection' );
+		}
+
+		if ( $has_a4a ) {
+			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and Automattic for Agencies including secure logins.', 'jetpack-connection' );
+		}
+
+		return __( 'Connecting a WordPress.com account unlocks Jetpack features including secure logins.', 'jetpack-connection' );
 	}
 
 	/**
