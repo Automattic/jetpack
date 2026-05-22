@@ -182,31 +182,17 @@ class Users_Connection_Admin {
 	 * @return string Tooltip text.
 	 */
 	private static function get_column_tooltip_text() {
-		$plugins = Plugin_Storage::get_all();
+		$families = Jetpack_Connector::get_connected_plugin_families();
 
-		$has_woo = false;
-		$has_a4a = false;
-
-		if ( is_array( $plugins ) ) {
-			foreach ( array_keys( $plugins ) as $slug ) {
-				if ( str_starts_with( $slug, 'woocommerce' ) ) {
-					$has_woo = true;
-				}
-				if ( str_starts_with( $slug, 'automattic' ) ) {
-					$has_a4a = true;
-				}
-			}
-		}
-
-		if ( $has_woo && $has_a4a ) {
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
 			return __( 'Connecting a WordPress.com account unlocks features for Jetpack, WooCommerce, and Automattic for Agencies including secure logins.', 'jetpack-connection' );
 		}
 
-		if ( $has_woo ) {
+		if ( $families['has_woo'] ) {
 			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and WooCommerce including secure logins.', 'jetpack-connection' );
 		}
 
-		if ( $has_a4a ) {
+		if ( $families['has_a4a'] ) {
 			return __( 'Connecting a WordPress.com account unlocks features for Jetpack and Automattic for Agencies including secure logins.', 'jetpack-connection' );
 		}
 
