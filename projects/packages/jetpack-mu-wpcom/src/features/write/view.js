@@ -63,6 +63,49 @@ function updateSavedSnapshot() {
 	lastSavedSnapshot = getContentSnapshot();
 }
 
+/**
+ * Format a date string as a relative time ("2 hours ago", "Yesterday", etc.).
+ *
+ * @param {string} dateStr - A date string parseable by Date (e.g. MySQL datetime).
+ * @return {string} Human-readable relative time.
+ */
+function formatRelativeDate( dateStr ) {
+	const then = new Date( dateStr ).getTime();
+	if ( isNaN( then ) || then <= 0 ) return '';
+	const now = Date.now();
+	const diffSec = Math.max( 0, Math.round( ( now - then ) / 1000 ) );
+
+	const rtf = new Intl.RelativeTimeFormat( undefined, { numeric: 'auto' } );
+
+	if ( diffSec < 60 ) return rtf.format( -diffSec, 'second' );
+	const diffMin = Math.round( diffSec / 60 );
+	if ( diffMin < 60 ) return rtf.format( -diffMin, 'minute' );
+	const diffHr = Math.round( diffMin / 60 );
+	if ( diffHr < 24 ) return rtf.format( -diffHr, 'hour' );
+	const diffDay = Math.round( diffHr / 24 );
+	if ( diffDay < 7 ) return rtf.format( -diffDay, 'day' );
+	const diffWk = Math.round( diffDay / 7 );
+	if ( diffWk <= 4 ) return rtf.format( -diffWk, 'week' );
+
+	return new Intl.DateTimeFormat( undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	} ).format( new Date( dateStr ) );
+}
+
+/**
+ * Check whether raw user input is a bare numeric post ID.
+ *
+ * @param {string} input - Raw user input from the post picker URL field.
+ * @return {number|null} Post ID or null if not a bare numeric string.
+ */
+function parsePostId( input ) {
+	const trimmed = input.trim();
+	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
+	return null;
+}
+
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -2764,7 +2807,7 @@ const { state } = store( 'wpcom-write', {
 
 		handleTitleKeyDown( event ) {
 			// Block keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -2817,6 +2860,7 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		cancelLeave() {
+			state.pendingOpenPost = false;
 			state.showLeaveConfirm = false;
 			// Return focus to the back button.
 			const backBtn = document.querySelector( '.bw-back' );
@@ -2826,9 +2870,8 @@ const { state } = store( 'wpcom-write', {
 		handleLeaveModalKeyDown( event ) {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
-				state.showLeaveConfirm = false;
-				const backBtn = document.querySelector( '.bw-back' );
-				if ( backBtn ) backBtn.focus();
+				const { actions: a } = store( 'wpcom-write' );
+				a.cancelLeave();
 				return;
 			}
 
@@ -2852,6 +2895,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		confirmLeave() {
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				state.showLeaveConfirm = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -2860,6 +2909,24 @@ const { state } = store( 'wpcom-write', {
 			state.showLeaveConfirm = false;
 			const status = state.postStatus === 'publish' ? 'publish' : 'draft';
 			await savePost( status, true );
+
+			// If the save failed, stay on the editor — don't navigate away
+			// or open the post picker, as that would discard unsaved edits.
+			// A successful save updates lastSavedSnapshot, so isDirty() returns false.
+			if ( isDirty() ) {
+				state.pendingOpenPost = false;
+				state.message = ( i18n.error || 'Error: %s' ).replace( '%s', 'Could not save' );
+				setTimeout( () => {
+					state.message = '';
+				}, 4000 );
+				return;
+			}
+
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -2957,12 +3024,12 @@ const { state } = store( 'wpcom-write', {
 
 		handleKeyDown( event ) {
 			// Keep savedRange current before any key changes the selection.
-			if ( ! state.showImageModal && ! state.showVideoModal ) {
+			if ( ! state.showImageModal && ! state.showVideoModal && ! state.showPostPicker ) {
 				saveSelection();
 			}
 
 			// Block all keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -4379,6 +4446,186 @@ const { state } = store( 'wpcom-write', {
 			window.open( url, '_blank', 'noopener,noreferrer' );
 		},
 
+		// --- Post picker ---
+
+		openPostPicker() {
+			state.showMoreMenu = false;
+
+			if ( isDirty() ) {
+				state.pendingOpenPost = true;
+				state.showLeaveConfirm = true;
+				requestAnimationFrame( () => {
+					const modal = document.querySelector( '.bw-leave-modal' );
+					if ( modal ) {
+						const first = modal.querySelector( 'button' );
+						if ( first ) first.focus();
+					}
+				} );
+				return;
+			}
+
+			showPostPickerModal();
+		},
+
+		closePostPicker() {
+			state.showPostPicker = false;
+			state.postPickerUrl = '';
+			state.openPostError = '';
+			document.documentElement.style.overflow = '';
+			const toggle = document.querySelector( '.bw-more-toggle' );
+			if ( toggle ) toggle.focus();
+		},
+
+		openPickedPost( event ) {
+			const postId = event.target.closest( '[data-post-id]' )?.dataset?.postId;
+			if ( postId ) {
+				if ( window.wpcomTracksRecordEvent ) {
+					window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_select', {
+						post_id: parseInt( postId, 10 ),
+						source: 'draft_list',
+					} );
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + postId;
+			}
+		},
+
+		updatePostPickerUrl( event ) {
+			state.postPickerUrl = event.target.value;
+		},
+
+		async submitPostPickerUrl() {
+			const input = state.postPickerUrl.trim();
+			if ( ! input ) return;
+
+			const numericId = parsePostId( input );
+			if ( window.wpcomTracksRecordEvent ) {
+				window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_go', {
+					input_type: numericId ? 'numeric_id' : 'url',
+					source: 'url_input',
+				} );
+			}
+
+			if ( numericId ) {
+				// Validate the post exists and is editable before navigating.
+				try {
+					await window.wp.apiFetch( {
+						path: state.postsPath + '/' + numericId + '?context=edit&_fields=id',
+						method: 'GET',
+					} );
+				} catch ( err ) {
+					const status = err?.data?.status;
+					if ( status === 403 ) {
+						state.openPostError =
+							i18n.postNoPermission || "You don't have permission to edit this post.";
+					} else {
+						state.openPostError =
+							i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					}
+					return;
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + numericId;
+			} else {
+				// Reject input that isn't URL-shaped before hitting the server.
+				const normalized = /^https?:\/\//i.test( input ) ? input : 'https://' + input;
+				let parsed;
+				try {
+					parsed = new URL( normalized );
+				} catch {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+				if ( ! parsed.hostname.includes( '.' ) ) {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+
+				// If the pasted URL is same-site and contains a numeric ?p= or
+				// ?post= param, navigate directly with &post=<id> instead of
+				// passing the full URL through &url=. This avoids carrying
+				// unrelated params (preview nonces, tracking params, etc.) into
+				// the address bar and server logs.
+				const homeHost = new URL( state.homeUrl ).hostname;
+				if ( parsed.hostname === homeHost ) {
+					const qp = parsed.searchParams.get( 'p' ) || parsed.searchParams.get( 'post' );
+					const extractedId = qp ? parseInt( qp, 10 ) : 0;
+					if ( extractedId > 0 ) {
+						allowLeave = true;
+						window.location.href = state.writeUrl + '&post=' + extractedId;
+						return;
+					}
+				}
+
+				// Pretty permalinks and other URL shapes: delegate resolution
+				// to PHP's url_to_postid(). Server-side checks the host against
+				// home_url() and enforces edit_post capability.
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( normalized );
+			}
+		},
+
+		handlePostPickerInputKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.submitPostPickerUrl();
+			}
+		},
+
+		handlePostPickerOverlayClick( event ) {
+			if ( event.button !== 0 || event.target !== event.currentTarget ) return;
+			const { actions: a } = store( 'wpcom-write' );
+			a.closePostPicker();
+		},
+
+		handlePostPickerKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.closePostPicker();
+				return;
+			}
+
+			const active = event.target.ownerDocument.activeElement;
+			const items = [ ...document.querySelectorAll( '.bw-postpicker-item' ) ];
+			if ( items.length ) {
+				const idx = items.indexOf( active );
+				let next = -1;
+				if ( event.key === 'ArrowDown' ) {
+					next = idx < items.length - 1 ? idx + 1 : 0;
+				} else if ( event.key === 'ArrowUp' ) {
+					next = idx > 0 ? idx - 1 : items.length - 1;
+				}
+				if ( next >= 0 ) {
+					event.preventDefault();
+					items.forEach( el => el.setAttribute( 'tabindex', '-1' ) );
+					items[ next ].setAttribute( 'tabindex', '0' );
+					items[ next ].focus();
+				}
+			}
+
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-postpicker-modal' );
+				if ( ! modal ) return;
+				const focusable = [
+					...modal.querySelectorAll( 'button, input, [tabindex]:not([tabindex="-1"])' ),
+				];
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
+		},
+
 		// --- Inline category meta ---
 
 		toggleCatDropdown( event ) {
@@ -4548,6 +4795,26 @@ const { state } = store( 'wpcom-write', {
 		},
 	},
 } );
+
+/**
+ * Open the post picker modal, fire a Tracks event, and focus the first item.
+ */
+function showPostPickerModal() {
+	document.documentElement.style.overflow = 'hidden';
+	state.showPostPicker = true;
+	state.openPostError = '';
+	if ( window.wpcomTracksRecordEvent ) {
+		window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
+			has_drafts: state.recentDrafts.length > 0,
+			draft_count: state.recentDrafts.length,
+		} );
+	}
+	requestAnimationFrame( () => {
+		const firstItem = document.querySelector( '.bw-postpicker-item' );
+		const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+		( firstItem || urlInput )?.focus();
+	} );
+}
 
 /**
  * Save or publish the current post via the REST API.
@@ -4824,6 +5091,33 @@ const autosaveReady = setInterval( () => {
 		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
+	}
+
+	// Populate relative dates in the post picker draft list.
+	document.querySelectorAll( '.bw-postpicker-item-date[data-modified]' ).forEach( el => {
+		el.textContent = formatRelativeDate( el.dataset.modified );
+	} );
+
+	// If the page was loaded via ?url= and resolved to a post, replace the
+	// address-bar URL with the canonical ?post=<id> form so the raw URL
+	// the user pasted doesn't linger.
+	if ( state.editPostId ) {
+		const params = new URLSearchParams( window.location.search );
+		if ( params.has( 'url' ) ) {
+			params.delete( 'url' );
+			params.set( 'post', state.editPostId );
+			history.replaceState( null, '', window.location.pathname + '?' + params.toString() );
+		}
+	}
+
+	// Auto-open the post picker if there's an error from the server.
+	if ( state.openPostError ) {
+		document.documentElement.style.overflow = 'hidden';
+		state.showPostPicker = true;
+		requestAnimationFrame( () => {
+			const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+			if ( urlInput ) urlInput.focus();
+		} );
 	}
 }, 200 );
 

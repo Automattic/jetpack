@@ -1831,6 +1831,129 @@
 	cursor: pointer;
 }
 
+/* ===== Post picker modal ===== */
+.bw-postpicker-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000001;
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-postpicker-overlay[hidden] {
+	display: none;
+}
+
+.bw-postpicker-modal {
+	background: #fff;
+	border-radius: 12px;
+	padding: 32px;
+	width: 420px;
+	max-width: 90vw;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+	animation: bw-modal-appear 0.1s ease-out;
+}
+
+.bw-postpicker-title {
+	margin: 0 0 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-postpicker-error {
+	font-size: 13px;
+	color: #d63638;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-error[hidden] {
+	display: none;
+}
+
+.bw-postpicker-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #999;
+	margin: 0 0 8px;
+	padding: 0 12px;
+	text-align: end;
+}
+
+.bw-postpicker-list {
+	margin-bottom: 0;
+}
+
+.bw-postpicker-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 10px 12px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: start;
+	transition: background 0.1s ease;
+}
+
+.bw-postpicker-item:hover {
+	background: #f5f5f5;
+}
+
+.bw-postpicker-item-title {
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1a1a;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+}
+
+.bw-postpicker-item-untitled {
+	color: #999;
+	font-style: italic;
+}
+
+.bw-postpicker-item-date {
+	font-size: 12px;
+	color: #999;
+	flex-shrink: 0;
+	margin-inline-start: 12px;
+}
+
+.bw-postpicker-empty {
+	padding: 20px 0;
+	text-align: center;
+	color: #999;
+	font-size: 14px;
+	margin: 0 0 16px;
+}
+
+.bw-postpicker-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.bw-postpicker-go {
+	flex-shrink: 0;
+	border-radius: 8px;
+	padding: 10px 16px;
+	white-space: nowrap;
+}
+
 /* ===== Floating "Write" FAB (shown on other pages) ===== */
 .bw-write-fab {
 	position: fixed;

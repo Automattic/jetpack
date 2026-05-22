@@ -156,6 +156,8 @@ add_action(
 			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
 			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
 			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
+			'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
+			'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -563,6 +565,64 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
 }
 
 /**
+ * Get the current user's recent Write-compatible drafts.
+ *
+ * Queries up to 20 drafts by post_modified desc, filters out posts with
+ * unsupported content, and returns the first 5 that pass.
+ *
+ * @param int $exclude_post_id Post ID to exclude (the currently-edited post), or 0.
+ * @return array Array of { id: int, title: string, modified: string } objects.
+ */
+function wpcom_write_get_recent_drafts( $exclude_post_id = 0 ) {
+	$args = array(
+		'post_type'      => 'post',
+		'post_status'    => 'draft',
+		'author'         => get_current_user_id(),
+		'orderby'        => 'modified',
+		'order'          => 'DESC',
+		'posts_per_page' => 20,
+		'no_found_rows'  => true,
+	);
+
+	if ( $exclude_post_id ) {
+		$args['post__not_in'] = array( $exclude_post_id );
+	}
+
+	$query  = new WP_Query( $args );
+	$drafts = array();
+
+	foreach ( $query->posts as $post ) {
+		if ( count( $drafts ) >= 5 ) {
+			break;
+		}
+
+		if ( wpcom_write_detect_unsupported_content( $post->post_content ) ) {
+			continue;
+		}
+
+		$gmt = $post->post_modified_gmt;
+		if ( '0000-00-00 00:00:00' !== $gmt ) {
+			$mod = str_replace( ' ', 'T', $gmt ) . 'Z';
+		} else {
+			// Convert local time to UTC using the site's timezone setting
+			// so the browser can compute an accurate relative time.
+			$tz = wp_timezone();
+			$dt = new \DateTime( $post->post_modified, $tz );
+			$dt->setTimezone( new \DateTimeZone( 'UTC' ) );
+			$mod = $dt->format( 'Y-m-d\TH:i:s' ) . 'Z';
+		}
+
+		$drafts[] = array(
+			'id'       => $post->ID,
+			'title'    => $post->post_title,
+			'modified' => $mod,
+		);
+	}
+
+	return $drafts;
+}
+
+/**
  * Render the Write admin page.
  *
  * Called by add_submenu_page as the page callback. Runs inside wp-admin's
@@ -572,17 +632,66 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
 function wpcom_write_render_admin_page() {
 	// Check if editing an existing post.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, gated by capability check via add_submenu_page.
-	$edit_post_id       = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+	$edit_post_id       = isset( $_GET['post'] ) && is_scalar( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
 	$edit_title         = '';
 	$edit_content       = '';
 	$post_status        = 'new';
 	$edit_featured_id   = 0;
 	$video_placeholders = array();
 	$unsupported_type   = false;
+	$open_post_error    = '';
+
+	// Resolve a ?url= param to a post ID.
+	// For same-host URLs, extract ?p= or ?post= query params directly
+	// (covers admin URLs and shortlinks like /?p=123). Then fall back
+	// to url_to_postid() for pretty permalinks — core checks the host
+	// against home_url() internally.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for permalink resolution.
+	if ( ! $edit_post_id && ! empty( $_GET['url'] ) && is_scalar( $_GET['url'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$input_url = esc_url_raw( wp_unslash( $_GET['url'] ) );
+		$url_host  = wp_parse_url( $input_url, PHP_URL_HOST );
+		$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		// Extract ?p= / ?post= only from same-host URLs to avoid
+		// treating foreign post IDs as local ones.
+		if ( $url_host && $url_host === $home_host ) {
+			$query_str = wp_parse_url( $input_url, PHP_URL_QUERY );
+			if ( $query_str ) {
+				parse_str( $query_str, $query_params );
+				$param_id = 0;
+				if ( ! empty( $query_params['p'] ) && is_scalar( $query_params['p'] ) ) {
+					$param_id = absint( $query_params['p'] );
+				} elseif ( ! empty( $query_params['post'] ) && is_scalar( $query_params['post'] ) ) {
+					$param_id = absint( $query_params['post'] );
+				}
+				if ( $param_id ) {
+					$edit_post_id = $param_id;
+				}
+			}
+		}
+		if ( ! $edit_post_id ) {
+			$resolved_id = url_to_postid( $input_url );
+			if ( $resolved_id ) {
+				$edit_post_id = $resolved_id;
+			} else {
+				$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
+			}
+		}
+	}
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
-		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
+		if ( ! $edit_post ) {
+			$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( ! current_user_can( 'edit_post', $edit_post_id ) ) {
+			$open_post_error = __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( 'post' !== $edit_post->post_type ) {
+			$open_post_error = __( 'Only posts can be opened in Write.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} else {
 			$edit_title = $edit_post->post_title;
 			// Convert video embed blocks to inert placeholder tokens before the
 			// the_content + wp_kses_post pipeline runs.  Tokens survive all filters;
@@ -602,8 +711,6 @@ function wpcom_write_render_admin_page() {
 			if ( ! $unsupported_type ) {
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
 			}
-		} else {
-			$edit_post_id = 0;
 		}
 	}
 
@@ -710,6 +817,9 @@ function wpcom_write_render_admin_page() {
 		? ''
 		: sprintf( $writing_in_fmt, implode( ', ', $selected_cat_names ) );
 
+	// Query recent compatible drafts for the post picker.
+	$recent_drafts = wpcom_write_get_recent_drafts( $edit_post_id );
+
 	// Seed Interactivity API state.
 	wp_interactivity_state(
 		'wpcom-write',
@@ -762,11 +872,16 @@ function wpcom_write_render_admin_page() {
 			'blockEditorUrl'      => $block_editor_url,
 			'previewUrl'          => $preview_url,
 			'showMoreMenu'        => false,
+			'recentDrafts'        => $recent_drafts,
+			'openPostError'       => $open_post_error,
+			'showPostPicker'      => '' !== $open_post_error,
+			'postPickerUrl'       => '',
+			'pendingOpenPost'     => false,
 		)
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error );
 }
 
 /**
@@ -783,8 +898,10 @@ function wpcom_write_render_admin_page() {
  * @param array  $video_placeholders  Map of comment tokens to iframe HTML for video embeds.
  * @param bool   $show_cat_row        Whether to show the category row (2+ used categories).
  * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
+ * @param array  $recent_drafts       Array of recent draft objects for the post picker.
+ * @param string $open_post_error     Error message for post picker, empty if no error.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -841,6 +958,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 						tabindex="-1"
 						data-wp-on--click="actions.previewPost"
 					><?php echo esc_html__( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.openPostPicker"
+					><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -1144,6 +1267,49 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</div>
 
+	<!-- Post picker modal -->
+	<div class="bw-postpicker-overlay" hidden data-wp-bind--hidden="!state.showPostPicker" data-wp-on--pointerdown="actions.handlePostPickerOverlayClick" data-wp-on--keydown="actions.handlePostPickerKeyDown">
+		<div class="bw-postpicker-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Open post', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<h3 class="bw-postpicker-title"><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></h3>
+
+			<p class="bw-postpicker-error" <?php echo $open_post_error ? '' : 'hidden'; ?> data-wp-bind--hidden="!state.openPostError" data-wp-text="state.openPostError"><?php echo esc_html( $open_post_error ); ?></p>
+
+			<?php if ( ! empty( $recent_drafts ) ) : ?>
+			<p class="bw-postpicker-label"><?php echo esc_html__( 'Last edited', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="bw-postpicker-list" role="listbox" aria-label="<?php echo esc_attr__( 'Recent drafts', 'jetpack-mu-wpcom' ); ?>">
+				<?php foreach ( $recent_drafts as $idx => $draft ) : ?>
+				<button
+					class="bw-postpicker-item"
+					role="option"
+					tabindex="<?php echo 0 === $idx ? '0' : '-1'; ?>"
+					data-post-id="<?php echo (int) $draft['id']; ?>"
+					data-wp-on--click="actions.openPickedPost"
+				>
+					<span class="bw-postpicker-item-title<?php echo empty( $draft['title'] ) ? ' bw-postpicker-item-untitled' : ''; ?>"><?php echo esc_html( $draft['title'] ? $draft['title'] : __( 'Untitled', 'jetpack-mu-wpcom' ) ); ?></span>
+					<span class="bw-postpicker-item-date" data-modified="<?php echo esc_attr( $draft['modified'] ); ?>"></span>
+				</button>
+				<?php endforeach; ?>
+			</div>
+			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
+			<?php else : ?>
+			<p class="bw-postpicker-empty"><?php echo esc_html__( 'No recent drafts', 'jetpack-mu-wpcom' ); ?></p>
+			<?php endif; ?>
+
+			<div class="bw-postpicker-input-row">
+				<label for="bw-postpicker-url-input" class="bw-visually-hidden"><?php echo esc_html__( 'Post URL or ID', 'jetpack-mu-wpcom' ); ?></label>
+				<input
+					id="bw-postpicker-url-input"
+					type="text"
+					class="bw-image-url-input"
+					placeholder="<?php echo esc_attr__( 'Paste a post URL or enter a post ID', 'jetpack-mu-wpcom' ); ?>"
+					data-wp-bind--value="state.postPickerUrl"
+					data-wp-on--input="actions.updatePostPickerUrl"
+					data-wp-on--keydown="actions.handlePostPickerInputKeyDown"
+				/>
+				<button class="bw-btn bw-btn-publish bw-postpicker-go" data-wp-on--click="actions.submitPostPickerUrl"><?php echo esc_html__( 'Go', 'jetpack-mu-wpcom' ); ?></button>
+			</div>
+		</div>
+	</div>
 
 </div>
 	<?php
