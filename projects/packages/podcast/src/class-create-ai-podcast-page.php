@@ -630,9 +630,8 @@ class Create_AI_Podcast_Page {
 	 * Simple (wpcom) path: rest_do_request can't reach the posts-to-podcast
 	 * endpoint here — the wpcom REST plugin loader gates the endpoint files
 	 * behind REST_API_PLUGINS, which isn't set in admin context. Call the
-	 * underlying wpcom helpers directly. Permissions are still enforced
-	 * (admin caps required to render this page, automattician gate replicated
-	 * below).
+	 * underlying wpcom helpers directly. Permissions are still enforced via
+	 * the admin caps required to render this page.
 	 *
 	 * @return array
 	 */
@@ -641,11 +640,6 @@ class Create_AI_Podcast_Page {
 			'quota'    => null,
 			'episodes' => self::empty_episodes_envelope(),
 		);
-
-		if ( function_exists( 'is_automattician' ) && ! is_automattician() ) {
-			$bootstrap['quota'] = array( 'notAvailable' => true );
-			return $bootstrap;
-		}
 
 		if ( ! function_exists( 'require_lib' ) ) {
 			return $bootstrap;
