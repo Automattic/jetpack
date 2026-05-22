@@ -5081,6 +5081,18 @@ const autosaveReady = setInterval( () => {
 		el.textContent = formatRelativeDate( el.dataset.modified );
 	} );
 
+	// If the page was loaded via ?url= and resolved to a post, replace the
+	// address-bar URL with the canonical ?post=<id> form so the raw URL
+	// the user pasted doesn't linger.
+	if ( state.editPostId ) {
+		const params = new URLSearchParams( window.location.search );
+		if ( params.has( 'url' ) ) {
+			params.delete( 'url' );
+			params.set( 'post', state.editPostId );
+			history.replaceState( null, '', window.location.pathname + '?' + params.toString() );
+		}
+	}
+
 	// Auto-open the post picker if there's an error from the server.
 	if ( state.openPostError ) {
 		document.documentElement.style.overflow = 'hidden';
