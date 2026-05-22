@@ -15,12 +15,13 @@ namespace Automattic\Jetpack\Search;
 
 $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 
-// `responsive` (default) renders inline ≥992px and collapses to the popover trigger below.
-// `popover-always` keeps the trigger+popover at every viewport. Any unknown value falls
-// back to `responsive` so a serialised typo can't end up with no styling.
-$display_mode  = isset( $attributes['displayMode'] ) && 'popover-always' === $attributes['displayMode']
-	? 'popover-always'
-	: 'responsive';
+// `popover-always` (default) keeps the trigger+popover at every viewport.
+// `responsive` renders inline ≥992px and collapses to the popover trigger below.
+// Any unknown value falls back to `popover-always` so a serialised typo can't
+// end up with no styling.
+$display_mode  = isset( $attributes['displayMode'] ) && 'responsive' === $attributes['displayMode']
+	? 'responsive'
+	: 'popover-always';
 $wrapper_class = 'jetpack-search-filters-popover is-mode-' . $display_mode;
 ?>
 <div

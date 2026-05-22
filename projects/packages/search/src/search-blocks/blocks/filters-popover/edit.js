@@ -1,10 +1,10 @@
 /**
  * Editor preview for jetpack-search/filters-popover.
  *
- * Two display modes share this block. `responsive` (default) renders children inline,
- * mirroring the ≥992px front-end appearance; CSS swaps in the trigger + popover below.
- * `popover-always` shows the trigger button to signal the runtime collapse, but children
- * still render inline so authors can edit them — runtime visibility is class-driven.
+ * Two display modes share this block. `popover-always` (default) shows the trigger button
+ * to signal the runtime collapse, but children still render inline so authors can edit them.
+ * `responsive` renders children inline, mirroring the ≥992px front-end appearance; CSS swaps
+ * in the trigger + popover below. Runtime visibility is class-driven.
  */
 import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
@@ -27,12 +27,12 @@ const ALLOWED = [
 
 const DISPLAY_MODE_OPTIONS = [
 	{
-		value: 'responsive',
-		label: __( 'Inline on desktop, popover on mobile', 'jetpack-search-pkg' ),
-	},
-	{
 		value: 'popover-always',
 		label: __( 'Always collapsed (popover)', 'jetpack-search-pkg' ),
+	},
+	{
+		value: 'responsive',
+		label: __( 'Inline on desktop, popover on mobile', 'jetpack-search-pkg' ),
 	},
 ];
 
@@ -45,8 +45,7 @@ const DISPLAY_MODE_OPTIONS = [
  * @return {object} Rendered element.
  */
 export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
-	const displayMode =
-		attributes?.displayMode === 'popover-always' ? 'popover-always' : 'responsive';
+	const displayMode = attributes?.displayMode === 'responsive' ? 'responsive' : 'popover-always';
 	const isResponsive = displayMode === 'responsive';
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-filters-popover is-mode-${ displayMode } is-editor-preview`,
@@ -64,7 +63,7 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 						options={ DISPLAY_MODE_OPTIONS }
 						onChange={ value => setAttributes( { displayMode: value } ) }
 						help={ __(
-							'Responsive shows filters inline at 992px and wider, then collapses to a popover button on narrower screens.',
+							'Responsive shows the filters inline on wider screens and collapses them to a popover button on narrow ones.',
 							'jetpack-search-pkg'
 						) }
 					/>

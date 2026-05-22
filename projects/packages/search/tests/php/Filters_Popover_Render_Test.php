@@ -34,7 +34,7 @@ class Filters_Popover_Render_Test extends TestCase {
 				'attributes'      => array(
 					'displayMode' => array(
 						'type'    => 'string',
-						'default' => 'responsive',
+						'default' => 'popover-always',
 					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -72,12 +72,12 @@ class Filters_Popover_Render_Test extends TestCase {
 
 	/**
 	 * Missing `displayMode` (block.json default takes over) must paint the
-	 * responsive mode class so the desktop CSS path activates by default.
+	 * popover-always mode class so the block stays collapsed by default.
 	 */
-	public function test_missing_display_mode_renders_as_responsive() {
+	public function test_missing_display_mode_renders_as_popover_always() {
 		$markup = $this->render();
-		$this->assertStringContainsString( 'is-mode-responsive', $markup );
-		$this->assertStringNotContainsString( 'is-mode-popover-always', $markup );
+		$this->assertStringContainsString( 'is-mode-popover-always', $markup );
+		$this->assertStringNotContainsString( 'is-mode-responsive', $markup );
 	}
 
 	/**
@@ -91,13 +91,13 @@ class Filters_Popover_Render_Test extends TestCase {
 	}
 
 	/**
-	 * An unknown / malformed `displayMode` value must fall back to responsive
+	 * An unknown / malformed `displayMode` value must fall back to popover-always
 	 * so a serialised typo can't end up with no styling applied.
 	 */
-	public function test_unknown_display_mode_falls_back_to_responsive() {
+	public function test_unknown_display_mode_falls_back_to_popover_always() {
 		$markup = $this->render( array( 'displayMode' => 'something-else' ) );
-		$this->assertStringContainsString( 'is-mode-responsive', $markup );
-		$this->assertStringNotContainsString( 'is-mode-popover-always', $markup );
+		$this->assertStringContainsString( 'is-mode-popover-always', $markup );
+		$this->assertStringNotContainsString( 'is-mode-responsive', $markup );
 		$this->assertStringNotContainsString( 'is-mode-something-else', $markup );
 	}
 
