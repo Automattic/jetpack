@@ -6,3 +6,12 @@
 	// spacing.blockGap support.
 	gap: var(--wp--style--block-gap, 1rem);
 }
+
+.jetpack-search-filters__empty {
+	margin: 0;
+	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
+}

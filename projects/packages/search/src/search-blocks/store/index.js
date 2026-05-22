@@ -8,6 +8,7 @@ import { markdownToHtml } from '../../instant-search/lib/markdown';
 import { streamAiAnswer } from './ai-stream';
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
+import { filterHasContent, filtersHaveNothingToShow, hasAnyActiveFilter } from './filters-empty';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult, setSeededDateFormat } from './result-utils';
 import {
@@ -265,36 +266,6 @@ export function remapAggregationsToFilterKeys( aggregations, filterConfigs ) {
 		remapped[ target ] = value;
 	}
 	return remapped;
-}
-
-/**
- * True when a filter key has anything to render: live aggregation buckets,
- * session-retained options, or an active selection. Drives wrapper
- * visibility — without the retained / selection check a narrower query
- * could hide the section that holds the user's own selection.
- *
- * Date filters bail out before the retention / selection clauses: they
- * don't accumulate retained options (mergeRetainedFilterOptions skips
- * them) and dateFilterItems doesn't render selected values that aren't
- * in the current aggregation, so an empty bucket list means an empty
- * <ul> and the wrapper should hide. Selections still surface via the
- * active-filters pills.
- *
- * @param {object} sharedState - Live store state.
- * @param {string} filterKey   - Filter key.
- * @return {boolean} True when the wrapper has something to show.
- */
-function filterHasContent( sharedState, filterKey ) {
-	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
-		return true;
-	}
-	if ( sharedState.filterConfigs?.[ filterKey ]?.filterType === 'date' ) {
-		return false;
-	}
-	return (
-		( sharedState.retainedFilterOptions?.[ filterKey ]?.length ?? 0 ) > 0 ||
-		( sharedState.activeFilters?.[ filterKey ]?.length ?? 0 ) > 0
-	);
 }
 
 /**
@@ -679,6 +650,16 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Visibility flag for the empty state inside the `filters` /
+		 * `filters-product` containers — see `filtersHaveNothingToShow`.
+		 *
+		 * @return {boolean} True when the filters empty state should show.
+		 */
+		get showFiltersEmpty() {
+			return filtersHaveNothingToShow( state );
+		},
+
+		/**
 		 * Visibility flag for the error region inside `jetpack-search/results-list`.
 		 * Gated on both `!isLoading` and `!isLoadingMore` so the message hides
 		 * the moment the user retries — covering the `loadMore()` failure path
@@ -720,20 +701,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @return {boolean} Whether any filter is active.
 		 */
 		get hasActiveFilters() {
-			const hasSelections = Object.values( state.activeFilters ?? {} ).some(
-				v => Array.isArray( v ) && v.length > 0
-			);
-			if ( hasSelections ) {
-				return true;
-			}
-			const hasStaticSelections = Object.values( state.staticFilterSelections ?? {} ).some(
-				v => !! v
-			);
-			if ( hasStaticSelections ) {
-				return true;
-			}
-			const range = state.priceRange;
-			return !! range && ( range.min != null || range.max != null );
+			return hasAnyActiveFilter( state );
 		},
 
 		/**
