@@ -1,9 +1,9 @@
-import { Text } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID, ManageConnectionDialog } from '@automattic/jetpack-connection';
 import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
@@ -171,7 +171,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 					</Button>
 				</h4>
 				<div>
-					<Text variant="body" className={ styles.description }>
+					<Text variant="body-md" className={ styles.description }>
 						{ state.description }
 					</Text>
 					{ state.action === 'CONNECT_USER' ? (

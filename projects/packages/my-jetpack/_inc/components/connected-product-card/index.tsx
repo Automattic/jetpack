@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@automattic/jetpack-components';
+import { Text } from '@wordpress/ui';
 import { useEffect } from 'react';
 /**
  * Internal dependencies
@@ -56,7 +56,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		const cardDescription = preventWidows( defaultDescription );
 
 		return (
-			<Text variant="body-small" style={ { flexGrow: 1, marginBottom: '1rem' } }>
+			<Text variant="body-sm" style={ { flexGrow: 1, marginBottom: '1rem' } }>
 				{ cardDescription }
 			</Text>
 		);

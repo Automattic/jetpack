@@ -1,9 +1,10 @@
-import { Button, Text } from '@automattic/jetpack-components';
+// TODO: migrate Button usages to @wordpress/ui Link (handled in a separate PR — all Buttons here use variant="link" + href + isExternalLink + weight="regular", which @wordpress/ui Button does not support).
+import { Button } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -124,7 +125,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
-			<Text variant="body" className={ styles[ 'expire-date' ] }>
+			<Text variant="body-md" className={ styles[ 'expire-date' ] }>
 				<span className={ styles[ 'expire-date--with-icon' ] }>
 					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
 				</span>
@@ -135,7 +136,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 	return (
 		<>
-			<Text variant="body" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
+			<Text variant="body-md" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
 				{ expiryMessage() }
 			</Text>
 			{ isExpiringPurchase && <Text>{ expiryAction() }</Text> }
@@ -324,7 +325,7 @@ const PlansSection: FC = () => {
 									/>
 								</svg>
 							</h4>
-							<Text variant="body" className={ clsx( styles[ 'expire-date' ] ) }>
+							<Text variant="body-md" className={ clsx( styles[ 'expire-date' ] ) }>
 								{ __( 'Free', 'jetpack-my-jetpack' ) }
 							</Text>
 						</section>
