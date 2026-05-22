@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
@@ -111,6 +111,8 @@ export default function NewsletterPage( {
 
 	return (
 		<AdminPage
+			apiRoot={ getSiteData()?.rest_root }
+			apiNonce={ getSiteData()?.rest_nonce }
 			title={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
