@@ -38,6 +38,7 @@ class Search_Module_Test extends BaseTestCase {
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
 		parent::tearDown();
 	}
 
@@ -70,5 +71,25 @@ class Search_Module_Test extends BaseTestCase {
 		delete_option( 'jetpack_search_ai_answers_enabled' );
 		$this->assertContains( 'wp_guideline', $list );
 		$this->assertNotContains( 'jetpack_search_topic', $list );
+	}
+
+	/**
+	 * The overlay template CPT should NOT be in the whitelist when the
+	 * block-template overlay is off (default).
+	 */
+	public function test_overlay_cpt_not_in_whitelist_when_disabled() {
+		$list = apply_filters( 'jetpack_sync_post_types_whitelist', array() );
+		$this->assertNotContains( 'jp_search_overlay', $list );
+	}
+
+	/**
+	 * The overlay template CPT should be in the whitelist when the
+	 * block-template overlay is enabled via filter.
+	 */
+	public function test_overlay_cpt_in_whitelist_when_enabled() {
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		$list = apply_filters( 'jetpack_sync_post_types_whitelist', array() );
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		$this->assertContains( 'jp_search_overlay', $list );
 	}
 }

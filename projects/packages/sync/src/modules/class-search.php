@@ -53,6 +53,8 @@ class Search extends Module {
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
 		// AI Answers CPTs and post meta (gated by feature flag).
 		add_filter( 'jetpack_sync_post_types_whitelist', array( $this, 'add_ai_answer_post_types' ), 10 );
+		// Block-template overlay singleton CPT (gated by feature flag).
+		add_filter( 'jetpack_sync_post_types_whitelist', array( $this, 'add_overlay_template_post_type' ), 10 );
 	}
 
 	/**
@@ -1827,6 +1829,26 @@ class Search extends Module {
 			return $list;
 		}
 		$list[] = 'wp_guideline';
+		return $list;
+	}
+
+	/**
+	 * Add the Search blocks overlay template CPT to the post types sync whitelist
+	 * when the experimental block-template overlay is enabled.
+	 *
+	 * Mirrors `Overlay_Template::POST_TYPE` from the jetpack-search package; the
+	 * value is hardcoded to avoid a cross-package dependency. Without it, a
+	 * customized overlay template lands in `jps_non-reg` status on the cache
+	 * site and never replicates to WPcom.
+	 *
+	 * @param array $list Existing post types whitelist.
+	 * @return array Updated whitelist.
+	 */
+	public function add_overlay_template_post_type( $list ) {
+		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ) ) {
+			return $list;
+		}
+		$list[] = 'jp_search_overlay';
 		return $list;
 	}
 
