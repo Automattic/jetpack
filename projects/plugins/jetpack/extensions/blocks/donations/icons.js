@@ -53,4 +53,4 @@ export const TRIGGER_ICONS = [
 	{ key: 'coffee', label: __( 'Cup', 'jetpack' ), icon: coffee },
 ];
 
-export { gift };
+export { coffee, gift };

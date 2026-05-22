@@ -48,7 +48,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 		const blockName = variation.name;
 
 		maybeMakeBlockVisible( blockName );
-		replaceBlock( clientId, createBlock( blockName ) );
+		replaceBlock( clientId, createBlock( blockName, variation.attributes ?? {} ) );
 		selectBlock( clientId );
 	};
 

@@ -4,16 +4,17 @@
 
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import donationMetadata from '../donations/block.json';
+import tipsVariation from '../donations/tips-variation';
 import paymentButtonsMetadata from '../payment-buttons/block.json';
 import premiumContentMetadata from '../premium-content/block.json';
 
-const variations = [
+const standardBlocks = [
 	[ donationMetadata.name, donationMetadata ],
 	[ paymentButtonsMetadata.name, paymentButtonsMetadata ],
 	[ premiumContentMetadata.name, premiumContentMetadata ],
 ];
 
-const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
+const standardDefs = standardBlocks.map( ( [ blockName, settings ] ) => {
 	const icon = settings.icon.src ?? settings.icon;
 
 	return {
@@ -27,4 +28,12 @@ const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
 	};
 } );
 
-export default variationDefinitions;
+const tipsDef = {
+	name: 'jetpack/donations',
+	displayTitle: tipsVariation.title,
+	description: tipsVariation.description,
+	icon: tipsVariation.icon,
+	attributes: tipsVariation.attributes,
+};
+
+export default [ ...standardDefs, tipsDef ];
