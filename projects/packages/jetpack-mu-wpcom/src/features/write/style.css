@@ -1913,12 +1913,14 @@
 		display: none;
 	}
 
-	/* Toolbar scrolls horizontally on mobile */
+	/* Toolbar scrolls horizontally on mobile. Avoid -webkit-overflow-scrolling:
+	   touch — it's deprecated and historically traps position:fixed descendants
+	   (like .bw-heading-menu / .bw-color-menu) inside this scroll container on
+	   iOS Safari, so the dropdowns can't paint outside the toolbar's bounds. */
 	.bw-toolbar-scroll {
 		justify-content: flex-start;
 		padding: 0 12px;
 		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
 	}
 
