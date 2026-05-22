@@ -10,6 +10,11 @@
  * visibility — without the retained / selection check a narrower query
  * could hide the section that holds the user's own selection.
  *
+ * Static filters render their server-provided `values` regardless of the
+ * result set (they don't aggregate, retain, or write to `activeFilters`), so
+ * a non-empty `values` list always counts as content — otherwise a sidebar
+ * holding only a static filter would falsely report itself empty.
+ *
  * Date filters bail out before the retention / selection clauses: they
  * don't accumulate retained options (mergeRetainedFilterOptions skips
  * them) and dateFilterItems doesn't render selected values that aren't
@@ -25,7 +30,11 @@ export function filterHasContent( sharedState, filterKey ) {
 	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
 		return true;
 	}
-	if ( sharedState.filterConfigs?.[ filterKey ]?.filterType === 'date' ) {
+	const config = sharedState.filterConfigs?.[ filterKey ];
+	if ( config?.filterType === 'static' ) {
+		return ( config.values?.length ?? 0 ) > 0;
+	}
+	if ( config?.filterType === 'date' ) {
 		return false;
 	}
 	return (
@@ -79,6 +88,10 @@ export function filtersHaveNothingToShow( sharedState ) {
 	if ( ! ( sharedState.searchQuery || sharedState.hasSearchParam ) ) {
 		return false;
 	}
+	// `skeletonHidden` is intentionally stricter here than `showNoResults`,
+	// which doesn't gate on it: a flash in the sidebar before hydration is
+	// more disorienting than in the results region, so "No filters available"
+	// waits for the skeleton to clear even when "No results" can already show.
 	if ( ! sharedState.skeletonHidden || sharedState.isLoading || sharedState.hasError ) {
 		return false;
 	}
