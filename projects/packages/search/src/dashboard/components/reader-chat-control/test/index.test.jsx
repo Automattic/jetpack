@@ -14,14 +14,30 @@ jest.mock( '@wordpress/components', () => ( {
 			/>
 		</a>
 	),
-	ToggleControl: ( { checked, disabled, label, onChange } ) => (
-		<input
-			type="checkbox"
-			checked={ !! checked }
-			disabled={ !! disabled }
-			aria-label={ label }
-			onChange={ event => onChange( event.target.checked ) }
-		/>
+	ToggleControl: ( { checked, disabled, label, onChange } ) => {
+		const id = 'reader-chat-toggle';
+
+		return (
+			<>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ !! checked }
+					disabled={ !! disabled }
+					onChange={ event => onChange( event.target.checked ) }
+				/>
+				<label htmlFor={ id }>{ label }</label>
+			</>
+		);
+	},
+} ) );
+
+jest.mock( '@wordpress/ui', () => ( {
+	__esModule: true,
+	Badge: ( { children, className, intent } ) => (
+		<span className={ className } data-intent={ intent }>
+			{ children }
+		</span>
 	),
 } ) );
 
@@ -61,6 +77,7 @@ describe( 'ReaderChatControl', () => {
 		} );
 
 		expect( toggle ).toBeChecked();
+		expect( screen.getByText( 'Preview' ) ).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'link', {
 				name: /Set guidelines/i,

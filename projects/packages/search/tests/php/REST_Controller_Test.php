@@ -75,7 +75,6 @@ class REST_Controller_Test extends Search_TestCase {
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
-				'show_in_rest'      => true,
 				'default'           => false,
 			)
 		);

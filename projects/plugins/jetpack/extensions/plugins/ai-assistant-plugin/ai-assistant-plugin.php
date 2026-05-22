@@ -42,7 +42,7 @@ require_once __DIR__ . '/ai-sidebar/class-jetpack-ai-sidebar.php';
 Jetpack_AI_Sidebar::init();
 
 // Initialize Reader Chat. Must run in both admin and frontend contexts
-// (admin: register_setting exposes the toggle via /wp/v2/settings;
+// (admin: register_setting exposes the toggle via Search settings;
 // frontend: wp_enqueue_scripts mounts the widget on reader pages).
 // Loading here ensures it runs whenever ai-assistant-plugin does, which
 // is both on block-editor requests and regular admin pages — a strict

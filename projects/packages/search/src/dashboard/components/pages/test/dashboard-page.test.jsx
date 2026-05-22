@@ -300,6 +300,18 @@ describe( 'DashboardPage', () => {
 		expect( mockReaderChatControl ).not.toHaveBeenCalled();
 	} );
 
+	test( 'does not render Reader Chat card in the experience selector path when Search is not supported', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'supportsSearch' ).mockImplementation( () => false );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'reader-chat-control' ) ).not.toBeInTheDocument();
+		expect( mockReaderChatControl ).not.toHaveBeenCalled();
+	} );
+
 	test( 'hydrates active tab from the URL hash', () => {
 		window.history.replaceState( {}, '', `${ DEFAULT_TEST_URL }#/ai-answers` );
 
