@@ -306,21 +306,79 @@ function wpcom_write_detect_unsupported_content( $content ) {
 		return 'block-editor';
 	}
 
-	// HTML-level classes that Write can't round-trip.  convertToBlocks()
-	// reconstructs the outer element, losing any classes set by the block
-	// editor.  Match only inside class attributes to avoid false positives
-	// from plain text mentioning these class names.
-	//
-	// Note: has-text-align-* is NOT checked here — those classes are
-	// converted to inline styles on load (see wpcom_write_alignment_classes_to_inline)
-	// so convertToBlocks() can read them via node.style.textAlign.
-	//
-	// - has-inline-color / has-text-color: rich-text color classes.
-	if (
-		preg_match( '/class="[^"]*has-(?:inline-color|text-color)[^"]*"/', $content ) ||
-		preg_match( "/class='[^']*has-(?:inline-color|text-color)[^']*'/", $content )
-	) {
+	// Write supports inline custom text colors only.
+	// Palette colors and highlights stay block-editor-only.
+	// has-text-align-* is not checked — it's converted to inline styles on load.
+	if ( wpcom_write_has_unsupported_color_class( $content ) ) {
 		return 'block-editor';
+	}
+
+	if ( wpcom_write_has_unsupported_mark( $content ) ) {
+		return 'block-editor';
+	}
+
+	return false;
+}
+
+/**
+ * Check whether a CSS background-color value is transparent.
+ *
+ * Matches "transparent", "rgba(0, 0, 0, 0)", and whitespace/case variants.
+ *
+ * @param string $value A CSS background-color value.
+ * @return bool True if the value is transparent.
+ */
+function wpcom_write_is_transparent_background( $value ) {
+	$value = strtolower( trim( $value ) );
+	if ( 'transparent' === $value ) {
+		return true;
+	}
+	// Normalize whitespace so rgba(0,0,0,0) and rgba( 0, 0, 0, 0 ) both match.
+	$value = preg_replace( '/\s+/', '', $value );
+	return 'rgba(0,0,0,0)' === $value;
+}
+
+/**
+ * Check whether content has color classes that Write can't preserve.
+ *
+ * Palette classes (has-vivid-red-color, etc.) and has-text-color indicate
+ * block editor content.  has-inline-color alone is fine — Write produces it.
+ * Only matches inside class attributes to avoid false positives from plain text.
+ *
+ * @param string $content Raw post_content.
+ * @return bool True if unsupported color classes are found.
+ */
+function wpcom_write_has_unsupported_color_class( $content ) {
+	return preg_match( '/class="[^"]*\bhas-(?!inline-color\b)[\w-]+-color\b[^"]*"/', $content ) ||
+		preg_match( "/class='[^']*\bhas-(?!inline-color\b)[\w-]+-color\b[^']*'/", $content );
+}
+
+/**
+ * Check whether content has <mark> elements that Write can't round-trip.
+ *
+ * Catches two cases:
+ * - <mark> without has-inline-color (block editor highlights).
+ * - <mark> with has-inline-color AND a non-transparent background
+ *   (combined text color + highlight from the block editor).
+ *
+ * @param string $content Raw post_content.
+ * @return bool True if unsupported marks are found.
+ */
+function wpcom_write_has_unsupported_mark( $content ) {
+	// Highlights: <mark> without has-inline-color.
+	if ( preg_match( '/<mark\b(?![^>]*\bclass="[^"]*has-inline-color)/', $content ) ) {
+		return true;
+	}
+
+	// Combined text color + highlight: has-inline-color with a real background.
+	if ( preg_match_all( '/<mark\b[^>]*\bclass="[^"]*has-inline-color[^"]*"[^>]*>/', $content, $marks ) ) {
+		foreach ( $marks[0] as $tag ) {
+			if ( preg_match( '/background-color\s*:\s*([^;"]+)/', $tag, $bg ) ) {
+				if ( ! wpcom_write_is_transparent_background( $bg[1] ) ) {
+					return true;
+				}
+			}
+		}
 	}
 
 	return false;
@@ -471,6 +529,34 @@ function wpcom_write_alignment_classes_to_inline( $html ) {
 			}
 
 			return $tag;
+		},
+		$html
+	);
+}
+
+/**
+ * Convert Gutenberg inline-color marks to spans for contentEditable.
+ *
+ * Write edits colors as spans, saves colors as Gutenberg marks.
+ * On load, marks are converted back to spans so foreColor can interact
+ * with existing colors. normalizeColorMarkup() in view.js reverses this.
+ *
+ * @param string $html Rendered HTML content.
+ * @return string HTML with inline-color marks replaced by color spans.
+ */
+function wpcom_write_inline_color_marks_to_spans( $html ) {
+	return preg_replace_callback(
+		'/<mark\b([^>]*\bclass="[^"]*has-inline-color[^"]*"[^>]*)>(.*?)<\/mark>/s',
+		function ( $m ) {
+			$attrs = $m[1];
+			$inner = $m[2];
+			// Extract the color value from the style attribute.
+			// Use (?<!-) to match the `color` property but not `background-color`.
+			if ( preg_match( '/(?<!-)color\s*:\s*([^;"]+)/', $attrs, $cm ) ) {
+				return '<span style="color:' . $cm[1] . '">' . $inner . '</span>';
+			}
+			// No color found — just unwrap to a plain span.
+			return '<span>' . $inner . '</span>';
 		},
 		$html
 	);
@@ -930,6 +1016,11 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				// Convert block-editor alignment classes to inline styles so
 				// convertToBlocks() can read them via node.style.textAlign.
 				$edit_content = wpcom_write_alignment_classes_to_inline( $edit_content );
+				// Convert Gutenberg <mark class="has-inline-color"> to
+				// <span style="color:#hex"> so foreColor can interact with
+				// existing colors.  Done before kses so the simpler span+hex
+				// format passes through without needing a custom kses filter.
+				$edit_content = wpcom_write_inline_color_marks_to_spans( $edit_content );
 				// Sanitize through wp_kses_post — video embed tokens (HTML comments)
 				// pass through untouched, then we swap them for the real iframe HTML.
 				// This avoids the pre_kses filter that converts iframes to shortcodes.

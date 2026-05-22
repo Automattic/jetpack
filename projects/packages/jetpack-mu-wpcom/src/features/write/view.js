@@ -639,20 +639,32 @@ function escapeAttr( str ) {
 }
 
 /**
+ * Convert an rgb() color string to hex (#rrggbb). Returns the input
+ * unchanged if it is not in rgb() format.
+ *
+ * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
+ * @return {string} Hex color string, e.g. "#d63638".
+ */
+function rgbToHex( rgb ) {
+	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
+	if ( ! m ) return rgb;
+	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
+	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
- * The foreColor command creates <font color="..."> (legacy) or
- * <span style="color:..."> (modern). Convert both to clean <span> elements
- * with inline styles, and strip the default text color (#1a1a1a).
+ * Write edits colors as spans (via foreColor), saves colors as Gutenberg marks.
+ * Three passes: font→span, mark→span, span→mark.
  *
  * @param {HTMLElement} container - The container to normalize in place.
  */
 function normalizeColorMarkup( container ) {
-	// Convert <font color="..."> to <span style="color:...">.
+	// Pass 1: <font color> → <span style="color:"> for uniform handling.
 	container.querySelectorAll( 'font[color]' ).forEach( font => {
 		const color = font.getAttribute( 'color' );
 		const span = document.createElement( 'span' );
-		// Skip default color — unwrap the element entirely.
 		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
 			span.style.color = color;
 		}
@@ -660,14 +672,40 @@ function normalizeColorMarkup( container ) {
 		font.replaceWith( span );
 	} );
 
-	// Strip default-colored spans (unwrap them, keeping their content).
+	// Pass 2: existing <mark class="has-inline-color"> → <span> so the
+	// span pass handles all colored elements uniformly.
+	container.querySelectorAll( 'mark.has-inline-color' ).forEach( mark => {
+		const span = document.createElement( 'span' );
+		if ( mark.style.color ) {
+			span.style.color = mark.style.color;
+		}
+		span.innerHTML = mark.innerHTML;
+		mark.replaceWith( span );
+	} );
+
+	// Pass 3: colored spans → Gutenberg <mark> format. Default color stripped.
 	container.querySelectorAll( 'span' ).forEach( span => {
 		const color = span.style.color;
 		if ( ! color ) return;
-		// Detect default color in various formats.
 		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
 		if ( isDefault ) {
 			span.replaceWith( ...span.childNodes );
+			return;
+		}
+		const hexColor = rgbToHex( color );
+		const mark = document.createElement( 'mark' );
+		mark.className = 'has-inline-color';
+		// Raw string avoids CSS OM normalizing hex back to rgb().
+		// rgba(0, 0, 0, 0) is Gutenberg's exact transparent sentinel.
+		mark.setAttribute( 'style', 'background-color:rgba(0, 0, 0, 0);color:' + hexColor );
+		mark.innerHTML = span.innerHTML;
+		// Preserve other styles (e.g. text-decoration) by nesting the mark.
+		span.style.color = '';
+		if ( span.getAttribute( 'style' )?.trim() ) {
+			span.innerHTML = '';
+			span.appendChild( mark );
+		} else {
+			span.replaceWith( mark );
 		}
 	} );
 }

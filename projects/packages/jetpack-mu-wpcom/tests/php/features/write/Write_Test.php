@@ -976,11 +976,19 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that inline color classes return 'block-editor'.
+	 * Test that inline palette color classes return 'block-editor'.
 	 */
-	public function test_detect_unsupported_inline_color_class() {
-		$content = '<!-- wp:paragraph --><p>Some <span class="has-inline-color has-vivid-red-color">red</span> text</p><!-- /wp:paragraph -->';
+	public function test_detect_unsupported_inline_palette_color_class() {
+		$content = '<!-- wp:paragraph --><p>Some <mark class="has-inline-color has-vivid-red-color">red</mark> text</p><!-- /wp:paragraph -->';
 		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that has-inline-color alone (Write's format) is supported.
+	 */
+	public function test_detect_supported_inline_custom_color() {
+		$content = '<!-- wp:paragraph --><p>Some <mark class="has-inline-color" style="background-color:rgba(0, 0, 0, 0);color:#d63638">red</mark> text</p><!-- /wp:paragraph -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
 	}
 
 	/**
@@ -988,6 +996,22 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_detect_unsupported_has_text_color_class() {
 		$content = '<!-- wp:paragraph --><p class="has-text-color has-vivid-red-color">Colored</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that custom highlight mark (no palette class) returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_custom_highlight_mark() {
+		$content = '<!-- wp:paragraph --><p>Some <mark style="background-color:#fcb900">highlighted</mark> text</p><!-- /wp:paragraph -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that has-inline-color with a real background color returns 'block-editor'.
+	 */
+	public function test_detect_unsupported_inline_color_with_highlight() {
+		$content = '<!-- wp:paragraph --><p><mark class="has-inline-color" style="background-color:#fcb900;color:#d63638">both</mark></p><!-- /wp:paragraph -->';
 		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
 	}
 
@@ -1099,6 +1123,42 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'<p style="text-align:center;color:red">Centered</p>',
 			wpcom_write_alignment_classes_to_inline( $html )
 		);
+	}
+
+	/**
+	 * Test that inline color marks are converted to spans for contentEditable.
+	 */
+	public function test_inline_color_marks_to_spans() {
+		// Gutenberg custom color (with rgba transparent background).
+		$html = '<p>Some <mark class="has-inline-color" style="background-color:rgba(0, 0, 0, 0);color:#d63638">red</mark> text</p>';
+		$this->assertSame(
+			'<p>Some <span style="color:#d63638">red</span> text</p>',
+			wpcom_write_inline_color_marks_to_spans( $html )
+		);
+
+		// No color in style — unwraps to plain span.
+		$html = '<p><mark class="has-inline-color">text</mark></p>';
+		$this->assertSame(
+			'<p><span>text</span></p>',
+			wpcom_write_inline_color_marks_to_spans( $html )
+		);
+
+		// Non-inline-color mark — left unchanged.
+		$html = '<p><mark style="background-color:#ff0">highlighted</mark></p>';
+		$this->assertSame( $html, wpcom_write_inline_color_marks_to_spans( $html ) );
+	}
+
+	/**
+	 * Test transparent background detection with whitespace/case variants.
+	 */
+	public function test_is_transparent_background() {
+		$this->assertTrue( wpcom_write_is_transparent_background( 'transparent' ) );
+		$this->assertTrue( wpcom_write_is_transparent_background( 'Transparent' ) );
+		$this->assertTrue( wpcom_write_is_transparent_background( 'rgba(0, 0, 0, 0)' ) );
+		$this->assertTrue( wpcom_write_is_transparent_background( 'rgba(0,0,0,0)' ) );
+		$this->assertTrue( wpcom_write_is_transparent_background( ' rgba( 0, 0, 0, 0 ) ' ) );
+		$this->assertFalse( wpcom_write_is_transparent_background( '#fcb900' ) );
+		$this->assertFalse( wpcom_write_is_transparent_background( 'rgba(255, 0, 0, 0.5)' ) );
 	}
 
 	/**
