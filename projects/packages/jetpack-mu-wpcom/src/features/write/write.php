@@ -632,7 +632,7 @@ function wpcom_write_get_recent_drafts( $exclude_post_id = 0 ) {
 function wpcom_write_render_admin_page() {
 	// Check if editing an existing post.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, gated by capability check via add_submenu_page.
-	$edit_post_id       = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+	$edit_post_id       = isset( $_GET['post'] ) && is_scalar( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
 	$edit_title         = '';
 	$edit_content       = '';
 	$post_status        = 'new';
@@ -660,9 +660,9 @@ function wpcom_write_render_admin_page() {
 			if ( $query_str ) {
 				parse_str( $query_str, $query_params );
 				$param_id = 0;
-				if ( ! empty( $query_params['p'] ) ) {
+				if ( ! empty( $query_params['p'] ) && is_scalar( $query_params['p'] ) ) {
 					$param_id = absint( $query_params['p'] );
-				} elseif ( ! empty( $query_params['post'] ) ) {
+				} elseif ( ! empty( $query_params['post'] ) && is_scalar( $query_params['post'] ) ) {
 					$param_id = absint( $query_params['post'] );
 				}
 				if ( $param_id ) {
