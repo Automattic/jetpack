@@ -146,6 +146,15 @@ if [ -e $APACHE_PID_FILE ]; then
 	rm -f $APACHE_PID_FILE
 fi
 
+# Provisioning above runs as root, so the WordPress install ends up owned
+# by root:root. Apache then runs as $user:$group and can't write its own
+# install — every plugin/theme/core auto-update from wp-admin fails with
+# "files_not_writable" and surfaces the "An automated WordPress update
+# has failed to complete" admin notice. Chown unconditionally so that
+# both new installs and existing ones provisioned before this fix are
+# corrected on `jetpack docker up`.
+chown -R "$user:$group" /var/www/html
+
 echo
 echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo
