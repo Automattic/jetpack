@@ -15,20 +15,20 @@ use WP_Error;
 class Initializer {
 
 	/**
-	 * Whether the experimental block-template overlay path has been wired
-	 * up this request. Set to `true` at the end of `init_search_blocks()`
-	 * only when BOTH the `jetpack_search_blocks_enabled` gate AND the
-	 * `jetpack_search_overlay_block_template_enabled` gate are on — never
-	 * by the overlay filter alone. `init()` reads this to decide whether
-	 * `init_search()` returning falsy is a real failure or a no-op-by-
-	 * design. Anchoring on the actually-wired-up state (not the filter
-	 * read) prevents the abort carve-out from being bypassed by setting
-	 * the overlay filter on a site that doesn't have Search Blocks
-	 * registered.
+	 * Whether a block-driven experience owns the search results this request
+	 * — Embedded, or the experimental blocks Overlay. Set to `true` in
+	 * `init_search_blocks()` only when the `jetpack_search_blocks_enabled`
+	 * gate is on AND the saved experience is one of those (the Overlay arm
+	 * additionally requires `jetpack_search_overlay_block_template_enabled`).
+	 * In those experiences both Classic and Instant Search are suppressed, so
+	 * `init_search()` returns falsy by design; `init()` reads this flag to
+	 * treat that as a no-op rather than a real failure. Anchoring on the
+	 * actually-wired-up state (not a filter read) prevents the abort carve-out
+	 * from being bypassed on a site that doesn't have Search Blocks registered.
 	 *
 	 * @var bool
 	 */
-	private static $block_template_overlay_active = false;
+	private static $block_search_active = false;
 
 	/**
 	 * Initialize the search package.
@@ -90,16 +90,15 @@ class Initializer {
 			return;
 		}
 
-		// Initialize search package. The block-template overlay path
-		// intentionally skips both instant and classic init (Search_Blocks
-		// owns the UI), so a falsy return there is by design — not an
-		// abort. Anything else falsy is a real failure. Anchor on the
-		// actually-wired-up flag (set in `init_search_blocks()` only when
-		// both gates passed) rather than the overlay filter alone, so
-		// flipping the overlay filter without the blocks gate can never
-		// bypass the abort.
+		// Initialize search package. The block-driven experiences (Embedded /
+		// blocks Overlay) intentionally skip both instant and classic init
+		// (Search_Blocks owns the UI), so a falsy return there is by design —
+		// not an abort. Anything else falsy is a real failure. Anchor on the
+		// actually-wired-up flag (set in `init_search_blocks()` only when the
+		// blocks gate passed) rather than a filter read, so flipping a filter
+		// without the blocks gate can never bypass the abort.
 		$initialized = static::init_search( $blog_id )
-			|| self::$block_template_overlay_active;
+			|| self::$block_search_active;
 
 		if ( ! $initialized ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
@@ -174,17 +173,33 @@ class Initializer {
 		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 		Search_Blocks::init();
 
+		// When the Search blocks own the front-end results (Embedded / blocks
+		// Overlay), Classic Search would otherwise run a server-side
+		// Elasticsearch query plus a WP_Query to hydrate the posts on every
+		// search request — work the blocks immediately discard. Suppress it so
+		// it never runs, the same way Instant Search replaces Classic;
+		// `Search_Blocks::filter__posts_pre_query` then short-circuits the
+		// remaining core database search. With both handlers gone `init_search()`
+		// returns false by design, so this flag tells `init()` not to treat that
+		// as an abort.
+		//
+		// Front-end only, matching the `posts_pre_query` registration guard:
+		// leaving Classic Search to initialize normally in wp-admin keeps the
+		// change scoped to the search page and avoids dropping admin-side hooks.
+		if ( ! is_admin() && Search_Blocks::owns_search_results() ) {
+			add_filter( 'jetpack_search_classic_search_enabled', '__return_false' );
+			self::$block_search_active = true;
+		}
+
 		// Experimental block-template overlay (off by default; see
 		// `Search_Blocks::is_block_template_overlay_enabled()`): bypass the
 		// preact `SearchApp` so it doesn't race the block overlay for
 		// `?s=`, popstate, and theme search-trigger selectors. Suppressing
-		// at the init filter is cleaner than dequeuing post-enqueue. The
-		// active flag set here is the single source of truth for the
-		// `init()` carve-out — it is true only when BOTH this branch ran
-		// (blocks gate passed) AND the overlay gate is on.
+		// at the init filter is cleaner than dequeuing post-enqueue. Gated on
+		// the overlay path specifically — Embedded never enables Instant Search,
+		// so there is nothing to suppress there.
 		if ( Search_Blocks::is_block_template_overlay_enabled() ) {
 			add_filter( 'jetpack_search_init_instant_search', '__return_false' );
-			self::$block_template_overlay_active = true;
 		}
 	}
 
