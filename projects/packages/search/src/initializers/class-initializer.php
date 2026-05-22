@@ -167,10 +167,6 @@ class Initializer {
 			return;
 		}
 
-		// Phase 1 ships without WooCommerce-only Search blocks. Sites
-		// that want them back hook the same filter at priority > 10
-		// so their callback runs after this default.
-		add_filter( 'jetpack_search_woocommerce_blocks_enabled', '__return_false' );
 		Search_Blocks::init();
 
 		// When the Search blocks own the front-end results (Embedded / blocks
