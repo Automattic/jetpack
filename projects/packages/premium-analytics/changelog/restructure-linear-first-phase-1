@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal tooling only — Phase 1 of the Linear-first restructure: removed in-repo task md files; consolidated chart and ESLint invariants into AGENTS.md; added the `docs/research/eslint-disable-line-discovery.md` forensic trail; updated implement-task skill to read from a local scratch md (Phase 2 will read Linear directly). No user-facing package change.
