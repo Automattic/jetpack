@@ -8,7 +8,7 @@ describe( 'Performance tab', () => {
 
 		const link = screen.getByRole( 'link', { name: 'Manage Search settings' } );
 		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', 'admin.php?page=jetpack-search&tab=settings' );
+		expect( link ).toHaveAttribute( 'href', 'admin.php?page=jetpack-search#/settings' );
 	} );
 
 	it( 'hides the Search dashboard link in offline mode', () => {

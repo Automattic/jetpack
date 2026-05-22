@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add subpath exports for Button, PricingTable, and ProductPrice so they can be imported directly (e.g. from wp-build bundles that cannot import the package barrel).

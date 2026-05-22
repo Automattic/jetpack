@@ -144,6 +144,32 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
+ * Drop static-filter selections whose key isn't registered (or isn't a
+ * `kind === 'static'` config). Mirrors `gateActiveFilters` for the
+ * scalar-URL counterpart so a stray `?section=x` URL from a deregistered
+ * static filter can't survive across renders. Returns `{ gated, droppedAny }`
+ * so callers can write state only when something actually changed — same
+ * contract as `gateActiveFilters`.
+ *
+ * @param {object} selections    - { [filterKey]: string }.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
+ */
+export function gateStaticFilterSelections( selections, filterConfigs ) {
+	const allowedKeys = filterConfigs ?? {};
+	const gated = Object.create( null );
+	let droppedAny = false;
+	for ( const [ key, value ] of Object.entries( selections ?? {} ) ) {
+		if ( ! value || ! Object.hasOwn( allowedKeys, key ) || allowedKeys[ key ]?.kind !== 'static' ) {
+			droppedAny = true;
+			continue;
+		}
+		gated[ key ] = value;
+	}
+	return { gated, droppedAny };
+}
+
+/**
  * Drop filterLogic entries whose filter key is missing from `activeFilters`,
  * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
  * cleanup `setFilter()` performs locally; called from popstate and at
@@ -495,6 +521,25 @@ function dateFilterItems( sharedState, filterKey, config ) {
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
 let searchToken = 0;
 
+// Per-instance post-type scope of the Search Input that initiated the current
+// search session. Set by `actions.search()` whenever an input dispatches (an
+// object when that input is scoped, `null` when it isn't); filter / sort /
+// load-more re-runs leave it untouched so the session keeps the active scope.
+// `undefined` (initial) and `null` both fall through to the page-global
+// `state.staticPostTypes` seed in `fetchResults`, so an unscoped input never
+// clobbers a `jetpack-search/filter-post-type` block's contribution.
+let activePostTypeScope;
+
+/**
+ * Reset the module-level active post-type scope. Tests only — the `beforeEach`
+ * in `store.test.js` can reset `state`/`actions` but not this module variable,
+ * so it would otherwise leak across cases (mirrors the Reflection reset of
+ * `Filter_Post_Type::$searchable_cache` on the PHP side).
+ */
+export function resetActivePostTypeScopeForTesting() {
+	activePostTypeScope = undefined;
+}
+
 /**
  * Build the human-readable results-count string from the live store state.
  * Returns "Searching…" while a search is in flight, "Found 42 results" once
@@ -553,7 +598,11 @@ function* fetchResults( pageHandle ) {
 		// downstream consumer (`buildFilterClause`) free of the override path.
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
-		staticPostTypes: state.staticPostTypes,
+		staticFilterSelections: state.staticFilterSelections,
+		// The active input's per-instance scope wins over the page-global
+		// `state.staticPostTypes` seed; falls through to the seed when no scoped
+		// input has dispatched (`activePostTypeScope` undefined or null).
+		staticPostTypes: activePostTypeScope ?? state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -660,12 +709,13 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any facet is active — selected filter values or a
-		 * price range. Drives the active-filters pill wrapper, the standalone
-		 * clear-filters block, and the filter-popover trigger. priceRange
-		 * counts as a filter here so a price-only selection (including a
-		 * half-open range like `?min_price=10`) doesn't leave the pill
-		 * wrapper hidden when the user has a chip to clear.
+		 * True when any facet is active — selected filter values, a
+		 * price range, or a static-filter selection. Drives the active-filters
+		 * pill wrapper, the standalone clear-filters block, and the
+		 * filter-popover trigger. priceRange counts as a filter here so a
+		 * price-only selection (including a half-open range like
+		 * `?min_price=10`) doesn't leave the pill wrapper hidden when the user
+		 * has a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
@@ -674,6 +724,12 @@ const { state, actions } = store( NAMESPACE, {
 				v => Array.isArray( v ) && v.length > 0
 			);
 			if ( hasSelections ) {
+				return true;
+			}
+			const hasStaticSelections = Object.values( state.staticFilterSelections ?? {} ).some(
+				v => !! v
+			);
+			if ( hasStaticSelections ) {
 				return true;
 			}
 			const range = state.priceRange;
@@ -687,7 +743,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * @return {number} Count of selected filter values.
 		 */
 		get activeFilterCount() {
-			return countActiveFilters( state.activeFilters );
+			const dynamic = countActiveFilters( state.activeFilters );
+			const staticCount = Object.values( state.staticFilterSelections ?? {} ).filter(
+				v => !! v
+			).length;
+			return dynamic + staticCount;
 		},
 
 		/**
@@ -961,20 +1021,46 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Replace the value of a single-select static filter (jetpack-search/filter-static).
+		 *
+		 * @param {Event} event - Change event from the radio input.
+		 * @yield {Promise} setStaticFilter action.
+		 */
+		*onStaticFilterChange( event ) {
+			const { filterKey } = getContext();
+			yield actions.setStaticFilter( filterKey, event.target.value );
+		},
+
+		/**
 		 * Run a search and replace the result list.
 		 *
-		 * @param {object}  [options]         - Options.
-		 * @param {boolean} [options.syncUrl] - Push new state to the URL after a
-		 *                                    successful fetch. Default `true`;
-		 *                                    pass `false` when the search was
-		 *                                    itself triggered by a URL change
-		 *                                    (e.g. `popstate`) so we don't
-		 *                                    bounce a new history entry back
-		 *                                    on top of the one the browser
-		 *                                    just navigated to.
+		 * @param {object}      [options]                 - Options.
+		 * @param {boolean}     [options.syncUrl]         - Push new state to the URL after a
+		 *                                                successful fetch. Default `true`;
+		 *                                                pass `false` when the search was
+		 *                                                itself triggered by a URL change
+		 *                                                (e.g. `popstate`) so we don't
+		 *                                                bounce a new history entry back
+		 *                                                on top of the one the browser
+		 *                                                just navigated to.
+		 * @param {object|null} [options.staticPostTypes] - The initiating Search Input's
+		 *                                                per-instance post-type scope
+		 *                                                (`{ include, exclude }`), or `null`
+		 *                                                for an unscoped input. Present only
+		 *                                                on input-initiated searches; persisted
+		 *                                                as the session's active scope. Re-runs
+		 *                                                from filters / sort / load-more omit
+		 *                                                the key so the active scope survives.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
-		*search( { syncUrl = true } = {} ) {
+		*search( options = {} ) {
+			const { syncUrl = true } = options;
+			// Persist the initiating input's scope (object or null) so subsequent
+			// non-input re-runs reuse it. Omitting the key (every non-input caller)
+			// leaves the active scope untouched.
+			if ( 'staticPostTypes' in options ) {
+				activePostTypeScope = options.staticPostTypes ?? null;
+			}
 			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.isLoadingMore = false;
@@ -1085,6 +1171,32 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Replace the value of a single-select static filter, then re-run the
+		 * search. Static filters store a scalar value per key (not an array
+		 * like `setFilter`) because each `jetpack-search/filter-static` block
+		 * renders mutually-exclusive radio inputs. Picking the currently
+		 * selected value clears it — same UX as legacy `setStaticFilter` in
+		 * the instant-search overlay.
+		 *
+		 * @param {string} filterKey   - The static filter's `filter_id`.
+		 * @param {string} filterValue - The newly-selected value, or '' to clear.
+		 * @yield {Promise} search action.
+		 */
+		*setStaticFilter( filterKey, filterValue ) {
+			const current = state.staticFilterSelections?.[ filterKey ] ?? '';
+			const next = { ...( state.staticFilterSelections ?? {} ) };
+			if ( current === filterValue ) {
+				// Re-picking the current radio clears the entry — mirrors the
+				// legacy overlay's radio "deselect" affordance.
+				delete next[ filterKey ];
+			} else {
+				next[ filterKey ] = filterValue;
+			}
+			state.staticFilterSelections = next;
+			yield actions.search();
+		},
+
+		/**
 		 * Toggle a filter value on or off, then re-run the search.
 		 *
 		 * Multiple selected values under the same filter key are kept in an
@@ -1139,6 +1251,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.activeFilters = {};
 			state.filterLogic = {};
 			state.priceRange = null;
+			state.staticFilterSelections = {};
 			yield actions.search();
 		},
 
@@ -1192,6 +1305,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterLogic: state.filterLogic,
 				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
+				staticFilterSelections: state.staticFilterSelections,
 				searchParamName: state.searchParamName,
 				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
@@ -1203,12 +1317,19 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
-				readStateFromUrl(
-					state.filterConfigs,
-					state.searchParamName,
-					state.isWooCommerceBlocksEnabled
-				);
+			const {
+				searchQuery,
+				hasSearchParam,
+				sortOrder,
+				activeFilters,
+				filterLogic,
+				priceRange,
+				staticFilterSelections,
+			} = readStateFromUrl(
+				state.filterConfigs,
+				state.searchParamName,
+				state.isWooCommerceBlocksEnabled
+			);
 			state.searchQuery = searchQuery;
 			// Keep `hasSearchParam` in lockstep with the live URL so any future
 			// reader (e.g. `showNoResults`) sees the current state rather than
@@ -1228,6 +1349,15 @@ const { state, actions } = store( NAMESPACE, {
 			// targets a non-taxonomy filter.
 			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
+			state.staticFilterSelections = gateStaticFilterSelections(
+				staticFilterSelections,
+				state.filterConfigs
+			).gated;
+			// No `staticPostTypes` key: a back/forward restore reuses the active
+			// per-instance scope from the last input interaction rather than the
+			// URL, because that scope is session-local and never serialized — a
+			// fresh load of the same URL won't carry it. Accepted trade-off of
+			// per-instance (vs. URL-round-tripped) scope.
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -1553,6 +1683,23 @@ const { state, actions } = store( NAMESPACE, {
 
 	callbacks: {
 		/**
+		 * Reactive `checked` binding for a static-filter radio. Reads the
+		 * per-`<li>` context to know which `filterKey` + `optionValue` pair
+		 * this radio represents, then compares against the store's
+		 * `staticFilterSelections[filterKey]`. Used by
+		 * `jetpack-search/filter-static`'s `render.php` so radios stay in
+		 * lockstep with the store across `clearFilters()`, `handlePopState()`,
+		 * and any other path that mutates `state.staticFilterSelections`
+		 * outside the radio's own `change` event.
+		 *
+		 * @return {boolean} Whether this radio should appear checked.
+		 */
+		isStaticFilterSelected() {
+			const { filterKey, optionValue } = getContext();
+			return state.staticFilterSelections?.[ filterKey ] === optionValue;
+		},
+
+		/**
 		 * Fires when the search-results block mounts. Runs the initial
 		 * search if the URL seeded a query and registers the popstate
 		 * listener. Guarded so multiple blocks on the same page share a
@@ -1573,6 +1720,21 @@ const { state, actions } = store( NAMESPACE, {
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
+			}
+			// Symmetric gate for static-filter selections — drop any key whose
+			// filter-static block isn't on the page anymore (e.g. a stale deep
+			// link from a since-removed registration).
+			if (
+				state.staticFilterSelections &&
+				Object.keys( state.staticFilterSelections ).length > 0
+			) {
+				const { gated: gatedStatic, droppedAny: droppedStatic } = gateStaticFilterSelections(
+					state.staticFilterSelections,
+					state.filterConfigs
+				);
+				if ( droppedStatic ) {
+					state.staticFilterSelections = gatedStatic;
+				}
 			}
 			// Re-gate filterLogic against the (possibly trimmed) activeFilters
 			// AND against the just-registered filterConfigs so a
@@ -1604,6 +1766,67 @@ const { state, actions } = store( NAMESPACE, {
 				state.isLoading = false;
 				state.skeletonHidden = true;
 			}
+		},
+
+		/**
+		 * Wires the results-load-more block's IntersectionObserver when its
+		 * `loadOnScroll` attribute is on. Returns a teardown that disconnects
+		 * the observer — the Interactivity runtime calls it on unmount and on
+		 * HMR re-init so listeners never leak.
+		 *
+		 * @return {Function|undefined} cleanup callback or undefined when the
+		 * block opted out at render time.
+		 */
+		initLoadMoreObserver() {
+			const wrapper = getElement?.()?.ref;
+			if ( ! wrapper || wrapper.dataset?.loadOnScroll !== '1' ) {
+				return;
+			}
+			if ( typeof IntersectionObserver === 'undefined' ) {
+				return;
+			}
+			const sentinel = wrapper.querySelector( '.jetpack-search-load-more__sentinel' );
+			if ( ! sentinel ) {
+				return;
+			}
+			const offset = Number( wrapper.dataset.loadOnScrollOffset );
+			const rootMargin = `0px 0px ${ Number.isFinite( offset ) ? offset : 200 }px 0px`;
+			// IntersectionObserver only fires on intersection *state changes*.
+			// When a page of results is too short to push the sentinel back
+			// outside the rootMargin after a fetch, no further events arrive
+			// and auto-load silently stalls. After each load settles we
+			// `unobserve` + `observe` again so the observer re-delivers its
+			// initial-state event against the current layout; if the sentinel
+			// is still intersecting we get a fresh `isIntersecting: true` and
+			// the next page fires without the user having to nudge the scroll.
+			let pending = false;
+			const observer = new IntersectionObserver(
+				entries => {
+					if ( ! entries.some( e => e.isIntersecting ) ) {
+						return;
+					}
+					if ( pending || ! state.showLoadMore || state.isLoadingMore ) {
+						return;
+					}
+					pending = true;
+					actions.loadMore();
+					const settle = () => {
+						if ( state.isLoadingMore ) {
+							setTimeout( settle, 100 );
+							return;
+						}
+						pending = false;
+						if ( state.showLoadMore ) {
+							observer.unobserve( sentinel );
+							observer.observe( sentinel );
+						}
+					};
+					setTimeout( settle, 100 );
+				},
+				{ root: null, rootMargin, threshold: 0 }
+			);
+			observer.observe( sentinel );
+			return () => observer.disconnect();
 		},
 
 		/**

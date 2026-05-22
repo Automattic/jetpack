@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Modules abilities: align the `jetpack` ability-category description and textdomain with the Connection package so the shared category definition does not drift between registrars.

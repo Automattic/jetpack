@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "dc868729e923f3ba834fa42cc9a2e156b89368b8"
+                "reference": "e90384cb6fab6777b72d9179a1b34fc88e4abd74"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -246,6 +246,15 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -1098,7 +1107,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "37cff8191289fa89742688ce970f25f702cb6ba8"
+                "reference": "30612a3e27b0391db94d602d42cd765a27985abf"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1114,6 +1123,7 @@
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"

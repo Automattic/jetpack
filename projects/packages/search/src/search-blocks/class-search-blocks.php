@@ -62,6 +62,15 @@ class Search_Blocks {
 	const WC_PRODUCT_SEARCH_TEMPLATE_SLUG = 'product-search-results';
 
 	/**
+	 * Lowest WooCommerce version that registers the `product-search-results`
+	 * block template. WooCommerce 6.5 bundled WooCommerce Blocks 7.4, the
+	 * release that first added the template; on anything older the WC-only
+	 * Search features have no template to front and no modern block
+	 * infrastructure to hang off, so the WC gate stays closed.
+	 */
+	const MIN_WOOCOMMERCE_VERSION = '6.5.0';
+
+	/**
 	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
 	 * method's local `static` so tests can clear it between cases via
 	 * `reset_initial_loading_cache()` — function-local statics aren't
@@ -186,6 +195,14 @@ class Search_Blocks {
 			Theme_Chrome_Slug_Resolver::register_hooks();
 		}
 
+		// When the blocks own the front-end search results, the server-side
+		// search is wasted work — short-circuit the main query the way Instant
+		// Search already does. (Classic / Instant init is also suppressed in
+		// `Initializer::init_search_blocks()`; see `owns_search_results()`.)
+		if ( ! is_admin() && static::owns_search_results() ) {
+			add_filter( 'posts_pre_query', array( static::class, 'filter__posts_pre_query' ), 10, 2 );
+		}
+
 		// Priority 20: after WooCommerce's priority-10 prepend (so the
 		// result is load-order independent), leaving 11-19 free for other
 		// integrations. The WC/product-search guard lives in the callback,
@@ -206,9 +223,58 @@ class Search_Blocks {
 		}
 
 		if ( static::is_block_template_overlay_enabled() ) {
+			Overlay_Template::init();
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
 			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
 		}
+	}
+
+	/**
+	 * Whether the Search blocks own the front-end search results for the active
+	 * experience, meaning the server should run no search of its own.
+	 *
+	 * True for Embedded (the blocks template takes over the search page) and for
+	 * the enabled blocks Overlay (a full-screen modal over the theme's search
+	 * page). The Overlay arm goes through `is_block_template_overlay_enabled()`
+	 * — operator filter plus saved experience — so a stale `overlay_blocks`
+	 * option can't keep suppressing server search after the overlay is turned
+	 * off. Drives both the Classic/Instant init suppression in
+	 * `Initializer::init_search_blocks()` and the `posts_pre_query` short-circuit
+	 * registered in `init()`.
+	 *
+	 * @return bool
+	 */
+	public static function owns_search_results(): bool {
+		return Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience()
+			|| static::is_block_template_overlay_enabled();
+	}
+
+	/**
+	 * Bypass the main search query for the blocks-driven experiences.
+	 *
+	 * Registered on `posts_pre_query` only when `owns_search_results()` is true
+	 * and off `is_admin()` (see `init()`). The guard here just has to confirm
+	 * this is the main front-end search query and let everything else (secondary
+	 * queries, REST requests, non-search routes) fall through.
+	 *
+	 * WP core skips `set_found_posts()` when `posts_pre_query` returns an array,
+	 * so the pagination totals are set by hand — `1` rather than `0` so
+	 * `have_posts()`-gated templates still render the shell the client hydrates.
+	 *
+	 * @param array|null $posts Posts to return in place of the query (null by default).
+	 * @param \WP_Query  $query The WP_Query being filtered.
+	 *
+	 * @return array|null Empty array to short-circuit the query, or $posts to let it run.
+	 */
+	public static function filter__posts_pre_query( $posts, $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+			return $posts;
+		}
+
+		$query->found_posts   = 1;
+		$query->max_num_pages = 1;
+
+		return array();
 	}
 
 	/**
@@ -348,10 +414,11 @@ class Search_Blocks {
 	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
 	 * force the gate either way regardless of WC's plugin state — e.g. a
 	 * Woo site hiding WC-only blocks on a non-shop content area, or a
-	 * non-Woo site previewing them in staging. Default is the
-	 * `class_exists( 'WooCommerce', false )` probe. Filter fires once per
-	 * request before the result is memoized, so an expensive callback
-	 * (DB probe, option read) pays its cost at most once.
+	 * non-Woo site previewing them in staging. Default is a
+	 * `class_exists( 'WooCommerce', false )` probe gated on
+	 * `woocommerce_version_supported()`. Filter fires once per request
+	 * before the result is memoized, so an expensive callback (DB probe,
+	 * option read) pays its cost at most once.
 	 *
 	 * @return bool
 	 */
@@ -360,18 +427,21 @@ class Search_Blocks {
 			// Pass `false` so a missing class doesn't fire the autoloader
 			// on non-Woo sites — the gate is hit on every request, and
 			// any upstream autoloader work is wasted when the answer is "no".
-			$probed = class_exists( 'WooCommerce', false );
+			// Also require a WooCommerce new enough to register the
+			// `product-search-results` template (see MIN_WOOCOMMERCE_VERSION).
+			$probed = class_exists( 'WooCommerce', false ) && self::woocommerce_version_supported();
 
 			/**
 			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
 			 * filter variations, and render paths. Default is the
-			 * `class_exists( 'WooCommerce', false )` probe; cast to bool
-			 * before caching so a truthy non-bool return (e.g. `1`)
-			 * doesn't poison strictly-typed callers.
+			 * `class_exists( 'WooCommerce', false )` probe AND a minimum
+			 * WooCommerce version check; cast to bool before caching so a
+			 * truthy non-bool return (e.g. `1`) doesn't poison
+			 * strictly-typed callers.
 			 *
 			 * @since 0.59.0
 			 *
-			 * @param bool $enabled Defaults to the WooCommerce class probe.
+			 * @param bool $enabled Defaults to the WooCommerce class + version probe.
 			 */
 			self::$woocommerce_blocks_enabled_cache = (bool) apply_filters(
 				'jetpack_search_woocommerce_blocks_enabled',
@@ -379,6 +449,27 @@ class Search_Blocks {
 			);
 		}
 		return self::$woocommerce_blocks_enabled_cache;
+	}
+
+	/**
+	 * Whether the active WooCommerce is recent enough to register the
+	 * `product-search-results` block template the WC-only Search features
+	 * depend on (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`). An older or
+	 * absent WooCommerce reads as unsupported.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|null $version WooCommerce version to test; defaults to the
+	 *   live `WC_VERSION` constant. The override exists so tests can pin a
+	 *   version without polluting global constants.
+	 * @return bool
+	 */
+	public static function woocommerce_version_supported( ?string $version = null ): bool {
+		// `constant()` rather than a bare `WC_VERSION` so static analysis
+		// doesn't flag it as undeclared — WooCommerce isn't a dependency of
+		// this package (cf. the mirrored WC_PRODUCT_SEARCH_TEMPLATE_SLUG).
+		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
 	/**
@@ -1009,11 +1100,26 @@ class Search_Blocks {
 	 * the headings directly, matching the legacy overlay's per-filter
 	 * subheading layout.
 	 *
+	 * Source of truth, in order:
+	 *
+	 *   1. The customized singleton CPT (`Overlay_Template`), if an admin
+	 *      has saved one via the dashboard's "Edit the Search overlay" link.
+	 *   2. The bundled `templates/jetpack-search-overlay.html` file.
+	 *
+	 * Memoized per-request. The customization branch is hit at most once
+	 * per request even when the singleton's content is empty, because
+	 * `Overlay_Template::get_customized_content()` does its own caching.
+	 *
 	 * @return string Block markup for the overlay body.
 	 */
 	protected static function get_overlay_template_content(): string {
 		static $content = null;
 		if ( null !== $content ) {
+			return $content;
+		}
+		$customized = Overlay_Template::get_customized_content();
+		if ( null !== $customized ) {
+			$content = $customized;
 			return $content;
 		}
 		$template_path = __DIR__ . '/templates/jetpack-search-overlay.html';
@@ -1700,6 +1806,13 @@ CSS;
 			'activeFilters'              => $active_filters,
 			'filterLogic'                => $filter_logic,
 			'priceRange'                 => $price_range,
+			// Static filters (`jetpack-search/filter-static`) round-trip as
+			// scalar `?filter_id=value` URL params. The block's render.php
+			// merges the URL-seeded selections in alongside its filterConfig
+			// entry so a deep link pre-checks the right radio. Seeded as an
+			// empty object here so JS readers always see a defined shape on
+			// pages without the block.
+			'staticFilterSelections'     => (object) array(),
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,

@@ -37,5 +37,19 @@ export declare global {
 				assets: {
 					buildUrl: string;
 				};
+				pricing: null | {
+					title: string;
+					features: string[];
+					yearly: {
+						slug: string;
+						name: string;
+						price: number;
+						priceByMonth: number;
+						currency: string;
+						discount?: number;
+						salePrice?: number;
+						salePriceByMonth?: number;
+					};
+				};
 		  };
 }

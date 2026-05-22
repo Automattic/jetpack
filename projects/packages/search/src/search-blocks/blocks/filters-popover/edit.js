@@ -1,10 +1,13 @@
 /**
  * Editor preview for jetpack-search/filters-popover.
  *
- * Renders the trigger + a closed panel in the editor so the full Search
- * pattern preview mirrors the front-end default state.
+ * Two display modes share this block. `popover-always` (default) shows the trigger button
+ * to signal the runtime collapse, but children still render inline so authors can edit them.
+ * `responsive` renders children inline, mirroring the ≥992px front-end appearance; CSS swaps
+ * in the trigger + popover below. Runtime visibility is class-driven.
  */
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { PanelBody, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const TEMPLATE = [
@@ -22,43 +25,82 @@ const ALLOWED = [
 	'jetpack-search/filter-post-type',
 ];
 
+const DISPLAY_MODE_OPTIONS = [
+	{
+		value: 'popover-always',
+		label: __( 'Always collapsed (popover)', 'jetpack-search-pkg' ),
+	},
+	{
+		value: 'responsive',
+		label: __( 'Inline on desktop, popover on mobile', 'jetpack-search-pkg' ),
+	},
+];
+
 /**
  * Edit component for the filters-popover block.
  *
+ * @param {object}   props               - Block props.
+ * @param {object}   props.attributes    - Block attributes.
+ * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
-export default function FiltersPopoverEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-filters-popover' } );
+export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
+	const displayMode = attributes?.displayMode === 'responsive' ? 'responsive' : 'popover-always';
+	const isResponsive = displayMode === 'responsive';
+	const blockProps = useBlockProps( {
+		className: `jetpack-search-filters-popover is-mode-${ displayMode } is-editor-preview`,
+	} );
+
 	return (
-		<div { ...blockProps }>
-			<button
-				type="button"
-				className="jetpack-search-filters-popover__trigger"
-				aria-haspopup="dialog"
-				aria-expanded="false"
-				disabled
-			>
-				<svg
-					className="jetpack-search-filters-popover__icon"
-					width={ 18 }
-					height={ 18 }
-					viewBox="0 0 24 24"
-					aria-hidden="true"
-					focusable="false"
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Display mode', 'jetpack-search-pkg' ) }
+						value={ displayMode }
+						options={ DISPLAY_MODE_OPTIONS }
+						onChange={ value => setAttributes( { displayMode: value } ) }
+						help={ __(
+							'Responsive shows the filters inline on wider screens and collapses them to a popover button on narrow ones.',
+							'jetpack-search-pkg'
+						) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...blockProps }>
+				{ ! isResponsive && (
+					<button
+						type="button"
+						className="jetpack-search-filters-popover__trigger"
+						aria-expanded="false"
+						disabled
+					>
+						<svg
+							className="jetpack-search-filters-popover__icon"
+							width={ 18 }
+							height={ 18 }
+							viewBox="0 0 24 24"
+							aria-hidden="true"
+							focusable="false"
+						>
+							<path fill="currentColor" d="M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z" />
+						</svg>
+						<span className="screen-reader-text">
+							{ __( 'Filter results', 'jetpack-search-pkg' ) }
+						</span>
+					</button>
+				) }
+				<div
+					className="jetpack-search-filters-popover__panel"
+					role="region"
+					aria-label={ __( 'Search filters', 'jetpack-search-pkg' ) }
 				>
-					<path fill="currentColor" d="M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z" />
-				</svg>
-				<span className="screen-reader-text">{ __( 'Filter results', 'jetpack-search-pkg' ) }</span>
-			</button>
-			<div
-				className="jetpack-search-filters-popover__panel jetpack-search-filters-popover__panel--editor"
-				role="dialog"
-				aria-label={ __( 'Filters', 'jetpack-search-pkg' ) }
-				hidden
-			>
-				<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
+					<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
 

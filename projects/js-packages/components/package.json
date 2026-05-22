@@ -28,6 +28,11 @@
 			"types": "./build/components/admin-page/index.d.ts",
 			"default": "./build/components/admin-page/index.js"
 		},
+		"./button": {
+			"jetpack:src": "./components/button/index.tsx",
+			"types": "./build/components/button/index.d.ts",
+			"default": "./build/components/button/index.js"
+		},
 		"./global-notices": {
 			"jetpack:src": "./components/global-notices/index.ts",
 			"types": "./build/components/global-notices/index.d.ts",
@@ -47,6 +52,16 @@
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
 			"types": "./build/components/jetpack-logo/index.d.ts",
 			"default": "./build/components/jetpack-logo/index.js"
+		},
+		"./pricing-table": {
+			"jetpack:src": "./components/pricing-table/index.tsx",
+			"types": "./build/components/pricing-table/index.d.ts",
+			"default": "./build/components/pricing-table/index.js"
+		},
+		"./product-price": {
+			"jetpack:src": "./components/product-price/index.tsx",
+			"types": "./build/components/product-price/index.d.ts",
+			"default": "./build/components/product-price/index.js"
 		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",

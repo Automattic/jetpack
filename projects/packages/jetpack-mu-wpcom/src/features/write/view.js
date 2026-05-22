@@ -15,6 +15,9 @@ import { createUndoHistory } from 'wpcom-write/undo-history';
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
 
+// Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
+let activeBlockquote = null;
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
@@ -207,7 +210,9 @@ function stripRuntimeFigureControls( root ) {
 		wrapper.remove();
 	} );
 	root
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
+		)
 		.forEach( el => el.remove() );
 }
 
@@ -319,6 +324,140 @@ function getContent() {
 	return cachedContent;
 }
 
+// Image size presets we ship. Alignment, wide/full layouts, and custom
+// widths stay in the block editor (see RSM-3472).
+const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
+
+// Cache of media library size lookups keyed by attachment ID.  Populated
+// at upload time from the API response, then again lazily when the user
+// changes the size of a figure loaded from a saved post.
+const mediaSizesCache = new Map();
+
+/**
+ * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
+ *
+ * @param {HTMLImageElement} img - The image element.
+ * @return {number|null} Numeric attachment ID, or null when the class is absent.
+ */
+function getMediaIdFromImg( img ) {
+	if ( ! img ) return null;
+	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
+	return match ? parseInt( match[ 1 ], 10 ) : null;
+}
+
+/**
+ * Get the registered media-library sizes for an attachment, caching the
+ * result. Returns null for images without a media library ID (e.g. inserted
+ * from an external URL).
+ *
+ * The Promise is cached (not just the resolved value) so two rapid size
+ * changes on the same image share one REST request instead of racing.
+ *
+ * @param {number} id - Attachment ID.
+ * @return {Promise<Object|null>} Resolves to the sizes object, or null.
+ */
+function fetchMediaSizes( id ) {
+	if ( mediaSizesCache.has( id ) ) return mediaSizesCache.get( id );
+	const promise = window.wp
+		.apiFetch( { path: `/wp/v2/media/${ id }` } )
+		.then( media => media.media_details?.sizes || null )
+		.catch( () => null );
+	mediaSizesCache.set( id, promise );
+	return promise;
+}
+
+/**
+ * Swap an image's src to the registered media-library URL for the given
+ * size, plus update width/height attributes so the rendered size is right
+ * everywhere — block editor, published page, RSS.
+ *
+ * No-op if the image isn't in the media library or the requested size
+ * isn't registered (theme/plugin chose not to generate it).
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug ('thumbnail' / 'medium' / 'large' / 'full').
+ */
+async function applyMediaSizeToFigure( fig, slug ) {
+	const img = fig.querySelector( 'img' );
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return;
+	const sizes = await fetchMediaSizes( id );
+	const target = sizes?.[ slug ] || sizes?.full;
+	if ( ! target?.source_url ) return;
+	img.src = target.source_url;
+	if ( target.width ) img.setAttribute( 'width', target.width );
+	if ( target.height ) img.setAttribute( 'height', target.height );
+}
+
+// In-flight applyMediaSizeToFigure promises. savePost awaits these before
+// cloning content so a save fired between a size click and the REST
+// response doesn't serialize the new size class with the old src.
+const pendingMediaSizeSwaps = new Set();
+
+/**
+ * Register an in-flight applyMediaSizeToFigure promise so savePost can wait
+ * for it before serializing.
+ *
+ * @param {Promise} promise - The applyMediaSizeToFigure call.
+ * @return {Promise} The same promise, for chaining.
+ */
+function trackMediaSizeSwap( promise ) {
+	pendingMediaSizeSwaps.add( promise );
+	promise.finally( () => pendingMediaSizeSwaps.delete( promise ) );
+	return promise;
+}
+
+/**
+ * Toggle a size class on a figure, replacing any existing one.
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug or '' (clear).
+ */
+function setFigureSize( fig, slug ) {
+	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
+	if ( slug ) fig.classList.add( 'size-' + slug );
+}
+
+/**
+ * Deselect the currently-selected figure, if any, and optionally
+ * restore the cursor position saved before the figure was selected.
+ *
+ * @param {boolean} restoreCursor - Whether to restore the saved cursor
+ *                                position. Pass false when the caller sets its own cursor (e.g. click).
+ */
+function clearFigureSelection( restoreCursor = true ) {
+	if ( selectedFigure ) {
+		selectedFigure.classList.remove( 'bw-figure-selected' );
+		selectedFigure = null;
+	}
+	if ( restoreCursor && preFigureSelectionRange ) {
+		const sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange( preFigureSelectionRange );
+	}
+	preFigureSelectionRange = null;
+}
+
+// Deselect figure on any click — don't restore the saved cursor
+// because the click itself places the caret where the user wants it.
+document.addEventListener( 'click', () => clearFigureSelection( false ) );
+
+// Close any open per-image Size dropdown on outside click.  One listener
+// total — avoids the per-figure listener accumulation that would otherwise
+// pile up as users insert / undo / redo images over a session.
+// The menu's own trigger button is its previousElementSibling; only clicks
+// on *that* button are exempt, so clicking a different image's Size button
+// still closes the menu (and lets that image's button open its own menu).
+document.addEventListener( 'click', ev => {
+	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
+	if ( ! openMenu ) return;
+	if ( openMenu.contains( ev.target ) ) return;
+	const trigger = openMenu.previousElementSibling;
+	if ( trigger && trigger.contains( ev.target ) ) return;
+	openMenu.hidden = true;
+	trigger?.setAttribute( 'aria-expanded', 'false' );
+} );
+
 /**
  * Whether the editor has anything worth saving — non-empty title, any
  * text content, or a media/separator block. Used by actions that need a
@@ -345,30 +484,6 @@ function hasWritableContent() {
 	}
 	return !! content.querySelector( 'figure, hr' );
 }
-
-/**
- * Deselect the currently-selected figure, if any, and optionally
- * restore the cursor position saved before the figure was selected.
- *
- * @param {boolean} restoreCursor - Whether to restore the saved cursor
- *                                position. Pass false when the caller sets its own cursor (e.g. click).
- */
-function clearFigureSelection( restoreCursor = true ) {
-	if ( selectedFigure ) {
-		selectedFigure.classList.remove( 'bw-figure-selected' );
-		selectedFigure = null;
-	}
-	if ( restoreCursor && preFigureSelectionRange ) {
-		const sel = window.getSelection();
-		sel.removeAllRanges();
-		sel.addRange( preFigureSelectionRange );
-	}
-	preFigureSelectionRange = null;
-}
-
-// Deselect figure on any click — don't restore the saved cursor
-// because the click itself places the caret where the user wants it.
-document.addEventListener( 'click', () => clearFigureSelection( false ) );
 
 /**
  * If the cursor is at the edge of a block adjacent to a figure, return
@@ -694,19 +809,84 @@ function convertToBlocks( html ) {
 			const captionHtml = figcaption
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
+
+			// Read figure size class + the `wp-image-<id>` class for the
+			// media library attachment ID.  These map to core wp:image
+			// attributes so the published markup matches what the block
+			// editor would emit, and the block editor can re-open these
+			// images without surprises.
+			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
+				node.classList.contains( 'size-' + s )
+			);
+			const mediaId = getMediaIdFromImg( img );
+
+			const imageAttrs = [];
+			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
+			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
+			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
+
+			const figureClasses = [ 'wp-block-image' ];
+			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
+
+			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ escapeAttr(
-					src
-				) }" alt="${ escapeAttr( alt ) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
+					' '
+				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
+					alt
+				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
-			// inner may already contain <p> tags from contentEditable.
-			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			// Extract citation from <cite> if present.
+			// Strip lone <br> tags that contentEditable inserts into empty elements.
+			const citeEl = node.querySelector( 'cite' );
+			const citationHtml = citeEl ? citeEl.innerHTML.trim().replace( /^<br\s*\/?>$/, '' ) : '';
+
+			// Remove <cite> and any trailing <br> from the DOM so they don't
+			// end up inside the serialized <p> tags.
+			if ( citeEl ) {
+				citeEl.remove();
+			}
+			// Strip trailing <br> elements left between quote text and removed <cite>.
+			while (
+				node.lastChild &&
+				node.lastChild.nodeType === Node.ELEMENT_NODE &&
+				node.lastChild.tagName === 'BR'
+			) {
+				node.lastChild.remove();
+			}
+			const bodyInner = node.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+			const quoteInner = bodyInner.startsWith( '<p' ) ? bodyInner : `<p>${ bodyInner }</p>`;
+
 			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
 			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
-			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
+
+			// Build JSON attrs.
+			const attrs = {};
+			if ( hasQuoteAlign ) {
+				attrs.align = align;
+			}
+			if ( citationHtml ) {
+				attrs.citation = citationHtml;
+			}
+			// Escape characters that WordPress core escapes inside block
+			// comment attributes (see serializeAttributes in @wordpress/blocks).
+			const jsonAttr = Object.keys( attrs ).length
+				? ' ' +
+				  JSON.stringify( attrs )
+						.replaceAll( '\\\\', '\\u005c' )
+						.replaceAll( '--', '\\u002d\\u002d' )
+						.replaceAll( '<', '\\u003c' )
+						.replaceAll( '>', '\\u003e' )
+						.replaceAll( '&', '\\u0026' )
+						.replaceAll( '\\"', '\\u0022' )
+				: '';
+
+			const citeHtml = citationHtml ? `<cite>${ citationHtml }</cite>` : '';
+
 			blocks.push(
-				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
 			// Wrap each <li> in wp:list-item block comments.
@@ -1252,6 +1432,114 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( capBtn );
 
+		// Size button + dropdown (only for media-library images: external
+		// URLs have no registered sizes to swap between).
+		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
+		if ( isMediaLibrary ) {
+			const sizeBtn = document.createElement( 'button' );
+			sizeBtn.className = 'bw-img-size';
+			sizeBtn.textContent = i18n.size || 'Size';
+			sizeBtn.contentEditable = 'false';
+			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
+			sizeBtn.setAttribute( 'aria-expanded', 'false' );
+
+			const menu = document.createElement( 'div' );
+			menu.className = 'bw-img-size-menu';
+			menu.contentEditable = 'false';
+			menu.hidden = true;
+			menu.setAttribute( 'role', 'menu' );
+			const sizeOptions = [
+				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
+				[ 'medium', i18n.sizeMedium || 'Medium' ],
+				[ 'large', i18n.sizeLarge || 'Large' ],
+				[ 'full', i18n.sizeFull || 'Full' ],
+			];
+			sizeOptions.forEach( ( [ slug, label ] ) => {
+				const opt = document.createElement( 'button' );
+				opt.className = 'bw-img-size-option';
+				opt.textContent = label;
+				opt.contentEditable = 'false';
+				opt.setAttribute( 'role', 'menuitemradio' );
+				opt.dataset.size = slug;
+				opt.tabIndex = -1;
+				opt.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					ev.stopPropagation();
+					setFigureSize( fig, slug );
+					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
+					closeSizeMenu( true );
+				} );
+				menu.appendChild( opt );
+			} );
+
+			const openSizeMenu = () => {
+				// Close any other image's open Size menu first.  sizeBtn's click
+				// handler stops propagation so the document-level outside-click
+				// listener can't do this for us.
+				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
+					if ( other === menu ) return;
+					other.hidden = true;
+					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
+				} );
+				// Mark the option that matches the figure's current size class
+				// (none on figures loaded without an explicit sizeSlug).
+				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				options.forEach( opt => {
+					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
+				} );
+				menu.hidden = false;
+				sizeBtn.setAttribute( 'aria-expanded', 'true' );
+				// Focus the current option so arrow keys move from there.
+				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
+				focusTarget?.focus();
+			};
+			const closeSizeMenu = ( returnFocus = false ) => {
+				menu.hidden = true;
+				sizeBtn.setAttribute( 'aria-expanded', 'false' );
+				if ( returnFocus ) sizeBtn.focus();
+			};
+
+			sizeBtn.addEventListener( 'click', ev => {
+				ev.preventDefault();
+				ev.stopPropagation();
+				if ( menu.hidden ) {
+					openSizeMenu();
+				} else {
+					closeSizeMenu();
+				}
+			} );
+
+			// Arrow / Home / End / Escape navigation within the open menu.
+			menu.addEventListener( 'keydown', ev => {
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				const idx = options.indexOf( menu.ownerDocument.activeElement );
+				if ( ev.key === 'ArrowDown' ) {
+					ev.preventDefault();
+					options[ ( idx + 1 ) % options.length ]?.focus();
+				} else if ( ev.key === 'ArrowUp' ) {
+					ev.preventDefault();
+					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
+				} else if ( ev.key === 'Home' ) {
+					ev.preventDefault();
+					options[ 0 ]?.focus();
+				} else if ( ev.key === 'End' ) {
+					ev.preventDefault();
+					options[ options.length - 1 ]?.focus();
+				} else if ( ev.key === 'Escape' ) {
+					ev.preventDefault();
+					closeSizeMenu( true );
+				} else if ( ev.key === 'Tab' ) {
+					// Tab out of the menu closes it.  The browser handles the
+					// focus move; we just clean up state.
+					closeSizeMenu();
+				}
+			} );
+
+			controls.appendChild( sizeBtn );
+			controls.appendChild( menu );
+		}
+
 		// Enter inside the figcaption exits to the next block. Attached on every
 		// figure init (not just on first caption-button click) so it survives an
 		// undo that restored a figure with a pre-existing figcaption — the
@@ -1296,6 +1584,18 @@ const contentReady2 = setInterval( () => {
 	// Run the block-structure audit immediately so gap paragraphs are
 	// inserted and the user can start editing right away.
 	ensureBlockStructure();
+
+	// Wire up existing <cite> elements in blockquotes with the placeholder
+	// attribute so the CSS placeholder appears if the user clears the text.
+	contentEl.querySelectorAll( 'blockquote cite' ).forEach( cite => {
+		if ( ! cite.hasAttribute( 'data-placeholder' ) ) {
+			cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+		}
+		if ( ! cite.hasAttribute( 'aria-label' ) ) {
+			cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
+		}
+	} );
+
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
 		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
 		// Input events from the inner contenteditable bubble up to the outer,
@@ -1407,6 +1707,9 @@ async function uploadFileToMedia( file ) {
 			state.featuredMediaId = media.id;
 		}
 		state.uploadedMediaId = media.id;
+		// Prime the cache so insertImageFromUrl can use it without a
+		// second REST roundtrip.
+		mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 
 		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
@@ -1531,6 +1834,67 @@ function insertNewList( listTag ) {
 }
 
 /**
+ * Find the blockquote element containing the current cursor, if any.
+ *
+ * @return {HTMLElement|null} The blockquote element or null.
+ */
+function getActiveBlockquote() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Check if the current cursor is inside a <cite> element within a blockquote.
+ *
+ * @return {HTMLElement|null} The <cite> element, or null.
+ */
+function getActiveCite() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'CITE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Ensure a blockquote has a <cite> placeholder for attribution.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to add the placeholder to.
+ */
+function ensureCitePlaceholder( blockquote ) {
+	if ( blockquote.querySelector( 'cite' ) ) return;
+	const cite = document.createElement( 'cite' );
+	cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+	cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
+	blockquote.appendChild( cite );
+}
+
+/**
+ * Remove an empty <cite> placeholder from a blockquote.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to clean up.
+ */
+function removeEmptyCite( blockquote ) {
+	const cite = blockquote.querySelector( 'cite' );
+	if ( cite && ! cite.textContent.trim() ) {
+		cite.remove();
+	}
+}
+
+/**
  * Detect the current formatting state at the cursor position.
  * Updates all toolbar button states.
  */
@@ -1585,6 +1949,30 @@ function updateFormattingState() {
 	// Justify is paragraph-only; disable the toolbar button inside lists,
 	// headings, and quotes where browser justification would look poor.
 	state.cannotJustify = state.insideList || state.formatHeading || state.formatQuote;
+
+	// Citation placeholder lifecycle.
+	const currentBlockquote = getActiveBlockquote();
+	if ( currentBlockquote !== activeBlockquote ) {
+		// Capture dirty state before modifying the DOM, so we can re-sync
+		// the snapshot only when the placeholder is the sole difference.
+		const wasDirty = isDirty();
+
+		// Leaving a blockquote — clean up empty placeholder.
+		if ( activeBlockquote ) {
+			removeEmptyCite( activeBlockquote );
+		}
+		// Entering a blockquote — ensure placeholder exists.
+		if ( currentBlockquote ) {
+			ensureCitePlaceholder( currentBlockquote );
+		}
+		activeBlockquote = currentBlockquote;
+
+		// Re-sync the snapshot only when the editor was clean before the
+		// placeholder DOM change, so real edits stay dirty.
+		if ( ! wasDirty ) {
+			updateSavedSnapshot();
+		}
+	}
 }
 
 /**
@@ -2571,8 +2959,40 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Enter key: break out of blockquotes/headings and ensure paragraphs.
+			// Backspace in an empty <cite>: remove it and move cursor to quote body.
+			if ( event.key === 'Backspace' ) {
+				const cite = getActiveCite();
+				if ( cite && ! cite.textContent.trim() ) {
+					event.preventDefault();
+					const bq = cite.closest( 'blockquote' );
+					cite.remove();
+					if ( bq ) {
+						const lastP = bq.querySelector( 'p:last-of-type' );
+						if ( lastP ) {
+							placeCursorAtEnd( lastP );
+						}
+					}
+					return;
+				}
+			}
+
+			// Enter key: handle cite break-out and blockquote/heading break-out.
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				// Inside a blockquote <cite>: break out to a new paragraph.
+				const cite = getActiveCite();
+				if ( cite ) {
+					const bq = cite.closest( 'blockquote' );
+					if ( bq ) {
+						event.preventDefault();
+						const p = document.createElement( 'p' );
+						p.innerHTML = '<br>';
+						bq.after( p );
+						placeCursorAt( p );
+						return;
+					}
+				}
+
+				// Break out of blockquotes/headings and ensure paragraphs.
 				const sel = window.getSelection();
 				if ( sel.rangeCount ) {
 					let node = sel.anchorNode;
@@ -2595,7 +3015,15 @@ const { state } = store( 'wpcom-write', {
 						const textAfterCursor = range.cloneRange();
 						textAfterCursor.selectNodeContents( block );
 						textAfterCursor.setStart( range.endContainer, range.endOffset );
-						const remaining = textAfterCursor.toString().trim();
+
+						// Exclude <cite> text from the "remaining" check so Enter at the
+						// end of quote body text breaks out even when a citation follows.
+						const tmpFrag = textAfterCursor.cloneContents();
+						const citeFrag = tmpFrag.querySelector( 'cite' );
+						if ( citeFrag ) {
+							citeFrag.remove();
+						}
+						const remaining = tmpFrag.textContent.trim();
 
 						if ( ! remaining ) {
 							event.preventDefault();
@@ -2940,8 +3368,20 @@ const { state } = store( 'wpcom-write', {
 		// --- Alignment ---
 
 		alignLeft() {
-			document.execCommand( 'justifyLeft' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Left is the default — remove explicit alignment from
+				// the blockquote and any inner paragraphs.
+				flushUndoDebounce();
+				bq.style.removeProperty( 'text-align' );
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyLeft' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = true;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = false;
@@ -2949,8 +3389,20 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignCenter() {
-			document.execCommand( 'justifyCenter' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Apply alignment to the blockquote itself so
+				// convertToBlocks reads it from node.style.textAlign.
+				flushUndoDebounce();
+				bq.style.textAlign = 'center';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyCenter' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = true;
 			state.formatAlignRight = false;
@@ -2958,8 +3410,18 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		alignRight() {
-			document.execCommand( 'justifyRight' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				flushUndoDebounce();
+				bq.style.textAlign = 'right';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyRight' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = true;
@@ -3225,6 +3687,12 @@ const { state } = store( 'wpcom-write', {
 
 		updateImageUrl() {
 			const el = getElement();
+			// Typing in the URL field overrides any pending upload — clear
+			// the media ID so insertImageFromUrl doesn't apply uploaded-size
+			// behavior to a manually pasted external URL.
+			if ( state.uploadedMediaId && el.ref.value !== state.imageUrl ) {
+				state.uploadedMediaId = 0;
+			}
 			state.imageUrl = el.ref.value;
 		},
 
@@ -3238,11 +3706,25 @@ const { state } = store( 'wpcom-write', {
 
 			restoreSelection();
 			const figure = document.createElement( 'figure' );
-			figure.className = 'bw-image-figure';
 			const img = document.createElement( 'img' );
 			img.src = state.imageUrl;
 			img.alt = state.imageAlt || '';
-			figure.appendChild( img );
+
+			if ( state.uploadedMediaId ) {
+				// Media-library image: tag it for round-trip with the block
+				// editor and swap src to the Large-sized URL so the natural
+				// img dimensions match the default preset.
+				img.className = 'wp-image-' + state.uploadedMediaId;
+				figure.className = 'bw-image-figure size-large';
+				figure.appendChild( img );
+				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
+			} else {
+				// External URL (no media library entry, no resized files):
+				// no size preset — the per-image Size button is hidden, matching
+				// block editor behavior.
+				figure.className = 'bw-image-figure';
+				figure.appendChild( img );
+			}
 
 			const p = insertMediaBlock( figure );
 			if ( p ) {
@@ -3843,6 +4325,14 @@ async function savePost( postStatus, isAutosave = false ) {
 		state.message = savingMessage;
 	}
 
+	// Wait for any in-flight image size swaps to finish so the saved
+	// content's img.src matches its size-* class. Without this, a save
+	// fired between a size click and the REST response would serialize
+	// the new size class with the old src.
+	if ( pendingMediaSizeSwaps.size ) {
+		await Promise.allSettled( [ ...pendingMediaSizeSwaps ] );
+	}
+
 	// Ensure the live DOM has proper structure before cloning — this
 	// converts any gap-only state into a real editable paragraph so
 	// the save doesn't produce blank content.
@@ -3877,6 +4367,10 @@ async function savePost( postStatus, isAutosave = false ) {
 	// runtime attribute that shouldn't be persisted.
 	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
 		el.removeAttribute( 'contenteditable' );
+	} );
+	clone.querySelectorAll( 'blockquote cite' ).forEach( el => {
+		el.removeAttribute( 'data-placeholder' );
+		el.removeAttribute( 'aria-label' );
 	} );
 	stripRuntimeFigureControls( clone );
 

@@ -12,6 +12,14 @@
 const mockRecordEvent = jest.fn();
 const mockNavigate = jest.fn();
 const mockGetSiteType = jest.fn( () => 'jetpack' );
+const mockGetSiteData = jest.fn( () => ( {
+	rest_root: 'https://example.com/wp-json/',
+	rest_nonce: 'test-nonce',
+	admin_url: 'https://example.com/wp-admin/',
+} ) );
+// Captures the props the shell passes to `AdminPage` so we can assert the
+// REST root/nonce wiring that keeps the Settings tab off a relative root.
+const mockAdminPageProps = jest.fn();
 const mockGetNewsletterScriptData = jest.fn< unknown, [] >();
 // `mockTabsOnValueChange` is the `onValueChange` callback captured by the
 // `@wordpress/ui` mock below. Tests can call it directly to drive the
@@ -29,6 +37,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: () => mockGetSiteType(),
+	getSiteData: () => mockGetSiteData(),
 } ) );
 
 // `AdminPage` owns the header (logo + title) and the `JetpackFooter`. The mock
@@ -37,15 +46,19 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 // wiring without pulling in admin-ui internals.
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { children, actions, title, subTitle, showFooter } ) => (
-		<div data-testid="admin-page">
-			<div data-testid="page-title">{ title }</div>
-			<div data-testid="page-subtitle">{ subTitle }</div>
-			<div data-testid="page-actions">{ actions }</div>
-			{ children }
-			{ showFooter && <div data-testid="jetpack-footer" /> }
-		</div>
-	),
+	default: props => {
+		mockAdminPageProps( props );
+		const { children, actions, title, subTitle, showFooter } = props;
+		return (
+			<div data-testid="admin-page">
+				<div data-testid="page-title">{ title }</div>
+				<div data-testid="page-subtitle">{ subTitle }</div>
+				<div data-testid="page-actions">{ actions }</div>
+				{ children }
+				{ showFooter && <div data-testid="jetpack-footer" /> }
+			</div>
+		);
+	},
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -100,6 +113,8 @@ beforeEach( () => {
 	mockNavigate.mockReset();
 	mockGetSiteType.mockReset();
 	mockGetSiteType.mockReturnValue( 'jetpack' );
+	mockGetSiteData.mockClear();
+	mockAdminPageProps.mockClear();
 	mockGetNewsletterScriptData.mockReset();
 	mockGetNewsletterScriptData.mockReturnValue( { subscriberManagementEnabled: true } );
 	mockTabsOnValueChange.current = null;
@@ -233,5 +248,24 @@ describe( 'NewsletterPage tab navigation', () => {
 		);
 
 		expect( screen.getByTestId( 'jetpack-footer' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'NewsletterPage AdminPage wiring', () => {
+	it( 'passes the REST API root and nonce from script data to AdminPage', () => {
+		// AdminPage's effect calls restApi.setApiRoot(apiRoot); with the default
+		// empty apiRoot it would clobber the root and 404 the Settings tab.
+		render(
+			<NewsletterPage activeTab="subscribers">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		expect( mockAdminPageProps ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				apiRoot: 'https://example.com/wp-json/',
+				apiNonce: 'test-nonce',
+			} )
+		);
 	} );
 } );

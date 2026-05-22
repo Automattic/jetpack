@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
 import { Button, Modal, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -122,19 +123,34 @@ const getHoverHint = ( experience, blockOverlayEnabled = false ) => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating, activeThemeStylesheet, isBlockTheme, blockOverlayEnabled } =
-		useSelect(
-			select => ( {
-				active: select( STORE_ID ).getActiveExperience(),
-				isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
-				activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
-				isBlockTheme: select( STORE_ID ).isBlockTheme(),
-				blockOverlayEnabled: select( STORE_ID ).isBlockOverlayEnabled(),
-			} ),
-			[]
-		);
-	const { saveExperience } = useDispatch( STORE_ID );
+	const {
+		active,
+		isUpdating,
+		activeThemeStylesheet,
+		isBlockTheme,
+		blockOverlayEnabled,
+		blockTemplateOverlay,
+	} = useSelect(
+		select => ( {
+			active: select( STORE_ID ).getActiveExperience(),
+			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
+			isBlockTheme: select( STORE_ID ).isBlockTheme(),
+			blockOverlayEnabled: select( STORE_ID ).isBlockOverlayEnabled(),
+			blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
+		} ),
+		[]
+	);
+	const { saveExperience, successNotice, errorNotice } = useDispatch( STORE_ID );
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
+	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
+	const [ isResetting, setIsResetting ] = useState( false );
+	// Local override after a successful reset: the server-side `isCustomized`
+	// stays true in the initial-state blob the page was rendered with, so
+	// we hide the "Restore default" link client-side once the AJAX DELETE
+	// returns. Cleared if the admin opens the editor again (which would
+	// lazy-create a fresh singleton).
+	const [ justReset, setJustReset ] = useState( false );
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
@@ -214,16 +230,54 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</Stack>
 			) }
 			{ /*
-			   The blocks-powered Overlay intentionally has no action links
-			   during the experimental phase: the FSE `jetpack-search`
-			   template only registers when Embedded is the active
-			   experience, so an "Edit search template" link would 404 from
-			   here, and the overlay actually renders from a separate
-			   bundled template (`templates/jetpack-search-overlay.html`)
-			   that the Site Editor cannot reach anyway. Skipping the
-			   action row keeps the card honest until the two templates
-			   converge — see SEARCH-213 review thread.
+			   SEARCH-216 — the blocks-powered Overlay renders from a
+			   separate bundled template the Site Editor cannot reach.
+			   "Edit the Search overlay" lands the admin in the standard
+			   block editor on a hidden singleton CPT seeded from that
+			   bundled template, with "Restore default" appearing once the
+			   admin has saved a customization. Works on classic themes
+			   too because `post.php` predates the Site Editor.
 			*/ }
+			{ experience === EXPERIENCE.OVERLAY_BLOCKS && (
+				<Stack
+					direction="row"
+					gap="sm"
+					align="start"
+					className="jp-search-experience-option__actions"
+				>
+					{ blockTemplateOverlay.enabled && blockTemplateOverlay.editorUrl && (
+						<CardLink
+							label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
+							href={ blockTemplateOverlay.editorUrl }
+							disabled={ linksDisabled }
+							// Re-show "Restore default" on the admin's return
+							// from the editor: the click implies a fresh
+							// singleton is about to be (re-)created on the
+							// server, so the previously-set `justReset` flag
+							// no longer reflects reality.
+							onClick={ () => setJustReset( false ) }
+						/>
+					) }
+					{ blockTemplateOverlay.enabled &&
+						blockTemplateOverlay.resetRestPath &&
+						blockTemplateOverlay.isCustomized &&
+						! justReset && (
+							<CardLink
+								label={ __( 'Restore default', 'jetpack-search-pkg' ) }
+								href="#"
+								disabled={ linksDisabled || isResetting }
+								onClick={ event => {
+									// Destructive — open the confirm dialog
+									// instead of running the AJAX delete
+									// directly. The dialog's confirm handler
+									// is the one that fires `apiFetch`.
+									event.preventDefault();
+									setResetConfirmOpen( true );
+								} }
+							/>
+						) }
+				</Stack>
+			) }
 			{ experience === EXPERIENCE.OVERLAY && (
 				<Stack
 					direction="row"
@@ -332,6 +386,57 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					) }
 				</ConfirmDialog>
 			) }
+			{ /*
+				   SEARCH-216 — confirm before nuking the customized overlay
+				   template. Sends a DELETE to the CPT's built-in REST
+				   endpoint via `apiFetch`; on success, the local `justReset`
+				   flag hides the link and a notice goes through the
+				   dashboard's global-notices store. No page navigation.
+				*/ }
+			{ experience === EXPERIENCE.OVERLAY_BLOCKS && blockTemplateOverlay.enabled && (
+				<ConfirmDialog
+					isOpen={ isResetConfirmOpen }
+					onConfirm={ async () => {
+						setResetConfirmOpen( false );
+						// Defensive guard: the dialog can only open via the
+						// `isCustomized && resetRestPath` CardLink above, so
+						// `resetRestPath` is non-null in practice — avoid
+						// firing a DELETE to `undefined` if the gating logic
+						// ever shifts.
+						if ( ! blockTemplateOverlay.resetRestPath ) {
+							return;
+						}
+						setIsResetting( true );
+						try {
+							await apiFetch( {
+								path: blockTemplateOverlay.resetRestPath,
+								method: 'DELETE',
+							} );
+							setJustReset( true );
+							successNotice(
+								__(
+									'The Search overlay template has been restored to the bundled default.',
+									'jetpack-search-pkg'
+								)
+							);
+						} catch ( error ) {
+							errorNotice(
+								error?.message ||
+									__( 'Could not restore the Search overlay template.', 'jetpack-search-pkg' )
+							);
+						} finally {
+							setIsResetting( false );
+						}
+					} }
+					onCancel={ () => setResetConfirmOpen( false ) }
+					confirmButtonText={ __( 'Restore default', 'jetpack-search-pkg' ) }
+				>
+					{ __(
+						'Restore the bundled Search overlay template? Your customizations will be deleted.',
+						'jetpack-search-pkg'
+					) }
+				</ConfirmDialog>
+			) }
 		</Stack>
 	);
 }
@@ -436,7 +541,7 @@ const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 	);
 };
 
-const CardLink = ( { label, href, disabled } ) =>
+const CardLink = ( { label, href, disabled, onClick } ) =>
 	disabled ? (
 		// Render as a non-interactive <span> so AT doesn't announce a link
 		// the user can't follow. The `is-disabled` class is the CSS hook for
@@ -450,6 +555,7 @@ const CardLink = ( { label, href, disabled } ) =>
 		<a
 			className="jp-search-experience-option__action jp-search-experience-option__action-link"
 			href={ href }
+			onClick={ onClick }
 		>
 			{ label }
 			<span aria-hidden="true"> →</span>

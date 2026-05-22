@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks overlay: auto-open on initial page load when the URL contains `?s=` or `?q=`, matching the legacy instant-search overlay's deep-link behavior.

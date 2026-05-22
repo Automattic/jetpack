@@ -6,6 +6,7 @@ const captured = {
 	actions: {},
 	callbacks: {},
 	context: {},
+	element: { ref: null },
 };
 const originalFetch = global.fetch;
 
@@ -24,6 +25,7 @@ jest.mock(
 			return { state: captured.state, actions: captured.actions };
 		},
 		getContext: () => captured.context,
+		getElement: () => captured.element,
 	} ),
 	{ virtual: true }
 );
@@ -32,7 +34,9 @@ import {
 	actions,
 	computeResultsCountText,
 	gateActiveFilters,
+	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
+	resetActivePostTypeScopeForTesting,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -131,6 +135,9 @@ describe( 'store helpers round-trip', () => {
 describe( 'store actions', () => {
 	beforeEach( () => {
 		Object.assign( actions, originalActions );
+		// The active per-instance scope lives in a module variable the state
+		// reset below can't reach, so clear it explicitly to keep cases isolated.
+		resetActivePostTypeScopeForTesting();
 		Object.assign( state, {
 			siteId: 123,
 			searchQuery: 'old query',
@@ -143,6 +150,8 @@ describe( 'store actions', () => {
 			activeFilters: {},
 			filterConfigs: {},
 			priceRange: null,
+			staticFilterSelections: {},
+			staticPostTypes: undefined,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -201,6 +210,53 @@ describe( 'store actions', () => {
 		expect( state.skeletonHidden ).toBe( true );
 		expect( state.hasError ).toBe( true );
 		expect( state.isLoading ).toBe( false );
+	} );
+
+	it( 'applies a per-instance post-type scope, reuses it across re-runs, and falls back to the global seed for an unscoped input', async () => {
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		// 1. A scoped Search Input dispatches — its include list constrains the
+		//    ES filter clause for the search it initiates.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator(
+			actions.search( { syncUrl: false, staticPostTypes: { include: [ 'post' ], exclude: [] } } )
+		);
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=post'
+		);
+
+		// 2. A filter / sort re-run omits the scope key, so the session keeps the
+		//    active scope rather than dropping the constraint.
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
+			'filter[bool][must][0][term][post_type]=post'
+		);
+
+		// 3. An unscoped input passes null, clearing the active scope and falling
+		//    back to the page-global seed a filter-post-type block contributed.
+		state.staticPostTypes = { include: [ 'page' ], exclude: [] };
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false, staticPostTypes: null } ) );
+		const decoded = decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][post_type]=page' );
+		expect( decoded ).not.toContain( '[post_type]=post&' );
+	} );
+
+	it( 'reuses the active per-instance scope on popstate (omits the scope key)', async () => {
+		// A back/forward restore re-runs search without a `staticPostTypes` key
+		// so the session-local scope from the last input survives — the scope is
+		// never serialized to the URL, so passing one here would be wrong.
+		state.searchParamName = 's';
+		state.isWooCommerceBlocksEnabled = false;
+		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
+		await runGenerator( actions.handlePopState() );
+		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
+		const arg = searchSpy.mock.calls[ 0 ][ 0 ];
+		expect( arg ).toEqual( { syncUrl: false } );
+		expect( 'staticPostTypes' in arg ).toBe( false );
+		searchSpy.mockRestore();
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
@@ -366,6 +422,49 @@ describe( 'store actions', () => {
 		await runGenerator( actions.setFilter( 'category', 'updates' ) );
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'setStaticFilter replaces the per-key value (single-select) and clears when re-picked', async () => {
+		// Static filters are mutually-exclusive radios — unlike setFilter,
+		// each call REPLACES rather than toggles within an array. Re-picking
+		// the currently selected value clears the entry (same UX as the
+		// legacy overlay's setStaticFilter).
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.staticFilterSelections = {};
+
+		await runGenerator( actions.setStaticFilter( 'section', 'news' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'news' } );
+
+		// Picking a different value REPLACES (does not append).
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( { section: 'guides' } );
+
+		// Re-picking the current value clears the entry — radio "deselect"
+		// affordance preserves the legacy overlay behavior.
+		await runGenerator( actions.setStaticFilter( 'section', 'guides' ) );
+		expect( state.staticFilterSelections ).toEqual( {} );
+
+		// Different keys stay independent — picking `audience` after a
+		// cleared `section` doesn't resurrect the old `section` entry.
+		await runGenerator( actions.setStaticFilter( 'audience', 'dev' ) );
+		expect( state.staticFilterSelections ).toEqual( { audience: 'dev' } );
+
+		expect( search ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it( 'clearFilters wipes staticFilterSelections alongside activeFilters + priceRange', async () => {
+		// `clearFilters` is the standalone clear-all button — it must wipe
+		// every facet shape so a user doesn't have to click each filter
+		// type's clear affordance individually.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = { section: 'guides' };
+
+		await runGenerator( actions.clearFilters() );
+
+		expect( state.staticFilterSelections ).toEqual( {} );
+		expect( search ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'clears every facet only when something is active', async () => {
@@ -536,6 +635,23 @@ describe( 'store actions', () => {
 		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
+	it( 'syncToUrl writes static-filter selections as scalar params alongside other state', () => {
+		// Regression guard: the staticFilterSelections slice must thread
+		// through pushStateToUrl so a shareable URL captures the radio
+		// selection. Scalar `?filter_id=value` format (no `[]`) is the
+		// legacy overlay's contract.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'docs';
+		state.staticFilterSelections = { section: 'guides' };
+		state.filterConfigs = { section: { filterKey: 'section', kind: 'static' } };
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'section=guides' );
+		expect( writtenUrl ).not.toContain( 'section[]' );
+	} );
+
 	it( 'closes open popovers on Escape only', () => {
 		state.isFilterPopoverOpen = true;
 		state.isSortPopoverOpen = true;
@@ -666,6 +782,31 @@ describe( 'store getters', () => {
 
 		state.priceRange = { min: null, max: null };
 		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
+	it( 'hasActiveFilters and activeFilterCount include staticFilterSelections', () => {
+		// Without this contribution, a deep link to `?section=guides` would
+		// leave the active-filters / clear-filters affordances hidden even
+		// though the static filter is constraining results.
+		state.activeFilters = {};
+		state.priceRange = null;
+		state.staticFilterSelections = {};
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
+
+		state.staticFilterSelections = { section: 'guides' };
+		expect( state.hasActiveFilters ).toBe( true );
+		expect( state.activeFilterCount ).toBe( 1 );
+
+		// Combined with dynamic filters — totals add.
+		state.activeFilters = { category: [ 'news', 'wp' ] };
+		expect( state.activeFilterCount ).toBe( 3 );
+
+		// Empty-string entries don't count (they round-trip as 'cleared').
+		state.activeFilters = {};
+		state.staticFilterSelections = { section: '' };
+		expect( state.hasActiveFilters ).toBe( false );
+		expect( state.activeFilterCount ).toBe( 0 );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
@@ -825,9 +966,120 @@ describe( 'gateActiveFilters', () => {
 	} );
 } );
 
+describe( 'gateStaticFilterSelections', () => {
+	it( 'drops keys whose filterConfigs entry is missing', () => {
+		// Stale selections for a since-removed static-filter registration
+		// must not survive a popstate or `initialize()` re-gate.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: 'guides', dropped: 'x' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'reports droppedAny=false when nothing is dropped', () => {
+		// `initialize()` and `handlePopState` use `droppedAny` to skip the
+		// state write when the gate was a no-op — same idiom as
+		// `gateActiveFilters`.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: 'guides' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'drops keys whose filterConfigs entry exists but is not kind=static', () => {
+		// A scalar URL param under a dynamic filter key (e.g. someone fat-fingered
+		// `?category=news` instead of `?category[]=news`) must not pollute the
+		// static-filter slice. The kind=static gate keeps the boundary explicit.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ category: 'news', section: 'guides' },
+			{
+				category: { filterKey: 'category', filterType: 'taxonomy' },
+				section: { filterKey: 'section', kind: 'static' },
+			}
+		);
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'drops empty values', () => {
+		// `''` is the "cleared" state — keeping the key would round-trip
+		// through pushStateToUrl and re-emit `?section=` indefinitely.
+		const { gated, droppedAny } = gateStaticFilterSelections(
+			{ section: '' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'returns a null-prototype object so __proto__ pollution cannot survive', () => {
+		// Same defence as gateActiveFilters — JSON.parse lets `__proto__`
+		// land as an own property; we must drop it because it isn't in
+		// filterConfigs, and the output object must not inherit anything that
+		// could be misread as a registered key downstream.
+		const selections = JSON.parse( '{"__proto__":"pwn","section":"guides"}' );
+		const { gated } = gateStaticFilterSelections( selections, {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( gated ).toEqual( { section: 'guides' } );
+		expect( Object.getPrototypeOf( gated ) ).toBeNull();
+	} );
+
+	it( 'tolerates undefined / null inputs', () => {
+		expect( gateStaticFilterSelections( undefined, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( null, {} ).gated ).toEqual( {} );
+		expect( gateStaticFilterSelections( { section: 'guides' }, null ).gated ).toEqual( {} );
+	} );
+} );
+
 describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
+		captured.context = {};
+		// Reset the static-filter slice so it doesn't leak into later cases
+		// in this describe block.
+		state.staticFilterSelections = {};
+	} );
+
+	it( 'isStaticFilterSelected reads filterKey + optionValue from context and compares against the store', () => {
+		// Pin the reactive-binding contract. render.php emits a per-<li>
+		// `data-wp-context` with `{ filterKey, optionValue }`, and each
+		// radio's `data-wp-bind--checked="callbacks.isStaticFilterSelected"`
+		// evaluates to this boolean. Without the binding, radios drift from
+		// the store after `clearFilters()` or `handlePopState()` since the
+		// `change` event only fires on user-initiated transitions.
+		state.staticFilterSelections = { section: 'guides' };
+
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( true );
+
+		captured.context = { filterKey: 'section', optionValue: 'news' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Unregistered key — defensive against a stale context that survives
+		// a filter being deregistered.
+		captured.context = { filterKey: 'missing', optionValue: 'whatever' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+
+		// Empty slice — clearFilters case. Every radio should report false.
+		state.staticFilterSelections = {};
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
+	} );
+
+	it( 'isStaticFilterSelected tolerates an undefined staticFilterSelections slice', () => {
+		// The optional-chaining guard (`state.staticFilterSelections?.[…]`)
+		// handles the case where the PHP seed hasn't yet populated the slot
+		// — e.g. on a page with no filter-static block. The comparison
+		// falls through to `undefined === 'guides'`, which is `false`.
+		// Reading the slice directly would crash; this guards the contract.
+		state.staticFilterSelections = undefined;
+		captured.context = { filterKey: 'section', optionValue: 'guides' };
+		expect( captured.callbacks.isStaticFilterSelected() ).toBe( false );
 	} );
 
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
@@ -921,6 +1173,166 @@ describe( 'store callbacks', () => {
 			// Drop the flag so it doesn't leak into the `handlePopState` describe
 			// below — captured.state is a singleton across the mocked module.
 			fresh.state.hasSearchParam = false;
+		} );
+	} );
+
+	describe( 'initLoadMoreObserver', () => {
+		let originalIO;
+		let observerInstances;
+
+		beforeEach( () => {
+			originalIO = global.IntersectionObserver;
+			observerInstances = [];
+			// jsdom doesn't ship IntersectionObserver, and the instance methods
+			// (`observe`, `unobserve`, `disconnect`) don't exist on a fresh
+			// `this` either — so `jest.spyOn` has nothing to attach to. Direct
+			// assignment is the right tool here.
+			/* eslint-disable jest/prefer-spy-on -- nothing to spy on. */
+			global.IntersectionObserver = jest.fn( function ( cb, opts ) {
+				this.cb = cb;
+				this.opts = opts;
+				this.observe = jest.fn();
+				this.unobserve = jest.fn();
+				this.disconnect = jest.fn();
+				observerInstances.push( this );
+			} );
+			/* eslint-enable jest/prefer-spy-on */
+		} );
+
+		afterEach( () => {
+			if ( originalIO === undefined ) {
+				delete global.IntersectionObserver;
+			} else {
+				global.IntersectionObserver = originalIO;
+			}
+			captured.element.ref = null;
+		} );
+
+		/**
+		 * Build a fake wrapper DOM with the dataset + sentinel render.php emits.
+		 *
+		 * @param {object} dataset - dataset attributes to attach.
+		 * @return {object} fake wrapper element.
+		 */
+		function makeWrapper( dataset ) {
+			const sentinel = { tagName: 'SPAN' };
+			return {
+				dataset,
+				querySelector: jest.fn( () => sentinel ),
+				_sentinel: sentinel,
+			};
+		}
+
+		it( 'no-ops when loadOnScroll is not enabled on the wrapper', () => {
+			captured.element.ref = makeWrapper( {} );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			expect( global.IntersectionObserver ).not.toHaveBeenCalled();
+		} );
+
+		it( 'observes the sentinel with the configured rootMargin and returns a teardown', () => {
+			const wrapper = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '150' } );
+			captured.element.ref = wrapper;
+
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+
+			expect( global.IntersectionObserver ).toHaveBeenCalledTimes( 1 );
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 150px 0px' );
+			expect( observerInstances[ 0 ].observe ).toHaveBeenCalledWith( wrapper._sentinel );
+			expect( typeof cleanup ).toBe( 'function' );
+
+			cleanup();
+			expect( observerInstances[ 0 ].disconnect ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to a 200px rootMargin when the offset is missing or unparseable', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			captured.callbacks.initLoadMoreObserver();
+			expect( observerInstances[ 0 ].opts.rootMargin ).toBe( '0px 0px 200px 0px' );
+		} );
+
+		it( 'fires loadMore() only when showLoadMore is true and a fetch is not already in flight', () => {
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation();
+
+			// Seed a state where the next page exists and nothing's loading.
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+
+			// Not intersecting → no fetch.
+			observer.cb( [ { isIntersecting: false } ] );
+			expect( loadMore ).not.toHaveBeenCalled();
+
+			// Intersecting and showLoadMore (derived from pageHandle && !isLoading) → fetch.
+			// Flip isLoadingMore true to mirror what `*loadMore()` would do; this
+			// proves the in-flight guard prevents a second call.
+			loadMore.mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// Already loading more → skipped (the store's own guard would no-op
+			// too, but mirroring the check here avoids a noop generator step).
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+
+			// No more pages → skipped.
+			state.isLoadingMore = false;
+			state.pageHandle = null;
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'no-ops when IntersectionObserver is unavailable in the environment', () => {
+			const saved = global.IntersectionObserver;
+			// Match the `typeof … === 'undefined'` runtime check by removing the
+			// global outright — assigning `undefined` would still leave the
+			// binding declared, which doesn't trip a `typeof` guard.
+			delete global.IntersectionObserver;
+			captured.element.ref = makeWrapper( { loadOnScroll: '1' } );
+			const cleanup = captured.callbacks.initLoadMoreObserver();
+			expect( cleanup ).toBeUndefined();
+			global.IntersectionObserver = saved;
+		} );
+
+		it( 're-observes the sentinel after a load settles so a short result page does not stall auto-load', () => {
+			jest.useFakeTimers();
+			captured.element.ref = makeWrapper( { loadOnScroll: '1', loadOnScrollOffset: '200' } );
+			Object.assign( actions, originalActions );
+			const loadMore = jest.spyOn( actions, 'loadMore' ).mockImplementation( () => {
+				state.isLoadingMore = true;
+			} );
+
+			state.pageHandle = { offset: 10 };
+			state.isLoading = false;
+			state.isLoadingMore = false;
+
+			captured.callbacks.initLoadMoreObserver();
+			const observer = observerInstances[ 0 ];
+
+			// First intersection fires loadMore and schedules a settle probe.
+			observer.cb( [ { isIntersecting: true } ] );
+			expect( loadMore ).toHaveBeenCalledTimes( 1 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Probe finds isLoadingMore still true → reschedules itself.
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).not.toHaveBeenCalled();
+
+			// Fetch settles. Probe re-arms the observer so a sentinel that
+			// never left the rootMargin gets a fresh initial-state event.
+			state.isLoadingMore = false;
+			jest.advanceTimersByTime( 100 );
+			expect( observer.unobserve ).toHaveBeenCalledTimes( 1 );
+			expect( observer.observe ).toHaveBeenCalledTimes( 2 );
+
+			jest.useRealTimers();
 		} );
 	} );
 } );

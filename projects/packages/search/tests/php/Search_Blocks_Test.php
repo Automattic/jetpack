@@ -7,12 +7,29 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the Search_Blocks registration class.
  */
 class Search_Blocks_Test extends TestCase {
+
+	/**
+	 * The main query as it was before a test replaced it, so the swap the
+	 * `posts_pre_query` callback tests perform doesn't leak across tests.
+	 *
+	 * @var \WP_Query|null
+	 */
+	private $original_wp_the_query;
+
+	/**
+	 * Snapshot the main query before each test so tearDown can restore it.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->original_wp_the_query = $GLOBALS['wp_the_query'] ?? null;
+	}
 
 	/**
 	 * Clear `Search_Blocks::is_initial_loading()`'s per-request memo between
@@ -27,6 +44,7 @@ class Search_Blocks_Test extends TestCase {
 		Search_Blocks::reset_custom_taxonomy_map_cache();
 		// Guards against a failed assertion leaking the option across tests.
 		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$GLOBALS['wp_the_query'] = $this->original_wp_the_query;
 		parent::tearDown();
 	}
 
@@ -254,6 +272,39 @@ class Search_Blocks_Test extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_search_woocommerce_blocks_enabled', $callback );
 		}
+	}
+
+	/**
+	 * The WC gate also requires a WooCommerce new enough to register the
+	 * `product-search-results` template. `woocommerce_version_supported()`
+	 * is the comparison; pin it against explicit versions so the floor is
+	 * Exercised without a live WooCommerce in the test process.
+	 *
+	 * @dataProvider provider_woocommerce_version_supported
+	 *
+	 * @param string|null $version  Version to test, or null for the default path.
+	 * @param bool        $expected Expected support result.
+	 */
+	#[DataProvider( 'provider_woocommerce_version_supported' )]
+	public function test_woocommerce_version_supported( $version, bool $expected ) {
+		$this->assertSame( $expected, Search_Blocks::woocommerce_version_supported( $version ) );
+	}
+
+	/**
+	 * Cases for `test_woocommerce_version_supported`.
+	 *
+	 * @return array<string, array{0: string|null, 1: bool}>
+	 */
+	public static function provider_woocommerce_version_supported(): array {
+		return array(
+			'below floor'       => array( '6.4.0', false ),
+			'at floor'          => array( '6.5.0', true ),
+			'above floor'       => array( '8.0.0', true ),
+			'patch below floor' => array( '6.4.99', false ),
+			'empty/unknown'     => array( '', false ),
+			// No WC_VERSION constant in the test process, so the default path reads unsupported.
+			'default no WC'     => array( null, false ),
+		);
 	}
 
 	/**
@@ -909,6 +960,154 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * On the Embedded experience the main search query is rendered client-side,
+	 * So `init()` must register the `posts_pre_query` short-circuit.
+	 */
+	public function test_init_registers_posts_pre_query_when_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertSame(
+			10,
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must hook at priority 10 on embedded'
+		);
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The experimental blocks Overlay also renders results client-side, so the
+	 * Short-circuit registers when the overlay is enabled (operator filter on +
+	 * Saved `overlay_blocks` experience).
+	 */
+	public function test_init_registers_posts_pre_query_when_overlay_blocks_enabled() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+
+		Search_Blocks::init();
+
+		$this->assertSame(
+			10,
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must hook at priority 10 when the blocks Overlay is enabled'
+		);
+
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * A stale `overlay_blocks` option with the operator filter OFF must not
+	 * Bypass the query — otherwise the page would render no server results and
+	 * No overlay would cover them.
+	 */
+	public function test_init_does_not_register_posts_pre_query_when_overlay_blocks_filter_off() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook when the overlay operator filter is off'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Theme search (inline), legacy Overlay, and Off all leave the server-side
+	 * Search query intact, so the short-circuit must not register.
+	 */
+	public function test_init_does_not_register_posts_pre_query_for_server_rendered_experiences() {
+		// Inline: module active, no opt-in saved.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook on Theme search (inline)'
+		);
+
+		// Legacy Overlay: Instant Search owns the short-circuit via its own hook.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook on the legacy Overlay'
+		);
+
+		// Off: module inactive.
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		Search_Blocks::init();
+		$this->assertFalse(
+			has_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ) ),
+			'posts_pre_query short-circuit must not hook when the module is off'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The callback bypasses the database on the main front-end search query:
+	 * Returns an empty array and sets the dummy pagination totals WP core skips
+	 * In the `posts_pre_query` path.
+	 */
+	public function test_filter_posts_pre_query_short_circuits_main_search_query() {
+		$query                   = new \WP_Query();
+		$query->is_search        = true;
+		$GLOBALS['wp_the_query'] = $query;
+
+		$result = Search_Blocks::filter__posts_pre_query( null, $query );
+
+		$this->assertSame( array(), $result, 'Main search query must be short-circuited to an empty array' );
+		$this->assertSame( 1, $query->found_posts );
+		$this->assertSame( 1, $query->max_num_pages );
+	}
+
+	/**
+	 * Secondary / non-search queries fall through untouched so widgets, related
+	 * Posts, etc. keep working on a search page.
+	 */
+	public function test_filter_posts_pre_query_passes_through_non_search_query() {
+		$main                    = new \WP_Query();
+		$main->is_search         = true;
+		$GLOBALS['wp_the_query'] = $main;
+
+		// A secondary query (not the main query) must be left alone.
+		$secondary            = new \WP_Query();
+		$secondary->is_search = true;
+		$sentinel             = array( 'untouched' );
+		$this->assertSame(
+			$sentinel,
+			Search_Blocks::filter__posts_pre_query( $sentinel, $secondary ),
+			'A secondary query must not be short-circuited'
+		);
+
+		// The main query on a non-search route must be left alone too.
+		$main->is_search = false;
+		$this->assertSame(
+			$sentinel,
+			Search_Blocks::filter__posts_pre_query( $sentinel, $main ),
+			'A non-search main query must not be short-circuited'
+		);
+	}
+
+	/**
 	 * Remove every hook this class registers, so each `init()` test starts
 	 * From a known-empty state.
 	 */
@@ -922,6 +1121,7 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
+		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: add jetpack/get-connection-status read ability.

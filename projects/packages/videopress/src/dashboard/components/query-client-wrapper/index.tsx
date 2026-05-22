@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDashboardAnalytics } from '../../hooks/use-dashboard-analytics';
+import ConnectionGate from '../connection-gate';
 import type { ReactNode } from 'react';
 
 const STORE_KEY = '__jetpackVideopressQueryClient' as const;
@@ -38,7 +39,11 @@ const QueryClientWrapper = ( { children }: { children: ReactNode } ) => {
 	// the once-per-load dashboard page view.
 	useDashboardAnalytics();
 
-	return <QueryClientProvider client={ getClient() }>{ children }</QueryClientProvider>;
+	return (
+		<QueryClientProvider client={ getClient() }>
+			<ConnectionGate>{ children }</ConnectionGate>
+		</QueryClientProvider>
+	);
 };
 
 export default QueryClientWrapper;

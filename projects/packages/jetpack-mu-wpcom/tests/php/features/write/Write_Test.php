@@ -769,10 +769,117 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that an image with sizeSlug returns false (preserved by convertToBlocks).
+	 */
+	public function test_detect_unsupported_image_with_size_slug() {
+		foreach ( array( 'thumbnail', 'medium', 'large', 'full' ) as $size ) {
+			$content = '<!-- wp:image {"sizeSlug":"' . $size . '"} --><figure class="wp-block-image size-' . $size . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+			$this->assertFalse(
+				wpcom_write_detect_unsupported_content( $content ),
+				"sizeSlug={$size} should be supported"
+			);
+		}
+	}
+
+	/**
+	 * Test that an image with a custom/theme sizeSlug returns 'block-editor'.
+	 * convertToBlocks() only emits the four standard presets, so unknown
+	 * slugs would be silently stripped on save.
+	 */
+	public function test_detect_unsupported_image_with_custom_size_slug() {
+		$content = '<!-- wp:image {"id":123,"sizeSlug":"hero"} --><figure class="wp-block-image size-hero"><img src="test.jpg" alt="" class="wp-image-123"/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with align (left/center/right) returns 'block-editor'.
+	 * Write has no image-alignment UI, so posts with aligned images bounce
+	 * to the block editor via the unsupported-content modal.
+	 */
+	public function test_detect_unsupported_image_with_align() {
+		foreach ( array( 'left', 'center', 'right' ) as $align ) {
+			$content = '<!-- wp:image {"align":"' . $align . '"} --><figure class="wp-block-image align' . $align . '"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+			$this->assertSame(
+				'block-editor',
+				wpcom_write_detect_unsupported_content( $content ),
+				"align={$align} should bounce to block editor"
+			);
+		}
+	}
+
+	/**
+	 * Test that an image with align + sizeSlug returns 'block-editor'.
+	 * sizeSlug round-trips, but align triggers the unsupported modal.
+	 */
+	public function test_detect_unsupported_image_with_align_and_size_slug() {
+		$content = '<!-- wp:image {"align":"center","sizeSlug":"medium","id":42} --><figure class="wp-block-image aligncenter size-medium"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with alignwide returns 'block-editor' (out of scope).
+	 */
+	public function test_detect_unsupported_image_with_align_wide() {
+		$content = '<!-- wp:image {"align":"wide"} --><figure class="wp-block-image alignwide"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with alignfull returns 'block-editor' (out of scope).
+	 */
+	public function test_detect_unsupported_image_with_align_full() {
+		$content = '<!-- wp:image {"align":"full"} --><figure class="wp-block-image alignfull"><img src="test.jpg" alt=""/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with a custom width attribute returns 'block-editor'.
+	 * Drag-to-resize is explicitly out of scope for Write — custom widths
+	 * should bounce to the block editor.
+	 */
+	public function test_detect_unsupported_image_with_custom_width() {
+		$content = '<!-- wp:image {"width":"312px"} --><figure class="wp-block-image"><img src="test.jpg" alt="" style="width:312px"/></figure><!-- /wp:image -->';
+		$this->assertSame( 'block-editor', wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with linkDestination:none (the no-op default the
+	 * block editor stamps onto images) round-trips into Write.
+	 */
+	public function test_detect_unsupported_image_with_no_op_link_destination() {
+		$content = '<!-- wp:image {"id":443,"sizeSlug":"medium","linkDestination":"none"} --><figure class="wp-block-image size-medium"><img src="test.jpg" alt="" class="wp-image-443"/></figure><!-- /wp:image -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that an image with a real link configuration returns 'block-editor'.
+	 * Write has no UI for image links, so any non-"none" linkDestination
+	 * should bounce to the block editor.
+	 */
+	public function test_detect_unsupported_image_with_real_link_destination() {
+		foreach ( array( 'media', 'attachment', 'custom' ) as $dest ) {
+			$content = '<!-- wp:image {"linkDestination":"' . $dest . '"} --><figure class="wp-block-image"><a href="http://example.com/"><img src="test.jpg" alt=""/></a></figure><!-- /wp:image -->';
+			$this->assertSame(
+				'block-editor',
+				wpcom_write_detect_unsupported_content( $content ),
+				"linkDestination={$dest} should bounce to block editor"
+			);
+		}
+	}
+
+	/**
 	 * Test that a supported quote block returns false.
 	 */
 	public function test_detect_unsupported_quote_block() {
 		$content = '<!-- wp:quote --><blockquote class="wp-block-quote"><p>A quote</p></blockquote><!-- /wp:quote -->';
+		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
+	}
+
+	/**
+	 * Test that a quote block with a citation attribute returns false (supported).
+	 */
+	public function test_detect_unsupported_quote_block_with_citation() {
+		$content = '<!-- wp:quote {"citation":"Author Name"} --><blockquote class="wp-block-quote"><p>A quote</p><cite>Author Name</cite></blockquote><!-- /wp:quote -->';
 		$this->assertFalse( wpcom_write_detect_unsupported_content( $content ) );
 	}
 
@@ -1072,7 +1179,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// Read enough of the function body to capture all block types.
 		// If convertToBlocks() grows past this, the assertion below will
 		// catch missing types. Increase as needed.
-		$fn_body = substr( $view_js, $fn_start, 6000 );
+		$fn_body = substr( $view_js, $fn_start, 10000 );
 
 		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
 		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );
@@ -1101,11 +1208,11 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$js_attrs = array(
 			'embed'     => array( 'providerNameSlug', 'responsive', 'type', 'url' ),
 			'heading'   => array( 'align', 'level' ),
-			'image'     => array(),
+			'image'     => array( 'id', 'sizeSlug' ),
 			'list'      => array( 'ordered' ),
 			'list-item' => array(),
 			'paragraph' => array( 'align' ),
-			'quote'     => array( 'align' ),
+			'quote'     => array( 'align', 'citation' ),
 			'separator' => array(),
 		);
 
@@ -1114,7 +1221,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// but safely ignores them.  Any PHP attr not in $js_attrs and not
 		// listed here is an error — it would let unsupported content through.
 		$php_extras = array(
-			'image' => array( 'alt', 'id', 'sizeSlug' ),
+			'image' => array( 'alt' ),
 		);
 
 		foreach ( $js_attrs as $block => $expected ) {
