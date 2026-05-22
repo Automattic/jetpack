@@ -20,7 +20,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 const TEMPLATE = [
 	[ 'jetpack-search/filter-post-type', { mode: 'include', postTypes: [ 'product' ] } ],
 	[ 'jetpack-search/active-filters' ],
-	[ 'jetpack-search/clear-filters' ],
+	[ 'jetpack-search/clear-filters', { className: 'is-style-compact' } ],
 	[
 		'jetpack-search/filter-checkbox',
 		{ filterType: 'taxonomy', taxonomy: 'product_cat', displayStyle: 'chips' },
