@@ -1716,6 +1716,13 @@ CSS;
 			'activeFilters'              => $active_filters,
 			'filterLogic'                => $filter_logic,
 			'priceRange'                 => $price_range,
+			// Static filters (`jetpack-search/filter-static`) round-trip as
+			// scalar `?filter_id=value` URL params. The block's render.php
+			// merges the URL-seeded selections in alongside its filterConfig
+			// entry so a deep link pre-checks the right radio. Seeded as an
+			// empty object here so JS readers always see a defined shape on
+			// pages without the block.
+			'staticFilterSelections'     => (object) array(),
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
