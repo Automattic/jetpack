@@ -1717,4 +1717,151 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'bw-postpicker-overlay" hidden', $output );
 	}
+
+	/**
+	 * Test that a ?post= pointing to a page (not a post) sets openPostError.
+	 */
+	public function test_page_post_type_sets_error() {
+		wp_set_current_user( $this->admin_id );
+
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'A Page',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['post'] = $page_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( 0, $state['editPostId'] );
+		$this->assertNotEmpty( $state['openPostError'] );
+	}
+
+	/**
+	 * Test that a same-host ?url= with a ?p= query param extracts the post ID
+	 * directly instead of falling through to url_to_postid().
+	 */
+	public function test_url_param_extracts_p_query_param() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Shortlink Test',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['url'] = home_url( '/?p=' . $post_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( $post_id, $state['editPostId'] );
+		$this->assertSame( '', $state['openPostError'] );
+	}
+
+	/**
+	 * Test that a same-host ?url= with a ?post= query param (admin edit URL)
+	 * extracts the post ID directly.
+	 */
+	public function test_url_param_extracts_post_query_param() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Admin URL Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['url'] = home_url( '/wp-admin/post.php?post=' . $post_id . '&action=edit' );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( $post_id, $state['editPostId'] );
+		$this->assertSame( '', $state['openPostError'] );
+	}
+
+	/**
+	 * Test that a cross-site ?url= does not extract a foreign ?p= value
+	 * as a local post ID.
+	 */
+	public function test_url_param_rejects_cross_site_url() {
+		wp_set_current_user( $this->admin_id );
+
+		// Create a local post so the ID exists — a foreign URL referencing
+		// the same numeric ID must not resolve to it.
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Local Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['url'] = 'https://example.com/?p=' . $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( 0, $state['editPostId'] );
+		$this->assertNotEmpty( $state['openPostError'] );
+	}
+
+	/**
+	 * Test that a ?url= resolving to a page (not a post) sets openPostError.
+	 */
+	public function test_url_param_resolving_to_page_sets_error() {
+		wp_set_current_user( $this->admin_id );
+
+		$page_id = wp_insert_post(
+			array(
+				'post_title'  => 'A Page Via URL',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$_GET['url'] = home_url( '/?p=' . $page_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['url'] );
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertSame( 0, $state['editPostId'] );
+		$this->assertNotEmpty( $state['openPostError'] );
+	}
 }
