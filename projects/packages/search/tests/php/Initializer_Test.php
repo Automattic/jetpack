@@ -203,7 +203,7 @@ class Initializer_Test extends Search_TestCase {
 		// The WC blocks follow WooCommerce's active state — the initializer no
 		// longer forces the `jetpack_search_woocommerce_blocks_enabled` gate
 		// either way, leaving it a pass-through over the
-		// `class_exists( 'WooCommerce' )` probe.
+		// `class_exists( 'WooCommerce', false )` probe.
 		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
 
 		$this->invoke_init_search_blocks();
