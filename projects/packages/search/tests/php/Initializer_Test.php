@@ -23,8 +23,10 @@ class Initializer_Test extends Search_TestCase {
 		remove_all_filters( 'jetpack_search_woocommerce_blocks_enabled' );
 		remove_all_filters( 'jetpack_search_overlay_block_template_enabled' );
 		remove_all_filters( 'jetpack_search_init_instant_search' );
+		remove_all_filters( 'jetpack_search_classic_search_enabled' );
+		remove_all_filters( 'jetpack_search_theme_supports_embedded_experience' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		$this->reset_block_template_overlay_active();
+		$this->reset_block_search_active();
 		$this->remove_search_blocks_hooks();
 		parent::tearDown();
 	}
@@ -95,7 +97,7 @@ class Initializer_Test extends Search_TestCase {
 		// The overlay carve-out in `init()` must read the actually-wired-up
 		// flag, not just the overlay filter — otherwise flipping the
 		// overlay filter on a site without the blocks gate would bypass
-		// the abort path. Confirms `$block_template_overlay_active` stays
+		// the abort path. Confirms `$block_search_active` stays
 		// false when the blocks gate is off, regardless of the overlay
 		// filter.
 		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
@@ -105,7 +107,7 @@ class Initializer_Test extends Search_TestCase {
 
 		$this->invoke_init_search_blocks();
 
-		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -132,7 +134,7 @@ class Initializer_Test extends Search_TestCase {
 
 		$this->invoke_init_search_blocks();
 
-		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -161,7 +163,7 @@ class Initializer_Test extends Search_TestCase {
 
 		$this->invoke_init_search_blocks();
 
-		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -183,7 +185,7 @@ class Initializer_Test extends Search_TestCase {
 
 		$this->invoke_init_search_blocks();
 
-		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -210,6 +212,71 @@ class Initializer_Test extends Search_TestCase {
 		);
 	}
 
+	public function test_init_search_blocks_suppresses_classic_search_when_embedded() {
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
+
+		$this->invoke_init_search_blocks();
+
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_search_classic_search_enabled', '__return_false' ),
+			'Classic Search must be suppressed on the Embedded experience so it does not run a server-side ES query.'
+		);
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertTrue( $property->getValue(), 'block_search_active must be set so init() does not abort on Embedded.' );
+		$this->assertFalse(
+			has_filter( 'jetpack_search_init_instant_search', '__return_false' ),
+			'Embedded never enables Instant Search, so the legacy-suppress filter must not be added.'
+		);
+
+		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+	}
+
+	public function test_init_search_blocks_suppresses_classic_search_when_overlay_blocks() {
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
+
+		$this->invoke_init_search_blocks();
+
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_search_classic_search_enabled', '__return_false' ),
+			'Classic Search must be suppressed on the blocks Overlay experience.'
+		);
+
+		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+	}
+
+	public function test_init_search_blocks_keeps_classic_search_for_theme_search() {
+		// Blocks enabled but no embedded/overlay experience: Theme search must
+		// keep Classic Search running so the server still renders results.
+		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
+
+		$this->invoke_init_search_blocks();
+
+		$this->assertFalse(
+			has_filter( 'jetpack_search_classic_search_enabled', '__return_false' ),
+			'Classic Search must keep running on Theme search (no blocks-driven experience selected).'
+		);
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->assertFalse( $property->getValue(), 'block_search_active must stay false for Theme search.' );
+
+		( new \Automattic\Jetpack\Modules() )->deactivate( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+	}
+
 	/**
 	 * Invoke the protected `init_search_blocks()` directly so the gate can
 	 * be exercised without running the rest of `init()` (rest_api_init,
@@ -228,13 +295,13 @@ class Initializer_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Reset the private `$block_template_overlay_active` flag between
+	 * Reset the private `$block_search_active` flag between
 	 * tests so the overlay carve-out can be exercised cleanly across
 	 * cases. Uses reflection because the property is package-private —
 	 * intentionally not part of the public surface, but tests own it.
 	 */
-	private function reset_block_template_overlay_active(): void {
-		$property = new \ReflectionProperty( Initializer::class, 'block_template_overlay_active' );
+	private function reset_block_search_active(): void {
+		$property = new \ReflectionProperty( Initializer::class, 'block_search_active' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
