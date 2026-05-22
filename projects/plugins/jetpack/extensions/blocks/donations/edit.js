@@ -1,6 +1,6 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner } from '@wordpress/components';
+import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState, useEffect } from '@wordpress/element';
@@ -13,9 +13,11 @@ import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import buildCustomStyles from './build-custom-styles';
+import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 import FirstTimeModal from './first-time-modal';
+import { TRIGGER_ICONS } from './icons';
 import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import StyleControls from './style-controls';
@@ -26,7 +28,15 @@ const blockLoadedFiredClientIds = new Set();
 
 const Edit = props => {
 	const { attributes, setAttributes, clientId } = props;
-	const { currency, tabsAppearance, className } = attributes;
+	const {
+		currency,
+		tabsAppearance,
+		className,
+		displayMode,
+		triggerButtonText,
+		triggerIcon,
+		triggerSticky,
+	} = attributes;
 	const { tracks } = useAnalytics();
 
 	// Migrate legacy blocks that used the block-style variation
@@ -50,8 +60,14 @@ const Edit = props => {
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
 
-	const wrapperClassName =
-		tabsAppearance === 'buttons' ? `${ instanceId } is-style-buttons` : instanceId;
+	const wrapperClassName = [
+		instanceId,
+		tabsAppearance === 'buttons' && 'is-style-buttons',
+		displayMode === 'modal' && 'is-display-modal',
+		displayMode === 'modal' && triggerSticky && 'is-sticky',
+	]
+		.filter( Boolean )
+		.join( ' ' );
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
@@ -232,6 +248,24 @@ const Edit = props => {
 	} else if ( ! currency ) {
 		// Memberships settings are still loading
 		content = <Spinner />;
+	} else if ( displayMode === 'modal' ) {
+		const triggerIconEntry = TRIGGER_ICONS.find( ( { key } ) => key === triggerIcon );
+		const triggerLabel = triggerButtonText || __( 'Donate', 'jetpack' );
+		content = (
+			<>
+				<Controls { ...props } />
+				<button
+					className="donations__trigger-button wp-block-button__link"
+					tabIndex={ -1 }
+					aria-hidden="true"
+				>
+					{ triggerIconEntry && triggerIcon !== 'none' && (
+						<Icon className="donations__trigger-icon" icon={ triggerIconEntry.icon } size={ 20 } />
+					) }
+					{ triggerLabel }
+				</button>
+			</>
+		);
 	} else {
 		content = <Tabs { ...props } products={ products } />;
 	}
