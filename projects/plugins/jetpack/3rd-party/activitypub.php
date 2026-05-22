@@ -7,7 +7,10 @@
  *
  * Scope:
  * - Three routes, with method affinity (inbox GET, proxy POST, outbox POST).
- * - Blog-mode AP sites only; user-mode is out of scope.
+ * - Blog-actor routes require the site to be in `blog` or `actor_blog` mode;
+ *   user-actor routes are accepted in any actor mode that exposes user actors
+ *   (`actor` or `actor_blog`). The AP plugin's downstream `verify_owner`
+ *   check enforces actor identity natively for both cases.
  * - Real OAuth flows are never overridden — when a Bearer is present we
  *   defer to the plugin's normal verification.
  *
@@ -84,11 +87,44 @@ function jetpack_activitypub_reader_auth_check_permission( $result, $request ) {
 		return $result;
 	}
 
-	if ( ! jetpack_activitypub_reader_auth_is_blog_mode() ) {
+	// The blog-mode gate is route-scoped: only the blog actor's existence
+	// depends on `blog` / `actor_blog` mode. User actors exist whenever the
+	// site exposes user actors at all, and the AP plugin's `verify_owner`
+	// check is what enforces actor identity for both cases (BLOG_USER_ID +
+	// user_can_act_as_blog for the blog actor; current-user equality for
+	// user actors).
+	if (
+		jetpack_activitypub_reader_auth_route_is_blog_actor( $request )
+		&& ! jetpack_activitypub_reader_auth_is_blog_mode()
+	) {
 		return $result;
 	}
 
 	return true;
+}
+
+/**
+ * Whether the request route targets the blog actor (`actors/0/...`).
+ *
+ * Used by the permission-check callback to decide whether the blog-mode
+ * gate is relevant: only the blog actor's existence depends on the site
+ * being in `blog` or `actor_blog` mode. User actors exist in `actor` and
+ * `actor_blog` modes, and the AP plugin's own `verify_owner` handles
+ * identity matching for both cases.
+ *
+ * @since $$next-version$$
+ *
+ * @param mixed $request The REST request.
+ * @return bool
+ */
+function jetpack_activitypub_reader_auth_route_is_blog_actor( $request ): bool {
+	if ( ! is_object( $request ) || ! method_exists( $request, 'get_route' ) ) {
+		return false;
+	}
+	return (bool) preg_match(
+		'#/(?:users|actors)/0/#',
+		(string) $request->get_route()
+	);
 }
 
 /**
@@ -132,14 +168,10 @@ function jetpack_activitypub_reader_auth_is_jetpack_signed(): bool {
  * Whether the destination AP plugin is configured to expose a blog actor.
  *
  * Accepts both `'blog'` (blog-only) and `'actor_blog'` (per-user + blog).
- * On `'actor_blog'` sites the blog actor behaves identically to pure
- * blog-mode and is the only actor the wpcom Reader operates on — the
- * route patterns are pinned to `user_id=0`, so widening the grant to
- * arbitrary user actors is not possible here.
- *
- * Pure user-mode (`'actor'`) is still rejected: the blog actor doesn't
- * exist on those sites, so authorizing `user_id=0` routes would be
- * nonsensical.
+ * Only consulted for blog-actor routes (`actors/0/...`) — pure user-mode
+ * (`'actor'`) sites have no blog actor, so authorising `user_id=0` routes
+ * there would be nonsensical. User-actor routes are gated separately by
+ * the AP plugin's own `verify_owner` check.
  *
  * Uses a `null` sentinel default so an unset option is treated as
  * "unknown, deny" rather than implicitly accepted — the AP plugin's own
@@ -179,17 +211,20 @@ function jetpack_activitypub_reader_auth_is_target_route( $request ): bool {
 	$route  = (string) $request->get_route();
 	$method = strtoupper( (string) $request->get_method() );
 
-	// Patterns are pinned to the blog actor (user_id 0) on purpose: the wpcom
-	// Reader only operates on the blog actor, and granting the OAuth bypass
-	// for arbitrary user ids would silently widen the surface if the AP
-	// plugin ever loosened its downstream `verify_owner` check.
+	// Patterns accept any user id (`actors/\d+/...`). The downstream
+	// `verify_owner` (`Activitypub\Rest\Verification::verify_owner`) is what
+	// enforces identity equality: `get_current_user_id() === (int) $user_id`
+	// for user actors (the wpcom user is installed by Rest_Authentication on
+	// Jetpack-signed calls), and `BLOG_USER_ID + user_can_act_as_blog()` for
+	// the blog actor. The shim's role here is bypassing the OAuth bearer
+	// check; it does not need to validate actor identity.
 	static $patterns = array(
 		'GET'  => array(
-			'#^/activitypub/\d+\.\d+/(?:users|actors)/0/inbox/?$#',
+			'#^/activitypub/\d+\.\d+/(?:users|actors)/\d+/inbox/?$#',
 		),
 		'POST' => array(
 			'#^/activitypub/\d+\.\d+/proxy/?$#',
-			'#^/activitypub/\d+\.\d+/(?:users|actors)/0/outbox/?$#',
+			'#^/activitypub/\d+\.\d+/(?:users|actors)/\d+/outbox/?$#',
 		),
 	);
 

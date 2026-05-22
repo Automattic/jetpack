@@ -24,12 +24,14 @@ require_once JETPACK__PLUGIN_DIR . '3rd-party/activitypub.php';
  * @covers ::jetpack_activitypub_reader_auth_is_jetpack_signed
  * @covers ::jetpack_activitypub_reader_auth_is_oauth_request
  * @covers ::jetpack_activitypub_reader_auth_is_target_route
+ * @covers ::jetpack_activitypub_reader_auth_route_is_blog_actor
  */
 #[CoversFunction( 'jetpack_activitypub_reader_auth_check_permission' )]
 #[CoversFunction( 'jetpack_activitypub_reader_auth_is_blog_mode' )]
 #[CoversFunction( 'jetpack_activitypub_reader_auth_is_jetpack_signed' )]
 #[CoversFunction( 'jetpack_activitypub_reader_auth_is_oauth_request' )]
 #[CoversFunction( 'jetpack_activitypub_reader_auth_is_target_route' )]
+#[CoversFunction( 'jetpack_activitypub_reader_auth_route_is_blog_actor' )]
 class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -174,20 +176,21 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	 */
 	public static function target_route_provider(): array {
 		return array(
-			'inbox GET (actors)'                       => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
+			'inbox GET (blog actor)'                   => array( '/activitypub/1.0/actors/0/inbox', 'GET', true ),
 			'inbox GET (users alias)'                  => array( '/activitypub/1.0/users/0/inbox', 'GET', true ),
 			'inbox GET (trailing slash)'               => array( '/activitypub/1.0/actors/0/inbox/', 'GET', true ),
+			'inbox GET (user actor 1)'                 => array( '/activitypub/1.0/actors/1/inbox', 'GET', true ),
+			'inbox GET (user actor via users alias)'   => array( '/activitypub/1.0/users/7/inbox', 'GET', true ),
 			'proxy POST'                               => array( '/activitypub/1.0/proxy', 'POST', true ),
 			'proxy POST (trailing slash)'              => array( '/activitypub/1.0/proxy/', 'POST', true ),
-			'outbox POST (actors)'                     => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
+			'outbox POST (blog actor)'                 => array( '/activitypub/1.0/actors/0/outbox', 'POST', true ),
 			'outbox POST (users alias)'                => array( '/activitypub/1.0/users/0/outbox', 'POST', true ),
 			'outbox POST (trailing slash)'             => array( '/activitypub/1.0/actors/0/outbox/', 'POST', true ),
+			'outbox POST (user actor 42)'              => array( '/activitypub/1.0/actors/42/outbox', 'POST', true ),
 			'inbox POST is wrong method'               => array( '/activitypub/1.0/actors/0/inbox', 'POST', false ),
 			'outbox GET is wrong method'               => array( '/activitypub/1.0/actors/0/outbox', 'GET', false ),
 			'proxy GET is wrong method'                => array( '/activitypub/1.0/proxy', 'GET', false ),
 			'inbox GET (negative user_id rejected)'    => array( '/activitypub/1.0/actors/-1/inbox', 'GET', false ),
-			'inbox GET (non-blog user_id rejected)'    => array( '/activitypub/1.0/actors/1/inbox', 'GET', false ),
-			'outbox POST (non-blog user_id rejected)'  => array( '/activitypub/1.0/actors/42/outbox', 'POST', false ),
 			'inbox GET (non-numeric user_id rejected)' => array( '/activitypub/1.0/actors/abc/inbox', 'GET', false ),
 			'followers GET not a target'               => array( '/activitypub/1.0/actors/0/followers', 'GET', false ),
 			'following GET not a target'               => array( '/activitypub/1.0/actors/0/following', 'GET', false ),
@@ -230,12 +233,45 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	 * Mixed actor_blog mode → true.
 	 *
 	 * On `actor_blog` sites the blog actor exists alongside per-user actors
-	 * and behaves identically to pure blog-mode. Route patterns are pinned
-	 * to `user_id=0`, so the grant cannot widen to arbitrary user actors.
+	 * and behaves identically to pure blog-mode. The downstream `verify_owner`
+	 * check is what enforces actor identity on the resulting request.
 	 */
 	public function test_is_blog_mode_actor_blog_true(): void {
 		update_option( 'activitypub_actor_mode', 'actor_blog' );
 		$this->assertTrue( jetpack_activitypub_reader_auth_is_blog_mode() );
+	}
+
+	/**
+	 * Route_is_blog_actor → true for `user_id=0` routes.
+	 */
+	public function test_route_is_blog_actor_true_for_user_id_0(): void {
+		$request = self::make_request( '/activitypub/1.0/actors/0/inbox', 'GET' );
+		$this->assertTrue( jetpack_activitypub_reader_auth_route_is_blog_actor( $request ) );
+	}
+
+	/**
+	 * Route_is_blog_actor → true via the `users/0/` alias.
+	 */
+	public function test_route_is_blog_actor_true_for_users_alias(): void {
+		$request = self::make_request( '/activitypub/1.0/users/0/outbox', 'POST' );
+		$this->assertTrue( jetpack_activitypub_reader_auth_route_is_blog_actor( $request ) );
+	}
+
+	/**
+	 * Route_is_blog_actor → false for user-actor routes.
+	 */
+	public function test_route_is_blog_actor_false_for_user_actor(): void {
+		$request = self::make_request( '/activitypub/1.0/actors/5/inbox', 'GET' );
+		$this->assertFalse( jetpack_activitypub_reader_auth_route_is_blog_actor( $request ) );
+	}
+
+	/**
+	 * Route_is_blog_actor → false for non-request payloads (defensive guard).
+	 */
+	public function test_route_is_blog_actor_handles_non_request_payloads(): void {
+		$this->assertFalse( jetpack_activitypub_reader_auth_route_is_blog_actor( null ) );
+		$this->assertFalse( jetpack_activitypub_reader_auth_route_is_blog_actor( 'not-a-request' ) );
+		$this->assertFalse( jetpack_activitypub_reader_auth_route_is_blog_actor( new \stdClass() ) );
 	}
 
 	/**
@@ -376,10 +412,10 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Pure user-mode AP site → null. No blog actor exists, so `user_id=0`
-	 * routes cannot be authorized.
+	 * Pure user-mode AP site, blog-actor route → null. No blog actor exists
+	 * on `actor`-mode sites, so `user_id=0` routes are still rejected.
 	 */
-	public function test_check_permission_null_in_user_mode(): void {
+	public function test_check_permission_null_for_blog_actor_in_user_mode(): void {
 		wp_set_current_user( $this->admin_id );
 		update_option( 'activitypub_actor_mode', 'actor' );
 		self::set_jetpack_signed( 'user' );
@@ -387,6 +423,35 @@ class Jetpack_ActivityPub_Reader_Auth_Test extends WP_UnitTestCase {
 		$request = self::make_request( '/activitypub/1.0/actors/0/inbox', 'GET' );
 
 		$this->assertNull( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
+	}
+
+	/**
+	 * Pure user-mode AP site, user-actor route → true. The blog-mode gate is
+	 * scoped to blog-actor routes; user actors exist on `actor`-mode sites
+	 * and the AP plugin's `verify_owner` handles actor identity downstream.
+	 */
+	public function test_check_permission_grants_user_actor_in_user_mode(): void {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'activitypub_actor_mode', 'actor' );
+		self::set_jetpack_signed( 'user' );
+
+		$request = self::make_request( '/activitypub/1.0/actors/' . $this->admin_id . '/inbox', 'GET' );
+
+		$this->assertTrue( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
+	}
+
+	/**
+	 * Actor_blog mode also grants user-actor routes (parallel to the blog-actor
+	 * grant in `test_check_permission_grants_actor_blog_mode`).
+	 */
+	public function test_check_permission_grants_user_actor_in_actor_blog_mode(): void {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'activitypub_actor_mode', 'actor_blog' );
+		self::set_jetpack_signed( 'user' );
+
+		$request = self::make_request( '/activitypub/1.0/actors/' . $this->admin_id . '/outbox', 'POST' );
+
+		$this->assertTrue( jetpack_activitypub_reader_auth_check_permission( null, $request ) );
 	}
 
 	/**

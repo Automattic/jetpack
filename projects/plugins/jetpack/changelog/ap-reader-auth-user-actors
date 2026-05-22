@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+ActivityPub: Allow Reader auth shim to cover user-actor routes, not just the blog actor.
