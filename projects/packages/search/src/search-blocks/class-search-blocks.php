@@ -463,7 +463,10 @@ class Search_Blocks {
 	 * @return bool
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? \WC_VERSION : '' );
+		// `constant()` rather than a bare `WC_VERSION` so static analysis
+		// doesn't flag it as undeclared — WooCommerce isn't a dependency of
+		// this package (cf. the mirrored WC_PRODUCT_SEARCH_TEMPLATE_SLUG).
+		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
