@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+REMOTE="$1"
+
+# Save stdin — pre-push receives pushed refs on stdin; pass to both hooks
+PUSH_REFS=$(cat)
+
+# Collect changed files from actual pushed refs
+CHANGED=""
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+	[ -z "$local_ref" ] && continue
+	[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+	if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+		# New remote branch: try upstream of this specific local_ref, fall back to REMOTE/trunk
+		branch="${local_ref#refs/heads/}"
+		BASE=$(git rev-parse --abbrev-ref --symbolic-full-name "${branch}@{u}" 2>/dev/null || echo "${REMOTE}/trunk")
+		if ! git rev-parse --verify --quiet "$BASE" > /dev/null 2>&1; then
+			echo "Sandbox: cannot determine base ref — '$BASE' not found locally."
+			echo "Run 'git fetch ${REMOTE}' and retry, or set an upstream with 'git branch --set-upstream-to'."
+			exit 1
+		fi
+	else
+		BASE="$remote_sha"
+	fi
+	CHANGED="$CHANGED$(git diff --name-only "$BASE..$local_sha")"$'\n'
+done <<< "$PUSH_REFS"
+
+# Scope gate first: fast-fail before running the potentially slow monorepo hook
+VIOLATIONS=$(echo "$CHANGED" | grep -v '^projects/packages/premium-analytics/' | grep -v '^pnpm-lock\.yaml$' | grep -v '^$' || true)
+if [ -n "$VIOLATIONS" ]; then
+	echo "Sandbox: scope violation — files outside allowed scope:"
+	echo "$VIOLATIONS" | sed 's/^/  /'
+	echo "Only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed."
+	exit 1
+fi
+
+# Run standard monorepo pre-push checks (only if scope is clean)
+echo "$PUSH_REFS" | "$REPO_ROOT/.husky/pre-push" "$@"
+
+# Build gate: run build if premium-analytics files or pnpm-lock.yaml changed
+if echo "$CHANGED" | grep -qE '^projects/packages/premium-analytics/|^pnpm-lock\.yaml$'; then
+	echo "Sandbox: building premium-analytics..."
+	pnpm --filter @automattic/jetpack-premium-analytics build
+	echo "Build passed."
+fi
