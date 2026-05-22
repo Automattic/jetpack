@@ -10,7 +10,10 @@
 namespace Automattic\Jetpack\Extensions\Donations;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Request;
+use Automattic\Jetpack\Tracking;
+use Jetpack;
 use Jetpack_Gutenberg;
 use WP_Post;
 
@@ -626,3 +629,175 @@ function amp_skip_post( $skip, $post_id, $post ) {
 	return $skip;
 }
 add_filter( 'amp_skip_post', __NAMESPACE__ . '\amp_skip_post', 10, 3 );
+
+/**
+ * Record a Tracks event when a post containing the Donations block transitions
+ * to "publish" status. Fires once per donations block in the post, with the
+ * block's configuration snapshot as event properties.
+ *
+ * Admin-driven event only (no donor data). Does not fire on regular updates of
+ * an already-published post, on autosaves, or on revisions.
+ *
+ * @since $$next-version$$
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Previous post status.
+ * @param WP_Post $post       Post being transitioned.
+ * @return void
+ */
+function record_block_published_event( $new_status, $old_status, $post ) {
+	if ( 'publish' !== $new_status || 'publish' === $old_status ) {
+		return;
+	}
+	if ( ! $post instanceof WP_Post ) {
+		return;
+	}
+	if ( wp_is_post_revision( $post ) || wp_is_post_autosave( $post ) ) {
+		return;
+	}
+	$block_name = Blocks::get_block_name( __DIR__ );
+	if ( ! has_block( $block_name, $post ) ) {
+		return;
+	}
+
+	$donation_blocks = collect_donation_blocks( parse_blocks( $post->post_content ), $block_name );
+	if ( empty( $donation_blocks ) ) {
+		return;
+	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	$stripe_connected = \Jetpack_Memberships::has_connected_account();
+	$block_count      = count( $donation_blocks );
+
+	foreach ( $donation_blocks as $index => $block ) {
+		$props = build_block_published_event_props( $block, $post, $index, $block_count, $stripe_connected );
+		record_published_event( 'donations_block_published', $props );
+	}
+}
+add_action( 'transition_post_status', __NAMESPACE__ . '\record_block_published_event', 10, 3 );
+
+/**
+ * Walk a parsed block tree and return a flat list of Donations blocks (including
+ * nested ones inside columns / groups / patterns).
+ *
+ * @since $$next-version$$
+ *
+ * @param array  $blocks     Parsed blocks from parse_blocks().
+ * @param string $block_name Donations block name (e.g. 'jetpack/donations').
+ * @return array List of parsed blocks matching $block_name.
+ */
+function collect_donation_blocks( $blocks, $block_name ) {
+	$matches = array();
+	foreach ( $blocks as $block ) {
+		if ( isset( $block['blockName'] ) && $block_name === $block['blockName'] ) {
+			$matches[] = $block;
+		}
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$matches = array_merge( $matches, collect_donation_blocks( $block['innerBlocks'], $block_name ) );
+		}
+	}
+	return $matches;
+}
+
+/**
+ * Build the property bag for a jetpack_donations_block_published Tracks event.
+ *
+ * Extracted so it can be tested independently of the WordPress hook plumbing.
+ *
+ * @since $$next-version$$
+ *
+ * @param array   $block            Parsed block (with 'attrs' key).
+ * @param WP_Post $post             Post being published.
+ * @param int     $index            0-based position of this block within the post's donation blocks.
+ * @param int     $block_count      Total count of donations blocks in the post.
+ * @param bool    $stripe_connected Whether the site currently has a connected Stripe account.
+ * @return array Tracks event properties.
+ */
+function build_block_published_event_props( $block, $post, $index, $block_count, $stripe_connected ) {
+	$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+
+	$one_time_show = ! isset( $attrs['oneTimeDonation']['show'] ) || false !== $attrs['oneTimeDonation']['show'];
+	$monthly_show  = ! empty( $attrs['monthlyDonation']['show'] );
+	$yearly_show   = ! empty( $attrs['annualDonation']['show'] );
+
+	$default_interval  = $attrs['defaultInterval'] ?? 'one-time';
+	$interval_to_freq  = array(
+		'one-time' => 'one_time',
+		'1 month'  => 'monthly',
+		'1 year'   => 'yearly',
+	);
+	$default_frequency = $interval_to_freq[ $default_interval ] ?? $default_interval;
+	$enabled_count     = (int) $one_time_show + (int) $monthly_show + (int) $yearly_show;
+	$tabs_appearance   = $attrs['tabsAppearance'] ?? 'tabs';
+
+	return array(
+		'feature'                   => 'donations',
+		'surface'                   => 'server',
+		'stripe_connected'          => (bool) $stripe_connected,
+		'post_id'                   => (int) $post->ID,
+		'post_type'                 => (string) $post->post_type,
+		'block_index_in_post'       => (int) $index,
+		'block_count_in_post'       => (int) $block_count,
+		'currency'                  => isset( $attrs['currency'] ) ? (string) $attrs['currency'] : null,
+		'default_frequency'         => $default_frequency,
+		'enabled_frequencies_count' => $enabled_count,
+		'show_one_time'             => $one_time_show,
+		'show_monthly'              => $monthly_show,
+		'show_yearly'               => $yearly_show,
+		'show_custom_amount'        => ! empty( $attrs['showCustomAmount'] ),
+		'has_min_amount'            => isset( $attrs['minimumAmount'] ),
+		'has_max_amount'            => isset( $attrs['maximumAmount'] ),
+		'has_custom_styles'         => has_custom_styles( $attrs ),
+		'tabs_appearance'           => (string) $tabs_appearance,
+	);
+}
+
+/**
+ * Detect whether the block carries any of the customizable style attributes
+ * we ship for the RSM project (so we can measure adoption of the new options).
+ *
+ * @since $$next-version$$
+ *
+ * @param array $attrs Block attributes.
+ * @return bool Whether any style override is set.
+ */
+function has_custom_styles( $attrs ) {
+	$style_keys = array(
+		'tabFontSize',
+		'tabPadding',
+		'activeTabBackgroundColor',
+		'activeTabTextColor',
+		'buttonPadding',
+	);
+	foreach ( $style_keys as $key ) {
+		if ( isset( $attrs[ $key ] ) && '' !== $attrs[ $key ] && array() !== $attrs[ $key ] ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Send a Donations Tracks event using whichever pipeline is available for the
+ * current environment (WPCOM Simple sites vs. WoA / connected Jetpack sites).
+ *
+ * Mirrors the dual-path pattern used by the Map block. No-op on environments
+ * that have neither path available, so this stays safe on unconnected sites.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $event_name Event name WITHOUT the `jetpack_` prefix (the Tracking class adds it).
+ * @param array  $props      Tracks event properties.
+ * @return void
+ */
+function record_published_event( $event_name, $props ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'tracks/client' );
+		tracks_record_event( wp_get_current_user(), 'jetpack_' . $event_name, $props );
+		return;
+	}
+	if ( ( new Host() )->is_woa_site() && Jetpack::is_connection_ready() ) {
+		$tracking = new Tracking();
+		$tracking->record_user_event( $event_name, $props );
+	}
+}

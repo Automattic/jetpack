@@ -1,5 +1,5 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { AlignmentControl, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Dashicon,
@@ -18,7 +18,8 @@ import {
 	ToolbarItem,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import {
@@ -26,7 +27,10 @@ import {
 	minimumTransactionAmountForCurrency,
 	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { firstShownInterval } from './utils';
+
+const SETTING_DEBOUNCE_MS = 800;
 
 const INTERVAL_TO_ATTRIBUTE = {
 	'one-time': 'oneTimeDonation',
@@ -36,6 +40,41 @@ const INTERVAL_TO_ATTRIBUTE = {
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
+	const { tracks } = useAnalytics();
+	const debounceTimers = useRef( {} );
+
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl() || '',
+		[]
+	);
+	const stripeConnected = ! stripeConnectUrl;
+
+	const recordSettingChange = useCallback(
+		( settingName, settingValue ) => {
+			tracks.recordEvent( 'jetpack_donations_setting_changed', {
+				feature: 'donations',
+				surface: 'block_editor',
+				setting_name: settingName,
+				setting_value: settingValue,
+				stripe_connected: stripeConnected,
+			} );
+		},
+		[ tracks, stripeConnected ]
+	);
+
+	const recordSettingChangeDebounced = useCallback(
+		( settingName, settingValue ) => {
+			if ( debounceTimers.current[ settingName ] ) {
+				clearTimeout( debounceTimers.current[ settingName ] );
+			}
+			debounceTimers.current[ settingName ] = setTimeout( () => {
+				recordSettingChange( settingName, settingValue );
+				delete debounceTimers.current[ settingName ];
+			}, SETTING_DEBOUNCE_MS );
+		},
+		[ recordSettingChange ]
+	);
+
 	const {
 		currency,
 		oneTimeDonation,
@@ -67,6 +106,12 @@ const Controls = props => {
 		( defaultInterval === '1 year' && annualOn );
 	const effectiveDefaultInterval = isDefaultIntervalShown ? defaultInterval : fallbackInterval;
 
+	const FREQUENCY_SETTING_NAME = {
+		'one-time': 'show_one_time',
+		'1 month': 'show_monthly',
+		'1 year': 'show_yearly',
+	};
+
 	const toggleDonation = ( interval, show ) => {
 		const donationAttribute = INTERVAL_TO_ATTRIBUTE[ interval ];
 		const donation = attributes[ donationAttribute ];
@@ -93,6 +138,7 @@ const Controls = props => {
 		}
 
 		setAttributes( updates );
+		recordSettingChange( FREQUENCY_SETTING_NAME[ interval ], show );
 	};
 
 	const setDonationValue = ( interval, key, value ) => {
@@ -121,12 +167,17 @@ const Controls = props => {
 	];
 	const amountValue = donation =>
 		donation.defaultAmountIndex !== undefined ? String( donation.defaultAmountIndex ) : '';
-	const onAmountChange = interval => value =>
-		setDonationValue(
-			interval,
-			'defaultAmountIndex',
-			value === '' ? undefined : parseInt( value, 10 )
-		);
+	const DEFAULT_AMOUNT_SETTING_NAME = {
+		'one-time': 'default_amount_one_time',
+		'1 month': 'default_amount_monthly',
+		'1 year': 'default_amount_yearly',
+	};
+
+	const onAmountChange = interval => value => {
+		const parsed = value === '' ? undefined : parseInt( value, 10 );
+		setDonationValue( interval, 'defaultAmountIndex', parsed );
+		recordSettingChange( DEFAULT_AMOUNT_SETTING_NAME[ interval ], parsed ?? null );
+	};
 
 	const setContentAlignment = useCallback(
 		value => setAttributes( { contentAlignment: value || '' } ),
@@ -158,6 +209,7 @@ const Controls = props => {
 			annualDonation: { ...annualDonation, amounts: defaultAmounts },
 			customAmountPlaceholder: undefined,
 		} );
+		recordSettingChange( 'currency', ccy );
 	};
 
 	return (
@@ -243,7 +295,10 @@ const Controls = props => {
 					/>
 					<ToggleControl
 						checked={ showCustomAmount }
-						onChange={ value => setAttributes( { showCustomAmount: value } ) }
+						onChange={ value => {
+							setAttributes( { showCustomAmount: value } );
+							recordSettingChange( 'show_custom_amount', value );
+						} }
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
@@ -262,7 +317,10 @@ const Controls = props => {
 						label={ __( 'Frequency', 'jetpack' ) }
 						value={ effectiveDefaultInterval }
 						options={ frequencyOptions }
-						onChange={ value => setAttributes( { defaultInterval: value } ) }
+						onChange={ value => {
+							setAttributes( { defaultInterval: value } );
+							recordSettingChange( 'default_frequency', value );
+						} }
 						__nextHasNoMarginBottom={ true }
 					/>
 					<h4
@@ -330,12 +388,12 @@ const Controls = props => {
 									hideLabelFromVision
 									label={ __( 'Suggested custom amount', 'jetpack' ) }
 									value={ effectiveCustomAmountPlaceholder }
-									onChange={ value =>
-										setAttributes( {
-											customAmountPlaceholder:
-												value === '' || value === undefined ? undefined : Number( value ),
-										} )
-									}
+									onChange={ value => {
+										const parsed =
+											value === '' || value === undefined ? undefined : Number( value );
+										setAttributes( { customAmountPlaceholder: parsed } );
+										recordSettingChangeDebounced( 'custom_amount_placeholder', parsed ?? null );
+									} }
 									min={ minimumTransactionAmountForCurrency( currency ) }
 									step={ 0.01 }
 									__nextHasNoMarginBottom={ true }
@@ -360,11 +418,11 @@ const Controls = props => {
 						type="number"
 						label={ __( 'Minimum amount', 'jetpack' ) }
 						value={ minimumAmount ?? '' }
-						onChange={ value =>
-							setAttributes( {
-								minimumAmount: value === '' ? undefined : Number( value ),
-							} )
-						}
+						onChange={ value => {
+							const parsed = value === '' ? undefined : Number( value );
+							setAttributes( { minimumAmount: parsed } );
+							recordSettingChangeDebounced( 'minimum_amount', parsed ?? null );
+						} }
 						min={ stripeMin }
 						step={ 0.01 }
 						__nextHasNoMarginBottom={ true }
@@ -373,11 +431,11 @@ const Controls = props => {
 						type="number"
 						label={ __( 'Maximum amount', 'jetpack' ) }
 						value={ maximumAmount ?? '' }
-						onChange={ value =>
-							setAttributes( {
-								maximumAmount: value === '' ? undefined : Number( value ),
-							} )
-						}
+						onChange={ value => {
+							const parsed = value === '' ? undefined : Number( value );
+							setAttributes( { maximumAmount: parsed } );
+							recordSettingChangeDebounced( 'maximum_amount', parsed ?? null );
+						} }
 						min={ minimumAmount ?? stripeMin }
 						step={ 0.01 }
 						help={ maximumHelp }

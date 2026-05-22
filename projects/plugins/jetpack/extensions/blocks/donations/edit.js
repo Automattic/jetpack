@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
@@ -20,9 +21,13 @@ import LoadingError from './loading-error';
 import StyleControls from './style-controls';
 import Tabs from './tabs';
 
+// Dedupe block_loaded event firings across React re-mounts within the same editor session.
+const blockLoadedFiredClientIds = new Set();
+
 const Edit = props => {
-	const { attributes, setAttributes } = props;
+	const { attributes, setAttributes, clientId } = props;
 	const { currency, tabsAppearance, className } = attributes;
+	const { tracks } = useAnalytics();
 
 	// Migrate legacy blocks that used the block-style variation
 	// (`is-style-buttons` saved into `className`) over to the new
@@ -74,6 +79,27 @@ const Edit = props => {
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
+
+	// Fire jetpack_donations_block_loaded once per clientId per session.
+	// Wait until either Stripe state has resolved (stripeConnectUrl OR
+	// stripeDefaultCurrency populated) or the user is not Jetpack-connected,
+	// so the stripe_connected snapshot is accurate.
+	useEffect( () => {
+		if ( ! clientId || blockLoadedFiredClientIds.has( clientId ) ) {
+			return;
+		}
+		const stripeStateResolved = !! stripeConnectUrl || !! stripeDefaultCurrency;
+		if ( isUserConnected && ! stripeStateResolved ) {
+			return;
+		}
+		blockLoadedFiredClientIds.add( clientId );
+		tracks.recordEvent( 'jetpack_donations_block_loaded', {
+			feature: 'donations',
+			surface: 'block_editor',
+			is_user_connected: !! isUserConnected,
+			stripe_connected: isUserConnected ? ! stripeConnectUrl : null,
+		} );
+	}, [ clientId, isUserConnected, stripeConnectUrl, stripeDefaultCurrency, tracks ] );
 
 	useEffect( () => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
