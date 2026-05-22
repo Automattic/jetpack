@@ -24,9 +24,31 @@ class Dashboard_Widgets_Loader {
 	private static $bootstrapped = false;
 
 	/**
+	 * Whether Jetpack experimental dashboard widgets should load for this request.
+	 *
+	 * @return bool
+	 */
+	public static function are_enabled() {
+		/**
+		 * Enable Jetpack widgets on the experimental wp-admin dashboard.
+		 *
+		 * When false, widget build artifacts are not loaded and widget types are not registered.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether experimental dashboard widgets are enabled.
+		 */
+		return (bool) apply_filters( 'jetpack_experimental_dashboard_widgets_enabled', false );
+	}
+
+	/**
 	 * Wire the loader into WordPress.
 	 */
 	public static function init() {
+		if ( ! self::are_enabled() ) {
+			return;
+		}
+
 		$build_file = dirname( __DIR__ ) . '/build/build.php';
 		if ( file_exists( $build_file ) ) {
 			require_once $build_file;
@@ -63,17 +85,6 @@ class Dashboard_Widgets_Loader {
 	 * @return bool
 	 */
 	private static function is_enabled() {
-		/**
-		 * Enable Jetpack Stats widgets on the experimental wp-admin dashboard.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether widgets are enabled.
-		 */
-		if ( ! apply_filters( 'jetpack_stats_experimental_dashboard_widgets_enabled', true ) ) {
-			return false;
-		}
-
 		if ( ! current_user_can( 'view_stats' ) && ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}

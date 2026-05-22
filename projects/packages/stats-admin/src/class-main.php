@@ -51,10 +51,12 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
-		// Loaded explicitly so the class is available before Composer classmap is regenerated.
-		require_once __DIR__ . '/class-dashboard-widgets-loader.php';
+		if ( (bool) apply_filters( 'jetpack_experimental_dashboard_widgets_enabled', false ) ) {
+			// Loaded explicitly so the class is available before Composer classmap is regenerated.
+			require_once __DIR__ . '/class-dashboard-widgets-loader.php';
+			Dashboard_Widgets_Loader::init();
+		}
 
-		Dashboard_Widgets_Loader::init();
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// Disable JITM assets on the Stats page.
 		// JITM is handled separately by Stats: https://github.com/Automattic/wp-calypso/pull/95273.

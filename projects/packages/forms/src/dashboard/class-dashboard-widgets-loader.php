@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
-use Automattic\Jetpack\Forms\Jetpack_Forms;
 use WP_Widget_Type_Registry;
 
 /**
@@ -23,9 +22,31 @@ class Dashboard_Widgets_Loader {
 	private static $bootstrapped = false;
 
 	/**
+	 * Whether Jetpack experimental dashboard widgets should load for this request.
+	 *
+	 * @return bool
+	 */
+	public static function are_enabled() {
+		/**
+		 * Enable Jetpack widgets on the experimental wp-admin dashboard.
+		 *
+		 * When false, widget build artifacts are not loaded and widget types are not registered.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether experimental dashboard widgets are enabled.
+		 */
+		return (bool) apply_filters( 'jetpack_experimental_dashboard_widgets_enabled', false );
+	}
+
+	/**
 	 * Wire the loader into WordPress.
 	 */
 	public static function init() {
+		if ( ! self::are_enabled() ) {
+			return;
+		}
+
 		$build_file = dirname( __DIR__, 2 ) . '/build/build.php';
 		if ( file_exists( $build_file ) ) {
 			require_once $build_file;
@@ -63,21 +84,6 @@ class Dashboard_Widgets_Loader {
 	 * @return bool
 	 */
 	private static function is_enabled() {
-		/**
-		 * Enable Jetpack Forms widgets on the experimental wp-admin dashboard.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether widgets are enabled.
-		 */
-		if ( ! apply_filters( 'jetpack_forms_experimental_dashboard_widgets_enabled', true ) ) {
-			return false;
-		}
-
-		if ( ! Jetpack_Forms::is_feedback_dashboard_enabled() ) {
-			return false;
-		}
-
 		return class_exists( WP_Widget_Type_Registry::class );
 	}
 
