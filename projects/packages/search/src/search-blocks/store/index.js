@@ -144,6 +144,32 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
+ * Drop static-filter selections whose key isn't registered (or isn't a
+ * `kind === 'static'` config). Mirrors `gateActiveFilters` for the
+ * scalar-URL counterpart so a stray `?section=x` URL from a deregistered
+ * static filter can't survive across renders. Returns `{ gated, droppedAny }`
+ * so callers can write state only when something actually changed — same
+ * contract as `gateActiveFilters`.
+ *
+ * @param {object} selections    - { [filterKey]: string }.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig }.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
+ */
+export function gateStaticFilterSelections( selections, filterConfigs ) {
+	const allowedKeys = filterConfigs ?? {};
+	const gated = Object.create( null );
+	let droppedAny = false;
+	for ( const [ key, value ] of Object.entries( selections ?? {} ) ) {
+		if ( ! value || ! Object.hasOwn( allowedKeys, key ) || allowedKeys[ key ]?.kind !== 'static' ) {
+			droppedAny = true;
+			continue;
+		}
+		gated[ key ] = value;
+	}
+	return { gated, droppedAny };
+}
+
+/**
  * Drop filterLogic entries whose filter key is missing from `activeFilters`,
  * has an empty selection set, or targets a non-taxonomy filter. Mirrors the
  * cleanup `setFilter()` performs locally; called from popstate and at
@@ -553,6 +579,7 @@ function* fetchResults( pageHandle ) {
 		// downstream consumer (`buildFilterClause`) free of the override path.
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
+		staticFilterSelections: state.staticFilterSelections,
 		staticPostTypes: state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
@@ -660,12 +687,13 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any facet is active — selected filter values or a
-		 * price range. Drives the active-filters pill wrapper, the standalone
-		 * clear-filters block, and the filter-popover trigger. priceRange
-		 * counts as a filter here so a price-only selection (including a
-		 * half-open range like `?min_price=10`) doesn't leave the pill
-		 * wrapper hidden when the user has a chip to clear.
+		 * True when any facet is active — selected filter values, a
+		 * price range, or a static-filter selection. Drives the active-filters
+		 * pill wrapper, the standalone clear-filters block, and the
+		 * filter-popover trigger. priceRange counts as a filter here so a
+		 * price-only selection (including a half-open range like
+		 * `?min_price=10`) doesn't leave the pill wrapper hidden when the user
+		 * has a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
@@ -674,6 +702,12 @@ const { state, actions } = store( NAMESPACE, {
 				v => Array.isArray( v ) && v.length > 0
 			);
 			if ( hasSelections ) {
+				return true;
+			}
+			const hasStaticSelections = Object.values( state.staticFilterSelections ?? {} ).some(
+				v => !! v
+			);
+			if ( hasStaticSelections ) {
 				return true;
 			}
 			const range = state.priceRange;
@@ -687,7 +721,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * @return {number} Count of selected filter values.
 		 */
 		get activeFilterCount() {
-			return countActiveFilters( state.activeFilters );
+			const dynamic = countActiveFilters( state.activeFilters );
+			const staticCount = Object.values( state.staticFilterSelections ?? {} ).filter(
+				v => !! v
+			).length;
+			return dynamic + staticCount;
 		},
 
 		/**
@@ -961,6 +999,17 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Replace the value of a single-select static filter (jetpack-search/filter-static).
+		 *
+		 * @param {Event} event - Change event from the radio input.
+		 * @yield {Promise} setStaticFilter action.
+		 */
+		*onStaticFilterChange( event ) {
+			const { filterKey } = getContext();
+			yield actions.setStaticFilter( filterKey, event.target.value );
+		},
+
+		/**
 		 * Run a search and replace the result list.
 		 *
 		 * @param {object}  [options]         - Options.
@@ -1085,6 +1134,32 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Replace the value of a single-select static filter, then re-run the
+		 * search. Static filters store a scalar value per key (not an array
+		 * like `setFilter`) because each `jetpack-search/filter-static` block
+		 * renders mutually-exclusive radio inputs. Picking the currently
+		 * selected value clears it — same UX as legacy `setStaticFilter` in
+		 * the instant-search overlay.
+		 *
+		 * @param {string} filterKey   - The static filter's `filter_id`.
+		 * @param {string} filterValue - The newly-selected value, or '' to clear.
+		 * @yield {Promise} search action.
+		 */
+		*setStaticFilter( filterKey, filterValue ) {
+			const current = state.staticFilterSelections?.[ filterKey ] ?? '';
+			const next = { ...( state.staticFilterSelections ?? {} ) };
+			if ( current === filterValue ) {
+				// Re-picking the current radio clears the entry — mirrors the
+				// legacy overlay's radio "deselect" affordance.
+				delete next[ filterKey ];
+			} else {
+				next[ filterKey ] = filterValue;
+			}
+			state.staticFilterSelections = next;
+			yield actions.search();
+		},
+
+		/**
 		 * Toggle a filter value on or off, then re-run the search.
 		 *
 		 * Multiple selected values under the same filter key are kept in an
@@ -1139,6 +1214,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.activeFilters = {};
 			state.filterLogic = {};
 			state.priceRange = null;
+			state.staticFilterSelections = {};
 			yield actions.search();
 		},
 
@@ -1192,6 +1268,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterLogic: state.filterLogic,
 				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
+				staticFilterSelections: state.staticFilterSelections,
 				searchParamName: state.searchParamName,
 				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
@@ -1203,12 +1280,19 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, hasSearchParam, sortOrder, activeFilters, filterLogic, priceRange } =
-				readStateFromUrl(
-					state.filterConfigs,
-					state.searchParamName,
-					state.isWooCommerceBlocksEnabled
-				);
+			const {
+				searchQuery,
+				hasSearchParam,
+				sortOrder,
+				activeFilters,
+				filterLogic,
+				priceRange,
+				staticFilterSelections,
+			} = readStateFromUrl(
+				state.filterConfigs,
+				state.searchParamName,
+				state.isWooCommerceBlocksEnabled
+			);
 			state.searchQuery = searchQuery;
 			// Keep `hasSearchParam` in lockstep with the live URL so any future
 			// reader (e.g. `showNoResults`) sees the current state rather than
@@ -1228,6 +1312,10 @@ const { state, actions } = store( NAMESPACE, {
 			// targets a non-taxonomy filter.
 			state.filterLogic = pickLogicForActive( filterLogic, gated, state.filterConfigs );
 			state.priceRange = priceRange;
+			state.staticFilterSelections = gateStaticFilterSelections(
+				staticFilterSelections,
+				state.filterConfigs
+			).gated;
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -1553,6 +1641,23 @@ const { state, actions } = store( NAMESPACE, {
 
 	callbacks: {
 		/**
+		 * Reactive `checked` binding for a static-filter radio. Reads the
+		 * per-`<li>` context to know which `filterKey` + `optionValue` pair
+		 * this radio represents, then compares against the store's
+		 * `staticFilterSelections[filterKey]`. Used by
+		 * `jetpack-search/filter-static`'s `render.php` so radios stay in
+		 * lockstep with the store across `clearFilters()`, `handlePopState()`,
+		 * and any other path that mutates `state.staticFilterSelections`
+		 * outside the radio's own `change` event.
+		 *
+		 * @return {boolean} Whether this radio should appear checked.
+		 */
+		isStaticFilterSelected() {
+			const { filterKey, optionValue } = getContext();
+			return state.staticFilterSelections?.[ filterKey ] === optionValue;
+		},
+
+		/**
 		 * Fires when the search-results block mounts. Runs the initial
 		 * search if the URL seeded a query and registers the popstate
 		 * listener. Guarded so multiple blocks on the same page share a
@@ -1573,6 +1678,21 @@ const { state, actions } = store( NAMESPACE, {
 			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
+			}
+			// Symmetric gate for static-filter selections — drop any key whose
+			// filter-static block isn't on the page anymore (e.g. a stale deep
+			// link from a since-removed registration).
+			if (
+				state.staticFilterSelections &&
+				Object.keys( state.staticFilterSelections ).length > 0
+			) {
+				const { gated: gatedStatic, droppedAny: droppedStatic } = gateStaticFilterSelections(
+					state.staticFilterSelections,
+					state.filterConfigs
+				);
+				if ( droppedStatic ) {
+					state.staticFilterSelections = gatedStatic;
+				}
 			}
 			// Re-gate filterLogic against the (possibly trimmed) activeFilters
 			// AND against the just-registered filterConfigs so a
