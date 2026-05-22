@@ -2,97 +2,115 @@
  * Styles for Blaze AI landing pages.
  *
  * Owned by the jetpack-blaze package and linked by Landing_Page_CPT::render().
- * The per-page brand accent is injected as the --blaze-accent custom property.
+ * The page renders inside the merchant site, so the theme's global styles
+ * (theme.json palette + typography) load via wp_head() and the header and
+ * footer are the theme's real template parts. This stylesheet is therefore
+ * LAYOUT-FIRST: it inherits the theme's fonts and colors and only adds the
+ * landing structure. The per-page brand accent is injected as the
+ * --blaze-accent custom property, derived from the theme's color palette.
  */
 
 :root {
 	--blaze-accent: #1e6fff;
-	--blaze-fg: #1a1a1a;
-	--blaze-muted: #5b6470;
-	--blaze-bg: #fff;
-	--blaze-surface: #f6f7f9;
-	--blaze-border: #e6e8eb;
 	--blaze-radius: 12px;
 }
 
-*,
-*::before,
-*::after {
+.blaze-lp .blaze-lp-main {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: clamp(2rem, 5vw, 4.5rem) 1.5rem;
 	box-sizing: border-box;
 }
 
-html,
-body {
-	margin: 0;
-	padding: 0;
-}
-
-body.blaze-lp {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-	color: var(--blaze-fg);
-	background: var(--blaze-bg);
-	line-height: 1.6;
-	-webkit-font-smoothing: antialiased;
-}
-
-.blaze-lp-header {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 1.1rem 1.5rem;
-	border-bottom: 1px solid var(--blaze-border);
-}
-
-.blaze-lp-logo {
-	height: 36px;
-	width: auto;
-	display: block;
-}
-
-.blaze-lp-brand {
-	font-weight: 700;
-	font-size: 1.15rem;
-	letter-spacing: 0.01em;
-}
-
-.blaze-lp-main {
-	max-width: 1040px;
-	margin: 0 auto;
-	padding: 3rem 1.5rem;
-}
-
+/* Hero: gallery on the left, copy on the right. */
 .blaze-lp-hero {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	gap: 3rem;
-	align-items: center;
+	gap: clamp(1.5rem, 4vw, 3.5rem);
+	align-items: start;
 }
 
-.blaze-lp-media img {
+/* Gallery */
+.blaze-lp-gallery {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
+.blaze-lp-gallery-main {
+	margin: 0;
+}
+
+.blaze-lp-gallery-main img {
 	width: 100%;
 	height: auto;
 	display: block;
 	border-radius: var(--blaze-radius);
 	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+}
+
+.blaze-lp-gallery-thumbs {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.6rem;
+}
+
+.blaze-lp-gallery-thumbs img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius: 8px;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+}
+
+/* Copy column */
+.blaze-lp-copy {
+	align-self: center;
 }
 
 .blaze-lp-headline {
-	font-size: clamp(1.9rem, 4vw, 3rem);
-	line-height: 1.12;
+	font-family: inherit;
+	font-size: clamp(2rem, 4.2vw, 3.25rem);
+	line-height: 1.1;
 	margin: 0 0 0.75rem;
-	letter-spacing: -0.01em;
 }
 
 .blaze-lp-sub {
-	font-size: 1.2rem;
-	color: var(--blaze-muted);
+	font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+	opacity: 0.8;
 	margin: 0 0 1.5rem;
+	max-width: 46ch;
 }
 
 .blaze-lp-price {
-	font-size: 1.4rem;
+	font-size: 1.6rem;
 	font-weight: 700;
-	margin: 0 0 1.5rem;
+	margin: 0 0 1.6rem;
+}
+
+.blaze-lp-price del {
+	opacity: 0.5;
+	font-weight: 400;
+	margin-right: 0.5rem;
+}
+
+.blaze-lp-price ins {
+	text-decoration: none;
+}
+
+.blaze-lp-price .woocommerce-Price-amount {
+	white-space: nowrap;
+}
+
+/* CTA — styled with the theme's brand accent so it matches the store. */
+.blaze-lp-cta-wrap {
+	margin: 0;
 }
 
 .blaze-lp-cta {
@@ -100,21 +118,25 @@ body.blaze-lp {
 	background: var(--blaze-accent);
 	color: #fff;
 	text-decoration: none;
-	font-weight: 600;
-	font-size: 1.05rem;
-	padding: 0.9rem 1.8rem;
-	border-radius: 8px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	font-size: 0.95rem;
+	padding: 1rem 2.2rem;
+	border-radius: 6px;
 	transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .blaze-lp-cta:hover {
 	opacity: 0.92;
 	transform: translateY(-1px);
+	color: #fff;
 }
 
+/* Highlights */
 .blaze-lp-highlights {
 	list-style: none;
-	margin: 3.5rem 0 0;
+	margin: clamp(2.5rem, 5vw, 4rem) 0 0;
 	padding: 0;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -122,30 +144,49 @@ body.blaze-lp {
 }
 
 .blaze-lp-highlights li {
-	background: var(--blaze-surface);
-	border: 1px solid var(--blaze-border);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-top: 3px solid var(--blaze-accent);
 	border-radius: 10px;
-	padding: 1.1rem 1.25rem;
+	padding: 1.15rem 1.25rem;
+	background: rgba(0, 0, 0, 0.015);
 	font-size: 1rem;
 }
 
-.blaze-lp-footer {
+/* Fallback chrome for classic (non-block) themes. */
+.blaze-lp-fallback-header {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1.1rem 1.5rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.blaze-lp-fallback-header .blaze-lp-brand {
+	font-weight: 700;
+	font-size: 1.2rem;
+}
+
+.blaze-lp-fallback-header img,
+.blaze-lp-fallback-header .custom-logo {
+	max-height: 40px;
+	width: auto;
+}
+
+.blaze-lp-fallback-footer {
 	text-align: center;
-	color: var(--blaze-muted);
-	font-size: 0.9rem;
+	opacity: 0.7;
 	padding: 2.5rem 1.5rem;
-	border-top: 1px solid var(--blaze-border);
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
 	margin-top: 3.5rem;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 781px) {
 
 	.blaze-lp-hero {
 		grid-template-columns: 1fr;
-		gap: 1.75rem;
 	}
 
-	.blaze-lp-main {
-		padding: 2rem 1.25rem;
+	.blaze-lp-gallery-thumbs {
+		grid-template-columns: repeat(5, 1fr);
 	}
 }

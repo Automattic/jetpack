@@ -40,9 +40,11 @@ class Landing_Page_CPT {
 	const META_MODE       = '_blaze_landing_mode';
 	const META_CAMPAIGN   = '_blaze_landing_campaign_id';
 	const META_HIGHLIGHTS = '_blaze_landing_highlights';
+	const META_GEN_IMAGES = '_blaze_landing_gen_images';
 
-	const ASSET_VERSION  = '1.0.0';
+	const ASSET_VERSION  = '1.1.0';
 	const MAX_HIGHLIGHTS = 6;
+	const MAX_GEN_IMAGES = 8;
 
 	/**
 	 * Scalar landing-page fields and the WordPress sanitizer registered for
@@ -198,7 +200,103 @@ class Landing_Page_CPT {
 		}
 		$highlights        = get_post_meta( $post_id, self::META_HIGHLIGHTS, true );
 		$out['highlights'] = is_array( $highlights ) ? $highlights : array();
+		$gen_images        = get_post_meta( $post_id, self::META_GEN_IMAGES, true );
+		$out['gen_images'] = is_array( $gen_images ) ? $gen_images : array();
+		$out['product_id'] = (int) get_post_meta( $post_id, self::META_PRODUCT_ID, true );
+		$out['mode']       = (string) get_post_meta( $post_id, self::META_MODE, true );
 		return $out;
+	}
+
+	/**
+	 * Load the live WooCommerce product behind a landing page, when available.
+	 *
+	 * The landing renders on the merchant site, so the product (price, gallery,
+	 * permalink) is read live from WooCommerce rather than copied at creation
+	 * time. Returns null when WooCommerce or the product is unavailable, so the
+	 * template can fall back to stored meta.
+	 *
+	 * @param array $f Stored fields (see get_fields()).
+	 * @return \WC_Product|null
+	 */
+	private static function get_wc_product( $f ) {
+		if ( 'woocommerce' !== $f['mode'] || $f['product_id'] <= 0 || ! function_exists( 'wc_get_product' ) ) {
+			return null;
+		}
+		$product = wc_get_product( $f['product_id'] );
+		return $product instanceof \WC_Product ? $product : null;
+	}
+
+	/**
+	 * Build the ordered list of image URLs to show: the product's featured image,
+	 * its WooCommerce gallery, then any AI-generated lifestyle images. Falls back
+	 * to the stored image_url when there is no live product.
+	 *
+	 * @param array            $f       Stored fields.
+	 * @param \WC_Product|null $product Live product, if any.
+	 * @return string[] De-duplicated image URLs.
+	 */
+	private static function get_images( $f, $product ) {
+		$urls = array();
+		if ( $product instanceof \WC_Product ) {
+			$ids = array_merge( array( $product->get_image_id() ), $product->get_gallery_image_ids() );
+			foreach ( $ids as $id ) {
+				$url = $id ? wp_get_attachment_image_url( (int) $id, 'large' ) : '';
+				if ( $url ) {
+					$urls[] = $url;
+				}
+			}
+		} elseif ( '' !== $f['image_url'] ) {
+			$urls[] = $f['image_url'];
+		}
+		foreach ( $f['gen_images'] as $gen ) {
+			$gen = esc_url_raw( (string) $gen );
+			if ( '' !== $gen ) {
+				$urls[] = $gen;
+			}
+		}
+		return array_values( array_unique( $urls ) );
+	}
+
+	/**
+	 * Pick an accent color from the active theme's palette so the landing's own
+	 * accents (CTA, dividers) match the store. Skips the usual neutral slugs and
+	 * returns the first "brand" color, or '' when none can be determined.
+	 *
+	 * @return string Hex color or ''.
+	 */
+	private static function theme_accent_color() {
+		if ( ! function_exists( 'wp_get_global_settings' ) ) {
+			return '';
+		}
+		$palette = wp_get_global_settings( array( 'color', 'palette' ) );
+		$colors  = array();
+		if ( isset( $palette['theme'] ) && is_array( $palette['theme'] ) ) {
+			$colors = $palette['theme'];
+		} elseif ( is_array( $palette ) ) {
+			$colors = $palette;
+		}
+		$skip = array( 'base', 'background', 'foreground', 'contrast', 'text', 'white', 'black', 'light', 'dark' );
+		foreach ( $colors as $color ) {
+			$slug = isset( $color['slug'] ) ? strtolower( (string) $color['slug'] ) : '';
+			$hex  = isset( $color['color'] ) ? (string) $color['color'] : '';
+			if ( '' === $slug || '' === $hex ) {
+				continue;
+			}
+			$is_neutral = false;
+			foreach ( $skip as $needle ) {
+				if ( false !== strpos( $slug, $needle ) ) {
+					$is_neutral = true;
+					break;
+				}
+			}
+			if ( ! $is_neutral ) {
+				$clean = sanitize_hex_color( $hex );
+				if ( $clean ) {
+					return $clean;
+				}
+			}
+		}
+		return '';
 	}
 
 	/**
@@ -209,56 +307,76 @@ class Landing_Page_CPT {
 	 */
 	private static function render_template( $post ) {
 		$f       = self::get_fields( $post->ID );
-		$lang    = get_bloginfo( 'language' );
-		$css_url = plugins_url( 'css/landing-page.css', __FILE__ );
-		$cta     = '' !== $f['cta_text'] ? $f['cta_text'] : __( 'Shop now', 'jetpack-blaze' );
-		$price   = trim( $f['price'] . ( '' !== $f['currency'] ? ' ' . $f['currency'] : '' ) );
-		$brand   = '' !== $f['brand_name'] ? $f['brand_name'] : get_bloginfo( 'name' );
+		$product = self::get_wc_product( $f );
+		$images  = self::get_images( $f, $product );
+		$accent  = self::theme_accent_color();
+
+		$headline = '' !== $f['headline'] ? $f['headline'] : ( $product ? $product->get_name() : $post->post_title );
+		$cta      = '' !== $f['cta_text'] ? $f['cta_text'] : __( 'Shop now', 'jetpack-blaze' );
+		$cta_url  = $f['cta_url'];
+		if ( '' === $cta_url && $product ) {
+			$cta_url = $product->add_to_cart_url();
+		}
+
+		$price_html = $product ? $product->get_price_html() : '';
+		if ( '' === $price_html && '' !== $f['price'] ) {
+			$price_html = esc_html( trim( $f['price'] . ( '' !== $f['currency'] ? ' ' . $f['currency'] : '' ) ) );
+		}
+
+		$main_image = array_shift( $images );
 
 		ob_start();
 		?>
 <!doctype html>
-<html lang="<?php echo esc_attr( $lang ); ?>">
+<html <?php language_attributes(); ?>>
 <head>
-<meta charset="utf-8">
+<meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title><?php echo esc_html( $post->post_title ); ?></title>
+<title><?php echo esc_html( $headline ); ?></title>
 		<?php
-		wp_enqueue_style( 'jetpack-blaze-landing', $css_url, array(), self::ASSET_VERSION );
-		wp_print_styles( 'jetpack-blaze-landing' );
+		// Enqueue our stylesheet, then let wp_head() print it together with the
+		// theme's global styles (theme.json palette + typography) and block CSS,
+		// so the page inherits the store's look.
+		wp_enqueue_style( 'jetpack-blaze-landing', plugins_url( 'css/landing-page.css', __FILE__ ), array(), self::ASSET_VERSION );
+		wp_head();
 		?>
-		<?php if ( '' !== $f['accent_color'] ) : ?>
-<style>:root{--blaze-accent:<?php echo esc_html( $f['accent_color'] ); ?>}</style>
+		<?php if ( '' !== $accent ) : ?>
+<style>:root{--blaze-accent:<?php echo esc_html( $accent ); ?>}</style>
 		<?php endif; ?>
 </head>
-<body class="blaze-lp">
-<header class="blaze-lp-header">
-		<?php if ( '' !== $f['logo_url'] ) : ?>
-	<img class="blaze-lp-logo" src="<?php echo esc_url( $f['logo_url'] ); ?>" alt="<?php echo esc_attr( $brand ); ?>">
-		<?php else : ?>
-	<span class="blaze-lp-brand"><?php echo esc_html( $brand ); ?></span>
-		<?php endif; ?>
-</header>
+<body <?php body_class( 'blaze-lp' ); ?>>
+		<?php self::render_site_chrome( 'header' ); ?>
 <main class="blaze-lp-main">
 	<section class="blaze-lp-hero">
-		<?php if ( '' !== $f['image_url'] ) : ?>
-		<div class="blaze-lp-media">
-			<img src="<?php echo esc_url( $f['image_url'] ); ?>" alt="<?php echo esc_attr( '' !== $f['product_name'] ? $f['product_name'] : $f['headline'] ); ?>">
+		<div class="blaze-lp-gallery">
+		<?php if ( $main_image ) : ?>
+			<figure class="blaze-lp-gallery-main">
+				<img src="<?php echo esc_url( $main_image ); ?>" alt="<?php echo esc_attr( $headline ); ?>">
+			</figure>
+			<?php if ( ! empty( $images ) ) : ?>
+			<ul class="blaze-lp-gallery-thumbs">
+				<?php foreach ( $images as $img ) : ?>
+				<li><img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( $headline ); ?>" loading="lazy"></li>
+				<?php endforeach; ?>
+			</ul>
+			<?php endif; ?>
+		<?php endif; ?>
 		</div>
-		<?php endif; ?>
 		<div class="blaze-lp-copy">
-		<?php if ( '' !== $f['headline'] ) : ?>
-			<h1 class="blaze-lp-headline"><?php echo esc_html( $f['headline'] ); ?></h1>
-		<?php endif; ?>
+			<h1 class="blaze-lp-headline"><?php echo esc_html( $headline ); ?></h1>
 		<?php if ( '' !== $f['subheadline'] ) : ?>
 			<p class="blaze-lp-sub"><?php echo esc_html( $f['subheadline'] ); ?></p>
 		<?php endif; ?>
-		<?php if ( '' !== $price ) : ?>
-			<p class="blaze-lp-price"><?php echo esc_html( $price ); ?></p>
+		<?php if ( '' !== $price_html ) : ?>
+			<div class="blaze-lp-price">
+				<?php echo wp_kses_post( $price_html ); ?>
+			</div>
 		<?php endif; ?>
-		<?php if ( '' !== $f['cta_url'] ) : ?>
-			<a class="blaze-lp-cta" href="<?php echo esc_url( $f['cta_url'] ); ?>"><?php echo esc_html( $cta ); ?></a>
+		<?php if ( '' !== $cta_url ) : ?>
+			<p class="blaze-lp-cta-wrap">
+				<a class="blaze-lp-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta ); ?></a>
+			</p>
 		<?php endif; ?>
 		</div>
 	</section>
@@ -270,11 +388,45 @@ class Landing_Page_CPT {
 	</ul>
 		<?php endif; ?>
 </main>
-<footer class="blaze-lp-footer"><?php echo esc_html( $brand ); ?></footer>
+		<?php
+		self::render_site_chrome( 'footer' );
+		wp_footer();
+		?>
 </body>
 </html>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Render the store's real header or footer so the landing matches the site.
+	 *
+	 * Block themes expose header/footer as template parts; classic themes get a
+	 * minimal branded fallback (logo or site name) so the page still looks owned.
+	 *
+	 * @param string $part 'header' or 'footer'.
+	 * @return void
+	 */
+	private static function render_site_chrome( $part ) {
+		if (
+			function_exists( 'wp_is_block_theme' ) && wp_is_block_theme()
+			&& function_exists( 'block_template_part' )
+		) {
+			block_template_part( $part );
+			return;
+		}
+
+		if ( 'header' === $part ) {
+			echo '<header class="blaze-lp-fallback-header">';
+			if ( function_exists( 'has_custom_logo' ) && has_custom_logo() ) {
+				echo get_custom_logo(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core markup.
+			} else {
+				echo '<span class="blaze-lp-brand">' . esc_html( get_bloginfo( 'name' ) ) . '</span>';
+			}
+			echo '</header>';
+		} else {
+			echo '<footer class="blaze-lp-fallback-footer">' . esc_html( get_bloginfo( 'name' ) ) . '</footer>';
+		}
 	}
 
 	/**
@@ -299,6 +451,7 @@ class Landing_Page_CPT {
 	 *                    `subheadline`, `cta_text`, `cta_url`, `product_name`,
 	 *                    `price`, `currency`, `image_url`, `brand_name`,
 	 *                    `logo_url`, `accent_color`, `highlights` (string[]),
+	 *                    `gen_images` (string[] of AI image URLs),
 	 *                    `campaign_id`, `slug` (optional, upsert in place).
 	 * @return array|\WP_Error Array with id, slug, url; or WP_Error.
 	 */
@@ -373,6 +526,20 @@ class Landing_Page_CPT {
 			}
 			$highlights = array_slice( $highlights, 0, self::MAX_HIGHLIGHTS );
 			update_post_meta( $post_id, self::META_HIGHLIGHTS, $highlights );
+		}
+
+		// AI-generated lifestyle images: a short list of absolute URLs (hosted by
+		// DSP). Shown in the gallery alongside the live WooCommerce images.
+		if ( isset( $args['gen_images'] ) && is_array( $args['gen_images'] ) ) {
+			$gen_images = array();
+			foreach ( $args['gen_images'] as $gen_image ) {
+				$clean = esc_url_raw( (string) $gen_image );
+				if ( '' !== $clean ) {
+					$gen_images[] = $clean;
+				}
+			}
+			$gen_images = array_slice( $gen_images, 0, self::MAX_GEN_IMAGES );
+			update_post_meta( $post_id, self::META_GEN_IMAGES, $gen_images );
 		}
 
 		update_post_meta( $post_id, self::META_MODE, $mode );

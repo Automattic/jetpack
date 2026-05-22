@@ -148,6 +148,10 @@ class REST_Controller {
 				'type'  => 'array',
 				'items' => array( 'type' => 'string' ),
 			),
+			'gen_images'   => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
 			'campaign_id'  => array(
 				'type' => 'integer',
 			),
@@ -192,6 +196,7 @@ class REST_Controller {
 			'logo_url'     => (string) $request->get_param( 'logo_url' ),
 			'accent_color' => (string) $request->get_param( 'accent_color' ),
 			'highlights'   => (array) $request->get_param( 'highlights' ),
+			'gen_images'   => (array) $request->get_param( 'gen_images' ),
 			'campaign_id'  => (int) $request->get_param( 'campaign_id' ),
 		);
 

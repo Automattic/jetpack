@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Render Blaze landing pages on-brand: load the merchant theme's global styles and real header/footer template parts, show the live WooCommerce price and image gallery, and support AI-generated lifestyle images alongside it.
