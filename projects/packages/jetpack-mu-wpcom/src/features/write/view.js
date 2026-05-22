@@ -4529,10 +4529,15 @@ const { state } = store( 'wpcom-write', {
 			} else {
 				// Reject input that isn't URL-shaped before hitting the server.
 				const normalized = /^https?:\/\//i.test( input ) ? input : 'https://' + input;
+				let parsed;
 				try {
-					// eslint-disable-next-line no-new
-					new URL( normalized );
+					parsed = new URL( normalized );
 				} catch {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+				if ( ! parsed.hostname.includes( '.' ) ) {
 					state.openPostError =
 						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
 					return;
@@ -4571,12 +4576,17 @@ const { state } = store( 'wpcom-write', {
 			const items = [ ...document.querySelectorAll( '.bw-postpicker-item' ) ];
 			if ( items.length ) {
 				const idx = items.indexOf( active );
+				let next = -1;
 				if ( event.key === 'ArrowDown' ) {
-					event.preventDefault();
-					items[ idx < items.length - 1 ? idx + 1 : 0 ].focus();
+					next = idx < items.length - 1 ? idx + 1 : 0;
 				} else if ( event.key === 'ArrowUp' ) {
+					next = idx > 0 ? idx - 1 : items.length - 1;
+				}
+				if ( next >= 0 ) {
 					event.preventDefault();
-					items[ idx > 0 ? idx - 1 : items.length - 1 ].focus();
+					items.forEach( el => el.setAttribute( 'tabindex', '-1' ) );
+					items[ next ].setAttribute( 'tabindex', '0' );
+					items[ next ].focus();
 				}
 			}
 

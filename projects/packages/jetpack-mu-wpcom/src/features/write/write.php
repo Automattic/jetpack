@@ -1276,10 +1276,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 			<?php if ( ! empty( $recent_drafts ) ) : ?>
 			<p class="bw-postpicker-label"><?php echo esc_html__( 'Last edited', 'jetpack-mu-wpcom' ); ?></p>
-			<div class="bw-postpicker-list">
-				<?php foreach ( $recent_drafts as $draft ) : ?>
+			<div class="bw-postpicker-list" role="listbox" aria-label="<?php echo esc_attr__( 'Recent drafts', 'jetpack-mu-wpcom' ); ?>">
+				<?php foreach ( $recent_drafts as $idx => $draft ) : ?>
 				<button
 					class="bw-postpicker-item"
+					role="option"
+					tabindex="<?php echo 0 === $idx ? '0' : '-1'; ?>"
 					data-post-id="<?php echo (int) $draft['id']; ?>"
 					data-wp-on--click="actions.openPickedPost"
 				>
