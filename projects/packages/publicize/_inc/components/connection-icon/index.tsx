@@ -8,6 +8,7 @@ import styles from './styles.module.scss';
 // component alongside its legacy webpack consumers.
 const DefaultAvatar = ( { alt }: { alt: string } ) => (
 	<svg
+		className={ styles.avatar }
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 340 340"
 		width="24"
