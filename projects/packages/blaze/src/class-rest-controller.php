@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Blaze;
-use Automattic\Jetpack\Blaze\Landing_Page_CPT;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Status\Host;
@@ -97,23 +96,59 @@ class REST_Controller {
 	 */
 	private static function landing_page_args() {
 		return array(
-			'html'        => array(
-				'type'     => 'string',
-				'required' => true,
-			),
-			'title'       => array(
-				'type' => 'string',
-			),
-			'mode'        => array(
+			'mode'         => array(
 				'type'     => 'string',
 				'enum'     => array( 'woocommerce' ),
 				'required' => true,
 			),
-			'product_id'  => array(
+			'product_id'   => array(
 				'type'     => 'integer',
 				'required' => true,
 			),
-			'campaign_id' => array(
+			'title'        => array(
+				'type' => 'string',
+			),
+			'headline'     => array(
+				'type' => 'string',
+			),
+			'subheadline'  => array(
+				'type' => 'string',
+			),
+			'cta_text'     => array(
+				'type' => 'string',
+			),
+			'cta_url'      => array(
+				'type'   => 'string',
+				'format' => 'uri',
+			),
+			'product_name' => array(
+				'type' => 'string',
+			),
+			'price'        => array(
+				'type' => 'string',
+			),
+			'currency'     => array(
+				'type' => 'string',
+			),
+			'image_url'    => array(
+				'type'   => 'string',
+				'format' => 'uri',
+			),
+			'brand_name'   => array(
+				'type' => 'string',
+			),
+			'logo_url'     => array(
+				'type'   => 'string',
+				'format' => 'uri',
+			),
+			'accent_color' => array(
+				'type' => 'string',
+			),
+			'highlights'   => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
+			'campaign_id'  => array(
 				'type' => 'integer',
 			),
 		);
@@ -141,14 +176,26 @@ class REST_Controller {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function upsert_landing_page( WP_REST_Request $request ) {
-		$slug_from_url = $request->get_param( 'slug' );
-		$args          = array(
-			'html'        => (string) $request->get_param( 'html' ),
-			'title'       => (string) $request->get_param( 'title' ),
-			'mode'        => (string) $request->get_param( 'mode' ),
-			'product_id'  => (int) $request->get_param( 'product_id' ),
-			'campaign_id' => (int) $request->get_param( 'campaign_id' ),
+		$args = array(
+			'mode'         => (string) $request->get_param( 'mode' ),
+			'product_id'   => (int) $request->get_param( 'product_id' ),
+			'title'        => (string) $request->get_param( 'title' ),
+			'headline'     => (string) $request->get_param( 'headline' ),
+			'subheadline'  => (string) $request->get_param( 'subheadline' ),
+			'cta_text'     => (string) $request->get_param( 'cta_text' ),
+			'cta_url'      => (string) $request->get_param( 'cta_url' ),
+			'product_name' => (string) $request->get_param( 'product_name' ),
+			'price'        => (string) $request->get_param( 'price' ),
+			'currency'     => (string) $request->get_param( 'currency' ),
+			'image_url'    => (string) $request->get_param( 'image_url' ),
+			'brand_name'   => (string) $request->get_param( 'brand_name' ),
+			'logo_url'     => (string) $request->get_param( 'logo_url' ),
+			'accent_color' => (string) $request->get_param( 'accent_color' ),
+			'highlights'   => (array) $request->get_param( 'highlights' ),
+			'campaign_id'  => (int) $request->get_param( 'campaign_id' ),
 		);
+
+		$slug_from_url = $request->get_param( 'slug' );
 		if ( ! empty( $slug_from_url ) ) {
 			$args['slug'] = (string) $slug_from_url;
 		}

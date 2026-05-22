@@ -1,0 +1,151 @@
+/**
+ * Styles for Blaze AI landing pages.
+ *
+ * Owned by the jetpack-blaze package and linked by Landing_Page_CPT::render().
+ * The per-page brand accent is injected as the --blaze-accent custom property.
+ */
+
+:root {
+	--blaze-accent: #1e6fff;
+	--blaze-fg: #1a1a1a;
+	--blaze-muted: #5b6470;
+	--blaze-bg: #fff;
+	--blaze-surface: #f6f7f9;
+	--blaze-border: #e6e8eb;
+	--blaze-radius: 12px;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body.blaze-lp {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var(--blaze-fg);
+	background: var(--blaze-bg);
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+}
+
+.blaze-lp-header {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1.1rem 1.5rem;
+	border-bottom: 1px solid var(--blaze-border);
+}
+
+.blaze-lp-logo {
+	height: 36px;
+	width: auto;
+	display: block;
+}
+
+.blaze-lp-brand {
+	font-weight: 700;
+	font-size: 1.15rem;
+	letter-spacing: 0.01em;
+}
+
+.blaze-lp-main {
+	max-width: 1040px;
+	margin: 0 auto;
+	padding: 3rem 1.5rem;
+}
+
+.blaze-lp-hero {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3rem;
+	align-items: center;
+}
+
+.blaze-lp-media img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius: var(--blaze-radius);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+.blaze-lp-headline {
+	font-size: clamp(1.9rem, 4vw, 3rem);
+	line-height: 1.12;
+	margin: 0 0 0.75rem;
+	letter-spacing: -0.01em;
+}
+
+.blaze-lp-sub {
+	font-size: 1.2rem;
+	color: var(--blaze-muted);
+	margin: 0 0 1.5rem;
+}
+
+.blaze-lp-price {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 0 0 1.5rem;
+}
+
+.blaze-lp-cta {
+	display: inline-block;
+	background: var(--blaze-accent);
+	color: #fff;
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 1.05rem;
+	padding: 0.9rem 1.8rem;
+	border-radius: 8px;
+	transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.blaze-lp-cta:hover {
+	opacity: 0.92;
+	transform: translateY(-1px);
+}
+
+.blaze-lp-highlights {
+	list-style: none;
+	margin: 3.5rem 0 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1rem;
+}
+
+.blaze-lp-highlights li {
+	background: var(--blaze-surface);
+	border: 1px solid var(--blaze-border);
+	border-radius: 10px;
+	padding: 1.1rem 1.25rem;
+	font-size: 1rem;
+}
+
+.blaze-lp-footer {
+	text-align: center;
+	color: var(--blaze-muted);
+	font-size: 0.9rem;
+	padding: 2.5rem 1.5rem;
+	border-top: 1px solid var(--blaze-border);
+	margin-top: 3.5rem;
+}
+
+@media (max-width: 720px) {
+
+	.blaze-lp-hero {
+		grid-template-columns: 1fr;
+		gap: 1.75rem;
+	}
+
+	.blaze-lp-main {
+		padding: 2rem 1.25rem;
+	}
+}

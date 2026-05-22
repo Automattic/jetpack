@@ -1,17 +1,19 @@
 <?php
 /**
- * Hidden CPT used to host AI-generated Blaze landing pages.
+ * Hidden CPT for Blaze AI landing pages.
+ *
+ * A landing page is defined by STRUCTURED fields — headline, subheadline,
+ * highlights, CTA, plus product and brand data — stored in sanitized post
+ * meta. It is NOT arbitrary HTML: the AI generates copy, not markup. On the
+ * public URL the theme is bypassed and a fixed, package-owned template renders
+ * those fields, styled by the package's own stylesheet. Because nothing
+ * untrusted is stored as markup or CSS, this never fights the platform's
+ * content sanitization (KSES / WPCOM filters).
  *
  * The CPT is:
  *  - not public (no archive, not in search, not in nav menus, no admin UI),
  *  - publicly queryable (the random-slug URL works), and
- *  - REST-enabled so DSP can create/update entries via the WPCOM proxy.
- *
- * Each landing page is a self-contained HTML document stored in
- * `post_content`. When the public URL is hit, the theme is bypassed and
- * the document is served inside a sandboxed iframe, so its (AI-generated,
- * attacker-influenceable) markup cannot run scripts or reach the merchant's
- * origin, cookies, or parent DOM.
+ *  - REST-enabled so the WPCOM proxy can create/update entries.
  *
  * @package automattic/jetpack-blaze
  */
@@ -30,21 +32,40 @@ class Landing_Page_CPT {
 	const SLUG_BYTES = 16;
 
 	/**
-	 * Meta keys for landing-page metadata. Stored as post meta so the
-	 * post_content stays a clean HTML document.
+	 * Prefix for all landing-page field meta keys (protected meta).
 	 */
+	const META_PREFIX = '_blaze_landing_';
+
 	const META_PRODUCT_ID = '_blaze_landing_product_id';
 	const META_MODE       = '_blaze_landing_mode';
 	const META_CAMPAIGN   = '_blaze_landing_campaign_id';
+	const META_HIGHLIGHTS = '_blaze_landing_highlights';
+
+	const ASSET_VERSION  = '1.0.0';
+	const MAX_HIGHLIGHTS = 6;
 
 	/**
-	 * The landing-page HTML document is stored base64-encoded in this protected
-	 * meta key, NOT in post_content. WPCOM/Atomic run content sanitization on
-	 * post_content (KSES + platform filters) that strips `<style>`/`<head>`,
-	 * which would break the page even with KSES disabled. Base64 in meta is
-	 * opaque to every sanitizer and round-trips intact on Simple/Atomic/JN.
+	 * Scalar landing-page fields and the WordPress sanitizer registered for
+	 * each. The sanitizer runs automatically on save (via register_post_meta)
+	 * and the values are escaped again at render — no raw markup is ever stored.
+	 *
+	 * @return array<string,string> Field name => sanitize callback.
 	 */
-	const META_HTML = '_blaze_landing_html';
+	private static function fields() {
+		return array(
+			'headline'     => 'sanitize_text_field',
+			'subheadline'  => 'sanitize_text_field',
+			'cta_text'     => 'sanitize_text_field',
+			'cta_url'      => 'esc_url_raw',
+			'product_name' => 'sanitize_text_field',
+			'price'        => 'sanitize_text_field',
+			'currency'     => 'sanitize_text_field',
+			'image_url'    => 'esc_url_raw',
+			'brand_name'   => 'sanitize_text_field',
+			'logo_url'     => 'esc_url_raw',
+			'accent_color' => 'sanitize_hex_color',
+		);
+	}
 
 	/**
 	 * Wire hooks.
@@ -53,11 +74,11 @@ class Landing_Page_CPT {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register' ) );
-		add_filter( 'template_include', array( __CLASS__, 'render_raw_document' ), PHP_INT_MAX );
+		add_filter( 'template_include', array( __CLASS__, 'render' ), PHP_INT_MAX );
 	}
 
 	/**
-	 * Register the CPT.
+	 * Register the CPT and its field meta.
 	 *
 	 * @return void
 	 */
@@ -76,9 +97,7 @@ class Landing_Page_CPT {
 				'show_in_menu'        => false,
 				'show_in_nav_menus'   => false,
 				'show_in_admin_bar'   => false,
-				'show_in_rest'        => true,
-				'rest_base'           => 'blaze-landing-pages',
-				'rest_namespace'      => 'jetpack/v4',
+				'show_in_rest'        => false,
 				'rewrite'             => array(
 					'slug'       => self::URL_PREFIX,
 					'with_front' => false,
@@ -86,53 +105,65 @@ class Landing_Page_CPT {
 					'pages'      => false,
 				),
 				'has_archive'         => false,
-				'supports'            => array( 'title', 'editor', 'custom-fields' ),
+				'supports'            => array( 'title' ),
 				'capability_type'     => 'post',
 				'map_meta_cap'        => true,
 				'delete_with_user'    => false,
 			)
 		);
 
-		register_post_meta(
-			self::POST_TYPE,
-			self::META_PRODUCT_ID,
-			array(
-				'type'         => 'integer',
-				'single'       => true,
-				'show_in_rest' => true,
-			)
-		);
+		foreach ( self::fields() as $field => $sanitizer ) {
+			register_post_meta(
+				self::POST_TYPE,
+				self::META_PREFIX . $field,
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'show_in_rest'      => false,
+					'sanitize_callback' => $sanitizer,
+				)
+			);
+		}
+
 		register_post_meta(
 			self::POST_TYPE,
 			self::META_MODE,
 			array(
-				'type'         => 'string',
-				'single'       => true,
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'sanitize_key',
+			)
+		);
+		register_post_meta(
+			self::POST_TYPE,
+			self::META_PRODUCT_ID,
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'absint',
 			)
 		);
 		register_post_meta(
 			self::POST_TYPE,
 			self::META_CAMPAIGN,
 			array(
-				'type'         => 'integer',
-				'single'       => true,
-				'show_in_rest' => true,
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'absint',
 			)
 		);
 	}
 
 	/**
-	 * Bypass the theme on landing-page requests and emit the stored HTML.
-	 *
-	 * The stored `post_content` is a complete HTML document (or HTML
-	 * fragment). We send a minimal header/body wrapper only when the
-	 * content does not already include `<html>`.
+	 * Bypass the theme on landing-page requests and render the template.
 	 *
 	 * @param string $template Theme template that would otherwise load.
 	 * @return string|void
 	 */
-	public static function render_raw_document( $template ) {
+	public static function render( $template ) {
 		if ( ! is_singular( self::POST_TYPE ) ) {
 			return $template;
 		}
@@ -145,123 +176,105 @@ class Landing_Page_CPT {
 		nocache_headers();
 		header( 'Content-Type: text/html; charset=utf-8' );
 		header( 'X-Robots-Tag: noindex, nofollow, noarchive', true );
-		// Outer-frame hardening (clickjacking + base-tag hijack). The untrusted
-		// document itself is isolated in the sandboxed iframe built below.
 		header( "Content-Security-Policy: frame-ancestors 'none'; base-uri 'none'", true );
 		header( 'X-Content-Type-Options: nosniff', true );
 		header( 'Referrer-Policy: no-referrer', true );
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Wrapper is built from escaped values; the untrusted document is escaped into the iframe srcdoc and isolated by the sandbox.
-		echo self::render_sandboxed( $post->post_title, self::get_stored_html( $post ) );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_template() escapes every dynamic value with esc_html/esc_url/esc_attr.
+		echo self::render_template( $post );
 		exit;
 	}
 
 	/**
-	 * Read the stored landing-page HTML for a post.
+	 * Read the stored landing-page fields for a post.
 	 *
-	 * Primary storage is the base64-encoded META_HTML meta. Falls back to
-	 * post_content for any legacy entries written before the meta switch.
+	 * @param int $post_id Post ID.
+	 * @return array<string,mixed> Field values; `highlights` is a string array.
+	 */
+	private static function get_fields( $post_id ) {
+		$out = array();
+		foreach ( array_keys( self::fields() ) as $field ) {
+			$out[ $field ] = (string) get_post_meta( $post_id, self::META_PREFIX . $field, true );
+		}
+		$highlights        = get_post_meta( $post_id, self::META_HIGHLIGHTS, true );
+		$out['highlights'] = is_array( $highlights ) ? $highlights : array();
+		return $out;
+	}
+
+	/**
+	 * Render the landing page from its structured fields.
 	 *
 	 * @param WP_Post $post Landing-page post.
-	 * @return string HTML document.
+	 * @return string Full HTML document.
 	 */
-	private static function get_stored_html( $post ) {
-		$encoded = (string) get_post_meta( $post->ID, self::META_HTML, true );
-		if ( '' !== $encoded ) {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Benign: decoding our own stored HTML document, not obfuscation.
-			$decoded = base64_decode( $encoded, true );
-			if ( false !== $decoded && '' !== $decoded ) {
-				return $decoded;
-			}
-		}
-		return (string) $post->post_content;
-	}
+	private static function render_template( $post ) {
+		$f       = self::get_fields( $post->ID );
+		$lang    = get_bloginfo( 'language' );
+		$css_url = plugins_url( 'css/landing-page.css', __FILE__ );
+		$cta     = '' !== $f['cta_text'] ? $f['cta_text'] : __( 'Shop now', 'jetpack-blaze' );
+		$price   = trim( $f['price'] . ( '' !== $f['currency'] ? ' ' . $f['currency'] : '' ) );
+		$brand   = '' !== $f['brand_name'] ? $f['brand_name'] : get_bloginfo( 'name' );
 
-	/**
-	 * Render the stored landing-page HTML inside a sandboxed iframe.
-	 *
-	 * The AI-generated document is attacker-influenceable (product data feeds
-	 * the prompt) and is served on the merchant's own origin, so it is a
-	 * stored-XSS surface. We isolate it in an iframe whose `sandbox` lacks
-	 * `allow-scripts` and `allow-same-origin`: JavaScript cannot execute and
-	 * the content runs in a unique opaque origin with no access to the
-	 * merchant's cookies, storage, or parent DOM. CSS still renders.
-	 *
-	 * The default sandbox keeps the conversion link working (popups +
-	 * user-activated top navigation). The policy is filterable for stricter
-	 * variants.
-	 *
-	 * @param string $title   Document title for the outer frame.
-	 * @param string $content Stored landing-page HTML (full document or fragment).
-	 * @return string Outer HTML document embedding the sandboxed iframe.
-	 */
-	private static function render_sandboxed( $title, $content ) {
-		$lang = get_bloginfo( 'language' );
-
-		/**
-		 * Filter the iframe `sandbox` policy for rendered landing pages.
-		 *
-		 * Never add `allow-scripts` together with `allow-same-origin`: that
-		 * combination lets the framed document remove its own sandbox.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $sandbox Space-separated sandbox tokens.
-		 */
-		$sandbox = (string) apply_filters(
-			'jetpack_blaze_landing_page_iframe_sandbox',
-			'allow-popups allow-top-navigation-by-user-activation'
-		);
-
-		return sprintf(
-			'<!doctype html><html lang="%1$s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>%2$s</title><style>html,body{margin:0;padding:0;height:100%%}.blaze-lp-frame{border:0;display:block;width:100%%;height:100vh}</style></head><body><iframe class="blaze-lp-frame" sandbox="%3$s" referrerpolicy="no-referrer" title="%2$s" srcdoc="%4$s"></iframe></body></html>',
-			esc_attr( $lang ),
-			esc_html( $title ),
-			esc_attr( $sandbox ),
-			esc_attr( $content )
-		);
-	}
-
-	/**
-	 * Sanitize an AI-generated HTML document before storing it.
-	 *
-	 * Default policy is "HTML + CSS, no JS". `<script>` blocks and `on*`
-	 * event attributes are removed. CSS in `<style>` and `style=""` is kept.
-	 *
-	 * The policy can be relaxed (e.g. for a sandboxed iframe variant) via
-	 * the `jetpack_blaze_landing_page_allow_js` filter.
-	 *
-	 * @param string $html Raw HTML.
-	 * @return string Sanitized HTML.
-	 */
-	public static function sanitize_html( $html ) {
-		$html = (string) $html;
-
-		/**
-		 * Whether to allow JavaScript in landing-page HTML.
-		 *
-		 * Default false. Flip to true once a sandboxed render path is in place.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $allow_js Whether to keep <script> and on* attributes.
-		 */
-		$allow_js = (bool) apply_filters( 'jetpack_blaze_landing_page_allow_js', false );
-		if ( $allow_js ) {
-			return $html;
-		}
-
-		// Strip script blocks entirely.
-		$html = preg_replace( '#<script\b[^>]*>.*?</script\s*>#is', '', $html );
-		$html = preg_replace( '#<script\b[^>]*/?>#is', '', (string) $html );
-		// Strip inline event handlers (on*="…" or on*='…' or on*=value).
-		$html = preg_replace( '#\son[a-z]+\s*=\s*"[^"]*"#i', '', (string) $html );
-		$html = preg_replace( "#\son[a-z]+\s*=\s*'[^']*'#i", '', (string) $html );
-		$html = preg_replace( '#\son[a-z]+\s*=\s*[^\s>]+#i', '', (string) $html );
-		// Strip javascript: URLs in href/src.
-		$html = preg_replace( '#(href|src)\s*=\s*(["\'])\s*javascript:[^"\']*\2#i', '$1=$2#$2', (string) $html );
-
-		return (string) $html;
+		ob_start();
+		?>
+<!doctype html>
+<html lang="<?php echo esc_attr( $lang ); ?>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title><?php echo esc_html( $post->post_title ); ?></title>
+		<?php
+		wp_enqueue_style( 'jetpack-blaze-landing', $css_url, array(), self::ASSET_VERSION );
+		wp_print_styles( 'jetpack-blaze-landing' );
+		?>
+		<?php if ( '' !== $f['accent_color'] ) : ?>
+<style>:root{--blaze-accent:<?php echo esc_html( $f['accent_color'] ); ?>}</style>
+		<?php endif; ?>
+</head>
+<body class="blaze-lp">
+<header class="blaze-lp-header">
+		<?php if ( '' !== $f['logo_url'] ) : ?>
+	<img class="blaze-lp-logo" src="<?php echo esc_url( $f['logo_url'] ); ?>" alt="<?php echo esc_attr( $brand ); ?>">
+		<?php else : ?>
+	<span class="blaze-lp-brand"><?php echo esc_html( $brand ); ?></span>
+		<?php endif; ?>
+</header>
+<main class="blaze-lp-main">
+	<section class="blaze-lp-hero">
+		<?php if ( '' !== $f['image_url'] ) : ?>
+		<div class="blaze-lp-media">
+			<img src="<?php echo esc_url( $f['image_url'] ); ?>" alt="<?php echo esc_attr( '' !== $f['product_name'] ? $f['product_name'] : $f['headline'] ); ?>">
+		</div>
+		<?php endif; ?>
+		<div class="blaze-lp-copy">
+		<?php if ( '' !== $f['headline'] ) : ?>
+			<h1 class="blaze-lp-headline"><?php echo esc_html( $f['headline'] ); ?></h1>
+		<?php endif; ?>
+		<?php if ( '' !== $f['subheadline'] ) : ?>
+			<p class="blaze-lp-sub"><?php echo esc_html( $f['subheadline'] ); ?></p>
+		<?php endif; ?>
+		<?php if ( '' !== $price ) : ?>
+			<p class="blaze-lp-price"><?php echo esc_html( $price ); ?></p>
+		<?php endif; ?>
+		<?php if ( '' !== $f['cta_url'] ) : ?>
+			<a class="blaze-lp-cta" href="<?php echo esc_url( $f['cta_url'] ); ?>"><?php echo esc_html( $cta ); ?></a>
+		<?php endif; ?>
+		</div>
+	</section>
+		<?php if ( ! empty( $f['highlights'] ) ) : ?>
+	<ul class="blaze-lp-highlights">
+			<?php foreach ( $f['highlights'] as $highlight ) : ?>
+		<li><?php echo esc_html( (string) $highlight ); ?></li>
+			<?php endforeach; ?>
+	</ul>
+		<?php endif; ?>
+</main>
+<footer class="blaze-lp-footer"><?php echo esc_html( $brand ); ?></footer>
+</body>
+</html>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	/**
@@ -271,40 +284,44 @@ class Landing_Page_CPT {
 	 */
 	public static function generate_slug() {
 		$bytes = random_bytes( self::SLUG_BYTES );
-		// Base64-url, no padding.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Benign: URL-safe encoding of random bytes for a slug, not obfuscation.
 		return rtrim( strtr( base64_encode( $bytes ), '+/', '-_' ), '=' );
 	}
 
 	/**
-	 * Upsert a landing page.
+	 * Create or update a landing page from structured fields.
 	 *
-	 * If `$slug` is provided and matches an existing landing-page post,
-	 * the post is updated. Otherwise a new one is created with a fresh
-	 * random slug.
+	 * Scalar fields are sanitized by their registered meta sanitize_callback;
+	 * highlights are sanitized item by item here.
 	 *
-	 * @param array $args Upsert arguments: `html` (required AI-generated HTML),
-	 *                    `title` (defaults to product name), `mode` (required,
-	 *                    e.g. 'woocommerce'), `product_id` (required),
-	 *                    `campaign_id`, and `slug` (optional existing slug to
-	 *                    upsert in place).
-	 * @return array|\WP_Error { id, slug, url } or WP_Error.
+	 * @param array $args Landing-page fields: `mode` (required, e.g.
+	 *                    'woocommerce'), `product_id` (required), `headline`,
+	 *                    `subheadline`, `cta_text`, `cta_url`, `product_name`,
+	 *                    `price`, `currency`, `image_url`, `brand_name`,
+	 *                    `logo_url`, `accent_color`, `highlights` (string[]),
+	 *                    `campaign_id`, `slug` (optional, upsert in place).
+	 * @return array|\WP_Error Array with id, slug, url; or WP_Error.
 	 */
 	public static function upsert( array $args ) {
-		$html = isset( $args['html'] ) ? (string) $args['html'] : '';
-		if ( '' === $html ) {
-			return new \WP_Error( 'jetpack_blaze_landing_missing_html', __( 'Missing HTML payload.', 'jetpack-blaze' ) );
-		}
 		$mode       = isset( $args['mode'] ) ? sanitize_key( $args['mode'] ) : '';
 		$product_id = isset( $args['product_id'] ) ? (int) $args['product_id'] : 0;
 		if ( '' === $mode || 0 === $product_id ) {
 			return new \WP_Error( 'jetpack_blaze_landing_missing_meta', __( 'mode and product_id are required.', 'jetpack-blaze' ) );
 		}
 
-		$sanitized_html = self::sanitize_html( $html );
-		$title          = isset( $args['title'] ) && is_string( $args['title'] )
-			? sanitize_text_field( $args['title'] )
-			: sprintf( 'Blaze landing — product %d', $product_id );
+		$headline     = isset( $args['headline'] ) ? sanitize_text_field( (string) $args['headline'] ) : '';
+		$product_name = isset( $args['product_name'] ) ? sanitize_text_field( (string) $args['product_name'] ) : '';
+		if ( '' === $headline && '' === $product_name ) {
+			return new \WP_Error( 'jetpack_blaze_landing_missing_content', __( 'A headline or product name is required.', 'jetpack-blaze' ) );
+		}
+
+		if ( '' !== $product_name ) {
+			$title = $product_name;
+		} elseif ( isset( $args['title'] ) && is_string( $args['title'] ) ) {
+			$title = sanitize_text_field( $args['title'] );
+		} else {
+			$title = $headline;
+		}
 
 		$slug        = isset( $args['slug'] ) ? sanitize_title( $args['slug'] ) : '';
 		$existing_id = 0;
@@ -314,14 +331,12 @@ class Landing_Page_CPT {
 				$existing_id = (int) $existing->ID;
 			}
 		}
-
 		if ( '' === $slug ) {
 			$slug = self::generate_slug();
 		}
 
-		// The HTML document lives in META_HTML (base64), not post_content —
-		// see that constant's note. post_content is left empty so platform
-		// content sanitizers have nothing to mangle.
+		// post_content stays empty: the page is rendered from structured meta by
+		// our template, so there is no markup for content sanitizers to touch.
 		$postarr = array(
 			'post_type'    => self::POST_TYPE,
 			'post_status'  => 'publish',
@@ -340,10 +355,26 @@ class Landing_Page_CPT {
 			return $post_id;
 		}
 
-		// Store the document base64-encoded so no content/meta sanitizer can
-		// strip its <style>/<head>; render_raw_document decodes it.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Benign: opaque-storing our own HTML to survive platform sanitizers, not obfuscation.
-		update_post_meta( $post_id, self::META_HTML, base64_encode( $sanitized_html ) );
+		// Scalar fields: stored raw, sanitized by their registered meta callback.
+		foreach ( array_keys( self::fields() ) as $field ) {
+			if ( array_key_exists( $field, $args ) ) {
+				update_post_meta( $post_id, self::META_PREFIX . $field, (string) $args[ $field ] );
+			}
+		}
+
+		// Highlights: a short list of plain-text bullets.
+		if ( isset( $args['highlights'] ) && is_array( $args['highlights'] ) ) {
+			$highlights = array();
+			foreach ( $args['highlights'] as $highlight ) {
+				$clean = sanitize_text_field( (string) $highlight );
+				if ( '' !== $clean ) {
+					$highlights[] = $clean;
+				}
+			}
+			$highlights = array_slice( $highlights, 0, self::MAX_HIGHLIGHTS );
+			update_post_meta( $post_id, self::META_HIGHLIGHTS, $highlights );
+		}
+
 		update_post_meta( $post_id, self::META_MODE, $mode );
 		update_post_meta( $post_id, self::META_PRODUCT_ID, $product_id );
 		if ( ! empty( $args['campaign_id'] ) ) {
