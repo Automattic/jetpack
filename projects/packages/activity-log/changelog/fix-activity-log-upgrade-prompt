@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Activity Log no longer shows upgrade prompt for Jetpack Complete, Security, Personal, and Backup plan sites. The access check now uses the WPCOM full-activity-log feature flag instead of the rewind state, which could be unavailable even on entitled plans.
+Fix upgrade prompt incorrectly shown to sites entitled to the full activity log.
