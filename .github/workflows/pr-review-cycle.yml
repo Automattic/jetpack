@@ -1,0 +1,255 @@
+name: PR Review Cycle
+
+# Event-driven replacement for the session-dependent ScheduleWakeup approach.
+# Each workflow run executes one round of the review cycle; GitHub events act
+# as the timer so no in-process sleep is needed.
+#
+# Required secret: ANTHROPIC_API_KEY (repo → Settings → Secrets and variables → Actions)
+
+on:
+  # Kickoff: PR promoted from draft or opened as non-draft
+  pull_request:
+    types: [opened, ready_for_review]
+    paths:
+      - 'projects/packages/premium-analytics/**'
+      - 'tools/ai-sandbox/**'
+
+  # Follow-up: an AI reviewer (Copilot / claude) posted a review
+  pull_request_review:
+    types: [submitted]
+
+  # Follow-up: Copilot code review workflow (dynamic event) completed —
+  # the new Copilot review runner doesn't fire pull_request_review webhooks
+  workflow_run:
+    workflows: ["Copilot code review"]
+    types: [completed]
+
+  # Follow-up: an AI reviewer posted an issue-style comment on the PR
+  issue_comment:
+    types: [created]
+
+  # Manual trigger — useful for resuming a stalled cycle
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to run the review cycle for
+        required: true
+        type: string
+
+# Serialize rounds for the same PR so two events arriving close together
+# don't produce conflicting pushes.  cancel-in-progress: false queues the
+# second run rather than dropping it.
+concurrency:
+  group: pr-review-cycle-${{ github.event.pull_request.number || github.event.issue.number || (github.event.workflow_run.pull_requests[0] && github.event.workflow_run.pull_requests[0].number) || inputs.pr_number || github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+  id-token: write
+
+jobs:
+  review-cycle:
+    # Gate: only fire on trusted-actor events. Same-repo checks for pull_request and
+    # pull_request_review prevent a fork author from triggering this workflow (with
+    # ANTHROPIC_API_KEY and contents: write) via an engineered trusted-bot response.
+    # issue_comment cannot access head.repo in the expression context, so the same-repo
+    # check is deferred to the "Resolve PR number" step (which exits with skip=true for forks).
+    if: |
+      github.event_name == 'workflow_dispatch'
+      || github.event_name == 'workflow_run'
+      || (
+          github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name == github.repository
+          && github.event.pull_request.draft == false
+         )
+      || (
+          github.event_name == 'pull_request_review'
+          && github.event.pull_request.head.repo.full_name == github.repository
+          && github.event.pull_request.draft == false
+          && contains(
+               fromJSON('["Copilot","copilot-pull-request-reviewer[bot]","github-copilot[bot]","claude[bot]","claude-code[bot]","copilot-swe-agent"]'),
+               github.event.review.user.login
+             )
+         )
+      || (
+          github.event_name == 'issue_comment'
+          && github.event.issue.pull_request != null
+          && contains(
+               fromJSON('["Copilot","copilot-pull-request-reviewer[bot]","github-copilot[bot]","claude[bot]","claude-code[bot]","copilot-swe-agent"]'),
+               github.event.comment.user.login
+             )
+         )
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Resolve PR number and head branch
+        id: ctx
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_DISPATCH: ${{ inputs.pr_number }}
+          PR_FROM_PR: ${{ github.event.pull_request.number }}
+          PR_FROM_ISSUE: ${{ github.event.issue.number }}
+          PR_FROM_WORKFLOW_RUN: ${{ github.event.workflow_run.pull_requests[0].number }}
+        run: |
+          case "$EVENT_NAME" in
+            workflow_dispatch)          PR="$PR_DISPATCH" ;;
+            pull_request)               PR="$PR_FROM_PR" ;;
+            pull_request_review)        PR="$PR_FROM_PR" ;;
+            issue_comment)              PR="$PR_FROM_ISSUE" ;;
+            workflow_run)               PR="$PR_FROM_WORKFLOW_RUN" ;;
+          esac
+          if [ -z "$PR" ]; then
+            echo "Could not resolve PR number for event $EVENT_NAME. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PR_JSON=$(gh pr view "$PR" --repo "$REPO" --json headRefName,headRepository,headRepositoryOwner,files,isDraft)
+          HEAD_REPO=$(echo "$PR_JSON" | jq -r '(.headRepositoryOwner.login) + "/" + (.headRepository.name)')
+          if [ "$HEAD_REPO" != "$REPO" ]; then
+            echo "PR #$PR is from a fork ($HEAD_REPO). Skipping to avoid exposing secrets on fork code."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # For issue_comment and workflow_run events skip draft PRs — pull_request_review already
+          # has a gate-level draft check, but these events cannot access draft status in the
+          # expression context.
+          if [ "$EVENT_NAME" = "issue_comment" ] || [ "$EVENT_NAME" = "workflow_run" ]; then
+            IS_DRAFT=$(echo "$PR_JSON" | jq -r '.isDraft')
+            if [ "$IS_DRAFT" = "true" ]; then
+              echo "PR #$PR is a draft. Skipping follow-up round until ready for review."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          # For event-driven follow-up triggers, skip PRs that don't touch the monitored paths
+          # (pull_request is already path-filtered at the trigger level; workflow_dispatch is intentional).
+          if [ "$EVENT_NAME" = "pull_request_review" ] || [ "$EVENT_NAME" = "issue_comment" ] || [ "$EVENT_NAME" = "workflow_run" ]; then
+            MATCHED=$(echo "$PR_JSON" | jq -r '[.files[].path] | .[]' \
+              | grep -E '^(projects/packages/premium-analytics/|tools/ai-sandbox/)' || true)
+            if [ -z "$MATCHED" ]; then
+              echo "PR #$PR does not touch monitored paths. Skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          BRANCH=$(echo "$PR_JSON" | jq -r .headRefName)
+          echo "pr=$PR"         >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout PR branch
+        if: steps.ctx.outputs.skip != 'true'
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ steps.ctx.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git identity
+        if: steps.ctx.outputs.skip != 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Add Copilot as a reviewer as soon as the PR is opened or made ready.
+      # Uses only GITHUB_TOKEN — no ANTHROPIC_API_KEY required.
+      - name: Request Copilot review
+        if: steps.ctx.outputs.skip != 'true' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.ctx.outputs.pr }}
+        run: |
+          # Prefer the copilot_review_requested API field — this sets the flag the
+          # review-cycle logic depends on to detect that Copilot review was requested.
+          if gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
+               -F copilot_review_requested=true --silent; then
+            echo "Copilot review requested via API."
+          else
+            # Fall back to a comment trigger only when the API call is rejected
+            # (e.g. Copilot not enabled for this repo).
+            echo "API request failed — falling back to @copilot review comment."
+            gh pr comment "$PR" --repo "$REPO" --body "@copilot review"
+          fi
+
+      - name: Run one PR review cycle round
+        if: steps.ctx.outputs.skip != 'true' && github.event_name != 'pull_request'
+        uses: anthropics/claude-code-action@df37d2f0760a4b5683a6e617c9325bc1a36443f6 # v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_bots: "Copilot,copilot-swe-agent,copilot-pull-request-reviewer[bot],github-copilot[bot],claude[bot],claude-code[bot]"
+          prompt: |
+            Run one round of the Jetpack PR review cycle.
+
+            Context:
+            - Repo:   ${{ github.repository }}
+            - PR:     #${{ steps.ctx.outputs.pr }}
+            - Branch: ${{ steps.ctx.outputs.branch }}
+            - Trigger: ${{ github.event_name }}
+
+            Follow the instructions in .claude/commands/jetpack-pr-review-cycle.md with these
+            GitHub Actions overrides — they take priority over anything in the skill file:
+
+            1. NEVER call ScheduleWakeup.  GitHub events are the timer; there is no need for
+               in-process scheduling.
+            2. NEVER sleep.  Complete one round and stop.
+            3. For all triggers: run one follow-up round —
+               snapshot → filter → address → CI → rebase → push → re-request review — then stop.
+            4. Read .claude/pr-review-state.json at the start of the round and write it at the end
+               to track which comment IDs have already been addressed across runs.
+               IMPORTANT — GitHub Actions overrides for state file:
+               - Do NOT run `echo ... >> .git/info/exclude`. The skill does this locally, but
+                 in Actions the workspace is ephemeral and state must be in git to survive.
+               - Commit .claude/pr-review-state.json to the branch along with code changes
+                 at the end of each round so it is present when the next run checks out.
+            5. Always use "${{ github.repository }}" as REPO (do not auto-detect).
+            6. Skip the skill's pre-flight check for gh repo view and git rev-parse for BRANCH.
+               Auth context is already set up by the workflow (REPO and BRANCH are provided
+               above). Do NOT call gh repo view to auto-detect REPO.
+          claude_args: >-
+            --max-turns 80
+            --allowedTools
+            "Bash(git log *)"
+            "Bash(git diff *)"
+            "Bash(git show *)"
+            "Bash(git status *)"
+            "Bash(git add *)"
+            "Bash(git commit *)"
+            "Bash(git push *)"
+            "Bash(git fetch *)"
+            "Bash(git rebase *)"
+            "Bash(git stash *)"
+            "Bash(git rev-list *)"
+            "Bash(git rev-parse *)"
+            "Bash(git branch *)"
+            "Bash(mkdir *)"
+            "Bash(test *)"
+            "Bash(cat *)"
+            "Bash(echo *)"
+            "Bash(date *)"
+            "Bash(ls *)"
+            "Bash(find *)"
+            "Bash(grep *)"
+            "Bash(wc *)"
+            "Bash(gh pr *)"
+            "Bash(gh api *)"
+            "Bash(gh run *)"
+            "Bash(gh auth status)"
+            "Bash(curl *)"
+            "Bash(tail *)"
+            "Bash(pnpm build *)"
+            "Bash(pnpm lint *)"
+            "Bash(pnpm test *)"
+            "Bash(jq *)"
+            Read
+            Write
+            Edit
+            Glob
+            Grep
