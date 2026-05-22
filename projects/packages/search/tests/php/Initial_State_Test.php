@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -38,10 +37,6 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		Constants::clear_single_constant( 'A8C_PROXIED_REQUEST' );
-		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
-		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		update_option( 'blog_public', $this->original_blog_public );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
@@ -121,23 +116,12 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test that the AI Agent Access toggle is unavailable outside proxied rollout contexts.
+	 * Test that the AI Agent Access toggle is available on public sites.
 	 */
-	public function test_ai_agent_access_available_defaults_false() {
+	public function test_ai_agent_access_available_defaults_true() {
 		$state = ( new Initial_State() )->get_initial_state();
 
 		$this->assertArrayHasKey( 'aiAgentAccessAvailable', $state['siteData'] );
-		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
-	}
-
-	/**
-	 * Test that the AI Agent Access toggle is available on proxied rollout requests.
-	 */
-	public function test_ai_agent_access_available_reflects_proxied_request() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$state = ( new Initial_State() )->get_initial_state();
-
 		$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
 	}
 
@@ -145,7 +129,6 @@ class Initial_State_Test extends Search_TestCase {
 	 * Test that the AI Agent Access toggle is unavailable on private sites.
 	 */
 	public function test_ai_agent_access_available_is_false_for_private_sites() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		update_option( 'blog_public', -1 );
 
 		$state = ( new Initial_State() )->get_initial_state();
