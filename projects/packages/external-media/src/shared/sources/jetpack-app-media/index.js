@@ -1,10 +1,10 @@
-import { QRCode } from '@automattic/jetpack-components';
 import { useRefInterval } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackAppIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { QRCodeCanvas } from 'qrcode.react';
 import MediaBrowser from '../../media-browser';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
@@ -116,8 +116,8 @@ function JetpackAppMedia( props ) {
 			{ ! hasImageUploaded && (
 				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
-						<QRCode
-							size="100"
+						<QRCodeCanvas
+							size={ 100 }
 							value={ `https://apps.wordpress.com/get/?campaign=qr-code-media&postId=${ postId }#%2Fmedia%2F${ wpcomBlogId }` }
 						/>
 					</div>

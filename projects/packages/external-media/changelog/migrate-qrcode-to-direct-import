@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+External Media: migrate QRCode usage off @automattic/jetpack-components to qrcode.react direct import.
