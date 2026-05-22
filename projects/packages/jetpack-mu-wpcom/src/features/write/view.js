@@ -744,6 +744,179 @@ function normalizeFormattingTags( container ) {
 	} );
 }
 
+// Tags whose subtree is preserved on paste. Anything not listed here and not
+// in PASTE_DROP_TAGS is unwrapped — its children stay, but the element itself
+// is removed along with every attribute it carried.
+const PASTE_ALLOWED_TAGS = new Set( [
+	'P',
+	'BR',
+	'H1',
+	'H2',
+	'H3',
+	'H4',
+	'H5',
+	'H6',
+	'UL',
+	'OL',
+	'LI',
+	'BLOCKQUOTE',
+	'A',
+	'STRONG',
+	'B',
+	'EM',
+	'I',
+	'U',
+	'S',
+	'STRIKE',
+	'CODE',
+] );
+
+// Tags whose subtree is discarded entirely on paste — they carry no useful
+// content for the editor and unwrapping would dump CSS or script source as text.
+const PASTE_DROP_TAGS = new Set( [
+	'SCRIPT',
+	'STYLE',
+	'META',
+	'LINK',
+	'HEAD',
+	'TITLE',
+	'NOSCRIPT',
+] );
+
+/**
+ * Sanitize pasted HTML in place inside `container`.
+ *
+ * Source-document typography (font-size, font-family, color, background,
+ * line-height, font-weight) leaks into the editor via `style` attributes
+ * and wrapper tags, producing visible mismatches with the editor's own
+ * styling. This walks the tree depth-first, drops non-content subtrees
+ * (script/style/meta/etc.), unwraps tags that aren't in the allowlist
+ * (keeping their text and children), and strips every attribute except
+ * `href` on links.
+ *
+ * Google Docs wraps copied content in an outer `<b id="docs-internal-guid-…">`
+ * with a counteracting `style="font-weight:normal"`. Once we strip that style
+ * the bare `<b>` would bold the entire paste, so we unwrap any element with
+ * a `docs-internal-guid` id before deciding what to do with its tag.
+ *
+ * @param {Element} container - The container to sanitize in place.
+ */
+function sanitizePasteFragment( container ) {
+	for ( const child of Array.from( container.childNodes ) ) {
+		if ( child.nodeType === Node.ELEMENT_NODE ) {
+			sanitizePasteNode( child );
+		}
+	}
+}
+
+/**
+ * Promote inline-style formatting on pasted elements to semantic tags.
+ *
+ * Google Docs and Word commonly express bold/italic/underline/strikethrough
+ * as inline `font-weight`, `font-style`, and `text-decoration` styles on
+ * <span>s rather than as semantic tags. The main sanitize pass strips style
+ * attributes and unwraps <span>, which would lose the formatting. This walks
+ * every styled element once before sanitization and wraps its children in
+ * <strong>/<em>/<u>/<s> so the formatting survives the unwrap.
+ *
+ * @param {Element} container - The container to walk.
+ */
+function promotePasteFormatting( container ) {
+	for ( const el of container.querySelectorAll( '[style]' ) ) {
+		const fontWeight = el.style.fontWeight;
+		if ( fontWeight === 'bold' || fontWeight === 'bolder' || parseInt( fontWeight, 10 ) >= 600 ) {
+			wrapPasteChildren( el, 'strong' );
+		}
+		if ( el.style.fontStyle === 'italic' || el.style.fontStyle === 'oblique' ) {
+			wrapPasteChildren( el, 'em' );
+		}
+		// `text-decoration` is the legacy/shorthand property; `text-decoration-line`
+		// is what the CSSOM exposes when the parser splits the shorthand. Check
+		// both — sources vary.
+		const decoration = el.style.textDecorationLine || el.style.textDecoration || '';
+		if ( decoration.includes( 'underline' ) ) {
+			wrapPasteChildren( el, 'u' );
+		}
+		if ( decoration.includes( 'line-through' ) ) {
+			wrapPasteChildren( el, 's' );
+		}
+	}
+}
+
+/**
+ * Move every child of `el` into a freshly created `<tagName>` wrapper, then
+ * re-attach the wrapper as `el`'s sole child. No-op when `el` has no children.
+ *
+ * @param {Element} el      - Element whose children should be wrapped.
+ * @param {string}  tagName - Wrapper element tag name.
+ */
+function wrapPasteChildren( el, tagName ) {
+	if ( ! el.firstChild ) return;
+	const wrapper = document.createElement( tagName );
+	while ( el.firstChild ) {
+		wrapper.appendChild( el.firstChild );
+	}
+	el.appendChild( wrapper );
+}
+
+/**
+ * Sanitize a single element from a pasted fragment in place. Called by
+ * sanitizePasteFragment for each element child; see that function for the
+ * tag/attribute policy.
+ *
+ * @param {Element} el - Element to sanitize.
+ */
+function sanitizePasteNode( el ) {
+	// Normalize to uppercase: HTML-namespaced elements already report uppercase
+	// tagNames, but SVG/MathML-namespaced ones preserve the source casing — so
+	// a pasted <svg><script> would slip past the DROP_TAGS check otherwise.
+	const tag = el.tagName.toUpperCase();
+
+	if ( PASTE_DROP_TAGS.has( tag ) ) {
+		el.remove();
+		return;
+	}
+
+	// Recurse first so children are already cleaned before we unwrap.
+	sanitizePasteFragment( el );
+
+	const id = el.getAttribute( 'id' );
+	if ( id && id.startsWith( 'docs-internal-guid' ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	if ( ! PASTE_ALLOWED_TAGS.has( tag ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	for ( const attr of Array.from( el.attributes ) ) {
+		if ( tag === 'A' && attr.name === 'href' && isSafePasteHref( attr.value ) ) continue;
+		el.removeAttribute( attr.name );
+	}
+}
+
+/**
+ * Whether `href` is safe to preserve on a pasted link. Allows http(s),
+ * mailto, tel, and same-document/relative URLs; everything else (notably
+ * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
+ * can't smuggle script execution past the sanitizer.
+ *
+ * @param {string} href - The href value to check.
+ * @return {boolean} True when the href is safe to keep.
+ */
+function isSafePasteHref( href ) {
+	if ( ! href ) return false;
+	const trimmed = href.trim();
+	if ( ! trimmed ) return false;
+	// Relative / same-document / query / fragment URLs have no scheme.
+	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
+		return true;
+	}
+	return /^(https?:|mailto:|tel:)/i.test( trimmed );
+}
+
 /**
  * Convert contentEditable HTML into WordPress block markup.
  *
@@ -1657,16 +1830,64 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
 
-		// Highlight text + paste URL → create a link.
 		content.addEventListener( 'paste', event => {
 			const sel = window.getSelection();
-			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+			if ( ! sel.rangeCount ) return;
 
-			const pasted = event.clipboardData.getData( 'text/plain' );
-			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
-				event.preventDefault();
-				document.execCommand( 'createLink', false, pasted.trim() );
+			// Highlight text + paste URL → create a link. Only fires when
+			// something is selected; with a collapsed cursor a pasted URL
+			// should land as plain link text via the sanitizer path below.
+			if ( ! sel.isCollapsed ) {
+				const pastedText = event.clipboardData.getData( 'text/plain' );
+				if ( pastedText && /^https?:\/\/\S+$/i.test( pastedText.trim() ) ) {
+					event.preventDefault();
+					document.execCommand( 'createLink', false, pastedText.trim() );
+					return;
+				}
 			}
+
+			// Strip source typography (font-size, font-family, color, etc.)
+			// from rich-text pastes so they inherit the editor's styling.
+			// Plain-text pastes have no text/html payload — fall through to
+			// the browser default, which inserts a clean text node.
+			const html = event.clipboardData.getData( 'text/html' );
+			if ( ! html ) return;
+
+			const tmp = document.createElement( 'div' );
+			// Element.setHTML is the native HTML Sanitizer API and the only
+			// HTML parsing path for pasted markup. The browser's safety
+			// baseline drops <script>, dangerous attributes (onerror,
+			// onclick, etc.), and javascript: URLs before any of it reaches
+			// the live DOM. We allow style/id/href through so the custom
+			// pass below can read inline styles (to promote bold/italic to
+			// semantic tags), unwrap Google Docs' docs-internal-guid
+			// wrapper, and validate href schemes against a tighter
+			// allowlist than the Sanitizer baseline.
+			//
+			// Browsers without setHTML (older Chromium/Brave, pre-137 Firefox,
+			// pre-18.4 Safari) fall back to inserting the clipboard's
+			// text/plain representation. That loses formatting but guarantees
+			// no source typography or markup leaks in — and execCommand
+			// 'insertText' isn't an HTML sink, so we don't reintroduce the
+			// CodeQL js/xss flow we eliminated above.
+			if ( typeof tmp.setHTML !== 'function' ) {
+				const text = event.clipboardData.getData( 'text/plain' );
+				if ( ! text ) return;
+				event.preventDefault();
+				document.execCommand( 'insertText', false, text );
+				return;
+			}
+
+			event.preventDefault();
+			tmp.setHTML( html, { sanitizer: { attributes: [ 'style', 'id', 'href' ] } } );
+			promotePasteFormatting( tmp );
+			sanitizePasteFragment( tmp );
+
+			// execCommand('insertHTML') handles caret-aware block-level
+			// splitting (e.g. pasting a <p> inside an existing <p> correctly
+			// splits the paragraph) — manual Range.insertNode produces
+			// invalid nested-block markup.
+			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
 	}, 200 );
 }
