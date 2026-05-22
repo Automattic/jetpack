@@ -39,6 +39,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-monitor' ),
+							wpcomLink: 'https://wordpress.com/support/downtime-monitoring/',
 						} }
 					>
 						<ModuleToggle

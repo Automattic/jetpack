@@ -105,6 +105,7 @@ class RelatedPostsComponent extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-related-posts' ),
+						wpcomLink: 'https://wordpress.com/support/related-posts/',
 					} }
 				>
 					<p>

@@ -53,6 +53,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-publicize' ),
+							wpcomLink: 'https://wordpress.com/support/post-automatically-to-social-media/',
 						} }
 					>
 						<p>

@@ -211,6 +211,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-seo-tools' ),
+								wpcomLink: 'https://wordpress.com/support/seo/seo-tools/',
 							} }
 						>
 							{ hasConflictingSeoPlugin && (

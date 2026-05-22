@@ -158,6 +158,7 @@ export const SSO = withModuleSettingsFormHelpers(
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-sso' ),
+								wpcomLink: 'https://wordpress.com/support/wordpress-com-secure-sign-on-sso/',
 							} }
 						>
 							<p>

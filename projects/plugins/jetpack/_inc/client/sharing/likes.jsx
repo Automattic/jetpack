@@ -65,6 +65,7 @@ export const Likes = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-likes' ),
+							wpcomLink: 'https://wordpress.com/support/likes/',
 						} }
 					>
 						<p>
