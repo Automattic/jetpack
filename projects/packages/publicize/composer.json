@@ -59,7 +59,7 @@
 			"pnpm run watch:hot"
 		],
 		"build-production": [
-			"pnpm run build-production-concurrently"
+			"pnpm run build-production"
 		]
 	},
 	"repositories": [
