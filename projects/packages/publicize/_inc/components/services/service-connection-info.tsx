@@ -1,8 +1,6 @@
-import { Text } from '@automattic/jetpack-components';
+import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
-import { Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import ConnectionIcon from '../connection-icon';
@@ -56,39 +54,15 @@ export const ServiceConnectionInfo = ( {
 						}
 
 						if ( canMarkAsShared ) {
-							const markAsSharedHelp = __(
-								'If enabled, the connection will be available to all administrators, editors, and authors.',
-								'jetpack-publicize-pkg'
-							);
-
 							return (
 								<div className={ styles[ 'mark-shared-wrap' ] }>
 									<MarkAsShared connection={ conn } />
-									<Tooltip.Root>
-										<Tooltip.Trigger
-											render={
-												<button
-													type="button"
-													className={ styles[ 'mark-shared-help' ] }
-													aria-label={ markAsSharedHelp }
-												>
-													<Icon icon={ info } size={ 18 } />
-												</button>
-											}
-										/>
-										{ /*
-										 * The WPDS Tooltip positioner defaults to
-										 * `z-index: var(--wp-ui-tooltip-z-index, initial)`,
-										 * which falls back to `auto`. Inside the
-										 * wp-components Modal (z-index ~100000), the
-										 * popup ends up behind the modal frame. Pin
-										 * the popup above the modal so the tooltip
-										 * is visible when hovering inside the modal.
-										 */ }
-										<Tooltip.Popup sideOffset={ 8 } style={ { zIndex: 100001 } }>
-											{ markAsSharedHelp }
-										</Tooltip.Popup>
-									</Tooltip.Root>
+									<IconTooltip placement="top" inline={ false } shift>
+										{ __(
+											'If enabled, the connection will be available to all administrators, editors, and authors.',
+											'jetpack-publicize-pkg'
+										) }
+									</IconTooltip>
 								</div>
 							);
 						}
@@ -113,7 +87,7 @@ export const ServiceConnectionInfo = ( {
 					} )( connection ) }
 				</div>
 				<div className={ styles[ 'connection-actions' ] }>
-					<Disconnect connection={ connection } variant="outline" />
+					<Disconnect connection={ connection } variant="minimal" />
 				</div>
 			</div>
 			<ConnectionTemplateEditor connection={ connection } />

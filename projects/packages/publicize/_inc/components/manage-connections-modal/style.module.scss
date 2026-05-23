@@ -2,16 +2,6 @@
 	width: 65rem;
 }
 
-// While the services list is shown (i.e. not the compact confirmation view),
-// occupy the full max-height the WP Modal allows so the frame stays a fixed
-// size as disclosure rows expand/collapse. Without this the frame is
-// content-sized and, being vertically centered, shifts upward when a row
-// expands past the max-height threshold. Mobile (`.small`) keeps WordPress's
-// full-screen treatment untouched.
-.modal.services-list:not(.small) {
-	height: 100%;
-}
-
 .connect-form {
 	display: grid;
 	gap: 0.5rem;

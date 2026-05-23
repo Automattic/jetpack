@@ -30,12 +30,7 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 			{ ! connection.profile_link ? (
 				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
 			) : (
-				<Link
-					openInNewTab
-					tone="neutral"
-					className={ styles[ 'profile-link' ] }
-					href={ connection.profile_link }
-				>
+				<Link openInNewTab className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
 					{ connection.display_name }
 				</Link>
 			) }

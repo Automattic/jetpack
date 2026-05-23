@@ -1,9 +1,14 @@
-import { getRedirectUrl, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	getRedirectUrl,
+	Text,
+	ThemeProvider,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Link, Text, Tooltip } from '@wordpress/ui';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
@@ -39,54 +44,51 @@ export const ManageConnectionsModal = () => {
 	const canMarkAsShared = useUserCanShareConnection();
 
 	return (
-		<Tooltip.Provider delay={ 0 }>
-			<Modal
-				className={ clsx( styles.modal, {
-					[ styles.small ]: isSmall,
-					// Pin the frame to its max height while listing services so
-					// expanding a disclosure row scrolls inside the modal instead
-					// of resizing (and re-centering) the whole frame. The short
-					// confirmation view keeps its natural, content-sized height.
-					[ styles[ 'services-list' ] ]: ! hasKeyringResult,
-				} ) }
-				onRequestClose={ closeModal }
-				title={ title }
-			>
-				{
-					//Use IIFE to avoid nested ternary
-					( () => {
-						if ( hasKeyringResult ) {
-							return (
-								<ConfirmationForm
-									keyringResult={ keyringResult }
-									onComplete={ closeModal }
-									canMarkAsShared={ canMarkAsShared }
-								/>
-							);
-						}
-
+		<Modal
+			className={ clsx( styles.modal, {
+				[ styles.small ]: isSmall,
+			} ) }
+			onRequestClose={ closeModal }
+			title={ title }
+		>
+			{
+				//Use IIFE to avoid nested ternary
+				( () => {
+					if ( hasKeyringResult ) {
 						return (
-							<>
-								<ServicesList />
-								<Text variant="body-sm" render={ <p className={ styles[ 'manual-share' ] } /> }>
-									{ __(
-										'Want to share to other networks? Use our Manual Sharing feature from the editor.',
-										'jetpack-publicize-pkg'
-									) }
-									&nbsp;
-									<Link
-										openInNewTab
-										href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
-									>
-										{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-									</Link>
-								</Text>
-							</>
+							<ConfirmationForm
+								keyringResult={ keyringResult }
+								onComplete={ closeModal }
+								canMarkAsShared={ canMarkAsShared }
+							/>
 						);
-					} )()
-				}
-			</Modal>
-		</Tooltip.Provider>
+					}
+
+					return (
+						<>
+							<ServicesList />
+							<div className={ styles[ 'manual-share' ] }>
+								<em>
+									<Text>
+										{ __(
+											`Want to share to other networks? Use our Manual Sharing feature from the editor.`,
+											'jetpack-publicize-pkg'
+										) }
+										&nbsp;
+										<Link
+											openInNewTab
+											href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										>
+											{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
+										</Link>
+									</Text>
+								</em>
+							</div>
+						</>
+					);
+				} )()
+			}
+		</Modal>
 	);
 };
 

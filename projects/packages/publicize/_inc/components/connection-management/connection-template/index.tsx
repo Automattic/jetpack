@@ -1,17 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite, siteHasFeature } from '@automattic/jetpack-script-data';
-import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	createInterpolateElement,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { features } from '../../../utils/constants';
@@ -34,38 +25,27 @@ const HELP_TEXT = __(
 	'jetpack-publicize-pkg'
 );
 
-const LABEL = __( 'Custom message for this connection', 'jetpack-publicize-pkg' );
-
-const NOOP = () => {};
-
 /**
  * Per-connection message template editor.
  *
- * Renders the live editor when the site has the `social-message-templates`
- * feature AND the `social-enhanced-publishing` paid plan, AND the user can
- * manage the connection. On Jetpack sites that don't qualify, renders a
- * disabled-textarea variant with an Upgrade link instead, so free-plan users
- * still see what unlocks with an upgrade.
+ * Renders only when the site has the `social-message-templates` feature
+ * AND the `social-enhanced-publishing` paid plan, AND the user can manage
+ * the connection. Auto-saves through `updateConnectionById` after the user
+ * pauses typing.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
- * @return The rendered editor or its locked upsell variant.
+ * @return The rendered editor, or `null` when gated out.
  */
 export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps ) {
 	const { connection } = props;
 
-	const { canManageConnection, globalTemplate } = useSelect(
-		select => ( {
-			canManageConnection: select( socialStore ).canUserManageConnection( connection ),
-			globalTemplate: select( socialStore ).getSocialSettings().messageTemplate ?? '',
-		} ),
+	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
+
+	const canManageConnection = useSelect(
+		select => select( socialStore ).canUserManageConnection( connection ),
 		[ connection ]
 	);
-
-	const { recordEvent } = useAnalytics();
-
-	const onUpgradeClick = useCallback( () => {
-		recordEvent( 'jetpack_social_per_network_customization_upgrade_click' );
-	}, [ recordEvent ] );
 
 	const savedTemplate = connection.template ?? '';
 
@@ -103,57 +83,14 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 		[ debouncedSave ]
 	);
 
-	if ( ! canManageConnection ) {
+	if ( ! featureEnabled || ! planEnabled || ! canManageConnection ) {
 		return null;
-	}
-
-	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
-
-	if ( ! featureEnabled || ! planEnabled ) {
-		if ( isSimpleSite() ) {
-			return null;
-		}
-
-		const upgradeUrl = getRedirectUrl( 'jetpack-social-per-connection-template-upsell', {
-			site: getSiteFragment() || '',
-			query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-		} );
-
-		const upsellHelp = createInterpolateElement(
-			__(
-				'Showing your default share message. To customize it for this account, <a>upgrade your plan</a>.',
-				'jetpack-publicize-pkg'
-			),
-			{
-				a: (
-					<Link href={ upgradeUrl } onClick={ onUpgradeClick } openInNewTab>
-						{ null }
-					</Link>
-				),
-			}
-		);
-
-		return (
-			<div className={ styles.editor }>
-				<MessageTemplateEditor
-					label={ LABEL }
-					placeholder=""
-					helpText={ upsellHelp }
-					value={ globalTemplate }
-					onChange={ NOOP }
-					disabled
-					rows={ 3 }
-					showPlaceholders={ false }
-				/>
-			</div>
-		);
 	}
 
 	return (
 		<div className={ styles.editor }>
 			<MessageTemplateEditor
-				label={ LABEL }
+				label={ __( 'Custom message for this connection', 'jetpack-publicize-pkg' ) }
 				placeholder={ PLACEHOLDER_TEXT }
 				helpText={ HELP_TEXT }
 				value={ draft }

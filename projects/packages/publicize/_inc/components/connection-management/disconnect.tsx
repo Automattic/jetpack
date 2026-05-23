@@ -94,8 +94,7 @@ export function Disconnect( { connection, variant = 'outline' }: DisconnectProps
 				</Link>
 			) : (
 				<Button
-					size="compact"
-					tone="neutral"
+					size="small"
 					variant={ variant }
 					onClick={ toggleConfirm }
 					disabled={ isDisconnecting }

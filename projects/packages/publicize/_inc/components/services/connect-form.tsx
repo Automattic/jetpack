@@ -94,7 +94,6 @@ export function ConnectForm( {
 			<div className={ styles[ 'fields-wrapper' ] }>
 				<Button
 					variant={ hasConnections ? 'outline' : 'solid' }
-					size={ displayInputs ? 'default' : 'compact' }
 					type="submit"
 					disabled={ isFetchingServicesList }
 				>
