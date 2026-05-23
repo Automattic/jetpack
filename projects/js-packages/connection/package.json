@@ -21,7 +21,8 @@
 	"exports": {
 		".": "./index.jsx",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
-		"./use-connection": "./components/use-connection/index.ts"
+		"./use-connection": "./components/use-connection/index.ts",
+		"./use-connection-error-notice": "./hooks/use-connection-error-notice/index.tsx"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",

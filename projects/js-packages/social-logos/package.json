@@ -17,6 +17,7 @@
 			"jetpack:src": "./src/react/index.ts",
 			"default": "./build/react/index.js"
 		},
+		"./colors.css": "./src/social-logo-colors.css",
 		"./font/*": {
 			"default": "./build/font/*"
 		},
