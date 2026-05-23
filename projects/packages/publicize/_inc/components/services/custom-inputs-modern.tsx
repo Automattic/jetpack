@@ -64,6 +64,7 @@ export function ModernCustomInputs( { service }: CustomInputsProps ) {
 					autoCapitalize="off"
 					autoCorrect="off"
 					spellCheck="false"
+					aria-label={ __( 'Mastodon handle', 'jetpack-publicize-pkg' ) }
 					label={ _x( 'Handle', 'The handle of a social media account.', 'jetpack-publicize-pkg' ) }
 					placeholder="@mastodon@mastodon.social"
 					help={ __(
@@ -119,6 +120,7 @@ export function ModernCustomInputs( { service }: CustomInputsProps ) {
 						autoCapitalize="off"
 						autoCorrect="off"
 						spellCheck="false"
+						aria-label={ __( 'Bluesky handle', 'jetpack-publicize-pkg' ) }
 						label={ _x(
 							'Handle',
 							'The handle of a social media account.',

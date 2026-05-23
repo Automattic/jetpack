@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Refresh the connected-accounts list and the Add-account modal with the WordPress Design System: each row is now a single click-target that expands inline, the service avatars and inputs render with the new tokens, and tooltips open without delay.
+Comment: Social modernization (flag-gated behind rsm_jetpack_ui_modernization_social): refresh the connected-accounts list and Add-account modal onto the WordPress Design System. No user-facing change until the flag flips.
