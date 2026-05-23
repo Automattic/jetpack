@@ -550,21 +550,159 @@ Generate the consolidated test guide now. Remember to format ALL PR numbers as m
 }
 
 /**
+ * Truncate a string to `max` chars with an ellipsis. Newlines collapsed for one-line display.
+ *
+ * @param {string} s   - Source string.
+ * @param {number} max - Maximum character count.
+ * @return {string} Single-line, ellipsized string.
+ */
+function oneLineSummary( s, max ) {
+	const flat = String( s ).replace( /\s+/g, ' ' ).trim();
+	return flat.length > max ? flat.slice( 0, max - 1 ) + '…' : flat;
+}
+
+/**
+ * Format a tool_use block's input as a short, single-line preview.
+ *
+ * @param {object} input - The tool_use input object.
+ * @return {string} Short preview string.
+ */
+function summarizeToolInput( input ) {
+	if ( ! input || typeof input !== 'object' ) {
+		return '';
+	}
+	// Prefer common single-field tools (Bash command, Read file_path, etc.)
+	const preferredKeys = [
+		'command',
+		'file_path',
+		'path',
+		'query',
+		'pattern',
+		'url',
+		'description',
+	];
+	for ( const key of preferredKeys ) {
+		if ( typeof input[ key ] === 'string' && input[ key ] ) {
+			return `${ key }: ${ oneLineSummary( input[ key ], 100 ) }`;
+		}
+	}
+	return oneLineSummary( JSON.stringify( input ), 100 );
+}
+
+/**
+ * Print an interesting stream-json event to stderr so the user can see the agent working.
+ * Returns the final text if this event is the terminal `result` event, otherwise null.
+ *
+ * @param {object} event - Parsed JSONL event from `claude -p --output-format stream-json`.
+ * @return {string|null} Final text when the result event is seen, otherwise null.
+ */
+function handleStreamEvent( event ) {
+	if ( ! event || typeof event !== 'object' ) {
+		return null;
+	}
+	switch ( event.type ) {
+		case 'assistant': {
+			const blocks =
+				event.message && Array.isArray( event.message.content ) ? event.message.content : [];
+			for ( const block of blocks ) {
+				if ( block.type === 'thinking' ) {
+					// In stream-json the verbatim thinking is encrypted (only `signature` is exposed),
+					// so block.thinking is typically an empty string. Show a marker either way.
+					const preview = oneLineSummary( block.thinking || '', 140 );
+					console.error( preview ? `   💭 ${ preview }` : '   💭 (extended thinking)' );
+				} else if ( block.type === 'redacted_thinking' ) {
+					console.error( '   💭 [redacted]' );
+				} else if ( block.type === 'tool_use' ) {
+					console.error( `   🔧 ${ block.name }(${ summarizeToolInput( block.input ) })` );
+				}
+			}
+			return null;
+		}
+		case 'user': {
+			const blocks =
+				event.message && Array.isArray( event.message.content ) ? event.message.content : [];
+			for ( const block of blocks ) {
+				if ( block.type === 'tool_result' ) {
+					const content =
+						typeof block.content === 'string'
+							? block.content
+							: JSON.stringify( block.content || '' );
+					console.error( `   📦 tool result (${ content.length } chars)` );
+				}
+			}
+			return null;
+		}
+		case 'result':
+			return typeof event.result === 'string' ? event.result : null;
+		default:
+			return null;
+	}
+}
+
+/**
  * Run the local `claude -p` CLI with the given prompt piped over stdin.
+ *
+ * Uses stream-json output so we can surface the agent's thinking and tool calls in
+ * real time to stderr while still capturing the final consolidated text on stdout.
  *
  * @param {string} prompt - The full prompt text to send to Claude.
  * @return {Promise<string>} The trimmed text response printed by the CLI.
  */
 function runClaudeCli( prompt ) {
 	return new Promise( ( resolve, reject ) => {
-		const child = spawn( 'claude', [ '-p', '--model', CLAUDE_MODEL, '--effort', CLAUDE_EFFORT ], {
-			stdio: [ 'pipe', 'pipe', 'pipe' ],
-		} );
+		const child = spawn(
+			'claude',
+			[
+				'-p',
+				'--model',
+				CLAUDE_MODEL,
+				'--effort',
+				CLAUDE_EFFORT,
+				'--output-format',
+				'stream-json',
+				'--verbose',
+			],
+			{ stdio: [ 'pipe', 'pipe', 'pipe' ] }
+		);
 
-		let stdout = '';
+		let stdoutBuffer = '';
 		let stderr = '';
+		const textChunks = [];
+		let finalResult = null;
 
-		child.stdout.on( 'data', chunk => ( stdout += chunk.toString() ) );
+		child.stdout.on( 'data', chunk => {
+			stdoutBuffer += chunk.toString();
+			let newlineIndex;
+			while ( ( newlineIndex = stdoutBuffer.indexOf( '\n' ) ) >= 0 ) {
+				const line = stdoutBuffer.slice( 0, newlineIndex );
+				stdoutBuffer = stdoutBuffer.slice( newlineIndex + 1 );
+				if ( ! line.trim() ) {
+					continue;
+				}
+				let event;
+				try {
+					event = JSON.parse( line );
+				} catch {
+					continue; // Ignore malformed lines defensively.
+				}
+				// Capture text blocks as a fallback in case no terminal `result` event arrives.
+				if (
+					event.type === 'assistant' &&
+					event.message &&
+					Array.isArray( event.message.content )
+				) {
+					for ( const block of event.message.content ) {
+						if ( block.type === 'text' && typeof block.text === 'string' ) {
+							textChunks.push( block.text );
+						}
+					}
+				}
+				const resultText = handleStreamEvent( event );
+				if ( resultText !== null ) {
+					finalResult = resultText;
+				}
+			}
+		} );
 		child.stderr.on( 'data', chunk => ( stderr += chunk.toString() ) );
 
 		child.on( 'error', err => {
@@ -586,7 +724,8 @@ function runClaudeCli( prompt ) {
 				);
 				return;
 			}
-			resolve( stdout.trim() );
+			const finalText = finalResult !== null ? finalResult : textChunks.join( '' );
+			resolve( finalText.trim() );
 		} );
 
 		child.stdin.write( prompt );
