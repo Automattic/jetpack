@@ -62,18 +62,6 @@ class Publicize_Assets {
 		wp_dequeue_script( 'jetpack-social-editor' );
 		wp_dequeue_style( 'jetpack-social-editor' );
 
-		// The block-editor bundle's dep tree includes `wp-theme` and
-		// `wp-private-apis` via its `@wordpress/ui` imports. Those handles
-		// don't exist on WordPress < 7.0, so we use the same polyfill
-		// registry the chassis does — otherwise WP silently drops the
-		// script and the Social sidebar disappears from the post editor.
-		if ( class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
-			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
-				'jetpack-social',
-				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES
-			);
-		}
-
 		Assets::register_script(
 			'jetpack-social-editor',
 			sprintf( '../build/%s.js', $script_to_load ),

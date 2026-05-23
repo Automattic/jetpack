@@ -184,17 +184,6 @@ class Social_Admin_Page {
 		wp_dequeue_script( 'jetpack-social' );
 		wp_dequeue_style( 'jetpack-social' );
 
-		// The legacy bundle pulls `wp-theme` / `wp-private-apis` through its
-		// `@wordpress/ui` imports. Those handles don't exist on WordPress < 7.0,
-		// so we use the same polyfill registry the chassis does — otherwise WP
-		// silently drops the script because of an unresolved dependency.
-		if ( class_exists( '\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' ) ) {
-			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
-				'jetpack-social',
-				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES
-			);
-		}
-
 		Assets::register_script(
 			'social-admin-page',
 			'../build/social-admin-page.js',
