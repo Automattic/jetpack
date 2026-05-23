@@ -43,6 +43,11 @@ export const ManageConnectionsModal = () => {
 			<Modal
 				className={ clsx( styles.modal, {
 					[ styles.small ]: isSmall,
+					// Pin the frame to its max height while listing services so
+					// expanding a disclosure row scrolls inside the modal instead
+					// of resizing (and re-centering) the whole frame. The short
+					// confirmation view keeps its natural, content-sized height.
+					[ styles[ 'services-list' ] ]: ! hasKeyringResult,
 				} ) }
 				onRequestClose={ closeModal }
 				title={ title }
