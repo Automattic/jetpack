@@ -27,6 +27,7 @@
 
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 // ============================================================================
@@ -36,6 +37,50 @@ import path from 'path';
 const GITHUB_REPO = 'Automattic/jetpack';
 const CLAUDE_MODEL = 'claude-opus-4-7[1m]';
 const CLAUDE_EFFORT = 'xhigh';
+const CODEX_MODEL = 'gpt-5.5';
+const CODEX_EFFORT = 'xhigh';
+const SUPPORTED_AI_PROVIDERS = [ 'claude', 'codex' ];
+
+// Canonical "Before you start" preamble — kept in sync with the in-repo to-test.md
+// of the most recent release (currently 15.8). Emitted verbatim by the renderer so
+// the AI never has to regenerate it.
+const BEFORE_YOU_START = `- **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
+- You may need to connect Jetpack to a WordPress.com account to test some features; find out how to do that [here](https://jetpack.com/support/getting-started-with-jetpack/).
+- Blocks in beta status require a small change for you to be able to test them. You can do either of the following:
+  - Edit your \`wp-config.php\` file to include: \`define( 'JETPACK_BLOCKS_VARIATION', 'beta' );\`
+  - Or add the following to something like a code snippet plugin: \`add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );\``;
+
+// Tester-environment classifiers. Keyword lists are case-insensitive substring matches
+// against a PR's testing instructions; a single hit promotes the PR into the relevant bucket.
+const ENGINEER_KEYWORDS = [
+	{
+		label: 'WPCOM sandbox + wpsh',
+		patterns: [ 'wpcom sandbox', 'sandboxed wp.com', 'wpcom-sandbox', 'wpsh ' ],
+	},
+	{
+		label: 'Jetpack rsync / WoA dev pool',
+		patterns: [ 'jetpack rsync', 'dev pool', 'woa dev', 'pressable-staging' ],
+	},
+	{
+		label: 'Gutenberg experiment flag',
+		patterns: [ 'gutenberg experiment', 'experimental flag', 'workflow palette experiment' ],
+	},
+];
+
+const EXTERNAL_ACCOUNT_KEYWORDS = [
+	{ account: 'Stripe', patterns: [ 'stripe account', 'stripe connect', 'stripe api' ] },
+	{ account: 'MailPoet', patterns: [ 'mailpoet account', 'mailpoet subscription' ] },
+	{
+		account: 'PayPal pro',
+		patterns: [ 'paypal account', 'professional paypal', 'paypal business' ],
+	},
+	{ account: 'Mailchimp', patterns: [ 'mailchimp account' ] },
+	{ account: 'OpenTable', patterns: [ 'opentable account' ] },
+	{ account: 'Nextdoor', patterns: [ 'nextdoor account' ] },
+	{ account: 'Discord webhook', patterns: [ 'discord webhook' ] },
+	{ account: 'LinkedIn connection', patterns: [ 'linkedin connection', 'linkedin account' ] },
+];
 
 // ============================================================================
 // COMMAND LINE ARGUMENT PARSING
@@ -56,6 +101,7 @@ function parseArguments() {
 		toVersion: null,
 		toDate: null,
 		skipAi: false,
+		ai: 'claude',
 		verbose: false,
 	};
 
@@ -81,6 +127,16 @@ function parseArguments() {
 				break;
 			case '--skip-ai':
 				options.skipAi = true;
+				break;
+			case '--ai':
+				options.ai = args[ ++i ];
+				if ( ! SUPPORTED_AI_PROVIDERS.includes( options.ai ) ) {
+					throw new Error(
+						`Unknown --ai provider: "${ options.ai }". Supported: ${ SUPPORTED_AI_PROVIDERS.join(
+							', '
+						) }.`
+					);
+				}
 				break;
 			case '--verbose':
 				options.verbose = true;
@@ -461,15 +517,169 @@ function generateRawTestInstructions( entries, prDetails ) {
 // ============================================================================
 
 /**
- * Generate AI-consolidated test instructions by shelling out to `claude -p`.
+ * Classify a PR's testing-instructions text for tester-environment requirements.
+ * Returns the first matched engineer-environment label (if any) and a deduped list of
+ * named external accounts the tester would need.
  *
- * @param {Array}  entries   - Changelog entries
- * @param {Array}  prDetails - PR details with testing instructions
- * @param {string} version   - Version being tested
+ * @param {string} testingInstructions - PR testing instructions text (may be empty/null).
+ * @return {{ engineer_environment: string|null, external_accounts: string[] }} Engineer-environment
+ * label (null if any tester can run the PR) and a deduped list of named external accounts.
+ */
+function classifyEnvironmentRequirements( testingInstructions ) {
+	const text = ( testingInstructions || '' ).toLowerCase();
+	if ( ! text ) {
+		return { engineer_environment: null, external_accounts: [] };
+	}
+
+	let engineer = null;
+	for ( const bucket of ENGINEER_KEYWORDS ) {
+		if ( bucket.patterns.some( p => text.includes( p ) ) ) {
+			engineer = bucket.label;
+			break;
+		}
+	}
+
+	const accounts = [];
+	for ( const bucket of EXTERNAL_ACCOUNT_KEYWORDS ) {
+		if (
+			bucket.patterns.some( p => text.includes( p ) ) &&
+			! accounts.includes( bucket.account )
+		) {
+			accounts.push( bucket.account );
+		}
+	}
+
+	return { engineer_environment: engineer, external_accounts: accounts };
+}
+
+/**
+ * Render the AI-produced JSON guide into the deterministic Markdown shape.
+ *
+ * The renderer owns the structure: section ordering (engineer-only sections last),
+ * label names (Related PRs / Prereqs / Skip if / External accounts needed / Expected),
+ * and the canonical Before-you-start preamble. The AI only owns the contents
+ * (sections, steps, action+expected text).
+ *
+ * @param {object} guide          - Parsed JSON object from the AI.
+ * @param {string} releaseVersion - Version label for headers (e.g. "15.8").
+ * @param {number} prCount        - Total PRs fetched (for the metadata header).
+ * @return {string} Markdown document.
+ */
+function renderGuide( guide, releaseVersion, prCount ) {
+	const prLink = n => `[#${ n }](https://github.com/${ GITHUB_REPO }/pull/${ n })`;
+	const today = new Date().toISOString().split( 'T' )[ 0 ];
+	const out = [];
+
+	out.push( `## Test Instructions for Jetpack ${ releaseVersion }` );
+	out.push( '' );
+	out.push( `Generated on: ${ today }` );
+	out.push( `Total PRs: ${ prCount }` );
+	out.push( '' );
+	out.push( '---' );
+	out.push( '' );
+	out.push( `### Jetpack ${ releaseVersion } Testing Guide` );
+	out.push( '' );
+	out.push( '### Before you start' );
+	out.push( '' );
+	out.push( BEFORE_YOU_START );
+	out.push( '' );
+
+	// Summary
+	out.push( '### Summary' );
+	out.push( '' );
+	const summary = Array.isArray( guide.summary ) ? guide.summary : [];
+	if ( summary.length === 0 ) {
+		out.push( '_No summary items produced._' );
+	} else {
+		for ( const item of summary ) {
+			const topic = item.topic || '(untitled)';
+			const oneLine = item.one_line || '';
+			const pr = item.primary_pr ? ` (${ prLink( item.primary_pr ) })` : '';
+			out.push( `- **${ topic }**${ pr } — ${ oneLine }` );
+		}
+	}
+	out.push( '' );
+
+	// Sections: tester-runnable first, engineer-only last. Preserve order within each group.
+	const sections = Array.isArray( guide.sections ) ? guide.sections : [];
+	const testerSections = sections.filter( s => ! s.engineer_environment );
+	const engineerSections = sections.filter( s => s.engineer_environment );
+	for ( const section of [ ...testerSections, ...engineerSections ] ) {
+		out.push( `### ${ section.title || '(untitled section)' }` );
+		out.push( '' );
+
+		const relatedPrs = Array.isArray( section.related_prs ) ? section.related_prs : [];
+		if ( relatedPrs.length > 0 ) {
+			out.push( `**Related PRs:** ${ relatedPrs.map( prLink ).join( ', ' ) }` );
+		}
+
+		const prereqs = Array.isArray( section.prereqs ) ? section.prereqs : [];
+		if ( prereqs.length > 0 ) {
+			out.push( `**Prereqs:** ${ prereqs.join( ', ' ) }` );
+		}
+
+		if ( section.engineer_environment ) {
+			out.push( `**Skip if:** you don't have ${ section.engineer_environment }` );
+		}
+
+		const accounts = Array.isArray( section.external_accounts ) ? section.external_accounts : [];
+		if ( accounts.length > 0 ) {
+			out.push( `**External accounts needed:** ${ accounts.join( ', ' ) }` );
+		}
+
+		out.push( '' );
+
+		const steps = Array.isArray( section.steps ) ? section.steps : [];
+		if ( steps.length === 0 ) {
+			out.push( '_No actionable steps produced for this section._' );
+			out.push( '' );
+			continue;
+		}
+		for ( let i = 0; i < steps.length; i++ ) {
+			const action = steps[ i ].action || '(missing action)';
+			const expected = steps[ i ].expected || 'no console errors, no PHP notices';
+			out.push( `${ i + 1 }. ${ action }` );
+			out.push( `   Expected: ${ expected }` );
+		}
+		out.push( '' );
+	}
+
+	// Other changes
+	out.push( '### Other changes without specific test instructions' );
+	out.push( '' );
+	const other = Array.isArray( guide.other_changes ) ? guide.other_changes : [];
+	if ( other.length === 0 ) {
+		out.push( '_None._' );
+	} else {
+		for ( const c of other ) {
+			const pr = c.pr ? prLink( c.pr ) : '(no PR)';
+			const title = c.title ? `${ c.title }` : '';
+			const oneLine = c.one_line ? `: ${ c.one_line }` : '';
+			out.push( `- ${ pr } — ${ title }${ oneLine }` );
+		}
+	}
+	out.push( '' );
+
+	return out.join( '\n' );
+}
+
+/**
+ * Generate AI-consolidated test instructions by shelling out to a local AI CLI.
+ *
+ * @param {Array}  entries        - Changelog entries
+ * @param {Array}  prDetails      - PR details with testing instructions
+ * @param {string} releaseVersion - Release version being tested (used in headers)
+ * @param {string} ai             - AI provider to use ('claude' or 'codex')
  * @return {Promise<string>} Markdown formatted consolidated test instructions
  */
-async function generateAIConsolidatedInstructions( entries, prDetails, version ) {
-	// Prepare data for AI processing
+async function generateAIConsolidatedInstructions(
+	entries,
+	prDetails,
+	releaseVersion,
+	ai = 'claude'
+) {
+	// Prepare data for AI processing. Each PR gets pre-classified for environment
+	// requirements so the AI doesn't have to re-infer them from free-form text.
 	const prMap = new Map( prDetails.map( pr => [ pr.number.toString(), pr ] ) );
 	const prsBySection = {};
 
@@ -481,71 +691,148 @@ async function generateAIConsolidatedInstructions( entries, prDetails, version )
 
 		const pr = prMap.get( entry.prNumber );
 		if ( pr && ! prsBySection[ section ].some( p => p.number.toString() === entry.prNumber ) ) {
+			const classified = classifyEnvironmentRequirements( pr.testingInstructions );
 			prsBySection[ section ].push( {
 				number: pr.number,
 				title: pr.title,
 				changelogText: entry.text,
 				testingInstructions: pr.testingInstructions || 'No testing instructions provided.',
+				engineer_environment: classified.engineer_environment,
+				external_accounts: classified.external_accounts,
 			} );
 		}
 	} );
 
-	// Construct the AI prompt
-	const releaseVersion = version || 'upcoming release';
-	const prompt = `You are helping to create a consolidated testing guide for Jetpack plugin version ${ releaseVersion }.
+	const labelForRelease = releaseVersion || 'upcoming release';
+	const prompt = buildConsolidationPrompt( prsBySection, labelForRelease );
+	const runner = ai === 'codex' ? runCodexCli : runClaudeCli;
 
-I have changelog entries grouped by feature area/section. Each entry includes:
-- The PR number and title
-- The changelog entry text
-- Testing instructions from the PR (if available)
+	let parsedGuide = null;
+	let lastError = null;
+	for ( let attempt = 1; attempt <= 2 && ! parsedGuide; attempt++ ) {
+		try {
+			const promptForAttempt =
+				attempt === 1
+					? prompt
+					: prompt +
+					  '\n\nIMPORTANT: your previous response was not valid JSON. Return ONLY the JSON object — no Markdown, no code fences, no preamble, no trailing prose.';
+			const raw = await runner( promptForAttempt );
+			parsedGuide = parseGuideJson( raw );
+			if ( ! parsedGuide ) {
+				lastError = new Error( 'AI response was not valid JSON' );
+				if ( attempt === 1 ) {
+					console.warn( '\n⚠️  AI response not valid JSON; retrying once.\n' );
+				}
+			}
+		} catch ( error ) {
+			lastError = error;
+			break;
+		}
+	}
 
-Your task is to:
-1. Analyze the testing instructions for each section
-2. Consolidate similar or overlapping test steps
-3. Remove redundant instructions
-4. Organize tests in a logical order within each section
-5. Provide clear, actionable testing steps
-6. Note which features/areas need the most attention
-7. Identify any changes without test instructions that might need manual testing
+	if ( ! parsedGuide ) {
+		console.warn(
+			`\n⚠️  AI consolidation failed: ${
+				lastError ? lastError.message : 'unknown error'
+			}. Falling back to raw output.\n`
+		);
+		return generateRawTestInstructions( entries, prDetails );
+	}
 
-IMPORTANT REQUIREMENTS FOR PR REFERENCES:
-- ALWAYS reference PR numbers when discussing changes
-- Format PR numbers as markdown links: [#12345](https://github.com/${ GITHUB_REPO }/pull/12345)
-- List all related PR numbers at the beginning of each section
-- Do NOT omit or skip PR numbers - they are critical for tracking
-- When combining multiple PRs into one testing section, list ALL PR numbers involved as links
+	return renderGuide( parsedGuide, labelForRelease, prDetails.length );
+}
 
-Output format should be a well-structured markdown document with:
-- Start with ### (heading level 3) for all top-level sections
-- A summary section highlighting key areas to test
-- Each feature area as a heading with PR numbers listed as clickable links
-- Consolidated test steps (not just copying individual PR instructions)
-- All PR number references formatted as: [#12345](https://github.com/${ GITHUB_REPO }/pull/12345)
-- A section for changes without specific test instructions (with PR links)
-- Do NOT use # (heading level 1) or ## (heading level 2) - all headings should be ### (level 3) or deeper
+/**
+ * Build the prompt that asks the AI to return a JSON consolidation of the testing guide.
+ *
+ * @param {object} prsBySection - PRs grouped by changelog section, pre-classified.
+ * @param {string} releaseLabel - Human-readable release version (e.g. "15.8").
+ * @return {string} Prompt text to send to the AI.
+ */
+function buildConsolidationPrompt( prsBySection, releaseLabel ) {
+	return `You are producing a consolidated testing guide for Jetpack plugin release ${ releaseLabel }.
 
-Here is the data:
+Return ONLY a single JSON object matching this exact schema. No Markdown, no code fences, no preamble, no trailing prose:
+
+{
+  "version": "${ releaseLabel }",
+  "summary": [
+    { "topic": "<short topic name>", "one_line": "<one-sentence reason this matters to a tester>", "primary_pr": <int PR number> }
+  ],
+  "sections": [
+    {
+      "title": "<feature area name>",
+      "related_prs": [<int>, <int>, ...],
+      "prereqs": ["<concrete setup the tester needs before this section>"],
+      "external_accounts": ["<service name, e.g. Stripe, PayPal pro, MailPoet>"],
+      "engineer_environment": "<short label like 'wpcom sandbox + wpsh' OR null if any tester can run this>",
+      "steps": [
+        { "action": "<imperative action the tester takes>", "expected": "<observable outcome the tester verifies>" }
+      ]
+    }
+  ],
+  "other_changes": [
+    { "pr": <int>, "title": "<PR title>", "one_line": "<why no actionable test is needed>" }
+  ]
+}
+
+Rules for the content you generate:
+
+1. PR numbers are integers (no "#", no link wrapping). The renderer formats them as links.
+2. Group related PRs into a single section. Consolidate overlapping or redundant steps. Sections should reflect tester-facing surfaces (e.g. "Forms dashboard", "Jetpack Connector", "Social editor sidebar") — not GitHub project names.
+3. Every step must have a non-empty "action" AND a non-empty "expected". Action is what the tester does; expected is what they should observe. If a PR's testing instructions have no clear outcome, write a minimal expected line like "no console errors, no PHP notices".
+4. Forbidden phrases — rewrite them into action+expected pairs: "smoke test", "test thoroughly", "verify it works", "should be properly applied", "as expected", "make sure everything works", "exploratory testing". A tester reading these gets no signal about what counts as a pass.
+5. Use the engineer_environment and external_accounts values that the input PR objects already carry. Aggregate per section: if any PR in the section requires engineer_environment, set the section's engineer_environment to that label. For external_accounts, union the per-PR arrays. Use null (not the string "null") when no engineer environment is needed; use [] when no external accounts are needed.
+6. The prereqs array lists what the tester needs set up BEFORE running the steps in this section (a specific block enabled, a connected Stripe account, a specific theme, etc.). Be concrete. Do not list cross-cutting prereqs that apply to all sections (JS console, Debug Bar, beta-block flag) — those are handled by the renderer.
+7. Other_changes lists PRs that genuinely have no actionable tester-facing test (internal refactors, dependency bumps, PHP hardening, CI-only). Do NOT dump PRs you couldn't think of steps for — only PRs whose changelog text and PR body confirm no UI surface to exercise.
+8. Order sections by tester-perceived risk (UI-visible changes first; security fixes and refactors lower). The renderer will move engineer_environment sections to the end automatically.
+9. Every PR number from the input must appear exactly once across sections + other_changes. Do not drop PRs.
+
+Here is the source data (sections → PRs with their testing instructions and pre-classified environment tags):
 
 ${ JSON.stringify( prsBySection, null, 2 ) }
 
-Generate the consolidated test guide now. Remember to format ALL PR numbers as markdown links!`;
+Output the JSON object directly to stdout. Do not save it to a file, do not announce what you did, do not wrap it in code fences. Begin your response with the literal character "{" and end it with "}".`;
+}
+
+/**
+ * Try to parse a model response as the consolidation JSON object.
+ * Tolerates stray code fences and leading/trailing prose by scanning for the first balanced JSON object.
+ *
+ * @param {string} raw - Raw text from the AI CLI.
+ * @return {object|null} Parsed guide object or null on failure.
+ */
+function parseGuideJson( raw ) {
+	if ( ! raw || typeof raw !== 'string' ) {
+		return null;
+	}
+	let text = raw.trim();
+
+	// Strip a fenced code block if the model wrapped it despite instructions.
+	const fenceMatch = text.match( /^```(?:json)?\s*([\s\S]*?)\s*```$/i );
+	if ( fenceMatch ) {
+		text = fenceMatch[ 1 ].trim();
+	}
+
+	const firstBrace = text.indexOf( '{' );
+	const lastBrace = text.lastIndexOf( '}' );
+	if ( firstBrace < 0 || lastBrace <= firstBrace ) {
+		return null;
+	}
+	const candidate = text.slice( firstBrace, lastBrace + 1 );
 
 	try {
-		const consolidatedGuide = await runClaudeCli( prompt );
-
-		// Add metadata header
-		let output = `## Test Instructions for Jetpack ${ version || 'Release' }\n\n`;
-		output += `Generated on: ${ new Date().toISOString().split( 'T' )[ 0 ] }\n`;
-		output += `Total PRs: ${ prDetails.length }\n\n`;
-		output += '---\n\n';
-		output += consolidatedGuide;
-
-		return output;
-	} catch ( error ) {
-		console.warn(
-			`\n⚠️  AI consolidation failed: ${ error.message }. Falling back to raw output.\n`
-		);
-		return generateRawTestInstructions( entries, prDetails );
+		const parsed = JSON.parse( candidate );
+		if ( typeof parsed !== 'object' || parsed === null ) {
+			return null;
+		}
+		// Soft-validate top-level shape — warn but don't fail on missing optional fields.
+		if ( ! Array.isArray( parsed.sections ) ) {
+			console.warn( '⚠️  Parsed JSON has no `sections` array.' );
+		}
+		return parsed;
+	} catch {
+		return null;
 	}
 }
 
@@ -650,6 +937,10 @@ function handleStreamEvent( event ) {
  */
 function runClaudeCli( prompt ) {
 	return new Promise( ( resolve, reject ) => {
+		// Run claude from os.tmpdir() so the subprocess doesn't pick up the project's
+		// CLAUDE.md / .claude/ directory. Without this, project-installed skills can
+		// trigger Claude to use the Write tool and dump output to a file in the repo
+		// rather than print it to stdout — turning this pipeline into a no-op.
 		const child = spawn(
 			'claude',
 			[
@@ -662,7 +953,7 @@ function runClaudeCli( prompt ) {
 				'stream-json',
 				'--verbose',
 			],
-			{ stdio: [ 'pipe', 'pipe', 'pipe' ] }
+			{ stdio: [ 'pipe', 'pipe', 'pipe' ], cwd: os.tmpdir() }
 		);
 
 		let stdoutBuffer = '';
@@ -725,6 +1016,151 @@ function runClaudeCli( prompt ) {
 				return;
 			}
 			const finalText = finalResult !== null ? finalResult : textChunks.join( '' );
+			resolve( finalText.trim() );
+		} );
+
+		child.stdin.write( prompt );
+		child.stdin.end();
+	} );
+}
+
+/**
+ * Print an interesting codex JSONL event to stderr so the user can see the agent working.
+ * Returns the assistant's text when a final `agent_message` item arrives, otherwise null.
+ *
+ * @param {object} event - Parsed JSONL event from `codex exec --json`.
+ * @return {string|null} The agent message text when seen, otherwise null.
+ */
+function handleCodexStreamEvent( event ) {
+	if ( ! event || typeof event !== 'object' ) {
+		return null;
+	}
+	switch ( event.type ) {
+		case 'item.completed': {
+			const item = event.item || {};
+			switch ( item.type ) {
+				case 'agent_message':
+					return typeof item.text === 'string' ? item.text : null;
+				case 'reasoning': {
+					const preview = oneLineSummary( item.text || item.summary || '', 140 );
+					console.error( preview ? `   💭 ${ preview }` : '   💭 (reasoning)' );
+					return null;
+				}
+				case 'command_execution': {
+					const cmd = oneLineSummary( item.command || item.text || '', 100 );
+					console.error( `   🔧 command(${ cmd })` );
+					return null;
+				}
+				case 'file_change': {
+					const filePath = item.path || item.file_path || '';
+					console.error( `   ✏️  file_change(${ oneLineSummary( filePath, 100 ) })` );
+					return null;
+				}
+				default:
+					console.error( `   • ${ item.type }` );
+					return null;
+			}
+		}
+		case 'error':
+		case 'turn.failed':
+			// Surface error message; the close handler will reject the promise.
+			console.error(
+				`   ⚠️  ${ oneLineSummary( event.message || JSON.stringify( event ), 200 ) }`
+			);
+			return null;
+		default:
+			return null;
+	}
+}
+
+/**
+ * Run the local `codex exec` CLI with the given prompt piped over stdin.
+ *
+ * Uses --json output so we can surface the agent's reasoning and tool calls in
+ * real time to stderr while still capturing the final agent message on stdout.
+ *
+ * @param {string} prompt - The full prompt text to send to Codex.
+ * @return {Promise<string>} The trimmed text response printed by the CLI.
+ */
+function runCodexCli( prompt ) {
+	return new Promise( ( resolve, reject ) => {
+		// Same rationale as runClaudeCli: tmpdir prevents project context from leaking in.
+		// codex refuses to run outside a trusted git repo by default, so we also pass
+		// --skip-git-repo-check; this is safe because the prompt is fully self-contained.
+		const child = spawn(
+			'codex',
+			[
+				'exec',
+				'--json',
+				'--skip-git-repo-check',
+				'--sandbox',
+				'read-only',
+				'-c',
+				`model=${ CODEX_MODEL }`,
+				'-c',
+				`model_reasoning_effort=${ CODEX_EFFORT }`,
+			],
+			{ stdio: [ 'pipe', 'pipe', 'pipe' ], cwd: os.tmpdir() }
+		);
+
+		let stdoutBuffer = '';
+		let stderr = '';
+		const messageChunks = [];
+		let finalResult = null;
+		let failureMessage = null;
+
+		child.stdout.on( 'data', chunk => {
+			stdoutBuffer += chunk.toString();
+			let newlineIndex;
+			while ( ( newlineIndex = stdoutBuffer.indexOf( '\n' ) ) >= 0 ) {
+				const line = stdoutBuffer.slice( 0, newlineIndex );
+				stdoutBuffer = stdoutBuffer.slice( newlineIndex + 1 );
+				if ( ! line.trim() ) {
+					continue;
+				}
+				let event;
+				try {
+					event = JSON.parse( line );
+				} catch {
+					continue; // Ignore malformed lines defensively.
+				}
+				if ( event.type === 'error' || event.type === 'turn.failed' ) {
+					failureMessage =
+						typeof event.message === 'string'
+							? event.message
+							: JSON.stringify( event.error || event );
+				}
+				const messageText = handleCodexStreamEvent( event );
+				if ( messageText !== null ) {
+					messageChunks.push( messageText );
+					finalResult = messageText;
+				}
+			}
+		} );
+		child.stderr.on( 'data', chunk => ( stderr += chunk.toString() ) );
+
+		child.on( 'error', err => {
+			if ( err.code === 'ENOENT' ) {
+				reject(
+					new Error( '`codex` CLI not found. Install Codex: https://github.com/openai/codex' )
+				);
+				return;
+			}
+			reject( err );
+		} );
+
+		child.on( 'close', code => {
+			if ( failureMessage ) {
+				reject( new Error( `codex turn failed: ${ failureMessage }` ) );
+				return;
+			}
+			if ( code !== 0 ) {
+				reject(
+					new Error( `codex exited with code ${ code }${ stderr ? `: ${ stderr.trim() }` : '' }` )
+				);
+				return;
+			}
+			const finalText = finalResult !== null ? finalResult : messageChunks.join( '' );
 			resolve( finalText.trim() );
 		} );
 
@@ -812,11 +1248,26 @@ async function main() {
 		if ( options.skipAi ) {
 			testInstructions = generateRawTestInstructions( entries, prDetails );
 		} else {
-			console.log( '🤖 Consolidating test instructions via `claude -p`...' );
+			// Pick the version label that the rendered guide will use in its headers.
+			// Priority: explicit --to-version > newest version covered by entries > --since-version > startVersion.
+			// `entries` is in document order (newest first) because parseChangelog walks the
+			// reverse-chronological CHANGELOG top-down, so `entries[0].version` is the upper end
+			// of the selected range — i.e., the release whose PRs we're actually testing.
+			const releaseVersion =
+				options.toVersion ||
+				( entries[ 0 ] && entries[ 0 ].version ) ||
+				options.sinceVersion ||
+				parseResult.startVersion;
+
+			const aiLabel = options.ai === 'codex' ? '`codex exec`' : '`claude -p`';
+			console.log(
+				`🤖 Consolidating test instructions via ${ aiLabel } for Jetpack ${ releaseVersion }...`
+			);
 			testInstructions = await generateAIConsolidatedInstructions(
 				entries,
 				prDetails,
-				options.toVersion || options.sinceVersion || parseResult.startVersion
+				releaseVersion,
+				options.ai
 			);
 		}
 

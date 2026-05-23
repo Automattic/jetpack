@@ -32,6 +32,7 @@ SINCE_DATE=""
 TO_VERSION=""
 TO_DATE=""
 SKIP_AI=false
+AI_PROVIDER="claude"
 VERBOSE=false
 
 ##
@@ -51,6 +52,7 @@ function usage {
 		      --to-version <ver>    Stop at this version (inclusive). Caps the upper end of the range.
 		      --to-date <date>      Include entries up to this date (YYYY-MM-DD, inclusive)
 		  -s, --skip-ai             Skip AI consolidation and output raw format
+		      --ai <provider>       AI provider for consolidation: claude (default) or codex
 		  -h, --help                Show this help message
 
 		EXAMPLES:
@@ -69,13 +71,18 @@ function usage {
 		  # Specify output file
 		  tools/gen-test-instructions.sh --output test-guide.md
 
+		  # Use codex (gpt-5.5, xhigh effort) instead of claude
+		  tools/gen-test-instructions.sh --ai codex
+
 		  # Skip AI consolidation
 		  tools/gen-test-instructions.sh --skip-ai
 
 		REQUIREMENTS:
 		  - Node.js (available in monorepo)
 		  - GitHub CLI (gh) - must be installed and authenticated
-		  - Claude Code CLI (claude) - required unless --skip-ai is used
+		  - One of the following AI CLIs is required unless --skip-ai is used:
+		      * Claude Code CLI (claude) - default
+		      * Codex CLI (codex) - when --ai codex is set
 	EOH
 	exit 1
 }
@@ -112,6 +119,14 @@ while [[ $# -gt 0 ]]; do
 		-s|--skip-ai)
 			SKIP_AI=true
 			shift
+			;;
+		--ai)
+			AI_PROVIDER="$2"
+			if [[ "$AI_PROVIDER" != "claude" && "$AI_PROVIDER" != "codex" ]]; then
+				error "Unknown --ai provider: \"$AI_PROVIDER\". Supported: claude, codex."
+				usage
+			fi
+			shift 2
 			;;
 		--verbose)
 			VERBOSE=true
@@ -151,11 +166,18 @@ if ! command -v node &> /dev/null; then
 	exit 1
 fi
 
-# Check if claude CLI is available (unless skipping AI consolidation)
-if [[ "$SKIP_AI" != true ]] && ! command -v claude &> /dev/null; then
-	error "Claude Code CLI (claude) is not installed. Install it or re-run with --skip-ai."
-	echo "  See: https://docs.claude.com/en/docs/claude-code"
-	exit 1
+# Check that the selected AI CLI is available (unless skipping AI consolidation)
+if [[ "$SKIP_AI" != true ]]; then
+	if [[ "$AI_PROVIDER" == "claude" ]] && ! command -v claude &> /dev/null; then
+		error "Claude Code CLI (claude) is not installed. Install it, pass --ai codex, or re-run with --skip-ai."
+		echo "  See: https://docs.claude.com/en/docs/claude-code"
+		exit 1
+	fi
+	if [[ "$AI_PROVIDER" == "codex" ]] && ! command -v codex &> /dev/null; then
+		error "Codex CLI (codex) is not installed. Install it, pass --ai claude, or re-run with --skip-ai."
+		echo "  See: https://github.com/openai/codex"
+		exit 1
+	fi
 fi
 
 # Resolve changelog path
@@ -210,6 +232,8 @@ fi
 if [[ "$SKIP_AI" = true ]]; then
 	NODE_ARGS+=("--skip-ai")
 fi
+
+NODE_ARGS+=("--ai" "$AI_PROVIDER")
 
 if [[ "$VERBOSE" = true ]]; then
 	NODE_ARGS+=("--verbose")
