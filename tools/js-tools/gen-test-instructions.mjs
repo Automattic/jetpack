@@ -7,7 +7,7 @@
  * 1. Parsing the CHANGELOG.md to extract entries since a specified version
  * 2. Fetching PR details from GitHub using the gh CLI
  * 3. Extracting testing instructions from PR descriptions
- * 4. Optionally consolidating instructions using Claude AI
+ * 4. Optionally consolidating instructions via the local `claude` CLI (Claude Code)
  * 5. Generating a markdown document with all PR numbers as clickable links
  *
  * Usage: node gen-test-instructions.mjs [options]
@@ -19,12 +19,11 @@
  * Optional:
  * --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
  * --since-date <date>   Include entries since this date (YYYY-MM-DD format)
- * --api-key <key>       Anthropic API key for AI consolidation (or use ANTHROPIC_API_KEY env var)
  * --skip-ai             Skip AI consolidation and output raw format
  * --verbose             Enable verbose output for debugging
  */
 
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -33,7 +32,6 @@ import path from 'path';
 // ============================================================================
 
 const GITHUB_REPO = 'Automattic/jetpack';
-const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-opus-4-5-20251101';
 
 // ============================================================================
@@ -52,7 +50,6 @@ function parseArguments() {
 		output: null,
 		version: null,
 		sinceDate: null,
-		apiKey: process.env.ANTHROPIC_API_KEY || null,
 		skipAi: false,
 		verbose: false,
 	};
@@ -70,9 +67,6 @@ function parseArguments() {
 				break;
 			case '--since-date':
 				options.sinceDate = args[ ++i ];
-				break;
-			case '--api-key':
-				options.apiKey = args[ ++i ];
 				break;
 			case '--skip-ai':
 				options.skipAi = true;
@@ -419,15 +413,14 @@ function generateRawTestInstructions( entries, prDetails ) {
 // ============================================================================
 
 /**
- * Generate AI-consolidated test instructions using Claude API.
+ * Generate AI-consolidated test instructions by shelling out to `claude -p`.
  *
  * @param {Array}  entries   - Changelog entries
  * @param {Array}  prDetails - PR details with testing instructions
- * @param {string} apiKey    - Anthropic API key
  * @param {string} version   - Version being tested
  * @return {Promise<string>} Markdown formatted consolidated test instructions
  */
-async function generateAIConsolidatedInstructions( entries, prDetails, apiKey, version ) {
+async function generateAIConsolidatedInstructions( entries, prDetails, version ) {
 	// Prepare data for AI processing
 	const prMap = new Map( prDetails.map( pr => [ pr.number.toString(), pr ] ) );
 	const prsBySection = {};
@@ -490,29 +483,7 @@ ${ JSON.stringify( prsBySection, null, 2 ) }
 Generate the consolidated test guide now. Remember to format ALL PR numbers as markdown links!`;
 
 	try {
-		// Call Claude API
-		const response = await fetch( CLAUDE_API_URL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'x-api-key': apiKey,
-				'anthropic-version': '2023-06-01',
-			},
-			body: JSON.stringify( {
-				model: CLAUDE_MODEL,
-				// Max tokens for the response. 8192 allows for comprehensive test guides
-				// with many PRs. Can be increased if needed for very large releases.
-				max_tokens: 8192,
-				messages: [ { role: 'user', content: prompt } ],
-			} ),
-		} );
-
-		if ( ! response.ok ) {
-			throw new Error( `API request failed: ${ response.status } ${ response.statusText }` );
-		}
-
-		const data = await response.json();
-		const consolidatedGuide = data.content[ 0 ].text;
+		const consolidatedGuide = await runClaudeCli( prompt );
 
 		// Add metadata header
 		let output = `## Test Instructions for Jetpack ${ version || 'Release' }\n\n`;
@@ -528,6 +499,51 @@ Generate the consolidated test guide now. Remember to format ALL PR numbers as m
 		);
 		return generateRawTestInstructions( entries, prDetails );
 	}
+}
+
+/**
+ * Run the local `claude -p` CLI with the given prompt piped over stdin.
+ *
+ * @param {string} prompt - The full prompt text to send to Claude.
+ * @return {Promise<string>} The trimmed text response printed by the CLI.
+ */
+function runClaudeCli( prompt ) {
+	return new Promise( ( resolve, reject ) => {
+		const child = spawn( 'claude', [ '-p', '--model', CLAUDE_MODEL ], {
+			stdio: [ 'pipe', 'pipe', 'pipe' ],
+		} );
+
+		let stdout = '';
+		let stderr = '';
+
+		child.stdout.on( 'data', chunk => ( stdout += chunk.toString() ) );
+		child.stderr.on( 'data', chunk => ( stderr += chunk.toString() ) );
+
+		child.on( 'error', err => {
+			if ( err.code === 'ENOENT' ) {
+				reject(
+					new Error(
+						'`claude` CLI not found. Install Claude Code: https://docs.claude.com/en/docs/claude-code'
+					)
+				);
+				return;
+			}
+			reject( err );
+		} );
+
+		child.on( 'close', code => {
+			if ( code !== 0 ) {
+				reject(
+					new Error( `claude exited with code ${ code }${ stderr ? `: ${ stderr.trim() }` : '' }` )
+				);
+				return;
+			}
+			resolve( stdout.trim() );
+		} );
+
+		child.stdin.write( prompt );
+		child.stdin.end();
+	} );
 }
 
 // ============================================================================
@@ -597,17 +613,13 @@ async function main() {
 		// Step 4: Generate test instructions
 		let testInstructions;
 
-		if ( options.skipAi || ! options.apiKey ) {
-			if ( ! options.skipAi ) {
-				console.log( '⚠️  No API key provided. Using raw output mode.\n' );
-			}
+		if ( options.skipAi ) {
 			testInstructions = generateRawTestInstructions( entries, prDetails );
 		} else {
-			console.log( '🤖 Using AI to consolidate test instructions...' );
+			console.log( '🤖 Consolidating test instructions via `claude -p`...' );
 			testInstructions = await generateAIConsolidatedInstructions(
 				entries,
 				prDetails,
-				options.apiKey,
 				options.version || parseResult.startVersion
 			);
 		}

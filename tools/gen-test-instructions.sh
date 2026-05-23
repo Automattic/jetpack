@@ -30,7 +30,6 @@ OUTPUT_FILE=""
 SINCE_VERSION=""
 SINCE_DATE=""
 SKIP_AI=false
-API_KEY="${ANTHROPIC_API_KEY:-}"
 VERBOSE=false
 
 ##
@@ -47,7 +46,6 @@ function usage {
 		  -o, --output <file>       Output file path for test instructions
 		  -v, --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
 		  -d, --since-date <date>   Include entries since this date (YYYY-MM-DD)
-		  -k, --api-key <key>       Anthropic API key for AI consolidation (or set ANTHROPIC_API_KEY env var)
 		  -s, --skip-ai             Skip AI consolidation and output raw format
 		  -h, --help                Show this help message
 
@@ -64,13 +62,10 @@ function usage {
 		  # Skip AI consolidation
 		  tools/gen-test-instructions.sh --skip-ai
 
-		  # With API key
-		  tools/gen-test-instructions.sh --api-key sk-ant-...
-
 		REQUIREMENTS:
 		  - Node.js (available in monorepo)
 		  - GitHub CLI (gh) - must be installed and authenticated
-		  - Anthropic API Key (optional, for AI consolidation)
+		  - Claude Code CLI (claude) - required unless --skip-ai is used
 	EOH
 	exit 1
 }
@@ -94,10 +89,6 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-d|--since-date)
 			SINCE_DATE="$2"
-			shift 2
-			;;
-		-k|--api-key)
-			API_KEY="$2"
 			shift 2
 			;;
 		-s|--skip-ai)
@@ -142,6 +133,13 @@ if ! command -v node &> /dev/null; then
 	exit 1
 fi
 
+# Check if claude CLI is available (unless skipping AI consolidation)
+if [[ "$SKIP_AI" != true ]] && ! command -v claude &> /dev/null; then
+	error "Claude Code CLI (claude) is not installed. Install it or re-run with --skip-ai."
+	echo "  See: https://docs.claude.com/en/docs/claude-code"
+	exit 1
+fi
+
 # Resolve changelog path
 if [[ ! "$CHANGELOG_PATH" = /* ]]; then
 	CHANGELOG_PATH="$BASE/$CHANGELOG_PATH"
@@ -181,10 +179,6 @@ fi
 
 if [[ -n "$SINCE_DATE" ]]; then
 	NODE_ARGS+=("--since-date" "$SINCE_DATE")
-fi
-
-if [[ -n "$API_KEY" ]]; then
-	NODE_ARGS+=("--api-key" "$API_KEY")
 fi
 
 if [[ "$SKIP_AI" = true ]]; then
