@@ -4,12 +4,14 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useIsModernized } from '../../hooks/use-is-modernized';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
+import { ModernConnectionInfo } from './connection-info-modern';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( {
@@ -18,6 +20,8 @@ const ConnectionManagement = ( {
 	hideConnectButton = false,
 	hideHeading = false,
 } ) => {
+	const isModernized = useIsModernized();
+	const ConnectionInfoVariant = isModernized ? ModernConnectionInfo : ConnectionInfo;
 	const { refresh } = useSocialMediaConnections();
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
@@ -65,7 +69,7 @@ const ConnectionManagement = ( {
 							return (
 								<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
 									<Disabled isDisabled={ isUpdatingOrDeleting }>
-										<ConnectionInfo
+										<ConnectionInfoVariant
 											connection={ connection }
 											service={ getService( connection.service_name ) }
 											canMarkAsShared={ canMarkAsShared }

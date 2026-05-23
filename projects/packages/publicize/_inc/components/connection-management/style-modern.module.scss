@@ -1,0 +1,196 @@
+.wrapper {
+	align-items: start;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl, 24px);
+	padding-top: var(--wpds-dimension-padding-lg, 16px);
+	width: 100%;
+
+	> h3 {
+		margin-block: 0;
+	}
+}
+
+.connection-name {
+	align-items: center;
+	display: flex;
+
+	:global(.components-spinner) {
+		margin-top: 0;
+	}
+
+	span.profile-link,
+	.profile-link:global(.components-external-link) {
+		color: inherit;
+		text-decoration: none;
+
+		>svg {
+			vertical-align: bottom;
+		}
+
+		span {
+			text-decoration: none;
+		}
+	}
+
+	.profile-link:global(.components-external-link):hover {
+		text-decoration: underline;
+	}
+
+	span {
+		text-decoration: none;
+	}
+}
+
+.confirmDialog span {
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+}
+
+.description {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: 0.875rem;
+}
+
+.connection-list {
+	display: flex;
+	flex-direction: column;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+
+	*[inert="true"] {
+		opacity: 0.7;
+	}
+
+	// Every row gets a top border so the first row also sits below a
+	// divider line that separates it from the surrounding Card.Header
+	// (or whatever chrome wraps the list).
+	.connection-list-item {
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		margin: 0;
+	}
+}
+
+// Flat row that doubles as the Collapsible.Trigger. Click anywhere on the
+// row (outside of the name link / status actions) toggles the disclosure;
+// the chevron rotates 180° via `[data-panel-open]` set by Base UI.
+.connection-row {
+	align-items: center;
+	cursor: var(--wpds-cursor-control, pointer);
+	display: flex;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	padding: var(--wpds-dimension-padding-lg, 16px) var(--wpds-dimension-padding-2xl, 24px);
+	width: 100%;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: calc(var(--wpds-border-width-focus, 2px) * -1);
+	}
+}
+
+.connection-name-wrapper {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+	min-width: 0;
+}
+
+.connection-item-name {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	font-size: 0.875rem;
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+}
+
+.connection-network {
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+}
+
+.connection-status-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.chevron {
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	flex-shrink: 0;
+	transition: rotate 0.15s ease-out;
+
+	@media (prefers-reduced-motion) {
+		transition: none;
+	}
+}
+
+.connection-row[data-panel-open] {
+
+	.chevron {
+		rotate: 180deg;
+	}
+}
+
+// Collapsible.Panel — collapses to height 0 with a smooth height transition.
+// `--collapsible-panel-height` is supplied by Base UI so we mirror what the
+// WPDS CollapsibleCard.Content rule does.
+.connection-panel {
+	height: var(--collapsible-panel-height);
+	overflow: hidden;
+
+	&[hidden]:not([hidden="until-found"]) {
+		display: none;
+	}
+
+	&[data-ending-style],
+	&[data-starting-style] {
+		height: 0;
+	}
+
+	@media not (prefers-reduced-motion) {
+		transition: all 0.15s ease-out;
+	}
+}
+
+.connection-panel-inner {
+	padding: 0 var(--wpds-dimension-padding-2xl, 24px) var(--wpds-dimension-padding-xl, 20px);
+}
+
+.mark-shared-wrap {
+	align-items: center;
+	display: flex;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	padding-bottom: var(--wpds-dimension-padding-lg, 16px);
+}
+
+.mark-shared-help {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	color: var(--wpds-color-fg-content-neutral-weak, #757575);
+	cursor: var(--wpds-cursor-control, pointer);
+	display: inline-flex;
+	height: 24px;
+	justify-content: center;
+	padding: 0;
+	width: 24px;
+
+	&:hover,
+	&:focus-visible {
+		color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px)) solid var(--wpds-color-stroke-focus-brand, var(--wp-admin-theme-color, #3858e9));
+		outline-offset: var(--wpds-border-width-focus, 2px);
+	}
+}
+
+.connection-template-wrap {
+	margin-bottom: var(--wpds-dimension-gap-xl, 24px);
+
+	&:empty {
+		margin-bottom: 0;
+	}
+}
