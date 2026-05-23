@@ -34,7 +34,8 @@ import path from 'path';
 // ============================================================================
 
 const GITHUB_REPO = 'Automattic/jetpack';
-const CLAUDE_MODEL = 'claude-opus-4-5-20251101';
+const CLAUDE_MODEL = 'claude-opus-4-7[1m]';
+const CLAUDE_EFFORT = 'xhigh';
 
 // ============================================================================
 // COMMAND LINE ARGUMENT PARSING
@@ -556,7 +557,7 @@ Generate the consolidated test guide now. Remember to format ALL PR numbers as m
  */
 function runClaudeCli( prompt ) {
 	return new Promise( ( resolve, reject ) => {
-		const child = spawn( 'claude', [ '-p', '--model', CLAUDE_MODEL ], {
+		const child = spawn( 'claude', [ '-p', '--model', CLAUDE_MODEL, '--effort', CLAUDE_EFFORT ], {
 			stdio: [ 'pipe', 'pipe', 'pipe' ],
 		} );
 
