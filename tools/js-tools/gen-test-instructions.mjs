@@ -17,8 +17,10 @@
  * --output <file>       Output file path for generated test instructions
  *
  * Optional:
- * --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
+ * --since-version <ver> Start from this version (e.g., 15.1). Defaults to last stable release
  * --since-date <date>   Include entries since this date (YYYY-MM-DD format)
+ * --to-version <ver>    Stop at this version (inclusive). Caps the upper end of the range.
+ * --to-date <date>      Include entries up to this date (YYYY-MM-DD, inclusive)
  * --skip-ai             Skip AI consolidation and output raw format
  * --verbose             Enable verbose output for debugging
  */
@@ -48,8 +50,10 @@ function parseArguments() {
 	const options = {
 		changelog: null,
 		output: null,
-		version: null,
+		sinceVersion: null,
 		sinceDate: null,
+		toVersion: null,
+		toDate: null,
 		skipAi: false,
 		verbose: false,
 	};
@@ -62,11 +66,17 @@ function parseArguments() {
 			case '--output':
 				options.output = args[ ++i ];
 				break;
-			case '--version':
-				options.version = args[ ++i ];
+			case '--since-version':
+				options.sinceVersion = args[ ++i ];
 				break;
 			case '--since-date':
 				options.sinceDate = args[ ++i ];
+				break;
+			case '--to-version':
+				options.toVersion = args[ ++i ];
+				break;
+			case '--to-date':
+				options.toDate = args[ ++i ];
 				break;
 			case '--skip-ai':
 				options.skipAi = true;
@@ -87,6 +97,13 @@ function parseArguments() {
 		throw new Error( 'Missing required option: --output' );
 	}
 
+	// Upper-bound flags require an explicit lower bound — no magic defaults.
+	if ( ( options.toVersion || options.toDate ) && ! options.sinceVersion && ! options.sinceDate ) {
+		throw new Error(
+			'--to-version / --to-date require an explicit lower bound. Pass --since-version or --since-date too.'
+		);
+	}
+
 	return options;
 }
 
@@ -95,17 +112,22 @@ function parseArguments() {
 // ============================================================================
 
 /**
- * Parse the changelog file and extract entries since a specific version or date.
+ * Parse the changelog file and extract entries within an optional version/date window.
  *
  * The changelog is organized in reverse chronological order (newest first).
- * This function collects all entries from the top until it reaches the cutoff version.
+ * Lower bound: sinceVersion is exclusive (entries under that version are not included);
+ * sinceDate is inclusive (entries dated >= the date are included).
+ * Upper bound: toVersion is inclusive (collection begins at the matching heading);
+ * toDate is inclusive (collection begins at the first heading with date <= the date).
  *
  * @param {string} changelogPath - Absolute path to CHANGELOG.md
- * @param {string} sinceVersion  - Start from entries after this version (optional)
- * @param {string} sinceDate     - Start from entries after this date (optional)
+ * @param {string} sinceVersion  - Lower-bound version, exclusive (optional)
+ * @param {string} sinceDate     - Lower-bound date YYYY-MM-DD, inclusive (optional)
+ * @param {string} toVersion     - Upper-bound version, inclusive (optional)
+ * @param {string} toDate        - Upper-bound date YYYY-MM-DD, inclusive (optional)
  * @return {object} Object with entries, startVersion, and versions array
  */
-function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
+function parseChangelog( changelogPath, sinceVersion, sinceDate, toVersion, toDate ) {
 	const content = fs.readFileSync( changelogPath, 'utf-8' );
 	const lines = content.split( '\n' );
 
@@ -155,17 +177,42 @@ function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
 				.join( ', ' ) }...`
 		);
 	}
+	if ( toVersion && ! versions.find( v => v.version === toVersion ) ) {
+		throw new Error(
+			`Version "${ toVersion }" not found in changelog.\nAvailable versions: ${ versions
+				.slice( 0, 10 )
+				.map( v => v.version )
+				.join( ', ' ) }...`
+		);
+	}
 
 	// Second pass: collect entries (changelog is reverse chronological)
-	// We collect entries from the top (newest) until we reach the startVersion (cutoff point)
-	// Example: If startVersion = "15.1", we collect 15.2-a.1, 15.1.1, etc. until we hit 15.1
+	// We walk top → bottom. If an upper bound is set, skip headings until we hit it.
+	// Then collect entries until we cross the lower bound.
+	// Example: --since-version 15.0 --to-version 15.1 collects 15.1 and any 15.1-a.x / 15.0.x
+	// entries listed above 15.0 but skips 15.2+ at the top.
+	let hitUpperBound = ! ( toVersion || toDate );
 	for ( const line of lines ) {
 		const versionMatch = line.match( versionRegex );
 		if ( versionMatch ) {
 			currentVersion = versionMatch[ 1 ];
 			currentDate = versionMatch[ 2 ];
 
-			// Stop when we reach the cutoff version (we want entries AFTER this version, not including it)
+			// Upper bound: skip headings that are newer than the cap.
+			if ( ! hitUpperBound ) {
+				if (
+					( toVersion && currentVersion === toVersion ) ||
+					( toDate && currentDate <= toDate )
+				) {
+					hitUpperBound = true;
+				} else {
+					collectingEntries = false;
+					currentSection = null;
+					continue;
+				}
+			}
+
+			// Lower bound: stop when we reach the cutoff version (entries AFTER this version, not including it)
 			if ( startVersion && currentVersion === startVersion ) {
 				collectingEntries = false;
 				break;
@@ -173,7 +220,7 @@ function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
 				collectingEntries = false;
 				break;
 			} else {
-				// We're still in the "newer than cutoff" range, so collect entries
+				// We're inside the window, so collect entries
 				collectingEntries = true;
 			}
 
@@ -582,15 +629,24 @@ async function main() {
 		const relativeChangelogPath = path.relative( process.cwd(), options.changelog );
 		console.log( `📖 Reading changelog from: ${ relativeChangelogPath }` );
 
-		const parseResult = parseChangelog( options.changelog, options.version, options.sinceDate );
+		const parseResult = parseChangelog(
+			options.changelog,
+			options.sinceVersion,
+			options.sinceDate,
+			options.toVersion,
+			options.toDate
+		);
 		const entries = parseResult.entries;
 
 		if ( entries.length === 0 ) {
 			throw new Error( 'No changelog entries found for the specified criteria.' );
 		}
 
+		const upperBoundLabel = options.toVersion || ( options.toDate && `date: ${ options.toDate }` );
 		console.log(
-			`✓ Found ${ entries.length } changelog entries since version ${ parseResult.startVersion }\n`
+			`✓ Found ${ entries.length } changelog entries since version ${ parseResult.startVersion }` +
+				( upperBoundLabel ? ` up to ${ upperBoundLabel }` : '' ) +
+				'\n'
 		);
 
 		if ( options.verbose ) {
@@ -620,7 +676,7 @@ async function main() {
 			testInstructions = await generateAIConsolidatedInstructions(
 				entries,
 				prDetails,
-				options.version || parseResult.startVersion
+				options.toVersion || options.sinceVersion || parseResult.startVersion
 			);
 		}
 
