@@ -494,8 +494,6 @@ async function main() {
 	try {
 		const options = parseArguments();
 
-		console.log( '🧪 Generating Test Instructions Guide...\n' );
-
 		if ( options.verbose ) {
 			console.log(
 				'Options:',
