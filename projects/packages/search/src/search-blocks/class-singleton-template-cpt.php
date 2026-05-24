@@ -3,6 +3,15 @@
  * Abstract scaffolding for the bundled-template singleton-CPT editor flow.
  *
  * @package automattic/jetpack-search
+ *
+ * Phan can't statically prove our late-static-binding callers always
+ * resolve to a concrete subclass — every `static::abstract_method()`
+ * site in here is reached only through `Overlay_Template::init()` or
+ * `Search_Template::init()` (which forward `static::class` to the
+ * registered actions/filters), so the abstract methods are always
+ * resolved at runtime. The warning is a false positive for this file.
+ *
+ * @phan-file-suppress PhanAbstractStaticMethodCallInStatic
  */
 
 namespace Automattic\Jetpack\Search;
