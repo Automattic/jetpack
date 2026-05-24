@@ -222,7 +222,6 @@ export function classifyPR( prDetail, changelogEntry ) {
  */
 export function printPreAICoverageReport( classifications ) {
 	const total = classifications.length;
-	const prList = nums => ( nums.length === 0 ? '' : ' ' + nums.map( n => `#${ n }` ).join( ', ' ) );
 
 	const byQuality = { structured: [], partial: [], vague: [], absent: [] };
 	for ( const c of classifications ) {
@@ -279,78 +278,127 @@ export function printPreAICoverageReport( classifications ) {
 		}
 	}
 
-	const lines = [];
-	lines.push( '' );
-	lines.push( `📊 Coverage of testing instructions — ${ total } PRs in scope` );
-	lines.push( '' );
-	lines.push( 'Testing-instruction quality:' );
-	lines.push( `  ✅ structured: ${ String( byQuality.structured.length ).padStart( 3 ) }` );
-	lines.push( `  ⚠️  partial:    ${ String( byQuality.partial.length ).padStart( 3 ) }` );
-	lines.push(
-		`  ❌ vague:       ${ String( byQuality.vague.length ).padStart( 3 ) }${ prList(
-			byQuality.vague
-		) }`
-	);
-	lines.push(
-		`  ⛔ absent:      ${ String( byQuality.absent.length ).padStart( 3 ) }${ prList(
-			byQuality.absent
-		) }`
-	);
-	lines.push( '' );
-
-	if ( envBuckets.size > 0 || accountBuckets.size > 0 ) {
-		lines.push( 'Environment requirements:' );
-		if ( envBuckets.size > 0 ) {
-			const totalEnv = [ ...envBuckets.values() ].reduce( ( a, b ) => a + b.length, 0 );
-			lines.push( `  🔧 engineer env (${ totalEnv } PRs):` );
-			for ( const [ label, prs ] of envBuckets ) {
-				lines.push( `       - ${ label }: ${ prs.length } PR(s)${ prList( prs ) }` );
-			}
-		}
-		if ( accountBuckets.size > 0 ) {
-			const totalAcct = [ ...accountBuckets.values() ].reduce( ( a, b ) => a + b.length, 0 );
-			lines.push( `  💳 external accounts (${ totalAcct } PR-account pairs):` );
-			for ( const [ acct, prs ] of accountBuckets ) {
-				lines.push( `       - ${ acct }: ${ prs.length } PR(s)${ prList( prs ) }` );
-			}
-		}
-		lines.push( '' );
-	}
-
-	lines.push( 'Importance signals (any-of):' );
-	const sigLabel = {
-		security: '🔒 security        ',
-		release_priority: '⭐ release-priority',
-		user_facing_paths: '🟢 user-facing     ',
-		package_only: '📦 package-only    ',
-		dependency_bump: '🧹 dependency bump ',
-		composer_only: '🔗 composer-only   ',
-		revert: '⏪ revert          ',
-		large_diff: '📏 large diff (>500)',
+	const qualityEmoji = {
+		structured: '✅',
+		partial: '🟡',
+		vague: '❌',
+		absent: '⛔',
 	};
-	for ( const key of Object.keys( sigBuckets ) ) {
-		const prs = sigBuckets[ key ];
-		if ( prs.length === 0 ) {
-			continue;
-		}
-		// Only inline PR list for low-volume signals to keep the report readable.
-		const inline = prs.length <= 6 ? prList( prs ) : '';
-		lines.push( `  ${ sigLabel[ key ] }: ${ String( prs.length ).padStart( 3 ) } PRs${ inline }` );
-	}
-	lines.push( '' );
+	const sigMeta = {
+		security: { emoji: '🔒', text: 'security' },
+		release_priority: { emoji: '⭐', text: 'release-priority' },
+		user_facing_paths: { emoji: '🟢', text: 'user-facing' },
+		package_only: { emoji: '📦', text: 'package-only' },
+		dependency_bump: { emoji: '🧹', text: 'dependency bump' },
+		composer_only: { emoji: '🔗', text: 'composer-only' },
+		revert: { emoji: '⏪', text: 'revert' },
+		large_diff: { emoji: '📏', text: 'large diff (>500 LOC)' },
+	};
 
-	lines.push( 'Consolidation hints (from title prefixes):' );
-	const sortedHints = [ ...hintBuckets.entries() ].sort(
-		( a, b ) => b[ 1 ].length - a[ 1 ].length
+	// Render rows as `  [emoji ]label   count   #pr #pr ...`. Within a section
+	// either every row has an emoji or none do, so the text column stays aligned.
+	// Count is right-aligned in 3 chars; PR list is inlined when it fits (≤ 8).
+	const INLINE_LIMIT = 8;
+	const inlinePRs = prs =>
+		prs.length === 0 || prs.length > INLINE_LIMIT
+			? ''
+			: '   ' + prs.map( n => `#${ n }` ).join( ' ' );
+	const renderRows = rows => {
+		const width = rows.reduce( ( m, r ) => Math.max( m, r.label.length ), 0 );
+		return rows.map( r => {
+			const prefix = r.emoji ? `${ r.emoji }  ` : '';
+			return `  ${ prefix }${ r.label.padEnd( width ) }   ${ String( r.count ).padStart(
+				3
+			) }${ inlinePRs( r.prs ) }`;
+		} );
+	};
+	const sortByCountDesc = entries =>
+		[ ...entries ].sort( ( a, b ) => b[ 1 ].length - a[ 1 ].length );
+
+	const lines = [ '', `📊 Coverage of testing instructions (${ total } PRs in scope)` ];
+
+	lines.push( '', '🧪 Testing-instruction quality:' );
+	lines.push(
+		...renderRows( [
+			{
+				emoji: qualityEmoji.structured,
+				label: 'structured',
+				count: byQuality.structured.length,
+				prs: [],
+			},
+			{
+				emoji: qualityEmoji.partial,
+				label: 'partial',
+				count: byQuality.partial.length,
+				prs: [],
+			},
+			{
+				emoji: qualityEmoji.vague,
+				label: 'vague',
+				count: byQuality.vague.length,
+				prs: byQuality.vague,
+			},
+			{
+				emoji: qualityEmoji.absent,
+				label: 'absent',
+				count: byQuality.absent.length,
+				prs: byQuality.absent,
+			},
+		] )
 	);
-	for ( const [ hint, prs ] of sortedHints ) {
-		const inline = prs.length <= 6 ? prList( prs ) : '';
-		lines.push( `  ${ hint }: ${ String( prs.length ).padStart( 3 ) } PRs${ inline }` );
-	}
-	if ( noHint.length > 0 ) {
-		lines.push( `  (no hint): ${ String( noHint.length ).padStart( 3 ) } PRs` );
-	}
-	lines.push( '' );
 
+	if ( envBuckets.size > 0 ) {
+		lines.push( '', '🔧 Engineer environment:' );
+		lines.push(
+			...renderRows(
+				sortByCountDesc( envBuckets ).map( ( [ label, prs ] ) => ( {
+					label,
+					count: prs.length,
+					prs,
+				} ) )
+			)
+		);
+	}
+
+	if ( accountBuckets.size > 0 ) {
+		lines.push( '', '💳 External accounts referenced:' );
+		lines.push(
+			...renderRows(
+				sortByCountDesc( accountBuckets ).map( ( [ label, prs ] ) => ( {
+					label,
+					count: prs.length,
+					prs,
+				} ) )
+			)
+		);
+	}
+
+	const sigRows = Object.entries( sigBuckets )
+		.filter( ( [ , prs ] ) => prs.length > 0 )
+		.map( ( [ key, prs ] ) => ( {
+			emoji: sigMeta[ key ].emoji,
+			label: sigMeta[ key ].text,
+			count: prs.length,
+			prs,
+		} ) );
+	if ( sigRows.length > 0 ) {
+		lines.push( '', '🎯 Importance signals (any-of):' );
+		lines.push( ...renderRows( sigRows ) );
+	}
+
+	const hintRows = sortByCountDesc( hintBuckets ).map( ( [ hint, prs ] ) => ( {
+		label: hint,
+		count: prs.length,
+		prs,
+	} ) );
+	if ( noHint.length > 0 ) {
+		hintRows.push( { label: '(no hint)', count: noHint.length, prs: noHint } );
+	}
+	if ( hintRows.length > 0 ) {
+		lines.push( '', '🧩 Consolidation hints (from title prefixes):' );
+		lines.push( ...renderRows( hintRows ) );
+	}
+
+	lines.push( '' );
 	process.stderr.write( lines.join( '\n' ) + '\n' );
 }

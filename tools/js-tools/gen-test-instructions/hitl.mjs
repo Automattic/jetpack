@@ -25,9 +25,10 @@ export class DecisionsPendingError extends Error {
 }
 
 /**
- * Interactively ask the user which PRs to EXCLUDE from the AI consolidation
- * pass. Excluded PRs land in "Other PRs" automatically (no invented prose).
- * Returns the set of PR numbers to exclude.
+ * Interactively ask the user whether to exclude the auto-detected low-value
+ * PRs (vague/absent testing instructions, dependency bumps, reverts) from the
+ * AI consolidation pass. Excluded PRs land in "Other PRs" automatically (no
+ * invented prose). Defaults to excluding them — press Enter to accept.
  *
  * Skipped when stdin is not a TTY or when the caller passed --non-interactive.
  *
@@ -48,53 +49,30 @@ export async function promptUserForExclusions( classifications ) {
 			c.signals.revert
 	);
 
+	if ( lowValue.length === 0 ) {
+		rl.close();
+		return new Set();
+	}
+
 	process.stderr.write(
-		`\n${ lowValue.length } PRs look low-value for the AI pass (vague/absent instructions or deps/reverts).\n`
+		`\nFound ${ lowValue.length } low-value PR(s) — vague/absent testing instructions, dependency bumps, or reverts:\n`
 	);
-	const proceed = await ask( 'Include ALL PRs in the AI pass? [Y/n/list] ' );
-	const choice = ( proceed || '' ).trim().toLowerCase();
+	for ( const c of lowValue ) {
+		process.stderr.write(
+			`  #${ c.pr } [${ c.testing_instructions_quality }] ${ c.title.slice( 0, 80 ) }\n`
+		);
+	}
+	process.stderr.write(
+		'\nExcluded PRs are dropped from AI planning and listed under "Other PRs" as-is.\n'
+	);
+	const reply = await ask( 'Exclude them from the planning? [Y/n] ' );
+	rl.close();
+	const choice = ( reply || '' ).trim().toLowerCase();
 
 	if ( choice === 'n' || choice === 'no' ) {
-		const csv = await ask(
-			'\nComma-separated PR numbers to EXCLUDE (Enter to skip; "low" to drop all low-value): '
-		);
-		rl.close();
-		const trimmed = ( csv || '' ).trim();
-		if ( ! trimmed ) {
-			return new Set();
-		}
-		if ( trimmed.toLowerCase() === 'low' ) {
-			return new Set( lowValue.map( c => c.pr ) );
-		}
-		const nums = trimmed
-			.split( /[\s,]+/ )
-			.map( s => parseInt( s.replace( /^#/, '' ), 10 ) )
-			.filter( n => Number.isInteger( n ) );
-		return new Set( nums );
+		return new Set();
 	}
-
-	if ( choice === 'list' ) {
-		process.stderr.write( '\nLow-value PRs (consider excluding):\n' );
-		for ( const c of lowValue ) {
-			process.stderr.write(
-				`  #${ c.pr } [${ c.testing_instructions_quality }] ${ c.title.slice( 0, 80 ) }\n`
-			);
-		}
-		const csv = await ask( '\nComma-separated PR numbers to EXCLUDE (Enter to include all): ' );
-		rl.close();
-		const trimmed = ( csv || '' ).trim();
-		if ( ! trimmed ) {
-			return new Set();
-		}
-		const nums = trimmed
-			.split( /[\s,]+/ )
-			.map( s => parseInt( s.replace( /^#/, '' ), 10 ) )
-			.filter( n => Number.isInteger( n ) );
-		return new Set( nums );
-	}
-
-	rl.close();
-	return new Set();
+	return new Set( lowValue.map( c => c.pr ) );
 }
 
 /**
