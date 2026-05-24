@@ -11,18 +11,11 @@ Bullet-level style for `CHANGELOG.md` entries. Applies during alpha/beta polish,
 - Use full proper names: `WordPress.com` (not `wpcom`), `WP Admin` (not `wp-admin`).
 - Avoid long parentheticals and implementation detail. Put mechanism in commit messages, not changelogs.
 - Merge near-duplicates, especially repeated dependency updates or same-feature option additions.
-- **Do not reword settled prose — load-bearing.** If the contributor's wording is grammatical, accurate, has a sensible prefix, and conveys the user-facing change, **leave it alone**. Do not propose rewrites for any of these reasons:
-  - "Tighter phrasing" / "more concise" / "more natural cadence" — long but clear sentences stay long.
-  - "Match the cadence of neighbouring bullets" — neighbouring inconsistency is fine; the editor does not normalize across bullets unless the rulebook explicitly says to (e.g. coordinate-parallel-entries from related PRs).
-  - "Punchier verb" — `Update`, `Improve`, `Add`, `Fix` are all acceptable lead verbs; do not substitute one for another for stylistic preference.
-  - "Match an example in the style guide more closely" — the style guide's examples are illustrative, not normative templates. If a bullet doesn't exactly match an example but reads cleanly, leave it.
-- **Default to the named rules below**, but surface a candidate rewrite when the bullet contains **codebase-internal shorthand that a public-changelog reader wouldn't understand**, even if no named rule fires. Triggers:
-  - Commit-message glyphs used as English conjunctions or separators in prose: `+`, `&`, `→`, `~`, `/`. Example: `register sitemaps reads + rebuild dispatch` → `register sitemaps reads and rebuild dispatch`. Exceptions: keep when the token is part of a literal label (`Save & Continue`, `and/or`), a menu path (`Settings => Sharing`), or a code identifier.
-  - Internal ticket IDs leaking into the bullet (e.g. `P1-1234`, `JIRA-5678`).
-  - Code-only tokens used as English nouns when an English noun exists (e.g. `the publicize_module flag` when the bullet could say `the Publicize module flag`).
-  - Acronyms outside the allowlist (see § Abbreviations) used without being introduced — surface for human confirmation, don't auto-spell-out.
-- **Even with these triggers, surface as a candidate — do not auto-rewrite.** The contributor sometimes had a specific reason, and rewrites here often need PR-body context to land cleanly.
-- **When in doubt, leave the bullet alone.**
+- **Rewrite only when necessary to make the bullet user-facing and professional.** The goal of this skill is to eliminate manual editorial work, so be decisive — but bound that decisiveness to a single criterion: *does this bullet read cleanly to a non-engineer Jetpack admin browsing the WP.org plugin page?*
+  - **Not user-facing or not professional → rewrite.** No exhaustive list — judge against the criterion. Common shapes: commit-message shorthand in prose, internal ticket IDs, engineering-process framing (`Refactored`, `Migrated`, `Unified`), implementation detail instead of user-visible effect, vocabulary that advertises a vulnerability, opaque code-only nouns, anything that reads like an internal P2 update.
+  - **Already user-facing and professional → leave it alone.** A bullet doesn't have to match the style guide's examples or its neighbours' cadence to be settled. Long-but-clear sentences stay long. `Newsletters:` and `Newsletter:` coexist. `Add`, `Update`, `Improve`, `Fix` are all acceptable lead verbs — don't substitute one for another for stylistic preference.
+  - **Auto-apply, don't surface, when the rewrite is unambiguous.** The "surface, don't auto-rewrite" stance (see `SKILL.md`) is reserved for cases where the rewrite needs PR-body knowledge to land cleanly (e.g. naming platforms in a `Refactored social provider preview` → `Improve social preview for LinkedIn and Tumblr` rewrite). Mechanical cleanups don't surface — they just happen.
+  - **When in doubt, the bias is to rewrite.** A bullet you'd hesitate to publish unedited is not settled.
 
 ## Bullet-membership rules — which bullets stay
 
