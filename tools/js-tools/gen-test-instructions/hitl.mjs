@@ -78,13 +78,16 @@ export async function promptUserForExclusions( classifications ) {
 /**
  * Interactively walk the user through the reviewer's open decisions and
  * collect answers. Each decision has a free-text summary, a `suggested_fix`,
- * and (optionally) a small list of `options` the reviewer enumerated. The
- * user can pick one of the options by number, type a free-form answer, or
- * press Enter to defer.
+ * a small list of `options` the reviewer enumerated, and a `recommended_option`
+ * (1-based index) that drives the default.
  *
- * Returns an array of `{ pr_numbers, answer }` records, one per decision the
- * user resolved (deferred decisions are omitted). The orchestrator passes
- * those answers back into the plan-regenerator's prompt.
+ * Input handling per decision: empty/Enter accepts the recommended default;
+ * "s" or "skip" defers; an integer 1..N picks that option; any other text is
+ * recorded as a free-form override.
+ *
+ * Returns an array of `{ pr_numbers, summary, answer }` records, one per
+ * decision the user resolved (deferred decisions are omitted). The orchestrator
+ * passes those answers back into the plan-regenerator's prompt.
  *
  * @param {Array}   decisions              - Reviewer decisions (see reviewer.mjs schema).
  * @param {object}  options                - Behavior flags.
@@ -106,7 +109,7 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 
 	process.stderr.write(
 		`\n🙋 Reviewer surfaced ${ decisions.length } decision(s) that need human judgment.\n` +
-			'For each one: type an option number, write a free-form answer, or press Enter to defer.\n'
+			'Press Enter to accept the recommended option, type a number to pick a different one, write a free-form answer, or type "s" to skip.\n'
 	);
 
 	const answers = [];
@@ -123,20 +126,36 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 			process.stderr.write( `   suggested: ${ d.suggested_fix }\n` );
 		}
 		const opts = Array.isArray( d.options ) ? d.options : [];
+		const defaultIdx =
+			Number.isInteger( d.recommended_option ) &&
+			d.recommended_option >= 1 &&
+			d.recommended_option <= opts.length
+				? d.recommended_option
+				: 1;
 		opts.forEach( ( opt, idx ) => {
-			process.stderr.write( `   ${ idx + 1 }) ${ opt }\n` );
+			const marker = idx + 1 === defaultIdx ? '  ← default' : '';
+			process.stderr.write( `   ${ idx + 1 }) ${ opt }${ marker }\n` );
 		} );
 
-		const reply = await ask( '> ' );
+		const reply = await ask( '> [Enter=default, number, text, "s"=skip] ' );
 		const trimmed = ( reply || '' ).trim();
+		const lower = trimmed.toLowerCase();
+
+		let answer;
 		if ( ! trimmed ) {
+			answer = opts[ defaultIdx - 1 ] || '';
+			if ( ! answer ) {
+				continue;
+			}
+		} else if ( lower === 's' || lower === 'skip' ) {
 			continue;
-		}
-		// If the user typed a number that matches one of the options, expand to the option text.
-		let answer = trimmed;
-		const asInt = parseInt( trimmed, 10 );
-		if ( Number.isInteger( asInt ) && asInt >= 1 && asInt <= opts.length ) {
-			answer = opts[ asInt - 1 ];
+		} else {
+			const asInt = parseInt( trimmed, 10 );
+			if ( Number.isInteger( asInt ) && asInt >= 1 && asInt <= opts.length ) {
+				answer = opts[ asInt - 1 ];
+			} else {
+				answer = trimmed;
+			}
 		}
 		answers.push( {
 			pr_numbers: Array.isArray( d.pr_numbers ) ? d.pr_numbers : [],

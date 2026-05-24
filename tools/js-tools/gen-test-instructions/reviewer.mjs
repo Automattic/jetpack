@@ -47,7 +47,7 @@ Return ONLY a single JSON object matching this schema. No Markdown, no code fenc
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
   ],
   "decisions": [
-    { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "options": ["<choice A>", "<choice B>"], "suggested_fix": "<plan-actionable change>" }
+    { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "options": ["<choice A>", "<choice B>"], "recommended_option": <1-based index into options>, "suggested_fix": "<plan-actionable change>" }
   ],
   "minor_remarks": [
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
@@ -70,7 +70,7 @@ Severity definitions — these are the ONLY criteria. Anything else is a minor r
 - Sub-test boundaries that look arbitrary (could be one section, could be N sub-tests — neither is wrong).
 - Cases where the AI ignored a \`has_review_comments: true\` signal that probably contains additional context.
 
-Each decision MUST include 2-4 \`options\` that name the choices a human would pick from.
+Each decision MUST include 2-4 \`options\` that name the choices a human would pick from, and a \`recommended_option\` integer (1-based index into \`options\`) pointing to the choice that matches your \`suggested_fix\`. The recommended option becomes the default when a human is prompted, so pick the one you would action if no human were available.
 
 **Minor remarks** — cosmetic, advisory, ignorable. Wording polish, redundant phrasing, missing punctuation, suggested re-orderings.
 
