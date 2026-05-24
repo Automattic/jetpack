@@ -213,18 +213,21 @@ class Initial_State {
 	 * decides `isCustomized`) to those users — useless to them and
 	 * needlessly leaks internal URL shape.
 	 *
-	 * `enabled` mirrors `Search_Blocks::is_block_template_overlay_enabled()`,
-	 * which itself requires both the operator-level filter AND the site
-	 * owner having activated the `overlay_blocks` experience — so the
-	 * editor surface only appears when the new overlay is actually live.
+	 * `enabled` mirrors `Search_Blocks::is_block_template_overlay_enabled()`
+	 * — true only when the user is currently *on* the blocks Overlay arm.
+	 * The editor URLs, by contrast, are gated on the operator filter alone
+	 * so admins can edit the template from the Beta card even before
+	 * activating it (otherwise the React store, computed at page load
+	 * before any switch, would carry a null `editorUrl` and the link would
+	 * become a no-op once the card flipped to Active without a refresh).
 	 *
 	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
 	 */
 	protected function get_block_template_overlay_config(): array {
-		$enabled  = Search_Blocks::is_block_template_overlay_enabled();
-		$can_edit = $enabled && current_user_can( 'manage_options' );
+		$can_edit = Search_Blocks::is_block_template_overlay_filter_on()
+			&& current_user_can( 'manage_options' );
 		return array(
-			'enabled'       => $enabled,
+			'enabled'       => Search_Blocks::is_block_template_overlay_enabled(),
 			'editorUrl'     => $can_edit ? Overlay_Template::get_editor_url() : null,
 			// `resetRestPath` is the path the dashboard sends to `apiFetch`
 			// as a DELETE — hits the CPT's built-in REST endpoint

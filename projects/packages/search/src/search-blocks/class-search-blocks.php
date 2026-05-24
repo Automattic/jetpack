@@ -222,8 +222,20 @@ class Search_Blocks {
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
 
-		if ( static::is_block_template_overlay_enabled() ) {
+		// Two-tier gate: register the editable template CPT + admin-init editor
+		// handler whenever the operator filter is on, so admins can edit the
+		// overlay template *before* opting into the blocks Overlay experience
+		// (e.g. preview the editor from the Beta card while the preact Overlay
+		// is still the active arm — without this split, the editorUrl seeded
+		// into the React initial state at page load would be null and the
+		// link would become a no-op once the user switched to the Beta card
+		// without a page refresh). The front-end render hooks stay gated on
+		// the active experience — they only paint the overlay when the user
+		// has actually committed to it.
+		if ( static::is_block_template_overlay_filter_on() ) {
 			Overlay_Template::init();
+		}
+		if ( static::is_block_template_overlay_enabled() ) {
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
 			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
 		}
@@ -304,17 +316,35 @@ class Search_Blocks {
 	 * @return bool
 	 */
 	public static function is_block_template_overlay_enabled(): bool {
-		/**
-		 * Opt out of the experimental Search blocks overlay. Available by
-		 * default; return false to hide the Beta card from the Experience
-		 * Selector.
-		 *
-		 * @param bool $enabled Default true.
-		 */
-		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true ) ) {
+		if ( ! static::is_block_template_overlay_filter_on() ) {
 			return false;
 		}
 		return Module_Control::EXPERIENCE_OVERLAY_BLOCKS === ( new Module_Control() )->get_experience();
+	}
+
+	/**
+	 * Whether the operator filter that exposes the blocks-powered overlay is
+	 * on. Available by default; operators can pin to false to hide the Beta
+	 * card and disable the editable-template machinery entirely.
+	 *
+	 * Lighter check than `is_block_template_overlay_enabled()` — does not
+	 * require the user to have committed to the new overlay experience.
+	 * Use this to gate one-time setup that should also work *before* the
+	 * user opts in (e.g. registering the editable template CPT so admins
+	 * can preview the editor from the Beta card while preact Overlay is
+	 * still active).
+	 *
+	 * @return bool
+	 */
+	public static function is_block_template_overlay_filter_on(): bool {
+		/**
+		 * Opt out of the experimental Search blocks overlay. Available by
+		 * default; return false to hide the Beta card from the Experience
+		 * Selector and disable the editable-template CPT.
+		 *
+		 * @param bool $enabled Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true );
 	}
 
 	/**
