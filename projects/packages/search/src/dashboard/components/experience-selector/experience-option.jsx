@@ -231,21 +231,27 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					align="start"
 					className="jp-search-experience-option__actions"
 				>
-					{ blockTemplateOverlay.enabled && blockTemplateOverlay.editorUrl && (
-						<CardLink
-							label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
-							href={ blockTemplateOverlay.editorUrl }
-							disabled={ linksDisabled }
-							// Re-show "Restore default" on the admin's return
-							// from the editor: the click implies a fresh
-							// singleton is about to be (re-)created on the
-							// server, so the previously-set `justReset` flag
-							// no longer reflects reality.
-							onClick={ () => setJustReset( false ) }
-						/>
-					) }
-					{ blockTemplateOverlay.enabled &&
-						blockTemplateOverlay.resetRestPath &&
+					{ /*
+					   "Edit the Search overlay" always renders for the
+					   OVERLAY_BLOCKS card — disabled when the card is
+					   inactive (`linksDisabled`), matching how Embedded's
+					   "Edit search template" stays visible as a muted
+					   affordance. `editorUrl` is null until the user has
+					   activated this experience, but the disabled span
+					   doesn't navigate so the placeholder href is harmless.
+					*/ }
+					<CardLink
+						label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
+						href={ blockTemplateOverlay.editorUrl || '#' }
+						disabled={ linksDisabled }
+						// Re-show "Restore default" on the admin's return
+						// from the editor: the click implies a fresh
+						// singleton is about to be (re-)created on the
+						// server, so the previously-set `justReset` flag
+						// no longer reflects reality.
+						onClick={ () => setJustReset( false ) }
+					/>
+					{ blockTemplateOverlay.resetRestPath &&
 						blockTemplateOverlay.isCustomized &&
 						! justReset && (
 							<CardLink
