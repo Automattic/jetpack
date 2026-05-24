@@ -20,9 +20,9 @@ export const EXPERIENCE = Object.freeze( {
 
 /**
  * Display order on the dashboard. Embedded leads (RECOMMENDED); the new
- * blocks-powered Overlay sits where the legacy one used to so the card
- * grid layout stays stable; legacy Overlay follows immediately after;
- * Off comes last.
+ * blocks-powered Overlay (BETA) sits next to it as a sibling — both
+ * overlays are first-class peers, not predecessor/successor — then the
+ * preact Overlay, then Off.
  *
  * `OVERLAY_BLOCKS` is filtered out at render time on sites where the
  * `jetpack_search_overlay_block_template_enabled` server flag is pinned
@@ -43,10 +43,9 @@ export const EXPERIENCE_ORDER = [
  * Wrapped in a function so __() runs at render time (i18n is locale-aware
  * after the dashboard boots, not at module-load time).
  *
- * The legacy overlay carries a contextual "(legacy)" suffix only when the
- * blocks-powered overlay is also visible — see `getCardTitle()`. Sites
- * where an operator pinned the BETA card off continue to see plain
- * "Overlay search" on the legacy card.
+ * The blocks-powered overlay carries a "(blocks)" suffix so site owners
+ * can tell the two coexisting overlays apart at a glance. The preact
+ * Overlay keeps its plain title — neither card supersedes the other.
  *
  * @param {string} experience - One of the EXPERIENCE values.
  * @return {string} - Translated title.
@@ -56,7 +55,7 @@ export function getExperienceLabel( experience ) {
 		case EXPERIENCE.EMBEDDED:
 			return __( 'Embedded search', 'jetpack-search-pkg' );
 		case EXPERIENCE.OVERLAY_BLOCKS:
-			return __( 'Overlay search', 'jetpack-search-pkg' );
+			return __( 'Overlay search (blocks)', 'jetpack-search-pkg' );
 		case EXPERIENCE.OVERLAY:
 			return __( 'Overlay search', 'jetpack-search-pkg' );
 		case EXPERIENCE.INLINE:
@@ -71,19 +70,15 @@ export function getExperienceLabel( experience ) {
 /**
  * Title displayed on the card.
  *
- * Identical to `getExperienceLabel()` except for the legacy overlay: when
- * the blocks-powered overlay is also on offer the two cards would
- * otherwise share the same name, so the legacy one picks up a "(legacy)"
- * suffix to disambiguate. On sites that opted out of the BETA card the
- * suffix is suppressed and the legacy card keeps its original title.
+ * Currently identical to `getExperienceLabel()`. Kept as a separate entry
+ * point so callers that want the card-level title (vs. an inline mention
+ * elsewhere in the UI) don't reach through to the label fn directly —
+ * leaves room to context-sensitively decorate the card title later
+ * without rippling through every callsite.
  *
- * @param {string}  experience          - One of the EXPERIENCE values.
- * @param {boolean} blockOverlayEnabled - True if the new overlay card is visible.
+ * @param {string} experience - One of the EXPERIENCE values.
  * @return {string} - Translated title for the card.
  */
-export function getCardTitle( experience, blockOverlayEnabled ) {
-	if ( experience === EXPERIENCE.OVERLAY && blockOverlayEnabled ) {
-		return __( 'Overlay search (legacy)', 'jetpack-search-pkg' );
-	}
+export function getCardTitle( experience ) {
 	return getExperienceLabel( experience );
 }

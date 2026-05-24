@@ -28,10 +28,12 @@ export default function ExperienceSelector() {
 	// Two filters compose on top of the canonical EXPERIENCE_ORDER:
 	//   * On WordPress.com Simple sites, Off is managed from the .com side,
 	//     so hide that row here.
-	//   * The blocks-powered Overlay is available by default, gated by
-	//     `jetpack_search_overlay_block_template_enabled` (defaults true).
-	//     Operators that pin the filter to false fall back to the original
-	//     four cards with the legacy Overlay keeping its plain title.
+	//   * The blocks-powered Overlay (BETA) is available by default, gated
+	//     by `jetpack_search_overlay_block_template_enabled` (defaults
+	//     true). Operators that pin the filter to false fall back to the
+	//     four-card layout with the preact Overlay as the only Overlay
+	//     choice — the two overlays coexist as peers, not as predecessor
+	//     and successor.
 	const visibleExperiences = EXPERIENCE_ORDER.filter( experience => {
 		if ( experience === EXPERIENCE.OFF && isWpcom ) {
 			return false;

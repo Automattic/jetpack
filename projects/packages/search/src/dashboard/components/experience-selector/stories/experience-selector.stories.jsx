@@ -22,7 +22,7 @@ export default {
 		blockOverlayEnabled: {
 			control: 'boolean',
 			description:
-				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter (defaults true). Reveals the BETA blocks-powered Overlay card and tags the legacy one "(legacy)". Pin to false to preview the legacy four-card layout.',
+				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter (defaults true). Reveals the BETA "Overlay search (blocks)" card alongside the preact Overlay; both stay first-class peers. Pin to false to preview the four-card layout.',
 		},
 	},
 	args: {
@@ -205,9 +205,9 @@ WpcomSite.args = {
 	isWpcom: true,
 };
 
-// Blocks-powered Overlay flag on — five cards visible, legacy carries the
-// "(legacy)" suffix. The user has not yet switched, so the legacy card is
-// the active one.
+// Blocks-powered Overlay flag on — five cards visible, BETA "(blocks)"
+// card sits next to the preact Overlay as a sibling. The user has not yet
+// switched, so the preact card is the active one.
 export const OverlayBlocksAvailable = args =>
 	renderWithStoryArgs(
 		{
@@ -223,8 +223,8 @@ OverlayBlocksAvailable.args = {
 	blockOverlayEnabled: true,
 };
 
-// User has opted into the blocks-powered Overlay — the new card is Active,
-// and the legacy card stays selectable as a fallback.
+// User has opted into the blocks-powered Overlay — the BETA card is
+// Active; the preact Overlay stays selectable as a peer.
 export const OverlayBlocksActive = args =>
 	renderWithStoryArgs(
 		{
@@ -241,8 +241,8 @@ OverlayBlocksActive.args = {
 };
 
 // Operator pinned `jetpack_search_overlay_block_template_enabled` to false —
-// the BETA card is hidden, the legacy Overlay reverts to its plain title.
-export const LegacyFourCardLayout = args =>
+// the BETA card is hidden, the preact Overlay is the only Overlay choice.
+export const PreactOnlyFourCardLayout = args =>
 	renderWithStoryArgs(
 		{
 			module_active: true,
@@ -253,6 +253,6 @@ export const LegacyFourCardLayout = args =>
 		},
 		args
 	);
-LegacyFourCardLayout.args = {
+PreactOnlyFourCardLayout.args = {
 	blockOverlayEnabled: false,
 };
