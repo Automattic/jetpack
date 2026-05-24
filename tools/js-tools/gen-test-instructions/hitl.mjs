@@ -84,17 +84,41 @@ export async function promptUserForExclusions( classifications ) {
  * skipped) choice to stderr so the user can audit the run from the terminal
  * output just like an interactive session.
  *
- * @param {Array} decisions - Reviewer decisions.
- * @return {Array<{ pr_numbers: number[], summary: string, answer: string }>} Resolved decisions.
+ * @param {string} text - Recommended option text.
+ * @return {boolean} True when the option contains a branch that needs human judgment.
  */
-function autoResolveDecisions( decisions ) {
-	process.stderr.write(
-		`\n🤖 ${ decisions.length } decision${
-			decisions.length === 1 ? '' : 's'
-		} — auto-applying interactive defaults (--non-interactive):\n`
+export function isConditionalDecisionOption( text ) {
+	if ( typeof text !== 'string' ) {
+		return false;
+	}
+	return /\b(if|otherwise|rather than|instead of|correct the classification|looks wrong)\b/i.test(
+		text
 	);
+}
+
+/**
+ * Apply non-interactive defaults where doing so is safe. Conditional
+ * recommendations are not auto-applied because the default may choose the
+ * wrong branch while still looking "resolved" in the sidecar.
+ *
+ * @param {Array}   decisions   - Reviewer decisions.
+ * @param {object}  options     - Behavior flags.
+ * @param {boolean} options.log - Whether to print decisions to stderr.
+ * @return {object} Resolved answers plus manual gates.
+ */
+export function resolveNonInteractiveDecisions( decisions, { log = false } = {} ) {
 	const width = Math.max( 40, process.stderr.columns || 80 );
 	const answers = [];
+	const unresolved = [];
+
+	if ( log ) {
+		process.stderr.write(
+			`\n🤖 ${ decisions.length } decision${
+				decisions.length === 1 ? '' : 's'
+			} — auto-applying safe interactive defaults (--non-interactive):\n`
+		);
+	}
+
 	for ( let i = 0; i < decisions.length; i++ ) {
 		const d = decisions[ i ];
 		const opts = Array.isArray( d.options ) ? d.options : [];
@@ -103,12 +127,21 @@ function autoResolveDecisions( decisions ) {
 				? ` ${ d.pr_numbers.map( n => `#${ n }` ).join( ', ' ) }`
 				: '';
 		const header = `  ${ i + 1 }.${ prTag } ${ d.summary || '(no summary)' }`;
-		process.stderr.write( wrapToWidth( header, width, '' ) + '\n' );
+		if ( log ) {
+			process.stderr.write( wrapToWidth( header, width, '' ) + '\n' );
+		}
 
 		if ( opts.length === 0 ) {
-			process.stderr.write( '     → skipped (no options to auto-resolve)\n' );
+			if ( log ) {
+				process.stderr.write( '     → unresolved (no options to auto-resolve)\n' );
+			}
+			unresolved.push( {
+				...d,
+				reason: 'No concrete options were provided for non-interactive resolution.',
+			} );
 			continue;
 		}
+
 		const defaultIdx =
 			Number.isInteger( d.recommended_option ) &&
 			d.recommended_option >= 1 &&
@@ -116,16 +149,49 @@ function autoResolveDecisions( decisions ) {
 				? d.recommended_option
 				: 1;
 		const answer = opts[ defaultIdx - 1 ];
-		process.stderr.write(
-			wrapToWidth( `     → ★ option ${ defaultIdx }: ${ answer }`, width, '' ) + '\n'
-		);
+
+		if ( isConditionalDecisionOption( answer ) ) {
+			if ( log ) {
+				process.stderr.write(
+					wrapToWidth(
+						`     → unresolved (conditional option ${ defaultIdx } needs human review): ${ answer }`,
+						width,
+						''
+					) + '\n'
+				);
+			}
+			unresolved.push( {
+				...d,
+				recommended_answer: answer,
+				reason: 'Recommended option is conditional and cannot be safely auto-applied.',
+			} );
+			continue;
+		}
+
+		if ( log ) {
+			process.stderr.write(
+				wrapToWidth( `     → ★ option ${ defaultIdx }: ${ answer }`, width, '' ) + '\n'
+			);
+		}
 		answers.push( {
 			pr_numbers: Array.isArray( d.pr_numbers ) ? d.pr_numbers : [],
 			summary: d.summary || '',
 			answer,
+			expected_effects: Array.isArray( d.expected_effects ) ? d.expected_effects : [],
 		} );
 	}
-	return answers;
+
+	return { answers, unresolved };
+}
+
+/**
+ * Resolve decisions in non-interactive mode and log the outcome.
+ *
+ * @param {Array} decisions - Reviewer decisions.
+ * @return {object} Resolved decisions.
+ */
+function autoResolveDecisions( decisions ) {
+	return resolveNonInteractiveDecisions( decisions, { log: true } );
 }
 
 /**
@@ -139,12 +205,8 @@ function autoResolveDecisions( decisions ) {
  * defers; an integer 1..N picks that option; any other text is recorded as a
  * free-form override.
  *
- * Non-interactive (or no TTY): auto-apply the same default each prompt would
- * use if the user pressed Enter. Decisions with options pick the
- * recommended_option (or option 1 when the recommendation is missing/invalid);
- * decisions with no options are skipped — the same outcome as Enter on the
- * empty free-form prompt. Each auto-applied choice is logged to stderr so the
- * audit trail matches what the user would have seen.
+ * Non-interactive (or no TTY): auto-apply only concrete defaults. Conditional
+ * recommendations and no-option decisions become unresolved process gates.
  *
  * Returns an array of `{ pr_numbers, summary, answer }` records, one per
  * decision that produced an answer (deferred + no-option decisions are
@@ -154,11 +216,11 @@ function autoResolveDecisions( decisions ) {
  * @param {Array}   decisions              - Reviewer decisions (see reviewer.mjs schema).
  * @param {object}  options                - Behavior flags.
  * @param {boolean} options.nonInteractive - When true (or no TTY), auto-apply defaults instead of prompting.
- * @return {Promise<Array<{ pr_numbers: number[], summary: string, answer: string }>>} One record per resolved decision.
+ * @return {Promise<object>} Resolved answers plus manual gates.
  */
 export async function promptForDecisions( decisions, { nonInteractive = false } = {} ) {
 	if ( ! Array.isArray( decisions ) || decisions.length === 0 ) {
-		return [];
+		return { answers: [], unresolved: [] };
 	}
 
 	if ( nonInteractive || ! process.stdin.isTTY ) {
@@ -238,11 +300,12 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 			pr_numbers: Array.isArray( d.pr_numbers ) ? d.pr_numbers : [],
 			summary: d.summary || '',
 			answer,
+			expected_effects: Array.isArray( d.expected_effects ) ? d.expected_effects : [],
 		} );
 	}
 
 	rl.close();
-	return answers;
+	return { answers, unresolved: [] };
 }
 
 /**

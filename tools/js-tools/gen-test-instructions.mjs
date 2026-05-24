@@ -25,7 +25,9 @@ import {
 	DEFAULT_MAX_REVIEWER_ITERATIONS,
 } from './gen-test-instructions/constants.mjs';
 import { runLoopPipeline, runSingleShotPipeline } from './gen-test-instructions/pipeline.mjs';
+import { loadBaselineEvidence } from './gen-test-instructions/process-gates.mjs';
 import { generateRawTestInstructions } from './gen-test-instructions/raw.mjs';
+import { loadReleaseContextFile } from './gen-test-instructions/release-context.mjs';
 
 // ============================================================================
 // COMMAND LINE ARGUMENT PARSING
@@ -61,6 +63,10 @@ function parseArguments() {
 		targetSections: null,
 		headlinePrs: new Set(),
 		demotePrs: new Set(),
+		allowUnresolvedReview: false,
+		releaseContext: null,
+		baselineCoverageJson: null,
+		baselineMarkdown: null,
 	};
 
 	const parseCsvIntoSet = csv =>
@@ -165,6 +171,18 @@ function parseArguments() {
 				break;
 			case '--demote-prs':
 				options.demotePrs = parseCsvIntoSet( args[ ++i ] );
+				break;
+			case '--allow-unresolved-review':
+				options.allowUnresolvedReview = true;
+				break;
+			case '--release-context':
+				options.releaseContext = args[ ++i ];
+				break;
+			case '--baseline-coverage-json':
+				options.baselineCoverageJson = args[ ++i ];
+				break;
+			case '--baseline-markdown':
+				options.baselineMarkdown = args[ ++i ];
 				break;
 			default:
 				throw new Error( `Unknown option: ${ args[ i ] }` );
@@ -542,6 +560,7 @@ async function main() {
 
 		// Step 4: Generate test instructions
 		let testInstructions;
+		let publishable = true;
 
 		if ( options.skipAi ) {
 			testInstructions = generateRawTestInstructions( entries, prDetails );
@@ -551,6 +570,11 @@ async function main() {
 				`🤖 Consolidating test instructions via ${ aiLabel } for Jetpack ${ options.versionName } (pipeline: ${ options.pipeline })...`
 			);
 			const coverageJsonPath = options.coverageJson || `${ options.output }.coverage.json`;
+			const releaseContext = loadReleaseContextFile( options.releaseContext );
+			const baselineClassifications = loadBaselineEvidence( {
+				coverageJsonPath: options.baselineCoverageJson,
+				markdownPath: options.baselineMarkdown,
+			} );
 			const pipelineOptions = {
 				excludePrs: options.excludePrs,
 				includeOnly: options.includeOnly,
@@ -563,6 +587,9 @@ async function main() {
 				targetSections: options.targetSections,
 				headlinePrs: options.headlinePrs,
 				demotePrs: options.demotePrs,
+				allowUnresolvedReview: options.allowUnresolvedReview,
+				releaseContext,
+				baselineClassifications,
 			};
 
 			const pipeline = options.pipeline === 'single' ? runSingleShotPipeline : runLoopPipeline;
@@ -574,10 +601,17 @@ async function main() {
 				pipelineOptions
 			);
 			testInstructions = result.markdown;
+			publishable = result.publishable !== false;
 		}
 
 		// Step 5: Write to file
 		fs.writeFileSync( options.output, testInstructions );
+		if ( ! publishable && ! options.allowUnresolvedReview ) {
+			console.error(
+				'\n❌ Generated guide has unresolved process gates and is marked non-publishable.'
+			);
+			process.exitCode = 2;
+		}
 	} catch ( error ) {
 		console.error( `\n❌ Error: ${ error.message }` );
 		process.exit( 1 );

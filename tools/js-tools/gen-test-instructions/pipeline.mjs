@@ -6,10 +6,9 @@
  * loop iteration that emits decisions. runSingleShotPipeline is the legacy
  * one-pass flow kept as an escape hatch under --pipeline=single.
  *
- * Both return `{ markdown }`. In --non-interactive mode every HITL checkpoint
- * applies the same default a user would get by pressing Enter (auto-exclude
- * low-value PRs, auto-pick each reviewer decision's recommended option), so
- * the loop always reaches a resolved end state.
+ * Both return `{ markdown, publishable }`. In --non-interactive mode HITL
+ * checkpoints only auto-apply safe defaults. Conditional review decisions are
+ * recorded as manual gates and mark the output non-publishable by default.
  */
 
 import { classifyPR, printPreAICoverageReport } from './classify.mjs';
@@ -24,6 +23,12 @@ import {
 	appendReviewerNotes,
 } from './plan.mjs';
 import { runPrioritizationStage } from './prioritize.mjs';
+import {
+	annotateClassificationsWithPlacement,
+	findNarrativeLosses,
+	printProcessGateReport,
+	validateDecisionEffects,
+} from './process-gates.mjs';
 import { generateRawTestInstructions } from './raw.mjs';
 import { runReviewer, printReviewerFindings } from './reviewer.mjs';
 import { getRunner, timed } from './runners.mjs';
@@ -102,7 +107,7 @@ async function resolveUserExclusions( classifications, options ) {
  * @param {string} releaseVersion - Release label.
  * @param {string} ai             - AI provider ('claude' or 'codex').
  * @param {object} options        - Pipeline options.
- * @return {Promise<{ markdown: string }>} Rendered markdown.
+ * @return {Promise<{ markdown: string, publishable: boolean }>} Rendered markdown.
  */
 export async function runSingleShotPipeline(
 	entries,
@@ -111,7 +116,7 @@ export async function runSingleShotPipeline(
 	ai,
 	options = {}
 ) {
-	const { coverageJsonPath = null, runner: runnerOverride = null } = options;
+	const { coverageJsonPath = null, runner: runnerOverride = null, releaseContext = null } = options;
 	const labelForRelease = releaseVersion || 'upcoming release';
 	const runner = runnerOverride || getRunner( ai );
 
@@ -134,10 +139,10 @@ export async function runSingleShotPipeline(
 
 	if ( ! guide ) {
 		console.warn( '\n⚠️  AI consolidation failed; falling back to raw output.\n' );
-		return { markdown: generateRawTestInstructions( entries, prDetails ) };
+		return { markdown: generateRawTestInstructions( entries, prDetails ), publishable: false };
 	}
 
-	const markdown = renderGuide( guide, labelForRelease, classifications );
+	const markdown = renderGuide( guide, labelForRelease, classifications, { releaseContext } );
 	printPostAIValidation( guide, classifications, userExcluded );
 
 	if ( coverageJsonPath ) {
@@ -150,7 +155,7 @@ export async function runSingleShotPipeline(
 		process.stderr.write( `✓ Coverage sidecar written: ${ coverageJsonPath }\n` );
 	}
 
-	return { markdown };
+	return { markdown, publishable: true };
 }
 
 /**
@@ -164,18 +169,17 @@ export async function runSingleShotPipeline(
  * Stage-by-stage failure handling. Coverage-AI failure: keep deterministic
  * classifications, warn, continue. Plan generator failure on every iteration:
  * fall back to raw output. Reviewer failure: accept current plan with no
- * findings and exit the loop. In --non-interactive mode every HITL prompt
- * auto-applies the interactive default (recommended_option per decision), so
- * the loop always reaches a resolved end state. Cap reached with blockers
- * still outstanding: demote them to decisions, run HITL once more, then
- * regenerate the plan with the human's answers.
+ * findings and exit the loop. In --non-interactive mode only safe reviewer
+ * defaults are auto-applied; conditional defaults become manual gates. Cap
+ * reached with blockers still outstanding: demote them to decisions, run HITL
+ * once more, then regenerate the plan with the human's answers.
  *
  * @param {Array}  entries        - Changelog entries.
  * @param {Array}  prDetails      - PR detail records (with reviews/comments/commits).
  * @param {string} releaseVersion - Release label.
  * @param {string} ai             - AI provider ('claude' or 'codex').
  * @param {object} options        - Pipeline options.
- * @return {Promise<{ markdown: string }>} Rendered markdown.
+ * @return {Promise<{ markdown: string, publishable: boolean }>} Rendered markdown.
  */
 export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, options = {} ) {
 	const {
@@ -189,6 +193,9 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		targetSections = null,
 		headlinePrs = new Set(),
 		demotePrs = new Set(),
+		allowUnresolvedReview = false,
+		releaseContext = null,
+		baselineClassifications = [],
 	} = options;
 
 	const labelForRelease = releaseVersion || 'upcoming release';
@@ -225,7 +232,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		`✓ ${ inScopeRaw.length } PRs going to the AI pass; ${ dropped } will land in "Other PRs".\n`
 	);
 
-	// Stage 3b: Prioritization — pick 3-7 headline PRs, withhold Tier 3 from
+	// Stage 3b: Prioritization — pick headline anchor PRs, withhold Tier 3 from
 	// the plan input. The renderer auto-fills Other PRs from anything not in
 	// sections[].related_prs, so Tier 3 PRs land in the right place "for free"
 	// just by being absent from the plan input.
@@ -270,6 +277,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 	// regeneration instead of being discarded by the blocker-driven re-loop.
 	const reviewerHistory = [];
 	const decisionAnswers = [];
+	const unresolvedReviewGates = [];
 	let guide = null;
 	let reviewerFindings = null;
 	let iteration = 0;
@@ -299,7 +307,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			console.warn(
 				'\n⚠️  Plan generator failed on the first iteration; falling back to raw output.\n'
 			);
-			return { markdown: generateRawTestInstructions( entries, prDetails ) };
+			return { markdown: generateRawTestInstructions( entries, prDetails ), publishable: false };
 		}
 		guide = nextGuide;
 
@@ -316,11 +324,13 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		reviewerFindings = findings;
 
 		// HITL on this iteration's decisions, if any. Non-interactive runs
-		// auto-apply the recommended option per decision and return the same
-		// answer shape as an interactive run.
+		// auto-apply only concrete recommended options; conditional options
+		// become manual process gates.
 		let iterAnswers = [];
 		if ( findings.decisions && findings.decisions.length > 0 ) {
-			iterAnswers = await promptForDecisions( findings.decisions, { nonInteractive } );
+			const resolution = await promptForDecisions( findings.decisions, { nonInteractive } );
+			iterAnswers = resolution.answers;
+			unresolvedReviewGates.push( ...resolution.unresolved );
 			decisionAnswers.push( ...iterAnswers );
 		}
 
@@ -350,7 +360,9 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 				demoted_from_blocker: true,
 			};
 		} );
-		const demotedAnswers = await promptForDecisions( demoted, { nonInteractive } );
+		const demotedResolution = await promptForDecisions( demoted, { nonInteractive } );
+		const demotedAnswers = demotedResolution.answers;
+		unresolvedReviewGates.push( ...demotedResolution.unresolved );
 		if ( demotedAnswers.length > 0 ) {
 			decisionAnswers.push( ...demotedAnswers );
 			iteration += 1;
@@ -376,16 +388,41 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		reviewerFindings.blockers = [];
 	}
 
-	// Stage 6: Render + minor remarks appendix
-	let markdown = renderGuide( guide, labelForRelease, mergedClassifications );
+	// Stage 6: deterministic process gates + render.
+	const placedClassifications = annotateClassificationsWithPlacement(
+		mergedClassifications,
+		guide,
+		userExcluded
+	);
+	const decisionEffectFailures = validateDecisionEffects( decisionAnswers, guide );
+	const narrativeLosses =
+		Array.isArray( baselineClassifications ) && baselineClassifications.length > 0
+			? findNarrativeLosses( placedClassifications, baselineClassifications, { releaseContext } )
+			: [];
+	const processGateCount =
+		unresolvedReviewGates.length + decisionEffectFailures.length + narrativeLosses.length;
+	const publishable = processGateCount === 0;
+	printProcessGateReport( {
+		unresolvedReviewGates,
+		decisionEffectFailures,
+		narrativeLosses,
+	} );
+	if ( ! publishable && ! allowUnresolvedReview ) {
+		process.stderr.write(
+			'⚠️  Output marked non-publishable. Resolve the process gates above or rerun with --allow-unresolved-review to keep this as an explicit draft.\n\n'
+		);
+	}
+
+	// Stage 7: Render + minor remarks appendix
+	let markdown = renderGuide( guide, labelForRelease, mergedClassifications, { releaseContext } );
 	const minorRemarks = reviewerFindings?.minor_remarks || [];
 	const appendResult = appendReviewerNotes( markdown, minorRemarks );
 	markdown = appendResult.text;
 
-	// Stage 7: Post-AI validation
+	// Stage 8: Post-AI validation
 	printPostAIValidation( guide, mergedClassifications, userExcluded );
 
-	// Stage 8: Sidecar
+	// Stage 9: Sidecar
 	if ( coverageJsonPath ) {
 		writeCoverageSidecar( coverageJsonPath, {
 			pipeline: 'loop',
@@ -394,13 +431,19 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			classificationDiffs,
 			reviewerHistory,
 			decisionAnswers,
+			unresolvedReviewGates,
+			decisionEffectFailures,
+			narrativeLosses,
+			publishable,
+			allowUnresolvedReview,
 			minorRemarksAppended: appendResult.appended,
 			guide,
 			userExcluded,
 			prioritization: prioritizationPayload,
+			releaseContext,
 		} );
 		process.stderr.write( `✓ Coverage sidecar written: ${ coverageJsonPath }\n` );
 	}
 
-	return { markdown };
+	return { markdown, publishable: publishable || allowUnresolvedReview };
 }

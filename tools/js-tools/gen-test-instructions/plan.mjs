@@ -110,7 +110,7 @@ Rules for the content you generate — each cites the comment-thread lesson it e
 ${
 	tiersPresent
 		? `
-13. **Tier 1 PRs MUST anchor a section.** Every input PR with \`"tier": 1\` MUST appear in \`sections[].related_prs\` — either as a top-level section, or (when its \`consolidation_hint\` matches another Tier 1 PR's hint) as a named sub-test under a clustered section. NEVER put a Tier 1 PR in \`other_changes\`. The release lead picked these as headline surfaces; demoting them is not your call.
+13. **Tier 1 PRs MUST anchor final headline sections.** Every input PR with \`"tier": 1\` is the anchor for one of the release lead's headline sections. It MUST appear in \`sections[].related_prs\` for a top-level section and MUST NOT be put in \`other_changes\`. Supporting PRs in the same feature area should be Tier 2 sub-tests under that anchor.
 
 14. **Tier 2 PRs are sub-tests or bundled.** Every input PR with \`"tier": 2\` MAY appear (a) as a sub-test under a Tier 1 section when its surface is related, or (b) bundled under a single H3 like "Other tester-facing fixes" when it stands alone. Tier 2 PRs MUST NOT each get their own top-level H3 — the release lead capped headline sections deliberately. If a Tier 2 PR genuinely has no tester-facing test, move it to \`other_changes\` (this is the one allowed downgrade).
 `
@@ -359,16 +359,17 @@ export function collectSectionPRs( section ) {
  * canonical Before-you-start preamble. The AI only owns the contents
  * (sections, steps, action+expected text).
  *
- * @param {object} guide           - Parsed JSON object from the AI.
- * @param {string} releaseVersion  - Version label for headers (e.g. "15.8").
- * @param {Array}  classifications - Merged classification records used for
- *                                 the deterministic Important: callout and
- *                                 the Other-PRs auto-fill.
+ * @param {object} guide                  - Parsed JSON object from the AI.
+ * @param {string} releaseVersion         - Version label for headers (e.g. "15.8").
+ * @param {Array}  classifications        - Merged classification records.
+ * @param {object} options                - Render options.
+ * @param {object} options.releaseContext - Optional release-lead context.
  * @return {string} Markdown document.
  */
-export function renderGuide( guide, releaseVersion, classifications ) {
+export function renderGuide( guide, releaseVersion, classifications, options = {} ) {
 	const prLink = n => `[#${ n }](https://github.com/${ GITHUB_REPO }/pull/${ n })`;
 	const out = [];
+	const releaseContext = options.releaseContext || null;
 
 	const classByPR = new Map( classifications.map( c => [ c.pr, c ] ) );
 	const titleByPR = new Map( classifications.map( c => [ c.pr, c.title ] ) );
@@ -391,7 +392,7 @@ export function renderGuide( guide, releaseVersion, classifications ) {
 			if ( c.engineer_environment ) {
 				envs.add( c.engineer_environment );
 			}
-			for ( const a of c.external_accounts ) {
+			for ( const a of c.external_accounts || [] ) {
 				accounts.add( a );
 			}
 		}
@@ -408,6 +409,13 @@ export function renderGuide( guide, releaseVersion, classifications ) {
 			! parts.some( p => p.toLowerCase().includes( aiImportant.toLowerCase().slice( 0, 30 ) ) )
 		) {
 			parts.push( aiImportant );
+		}
+		const siteAssignments = releaseContext?.site_assignments || {};
+		for ( const pr of allPRs ) {
+			const assignment = siteAssignments[ String( pr ) ];
+			if ( assignment ) {
+				parts.push( assignment );
+			}
 		}
 		return parts.length > 0 ? parts.join( ' ' ) : null;
 	};
@@ -463,13 +471,54 @@ export function renderGuide( guide, releaseVersion, classifications ) {
 		}
 	};
 
+	const renderSubTest = st => {
+		const stTitle = st.title || '(untitled sub-test)';
+		const stRelated = Array.isArray( st.related_prs ) ? st.related_prs : [];
+		if ( stRelated.length === 1 ) {
+			out.push( `#### ${ stTitle } (${ prLink( stRelated[ 0 ] ) })` );
+		} else if ( stRelated.length > 1 ) {
+			out.push( `#### ${ stTitle } (${ stRelated.map( prLink ).join( ', ' ) })` );
+		} else {
+			out.push( `#### ${ stTitle }` );
+		}
+		out.push( '' );
+
+		const important = buildImportant( st );
+		if ( important ) {
+			out.push( `> **Important:** ${ important }` );
+			out.push( '' );
+		}
+
+		const context = typeof st.context === 'string' ? st.context.trim() : '';
+		if ( context ) {
+			out.push( context );
+			out.push( '' );
+		}
+
+		renderSteps( st.steps );
+	};
+
+	const renderSection = section => {
+		renderSectionHead( section );
+
+		const subTests = Array.isArray( section.sub_tests ) ? section.sub_tests : [];
+		if ( subTests.length > 0 ) {
+			for ( const st of subTests ) {
+				renderSubTest( st );
+			}
+		} else {
+			renderSteps( section.steps );
+		}
+	};
+
 	// File header — short prose preamble + the canonical "Before you start" block.
 	// The release lead adds the testing-cycle preamble + tester roster + site
 	// checkout list above this in the published P2 post.
 	out.push( `## Jetpack ${ releaseVersion }: time to test!` );
 	out.push( '' );
 	out.push(
-		'<!-- Release lead: paste the testing-cycle preamble + tester roster + site checkout list here. -->'
+		releaseContext?.preamble ||
+			'<!-- Release lead: paste the testing-cycle preamble + tester roster + site checkout list here. -->'
 	);
 	out.push( '' );
 	out.push( '### Before you start' );
@@ -480,27 +529,11 @@ export function renderGuide( guide, releaseVersion, classifications ) {
 	out.push( '' );
 
 	const sections = Array.isArray( guide.sections ) ? guide.sections : [];
+	for ( const section of releaseContext?.manual_sections || [] ) {
+		renderSection( section );
+	}
 	for ( const section of sections ) {
-		renderSectionHead( section );
-
-		const subTests = Array.isArray( section.sub_tests ) ? section.sub_tests : [];
-		if ( subTests.length > 0 ) {
-			for ( const st of subTests ) {
-				const stTitle = st.title || '(untitled sub-test)';
-				const stRelated = Array.isArray( st.related_prs ) ? st.related_prs : [];
-				if ( stRelated.length === 1 ) {
-					out.push( `#### ${ stTitle } (${ prLink( stRelated[ 0 ] ) })` );
-				} else if ( stRelated.length > 1 ) {
-					out.push( `#### ${ stTitle } (${ stRelated.map( prLink ).join( ', ' ) })` );
-				} else {
-					out.push( `#### ${ stTitle }` );
-				}
-				out.push( '' );
-				renderSteps( st.steps );
-			}
-		} else {
-			renderSteps( section.steps );
-		}
+		renderSection( section );
 	}
 
 	// Other PRs — bracketed in an HTML comment so the release lead can prune

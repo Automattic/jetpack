@@ -51,7 +51,15 @@ Return ONLY a single JSON object matching this schema. No Markdown, no code fenc
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
   ],
   "decisions": [
-    { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "options": ["<plan-actionable choice A>", "<plan-actionable choice B>"], "recommended_option": <1-based index into options> }
+    {
+      "pr_numbers": [<int>, ...],
+      "summary": "<one sentence>",
+      "options": ["<plan-actionable choice A>", "<plan-actionable choice B>"],
+      "recommended_option": <1-based index into options>,
+      "expected_effects": [
+        { "kind": "section_exists" | "sub_test_exists" | "text_absent" | "pr_not_in_body", "value": "<section title, sub-test title, forbidden text, or PR number>" }
+      ]
+    }
   ],
   "minor_remarks": [
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
@@ -76,12 +84,14 @@ Severity definitions — these are the ONLY criteria. Anything else is a minor r
 		tiersPresent
 			? `
 - **Tier fidelity violations** (when evidence carries \`tier\` per PR):
-  - A Tier 1 PR is absent from any section (neither as a top-level section nor as a sub-test). Options: "promote and rewrite the section", "demote and accept the omission", "split into its own section". Recommended: the choice that matches the PR's surface and the cluster shape.
+  - A Tier 1 PR is absent from a top-level section. Options: "promote and rewrite the section", "demote and accept the omission", "split into its own section". Recommended: the choice that matches the PR's surface and the cluster shape.
   - A Tier 2 PR is rendered as its own section instead of as a sub-test under a Tier 1 section or bundled into "Other tester-facing fixes". Options: "bundle into Other tester-facing fixes", "move it as a sub-test under '<section title>'", "keep it as its own section". Recommended: bundle unless there's a strong surface mismatch.`
 			: ''
 	}
 
 Each decision MUST include 2-4 \`options\` AND a \`recommended_option\` integer (1-based index into \`options\`). Every option label must be plan-actionable on its own — a concrete change the regenerator could enact verbatim, not an abstract category. \`recommended_option\` is the choice you would action if no human were available; it becomes the default when a human is prompted, and is the answer fed back to the regenerator when the human presses Enter.
+
+When the recommended option requires a visible structural result, include \`expected_effects\` so the pipeline can verify that the next guide actually changed. Examples: splitting into "Settings page modernization" and "Jetpack admin UI" should emit two \`section_exists\` effects; moving a PR into its own sub-test should emit \`sub_test_exists\`; removing fabricated commands should emit \`text_absent\`; dropping a PR from the body should emit \`pr_not_in_body\`.
 
 Decisions do NOT carry a \`suggested_fix\` field — the recommended option already names the action.
 

@@ -1,5 +1,5 @@
 /**
- * Prioritize stage — picks 3–7 "headline" PRs per release (mirroring the
+ * Prioritize stage — picks the final "headline" PR anchors per release (mirroring the
  * empirical 4–9 H3 sections per published P2) and routes the long tail to
  * "Other PRs". Slots between scope HITL Checkpoint 1 and the plan/reviewer
  * loop. Without this stage the tool overshoots the P2 word target by 3–14×
@@ -78,13 +78,13 @@ function deterministicTier3Reason( classification ) {
  * @return {string} Prompt text.
  */
 export function buildPrioritizationPrompt( inputForAI, releaseLabel, targetSections ) {
-	return `You are picking the testing priorities for the Jetpack release ${ releaseLabel } P2 post. The release lead publishes the P2 with about ${ targetSections } headline sections (the empirical range across 11 historical releases is 4–9). Everything else goes under "Other PRs" or gets dropped from the published body.
+	return `You are picking the testing priorities for the Jetpack release ${ releaseLabel } P2 post. The release lead publishes the P2 with ${ targetSections } headline sections by default (the empirical range across historical releases is 4–9). Everything else goes under "Other PRs" or gets dropped from the published body.
 
 Your job: assign a tier 1, 2, or 3 to each PR below, with a one-sentence reason that cites the signals you used.
 
 Tier rules:
 
-- **Tier 1 (headline)** — picks the ~${ targetSections } feature areas that anchor the body. Each Tier 1 PR (or cluster sharing a \`consolidation_hint\`) gets its own H3 section. Criteria: user-facing surface AND structured/partial testing_instructions AND at least one of {new-feature framing in changelog_text, security signal, release_priority signal, consolidation cluster of ≥2 PRs}. Headline sections drive what testers spend their time on; pick the surfaces most likely to surface bugs.
+- **Tier 1 (headline anchor)** — pick at most ${ targetSections } final section anchors. For a multi-PR feature cluster, choose the single PR that best anchors the section; the other PRs in that cluster should be Tier 2 supporting coverage. Criteria: user-facing surface AND structured/partial testing_instructions AND at least one of {new-feature framing in changelog_text, security signal, release_priority signal, consolidation cluster of ≥2 PRs}. Headline sections drive what testers spend their time on; pick the surfaces most likely to surface bugs.
 - **Tier 2 (covered)** — user-facing fixes or polish that deserve mention but not their own section. Allowed: sub-test under a Tier 1 section (when the PR's consolidation_hint matches a Tier 1 cluster), or bundled into a single "Other tester-facing fixes" H3.
 - **Tier 3 (other_changes)** — everything else: internal refactors, large API surfaces with no UI, sandbox-only changes most testers can't exercise, surfaces with their own dedicated CFT post.
 
@@ -100,7 +100,8 @@ Return ONLY a single JSON object matching this schema. No Markdown, no code fenc
 
 Constraints:
 - Every PR in the input MUST appear exactly once in \`tiers\`.
-- Aim for ~${ targetSections } Tier 1 PRs (after clustering, ${ targetSections } sections). It's OK to land one or two below or above; don't force a number.
+- Do not return more than ${ targetSections } Tier 1 PRs unless the input contains explicit release-priority or security anchors that force an exception.
+- Within any \`consolidation_hint\` cluster, return only one Tier 1 PR. Supporting PRs in that cluster must be Tier 2.
 - \`reason\` is shown verbatim to the release lead — be specific and short.
 
 Here are the in-scope PRs (deterministic Tier-3 floor already removed):
@@ -108,6 +109,80 @@ Here are the in-scope PRs (deterministic Tier-3 floor already removed):
 ${ JSON.stringify( inputForAI, null, 2 ) }
 
 Output the JSON object directly to stdout. Begin your response with the literal character "{" and end it with "}".`;
+}
+
+/**
+ * Normalize AI/heuristic tiering into the v3 invariant: Tier 1 represents
+ * final headline anchors, not every PR in a headline cluster. Keeps the first
+ * Tier 1 PR in each cluster as the anchor, then enforces the target headline
+ * budget by demoting overflow anchors to Tier 2. Explicit --headline-prs
+ * anchors are kept ahead of AI-selected anchors.
+ *
+ * @param {Array}               classifications - In-scope classifications in release order.
+ * @param {Map<number, number>} tiers           - Proposed PR → tier map.
+ * @param {Map<number, string>} reasons         - Proposed PR → reason map.
+ * @param {object}              options         - { targetSections, headlinePrs }.
+ * @return {{ tiers: Map<number, number>, reasons: Map<number, string>, headlineClusters: number }} Normalized maps.
+ */
+export function normalizeHeadlineTiers( classifications, tiers, reasons, options = {} ) {
+	const targetSections = Math.max( 1, options.targetSections || DEFAULT_TARGET_SECTIONS );
+	const headlinePrs = options.headlinePrs instanceof Set ? options.headlinePrs : new Set();
+	const normalizedTiers = new Map( tiers );
+	const normalizedReasons = new Map( reasons );
+	const groups = [];
+	const groupsByKey = new Map();
+
+	for ( const c of classifications ) {
+		if ( normalizedTiers.get( c.pr ) !== 1 ) {
+			continue;
+		}
+		const key = c.consolidation_hint || `pr:${ c.pr }`;
+		if ( ! groupsByKey.has( key ) ) {
+			const group = { key, items: [] };
+			groupsByKey.set( key, group );
+			groups.push( group );
+		}
+		groupsByKey.get( key ).items.push( c );
+	}
+
+	const forcedGroups = [];
+	const normalGroups = [];
+	for ( const group of groups ) {
+		if ( group.items.some( c => headlinePrs.has( c.pr ) ) ) {
+			forcedGroups.push( group );
+		} else {
+			normalGroups.push( group );
+		}
+	}
+
+	const openSlots = Math.max( 0, targetSections - forcedGroups.length );
+	const kept = new Set(
+		[ ...forcedGroups, ...normalGroups.slice( 0, openSlots ) ].map( group => group.key )
+	);
+
+	for ( const group of groups ) {
+		const forcedItems = group.items.filter( c => headlinePrs.has( c.pr ) );
+		const anchor = forcedItems[ 0 ] || group.items[ 0 ];
+		const groupKept = kept.has( group.key );
+
+		for ( const c of group.items ) {
+			if ( groupKept && ( c.pr === anchor.pr || headlinePrs.has( c.pr ) ) ) {
+				normalizedTiers.set( c.pr, 1 );
+				if ( headlinePrs.has( c.pr ) ) {
+					normalizedReasons.set( c.pr, 'forced Tier 1 headline anchor by --headline-prs' );
+				}
+				continue;
+			}
+
+			normalizedTiers.set( c.pr, 2 );
+			const reason = groupKept
+				? `supporting PR in "${ group.key }" headline cluster; ${ anchor.pr } is the Tier 1 anchor`
+				: `demoted from Tier 1 because the target section budget is ${ targetSections }`;
+			normalizedReasons.set( c.pr, reason );
+		}
+	}
+
+	return { tiers: normalizedTiers, reasons: normalizedReasons, headlineClusters: kept.size };
 }
 
 /**
@@ -223,7 +298,13 @@ export async function proposeTiers(
 	}
 
 	if ( remaining.length === 0 ) {
-		return { tiers, reasons, aiUsed: false };
+		return {
+			...normalizeHeadlineTiers( classifications, tiers, reasons, {
+				targetSections,
+				headlinePrs,
+			} ),
+			aiUsed: false,
+		};
 	}
 
 	// Derive the cluster/CFT signals only now that we know we'll need them.
@@ -276,7 +357,13 @@ export async function proposeTiers(
 			}. Falling back to signal-based heuristic.\n`
 		);
 		applyHeuristicTiers( remaining, extras, tiers, reasons, targetSections );
-		return { tiers, reasons, aiUsed: false };
+		return {
+			...normalizeHeadlineTiers( classifications, tiers, reasons, {
+				targetSections,
+				headlinePrs,
+			} ),
+			aiUsed: false,
+		};
 	}
 
 	// Merge AI tiers (clamped to 1-3) for PRs that didn't get the floor.
@@ -299,7 +386,13 @@ export async function proposeTiers(
 		applyHeuristicTiers( unranked, extras, tiers, reasons, targetSections );
 	}
 
-	return { tiers, reasons, aiUsed: true };
+	return {
+		...normalizeHeadlineTiers( classifications, tiers, reasons, {
+			targetSections,
+			headlinePrs,
+		} ),
+		aiUsed: true,
+	};
 }
 
 /**
@@ -335,7 +428,7 @@ function applyHeuristicTiers( prs, extras, tiers, reasons, targetSections ) {
 	} );
 	scored.sort( ( a, b ) => b.score - a.score );
 
-	let tier1Slots = Math.max( 1, targetSections * 2 ); // generous, AI consolidation will cluster
+	let tier1Slots = Math.max( 1, targetSections );
 	for ( const { c, score } of scored ) {
 		const s = c.signals || {};
 		let tier;

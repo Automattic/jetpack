@@ -36,10 +36,16 @@ export function writeCoverageSidecar( outputPath, payload ) {
 		classificationDiffs = [],
 		reviewerHistory = [],
 		decisionAnswers = [],
+		unresolvedReviewGates = [],
+		decisionEffectFailures = [],
+		narrativeLosses = [],
+		publishable = true,
+		allowUnresolvedReview = false,
 		minorRemarksAppended = false,
 		guide,
 		userExcluded,
 		prioritization = null,
+		releaseContext = null,
 	} = payload;
 
 	const sections = Array.isArray( guide?.sections ) ? guide.sections : [];
@@ -77,11 +83,25 @@ export function writeCoverageSidecar( outputPath, payload ) {
 		body.classification_diffs = classificationDiffs;
 		body.reviewer_history = reviewerHistory;
 		body.decision_answers = decisionAnswers;
+		body.unresolved_review_gates = unresolvedReviewGates;
+		body.decision_effect_failures = decisionEffectFailures;
+		body.narrative_losses = narrativeLosses;
+		body.publishable = publishable;
+		body.allow_unresolved_review = allowUnresolvedReview;
 		body.minor_remarks_appended = minorRemarksAppended;
 	}
 
 	if ( prioritization ) {
 		body.prioritization = prioritization;
+	}
+
+	if ( releaseContext ) {
+		body.release_context = {
+			provided: true,
+			manual_sections: releaseContext.manual_sections?.length || 0,
+			site_assignments: Object.keys( releaseContext.site_assignments || {} ).length,
+			accepted_demotions: releaseContext.accepted_demotions || [],
+		};
 	}
 
 	fs.writeFileSync( outputPath, JSON.stringify( body, null, 2 ) );

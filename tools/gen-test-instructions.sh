@@ -47,6 +47,10 @@ SKIP_PRIORITIZE=false
 TARGET_SECTIONS=""
 HEADLINE_PRS=""
 DEMOTE_PRS=""
+ALLOW_UNRESOLVED_REVIEW=false
+RELEASE_CONTEXT=""
+BASELINE_COVERAGE_JSON=""
+BASELINE_MARKDOWN=""
 
 ##
 ## Print usage information and exit
@@ -73,12 +77,19 @@ function usage {
 		      --max-reviewer-iterations <N>
 		                            Cap reviewer iterations (loop mode, default 3). After the cap, unresolved blockers escalate to human decisions.
 		      --skip-prioritize     Skip the prioritization stage; the plan generator treats every in-scope PR as a section candidate (legacy behavior, 3-14x P2 length overshoot).
-		      --target-sections <N> Target number of headline H3 sections (default 5; empirical P2 range 4-9).
+		      --target-sections <N> Target number of headline H3 sections (default 6; empirical P2 range 4-9).
 		      --headline-prs <csv>  Force these PR numbers to Tier 1 (headline) regardless of AI proposal.
 		      --demote-prs <csv>    Force these PR numbers to Tier 3 (routed to "Other PRs").
+		      --allow-unresolved-review
+		                            Keep a generated draft even when v3 process gates require manual review.
+		      --release-context <p> JSON file with release-lead preamble, manual sections, site assignments, and accepted demotions.
+		      --baseline-coverage-json <p>
+		                            Prior sidecar JSON used to detect named-coverage demotions.
+		      --baseline-markdown <p>
+		                            Prior generated markdown used to detect narrative-loss demotions when no sidecar is available.
 		      --exclude-prs <csv>   Comma-separated PR numbers to exclude from the AI pass (they go to "Other PRs")
 		      --include-only <csv>  Inverse of --exclude-prs: only these PRs reach the AI pass
-		      --non-interactive     Skip interactive prompts; every checkpoint auto-applies the same default as pressing Enter (auto-exclude low-value PRs, auto-pick each reviewer decision's recommended option). All auto-applied choices are logged to stderr and recorded in the sidecar JSON.
+		      --non-interactive     Skip interactive prompts; auto-exclude low-value PRs and auto-pick only safe reviewer defaults. Conditional decisions become process gates.
 		      --coverage-json <p>   Sidecar coverage JSON path (default: <output>.coverage.json)
 		  -h, --help                Show this help message
 
@@ -104,7 +115,7 @@ function usage {
 		  # Loop pipeline with no reviewer (coverage-AI + one plan call)
 		  tools/gen-test-instructions.sh --version-name 15.9 --skip-reviewer
 
-		  # CI use: loop pipeline, every HITL checkpoint auto-applies the recommended default
+		  # CI use: loop pipeline, safe HITL defaults auto-apply; conditional decisions mark the guide non-publishable
 		  tools/gen-test-instructions.sh --version-name 15.9 --non-interactive
 
 		  # Skip AI consolidation
@@ -215,6 +226,22 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--demote-prs)
 			DEMOTE_PRS="$2"
+			shift 2
+			;;
+		--allow-unresolved-review)
+			ALLOW_UNRESOLVED_REVIEW=true
+			shift
+			;;
+		--release-context)
+			RELEASE_CONTEXT="$2"
+			shift 2
+			;;
+		--baseline-coverage-json)
+			BASELINE_COVERAGE_JSON="$2"
+			shift 2
+			;;
+		--baseline-markdown)
+			BASELINE_MARKDOWN="$2"
 			shift 2
 			;;
 		--verbose)
@@ -372,6 +399,18 @@ fi
 
 if [[ -n "$DEMOTE_PRS" ]]; then
 	NODE_ARGS+=("--demote-prs" "$DEMOTE_PRS")
+fi
+if [[ "$ALLOW_UNRESOLVED_REVIEW" == true ]]; then
+	NODE_ARGS+=("--allow-unresolved-review")
+fi
+if [[ -n "$RELEASE_CONTEXT" ]]; then
+	NODE_ARGS+=("--release-context" "$RELEASE_CONTEXT")
+fi
+if [[ -n "$BASELINE_COVERAGE_JSON" ]]; then
+	NODE_ARGS+=("--baseline-coverage-json" "$BASELINE_COVERAGE_JSON")
+fi
+if [[ -n "$BASELINE_MARKDOWN" ]]; then
+	NODE_ARGS+=("--baseline-markdown" "$BASELINE_MARKDOWN")
 fi
 
 if [[ "$VERBOSE" = true ]]; then

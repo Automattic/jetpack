@@ -21,9 +21,9 @@ export const SUPPORTED_PIPELINES = [ 'loop', 'single' ];
 export const DEFAULT_MAX_REVIEWER_ITERATIONS = 3;
 
 // Target number of headline H3 sections in the rendered guide. Empirical median
-// across 11 historical P2 posts is ~5 (range 4-9). Drives the prioritization
+// across recent P2 posts is closer to 6 (range 4-9). Drives the prioritization
 // stage's Tier 1 slot count and the AI prompt's section-count guidance.
-export const DEFAULT_TARGET_SECTIONS = 5;
+export const DEFAULT_TARGET_SECTIONS = 6;
 
 // Canonical "Before you start" preamble — kept in sync with the in-repo to-test.md
 // of the most recent release (currently 15.8). Emitted verbatim by the renderer so
