@@ -78,7 +78,7 @@ function usage {
 		      --demote-prs <csv>    Force these PR numbers to Tier 3 (routed to "Other PRs").
 		      --exclude-prs <csv>   Comma-separated PR numbers to exclude from the AI pass (they go to "Other PRs")
 		      --include-only <csv>  Inverse of --exclude-prs: only these PRs reach the AI pass
-		      --non-interactive     Skip interactive prompts; in loop mode, unresolved reviewer decisions exit 3 and are surfaced via the sidecar JSON.
+		      --non-interactive     Skip interactive prompts; every checkpoint auto-applies the same default as pressing Enter (auto-exclude low-value PRs, auto-pick each reviewer decision's recommended option). All auto-applied choices are logged to stderr and recorded in the sidecar JSON.
 		      --coverage-json <p>   Sidecar coverage JSON path (default: <output>.coverage.json)
 		  -h, --help                Show this help message
 
@@ -104,7 +104,7 @@ function usage {
 		  # Loop pipeline with no reviewer (coverage-AI + one plan call)
 		  tools/gen-test-instructions.sh --version-name 15.9 --skip-reviewer
 
-		  # CI use: loop pipeline, decisions go to sidecar; exit 3 if any are open
+		  # CI use: loop pipeline, every HITL checkpoint auto-applies the recommended default
 		  tools/gen-test-instructions.sh --version-name 15.9 --non-interactive
 
 		  # Skip AI consolidation
@@ -391,28 +391,20 @@ if [[ "$VERBOSE" = true ]]; then
 	info "Running: node $NODE_SCRIPT ${NODE_ARGS[*]}"
 fi
 
-# Run the node script. We disable `set -e` momentarily so we can distinguish
-# exit code 3 (decisions pending in non-interactive mode) from a hard failure.
+# Run the node script. Temporarily disable `set -e` so we can print a friendly
+# error before propagating the exit code.
 set +e
 node "$NODE_SCRIPT" "${NODE_ARGS[@]}"
 NODE_EXIT=$?
 set -e
 
-if [[ $NODE_EXIT -eq 0 ]]; then
-	success "✅ Test guide generated successfully!"
-	echo ""
-	info "📄 Output file: $(cyan "$OUTPUT_FILE")"
-	echo ""
-	echo "You can now review and edit the test instructions before sharing."
-elif [[ $NODE_EXIT -eq 3 ]]; then
-	# Loop pipeline surfaced reviewer decisions that need a human; the markdown
-	# and sidecar were still written so the release lead can inspect them.
-	error "⏸️  Reviewer decisions pending. Inspect the coverage sidecar JSON, resolve, and re-run interactively."
-	echo ""
-	info "📄 Output file: $(cyan "$OUTPUT_FILE")"
-	echo ""
-	exit 3
-else
+if [[ $NODE_EXIT -ne 0 ]]; then
 	error "Failed to generate test instructions"
 	exit "$NODE_EXIT"
 fi
+
+success "✅ Test guide generated successfully!"
+echo ""
+info "📄 Output file: $(cyan "$OUTPUT_FILE")"
+echo ""
+echo "You can now review and edit the test instructions before sharing."

@@ -23,7 +23,6 @@ import {
 	SUPPORTED_AI_PROVIDERS,
 	SUPPORTED_PIPELINES,
 	DEFAULT_MAX_REVIEWER_ITERATIONS,
-	EXIT_CODE_DECISIONS_PENDING,
 } from './gen-test-instructions/constants.mjs';
 import { runLoopPipeline, runSingleShotPipeline } from './gen-test-instructions/pipeline.mjs';
 import { generateRawTestInstructions } from './gen-test-instructions/raw.mjs';
@@ -490,7 +489,6 @@ function sleep( ms ) {
  * Main function that orchestrates the entire process.
  */
 async function main() {
-	let exitCode = 0;
 	try {
 		const options = parseArguments();
 
@@ -544,7 +542,6 @@ async function main() {
 
 		// Step 4: Generate test instructions
 		let testInstructions;
-		let decisionsPending = [];
 
 		if ( options.skipAi ) {
 			testInstructions = generateRawTestInstructions( entries, prDetails );
@@ -577,26 +574,14 @@ async function main() {
 				pipelineOptions
 			);
 			testInstructions = result.markdown;
-			decisionsPending = result.decisionsPending || [];
 		}
 
 		// Step 5: Write to file
 		fs.writeFileSync( options.output, testInstructions );
-
-		// If the loop pipeline surfaced decisions in non-interactive mode, exit
-		// with the dedicated exit code so CI can detect "needs a human" vs the
-		// general failure (exit 1).
-		if ( decisionsPending.length > 0 ) {
-			console.error(
-				`\n⏸️  ${ decisionsPending.length } reviewer decision(s) need human input. See sidecar JSON next to the output file. Exit code ${ EXIT_CODE_DECISIONS_PENDING }.`
-			);
-			exitCode = EXIT_CODE_DECISIONS_PENDING;
-		}
 	} catch ( error ) {
 		console.error( `\n❌ Error: ${ error.message }` );
 		process.exit( 1 );
 	}
-	process.exit( exitCode );
 }
 
 main();

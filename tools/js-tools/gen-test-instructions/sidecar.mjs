@@ -22,8 +22,7 @@ import fs from 'fs';
  * @param {Array}   payload.classifications        - Merged classification records (one per in-scope PR).
  * @param {Array}   [payload.classificationDiffs]  - Per-PR diffs between deterministic and AI classifications.
  * @param {Array}   [payload.reviewerHistory]      - Reviewer findings per iteration.
- * @param {Array}   [payload.decisionsPending]     - Decisions surfaced but not answered (non-interactive mode).
- * @param {Array}   [payload.decisionAnswers]      - Answers the human gave to decisions (interactive mode).
+ * @param {Array}   [payload.decisionAnswers]      - Answers to reviewer decisions (interactive prompt or non-interactive auto-default).
  * @param {boolean} [payload.minorRemarksAppended] - Whether `## Reviewer Notes` was appended to the markdown.
  * @param {object}  payload.guide                  - Parsed AI guide JSON (used to compute placement).
  * @param {Set}     payload.userExcluded           - PR numbers excluded by the user (CLI or interactive).
@@ -36,7 +35,6 @@ export function writeCoverageSidecar( outputPath, payload ) {
 		classifications,
 		classificationDiffs = [],
 		reviewerHistory = [],
-		decisionsPending = [],
 		decisionAnswers = [],
 		minorRemarksAppended = false,
 		guide,
@@ -78,7 +76,6 @@ export function writeCoverageSidecar( outputPath, payload ) {
 	if ( pipeline === 'loop' ) {
 		body.classification_diffs = classificationDiffs;
 		body.reviewer_history = reviewerHistory;
-		body.decisions_pending = decisionsPending;
 		body.decision_answers = decisionAnswers;
 		body.minor_remarks_appended = minorRemarksAppended;
 	}

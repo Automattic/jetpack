@@ -6,16 +6,16 @@
  * loop iteration that emits decisions. runSingleShotPipeline is the legacy
  * one-pass flow kept as an escape hatch under --pipeline=single.
  *
- * Both return `{ markdown, decisionsPending }`. When `decisionsPending` is
- * non-empty AND we ran with `nonInteractive`, the entrypoint exits with
- * EXIT_CODE_DECISIONS_PENDING so CI can distinguish "needs a human" from
- * "tool crashed".
+ * Both return `{ markdown }`. In --non-interactive mode every HITL checkpoint
+ * applies the same default a user would get by pressing Enter (auto-exclude
+ * low-value PRs, auto-pick each reviewer decision's recommended option), so
+ * the loop always reaches a resolved end state.
  */
 
 import { classifyPR, printPreAICoverageReport } from './classify.mjs';
 import { DEFAULT_MAX_REVIEWER_ITERATIONS } from './constants.mjs';
 import { runCoverageAI, mergeClassifications, printClassificationDiffs } from './coverage-ai.mjs';
-import { promptUserForExclusions, promptForDecisions, DecisionsPendingError } from './hitl.mjs';
+import { promptUserForExclusions, promptForDecisions, selectLowValuePrs } from './hitl.mjs';
 import {
 	buildConsolidationPrompt,
 	runPlanWithRetry,
@@ -72,6 +72,22 @@ async function resolveUserExclusions( classifications, options ) {
 		for ( const n of interactive ) {
 			excluded.add( n );
 		}
+	} else {
+		// Match the interactive default ([Y/n] → Y): auto-exclude the same
+		// low-value PRs the interactive prompt would have offered. Log each
+		// so the audit trail is identical to an interactive run.
+		const lowValue = selectLowValuePrs( classifications ).filter( c => ! excluded.has( c.pr ) );
+		if ( lowValue.length > 0 ) {
+			process.stderr.write(
+				`\n🤖 Auto-excluding ${ lowValue.length } low-value PR(s) (--non-interactive matches the interactive [Y/n] default):\n`
+			);
+			for ( const c of lowValue ) {
+				process.stderr.write(
+					`  #${ c.pr } [${ c.testing_instructions_quality }] ${ c.title.slice( 0, 80 ) }\n`
+				);
+				excluded.add( c.pr );
+			}
+		}
 	}
 	return excluded;
 }
@@ -86,7 +102,7 @@ async function resolveUserExclusions( classifications, options ) {
  * @param {string} releaseVersion - Release label.
  * @param {string} ai             - AI provider ('claude' or 'codex').
  * @param {object} options        - Pipeline options.
- * @return {Promise<{ markdown: string, decisionsPending: Array }>} Rendered markdown and any decisions the human still needs to resolve.
+ * @return {Promise<{ markdown: string }>} Rendered markdown.
  */
 export async function runSingleShotPipeline(
 	entries,
@@ -118,10 +134,7 @@ export async function runSingleShotPipeline(
 
 	if ( ! guide ) {
 		console.warn( '\n⚠️  AI consolidation failed; falling back to raw output.\n' );
-		return {
-			markdown: generateRawTestInstructions( entries, prDetails ),
-			decisionsPending: [],
-		};
+		return { markdown: generateRawTestInstructions( entries, prDetails ) };
 	}
 
 	const markdown = renderGuide( guide, labelForRelease, classifications );
@@ -137,7 +150,7 @@ export async function runSingleShotPipeline(
 		process.stderr.write( `✓ Coverage sidecar written: ${ coverageJsonPath }\n` );
 	}
 
-	return { markdown, decisionsPending: [] };
+	return { markdown };
 }
 
 /**
@@ -151,17 +164,18 @@ export async function runSingleShotPipeline(
  * Stage-by-stage failure handling. Coverage-AI failure: keep deterministic
  * classifications, warn, continue. Plan generator failure on every iteration:
  * fall back to raw output. Reviewer failure: accept current plan with no
- * findings and exit the loop. Decisions pending plus non-interactive: write
- * the sidecar and surface them to the entrypoint for exit code 3. Cap reached
- * with blockers still outstanding: demote them to decisions, run HITL once
- * more, then regenerate the plan with the human's answers.
+ * findings and exit the loop. In --non-interactive mode every HITL prompt
+ * auto-applies the interactive default (recommended_option per decision), so
+ * the loop always reaches a resolved end state. Cap reached with blockers
+ * still outstanding: demote them to decisions, run HITL once more, then
+ * regenerate the plan with the human's answers.
  *
  * @param {Array}  entries        - Changelog entries.
  * @param {Array}  prDetails      - PR detail records (with reviews/comments/commits).
  * @param {string} releaseVersion - Release label.
  * @param {string} ai             - AI provider ('claude' or 'codex').
  * @param {object} options        - Pipeline options.
- * @return {Promise<{ markdown: string, decisionsPending: Array }>} Rendered markdown and any decisions the human still needs to resolve.
+ * @return {Promise<{ markdown: string }>} Rendered markdown.
  */
 export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, options = {} ) {
 	const {
@@ -256,11 +270,9 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 	// regeneration instead of being discarded by the blocker-driven re-loop.
 	const reviewerHistory = [];
 	const decisionAnswers = [];
-	let decisionsPending = [];
 	let guide = null;
 	let reviewerFindings = null;
 	let iteration = 0;
-	let pendingExit = false;
 	const cap = Math.max( 1, maxReviewerIterations );
 
 	for ( iteration = 1; iteration <= cap; iteration++ ) {
@@ -287,10 +299,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			console.warn(
 				'\n⚠️  Plan generator failed on the first iteration; falling back to raw output.\n'
 			);
-			return {
-				markdown: generateRawTestInstructions( entries, prDetails ),
-				decisionsPending: [],
-			};
+			return { markdown: generateRawTestInstructions( entries, prDetails ) };
 		}
 		guide = nextGuide;
 
@@ -306,23 +315,12 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		printReviewerFindings( findings, iteration );
 		reviewerFindings = findings;
 
-		// HITL on this iteration's decisions, if any. Defer or non-interactive
-		// both leave the loop with the decisions surfaced via the sidecar.
+		// HITL on this iteration's decisions, if any. Non-interactive runs
+		// auto-apply the recommended option per decision and return the same
+		// answer shape as an interactive run.
 		let iterAnswers = [];
 		if ( findings.decisions && findings.decisions.length > 0 ) {
-			try {
-				iterAnswers = await promptForDecisions( findings.decisions, { nonInteractive } );
-			} catch ( err ) {
-				if ( err instanceof DecisionsPendingError ) {
-					decisionsPending = err.decisions;
-					process.stderr.write(
-						`\n⏸️  ${ decisionsPending.length } decision(s) require human input — surfaced via sidecar JSON.\n`
-					);
-					pendingExit = true;
-					break;
-				}
-				throw err;
-			}
+			iterAnswers = await promptForDecisions( findings.decisions, { nonInteractive } );
 			decisionAnswers.push( ...iterAnswers );
 		}
 
@@ -338,12 +336,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 
 	// Cap reached with blockers still outstanding → demote them to decisions,
 	// HITL once more, and regenerate the plan with whatever the human picked.
-	if (
-		! pendingExit &&
-		reviewerFindings &&
-		reviewerFindings.blockers &&
-		reviewerFindings.blockers.length > 0
-	) {
+	if ( reviewerFindings && reviewerFindings.blockers && reviewerFindings.blockers.length > 0 ) {
 		process.stderr.write(
 			`\n⚠️  Reviewer still reports ${ reviewerFindings.blockers.length } blocker(s) after ${ cap } iteration(s); demoting to decisions for human review.\n`
 		);
@@ -357,35 +350,27 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 				demoted_from_blocker: true,
 			};
 		} );
-		try {
-			const demotedAnswers = await promptForDecisions( demoted, { nonInteractive } );
-			if ( demotedAnswers.length > 0 ) {
-				decisionAnswers.push( ...demotedAnswers );
-				iteration += 1;
-				process.stderr.write(
-					`\n📐 Plan generator — iteration ${ iteration } (applying demoted-blocker decisions)…\n`
-				);
-				const finalPrompt = buildConsolidationPrompt( inScope, labelForRelease, {
-					reviewerFindings,
-					decisionAnswers,
-					iteration,
-				} );
-				const finalGuide = await timed( 'Plan generator (final pass, applying decisions)', () =>
-					runPlanWithRetry( runner, finalPrompt )
-				);
-				if ( finalGuide ) {
-					guide = finalGuide;
-				} else {
-					console.warn(
-						'\n⚠️  Plan generator failed when applying decisions; keeping the previous plan.\n'
-					);
-				}
-			}
-		} catch ( err ) {
-			if ( err instanceof DecisionsPendingError ) {
-				decisionsPending = decisionsPending.concat( err.decisions );
+		const demotedAnswers = await promptForDecisions( demoted, { nonInteractive } );
+		if ( demotedAnswers.length > 0 ) {
+			decisionAnswers.push( ...demotedAnswers );
+			iteration += 1;
+			process.stderr.write(
+				`\n📐 Plan generator — iteration ${ iteration } (applying demoted-blocker decisions)…\n`
+			);
+			const finalPrompt = buildConsolidationPrompt( inScope, labelForRelease, {
+				reviewerFindings,
+				decisionAnswers,
+				iteration,
+			} );
+			const finalGuide = await timed( 'Plan generator (final pass, applying decisions)', () =>
+				runPlanWithRetry( runner, finalPrompt )
+			);
+			if ( finalGuide ) {
+				guide = finalGuide;
 			} else {
-				throw err;
+				console.warn(
+					'\n⚠️  Plan generator failed when applying decisions; keeping the previous plan.\n'
+				);
 			}
 		}
 		reviewerFindings.blockers = [];
@@ -408,7 +393,6 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			classifications: mergedClassifications,
 			classificationDiffs,
 			reviewerHistory,
-			decisionsPending,
 			decisionAnswers,
 			minorRemarksAppended: appendResult.appended,
 			guide,
@@ -418,5 +402,5 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		process.stderr.write( `✓ Coverage sidecar written: ${ coverageJsonPath }\n` );
 	}
 
-	return { markdown, decisionsPending };
+	return { markdown };
 }

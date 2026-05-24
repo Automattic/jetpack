@@ -25,11 +25,6 @@ export const DEFAULT_MAX_REVIEWER_ITERATIONS = 3;
 // stage's Tier 1 slot count and the AI prompt's section-count guidance.
 export const DEFAULT_TARGET_SECTIONS = 5;
 
-// Exit code emitted when the loop pipeline finishes with unresolved decisions
-// in --non-interactive mode. Distinct from existing fatal exit (1) so CI can
-// distinguish "needs a human" from "tool crashed".
-export const EXIT_CODE_DECISIONS_PENDING = 3;
-
 // Canonical "Before you start" preamble — kept in sync with the in-repo to-test.md
 // of the most recent release (currently 15.8). Emitted verbatim by the renderer so
 // the AI never has to regenerate it.

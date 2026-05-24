@@ -1,27 +1,35 @@
 /**
  * Human-in-the-loop prompts.
  *
- * Two checkpoints. promptUserForExclusions runs pre-AI to let the user trim
- * low-value PRs out of scope. promptForDecisions runs post-reviewer to let
- * the user pick between options the reviewer surfaced as "needs human
- * judgment". The latter throws DecisionsPendingError when stdin is not a TTY
- * or --non-interactive was passed, so the orchestrator can persist the open
- * decisions to the coverage sidecar and exit with EXIT_CODE_DECISIONS_PENDING.
+ * Two checkpoints. selectLowValuePrs + promptUserForExclusions run pre-AI to
+ * let the user trim low-value PRs out of scope. promptForDecisions runs
+ * post-reviewer to let the user pick between options the reviewer surfaced as
+ * "needs human judgment".
+ *
+ * Both checkpoints behave the same in non-interactive mode as a user pressing
+ * Enter on every prompt: exclusions are applied (interactive default is Y),
+ * and each decision auto-picks its `recommended_option` (the ★ default). The
+ * pipeline logs every auto-applied choice to stderr and records it in the
+ * coverage sidecar so the audit trail is identical to an interactive run.
  */
 
 /**
- * Thrown by promptForDecisions when there are decisions to surface but no TTY
- * is available (or --non-interactive was set). The orchestrator catches this
- * and routes the decisions to the coverage sidecar.
+ * Pick the PRs the pre-AI scope prompt would offer to exclude — vague/absent
+ * testing instructions, dependency bumps, composer-only changes, and reverts.
+ * Shared by interactive (promptUserForExclusions) and non-interactive callers.
+ *
+ * @param {Array} classifications - Pre-AI classification records.
+ * @return {Array} Subset of classifications considered low-value for AI planning.
  */
-export class DecisionsPendingError extends Error {
-	constructor( decisions ) {
-		super(
-			`${ decisions.length } reviewer decision(s) require a human; pass --interactive (default TTY) to resolve them.`
-		);
-		this.name = 'DecisionsPendingError';
-		this.decisions = decisions;
-	}
+export function selectLowValuePrs( classifications ) {
+	return classifications.filter(
+		c =>
+			c.testing_instructions_quality === 'vague' ||
+			c.testing_instructions_quality === 'absent' ||
+			c.signals.dependency_bump ||
+			c.signals.composer_only ||
+			c.signals.revert
+	);
 }
 
 /**
@@ -30,29 +38,22 @@ export class DecisionsPendingError extends Error {
  * AI consolidation pass. Excluded PRs land in "Other PRs" automatically (no
  * invented prose). Defaults to excluding them — press Enter to accept.
  *
- * Skipped when stdin is not a TTY or when the caller passed --non-interactive.
+ * Caller is responsible for only calling this when stdin is a TTY and the user
+ * did not pass --non-interactive; non-interactive callers should apply
+ * selectLowValuePrs directly (that's what pressing Enter would do).
  *
  * @param {Array} classifications - Pre-AI classification records.
  * @return {Promise<Set<number>>} Set of PR numbers the user chose to exclude.
  */
 export async function promptUserForExclusions( classifications ) {
+	const lowValue = selectLowValuePrs( classifications );
+	if ( lowValue.length === 0 ) {
+		return new Set();
+	}
+
 	const readline = await import( 'readline' );
 	const rl = readline.createInterface( { input: process.stdin, output: process.stderr } );
 	const ask = q => new Promise( resolve => rl.question( q, resolve ) );
-
-	const lowValue = classifications.filter(
-		c =>
-			c.testing_instructions_quality === 'vague' ||
-			c.testing_instructions_quality === 'absent' ||
-			c.signals.dependency_bump ||
-			c.signals.composer_only ||
-			c.signals.revert
-	);
-
-	if ( lowValue.length === 0 ) {
-		rl.close();
-		return new Set();
-	}
 
 	process.stderr.write(
 		`\nFound ${ lowValue.length } low-value PR(s) — vague/absent testing instructions, dependency bumps, or reverts:\n`
@@ -76,24 +77,84 @@ export async function promptUserForExclusions( classifications ) {
 }
 
 /**
- * Interactively walk the user through the reviewer's open decisions and
- * collect answers. Each decision has a free-text summary, a small list of
- * `options` the reviewer enumerated (each option label is itself plan-
- * actionable), and a `recommended_option` (1-based index) that drives the
- * default.
+ * Apply the interactive default to each decision without prompting. Mirrors
+ * what an interactive run would do if the user pressed Enter on every prompt:
+ * pick `recommended_option` (or option 1 when invalid/missing) for decisions
+ * that have options, skip decisions with no options. Logs every applied (and
+ * skipped) choice to stderr so the user can audit the run from the terminal
+ * output just like an interactive session.
  *
- * Input handling per decision: empty/Enter accepts the recommended default;
- * "s" or "skip" defers; an integer 1..N picks that option; any other text is
- * recorded as a free-form override.
+ * @param {Array} decisions - Reviewer decisions.
+ * @return {Array<{ pr_numbers: number[], summary: string, answer: string }>} Resolved decisions.
+ */
+function autoResolveDecisions( decisions ) {
+	process.stderr.write(
+		`\n🤖 ${ decisions.length } decision${
+			decisions.length === 1 ? '' : 's'
+		} — auto-applying interactive defaults (--non-interactive):\n`
+	);
+	const width = Math.max( 40, process.stderr.columns || 80 );
+	const answers = [];
+	for ( let i = 0; i < decisions.length; i++ ) {
+		const d = decisions[ i ];
+		const opts = Array.isArray( d.options ) ? d.options : [];
+		const prTag =
+			Array.isArray( d.pr_numbers ) && d.pr_numbers.length > 0
+				? ` ${ d.pr_numbers.map( n => `#${ n }` ).join( ', ' ) }`
+				: '';
+		const header = `  ${ i + 1 }.${ prTag } ${ d.summary || '(no summary)' }`;
+		process.stderr.write( wrapToWidth( header, width, '' ) + '\n' );
+
+		if ( opts.length === 0 ) {
+			process.stderr.write( '     → skipped (no options to auto-resolve)\n' );
+			continue;
+		}
+		const defaultIdx =
+			Number.isInteger( d.recommended_option ) &&
+			d.recommended_option >= 1 &&
+			d.recommended_option <= opts.length
+				? d.recommended_option
+				: 1;
+		const answer = opts[ defaultIdx - 1 ];
+		process.stderr.write(
+			wrapToWidth( `     → ★ option ${ defaultIdx }: ${ answer }`, width, '' ) + '\n'
+		);
+		answers.push( {
+			pr_numbers: Array.isArray( d.pr_numbers ) ? d.pr_numbers : [],
+			summary: d.summary || '',
+			answer,
+		} );
+	}
+	return answers;
+}
+
+/**
+ * Resolve the reviewer's open decisions. Each decision has a free-text
+ * summary, a small list of `options` the reviewer enumerated (each option
+ * label is itself plan-actionable), and a `recommended_option` (1-based index)
+ * that drives the default.
+ *
+ * Interactive (TTY, not --non-interactive): walk the user through each
+ * decision. Empty/Enter accepts the recommended default; "s" or "skip"
+ * defers; an integer 1..N picks that option; any other text is recorded as a
+ * free-form override.
+ *
+ * Non-interactive (or no TTY): auto-apply the same default each prompt would
+ * use if the user pressed Enter. Decisions with options pick the
+ * recommended_option (or option 1 when the recommendation is missing/invalid);
+ * decisions with no options are skipped — the same outcome as Enter on the
+ * empty free-form prompt. Each auto-applied choice is logged to stderr so the
+ * audit trail matches what the user would have seen.
  *
  * Returns an array of `{ pr_numbers, summary, answer }` records, one per
- * decision the user resolved (deferred decisions are omitted). The orchestrator
- * passes those answers back into the plan-regenerator's prompt.
+ * decision that produced an answer (deferred + no-option decisions are
+ * omitted). The orchestrator passes those answers back into the
+ * plan-regenerator's prompt.
  *
  * @param {Array}   decisions              - Reviewer decisions (see reviewer.mjs schema).
  * @param {object}  options                - Behavior flags.
- * @param {boolean} options.nonInteractive - When true (or no TTY), throw DecisionsPendingError.
- * @return {Promise<Array<{ pr_numbers: number[], summary: string, answer: string }>>} One record per decision the user resolved.
+ * @param {boolean} options.nonInteractive - When true (or no TTY), auto-apply defaults instead of prompting.
+ * @return {Promise<Array<{ pr_numbers: number[], summary: string, answer: string }>>} One record per resolved decision.
  */
 export async function promptForDecisions( decisions, { nonInteractive = false } = {} ) {
 	if ( ! Array.isArray( decisions ) || decisions.length === 0 ) {
@@ -101,7 +162,7 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 	}
 
 	if ( nonInteractive || ! process.stdin.isTTY ) {
-		throw new DecisionsPendingError( decisions );
+		return autoResolveDecisions( decisions );
 	}
 
 	const readline = await import( 'readline' );
