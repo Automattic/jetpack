@@ -534,9 +534,13 @@ class Module_Control_Test extends Search_TestCase {
 	 */
 	public function test_update_experience_overlay_blocks_rejected_when_flag_off() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		// Filter defaults false — do not register any callback.
+		// Filter defaults true since the Beta release; pin it back to false
+		// so the REST boundary still rejects the value as this test asserts.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
 
 		$result = static::$search_module->update_experience( Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'experience_not_available', $result->get_error_code() );

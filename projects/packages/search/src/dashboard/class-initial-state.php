@@ -94,11 +94,11 @@ class Initial_State {
 				 * is available in the Experience Selector. Mirrors the
 				 * `jetpack_search_overlay_block_template_enabled` server-side filter
 				 * so the dashboard React app can gate the new card on the same flag
-				 * the back end uses to enable the runtime swap. Sites that haven't
-				 * opted into the experimental overlay continue to see the four
-				 * original cards unchanged.
+				 * the back end uses to enable the runtime swap. Defaults to true so
+				 * the Beta card ships to every site; operators that pin the filter
+				 * to false fall back to the original four-card selector.
 				 */
-				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ),
+				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true ),
 				/**
 				 * Editor affordances for the experimental blocks-powered overlay.
 				 * Surfaces in the new Overlay search card so admins can edit the

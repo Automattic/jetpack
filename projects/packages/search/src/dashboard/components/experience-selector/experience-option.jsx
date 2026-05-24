@@ -154,6 +154,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
+	const isBeta = experience === EXPERIENCE.OVERLAY_BLOCKS;
 	const linksDisabled = isUpdating || ! isActive;
 
 	// Embedded search is built and customized in the Site Editor, which
@@ -207,6 +208,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					{ isRecommended && (
 						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
 					) }
+					{ isBeta && <Badge intent="informational">{ __( 'Beta', 'jetpack-search-pkg' ) }</Badge> }
 				</Stack>
 				<CardCopy experience={ experience } blockOverlayEnabled={ blockOverlayEnabled } />
 			</Stack>
@@ -456,7 +458,7 @@ const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 		return (
 			<p className="jp-search-experience-option__description">
 				{ __(
-					'A search-as-you-type overlay rendered from your Search blocks — same filters, sorting, and store as Embedded, but opens over your existing pages.',
+					'In beta — a search-as-you-type overlay rendered from your Search blocks. Same filters, sorting, and store as Embedded, but opens over your existing pages.',
 					'jetpack-search-pkg'
 				) }
 			</p>

@@ -282,32 +282,36 @@ class Search_Blocks {
 	 * server-rendered Search blocks template
 	 * (`templates/jetpack-search-overlay.html`).
 	 *
-	 * EXPERIMENTAL — off by default; not production-ready. Two conditions
-	 * must hold for the runtime swap to occur:
+	 * EXPERIMENTAL — available by default; opt-in via the Experience
+	 * Selector. Two conditions must hold for the runtime swap to occur:
 	 *
-	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on.
-	 *      This is the operator-level gate that surfaces the new option in
-	 *      the Experience Selector and registers the overlay assets.
+	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on
+	 *      (defaults true). This is the operator-level gate that surfaces
+	 *      the new option in the Experience Selector and registers the
+	 *      overlay assets. Operators can still pin it back to false to
+	 *      hide the experimental card.
 	 *   2. The site owner has chosen the new overlay experience in the
 	 *      dashboard (`Module_Control::EXPERIENCE_OVERLAY_BLOCKS`).
 	 *
 	 * Both conditions let the legacy and blocks-powered overlays coexist
-	 * on the same site — operators can opt a site into the new path, and
-	 * site owners can still flip back to the legacy experience without
-	 * touching any server-side filter. When both are true the legacy
-	 * `SearchApp` is bypassed via the `jetpack_search_init_instant_search`
-	 * filter (wired in `Initializer::init_search_blocks()`).
+	 * on the same site — operators can hide the new path on sites where
+	 * they don't want it surfaced, and site owners can still flip back to
+	 * the legacy experience without touching any server-side filter. When
+	 * both are true the legacy `SearchApp` is bypassed via the
+	 * `jetpack_search_init_instant_search` filter (wired in
+	 * `Initializer::init_search_blocks()`).
 	 *
 	 * @return bool
 	 */
 	public static function is_block_template_overlay_enabled(): bool {
 		/**
-		 * Opt into the experimental Search blocks overlay. Off by default.
-		 * Do not enable in production until this feature graduates.
+		 * Opt out of the experimental Search blocks overlay. Available by
+		 * default; return false to hide the Beta card from the Experience
+		 * Selector.
 		 *
-		 * @param bool $enabled Default false.
+		 * @param bool $enabled Default true.
 		 */
-		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ) ) {
+		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true ) ) {
 			return false;
 		}
 		return Module_Control::EXPERIENCE_OVERLAY_BLOCKS === ( new Module_Control() )->get_experience();

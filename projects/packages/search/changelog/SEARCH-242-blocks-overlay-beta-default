@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Experience Selector: Release the blocks-powered Overlay as an experimental option. `jetpack_search_overlay_block_template_enabled` now defaults to true, the "Overlay search" card carries a Beta badge with an "In beta — …" description, and the legacy preact Overlay picks up the "(legacy)" suffix on every site by default. Operators can still pin the filter to false to fall back to the original four-card selector.

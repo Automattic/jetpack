@@ -22,13 +22,13 @@ export default {
 		blockOverlayEnabled: {
 			control: 'boolean',
 			description:
-				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter; reveals the new blocks-powered Overlay card and tags the legacy one "(legacy)".',
+				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter (defaults true). Reveals the BETA blocks-powered Overlay card and tags the legacy one "(legacy)". Pin to false to preview the legacy four-card layout.',
 		},
 	},
 	args: {
 		isWpcom: false,
 		supportsOnlyClassicSearch: false,
-		blockOverlayEnabled: false,
+		blockOverlayEnabled: true,
 	},
 };
 
@@ -238,4 +238,21 @@ export const OverlayBlocksActive = args =>
 	);
 OverlayBlocksActive.args = {
 	blockOverlayEnabled: true,
+};
+
+// Operator pinned `jetpack_search_overlay_block_template_enabled` to false —
+// the BETA card is hidden, the legacy Overlay reverts to its plain title.
+export const LegacyFourCardLayout = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
+	);
+LegacyFourCardLayout.args = {
+	blockOverlayEnabled: false,
 };
