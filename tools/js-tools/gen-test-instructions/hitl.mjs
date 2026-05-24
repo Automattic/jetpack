@@ -142,13 +142,13 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 			const indexCol = String( opts.length ).length;
 			opts.forEach( ( opt, idx ) => {
 				const num = String( idx + 1 ).padStart( indexCol );
-				const star = idx + 1 === defaultIdx ? '★' : ' ';
-				const wrapped = wrapToWidth( opt, width, ' '.repeat( indexCol + 5 ) );
-				const firstLine = wrapped.replace( /^\s+/, '' );
-				const restLines = wrapped.includes( '\n' )
-					? '\n' + wrapped.split( '\n' ).slice( 1 ).join( '\n' )
-					: '';
-				process.stderr.write( `   ${ num }. ${ star } ${ firstLine }${ restLines }\n` );
+				const bullet = idx + 1 === defaultIdx ? '★' : ' ';
+				const prefix = `   ${ bullet } ${ num }. `;
+				const wrapped = wrapToWidth( opt, width, ' '.repeat( prefix.length ) );
+				const wrappedLines = wrapped.split( '\n' );
+				const firstLine = wrappedLines[ 0 ].trimStart();
+				const rest = wrappedLines.length > 1 ? '\n' + wrappedLines.slice( 1 ).join( '\n' ) : '';
+				process.stderr.write( `${ prefix }${ firstLine }${ rest }\n` );
 			} );
 		}
 

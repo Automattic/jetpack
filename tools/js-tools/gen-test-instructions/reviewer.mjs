@@ -76,8 +76,8 @@ Severity definitions — these are the ONLY criteria. Anything else is a minor r
 		tiersPresent
 			? `
 - **Tier fidelity violations** (when evidence carries \`tier\` per PR):
-  - A Tier 1 PR is absent from any section's \`related_prs\` (top-level or sub-test). Options: "promote and rewrite the section", "demote and accept the omission", "split into its own section". Recommended: the choice that matches the PR's surface and the cluster shape.
-  - A Tier 2 PR appears as its own top-level H3 instead of as a sub-test under a Tier 1 section or bundled into "Other tester-facing fixes". Options: "bundle into Other tester-facing fixes", "convert to sub-test under <Tier 1 section>", "accept the standalone H3". Recommended: bundle unless there's a strong surface mismatch.`
+  - A Tier 1 PR is absent from any section (neither as a top-level section nor as a sub-test). Options: "promote and rewrite the section", "demote and accept the omission", "split into its own section". Recommended: the choice that matches the PR's surface and the cluster shape.
+  - A Tier 2 PR is rendered as its own section instead of as a sub-test under a Tier 1 section or bundled into "Other tester-facing fixes". Options: "bundle into Other tester-facing fixes", "move it as a sub-test under '<section title>'", "keep it as its own section". Recommended: bundle unless there's a strong surface mismatch.`
 			: ''
 	}
 
@@ -88,6 +88,7 @@ Decisions do NOT carry a \`suggested_fix\` field — the recommended option alre
 **Minor remarks** — cosmetic, advisory, ignorable. Wording polish, redundant phrasing, missing punctuation, suggested re-orderings.
 
 Constraints:
+- \`summary\` and each entry in \`options\` are read by a release lead, not an engineer. Write them in plain English describing what would change in the rendered guide. Do NOT use Markdown structural jargon ("H1", "H2", "H3", "heading level N") or JSON schema field names ("related_prs", "sub_tests", "other_changes"). Prefer phrasings the reader can picture in the guide: "its own section", "a sub-test under '<section title>'", "bundled into 'Other tester-facing fixes'".
 - Max 8 items per category. If you would emit more, pick the most important ones.
 - On blockers and minor_remarks, \`suggested_fix\` must describe a concrete change to the guide JSON (e.g., "Add a frontend step under sub-test 'Editor' that views the post and confirms the embed renders."). Decisions do NOT carry \`suggested_fix\`; the option labels themselves are the concrete changes.
 - \`pr_numbers\` is the PRs the finding concerns; empty list is allowed for guide-wide concerns.
