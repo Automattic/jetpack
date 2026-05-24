@@ -48,21 +48,24 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
-	 * The flag must default to false when no filter is registered.
+	 * The flag defaults to true so the Experience Selector is visible on
+	 * stock sites, mirroring the server-side filter default flipped in
+	 * SEARCH-222.
 	 */
-	public function test_search_blocks_enabled_defaults_false() {
+	public function test_search_blocks_enabled_defaults_true() {
 		$state = ( new Initial_State() )->get_initial_state();
 		$this->assertArrayHasKey( 'searchBlocksEnabled', $state['siteData'] );
-		$this->assertFalse( $state['siteData']['searchBlocksEnabled'] );
+		$this->assertTrue( $state['siteData']['searchBlocksEnabled'] );
 	}
 
 	/**
-	 * The flag must be true when the filter returns true.
+	 * The filter still works as a kill-switch — returning false hides the
+	 * Experience Selector and falls back to the legacy module control.
 	 */
-	public function test_search_blocks_enabled_reflects_filter() {
-		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
+	public function test_search_blocks_enabled_kill_switch() {
+		add_filter( 'jetpack_search_blocks_enabled', '__return_false' );
 		$state = ( new Initial_State() )->get_initial_state();
-		$this->assertTrue( $state['siteData']['searchBlocksEnabled'] );
+		$this->assertFalse( $state['siteData']['searchBlocksEnabled'] );
 	}
 
 	/**
