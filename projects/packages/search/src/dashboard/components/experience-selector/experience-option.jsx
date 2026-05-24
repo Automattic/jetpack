@@ -442,7 +442,7 @@ const CardCopy = ( { experience } ) => {
 		return (
 			<p className="jp-search-experience-option__description">
 				{ __(
-					'In beta — a search-as-you-type overlay rendered from your Search blocks. Same filters, sorting, and store as Embedded, but opens over your existing pages.',
+					'In beta — a search-as-you-type overlay rendered from your Search blocks. Same filters, sorting, and store as Embedded, but opens over your existing pages just like former Instant Search overlay.',
 					'jetpack-search-pkg'
 				) }
 			</p>
