@@ -18,6 +18,7 @@
 
 import { DEFAULT_TARGET_SECTIONS } from './constants.mjs';
 import { wrapToWidth } from './hitl.mjs';
+import { timed } from './runners.mjs';
 
 /**
  * Deterministic Tier-3 floor — these PRs never warrant a section, no AI input
@@ -256,7 +257,8 @@ export async function proposeTiers(
 					? prompt
 					: prompt +
 					  '\n\nIMPORTANT: your previous response was not valid JSON. Return ONLY the JSON object — no Markdown, no code fences, no preamble.';
-			const raw = await runner( promptForAttempt );
+			const label = attempt === 1 ? 'Prioritization AI' : 'Prioritization AI (retry)';
+			const raw = await timed( label, () => runner( promptForAttempt ) );
 			parsed = parsePrioritizationJson( raw );
 			if ( ! parsed && attempt === 1 ) {
 				console.warn( '\n⚠️  Prioritization response not valid JSON; retrying once.\n' );

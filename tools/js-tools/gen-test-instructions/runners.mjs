@@ -345,3 +345,42 @@ export function runCodexCli( prompt ) {
 export function getRunner( ai ) {
 	return ai === 'codex' ? runCodexCli : runClaudeCli;
 }
+
+/**
+ * Format a millisecond elapsed value as a short human string. Sub-minute
+ * durations render as "Ns"; longer durations render as "Xm Ys".
+ *
+ * @param {number} ms - Elapsed time in milliseconds.
+ * @return {string} Short, human-readable duration.
+ */
+export function formatElapsed( ms ) {
+	const totalSec = Math.round( ms / 1000 );
+	if ( totalSec < 60 ) {
+		return `${ totalSec }s`;
+	}
+	const m = Math.floor( totalSec / 60 );
+	const s = totalSec % 60;
+	return `${ m }m ${ s }s`;
+}
+
+/**
+ * Wrap an async function (typically an AI runner call) with a wall-clock
+ * timer. Prints `✓ <label> finished in <duration>` on success and
+ * `✗ <label> failed after <duration>` on rejection (the error re-throws so
+ * caller-side retry/fallback logic still runs).
+ *
+ * @param {string}   label - Short label identifying the AI pass.
+ * @param {Function} fn    - Zero-arg async function performing the call.
+ * @return {Promise<*>} Whatever `fn` resolves to.
+ */
+export async function timed( label, fn ) {
+	const start = Date.now();
+	try {
+		const result = await fn();
+		process.stderr.write( `✓ ${ label } finished in ${ formatElapsed( Date.now() - start ) }\n` );
+		return result;
+	} catch ( err ) {
+		process.stderr.write( `✗ ${ label } failed after ${ formatElapsed( Date.now() - start ) }\n` );
+		throw err;
+	}
+}

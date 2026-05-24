@@ -26,7 +26,7 @@ import {
 import { runPrioritizationStage } from './prioritize.mjs';
 import { generateRawTestInstructions } from './raw.mjs';
 import { runReviewer, printReviewerFindings } from './reviewer.mjs';
-import { getRunner } from './runners.mjs';
+import { getRunner, timed } from './runners.mjs';
 import { writeCoverageSidecar } from './sidecar.mjs';
 
 /**
@@ -191,11 +191,8 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 	let classificationDiffs = [];
 	if ( ! skipCoverageAi ) {
 		process.stderr.write( '\n🤖 Coverage-AI pass — refining deterministic classification…\n' );
-		const aiOverrides = await runCoverageAI(
-			deterministicClassifications,
-			prDetailsByPR,
-			labelForRelease,
-			runner
+		const aiOverrides = await timed( 'Coverage-AI pass', () =>
+			runCoverageAI( deterministicClassifications, prDetailsByPR, labelForRelease, runner )
 		);
 		const result = mergeClassifications( deterministicClassifications, aiOverrides );
 		mergedClassifications = result.merged;
@@ -277,7 +274,9 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			decisionAnswers,
 			iteration,
 		} );
-		const nextGuide = await runPlanWithRetry( runner, prompt );
+		const nextGuide = await timed( `Plan generator (iteration ${ iteration })`, () =>
+			runPlanWithRetry( runner, prompt )
+		);
 		if ( ! nextGuide ) {
 			if ( guide ) {
 				console.warn(
@@ -300,12 +299,8 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		}
 
 		process.stderr.write( '\n🔎 Reviewer pass…\n' );
-		const findings = await runReviewer(
-			guide,
-			mergedClassifications,
-			prDetailsByPR,
-			labelForRelease,
-			runner
+		const findings = await timed( `Reviewer (iteration ${ iteration })`, () =>
+			runReviewer( guide, mergedClassifications, prDetailsByPR, labelForRelease, runner )
 		);
 		reviewerHistory.push( { iteration, ...findings } );
 		printReviewerFindings( findings, iteration );
@@ -375,7 +370,9 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 					decisionAnswers,
 					iteration,
 				} );
-				const finalGuide = await runPlanWithRetry( runner, finalPrompt );
+				const finalGuide = await timed( 'Plan generator (final pass, applying decisions)', () =>
+					runPlanWithRetry( runner, finalPrompt )
+				);
 				if ( finalGuide ) {
 					guide = finalGuide;
 				} else {
