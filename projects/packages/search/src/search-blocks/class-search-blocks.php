@@ -1417,7 +1417,7 @@ class Search_Blocks {
 		box-shadow: none;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: 1em 1em 1em;
+		padding: .5em 1em 1em;
 	}
 }
 /*
