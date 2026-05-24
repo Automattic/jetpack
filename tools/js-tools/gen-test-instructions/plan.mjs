@@ -25,6 +25,9 @@ import { GITHUB_REPO, BEFORE_YOU_START } from './constants.mjs';
 export function buildConsolidationPrompt( classifications, releaseLabel, feedback = {} ) {
 	// Trim classification records to what the AI needs. The full record stays
 	// in the sidecar JSON; here we keep the fields that influence prose decisions.
+	// `tier` is optional — when present (loop pipeline with prioritization on)
+	// it carries 1 (headline) or 2 (covered); Tier 3 PRs are withheld from this
+	// list entirely and routed to "Other PRs" by the renderer.
 	const inputForAI = classifications.map( c => ( {
 		pr: c.pr,
 		title: c.title,
@@ -38,7 +41,9 @@ export function buildConsolidationPrompt( classifications, releaseLabel, feedbac
 		consolidation_hint: c.consolidation_hint,
 		diff_stats: c.diff_stats,
 		labels: c.labels,
+		...( typeof c.tier === 'number' ? { tier: c.tier } : {} ),
 	} ) );
+	const tiersPresent = inputForAI.some( c => typeof c.tier === 'number' );
 
 	const basePrompt = `You are producing the body of a Jetpack call-for-testing P2 post for release ${ releaseLabel }. The release lead will paste your output into a P2 post and edit it further; aim for a tester-ready draft.
 
@@ -102,7 +107,15 @@ Rules for the content you generate — each cites the comment-thread lesson it e
 11. **\`other_changes\` is for PRs with no actionable tester-facing test** (internal refactors, dependency bumps, PHP hardening, CI-only, package-only changes whose plugin glue lands elsewhere). Use the \`signals\` flags as hints: \`dependency_bump\`, \`composer_only\`, \`revert\` PRs almost always belong here. Do NOT dump PRs you couldn't think of steps for — only PRs that genuinely have no UI surface to exercise.
 
 12. **PR ownership is exclusive.** Every PR number in the input MUST appear either in \`sections[].related_prs\` (including \`sub_tests[].related_prs\`) OR in \`other_changes[]\` — never both, never neither. The renderer auto-fills "Other PRs" from unplaced PRs as a safety net, but you should be explicit.
+${
+	tiersPresent
+		? `
+13. **Tier 1 PRs MUST anchor a section.** Every input PR with \`"tier": 1\` MUST appear in \`sections[].related_prs\` — either as a top-level section, or (when its \`consolidation_hint\` matches another Tier 1 PR's hint) as a named sub-test under a clustered section. NEVER put a Tier 1 PR in \`other_changes\`. The release lead picked these as headline surfaces; demoting them is not your call.
 
+14. **Tier 2 PRs are sub-tests or bundled.** Every input PR with \`"tier": 2\` MAY appear (a) as a sub-test under a Tier 1 section when its surface is related, or (b) bundled under a single H3 like "Other tester-facing fixes" when it stands alone. Tier 2 PRs MUST NOT each get their own top-level H3 — the release lead capped headline sections deliberately. If a Tier 2 PR genuinely has no tester-facing test, move it to \`other_changes\` (this is the one allowed downgrade).
+`
+		: ''
+}
 Here is the input — one classification record per in-scope PR, in changelog order:
 
 ${ JSON.stringify( inputForAI, null, 2 ) }
@@ -176,7 +189,7 @@ function renderFeedbackBlock( feedback ) {
 			'DECISIONS (no human input yet — apply your best judgment but flag them in `flags.coverage_concerns`):'
 		);
 		for ( const d of decisions ) {
-			lines.push( renderFinding( d ) );
+			lines.push( renderDecisionFinding( d ) );
 		}
 		lines.push( '' );
 	}
@@ -194,8 +207,8 @@ function renderFeedbackBlock( feedback ) {
 }
 
 /**
- * Render one reviewer finding as a bullet line for the feedback block appended
- * to the consolidation prompt on subsequent iterations.
+ * Render one blocker or minor-remark finding as a bullet line for the feedback
+ * block appended to the consolidation prompt on subsequent iterations.
  *
  * @param {object} f - Reviewer finding ({ summary, pr_numbers, suggested_fix }).
  * @return {string} A single bullet line.
@@ -207,6 +220,41 @@ function renderFinding( f ) {
 			: '';
 	const fix = f.suggested_fix ? `\n    fix: ${ f.suggested_fix }` : '';
 	return `- ${ ( f.summary || '(no summary)' ).trim() }${ prList }${ fix }`;
+}
+
+/**
+ * Render one decision for the regenerator when no human input is available.
+ * Decisions do not carry `suggested_fix` — the option labels are themselves
+ * plan-actionable, so render the recommended option and the alternatives so
+ * the AI can apply its best judgment.
+ *
+ * @param {object} d - Reviewer decision ({ summary, pr_numbers, options, recommended_option }).
+ * @return {string} A multi-line bullet block.
+ */
+function renderDecisionFinding( d ) {
+	const prList =
+		Array.isArray( d.pr_numbers ) && d.pr_numbers.length > 0
+			? ' (' + d.pr_numbers.map( n => `#${ n }` ).join( ', ' ) + ')'
+			: '';
+	const opts = Array.isArray( d.options ) ? d.options : [];
+	const recIdx =
+		Number.isInteger( d.recommended_option ) &&
+		d.recommended_option >= 1 &&
+		d.recommended_option <= opts.length
+			? d.recommended_option - 1
+			: 0;
+	const lines = [ `- ${ ( d.summary || '(no summary)' ).trim() }${ prList }` ];
+	if ( opts.length > 0 ) {
+		lines.push( `    recommended: ${ opts[ recIdx ] }` );
+		const others = opts.filter( ( _, i ) => i !== recIdx );
+		if ( others.length > 0 ) {
+			lines.push( '    other options:' );
+			for ( const o of others ) {
+				lines.push( `      - ${ o }` );
+			}
+		}
+	}
+	return lines.join( '\n' );
 }
 
 /**

@@ -23,6 +23,7 @@ import {
 	printPostAIValidation,
 	appendReviewerNotes,
 } from './plan.mjs';
+import { runPrioritizationStage } from './prioritize.mjs';
 import { generateRawTestInstructions } from './raw.mjs';
 import { runReviewer, printReviewerFindings } from './reviewer.mjs';
 import { getRunner } from './runners.mjs';
@@ -170,6 +171,10 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		maxReviewerIterations = DEFAULT_MAX_REVIEWER_ITERATIONS,
 		nonInteractive = false,
 		runner: runnerOverride = null,
+		skipPrioritize = false,
+		targetSections = null,
+		headlinePrs = new Set(),
+		demotePrs = new Set(),
 	} = options;
 
 	const labelForRelease = releaseVersion || 'upcoming release';
@@ -203,11 +208,51 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 
 	// Stage 3: Scope HITL
 	const userExcluded = await resolveUserExclusions( mergedClassifications, options );
-	const inScope = mergedClassifications.filter( c => ! userExcluded.has( c.pr ) );
-	const dropped = mergedClassifications.length - inScope.length;
+	const inScopeRaw = mergedClassifications.filter( c => ! userExcluded.has( c.pr ) );
+	const dropped = mergedClassifications.length - inScopeRaw.length;
 	process.stderr.write(
-		`✓ ${ inScope.length } PRs going to the AI pass; ${ dropped } will land in "Other PRs".\n`
+		`✓ ${ inScopeRaw.length } PRs going to the AI pass; ${ dropped } will land in "Other PRs".\n`
 	);
+
+	// Stage 3b: Prioritization — pick 3-7 headline PRs, withhold Tier 3 from
+	// the plan input. The renderer auto-fills Other PRs from anything not in
+	// sections[].related_prs, so Tier 3 PRs land in the right place "for free"
+	// just by being absent from the plan input.
+	let prioritizationPayload = null;
+	let inScope = inScopeRaw;
+	if ( ! skipPrioritize && inScopeRaw.length > 0 ) {
+		const result = await runPrioritizationStage(
+			inScopeRaw,
+			prDetailsByPR,
+			labelForRelease,
+			runner,
+			{ targetSections, headlinePrs, demotePrs, nonInteractive }
+		);
+		prioritizationPayload = {
+			target_sections: result.finalOptions.targetSections,
+			proposed: result.proposed,
+			final: inScopeRaw.map( c => ( { pr: c.pr, tier: result.finalTiers.get( c.pr ) } ) ),
+			user_adjustments: result.userAdjustments,
+			ai_used: result.aiUsed,
+		};
+		// Annotate in-scope records with their tier so plan + reviewer prompts
+		// see it. Also annotate mergedClassifications so the reviewer + sidecar
+		// see the same tier per PR. Withhold Tier 3 from the plan generator's
+		// input — renderer auto-fills them into Other PRs.
+		const tierByPR = result.finalTiers;
+		for ( const c of mergedClassifications ) {
+			const t = tierByPR.get( c.pr );
+			if ( typeof t === 'number' ) {
+				c.tier = t;
+			}
+		}
+		const annotated = inScopeRaw.map( c => ( { ...c, tier: tierByPR.get( c.pr ) } ) );
+		inScope = annotated.filter( c => c.tier !== 3 );
+		const withheld = annotated.length - inScope.length;
+		process.stderr.write(
+			`✓ Prioritization: ${ inScope.length } PR(s) to plan generator (Tier 1+2), ${ withheld } withheld to "Other PRs" (Tier 3).\n`
+		);
+	}
 
 	// Stage 4: Plan → Reviewer → HITL loop. HITL fires inside each iteration
 	// that emits decisions so the human's answers flow into the next plan
@@ -307,14 +352,16 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 		process.stderr.write(
 			`\n⚠️  Reviewer still reports ${ reviewerFindings.blockers.length } blocker(s) after ${ cap } iteration(s); demoting to decisions for human review.\n`
 		);
-		const demoted = reviewerFindings.blockers.map( b => ( {
-			pr_numbers: b.pr_numbers || [],
-			summary: `[unresolved blocker after ${ cap } iterations] ${ b.summary || '' }`.trim(),
-			options: [ 'Apply the suggested fix manually', 'Accept the plan as-is' ],
-			recommended_option: 1,
-			suggested_fix: b.suggested_fix || '',
-			demoted_from_blocker: true,
-		} ) );
+		const demoted = reviewerFindings.blockers.map( b => {
+			const fixText = b.suggested_fix || 'apply the suggested fix manually';
+			return {
+				pr_numbers: b.pr_numbers || [],
+				summary: `[unresolved blocker after ${ cap } iterations] ${ b.summary || '' }`.trim(),
+				options: [ `Apply: ${ fixText }`, 'Accept the plan as-is' ],
+				recommended_option: 1,
+				demoted_from_blocker: true,
+			};
+		} );
 		try {
 			const demotedAnswers = await promptForDecisions( demoted, { nonInteractive } );
 			if ( demotedAnswers.length > 0 ) {
@@ -369,6 +416,7 @@ export async function runLoopPipeline( entries, prDetails, releaseVersion, ai, o
 			minorRemarksAppended: appendResult.appended,
 			guide,
 			userExcluded,
+			prioritization: prioritizationPayload,
 		} );
 		process.stderr.write( `✓ Coverage sidecar written: ${ coverageJsonPath }\n` );
 	}

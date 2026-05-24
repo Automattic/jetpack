@@ -35,8 +35,10 @@ export function buildReviewerPrompt( guide, mergedClassifications, prDetailsByPR
 			signals: c.signals,
 			labels: c.labels,
 			has_review_comments: Array.isArray( pr.reviewTexts ) && pr.reviewTexts.length > 0,
+			...( typeof c.tier === 'number' ? { tier: c.tier } : {} ),
 		};
 	} );
+	const tiersPresent = mergedClassifications.some( c => typeof c.tier === 'number' );
 
 	return `You are reviewing a Jetpack call-for-testing guide for release ${ releaseLabel } before a human release lead sees it. Another AI just produced the guide JSON; you are the second pair of eyes.
 
@@ -47,7 +49,7 @@ Return ONLY a single JSON object matching this schema. No Markdown, no code fenc
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
   ],
   "decisions": [
-    { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "options": ["<choice A>", "<choice B>"], "recommended_option": <1-based index into options>, "suggested_fix": "<plan-actionable change>" }
+    { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "options": ["<plan-actionable choice A>", "<plan-actionable choice B>"], "recommended_option": <1-based index into options> }
   ],
   "minor_remarks": [
     { "pr_numbers": [<int>, ...], "summary": "<one sentence>", "suggested_fix": "<plan-actionable change>" }
@@ -68,15 +70,24 @@ Severity definitions — these are the ONLY criteria. Anything else is a minor r
 - Over-consolidation across genuinely unrelated PRs (the AI grouped them, but they're not really one feature area).
 - Ambiguous scope where the source PR's instructions can be interpreted multiple ways and the AI picked one without justification.
 - Sub-test boundaries that look arbitrary (could be one section, could be N sub-tests — neither is wrong).
-- Cases where the AI ignored a \`has_review_comments: true\` signal that probably contains additional context.
+- Cases where the AI ignored a \`has_review_comments: true\` signal that probably contains additional context.${
+		tiersPresent
+			? `
+- **Tier fidelity violations** (when evidence carries \`tier\` per PR):
+  - A Tier 1 PR is absent from any section's \`related_prs\` (top-level or sub-test). Options: "promote and rewrite the section", "demote and accept the omission", "split into its own section". Recommended: the choice that matches the PR's surface and the cluster shape.
+  - A Tier 2 PR appears as its own top-level H3 instead of as a sub-test under a Tier 1 section or bundled into "Other tester-facing fixes". Options: "bundle into Other tester-facing fixes", "convert to sub-test under <Tier 1 section>", "accept the standalone H3". Recommended: bundle unless there's a strong surface mismatch.`
+			: ''
+	}
 
-Each decision MUST include 2-4 \`options\` that name the choices a human would pick from, and a \`recommended_option\` integer (1-based index into \`options\`) pointing to the choice that matches your \`suggested_fix\`. The recommended option becomes the default when a human is prompted, so pick the one you would action if no human were available.
+Each decision MUST include 2-4 \`options\` AND a \`recommended_option\` integer (1-based index into \`options\`). Every option label must be plan-actionable on its own — a concrete change the regenerator could enact verbatim, not an abstract category. \`recommended_option\` is the choice you would action if no human were available; it becomes the default when a human is prompted, and is the answer fed back to the regenerator when the human presses Enter.
+
+Decisions do NOT carry a \`suggested_fix\` field — the recommended option already names the action.
 
 **Minor remarks** — cosmetic, advisory, ignorable. Wording polish, redundant phrasing, missing punctuation, suggested re-orderings.
 
 Constraints:
 - Max 8 items per category. If you would emit more, pick the most important ones.
-- \`suggested_fix\` must describe a concrete change to the guide JSON (e.g., "Add a frontend step under sub-test 'Editor' that views the post and confirms the embed renders.").
+- On blockers and minor_remarks, \`suggested_fix\` must describe a concrete change to the guide JSON (e.g., "Add a frontend step under sub-test 'Editor' that views the post and confirms the embed renders."). Decisions do NOT carry \`suggested_fix\`; the option labels themselves are the concrete changes.
 - \`pr_numbers\` is the PRs the finding concerns; empty list is allowed for guide-wide concerns.
 - Do NOT report on PRs that aren't in the input evidence.
 - Do NOT include findings that boil down to "this could be better worded" without a concrete fix — those are noise.
@@ -197,20 +208,30 @@ export function printReviewerFindings( findings, iteration ) {
 	lines.push(
 		`🔎 Reviewer (iteration ${ iteration }): ${ blockers.length } blocker(s), ${ decisions.length } decision(s), ${ minor.length } minor remark(s).`
 	);
-	const fmt = ( prefix, items ) => {
+	const fmt = ( prefix, items, detailLabel = 'fix', detailGetter = it => it.suggested_fix ) => {
 		for ( const it of items ) {
 			const prList =
 				Array.isArray( it.pr_numbers ) && it.pr_numbers.length > 0
 					? ' (' + it.pr_numbers.map( n => `#${ n }` ).join( ', ' ) + ')'
 					: '';
 			lines.push( `  ${ prefix }${ prList } ${ ( it.summary || '' ).trim() }` );
-			if ( it.suggested_fix ) {
-				lines.push( `       fix: ${ it.suggested_fix }` );
+			const detail = detailGetter( it );
+			if ( detail ) {
+				lines.push( `       ${ detailLabel }: ${ detail }` );
 			}
 		}
 	};
 	fmt( '🚧', blockers );
-	fmt( '🙋', decisions );
+	fmt( '🙋', decisions, 'recommended', d => {
+		const opts = Array.isArray( d.options ) ? d.options : [];
+		const idx =
+			Number.isInteger( d.recommended_option ) &&
+			d.recommended_option >= 1 &&
+			d.recommended_option <= opts.length
+				? d.recommended_option - 1
+				: 0;
+		return opts[ idx ] || '';
+	} );
 	fmt( '📝', minor );
 	lines.push( '' );
 	process.stderr.write( lines.join( '\n' ) + '\n' );

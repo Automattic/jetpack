@@ -77,9 +77,10 @@ export async function promptUserForExclusions( classifications ) {
 
 /**
  * Interactively walk the user through the reviewer's open decisions and
- * collect answers. Each decision has a free-text summary, a `suggested_fix`,
- * a small list of `options` the reviewer enumerated, and a `recommended_option`
- * (1-based index) that drives the default.
+ * collect answers. Each decision has a free-text summary, a small list of
+ * `options` the reviewer enumerated (each option label is itself plan-
+ * actionable), and a `recommended_option` (1-based index) that drives the
+ * default.
  *
  * Input handling per decision: empty/Enter accepts the recommended default;
  * "s" or "skip" defers; an integer 1..N picks that option; any other text is
@@ -107,24 +108,17 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 	const rl = readline.createInterface( { input: process.stdin, output: process.stderr } );
 	const ask = q => new Promise( resolve => rl.question( q, resolve ) );
 
+	const width = Math.max( 40, process.stderr.columns || 80 );
+	const rule = '─'.repeat( width );
+
 	process.stderr.write(
-		`\n🙋 Reviewer surfaced ${ decisions.length } decision(s) that need human judgment.\n` +
-			'Press Enter to accept the recommended option, type a number to pick a different one, write a free-form answer, or type "s" to skip.\n'
+		`\n🙋 ${ decisions.length } decision${ decisions.length === 1 ? '' : 's' } need your input\n` +
+			'   ↵ accept default (★)  ·  1-N pick option  ·  type text to override  ·  s to skip\n'
 	);
 
 	const answers = [];
 	for ( let i = 0; i < decisions.length; i++ ) {
 		const d = decisions[ i ];
-		const prList =
-			Array.isArray( d.pr_numbers ) && d.pr_numbers.length > 0
-				? ' (' + d.pr_numbers.map( n => `#${ n }` ).join( ', ' ) + ')'
-				: '';
-		process.stderr.write(
-			`\n[${ i + 1 }/${ decisions.length }]${ prList } ${ d.summary || '(no summary)' }\n`
-		);
-		if ( d.suggested_fix ) {
-			process.stderr.write( `   suggested: ${ d.suggested_fix }\n` );
-		}
 		const opts = Array.isArray( d.options ) ? d.options : [];
 		const defaultIdx =
 			Number.isInteger( d.recommended_option ) &&
@@ -132,12 +126,34 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 			d.recommended_option <= opts.length
 				? d.recommended_option
 				: 1;
-		opts.forEach( ( opt, idx ) => {
-			const marker = idx + 1 === defaultIdx ? '  ← default' : '';
-			process.stderr.write( `   ${ idx + 1 }) ${ opt }${ marker }\n` );
-		} );
 
-		const reply = await ask( '> [Enter=default, number, text, "s"=skip] ' );
+		process.stderr.write( `\n${ rule }\n` );
+		process.stderr.write( `📋 Decision ${ i + 1 } of ${ decisions.length }\n` );
+		if ( Array.isArray( d.pr_numbers ) && d.pr_numbers.length > 0 ) {
+			process.stderr.write( `🔖 ${ d.pr_numbers.map( n => `#${ n }` ).join( ', ' ) }\n` );
+		}
+		process.stderr.write( '\n' );
+		process.stderr.write( wrapToWidth( d.summary || '(no summary)', width ) + '\n' );
+		process.stderr.write( '\n' );
+
+		if ( opts.length === 0 ) {
+			process.stderr.write( '   (no options — type a free-form answer)\n' );
+		} else {
+			const indexCol = String( opts.length ).length;
+			opts.forEach( ( opt, idx ) => {
+				const num = String( idx + 1 ).padStart( indexCol );
+				const star = idx + 1 === defaultIdx ? '★' : ' ';
+				const wrapped = wrapToWidth( opt, width, ' '.repeat( indexCol + 5 ) );
+				const firstLine = wrapped.replace( /^\s+/, '' );
+				const restLines = wrapped.includes( '\n' )
+					? '\n' + wrapped.split( '\n' ).slice( 1 ).join( '\n' )
+					: '';
+				process.stderr.write( `   ${ num }. ${ star } ${ firstLine }${ restLines }\n` );
+			} );
+		}
+
+		const promptLabel = opts.length > 0 ? '\n❯ [↵=★] ' : '\n❯ ';
+		const reply = await ask( promptLabel );
 		const trimmed = ( reply || '' ).trim();
 		const lower = trimmed.toLowerCase();
 
@@ -166,4 +182,41 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
 
 	rl.close();
 	return answers;
+}
+
+/**
+ * Greedy word-wrap. Splits on existing newlines so multi-paragraph input is
+ * preserved, then word-wraps each paragraph to `width - indent.length` columns
+ * and re-prefixes every output line with `indent`.
+ *
+ * @param {string} text   - Input text. May contain newlines.
+ * @param {number} width  - Terminal width in columns.
+ * @param {string} indent - Leading whitespace applied to every output line.
+ * @return {string} Wrapped, indented text. Single string with embedded \n.
+ */
+function wrapToWidth( text, width, indent = '   ' ) {
+	const max = Math.max( 20, width - indent.length );
+	const out = [];
+	for ( const paragraph of String( text ).split( '\n' ) ) {
+		const words = paragraph.split( /\s+/ ).filter( Boolean );
+		if ( words.length === 0 ) {
+			out.push( '' );
+			continue;
+		}
+		let cur = '';
+		for ( const w of words ) {
+			if ( ! cur ) {
+				cur = w;
+			} else if ( cur.length + 1 + w.length > max ) {
+				out.push( cur );
+				cur = w;
+			} else {
+				cur += ' ' + w;
+			}
+		}
+		if ( cur ) {
+			out.push( cur );
+		}
+	}
+	return out.map( l => indent + l ).join( '\n' );
 }
