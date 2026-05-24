@@ -1013,6 +1013,9 @@ class Search_Blocks_Test extends TestCase {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+		// Defaults true since the Beta release; pin it back to false so this
+		// test exercises the operator-opt-out path that it is named after.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
 
 		Search_Blocks::init();
 
@@ -1021,6 +1024,7 @@ class Search_Blocks_Test extends TestCase {
 			'posts_pre_query short-circuit must not hook when the overlay operator filter is off'
 		);
 
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 

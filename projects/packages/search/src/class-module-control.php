@@ -343,11 +343,12 @@ class Module_Control {
 		// dashboard already hides the option when the
 		// `jetpack_search_overlay_block_template_enabled` filter is off, but
 		// a scripted REST POST could otherwise pre-stage `overlay_blocks` on
-		// a site where operators haven't opted in. Reject the value at the
-		// boundary so the runtime gate isn't the only safety net.
+		// a site where the operator has pinned the filter to false. Reject
+		// the value at the boundary so the runtime gate isn't the only
+		// safety net.
 		if (
 			self::EXPERIENCE_OVERLAY_BLOCKS === $experience
-			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false )
+			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true )
 		) {
 			return new WP_Error(
 				'experience_not_available',

@@ -39,7 +39,7 @@ const PREVIEWS = {
 	[ EXPERIENCE.OFF ]: OffPreview,
 };
 
-const getCommitLabel = ( experience, blockOverlayEnabled = false ) => {
+const getCommitLabel = experience => {
 	switch ( experience ) {
 		case EXPERIENCE.EMBEDDED:
 			return _x(
@@ -49,25 +49,16 @@ const getCommitLabel = ( experience, blockOverlayEnabled = false ) => {
 			);
 		case EXPERIENCE.OVERLAY_BLOCKS:
 			return _x(
-				'Use Overlay search',
+				'Use Overlay search (blocks)',
 				'Button label that activates the blocks-powered Overlay search experience',
 				'jetpack-search-pkg'
 			);
 		case EXPERIENCE.OVERLAY:
-			// When the new blocks-powered Overlay is on offer alongside the
-			// legacy one, the commit label disambiguates which path the
-			// click activates. Unflagged sites keep the plain wording.
-			return blockOverlayEnabled
-				? _x(
-						'Use Overlay search (legacy)',
-						'Button label that activates the legacy preact Overlay search experience',
-						'jetpack-search-pkg'
-				  )
-				: _x(
-						'Use Overlay search',
-						'Button label that activates the Overlay search experience',
-						'jetpack-search-pkg'
-				  );
+			return _x(
+				'Use Overlay search',
+				'Button label that activates the Overlay search experience',
+				'jetpack-search-pkg'
+			);
 		case EXPERIENCE.INLINE:
 			return _x(
 				'Use Theme search',
@@ -85,7 +76,7 @@ const getCommitLabel = ( experience, blockOverlayEnabled = false ) => {
 	}
 };
 
-const getHoverHint = ( experience, blockOverlayEnabled = false ) => {
+const getHoverHint = experience => {
 	if ( experience === EXPERIENCE.OFF ) {
 		return _x(
 			'Click to turn off Jetpack Search',
@@ -100,7 +91,7 @@ const getHoverHint = ( experience, blockOverlayEnabled = false ) => {
 			'Hover hint on a non-active experience card explaining what clicking the card does',
 			'jetpack-search-pkg'
 		),
-		getCardTitle( experience, blockOverlayEnabled )
+		getCardTitle( experience )
 	);
 };
 
@@ -123,24 +114,17 @@ const getHoverHint = ( experience, blockOverlayEnabled = false ) => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const {
-		active,
-		isUpdating,
-		activeThemeStylesheet,
-		isBlockTheme,
-		blockOverlayEnabled,
-		blockTemplateOverlay,
-	} = useSelect(
-		select => ( {
-			active: select( STORE_ID ).getActiveExperience(),
-			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
-			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
-			isBlockTheme: select( STORE_ID ).isBlockTheme(),
-			blockOverlayEnabled: select( STORE_ID ).isBlockOverlayEnabled(),
-			blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
-		} ),
-		[]
-	);
+	const { active, isUpdating, activeThemeStylesheet, isBlockTheme, blockTemplateOverlay } =
+		useSelect(
+			select => ( {
+				active: select( STORE_ID ).getActiveExperience(),
+				isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+				activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
+				isBlockTheme: select( STORE_ID ).isBlockTheme(),
+				blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
+			} ),
+			[]
+		);
 	const { saveExperience, successNotice, errorNotice } = useDispatch( STORE_ID );
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
 	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
@@ -154,6 +138,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
+	const isBeta = experience === EXPERIENCE.OVERLAY_BLOCKS;
 	const linksDisabled = isUpdating || ! isActive;
 
 	// Embedded search is built and customized in the Site Editor, which
@@ -202,13 +187,14 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			<Stack direction="column" gap="lg" className="jp-search-experience-option__content">
 				<Stack direction="row" gap="sm" align="center" wrap="wrap">
 					<h3 id={ titleId } className="jp-search-experience-option__title">
-						{ getCardTitle( experience, blockOverlayEnabled ) }
+						{ getCardTitle( experience ) }
 					</h3>
 					{ isRecommended && (
 						<Badge intent="informational">{ __( 'Recommended', 'jetpack-search-pkg' ) }</Badge>
 					) }
+					{ isBeta && <Badge intent="informational">{ __( 'Beta', 'jetpack-search-pkg' ) }</Badge> }
 				</Stack>
-				<CardCopy experience={ experience } blockOverlayEnabled={ blockOverlayEnabled } />
+				<CardCopy experience={ experience } />
 			</Stack>
 			{ experience === EXPERIENCE.EMBEDDED && (
 				<Stack
@@ -245,21 +231,27 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					align="start"
 					className="jp-search-experience-option__actions"
 				>
-					{ blockTemplateOverlay.enabled && blockTemplateOverlay.editorUrl && (
-						<CardLink
-							label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
-							href={ blockTemplateOverlay.editorUrl }
-							disabled={ linksDisabled }
-							// Re-show "Restore default" on the admin's return
-							// from the editor: the click implies a fresh
-							// singleton is about to be (re-)created on the
-							// server, so the previously-set `justReset` flag
-							// no longer reflects reality.
-							onClick={ () => setJustReset( false ) }
-						/>
-					) }
-					{ blockTemplateOverlay.enabled &&
-						blockTemplateOverlay.resetRestPath &&
+					{ /*
+					   "Edit the Search overlay" always renders for the
+					   OVERLAY_BLOCKS card — disabled when the card is
+					   inactive (`linksDisabled`), matching how Embedded's
+					   "Edit search template" stays visible as a muted
+					   affordance. `editorUrl` is null until the user has
+					   activated this experience, but the disabled span
+					   doesn't navigate so the placeholder href is harmless.
+					*/ }
+					<CardLink
+						label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
+						href={ blockTemplateOverlay.editorUrl || '#' }
+						disabled={ linksDisabled }
+						// Re-show "Restore default" on the admin's return
+						// from the editor: the click implies a fresh
+						// singleton is about to be (re-)created on the
+						// server, so the previously-set `justReset` flag
+						// no longer reflects reality.
+						onClick={ () => setJustReset( false ) }
+					/>
+					{ blockTemplateOverlay.resetRestPath &&
 						blockTemplateOverlay.isCustomized &&
 						! justReset && (
 							<CardLink
@@ -320,7 +312,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 							? undefined
 							: isEmbeddedBlockedByTheme
 							? blockedThemeHint
-							: getHoverHint( experience, blockOverlayEnabled )
+							: getHoverHint( experience )
 					}
 					onClick={ () => {
 						if ( commitButtonDisabled ) {
@@ -331,10 +323,10 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					aria-label={
 						// eslint-disable-next-line no-nested-ternary -- three mutually exclusive label states; flattening would duplicate the attribute.
 						disabled
-							? `${ getCommitLabel( experience, blockOverlayEnabled ) }. ${ upsellHint }`
+							? `${ getCommitLabel( experience ) }. ${ upsellHint }`
 							: isEmbeddedBlockedByTheme
-							? `${ getCardTitle( experience, blockOverlayEnabled ) }. ${ blockedThemeHint }`
-							: getCommitLabel( experience, blockOverlayEnabled )
+							? `${ getCardTitle( experience ) }. ${ blockedThemeHint }`
+							: getCommitLabel( experience )
 					}
 				/>
 			) }
@@ -377,12 +369,12 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						setConfirmOpen( false );
 					} }
 					onCancel={ () => setConfirmOpen( false ) }
-					confirmButtonText={ getCommitLabel( experience, blockOverlayEnabled ) }
+					confirmButtonText={ getCommitLabel( experience ) }
 				>
 					{ sprintf(
 						/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
 						__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
-						getCardTitle( experience, blockOverlayEnabled )
+						getCardTitle( experience )
 					) }
 				</ConfirmDialog>
 			) }
@@ -441,7 +433,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	);
 }
 
-const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
+const CardCopy = ( { experience } ) => {
 	if ( experience === EXPERIENCE.EMBEDDED ) {
 		return (
 			<p className="jp-search-experience-option__description">
@@ -456,33 +448,13 @@ const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 		return (
 			<p className="jp-search-experience-option__description">
 				{ __(
-					'A search-as-you-type overlay rendered from your Search blocks — same filters, sorting, and store as Embedded, but opens over your existing pages.',
+					'In beta — a search-as-you-type overlay rendered from your Search blocks. Same filters, sorting, and store as Embedded, but opens over your existing pages just like former Instant Search overlay.',
 					'jetpack-search-pkg'
 				) }
 			</p>
 		);
 	}
 	if ( experience === EXPERIENCE.OVERLAY ) {
-		// While the blocks-powered Overlay is also visible, the legacy
-		// card explicitly names itself as the older preact-based path so
-		// site owners can tell the two cards apart at a glance.
-		//
-		// Each branch returns its own `<p>` rather than putting the two
-		// `__()` calls in a JSX ternary expression — the production
-		// build's translation-string optimizer folds the latter into a
-		// single `__(t?A:B, domain)` and trips strict-literal validation,
-		// breaking the build. Splitting at the JSX-boundary keeps each
-		// `__()` argument unambiguously a string literal.
-		if ( blockOverlayEnabled ) {
-			return (
-				<p className="jp-search-experience-option__description">
-					{ __(
-						'The original preact-powered Instant Search overlay. Customize via the dedicated search screen and widget sidebar.',
-						'jetpack-search-pkg'
-					) }
-				</p>
-			);
-		}
 		return (
 			<p className="jp-search-experience-option__description">
 				{ __(
@@ -497,7 +469,7 @@ const CardCopy = ( { experience, blockOverlayEnabled = false } ) => {
 			<>
 				<p className="jp-search-experience-option__description">
 					{ __(
-						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes.",
+						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes. Search blocks are still available to drop into any page or template.",
 						'jetpack-search-pkg'
 					) }
 				</p>

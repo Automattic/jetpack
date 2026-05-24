@@ -187,7 +187,8 @@ class Initializer {
 			self::$block_search_active = true;
 		}
 
-		// Experimental block-template overlay (off by default; see
+		// Experimental block-template overlay (available by default, opt-in
+		// via the Experience Selector; see
 		// `Search_Blocks::is_block_template_overlay_enabled()`): bypass the
 		// preact `SearchApp` so it doesn't race the block overlay for
 		// `?s=`, popstate, and theme search-trigger selectors. Suppressing

@@ -22,13 +22,13 @@ export default {
 		blockOverlayEnabled: {
 			control: 'boolean',
 			description:
-				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter; reveals the new blocks-powered Overlay card and tags the legacy one "(legacy)".',
+				'Seed `siteData.blockOverlayEnabled` — mirrors the `jetpack_search_overlay_block_template_enabled` server filter (defaults true). Reveals the BETA "Overlay search (blocks)" card alongside the preact Overlay; both stay first-class peers. Pin to false to preview the four-card layout.',
 		},
 	},
 	args: {
 		isWpcom: false,
 		supportsOnlyClassicSearch: false,
-		blockOverlayEnabled: false,
+		blockOverlayEnabled: true,
 	},
 };
 
@@ -205,9 +205,9 @@ WpcomSite.args = {
 	isWpcom: true,
 };
 
-// Blocks-powered Overlay flag on — five cards visible, legacy carries the
-// "(legacy)" suffix. The user has not yet switched, so the legacy card is
-// the active one.
+// Blocks-powered Overlay flag on — five cards visible, BETA "(blocks)"
+// card sits next to the preact Overlay as a sibling. The user has not yet
+// switched, so the preact card is the active one.
 export const OverlayBlocksAvailable = args =>
 	renderWithStoryArgs(
 		{
@@ -223,8 +223,8 @@ OverlayBlocksAvailable.args = {
 	blockOverlayEnabled: true,
 };
 
-// User has opted into the blocks-powered Overlay — the new card is Active,
-// and the legacy card stays selectable as a fallback.
+// User has opted into the blocks-powered Overlay — the BETA card is
+// Active; the preact Overlay stays selectable as a peer.
 export const OverlayBlocksActive = args =>
 	renderWithStoryArgs(
 		{
@@ -238,4 +238,21 @@ export const OverlayBlocksActive = args =>
 	);
 OverlayBlocksActive.args = {
 	blockOverlayEnabled: true,
+};
+
+// Operator pinned `jetpack_search_overlay_block_template_enabled` to false —
+// the BETA card is hidden, the preact Overlay is the only Overlay choice.
+export const PreactOnlyFourCardLayout = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
+	);
+PreactOnlyFourCardLayout.args = {
+	blockOverlayEnabled: false,
 };
