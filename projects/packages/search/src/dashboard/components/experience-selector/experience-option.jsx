@@ -1,4 +1,3 @@
-import apiFetch from '@wordpress/api-fetch';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -8,12 +7,14 @@ import { Icon, cancelCircleFilled } from '@wordpress/icons';
 import { Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
+import CardLink from './card-link';
 import { EXPERIENCE, getCardTitle } from './constants';
 import EmbeddedPreview from './previews/embedded-preview';
 import InlinePreview from './previews/inline-preview';
 import OffPreview from './previews/off-preview';
 import OverlayBlocksPreview from './previews/overlay-blocks-preview';
 import OverlayPreview from './previews/overlay-preview';
+import SingletonTemplateActions from './singleton-template-actions';
 import './experience-option.scss';
 
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
@@ -113,27 +114,26 @@ const getHoverHint = experience => {
  * @return {import('react').Element} - The card.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { active, isUpdating, activeThemeStylesheet, isBlockTheme, blockTemplateOverlay } =
-		useSelect(
-			select => ( {
-				active: select( STORE_ID ).getActiveExperience(),
-				isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
-				activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
-				isBlockTheme: select( STORE_ID ).isBlockTheme(),
-				blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
-			} ),
-			[]
-		);
-	const { saveExperience, successNotice, errorNotice } = useDispatch( STORE_ID );
+	const {
+		active,
+		isUpdating,
+		activeThemeStylesheet,
+		isBlockTheme,
+		blockTemplateOverlay,
+		searchTemplate,
+	} = useSelect(
+		select => ( {
+			active: select( STORE_ID ).getActiveExperience(),
+			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+			activeThemeStylesheet: select( STORE_ID ).getActiveThemeStylesheet(),
+			isBlockTheme: select( STORE_ID ).isBlockTheme(),
+			blockTemplateOverlay: select( STORE_ID ).getBlockTemplateOverlayConfig(),
+			searchTemplate: select( STORE_ID ).getSearchTemplateConfig(),
+		} ),
+		[]
+	);
+	const { saveExperience } = useDispatch( STORE_ID );
 	const [ isConfirmOpen, setConfirmOpen ] = useState( false );
-	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
-	const [ isResetting, setIsResetting ] = useState( false );
-	// Local override after a successful reset: the server-side `isCustomized`
-	// stays true in the initial-state blob the page was rendered with, so
-	// we hide the "Restore default" link client-side once the AJAX DELETE
-	// returns. Cleared if the admin opens the editor again (which would
-	// lazy-create a fresh singleton).
-	const [ justReset, setJustReset ] = useState( false );
 
 	const isActive = active === experience;
 	const isRecommended = experience === EXPERIENCE.EMBEDDED;
@@ -189,11 +189,10 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				<CardCopy experience={ experience } />
 			</Stack>
 			{ experience === EXPERIENCE.EMBEDDED && isBlockTheme && (
-				// Site-Editor-only entry points: omitted on classic themes
-				// (which have no Site Editor) so the card doesn't surface
-				// links that lead to a 404. Embedded itself still works on
-				// classic themes via the `template_include` route; only the
-				// in-place customization affordances are hidden.
+				// Block themes get the Site-Editor entry points — the FSE
+				// template editor is the native customization surface and
+				// integrates with theme parts / global styles. The classic-
+				// theme arm below uses the singleton-CPT path instead.
 				<Stack
 					direction="row"
 					gap="sm"
@@ -212,6 +211,26 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					/>
 				</Stack>
 			) }
+			{ experience === EXPERIENCE.EMBEDDED && ! isBlockTheme && (
+				// Classic themes have no Site Editor — route customization
+				// through the `Search_Template` singleton CPT instead.
+				// Same `post.php`-on-a-hidden-CPT pattern as the blocks
+				// Overlay below.
+				<SingletonTemplateActions
+					config={ searchTemplate }
+					editLabel={ __( 'Edit search template', 'jetpack-search-pkg' ) }
+					restoreConfirmMessage={ __(
+						'Restore the bundled Search template? Your customizations will be deleted.',
+						'jetpack-search-pkg'
+					) }
+					successMessage={ __(
+						'The Search template has been restored to the bundled default.',
+						'jetpack-search-pkg'
+					) }
+					errorMessage={ __( 'Could not restore the Search template.', 'jetpack-search-pkg' ) }
+					linksDisabled={ linksDisabled }
+				/>
+			) }
 			{ /*
 			   SEARCH-216 — the blocks-powered Overlay renders from a
 			   separate bundled template the Site Editor cannot reach.
@@ -222,50 +241,23 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 			   too because `post.php` predates the Site Editor.
 			*/ }
 			{ experience === EXPERIENCE.OVERLAY_BLOCKS && (
-				<Stack
-					direction="row"
-					gap="sm"
-					align="start"
-					className="jp-search-experience-option__actions"
-				>
-					{ /*
-					   "Edit the Search overlay" always renders for the
-					   OVERLAY_BLOCKS card — disabled when the card is
-					   inactive (`linksDisabled`), matching how Embedded's
-					   "Edit search template" stays visible as a muted
-					   affordance. `editorUrl` is null until the user has
-					   activated this experience, but the disabled span
-					   doesn't navigate so the placeholder href is harmless.
-					*/ }
-					<CardLink
-						label={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
-						href={ blockTemplateOverlay.editorUrl || '#' }
-						disabled={ linksDisabled }
-						// Re-show "Restore default" on the admin's return
-						// from the editor: the click implies a fresh
-						// singleton is about to be (re-)created on the
-						// server, so the previously-set `justReset` flag
-						// no longer reflects reality.
-						onClick={ () => setJustReset( false ) }
-					/>
-					{ blockTemplateOverlay.resetRestPath &&
-						blockTemplateOverlay.isCustomized &&
-						! justReset && (
-							<CardLink
-								label={ __( 'Restore default', 'jetpack-search-pkg' ) }
-								href="#"
-								disabled={ linksDisabled || isResetting }
-								onClick={ event => {
-									// Destructive — open the confirm dialog
-									// instead of running the AJAX delete
-									// directly. The dialog's confirm handler
-									// is the one that fires `apiFetch`.
-									event.preventDefault();
-									setResetConfirmOpen( true );
-								} }
-							/>
-						) }
-				</Stack>
+				<SingletonTemplateActions
+					config={ blockTemplateOverlay }
+					editLabel={ __( 'Edit the Search overlay', 'jetpack-search-pkg' ) }
+					restoreConfirmMessage={ __(
+						'Restore the bundled Search overlay template? Your customizations will be deleted.',
+						'jetpack-search-pkg'
+					) }
+					successMessage={ __(
+						'The Search overlay template has been restored to the bundled default.',
+						'jetpack-search-pkg'
+					) }
+					errorMessage={ __(
+						'Could not restore the Search overlay template.',
+						'jetpack-search-pkg'
+					) }
+					linksDisabled={ linksDisabled }
+				/>
 			) }
 			{ experience === EXPERIENCE.OVERLAY && (
 				<Stack
@@ -332,57 +324,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					getCardTitle( experience )
 				) }
 			</ConfirmDialog>
-			{ /*
-				   SEARCH-216 — confirm before nuking the customized overlay
-				   template. Sends a DELETE to the CPT's built-in REST
-				   endpoint via `apiFetch`; on success, the local `justReset`
-				   flag hides the link and a notice goes through the
-				   dashboard's global-notices store. No page navigation.
-				*/ }
-			{ experience === EXPERIENCE.OVERLAY_BLOCKS && blockTemplateOverlay.enabled && (
-				<ConfirmDialog
-					isOpen={ isResetConfirmOpen }
-					onConfirm={ async () => {
-						setResetConfirmOpen( false );
-						// Defensive guard: the dialog can only open via the
-						// `isCustomized && resetRestPath` CardLink above, so
-						// `resetRestPath` is non-null in practice — avoid
-						// firing a DELETE to `undefined` if the gating logic
-						// ever shifts.
-						if ( ! blockTemplateOverlay.resetRestPath ) {
-							return;
-						}
-						setIsResetting( true );
-						try {
-							await apiFetch( {
-								path: blockTemplateOverlay.resetRestPath,
-								method: 'DELETE',
-							} );
-							setJustReset( true );
-							successNotice(
-								__(
-									'The Search overlay template has been restored to the bundled default.',
-									'jetpack-search-pkg'
-								)
-							);
-						} catch ( error ) {
-							errorNotice(
-								error?.message ||
-									__( 'Could not restore the Search overlay template.', 'jetpack-search-pkg' )
-							);
-						} finally {
-							setIsResetting( false );
-						}
-					} }
-					onCancel={ () => setResetConfirmOpen( false ) }
-					confirmButtonText={ __( 'Restore default', 'jetpack-search-pkg' ) }
-				>
-					{ __(
-						'Restore the bundled Search overlay template? Your customizations will be deleted.',
-						'jetpack-search-pkg'
-					) }
-				</ConfirmDialog>
-			) }
 		</Stack>
 	);
 }
@@ -466,24 +407,3 @@ const CardCopy = ( { experience } ) => {
 		</>
 	);
 };
-
-const CardLink = ( { label, href, disabled, onClick } ) =>
-	disabled ? (
-		// Render as a non-interactive <span> so AT doesn't announce a link
-		// the user can't follow. The `is-disabled` class is the CSS hook for
-		// the muted/not-allowed visual state — `aria-disabled` on a roleless
-		// <span> has no semantic effect for AT.
-		<span className="jp-search-experience-option__action jp-search-experience-option__action-link is-disabled">
-			{ label }
-			<span aria-hidden="true"> →</span>
-		</span>
-	) : (
-		<a
-			className="jp-search-experience-option__action jp-search-experience-option__action-link"
-			href={ href }
-			onClick={ onClick }
-		>
-			{ label }
-			<span aria-hidden="true"> →</span>
-		</a>
-	);

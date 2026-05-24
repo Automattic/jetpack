@@ -206,6 +206,12 @@ class Search_Blocks {
 				// so the search page slots into the theme's chrome instead of
 				// replacing it.
 				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ) );
+				// Classic themes lose the Site Editor entry point for
+				// customizing the bundled template, so wire up the
+				// `Search_Template` singleton CPT — the standard block
+				// editor on a hidden post is the theme-agnostic editing
+				// surface, mirroring `Overlay_Template`.
+				Search_Template::init();
 			}
 		}
 
@@ -1650,12 +1656,13 @@ CSS;
 		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
 			return $template;
 		}
-		// Bail back to the theme's own search template if the bundled
-		// `jetpack-search.html` is somehow unreadable — rendering header /
-		// footer with nothing between them just looks like a broken page.
-		// Mirrors the block-theme path's empty-content bail-out in
-		// `register_search_template()`.
-		if ( '' === static::get_classic_theme_search_body() ) {
+		// Bail back to the theme's own search template if neither a
+		// customization nor a readable bundled body is available —
+		// rendering header / footer with nothing between them just
+		// looks like a broken page. A saved empty customization
+		// (Search_Template::get_customized_content() returning ''
+		// instead of null) is treated as intentional and honored.
+		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
 			return $template;
 		}
 		return __DIR__ . '/templates/classic-theme-search.php';
@@ -1667,12 +1674,27 @@ CSS;
 	 * and trailing `core/template-part` references stripped so the theme's
 	 * `get_header()` / `get_footer()` drive the chrome.
 	 *
+	 * Source of truth, in order:
+	 *
+	 *   1. The customized singleton CPT ({@see Search_Template}), if an
+	 *      admin has saved one via the dashboard's "Edit search template"
+	 *      link.
+	 *   2. The bundled `templates/jetpack-search.html` file, template-part
+	 *      wrappers stripped.
+	 *
 	 * Public because the bundled PHP shim (`templates/classic-theme-search.php`)
 	 * needs to call it from outside the class scope.
 	 *
 	 * @return string Block markup, no template-part wrappers.
 	 */
 	public static function get_classic_theme_search_body(): string {
+		// Customization first — singleton CPT seeded from the bundled
+		// markup, edited via post.php; theme-agnostic so the admin can
+		// reach the editor without a Site Editor.
+		$customized = Search_Template::get_customized_content();
+		if ( null !== $customized ) {
+			return $customized;
+		}
 		$content = static::get_search_template_content();
 		if ( '' === $content ) {
 			return '';
