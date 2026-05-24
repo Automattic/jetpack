@@ -463,7 +463,7 @@ const CardCopy = ( { experience } ) => {
 			<>
 				<p className="jp-search-experience-option__description">
 					{ __(
-						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes.",
+						"Keeps your theme's search layout. We just make the results faster and more relevant behind the scenes, no UI changes. Search blocks are still available to drop into any page or template.",
 						'jetpack-search-pkg'
 					) }
 				</p>

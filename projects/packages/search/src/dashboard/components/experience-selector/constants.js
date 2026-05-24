@@ -19,10 +19,13 @@ export const EXPERIENCE = Object.freeze( {
 } );
 
 /**
- * Display order on the dashboard. Embedded leads (RECOMMENDED); the new
- * blocks-powered Overlay (BETA) sits next to it as a sibling — both
- * overlays are first-class peers, not predecessor/successor — then the
- * preact Overlay, then Off.
+ * Display order on the dashboard. Embedded leads (RECOMMENDED), then the
+ * preact Overlay (the mature choice), then the blocks-powered Overlay
+ * (BETA) as a sibling — both overlays are first-class peers, not
+ * predecessor/successor. Theme search, then Off, follow.
+ *
+ * The BETA card intentionally sits *after* the preact one so the visual
+ * hierarchy doesn't push site owners toward the not-yet-mature path.
  *
  * `OVERLAY_BLOCKS` is filtered out at render time on sites where the
  * `jetpack_search_overlay_block_template_enabled` server flag is pinned
@@ -31,8 +34,8 @@ export const EXPERIENCE = Object.freeze( {
  */
 export const EXPERIENCE_ORDER = [
 	EXPERIENCE.EMBEDDED,
-	EXPERIENCE.OVERLAY_BLOCKS,
 	EXPERIENCE.OVERLAY,
+	EXPERIENCE.OVERLAY_BLOCKS,
 	EXPERIENCE.INLINE,
 	EXPERIENCE.OFF,
 ];
