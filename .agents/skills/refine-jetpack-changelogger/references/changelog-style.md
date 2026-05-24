@@ -16,8 +16,13 @@ Bullet-level style for `CHANGELOG.md` entries. Applies during alpha/beta polish,
   - "Match the cadence of neighbouring bullets" — neighbouring inconsistency is fine; the editor does not normalize across bullets unless the rulebook explicitly says to (e.g. coordinate-parallel-entries from related PRs).
   - "Punchier verb" — `Update`, `Improve`, `Add`, `Fix` are all acceptable lead verbs; do not substitute one for another for stylistic preference.
   - "Match an example in the style guide more closely" — the style guide's examples are illustrative, not normative templates. If a bullet doesn't exactly match an example but reads cleanly, leave it.
-  - **Only propose a prose rewrite when one of the *named rules below* fires** (strip `by …` tails, strip `for <reason>` tails, strip migration provenance tails, reframe `Fix [bad thing not happening]`, etc.). Each of those rules has a concrete trigger pattern in the input. If no named rule's trigger pattern is present in the bullet, the bullet is settled — do not touch it.
-  - When in doubt, leave the bullet alone.
+- **Default to the named rules below**, but surface a candidate rewrite when the bullet contains **codebase-internal shorthand that a public-changelog reader wouldn't understand**, even if no named rule fires. Triggers:
+  - Commit-message glyphs used as English conjunctions or separators in prose: `+`, `&`, `→`, `~`, `/`. Example: `register sitemaps reads + rebuild dispatch` → `register sitemaps reads and rebuild dispatch`. Exceptions: keep when the token is part of a literal label (`Save & Continue`, `and/or`), a menu path (`Settings => Sharing`), or a code identifier.
+  - Internal ticket IDs leaking into the bullet (e.g. `P1-1234`, `JIRA-5678`).
+  - Code-only tokens used as English nouns when an English noun exists (e.g. `the publicize_module flag` when the bullet could say `the Publicize module flag`).
+  - Acronyms outside the allowlist (see § Abbreviations) used without being introduced — surface for human confirmation, don't auto-spell-out.
+- **Even with these triggers, surface as a candidate — do not auto-rewrite.** The contributor sometimes had a specific reason, and rewrites here often need PR-body context to land cleanly.
+- **When in doubt, leave the bullet alone.**
 
 ## Bullet-membership rules — which bullets stay
 
