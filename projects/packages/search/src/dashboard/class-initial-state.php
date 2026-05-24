@@ -88,7 +88,7 @@ class Initial_State {
 				 * dashboard React app can gate the new feature-selection UI on the
 				 * same flag the back end uses to register the blocks themselves.
 				 */
-				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', true ),
 				/**
 				 * Whether the experimental blocks-powered Overlay search experience
 				 * is available in the Experience Selector. Mirrors the
