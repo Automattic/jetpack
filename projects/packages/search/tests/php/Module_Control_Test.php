@@ -279,13 +279,12 @@ class Module_Control_Test extends Search_TestCase {
 	/**
 	 * Saved 'embedded' / 'overlay' values are returned when the module is active.
 	 *
-	 * 'embedded' only renders on a block theme, so the assertion forces the
-	 * block-theme seam true to isolate the saved-value behaviour from the
-	 * non-block-theme fallback covered separately below.
+	 * Embedded now renders on every theme by default (block themes through
+	 * `search_template_hierarchy`, classic themes through `template_include`),
+	 * so no theme-seam override is needed.
 	 */
 	public function test_get_experience_returns_saved_value() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
@@ -293,18 +292,19 @@ class Module_Control_Test extends Search_TestCase {
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
 	/**
-	 * Saved 'embedded' falls back to 'inline' (Theme search) on a non-block
-	 * theme so the search page keeps working instead of resolving to a missing
-	 * FSE template. The saved option must stay 'embedded' so the experience
-	 * resumes once the site switches back to a block theme.
+	 * Saved 'embedded' falls back to 'inline' (Theme search) when the
+	 * `jetpack_search_theme_supports_embedded_experience` filter returns false
+	 * — the opt-out escape hatch for sites that want the search page to keep
+	 * rendering through the theme's own template regardless of theme type.
+	 * The saved option must stay 'embedded' so removing the filter restores
+	 * the experience without a dashboard re-save.
 	 */
-	public function test_get_experience_embedded_falls_back_to_inline_on_non_block_theme() {
+	public function test_get_experience_embedded_falls_back_to_inline_when_filter_disables_support() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
@@ -316,21 +316,19 @@ class Module_Control_Test extends Search_TestCase {
 			'The saved experience option must be preserved across the fallback.'
 		);
 
-		// Switching back to a block theme restores the embedded experience without a re-save.
+		// Dropping the filter restores Embedded without a dashboard re-save.
 		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
 	/**
-	 * The non-block-theme fallback only affects 'embedded' — 'overlay' is
+	 * The opt-out filter only affects 'embedded' — 'overlay' is
 	 * theme-agnostic (modal overlay) and must be unaffected.
 	 */
-	public function test_get_experience_overlay_unaffected_by_non_block_theme() {
+	public function test_get_experience_overlay_unaffected_by_embedded_opt_out_filter() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );

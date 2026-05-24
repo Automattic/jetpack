@@ -553,6 +553,102 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * On a classic-theme search request the router swaps the resolved
+	 * Theme PHP template for the bundled `classic-theme-search.php` shim.
+	 */
+	public function test_route_classic_theme_search_template_returns_bundled_path_on_search() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = Search_Blocks::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
+
+			$this->assertStringEndsWith(
+				'/src/search-blocks/templates/classic-theme-search.php',
+				$result,
+				'Search requests must resolve to the bundled classic-theme shim.'
+			);
+			$this->assertFileExists( $result, 'Bundled classic-theme shim must exist at the routed path.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Off the search page the router is a strict no-op so non-search
+	 * Requests keep the theme's own template (single, archive, page, …).
+	 */
+	public function test_route_classic_theme_search_template_noop_off_search() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertFalse( is_search() );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/index.php';
+			$result = Search_Blocks::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * WC-on, override-off: a WooCommerce product search on a classic theme
+	 * Falls through the classic router so WooCommerce's own archive routing
+	 * Keeps owning product search results (we don't ship a product-search
+	 * Classic-theme shim).
+	 */
+	public function test_route_classic_theme_search_template_defers_to_woocommerce_when_override_off() {
+		delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				protected static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Classic router must defer to WooCommerce when override is off on a product search.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * `get_classic_theme_search_body()` returns the same block markup that
+	 * `register_search_template()` registers on block themes, with the two
+	 * Top-level `core/template-part` self-closing comments stripped so the
+	 * Theme's `get_header()` / `get_footer()` drive the chrome instead.
+	 */
+	public function test_get_classic_theme_search_body_strips_template_parts() {
+		$body = Search_Blocks::get_classic_theme_search_body();
+
+		$this->assertNotEmpty( $body, 'Body must be non-empty when the bundled template file exists.' );
+		$this->assertStringNotContainsString(
+			'wp:template-part',
+			$body,
+			'Body must not reference template-parts — those resolve only on block themes.'
+		);
+		$this->assertStringContainsString(
+			'wp:jetpack-search/search-input',
+			$body,
+			'Body must keep the core Search blocks so the page is usable.'
+		);
+		$this->assertStringContainsString(
+			'wp:jetpack-search/results-list',
+			$body,
+			'Body must keep the results-list block.'
+		);
+	}
+
+	/**
 	 * With the override on, `init()` registers both the product-search
 	 * Template and the priority-20 routing filter.
 	 */
@@ -877,37 +973,74 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * On the Embedded experience, the template-override hooks must be
-	 * Registered so `/?s=…` resolves to the Jetpack Search template instead
-	 * Of the theme's `search.html`.
+	 * On the Embedded experience under a block theme, the FSE template-override
+	 * Hooks must be registered so `/?s=…` resolves to the Jetpack Search
+	 * Template instead of the theme's `search.html`. The classic-theme
+	 * `template_include` route must NOT register on this path.
 	 */
-	public function test_init_registers_template_hooks_when_embedded() {
+	public function test_init_registers_block_theme_template_hooks_when_embedded_on_block_theme() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
+		Search_Blocks::set_block_templates_active_for_testing( true );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 
 		Search_Blocks::init();
 
 		$this->assertNotFalse(
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
-			'register_search_template must hook into init on embedded'
+			'register_search_template must hook into init on embedded + block theme'
 		);
 		$this->assertNotFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must hook into search_template_hierarchy on embedded'
+			'prepend_search_template must hook into search_template_hierarchy on embedded + block theme'
+		);
+		$this->assertFalse(
+			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
+			'classic-theme template_include route must not hook on a block theme'
 		);
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
 	/**
-	 * Saved Embedded but on a non-block theme: the experience resolves to Theme
-	 * Search (inline), so the FSE template-takeover hooks must NOT register —
-	 * Otherwise `/?s=…` would resolve to a template the theme can't render.
+	 * On the Embedded experience under a classic theme, prepending a slug to
+	 * `search_template_hierarchy` is a no-op (no `jetpack-search.php` in the
+	 * Theme), so the classic-theme `template_include` route is what takes over
+	 * The search page. The block-theme hooks must NOT register on this path.
 	 */
-	public function test_init_does_not_register_template_hooks_when_embedded_on_non_block_theme() {
+	public function test_init_registers_classic_theme_template_include_when_embedded_on_classic_theme() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		Search_Blocks::set_block_templates_active_for_testing( false );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
+			'classic-theme template_include route must hook on embedded + classic theme'
+		);
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must not hook on a classic theme — the registry is FSE-only'
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must not hook on a classic theme — the hierarchy filter is FSE-only'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Saved Embedded but the `jetpack_search_theme_supports_embedded_experience`
+	 * Filter forces Embedded off: `get_experience()` resolves to Theme search
+	 * (Inline), so neither the block-theme nor the classic-theme template-
+	 * Takeover hooks register. Guards the opt-out escape hatch — a site that
+	 * Returns false from the filter must keep the search page on the theme's
+	 * Own search template regardless of theme type.
+	 */
+	public function test_init_does_not_register_template_hooks_when_filter_disables_embedded() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
 		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
@@ -917,11 +1050,15 @@ class Search_Blocks_Test extends TestCase {
 
 		$this->assertFalse(
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
-			'register_search_template must not hook into init when the theme cannot render Embedded'
+			'register_search_template must not hook when the filter disables Embedded'
 		);
 		$this->assertFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must not hook into search_template_hierarchy on a non-block theme'
+			'prepend_search_template must not hook when the filter disables Embedded'
+		);
+		$this->assertFalse(
+			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
+			'route_classic_theme_search_template must not hook when the filter disables Embedded'
 		);
 
 		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
@@ -1122,10 +1259,12 @@ class Search_Blocks_Test extends TestCase {
 		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'route_woocommerce_product_search_template' ), 20 );
+		remove_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
 		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
+		Search_Blocks::set_block_templates_active_for_testing( null );
 	}
 
 	/**
