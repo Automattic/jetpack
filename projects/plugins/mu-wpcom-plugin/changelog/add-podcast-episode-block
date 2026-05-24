@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pull in the latest jetpack-podcast package (adds the Podcast Episode block, gated behind the jetpack_podcast_untangle filter; no behavior change while off).

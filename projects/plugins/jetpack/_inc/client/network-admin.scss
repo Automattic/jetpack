@@ -1,0 +1,15 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Sites: default view of the toplevel menu — WP emits
+//   `toplevel_page_jetpack-network-sites`.
+// Settings: secondary submenu — the body class prefix is derived from the
+//   menu *title* ("JP Network") sanitized to `jp-network`, producing
+//   `jp-network_page_jetpack-network-settings`. See the
+//   `admin_print_scripts-jp-network_page_jetpack-network-settings` hook in
+//   `tools/docker/mu-plugins/0-sandbox.php` for the canonical reference.
+// Both share `#jp-network-admin-root`; React branches on `data-page`.
+body.toplevel_page_jetpack-network-sites,
+body.jp-network_page_jetpack-network-settings {
+
+	@include jetpack-admin-page-layout;
+}

@@ -1,0 +1,47 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.placeholders-help {
+
+	&:global(.components-dropdown) {
+		display: inline-flex;
+		margin-top: 4px;
+	}
+}
+
+.placeholders-help-popover {
+
+	:global(.components-popover__content) {
+		max-width: 22rem;
+		min-width: 16rem;
+		padding: 1rem;
+	}
+}
+
+.placeholders-help-content {
+
+	p {
+		margin: 0 0 0.75rem;
+	}
+
+	ul {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: 0.25rem 0.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		display: contents;
+
+		code {
+			font-size: 0.85em;
+			white-space: nowrap;
+		}
+
+		span {
+			color: var(--jp-gray-70, gb.$gray-700);
+		}
+	}
+}

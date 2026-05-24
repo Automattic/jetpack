@@ -1,4 +1,4 @@
-export { default as LineChart, LineChartUnresponsive } from './line-chart';
+export { default as LineChart, LineChartUnresponsive, renderDefaultTooltip } from './line-chart';
 export type { AnnotationStyles } from '../../types';
 export type {
 	LineChartAnnotationProps,

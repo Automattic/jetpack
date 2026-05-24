@@ -274,7 +274,7 @@ class Mailpoet_Background_Sync {
 				'total_crm_contacts_from_mailpoet' => $this->mailpoet()->get_crm_mailpoet_contact_count(),
 			);
 			$mailpoet_latest_stats     = $this->mailpoet()->get_jpcrm_mailpoet_latest_stats();
-			wp_send_json( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ) );
+			wp_send_json( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ), 200, JSON_UNESCAPED_SLASHES );
 		}
 	}
 
@@ -409,7 +409,7 @@ class Mailpoet_Background_Sync {
 				// ... AFTER email change.
 				if ( $potential_subscriber['email'] != $potential_contact['email'] ) {
 
-					$contact_changes['email'] = $potential_subscriber->data->email;
+					$contact_changes['email'] = sanitize_email( $potential_subscriber->data->email );
 
 					// if email changed, add old as an alias
 					// for that we need the old alias list to append to
@@ -424,14 +424,14 @@ class Mailpoet_Background_Sync {
 				// first name
 				if ( $potential_subscriber['first_name'] != $potential_contact['fname'] ) {
 
-					$contact_changes['fname'] = $potential_subscriber['first_name'];
+					$contact_changes['fname'] = sanitize_text_field( $potential_subscriber['first_name'] );
 
 				}
 
 				// last name
 				if ( $potential_subscriber['last_name'] != $potential_contact['lname'] ) {
 
-					$contact_changes['lname'] = $potential_subscriber['last_name'];
+					$contact_changes['lname'] = sanitize_text_field( $potential_subscriber['last_name'] );
 
 				}
 

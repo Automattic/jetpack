@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WPCOMSH_Log: drop the unused top-level `siteurl` field from /logstash payloads (the receiver doesn't consume it). Fatal-error signatures now pass `site_url` as a property instead, so it lands at `properties.site_url` in Kibana alongside the other indexed fields.

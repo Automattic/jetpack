@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Storybook: Replace manual design-system token override with real WPDS ThemeProvider.

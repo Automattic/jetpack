@@ -162,7 +162,7 @@ class zeroBS__Metabox_Transaction extends zeroBS__Metabox {
 		}
 
 		?>
-				<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+				<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 				<?php
 
 				// New transaction?
@@ -399,25 +399,27 @@ class zeroBS__Metabox_Transaction extends zeroBS__Metabox {
 				</table>
 
 	  
+		<?php
+		$jpcrm_transactionedit_lang  = array(
+			'noinvoices' => __( 'No Invoices Found!', 'zero-bs-crm' ),
+			'none'       => __( 'None', 'zero-bs-crm' ),
+			'view'       => __( 'View', 'zero-bs-crm' ),
+			'contact'    => __( 'Contact', 'zero-bs-crm' ),
+			'company'    => jpcrm_label_company(),
+			'selectinv'  => __( 'Select Invoice', 'zero-bs-crm' ),
+		);
+		$jpcrm_transactionedit_links = array(
+			'editinvprefix'     => jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ),
+			'editcontactprefix' => jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ),
+			'editcompanyprefix' => jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ),
+		);
+		?>
 		<script type="text/javascript">
 
 			// v3.0 Moved into it's own JS for optimal perf.
 			// js/ZeroBSCRM.admin.transactioneditor.js
-			var zeroBSCRMJS_transactionedit_lang = {
-
-					'noinvoices': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'No Invoices Found!', 'zero-bs-crm' ) ) ); ?>',
-					'none': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'None', 'zero-bs-crm' ) ) ); ?>',
-					'view': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'View', 'zero-bs-crm' ) ) ); ?>',
-					'contact': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) ) ); ?>',
-					'company': '<?php echo esc_html( zeroBSCRM_slashOut( jpcrm_label_company() ) ); ?>',
-					'selectinv': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Select Invoice', 'zero-bs-crm' ) ) ); ?>',
-			}
-			var zeroBSCRMJS_transactionedit_links = {
-
-				'editinvprefix': '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>',
-				'editcontactprefix': '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>',
-				'editcompanyprefix': '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ); ?>',
-			}
+			var zeroBSCRMJS_transactionedit_lang = <?php echo wp_json_encode( $jpcrm_transactionedit_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zeroBSCRMJS_transactionedit_links = <?php echo wp_json_encode( $jpcrm_transactionedit_links, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 		</script>
 		<?php

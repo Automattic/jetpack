@@ -38,9 +38,9 @@ $args = array(
 
 global $zbs;
 
-if ( isset( $_GET['email'] ) ) {
-	// searching email, so lets use that to override - should only be ONE match - return financial data (performant)
-	$email            = sanitize_text_field( $_GET['email'] );
+if ( isset( $_GET['email'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This uses an API key.
+	// searching email, so let's use that to override - should only be ONE match - return financial data (performant)
+	$email            = sanitize_email( wp_unslash( $_GET['email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This uses an API key.
 	$customer_matches = $zbs->DAL->contacts->getContact(
 		-1,
 		array(
@@ -53,7 +53,7 @@ if ( isset( $_GET['email'] ) ) {
 
 	// Send an empty array if no matches.
 	if ( ! $customer_matches ) {
-		wp_send_json( array() );
+		wp_send_json( array(), 200, JSON_UNESCAPED_SLASHES );
 	}
 } else {
 	// could be more matches (don't return financial data - unperformant)
@@ -61,7 +61,7 @@ if ( isset( $_GET['email'] ) ) {
 }
 
 if ( $replace_hyphens_in_response === 1 ) {
-	wp_send_json( jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $customer_matches ) );
+	wp_send_json( jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $customer_matches ), 200, JSON_UNESCAPED_SLASHES );
 }
 
-wp_send_json( $customer_matches );
+wp_send_json( $customer_matches, 200, JSON_UNESCAPED_SLASHES );

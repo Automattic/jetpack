@@ -4,10 +4,11 @@ import {
 	ThemeProvider,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
@@ -74,9 +75,12 @@ export const ManageConnectionsModal = () => {
 											'jetpack-publicize-pkg'
 										) }
 										&nbsp;
-										<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
+										<Link
+											openInNewTab
+											href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										>
 											{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-										</ExternalLink>
+										</Link>
 									</Text>
 								</em>
 							</div>

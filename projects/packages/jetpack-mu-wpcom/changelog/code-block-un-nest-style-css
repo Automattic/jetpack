@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove CSS nesting to prevent warnings in some CSS processors.

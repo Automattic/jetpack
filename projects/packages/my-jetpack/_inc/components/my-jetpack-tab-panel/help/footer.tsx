@@ -1,6 +1,6 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
@@ -37,13 +37,14 @@ export function HelpFooter() {
 							'jetpack-my-jetpack'
 						) }
 					</p>
-					<ExternalLink
+					<Link
+						openInNewTab
 						className={ styles[ 'footer-learn-more' ] }
 						href="https://automattic.com/about/"
 						onClick={ handleLearnMoreClick }
 					>
 						{ __( 'Learn more about us', 'jetpack-my-jetpack' ) }
-					</ExternalLink>
+					</Link>
 
 					<nav
 						className={ styles[ 'footer-nav' ] }

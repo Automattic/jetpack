@@ -123,7 +123,7 @@ class Full_Sync extends Module {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		foreach ( Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
-			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
+			$module_config = $module_configs[ $module_name ] ?? false;
 
 			if ( ! $module_config ) {
 				continue;
@@ -367,11 +367,11 @@ class Full_Sync extends Module {
 	private function get_content_range( $config ) {
 		$range = array();
 		// Only when we are sending the whole range do we want to send also the range.
-		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
+		if ( ! empty( $config['posts'] ) ) {
 			$range['posts'] = $this->get_range( 'posts' );
 		}
 
-		if ( true === isset( $config['comments'] ) && $config['comments'] ) {
+		if ( ! empty( $config['comments'] ) ) {
 			$range['comments'] = $this->get_range( 'comments' );
 		}
 		return $range;

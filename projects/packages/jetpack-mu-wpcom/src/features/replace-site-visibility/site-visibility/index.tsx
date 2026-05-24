@@ -1,7 +1,7 @@
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useState } from 'react';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
@@ -176,7 +176,8 @@ const SiteVisibility = ( {
 													strong: <strong />,
 													br: <br />,
 													link1: (
-														<ExternalLink
+														<Link
+															openInNewTab
 															href={ `https://wordpress.com/domains/add/${ host }?redirect_to=${ window.location.href }` }
 															target="_blank"
 															onClick={ () =>
@@ -185,7 +186,8 @@ const SiteVisibility = ( {
 														/>
 													),
 													link2: (
-														<ExternalLink
+														<Link
+															openInNewTab
 															href={ `https://wordpress.com/domains/manage/${ host }?source=${ window.location.pathname }` }
 															target="_blank"
 															onClick={ () =>

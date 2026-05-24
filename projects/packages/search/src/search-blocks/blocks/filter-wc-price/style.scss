@@ -1,0 +1,237 @@
+/**
+ * Search product filter — price.
+ *
+ * Two layouts share one BEM block:
+ *
+ *  - **Filter** (`showSlider: false`): side-by-side number inputs joined by an
+ *    em-dash separator. Currency symbol sits as a non-interactive adornment
+ *    inside each field's box so the visual padding aligns with the input edge
+ *    regardless of typed value width.
+ *  - **Slider** (`showSlider: true`): a dual-thumb track sits above the same
+ *    inputs row. Two `<input type="range">` elements overlay each other on a
+ *    single track wrapper, with `pointer-events: none` on the inputs and
+ *    `pointer-events: auto` on the thumb pseudo-elements giving one visual
+ *    bar with two draggable handles.
+ *
+ * Track layout (slider): the `__slider` wrapper is `18px` tall (= thumb visual
+ * size) so the thumbs have room without overflow clipping. The visible 4px
+ * track and the colored active-range fill are both vertically centered
+ * overlays on the wrapper. Each `<input type="range">` fills the wrapper
+ * top-to-bottom, and its `::-webkit-slider-runnable-track` is stretched to
+ * the input's full height so the native thumb pseudo-element auto-centers on
+ * the wrapper midline — no margin tweaks, no offset math.
+ *
+ * `--low` and `--high` CSS custom properties (set by `updatePriceSliderUi`)
+ * drive the colored "active range" fill via a horizontal `linear-gradient`.
+ */
+
+@mixin price-slider-thumb {
+	box-sizing: content-box;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--wp--preset--color--background, #fff);
+	border: 2px solid currentColor;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	z-index: 20;
+	pointer-events: auto;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+@mixin price-slider-runnable-track {
+	// Match the input's full height so the native thumb pseudo-element
+	// auto-centers on the input's vertical midline instead of anchoring to
+	// the bottom (Chromium's default for short runnable-tracks inside a
+	// taller input).
+	height: 18px;
+	background: transparent;
+	border: 0;
+	cursor: default;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.jetpack-search-filter-wc-price {
+
+	&__inputs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	&--with-slider &__inputs {
+		// Slider on top, inputs row below — give the inputs breathing room.
+		margin-block-start: 0.75rem;
+	}
+
+	&__field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	&__symbol {
+		position: absolute;
+		inset-inline-start: 0.5rem;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 0.95em;
+		pointer-events: none;
+	}
+
+	// When WooCommerce's price format puts the symbol after the amount
+	// (e.g. `100 kr`) we mirror that — anchor the adornment to the input's
+	// trailing edge and shift the typed-value padding to match.
+	&__field--right &__symbol {
+		inset-inline-start: auto;
+		inset-inline-end: 0.5rem;
+	}
+
+	&__input {
+		width: 100%;
+		min-width: 0;
+		padding-block: 0.4rem;
+		padding-inline: 1.9rem 0.5rem;
+		border: 1px solid color-mix(in sRGB, currentColor 20%, transparent);
+		border-radius: 4px;
+		font: inherit;
+
+		// Drop the spinner buttons. They're unhelpful on price inputs —
+		// shoppers know how to type. Keeping the input as type="number"
+		// for the keyboard hint and validation, but removing the visual
+		// affordance avoids the "tiny up/down arrows" awkwardness.
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+
+	&__field--right &__input {
+		padding-inline: 0.5rem 1.9rem;
+	}
+
+	&__separator {
+		flex: 0 0 auto;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 1.1em;
+		line-height: 1;
+	}
+
+	// ------- Slider variation -------
+
+	&__slider {
+		--low: 0%;
+		--high: 100%;
+		--range-color: currentColor;
+		margin-block-start: 0.5rem;
+
+		// Force LTR rendering so the slider's "low on the left, high on the
+		// right" axis stays consistent on RTL pages too — matches how most
+		// dual-thumb sliders (Material, Reach, WC Blocks) behave. Without this,
+		// browsers mirror the native range thumb visually but `--low`/`--high`
+		// (computed as percentages from physical-left) and the colored fill
+		// gradient stay LTR, producing a track where the thumbs and the fill
+		// disagree on direction.
+		direction: ltr;
+
+		position: relative;
+		height: 18px;
+		margin: 8px 0;
+		background: transparent;
+
+		// Inactive rail: 4px-tall muted bar vertically centered on the wrapper.
+		&::before {
+			content: "";
+			position: absolute;
+			top: 50%;
+			inset-inline: 0;
+			transform: translateY(-50%);
+			height: 4px;
+			background: var(--range-color);
+			opacity: 0.25;
+			border-radius: 4px;
+			pointer-events: none;
+			z-index: 0;
+		}
+	}
+
+	// Colored active-range fill — between --low and --high. Sits above the
+	// inactive rail, below the input thumbs.
+	&__slider-bar {
+		position: absolute;
+		top: 50%;
+		inset-inline: 0;
+		transform: translateY(-50%);
+		height: 4px;
+		border-radius: 4px;
+		background: linear-gradient(to right, transparent var(--low), var(--range-color) var(--low), var(--range-color) var(--high), transparent var(--high));
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	// Both range inputs absolutely positioned over the same wrapper, full
+	// height. The inputs as a whole are click-through; only the thumb
+	// pseudo-elements capture pointer events.
+	&__slider-input {
+		// Reset everything browsers add by default — !important fights theme
+		// styles that try to re-style native inputs.
+		margin: 0;
+		padding: 0 !important; // stylelint-disable-line declaration-no-important
+		border: 0 !important; // stylelint-disable-line declaration-no-important
+		outline: none;
+		background: transparent;
+		-webkit-appearance: none;
+		appearance: none;
+
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		width: 100%;
+		height: 18px;
+		display: block;
+		pointer-events: none;
+		z-index: 10;
+
+		&::-webkit-slider-thumb {
+
+			@include price-slider-thumb;
+		}
+
+		&::-moz-range-thumb {
+
+			@include price-slider-thumb;
+		}
+
+		&::-webkit-slider-runnable-track {
+
+			@include price-slider-runnable-track;
+		}
+
+		&::-moz-range-track {
+
+			@include price-slider-runnable-track;
+		}
+
+		&:focus {
+			outline: none;
+
+			&::-webkit-slider-thumb {
+				background: var(--range-color);
+				border-color: var(--wp--preset--color--background, #fff);
+			}
+
+			&::-moz-range-thumb {
+				background: var(--range-color);
+				border-color: var(--wp--preset--color--background, #fff);
+			}
+		}
+	}
+}

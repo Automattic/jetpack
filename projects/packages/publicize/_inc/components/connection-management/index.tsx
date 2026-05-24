@@ -1,8 +1,8 @@
-import { Button } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
@@ -12,7 +12,12 @@ import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
 
-const ConnectionManagement = ( { className = null, disabled = false } ) => {
+const ConnectionManagement = ( {
+	className = null,
+	disabled = false,
+	hideConnectButton = false,
+	hideHeading = false,
+} ) => {
 	const { refresh } = useSocialMediaConnections();
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
@@ -50,7 +55,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 		>
 			{ connections.length ? (
 				<>
-					<h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3>
+					{ ! hideHeading && <h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3> }
 					<ul className={ styles[ 'connection-list' ] }>
 						{ connections.map( connection => {
 							const isUpdatingOrDeleting =
@@ -73,12 +78,14 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 				</>
 			) : null }
 			<ManageConnectionsModal />
-			<Button
-				variant={ connections.length ? 'secondary' : 'primary' }
-				onClick={ openConnectionsModal }
-			>
-				{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
-			</Button>
+			{ ! hideConnectButton && (
+				<Button
+					variant={ connections.length ? 'outline' : 'solid' }
+					onClick={ openConnectionsModal }
+				>
+					{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
+				</Button>
+			) }
 		</div>
 	);
 };

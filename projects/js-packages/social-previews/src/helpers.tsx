@@ -16,8 +16,30 @@ export const baseDomain: Formatter = url => {
 	return slashIndex === -1 ? withoutProtocol : withoutProtocol.substring( 0, slashIndex );
 };
 
+/**
+ * Counts Unicode codepoints rather than UTF-16 code units, so an emoji like 🚀
+ * is one character (matching PHP `mb_strlen`) rather than two. Lets the JS
+ * preview's truncation align with the backend's logical-char counting.
+ *
+ * @param text - The string to measure.
+ * @return The codepoint count.
+ */
+const codepointLength = ( text: string ): number => Array.from( text ).length;
+
+/**
+ * Slices a string by Unicode codepoints rather than UTF-16 code units, so
+ * surrogate pairs (most emoji) are never split mid-character.
+ *
+ * @param text  - The string to slice.
+ * @param start - Start index, in codepoints.
+ * @param end   - End index, in codepoints (exclusive).
+ * @return The sliced string.
+ */
+const codepointSlice = ( text: string, start: number, end?: number ): string =>
+	Array.from( text ).slice( start, end ).join( '' );
+
 export const shortEnough: ( n: number ) => ConditionalFormatter = limit => title =>
-	title.length <= limit ? title : false;
+	codepointLength( title ) <= limit ? title : false;
 
 export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter =
 	( lower, upper ) => fullTitle => {
@@ -30,7 +52,7 @@ export const truncatedAtSpace: ( a: number, b: number ) => ConditionalFormatter 
 	};
 
 export const hardTruncation: ( n: number ) => Formatter = limit => title =>
-	title.slice( 0, limit ).concat( '…' );
+	codepointSlice( title, 0, limit ).concat( '…' );
 
 export const firstValid: ( ...args: ConditionalFormatter[] ) => NullableFormatter =
 	( ...predicates ) =>
@@ -139,7 +161,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 	// That is why "\s*"
 	result = result.replaceAll( /(?:\s*[\n\r]){2,}/g, '\n\n' );
 
-	if ( maxChars && result.length > maxChars ) {
+	if ( maxChars && codepointLength( result ) > maxChars ) {
 		result = hardTruncation( maxChars )( result );
 	}
 

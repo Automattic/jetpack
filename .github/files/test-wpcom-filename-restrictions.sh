@@ -22,13 +22,13 @@ function check_underscores {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (120_stop_invalid_characters)
+# Based on Automattic/pre-receive-hooks/blob/a8ad6e0c/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@-]' <<<"$FILE" || true )
+	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
-		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, and `-` are allowed.'
+		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, `-`, and `,` are allowed.'
 	fi
 }
 
@@ -138,9 +138,14 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 
 	cd "$GITHUB_WORKSPACE/build/$MIRROR"
 
+	if [[ -e .git ]]; then
+		failed "$SLUG: Artifact contains a \`.git\` dir. This is not allowed, aborting check."
+		continue
+	fi
+
 	echo "::group::Initializing $SLUG"
 	git init -b "tmp" .
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	git remote add origin "${GITHUB_SERVER_URL}/${MIRROR}"
 	if ! UPSTREAM_SHA=$( get_upstream_sha ); then
 		echo "::endgroup::"

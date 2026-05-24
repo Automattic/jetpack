@@ -1,0 +1,63 @@
+import { render, screen } from '@testing-library/react';
+import FiltersPopoverEdit from '../../../src/search-blocks/blocks/filters-popover/edit';
+
+jest.mock( '@wordpress/block-editor', () => ( {
+	useBlockProps: props => ( { ...props, className: props?.className } ),
+	InnerBlocks: () => <div data-testid="filters-popover-inner-blocks" />,
+	InspectorControls: ( { children } ) => (
+		<div data-testid="filters-popover-inspector">{ children }</div>
+	),
+} ) );
+
+jest.mock( '@wordpress/components', () => ( {
+	PanelBody: ( { children } ) => <div>{ children }</div>,
+	SelectControl: ( { label } ) => <span data-testid="filters-popover-mode-select">{ label }</span>,
+} ) );
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
+} ) );
+
+const renderEdit = ( attributes = {} ) =>
+	render( <FiltersPopoverEdit attributes={ attributes } setAttributes={ jest.fn() } /> );
+
+describe( 'FiltersPopoverEdit', () => {
+	describe( 'default (popover-always) mode', () => {
+		// In popover-always mode the editor still renders children inline so
+		// authors can edit them; the visual collapse is signalled by the
+		// trigger button being present alongside. Front-end visibility is
+		// class-driven by the Interactivity store — covered by
+		// `Filters_Popover_Render_Test` on the PHP side.
+		it( 'renders the disabled trigger alongside the labelled inline region when no displayMode is set', () => {
+			renderEdit();
+
+			const trigger = screen.getByRole( 'button', { name: 'Filter results' } );
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+			expect( trigger ).toBeDisabled();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
+		} );
+
+		it( 'falls back to popover-always for an unknown displayMode value', () => {
+			renderEdit( { displayMode: 'something-else' } );
+			expect( screen.getByRole( 'button', { name: 'Filter results' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'responsive mode', () => {
+		it( 'renders an inline labelled region with no trigger', () => {
+			renderEdit( { displayMode: 'responsive' } );
+			expect( screen.queryByRole( 'button', { name: 'Filter results' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'region', { name: 'Search filters' } ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'filters-popover-inner-blocks' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'exposes the display-mode select in the inspector', () => {
+		renderEdit();
+		expect( screen.getByTestId( 'filters-popover-mode-select' ) ).toHaveTextContent(
+			'Display mode'
+		);
+	} );
+} );

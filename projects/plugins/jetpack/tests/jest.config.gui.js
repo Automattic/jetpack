@@ -6,9 +6,10 @@ module.exports = {
 	testMatch: [ '<rootDir>/_inc/client/test/main.js', '<rootDir>/_inc/client/**/test/component.js' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
-	// This is necessary to allow css from uplot and @wordpress/admin-ui to be imported.
+	// This is necessary to allow css from uplot, @wordpress/admin-ui, and @gravatar-com (the
+	// latter for the lifted Gravatar component's hovercard styles) to be imported.
 	transformIgnorePatterns: [
-		'/node_modules/(?!(.pnpm|@automattic)/|.*uplot.*\\.css|.*@wordpress/admin-ui/.*\\.css)',
+		'/node_modules/(?!(.pnpm|@automattic)/|uuid/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
 		...baseConfig.transformIgnorePatterns,
 	],
 	collectCoverageFrom: [

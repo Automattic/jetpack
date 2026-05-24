@@ -101,6 +101,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
 		remove_action( 'next_admin_init', array( $this->agents_manager, 'enqueue_scripts' ), 1001 );
 		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 
 		// Restore original superglobal values.
 		if ( $this->original_get_preview === null ) {
@@ -1515,6 +1516,70 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"currentUser":', $inline_script );
 		$this->assertStringContainsString( 'Enqueue Test', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts applies the agentsManagerData extension filter.
+	 */
+	public function test_enqueue_scripts_applies_agents_manager_data_filter() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Force a non-null variant so enqueue_scripts() reaches the inline-data block.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		add_filter(
+			'jetpack_ai_sidebar_agents_manager_data',
+			function ( $data ) {
+				$data['reviewMediatorEnabled'] = true;
+				return $data;
+			}
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Tests that enqueue_scripts keeps the original agentsManagerData when the extension filter misbehaves.
+	 */
+	public function test_enqueue_scripts_falls_back_when_agents_manager_data_filter_returns_non_array() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Force a non-null variant so enqueue_scripts() reaches the inline-data block.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', '__return_null' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
+		$this->assertStringContainsString( '"helpCenterUrl":"https://wordpress.com/help?help-center=home"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}

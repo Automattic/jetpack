@@ -21,10 +21,7 @@ async function toggle( page: Page, toggleLocator: Locator ): Promise< void > {
 	);
 	await toggleLocator.click();
 	await responsePromise;
-	await expect(
-		page.locator( 'span.form-toggle__switch:not([disabled])' ).first(),
-		'Toggle element should not be disabled'
-	).toBeVisible();
+	await expect( toggleLocator, 'Toggle element should not be disabled' ).toBeEnabled();
 }
 
 test.describe( 'Search Dashboard', () => {
@@ -55,12 +52,32 @@ test.describe( 'Search Dashboard', () => {
 				'Title should be visible'
 			).toBeVisible( { timeout: 30000 } );
 
+			// ModuleControl moved into the Settings tab in Search 3.0; the
+			// dashboard now opens on Overview by default, so the toggles
+			// aren't on the initial panel.
+			await page.getByRole( 'tab', { name: 'Settings' } ).click();
+
 			await expect( searchModuleToggle, 'Search module toggle should be visible' ).toBeVisible();
 
 			await expect( instantSearchToggle, 'Instant search toggle should be visible' ).toBeVisible();
 
 			await expect(
-				page.getByRole( 'img', { name: 'Jetpack Logo' } ),
+				// admin-ui's <Page> wraps the visual slot in an
+				// `aria-hidden="true"` decorative container, so the logo no
+				// longer surfaces in the accessibility tree by role.
+				// `includeHidden: true` keeps the role-based query, and
+				// scoping to the page wrapper's first child distinguishes the
+				// page logo from the JetpackFooter logo (which is also
+				// aria-hidden + named "Jetpack Logo"). We use the positional
+				// `> :first-child` selector rather than the `<header>` element
+				// tag because admin-ui 2.1 renders the page header as a `<div>`
+				// (see WordPress/gutenberg#78001); `:first-child` matches both
+				// the old `<header>` and the new `<div>`. `toBeVisible()`
+				// continues to verify it's actually painted, not hidden via
+				// display/opacity/visibility.
+				page
+					.locator( '.jp-admin-page__page > :first-child' )
+					.getByRole( 'img', { name: 'Jetpack Logo', includeHidden: true } ),
 				'Jetpack header logo should be visible'
 			).toBeVisible();
 

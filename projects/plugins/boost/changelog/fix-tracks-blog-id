@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Include blog_id in frontend Tracks events.

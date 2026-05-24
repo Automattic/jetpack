@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Allow consumers to configure the admin menu title via init options.

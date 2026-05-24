@@ -7,7 +7,7 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Requires User Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
@@ -22,7 +22,6 @@ use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -157,8 +156,6 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
 
 		$newsletter_settings = new Newsletter_Settings();
 		$newsletter_settings::init();
@@ -1025,10 +1022,21 @@ class Jetpack_Subscriptions {
 	 *
 	 * - It is not displayed on WordPress.com sites.
 	 * - It directs you to Calypso to the existing Subscribers page.
+	 * - It is retired once the Newsletter modernization filter is on, since the
+	 *   unified Newsletter page then owns the Subscribers tab.
 	 *
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
+		/*
+		 * Once the Newsletter modernization filter is on, the unified Newsletter
+		 * page owns the Subscribers tab and this standalone Calypso shortcut is
+		 * retired. While the filter is off (the default) we keep showing it.
+		 */
+		if ( apply_filters( Newsletter_Settings::MODERNIZATION_FILTER, false ) ) {
+			return;
+		}
+
 		/**
 		 * Enables the new in development subscribers in wp-admin dashboard.
 		 *
@@ -1116,3 +1124,6 @@ require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
 require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
+
+require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities::init();

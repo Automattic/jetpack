@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: the Filters and Product Filters containers now show a "No filters available" empty state when a search resolves with no facets to show, instead of rendering a blank box.

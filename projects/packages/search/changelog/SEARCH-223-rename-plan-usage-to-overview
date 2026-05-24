@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search dashboard: rename the "Plan & Usage" tab to "Overview". The URL slug is now `overview`; the legacy `plan-usage` slug continues to resolve to the renamed tab so existing bookmarks keep working.

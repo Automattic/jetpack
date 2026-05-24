@@ -1,0 +1,8 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.message-template-editor {
+
+	textarea:disabled {
+		background-color: gb.$gray-100;
+	}
+}

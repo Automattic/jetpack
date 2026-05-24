@@ -23,6 +23,9 @@ export interface ToggleControlProps {
 	/** The label for the toggle. */
 	label?: ReactNode;
 
+	/** Accessible name for the underlying checkbox. Use when no visible `label` is rendered. */
+	'aria-label'?: string;
+
 	/** The size of the toggle. */
 	size?: 'small' | 'normal';
 
@@ -37,6 +40,7 @@ const ToggleControl: FC< ToggleControlProps > = ( {
 	help,
 	toggling,
 	label,
+	'aria-label': ariaLabel,
 	size = 'normal',
 	onChange,
 } ) => {
@@ -67,6 +71,7 @@ const ToggleControl: FC< ToggleControlProps > = ( {
 			disabled={ disabled }
 			help={ help }
 			label={ label }
+			aria-label={ ariaLabel }
 			onChange={ handleOnChange }
 		/>
 	);

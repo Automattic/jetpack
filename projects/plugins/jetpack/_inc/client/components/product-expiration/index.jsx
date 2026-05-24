@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
 
@@ -77,12 +77,13 @@ class ProductExpiration extends PureComponent {
 					span: <span className="my-plan-card__expired" />,
 					renewLink: (
 						<span className={ 'my-plan-card__renew' }>
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getRedirectUrl( 'jetpack-subscription-renew', { path } ) }
 								className="my-plan-card__renew"
 							>
 								{ __( 'Renew subscription', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</span>
 					),
 				}

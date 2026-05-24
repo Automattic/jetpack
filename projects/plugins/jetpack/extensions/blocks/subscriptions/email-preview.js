@@ -13,7 +13,6 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Spinner,
-	ExternalLink,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -28,6 +27,7 @@ import {
 	currencyDollar,
 	cautionFilled as warning,
 } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -353,7 +353,9 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 											'jetpack'
 										),
 										{
-											supportLink: <ExternalLink href={ getRedirectUrl( 'jetpack-support' ) } />,
+											supportLink: (
+												<Link openInNewTab href={ getRedirectUrl( 'jetpack-support' ) } />
+											),
 										}
 									) }
 								</p>

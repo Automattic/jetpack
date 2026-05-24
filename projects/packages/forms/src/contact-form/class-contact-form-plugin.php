@@ -413,7 +413,6 @@ class Contact_Form_Plugin {
 		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
 		return ! empty( $feature_flags[ $flag ] );
 	}
-
 	/**
 	 * Remove feedback post type from the allowed post types for related posts.
 	 *
@@ -441,6 +440,7 @@ class Contact_Form_Plugin {
 	 * Register the contact form block.
 	 */
 	private static function register_contact_form_blocks() {
+		Contact_Form_Block::register_block();
 		// Field render methods.
 		Contact_Form_Block::register_child_blocks();
 	}
@@ -1052,7 +1052,7 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		$variant       = isset( $attributes['variant'] ) ? $attributes['variant'] : 'line';
+		$variant       = $attributes['variant'] ?? 'line';
 		$is_dots_style = $variant === 'dots';
 
 		// Build custom CSS variables for progress indicator colors
@@ -1169,7 +1169,7 @@ class Contact_Form_Plugin {
 		return array(
 			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'], JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) : '',
 			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
-			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
+			'stylevariationstyles'     => $block_support_styles['style'] ?? '',
 		);
 	}
 
@@ -1539,7 +1539,7 @@ class Contact_Form_Plugin {
 			$unread = self::get_unread_count();
 
 			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
+				$forms_unread_count_tag = $this->get_unread_count_badge_markup( $unread );
 				$jetpack_badge_count    = $unread;
 
 				// Main menu entries
@@ -1556,24 +1556,54 @@ class Contact_Form_Plugin {
 							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
 						}
 
-						$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+						if ( $unread > 0 ) {
+							$jetpack_unread_tag = $this->get_unread_count_badge_markup(
+								$jetpack_badge_count,
+								$jetpack_badge_count - $unread
+							);
 
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+						}
 					}
 				}
 
 				// Jetpack submenu entries
-				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
-					if ( $admin_slug === $menu_item[2] ) {
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+				if ( $unread > 0 ) {
+					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
+						/** This filter is documented in class-dashboard.php::init */
+						$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+						if ( $admin_slug === $menu_item[2] ) {
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+						}
 					}
 				}
 			}
 			return;
 		}
+	}
+
+	/**
+	 * Build the admin menu unread count badge markup.
+	 *
+	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
+	 * colors render correctly in the sidebar.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int      $count         Badge count to display.
+	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.
+	 * @return string Badge HTML.
+	 */
+	private function get_unread_count_badge_markup( $count, $unread_diff = null ) {
+		$attributes = "class='menu-counter jp-feedback-unread-counter count-" . (int) $count . "'";
+
+		if ( null !== $unread_diff ) {
+			$attributes = "data-unread-diff='" . (int) $unread_diff . "' " . $attributes;
+		}
+
+		return " <span {$attributes}><span class='count'>" . number_format_i18n( $count ) . '</span></span>';
 	}
 
 	/**
@@ -1606,11 +1636,6 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
-		// Block submissions in preview mode.
-		if ( Form_Preview::is_preview_mode() ) {
-			return;
-		}
-
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
@@ -1720,6 +1745,14 @@ class Contact_Form_Plugin {
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
+
+			// The decoded JWT carries a serialized Feedback_Source; when the
+			// form was rendered in preview mode that source has is_test=true.
+			// Flag the submission accordingly so the response is stored as a
+			// test response. JWTs issued before this feature shipped simply
+			// omit the flag and behave as regular submissions.
+			$form->set_is_preview_submission( $form->get_source()->is_test() );
+
 			// Process the form
 			return $form->process_submission();
 		}
@@ -1735,7 +1768,7 @@ class Contact_Form_Plugin {
 			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
 
 			// This is lame - no core API for getting a widget by ID
-			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
+			$widget = $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ?? false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
 				// prevent PHP notices by populating widget args
@@ -1835,8 +1868,8 @@ class Contact_Form_Plugin {
 				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
 					$postdata = generate_postdata( $post );
 					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-					$paged    = isset( $page ) ? $page : 1;
-					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
+					$paged    = $page ?? 1;
+					$content  = $postdata['pages'][ $paged - 1 ] ?? $post->post_content;
 				} else {
 					$content = $post->post_content;
 				}
@@ -1846,7 +1879,7 @@ class Contact_Form_Plugin {
 		}
 
 		// In future version we will be able to skip this step.
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
+		$form = Contact_Form::$forms[ $hash ] ?? null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
@@ -2141,7 +2174,7 @@ class Contact_Form_Plugin {
 	 * @param array $widget The widget data.
 	 */
 	public function track_current_widget( $widget ) {
-		$this->current_widget_id = isset( $widget['id'] ) ? $widget['id'] : '';
+		$this->current_widget_id = $widget['id'] ?? '';
 	}
 
 	/**
@@ -2438,13 +2471,13 @@ class Contact_Form_Plugin {
 	 */
 	public function get_post_meta_for_csv_export( $post_id, $has_json_data = false ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
-		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		$all_fields     = $content_fields['_feedback_all_fields'] ?? array();
 		$md             = $has_json_data
 			? array_diff_key( $all_fields, array_flip( array_keys( self::NON_PRINTABLE_FIELDS ) ) )
 			: (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md['93_ip_address']    = $content_fields['_feedback_ip'] ?? 0;
 
 		// add the email_marketing_consent to the post meta.
 		$md['90_consent'] = 0;
@@ -2905,11 +2938,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Returns an array of feedback data for export.
 	 *
-	 * @param array $feedback_ids Array of feedback IDs to fetch the data for.
+	 * @param array $feedback_ids           Array of feedback IDs to fetch the data for.
+	 * @param bool  $include_test_responses Whether to include feedback that was submitted
+	 *                                      from form preview. Defaults to false, meaning
+	 *                                      preview/test responses are excluded from the export.
 	 *
 	 * @return array
 	 */
-	public function get_export_feedback_data( $feedback_ids ) {
+	public function get_export_feedback_data( $feedback_ids, $include_test_responses = false ) {
 		$feedback_data   = array();
 		$all_field_names = array();
 
@@ -2918,6 +2954,11 @@ class Contact_Form_Plugin {
 			$response = Feedback::get( $feedback_id );
 			if ( ! $response instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
+			}
+
+			// Skip test responses from form preview unless explicitly requested.
+			if ( ! $include_test_responses && $response->is_test() ) {
+				continue;
 			}
 
 			// Get fields with automatic duplicate handling (label-value shape includes counts)
@@ -2975,7 +3016,7 @@ class Contact_Form_Plugin {
 					$results[ $trimmed_field_name ] = array();
 				}
 				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
+				$results[ $trimmed_field_name ][] = $compiled_fields[ $trimmed_field_name ] ?? '';
 			}
 
 			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
@@ -3046,7 +3087,7 @@ class Contact_Form_Plugin {
 
 		$args = array(
 			'posts_per_page'   => -1,
-			'post_type'        => 'feedback',
+			'post_type'        => Feedback::POST_TYPE,
 			'post_status'      => array( 'publish', 'draft' ),
 			'order'            => 'ASC',
 			'fields'           => 'ids',
@@ -3077,7 +3118,8 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+		$has_explicit_selection = ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] );
+		if ( $has_explicit_selection ) {
 			$args['include'] = array_filter(
 				array_map(
 					function ( $selected ) {
@@ -3088,9 +3130,47 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		$feedbacks = get_posts( $args );
+		$source_id = ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0;
+		$join_cb   = null;
+		$where_cb  = null;
+		$feedbacks = array();
 
-		return $this->get_export_feedback_data( $feedbacks );
+		if ( $source_id > 0 ) {
+			$source_sql = Feedback::get_source_filter_sql( $source_id );
+
+			$join_cb  = function ( $join, $query ) use ( $source_sql ) {
+				if ( Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+					return $join;
+				}
+				return $join . $source_sql['join'];
+			};
+			$where_cb = function ( $where, $query ) use ( $source_sql ) {
+				if ( Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+					return $where;
+				}
+				return $where . ' AND ' . $source_sql['where'];
+			};
+
+			add_filter( 'posts_join', $join_cb, 10, 2 );
+			add_filter( 'posts_where', $where_cb, 10, 2 );
+		}
+
+		try {
+			$feedbacks = get_posts( $args );
+		} finally {
+			if ( is_callable( $join_cb ) ) {
+				remove_filter( 'posts_join', $join_cb, 10 );
+			}
+			if ( is_callable( $where_cb ) ) {
+				remove_filter( 'posts_where', $where_cb, 10 );
+			}
+		}
+
+		// Test responses from form preview are excluded from bulk exports by
+		// default. When the user has explicitly picked specific rows (via the
+		// dashboard selection UI), we trust their selection and include any
+		// test responses that landed in it.
+		return $this->get_export_feedback_data( $feedbacks, $has_explicit_selection );
 	}
 
 	/**
@@ -3912,12 +3992,12 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
 		// Get min, max, and default from the parent block's attributes.
 		$parent_attrs     = $block->parsed_block['attrs'] ?? array();
-		$atts['min']      = isset( $parent_attrs['min'] ) ? $parent_attrs['min'] : 0;
-		$atts['max']      = isset( $parent_attrs['max'] ) ? $parent_attrs['max'] : 100;
-		$atts['default']  = isset( $parent_attrs['default'] ) ? $parent_attrs['default'] : 0;
-		$atts['step']     = isset( $parent_attrs['step'] ) ? $parent_attrs['step'] : 1;
-		$atts['minLabel'] = isset( $parent_attrs['minLabel'] ) ? $parent_attrs['minLabel'] : '';
-		$atts['maxLabel'] = isset( $parent_attrs['maxLabel'] ) ? $parent_attrs['maxLabel'] : '';
+		$atts['min']      = $parent_attrs['min'] ?? 0;
+		$atts['max']      = $parent_attrs['max'] ?? 100;
+		$atts['default']  = $parent_attrs['default'] ?? 0;
+		$atts['step']     = $parent_attrs['step'] ?? 1;
+		$atts['minLabel'] = $parent_attrs['minLabel'] ?? '';
+		$atts['maxLabel'] = $parent_attrs['maxLabel'] ?? '';
 
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );

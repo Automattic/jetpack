@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { getRequiredPlan, getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { PlaceholderWrapper } from '../../edit';
 
 const getErrorMessage = uploadErrorData => {
@@ -27,7 +28,9 @@ const getErrorMessage = uploadErrorData => {
 				'jetpack-videopress-pkg'
 			),
 			{
-				upgradeLink: <ExternalLink href={ `https://wordpress.com/plans/${ getSiteFragment() }` } />,
+				upgradeLink: (
+					<Link openInNewTab href={ `https://wordpress.com/plans/${ getSiteFragment() }` } />
+				),
 			}
 		);
 	}
@@ -41,7 +44,10 @@ const getErrorMessage = uploadErrorData => {
 			),
 			{
 				settingsLink: (
-					<ExternalLink href="https://wordpress.com/support/videopress/recommended-video-settings/" />
+					<Link
+						openInNewTab
+						href="https://wordpress.com/support/videopress/recommended-video-settings/"
+					/>
 				),
 			}
 		);

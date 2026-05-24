@@ -3,12 +3,11 @@
  */
 import { formatNumber } from '@automattic/number-formatters';
 import {
-	ExternalLink,
 	Icon,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -107,7 +106,11 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		if ( fieldType === 'url' && /^https?:\/\//.test( stringValue ) ) {
-			return <ExternalLink href={ stringValue }>{ stringValue }</ExternalLink>;
+			return (
+				<Link openInNewTab href={ stringValue }>
+					{ stringValue }
+				</Link>
+			);
 		}
 
 		if ( fieldType === 'rating' ) {

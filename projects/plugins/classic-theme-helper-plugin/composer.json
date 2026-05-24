@@ -11,9 +11,6 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"autoload": {
 		"classmap": [
 			"src/"

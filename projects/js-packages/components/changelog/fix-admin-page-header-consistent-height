@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AdminPage: keep header height consistent across tabs so the tab strip no longer shifts vertically when switching tabs

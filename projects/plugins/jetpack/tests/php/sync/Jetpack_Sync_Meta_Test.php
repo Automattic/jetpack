@@ -199,7 +199,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = Defaults::$post_meta_whitelist;
+		$white_listed_post_meta = Defaults::get_post_meta_whitelist();
 
 		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {

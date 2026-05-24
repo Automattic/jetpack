@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix AI assistant banner dismiss button not persisting or firing tracks event, and hide banner for AI Tips unsubscribers

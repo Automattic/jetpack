@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI Sidebar: Fix block editing when another agent provider is present.

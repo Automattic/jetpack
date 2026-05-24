@@ -303,7 +303,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status  = isset( $input['status'] ) ? $input['status'] : $last_status;
+			$new_status  = $input['status'] ?? $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
 			// Similarly, scheduled posts that are manually published before their scheduled date should have the date reset.
@@ -508,10 +508,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['menu_order'] );
 		}
 
-		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : null;
+		$publicize = $input['publicize'] ?? null;
 		unset( $input['publicize'] );
 
-		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
+		$publicize_custom_message = $input['publicize_message'] ?? null;
 		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
@@ -520,16 +520,16 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : null;
+		$metadata = $input['metadata'] ?? null;
 		unset( $input['metadata'] );
 
-		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : null;
+		$likes = $input['likes_enabled'] ?? null;
 		unset( $input['likes_enabled'] );
 
-		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : null;
+		$sharing = $input['sharing_enabled'] ?? null;
 		unset( $input['sharing_enabled'] );
 
-		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : null;
+		$sticky = $input['sticky'] ?? null;
 		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
@@ -610,7 +610,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$insert['post_date'] = isset( $insert['post_date'] ) ? $insert['post_date'] : '';
+			$insert['post_date'] = $insert['post_date'] ?? '';
 
 			if ( $is_dtp_fb_post ) {
 				$insert = $this->dtp_fb_preprocess_post( $insert, $metadata );
@@ -708,7 +708,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		// Set sharing status of the post.
 		if ( $new ) {
 			$sharing_enabled = isset( $sharing ) ? (bool) $sharing : true;
-			if ( false === $sharing_enabled ) {
+			if ( ! $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
 		} elseif ( isset( $sharing ) && true === $sharing ) {

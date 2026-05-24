@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix e2e test site exclusion from Central Forms Management on Atomic sites.

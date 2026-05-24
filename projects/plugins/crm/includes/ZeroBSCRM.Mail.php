@@ -1071,7 +1071,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 
 						#} add to debug list + log tried
 						$emailDebugs[]        = $emailDebug;
-						$emailSettingsTried[] = json_encode( $smtpSettings );
+						$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
 						#} Analysis of send
 
@@ -1175,7 +1175,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 							}
 
 							#} If not already tried, try that!
-							if ( ! in_array( json_encode( $smtpSettings ), $emailSettingsTried ) ) {
+							if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
 									// Re-test
 									$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
@@ -1203,7 +1203,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 
 									#} add to debug list + save tried settings
 									$emailDebugs[]        = $emailDebug;
-									$emailSettingsTried[] = json_encode( $smtpSettings );
+									$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
 									#} Analysis of send - THIS ISN'T DRY!
 									#success: or error:
@@ -1270,7 +1270,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 						}
 
 						#} If not already tried, try that!
-						if ( ! in_array( json_encode( $smtpSettings ), $emailSettingsTried ) ) {
+						if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
 								// Re-test
 								$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
@@ -1298,7 +1298,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 
 								#} add to debug list + save tried settings
 								$emailDebugs[]        = $emailDebug;
-								$emailSettingsTried[] = json_encode( $smtpSettings );
+								$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
 								#} Analysis of send - THIS ISN'T DRY
 								#success: or error:
@@ -1343,7 +1343,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 						}
 
 						#} If not already tried, try that!
-						if ( ! in_array( json_encode( $smtpSettings ), $emailSettingsTried ) ) {
+						if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
 								// Re-test
 								$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
@@ -1371,7 +1371,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails( $sendFromName = '', $sendFromE
 
 								#} add to debug list + save tried settings
 								$emailDebugs[]        = $emailDebug;
-								$emailSettingsTried[] = json_encode( $smtpSettings );
+								$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
 								#} Analysis of send - THIS ISN'T DRY
 								#success: or error:

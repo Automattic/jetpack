@@ -47,6 +47,6 @@ describe( 'Disconnecting a connection', () => {
 		);
 
 		const button = screen.getByRole( 'button', { name: 'Disconnecting…' } );
-		expect( button ).toBeDisabled();
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

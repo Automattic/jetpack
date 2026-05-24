@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Repo Gardening: convert codebase from JavaScript to TypeScript with strict mode.

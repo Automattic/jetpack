@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Changed the Playground loader to reflect new database schema generated from the SQLite plugin.

@@ -44,7 +44,7 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 		case 'fail_subdomain_wpcom':
 		case 'siteurl_private_ip':
 			return __(
-				'Your site host is on a private network. Jetpack can only connect to public sites.',
+				'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.',
 				'jetpack-connection-js'
 			);
 		case 'connection_disabled':

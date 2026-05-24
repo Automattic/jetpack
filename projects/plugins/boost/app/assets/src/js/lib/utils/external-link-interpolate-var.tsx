@@ -1,4 +1,4 @@
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 
 /**
  * Generates an Interpolate var for an external link (with target and rel
@@ -9,6 +9,6 @@ import { ExternalLink } from '@wordpress/components';
  */
 export default function externalLinkInterpolateVar( href: string, elementKey = 'link' ) {
 	return {
-		[ elementKey ]: <ExternalLink href={ href } />,
+		[ elementKey ]: <Link openInNewTab href={ href } />,
 	};
 }

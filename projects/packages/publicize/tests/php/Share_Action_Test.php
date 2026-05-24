@@ -21,6 +21,10 @@ class Share_Action_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Clear any plan cache populated by earlier tests/init-time code so the
+		// `update_option` calls below take effect on the first `Current_Plan::get()`.
+		self::reset_active_plan_cache();
+
 		// Reset filters before each test.
 		remove_all_filters( 'post_row_actions' );
 		remove_all_filters( 'page_row_actions' );
@@ -41,6 +45,15 @@ class Share_Action_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_post_list_display_share_action' );
 
 		// Clear the Current_Plan cache to avoid affecting other tests.
+		self::reset_active_plan_cache();
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Force the next `Current_Plan::get()` to re-read from the option store.
+	 */
+	private static function reset_active_plan_cache() {
 		$reflection = new \ReflectionClass( Current_Plan::class );
 		$property   = $reflection->getProperty( 'active_plan_cache' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -48,8 +61,6 @@ class Share_Action_Test extends BaseTestCase {
 			$property->setAccessible( true );
 		}
 		$property->setValue( null, null );
-
-		parent::tear_down();
 	}
 
 	/**

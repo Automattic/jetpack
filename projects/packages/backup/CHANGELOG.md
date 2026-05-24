@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.56] - 2026-05-19
+### Changed
+- Build: Run webpack and wp-build scripts concurrently. [#48794]
+- Exclude development files from production builds. [#47365]
+- Update package dependencies. [#48696]
+
+## [4.2.55] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [4.2.54] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [4.2.53] - 2026-04-27
+### Changed
+- Update dependencies. [#46758]
+
+## [4.2.52] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Backup admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Storage meter: Migrate ProgressBar to @wordpress/components; preserve color-by-usage-level styling via scoped CSS. [#48206]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [4.2.51] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+## [4.2.50] - 2026-04-11
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
 ## [4.2.49] - 2026-04-06
 ### Changed
 - Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component. [#47418]
@@ -1081,6 +1114,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.56]: https://github.com/Automattic/jetpack-backup/compare/v4.2.55...v4.2.56
+[4.2.55]: https://github.com/Automattic/jetpack-backup/compare/v4.2.54...v4.2.55
+[4.2.54]: https://github.com/Automattic/jetpack-backup/compare/v4.2.53...v4.2.54
+[4.2.53]: https://github.com/Automattic/jetpack-backup/compare/v4.2.52...v4.2.53
+[4.2.52]: https://github.com/Automattic/jetpack-backup/compare/v4.2.51...v4.2.52
+[4.2.51]: https://github.com/Automattic/jetpack-backup/compare/v4.2.50...v4.2.51
+[4.2.50]: https://github.com/Automattic/jetpack-backup/compare/v4.2.49...v4.2.50
 [4.2.49]: https://github.com/Automattic/jetpack-backup/compare/v4.2.48...v4.2.49
 [4.2.48]: https://github.com/Automattic/jetpack-backup/compare/v4.2.47...v4.2.48
 [4.2.47]: https://github.com/Automattic/jetpack-backup/compare/v4.2.46...v4.2.47

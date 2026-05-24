@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Allow the renamed gutenberg-guidelines experiment alongside the existing gutenberg-content-guidelines experiment on Atomic sites.

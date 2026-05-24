@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Help Center: Extract helpCenterData payload builder into Help_Center::get_help_center_data() so frontend consumers can mount Help Center without duplicating the payload.

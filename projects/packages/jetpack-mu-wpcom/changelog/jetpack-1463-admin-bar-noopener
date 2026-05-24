@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Agents Manager: Add rel="noopener noreferrer" to admin bar links that open in a new tab.

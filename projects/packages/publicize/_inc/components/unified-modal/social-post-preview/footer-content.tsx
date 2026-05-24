@@ -42,7 +42,7 @@ function ScheduledPostsNav() {
  * @return Footer info element.
  */
 function FooterInfo() {
-	const { enabledConnections } = useSocialMediaConnections();
+	const { connectionsReadyToShare } = useSocialMediaConnections();
 	const isCurrentPostPublished = useSelect(
 		select => select( editorStore ).isCurrentPostPublished(),
 		[]
@@ -50,17 +50,17 @@ function FooterInfo() {
 
 	return (
 		<>
-			{ enabledConnections.length ? (
+			{ connectionsReadyToShare.length ? (
 				<span>
 					{ sprintf(
-						/* translators: %d: Number of enabled connections. */
+						/* translators: %d: Number of connections ready to share to. */
 						_n(
 							'Ready to share to %d account.',
 							'Ready to share to %d accounts.',
-							enabledConnections.length,
+							connectionsReadyToShare.length,
 							'jetpack-publicize-pkg'
 						),
-						enabledConnections.length
+						connectionsReadyToShare.length
 					) }
 					&nbsp;
 				</span>

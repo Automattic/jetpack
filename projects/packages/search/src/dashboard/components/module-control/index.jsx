@@ -1,14 +1,16 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { Button, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
-import Button from 'components/button';
+import AIAgentAccessControl from 'components/ai-agent-access-control';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form-toggle/compact';
+import ReaderChatControl from 'components/reader-chat-control';
+import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
@@ -39,11 +41,17 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {boolean}  props.isModuleEnabled                - true if Search module is enabled.
  * @param {boolean}  props.isInstantSearchEnabled         - true if Instant Search is enabled.
  * @param {boolean}  props.isInstantSearchPromotionActive - true if search promotion is active.
+ * @param {boolean}  props.isReaderChatAvailable          - true if the Reader Chat setting is available.
+ * @param {boolean}  props.isReaderChatEnabled            - true if Reader Chat is enabled.
+ * @param {boolean}  props.isAIAgentAccessAvailable       - true if the AI Agent Access setting is available.
  * @param {boolean}  props.supportsOnlyClassicSearch      - true if site has plan that supports only Classic Search.
  * @param {boolean}  props.supportsSearch                 - true if site has plan that supports either Classic or Instant Search.
  * @param {boolean}  props.supportsInstantSearch          - true if site has plan that supports Instant Search.
  * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
  * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
+ * @param {string}   props.readerChatGuidelinesUrl        - Guidelines admin URL, when available.
+ * @param {boolean}  props.isSearchSuggestionsEnabled     - true if search suggestions (autocomplete) is enabled.
+ * @param {string}   props.aiAgentAccessGuidelinesUrl     - AI Agent Access guidelines admin URL, when available.
  * @return {import('react').Component} Search settings component.
  */
 export default function SearchModuleControl( {
@@ -55,11 +63,17 @@ export default function SearchModuleControl( {
 	isModuleEnabled,
 	isInstantSearchEnabled,
 	isInstantSearchPromotionActive,
+	isReaderChatAvailable,
+	isReaderChatEnabled,
+	isAIAgentAccessAvailable,
 	supportsOnlyClassicSearch,
 	supportsSearch,
 	supportsInstantSearch,
 	isTogglingModule,
 	isTogglingInstantSearch,
+	readerChatGuidelinesUrl,
+	isSearchSuggestionsEnabled,
+	aiAgentAccessGuidelinesUrl,
 } ) {
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
@@ -72,6 +86,12 @@ export default function SearchModuleControl( {
 		`admin.php?page=jetpack-search`,
 		isUserConnected || isWpcom
 	);
+	const showAIAgentAccessGuidelinesLink =
+		! isReaderChatAvailable ||
+		! supportsSearch ||
+		! isReaderChatEnabled ||
+		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 
 	const toggleSearchModule = useCallback( () => {
 		if ( isDisabledFromOverLimit ) {
@@ -144,6 +164,29 @@ export default function SearchModuleControl( {
 						upgradeUrl={ upgradeUrl }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
+
+					<ReaderChatControl
+						isAvailable={ isReaderChatControlAvailable }
+						isEnabled={ isReaderChatEnabled }
+						isSaving={ isSavingEitherOption || isDisabledFromOverLimit }
+						guidelinesUrl={ readerChatGuidelinesUrl }
+						updateOptions={ updateOptions }
+					/>
+
+					<AIAgentAccessControl
+						guidelinesUrl={ aiAgentAccessGuidelinesUrl }
+						isAvailable={ isAIAgentAccessAvailable }
+						showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
+					/>
+
+					<SearchSuggestionsControl
+						isEnabled={ isSearchSuggestionsEnabled }
+						isInstantSearchEnabled={ isInstantSearchEnabled }
+						supportsInstantSearch={ supportsInstantSearch }
+						isSaving={ isSavingEitherOption }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
+						updateOptions={ updateOptions }
+					/>
 				</div>
 			</Card>
 		</div>
@@ -175,35 +218,31 @@ const InstantSearchToggle = ( {
 		! supportsInstantSearch ||
 		isDisabledFromOverLimit;
 	const isWidgetsEditorButtonDisabled =
-		isSavingEitherOption || ! isModuleEnabled || isDisabledFromOverLimit;
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
-				<CompactFormToggle
+				<ToggleControl
 					checked={ isInstantSearchToggleChecked }
-					disabled={ isInstantSearchToggleDisabled }
+					disabled={ isInstantSearchToggleDisabled || isTogglingInstantSearch }
 					onChange={ toggleInstantSearch }
-					toggling={ isTogglingInstantSearch }
-					className="is-search-admin"
-					switchClassNames="jp-search-dashboard-toggle lg-col-span-1 md-col-span-1 sm-col-span-1"
-					labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-					aria-label={ __(
-						'Enable instant search experience (recommended)',
-						'jetpack-search-pkg'
-					) }
-				>
-					{ createInterpolateElement(
+					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+					label={ createInterpolateElement(
 						__(
 							'Enable instant search experience <span>(recommended)</span>',
 							'jetpack-search-pkg'
 						),
 						{ span: <span /> }
 					) }
-				</CompactFormToggle>
+					__nextHasNoMarginBottom={ true }
+				/>
 			</div>
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-12 md-col-span-8 sm-col-span-4">
 					{ supportsInstantSearch && (
 						<Fragment>
 							<p className="jp-form-search-settings-group__toggle-explanation">
@@ -235,7 +274,8 @@ const InstantSearchButtons = ( {
 	return (
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
-				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
+				variant="secondary"
+				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-4"
 				href={
 					! isInstantSearchCustomizeButtonDisabled
 						? sprintf( SEARCH_CUSTOMIZE_URL, encodeURIComponent( returnUrl ) )
@@ -249,7 +289,8 @@ const InstantSearchButtons = ( {
 
 			<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
 			<Button
-				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
+				variant="secondary"
+				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-4"
 				href={
 					! isWidgetsEditorButtonDisabled
 						? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
@@ -280,22 +321,18 @@ const SearchToggle = ( {
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 			{ ! isWpcom && (
 				<div className="jp-search-dashboard-row">
-					<CompactFormToggle
+					<ToggleControl
 						checked={ isSearchToggleChecked }
-						disabled={ isSearchToggleDisabled }
+						disabled={ isSearchToggleDisabled || isTogglingModule }
 						onChange={ toggleSearchModule }
-						toggling={ isTogglingModule }
-						className="is-search-admin"
-						switchClassNames="jp-search-dashboard-toggle lg-col-span-1 md-col-span-1 sm-col-span-1"
-						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-						aria-label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-					>
-						{ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-					</CompactFormToggle>
+						className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+						label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
 				</div>
 			) }
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ SEARCH_DESCRIPTION }
 					</p>

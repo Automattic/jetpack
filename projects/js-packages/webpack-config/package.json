@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.8.0",
+	"version": "3.8.7",
 	"private": true,
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
@@ -34,8 +34,8 @@
 		"@babel/preset-typescript": "7.28.5",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
 		"@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
-		"@wordpress/browserslist-config": "6.43.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.43.0",
+		"@wordpress/browserslist-config": "6.46.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.46.0",
 		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
 		"browserslist": "4.28.2",
@@ -55,7 +55,7 @@
 		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1",
-		"webpack-dev-server": "5.2.3"
+		"webpack-dev-server": "5.2.4"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",

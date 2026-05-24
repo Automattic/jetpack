@@ -15,7 +15,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -74,6 +73,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_7_2"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_8_0"
 	}
 }

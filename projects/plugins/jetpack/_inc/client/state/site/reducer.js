@@ -373,7 +373,7 @@ export function getSitePurchases( state ) {
  * @return {Array}        Active purchases for the site
  */
 export function getActiveSitePurchases( state ) {
-	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
+	return getSitePurchases( state ).filter( purchase => 'active' === purchase.subscription_status );
 }
 
 /**

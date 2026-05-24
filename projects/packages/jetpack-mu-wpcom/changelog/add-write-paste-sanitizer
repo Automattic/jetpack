@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Write editor: strip source typography and unsupported tags from rich-text pastes to inherit the editor's styling.

@@ -31,8 +31,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-require_once __DIR__ . '/interface-storage-provider.php';
-
 /**
  * External Storage utilities class.
  *
@@ -48,6 +46,15 @@ class External_Storage {
 	 * @var Storage_Provider_Interface|null
 	 */
 	private static $provider = null;
+
+	/**
+	 * Whether the init action has already fired.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @var bool
+	 */
+	private static $init_fired = false;
 
 	/**
 	 * Static cache to prevent logging same event multiple times in single request.
@@ -77,6 +84,19 @@ class External_Storage {
 	 */
 	public static function register_provider( Storage_Provider_Interface $provider ) {
 		self::$provider = $provider;
+
+		/**
+		 * Fires after an external storage provider is registered.
+		 *
+		 * This allows dependent systems (like the connection status cache in Manager)
+		 * to invalidate state that may have been computed before the provider was available.
+		 *
+		 * @since 8.3.0
+		 *
+		 * @param Storage_Provider_Interface $provider The registered storage provider.
+		 */
+		do_action( 'jetpack_external_storage_provider_registered', $provider );
+
 		return true;
 	}
 
@@ -91,6 +111,26 @@ class External_Storage {
 	 * @return mixed The value from external storage, or null for database fallback.
 	 */
 	public static function get_value( $key ) {
+		if ( ! self::$init_fired ) {
+			self::$init_fired = true;
+
+			/**
+			 * Fires before the first external storage read.
+			 *
+			 * Use this hook to register your storage provider via
+			 * External_Storage::register_provider(). This fires after the connection
+			 * package classes are loaded but before any connection status checks read
+			 * from external storage.
+			 *
+			 * Useful for mu-plugins that load before the plugin providing External_Storage,
+			 * since add_action() does not require the action or any classes to exist at
+			 * hook-registration time.
+			 *
+			 * @since 8.3.0
+			 */
+			do_action( 'jetpack_external_storage_init' );
+		}
+
 		$provider = self::$provider;
 
 		// Check if we have a registered provider

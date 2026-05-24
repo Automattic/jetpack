@@ -59,6 +59,17 @@ class Feedback_Source {
 	private $request_url = '';
 
 	/**
+	 * Whether this feedback was created from a form preview submission.
+	 *
+	 * Test feedback is stored normally in the inbox but is distinguished in the
+	 * notification email, excluded from the default CSV export, and skips the
+	 * spam/Akismet pipeline.
+	 *
+	 * @var bool
+	 */
+	private $is_test = false;
+
+	/**
 	 * Constructor for Feedback_Source.
 	 *
 	 * @param string|int $id          The Source ID = post ID, widget ID, block template ID, or 0 for homepage or non-post/page.
@@ -66,8 +77,9 @@ class Feedback_Source {
 	 * @param int        $page_number The page number of the feedback entry, default is 1.
 	 * @param string     $source_type The source type of the feedback entry, default is 'single'.
 	 * @param string     $request_url The request URL of the feedback entry.
+	 * @param bool       $is_test     Whether the feedback was submitted from a form preview.
 	 */
-	public function __construct( $id = 0, $title = '', $page_number = 1, $source_type = 'single', $request_url = '' ) {
+	public function __construct( $id = 0, $title = '', $page_number = 1, $source_type = 'single', $request_url = '', $is_test = false ) {
 
 		if ( is_numeric( $id ) ) {
 			$this->id = $id > 0 ? $id : 0;
@@ -85,6 +97,7 @@ class Feedback_Source {
 		$this->permalink   = empty( $request_url ) ? home_url() : $request_url;
 		$this->source_type = $source_type; // possible source types: single, widget, block_template, block_template_part
 		$this->request_url = $request_url;
+		$this->is_test     = (bool) $is_test;
 
 		if ( is_numeric( $id ) && ! empty( $id ) ) {
 			$entry_post = get_post( (int) $id );
@@ -164,20 +177,27 @@ class Feedback_Source {
 	public static function get_current( $attributes ) {
 		global $wp, $page;
 		$current_url = home_url( add_query_arg( array(), $wp->request ) );
+
+		// When a form is rendered inside the server-side preview
+		// (Form_Preview::maybe_render_preview), flag the source as a test
+		// submission. The flag travels with the signed JWT and is read back
+		// at submission time to branch the response into the test pipeline.
+		$is_test = Form_Preview::is_preview_mode();
+
 		if ( isset( $attributes['widget'] ) && ! empty( $attributes['widget'] ) ) {
-			return new self( $attributes['widget'], self::get_source_title(), 1, 'widget', $current_url );
+			return new self( $attributes['widget'], self::get_source_title(), 1, 'widget', $current_url, $is_test );
 		}
 
 		if ( isset( $attributes['block_template'] ) && ! empty( $attributes['block_template'] ) ) {
 			global $_wp_current_template_id;
-			return new self( $_wp_current_template_id, self::get_source_title(), $page, 'block_template', $current_url );
+			return new self( $_wp_current_template_id, self::get_source_title(), $page, 'block_template', $current_url, $is_test );
 		}
 
 		if ( isset( $attributes['block_template_part'] ) && ! empty( $attributes['block_template_part'] ) ) {
-			return new self( $attributes['block_template_part'], self::get_source_title(), $page, 'block_template_part', $current_url );
+			return new self( $attributes['block_template_part'], self::get_source_title(), $page, 'block_template_part', $current_url, $is_test );
 		}
 
-		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', $current_url );
+		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', $current_url, $is_test );
 	}
 
 	/**
@@ -192,8 +212,9 @@ class Feedback_Source {
 		$page_number = $data['entry_page'] ?? 1;
 		$source_type = $data['source_type'] ?? 'single';
 		$request_url = $data['request_url'] ?? '';
+		$is_test     = ! empty( $data['is_test'] );
 
-		return new self( $id, $title, $page_number, $source_type, $request_url );
+		return new self( $id, $title, $page_number, $source_type, $request_url, $is_test );
 	}
 
 	/**
@@ -278,17 +299,42 @@ class Feedback_Source {
 	}
 
 	/**
+	 * Whether this feedback was submitted from a form preview (test submission).
+	 *
+	 * @return bool
+	 */
+	public function is_test() {
+		return $this->is_test;
+	}
+
+	/**
+	 * Flag this feedback as a test submission coming from form preview.
+	 *
+	 * @param bool $is_test Whether the feedback is a test submission.
+	 * @return void
+	 */
+	public function set_is_test( $is_test ) {
+		$this->is_test = (bool) $is_test;
+	}
+
+	/**
 	 * Get the page number of the entry title.
 	 *
 	 * @return array
 	 */
 	public function serialize() {
-		return array(
+		$data = array(
 			'entry_title' => $this->title,
 			'entry_page'  => $this->page_number,
 			'source_id'   => $this->id,
 			'source_type' => $this->source_type,
 			'request_url' => $this->request_url,
 		);
+
+		if ( $this->is_test ) {
+			$data['is_test'] = true;
+		}
+
+		return $data;
 	}
 }

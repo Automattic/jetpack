@@ -218,7 +218,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		} else {
 			$blog_id    = get_current_blog_id();
 			$info       = video_get_info_by_blogpostid( $blog_id, $post_id );
-			$found_guid = $info->guid;
+			$found_guid = $info ? $info->guid : '';
 		}
 
 		if ( ! $found_guid ) {
@@ -436,7 +436,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		} else {
 			$blog_id = get_current_blog_id();
 			$info    = video_get_info_by_blogpostid( $blog_id, $post_id );
-			$guid    = $info->guid;
+			$guid    = $info ? $info->guid : '';
 		}
 
 		if ( ! $guid ) {

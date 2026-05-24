@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -58,26 +59,70 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'        => esc_url_raw( rest_url() ),
-				'wpcomOriginApiUrl'  => $this->get_wp_api_root(),
-				'WP_API_nonce'       => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'purchaseToken'      => $this->get_purchase_token(),
+				'WP_API_root'                => esc_url_raw( rest_url() ),
+				'wpcomOriginApiUrl'          => $this->get_wp_api_root(),
+				'WP_API_nonce'               => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce'          => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'purchaseToken'              => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions'     => apply_filters( 'jetpack_show_promotions', true ),
-				'adminUrl'           => esc_url( admin_url() ),
-				'blogId'             => Jetpack_Options::get_option( 'id', 0 ),
-				'version'            => Package::VERSION,
-				'calypsoSlug'        => ( new Status() )->get_site_suffix(),
-				'title'              => get_bloginfo( 'name' ),
-				'postTypes'          => $this->get_post_types_with_labels(),
-				'isWpcom'            => Helper::is_wpcom(),
+				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
+				'adminUrl'                   => esc_url( admin_url() ),
+				'readerChatGuidelinesUrl'    => $this->get_reader_chat_guidelines_url(),
+				'aiAgentAccessAvailable'     => $this->is_ai_agent_access_available(),
+				'aiAgentAccessGuidelinesUrl' => $this->get_ai_agent_access_guidelines_url(),
+				'blogId'                     => Jetpack_Options::get_option( 'id', 0 ),
+				'version'                    => Package::VERSION,
+				'calypsoSlug'                => ( new Status() )->get_site_suffix(),
+				'title'                      => get_bloginfo( 'name' ),
+				'postTypes'                  => $this->get_post_types_with_labels(),
+				'isWpcom'                    => Helper::is_wpcom(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'isPlanJustUpgraded' => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				'isPlanJustUpgraded'         => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				/**
+				 * Whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
+				 * Mirrors the `jetpack_search_blocks_enabled` server-side filter so the
+				 * dashboard React app can gate the new feature-selection UI on the
+				 * same flag the back end uses to register the blocks themselves.
+				 */
+				'searchBlocksEnabled'        => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
+				/**
+				 * Whether the experimental blocks-powered Overlay search experience
+				 * is available in the Experience Selector. Mirrors the
+				 * `jetpack_search_overlay_block_template_enabled` server-side filter
+				 * so the dashboard React app can gate the new card on the same flag
+				 * the back end uses to enable the runtime swap. Sites that haven't
+				 * opted into the experimental overlay continue to see the four
+				 * original cards unchanged.
+				 */
+				'blockOverlayEnabled'        => (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ),
+				/**
+				 * Editor affordances for the experimental blocks-powered overlay.
+				 * Surfaces in the new Overlay search card so admins can edit the
+				 * rendered template via the standard block editor on `post.php` —
+				 * works on both block and classic themes. URLs are null for any
+				 * visitor without `manage_options`; the action handlers also
+				 * enforce that capability server-side.
+				 */
+				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
+				// Gates the WooCommerce Product Search control to stores.
+				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
+				/**
+				 * Active theme stylesheet — used by the experience-selector to deep-link
+				 * the "Edit search template" action to the right Site Editor entry
+				 * (`?p=/wp_template/<stylesheet>//jetpack-search`).
+				 */
+				'activeThemeStylesheet'      => get_stylesheet(),
+				/**
+				 * Whether the active theme is a block theme. The Embedded search
+				 * experience is built and customized in the Site Editor, which
+				 * classic themes don't have, so the dashboard blocks switching to
+				 * Embedded when this is false.
+				 */
+				'themeSupportsBlocks'        => wp_is_block_theme(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -85,6 +130,7 @@ class Initial_State {
 			'jetpackSettings' => array(
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
+				'experience'             => $this->module_control->get_experience(),
 			),
 			'features'        => array_map(
 				'sanitize_text_field',
@@ -105,6 +151,143 @@ class Initial_State {
 		}
 		// First party API prefix for WPCOM.
 		return esc_url_raw( site_url( '/wp-json/wpcom-origin/' ) );
+	}
+
+	/**
+	 * Get the Reader Chat guidelines admin page URL when it is registered.
+	 *
+	 * The guidelines page is controlled outside Jetpack. Returning an empty
+	 * URL lets the dashboard hide the link when that experiment is unavailable.
+	 *
+	 * @return string Guidelines admin URL, or an empty string when unavailable.
+	 */
+	protected function get_reader_chat_guidelines_url() {
+		return $this->get_guidelines_url();
+	}
+
+	/**
+	 * Get the AI Agent Access guidelines admin page URL when it is registered.
+	 *
+	 * The guidelines page is controlled outside Jetpack. Returning an empty
+	 * URL lets the dashboard hide the link when that page is unavailable.
+	 *
+	 * @return string Guidelines admin URL, or an empty string when unavailable.
+	 */
+	protected function get_ai_agent_access_guidelines_url() {
+		return $this->get_guidelines_url();
+	}
+
+	/**
+	 * Get the Guidelines admin page URL when it is registered.
+	 *
+	 * @return string Guidelines admin URL, or an empty string when unavailable.
+	 */
+	protected function get_guidelines_url() {
+		if ( ! function_exists( 'menu_page_url' ) ) {
+			return '';
+		}
+
+		return esc_url_raw( menu_page_url( 'guidelines-wp-admin', false ) );
+	}
+
+	/**
+	 * Check whether the AI Agent Access toggle should be available.
+	 *
+	 * The feature is rollout-gated to proxied Automattic contexts so regular
+	 * site owners, and non-proxied staff, do not see unfinished controls.
+	 *
+	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 *
+	 * @return bool
+	 */
+	protected function is_ai_agent_access_available() {
+		return $this->is_automattic_proxied_request() && ! $this->is_private_site();
+	}
+
+	/**
+	 * Build the block-template overlay editor config exposed to the dashboard.
+	 *
+	 * The action handlers gate on `current_user_can( 'manage_options' )`
+	 * server-side, so non-admins can't actually drive the flow. We also
+	 * skip emitting the nonce'd URLs (and the singleton-id lookup that
+	 * decides `isCustomized`) to those users — useless to them and
+	 * needlessly leaks internal URL shape.
+	 *
+	 * `enabled` mirrors `Search_Blocks::is_block_template_overlay_enabled()`,
+	 * which itself requires both the operator-level filter AND the site
+	 * owner having activated the `overlay_blocks` experience — so the
+	 * editor surface only appears when the new overlay is actually live.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 */
+	protected function get_block_template_overlay_config(): array {
+		$enabled  = Search_Blocks::is_block_template_overlay_enabled();
+		$can_edit = $enabled && current_user_can( 'manage_options' );
+		return array(
+			'enabled'       => $enabled,
+			'editorUrl'     => $can_edit ? Overlay_Template::get_editor_url() : null,
+			// `resetRestPath` is the path the dashboard sends to `apiFetch`
+			// as a DELETE — hits the CPT's built-in REST endpoint
+			// (`/wp/v2/jetpack-search-overlay/<id>?force=true`) so the
+			// reset happens via AJAX with no page navigation. Null when
+			// there's nothing to reset; the link is also gated on
+			// `isCustomized`.
+			'resetRestPath' => $can_edit ? Overlay_Template::get_reset_rest_path() : null,
+			// `isCustomized` lets the React dashboard hide "Restore default"
+			// when there's nothing to restore — checks both that the
+			// singleton exists AND that it isn't in the trash (admins can
+			// trash via post.php directly; in that state the front end
+			// already falls back to the bundled template).
+			'isCustomized'  => $can_edit && Overlay_Template::is_customized(),
+		);
+	}
+
+	/**
+	 * Check whether the current site is private.
+	 *
+	 * @return bool
+	 */
+	protected function is_private_site() {
+		if ( function_exists( 'is_private_blog' ) ) {
+			return (bool) \is_private_blog();
+		}
+
+		return -1 === (int) get_option( 'blog_public', 1 );
+	}
+
+	/**
+	 * Check whether the current request is coming from a proxied Automattic context.
+	 *
+	 * Keep this check local to the rollout gate so WPCOM environments with older
+	 * vendored Jetpack packages do not fatal during bootstrap.
+	 *
+	 * @return bool
+	 */
+	protected function is_automattic_proxied_request() {
+		if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
+			return true;
+		}
+
+		if (
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
+			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+			Constants::is_true( 'A8C_PROXIED_REQUEST' )
+		) {
+			return true;
+		}
+
+		if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
+				case 1:
+				case 2:
+				case 3: // Pressable.
+				case 32:
+				case 118: // Commerce garden client (ciab).
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

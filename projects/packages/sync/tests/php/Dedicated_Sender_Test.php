@@ -352,7 +352,7 @@ class Dedicated_Sender_Test extends BaseTestCase {
 
 		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
 
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**

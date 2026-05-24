@@ -43,7 +43,10 @@ class REST_Endpoints_Test extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
+		$this->reset_activity_log_event_initialized();
 		Sync_Main::configure();
+		Activity_Log_Event::register_post_type();
+		$this->add_activity_log_event_filters();
 
 		do_action( 'rest_api_init' );
 		new REST_Connector( new Manager() );
@@ -65,6 +68,9 @@ class REST_Endpoints_Test extends TestCase {
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		$this->remove_activity_log_event_filters();
+		$this->reset_activity_log_event_initialized();
 
 		WorDBless_Options::init()->clear_options();
 	}
@@ -446,6 +452,231 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
 		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint creates and normalizes a custom Activity Log event.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_creates_event() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		try {
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'    => ' <strong>Cache flushed</strong> ',
+						'content'  => "Plain <em>text</em>\nnote.",
+						'source'   => ' <code>mc</code> ',
+						'severity' => ' WARNING ',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
+
+			$response = $this->server->dispatch( $request );
+			$data     = $response->get_data();
+
+			$this->assertEquals( 201, $response->get_status() );
+			$this->assertIsInt( $data['id'] );
+
+			$post = get_post( $data['id'] );
+
+			$this->assertInstanceOf( \WP_Post::class, $post );
+			$this->assertSame( Activity_Log_Event::POST_TYPE, $post->post_type );
+			$this->assertSame( 'publish', $post->post_status );
+			$this->assertSame( 'Cache flushed', $post->post_title );
+
+			$payload = $this->get_activity_log_payload( $post );
+
+			$this->assertSame( 'Cache flushed', $payload['title'] );
+			$this->assertSame( 'Plain text note.', $payload['content'] );
+			$this->assertSame( 'mc', $payload['source'] );
+			$this->assertSame( 'warning', $payload['severity'] );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint rejects invalid custom Activity Log event payloads.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_rejects_invalid_payload() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		try {
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'    => 'Cache flushed',
+						'content'  => 'Plain text note.',
+						'severity' => 'critical',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
+
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 400, $response->get_status() );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint requires manage_options.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_requires_manage_options() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'title'   => 'Cache flushed',
+					'content' => 'Plain text note.',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint does not expose Activity Log events publicly.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_rejects_public_reads() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/activity-log-events' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint rejects updates.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_rejects_updates() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		try {
+			$post_id = Activity_Log_Event::create(
+				array(
+					'title'   => 'Cache flushed',
+					'content' => 'Plain text note.',
+				)
+			);
+
+			$this->assertIsInt( $post_id );
+
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events/' . $post_id );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'   => 'Updated title',
+						'content' => 'Updated content.',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
+
+			$response = $this->server->dispatch( $request );
+
+			$this->assertContains( $response->get_status(), array( 401, 403 ) );
+
+			$post = get_post( $post_id );
+			$this->assertInstanceOf( \WP_Post::class, $post );
+			$this->assertSame( 'Cache flushed', $post->post_title );
+
+			$payload = $this->get_activity_log_payload( $post );
+			$this->assertSame( 'Plain text note.', $payload['content'] );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
+	}
+
+	/**
+	 * Testing the core REST CPT endpoint rejects deletes.
+	 */
+	public function test_core_rest_activity_log_event_endpoint_rejects_deletes() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		try {
+			$post_id = Activity_Log_Event::create(
+				array(
+					'title'   => 'Cache flushed',
+					'content' => 'Plain text note.',
+				)
+			);
+
+			$this->assertIsInt( $post_id );
+
+			$request  = new WP_REST_Request( 'DELETE', '/wp/v2/activity-log-events/' . $post_id );
+			$response = $this->server->dispatch( $request );
+
+			$this->assertContains( $response->get_status(), array( 401, 403 ) );
+			$this->assertInstanceOf( \WP_Post::class, get_post( $post_id ) );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
+	}
+
+	/**
+	 * Gets the stored activity log payload for a post.
+	 *
+	 * @param \WP_Post $post Activity Log event post.
+	 * @return array
+	 */
+	private function get_activity_log_payload( \WP_Post $post ) {
+		$payload = json_decode( $post->post_content, true );
+		if ( ! is_array( $payload ) ) {
+			$payload = json_decode( wp_unslash( $post->post_content ), true );
+		}
+
+		$this->assertIsArray( $payload );
+
+		return $payload;
+	}
+
+	/**
+	 * Adds Activity Log event filters for REST tests.
+	 */
+	private function add_activity_log_event_filters() {
+		add_filter( 'rest_request_before_callbacks', array( Activity_Log_Event::class, 'authorize_rest_request' ), 10, 3 );
+		add_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ), 10, 2 );
+		add_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10, 2 );
+	}
+
+	/**
+	 * Removes Activity Log event filters for REST tests.
+	 */
+	private function remove_activity_log_event_filters() {
+		remove_filter( 'rest_request_before_callbacks', array( Activity_Log_Event::class, 'authorize_rest_request' ), 10 );
+		remove_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ), 10 );
+		remove_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10 );
+		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
+	}
+
+	/**
+	 * Resets Activity Log event initialization state for tests.
+	 */
+	private function reset_activity_log_event_initialized() {
+		$reflection = new \ReflectionProperty( Activity_Log_Event::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+		$reflection->setValue( null, false );
 	}
 
 	/**

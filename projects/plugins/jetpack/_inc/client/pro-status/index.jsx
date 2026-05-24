@@ -1,5 +1,7 @@
-import { Status, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -22,6 +24,30 @@ import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
 import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import styles from './style.module.scss';
+
+/**
+ * Render a small status indicator with a coloured dot and label.
+ *
+ * @param {object}          props        - Component props.
+ * @param {string}          props.status - Status key.
+ * @param {React.ReactNode} props.label  - Label content.
+ * @return {import('react').ReactElement} The status indicator.
+ */
+const StatusIndicator = ( { status, label } ) => (
+	<Text variant="body-sm" className={ clsx( styles.status, styles[ `is-${ status }` ] ) }>
+		<span className={ styles.indicator } />
+		<span>{ label }</span>
+	</Text>
+);
+
+const DEFAULT_LABELS = {
+	active: __( 'Active', 'jetpack' ),
+	error: __( 'Error', 'jetpack' ),
+	action: __( 'Action needed', 'jetpack' ),
+	inactive: __( 'Inactive', 'jetpack' ),
+	initializing: __( 'Setting up', 'jetpack' ),
+};
 
 /**
  * Track click on Pro status badge.
@@ -110,10 +136,15 @@ class ProStatus extends Component {
 				return;
 			case 'rewind_connected': {
 				const rewindMessage = this.getRewindMessage();
-				return <Status status={ rewindMessage.status } text={ rewindMessage.text } />;
+				return (
+					<StatusIndicator
+						status={ rewindMessage.status }
+						label={ DEFAULT_LABELS[ rewindMessage.status ] }
+					/>
+				);
 			}
 			case 'active':
-				return <Status status="active" />;
+				return <StatusIndicator status="active" label={ DEFAULT_LABELS.active } />;
 		}
 
 		const label = (
@@ -131,7 +162,7 @@ class ProStatus extends Component {
 			</>
 		);
 
-		return <Status status={ status } label={ label } />;
+		return <StatusIndicator status={ status } label={ label } />;
 	};
 
 	/**
@@ -209,7 +240,7 @@ class ProStatus extends Component {
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
-								<Status
+								<StatusIndicator
 									status="error"
 									label={ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
 								/>
@@ -219,7 +250,7 @@ class ProStatus extends Component {
 							return '';
 						}
 						if ( scanStatus.credentials.length === 0 ) {
-							return <Status status="action" />;
+							return <StatusIndicator status="action" label={ DEFAULT_LABELS.action } />;
 						}
 						return this.getProActions( 'secure', 'scan' );
 					}

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed checkout process on gated dashboard under feature flag
+
+

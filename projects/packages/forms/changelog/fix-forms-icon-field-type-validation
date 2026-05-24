@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Validate the field type before resolving the block icon path.

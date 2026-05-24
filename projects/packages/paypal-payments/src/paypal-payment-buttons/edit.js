@@ -1,7 +1,6 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { PlainText, useBlockProps } from '@wordpress/block-editor';
 import {
-	ExternalLink,
 	Notice,
 	Placeholder,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -15,7 +14,9 @@ import {
 } from '@wordpress/components';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PayPalIcon from './icon';
+
 import './editor.scss';
 
 const BUTTON_ID_PATTERN = '[A-Za-z0-9_-]+';
@@ -336,8 +337,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								'jetpack-paypal-payments'
 							),
 							{
-								SignupLink: <ExternalLink href={ getPayPalSignupUrl() } />,
-								LoginLink: <ExternalLink href={ getPayPalLoginUrl() } />,
+								SignupLink: <Link openInNewTab href={ getPayPalSignupUrl() } />,
+								LoginLink: <Link openInNewTab href={ getPayPalLoginUrl() } />,
 								strong: <strong />,
 							}
 						) }

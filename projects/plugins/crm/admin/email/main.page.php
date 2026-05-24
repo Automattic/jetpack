@@ -349,25 +349,10 @@ function jpcrm_render_emailbox() {
 		// ALTHOUGH THIS WORKS 
 		// (Loads a sent msg)
 		// It's not currently used, because send message func doesn't return ID, so just loading sent for now
-		var zbsMailBoxShowSentID = 
 		<?php
-
-			$sentID = -1;
-
-		if ( isset( $_GET['sentID'] ) ) {
-
-			$sentID = (int) sanitize_text_field( $_GET['sentID'] );
-
-		}
-
-		if ( $sentID > 0 ) {
-			echo esc_html( $sentID );
-		} else {
-			echo -1;
-		}
-
+		$jpcrm_mailbox_sent_id = isset( $_GET['sentID'] ) ? (int) $_GET['sentID'] : -1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
-		;
+		var zbsMailBoxShowSentID = <?php echo $jpcrm_mailbox_sent_id > 0 ? (int) $jpcrm_mailbox_sent_id : -1; ?>;
 
 		// WH put here to catch reload of page with 'sent' id
 		// ... not sure where rest of your JS sits can't find

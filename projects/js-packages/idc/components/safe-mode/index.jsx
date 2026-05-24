@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, Spinner } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
@@ -46,7 +46,7 @@ const renderStaySafeButton = ( callback, isDisabled ) => {
 const renderStayingSafe = () => {
 	return (
 		<div className="jp-idc__safe-mode__staying-safe">
-			<Spinner color="black" />
+			<Spinner />
 			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack-idc' ) }</span>
 		</div>
 	);
@@ -181,7 +181,7 @@ const SafeMode = props => {
 							onClick={ staySafeCallback }
 							disabled={ isActionInProgress }
 						>
-							{ isStayingSafe ? <Spinner color="black" /> : buttonLabel }
+							{ isStayingSafe ? <Spinner /> : buttonLabel }
 						</Button>
 
 						{ hasError && renderError( customContent.supportURL ) }

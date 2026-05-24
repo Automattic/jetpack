@@ -41,6 +41,7 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Run tests on everything.',
 		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
@@ -51,6 +52,7 @@ export async function builder( yargs ) {
 			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
+		.option( 'html', { type: 'boolean', hidden: true } )
 		.option( 'no-html', {
 			type: 'boolean',
 			description: 'For coverage tests, do not generate HTML reports.',

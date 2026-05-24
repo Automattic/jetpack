@@ -259,6 +259,10 @@ class REST_Connector {
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
+					'from'         => array(
+						'description' => __( 'Tracking/segmentation identifier for this authorize URL request', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -789,8 +793,9 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		if ( isset( $request['from'] ) ) {
-			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+		$from = isset( $request['from'] ) ? (string) $request['from'] : '';
+		if ( '' !== $from ) {
+			$this->connection->add_register_request_param( 'from', $from );
 		}
 
 		if ( ! empty( $request['plugin_slug'] ) ) {
@@ -809,7 +814,7 @@ class REST_Connector {
 
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
-		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri );
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url( $redirect_uri, '' !== $from ? $from : false );
 
 		/**
 		 * Filters the response of jetpack/v4/connection/register endpoint
@@ -842,7 +847,8 @@ class REST_Connector {
 	 */
 	public function connection_authorize_url( $request ) {
 		$redirect_uri  = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
-		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+		$from          = $request->get_param( 'from' );
+		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri, ! empty( $from ) ? (string) $from : false );
 
 		return rest_ensure_response(
 			array(

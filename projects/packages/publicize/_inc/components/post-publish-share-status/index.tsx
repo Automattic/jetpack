@@ -26,11 +26,12 @@ export function PostPublishShareStatus() {
 
 	const isSharingPossible = usePostPrePublishValue( useIsSharingPossible() );
 
-	const enabledConnections = usePostPrePublishValue(
-		useSelect( select => select( socialStore ).getEnabledConnections(), [] )
+	const connectionsReadyToShare = usePostPrePublishValue(
+		useSelect( select => select( socialStore ).getConnectionsReadyToShare(), [] )
 	);
 
-	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
+	const willPostBeShared =
+		isPublicizeEnabled && connectionsReadyToShare.length > 0 && isSharingPossible;
 
 	const showStatus = willPostBeShared && isPostPublished;
 
