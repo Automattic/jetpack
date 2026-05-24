@@ -17,6 +17,7 @@
  */
 
 import { DEFAULT_TARGET_SECTIONS } from './constants.mjs';
+import { wrapToWidth } from './hitl.mjs';
 
 /**
  * Deterministic Tier-3 floor — these PRs never warrant a section, no AI input
@@ -365,6 +366,8 @@ function applyHeuristicTiers( prs, extras, tiers, reasons, targetSections ) {
  */
 export function formatTierSummary( tiers, reasons, classifications, options = {} ) {
 	const target = options.targetSections || DEFAULT_TARGET_SECTIONS;
+	const width = Math.max( 40, process.stderr.columns || 80 );
+	const rule = '─'.repeat( width );
 
 	const tierOf = pr => tiers.get( pr );
 	const t1 = classifications.filter( c => tierOf( c.pr ) === 1 );
@@ -373,7 +376,8 @@ export function formatTierSummary( tiers, reasons, classifications, options = {}
 
 	const lines = [];
 	lines.push( '' );
-	lines.push( `📋 Prioritization (target: ${ target } sections, adjustable with "target <n>")` );
+	lines.push( rule );
+	lines.push( `📋 Prioritization · target ${ target }` );
 	lines.push( '' );
 
 	// Tier 1 — group by consolidation hint to show cluster→section mapping.
@@ -423,21 +427,8 @@ export function formatTierSummary( tiers, reasons, classifications, options = {}
 	if ( t3.length > t3Visible.length ) {
 		lines.push( `   … ${ t3.length - t3Visible.length } more (full list in sidecar JSON)` );
 	}
-	lines.push( '' );
 
-	// Help text.
-	lines.push( 'Adjust? Examples:' );
-	lines.push( '   promote 48473 to 1        — move a single PR up' );
-	lines.push( '   demote 48606 to 3         — move a single PR down' );
-	lines.push( '   demote sandbox to 3       — bulk: route all sandbox-only PRs to Tier 3' );
-	lines.push( '   demote refactor to 3      — bulk: route all refactor-only / package-only PRs' );
-	lines.push(
-		'   target 4                  — change target section count (re-rank with new target)'
-	);
-	lines.push( '   Enter (empty)             — accept and continue' );
-	lines.push( '' );
-
-	return lines.join( '\n' );
+	return lines.join( '\n' ) + '\n';
 }
 
 /**
@@ -483,7 +474,7 @@ function truncate( s, n ) {
  * @param {Map<number, number>} currentTiers    - Current tier map.
  * @param {Array}               classifications - Full in-scope list (for bulk grammar).
  * @param {object}              currentOptions  - Current options snapshot.
- * @return {{ updatedTiers: Map, updatedOptions: object, needsReRank: boolean, message: string }} New tier + options state and an advisory message for stderr.
+ * @return {{ updatedTiers: Map, updatedOptions: object, needsReRank: boolean, message: string, status: 'ok'|'warn' }} New tier + options state, an advisory message for stderr, and a status flag the caller uses to pick a ✓/⚠ glyph.
  */
 export function parseAdjustment( line, currentTiers, classifications, currentOptions = {} ) {
 	const updatedTiers = new Map( currentTiers );
@@ -491,7 +482,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 	const trimmed = ( line || '' ).trim().toLowerCase();
 
 	if ( ! trimmed ) {
-		return { updatedTiers, updatedOptions, needsReRank: false, message: '' };
+		return { updatedTiers, updatedOptions, needsReRank: false, message: '', status: 'ok' };
 	}
 
 	// target <n>
@@ -504,10 +495,17 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 				updatedTiers,
 				updatedOptions,
 				needsReRank: true,
-				message: `target set to ${ n }; re-ranking…`,
+				message: `target set to ${ n }`,
+				status: 'ok',
 			};
 		}
-		return { updatedTiers, updatedOptions, needsReRank: false, message: 'target must be 1-20' };
+		return {
+			updatedTiers,
+			updatedOptions,
+			needsReRank: false,
+			message: 'target must be 1-20',
+			status: 'warn',
+		};
 	}
 
 	// (promote|demote) <pr|signal> to <n>
@@ -521,6 +519,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 				updatedOptions,
 				needsReRank: false,
 				message: 'tier must be 1, 2, or 3',
+				status: 'warn',
 			};
 		}
 
@@ -532,6 +531,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 					updatedOptions,
 					needsReRank: false,
 					message: `#${ asInt } is not in scope`,
+					status: 'warn',
 				};
 			}
 			updatedTiers.set( asInt, tier );
@@ -540,6 +540,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 				updatedOptions,
 				needsReRank: false,
 				message: `#${ asInt } → Tier ${ tier }`,
+				status: 'ok',
 			};
 		}
 
@@ -551,6 +552,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 				updatedOptions,
 				needsReRank: false,
 				message: `unknown selector "${ subject }" — try a PR number or one of: sandbox, refactor, package, vague, dep`,
+				status: 'warn',
 			};
 		}
 		let changed = 0;
@@ -565,6 +567,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 			updatedOptions,
 			needsReRank: false,
 			message: `${ changed } PR(s) matching "${ subject }" → Tier ${ tier }`,
+			status: 'ok',
 		};
 	}
 
@@ -573,6 +576,7 @@ export function parseAdjustment( line, currentTiers, classifications, currentOpt
 		updatedOptions,
 		needsReRank: false,
 		message: 'unrecognised input — see examples above',
+		status: 'warn',
 	};
 }
 
@@ -666,11 +670,25 @@ export async function runPrioritizationStage(
 	const rl = readline.createInterface( { input: process.stdin, output: process.stderr } );
 	const ask = q => new Promise( resolve => rl.question( q, resolve ) );
 
+	const width = Math.max( 40, process.stderr.columns || 80 );
+
+	process.stderr.write(
+		`\n🙋 Prioritization — adjust the AI's tier assignment, then ↵ to accept\n` +
+			wrapToWidth(
+				'promote/demote <pr> to <1-3>  ·  promote/demote <selector> to <1-3>  ·  target <n>',
+				width
+			) +
+			'\n' +
+			wrapToWidth( 'Selectors: sandbox · refactor · package · vague · dep', width ) +
+			'\n'
+	);
+
 	const userAdjustments = [];
 	let needsReRank = false;
 
 	while ( true ) {
 		if ( needsReRank ) {
+			process.stderr.write( '\n🔁 Re-ranking…\n' );
 			const reranked = await proposeTiers(
 				classifications,
 				prDetailsByPR,
@@ -682,10 +700,11 @@ export async function runPrioritizationStage(
 			reasons = reranked.reasons;
 			aiUsed = aiUsed || reranked.aiUsed;
 			needsReRank = false;
+			process.stderr.write( '✓ Re-rank complete.\n' );
 		}
 
 		process.stderr.write( formatTierSummary( tiers, reasons, classifications, currentOptions ) );
-		const reply = await ask( '> ' );
+		const reply = await ask( '\n❯ [↵=accept] ' );
 		const trimmed = ( reply || '' ).trim();
 		if ( ! trimmed ) {
 			break;
@@ -693,7 +712,8 @@ export async function runPrioritizationStage(
 
 		const result = parseAdjustment( trimmed, tiers, classifications, currentOptions );
 		if ( result.message ) {
-			process.stderr.write( `   ${ result.message }\n` );
+			const glyph = result.status === 'warn' ? '⚠' : '✓';
+			process.stderr.write( `${ glyph } ${ result.message }\n` );
 		}
 		tiers = result.updatedTiers;
 		currentOptions = result.updatedOptions;

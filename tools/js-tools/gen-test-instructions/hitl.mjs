@@ -194,7 +194,7 @@ export async function promptForDecisions( decisions, { nonInteractive = false } 
  * @param {string} indent - Leading whitespace applied to every output line.
  * @return {string} Wrapped, indented text. Single string with embedded \n.
  */
-function wrapToWidth( text, width, indent = '   ' ) {
+export function wrapToWidth( text, width, indent = '   ' ) {
 	const max = Math.max( 20, width - indent.length );
 	const out = [];
 	for ( const paragraph of String( text ).split( '\n' ) ) {

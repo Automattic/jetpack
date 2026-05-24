@@ -13,6 +13,8 @@
  * visible from the guide + each PR's title + testing_instructions).
  */
 
+import { wrapToWidth } from './hitl.mjs';
+
 /**
  * Build the reviewer prompt.
  *
@@ -203,26 +205,43 @@ export async function runReviewer(
  */
 export function printReviewerFindings( findings, iteration ) {
 	const { blockers = [], decisions = [], minor_remarks: minor = [] } = findings || {};
-	const lines = [];
-	lines.push( '' );
-	lines.push(
-		`🔎 Reviewer (iteration ${ iteration }): ${ blockers.length } blocker(s), ${ decisions.length } decision(s), ${ minor.length } minor remark(s).`
-	);
-	const fmt = ( prefix, items, detailLabel = 'fix', detailGetter = it => it.suggested_fix ) => {
+	const width = Math.max( 40, process.stderr.columns || 80 );
+	const rule = '─'.repeat( width );
+	const lines = [ '', rule, `🔎 Reviewer · iteration ${ iteration }` ];
+
+	const total = blockers.length + decisions.length + minor.length;
+	if ( total === 0 ) {
+		lines.push( '   no findings' );
+		process.stderr.write( lines.join( '\n' ) + '\n' );
+		return;
+	}
+
+	const countParts = [];
+	if ( blockers.length ) countParts.push( `${ blockers.length } blocker(s)` );
+	if ( decisions.length ) countParts.push( `${ decisions.length } decision(s)` );
+	if ( minor.length ) countParts.push( `${ minor.length } minor remark(s)` );
+	lines.push( `   ${ countParts.join( ' · ' ) }` );
+
+	const section = ( header, items, detailLabel, detailGetter ) => {
+		if ( items.length === 0 ) return;
+		lines.push( '' );
+		lines.push( header );
 		for ( const it of items ) {
 			const prList =
 				Array.isArray( it.pr_numbers ) && it.pr_numbers.length > 0
-					? ' (' + it.pr_numbers.map( n => `#${ n }` ).join( ', ' ) + ')'
+					? it.pr_numbers.map( n => `#${ n }` ).join( ', ' ) + ' — '
 					: '';
-			lines.push( `  ${ prefix }${ prList } ${ ( it.summary || '' ).trim() }` );
+			const summary = ( it.summary || '' ).trim();
+			lines.push( wrapToWidth( prList + summary, width ) );
 			const detail = detailGetter( it );
 			if ( detail ) {
-				lines.push( `       ${ detailLabel }: ${ detail }` );
+				lines.push( wrapToWidth( `${ detailLabel }: ${ detail }`, width, '       ' ) );
 			}
 		}
 	};
-	fmt( '🚧', blockers );
-	fmt( '🙋', decisions, 'recommended', d => {
+
+	section( '🚧 Blockers', blockers, 'fix', it => it.suggested_fix );
+	section( '🙋 Decisions', decisions, 'recommended', d => {
 		const opts = Array.isArray( d.options ) ? d.options : [];
 		const idx =
 			Number.isInteger( d.recommended_option ) &&
@@ -232,7 +251,7 @@ export function printReviewerFindings( findings, iteration ) {
 				: 0;
 		return opts[ idx ] || '';
 	} );
-	fmt( '📝', minor );
-	lines.push( '' );
+	section( '📝 Minor remarks', minor, 'fix', it => it.suggested_fix );
+
 	process.stderr.write( lines.join( '\n' ) + '\n' );
 }
