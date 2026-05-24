@@ -622,6 +622,96 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * WC-on, override-on: with the override flipped on, a product search on
+	 * A classic theme routes through the same generic shim a non-product
+	 * Search would use. There's no dedicated product-results classic-theme
+	 * Template — block themes get one via `register_block_template()`,
+	 * Classic themes share the single shim and rely on the generic blocks
+	 * For the product layout. Pins that documented behavior so an accidental
+	 * WC carve-out for the classic path doesn't slip through.
+	 */
+	public function test_route_classic_theme_search_template_routes_to_shim_when_override_on() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				protected static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$result = $anon::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
+
+			$this->assertStringEndsWith(
+				'/src/search-blocks/templates/classic-theme-search.php',
+				$result,
+				'Classic router must route to the bundled shim on product searches when the override is on.'
+			);
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Defensive bail-out: if the bundled `jetpack-search.html` ever fails to
+	 * Load (returns empty markup), the router must return the input template
+	 * Unchanged so the theme's own `search.php` renders instead of the shim
+	 * Wrapping a blank body. Mirrors the block-theme path's empty-content
+	 * Bail-out in `register_search_template()`.
+	 */
+	public function test_route_classic_theme_search_template_bails_when_body_is_empty() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function get_classic_theme_search_body(): string {
+					return '';
+				}
+			}
+		);
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Empty body must bail back to the theme template.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Regression guard: the template-part stripper must keep working when
+	 * The attribute payload nests an object (e.g. a future revision that
+	 * Sets `wp:template-part {"theme":{"name":"foo"}} /-->`). The earlier
+	 * `[^}]*` shape would have left a stray `}}/-->` tail in the output —
+	 * Anchor the test on a `}}` inside the attribute so a tightening back
+	 * Up to a character-class fails visibly.
+	 */
+	public function test_get_classic_theme_search_body_strips_nested_attribute_template_parts() {
+		$anon = get_class(
+			new class() extends Search_Blocks {
+				protected static function get_search_template_content(): string {
+					return "<!-- wp:template-part {\"slug\":\"header\",\"theme\":{\"name\":\"twentytwentyfive\"}} /-->\n"
+						. "<!-- wp:jetpack-search/search-input /-->\n"
+						. '<!-- wp:template-part {"slug":"footer"} /-->';
+				}
+			}
+		);
+
+		$body = $anon::get_classic_theme_search_body();
+
+		$this->assertStringNotContainsString( 'wp:template-part', $body, 'Both wrappers must be stripped, even with nested JSON.' );
+		$this->assertStringNotContainsString( '}}', $body, 'No stray closing braces should leak from a partial strip.' );
+		$this->assertStringNotContainsString( '"name":"twentytwentyfive"', $body, 'Nested attribute tail must not leak after a partial strip.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $body, 'Inner blocks must be preserved.' );
+	}
+
+	/**
 	 * `get_classic_theme_search_body()` returns the same block markup that
 	 * `register_search_template()` registers on block themes, with the two
 	 * Top-level `core/template-part` self-closing comments stripped so the

@@ -1650,6 +1650,14 @@ CSS;
 		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
 			return $template;
 		}
+		// Bail back to the theme's own search template if the bundled
+		// `jetpack-search.html` is somehow unreadable — rendering header /
+		// footer with nothing between them just looks like a broken page.
+		// Mirrors the block-theme path's empty-content bail-out in
+		// `register_search_template()`.
+		if ( '' === static::get_classic_theme_search_body() ) {
+			return $template;
+		}
 		return __DIR__ . '/templates/classic-theme-search.php';
 	}
 
@@ -1672,8 +1680,11 @@ CSS;
 		// The bundled template emits exactly two top-level `core/template-part`
 		// self-closing comments (header before the main group, footer after).
 		// On classic themes those slugs don't resolve to anything renderable,
-		// so drop the comments before `do_blocks()` walks the markup.
-		return (string) preg_replace( '#<!--\s*wp:template-part\s+\{[^}]*\}\s*/-->\s*#', '', $content );
+		// so drop the comments before `do_blocks()` walks the markup. The
+		// inner `.*?` is non-greedy and capped by the `-->` sentinel, so a
+		// future template revision that nests JSON (e.g. `{"theme":{"name":"x"}}`)
+		// in a `wp:template-part` attribute keeps matching cleanly.
+		return (string) preg_replace( '#<!--\s*wp:template-part\s+.*?/-->\s*#s', '', $content );
 	}
 
 	/**
