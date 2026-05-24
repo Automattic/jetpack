@@ -20,6 +20,11 @@ export const SUPPORTED_PIPELINES = [ 'loop', 'single' ];
 
 export const DEFAULT_MAX_REVIEWER_ITERATIONS = 3;
 
+// Target number of headline H3 sections in the rendered guide. Empirical median
+// across 11 historical P2 posts is ~5 (range 4-9). Drives the prioritization
+// stage's Tier 1 slot count and the AI prompt's section-count guidance.
+export const DEFAULT_TARGET_SECTIONS = 5;
+
 // Exit code emitted when the loop pipeline finishes with unresolved decisions
 // in --non-interactive mode. Distinct from existing fatal exit (1) so CI can
 // distinguish "needs a human" from "tool crashed".

@@ -43,6 +43,10 @@ PIPELINE="loop"
 SKIP_COVERAGE_AI=false
 SKIP_REVIEWER=false
 MAX_REVIEWER_ITERATIONS=""
+SKIP_PRIORITIZE=false
+TARGET_SECTIONS=""
+HEADLINE_PRS=""
+DEMOTE_PRS=""
 
 ##
 ## Print usage information and exit
@@ -68,6 +72,10 @@ function usage {
 		      --skip-reviewer       Skip the reviewer + iteration loop; run the plan generator once.
 		      --max-reviewer-iterations <N>
 		                            Cap reviewer iterations (loop mode, default 3). After the cap, unresolved blockers escalate to human decisions.
+		      --skip-prioritize     Skip the prioritization stage; the plan generator treats every in-scope PR as a section candidate (legacy behavior, 3-14x P2 length overshoot).
+		      --target-sections <N> Target number of headline H3 sections (default 5; empirical P2 range 4-9).
+		      --headline-prs <csv>  Force these PR numbers to Tier 1 (headline) regardless of AI proposal.
+		      --demote-prs <csv>    Force these PR numbers to Tier 3 (routed to "Other PRs").
 		      --exclude-prs <csv>   Comma-separated PR numbers to exclude from the AI pass (they go to "Other PRs")
 		      --include-only <csv>  Inverse of --exclude-prs: only these PRs reach the AI pass
 		      --non-interactive     Skip interactive prompts; in loop mode, unresolved reviewer decisions exit 3 and are surfaced via the sidecar JSON.
@@ -191,6 +199,22 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--max-reviewer-iterations)
 			MAX_REVIEWER_ITERATIONS="$2"
+			shift 2
+			;;
+		--skip-prioritize)
+			SKIP_PRIORITIZE=true
+			shift
+			;;
+		--target-sections)
+			TARGET_SECTIONS="$2"
+			shift 2
+			;;
+		--headline-prs)
+			HEADLINE_PRS="$2"
+			shift 2
+			;;
+		--demote-prs)
+			DEMOTE_PRS="$2"
 			shift 2
 			;;
 		--verbose)
@@ -332,6 +356,22 @@ fi
 
 if [[ -n "$MAX_REVIEWER_ITERATIONS" ]]; then
 	NODE_ARGS+=("--max-reviewer-iterations" "$MAX_REVIEWER_ITERATIONS")
+fi
+
+if [[ "$SKIP_PRIORITIZE" = true ]]; then
+	NODE_ARGS+=("--skip-prioritize")
+fi
+
+if [[ -n "$TARGET_SECTIONS" ]]; then
+	NODE_ARGS+=("--target-sections" "$TARGET_SECTIONS")
+fi
+
+if [[ -n "$HEADLINE_PRS" ]]; then
+	NODE_ARGS+=("--headline-prs" "$HEADLINE_PRS")
+fi
+
+if [[ -n "$DEMOTE_PRS" ]]; then
+	NODE_ARGS+=("--demote-prs" "$DEMOTE_PRS")
 fi
 
 if [[ "$VERBOSE" = true ]]; then

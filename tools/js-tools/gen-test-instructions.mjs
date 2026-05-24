@@ -58,6 +58,10 @@ function parseArguments() {
 		skipCoverageAi: false,
 		skipReviewer: false,
 		maxReviewerIterations: DEFAULT_MAX_REVIEWER_ITERATIONS,
+		skipPrioritize: false,
+		targetSections: null,
+		headlinePrs: new Set(),
+		demotePrs: new Set(),
 	};
 
 	const parseCsvIntoSet = csv =>
@@ -143,6 +147,25 @@ function parseArguments() {
 				) {
 					throw new Error( `Invalid --max-reviewer-iterations: must be a positive integer.` );
 				}
+				break;
+			case '--skip-prioritize':
+				options.skipPrioritize = true;
+				break;
+			case '--target-sections':
+				options.targetSections = parseInt( args[ ++i ], 10 );
+				if (
+					! Number.isInteger( options.targetSections ) ||
+					options.targetSections < 1 ||
+					options.targetSections > 20
+				) {
+					throw new Error( `Invalid --target-sections: must be an integer in 1..20.` );
+				}
+				break;
+			case '--headline-prs':
+				options.headlinePrs = parseCsvIntoSet( args[ ++i ] );
+				break;
+			case '--demote-prs':
+				options.demotePrs = parseCsvIntoSet( args[ ++i ] );
 				break;
 			default:
 				throw new Error( `Unknown option: ${ args[ i ] }` );
@@ -541,6 +564,10 @@ async function main() {
 				skipCoverageAi: options.skipCoverageAi,
 				skipReviewer: options.skipReviewer,
 				maxReviewerIterations: options.maxReviewerIterations,
+				skipPrioritize: options.skipPrioritize,
+				targetSections: options.targetSections,
+				headlinePrs: options.headlinePrs,
+				demotePrs: options.demotePrs,
 			};
 
 			const pipeline = options.pipeline === 'single' ? runSingleShotPipeline : runLoopPipeline;

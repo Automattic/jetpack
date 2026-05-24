@@ -41,6 +41,7 @@ export function writeCoverageSidecar( outputPath, payload ) {
 		minorRemarksAppended = false,
 		guide,
 		userExcluded,
+		prioritization = null,
 	} = payload;
 
 	const sections = Array.isArray( guide?.sections ) ? guide.sections : [];
@@ -80,6 +81,10 @@ export function writeCoverageSidecar( outputPath, payload ) {
 		body.decisions_pending = decisionsPending;
 		body.decision_answers = decisionAnswers;
 		body.minor_remarks_appended = minorRemarksAppended;
+	}
+
+	if ( prioritization ) {
+		body.prioritization = prioritization;
 	}
 
 	fs.writeFileSync( outputPath, JSON.stringify( body, null, 2 ) );
