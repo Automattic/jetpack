@@ -92,11 +92,15 @@
 		max-height: 60vh;
 		overflow-y: auto;
 		overscroll-behavior: contain;
-		background: var(--wp--preset--color--base);
+		// Fallbacks keep the surface opaque on themes that don't define the
+		// `base` / `contrast` tokens — without them the rule resolves to
+		// nothing and the panel paints transparent, letting whatever sits
+		// behind it (results rows, filter labels) bleed through.
+		background: var(--wp--preset--color--base, #fff);
 		// The dropdown owns its surface, so pin the ink color too — otherwise
 		// the option text inherits a low-contrast theme accent from the
 		// surrounding page (e.g. a muted header link color).
-		color: var(--wp--preset--color--contrast);
+		color: var(--wp--preset--color--contrast, currentColor);
 		// Reset the inherited theme base size so option text tracks the
 		// other block surfaces (sort menu, filters popover) at 1rem instead
 		// of the host theme's oversized default.
