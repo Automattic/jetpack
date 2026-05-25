@@ -149,11 +149,21 @@ function pcg_probe_shutdown() {
 /**
  * Emit a JSON response and terminate.
  *
+ * Re-entry guard: pcg_probe_shutdown is registered with PHP and fires
+ * after every exit, including the exit at the end of this function. A
+ * second invocation would append a second JSON document onto the
+ * already-flushed response body, breaking the client's json_decode and
+ * routing the marker+200 fall-through to a false-positive fatal.
+ * Returning silently on re-entry preserves the original verdict.
+ *
  * @param array $payload JSON-serializable payload.
  * @param int   $status  HTTP status code.
- * @return never
+ * @return void
  */
 function pcg_probe_respond( $payload, $status = 200 ) {
+	if ( pcg_probe_already_emitted( true ) ) {
+		return;
+	}
 	$key = pcg_probe_pending_key();
 	if ( '' !== $key ) {
 		delete_transient( $key );
@@ -163,6 +173,23 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 	}
 	wp_send_json( $payload, (int) $status, JSON_UNESCAPED_SLASHES );
 	exit;
+}
+
+/**
+ * Track whether a verdict has already been written to the wire. Set on
+ * the first `pcg_probe_respond` call so the shutdown handler's always-
+ * emit doesn't re-enter and corrupt the response body.
+ *
+ * @param bool $mark_now When true, atomically set the flag and return its prior value.
+ * @return bool Whether a verdict has already been emitted.
+ */
+function pcg_probe_already_emitted( $mark_now = false ) {
+	static $emitted = false;
+	$was = $emitted;
+	if ( $mark_now ) {
+		$emitted = true;
+	}
+	return $was;
 }
 
 /**

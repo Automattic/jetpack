@@ -96,12 +96,20 @@ class PCG_Load_Tester {
 				return $retry;
 			}
 			$this->log_propagation_flake_downgrade( $mode, $plugin_mains, $retry );
-			return array(
+			$downgraded = array(
 				'status'  => 'ok-inconclusive',
 				'reason'  => 'Probe reported a file-not-found / autoload miss against the plugin\'s own directory on two attempts; treating as a multi-node propagation lag and allowing activation. CLI activation is unaffected.',
 				'message' => (string) ( $retry['message'] ?? '' ),
 				'file'    => (string) ( $retry['file'] ?? '' ),
 			);
+			if ( '' !== (string) ( $retry['plugin'] ?? '' ) ) {
+				// Preserve the throwable-catch attribution from the
+				// probe endpoint so downstream consumers (and future
+				// `ok-inconclusive` readers) can still see which
+				// candidate triggered the flake path.
+				$downgraded['plugin'] = (string) $retry['plugin'];
+			}
+			return $downgraded;
 		}
 
 		return $verdict;
@@ -188,40 +196,70 @@ class PCG_Load_Tester {
 			return false;
 		}
 		$message = (string) ( $result['message'] ?? '' );
-		$looks_like_missing_file =
-			str_contains( $message, 'Failed opening required' )
-			|| str_contains( $message, 'failed to open stream: No such file or directory' )
-			|| ( str_contains( $message, 'Class ' ) && str_contains( $message, ' not found' ) );
-		if ( ! $looks_like_missing_file ) {
+
+		// Anchor the class-not-found check to PHP's canonical wording —
+		// `Class "Foo\Bar" not found` (PHP 8+) or `Class 'Foo' not found`
+		// (legacy). A loose `str_contains` on 'Class ' / ' not found'
+		// would over-match decorated error messages or wrapped fatals
+		// that mention either substring incidentally, and silently
+		// downgrade real bugs to ok-inconclusive after the retry.
+		$looks_like_class_not_found    = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
+		$looks_like_missing_file_open  = str_contains( $message, 'Failed opening required' )
+			|| str_contains( $message, 'failed to open stream: No such file or directory' );
+		if ( ! $looks_like_missing_file_open && ! $looks_like_class_not_found ) {
 			return false;
 		}
+
 		$captured_file = (string) ( $result['file'] ?? '' );
-		if ( '' === $captured_file ) {
-			// For "class not found" the captured file is the autoloader
-			// site (in the candidate's own bootstrap). For others, no
-			// file means we can't attribute — be conservative, don't
-			// retry on something we can't pin to a candidate.
-			return $this->message_references_candidate_path( $message, $plugin_mains );
+		if ( $this->path_inside_candidate( $captured_file, $plugin_mains ) ) {
+			return true;
+		}
+
+		// Fall back to the message body ONLY for the file-open arm: those
+		// messages carry the missing path verbatim, so a substring match
+		// against a candidate's dir is a meaningful signal. The
+		// class-not-found arm requires `captured_file` to live inside a
+		// candidate — its message has no path to match on, and pulling
+		// other text in (autoloader stack traces, wrapped errors) is the
+		// over-match vector we want to avoid.
+		if ( ! $looks_like_missing_file_open ) {
+			return false;
+		}
+		return $this->message_references_candidate_path( $message, $plugin_mains );
+	}
+
+	/**
+	 * Whether an absolute path lies inside one of the candidate plugins'
+	 * own directories (or equals a candidate's main file). Flat-file
+	 * plugins are skipped because their dirname is WP_PLUGIN_DIR, which
+	 * would prefix-match every other plugin's files.
+	 *
+	 * @param string   $path         Absolute path to test.
+	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
+	 * @return bool
+	 */
+	protected function path_inside_candidate( $path, array $plugin_mains ) {
+		if ( '' === (string) $path ) {
+			return false;
 		}
 		foreach ( $plugin_mains as $main ) {
 			$dir = dirname( (string) $main );
 			if ( WP_PLUGIN_DIR === $dir ) {
 				continue;
 			}
-			if ( str_starts_with( $captured_file, $dir . '/' ) || $captured_file === $main ) {
+			if ( $path === $main || str_starts_with( $path, $dir . '/' ) ) {
 				return true;
 			}
 		}
-		return $this->message_references_candidate_path( $message, $plugin_mains );
+		return false;
 	}
 
 	/**
-	 * Whether the verdict message text mentions a path inside one of the
-	 * candidate plugins' directories. Catches `Failed opening required`
-	 * messages where PHP's reported `file` is the requiring file (in the
-	 * plugin's own tree) — so `file` already passed the dir check above —
-	 * but also handles autoloader cases where the missing-path text only
-	 * appears in the message body.
+	 * Whether a `Failed opening required` message body mentions a path
+	 * inside one of the candidate plugins' directories. Only safe for
+	 * messages that PHP composes with the failing path verbatim — see
+	 * `is_propagation_flake` for why we don't use this on autoloader
+	 * misses.
 	 *
 	 * @param string   $message      Verdict message.
 	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
@@ -251,11 +289,17 @@ class PCG_Load_Tester {
 	 * @return void
 	 */
 	protected function log_propagation_flake_downgrade( $mode, array $plugin_mains, array $retry_result ) {
+		$attributed = (string) ( $retry_result['plugin'] ?? '' );
 		pcg_log_event(
 			'Propagation flake downgrade',
 			array(
 				'mode'    => $mode,
 				'plugins' => $this->relative_basenames( $plugin_mains ),
+				// Specific candidate the throwable-catch in the probe
+				// endpoint pinned the failure to, when available. Lets
+				// support isolate the offending plugin in a batch
+				// downgrade without grep-ing the full plugins list.
+				'plugin'  => '' !== $attributed ? $this->relative_basenames( array( $attributed ) )[0] : '',
 				'status'  => (string) ( $retry_result['status'] ?? '' ),
 				'reason'  => (string) ( $retry_result['message'] ?? $retry_result['reason'] ?? '' ),
 				'file'    => isset( $retry_result['file'] ) ? basename( (string) $retry_result['file'] ) : '',

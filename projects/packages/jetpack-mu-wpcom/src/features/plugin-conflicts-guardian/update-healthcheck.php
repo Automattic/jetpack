@@ -128,11 +128,19 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =
 	// the update is fine; error = inconclusive transport failure we don't
-	// want to act on. Either way, drop local backups so they don't
-	// linger under the temp dir.
+	// want to act on. Drop local backups so they don't linger under the
+	// temp dir — but only for verdicts where we have high confidence the
+	// update is healthy. `ok-inconclusive` (e.g. propagation-flake
+	// downgrade, redirect-budget exhaustion, intercepted loopback) means
+	// we *suspected* a fatal and decided to allow; if a real fatal
+	// surfaces on a still-lagging node moments later we want the snapshot
+	// available for the next request's rollback path. The snapshot's own
+	// TTL sweep eventually reclaims the disk.
 	if ( 'fatal' !== $status && 'throwable' !== $status ) {
-		foreach ( $candidates as $candidate ) {
-			PCG_Snapshot::cleanup_backup( $candidate['snapshot'] );
+		if ( 'ok-inconclusive' !== $status && 'ok-shutdown' !== $status ) {
+			foreach ( $candidates as $candidate ) {
+				PCG_Snapshot::cleanup_backup( $candidate['snapshot'] );
+			}
 		}
 		return;
 	}

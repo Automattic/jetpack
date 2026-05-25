@@ -734,6 +734,52 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Decorated `Class not found` messages that don't match PHP's
+	 * canonical quoted-name format must not be classified as a flake.
+	 * The loose substring detector previously matched any message
+	 * containing the words 'Class ' and ' not found' anywhere, which
+	 * over-matched on wrapped errors and stack-trace-decorated fatals.
+	 */
+	public function test_is_propagation_flake_ignores_decorated_class_not_found_phrasing() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => 'Cannot use Class Foo as final; helper not found in helper module',
+			'file'    => $plugin,
+		);
+
+		$this->assertFalse(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			'Only PHP\'s canonical Class "Name" not found phrasing should qualify.'
+		);
+	}
+
+	/**
+	 * Class-not-found verdicts require the captured `file` to live
+	 * inside a candidate's directory. A message lacking any path and
+	 * a captured file outside the candidate trees must not be retried
+	 * — that signature indicates a real autoloader bug, not a
+	 * propagation lag.
+	 */
+	public function test_is_propagation_flake_requires_captured_file_for_class_not_found() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => 'Class "Some\\Other\\Vendor\\Thing" not found',
+			'file'    => '/srv/htdocs/wp-includes/class-wp-hook.php',
+		);
+
+		$this->assertFalse(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			'A class-not-found whose captured file is outside every candidate dir is a real bug, not a flake.'
+		);
+	}
+
+	/**
 	 * Atomic multi-node propagation flake: PHP can't open a file under
 	 * the candidate plugin's own directory. Should be recognised as a
 	 * flake so the retry path triggers.
