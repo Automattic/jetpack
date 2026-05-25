@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.3] - 2026-05-25
 ### Fixed
-- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
 
 ## [3.3.2] - 2026-05-19
 ### Changed

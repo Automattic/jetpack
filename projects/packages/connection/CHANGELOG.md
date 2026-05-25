@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.4.0] - 2026-05-25
 ### Added
-- Abilities: opt jetpack/get-connection-status into the MCP tool surface (meta.mcp public tool). [#49113]
-- Abilities API: add jetpack/get-connection-status read ability. [#48735]
+- Abilities: Opt `jetpack/get-connection-status` into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Add `jetpack/get-connection-status` read ability. [#48735]
 
 ### Changed
-- Connection abilities: align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first. [#48735]
-- Connection abilities: point get-connection-status `registration_url` at the WP 7.0+ Connectors screen when available, falling back to the Jetpack admin page on older WP. [#48735]
-- Connection abilities: rename get-connection-status `site_connected` output field to `site_registered` to match site-registration terminology. [#48735]
-- Connection abilities: tighten get-connection-status permission to current_user_can( 'jetpack_admin_page' ). [#48735]
+- Abilities: Align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first. [#48735]
+- Abilities: Point `jetpack/get-connection-status` `registration_url` at the WP 7.0+ Connectors screen when available, falling back to the Jetpack admin page on older WP. [#48735]
+- Abilities: Rename `jetpack/get-connection-status` `site_connected` output field to `site_registered` to match site-registration terminology. [#48735]
+- Abilities: Tighten `jetpack/get-connection-status` permission to `current_user_can( 'jetpack_admin_page' )`. [#48735]
 
 ## [8.3.7] - 2026-05-21
 ### Added

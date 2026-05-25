@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.9] - 2026-05-25
 ### Changed
-- Newsletter: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier; drop bespoke jetpack-newsletter-page__tabs-row class. Bump @wordpress/ui to 0.13.0. [#48964]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier; drop the bespoke `jetpack-newsletter-page__tabs-row` class. [#48964]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
-- Drop dead @wordpress/admin-ui build-style import that no longer exists in 2.x; bump the package's admin-ui pin to 2.1.0. [#49007]
-- Fixed Settings tab toggles that controlled the wrong setting due to duplicate element IDs. [#49102]
+- Drop dead `@wordpress/admin-ui` build-style import that no longer exists in 2.x. [#49007]
+- Fix Settings tab toggles that controlled the wrong setting due to duplicate element IDs. [#49102]
 
 ## [0.8.8] - 2026-05-19
 ### Changed

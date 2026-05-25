@@ -7,19 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.0] - 2026-05-25
 ### Added
-- Abilities API: register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
+- Abilities API: Register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
 
 ### Changed
-- Backup abilities: rename slugs to list-*/request-* and register via package actions.php for cross-consumer support [#48329]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Abilities: Rename slugs to `list-*` / `request-*` and register via the package's `actions.php` for cross-consumer support. [#48329]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
-- Backup abilities: clarify jetpack-backup/list-backups pagination — terminate on empty page, not on shorter-than-per_page (client-side filters can shorten a page even when more pages exist). [#48329]
-- Backup abilities: drop dead branch in map_event_status() that returned the same value as the default case. [#48329]
-- Backup abilities: jetpack-backup/request-backup now reports failure when wpcom answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
-- Backup abilities: parse_timestamp() now accepts fractional numeric strings (e.g. rewind_id "1778804242.107") so activity-log-derived backup items expose a non-null `period`. [#48329]
-- Backup abilities: replace PHP 7.4+ arrow function with closure and initialize $score so the package builds on PHP 7.2 and passes Phan [#48329]
+- Abilities: Clarify `jetpack-backup/list-backups` pagination — terminate on an empty page, not on a page shorter than `per_page` (client-side filters can shorten a page even when more pages exist). [#48329]
+- Abilities: Drop dead branch in `map_event_status()` that returned the same value as the default case. [#48329]
+- Abilities: `jetpack-backup/request-backup` now reports failure when WordPress.com answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
+- Abilities: `parse_timestamp()` now accepts fractional numeric strings (e.g. `rewind_id` `"1778804242.107"`) so activity-log-derived backup items expose a non-null `period`. [#48329]
+- Abilities: Replace PHP 7.4+ arrow function with a closure and initialize `$score` so the package builds on PHP 7.2 and passes Phan. [#48329]
 
 ## [4.2.56] - 2026-05-19
 ### Changed

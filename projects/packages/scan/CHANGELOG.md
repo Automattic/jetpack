@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.2] - 2026-05-25
 ### Changed
-- Scan: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0. [#48964]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Update package dependencies. [#48405] [#49012]
 
 ## [0.1.1] - 2026-05-19
 ### Changed

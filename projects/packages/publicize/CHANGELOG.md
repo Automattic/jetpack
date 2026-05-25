@@ -7,12 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.81.1] - 2026-05-25
 ### Changed
-- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
-- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
 - SIG: Prevent PHP warning when setting key doesn't exist. [#48873]
 
 ## [0.81.0] - 2026-05-19

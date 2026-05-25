@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.0] - 2026-05-25
 ### Security
-- Restrict REST API write access to jp_pay_order by using a read-only REST controller [#48139]
+- Restrict REST API write access to `jp_pay_order` by using a read-only REST controller. [#48139]
 
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [0.6.20] - 2026-05-19
 ### Changed

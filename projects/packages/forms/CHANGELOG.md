@@ -7,19 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.21.3] - 2026-05-25
 ### Added
-- Abilities: opt all 8 Jetpack Forms abilities into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities: Opt all 8 Forms abilities into the MCP tool surface (meta.mcp public tool). [#49113]
 
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ### Removed
-- Remove dead legacy grunion assets: grunion-admin.js, grunion-frontend.js, grunion-admin.css, and 13 unused images. [#47609]
+- Remove dead legacy grunion assets: `grunion-admin.js`, `grunion-frontend.js`, `grunion-admin.css`, and 13 unused images. [#47609]
 
 ### Fixed
 - Fix a JavaScript error in the editor. [#48979]
-- Forms: Fix unread submissions counter badge colors in the admin sidebar. [#48921]
-- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Fix unread submissions counter badge colors in the admin sidebar. [#48921]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
 
 ## [7.21.2] - 2026-05-19
 ### Changed

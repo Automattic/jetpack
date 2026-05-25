@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.52 - 2026-05-25
 ### Changed
-- Partner Coupon: Migrate ActionButton to @wordpress/ui Button; brings the package to zero ActionButton imports. [#49098]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Migrate `ActionButton` to `@wordpress/ui` `Button`. [#49098]
+- Update package dependencies. [#48405] [#49012]
 
 ## 1.0.51 - 2026-05-19
 ### Changed

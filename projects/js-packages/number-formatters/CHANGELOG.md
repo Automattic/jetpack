@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.2.0] - 2026-05-25
 ### Added
-- Currency formatting: add `setCurrencyOverrides` for installing a dynamic per-currency override map (eg: from the WPCOM currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called. [#49016]
+- Currency formatting: Add `setCurrencyOverrides` for installing a dynamic per-currency override map (e.g. from the WordPress.com currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called. [#49016]
 
 ## [1.1.10] - 2026-05-21
 ### Changed

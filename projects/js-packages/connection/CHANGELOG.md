@@ -4,8 +4,8 @@
 
 ## [1.4.53] - 2026-05-25
 ### Added
-- Add direct useProductCheckoutWorkflow hook export [#49032]
-- Expose the useConnectionErrorNotice hook (and ConnectionError component) via a dedicated sub-path so consumers can opt out of the full package barrel. [#48829]
+- Add direct `useProductCheckoutWorkflow` hook export. [#49032]
+- Expose the `useConnectionErrorNotice` hook and `ConnectionError` component via a dedicated sub-path so consumers can opt out of the full package barrel. [#48829]
 
 ## [1.4.52] - 2026-05-21
 ### Changed

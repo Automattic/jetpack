@@ -1,6 +1,6 @@
 ## [3.3.16] - 2026-05-25
 ### Added
-- Expose social-logo-colors.css via a colors.css sub-path export, and define the missing --color-bluesky brand variable. [#48829]
+- Expose `social-logo-colors.css` via a `colors.css` sub-path export, and define the missing `--color-bluesky` brand variable. [#48829]
 
 ## [3.3.15] - 2026-05-19
 ### Changed
