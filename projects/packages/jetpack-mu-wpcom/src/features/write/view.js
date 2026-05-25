@@ -2133,6 +2133,43 @@ function insertNewList( listTag ) {
 	state.showSlashMenu = false;
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
+	state.insideList = true;
+}
+
+/**
+ * Detect a markdown list shortcut in a paragraph's text.
+ *
+ * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
+ * before the trigger space is inserted, so the marker should be the only
+ * content — trailing whitespace is allowed to tolerate a stray <br>-only text
+ * node that contentEditable can leave in an otherwise-empty block.
+ *
+ * @param {string} text - The paragraph's text content.
+ * @return {'ul'|'ol'|null} The list tag to create, or null.
+ */
+function parseMarkdownListShortcut( text ) {
+	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
+	if ( /^1\.\s*$/.test( text ) ) return 'ol';
+	return null;
+}
+
+/**
+ * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
+ *
+ * @param {HTMLElement} paragraph - The paragraph to convert.
+ * @param {'ul'|'ol'}   listTag   - The list tag to create.
+ */
+function applyMarkdownListShortcut( paragraph, listTag ) {
+	const list = document.createElement( listTag );
+	const li = document.createElement( 'li' );
+	li.innerHTML = '<br>';
+	list.appendChild( li );
+	paragraph.after( list );
+	paragraph.remove();
+	placeCursorAt( li );
+	state.formatUList = listTag === 'ul';
+	state.formatOList = listTag === 'ol';
+	state.insideList = true;
 }
 
 /**
@@ -3208,6 +3245,32 @@ const { state } = store( 'wpcom-write', {
 				// No adjacent figure — fall through to native Backspace/Delete.
 			}
 
+			// Backspace in an empty list item: exit the list.
+			// Must run before the first-block Backspace guard below, otherwise the
+			// guard swallows Backspace when the list is the editor's first block
+			// (e.g. just after triggering the markdown shortcut on a fresh post).
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				let li = null;
+				if ( sel.rangeCount ) {
+					let n = sel.anchorNode;
+					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
+						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
+							li = n;
+							break;
+						}
+						n = n.parentNode;
+					}
+				}
+				if ( li && li.textContent.trim() === '' ) {
+					event.preventDefault();
+					exitListAndApplyBlock( 'p' );
+					state.formatUList = false;
+					state.formatOList = false;
+					return;
+				}
+			}
+
 			// Block Backspace at the very start of the first block. With nothing
 			// to merge into, some browsers respond by unwrapping the structure
 			// — including the .bw-content-inner wrapper that protects user
@@ -3262,29 +3325,6 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty list item: exit the list.
-			if ( event.key === 'Backspace' ) {
-				const sel = window.getSelection();
-				let li = null;
-				if ( sel.rangeCount ) {
-					let n = sel.anchorNode;
-					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
-						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
-							li = n;
-							break;
-						}
-						n = n.parentNode;
-					}
-				}
-				if ( li && li.textContent.trim() === '' ) {
-					event.preventDefault();
-					exitListAndApplyBlock( 'p' );
-					state.formatUList = false;
-					state.formatOList = false;
-					return;
-				}
-			}
-
 			// Backspace in an empty <cite>: remove it and move cursor to quote body.
 			if ( event.key === 'Backspace' ) {
 				const cite = getActiveCite();
@@ -3299,6 +3339,32 @@ const { state } = store( 'wpcom-write', {
 						}
 					}
 					return;
+				}
+			}
+
+			// Markdown list shortcut: typing space after `-`, `*`, `+`, or `1.` at the
+			// start of an otherwise-empty paragraph converts it to a list. The space
+			// itself is swallowed so the user lands at column 0 of the new <li>.
+			if ( event.key === ' ' && ! state.showSlashMenu ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const content = getContent();
+					let block = sel.anchorNode;
+					while ( block && block !== content && block.parentNode !== content ) {
+						block = block.parentNode;
+					}
+					// Only fire on top-level paragraphs — keep this out of headings,
+					// blockquotes, lists, figures, and other structured blocks.
+					if ( block && block.parentNode === content && block.tagName === 'P' ) {
+						const listTag = parseMarkdownListShortcut( block.textContent );
+						if ( listTag ) {
+							event.preventDefault();
+							flushUndoDebounce();
+							applyMarkdownListShortcut( block, listTag );
+							pushToUndoHistory();
+							return;
+						}
+					}
 				}
 			}
 
