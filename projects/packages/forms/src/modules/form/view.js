@@ -14,6 +14,7 @@ import {
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
+import { reconcileFieldsFromForm } from './reconcile.ts';
 import { focusNextInput, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
@@ -27,6 +28,25 @@ const withSyncEvent =
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 let errorTimeout = null;
+
+// DEBUG FORMS-685: remove before final merge
+// When ?jetpack_forms_debug_skip_store_capture=1 is present in the URL, the
+// per-keystroke store captures (onFieldChange / onFieldBlur and their variants)
+// are silently no-op'd, leaving store field values empty while the DOM inputs
+// hold the typed text.  This deterministically simulates the iOS Safari
+// Private Browsing failure so the reconcile recovery path can be verified on a
+// real device via Jurassic Ninja without needing Safari fingerprinting
+// protection to actually trigger.
+//
+// Usage:
+//   https://<your-jn-site>/your-form-page/?jetpack_forms_debug_skip_store_capture=1
+//
+// With the flag ON and fix ABSENT  → form blocks with "Please fill out the form correctly"
+// With the flag ON and fix PRESENT → reconcile recovers DOM values and form submits
+const DEBUG_SKIP_STORE_CAPTURE =
+	typeof window !== 'undefined' &&
+	new URLSearchParams( window.location.search ).has( 'jetpack_forms_debug_skip_store_capture' );
+// END DEBUG FORMS-685
 
 const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
 	const context = getContext();
@@ -478,6 +498,12 @@ const { state, actions } = store( NAMESPACE, {
 		} ),
 
 		onFieldChange: event => {
+			// DEBUG FORMS-685: remove before final merge
+			if ( DEBUG_SKIP_STORE_CAPTURE ) {
+				return;
+			}
+			// END DEBUG FORMS-685
+
 			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -506,6 +532,12 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		onOtherRadioChange: event => {
+			// DEBUG FORMS-685: remove before final merge
+			if ( DEBUG_SKIP_STORE_CAPTURE ) {
+				return;
+			}
+			// END DEBUG FORMS-685
+
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
@@ -533,6 +565,12 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		onOtherTextInput: event => {
+			// DEBUG FORMS-685: remove before final merge
+			if ( DEBUG_SKIP_STORE_CAPTURE ) {
+				return;
+			}
+			// END DEBUG FORMS-685
+
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
@@ -546,6 +584,12 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		onMultipleFieldChange: event => {
+			// DEBUG FORMS-685: remove before final merge
+			if ( DEBUG_SKIP_STORE_CAPTURE ) {
+				return;
+			}
+			// END DEBUG FORMS-685
+
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
@@ -604,6 +648,12 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		onFieldBlur: event => {
+			// DEBUG FORMS-685: remove before final merge
+			if ( DEBUG_SKIP_STORE_CAPTURE ) {
+				return;
+			}
+			// END DEBUG FORMS-685
+
 			const context = getContext();
 			actions.updateField( context.fieldId, event.target.value, true );
 		},
@@ -638,11 +688,40 @@ const { state, actions } = store( NAMESPACE, {
 			// code can still detect preview context if needed.
 
 			if ( ! state.isFormValid ) {
-				context.showErrors = true;
-				event.preventDefault();
-				event.stopPropagation();
+				// FORMS-685: Store↔DOM divergence recovery.
+				//
+				// In some environments (iOS Safari Private Browsing with Advanced
+				// Tracking & Fingerprinting Protection), the per-keystroke store
+				// captures (onFieldChange / onFieldBlur) are suppressed.  The
+				// store thinks every field is empty, but the DOM inputs hold the
+				// real typed values — and FormData (used by submitForm) would
+				// submit them correctly.  The server re-validates authoritatively,
+				// so it's safe to let a DOM-confirmed submission through.
+				//
+				// Before blocking, attempt to reconcile each field's value from
+				// the live DOM.  If after reconciliation the form is valid, allow
+				// the submission to proceed.  If still invalid, block as normal —
+				// the user genuinely hasn't filled in required fields.
+				const form = event.target instanceof HTMLFormElement ? event.target : null;
+				if ( form ) {
+					const recovered = reconcileFieldsFromForm( form, context );
+					if ( recovered.size > 0 ) {
+						recovered.forEach( ( value, fieldId ) => {
+							actions.updateField( fieldId, value );
+						} );
+					}
+				}
 
-				return;
+				// Re-evaluate after the reconcile attempt.
+				if ( ! state.isFormValid ) {
+					context.showErrors = true;
+					event.preventDefault();
+					event.stopPropagation();
+
+					return;
+				}
+				// If we reach here, reconcile recovered valid values — fall through
+				// to the normal submission path below.
 			}
 
 			if ( context.isMultiStep && context.currentStep < context.maxSteps ) {

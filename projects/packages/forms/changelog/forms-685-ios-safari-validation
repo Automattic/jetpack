@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix client-side validation gate blocking submission in iOS Safari Private Browsing (FORMS-685) — reconcile field values from the live DOM before blocking when Interactivity store captures have been suppressed.

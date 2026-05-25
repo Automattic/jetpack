@@ -1,4 +1,5 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, test, beforeEach } from '@jest/globals';
+import { validateField } from '../../../../src/contact-form/js/validate-helper.js';
 import { getRating } from '../../../../src/modules/field-rating/helpers.js';
 import {
 	maybeAddColonToLabel,
@@ -6,6 +7,7 @@ import {
 	getImages,
 	getUrl,
 } from '../../../../src/modules/form/helpers.js';
+import { reconcileFieldsFromForm } from '../../../../src/modules/form/reconcile.ts';
 
 /**
  * Tests for the showPlainValue logic in form submission data formatting.
@@ -616,5 +618,205 @@ describe( 'Form View - getRating helper', () => {
 		} );
 
 		expect( result.iconStyle ).toBe( 'hearts' );
+	} );
+} );
+
+/**
+ * FORMS-685 — Store↔DOM divergence recovery integration tests.
+ *
+ * These tests document the exact failure mode (store empty, DOM filled) and
+ * verify that the reconcile helper bridges the gap so the gate re-evaluates
+ * to valid.
+ *
+ * The tests use only pure helpers (reconcileFieldsFromForm + validateField)
+ * without needing the wordpress/interactivity runtime, matching how the fix
+ * works in onFormSubmit.
+ */
+describe( 'FORMS-685 — store↔DOM divergence recovery', () => {
+	/**
+	 * Simulate the Safari failure: store fields are all at their initial empty
+	 * state (onFieldChange never fired), but DOM inputs have been filled by the
+	 * user.  Verify that after reconciliation every field validates correctly.
+	 *
+	 * @param {object} overrides - Field property overrides.
+	 * @return {object} Store field record with defaults.
+	 */
+	const makeStoreField = ( overrides = {} ) => ( {
+		id: 'f1',
+		type: 'text',
+		label: 'Name',
+		value: '', // ← empty because store capture was suppressed
+		isRequired: true,
+		extra: null,
+		...overrides,
+	} );
+
+	beforeEach( () => {
+		document.body.innerHTML = '';
+	} );
+
+	test( 'text field: store empty, DOM filled → reconcile recovers value and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<input type="text" name="name" value="Alice" />';
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'name', type: 'text' } );
+		const context = { fields: { name: storeField } };
+
+		// Pre-fix: store value is empty → validateField returns is_required
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		// Apply reconcile (mirrors what onFormSubmit does on recovery path)
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'name' ) ).toBe( 'Alice' );
+
+		// Post-reconcile: DOM value validates correctly
+		expect( validateField( storeField.type, recovered.get( 'name' ), storeField.isRequired ) ).toBe(
+			'yes'
+		);
+	} );
+
+	test( 'email field: store empty, DOM filled → reconcile recovers value and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<input type="email" name="email" value="alice@example.com" />';
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'email', type: 'email' } );
+		const context = { fields: { email: storeField } };
+
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'email' ) ).toBe( 'alice@example.com' );
+		expect(
+			validateField( storeField.type, recovered.get( 'email' ), storeField.isRequired )
+		).toBe( 'yes' );
+	} );
+
+	test( 'checkbox: checked in DOM → reconcile returns "1" and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<input type="checkbox" name="agree" value="Yes" />';
+		form.querySelector( 'input' ).checked = true;
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'agree', type: 'checkbox' } );
+		const context = { fields: { agree: storeField } };
+
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'agree' ) ).toBe( '1' );
+		expect(
+			validateField( storeField.type, recovered.get( 'agree' ), storeField.isRequired )
+		).toBe( 'yes' );
+	} );
+
+	test( 'radio: selection in DOM → reconcile returns selected value and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = `
+			<fieldset>
+				<input type="radio" name="plan" value="basic" />
+				<input type="radio" name="plan" value="pro" checked />
+			</fieldset>
+		`;
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'plan', type: 'radio' } );
+		const context = { fields: { plan: storeField } };
+
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'plan' ) ).toBe( 'pro' );
+		expect( validateField( storeField.type, recovered.get( 'plan' ), storeField.isRequired ) ).toBe(
+			'yes'
+		);
+	} );
+
+	test( 'checkbox-multiple: selections in DOM → reconcile returns array and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = `
+			<input type="checkbox" name="hobbies[]" value="Reading" checked />
+			<input type="checkbox" name="hobbies[]" value="Gaming" />
+			<input type="checkbox" name="hobbies[]" value="Cooking" checked />
+		`;
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'hobbies', type: 'checkbox-multiple', value: [] } );
+		const context = { fields: { hobbies: storeField } };
+
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'hobbies' ) ).toEqual( [ 'Reading', 'Cooking' ] );
+		expect(
+			validateField( storeField.type, recovered.get( 'hobbies' ), storeField.isRequired )
+		).toBe( 'yes' );
+	} );
+
+	test( 'select: selection in DOM → reconcile returns selected value and validates', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = `
+			<select name="size">
+				<option value="">Choose…</option>
+				<option value="M" selected>Medium</option>
+				<option value="L">Large</option>
+			</select>
+		`;
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'size', type: 'select' } );
+		const context = { fields: { size: storeField } };
+
+		expect( validateField( storeField.type, storeField.value, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.get( 'size' ) ).toBe( 'M' );
+		expect( validateField( storeField.type, recovered.get( 'size' ), storeField.isRequired ) ).toBe(
+			'yes'
+		);
+	} );
+
+	test( 'unrecoverable fields (file, rating) are not included in recovered map', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<input type="hidden" name="rating" value="4/5" />';
+		document.body.appendChild( form );
+
+		const context = {
+			fields: {
+				rating: makeStoreField( { id: 'rating', type: 'rating', value: '' } ),
+			},
+		};
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		expect( recovered.has( 'rating' ) ).toBe( false );
+	} );
+
+	test( 'genuinely empty required field: store empty AND DOM empty → still invalid after reconcile', () => {
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<input type="text" name="name" value="" />';
+		document.body.appendChild( form );
+
+		const storeField = makeStoreField( { id: 'name', type: 'text' } );
+		const context = { fields: { name: storeField } };
+
+		const recovered = reconcileFieldsFromForm( form, context );
+		// DOM is also empty, so recovered value is still ''
+		const reconciledValue = recovered.get( 'name' );
+		expect( validateField( storeField.type, reconciledValue, storeField.isRequired ) ).toBe(
+			'is_required'
+		);
 	} );
 } );
