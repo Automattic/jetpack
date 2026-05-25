@@ -6634,22 +6634,36 @@ packages:
   '@altano/repository-tools@2.0.3':
     resolution: {integrity: sha512-cSR/ZYDF6Wp9OeAJMyLYYN1GenAAhV17W+w38ELP+3c5Ltsy9jkkCymi33nz/qnXyef3n6Fbr1h2yt3dvUN5sQ==}
 
-  '@ariakit/core@0.4.20':
-    resolution: {integrity: sha512-DJbUnui0fM+2ZgiWLOMuFOmlWSJDNV3f6tqghIYRTWEm51TN/LoU6uM8og6/g7Nrwl4Uo5l8AoQT9Kkr/i/uRg==}
-    deprecated: This package has been split into smaller packages. Use @ariakit/components, @ariakit/store, or @ariakit/utils depending on the APIs you need.
+  '@ariakit/components@0.1.1':
+    resolution: {integrity: sha512-AiJ//FpXGQi8NauMhUTRKtXjEx1mbFMK1gYltFSOpRRmBaz/VU9GzMZ0cto1hp/tG305Hi1jxc5NpCtYEaDuBQ==}
 
-  '@ariakit/react-core@0.4.26':
-    resolution: {integrity: sha512-/Peh1KiVpjj79nCJIa6lEdzSTT9P9FZoy+CxByIFKL3YKdlXmDIIhS1E/tAqKbDq4ODVdynnqmrIDxE5wCoZYw==}
-    deprecated: This package has been split into smaller packages. Use @ariakit/react-components or @ariakit/react-utils depending on the APIs you need.
+  '@ariakit/react-components@0.1.1':
+    resolution: {integrity: sha512-k+YjepGIf092wMkUGRFlhGo9kMzcSnmgvl3CCo6o7rTwEmM1VmLX0yAnTxfIET3CkC5JYzi5hIaVEPgDNj5Hmg==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@ariakit/react@0.4.26':
-    resolution: {integrity: sha512-NcoPrYE4vgwyODAhdpNNuA7ldwODDuFqZl6jORPVDY3l+oRjl/OYwtQyyC3ZhC/4mjntYBYuKKrPJEizLmoxpg==}
+  '@ariakit/react-store@0.1.1':
+    resolution: {integrity: sha512-7zkDWpz/LFdwCCotKwZ6a17vtg3tKqw/xTP7KhuT5/CqzvFaWDR8yWl+p4sj3eUZicrJbJEsN8rLQAzZWKMseA==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@ariakit/react-utils@0.1.1':
+    resolution: {integrity: sha512-rnRlbWx7qlsrHxFggBgnfeBK14WEmKTLnSmH4MwWwqGC5ufiKWe+XfPKSj0wb+jCDw+l1FS6wAM7g+rmSmxXVg==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@ariakit/react@0.4.28':
+    resolution: {integrity: sha512-KHCSAbL6BaDCKrVakLR1TF+18wdmNIaNcYm/bsInLMiJEt6DY6Q/U3FxBHKmKCuPyEZDuqTn88YAIov+1cTF3w==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@ariakit/store@0.1.1':
+    resolution: {integrity: sha512-bq03zWDo44oAKipWQ678SN87fNcL63LCmCRJh3dh6cZuKyA120WgXIRBmCQYUg+eKLVpheFiizQPB8tcVXppyg==}
+
+  '@ariakit/utils@0.1.1':
+    resolution: {integrity: sha512-uXbQPOoVjzy6l+MUfmyzY1GiN1ciC4IsQMoGTeW1dUT6URpU5ULDB3dvpNDkrbh/gcxdckK3kmQDtg7uN8klkw==}
 
   '@arraypress/waveform-player@1.2.1':
     resolution: {integrity: sha512-PsgOZStUN+1GnY0tujbwk2PYE3HMT/Vl3wEvunqH16hIJWzisf8GEngy5EbswTAjQ1aV3Tk4XBkAskc8eslY1A==}
@@ -18335,21 +18349,47 @@ snapshots:
 
   '@altano/repository-tools@2.0.3': {}
 
-  '@ariakit/core@0.4.20': {}
-
-  '@ariakit/react-core@0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/components@0.1.1':
     dependencies:
-      '@ariakit/core': 0.4.20
+      '@ariakit/store': 0.1.1
+      '@ariakit/utils': 0.1.1
+
+  '@ariakit/react-components@0.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@ariakit/components': 0.1.1
+      '@ariakit/react-store': 0.1.1(react@18.3.1)
+      '@ariakit/react-utils': 0.1.1(react@18.3.1)
+      '@ariakit/store': 0.1.1
+      '@ariakit/utils': 0.1.1
       '@floating-ui/dom': 1.7.6
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@ariakit/react-store@0.1.1(react@18.3.1)':
+    dependencies:
+      '@ariakit/react-utils': 0.1.1(react@18.3.1)
+      '@ariakit/store': 0.1.1
+      '@ariakit/utils': 0.1.1
+      react: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)
 
-  '@ariakit/react@0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/react-utils@0.1.1(react@18.3.1)':
     dependencies:
-      '@ariakit/react-core': 0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/store': 0.1.1
+      '@ariakit/utils': 0.1.1
+      react: 18.3.1
+
+  '@ariakit/react@0.4.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@ariakit/react-components': 0.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@ariakit/store@0.1.1':
+    dependencies:
+      '@ariakit/utils': 0.1.1
+
+  '@ariakit/utils@0.1.1': {}
 
   '@arraypress/waveform-player@1.2.1': {}
 
@@ -18435,7 +18475,7 @@ snapshots:
 
   '@automattic/components@3.0.3(@types/react@18.3.28)(@wordpress/data@10.46.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@ariakit/react': 0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/react': 0.4.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/calypso-color-schemes': 4.0.0
       '@automattic/calypso-url': 1.1.0
       '@automattic/color-studio': 4.1.0
@@ -24182,7 +24222,7 @@ snapshots:
 
   '@wordpress/components@33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@ariakit/react': 0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/react': 0.4.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@date-fns/utc': 2.1.1
       '@emotion/cache': 11.14.0
       '@emotion/css': 11.13.5
@@ -24376,7 +24416,7 @@ snapshots:
 
   '@wordpress/dataviews@14.3.0(@types/react@18.3.28)(react@18.3.1)':
     dependencies:
-      '@ariakit/react': 0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/react': 0.4.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@date-fns/tz': 1.4.1
       '@wordpress/base-styles': 8.0.0
       '@wordpress/components': 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -24427,7 +24467,7 @@ snapshots:
 
   '@wordpress/dataviews@14.3.0(react@18.3.1)':
     dependencies:
-      '@ariakit/react': 0.4.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/react': 0.4.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@date-fns/tz': 1.4.1
       '@wordpress/base-styles': 8.0.0
       '@wordpress/components': 33.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
