@@ -40,7 +40,7 @@ export default function CustomizeLinksCard(): JSX.Element {
 			<Card.Header>
 				<Card.Title>{ __( 'Customize links', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content className="jetpack-social-settings__card-content">
+			<Card.Content>
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Append UTM parameters to shared URLs', 'jetpack-publicize-pkg' ) }

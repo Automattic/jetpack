@@ -2,7 +2,7 @@ import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Stack } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import TemplatePickerModal from '../social-image-generator/template-picker/modal';
 
@@ -75,29 +75,31 @@ export default function CustomizeMediaCard(): JSX.Element {
 			<Card.Header>
 				<Card.Title>{ __( 'Customize media', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content className="jetpack-social-settings__card-content">
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Enable Social Image Generator', 'jetpack-publicize-pkg' ) }
-					checked={ isEnabled }
-					disabled={ isUpdating }
-					onChange={ onToggle }
-					help={ __(
-						"Automatically generate share images for your posts. Edit the default template and image from the block editor's Social sidebar when composing a post.",
-						'jetpack-publicize-pkg'
+			<Card.Content>
+				<Stack direction="column" gap="lg">
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Enable Social Image Generator', 'jetpack-publicize-pkg' ) }
+						checked={ isEnabled }
+						disabled={ isUpdating }
+						onChange={ onToggle }
+						help={ __(
+							"Automatically generate share images for your posts. Edit the default template and image from the block editor's Social sidebar when composing a post.",
+							'jetpack-publicize-pkg'
+						) }
+					/>
+					{ isEnabled && (
+						<Stack direction="row" gap="md" className="jetpack-social-settings__card-actions">
+							<TemplatePickerModal
+								template={ defaultTemplate }
+								imageId={ defaultImageId }
+								font={ defaultFont }
+								onSave={ onSaveTemplate }
+								render={ renderTemplatePickerTrigger }
+							/>
+						</Stack>
 					) }
-				/>
-				{ isEnabled && (
-					<div className="jetpack-social-settings__card-actions">
-						<TemplatePickerModal
-							template={ defaultTemplate }
-							imageId={ defaultImageId }
-							font={ defaultFont }
-							onSave={ onSaveTemplate }
-							render={ renderTemplatePickerTrigger }
-						/>
-					</div>
-				) }
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

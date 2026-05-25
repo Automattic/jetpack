@@ -1,5 +1,6 @@
 import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
+import { Stack } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData } from '../../utils';
 import { canToggleSocialModule } from '../../utils/misc';
@@ -37,9 +38,13 @@ export default function SettingsTab(): JSX.Element {
 
 	if ( ! isPublicizeActive && canToggleSocialModule() ) {
 		return (
-			<div className="jetpack-social-settings jetpack-social-settings--empty">
+			<Stack
+				direction="column"
+				justify="center"
+				className="jetpack-social-settings jetpack-social-settings--empty"
+			>
 				<PublicizeInactiveEmptyState />
-			</div>
+			</Stack>
 		);
 	}
 
@@ -49,11 +54,11 @@ export default function SettingsTab(): JSX.Element {
 		siteHasFeature( features.MESSAGE_TEMPLATES ) && currentUserCan( 'manage_options' );
 
 	return (
-		<div className="jetpack-social-settings">
+		<Stack direction="column" gap="lg" className="jetpack-social-settings">
 			{ hasMessageTemplates && <DefaultShareMessageCard /> }
 			{ hasSocialPlugin && <ContentCreationCard /> }
 			{ hasImageGenerator && <CustomizeMediaCard /> }
 			<CustomizeLinksCard />
-		</div>
+		</Stack>
 	);
 }

@@ -67,7 +67,7 @@ export default function DefaultShareMessageCard(): JSX.Element {
 			<Card.Header>
 				<Card.Title>{ __( 'Default share message', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content className="jetpack-social-settings__card-content">
+			<Card.Content>
 				<MessageTemplateEditor value={ draft } onChange={ onChange } />
 			</Card.Content>
 		</Card.Root>

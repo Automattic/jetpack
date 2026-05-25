@@ -3,7 +3,7 @@ import { SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Link, Text } from '@wordpress/ui';
+import { Button, Card, Link, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import type { SocialNotesConfig } from '../../social-store/types';
 
@@ -64,73 +64,75 @@ export default function ContentCreationCard(): JSX.Element {
 			<Card.Header>
 				<Card.Title>{ __( 'Content creation', 'jetpack-publicize-pkg' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content className="jetpack-social-settings__card-content">
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Enable Social Notes', 'jetpack-publicize-pkg' ) }
-					checked={ isEnabled }
-					disabled={ isUpdating }
-					onChange={ onToggle }
-					help={ __(
-						'Quickly jot down short notes and share them with your followers — no titles or formatting needed.',
-						'jetpack-publicize-pkg'
-					) }
-				/>
-				{ isEnabled && (
-					<>
-						<div className="jetpack-social-settings__card-actions">
-							<Button variant="outline" size="compact" render={ <a href={ newNoteUrl } /> }>
-								{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
-							</Button>
-						</div>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Append post link', 'jetpack-publicize-pkg' ) }
-							checked={ appendLink }
-							disabled={ isUpdating }
-							onChange={ onToggleAppendLink }
-							help={ __(
-								'Whether to append the post link when sharing a note.',
-								'jetpack-publicize-pkg'
-							) }
-						/>
-						{ appendLink && (
-							<div className="jetpack-social-settings__card-nested">
-								<SelectControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize
-									label={ __( 'Link format', 'jetpack-publicize-pkg' ) }
-									value={ linkFormat ?? 'full_url' }
-									disabled={ isUpdating }
-									onChange={ onChangeLinkFormat }
-									options={ [
-										{ label: __( 'Full URL', 'jetpack-publicize-pkg' ), value: 'full_url' },
-										{ label: __( 'Shortlink', 'jetpack-publicize-pkg' ), value: 'shortlink' },
-										{
-											label: __( 'Permashortcitation', 'jetpack-publicize-pkg' ),
-											value: 'permashortcitation',
-										},
-									] }
-									help={
-										<Text variant="body-sm">
-											{ __(
-												'Format of the link to use when sharing a note.',
-												'jetpack-publicize-pkg'
-											) }
-											&nbsp;
-											<Link
-												openInNewTab
-												href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format"
-											>
-												{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-											</Link>
-										</Text>
-									}
-								/>
-							</div>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Enable Social Notes', 'jetpack-publicize-pkg' ) }
+						checked={ isEnabled }
+						disabled={ isUpdating }
+						onChange={ onToggle }
+						help={ __(
+							'Quickly jot down short notes and share them with your followers — no titles or formatting needed.',
+							'jetpack-publicize-pkg'
 						) }
-					</>
-				) }
+					/>
+					{ isEnabled && (
+						<>
+							<Stack direction="row" gap="md" className="jetpack-social-settings__card-actions">
+								<Button variant="outline" size="compact" render={ <a href={ newNoteUrl } /> }>
+									{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
+								</Button>
+							</Stack>
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={ __( 'Append post link', 'jetpack-publicize-pkg' ) }
+								checked={ appendLink }
+								disabled={ isUpdating }
+								onChange={ onToggleAppendLink }
+								help={ __(
+									'Whether to append the post link when sharing a note.',
+									'jetpack-publicize-pkg'
+								) }
+							/>
+							{ appendLink && (
+								<div className="jetpack-social-settings__card-nested">
+									<SelectControl
+										__nextHasNoMarginBottom
+										__next40pxDefaultSize
+										label={ __( 'Link format', 'jetpack-publicize-pkg' ) }
+										value={ linkFormat ?? 'full_url' }
+										disabled={ isUpdating }
+										onChange={ onChangeLinkFormat }
+										options={ [
+											{ label: __( 'Full URL', 'jetpack-publicize-pkg' ), value: 'full_url' },
+											{ label: __( 'Shortlink', 'jetpack-publicize-pkg' ), value: 'shortlink' },
+											{
+												label: __( 'Permashortcitation', 'jetpack-publicize-pkg' ),
+												value: 'permashortcitation',
+											},
+										] }
+										help={
+											<Text variant="body-sm">
+												{ __(
+													'Format of the link to use when sharing a note.',
+													'jetpack-publicize-pkg'
+												) }
+												&nbsp;
+												<Link
+													openInNewTab
+													href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format"
+												>
+													{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
+												</Link>
+											</Text>
+										}
+									/>
+								</div>
+							) }
+						</>
+					) }
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

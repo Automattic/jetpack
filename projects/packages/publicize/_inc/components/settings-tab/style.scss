@@ -1,36 +1,23 @@
+// Layout (flex direction + gap) is handled by the WPDS `Stack` component;
+// these rules only cover what `Stack` doesn't own — the column width cap
+// and the toggle-aligned indents.
 .jetpack-social-settings {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
 	margin-inline: auto;
 	max-inline-size: 660px;
 	inline-size: 100%;
 
 	&--empty {
-		justify-content: center;
-		padding: var(--wpds-dimension-padding-3xl, 32px) 0;
+		padding-block: var(--wpds-dimension-padding-3xl, 32px);
 	}
 }
 
-.jetpack-social-settings__card-content {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
-}
-
-// Indent nested controls under their parent toggle's label column.
-// FormToggle width + the HStack gap in the `__nextHasNoMarginBottom`
-// layout adds up to the `gap-3xl` token (40px in the default theme,
-// 32px in the compact one) — using the token tracks the toggle's size
-// scale so the alignment holds if the chassis ever swaps theme density.
-.jetpack-social-settings__card-nested {
-	padding-inline-start: var(--wpds-dimension-gap-3xl, 40px);
-}
-
-// Inline action-button rows (e.g. "Create a note", "Change defaults")
-// inherit the same indent and add flex+gap for the row layout.
+// Indent nested controls (and inline action rows) under their parent
+// toggle's label column. FormToggle width + the HStack gap in the
+// `__nextHasNoMarginBottom` layout adds up to the `gap-3xl` token (40px in
+// the default theme, 32px in the compact one) — using the token tracks the
+// toggle's size scale so the alignment holds if the chassis ever swaps
+// theme density.
+.jetpack-social-settings__card-nested,
 .jetpack-social-settings__card-actions {
-	display: flex;
-	gap: var(--wpds-dimension-gap-md, 12px);
 	padding-inline-start: var(--wpds-dimension-gap-3xl, 40px);
 }
