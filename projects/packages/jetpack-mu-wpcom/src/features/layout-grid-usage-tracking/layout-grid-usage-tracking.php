@@ -15,10 +15,12 @@
 
 declare(strict_types=1);
 
-const WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME  = 'jetpack/layout-grid';
-const WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION = 'wpcom_layout_grid_block_seen';
-const WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE = 'atomic_layout_grid_block';
-const WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE = 'layout_grid_block_observed';
+const WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME       = 'jetpack/layout-grid';
+const WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION      = 'wpcom_layout_grid_block_seen';
+const WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT = 'wpcom_layout_grid_block_import_seen';
+const WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT   = 'wpcom_layout_grid_block_cron_seen';
+const WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE      = 'atomic_layout_grid_block';
+const WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE      = 'layout_grid_block_observed';
 
 /**
  * Whether to register the detectors. WoA only — Simple has its own observer
@@ -42,11 +44,11 @@ if ( wpcom_layout_grid_usage_should_load() ) {
 }
 
 /**
- * Post-insert detector. Logs per-event (no sentinel): editor saves are
- * naturally low volume, and repeat events from the same blog corroborate
- * single-cause vs multi-cause patterns. Skips updates whose previous version
- * already contained the block so we don't log every edit of pre-existing
- * content — only the moment the block first lands in a given post.
+ * Post-insert detector. Logs editor-driven first-landings per-event (low
+ * volume, and repeat events from the same blog help corroborate single-cause
+ * vs multi-cause patterns). Importer- and cron-driven inserts are rate-limited
+ * to one event per blog per 24h via transients — same stack on every iteration,
+ * so per-event repeats add zero attribution value but a lot of noise.
  *
  * @param int           $post_id     Post ID.
  * @param \WP_Post      $post        Post after the insert.
@@ -72,12 +74,43 @@ function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update,
 	if ( $post_before instanceof \WP_Post && has_block( WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, $post_before ) ) {
 		return;
 	}
+	$is_importing = defined( 'WP_IMPORTING' ) && WP_IMPORTING;
+	$is_cron      = defined( 'DOING_CRON' ) && DOING_CRON;
+	if ( ! wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron ) ) {
+		return;
+	}
 	wpcom_layout_grid_usage_log_observation(
 		array(
 			'surface'   => 'post_insert',
 			'post_type' => (string) $post->post_type,
 		)
 	);
+}
+
+/**
+ * Rate-limit gate for high-volume insert contexts. Importer / cron runs touch
+ * many posts with the same call stack, so per-event logging adds noise without
+ * attribution value. Sets a 24h transient on first observation for each
+ * context and short-circuits further observations until it expires. Import
+ * takes precedence when both flags happen to be set (cron-triggered import).
+ *
+ * @param bool $is_importing Whether `WP_IMPORTING` is set.
+ * @param bool $is_cron      Whether `DOING_CRON` is set.
+ * @return bool True if the caller should continue and log; false to skip.
+ */
+function wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron ) {
+	if ( $is_importing ) {
+		$transient_key = WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT;
+	} elseif ( $is_cron ) {
+		$transient_key = WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT;
+	} else {
+		return true;
+	}
+	if ( get_transient( $transient_key ) ) {
+		return false;
+	}
+	set_transient( $transient_key, 1, DAY_IN_SECONDS );
+	return true;
 }
 
 /**

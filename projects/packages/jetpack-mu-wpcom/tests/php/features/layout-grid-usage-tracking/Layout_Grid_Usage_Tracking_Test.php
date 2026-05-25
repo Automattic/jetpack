@@ -20,22 +20,26 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-trackin
  * @covers ::wpcom_layout_grid_usage_attribute_source
  * @covers ::wpcom_layout_grid_usage_redact_paths
  * @covers ::wpcom_layout_grid_usage_react_to_block_render
+ * @covers ::wpcom_layout_grid_usage_should_log_in_context
  */
 #[CoversFunction( 'wpcom_layout_grid_usage_widget_value_contains_block' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_attribute_source' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_redact_paths' )]
 #[CoversFunction( 'wpcom_layout_grid_usage_react_to_block_render' )]
+#[CoversFunction( 'wpcom_layout_grid_usage_should_log_in_context' )]
 class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Reset the sentinel option and short-circuit the logstash dispatch
-	 * before each test. Without the filter, the render-backstop test would
-	 * fall through to `Jetpack_Mu_Wpcom::log2logstash()`, which can enqueue
-	 * a real HTTP POST against `public-api.wordpress.com` on shutdown.
+	 * Reset the per-test sentinel state and short-circuit the logstash
+	 * dispatch. Without the filter, the render backstop would fall through to
+	 * `Jetpack_Mu_Wpcom::log2logstash()`, which can enqueue a real HTTP POST
+	 * against `public-api.wordpress.com` on shutdown.
 	 */
 	public function set_up() {
 		parent::set_up();
 		delete_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION );
+		delete_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT );
+		delete_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT );
 		add_filter( 'wpcom_layout_grid_usage_log_enabled', '__return_false' );
 	}
 
@@ -92,13 +96,9 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Source attribution keeps frames whose `file` field points under
-	 * wp-content/plugins, wp-content/themes, or wp-content/mu-plugins and
-	 * drops everything else (core, pluggable, internal callers).
-	 *
-	 * Indirect: we can't stage a real PHP call stack from a test, so this
-	 * drives the same regex the production helper applies to each frame's
-	 * `file` field.
+	 * Documents the regex the production helper applies to each frame's `file`
+	 * field. Asserts exact equality (not contains-substring) so accidental
+	 * widening of the filter is caught.
 	 */
 	public function test_attribute_source_filter_keeps_only_extension_frames() {
 		$files    = array(
@@ -114,22 +114,34 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 				static fn( $file ) => (bool) preg_match( $pattern, $file )
 			)
 		);
-		$this->assertCount( 3, $relevant );
-		$this->assertStringContainsString( '/plugins/example/', $relevant[0] );
-		$this->assertStringContainsString( '/themes/twentytwentyfive/', $relevant[1] );
-		$this->assertStringContainsString( '/mu-plugins/example.php', $relevant[2] );
+		$this->assertSame(
+			array(
+				'/srv/htdocs/__wp__/wp-content/plugins/example/example.php',
+				'/srv/htdocs/__wp__/wp-content/themes/twentytwentyfive/functions.php',
+				'/srv/htdocs/__wp__/wp-content/mu-plugins/example.php',
+			),
+			$relevant
+		);
 	}
 
 	/**
-	 * Source attribution returns an array (possibly empty) and never fatals.
-	 * In a test environment the only frames in the stack are PHPUnit /
-	 * package internals, so the filter usually yields zero matches — we
-	 * just assert the shape is correct.
+	 * Source attribution returns an array capped at 8 entries, and every entry
+	 * must obey the `<file>:<line>` contract with `<file>` under an extension
+	 * directory. In a PHPUnit context the production call stack normally has
+	 * no extension frames, so the array is typically empty; when it isn't,
+	 * each entry must satisfy the per-entry shape.
 	 */
-	public function test_attribute_source_returns_array() {
+	public function test_attribute_source_returns_well_formed_entries() {
 		$result = wpcom_layout_grid_usage_attribute_source();
 		$this->assertIsArray( $result );
 		$this->assertLessThanOrEqual( 8, count( $result ) );
+		$tracker_file = Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
+		foreach ( $result as $entry ) {
+			$this->assertIsString( $entry );
+			$this->assertMatchesRegularExpression( '#^.+:\d+$#', $entry, 'each entry must be "<file>:<line>"' );
+			$this->assertMatchesRegularExpression( '#/wp-content/(plugins|themes|mu-plugins)/#', $entry, 'each entry must be under an extension directory' );
+			$this->assertStringNotContainsString( $tracker_file, $entry, 'self-frames must be skipped' );
+		}
 	}
 
 	/**
@@ -179,9 +191,9 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Render backstop sets the sentinel and returns the rendered content
-	 * unchanged on first invocation.
+	 * byte-for-byte unchanged on first invocation.
 	 */
-	public function test_render_backstop_sets_sentinel_and_returns_content() {
+	public function test_render_backstop_sets_sentinel_on_first_render() {
 		$this->assertFalse( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
 
 		$content = '<div class="wp-block-jetpack-layout-grid">hi</div>';
@@ -193,16 +205,66 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Render backstop is idempotent: once the sentinel is set, subsequent
-	 * renders short-circuit before the log dispatch (and obviously still
-	 * pass the content through unchanged).
+	 * renders return the content unchanged, leave the sentinel untouched, and
+	 * never reach the dispatch path.
 	 */
 	public function test_render_backstop_noops_when_sentinel_already_set() {
-		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 1, false );
+		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 7, false );
 
 		$content = '<div class="wp-block-jetpack-layout-grid">hi</div>';
 		$result  = wpcom_layout_grid_usage_react_to_block_render( $content, array() );
 
 		$this->assertSame( $content, $result );
-		$this->assertSame( 1, get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
+		// The handler must not overwrite a pre-existing sentinel value.
+		$this->assertSame( 7, get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
+	}
+
+	/**
+	 * Context gate is a no-op outside import and cron: returns true and
+	 * leaves both transients untouched.
+	 */
+	public function test_should_log_in_context_passes_through_outside_import_and_cron() {
+		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( false, false ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
+	}
+
+	/**
+	 * Import context: first call returns true and sets the import transient
+	 * (only); second call returns false and does not touch the cron transient.
+	 */
+	public function test_should_log_in_context_rate_limits_import() {
+		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( true, false ) );
+		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
+
+		$this->assertFalse( wpcom_layout_grid_usage_should_log_in_context( true, false ) );
+		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
+	}
+
+	/**
+	 * Cron context: first call returns true and sets the cron transient
+	 * (only); second call returns false and does not touch the import
+	 * transient.
+	 */
+	public function test_should_log_in_context_rate_limits_cron() {
+		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( false, true ) );
+		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+
+		$this->assertFalse( wpcom_layout_grid_usage_should_log_in_context( false, true ) );
+		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+	}
+
+	/**
+	 * When both flags are set (cron-triggered import), import takes
+	 * precedence: only the import transient is written.
+	 */
+	public function test_should_log_in_context_prefers_import_when_both_flags_set() {
+		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( true, true ) );
+		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
+		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
 	}
 }
