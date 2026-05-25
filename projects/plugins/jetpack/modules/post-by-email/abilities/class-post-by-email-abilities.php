@@ -84,7 +84,7 @@ class Post_By_Email_Abilities extends Registrar {
 
 			'jetpack-post-by-email/regenerate-address' => array(
 				'label'               => __( 'Regenerate Jetpack Post by Email address', 'jetpack' ),
-				'description'         => __( 'Rotate the current user\'s Post by Email address. Mints a fresh address on the remote service and invalidates the previous one — destructive: any saved drafts pointing at the old address will no longer reach this site. Not idempotent — each call produces a new address even when the previous call succeeded. Returns { address, regenerated_at } where address is the new email string and regenerated_at is a Unix timestamp (seconds) recorded at call time. Preconditions: the Post by Email module must be active and the current user must be connected to Jetpack; call jetpack-post-by-email/get-status first to verify the connection. Fails with jetpack_post_by_email_module_inactive (defensive — the abilities are only registered while the module is active), jetpack_post_by_email_not_connected, or jetpack_post_by_email_service_unreachable when the remote regenerate call fails.', 'jetpack' ),
+				'description'         => __( 'Ensure the current user has a Post by Email address by minting a fresh one — creating it when the user has none, or rotating (invalidating + replacing) the existing address. Destructive when an existing address is rotated: any saved drafts pointing at the old address will no longer reach this site. Not idempotent — each call produces a new address even when the previous call succeeded. Returns { address, regenerated_at } where address is the new email string and regenerated_at is a Unix timestamp (seconds) recorded at call time. Preconditions: the Post by Email module must be active and the current user must be connected to Jetpack; call jetpack-post-by-email/get-status first to verify the connection. Fails with jetpack_post_by_email_module_inactive (defensive — the abilities are only registered while the module is active), jetpack_post_by_email_not_connected, or jetpack_post_by_email_service_unreachable when the remote call fails.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -210,7 +210,16 @@ class Post_By_Email_Abilities extends Registrar {
 			);
 		}
 
-		$new_address = static::apply_regenerate();
+		// Choose between 'create' and 'regenerate' on the underlying writer:
+		// the remote 'regenerate' endpoint expects an existing address to
+		// rotate. Calling it for a user who has never enabled Post by Email
+		// fails on the remote side. Inspect the current address first and route
+		// accordingly so a fresh user gets a usable address from the same
+		// ability instead of an opaque service error.
+		$existing = static::fetch_address();
+		$action   = is_string( $existing ) && '' !== $existing ? 'regenerate' : 'create';
+
+		$new_address = static::apply_action( $action );
 		if ( is_wp_error( $new_address ) ) {
 			return new \WP_Error(
 				'jetpack_post_by_email_service_unreachable',
@@ -249,19 +258,19 @@ class Post_By_Email_Abilities extends Registrar {
 	}
 
 	/**
-	 * Rotate the current user's Post by Email address on the remote service.
-	 *
-	 * Delegates to `Jetpack_Post_By_Email::process_api_request( 'regenerate' )`
-	 * so the abilities path and the legacy AJAX/REST path share a single writer
+	 * Mint or rotate the current user's Post by Email address on the remote
+	 * service. Delegates to `Jetpack_Post_By_Email::process_api_request()` so
+	 * the abilities path and the legacy AJAX/REST path share a single writer
 	 * (including the `post_by_email_address{user_id}` option mirror used by
 	 * `Jetpack_Core_Json_Api_Endpoints::get_remote_value`). The shared helper
 	 * returns the new address string on success or `array( 'message' => ... )`
 	 * on failure; we adapt the failure shape to WP_Error here.
 	 *
+	 * @param string $action 'create' (no existing address) or 'regenerate' (rotate existing).
 	 * @return string|\WP_Error New address on success, WP_Error on remote failure.
 	 */
-	protected static function apply_regenerate() {
-		$result = \Jetpack_Post_By_Email::init()->process_api_request( 'regenerate' );
+	protected static function apply_action( string $action ) {
+		$result = \Jetpack_Post_By_Email::init()->process_api_request( $action );
 
 		if ( is_string( $result ) && '' !== $result ) {
 			return $result;

@@ -452,6 +452,56 @@ class Post_By_Email_Abilities_Test extends WP_UnitTestCase {
 		$this->assertGreaterThanOrEqual( $before, $result['regenerated_at'] );
 		$this->assertLessThanOrEqual( $after, $result['regenerated_at'] );
 		$this->assertSame( 1, Post_By_Email_Abilities_Test_Stub::$apply_calls );
+		$this->assertSame(
+			array( 'regenerate' ),
+			Post_By_Email_Abilities_Test_Stub::$apply_actions,
+			'With an existing address the underlying writer must be called with the regenerate action.'
+		);
+	}
+
+	/**
+	 * When the user has no current address, the ability must call the underlying
+	 * writer with the 'create' action — the remote 'regenerate' endpoint expects
+	 * an existing address to rotate, so calling it for a fresh user would error.
+	 */
+	public function test_regenerate_address_uses_create_action_when_no_existing_address() {
+		wp_set_current_user( $this->user_id );
+		$this->activate_post_by_email_module();
+
+		Post_By_Email_Abilities_Test_Stub::reset( null, 'pbe-newly-created@example.test' );
+
+		$result = Post_By_Email_Abilities_Test_Stub::regenerate_address();
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'pbe-newly-created@example.test', $result['address'] );
+		$this->assertSame( 1, Post_By_Email_Abilities_Test_Stub::$apply_calls );
+		$this->assertSame(
+			array( 'create' ),
+			Post_By_Email_Abilities_Test_Stub::$apply_actions,
+			'A user without an existing address must trigger the create action, not regenerate.'
+		);
+	}
+
+	/**
+	 * Same as above but the current address is the empty string (not just null) —
+	 * the routing logic must treat "" identically to null since an empty address
+	 * means the user has not been provisioned on the remote service.
+	 */
+	public function test_regenerate_address_uses_create_action_when_existing_address_is_empty_string() {
+		wp_set_current_user( $this->user_id );
+		$this->activate_post_by_email_module();
+
+		Post_By_Email_Abilities_Test_Stub::reset( '', 'pbe-newly-created@example.test' );
+
+		$result = Post_By_Email_Abilities_Test_Stub::regenerate_address();
+
+		$this->assertIsArray( $result );
+		$this->assertSame(
+			array( 'create' ),
+			Post_By_Email_Abilities_Test_Stub::$apply_actions,
+			'Empty current address must be treated the same as null and route to create.'
+		);
+		$this->assertSame( 'pbe-newly-created@example.test', $result['address'] );
 	}
 
 	/**
