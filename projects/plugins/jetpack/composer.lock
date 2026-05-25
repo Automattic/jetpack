@@ -2851,7 +2851,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "cf05c9c2f01203015deb326754fbb0e2ec33a087"
+                "reference": "d5aadd0ceb02b976b5d2485364126e87c9f264f3"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2863,6 +2863,7 @@
                 "automattic/jetpack-post-media": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
