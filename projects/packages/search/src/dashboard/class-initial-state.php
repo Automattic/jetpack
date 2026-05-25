@@ -125,10 +125,15 @@ class Initial_State {
 				 */
 				'activeThemeStylesheet'      => get_stylesheet(),
 				/**
-				 * Whether the active theme is a block theme. The Embedded search
-				 * experience is built and customized in the Site Editor, which
-				 * classic themes don't have, so the dashboard blocks switching to
-				 * Embedded when this is false.
+				 * Whether the active theme is a block theme. Embedded itself
+				 * works on every theme — block themes through the FSE
+				 * `search_template_hierarchy` route, classic themes through
+				 * the singleton-CPT shim — but the Embedded card's
+				 * customization affordances diverge: block themes get the
+				 * Site-Editor entry points ("Edit search template" / "Insert
+				 * pattern"), classic themes get the block-editor-on-a-hidden-
+				 * CPT path via `searchTemplate`. This flag is the dashboard's
+				 * branch selector for which to render.
 				 */
 				'themeSupportsBlocks'        => wp_is_block_theme(),
 			),

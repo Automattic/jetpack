@@ -63,15 +63,17 @@ export default function SingletonTemplateActions( {
 				   The edit link always renders so the affordance stays
 				   visible as a muted CTA on inactive cards too — matches the
 				   FSE "Edit search template" / "Insert pattern" pattern on
-				   the Embedded card. `config.editorUrl` is null until the
-				   experience is the active one (and for non-admins), but
-				   the disabled span doesn't navigate so the placeholder
-				   href is harmless.
+				   the Embedded card. Disabled when (a) the card isn't the
+				   active experience yet (the surrounding card's inactive
+				   state) or (b) the PHP side withheld `config.editorUrl` for
+				   non-admins — `CardLink` renders an inert `<span>` in that
+				   state, so a non-admin who somehow lands on this page
+				   doesn't get a live `<a href="#">` that navigates nowhere.
 				*/ }
 				<CardLink
 					label={ editLabel }
 					href={ config.editorUrl || '#' }
-					disabled={ linksDisabled }
+					disabled={ linksDisabled || ! config.editorUrl }
 					// Re-show "Restore default" on the admin's return from
 					// the editor: the click implies a fresh singleton is
 					// about to be (re-)created on the server, so the
