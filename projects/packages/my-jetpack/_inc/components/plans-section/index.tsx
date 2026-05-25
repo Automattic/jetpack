@@ -1,5 +1,3 @@
-// TODO: migrate Button usages to @wordpress/ui Link (handled in a separate PR — all Buttons here use variant="link" + href + isExternalLink + weight="regular", which @wordpress/ui Button does not support).
-import { Button } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
@@ -110,16 +108,16 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+				<Link href={ renewUrl } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
-				</Button>
+				</Link>
 			);
 		}
 
 		return (
-			<Button href={ managePurchaseUrl } isExternalLink={ true } variant="link" weight="regular">
+			<Link href={ managePurchaseUrl } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
-			</Button>
+			</Link>
 		);
 	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
 
@@ -243,39 +241,29 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 			) }
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
+					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
 						href={ getMyJetpackUrl( '#/products?filter=included' ) }
-						variant="link"
-						weight="regular"
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
-					</Button>
+					</Link>
 				</li>
 			) }
 			{ ! hasComplete && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planPurchaseClickHandler }
-						href={ getPurchasePlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<Link onClick={ planPurchaseClickHandler } href={ getPurchasePlanUrl() } openInNewTab>
 						{ planPurchaseDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
+					<Link
 						onClick={ activateLicenseClickHandler }
 						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
-						variant="link"
-						weight="regular"
 					>
 						{ activateLicenceDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
 		</ul>
