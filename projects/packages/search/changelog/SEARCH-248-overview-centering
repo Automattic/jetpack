@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Dashboard: improve Overview tab responsiveness at tablet widths — the meter, mocked-overlay, and record-meter rows now span the full grid (8 of 8 columns) at the tablet breakpoint instead of 6, and the usage donuts stay on a single row instead of stacking until the viewport is genuinely narrow.
