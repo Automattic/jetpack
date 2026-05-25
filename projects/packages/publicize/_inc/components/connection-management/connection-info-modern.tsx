@@ -1,9 +1,8 @@
-import { Text } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronDown, info } from '@wordpress/icons';
-import { Collapsible, Tooltip } from '@wordpress/ui';
+import { chevronDown, info } from '@wordpress/icons';
+import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { XNotice } from '../services/x-notice';
@@ -70,45 +69,60 @@ export function ModernConnectionInfo( {
 					profilePicture={ connection.profile_picture }
 					size="medium"
 				/>
-				<div className={ styles[ 'connection-name-wrapper' ] }>
-					<div className={ styles[ 'connection-item-name' ] }>
+				<Stack direction="column" gap="xs" className={ styles[ 'connection-name-wrapper' ] }>
+					{ /*
+					 * The profile-name link lives inside the row, which doubles as
+					 * the Collapsible.Trigger. Without stopping propagation a click
+					 * on the link would also toggle the disclosure (and an anchor
+					 * inside role="button" is invalid nesting). Mirror the
+					 * connection-status-wrap below so the link opens the profile
+					 * without toggling the panel.
+					 */ }
+					<Text
+						variant="body-lg"
+						className={ styles[ 'connection-item-name' ] }
+						onClick={ stopPropagation }
+						onKeyDown={ stopPropagation }
+						role="presentation"
+					>
 						<ConnectionName connection={ connection } tone="neutral" />
-					</div>
+					</Text>
 					{ hasStatus ? (
-						<div
-							className={ styles[ 'connection-status-wrap' ] }
+						<Stack
+							direction="column"
+							gap="xs"
 							onClick={ stopPropagation }
 							onKeyDown={ stopPropagation }
 							role="presentation"
 						>
 							<ConnectionStatus connection={ connection } service={ service } />
-						</div>
+						</Stack>
 					) : (
-						<span className={ styles[ 'connection-network' ] }>{ service?.label }</span>
+						<Text variant="body-md" className={ styles[ 'connection-network' ] }>
+							{ service?.label }
+						</Text>
 					) }
-				</div>
+				</Stack>
 				<Icon className={ styles.chevron } icon={ chevronDown } />
 			</Collapsible.Trigger>
 			<Collapsible.Panel className={ styles[ 'connection-panel' ] }>
 				<div className={ styles[ 'connection-panel-inner' ] }>
 					{ canMarkAsShared && (
-						<div className={ styles[ 'mark-shared-wrap' ] }>
+						<Stack
+							direction="row"
+							align="center"
+							gap="sm"
+							className={ styles[ 'mark-shared-wrap' ] }
+						>
 							<MarkAsShared connection={ connection } />
-							<Tooltip.Root>
-								<Tooltip.Trigger
-									render={
-										<button
-											type="button"
-											className={ styles[ 'mark-shared-help' ] }
-											aria-label={ markAsSharedHelp }
-										>
-											<Icon icon={ info } size={ 18 } />
-										</button>
-									}
-								/>
-								<Tooltip.Popup sideOffset={ 8 }>{ markAsSharedHelp }</Tooltip.Popup>
-							</Tooltip.Root>
-						</div>
+							<IconButton
+								variant="minimal"
+								tone="neutral"
+								size="small"
+								label={ markAsSharedHelp }
+								icon={ info }
+							/>
+						</Stack>
 					) }
 					<div className={ styles[ 'connection-template-wrap' ] }>
 						<ConnectionTemplateEditor connection={ connection } />

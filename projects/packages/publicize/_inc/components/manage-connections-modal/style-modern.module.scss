@@ -1,29 +1,28 @@
-.modal.modal {
-	width: 65rem;
-}
+// While listing services we pin the Dialog frame so expanding a disclosure row
+// scrolls inside the popup instead of growing the (otherwise vertically
+// centered) frame and shifting its contents.
 
-// While the services list is shown (i.e. not the compact confirmation view),
-// occupy the full max-height the WP Modal allows so the frame stays a fixed
-// size as disclosure rows expand/collapse. Without this the frame is
-// content-sized and, being vertically centered, shifts upward when a row
-// expands past the max-height threshold. Mobile (`.small`) keeps WordPress's
-// full-screen treatment untouched.
-.modal.services-list:not(.small) {
-	height: 100%;
-}
+// We pin with explicit top/bottom insets rather than the Dialog's default
+// `top: 50%` + `translateY(-50%)` centering, for two reasons:
+//   1. The Dialog is built for the block editor and is unaware of wp-admin's
+//      fixed `#wpadminbar`; centering a near-full-height frame tucks its top
+//      under the bar. `--wp-admin--admin-bar--height` (kept in sync by
+//      WordPress — 32px desktop, 46px ≤782px, 0 when absent) plus the Dialog's
+//      usual 24px gutter gives the top inset.
+//   2. Centering a tall frame lands it on a half-pixel (odd viewport height),
+//      which misaligns the native scrollbar by ~1px. Integer insets avoid that.
+// `translateX(-50%)` is kept so the frame stays horizontally centered against
+// the base `left: 50%`.
+.services-list {
+	top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wpds-dimension-padding-2xl, 24px));
+	bottom: var(--wpds-dimension-padding-2xl, 24px);
+	height: auto;
+	max-height: none;
+	transform: translateX(-50%);
 
-.connect-form {
-	display: grid;
-	gap: 0.5rem;
-
-	>input {
-		height: 100%;
-		width: 18rem;
-	}
-
-	&:not(.small) {
-		grid-auto-flow: column;
-	}
+	// Reserve the scrollbar gutter on both sides so the rows don't shift when a
+	// disclosure (e.g. the Instagram preview) makes the frame overflow + scroll.
+	scrollbar-gutter: stable both-edges;
 }
 
 .manual-share {

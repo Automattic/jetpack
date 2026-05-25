@@ -1,11 +1,10 @@
 import {
 	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	Notice,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import styles from './style-modern.module.scss';
@@ -160,12 +159,14 @@ export function ModernCustomInputs( { service }: CustomInputsProps ) {
 						) }
 					/>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
-						<Notice status="error" isDismissible={ false }>
-							{ __(
-								'Please provide an app password to fix the connection.',
-								'jetpack-publicize-pkg'
-							) }
-						</Notice>
+						<Notice.Root intent="error">
+							<Notice.Description>
+								{ __(
+									'Please provide an app password to fix the connection.',
+									'jetpack-publicize-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 				</div>
 			</>

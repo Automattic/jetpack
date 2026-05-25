@@ -1,9 +1,9 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Icon, chevronDown } from '@wordpress/icons';
-import { Collapsible } from '@wordpress/ui';
+import { chevronDown } from '@wordpress/icons';
+import { Collapsible, Icon, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
@@ -34,7 +34,7 @@ export function ModernServiceItem( {
 	serviceConnections,
 	isPanelDefaultOpen,
 }: ServicesItemProps ) {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const [ isPanelOpen, setIsPanelOpen ] = useState( Boolean( isPanelDefaultOpen ) );
 	const togglePanel = useCallback( () => setIsPanelOpen( open => ! open ), [] );
@@ -87,7 +87,9 @@ export function ModernServiceItem( {
 				</div>
 				<div className={ styles[ 'service-basics' ] }>
 					<div className={ styles.heading }>
-						<span className={ styles.title }>{ service.label }</span>
+						<Text variant="body-lg" className={ styles.title }>
+							{ service.label }
+						</Text>
 					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>

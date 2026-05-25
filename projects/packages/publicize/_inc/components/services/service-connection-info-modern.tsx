@@ -1,8 +1,7 @@
-import { Text } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
-import { Tooltip } from '@wordpress/ui';
+import { info } from '@wordpress/icons';
+import { IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import ConnectionIcon from '../connection-icon';
@@ -31,8 +30,8 @@ export const ModernServiceConnectionInfo = ( {
 	);
 
 	return (
-		<div className={ styles[ 'service-connection-wrapper' ] }>
-			<div className={ styles[ 'service-connection' ] }>
+		<Stack direction="column" gap="lg">
+			<Stack direction="row" gap="lg">
 				<div>
 					<ConnectionIcon
 						className={ styles[ 'profile-pic' ] }
@@ -40,7 +39,12 @@ export const ModernServiceConnectionInfo = ( {
 						label={ connection.display_name }
 					/>
 				</div>
-				<div className={ styles[ 'connection-details' ] }>
+				<Stack
+					direction="column"
+					align="flex-start"
+					gap="sm"
+					className={ styles[ 'connection-details' ] }
+				>
 					<ConnectionName connection={ connection } tone="neutral" />
 					{ ( conn => {
 						/**
@@ -62,34 +66,24 @@ export const ModernServiceConnectionInfo = ( {
 							);
 
 							return (
-								<div className={ styles[ 'mark-shared-wrap' ] }>
+								<Stack direction="row" align="center" gap="sm">
 									<MarkAsShared connection={ conn } />
-									<Tooltip.Root>
-										<Tooltip.Trigger
-											render={
-												<button
-													type="button"
-													className={ styles[ 'mark-shared-help' ] }
-													aria-label={ markAsSharedHelp }
-												>
-													<Icon icon={ info } size={ 18 } />
-												</button>
-											}
-										/>
-										{ /*
-										 * The WPDS Tooltip positioner defaults to
-										 * `z-index: var(--wp-ui-tooltip-z-index, initial)`,
-										 * which falls back to `auto`. Inside the
-										 * wp-components Modal (z-index ~100000), the
-										 * popup ends up behind the modal frame. Pin
-										 * the popup above the modal so the tooltip
-										 * is visible when hovering inside the modal.
-										 */ }
-										<Tooltip.Popup sideOffset={ 8 } style={ { zIndex: 100001 } }>
-											{ markAsSharedHelp }
-										</Tooltip.Popup>
-									</Tooltip.Root>
-								</div>
+									{ /*
+									 * IconButton carries its own tooltip + accessible
+									 * label, so it replaces the hand-rolled button and
+									 * Tooltip. Now that the modal is a portaled WPDS
+									 * Dialog, the tooltip stacks above the frame on its
+									 * own — the previous `z-index: 100001` workaround is
+									 * no longer needed.
+									 */ }
+									<IconButton
+										variant="minimal"
+										tone="neutral"
+										size="small"
+										label={ markAsSharedHelp }
+										icon={ info }
+									/>
+								</Stack>
 							);
 						}
 
@@ -111,12 +105,12 @@ export const ModernServiceConnectionInfo = ( {
 							</>
 						) : null;
 					} )( connection ) }
-				</div>
+				</Stack>
 				<div className={ styles[ 'connection-actions' ] }>
 					<Disconnect connection={ connection } variant="outline" size="compact" tone="neutral" />
 				</div>
-			</div>
+			</Stack>
 			<ConnectionTemplateEditor connection={ connection } />
-		</div>
+		</Stack>
 	);
 };
