@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Reader Chat: prevent the frontend widget from loading on Coming Soon or unlaunched sites.

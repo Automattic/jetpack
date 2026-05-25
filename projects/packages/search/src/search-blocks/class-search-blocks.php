@@ -190,9 +190,29 @@ class Search_Blocks {
 		$experience = ( new Module_Control() )->get_experience();
 
 		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
-			add_action( 'init', array( static::class, 'register_search_template' ) );
-			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
-			Theme_Chrome_Slug_Resolver::register_hooks();
+			if ( static::block_templates_active() ) {
+				// Block themes: register the bundled template and front it via
+				// the FSE template-hierarchy filter so the Site Editor and the
+				// block-template render path both pick it up.
+				add_action( 'init', array( static::class, 'register_search_template' ) );
+				add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+				Theme_Chrome_Slug_Resolver::register_hooks();
+			} else {
+				// Classic themes: there is no FSE hierarchy to prepend to and
+				// `locate_template()` can't resolve the `jetpack-search` slug to
+				// a theme PHP file, so swap the resolved template path post-
+				// hierarchy via `template_include`. The bundled block markup
+				// renders inside the theme's `get_header()` / `get_footer()`,
+				// so the search page slots into the theme's chrome instead of
+				// replacing it.
+				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ) );
+				// Classic themes lose the Site Editor entry point for
+				// customizing the bundled template, so wire up the
+				// `Search_Template` singleton CPT — the standard block
+				// editor on a hidden post is the theme-agnostic editing
+				// surface, mirroring `Overlay_Template`.
+				Search_Template::init();
+			}
 		}
 
 		// When the blocks own the front-end search results, the server-side
@@ -222,8 +242,20 @@ class Search_Blocks {
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
 		}
 
-		if ( static::is_block_template_overlay_enabled() ) {
+		// Two-tier gate: register the editable template CPT + admin-init editor
+		// handler whenever the operator filter is on, so admins can edit the
+		// overlay template *before* opting into the blocks Overlay experience
+		// (e.g. preview the editor from the Beta card while the preact Overlay
+		// is still the active arm — without this split, the editorUrl seeded
+		// into the React initial state at page load would be null and the
+		// link would become a no-op once the user switched to the Beta card
+		// without a page refresh). The front-end render hooks stay gated on
+		// the active experience — they only paint the overlay when the user
+		// has actually committed to it.
+		if ( static::is_block_template_overlay_filter_on() ) {
 			Overlay_Template::init();
+		}
+		if ( static::is_block_template_overlay_enabled() ) {
 			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_block_template_overlay_assets' ) );
 			add_action( 'wp_footer', array( static::class, 'print_block_template_overlay' ) );
 		}
@@ -282,35 +314,57 @@ class Search_Blocks {
 	 * server-rendered Search blocks template
 	 * (`templates/jetpack-search-overlay.html`).
 	 *
-	 * EXPERIMENTAL — off by default; not production-ready. Two conditions
-	 * must hold for the runtime swap to occur:
+	 * EXPERIMENTAL — available by default; opt-in via the Experience
+	 * Selector. Two conditions must hold for the runtime swap to occur:
 	 *
-	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on.
-	 *      This is the operator-level gate that surfaces the new option in
-	 *      the Experience Selector and registers the overlay assets.
+	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on
+	 *      (defaults true). This is the operator-level gate that surfaces
+	 *      the new option in the Experience Selector and registers the
+	 *      overlay assets. Operators can still pin it back to false to
+	 *      hide the experimental card.
 	 *   2. The site owner has chosen the new overlay experience in the
 	 *      dashboard (`Module_Control::EXPERIENCE_OVERLAY_BLOCKS`).
 	 *
 	 * Both conditions let the legacy and blocks-powered overlays coexist
-	 * on the same site — operators can opt a site into the new path, and
-	 * site owners can still flip back to the legacy experience without
-	 * touching any server-side filter. When both are true the legacy
-	 * `SearchApp` is bypassed via the `jetpack_search_init_instant_search`
-	 * filter (wired in `Initializer::init_search_blocks()`).
+	 * on the same site — operators can hide the new path on sites where
+	 * they don't want it surfaced, and site owners can still flip back to
+	 * the legacy experience without touching any server-side filter. When
+	 * both are true the legacy `SearchApp` is bypassed via the
+	 * `jetpack_search_init_instant_search` filter (wired in
+	 * `Initializer::init_search_blocks()`).
 	 *
 	 * @return bool
 	 */
 	public static function is_block_template_overlay_enabled(): bool {
-		/**
-		 * Opt into the experimental Search blocks overlay. Off by default.
-		 * Do not enable in production until this feature graduates.
-		 *
-		 * @param bool $enabled Default false.
-		 */
-		if ( ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', false ) ) {
+		if ( ! static::is_block_template_overlay_filter_on() ) {
 			return false;
 		}
 		return Module_Control::EXPERIENCE_OVERLAY_BLOCKS === ( new Module_Control() )->get_experience();
+	}
+
+	/**
+	 * Whether the operator filter that exposes the blocks-powered overlay is
+	 * on. Available by default; operators can pin to false to hide the Beta
+	 * card and disable the editable-template machinery entirely.
+	 *
+	 * Lighter check than `is_block_template_overlay_enabled()` — does not
+	 * require the user to have committed to the new overlay experience.
+	 * Use this to gate one-time setup that should also work *before* the
+	 * user opts in (e.g. registering the editable template CPT so admins
+	 * can preview the editor from the Beta card while preact Overlay is
+	 * still active).
+	 *
+	 * @return bool
+	 */
+	public static function is_block_template_overlay_filter_on(): bool {
+		/**
+		 * Opt out of the experimental Search blocks overlay. Available by
+		 * default; return false to hide the Beta card from the Experience
+		 * Selector and disable the editable-template CPT.
+		 *
+		 * @param bool $enabled Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true );
 	}
 
 	/**
@@ -457,7 +511,7 @@ class Search_Blocks {
 	 * depend on (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`). An older or
 	 * absent WooCommerce reads as unsupported.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.1.0
 	 *
 	 * @param string|null $version WooCommerce version to test; defaults to the
 	 *   live `WC_VERSION` constant. The override exists so tests can pin a
@@ -1243,6 +1297,13 @@ class Search_Blocks {
  * the centered card, the header strip (search input + close button),
  * open/close animation, and the body-scroll-lock helper. Mirrors the
  * visual idiom of the legacy `instant-search/components/overlay.scss`.
+ *
+ * Surface + ink track the theme's `base` / `contrast` tokens (matching the
+ * suggestions dropdown and sort popover treatment), so the modal reads as
+ * part of the active palette on dark themes instead of a forced-white panel
+ * with illegible inherited light text. Hairlines and the close-button hover
+ * use `color-mix(currentColor)` so they keep a consistent contrast ratio
+ * against whatever surface the theme chose.
  */
 .jetpack-search-block-overlay {
 	position: fixed;
@@ -1268,7 +1329,8 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	background: #fff;
+	background: var(--wp--preset--color--base, #fff);
+	color: var(--wp--preset--color--contrast, inherit);
 	border-radius: 4px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
@@ -1284,13 +1346,30 @@ class Search_Blocks {
 	justify-content: center;
 	background: transparent;
 	border: 0;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid transparent;
 	cursor: pointer;
 	color: inherit;
 }
-.jetpack-search-block-overlay__close:hover,
-.jetpack-search-block-overlay__close:focus-visible {
-	background: #f6f7f7;
+/*
+ * Hairlines and the close-button hover use `color-mix(currentColor)`. On
+ * browsers without color-mix support (~Chrome <111, Firefox <113, Safari
+ * <16.2) the entire `border-bottom`/`background` shorthand would be
+ * invalid and the cascade would land on initial values — `border-style:
+ * none` (no hairline) or `border-color: currentColor` full-opacity (stark
+ * ink on dark themes). The `transparent` defaults paired with `@supports`
+ * overrides give those older browsers a graceful no-affordance state
+ * instead of a stark one — same convention `_chip.scss` uses.
+ */
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__close {
+		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
+}
+@supports (background: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__close:hover,
+	.jetpack-search-block-overlay__close:focus-visible {
+		background: color-mix(in sRGB, currentColor 8%, transparent);
+	}
 }
 .jetpack-search-block-overlay__close svg {
 	width: 24px;
@@ -1315,7 +1394,12 @@ class Search_Blocks {
 	height: 60px;
 	margin: 0;
 	padding: 0;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid transparent;
+}
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
+		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
 }
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__inside-wrapper {
 	height: 100%;
@@ -1351,8 +1435,30 @@ class Search_Blocks {
 	font-weight: 400;
 	line-height: 1;
 }
+/*
+ * Suggestions dropdown sits on top of the results + filters area below
+ * the input row. Two adjustments vs. the base style: (1) cancel out the
+ * input wrapper's `right: 60px` offset so the panel reaches the card's
+ * right edge and covers the filters column instead of leaving "Category"
+ * / "Post Type" peeking out on the right; (2) lift `z-index` above the
+ * other in-card popovers (`results-sort` and `filters-popover` both at
+ * `z-index: 20`) so the panel reliably wins the stacking order even
+ * when one of those is open underneath. Explicit `background: #fff`
+ * matches the card's hardcoded surface as a final guard against any
+ * theme that neutralises the global token fallback.
+ */
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
+	right: -60px;
+	z-index: 30;
+	background: #fff;
+}
+/*
+ * Top padding clears the absolutely-positioned 60px header strip — without
+ * it the "Found N results" / Sort by row sat flush against the search
+ * input's bottom border and the modal felt cramped (SEARCH-243).
+ */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
-	padding: 0 2em 2em;
+	padding: .5em 2em 2em;
 }
 /*
  * The "Found N results" + sort dropdown row sits inside the rendered
@@ -1368,6 +1474,24 @@ class Search_Blocks {
 	justify-content: space-between;
 	align-items: center;
 }
+/*
+ * Filter sidebar's left divider: track `currentColor` (i.e. the active
+ * theme's ink) so the hairline stays subtle on light themes and visible on
+ * dark themes, instead of rendering as flat grey on either. The width
+ * comes from the column block's inline `border-left-width` (and WP block
+ * border support fills in `border-left-style: solid`); we only own the
+ * color here. `transparent` base + `@supports` override avoids the stark
+ * full-opacity `currentColor` fallback that older browsers would otherwise
+ * land on — mirrors the close-button hairline treatment above.
+ */
+.jetpack-search-block-overlay__filters-column {
+	border-left-color: transparent;
+}
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__filters-column {
+		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
+}
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
 		padding: 0;
@@ -1378,7 +1502,7 @@ class Search_Blocks {
 		box-shadow: none;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: 0 1em 1em;
+		padding: .5em 1em 1em;
 	}
 }
 /*
@@ -1569,6 +1693,108 @@ CSS;
 	}
 
 	/**
+	 * Classic-theme counterpart to `prepend_search_template()`.
+	 *
+	 * Prepending a slug to `search_template_hierarchy` only works on block
+	 * themes — `locate_template()` walks the slugs as `{slug}.php` files in
+	 * the active theme, which a classic theme never ships for our
+	 * `jetpack-search` slug, so the hierarchy filter is a no-op there.
+	 * Instead we let the hierarchy resolve normally (to the theme's
+	 * `search.php` / `index.php`) and then swap the resolved path
+	 * post-resolution via `template_include` for our bundled PHP shim, which
+	 * renders the same block markup inside the theme's
+	 * `get_header()` / `get_footer()`.
+	 *
+	 * Hooked only when `init()` already established Embedded + classic theme,
+	 * so we just guard on `is_search()` and the WooCommerce product-search
+	 * carve-out (the block-template registry doesn't reach classic themes,
+	 * so we don't ship a per-Woo classic shim — let WooCommerce's own
+	 * archive routing render the product search results).
+	 *
+	 * @param string $template Resolved template path.
+	 * @return string
+	 */
+	public static function route_classic_theme_search_template( $template ) {
+		if ( ! is_search() ) {
+			return $template;
+		}
+		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
+			return $template;
+		}
+		// Bail back to the theme's own search template if neither a
+		// customization nor a readable bundled body is available —
+		// rendering header / footer with nothing between them just
+		// looks like a broken page. A saved empty customization
+		// (Search_Template::get_customized_content() returning ''
+		// instead of null) is treated as intentional and honored.
+		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
+			return $template;
+		}
+		return __DIR__ . '/templates/classic-theme-search.php';
+	}
+
+	/**
+	 * Search template body for the classic-theme `template_include` route —
+	 * the same block markup the block-theme path registers, with the leading
+	 * and trailing `core/template-part` references stripped so the theme's
+	 * `get_header()` / `get_footer()` drive the chrome.
+	 *
+	 * Source of truth, in order:
+	 *
+	 *   1. The customized singleton CPT ({@see Search_Template}), if an
+	 *      admin has saved one via the dashboard's "Edit search template"
+	 *      link.
+	 *   2. The bundled `templates/jetpack-search.html` file, template-part
+	 *      wrappers stripped.
+	 *
+	 * Public because the bundled PHP shim (`templates/classic-theme-search.php`)
+	 * needs to call it from outside the class scope.
+	 *
+	 * @return string Block markup, no template-part wrappers.
+	 */
+	public static function get_classic_theme_search_body(): string {
+		// Customization first — singleton CPT seeded from the bundled
+		// markup, edited via post.php; theme-agnostic so the admin can
+		// reach the editor without a Site Editor.
+		$customized = Search_Template::get_customized_content();
+		if ( null !== $customized ) {
+			return $customized;
+		}
+		$content = static::get_search_template_content();
+		if ( '' === $content ) {
+			return '';
+		}
+		// The bundled template emits exactly two top-level `core/template-part`
+		// self-closing comments (header before the main group, footer after).
+		// On classic themes those slugs don't resolve to anything renderable,
+		// so drop the comments before `do_blocks()` walks the markup. The
+		// inner `.*?` is non-greedy and capped by the `-->` sentinel, so a
+		// future template revision that nests JSON (e.g. `{"theme":{"name":"x"}}`)
+		// in a `wp:template-part` attribute keeps matching cleanly.
+		return (string) preg_replace( '#<!--\s*wp:template-part\s+.*?/-->\s*#s', '', $content );
+	}
+
+	/**
+	 * Test override for `block_templates_active()`. Null means "no override
+	 * — read the live state via `wp_is_block_theme()`". Set in tests that
+	 * need to exercise the block-theme `init()` path without standing up a
+	 * real block theme; reset back to null in the teardown.
+	 *
+	 * @var bool|null
+	 */
+	private static $block_templates_active_for_testing = null;
+
+	/**
+	 * Test seam. Set true/false to force `block_templates_active()`'s return
+	 * value, or null to clear the override.
+	 *
+	 * @param bool|null $active Forced value, or null to clear.
+	 */
+	public static function set_block_templates_active_for_testing( ?bool $active ): void {
+		self::$block_templates_active_for_testing = $active;
+	}
+
+	/**
 	 * Whether the active theme resolves block templates. Wraps
 	 * `wp_is_block_theme()` as an overridable seam so tests can exercise the
 	 * block-theme path without standing up a block theme.
@@ -1576,6 +1802,9 @@ CSS;
 	 * @return bool
 	 */
 	protected static function block_templates_active(): bool {
+		if ( null !== self::$block_templates_active_for_testing ) {
+			return self::$block_templates_active_for_testing;
+		}
 		return wp_is_block_theme();
 	}
 

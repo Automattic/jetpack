@@ -181,7 +181,10 @@ class Initializer_Test extends Search_TestCase {
 
 	public function test_init_search_blocks_does_not_activate_overlay_when_overlay_gate_off() {
 		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
-		// `jetpack_search_overlay_block_template_enabled` defaults false.
+		// `jetpack_search_overlay_block_template_enabled` defaults true since
+		// the Beta release; pin it back to false here so this test exercises
+		// the operator-opt-out path that is the point of this test.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
 
 		$this->invoke_init_search_blocks();
 

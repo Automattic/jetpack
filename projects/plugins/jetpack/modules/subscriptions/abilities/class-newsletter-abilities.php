@@ -127,6 +127,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 
@@ -157,6 +161,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 
@@ -189,6 +197,10 @@ class Newsletter_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 		);

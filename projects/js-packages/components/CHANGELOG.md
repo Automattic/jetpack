@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.0] - 2026-05-25
+### Added
+- Add subpath exports for `Button`, `PricingTable`, and `ProductPrice` so they can be imported directly from bundles that cannot import the package barrel. [#49063]
+
+### Changed
+- Replace self-imports via package name with relative imports to remove circular-dep risk. [#49096]
+
+### Fixed
+- AdminPage: Update the header-height tab-shift rule so it keeps matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49101]
+- AdminPage: Keep header height consistent across tabs so the tab strip no longer shifts vertically when switching tabs. [#49080]
+- AdminPage: Update the SCSS module's `> header` selectors to `> :first-child` so they keep matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49018]
+
 ## [1.11.3] - 2026-05-21
 ### Changed
 - Mark ContextualUpgradeTrigger as @deprecated. Use Notice from @wordpress/ui instead. The implementation is unchanged. [#48909]
@@ -1794,6 +1806,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.0]: https://github.com/Automattic/jetpack-components/compare/1.11.3...1.12.0
 [1.11.3]: https://github.com/Automattic/jetpack-components/compare/1.11.2...1.11.3
 [1.11.2]: https://github.com/Automattic/jetpack-components/compare/1.11.1...1.11.2
 [1.11.1]: https://github.com/Automattic/jetpack-components/compare/1.11.0...1.11.1

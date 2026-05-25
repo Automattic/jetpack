@@ -1,3 +1,0 @@
-Significance: patch
-Type: enhancement
-Comment: Wire the modernized Newsletter dashboard behind the off-by-default `rsm_jetpack_ui_modernization_newsletter` filter; gate the legacy standalone Subscribers menu / Calypso shortcut retirement on the same filter, and remove the in-development subscribers-dashboard package. No default behavior change.

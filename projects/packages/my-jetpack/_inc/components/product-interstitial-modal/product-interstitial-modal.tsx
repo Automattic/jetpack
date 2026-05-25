@@ -1,6 +1,7 @@
 import { Text, Button, ThemeProvider, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState, cloneElement } from 'react';
 import LoadingBlock from '../loading-block';
@@ -234,13 +235,12 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 								</div>
 								<div className={ styles[ 'primary-footer' ] }>
 									{ PrimaryButton }
-									<Button
-										variant="link"
-										isExternalLink={ secondaryButtonHasExternalLink }
+									<Link
+										openInNewTab={ secondaryButtonHasExternalLink }
 										href={ secondaryButtonHref }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-									</Button>
+									</Link>
 								</div>
 							</Col>
 							{
