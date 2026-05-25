@@ -1460,7 +1460,7 @@ class Search_Blocks {
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
 	right: -60px;
 	z-index: 30;
-	background: var(--jp-search-overlay-surface);
+	background: var(--jp-search-overlay-surface, #fff);
 }
 /*
  * Top padding clears the absolutely-positioned 60px header strip — without
