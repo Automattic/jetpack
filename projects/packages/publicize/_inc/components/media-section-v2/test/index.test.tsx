@@ -163,7 +163,7 @@ describe( 'MediaSectionV2', () => {
 			] );
 		} );
 
-		it( 'should show "no image" description when no media source is selected', () => {
+		it( 'should show no-image warning when no fallback image is available', () => {
 			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( "Your post won't show an image." ) ).toBeInTheDocument();
@@ -266,7 +266,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'sig',
@@ -290,7 +290,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select Use featured image
-			await user.click( screen.getByRole( 'menuitem', { name: 'Featured image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'featured-image',
@@ -314,7 +314,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
@@ -323,10 +323,8 @@ describe( 'MediaSectionV2', () => {
 		} );
 	} );
 
-	describe( 'Remove media via No media option', () => {
+	describe( 'Switch to Default option', () => {
 		beforeEach( () => {
-			// Set up state with no featured image so "No media" option appears
-			( useFeaturedImage as jest.Mock ).mockReturnValue( null );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: true },
@@ -336,7 +334,6 @@ describe( 'MediaSectionV2', () => {
 		} );
 
 		afterEach( () => {
-			( useFeaturedImage as jest.Mock ).mockReturnValue( 123 );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -345,25 +342,33 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should clear media and record event when No media is selected', async () => {
+		it( 'should unset media_source and attached_media when Default is selected', async () => {
 			const user = userEvent.setup();
 
-			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
+			render(
+				<MediaSectionV2
+					analyticsData={ { test: 'data' } }
+					attachmentToggleMode="hidden"
+					mediaSource="sig"
+					imageGeneratorSettings={ { enabled: true } }
+					onMediaChange={ mockUpdateJetpackSocialOptions }
+				/>
+			);
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-			// Click No media
-			await user.click( screen.getByRole( 'menuitem', { name: 'No media' } ) );
+			// Click Default
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Default' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: undefined,
-				attached_media: [],
+				attached_media: undefined,
 				image_generator_settings: { enabled: false },
 			} );
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
-				source: 'sig',
+				source: null,
 			} );
 		} );
 	} );
@@ -423,7 +428,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			// The GeneralPurposeImage modal should now be rendered
 			expect( screen.getByTestId( 'ai-image-modal' ) ).toBeInTheDocument();
@@ -440,7 +445,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			expect( mockCustomHandler ).toHaveBeenCalled();
 		} );

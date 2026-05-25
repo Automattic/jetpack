@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-wc-rating",
+	"version": "0.1.0",
+	"title": "Filter by Rating",
+	"category": "jetpack-search",
+	"description": "Let shoppers filter products by star rating. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"showCount": { "type": "boolean", "default": true },
+		"enabledStars": {
+			"type": "array",
+			"default": [ 5, 4, 3, 2, 1 ],
+			"items": { "type": "number" }
+		}
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-rating.js",
+	"style": "file:../../../../build/search-blocks/filter-wc-rating.css"
+}

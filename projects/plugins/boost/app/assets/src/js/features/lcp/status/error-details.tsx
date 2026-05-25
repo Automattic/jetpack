@@ -1,10 +1,9 @@
 import FoldingElement from '$features/critical-css/folding-element/folding-element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Link } from '@wordpress/ui';
 import { useLcpState } from '../lib/stores/lcp-state';
 import { LcpErrorDetails } from '../lib/stores/lcp-state-types';
 import styles from './error-details.module.scss';
@@ -83,8 +82,9 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 
 	return (
 		<li className={ styles.summary__row }>
-			{ getErrorLabel( error ) } ({ url }){ ' ' }
-			<ExternalLink
+			{ getErrorLabel( error ) }({ url }){ ' ' }
+			<Link
+				openInNewTab
 				href={ getRedirectUrl( 'jetpack-boost-lcp-errors', {
 					anchor: error?.type,
 				} ) }
@@ -95,7 +95,7 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 				} }
 			>
 				{ __( 'Learn more', 'jetpack-boost' ) }
-			</ExternalLink>
+			</Link>
 		</li>
 	);
 };

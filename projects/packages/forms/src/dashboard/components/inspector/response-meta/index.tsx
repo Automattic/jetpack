@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import {
-	ExternalLink,
 	Tooltip,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -11,12 +11,11 @@ import {
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
-import Gravatar from '../../../components/gravatar/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
 import type { FormResponse } from '../../../../types/index.ts';
@@ -42,16 +41,20 @@ const SourceCell = ( { response }: { response: FormResponse } ) => {
 	if ( response.is_test ) {
 		const label = __( 'Form preview', 'jetpack-forms' );
 		if ( response.preview_url ) {
-			return <ExternalLink href={ response.preview_url }>{ label }</ExternalLink>;
+			return (
+				<Link openInNewTab href={ response.preview_url }>
+					{ label }
+				</Link>
+			);
 		}
 		return <>{ label }</>;
 	}
 
 	if ( response.entry_permalink ) {
 		return (
-			<ExternalLink href={ response.entry_permalink }>
+			<Link openInNewTab href={ response.entry_permalink }>
 				{ decodeEntities( response.entry_title ) || getPath( response ) }
-			</ExternalLink>
+			</Link>
 		);
 	}
 
@@ -155,13 +158,14 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						<td>
 							<TextWithFlag countryCode={ response.country_code }>
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
 											response.ip
 										) }` }
 									>
 										{ response.ip }
-									</ExternalLink>
+									</Link>
 								</Tooltip>
 							</TextWithFlag>
 						</td>

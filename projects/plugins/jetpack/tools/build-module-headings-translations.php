@@ -88,7 +88,7 @@ $file_contents = "<?php
  *
  * @param string \$key Module file name without `.php`.
  *
- * @return array
+ * @return array|null
  */
 function jetpack_get_module_i18n( \$key ) {
 \tstatic \$modules;
@@ -116,7 +116,7 @@ foreach ( $all_modules as $module_key => $module_info ) {
 
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\n\treturn isset( \$modules[ \$key ] ) ? \$modules[ \$key ] : null;
+$file_contents .= "\n\treturn \$modules[ \$key ] ?? null;
 }";
 
 /*
@@ -156,11 +156,11 @@ $file_contents .= "
  *
  * @param string \$key Module file name without `.php`.
  *
- * return array|string An array containing the module info or an empty string if the given module isn't known.
+ * return array|string|null An array containing the module info or an empty string if the given module isn't known.
  */
 function jetpack_get_module_info( \$key ) {
 \tstatic \$module_info = " . str_replace( "\n", "\n\t", var_export( $all_modules, true ) ) . ";
-\treturn isset( \$module_info[ \$key ] ) ? \$module_info[ \$key ] : null;
+\treturn \$module_info[ \$key ] ?? null;
 }\n";
 
 /*

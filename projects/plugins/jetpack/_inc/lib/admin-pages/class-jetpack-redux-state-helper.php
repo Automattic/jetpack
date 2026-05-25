@@ -248,8 +248,6 @@ class Jetpack_Redux_State_Helper {
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
-			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
-			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ),
 		);
 	}
 
@@ -302,10 +300,10 @@ class Jetpack_Redux_State_Helper {
 		$content = wp_kses_post( $post['content'] );
 		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10 );
 
-		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$post_title = $post['title'] ?? null;
 		$title      = wp_kses( $post_title, array() );
 
-		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		$post_thumbnail = $post['post_thumbnail'] ?? null;
 		if ( ! empty( $post_thumbnail ) ) {
 			$photon_image = new Image_CDN_Image(
 				array(

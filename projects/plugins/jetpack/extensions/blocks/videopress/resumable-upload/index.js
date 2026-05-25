@@ -1,15 +1,17 @@
 /**
  * WordPress dependencies
  */
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useCallback, useContext, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { filesize } from 'filesize';
 /**
  * Internal Dependencies
  */
 import { VideoPressBlockContext } from '../components';
 import { getJWT, resumableUploader } from './use-uploader';
+
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
@@ -111,13 +113,14 @@ export default function ResumableUpload( { file } ) {
 						<>
 							{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
 							&nbsp;
-							<ExternalLink
+							<Link
+								openInNewTab
 								href="https://wordpress.com/support/videopress/recommended-video-settings/"
 								target="_blank"
 								rel="noreferrer"
 							>
 								{ __( 'Check the recommended video settings.', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</>
 					);
 				} else {

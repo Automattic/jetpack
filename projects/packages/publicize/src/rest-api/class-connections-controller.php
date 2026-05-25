@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Connections;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
 use WP_REST_Request;
@@ -233,6 +234,15 @@ class Connections_Controller extends Base_Controller {
 					null,
 				),
 			),
+			'template'        => array(
+				'type'        => 'string',
+				'description' => __( 'Per-connection message template override. Empty string means fall back to the global template.', 'jetpack-publicize-pkg' ),
+				'default'     => '',
+				'maxLength'   => Settings::MESSAGE_TEMPLATE_MAX_LENGTH,
+				'arg_options' => array(
+					'sanitize_callback' => array( Settings::class, 'sanitize_message_template' ),
+				),
+			),
 			'wpcom_user_id'   => array(
 				'type'        => 'integer',
 				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
@@ -402,6 +412,27 @@ class Connections_Controller extends Base_Controller {
 			$input = array(
 				'shared' => $request->get_param( 'shared' ),
 			);
+
+			if ( $request->has_param( 'template' ) ) {
+				require_lib( 'publicize/util/message-templates' );
+
+				$template_value = Settings::sanitize_message_template( $request->get_param( 'template' ) );
+
+				/**
+				 * Only gate non-empty values. Clearing an existing override
+				 * must be allowed regardless of plan — otherwise users who
+				 * downgrade can't remove a previously-set template.
+				 */
+				if ( '' !== $template_value && ! \Publicize\can_use_per_connection_templates() ) {
+					return new WP_Error(
+						'rest_forbidden_per_connection_template',
+						__( 'Per-connection message templates require an upgraded plan.', 'jetpack-publicize-pkg' ),
+						array( 'status' => rest_authorization_required_code() )
+					);
+				}
+
+				$input['template'] = $template_value;
+			}
 
 			$result = Connections::wpcom_update_connection( $connection_id, $input );
 

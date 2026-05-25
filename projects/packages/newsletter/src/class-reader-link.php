@@ -38,6 +38,11 @@ class Reader_Link {
 		if ( self::$initialized ) {
 			return;
 		}
+
+		if ( ! is_user_logged_in() || ! is_admin_bar_showing() ) {
+			return;
+		}
+
 		self::$initialized = true;
 
 		$instance = new self();

@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.4.1] - 2026-05-19
+### Changed
+- Keep stacked area chart paths mounted on legend toggle so only the hidden series animates down and the y-axis stays fixed. [#48804]
+
+## [1.4.0] - 2026-05-14
+### Changed
+- Charts: Expose a source-side `./style.css` alias so monorepo consumers can resolve the import without a prior build. [#48682]
+- Charts: Expose tickValues on AxisOptions and nice on ScaleOptions so callers can force exact axis ticks. [#48722]
+- Update package dependencies. [#48695] [#48696]
+
+### Removed
+- Charts: Remove the `useTooltipPortalRelocator` hook and the `portalContainer` prop on `GlobalChartsProvider`. The relocator (added in #47118 / 0.56.4) caused tooltip glyphs and the tooltip box to drift away from the chart line by exactly the page scroll offset on scrolled pages. [#48617]
+
+## [1.3.1] - 2026-05-11
+### Changed
+- Update dependencies. [#43811]
+
+## [1.3.0] - 2026-05-04
+### Added
+- Charts: Add AreaChart component for stacked and overlapping area visualisations. [#48388]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.2.1] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+## [1.2.0] - 2026-04-20
+### Changed
+- Charts: Replace hard-coded spacing and border values in module SCSS with WPDS dimension and border design tokens. [#48019]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
 ## [1.1.1] - 2026-04-15
 ### Changed
 - Charts: Document WordPress UI + Theme integration defaults. [#48020]
@@ -800,6 +838,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.4.2]: https://github.com/Automattic/charts/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/charts/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/charts/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/Automattic/charts/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/charts/compare/v1.2.1...v1.3.0
+[1.2.1]: https://github.com/Automattic/charts/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/charts/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/Automattic/charts/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Automattic/charts/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/Automattic/charts/compare/v1.0.1...v1.0.2

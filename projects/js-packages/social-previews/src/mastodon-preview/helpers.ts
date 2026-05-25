@@ -13,6 +13,13 @@ const TITLE_LENGTH = 200;
 const BODY_LENGTH = 500;
 const URL_LENGTH = 30;
 
+/**
+ * Visible body-text cap used by the preview component, leaving room for the
+ * URL that gets rendered separately below the body. Mirrors the `maxChars`
+ * passed to `preparePreviewText` in {@link mastodonBody}.
+ */
+export const BODY_CHAR_LIMIT = BODY_LENGTH - URL_LENGTH;
+
 const ADDRESS_PATTERN = /^@([^@]*)@([^@]*)$/i;
 
 export const mastodonTitle: Formatter = text =>

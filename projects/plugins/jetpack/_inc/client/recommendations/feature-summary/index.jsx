@@ -1,5 +1,4 @@
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -26,7 +25,6 @@ const FeatureSummaryComponent = props => {
 		featureSlug,
 		stepRoute,
 		summaryActivateButtonLabel,
-		isNew,
 		isInstalling,
 		startFeatureInstall,
 		endFeatureInstall,
@@ -63,14 +61,15 @@ const FeatureSummaryComponent = props => {
 			{ props.isFeatureActive ? (
 				<>
 					{ configLinkIsExternal ? (
-						<ExternalLink
+						<Link
+							openInNewTab
 							type="button"
 							className="dops-button is-rna"
 							href={ configLink }
 							onClick={ onConfigureClick }
 						>
 							{ configureButtonLabel }
-						</ExternalLink>
+						</Link>
 					) : (
 						<Button rna href={ configLink } onClick={ onConfigureClick }>
 							{ configureButtonLabel }
@@ -105,10 +104,6 @@ const FeatureSummaryComponent = props => {
 				<span className="jp-recommendations-feature-summary__display-name-text">
 					{ displayName }
 				</span>
-				{ isNew && (
-					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
-					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
-				) }
 			</Button>
 			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
 		</div>

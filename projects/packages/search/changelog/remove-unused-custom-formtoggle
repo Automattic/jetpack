@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the unused custom FormToggle component; all call sites now use WordPress ToggleControl.

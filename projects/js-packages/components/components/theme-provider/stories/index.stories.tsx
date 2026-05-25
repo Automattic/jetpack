@@ -46,6 +46,7 @@ const meta: Meta< typeof ThemeProvider > = {
 	title: 'JS Packages/Components/Theme Provider',
 };
 
+// eslint-disable-next-line storybook/csf-component -- Not a component-based story?
 export default meta;
 
 const noop = () => {

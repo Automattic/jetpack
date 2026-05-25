@@ -1,0 +1,9 @@
+# Files not needed to be distributed.
+
+# Files not needed in the production build.
+# (see also entries in the monorepo root .gitattributes)
+types.d.ts       production-exclude
+/src/js/**       production-exclude
+
+# Files needed in the production build.
+build/**         production-include

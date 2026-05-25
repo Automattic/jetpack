@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove jetpack_wp_admin_newsletter_settings_enabled filter handling; the newsletter settings page is always loaded from the newsletter package.

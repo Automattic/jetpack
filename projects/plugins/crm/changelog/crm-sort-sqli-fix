@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Fix SQL injection vulnerability in list view request.

@@ -1,0 +1,51 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Page-level invocation of the shared admin-page layout. Enqueued by
+// class-admin-ui.php on the modernized VideoPress dashboard page so
+// every route inherits the proper scrollable chrome (fixed-position
+// `#wpbody-content`, scrollable middle, pinned footer) regardless of
+// whether the route uses DashboardLayout. See class-admin-ui.php's
+// `enqueue_admin_scripts()` for the enqueue, and the route stylesheets
+// (e.g. routes/video/style.scss) for the route-local rules that build
+// on top of this shell.
+body.jetpack_page_jetpack-videopress {
+	// Canvas color for the modernized dashboard. Bound here so the rule
+	// below references a real token (no silent `var(... , #fcfcfc)`
+	// fallback) and future tweaks have one place to land.
+	--vp-page-bg-canvas: #fcfcfc;
+
+	// jetpack-components typography & spacing tokens. Components consumed by
+	// the connection gate (pricing table, ProductPrice, Text) reference these
+	// custom properties but don't define them — each host dashboard supplies
+	// its own set (cf. Jetpack Boost's `.jb-dashboard` root). base-styles'
+	// root-variables.scss covers the title/body/color tokens but leaves these
+	// out, so without them those components fall back to unstyled defaults
+	// (e.g. the price renders at 13px and the cards lose all padding).
+	--font-headline-medium: 48px;
+	--font-headline-small: 36px;
+	--font-title-medium: 24px;
+	--font-body-small: 14px;
+	--font-body-extra-small: 14px;
+	--spacing-base: 8px;
+
+	// `…-wp-build` rather than `…-page-layout` because the modernized
+	// dashboard mounts `@wordpress/admin-ui` 2.x components (notably
+	// `<Breadcrumbs>`) whose semantic markup collides with wp-admin's
+	// global `ul li` / `a` rules. The `-wp-build` variant layers those
+	// defensive resets on top of the shared layout.
+	@include jetpack-admin-page-layout-wp-build;
+
+	// Canvas background for the modernized dashboard. Three layers paint
+	// here: the body (the page outside the admin-ui chrome), `.jp-admin-page`
+	// (AdminPage's outer wrapper, white by default via `showBackground`),
+	// and `.jp-admin-page__page` (the `@wordpress/admin-ui` `<Page>` shell,
+	// which also defaults to white and is what a color-picker on the page
+	// surface reads). All three need overriding so every modernized route
+	// (Overview, Library, Settings, Video details) shows the off-white
+	// canvas without each one having to opt out individually.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--vp-page-bg-canvas);
+	}
+}

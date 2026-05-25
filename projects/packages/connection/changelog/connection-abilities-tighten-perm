@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection abilities: tighten get-connection-status permission to current_user_can( 'jetpack_admin_page' ).

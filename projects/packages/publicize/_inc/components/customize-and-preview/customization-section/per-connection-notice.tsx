@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useConnectionMediaValidation } from '../../../hooks/use-connection-media-validation';
 import { NO_MEDIA_ERROR, getErrorLabel } from '../../../hooks/use-media-restrictions/constants';
 import { Connection } from '../../../social-store/types';
@@ -45,9 +46,9 @@ export function PerConnectionNotice( { connection }: PerConnectionNoticeProps ) 
 					<i>{ getErrorLabel( error ) }</i>
 				</li>
 			</ul>
-			<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+			<Link openInNewTab href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
 				{ __( 'Troubleshooting tips', 'jetpack-publicize-pkg' ) }
-			</ExternalLink>
+			</Link>
 		</Notice>
 	);
 }

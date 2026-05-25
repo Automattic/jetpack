@@ -1,0 +1,35 @@
+.wp-block-jetpack-search-powered-by {
+	margin-block: var(--wp--style--block-gap, 1.5em);
+	text-align: center;
+}
+
+.jetpack-search-powered-by__link {
+	align-items: center;
+	color: inherit;
+	display: inline-flex;
+	// Inherit the theme's "small" preset when defined (theme.json
+	// typography.fontSizes); fall back to ~0.7em of the surrounding
+	// flow size when the theme doesn't expose one.
+	font-size: var(--wp--preset--font-size--small, 0.7em);
+	gap: 0.5em;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.jetpack-search-powered-by__logo {
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: 1em;
+	width: 1em;
+
+	svg {
+		display: block;
+		height: 100%;
+		width: 100%;
+	}
+}
+
+.jetpack-search-powered-by__text {
+	font-weight: 500;
+}
+

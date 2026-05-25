@@ -79,7 +79,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	$updatedSettings['menulayout'] = 2;
 	if ( isset( $_POST['wpzbscrm_menulayout'] ) && ! empty( $_POST['wpzbscrm_menulayout'] ) ) {
-		$updatedSettings['menulayout'] = (int) sanitize_text_field( $_POST['wpzbscrm_menulayout'] );
+		$updatedSettings['menulayout'] = (int) $_POST['wpzbscrm_menulayout'];
 	}
 
 	$updatedSettings['showfullwidthforlisting'] = 0; // phpcs:ignore
@@ -124,7 +124,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['clicktocalltype'] = 1;
 	if ( isset( $_POST['wpzbscrm_clicktocalltype'] ) && ! empty( $_POST['wpzbscrm_clicktocalltype'] ) ) {
-		$updatedSettings['clicktocalltype'] = (int) sanitize_text_field( $_POST['wpzbscrm_clicktocalltype'] );
+		$updatedSettings['clicktocalltype'] = (int) $_POST['wpzbscrm_clicktocalltype'];
 	}
 	$updatedSettings['objnav'] = 0;
 	if ( isset( $_POST['wpzbscrm_objnav'] ) && ! empty( $_POST['wpzbscrm_objnav'] ) ) {
@@ -140,7 +140,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['wpzbscrm_avatarmode'] = 1;
 	if ( isset( $_POST['wpzbscrm_avatarmode'] ) && ! empty( $_POST['wpzbscrm_avatarmode'] ) ) {
-		$updatedSettings['avatarmode'] = (int) sanitize_text_field( $_POST['wpzbscrm_avatarmode'] );
+		$updatedSettings['avatarmode'] = (int) $_POST['wpzbscrm_avatarmode'];
 	}
 
 	$updatedSettings['wptakeovermode'] = 0;
@@ -435,21 +435,27 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_clicktocalltype"><?php esc_html_e( 'Click 2 Call link type', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Use Skype or Standard Click to Call?', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_clicktocalltype"><?php esc_html_e( 'Click 2 Call link type', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose the link protocol for Click to Call', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
 						<select class="winput form-control" name="wpzbscrm_clicktocalltype" id="wpzbscrm_clicktocalltype">
 							<option value="1"
 							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '1' ) {
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 1 ) {
 								echo ' selected="selected"';}
 							?>
-							>Click to Call (tel:)</option>
+							>tel:</option>
 							<option value="2"
 							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '2' ) {
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 2 ) {
 								echo ' selected="selected"';}
 							?>
-							>Skype Call (callto:)</option>
+							>callto:</option>
+							<option value="3"
+							<?php
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 3 ) {
+								echo ' selected="selected"';}
+							?>
+							>sip:</option>
 						</select>
 					</td>
 				</tr>
@@ -736,7 +742,7 @@ if ( ! $confirmAct ) {
 			jQuery('#wpzbscrm_loginlogourlAdd').on( 'click', function(e) {
 				e.preventDefault();
 				var image = wp.media({
-					title: '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
+					title: <?php echo wp_json_encode( __( 'Upload Image', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 					// mutiple: true if you want to upload multiple files at once
 					multiple: false
 				}).open()

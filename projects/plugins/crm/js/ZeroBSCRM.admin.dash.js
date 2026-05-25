@@ -9,7 +9,7 @@
  * Date: 15th August 2018
  */
 
-/* global Chart, zbs_root, ajaxurl, zbsJS_admcolours, zeroBSCRMJS_globViewLang, moment, jpcrm_js_bind_daterangepicker, jpcrm_funnel_data, jpcrm_build_funnel, jpcrm_revenue_chart_data */
+/* global Chart, jpcrm, zbs_root, ajaxurl, zbsJS_admcolours, zeroBSCRMJS_globViewLang, moment, jpcrm_js_bind_daterangepicker, jpcrm_funnel_data, jpcrm_build_funnel, jpcrm_revenue_chart_data */
 
 // set default color for charts
 const chartDefaultColor = zbs_root.jp_green[ '40' ];
@@ -159,12 +159,14 @@ function cb( start, end ) {
 			const item = res.summary[ i ];
 			summary_html += `
 				<jpcrm-dashcount-card>
-					<h3>${ item.label }</h3>
+					<h3>${ jpcrm.esc_html( item.label ) }</h3>
 					<div>
-						<span class="range_total">+${ item.range_total }</span>
-						<span class="alltime_total">${ item.alltime_total_str }</span>
+						<span class="range_total">+${ jpcrm.esc_html( item.range_total ) }</span>
+						<span class="alltime_total">${ jpcrm.esc_html( item.alltime_total_str ) }</span>
 					</div>
-					<a href="${ item.link }">${ zeroBSCRMJS_globViewLang( 'viewall' ) }</a>
+					<a href="${ jpcrm.esc_attr( item.link ) }">${ jpcrm.esc_html(
+						zeroBSCRMJS_globViewLang( 'viewall' )
+					) }</a>
 				</jpcrm-dashcount-card>
 				`;
 		}

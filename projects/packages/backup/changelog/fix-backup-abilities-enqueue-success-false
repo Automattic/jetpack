@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup abilities: jetpack-backup/request-backup now reports failure when wpcom answers 200 with `{ success: false }` instead of claiming the backup was enqueued.

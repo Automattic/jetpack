@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix link insertion with no text selected in Firefox

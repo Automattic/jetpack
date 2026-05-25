@@ -31,7 +31,7 @@ $company_array = zeroBS_buildObjArr( $new_company, array(), '', $field_prefix, $
 
 // this is needed for check below:
 if ( isset( $new_company['id'] ) ) {
-	$company_id = (int) sanitize_text_field( $new_company['id'] );
+	$company_id = (int) $new_company['id'];
 }
 if ( isset( $company_array[ $field_prefix . 'email' ] ) ) {
 	$email = $company_array[ $field_prefix . 'email' ];
@@ -199,9 +199,6 @@ if (
 		zeroBS_setOwner( $new_company_id, $assign, ZBS_TYPE_COMPANY );
 	}
 
-	// old way just returned what was sent...
-	// wp_send_json($json_params); //sends back to Zapier the customer that's been sent to it.
-
 	// thorough much? lol.
 	if ( ! empty( $new_company_id ) && $new_company_id !== -1 ) {
 
@@ -215,12 +212,12 @@ if (
 		}
 
 		// return
-		wp_send_json( $return_params );
+		wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ) );
+		wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 	}
 }

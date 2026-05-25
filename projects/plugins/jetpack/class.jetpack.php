@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
@@ -32,6 +33,7 @@ use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -753,6 +755,14 @@ class Jetpack {
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 		add_action( 'init', array( Deprecate::class, 'instance' ) );
+
+		// Register Jetpack module management abilities (WordPress Abilities API, WP 6.9+).
+		\Automattic\Jetpack\Plugin\Abilities\Modules_Abilities::init();
+
+		// Register Connection abilities (WordPress Abilities API, WP 6.9+). Scoped to the
+		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
+		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
+		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
 	}
 
 	/**
@@ -866,6 +876,8 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
+		Activity_Log_Init::initialize();
+		Scan_Page_Init::initialize();
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-dashboard' );
@@ -2670,7 +2682,7 @@ p {
 		if ( $plugins_path === $referer['path'] ) {
 			$source_type = 'list';
 		} elseif ( $plugins_install_path === $referer['path'] ) {
-			$tab = isset( $query_parts['tab'] ) ? $query_parts['tab'] : 'featured';
+			$tab = $query_parts['tab'] ?? 'featured';
 			switch ( $tab ) {
 				case 'popular':
 					$source_type = 'popular';
@@ -2682,8 +2694,8 @@ p {
 					$source_type = 'favorites';
 					break;
 				case 'search':
-					$source_type  = 'search-' . ( isset( $query_parts['type'] ) ? $query_parts['type'] : 'term' );
-					$source_query = isset( $query_parts['s'] ) ? $query_parts['s'] : null;
+					$source_type  = 'search-' . ( $query_parts['type'] ?? 'term' );
+					$source_query = $query_parts['s'] ?? null;
 					break;
 				default:
 					$source_type = 'featured';
@@ -2708,6 +2720,44 @@ p {
 
 			// If an admin page is visited after the update, the 'current_screen' action will fire.
 			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
+		}
+	}
+
+	/**
+	 * Enables the Newsletter (subscriptions) module for existing sites now that it is a default-on module.
+	 *
+	 * Fresh installs receive the module via its "Auto Activate: Yes" header, so this only handles sites
+	 * upgrading from a version where the module defaulted off. It runs once per site (guarded by the
+	 * subscriptions_default_on_migrated option). Fresh installs are marked as migrated immediately so the
+	 * migration never runs for them. After it has run, the user's choice to deactivate the module again
+	 * (for example from the My Jetpack Products page) is respected and never reverted.
+	 *
+	 * The module requires a connection, so on a disconnected site the migration is deferred without setting
+	 * the guard, allowing a later version bump to retry once the site is connected.
+	 *
+	 * @param string       $version     New Jetpack version:timestamp.
+	 * @param string|false $old_version Previous Jetpack version:timestamp, or false on a fresh install.
+	 */
+	public static function activate_subscriptions_module_for_existing_sites( $version, $old_version ) {
+		if ( get_option( 'jetpack_subscriptions_default_on_migrated' ) ) {
+			return;
+		}
+
+		// Fresh installs get the module via its "Auto Activate: Yes" header. Mark them as migrated so a
+		// later opt-out is never reverted by the existing-site path on a subsequent version bump.
+		if ( ! $old_version ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
+			return;
+		}
+
+		if ( ! self::is_connection_ready() ) {
+			return;
+		}
+
+		// Mark as migrated only once the module is active, so a transient activation failure is retried on
+		// a later version bump rather than being silently skipped.
+		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
+			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
 	}
 
@@ -3395,7 +3445,7 @@ p {
 		}
 
 		$uploaded_files = array();
-		$global_post    = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$global_post    = $GLOBALS['post'] ?? null;
 		unset( $GLOBALS['post'] );
 		if ( empty( $_FILES['media']['name'] ) ) {
 			// Nothing to process, just return.
@@ -3404,7 +3454,7 @@ p {
 		foreach ( $_FILES['media']['name'] as $index => $name ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- As above, unslash sniff is wrong. Validation should happen below.
 			$file = array();
 			foreach ( $media_keys as $media_key ) {
-				$file[ $media_key ] = isset( $_FILES['media'][ $media_key ][ $index ] ) ? $_FILES['media'][ $media_key ][ $index ] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- As above, the unslash sniff is wrong.
+				$file[ $media_key ] = $_FILES['media'][ $media_key ][ $index ] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,,WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- As above, the unslash sniff is wrong.
 			}
 
 			list( $hmac_provided, $salt ) = isset( $_POST['_jetpack_file_hmac_media'][ $index ] ) ? explode( ':', filter_var( wp_unslash( $_POST['_jetpack_file_hmac_media'][ $index ] ) ) ) : array( 'no', '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce should have been checked by the caller.

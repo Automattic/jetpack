@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -1125,6 +1126,228 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	/**
+	 * Clean up menu globals and options after each unread_count test.
+	 */
+	public function tearDown(): void {
+		global $menu, $submenu;
+		if ( isset( $menu ) || isset( $submenu ) ) {
+			$menu    = array();
+			$submenu = array();
+		}
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+		delete_option( 'jetpack_feedback_unread_count' );
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/**
+	 * Helper: set up $menu and $submenu globals for unread_count() tests.
+	 *
+	 * @param string $jetpack_title The title for the Jetpack menu item.
+	 * @return array { menu_index: int, submenu_index: int } Indices of the Jetpack and Forms entries.
+	 */
+	private function setup_menu_globals( $jetpack_title = 'Jetpack' ) {
+		global $menu, $submenu;
+
+		$menu    = array();
+		$submenu = array();
+
+		// Jetpack top-level menu entry at index 2.
+		$menu[2] = array( $jetpack_title, 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
+
+		// Forms submenu entry.
+		$admin_slug             = Dashboard::ADMIN_SLUG;
+		$submenu['jetpack']     = array();
+		$submenu['jetpack'][0]  = array( 'Dashboard', 'manage_options', 'jetpack' );
+		$submenu['jetpack'][10] = array( 'Form Responses', 'edit_pages', $admin_slug );
+
+		// Ensure the alpha filter returns false so ADMIN_SLUG is used.
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		return array(
+			'menu_index'    => 2,
+			'submenu_index' => 10,
+		);
+	}
+
+	/**
+	 * Helper: create an admin user and set as current user.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_admin_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'editor', // editors have edit_pages capability.
+			)
+		);
+		wp_set_current_user( $user_id );
+		return $user_id;
+	}
+
+	/**
+	 * When Forms unread count is 0 and the Jetpack menu has no existing badge,
+	 * unread_count() should not add a jp-feedback-unread-counter badge.
+	 */
+	public function test_unread_count_zero_does_not_add_forms_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu, $submenu;
+
+		$this->assertSame( 'Jetpack', $menu[ $indices['menu_index'] ][0], 'Menu title should remain unchanged.' );
+		$this->assertSame( 'Form Responses', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu title should remain unchanged.' );
+	}
+
+	/**
+	 * When Forms unread count is 0 but the Jetpack menu already has a My Jetpack
+	 * awaiting-mod badge, unread_count() should leave it untouched and not wrap it
+	 * in a jp-feedback-unread-counter span.
+	 */
+	public function test_unread_count_zero_preserves_existing_my_jetpack_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack <span class="awaiting-mod">1</span>' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'awaiting-mod', $menu[ $indices['menu_index'] ][0], 'My Jetpack badge should be preserved.' );
+		$this->assertStringNotContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Forms should not re-wrap the badge.' );
+	}
+
+	/**
+	 * When Forms has unread submissions and no existing Jetpack badge,
+	 * unread_count() should add a jp-feedback-unread-counter badge to the menu.
+	 */
+	public function test_unread_count_nonzero_adds_forms_badge_to_menu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 3 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'menu-counter', $menu[ $indices['menu_index'] ][0], 'Should use menu-counter badge markup.' );
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
+		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show count of 3.' );
+		$this->assertStringContainsString( "data-unread-diff='0'", $menu[ $indices['menu_index'] ][0], 'Diff should be 0 when no other badges exist.' );
+	}
+
+	/**
+	 * When Forms has unread submissions and the Jetpack menu already has a My Jetpack
+	 * awaiting-mod badge, unread_count() should combine both counts.
+	 */
+	public function test_unread_count_nonzero_combines_with_existing_badge() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack <span class="awaiting-mod">1</span>' );
+		update_option( 'jetpack_feedback_unread_count', 2 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu;
+
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
+		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show combined count of 3 (2 unread + 1 existing).' );
+		$this->assertStringContainsString( "data-unread-diff='1'", $menu[ $indices['menu_index'] ][0], 'Diff should be 1 (3 - 2).' );
+	}
+
+	/**
+	 * When Forms has unread submissions, the Forms submenu item should get a badge.
+	 */
+	public function test_unread_count_nonzero_adds_badge_to_submenu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 5 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $submenu;
+
+		$this->assertStringContainsString( 'menu-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should use menu-counter badge markup.' );
+		$this->assertStringContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should contain Forms badge.' );
+		$this->assertStringContainsString( 'count-5', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu badge should show count of 5.' );
+	}
+
+	/**
+	 * When Forms has 0 unread submissions, the Forms submenu item should not get a badge.
+	 */
+	public function test_unread_count_zero_does_not_add_badge_to_submenu() {
+		$this->create_admin_user();
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 0 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $submenu;
+
+		$this->assertStringNotContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should not contain Forms badge when unread is 0.' );
+	}
+
+	/**
+	 * When the current user lacks edit_pages capability, unread_count() should
+	 * not modify the menu globals at all.
+	 */
+	public function test_unread_count_skips_for_user_without_edit_pages() {
+		// Create a subscriber (no edit_pages capability).
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'forms_test_subscriber_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$indices = $this->setup_menu_globals( 'Jetpack' );
+		update_option( 'jetpack_feedback_unread_count', 5 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		global $menu, $submenu;
+
+		$this->assertSame( 'Jetpack', $menu[ $indices['menu_index'] ][0], 'Menu title should remain unchanged for users without edit_pages.' );
+		$this->assertSame( 'Form Responses', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu title should remain unchanged for users without edit_pages.' );
+	}
+
+	/**
+	 * When $submenu['jetpack'] is not set, unread_count() should not modify the
+	 * menu and should complete without errors.
+	 */
+	public function test_unread_count_handles_missing_submenu() {
+		$this->create_admin_user();
+
+		global $menu, $submenu;
+		$menu    = array();
+		$submenu = array();
+
+		// Set up only the main menu, no submenu.
+		$menu[2] = array( 'Jetpack', 'jetpack_admin_page', 'jetpack', 'Jetpack', 'menu-top' );
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		update_option( 'jetpack_feedback_unread_count', 3 );
+
+		$plugin = Contact_Form_Plugin::init();
+		$plugin->unread_count();
+
+		$this->assertSame( 'Jetpack', $menu[2][0], 'Menu title should remain unchanged when submenu is missing.' );
 	}
 
 	/**

@@ -1,4 +1,5 @@
-import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -95,7 +96,9 @@ class DashVideoPress extends Component {
 								</p>
 								{ shouldDisplayStorage && (
 									<div className="jp-dash-item__videopress-storage">
-										<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
+										<ProgressBar
+											value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) }
+										/>
 										<span>
 											{ createInterpolateElement(
 												sprintf(

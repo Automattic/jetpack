@@ -29,6 +29,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
 		// Load features that don't need any special loading considerations.
@@ -89,6 +90,16 @@ class Jetpack_Mu_Wpcom {
 
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
+
+		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
+		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
+			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
+		}
+
+		// Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites, with an opt-out via the `disable-classic-block-deprecation` blog sticker.
+		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -302,6 +313,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
+		require_once __DIR__ . '/features/write/write.php';
+
 		/*
 		 * Temporarily disable client-side media processing.
 		 *
@@ -315,6 +328,11 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Code_Block::setup();
@@ -370,16 +388,22 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
+		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
-		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
-		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
-
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
-		\Automattic\Jetpack\Newsletter\Settings::init();
+		// Guarded with class_exists since mu-wpcom no longer composer-requires
+		// the jetpack-newsletter package: the class is provided by the standalone
+		// Jetpack plugin on Atomic, or by the wpcom platform's bundled Jetpack
+		// source on Simple.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Settings::init();
+		}
 
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -398,6 +422,14 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
+
+		// Initialize the Podcast package here (rather than in
+		// load_wpcom_user_features) so feed-customization hooks register
+		// for anonymous requests too — Apple Podcasts / Spotify crawlers
+		// aren't logged in. Podcast::init() gates itself on host
+		// (Simple/WoA) and `jetpack_podcast_untangle`, so the legacy
+		// podcasting code keeps running until the flag flips.
+		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
 	/**
@@ -757,6 +789,26 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
+	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return mixed Original option value or the filtered experiments.
+	 */
+	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
+		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
+			return $experiments;
+		}
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-classic-block-deprecation'] = true;
+		return $experiments;
+	}
+
+	/**
 	 * Add Jetpack script data with host information on P2
 	 *
 	 * @param array $data - The Jetpack script data.
@@ -776,5 +828,124 @@ class Jetpack_Mu_Wpcom {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
+	 *
+	 * @param string $feature Logstash `feature` bucket; should start with the `atomic_` prefix (e.g. "atomic_plugin_conflicts_guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => self::resolve_logstash_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			// Defer the HTTP POST to shutdown. Dispatching inline as a
+			// non-blocking request loses the event when the caller `exit`s
+			// or `wp_safe_redirect`s right after (e.g. the activation-guard
+			// block path), because the cURL handle is torn down before the
+			// TLS handshake completes. Draining at shutdown with a blocking
+			// POST guarantees delivery without adding latency to the
+			// user-visible response.
+			self::queue_logstash_http( $payload );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal for the caller.
+			unset( $e );
+		}
+	}
+
+	/**
+	 * Resolve the WP.com blog ID for a logstash record.
+	 *
+	 * `get_wpcom_blog_id()` falls back to `get_current_blog_id()` on Atomic
+	 * when `jetpack_options['id']` isn't readable — that returns `1` on a
+	 * single-site install, which is a valid-looking but wrong WP.com blog ID
+	 * and makes log records impossible to attribute. Emit `0` instead when
+	 * the real WP.com blog ID is unknown, so the gap is obvious in Kibana.
+	 *
+	 * @return int WP.com blog ID, or 0 when it can't be determined.
+	 */
+	private static function resolve_logstash_blog_id() {
+		// WP.com Simple: the current blog ID *is* the WP.com blog ID.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return (int) get_current_blog_id();
+		}
+		// Atomic / connected Jetpack: the WP.com blog ID lives in the
+		// `jetpack_options` option. Read it directly (no `Jetpack_Options`
+		// dependency) and return 0 — never the local blog ID — when absent.
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
+			return (int) $jetpack_options['id'];
+		}
+		return 0;
+	}
+
+	/**
+	 * Append a logstash payload to the shutdown drain queue, registering
+	 * the drain hook on first enqueue. See `log2logstash()` for why
+	 * dispatch is deferred.
+	 *
+	 * @param array $payload Logstash record (`blog_id`, `feature`, `message`, `extra`).
+	 * @return void
+	 */
+	private static function queue_logstash_http( array $payload ) {
+		static $queue = null;
+		if ( null === $queue ) {
+			$queue = array();
+			register_shutdown_function(
+				static function () use ( &$queue ) {
+					foreach ( $queue as $entry ) {
+						try {
+							wp_remote_post(
+								'https://public-api.wordpress.com/rest/v1.1/logstash',
+								array(
+									'body'    => array( 'params' => wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ),
+									'timeout' => 5,
+								)
+							);
+						} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must never escalate into a fatal at shutdown.
+							unset( $e );
+						}
+					}
+					$queue = array();
+				}
+			);
+		}
+		$queue[] = $payload;
 	}
 }

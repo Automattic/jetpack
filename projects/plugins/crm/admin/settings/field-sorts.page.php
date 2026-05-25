@@ -323,16 +323,7 @@ if ( $sbupdated ) {
 	</form>
 
 	<script type="text/javascript">
-		var zbsSortableFieldTypes = [
-		<?php
-		$x = 1;
-		foreach ( $fieldTypes as $key => $fieldType ) {
-			if ( $x > 1 ) {
-				echo ',';
-			} echo "'" . esc_html( $key ) . "'";
-			++$x; }
-		?>
-		];
+		var zbsSortableFieldTypes = <?php echo wp_json_encode( array_keys( $fieldTypes ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 		jQuery(function(){
 

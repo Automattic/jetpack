@@ -4,6 +4,7 @@ import {
 	type Field,
 	type FieldTypeName,
 	type Filter,
+	type RenderModalProps,
 	type SortDirection,
 	type View,
 	DataViews,
@@ -13,13 +14,22 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type ReactElement,
+	type ReactNode,
+} from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
+	THREAT_ACTION_VIEW,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -43,16 +53,32 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 /**
  * DataViews component for displaying security threats.
  *
- * @param {object}   props                             - Component props.
- * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreats                - Threat fix action callback.
- * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * Each row action (Auto-fix / Ignore / Unignore) supports two wiring shapes:
+ * pass a callback (`onFixThreats` etc.) for the existing fire-and-forget
+ * behaviour, or pass a React component via the matching `Render*Modal` prop
+ * to open a confirmation modal — DataViews renders it inline when the
+ * action is invoked, and consumers receive `{ items, closeModal }` from
+ * `RenderModalProps< Threat >`. Render-modal props take precedence when
+ * both are supplied for the same action.
+ *
+ * @param {object}    props                             - Component props.
+ * @param {Array}     props.data                        - Threats data.
+ * @param {Array}     props.filters                     - Initial DataView filters.
+ * @param {Function}  props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Function}  props.onFixThreats                - Threat fix action callback (used when no `RenderFixModal`).
+ * @param {Function}  props.onIgnoreThreats             - Threat ignore action callback (used when no `RenderIgnoreModal`).
+ * @param {Function}  props.onUnignoreThreats           - Threat unignore action callback (used when no `RenderUnignoreModal`).
+ * @param {Function}  props.RenderFixModal              - Optional component rendered as the fix-action modal.
+ * @param {Function}  props.RenderIgnoreModal           - Optional component rendered as the ignore-action modal.
+ * @param {Function}  props.RenderUnignoreModal         - Optional component rendered as the unignore-action modal.
+ * @param {Function}  props.RenderViewModal             - Optional component rendered as the view-details modal. Unlike the fix / ignore / unignore actions, this one is always eligible for any row.
+ * @param {Function}  props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
+ * @param {Function}  props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
+ * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
+ * @param {boolean}   [props.showStatusFilter]          - Whether to render the active/historic status toggle above the table. Defaults to `true`. Set to `false` when the consumer already filters the dataset by status outside the component (e.g. page-level tabs).
+ * @param {Function}  [props.onTrackEvent]              - Optional callback that receives DataViews-canonical event names (`view_change`, `filter_change`, `search`, `page_change`, `layout_changed`) on the matching view transitions. Consumers prefix and forward to their own analytics client.
+ * @param {string}    [props.persistKey]                - Optional `localStorage` key. When set, the component hydrates its initial view state from `localStorage[persistKey]` and writes back on every change. Use stable, namespaced keys (e.g. `jetpack-scan:active-threats:view`) so consumer panels don't collide. Quietly no-ops when `localStorage` is unavailable.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -66,6 +92,14 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	RenderFixModal,
+	RenderIgnoreModal,
+	RenderUnignoreModal,
+	RenderViewModal,
+	empty,
+	showStatusFilter = true,
+	onTrackEvent,
+	persistKey,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -76,6 +110,14 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	RenderFixModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderIgnoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderUnignoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderViewModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	empty?: ReactNode;
+	showStatusFilter?: boolean;
+	onTrackEvent?: ( event: string, properties?: Record< string, unknown > ) => void;
+	persistKey?: string;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -120,12 +162,39 @@ export default function ThreatsDataViews( {
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
+	 * When `persistKey` is supplied, the initial view hydrates from
+	 * `localStorage[persistKey]` so reloads, tab changes, and drill-ins
+	 * preserve the user's filters / sort / pagination / layout. Falls
+	 * back to the default table view on parse failure or first load.
+	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
-	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		...defaultLayouts.table,
+	const [ view, setView ] = useState< View >( () => {
+		const fallback: View = { type: 'table', ...defaultLayouts.table };
+		if ( ! persistKey || typeof window === 'undefined' ) {
+			return fallback;
+		}
+		try {
+			const stored = window.localStorage.getItem( persistKey );
+			if ( stored ) {
+				return JSON.parse( stored ) as View;
+			}
+		} catch {
+			// localStorage may be disabled (privacy mode, full disk) — no-op.
+		}
+		return fallback;
 	} );
+
+	useEffect( () => {
+		if ( ! persistKey || typeof window === 'undefined' ) {
+			return;
+		}
+		try {
+			window.localStorage.setItem( persistKey, JSON.stringify( view ) );
+		} catch {
+			// localStorage may be disabled (privacy mode, full disk) — no-op.
+		}
+	}, [ persistKey, view ] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -418,56 +487,109 @@ export default function ThreatsDataViews( {
 		const result: Action< Threat >[] = [];
 
 		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onFixThreats,
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
-				},
-			} );
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderFixModal && ! onFixThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForFix ) {
+					return isThreatEligibleForFix( item );
+				}
+				return !! item.fixable;
+			};
+			if ( RenderFixModal ) {
+				result.push( {
+					id: THREAT_ACTION_FIX,
+					label: __( 'Auto-fix', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Fix threat', 'jetpack-scan' ),
+					RenderModal: RenderFixModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_FIX,
+					label: __( 'Auto-fix', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onFixThreats,
+					isEligible,
+				} );
+			}
 		}
 
 		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
-				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onIgnoreThreats,
-				isEligible( item ) {
-					if ( ! onIgnoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForIgnore ) {
-						return isThreatEligibleForIgnore( item );
-					}
-					return item.status === 'current';
-				},
-			} );
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderIgnoreModal && ! onIgnoreThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForIgnore ) {
+					return isThreatEligibleForIgnore( item );
+				}
+				return item.status === 'current';
+			};
+			if ( RenderIgnoreModal ) {
+				result.push( {
+					id: THREAT_ACTION_IGNORE,
+					label: __( 'Ignore', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Ignore threat', 'jetpack-scan' ),
+					RenderModal: RenderIgnoreModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_IGNORE,
+					label: __( 'Ignore', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onIgnoreThreats,
+					isEligible,
+				} );
+			}
 		}
 
 		if ( dataFields.includes( 'status' ) ) {
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderUnignoreModal && ! onUnignoreThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForUnignore ) {
+					return isThreatEligibleForUnignore( item );
+				}
+				return item.status === 'ignored';
+			};
+			if ( RenderUnignoreModal ) {
+				result.push( {
+					id: THREAT_ACTION_UNIGNORE,
+					label: __( 'Unignore', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Unignore threat', 'jetpack-scan' ),
+					RenderModal: RenderUnignoreModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_UNIGNORE,
+					label: __( 'Unignore', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onUnignoreThreats,
+					isEligible,
+				} );
+			}
+		}
+
+		// View details — always-eligible row action that opens the
+		// supplied `RenderViewModal`. Unlike fix / ignore / unignore, it
+		// is NOT gated by threat status or capability, so the user can
+		// always drill in for the full file context, fix description,
+		// and metadata.
+		if ( RenderViewModal ) {
 			result.push( {
-				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onUnignoreThreats,
-				isEligible( item ) {
-					if ( ! onUnignoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForUnignore ) {
-						return isThreatEligibleForUnignore( item );
-					}
-					return item.status === 'ignored';
-				},
+				id: THREAT_ACTION_VIEW,
+				label: __( 'View details', 'jetpack-scan' ),
+				isPrimary: false,
+				modalHeader: __( 'Threat details', 'jetpack-scan' ),
+				modalSize: 'large',
+				RenderModal: RenderViewModal,
+				isEligible: () => true,
 			} );
 		}
 
@@ -477,6 +599,10 @@ export default function ThreatsDataViews( {
 		onFixThreats,
 		onIgnoreThreats,
 		onUnignoreThreats,
+		RenderFixModal,
+		RenderIgnoreModal,
+		RenderUnignoreModal,
+		RenderViewModal,
 		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,
@@ -492,13 +618,42 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	/**
-	 * Callback function to update the view state.
+	 * Callback function to update the view state. When `onTrackEvent` is
+	 * supplied, diff the previous view against the new one and fire the
+	 * matching DataViews-canonical event names so consumer analytics can
+	 * track which dimension actually changed (search vs filter vs page
+	 * vs layout). The generic `view_change` event always fires last so
+	 * consumers can choose between the granular events and an "anything
+	 * changed" hook.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeview-function
 	 */
-	const onChangeView = useCallback( ( newView: View ) => {
-		setView( newView );
-	}, [] );
+	const previousViewRef = useRef< View >( view );
+	const onChangeView = useCallback(
+		( newView: View ) => {
+			if ( onTrackEvent ) {
+				const previous = previousViewRef.current;
+				if ( previous.search !== newView.search ) {
+					onTrackEvent( 'search', { has_query: !! newView.search } );
+				}
+				if ( previous.type !== newView.type ) {
+					onTrackEvent( 'layout_changed', { layout: newView.type } );
+				}
+				if ( previous.page !== newView.page ) {
+					onTrackEvent( 'page_change', { page: newView.page } );
+				}
+				if (
+					JSON.stringify( previous.filters ?? [] ) !== JSON.stringify( newView.filters ?? [] )
+				) {
+					onTrackEvent( 'filter_change' );
+				}
+				onTrackEvent( 'view_change' );
+			}
+			previousViewRef.current = newView;
+			setView( newView );
+		},
+		[ onTrackEvent ]
+	);
 
 	/**
 	 * DataView getItemId function - returns the unique ID for each record in the dataset.
@@ -508,23 +663,28 @@ export default function ThreatsDataViews( {
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
-		/>
+		<div className={ styles[ 'threats-data-views' ] }>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+				empty={ empty }
+				header={
+					showStatusFilter ? (
+						<ThreatsStatusToggleGroupControl
+							data={ data }
+							view={ view }
+							onChangeView={ onChangeView }
+						/>
+					) : undefined
+				}
+			/>
+		</div>
 	);
 }

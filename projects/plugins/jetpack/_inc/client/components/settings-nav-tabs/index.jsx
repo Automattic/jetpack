@@ -11,7 +11,6 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
-	isWpAdminNewsletterSettingsEnabled as _isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	hasAnyOfTheseModules,
@@ -30,7 +29,6 @@ const TAB_LABELS = {
 	'/sharing': _x( 'Sharing', 'Navigation item.', 'jetpack' ),
 	'/discussion': _x( 'Discussion', 'Navigation item.', 'jetpack' ),
 	'/traffic': _x( 'Traffic', 'Navigation item.', 'jetpack' ),
-	'/newsletter': _x( 'Newsletter', 'Navigation item.', 'jetpack' ),
 	'/reader': _x( 'Reader', 'Navigation item.', 'jetpack' ),
 	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
 };
@@ -56,7 +54,6 @@ const SettingsNavTabs = props => {
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
-		isWpAdminNewsletterSettingsEnabled,
 		searchTerm,
 		searchForTerm,
 	} = props;
@@ -139,9 +136,6 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/traffic' );
 		}
-		if ( hasModules( [ 'subscriptions' ] ) && ! isWpAdminNewsletterSettingsEnabled ) {
-			visibleTabs.push( '/newsletter' );
-		}
 		if ( hasModules( [ 'wpcom-reader' ] ) && ! isWoASite ) {
 			visibleTabs.push( '/reader' );
 		}
@@ -210,7 +204,6 @@ export default connect(
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
-		isWpAdminNewsletterSettingsEnabled: _isWpAdminNewsletterSettingsEnabled( state ),
 		searchTerm: getSearchTerm( state ),
 	} ),
 	dispatch => ( {

@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment, useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
@@ -132,7 +133,6 @@ const StepDisconnect = props => {
 				{ disconnectStepComponent }
 				{ renderFallbackOutput() }
 			</div>
-
 			<div className="jp-connection__disconnect-dialog__actions">
 				<div className="jp-row">
 					<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
@@ -145,7 +145,8 @@ const StepDisconnect = props => {
 								{
 									strong: <strong></strong>,
 									jpConnectionInfoLink: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl(
 												'why-the-wordpress-com-connection-is-important-for-jetpack'
 											) }
@@ -154,7 +155,8 @@ const StepDisconnect = props => {
 										/>
 									),
 									jpSupportLink: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support' ) }
 											className="jp-connection__disconnect-dialog__link"
 											onClick={ trackSupportClick }

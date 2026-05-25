@@ -2,7 +2,7 @@ import { Disabled, useNavigator } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, type FC } from 'react';
+import { useCallback, type FC, type ReactNode } from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { store as socialStore } from '../../social-store';
 import { hasSocialPaidFeatures } from '../../utils';
@@ -38,6 +38,16 @@ export type SharePostFormProps = {
 	onMessageChange?: ( message: string ) => void;
 
 	/**
+	 * Optional placeholder for the message field.
+	 */
+	messagePlaceholder?: string;
+
+	/**
+	 * Optional help text for the message field.
+	 */
+	messageHelp?: ReactNode;
+
+	/**
 	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
 	 * this value is passed to child components instead of fetching from the store.
 	 */
@@ -67,9 +77,12 @@ export type SharePostFormProps = {
 	disabled?: boolean;
 
 	/**
-	 * Whether to force media as attachment.
+	 * Controls the "Share as attachment" toggle inside the media section.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
 	 */
-	forceMediaAsAttachment?: boolean;
+	attachmentToggleMode?: 'visible' | 'hidden';
 
 	/**
 	 * Optional upgrade notice depending on where the form is rendered.
@@ -88,12 +101,14 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	isInsideNavigatorModal,
 	message: messageProp,
 	onMessageChange,
+	messagePlaceholder,
+	messageHelp,
 	attachedMedia,
 	imageGeneratorSettings,
 	mediaSource,
 	onMediaChange,
 	disabled = false,
-	forceMediaAsAttachment,
+	attachmentToggleMode,
 	upgradeNotice,
 } ) => {
 	const {
@@ -134,6 +149,8 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 						maxLength={ maxLength }
 						onChange={ updateMessage }
 						message={ message }
+						placeholder={ messagePlaceholder }
+						help={ messageHelp }
 						analyticsData={ analyticsData }
 						disabled={ disabled }
 					/>
@@ -149,12 +166,12 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 						<MediaSectionV2
 							analyticsData={ analyticsData }
 							onEditTemplate={ onEditTemplate }
+							attachmentToggleMode={ attachmentToggleMode }
 							{ ...( isMediaControlled && {
 								attachedMedia,
 								imageGeneratorSettings,
 								mediaSource,
 								onMediaChange,
-								forceAsAttachment: forceMediaAsAttachment,
 							} ) }
 						/>
 					) }

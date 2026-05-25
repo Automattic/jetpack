@@ -1,7 +1,8 @@
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { store as socialStore } from '../../../../social-store';
 import TemplatePickerModal from '../../../social-image-generator/template-picker/modal';
 import ToggleSection from '../toggle-section';
@@ -52,21 +53,18 @@ const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { di
 		[ updateSocialImageGeneratorConfig, isEnabled ]
 	);
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
 	const renderTemplatePickerModal = useCallback(
 		( { open } ) => (
 			<Button
-				fullWidth={ isSmall }
 				className={ styles.button }
-				variant="secondary"
+				variant="outline"
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
 				{ __( 'Change defaults', 'jetpack-publicize-pkg' ) }
 			</Button>
 		),
-		[ isEnabled, isSmall, isUpdating ]
+		[ isEnabled, isUpdating ]
 	);
 
 	return (

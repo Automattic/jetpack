@@ -101,6 +101,16 @@ class Webhooks {
 	public function handle_authorize() {
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
 			$redirect_url = apply_filters( 'jetpack_client_authorize_already_authorized_url', admin_url() );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only; redirect is validated below.
+			if ( ! empty( $_GET['redirect'] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by esc_url_raw.
+				$explicit = esc_url_raw( wp_unslash( $_GET['redirect'] ) );
+				if ( wp_validate_redirect( $explicit ) ) {
+					$redirect_url = $explicit;
+				}
+			}
+
 			wp_safe_redirect( $redirect_url );
 
 			return;

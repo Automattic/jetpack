@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -65,7 +66,7 @@ const FieldPhone = ( { phone }: FieldPhoneProps ) => {
 
 	return (
 		<TextWithFlag countryCode={ countryCode }>
-			<a href={ `tel:${ phone }` }>{ formattedNumber }</a>
+			<Link href={ `tel:${ phone }` }>{ formattedNumber }</Link>
 		</TextWithFlag>
 	);
 };

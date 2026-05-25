@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection abilities: align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first.

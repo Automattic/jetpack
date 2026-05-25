@@ -137,6 +137,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	// Process settings changes
 
+	$updatedSettings = array();
+
 	// Currency (Grim but will work for now)
 	$updatedSettings['currency'] = array(
 		'chr'    => '$',
@@ -155,7 +157,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// 2.84 Currency Formatting
 	$updatedSettings['currency_position'] = 0;
 	if ( isset( $_POST['wpzbscrm_currency_position'] ) && ! empty( $_POST['wpzbscrm_currency_position'] ) ) {
-		$updatedSettings['currency_position'] = (int) sanitize_text_field( $_POST['wpzbscrm_currency_position'] );
+		$updatedSettings['currency_position'] = (int) $_POST['wpzbscrm_currency_position'];
 	}
 	$updatedSettings['currency_format_thousand_separator'] = ',';
 	if ( isset( $_POST['wpzbscrm_currency_format_thousand_separator'] ) && ! empty( $_POST['wpzbscrm_currency_format_thousand_separator'] ) ) {
@@ -168,7 +170,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$updatedSettings['currency_format_number_of_decimals'] = 2;
 	if ( isset( $_POST['wpzbscrm_currency_format_number_of_decimals'] ) ) {
 
-		$decimalCount = (int) sanitize_text_field( $_POST['wpzbscrm_currency_format_number_of_decimals'] );
+		$decimalCount = (int) $_POST['wpzbscrm_currency_format_number_of_decimals'];
 		if ( $decimalCount < 0 ) {
 			$decimalCount = 0;
 		}

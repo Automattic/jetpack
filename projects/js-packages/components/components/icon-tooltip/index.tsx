@@ -1,8 +1,8 @@
 import { Popover } from '@wordpress/components';
+import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, ReactElement, FC } from 'react';
 import Button from '../button/index.tsx';
-import Gridicon from '../gridicon/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
 import './style.scss';
@@ -31,7 +31,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	iconClassName = '',
 	placement = 'bottom-end',
 	animate = true,
-	iconCode = 'info-outline',
+	iconCode = info,
 	iconSize = 18,
 	offset = 10,
 	title,
@@ -109,7 +109,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		>
 			{ ! isAnchorWrapper && (
 				<Button variant="link" onMouseDown={ toggleTooltip }>
-					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
+					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }
 			<div

@@ -584,7 +584,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}
@@ -685,7 +685,7 @@ class REST_Controller {
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}

@@ -58,6 +58,10 @@
 		{
 			extends: [ 'packages:eslint' ],
 			groupName: 'Eslint packages',
+			matchPackageNames: [
+				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
+				'!eslint-plugin-storybook',
+			],
 		},
 		{
 			extends: [ 'packages:jsUnitTest' ],
@@ -114,7 +118,6 @@
 			additionalReviewers: [
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
-				'team:bastion', // Scan
 				'team:zap', // Forms, much of the recent componentry work.
 			],
 		},

@@ -1,11 +1,10 @@
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getProductCardData, getProductCardDataStepOverrides } from 'recommendations/feature-utils';
-
 // Styles for this component are the same as the discount card
 import '../discount-card/style.scss';
 
@@ -51,19 +50,20 @@ const ProductSpotlightComponent = props => {
 						{ productCardDisclaimer && (
 							<p className="jp-recommendations-discount-card__disclaimer">
 								{ productCardDisclaimer.text }{ ' ' }
-								<ExternalLink href={ productCardDisclaimer.url }>
+								<Link openInNewTab href={ productCardDisclaimer.url }>
 									{ productCardDisclaimer.link_text }
-								</ExternalLink>
+								</Link>
 							</p>
 						) }
-						<ExternalLink
+						<Link
+							openInNewTab
 							type="button"
 							className="dops-button is-rna jp-recommendations-discount-card__button"
 							href={ productCardCtaLink }
 							onClick={ onProductCtaClick }
 						>
 							{ productCardCtaText }
-						</ExternalLink>
+						</Link>
 					</div>
 				</div>
 			</div>

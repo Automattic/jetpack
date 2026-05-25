@@ -43,4 +43,5 @@ const DefaultArgs = {};
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
 
+// eslint-disable-next-line storybook/csf-component -- This is not a component story.
 export default meta;

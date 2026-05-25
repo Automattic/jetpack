@@ -25,6 +25,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		seriesCount: {

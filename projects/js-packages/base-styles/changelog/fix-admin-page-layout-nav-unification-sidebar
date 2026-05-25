@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-admin-page-layout: honor WP.com nav-unification's 272px sidebar width at expanded viewports so the content column aligns with the visible sidebar instead of leaving a 112px gap.

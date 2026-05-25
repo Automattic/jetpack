@@ -77,8 +77,8 @@ function WritingMedia( props ) {
 				</p>
 				<ModuleToggle
 					slug="carousel"
+					disabled={ props.isSavingAnyOption( 'carousel' ) }
 					activated={ isCarouselActive }
-					toggling={ props.isSavingAnyOption( 'carousel' ) }
 					toggleModule={ props.toggleModuleNow }
 				>
 					<span className="jp-form-toggle-explanation">

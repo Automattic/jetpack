@@ -5,7 +5,7 @@
  * WooSync Settings and Connections pages JS
  */
 
-/* global zeroBSCRMJS_globViewLang, swal, jpcrm_strip_trailing_slashes, ajaxurl, jpcrm_looks_like_URL */
+/* global zeroBSCRMJS_globViewLang, swal, jpcrm_strip_trailing_slashes, ajaxurl, jpcrm_looks_like_URL, jpcrm */
 
 jQuery( function () {
 	// Bind add connection
@@ -19,41 +19,44 @@ function jpcrm_woosync_bind_add_connection() {
 	jQuery( '#jpcrm-woosync-connect-to-store' ).on( 'click', function () {
 		const swal_HTML =
 			'<div style="font-size: 1.2em;padding: 0.3em;">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-site-url' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-site-url' ) ) +
 			'<br />' +
 			'<div class="ui input" style="width: 350px;"><input type="text" name="jpcrm-connect-woocommerce-store-url" id="jpcrm-connect-woocommerce-store-url" value="" placeholder="' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-site-placeholder' ) +
+			jpcrm.esc_attr( zeroBSCRMJS_globViewLang( 'connect-woo-site-placeholder' ) ) +
 			'" /></div>' +
 			'<div class="jpcrm-woosync-add-connection-errors">' +
 			'<div class="ui hidden pointing red basic label" id="jpcrm-woosync-connect-to-store-invalid-url-empty">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-empty' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-empty' ) ) +
 			'</div>' +
 			'<div class="ui hidden pointing red basic label" id="jpcrm-woosync-connect-to-store-invalid-url">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-detail' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-detail' ) ) +
 			'</div>' +
 			'<div class="ui hidden pointing red basic label" id="jpcrm-woosync-connect-to-store-invalid-url-http">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-http' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-http' ) ) +
 			'</div>' +
 			'<div class="ui hidden pointing red basic label" id="jpcrm-woosync-connect-to-store-invalid-url-duplicate">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-duplicate' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-invalid-url-duplicate' ) ) +
 			'</div>' +
 			'<div class="ui hidden pointing red basic label" id="jpcrm-woosync-connect-to-store-ajax-error">' +
-			zeroBSCRMJS_globViewLang( 'connect-woo-ajax-error' ) +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-ajax-error' ) ) +
 			'</div>' +
 			'</div>' +
 			'</div>';
 
 		// show a sweet alert asking for the site URL
 		swal( {
-			title: '<i class="plug icon"></i> ' + zeroBSCRMJS_globViewLang( 'connect-woo' ),
+			title:
+				'<i class="plug icon"></i> ' + jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo' ) ),
 			html: swal_HTML,
 			type: '',
 			showCancelButton: true,
 			confirmButtonColor: '#000',
 			cancelButtonColor: '#fff',
 			cancelButtonText:
-				'<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
-			confirmButtonText: zeroBSCRMJS_globViewLang( 'connect-woo-go' ),
+				'<span style="color: #000">' +
+				jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'cancel' ) ) +
+				'</span>',
+			confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'connect-woo-go' ) ),
 			customClass: 'swal-wide',
 			preConfirm: function () {
 				// get value

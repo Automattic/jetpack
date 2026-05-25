@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Currency formatting: add `setCurrencyOverrides` for installing a dynamic per-currency override map (eg: from the WPCOM currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called.

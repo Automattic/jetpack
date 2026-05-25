@@ -1,6 +1,7 @@
-import { ExternalLink, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
@@ -29,9 +30,9 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 			{ ! connection.profile_link ? (
 				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
 			) : (
-				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
+				<Link openInNewTab className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
 					{ connection.display_name }
-				</ExternalLink>
+				</Link>
 			) }
 			{ isUpdating ? (
 				<Spinner color="black" aria-label={ __( 'Updating account', 'jetpack-publicize-pkg' ) } />

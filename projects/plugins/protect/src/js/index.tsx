@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router';
 import Modal from './components/modal';
 import PaidPlanGate from './components/paid-plan-gate';
+import ProtectApp from './components/protect-app';
 import { ModalProvider } from './hooks/use-modal';
 import { NoticeProvider } from './hooks/use-notices';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
@@ -57,27 +58,29 @@ function render() {
 								<HashRouter>
 									<ScrollToTop />
 									<Routes>
-										<Route path="/settings" element={ <SettingsRoute /> } />
 										<Route path="/setup" element={ <SetupRoute /> } />
-										<Route path="/scan" element={ <ScanRoute /> } />
-										<Route
-											path="/scan/history"
-											element={
-												<PaidPlanGate>
-													<ScanHistoryRoute />
-												</PaidPlanGate>
-											}
-										/>
-										<Route
-											path="/scan/history/:filter"
-											element={
-												<PaidPlanGate>
-													<ScanHistoryRoute />
-												</PaidPlanGate>
-											}
-										/>
-										<Route path="/firewall" element={ <FirewallRoute /> } />
-										<Route path="*" element={ <Navigate to="/scan" replace /> } />
+										<Route path="/*" element={ <ProtectApp /> }>
+											<Route path="scan" element={ <ScanRoute /> } />
+											<Route
+												path="scan/history"
+												element={
+													<PaidPlanGate>
+														<ScanHistoryRoute />
+													</PaidPlanGate>
+												}
+											/>
+											<Route
+												path="scan/history/:filter"
+												element={
+													<PaidPlanGate>
+														<ScanHistoryRoute />
+													</PaidPlanGate>
+												}
+											/>
+											<Route path="firewall" element={ <FirewallRoute /> } />
+											<Route path="settings" element={ <SettingsRoute /> } />
+											<Route path="*" element={ <Navigate to="/scan" replace /> } />
+										</Route>
 									</Routes>
 								</HashRouter>
 								<Modal />

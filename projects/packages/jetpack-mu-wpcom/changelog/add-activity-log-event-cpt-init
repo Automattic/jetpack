@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initialize Activity Log event custom post type support when Sync is available.

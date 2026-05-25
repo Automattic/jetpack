@@ -1,12 +1,9 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
-import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { differenceInHours, differenceInYears } from 'date-fns';
 import {
 	useMemo,
 	useContext,
@@ -38,18 +35,17 @@ import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
+import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
-import type { CurveType, RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, Ref } from 'react';
-
-const X_TICK_WIDTH = 60;
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -61,32 +57,14 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 };
 
 /**
- * Determines the curve type for the line chart based on the provided type and smoothing parameters
+ * Default visx-tooltip render that prints the hovered date as a heading and
+ * one row per visible series (label + formatted value), sorted descending by
+ * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param {CurveType} type      - The explicit curve type to use
- * @param {boolean}   smoothing - Legacy smoothing parameter
- * @return The curve function to use for the line
+ * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @return Tooltip JSX, or `null` when no datum is hovered.
  */
-const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
-	// If no type specified, use legacy smoothing behavior
-	if ( ! type ) {
-		return smoothing ? curveCatmullRom : curveLinear;
-	}
-
-	// Handle explicit curve types
-	switch ( type ) {
-		case 'smooth':
-			return curveCatmullRom;
-		case 'monotone':
-			return curveMonotoneX;
-		case 'linear':
-			return curveLinear;
-		default:
-			return curveLinear;
-	}
-};
-
-const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
+export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
@@ -119,94 +97,6 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 			) ) }
 		</div>
 	);
-};
-
-const formatYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		year: 'numeric',
-	} );
-};
-
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
-
-const formatHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleTimeString( undefined, {
-		hour: 'numeric',
-		hour12: true,
-	} );
-};
-
-const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
-	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
-
-	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-	if ( diffInHours <= 24 ) {
-		return formatHourTick;
-	}
-
-	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
-	if ( diffInYears <= 1 ) {
-		return formatDateTick;
-	}
-
-	return formatYearTick;
-};
-
-const guessOptimalNumTicks = (
-	data: ReturnType< typeof useChartDataTransform >,
-	chartWidth: number,
-	tickFormatter: ( timestamp: number, index?: number, values?: unknown ) => string
-) => {
-	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
-	const xScale = scaleTime( { domain: [ minX, maxX ] } );
-
-	// Calculate upper bound of tick numbers based on data points and chart width
-	const upperBound = Math.min(
-		data[ 0 ]?.data.length || 3, // A sane fallback to avoid NaN when no data is present
-		Math.ceil( chartWidth / X_TICK_WIDTH )
-	);
-	let secondBestGuess = 1; // a tick number that's no greater than upperBound
-
-	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
-		const ticks = xScale.ticks( numTicks ).map( d => tickFormatter( d.getTime() ) );
-
-		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
-		if ( ticks.length > upperBound ) {
-			continue;
-		}
-
-		secondBestGuess = Math.max( secondBestGuess, ticks.length );
-
-		const uniqueTicks = Array.from( new Set( ticks ) );
-		if ( uniqueTicks.length === 1 ) {
-			// All ticks are the same, so skip further processing
-			return 1;
-		}
-
-		// Example: OCT 1 JAN 1 APR 1 JUL 1 OCT 1
-		// Here, the two OCTs are not duplicates as they represent October of two different years.
-		const hasConsecutiveDuplicate = ticks.some(
-			( tick, idx ) => idx > 0 && tick === ticks[ idx - 1 ]
-		);
-
-		if ( hasConsecutiveDuplicate ) {
-			continue;
-		}
-
-		return ticks.length;
-	}
-
-	return secondBestGuess;
 };
 
 const validateData = ( data: SeriesData[] ) => {

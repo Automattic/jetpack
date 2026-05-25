@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup abilities: clarify jetpack-backup/list-backups pagination — terminate on empty page, not on shorter-than-per_page (client-side filters can shorten a page even when more pages exist).

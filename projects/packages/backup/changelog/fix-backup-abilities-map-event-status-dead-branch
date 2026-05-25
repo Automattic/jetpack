@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup abilities: drop dead branch in map_event_status() that returned the same value as the default case.

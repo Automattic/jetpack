@@ -4,10 +4,11 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Modal, Button } from '@wordpress/components';
+import { Modal, Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useState, useEffect } from 'react';
@@ -122,7 +123,6 @@ const OwnerDisconnectDialog = ( {
 						action="check-users"
 					/>
 				</div>
-
 				<div className="jp-connection__disconnect-dialog__actions">
 					<div className="jp-row">
 						<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
@@ -135,7 +135,8 @@ const OwnerDisconnectDialog = ( {
 									{
 										strong: <strong></strong>,
 										connectionInfoLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl(
 													'why-the-wordpress-com-connection-is-important-for-jetpack'
 												) }
@@ -143,7 +144,8 @@ const OwnerDisconnectDialog = ( {
 											/>
 										),
 										supportLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-support' ) }
 												className="jp-connection__disconnect-dialog__link"
 											/>

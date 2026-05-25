@@ -98,7 +98,7 @@ class zeroBS__Metabox_Task extends zeroBS__Metabox {
 			// PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-dataget');
 			// PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-draw'); ?>
 
-				<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+				<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 
 				<?php
 				#} Pass this if it's a new customer (for internal automator) - note added this above with DEFINE for simpler.

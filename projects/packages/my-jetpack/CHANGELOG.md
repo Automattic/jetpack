@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.37.3] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [5.37.2] - 2026-05-19
+### Changed
+- Update package dependencies. [#48910]
+
+## [5.37.1] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+### Fixed
+- Prevent PHP deprecated notice when retrieving tier-based descriptions. [#48524]
+
+## [5.37.0] - 2026-05-11
+### Changed
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- My Jetpack: Adopt the shared `jetpack-admin-page-layout` mixin on the main dashboard page so its layout matches the rest of the Jetpack admin pages. [#48503]
+- My Jetpack: Migrate interstitial Buttons from `@automattic/jetpack-components` and `@wordpress/components` to `@wordpress/ui`. [#48489]
+
+### Fixed
+- My Jetpack: Drop `overflow-x: hidden` on the `<AdminPage>` root so the page no longer becomes its own scroll container. [#48578]
+- My Jetpack: Fix `.jetpack-admin-full-screen` interstitial pages being constrained by the shared admin-page-layout mixin. [#48536]
+
+## [5.36.0] - 2026-05-04
+### Added
+- My Jetpack: Add Modules link to the footer for admins on connected sites running the main Jetpack plugin. [#48304]
+
+### Changed
+- Components: Migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- My Jetpack: Render product-interstitial back-link in the unified header's breadcrumbs slot, and move the "Use license key" CTA into the header actions slot. No new dependency or behavior change. [#48414]
+- Remove New badge style from the Jetpack AI product interstitial. [#48174]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+### Removed
+- Drop the legacy Activity Log menu registration; the new activity-log package now owns that menu item. [#48244]
+
+## [5.35.0] - 2026-04-27
+### Changed
+- My Jetpack: Hide the Google Fonts module toggle unless the module is already active. [#48216]
+- Replace Badge from `@automattic/ui` with Badge from `@wordpress/ui`, and CheckmarkIcon with Icon from `@wordpress/icons`. [#48167]
+
+### Removed
+- Remove orphaned new-badge styles from Jetpack AI product interstitial. [#48162]
+
+### Fixed
+- Restore background on the "Supercharge my site" onboarding button by using the core Button's primary variant. [#48240]
+
+## [5.34.4] - 2026-04-20
+### Changed
+- Remove Jetpack color overrides on core WordPress components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Newsletter: remove jetpack_wp_admin_newsletter_settings_enabled filter check; the manage URL always points to the wp-admin newsletter settings page. [#48092]
+
 ## [5.34.3] - 2026-04-15
 ### Changed
 - Update package dependencies. [#47907]
@@ -2609,6 +2672,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.37.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.2...5.37.3
+[5.37.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.1...5.37.2
+[5.37.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.0...5.37.1
+[5.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.36.0...5.37.0
+[5.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.35.0...5.36.0
+[5.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.4...5.35.0
+[5.34.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.3...5.34.4
 [5.34.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.2...5.34.3
 [5.34.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.1...5.34.2
 [5.34.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.0...5.34.1

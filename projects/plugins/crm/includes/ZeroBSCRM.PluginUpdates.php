@@ -203,7 +203,7 @@ class zeroBSCRM_Plugin_Updater {
 						$key_info['access'] = sanitize_text_field( $response['access'] );
 					}
 					if ( isset( $response['expires'] ) ) {
-						$key_info['expires'] = (int) sanitize_text_field( $response['expires'] );
+						$key_info['expires'] = (int) $response['expires'];
 					}
 
 					// if this was the first time this api been used, it'll also send this back:

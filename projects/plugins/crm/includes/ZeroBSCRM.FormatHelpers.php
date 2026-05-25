@@ -35,7 +35,7 @@ function zeroBSCRM_html_contactIntroSentence( $contact ) {
 
 			if ( is_array( $co ) && isset( $co['name'] ) && ! empty( $co['name'] ) ) {
 
-				$c .= '<br/><i class="building outline icon"></i>' . __( 'Works for', 'zero-bs-crm' ) . ' <a href="' . jpcrm_esc_link( 'view', $possibleCo, 'zerobs_company' ) . '" target="_blank">' . $co['name'] . '</a>';
+				$c .= '<br/><i class="building outline icon"></i>' . __( 'Works for', 'zero-bs-crm' ) . ' <a href="' . jpcrm_esc_link( 'view', $possibleCo, 'zerobs_company' ) . '" target="_blank">' . esc_html( $co['name'] ) . '</a>';
 			}
 		}
 	}
@@ -161,7 +161,7 @@ function zeroBSCRM_html_linkedContactCompanies( $contactID = -1, $companiesArray
 
 		if ( is_array( $company ) && isset( $company['name'] ) && ! empty( $company['name'] ) ) {
 
-			$companiesStr .= '<a href="' . jpcrm_esc_link( 'view', $company['id'], 'zerobs_company' ) . '" target="_blank">' . $company['name'] . '</a>';
+			$companiesStr .= '<a href="' . jpcrm_esc_link( 'view', $company['id'], 'zerobs_company' ) . '" target="_blank">' . esc_html( $company['name'] ) . '</a>';
 
 		}
 	}

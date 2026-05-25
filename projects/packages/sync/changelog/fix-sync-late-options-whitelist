@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Options: Include late sync whitelist entries in cached option modules.

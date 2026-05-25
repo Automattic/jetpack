@@ -4,12 +4,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
+import { Spinner, withNotices, Button } from '@wordpress/components';
 import { useCallback, useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { isSiteConnected } from '../../../../../lib/connection';
@@ -269,7 +270,9 @@ const VideoPressUploader = ( {
 			),
 			{
 				connectLink: <a href={ uploadingError?.data?.connect_url } rel="noreferrer noopener" />,
-				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
+				moreAboutVideoPressLink: (
+					<Link openInNewTab href={ getRedirectUrl( 'jetpack-videopress' ) } />
+				),
 			}
 		);
 

@@ -1,9 +1,10 @@
-import { Button, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
@@ -114,9 +115,9 @@ export default function MediaPicker( {
 				{ ! mediaId ? (
 					<>
 						<Button
-							variant="secondary"
+							variant="outline"
 							size="small"
-							className={ styles.preview }
+							className={ styles[ 'picker-button' ] }
 							onClick={ clickHandler( open ) }
 							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 						>

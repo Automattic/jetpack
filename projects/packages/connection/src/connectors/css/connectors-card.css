@@ -1,8 +1,8 @@
 /**
- * Styles for the WordPress.com connector card on the
+ * Styles for the Jetpack connector card on the
  * WP core Settings > Connectors page (WP 7.0+).
  *
- * Enqueued by Wpcom_Connector::enqueue_script_module().
+ * Enqueued by Jetpack_Connector::enqueue_script_module().
  * Uses CSS logical properties for RTL support.
  *
  * ConnectorItem renders inside .components-item which has
@@ -10,11 +10,12 @@
  * negative inline margins to span the full card width.
  */
 
-.wpcom-connector__description-padded {
+.jetpack-connector__description-padded {
+	display: block;
 	padding-inline-end: 40px;
 }
 
-.wpcom-connector__expanded {
+.jetpack-connector__expanded {
 	margin-inline: -20px;
 	margin-block-start: 4px;
 	border-block-start: 1px solid #ddd;
@@ -22,7 +23,7 @@
 	padding-inline: 20px;
 }
 
-.wpcom-connector__status-badge {
+.jetpack-connector__status-badge {
 	padding-block: 4px;
 	padding-inline: 12px;
 	border-radius: 2px;
@@ -31,61 +32,66 @@
 	white-space: nowrap;
 }
 
-.wpcom-connector__status-badge--connected {
+.jetpack-connector__status-badge--connected {
 	color: #345b37;
 	background-color: #eff8f0;
 }
 
-.wpcom-connector__status-badge--site-connected {
+.jetpack-connector__status-badge--site-registered {
 	color: #1e4c5e;
 	background-color: #e9f0f5;
 }
 
-.wpcom-connector__section {
+.jetpack-connector__section {
 	padding-block-end: 20px;
 }
 
-.wpcom-connector__owner-avatar {
+.jetpack-connector__owner-avatar {
 	border-radius: 50%;
 }
 
-.wpcom-connector__plugin-icon {
+.jetpack-connector__user-link {
+	text-decoration: underline;
+	color: inherit;
+}
+
+.jetpack-connector__plugin-icon {
 	inline-size: 20px;
 	block-size: 20px;
 	flex-shrink: 0;
 }
 
-.wpcom-connector__plugin-icon--fallback {
+.jetpack-connector__plugin-icon--fallback {
 	font-size: 20px;
 }
 
-.wpcom-connector__divider {
+.jetpack-connector__divider {
 	border: none;
 	border-block-start: 1px solid #ddd;
 	margin: 0;
 }
 
-.wpcom-connector__details-link:focus:not(:focus-visible) {
+.jetpack-connector__details-link:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;
 }
 
-.wpcom-connector__disconnect-site {
+.jetpack-connector__disconnect-site {
 	margin-inline-start: auto;
 }
 
-.wpcom-connector__modal .components-button:focus:not(:focus-visible),
-.wpcom-connector__confirm-modal .components-button:focus:not(:focus-visible) {
+.jetpack-connector__modal .components-button:focus:not(:focus-visible),
+.jetpack-connector__confirm-modal .components-button:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;
 }
 
-.wpcom-connector__modal.components-modal__frame,
-.wpcom-connector__modal {
+.jetpack-connector__modal.components-modal__frame,
+.jetpack-connector__modal {
 	max-inline-size: 480px;
 }
 
-.wpcom-connector__details-modal {
+.jetpack-connector__details-modal {
 	display: grid;
 	grid-template-columns: max-content 1fr;
 	column-gap: 16px;
@@ -93,62 +99,62 @@
 	align-items: baseline;
 }
 
-.wpcom-connector__details-label {
+.jetpack-connector__details-label {
 	white-space: nowrap;
 }
 
-.wpcom-connector__details-value {
+.jetpack-connector__details-value {
 	overflow-wrap: break-word;
 	min-inline-size: 0;
 	text-align: end;
 }
 
-.wpcom-connector__connect-prompt-text {
+.jetpack-connector__connect-prompt-text {
 	flex: 1;
 	min-inline-size: 0;
 }
 
-.wpcom-connector__inline-action {
+.jetpack-connector__inline-action {
 	margin-inline-start: auto;
 	white-space: nowrap;
 }
 
 @media (max-width: 480px) {
 
-	.wpcom-connector__expanded {
+	.jetpack-connector__expanded {
 		margin-inline: -12px;
 		padding-block-start: 12px;
 		padding-inline: 12px;
 	}
 
-	.wpcom-connector__section.components-h-stack,
-	.wpcom-connector__section > .components-h-stack {
+	.jetpack-connector__section.components-h-stack,
+	.jetpack-connector__section > .components-h-stack {
 		flex-wrap: wrap;
 	}
 
-	.wpcom-connector__connect-prompt-text {
+	.jetpack-connector__connect-prompt-text {
 		min-inline-size: 100%;
 	}
 
-	.wpcom-connector__inline-action {
+	.jetpack-connector__inline-action {
 		margin-inline-start: 0;
 	}
 
-	.wpcom-connector__details-modal {
+	.jetpack-connector__details-modal {
 		grid-template-columns: 1fr;
 		row-gap: 4px;
 	}
 
-	.wpcom-connector__details-label:not(:first-child) {
+	.jetpack-connector__details-label:not(:first-child) {
 		margin-block-start: 8px;
 	}
 
-	.wpcom-connector__details-value {
+	.jetpack-connector__details-value {
 		text-align: start;
 	}
 }
 
-.wpcom-connector__error {
+.jetpack-connector__error {
 	color: #cc1818;
 	font-size: 13px;
 	margin-block-start: 8px;
@@ -160,7 +166,15 @@
 	align-items: center;
 }
 
-.wpcom-connector__error .components-button {
+.jetpack-connector__error .components-button {
 	color: #cc1818;
 	flex-shrink: 0;
+}
+
+.jetpack-connector__tos-notice {
+	margin-block-start: 8px;
+}
+
+.jetpack-connector__tos-notice a {
+	color: inherit;
 }

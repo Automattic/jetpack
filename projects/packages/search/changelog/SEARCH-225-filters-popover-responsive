@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search Blocks: filters-popover gains a `displayMode` attribute. It still defaults to the always-collapsed popover; the new responsive layout — inline filters on wider screens that collapse to the popover trigger on narrow ones — is opt-in via the display-mode select.

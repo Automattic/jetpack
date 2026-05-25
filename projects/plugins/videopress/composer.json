@@ -14,9 +14,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -53,6 +50,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ3_0"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ3_1"
 	}
 }

@@ -10,7 +10,6 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
-	ExternalLink,
 	PanelBody,
 	Placeholder,
 	RangeControl,
@@ -26,6 +25,7 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { isURL, prependHTTP } from '@wordpress/url';
 import debugFactory from 'debug';
 import { debounce } from 'lodash';
@@ -284,9 +284,9 @@ const PodcastPlayerEdit = ( {
 					</Button>
 				</form>
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportUrl }>
+					<Link openInNewTab href={ supportUrl }>
 						{ __( 'Learn more about embeds', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</div>
 			</Placeholder>
 		);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection.

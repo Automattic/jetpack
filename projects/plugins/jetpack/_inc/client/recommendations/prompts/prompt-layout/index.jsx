@@ -1,5 +1,4 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -38,8 +37,7 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 };
 
 const PromptLayoutComponent = props => {
-	const { answer, description, illustration, progressBar, question, content, isNew, sidebarCard } =
-		props;
+	const { answer, description, illustration, progressBar, question, content, sidebarCard } = props;
 
 	return (
 		<div
@@ -48,11 +46,8 @@ const PromptLayoutComponent = props => {
 			} ) }
 		>
 			<div className="jp-recommendations-question__content">
-				{ ( isNew || progressBar ) && (
+				{ progressBar && (
 					<div className="jp-recommendations-question__progress-bar-wrap">
-						{ isNew && (
-							<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
-						) }
 						<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
 					</div>
 				) }

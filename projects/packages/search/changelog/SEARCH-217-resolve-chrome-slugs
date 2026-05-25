@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search blocks: render the active theme's header/footer template parts on the search page instead of the hardcoded 'header'/'footer' slugs (fixes blank chrome on themes like Career Development that ship variant-only part files).

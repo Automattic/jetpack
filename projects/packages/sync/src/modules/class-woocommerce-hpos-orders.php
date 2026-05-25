@@ -193,7 +193,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			return $id;
 		}
 		$order_objects = $this->get_objects_by_id( $object_type, array( $id ) );
-		return isset( $order_objects[ $id ] ) ? $order_objects[ $id ] : false;
+		return $order_objects[ $id ] ?? false;
 	}
 
 	/**
@@ -411,22 +411,22 @@ class WooCommerce_HPOS_Orders extends Module {
 
 			switch ( $key ) {
 				case 'cart_discount':
-					$filtered_order_data[ $key ] = isset( $order_data['discount_total'] ) ? $order_data['discount_total'] : '';
+					$filtered_order_data[ $key ] = $order_data['discount_total'] ?? '';
 					break;
 				case 'cart_discount_tax':
-					$filtered_order_data[ $key ] = isset( $order_data['discount_tax'] ) ? $order_data['discount_tax'] : '';
+					$filtered_order_data[ $key ] = $order_data['discount_tax'] ?? '';
 					break;
 				case 'order_shipping':
-					$filtered_order_data[ $key ] = isset( $order_data['shipping_total'] ) ? $order_data['shipping_total'] : '';
+					$filtered_order_data[ $key ] = $order_data['shipping_total'] ?? '';
 					break;
 				case 'order_shipping_tax':
-					$filtered_order_data[ $key ] = isset( $order_data['shipping_tax'] ) ? $order_data['shipping_tax'] : '';
+					$filtered_order_data[ $key ] = $order_data['shipping_tax'] ?? '';
 					break;
 				case 'order_tax':
-					$filtered_order_data[ $key ] = isset( $order_data['cart_tax'] ) ? $order_data['cart_tax'] : '';
+					$filtered_order_data[ $key ] = $order_data['cart_tax'] ?? '';
 					break;
 				case 'order_total':
-					$filtered_order_data[ $key ] = isset( $order_data['total'] ) ? $order_data['total'] : '';
+					$filtered_order_data[ $key ] = $order_data['total'] ?? '';
 					break;
 			}
 		}

@@ -12,7 +12,8 @@ import {
 
 describe( 'Menu counter updates', () => {
 	beforeEach( () => {
-		document.body.innerHTML = '<span class="jp-feedback-unread-counter count-5">5</span>';
+		document.body.innerHTML =
+			'<span class="menu-counter jp-feedback-unread-counter count-5"><span class="count">5</span></span>';
 	} );
 
 	it( 'updates counter from server', () => {

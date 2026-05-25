@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-post-type",
+	"version": "0.1.0",
+	"title": "Post Type Scope",
+	"category": "jetpack-search",
+	"description": "Author-configured filter that constrains results to a fixed set of post types (or removes specific post types). Configured in the editor inspector; renders nothing on the front end. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"inserter": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"mode": {
+			"type": "string",
+			"enum": [ "include", "exclude" ],
+			"default": "exclude"
+		},
+		"postTypes": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "string" }
+		}
+	},
+	"render": "file:./render.php"
+}
