@@ -363,17 +363,21 @@ class Social_Settings_Abilities extends Registrar {
 
 		$sig_settings     = $settings_instance->get_image_generator_settings();
 		$utm_settings     = $settings_instance->get_utm_settings();
-		$sig_enabled      = ! empty( $sig_settings['enabled'] );
-		$sig_template     = isset( $sig_settings['template'] ) && is_string( $sig_settings['template'] )
-			? $sig_settings['template']
-			: null;
 		$utm_enabled      = is_array( $utm_settings ) && ! empty( $utm_settings['enabled'] );
 		$auto_share_on    = class_exists( Jetpack_Social::class )
 			? Jetpack_Social::is_publicize_active()
 			: ( new Modules() )->is_active( 'publicize' );
 		$notes_enabled    = (bool) get_option( Social_Settings::JETPACK_SOCIAL_NOTE_CPT_ENABLED, false );
-		$has_sig_feature  = $settings_instance->is_sig_available();
+		$has_sig_feature  = (bool) $settings_instance->is_sig_available();
 		$message_template = $settings_instance->get_message_template();
+
+		// Match Jetpack_Social_Settings\Settings::get_settings(): SIG cannot be
+		// enabled without Publicize, and the template is only meaningful when
+		// the SIG feature is available.
+		$sig_enabled  = ! empty( $sig_settings['enabled'] ) && (bool) $auto_share_on;
+		$sig_template = $has_sig_feature && isset( $sig_settings['template'] ) && is_string( $sig_settings['template'] )
+			? $sig_settings['template']
+			: null;
 
 		return array(
 			'auto_share_enabled'       => (bool) $auto_share_on,
@@ -383,7 +387,7 @@ class Social_Settings_Abilities extends Registrar {
 			'utm_enabled'              => $utm_enabled,
 			'social_notes_enabled'     => $notes_enabled,
 			'supports'                 => array(
-				'image_generator' => (bool) $has_sig_feature,
+				'image_generator' => $has_sig_feature,
 				'utm'             => true,
 				'social_notes'    => true,
 			),

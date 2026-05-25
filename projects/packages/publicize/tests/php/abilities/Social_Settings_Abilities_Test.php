@@ -12,6 +12,8 @@ namespace Automattic\Jetpack\Publicize\Abilities;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Social_Settings;
+use Automattic\Jetpack\Publicize\Publicize;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -19,6 +21,7 @@ use WorDBless\BaseTestCase;
  * @covers \Automattic\Jetpack\Publicize\Abilities\Social_Settings_Abilities
  */
 #[CoversClass( Social_Settings_Abilities::class )]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class Social_Settings_Abilities_Test extends BaseTestCase {
 
 	/** @var int */
@@ -78,10 +81,29 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Activate the publicize module and mock the `$publicize` global so the SIG
+	 * feature reports available. Tests that need SIG state to flow through the
+	 * snapshot must call this — by default the snapshot gates SIG fields on
+	 * publicize-active and `is_sig_available()`.
+	 */
+	private function mock_publicize_and_sig_available(): void {
+		( new Modules() )->activate( 'publicize', false, false );
+
+		global $publicize;
+		$publicize = $this->getMockBuilder( Publicize::class )
+			->onlyMethods( array( 'has_social_image_generator_feature' ) )
+			->getMock();
+		$publicize->method( 'has_social_image_generator_feature' )->willReturn( true );
+	}
+
+	/**
 	 * Drop hooks, abilities, and stored settings between tests.
 	 */
 	public function tearDown(): void {
 		wp_set_current_user( 0 );
+
+		global $publicize;
+		$publicize = null;
 
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
@@ -347,6 +369,11 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_get_settings_reflects_stored_options(): void {
+		// Mirror the gating in Jetpack_Social_Settings\Settings::get_settings():
+		// SIG fields are only meaningful when Publicize is active and the SIG
+		// feature is available.
+		$this->mock_publicize_and_sig_available();
+
 		update_option(
 			Social_Settings::OPTION_PREFIX . Social_Settings::MESSAGE_TEMPLATE,
 			'Hi {title} {url}'
@@ -373,6 +400,45 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 		$this->assertTrue( $settings['social_notes_enabled'] );
 	}
 
+	public function test_get_settings_forces_image_generator_enabled_false_when_publicize_inactive(): void {
+		// Seed the SIG option as enabled, but leave Publicize inactive. The
+		// snapshot should mirror Jetpack_Social_Settings\Settings::get_settings()
+		// and report enabled=false regardless of the stored option value.
+		update_option(
+			Social_Settings::OPTION_PREFIX . Social_Settings::IMAGE_GENERATOR_SETTINGS,
+			array(
+				'enabled'  => true,
+				'template' => 'edge',
+			)
+		);
+
+		$settings = Social_Settings_Abilities::get_settings();
+
+		$this->assertFalse( $settings['auto_share_enabled'] );
+		$this->assertFalse(
+			$settings['image_generator_enabled'],
+			'image_generator_enabled must be forced to false when Publicize is inactive.'
+		);
+	}
+
+	public function test_get_settings_returns_null_image_generator_template_when_sig_unavailable(): void {
+		// SIG feature unavailable by default (no $publicize global). The snapshot
+		// must report template=null even if a value is stored — matches the
+		// ability's schema and description.
+		update_option(
+			Social_Settings::OPTION_PREFIX . Social_Settings::IMAGE_GENERATOR_SETTINGS,
+			array(
+				'enabled'  => true,
+				'template' => 'edge',
+			)
+		);
+
+		$settings = Social_Settings_Abilities::get_settings();
+
+		$this->assertNull( $settings['image_generator_template'] );
+		$this->assertFalse( $settings['supports']['image_generator'] );
+	}
+
 	/** -------------------- update-settings: idempotency -------------------- */
 	public function test_update_settings_no_op_when_input_empty(): void {
 		$result = Social_Settings_Abilities::update_settings( array() );
@@ -384,7 +450,14 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_update_settings_no_op_when_desired_equals_current(): void {
-		// Seed state to match the desired payload.
+		// SIG fields require Publicize+SIG to be available so the snapshot
+		// returns the seeded values rather than gated defaults.
+		$this->mock_publicize_and_sig_available();
+
+		// Seed state to match the desired payload. Publicize already active
+		// from the mock above; deactivate it to match auto_share_enabled=false.
+		( new Modules() )->deactivate( 'publicize' );
+
 		update_option(
 			Social_Settings::OPTION_PREFIX . Social_Settings::MESSAGE_TEMPLATE,
 			'Already set {title}'
@@ -446,6 +519,10 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_update_settings_updates_image_generator_enabled(): void {
+		// SIG enabled state only flows through the snapshot when Publicize is
+		// active (and the SIG feature is available).
+		$this->mock_publicize_and_sig_available();
+
 		$result = Social_Settings_Abilities::update_settings(
 			array( 'image_generator_enabled' => true )
 		);
@@ -459,6 +536,9 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_update_settings_updates_image_generator_template(): void {
+		// Template only flows through the snapshot when the SIG feature is available.
+		$this->mock_publicize_and_sig_available();
+
 		// Use a non-default template slug so the desired-vs-current diff is real.
 		$result = Social_Settings_Abilities::update_settings(
 			array( 'image_generator_template' => 'edge' )
