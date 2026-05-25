@@ -217,9 +217,13 @@ class Social_Settings_Abilities extends Registrar {
 	/**
 	 * Execute: read the current settings.
 	 *
+	 * @param array|null $input Unused — get-settings takes no parameters, but the
+	 *                          Abilities API still passes the decoded payload, so
+	 *                          accept it and discard.
 	 * @return array
 	 */
-	public static function get_settings() {
+	public static function get_settings( $input = null ) {
+		unset( $input );
 		return self::build_settings_snapshot();
 	}
 
