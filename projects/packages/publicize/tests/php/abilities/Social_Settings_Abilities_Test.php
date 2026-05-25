@@ -355,7 +355,7 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 			Social_Settings::OPTION_PREFIX . Social_Settings::IMAGE_GENERATOR_SETTINGS,
 			array(
 				'enabled'  => true,
-				'template' => 'edge_to_edge_text',
+				'template' => 'edge',
 			)
 		);
 		update_option(
@@ -368,7 +368,7 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 
 		$this->assertSame( 'Hi {title} {url}', $settings['share_message_template'] );
 		$this->assertTrue( $settings['image_generator_enabled'] );
-		$this->assertSame( 'edge_to_edge_text', $settings['image_generator_template'] );
+		$this->assertSame( 'edge', $settings['image_generator_template'] );
 		$this->assertTrue( $settings['utm_enabled'] );
 		$this->assertTrue( $settings['social_notes_enabled'] );
 	}
@@ -393,7 +393,7 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 			Social_Settings::OPTION_PREFIX . Social_Settings::IMAGE_GENERATOR_SETTINGS,
 			array(
 				'enabled'  => false,
-				'template' => 'edge_to_edge_text',
+				'template' => 'edge',
 			)
 		);
 		update_option(
@@ -406,7 +406,7 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 			array(
 				'share_message_template'   => 'Already set {title}',
 				'image_generator_enabled'  => false,
-				'image_generator_template' => 'edge_to_edge_text',
+				'image_generator_template' => 'edge',
 				'utm_enabled'              => false,
 				'social_notes_enabled'     => false,
 			)
@@ -461,15 +461,15 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 	public function test_update_settings_updates_image_generator_template(): void {
 		// Use a non-default template slug so the desired-vs-current diff is real.
 		$result = Social_Settings_Abilities::update_settings(
-			array( 'image_generator_template' => 'edge_to_edge_text' )
+			array( 'image_generator_template' => 'edge' )
 		);
 
 		$this->assertTrue( $result['changed'] );
 		$this->assertContains( 'image_generator_template', $result['changed_fields'] );
-		$this->assertSame( 'edge_to_edge_text', $result['settings']['image_generator_template'] );
+		$this->assertSame( 'edge', $result['settings']['image_generator_template'] );
 
 		$stored = get_option( Social_Settings::OPTION_PREFIX . Social_Settings::IMAGE_GENERATOR_SETTINGS );
-		$this->assertSame( 'edge_to_edge_text', $stored['template'] );
+		$this->assertSame( 'edge', $stored['template'] );
 	}
 
 	public function test_update_settings_updates_utm_enabled(): void {
