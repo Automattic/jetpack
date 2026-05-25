@@ -8,9 +8,9 @@
  */
 import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
-import { Notice } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -486,13 +486,9 @@ export default function ActivityLog() {
 				 */ }
 				<div className="jp-activity-log__inner">
 					{ errorNotice && (
-						<Notice
-							className="jp-activity-log__error-notice"
-							status={ errorNotice.status }
-							isDismissible={ false }
-						>
-							{ errorNotice.message }
-						</Notice>
+						<Notice.Root className="jp-activity-log__error-notice" intent={ errorNotice.status }>
+							<Notice.Description>{ errorNotice.message }</Notice.Description>
+						</Notice.Root>
 					) }
 					<DataViews< Activity >
 						data={ logData }

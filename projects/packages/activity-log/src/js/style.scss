@@ -73,14 +73,6 @@ body.jetpack_page_jetpack-activity-log {
 		margin: 0;
 	}
 
-	// Error/warning banner sits between the AdminPage header and the
-	// DataViews surface. Without an explicit bottom margin, the Notice
-	// component's default styling abuts the table edge.
-	.jp-activity-log__error-notice {
-		margin: 0 0 12px;
-		flex: 0 0 auto;
-	}
-
 	// DataViews always renders the Activity-layout description slot,
 	// even when our renderer returns `null` for entries with no
 	// description payload (e.g. "User removed"). The empty
