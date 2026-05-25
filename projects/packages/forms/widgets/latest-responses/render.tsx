@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
 import * as React from 'react';
 import { useLatestResponses } from './hooks/use-latest-responses';
+import { getAllResponsesUrl } from './lib/get-all-responses-url';
 import { getUrlPath } from './lib/get-url-path';
 import styles from './style.module.css';
 import type { LatestResponseRow } from './hooks/use-latest-responses';
@@ -204,20 +205,27 @@ export default function LatestResponsesWidget(): JSX.Element {
 		[ data.length ]
 	);
 
+	const allResponsesUrl = getAllResponsesUrl();
+
 	return (
 		<Card.FullBleed className={ styles.container }>
-			<DataViews< LatestResponseRow >
-				data={ data }
-				fields={ fields }
-				view={ view }
-				onChangeView={ setView }
-				defaultLayouts={ defaultLayouts }
-				paginationInfo={ paginationInfo }
-				getItemId={ getLatestResponseItemId }
-				isLoading={ isLoading }
-			>
-				<DataViews.Layout />
-			</DataViews>
+			<Stack direction="column" className={ styles.stack }>
+				<DataViews< LatestResponseRow >
+					data={ data }
+					fields={ fields }
+					view={ view }
+					onChangeView={ setView }
+					defaultLayouts={ defaultLayouts }
+					paginationInfo={ paginationInfo }
+					getItemId={ getLatestResponseItemId }
+					isLoading={ isLoading }
+				>
+					<DataViews.Layout />
+				</DataViews>
+				<div className={ styles.footer }>
+					<Link href={ allResponsesUrl }>{ __( 'All responses', 'jetpack-forms' ) }</Link>
+				</div>
+			</Stack>
 		</Card.FullBleed>
 	);
 }

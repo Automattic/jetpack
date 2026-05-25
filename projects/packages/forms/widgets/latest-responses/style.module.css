@@ -4,6 +4,17 @@
 	overflow: auto;
 }
 
+.stack {
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.footer {
+	flex-shrink: 0;
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline: var(--wpds-dimension-padding-lg);
+}
+
 .fromDisplayName,
 .fromEmail {
 	display: block;
