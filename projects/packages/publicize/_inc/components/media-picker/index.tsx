@@ -10,6 +10,19 @@ import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
+import type { MediaDetails } from '../../hooks/use-media-details/types';
+import type { Attachment } from '@wordpress/core-data';
+
+type MediaPickerProps = {
+	buttonLabel: string;
+	subTitle?: string;
+	mediaId?: number | null;
+	mediaDetails?: MediaDetails;
+	onChange: ( media: Attachment | null ) => void;
+	wrapperClassName?: string;
+	allowedMediaTypes?: string[] | null;
+	isEditor?: boolean;
+};
 
 // This is to cope with the problem describeed here:
 // https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
@@ -41,7 +54,7 @@ export default function MediaPicker( {
 	wrapperClassName,
 	allowedMediaTypes = null,
 	isEditor = true,
-} ) {
+}: MediaPickerProps ) {
 	const {
 		mediaData: { width, height, sourceUrl } = {},
 		metaData: { mime, length = null } = {},
