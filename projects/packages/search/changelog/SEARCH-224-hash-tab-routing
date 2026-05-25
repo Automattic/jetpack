@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search dashboard: route tabs via the URL hash (`#/<slug>`) instead of the `?tab=<slug>` query parameter, matching the my-jetpack admin's HashRouter convention. Existing `?tab=<slug>` URLs (including the legacy `plan-usage` slug) are normalized to the equivalent hash on mount so existing bookmarks keep working.

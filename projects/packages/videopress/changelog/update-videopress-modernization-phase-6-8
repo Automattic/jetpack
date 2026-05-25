@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Comment: Modernized VideoPress dashboard (gated behind rsm_jetpack_ui_modernization_videopress) now wires Overview, Library, Video Details, and Settings to real REST endpoints. Also corrects the stats proxy's watch-time unit conversion.

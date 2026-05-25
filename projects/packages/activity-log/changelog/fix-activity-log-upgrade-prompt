@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix upgrade prompt incorrectly shown to sites entitled to the full activity log.

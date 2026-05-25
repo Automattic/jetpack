@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed Settings tab toggles that controlled the wrong setting due to duplicate element IDs.

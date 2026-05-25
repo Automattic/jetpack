@@ -511,7 +511,7 @@ class Search_Blocks {
 	 * depend on (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`). An older or
 	 * absent WooCommerce reads as unsupported.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.1.0
 	 *
 	 * @param string|null $version WooCommerce version to test; defaults to the
 	 *   live `WC_VERSION` constant. The override exists so tests can pin a
