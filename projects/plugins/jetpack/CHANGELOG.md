@@ -4,10 +4,10 @@
 
 ## 15.9-a.5 - 2026-05-25
 ### Enhancements
-- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. Non-WordPress.com Jetpack installs see no shape change. [#48715]
-- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives — sticky pop-up mode, "Buy me a coffee" trigger, $3/$5/$8 amounts, and a "Buy coffee" donate button. [#48584]
+- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
+- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives. [#48584]
 - Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
-- Donations Block: Record Tracks events covering admin-side block adoption — when the block is loaded in the editor, when a post containing it is published, and when an admin changes a sidebar setting. [#48847]
+- Donations Block: Record Tracks events for admin-side block adoption. [#48847]
 - Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview. [#48961]
 - Newsletter: Enable the subscriptions module by default for all sites. [#49034]
 - Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader. [#48890]
@@ -30,7 +30,7 @@
 - Modules abilities: Align the `jetpack` ability-category description and textdomain with the Connection package so the shared category definition does not drift between registrars. [#48735]
 - Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
 - Search: Point the Performance page's "Manage Search settings" link at the Search dashboard's new `#/settings` hash route. [#49042]
-- Sitemaps abilities: Simplify get-status output — drop the duplicate `master_sitemap_url` and the reserved `last_error`, and replace the state-derived `last_build_at` with a `sitemaps` list reflecting the child sitemaps actually present in the served `sitemap.xml` (each with its own `lastmod`). [#48767]
+- Sitemaps abilities: Simplify get-status output to reflect the child sitemaps actually present in the served `sitemap.xml`. [#48767]
 - Sitemaps abilities: Use the core site ability category. [#48767]
 - Sync: Add test coverage for the newly synced Jetpack Search options. [#48945]
 - Update package dependencies. [#48329] [#48405] [#49012]

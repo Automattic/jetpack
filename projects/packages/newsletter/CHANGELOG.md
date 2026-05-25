@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.9] - 2026-05-25
 ### Changed
-- Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier; drop the bespoke `jetpack-newsletter-page__tabs-row` class. [#48964]
+- Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
 - Update package dependencies. [#48405] [#49012]
 
 ### Fixed

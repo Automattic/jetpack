@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.36.11] - 2026-05-25
 ### Changed
-- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`): Gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. Unregistered sites see the pricing upsell; registered sites without a connected owner/user see a connect screen. [#49063]
+- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`): Gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. [#49063]
 - Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`) now wires Overview, Library, Video Details, and Settings to real REST endpoints. Also corrects the stats proxy's watch-time unit conversion. [#48919]
 - Modernized dashboard: Add a thumbnail editor to the Video details screen. [#49013]
-- Modernized dashboard: Pre-release polish (gated behind `rsm_jetpack_ui_modernization_videopress`) — empty states on the Most viewed / Top videos by watch time cards, neutral-toned date range button, breadcrumb on the Video details page now routes back to the tab the user came from, 660px ribbon on Settings + Video details, page-canvas color fix, monotone chart curve to stop apparent-negative dips, hidden grid filename on Library, and a clearer "Reset to site default" label on the row actions. Also fixes a free-tier counting bug where local (non-VideoPress) video attachments were gating a free user's first VideoPress upload. [#48988]
-- Modernized dashboard: Update the dashboard tests, update the storage meter, and remove the test overrides. [#49022]
+- Modernized dashboard: Pre-release polish across empty states, date-range button, breadcrumbs, ribbons, chart curve, Library grid, and row actions. Also fixes a free-tier counting bug where local video attachments were gating a free user's first VideoPress upload. [#48988]
+- Modernized dashboard: Update the dashboard tests and storage meter. [#49022]
 - Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
 - Update package dependencies. [#48405] [#49012]
 - Migrate dashboard tabs from default to minimal variant; align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]

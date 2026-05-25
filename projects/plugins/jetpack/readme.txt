@@ -328,10 +328,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.9-a.5 - 2026-05-25
 #### Enhancements
-- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. Non-WordPress.com Jetpack installs see no shape change.
-- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives — sticky pop-up mode, "Buy me a coffee" trigger, $3/$5/$8 amounts, and a "Buy coffee" donate button.
+- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded.
+- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives.
 - Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay.
-- Donations Block: Record Tracks events covering admin-side block adoption — when the block is loaded in the editor, when a post containing it is published, and when an admin changes a sidebar setting.
+- Donations Block: Record Tracks events for admin-side block adoption.
 - Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview.
 - Newsletter: Enable the subscriptions module by default for all sites.
 - Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader.
