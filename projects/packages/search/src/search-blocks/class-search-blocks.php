@@ -1406,6 +1406,23 @@ class Search_Blocks {
 	line-height: 1;
 }
 /*
+ * Suggestions dropdown sits on top of the results + filters area below
+ * the input row. Two adjustments vs. the base style: (1) cancel out the
+ * input wrapper's `right: 60px` offset so the panel reaches the card's
+ * right edge and covers the filters column instead of leaving "Category"
+ * / "Post Type" peeking out on the right; (2) lift `z-index` above the
+ * other in-card popovers (`results-sort` and `filters-popover` both at
+ * `z-index: 20`) so the panel reliably wins the stacking order even
+ * when one of those is open underneath. Explicit `background: #fff`
+ * matches the card's hardcoded surface as a final guard against any
+ * theme that neutralises the global token fallback.
+ */
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
+	right: -60px;
+	z-index: 30;
+	background: #fff;
+}
+/*
  * Top padding clears the absolutely-positioned 60px header strip — without
  * it the "Found N results" / Sort by row sat flush against the search
  * input's bottom border and the modal felt cramped (SEARCH-243).
