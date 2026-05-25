@@ -256,13 +256,20 @@ function handleOverlayClick( event ) {
 	if ( ! isOpen( overlay ) ) {
 		return;
 	}
-	if ( event.target.closest( '.jetpack-search-block-overlay__close' ) ) {
+	// `composedPath()` snapshots the propagation path at dispatch time, so
+	// child blocks that detach the clicked node mid-bubble (e.g. the Search
+	// Input's `data-wp-each` re-render on suggestion select) don't leave
+	// `event.target` orphaned by the time we walk for the card.
+	const path = event.composedPath();
+	const inPath = selector =>
+		path.some( el => el instanceof Element && el.classList.contains( selector ) );
+	if ( inPath( 'jetpack-search-block-overlay__close' ) ) {
 		event.preventDefault();
 		closeOverlay();
 		return;
 	}
 	// Click on the scrim — anywhere outside the card — closes.
-	if ( ! event.target.closest( '.jetpack-search-block-overlay__card' ) ) {
+	if ( ! inPath( 'jetpack-search-block-overlay__card' ) ) {
 		closeOverlay();
 	}
 }

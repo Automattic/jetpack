@@ -14,14 +14,28 @@ const OVERLAY_ID = 'jetpack-search-block-overlay';
 
 /**
  * Render the server-side overlay shell (closed) into the document body.
+ *
+ * @param {object}  [options]      - Shell variants.
+ * @param {boolean} [options.full] - When true, include the card + close button + a nested suggestion-row marker for the dismissal tests.
  */
-function renderOverlayShell() {
+function renderOverlayShell( { full = false } = {} ) {
+	const inner = full
+		? `
+			<div class="jetpack-search-block-overlay__card">
+				<button class="jetpack-search-block-overlay__close" type="button">close</button>
+				<div class="jetpack-search-block-overlay__content">
+					<ul class="jetpack-search-input__suggestions">
+						<li class="jetpack-search-input__suggestions-option" id="suggestion-row"></li>
+					</ul>
+				</div>
+			</div>
+		`
+		: `<div class="jetpack-search-block-overlay__content"></div>`;
 	document.body.innerHTML = `
-		<div id="${ OVERLAY_ID }" hidden>
-			<div class="jetpack-search-block-overlay__content"></div>
-		</div>
+		<div id="${ OVERLAY_ID }">${ inner }</div>
 		<template id="jetpack-search-block-overlay-template"></template>
 	`;
+	document.getElementById( OVERLAY_ID ).setAttribute( 'hidden', '' );
 }
 
 /**
@@ -117,5 +131,67 @@ describe( 'overlay-bootstrap initial-load URL trigger', () => {
 
 		await expect( loadBootstrap() ).resolves.toBeUndefined();
 		expect( document.getElementById( OVERLAY_ID ) ).toBeNull();
+	} );
+} );
+
+describe( 'overlay-bootstrap click dismissal', () => {
+	/**
+	 * Render the full overlay, open it via the URL trigger, and stub
+	 * `window.scrollTo` (which `closeOverlay` calls when restoring scroll
+	 * position). jsdom doesn't implement scrollTo and the close-path tests
+	 * would otherwise trip `@wordpress/jest-console`'s strict error guard.
+	 */
+	async function setUpOpenOverlay() {
+		window.scrollTo = () => {};
+		setReadyState( 'complete' );
+		renderOverlayShell( { full: true } );
+		setUrl( '/?s=hello' );
+		await loadBootstrap();
+	}
+
+	it( 'closes when the X close button is clicked', async () => {
+		await setUpOpenOverlay();
+
+		const closeBtn = document.querySelector( '.jetpack-search-block-overlay__close' );
+		closeBtn.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		expect( isOpen() ).toBe( false );
+	} );
+
+	it( 'closes when the scrim (outside the card) is clicked', async () => {
+		await setUpOpenOverlay();
+
+		document
+			.getElementById( OVERLAY_ID )
+			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		expect( isOpen() ).toBe( false );
+	} );
+
+	it( 'stays open when a click target inside the card is detached mid-bubble', async () => {
+		// Reproduces the suggestion-click bug: the `<li>` lives inside the card,
+		// but the Interactivity action that fires on click empties the surrounding
+		// `data-wp-each` array, which removes the `<li>` from the DOM before the
+		// click event finishes bubbling to the overlay's outside-click handler.
+		// `event.target.closest('.jetpack-search-block-overlay__card')` then returns
+		// null and the overlay dismisses. With `composedPath()` the path is frozen
+		// at dispatch time, so the detach no longer fools the handler.
+		await setUpOpenOverlay();
+
+		const row = document.getElementById( 'suggestion-row' );
+		row.addEventListener( 'click', () => row.remove() );
+		row.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		expect( isOpen() ).toBe( true );
+	} );
+
+	it( 'stays open when a non-suggestion click inside the card bubbles up', async () => {
+		await setUpOpenOverlay();
+
+		document
+			.querySelector( '.jetpack-search-block-overlay__content' )
+			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		expect( isOpen() ).toBe( true );
 	} );
 } );
