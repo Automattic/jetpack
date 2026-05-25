@@ -55,7 +55,14 @@ if ( wpcom_layout_grid_usage_should_load() ) {
  * @return void
  */
 function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update, $post_before ) {
-	unset( $post_id, $update );
+	unset( $update );
+	// Revisions and autosaves are inserted as their own posts, so the
+	// `$post_before` check below can't see the parent post's previous state —
+	// without this guard every editor autosave on a layout-grid-using post
+	// would log a fresh event.
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+		return;
+	}
 	if ( ! $post instanceof \WP_Post ) {
 		return;
 	}
@@ -164,6 +171,18 @@ function wpcom_layout_grid_usage_widget_value_contains_block( $value ) {
  * @return void
  */
 function wpcom_layout_grid_usage_log_observation( array $extra ) {
+	/**
+	 * Whether layout-grid usage observations should be dispatched to logstash.
+	 * Defaults to true; tests short-circuit this to keep `log2logstash` (and
+	 * its HTTP fallback) out of the unit-test environment, and sites that
+	 * don't want the telemetry can disable it the same way.
+	 *
+	 * @param bool  $enabled Whether to dispatch the log event.
+	 * @param array $extra   Surface-specific properties for the candidate event.
+	 */
+	if ( ! apply_filters( 'wpcom_layout_grid_usage_log_enabled', true, $extra ) ) {
+		return;
+	}
 	if ( ! class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
 		return;
 	}
@@ -192,31 +211,33 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 }
 
 /**
- * Walk the PHP call stack and return up to 8 frames that point at code under
- * `wp-content/plugins/`, `wp-content/themes/`, or `wp-content/mu-plugins/`.
- * Those are the cause candidates; core / pluggable frames are filtered out.
+ * Walk the PHP call stack and return up to 8 `file:line` strings whose `file`
+ * lives under `wp-content/plugins/`, `wp-content/themes/`, or
+ * `wp-content/mu-plugins/`. Those are the cause candidates; core / pluggable
+ * frames are filtered out. `wp_debug_backtrace_summary()` is deliberately not
+ * used here — it returns function-call summaries (e.g. `WP_Hook->apply_filters()`)
+ * without file paths, so the extension-path filter would yield an empty trace.
  *
  * @return string[]
  */
 function wpcom_layout_grid_usage_attribute_source() {
-	if ( ! function_exists( 'wp_debug_backtrace_summary' ) ) {
-		return array();
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional: attribution backtrace for a logstash record.
+	$frames   = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+	$relevant = array();
+	foreach ( $frames as $frame ) {
+		if ( ! is_array( $frame ) || empty( $frame['file'] ) || ! is_string( $frame['file'] ) ) {
+			continue;
+		}
+		if ( ! preg_match( '#/wp-content/(plugins|themes|mu-plugins)/#', $frame['file'] ) ) {
+			continue;
+		}
+		$line       = isset( $frame['line'] ) ? (int) $frame['line'] : 0;
+		$relevant[] = $frame['file'] . ':' . $line;
+		if ( count( $relevant ) >= 8 ) {
+			break;
+		}
 	}
-	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- `null` is the documented default for $ignore_class; the wordpress-stubs signature is imprecise.
-	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary -- Intentional: attribution backtrace for a logstash record.
-	$frames = wp_debug_backtrace_summary( null, 0, false );
-	if ( ! is_array( $frames ) ) {
-		return array();
-	}
-	$relevant = array_values(
-		array_filter(
-			$frames,
-			static function ( $frame ) {
-				return is_string( $frame ) && preg_match( '#/wp-content/(plugins|themes|mu-plugins)/#', $frame );
-			}
-		)
-	);
-	return array_slice( $relevant, 0, 8 );
+	return $relevant;
 }
 
 /**

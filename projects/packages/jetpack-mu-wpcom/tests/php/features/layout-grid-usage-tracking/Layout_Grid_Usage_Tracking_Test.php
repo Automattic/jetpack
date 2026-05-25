@@ -28,12 +28,23 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-trackin
 class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Reset the sentinel option before each test so render-backstop tests
-	 * start from a known state.
+	 * Reset the sentinel option and short-circuit the logstash dispatch
+	 * before each test. Without the filter, the render-backstop test would
+	 * fall through to `Jetpack_Mu_Wpcom::log2logstash()`, which can enqueue
+	 * a real HTTP POST against `public-api.wordpress.com` on shutdown.
 	 */
 	public function set_up() {
 		parent::set_up();
 		delete_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION );
+		add_filter( 'wpcom_layout_grid_usage_log_enabled', '__return_false' );
+	}
+
+	/**
+	 * Tear down the test-only logging filter so it doesn't leak across cases.
+	 */
+	public function tear_down() {
+		remove_filter( 'wpcom_layout_grid_usage_log_enabled', '__return_false' );
+		parent::tear_down();
 	}
 
 	/**
@@ -81,28 +92,26 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Source attribution keeps frames whose file paths point under
+	 * Source attribution keeps frames whose `file` field points under
 	 * wp-content/plugins, wp-content/themes, or wp-content/mu-plugins and
 	 * drops everything else (core, pluggable, internal callers).
 	 *
-	 * Indirect: we can't easily stage a real call stack containing those
-	 * paths from a test, so this drives the underlying filter directly via
-	 * the same regex.
+	 * Indirect: we can't stage a real PHP call stack from a test, so this
+	 * drives the same regex the production helper applies to each frame's
+	 * `file` field.
 	 */
 	public function test_attribute_source_filter_keeps_only_extension_frames() {
-		$frames   = array(
-			'WP_Hook->apply_filters()',
-			'do_action()',
-			'/srv/htdocs/__wp__/wp-includes/post.php:1234',
-			'/srv/htdocs/__wp__/wp-content/plugins/example/example.php:42',
-			'/srv/htdocs/__wp__/wp-content/themes/twentytwentyfive/functions.php:88',
-			'/srv/htdocs/__wp__/wp-content/mu-plugins/example.php:5',
+		$files    = array(
+			'/srv/htdocs/__wp__/wp-includes/post.php',
+			'/srv/htdocs/__wp__/wp-content/plugins/example/example.php',
+			'/srv/htdocs/__wp__/wp-content/themes/twentytwentyfive/functions.php',
+			'/srv/htdocs/__wp__/wp-content/mu-plugins/example.php',
 		);
 		$pattern  = '#/wp-content/(plugins|themes|mu-plugins)/#';
 		$relevant = array_values(
 			array_filter(
-				$frames,
-				static fn( $frame ) => (bool) preg_match( $pattern, $frame )
+				$files,
+				static fn( $file ) => (bool) preg_match( $pattern, $file )
 			)
 		);
 		$this->assertCount( 3, $relevant );
