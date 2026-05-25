@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search blocks: stop running a server-side search in the Embedded and blocks Overlay experiences, where results are fetched client-side via the Interactivity API. Classic Search is no longer initialized for these experiences (avoiding a wasted Elasticsearch query plus a WP_Query per request), and the core database search is short-circuited the same way Instant Search already does.

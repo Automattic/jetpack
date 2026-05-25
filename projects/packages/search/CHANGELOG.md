@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2026-05-21
+### Added
+- Search: Add a "Compact" block style to the Clear Filters block and stop it inheriting the core Button block styling that rendered oversized on some themes — the default now uses the theme's lighter button baseline. [#48946]
+- Search: add an AI Answer block (`jetpack-search/ai-answer`) so authors can surface the AI Answers panel inside the embedded search template — previously only the instant-search overlay could render it. [#48986]
+- Search: Make the Load More block match the theme's regular core/button look and add a "Compact" block style so authors can right-size it without custom CSS. [#48984]
+- Search: surface the "Enable search suggestions" and "Enable AI Answers" toggles in the search customizer's Additional settings panel, alongside their existing home on the search dashboard. [#48990]
+- Search Blocks: Add experimental opt-in to replace the legacy instant-search overlay with the server-rendered Search blocks template; gated behind the `jetpack_search_overlay_block_template_enabled` filter (default false). [#48987]
+- Search Blocks: add optional autocomplete suggestions dropdown to the Search Input block — query, taxonomy, and post suggestions powered by the WPCOM search-suggestions endpoint. Authors opt in per block via the new "Show search suggestions" inspector toggle. Taxonomy picks apply as an inline filter when a matching filter block is on the page, otherwise navigate to the archive URL. [#48985]
+- Search dashboard: add a "WooCommerce Product Search" control that, when enabled, serves product searches from a dedicated Site-Editor-editable Jetpack Search template instead of WooCommerce's default product search template. [#48936]
+- Search Dashboard: add an "Additional settings" heading above the feature toggles in the search-blocks settings view. The heading only renders when at least one of those settings is available, so it never appears orphaned. [#48948]
+
+### Changed
+- Build: collapse the per-directory `production-exclude` rules for `src/**/*.js` into a single broad exclude with an explicit carve-out for `src/widgets/**/*.js` (which has no build step and must ship). [#48983]
+- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
+- Search: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0. [#48964]
+- Search: the AI Answer block (`jetpack-search/ai-answer`) no longer gates on the site-wide `jetpack_search_ai_answers_enabled` option — block presence in post content is the only switch. The option still governs the instant-search overlay. [#48993]
+- Search Blocks: let authors pick which suggestion sections appear in the Search Input dropdown (query completions, categories & tags, post titles) via a new per-block suggestionTypes attribute. Existing blocks default to all three. [#48991]
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- AI Answers: Fix the answer panel colors in dark mode. [#49019]
+- Instant Search: Prevent the search modal from triggering on third-party form submissions. Forms embedding an input named "s" (e.g. ActiveCampaign sign-up widgets) would incorrectly open the search overlay and block the submission. The fix checks that the form's action URL shares the same origin as the site before intercepting. [#48958]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Search: reject experience requests combined with ai_answers_enabled or search_suggestions_enabled instead of silently dropping them, and gate the WooCommerce product-search template override on the active experience so a stale option can't keep rerouting after a switch away from a server-rendered experience. [#48956]
+- Search Blocks: cap the filter-checkbox list at its configured "Maximum items" even after the session has retained options across multiple searches. [#48989]
+- Search Dashboard: Hide the AI Agent Access toggle for private sites and improve related settings spacing. [#48912]
+- Search dashboard: let the toggle description text span the full settings card width instead of wrapping in a narrow 7-column band. [#48944]
+
+## [0.60.0] - 2026-05-19
+### Added
+- Add a `wp jetpack-search backfill_taxonomy_slot_mapping [--mode=mirror|rebuild]` command for backfilling custom-taxonomy slot mappings. [#48849]
+- Add auto-complete search suggestions feature. [#48473]
+- AI Answers: Add a customization dashboard for AI Answers behavior. [#48592]
+- AI Answers: Add a streaming AI answers panel to the instant-search overlay, available on all paid plans. [#48592]
+- REST API: Add a `search_experience` parameter (`overlay` | `inline` | `embedded`) to `/jetpack/v4/search/plan/activate`. [#48848]
+- Search Blocks: Add a `rebuild` mode for custom-taxonomy slot backfills. [#48708]
+- Search Blocks: Add an "Auto-switch to Product view" toggle on Results List blocks to opt out per block. [#48943]
+- Search Blocks: Add automatic Results List switching to the Product layout when the URL scopes search to the `product` post type. [#48943]
+- Search Blocks: Add Custom Taxonomy filter support for mapped taxonomies in Jetpack Search's index. [#48684]
+- Search Dashboard: Add a 2x2 experience selector with previews and customization actions on the Settings tab. [#48563]
+- Search Dashboard: Add AI Agent Access opt-in toggle. [#48362]
+
+### Changed
+- Dashboard: Add "Autocomplete" to the pricing comparison grid, shown as included on both the free and paid plans. [#48899]
+- Dashboard: Add "Jetpack Search blocks" and "Embedded search page" to the pricing comparison grid, shown as included on both the free and paid plans. [#48891]
+- Dashboard: Add an "AI Answers (Preview)" row to the pricing comparison grid, included on the paid plan only. [#48896]
+- Dashboard: Show pricing rows for Jetpack Search blocks and Embedded search only when Search blocks are enabled. [#48893]
+- Exclude development files from production builds. [#47365]
+- Search 3.0: Honor the site's date format setting in result cards. [#48763]
+- Search 3.0: Show the post author before the date in expanded result cards. [#48751]
+- Search Blocks: Hide Search 3.0 blocks from the editor on disconnected sites and sites without a Search plan. [#48818]
+- Search Blocks: Rename the WooCommerce gate consistently across the PHP and JS layers. [#48749]
+- Search Dashboard: Polish the Settings experience selector. [#48819]
+- Update package dependencies. [#48695] [#48696]
+
+### Fixed
+- Dashboard: Persist the active Search dashboard tab in the URL across page refreshes. [#48752]
+- Dashboard: Update the AI Answers Instant Search notice to point to the Settings tab. [#48822]
+- Keep Search experience changes synced for overlay, inline, embedded, and freshly installed sites. [#48745]
+- Search 3.0: Fall back to Theme search when the Embedded experience is configured on a non-block theme. [#48941]
+- Search Blocks: Only register the Jetpack Search block template and prepend it to the search template hierarchy on block themes during an actual search request. [#48935]
+- Search Blocks: Show results for explicit empty searches (`?s=`) instead of leaving the results area empty. [#48707]
+- Search Dashboard: Avoid crashes when the WordPress.com plan response is missing usage or current-plan fields. [#48660]
+- Search Dashboard: Block switching to Embedded search on classic themes and explain that Embedded search requires the Site Editor. [#48942]
+- Search Dashboard: Fix the AI Answers disable toggle so turning it off actually disables the feature. [#48777]
+- Search Dashboard: Keep autocomplete suggestions settings available when the Search blocks experience is enabled. [#48898]
+- Search Dashboard: Keep the Reader Chat toggle reachable in the experience selector when Search blocks are enabled. [#48816]
+- Search Dashboard: Open Embedded experience links in the Jetpack Search template view and filtered patterns library. [#48851]
+- Search Dashboard: Record Reader Chat toggle events immediately after settings save, and move the Reader Chat setting after the Instant Search setting. [#48724]
+- Search Dashboard: Restore the visible space between "AI Answers" and "(Preview)" in the dashboard tab label. [#48850]
+
 ## [0.59.0] - 2026-05-11
 ### Added
 - Search 3.0: Add "Matches content" / "Matches comments" hint badge to the product layout result card when a non-title field matches but the title does not. [#48518]
@@ -1622,6 +1694,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.0.0]: https://github.com/Automattic/jetpack-search/compare/v0.60.0...v7.0.0
+[0.60.0]: https://github.com/Automattic/jetpack-search/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-search/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-search/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-search/compare/v0.56.10...v0.57.0

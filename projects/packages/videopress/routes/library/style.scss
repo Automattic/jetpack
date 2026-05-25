@@ -3,6 +3,15 @@
 
 .vp-library {
 
+	// `aria-disabled` rather than `disabled` so the button stays in the
+	// focus tree and the `@wordpress/components` Tooltip can fire on
+	// hover and focus. The onClick guard in stage.tsx short-circuits the
+	// file picker when at the free-tier limit.
+	&__upload-button[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;
@@ -65,6 +74,21 @@
 		inset: 0;
 		background: #f0f0f0;
 		color: #1e1e1e;
+	}
+
+	// "Processing" overlay shown while the VideoPress backend is still
+	// transcoding a freshly uploaded video. Sits above the (absent) image
+	// and below the duration badge. Hidden in narrow table-mode cells —
+	// the "Processing" pill in the title cell carries the state there.
+	&__processing {
+		position: absolute;
+		inset: 0;
+		background: #f0f0f0;
+		color: #1e1e1e;
+
+		@container (max-width: 120px) {
+			display: none;
+		}
 	}
 
 	&__hover-action {

@@ -190,3 +190,6 @@ function wpme_set_extension_available() {
 }
 
 add_action( 'init', 'wpme_set_extension_available' );
+
+require_once __DIR__ . '/shortlinks/abilities/class-shortlinks-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Shortlinks_Abilities::init();

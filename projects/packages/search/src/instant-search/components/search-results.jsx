@@ -293,7 +293,10 @@ class SearchResults extends Component {
 							className="jetpack-instant-search__search-results-search-form"
 							isVisible={ this.props.isVisible }
 							onChangeSearch={ this.props.onChangeSearch }
+							onSelectFilter={ this.props.onSelectFilter }
 							searchQuery={ this.props.searchQuery }
+							suggestionsEnabled={ this.props.suggestionsEnabled }
+							siteId={ this.props.siteId }
 						/>
 						<button
 							className="jetpack-instant-search__overlay-close"

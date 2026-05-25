@@ -6,16 +6,37 @@
 		display: none;
 	}
 
-	// The button itself relies on the active theme's `wp-element-button`
-	// styles (theme.json → styles.elements.button) — we only own the
-	// disabled visual since theme.json doesn't define one.
+	// The button carries `wp-block-button__link` + `wp-element-button` so it
+	// inherits the theme's full core/button look (border-radius, hover) and
+	// renders pixel-identical to a regular core/button on the same theme.
+	// We only own the disabled visual since theme.json doesn't define one.
 	.jetpack-search-load-more__button {
 		cursor: pointer;
+
+		// The button carries `wp-block-button__link` / `wp-element-button`, which
+		// set `display: inline-block` and override the native `hidden` attribute's
+		// `display: none`. The render binding toggles `hidden` during load-more
+		// fetches; re-apply `display: none` so the button actually disappears
+		// while the spinner takes over.
+		&[hidden] {
+			display: none;
+		}
 
 		&:disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
 		}
+	}
+
+	// `is-style-compact` lands on the block root (wrapper); the slim metrics
+	// target the inner button. Two-class specificity beats theme.json's
+	// single-class `.wp-element-button` rules so it wins without `!important`.
+	&.is-style-compact .jetpack-search-load-more__button {
+		padding: 0.25em 0.75em;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		min-width: 0;
+		width: auto;
 	}
 
 	.jetpack-search-load-more__spinner {
@@ -28,5 +49,13 @@
 		&[hidden] {
 			display: none;
 		}
+	}
+
+	// 1px sentinel observed by IntersectionObserver when loadOnScroll is on.
+	// Visually inert; the observer's rootMargin handles the trigger distance.
+	.jetpack-search-load-more__sentinel {
+		display: block;
+		height: 1px;
+		width: 100%;
 	}
 }

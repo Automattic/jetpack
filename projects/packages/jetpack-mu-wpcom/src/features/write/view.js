@@ -9,9 +9,14 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
+// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+import { createUndoHistory } from 'wpcom-write/undo-history';
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
+
+// Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
+let activeBlockquote = null;
 
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
@@ -23,6 +28,10 @@ const DISCLAIMER_STORAGE_KEY = 'wpcom-write-disclaimer-dismissed';
 let lastSavedSnapshot = { title: '', content: '' };
 let autosaveTimer = null;
 let allowLeave = false;
+
+// Undo/redo history — tracked outside the store to avoid triggering reactivity.
+const undoHistory = createUndoHistory();
+let undoPendingTimer = null;
 
 /**
  * Get the current content snapshot for dirty-state comparison.
@@ -52,6 +61,49 @@ function isDirty() {
  */
 function updateSavedSnapshot() {
 	lastSavedSnapshot = getContentSnapshot();
+}
+
+/**
+ * Format a date string as a relative time ("2 hours ago", "Yesterday", etc.).
+ *
+ * @param {string} dateStr - A date string parseable by Date (e.g. MySQL datetime).
+ * @return {string} Human-readable relative time.
+ */
+function formatRelativeDate( dateStr ) {
+	const then = new Date( dateStr ).getTime();
+	if ( isNaN( then ) || then <= 0 ) return '';
+	const now = Date.now();
+	const diffSec = Math.max( 0, Math.round( ( now - then ) / 1000 ) );
+
+	const rtf = new Intl.RelativeTimeFormat( undefined, { numeric: 'auto' } );
+
+	if ( diffSec < 60 ) return rtf.format( -diffSec, 'second' );
+	const diffMin = Math.round( diffSec / 60 );
+	if ( diffMin < 60 ) return rtf.format( -diffMin, 'minute' );
+	const diffHr = Math.round( diffMin / 60 );
+	if ( diffHr < 24 ) return rtf.format( -diffHr, 'hour' );
+	const diffDay = Math.round( diffHr / 24 );
+	if ( diffDay < 7 ) return rtf.format( -diffDay, 'day' );
+	const diffWk = Math.round( diffDay / 7 );
+	if ( diffWk <= 4 ) return rtf.format( -diffWk, 'week' );
+
+	return new Intl.DateTimeFormat( undefined, {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	} ).format( new Date( dateStr ) );
+}
+
+/**
+ * Check whether raw user input is a bare numeric post ID.
+ *
+ * @param {string} input - Raw user input from the post picker URL field.
+ * @return {number|null} Post ID or null if not a bare numeric string.
+ */
+function parsePostId( input ) {
+	const trimmed = input.trim();
+	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
+	return null;
 }
 
 // Save/restore the selection so we can insert images after the modal closes.
@@ -87,6 +139,217 @@ let preFigureSelectionRange = null;
 
 let cachedContent = null;
 
+// --- Undo/redo helpers ---
+
+/**
+ * Serialise the current selection as a root-relative node path so it can be
+ * restored after innerHTML is replaced.
+ *
+ * @param {Element} root - The contenteditable container.
+ * @return {Object|null} Cursor descriptor, or null when there is no selection.
+ */
+function serializeCursor( root ) {
+	const sel = window.getSelection();
+	if ( ! sel || sel.rangeCount === 0 ) return null;
+	const range = sel.getRangeAt( 0 );
+	if ( ! root.contains( range.startContainer ) ) return null;
+
+	/**
+	 * Walk from node up to root, recording child indices at each level.
+	 *
+	 * @param {Node} node - The node to build a path for.
+	 * @return {number[]|null} Child-index path from root to node, or null if node is not inside root.
+	 */
+	function getNodePath( node ) {
+		const path = [];
+		let current = node;
+		while ( current !== root ) {
+			const parent = current.parentNode;
+			if ( ! parent ) return null;
+			path.unshift( Array.prototype.indexOf.call( parent.childNodes, current ) );
+			current = parent;
+		}
+		return path;
+	}
+
+	const anchorPath = getNodePath( range.startContainer );
+	const focusPath = getNodePath( range.endContainer );
+	if ( ! anchorPath || ! focusPath ) return null;
+
+	return {
+		anchorPath,
+		anchorOffset: range.startOffset,
+		focusPath,
+		focusOffset: range.endOffset,
+	};
+}
+
+/**
+ * Restore a cursor position previously captured by serializeCursor.
+ * Falls back to the first paragraph when the serialised path can no longer
+ * be resolved (e.g. after a large structural undo).
+ *
+ * @param {Element}     root       - The contenteditable container.
+ * @param {Object|null} cursorInfo - Descriptor returned by serializeCursor, or null.
+ * @return {void}
+ */
+function restoreUndoCursor( root, cursorInfo ) {
+	/** Place the cursor at the start of the first paragraph as a safe fallback. */
+	function fallback() {
+		const p = root.querySelector( 'p' );
+		if ( p ) placeCursorAt( p );
+	}
+
+	/**
+	 * Resolve a root-relative node path to a { node, offset } pair.
+	 *
+	 * @param {number[]} path   - Child-index path from root to the target node.
+	 * @param {number}   offset - Character or child offset within that node.
+	 * @return {Object|null} Resolved node + clamped offset, or null when path is stale.
+	 */
+	function resolvePath( path, offset ) {
+		let node = root;
+		for ( const idx of path ) {
+			node = node.childNodes[ idx ];
+			if ( ! node ) return null;
+		}
+		const maxOffset = node.nodeType === Node.TEXT_NODE ? node.length : node.childNodes.length;
+		return { node, offset: Math.min( offset, maxOffset ) };
+	}
+
+	if ( ! cursorInfo ) return fallback();
+
+	const anchor = resolvePath( cursorInfo.anchorPath, cursorInfo.anchorOffset );
+	const focus = resolvePath( cursorInfo.focusPath, cursorInfo.focusOffset );
+	if ( ! anchor || ! focus ) return fallback();
+
+	try {
+		const sel = window.getSelection();
+		const range = document.createRange();
+		range.setStart( anchor.node, anchor.offset );
+		range.setEnd( focus.node, focus.offset );
+		sel.removeAllRanges();
+		sel.addRange( range );
+	} catch {
+		fallback();
+	}
+}
+
+/**
+ * Strip runtime-injected figure controls from a content subtree.
+ *
+ * The img-controls wrapper and the delete / alt / caption buttons are added
+ * at runtime by addDeleteButtons() with live event listeners attached. Those
+ * listeners do not survive an innerHTML round-trip, so we drop the markup
+ * before serialising — the MutationObserver in addDeleteButtons() will
+ * re-add buttons (with listeners) when the figure reappears after undo/redo.
+ *
+ * @param {Element} root - Detached root (typically a clone of .bw-content-inner).
+ */
+function stripRuntimeFigureControls( root ) {
+	root.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
+		const img = wrapper.querySelector( 'img' );
+		if ( img ) wrapper.before( img );
+		wrapper.remove();
+	} );
+	root
+		.querySelectorAll(
+			'.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn, .bw-img-size, .bw-img-size-menu'
+		)
+		.forEach( el => el.remove() );
+}
+
+/**
+ * Capture the current editor state as an undo snapshot.
+ *
+ * @return {object} Snapshot containing html, title, and cursor.
+ */
+function captureUndoSnapshot() {
+	const content = getContent();
+	if ( ! content ) {
+		return { html: '', title: state.title || '', cursor: null };
+	}
+	const clone = content.cloneNode( true );
+	stripRuntimeFigureControls( clone );
+	return {
+		html: clone.innerHTML,
+		title: state.title || '',
+		cursor: serializeCursor( content ),
+	};
+}
+
+/**
+ * Restore editor content and cursor from an undo snapshot.
+ *
+ * @param {object} snapshot - Snapshot previously created by captureUndoSnapshot.
+ */
+function applyUndoSnapshot( snapshot ) {
+	const content = getContent();
+	if ( content ) {
+		content.innerHTML = snapshot.html;
+		ensureBlockStructure();
+		restoreUndoCursor( content, snapshot.cursor );
+	}
+	const titleEl = document.querySelector( '.bw-title' );
+	if ( titleEl ) {
+		titleEl.value = snapshot.title;
+		state.title = snapshot.title;
+		titleEl.style.height = 'auto';
+		titleEl.style.height = titleEl.scrollHeight + 'px';
+	}
+}
+
+/** Mirror undoHistory.canUndo/canRedo into reactive store state so buttons update. */
+function syncUndoState() {
+	state.canUndo = undoHistory.canUndo;
+	state.canRedo = undoHistory.canRedo;
+}
+
+/** Push the current editor state onto the undo stack (no-op when content is unchanged). */
+function pushToUndoHistory() {
+	undoPendingTimer = null;
+	const snapshot = captureUndoSnapshot();
+	const last = undoHistory.current;
+	if ( last && last.html === snapshot.html && last.title === snapshot.title ) return;
+	undoHistory.push( snapshot );
+	syncUndoState();
+}
+
+/** Schedule a history push 500 ms after the last keystroke. */
+function pushToUndoHistoryDebounced() {
+	if ( undoPendingTimer ) clearTimeout( undoPendingTimer );
+	undoPendingTimer = setTimeout( pushToUndoHistory, 500 );
+}
+
+/** Commit any pending debounced snapshot immediately. */
+function flushUndoDebounce() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		pushToUndoHistory();
+	}
+}
+
+/** Flush pending text input then step back one entry in the undo stack. */
+function performUndo() {
+	flushUndoDebounce();
+	if ( ! undoHistory.canUndo ) return;
+	const snap = undoHistory.undo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
+
+/** Discard pending text input and step forward one entry in the undo stack. */
+function performRedo() {
+	if ( undoPendingTimer ) {
+		clearTimeout( undoPendingTimer );
+		undoPendingTimer = null;
+	}
+	if ( ! undoHistory.canRedo ) return;
+	const snap = undoHistory.redo();
+	if ( snap ) applyUndoSnapshot( snap );
+	syncUndoState();
+}
+
 /**
  * Get the content editable element, caching the reference.
  *
@@ -94,9 +357,108 @@ let cachedContent = null;
  */
 function getContent() {
 	if ( ! cachedContent || ! cachedContent.isConnected ) {
-		cachedContent = document.querySelector( '.bw-content' );
+		// The inner wrapper holds user-editable content. The outer .bw-content
+		// keeps Preact's reactive bindings (event handlers, aria attributes),
+		// while .bw-content-inner has data-wp-ignore so Preact treats its
+		// children as opaque — preventing the reconciler from re-attaching
+		// stale Preact-tracked nodes after we replace innerHTML during undo.
+		cachedContent = document.querySelector( '.bw-content-inner' );
 	}
 	return cachedContent;
+}
+
+// Image size presets we ship. Alignment, wide/full layouts, and custom
+// widths stay in the block editor (see RSM-3472).
+const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
+
+// Cache of media library size lookups keyed by attachment ID.  Populated
+// at upload time from the API response, then again lazily when the user
+// changes the size of a figure loaded from a saved post.
+const mediaSizesCache = new Map();
+
+/**
+ * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
+ *
+ * @param {HTMLImageElement} img - The image element.
+ * @return {number|null} Numeric attachment ID, or null when the class is absent.
+ */
+function getMediaIdFromImg( img ) {
+	if ( ! img ) return null;
+	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
+	return match ? parseInt( match[ 1 ], 10 ) : null;
+}
+
+/**
+ * Get the registered media-library sizes for an attachment, caching the
+ * result. Returns null for images without a media library ID (e.g. inserted
+ * from an external URL).
+ *
+ * The Promise is cached (not just the resolved value) so two rapid size
+ * changes on the same image share one REST request instead of racing.
+ *
+ * @param {number} id - Attachment ID.
+ * @return {Promise<Object|null>} Resolves to the sizes object, or null.
+ */
+function fetchMediaSizes( id ) {
+	if ( mediaSizesCache.has( id ) ) return mediaSizesCache.get( id );
+	const promise = window.wp
+		.apiFetch( { path: `/wp/v2/media/${ id }` } )
+		.then( media => media.media_details?.sizes || null )
+		.catch( () => null );
+	mediaSizesCache.set( id, promise );
+	return promise;
+}
+
+/**
+ * Swap an image's src to the registered media-library URL for the given
+ * size, plus update width/height attributes so the rendered size is right
+ * everywhere — block editor, published page, RSS.
+ *
+ * No-op if the image isn't in the media library or the requested size
+ * isn't registered (theme/plugin chose not to generate it).
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug ('thumbnail' / 'medium' / 'large' / 'full').
+ */
+async function applyMediaSizeToFigure( fig, slug ) {
+	const img = fig.querySelector( 'img' );
+	const id = getMediaIdFromImg( img );
+	if ( ! id ) return;
+	const sizes = await fetchMediaSizes( id );
+	const target = sizes?.[ slug ] || sizes?.full;
+	if ( ! target?.source_url ) return;
+	img.src = target.source_url;
+	if ( target.width ) img.setAttribute( 'width', target.width );
+	if ( target.height ) img.setAttribute( 'height', target.height );
+}
+
+// In-flight applyMediaSizeToFigure promises. savePost awaits these before
+// cloning content so a save fired between a size click and the REST
+// response doesn't serialize the new size class with the old src.
+const pendingMediaSizeSwaps = new Set();
+
+/**
+ * Register an in-flight applyMediaSizeToFigure promise so savePost can wait
+ * for it before serializing.
+ *
+ * @param {Promise} promise - The applyMediaSizeToFigure call.
+ * @return {Promise} The same promise, for chaining.
+ */
+function trackMediaSizeSwap( promise ) {
+	pendingMediaSizeSwaps.add( promise );
+	promise.finally( () => pendingMediaSizeSwaps.delete( promise ) );
+	return promise;
+}
+
+/**
+ * Toggle a size class on a figure, replacing any existing one.
+ *
+ * @param {Element} fig  - The figure element.
+ * @param {string}  slug - A size slug or '' (clear).
+ */
+function setFigureSize( fig, slug ) {
+	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
+	if ( slug ) fig.classList.add( 'size-' + slug );
 }
 
 /**
@@ -122,6 +484,49 @@ function clearFigureSelection( restoreCursor = true ) {
 // Deselect figure on any click — don't restore the saved cursor
 // because the click itself places the caret where the user wants it.
 document.addEventListener( 'click', () => clearFigureSelection( false ) );
+
+// Close any open per-image Size dropdown on outside click.  One listener
+// total — avoids the per-figure listener accumulation that would otherwise
+// pile up as users insert / undo / redo images over a session.
+// The menu's own trigger button is its previousElementSibling; only clicks
+// on *that* button are exempt, so clicking a different image's Size button
+// still closes the menu (and lets that image's button open its own menu).
+document.addEventListener( 'click', ev => {
+	const openMenu = document.querySelector( '.bw-img-size-menu:not([hidden])' );
+	if ( ! openMenu ) return;
+	if ( openMenu.contains( ev.target ) ) return;
+	const trigger = openMenu.previousElementSibling;
+	if ( trigger && trigger.contains( ev.target ) ) return;
+	openMenu.hidden = true;
+	trigger?.setAttribute( 'aria-expanded', 'false' );
+} );
+
+/**
+ * Whether the editor has anything worth saving — non-empty title, any
+ * text content, or a media/separator block. Used by actions that need a
+ * real post to navigate to before they can do their job, and by the
+ * client-side empty-save guard.
+ *
+ * Checks textContent rather than innerHTML so structural-only markup
+ * like <p><br></p> doesn't count as content. Figures and separators
+ * have no textContent but are still valid content, so check for them
+ * too.
+ *
+ * @return {boolean} True when there's title, text, or a media/separator block.
+ */
+function hasWritableContent() {
+	if ( state.title && state.title.trim() ) {
+		return true;
+	}
+	const content = getContent();
+	if ( ! content ) {
+		return false;
+	}
+	if ( content.textContent.trim() ) {
+		return true;
+	}
+	return !! content.querySelector( 'figure, hr' );
+}
 
 /**
  * If the cursor is at the edge of a block adjacent to a figure, return
@@ -277,20 +682,32 @@ function escapeAttr( str ) {
 }
 
 /**
+ * Convert an rgb() color string to hex (#rrggbb). Returns the input
+ * unchanged if it is not in rgb() format.
+ *
+ * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
+ * @return {string} Hex color string, e.g. "#d63638".
+ */
+function rgbToHex( rgb ) {
+	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
+	if ( ! m ) return rgb;
+	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
+	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
- * The foreColor command creates <font color="..."> (legacy) or
- * <span style="color:..."> (modern). Convert both to clean <span> elements
- * with inline styles, and strip the default text color (#1a1a1a).
+ * Write edits colors as spans (via foreColor), saves colors as Gutenberg marks.
+ * Three passes: font→span, mark→span, span→mark.
  *
  * @param {HTMLElement} container - The container to normalize in place.
  */
 function normalizeColorMarkup( container ) {
-	// Convert <font color="..."> to <span style="color:...">.
+	// Pass 1: <font color> → <span style="color:"> for uniform handling.
 	container.querySelectorAll( 'font[color]' ).forEach( font => {
 		const color = font.getAttribute( 'color' );
 		const span = document.createElement( 'span' );
-		// Skip default color — unwrap the element entirely.
 		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
 			span.style.color = color;
 		}
@@ -298,16 +715,249 @@ function normalizeColorMarkup( container ) {
 		font.replaceWith( span );
 	} );
 
-	// Strip default-colored spans (unwrap them, keeping their content).
+	// Pass 2: existing <mark class="has-inline-color"> → <span> so the
+	// span pass handles all colored elements uniformly.
+	container.querySelectorAll( 'mark.has-inline-color' ).forEach( mark => {
+		const span = document.createElement( 'span' );
+		if ( mark.style.color ) {
+			span.style.color = mark.style.color;
+		}
+		span.innerHTML = mark.innerHTML;
+		mark.replaceWith( span );
+	} );
+
+	// Pass 3: colored spans → Gutenberg <mark> format. Default color stripped.
 	container.querySelectorAll( 'span' ).forEach( span => {
 		const color = span.style.color;
 		if ( ! color ) return;
-		// Detect default color in various formats.
 		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
 		if ( isDefault ) {
 			span.replaceWith( ...span.childNodes );
+			return;
+		}
+		const hexColor = rgbToHex( color );
+		const mark = document.createElement( 'mark' );
+		mark.className = 'has-inline-color';
+		// Raw string avoids CSS OM normalizing hex back to rgb().
+		// rgba(0, 0, 0, 0) is Gutenberg's exact transparent sentinel.
+		mark.setAttribute( 'style', 'background-color:rgba(0, 0, 0, 0);color:' + hexColor );
+		mark.innerHTML = span.innerHTML;
+		// Preserve other styles (e.g. text-decoration) by nesting the mark.
+		span.style.color = '';
+		if ( span.getAttribute( 'style' )?.trim() ) {
+			span.innerHTML = '';
+			span.appendChild( mark );
+		} else {
+			span.replaceWith( mark );
 		}
 	} );
+}
+
+/**
+ * Normalize inline formatting tags before block serialization.
+ *
+ * document.execCommand produces legacy tags (<b>, <i>, <u>, <strike>) that
+ * Gutenberg's rich text system flags as unknown formatting. Convert them to
+ * the tags Gutenberg's default formats use: <strong>, <em>, <s>, and a span
+ * with text-decoration:underline for <u>.
+ *
+ * @param {HTMLElement} container - The container to normalize in place.
+ */
+function normalizeFormattingTags( container ) {
+	const replacements = [
+		[ 'b', 'strong' ],
+		[ 'i', 'em' ],
+		[ 'strike', 's' ],
+	];
+	for ( const [ from, to ] of replacements ) {
+		container.querySelectorAll( from ).forEach( oldEl => {
+			const newEl = document.createElement( to );
+			newEl.innerHTML = oldEl.innerHTML;
+			oldEl.replaceWith( newEl );
+		} );
+	}
+
+	// <u> has no dedicated tag in Gutenberg's core formats; the core/underline
+	// format uses <span style="text-decoration:underline"> instead.
+	container.querySelectorAll( 'u' ).forEach( u => {
+		const span = document.createElement( 'span' );
+		span.style.textDecoration = 'underline';
+		span.innerHTML = u.innerHTML;
+		u.replaceWith( span );
+	} );
+}
+
+// Tags whose subtree is preserved on paste. Anything not listed here and not
+// in PASTE_DROP_TAGS is unwrapped — its children stay, but the element itself
+// is removed along with every attribute it carried.
+const PASTE_ALLOWED_TAGS = new Set( [
+	'P',
+	'BR',
+	'H1',
+	'H2',
+	'H3',
+	'H4',
+	'H5',
+	'H6',
+	'UL',
+	'OL',
+	'LI',
+	'BLOCKQUOTE',
+	'A',
+	'STRONG',
+	'B',
+	'EM',
+	'I',
+	'U',
+	'S',
+	'STRIKE',
+	'CODE',
+] );
+
+// Tags whose subtree is discarded entirely on paste — they carry no useful
+// content for the editor and unwrapping would dump CSS or script source as text.
+const PASTE_DROP_TAGS = new Set( [
+	'SCRIPT',
+	'STYLE',
+	'META',
+	'LINK',
+	'HEAD',
+	'TITLE',
+	'NOSCRIPT',
+] );
+
+/**
+ * Sanitize pasted HTML in place inside `container`.
+ *
+ * Source-document typography (font-size, font-family, color, background,
+ * line-height, font-weight) leaks into the editor via `style` attributes
+ * and wrapper tags, producing visible mismatches with the editor's own
+ * styling. This walks the tree depth-first, drops non-content subtrees
+ * (script/style/meta/etc.), unwraps tags that aren't in the allowlist
+ * (keeping their text and children), and strips every attribute except
+ * `href` on links.
+ *
+ * Google Docs wraps copied content in an outer `<b id="docs-internal-guid-…">`
+ * with a counteracting `style="font-weight:normal"`. Once we strip that style
+ * the bare `<b>` would bold the entire paste, so we unwrap any element with
+ * a `docs-internal-guid` id before deciding what to do with its tag.
+ *
+ * @param {Element} container - The container to sanitize in place.
+ */
+function sanitizePasteFragment( container ) {
+	for ( const child of Array.from( container.childNodes ) ) {
+		if ( child.nodeType === Node.ELEMENT_NODE ) {
+			sanitizePasteNode( child );
+		}
+	}
+}
+
+/**
+ * Promote inline-style formatting on pasted elements to semantic tags.
+ *
+ * Google Docs and Word commonly express bold/italic/underline/strikethrough
+ * as inline `font-weight`, `font-style`, and `text-decoration` styles on
+ * <span>s rather than as semantic tags. The main sanitize pass strips style
+ * attributes and unwraps <span>, which would lose the formatting. This walks
+ * every styled element once before sanitization and wraps its children in
+ * <strong>/<em>/<u>/<s> so the formatting survives the unwrap.
+ *
+ * @param {Element} container - The container to walk.
+ */
+function promotePasteFormatting( container ) {
+	for ( const el of container.querySelectorAll( '[style]' ) ) {
+		const fontWeight = el.style.fontWeight;
+		if ( fontWeight === 'bold' || fontWeight === 'bolder' || parseInt( fontWeight, 10 ) >= 600 ) {
+			wrapPasteChildren( el, 'strong' );
+		}
+		if ( el.style.fontStyle === 'italic' || el.style.fontStyle === 'oblique' ) {
+			wrapPasteChildren( el, 'em' );
+		}
+		// `text-decoration` is the legacy/shorthand property; `text-decoration-line`
+		// is what the CSSOM exposes when the parser splits the shorthand. Check
+		// both — sources vary.
+		const decoration = el.style.textDecorationLine || el.style.textDecoration || '';
+		if ( decoration.includes( 'underline' ) ) {
+			wrapPasteChildren( el, 'u' );
+		}
+		if ( decoration.includes( 'line-through' ) ) {
+			wrapPasteChildren( el, 's' );
+		}
+	}
+}
+
+/**
+ * Move every child of `el` into a freshly created `<tagName>` wrapper, then
+ * re-attach the wrapper as `el`'s sole child. No-op when `el` has no children.
+ *
+ * @param {Element} el      - Element whose children should be wrapped.
+ * @param {string}  tagName - Wrapper element tag name.
+ */
+function wrapPasteChildren( el, tagName ) {
+	if ( ! el.firstChild ) return;
+	const wrapper = document.createElement( tagName );
+	while ( el.firstChild ) {
+		wrapper.appendChild( el.firstChild );
+	}
+	el.appendChild( wrapper );
+}
+
+/**
+ * Sanitize a single element from a pasted fragment in place. Called by
+ * sanitizePasteFragment for each element child; see that function for the
+ * tag/attribute policy.
+ *
+ * @param {Element} el - Element to sanitize.
+ */
+function sanitizePasteNode( el ) {
+	// Normalize to uppercase: HTML-namespaced elements already report uppercase
+	// tagNames, but SVG/MathML-namespaced ones preserve the source casing — so
+	// a pasted <svg><script> would slip past the DROP_TAGS check otherwise.
+	const tag = el.tagName.toUpperCase();
+
+	if ( PASTE_DROP_TAGS.has( tag ) ) {
+		el.remove();
+		return;
+	}
+
+	// Recurse first so children are already cleaned before we unwrap.
+	sanitizePasteFragment( el );
+
+	const id = el.getAttribute( 'id' );
+	if ( id && id.startsWith( 'docs-internal-guid' ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	if ( ! PASTE_ALLOWED_TAGS.has( tag ) ) {
+		el.replaceWith( ...el.childNodes );
+		return;
+	}
+
+	for ( const attr of Array.from( el.attributes ) ) {
+		if ( tag === 'A' && attr.name === 'href' && isSafePasteHref( attr.value ) ) continue;
+		el.removeAttribute( attr.name );
+	}
+}
+
+/**
+ * Whether `href` is safe to preserve on a pasted link. Allows http(s),
+ * mailto, tel, and same-document/relative URLs; everything else (notably
+ * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
+ * can't smuggle script execution past the sanitizer.
+ *
+ * @param {string} href - The href value to check.
+ * @return {boolean} True when the href is safe to keep.
+ */
+function isSafePasteHref( href ) {
+	if ( ! href ) return false;
+	const trimmed = href.trim();
+	if ( ! trimmed ) return false;
+	// Relative / same-document / query / fragment URLs have no scheme.
+	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
+		return true;
+	}
+	return /^(https?:|mailto:|tel:)/i.test( trimmed );
 }
 
 /**
@@ -322,6 +972,10 @@ function convertToBlocks( html ) {
 
 	// Normalize color markup before serialization.
 	normalizeColorMarkup( tmp );
+
+	// Normalize inline formatting tags (<b>/<i>/<u>/<strike>) to the tags
+	// Gutenberg's rich text system expects.
+	normalizeFormattingTags( tmp );
 
 	const blocks = [];
 
@@ -348,23 +1002,42 @@ function convertToBlocks( html ) {
 		)
 			continue;
 
-		// Check for text alignment.
+		// Check for text alignment. Justify is paragraph-only — headings and
+		// quotes stay L/C/R because browser justification on display type and
+		// narrow quote columns produces large word-spacing gaps.
+		// Justify uses the canonical wpcom form (className + style.typography.textAlign);
+		// L/C/R uses the legacy `align` attribute + inline style.
 		const align = node.style && node.style.textAlign;
-		const alignAttr =
-			align && [ 'center', 'right' ].includes( align ) ? ` style="text-align:${ align }"` : '';
-		const alignJson =
-			align && [ 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+		const isLcrAlign = align && [ 'left', 'center', 'right' ].includes( align );
+		const isJustify = align === 'justify';
+		const isHeadingAlign = isLcrAlign;
+		let paragraphAlignJson = '';
+		let paragraphStyleAttr = '';
+		let paragraphClassAttr = '';
+		if ( isLcrAlign ) {
+			paragraphAlignJson = `,"align":"${ align }"`;
+			paragraphStyleAttr = ` style="text-align:${ align }"`;
+		} else if ( isJustify ) {
+			paragraphAlignJson =
+				',"align":"justify","className":"has-text-align-justify","style":{"typography":{"textAlign":"justify"}}';
+			paragraphClassAttr = ' class="has-text-align-justify"';
+			// Inline style fallback for consumers that don't ship the
+			// .has-text-align-justify rule (theme exports, RSS, etc.).
+			paragraphStyleAttr = ' style="text-align:justify"';
+		}
+		const headingAlignAttr = isHeadingAlign ? ` style="text-align:${ align }"` : '';
+		const headingAlignJson = isHeadingAlign ? `,"align":"${ align }"` : '';
 
 		if ( tag === 'p' || tag === 'div' ) {
 			blocks.push(
 				`<!-- wp:paragraph${
-					alignJson ? ` {${ alignJson.slice( 1 ) }}` : ''
-				} -->\n<p${ alignAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
+					paragraphAlignJson ? ` {${ paragraphAlignJson.slice( 1 ) }}` : ''
+				} -->\n<p${ paragraphClassAttr }${ paragraphStyleAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
 			);
 		} else if ( /^h[1-6]$/.test( tag ) ) {
 			const level = parseInt( tag.charAt( 1 ), 10 );
 			blocks.push(
-				`<!-- wp:heading {"level":${ level }${ alignJson }} -->\n<${ tag } class="wp-block-heading"${ alignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
+				`<!-- wp:heading {"level":${ level }${ headingAlignJson }} -->\n<${ tag } class="wp-block-heading"${ headingAlignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
 			);
 		} else if ( tag === 'figure' && node.querySelector( 'iframe' ) ) {
 			const iframe = node.querySelector( 'iframe' );
@@ -390,19 +1063,84 @@ function convertToBlocks( html ) {
 			const captionHtml = figcaption
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
+
+			// Read figure size class + the `wp-image-<id>` class for the
+			// media library attachment ID.  These map to core wp:image
+			// attributes so the published markup matches what the block
+			// editor would emit, and the block editor can re-open these
+			// images without surprises.
+			const imageSizeSlug = [ 'thumbnail', 'medium', 'large', 'full' ].find( s =>
+				node.classList.contains( 'size-' + s )
+			);
+			const mediaId = getMediaIdFromImg( img );
+
+			const imageAttrs = [];
+			if ( mediaId ) imageAttrs.push( `"id":${ mediaId }` );
+			if ( imageSizeSlug ) imageAttrs.push( `"sizeSlug":"${ imageSizeSlug }"` );
+			const imageAttrsJson = imageAttrs.length ? ` {${ imageAttrs.join( ',' ) }}` : '';
+
+			const figureClasses = [ 'wp-block-image' ];
+			if ( imageSizeSlug ) figureClasses.push( 'size-' + imageSizeSlug );
+
+			const imgClassAttr = mediaId ? ` class="wp-image-${ mediaId }"` : '';
+
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ escapeAttr(
-					src
-				) }" alt="${ escapeAttr( alt ) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				`<!-- wp:image${ imageAttrsJson } -->\n<figure class="${ figureClasses.join(
+					' '
+				) }"><img src="${ escapeAttr( src ) }" alt="${ escapeAttr(
+					alt
+				) }"${ imgClassAttr }/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
-			// inner may already contain <p> tags from contentEditable.
-			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			// Extract citation from <cite> if present.
+			// Strip lone <br> tags that contentEditable inserts into empty elements.
+			const citeEl = node.querySelector( 'cite' );
+			const citationHtml = citeEl ? citeEl.innerHTML.trim().replace( /^<br\s*\/?>$/, '' ) : '';
+
+			// Remove <cite> and any trailing <br> from the DOM so they don't
+			// end up inside the serialized <p> tags.
+			if ( citeEl ) {
+				citeEl.remove();
+			}
+			// Strip trailing <br> elements left between quote text and removed <cite>.
+			while (
+				node.lastChild &&
+				node.lastChild.nodeType === Node.ELEMENT_NODE &&
+				node.lastChild.tagName === 'BR'
+			) {
+				node.lastChild.remove();
+			}
+			const bodyInner = node.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+			const quoteInner = bodyInner.startsWith( '<p' ) ? bodyInner : `<p>${ bodyInner }</p>`;
+
 			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
 			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
-			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
+
+			// Build JSON attrs.
+			const attrs = {};
+			if ( hasQuoteAlign ) {
+				attrs.align = align;
+			}
+			if ( citationHtml ) {
+				attrs.citation = citationHtml;
+			}
+			// Escape characters that WordPress core escapes inside block
+			// comment attributes (see serializeAttributes in @wordpress/blocks).
+			const jsonAttr = Object.keys( attrs ).length
+				? ' ' +
+				  JSON.stringify( attrs )
+						.replaceAll( '\\\\', '\\u005c' )
+						.replaceAll( '--', '\\u002d\\u002d' )
+						.replaceAll( '<', '\\u003c' )
+						.replaceAll( '>', '\\u003e' )
+						.replaceAll( '&', '\\u0026' )
+						.replaceAll( '\\"', '\\u0022' )
+				: '';
+
+			const citeHtml = citationHtml ? `<cite>${ citationHtml }</cite>` : '';
+
 			blocks.push(
-				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
 			// Wrap each <li> in wp:list-item block comments.
@@ -757,6 +1495,7 @@ function animateAndDeleteFigure( fig ) {
 		fig.remove();
 		ensureBlockStructure();
 		placeCursorAfterFigureDelete( next, prev );
+		pushToUndoHistory();
 	}, 200 );
 }
 
@@ -907,6 +1646,21 @@ function addDeleteButtons() {
 		} );
 		controls.appendChild( altBtn );
 
+		// Captions saved by the editor come back from the server with class
+		// `wp-element-caption` and no `contentEditable`, so without this any
+		// reloaded caption would be uneditable and left-aligned (missing the
+		// `bw-figcaption` style).
+		const existingFigcaption = fig.querySelector( 'figcaption' );
+		if ( existingFigcaption ) {
+			existingFigcaption.classList.add( 'bw-figcaption' );
+			existingFigcaption.contentEditable = 'true';
+			existingFigcaption.setAttribute(
+				'data-placeholder',
+				i18n.writeCaption || 'Write a caption...'
+			);
+			existingFigcaption.addEventListener( 'click', ev => ev.stopPropagation() );
+		}
+
 		// Caption button.
 		const capBtn = document.createElement( 'button' );
 		capBtn.className = 'bw-img-caption-btn';
@@ -928,28 +1682,141 @@ function addDeleteButtons() {
 			figcaption.setAttribute( 'data-placeholder', i18n.writeCaption || 'Write a caption...' );
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
-
-			// Listen on the figure for keydown so we catch it before the content area.
-			fig.addEventListener( 'keydown', ev => {
-				if (
-					ev.key === 'Enter' &&
-					fig.querySelector( 'figcaption' ) &&
-					fig.querySelector( 'figcaption' ).contains( document.getSelection().anchorNode )
-				) {
-					ev.preventDefault();
-					ev.stopImmediatePropagation();
-					let next = fig.nextElementSibling;
-					if ( ! next || next.tagName === 'FIGURE' ) {
-						next = document.createElement( 'p' );
-						next.innerHTML = '<br>';
-						fig.after( next );
-					}
-					placeCursorAt( next );
-				}
-			} );
 			figcaption.focus();
 		} );
 		controls.appendChild( capBtn );
+
+		// Size button + dropdown (only for media-library images: external
+		// URLs have no registered sizes to swap between).
+		const isMediaLibrary = !! getMediaIdFromImg( imgEl );
+		if ( isMediaLibrary ) {
+			const sizeBtn = document.createElement( 'button' );
+			sizeBtn.className = 'bw-img-size';
+			sizeBtn.textContent = i18n.size || 'Size';
+			sizeBtn.contentEditable = 'false';
+			sizeBtn.setAttribute( 'aria-haspopup', 'menu' );
+			sizeBtn.setAttribute( 'aria-expanded', 'false' );
+
+			const menu = document.createElement( 'div' );
+			menu.className = 'bw-img-size-menu';
+			menu.contentEditable = 'false';
+			menu.hidden = true;
+			menu.setAttribute( 'role', 'menu' );
+			const sizeOptions = [
+				[ 'thumbnail', i18n.sizeThumbnail || 'Thumbnail' ],
+				[ 'medium', i18n.sizeMedium || 'Medium' ],
+				[ 'large', i18n.sizeLarge || 'Large' ],
+				[ 'full', i18n.sizeFull || 'Full' ],
+			];
+			sizeOptions.forEach( ( [ slug, label ] ) => {
+				const opt = document.createElement( 'button' );
+				opt.className = 'bw-img-size-option';
+				opt.textContent = label;
+				opt.contentEditable = 'false';
+				opt.setAttribute( 'role', 'menuitemradio' );
+				opt.dataset.size = slug;
+				opt.tabIndex = -1;
+				opt.addEventListener( 'click', ev => {
+					ev.preventDefault();
+					ev.stopPropagation();
+					setFigureSize( fig, slug );
+					trackMediaSizeSwap( applyMediaSizeToFigure( fig, slug ) ).then( pushToUndoHistory );
+					closeSizeMenu( true );
+				} );
+				menu.appendChild( opt );
+			} );
+
+			const openSizeMenu = () => {
+				// Close any other image's open Size menu first.  sizeBtn's click
+				// handler stops propagation so the document-level outside-click
+				// listener can't do this for us.
+				document.querySelectorAll( '.bw-img-size-menu:not([hidden])' ).forEach( other => {
+					if ( other === menu ) return;
+					other.hidden = true;
+					other.previousElementSibling?.setAttribute( 'aria-expanded', 'false' );
+				} );
+				// Mark the option that matches the figure's current size class
+				// (none on figures loaded without an explicit sizeSlug).
+				const current = IMAGE_SIZE_SLUGS.find( s => fig.classList.contains( 'size-' + s ) );
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				options.forEach( opt => {
+					opt.setAttribute( 'aria-checked', opt.dataset.size === current ? 'true' : 'false' );
+				} );
+				menu.hidden = false;
+				sizeBtn.setAttribute( 'aria-expanded', 'true' );
+				// Focus the current option so arrow keys move from there.
+				const focusTarget = options.find( o => o.dataset.size === current ) || options[ 0 ];
+				focusTarget?.focus();
+			};
+			const closeSizeMenu = ( returnFocus = false ) => {
+				menu.hidden = true;
+				sizeBtn.setAttribute( 'aria-expanded', 'false' );
+				if ( returnFocus ) sizeBtn.focus();
+			};
+
+			sizeBtn.addEventListener( 'click', ev => {
+				ev.preventDefault();
+				ev.stopPropagation();
+				if ( menu.hidden ) {
+					openSizeMenu();
+				} else {
+					closeSizeMenu();
+				}
+			} );
+
+			// Arrow / Home / End / Escape navigation within the open menu.
+			menu.addEventListener( 'keydown', ev => {
+				const options = [ ...menu.querySelectorAll( '.bw-img-size-option' ) ];
+				const idx = options.indexOf( menu.ownerDocument.activeElement );
+				if ( ev.key === 'ArrowDown' ) {
+					ev.preventDefault();
+					options[ ( idx + 1 ) % options.length ]?.focus();
+				} else if ( ev.key === 'ArrowUp' ) {
+					ev.preventDefault();
+					options[ ( idx - 1 + options.length ) % options.length ]?.focus();
+				} else if ( ev.key === 'Home' ) {
+					ev.preventDefault();
+					options[ 0 ]?.focus();
+				} else if ( ev.key === 'End' ) {
+					ev.preventDefault();
+					options[ options.length - 1 ]?.focus();
+				} else if ( ev.key === 'Escape' ) {
+					ev.preventDefault();
+					closeSizeMenu( true );
+				} else if ( ev.key === 'Tab' ) {
+					// Tab out of the menu closes it.  The browser handles the
+					// focus move; we just clean up state.
+					closeSizeMenu();
+				}
+			} );
+
+			controls.appendChild( sizeBtn );
+			controls.appendChild( menu );
+		}
+
+		// Enter inside the figcaption exits to the next block. Attached on every
+		// figure init (not just on first caption-button click) so it survives an
+		// undo that restored a figure with a pre-existing figcaption — the
+		// MutationObserver re-runs addDeleteButtons, and the early-return at the
+		// top of this loop keeps the listener from being attached twice.
+		fig.addEventListener( 'keydown', ev => {
+			const figcaption = fig.querySelector( 'figcaption' );
+			if (
+				ev.key === 'Enter' &&
+				figcaption &&
+				figcaption.contains( document.getSelection().anchorNode )
+			) {
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+				let next = fig.nextElementSibling;
+				if ( ! next || next.tagName === 'FIGURE' ) {
+					next = document.createElement( 'p' );
+					next.innerHTML = '<br>';
+					fig.after( next );
+				}
+				placeCursorAt( next );
+			}
+		} );
 	} );
 }
 
@@ -971,11 +1838,29 @@ const contentReady2 = setInterval( () => {
 	// Run the block-structure audit immediately so gap paragraphs are
 	// inserted and the user can start editing right away.
 	ensureBlockStructure();
+
+	// Wire up existing <cite> elements in blockquotes with the placeholder
+	// attribute so the CSS placeholder appears if the user clears the text.
+	contentEl.querySelectorAll( 'blockquote cite' ).forEach( cite => {
+		if ( ! cite.hasAttribute( 'data-placeholder' ) ) {
+			cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+		}
+		if ( ! cite.hasAttribute( 'aria-label' ) ) {
+			cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
+		}
+	} );
+
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
-		contentEl.classList.add( 'bw-is-empty' );
-		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
-			once: true,
-		} );
+		// bw-is-empty drives the CSS ::before placeholder on the outer .bw-content.
+		// Input events from the inner contenteditable bubble up to the outer,
+		// so a single listener on the outer is enough to detect the first edit.
+		const outerContentEl = document.querySelector( '.bw-content' );
+		outerContentEl?.classList.add( 'bw-is-empty' );
+		outerContentEl?.addEventListener(
+			'input',
+			() => outerContentEl.classList.remove( 'bw-is-empty' ),
+			{ once: true }
+		);
 	}
 }, 200 );
 
@@ -988,16 +1873,64 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
 
-		// Highlight text + paste URL → create a link.
 		content.addEventListener( 'paste', event => {
 			const sel = window.getSelection();
-			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+			if ( ! sel.rangeCount ) return;
 
-			const pasted = event.clipboardData.getData( 'text/plain' );
-			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
-				event.preventDefault();
-				document.execCommand( 'createLink', false, pasted.trim() );
+			// Highlight text + paste URL → create a link. Only fires when
+			// something is selected; with a collapsed cursor a pasted URL
+			// should land as plain link text via the sanitizer path below.
+			if ( ! sel.isCollapsed ) {
+				const pastedText = event.clipboardData.getData( 'text/plain' );
+				if ( pastedText && /^https?:\/\/\S+$/i.test( pastedText.trim() ) ) {
+					event.preventDefault();
+					document.execCommand( 'createLink', false, pastedText.trim() );
+					return;
+				}
 			}
+
+			// Strip source typography (font-size, font-family, color, etc.)
+			// from rich-text pastes so they inherit the editor's styling.
+			// Plain-text pastes have no text/html payload — fall through to
+			// the browser default, which inserts a clean text node.
+			const html = event.clipboardData.getData( 'text/html' );
+			if ( ! html ) return;
+
+			const tmp = document.createElement( 'div' );
+			// Element.setHTML is the native HTML Sanitizer API and the only
+			// HTML parsing path for pasted markup. The browser's safety
+			// baseline drops <script>, dangerous attributes (onerror,
+			// onclick, etc.), and javascript: URLs before any of it reaches
+			// the live DOM. We allow style/id/href through so the custom
+			// pass below can read inline styles (to promote bold/italic to
+			// semantic tags), unwrap Google Docs' docs-internal-guid
+			// wrapper, and validate href schemes against a tighter
+			// allowlist than the Sanitizer baseline.
+			//
+			// Browsers without setHTML (older Chromium/Brave, pre-137 Firefox,
+			// pre-18.4 Safari) fall back to inserting the clipboard's
+			// text/plain representation. That loses formatting but guarantees
+			// no source typography or markup leaks in — and execCommand
+			// 'insertText' isn't an HTML sink, so we don't reintroduce the
+			// CodeQL js/xss flow we eliminated above.
+			if ( typeof tmp.setHTML !== 'function' ) {
+				const text = event.clipboardData.getData( 'text/plain' );
+				if ( ! text ) return;
+				event.preventDefault();
+				document.execCommand( 'insertText', false, text );
+				return;
+			}
+
+			event.preventDefault();
+			tmp.setHTML( html, { sanitizer: { attributes: [ 'style', 'id', 'href' ] } } );
+			promotePasteFormatting( tmp );
+			sanitizePasteFragment( tmp );
+
+			// execCommand('insertHTML') handles caret-aware block-level
+			// splitting (e.g. pasting a <p> inside an existing <p> correctly
+			// splits the paragraph) — manual Range.insertNode produces
+			// invalid nested-block markup.
+			document.execCommand( 'insertHTML', false, tmp.innerHTML );
 		} );
 	}, 200 );
 }
@@ -1076,6 +2009,9 @@ async function uploadFileToMedia( file ) {
 			state.featuredMediaId = media.id;
 		}
 		state.uploadedMediaId = media.id;
+		// Prime the cache so insertImageFromUrl can use it without a
+		// second REST roundtrip.
+		mediaSizesCache.set( media.id, media.media_details?.sizes || null );
 
 		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
@@ -1200,6 +2136,67 @@ function insertNewList( listTag ) {
 }
 
 /**
+ * Find the blockquote element containing the current cursor, if any.
+ *
+ * @return {HTMLElement|null} The blockquote element or null.
+ */
+function getActiveBlockquote() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Check if the current cursor is inside a <cite> element within a blockquote.
+ *
+ * @return {HTMLElement|null} The <cite> element, or null.
+ */
+function getActiveCite() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+	let node = sel.anchorNode;
+	while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'CITE' ) {
+			return node;
+		}
+		node = node.parentNode;
+	}
+	return null;
+}
+
+/**
+ * Ensure a blockquote has a <cite> placeholder for attribution.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to add the placeholder to.
+ */
+function ensureCitePlaceholder( blockquote ) {
+	if ( blockquote.querySelector( 'cite' ) ) return;
+	const cite = document.createElement( 'cite' );
+	cite.setAttribute( 'data-placeholder', i18n.addCitation || 'Add citation\u2026' );
+	cite.setAttribute( 'aria-label', i18n.citation || 'Citation' );
+	blockquote.appendChild( cite );
+}
+
+/**
+ * Remove an empty <cite> placeholder from a blockquote.
+ *
+ * @param {HTMLElement} blockquote - The blockquote to clean up.
+ */
+function removeEmptyCite( blockquote ) {
+	const cite = blockquote.querySelector( 'cite' );
+	if ( cite && ! cite.textContent.trim() ) {
+		cite.remove();
+	}
+}
+
+/**
  * Detect the current formatting state at the cursor position.
  * Updates all toolbar button states.
  */
@@ -1220,6 +2217,7 @@ function updateFormattingState() {
 	state.formatAlignLeft = true;
 	state.formatAlignCenter = false;
 	state.formatAlignRight = false;
+	state.formatAlignJustify = false;
 
 	if ( sel.rangeCount ) {
 		let node = sel.anchorNode;
@@ -1243,9 +2241,38 @@ function updateFormattingState() {
 					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
 					state.formatAlignCenter = align === 'center';
 					state.formatAlignRight = align === 'right';
+					state.formatAlignJustify = align === 'justify';
 				}
 			}
 			node = node.parentNode;
+		}
+	}
+
+	// Justify is paragraph-only; disable the toolbar button inside lists,
+	// headings, and quotes where browser justification would look poor.
+	state.cannotJustify = state.insideList || state.formatHeading || state.formatQuote;
+
+	// Citation placeholder lifecycle.
+	const currentBlockquote = getActiveBlockquote();
+	if ( currentBlockquote !== activeBlockquote ) {
+		// Capture dirty state before modifying the DOM, so we can re-sync
+		// the snapshot only when the placeholder is the sole difference.
+		const wasDirty = isDirty();
+
+		// Leaving a blockquote — clean up empty placeholder.
+		if ( activeBlockquote ) {
+			removeEmptyCite( activeBlockquote );
+		}
+		// Entering a blockquote — ensure placeholder exists.
+		if ( currentBlockquote ) {
+			ensureCitePlaceholder( currentBlockquote );
+		}
+		activeBlockquote = currentBlockquote;
+
+		// Re-sync the snapshot only when the editor was clean before the
+		// placeholder DOM change, so real edits stay dirty.
+		if ( ! wasDirty ) {
+			updateSavedSnapshot();
 		}
 	}
 }
@@ -1713,6 +2740,24 @@ function syncCatDropdownItems() {
 }
 
 const { state } = store( 'wpcom-write', {
+	callbacks: {
+		/**
+		 * Mirror reactive slash-menu state onto the .bw-content-inner element.
+		 *
+		 * .bw-content-inner has `data-wp-ignore` (so Preact treats its children
+		 * as opaque and won't re-attach detached nodes during undo/redo) — but
+		 * that directive strips any sibling `data-wp-bind--*` directives. To
+		 * keep the combobox aria attributes reactive, we sync them imperatively
+		 * via `data-wp-watch` on the outer wrapper: reading state.showSlashMenu
+		 * and state.slashActiveId here subscribes the watcher to their signals.
+		 */
+		syncComboboxAria() {
+			const inner = document.querySelector( '.bw-content-inner' );
+			if ( ! inner ) return;
+			inner.setAttribute( 'aria-expanded', state.showSlashMenu ? 'true' : 'false' );
+			inner.setAttribute( 'aria-activedescendant', state.slashActiveId || '' );
+		},
+	},
 	state: {
 		formatBold: false,
 		formatItalic: false,
@@ -1720,11 +2765,28 @@ const { state } = store( 'wpcom-write', {
 		formatQuote: false,
 		imageUrl: '',
 		headingLabel: i18n.normal || 'Normal',
+		canUndo: false,
+		canRedo: false,
 		get headerLabel() {
 			return state.title.trim() || i18n.untitled || 'Untitled';
 		},
 		get displayStatus() {
 			return state.message || state.headerLabel;
+		},
+		get isClassicWarning() {
+			return state.unsupportedWarning === 'classic-editor';
+		},
+		get isBlockEditorWarning() {
+			return state.unsupportedWarning === 'block-editor';
+		},
+		get unsupportedDescId() {
+			if ( state.unsupportedWarning === 'classic-editor' ) {
+				return 'bw-unsupported-desc-classic';
+			}
+			if ( state.unsupportedWarning === 'block-editor' ) {
+				return 'bw-unsupported-desc-block';
+			}
+			return '';
 		},
 	},
 
@@ -1745,7 +2807,7 @@ const { state } = store( 'wpcom-write', {
 
 		handleTitleKeyDown( event ) {
 			// Block keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -1798,6 +2860,7 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		cancelLeave() {
+			state.pendingOpenPost = false;
 			state.showLeaveConfirm = false;
 			// Return focus to the back button.
 			const backBtn = document.querySelector( '.bw-back' );
@@ -1807,9 +2870,8 @@ const { state } = store( 'wpcom-write', {
 		handleLeaveModalKeyDown( event ) {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
-				state.showLeaveConfirm = false;
-				const backBtn = document.querySelector( '.bw-back' );
-				if ( backBtn ) backBtn.focus();
+				const { actions: a } = store( 'wpcom-write' );
+				a.cancelLeave();
 				return;
 			}
 
@@ -1833,6 +2895,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		confirmLeave() {
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				state.showLeaveConfirm = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -1841,6 +2909,24 @@ const { state } = store( 'wpcom-write', {
 			state.showLeaveConfirm = false;
 			const status = state.postStatus === 'publish' ? 'publish' : 'draft';
 			await savePost( status, true );
+
+			// If the save failed, stay on the editor — don't navigate away
+			// or open the post picker, as that would discard unsaved edits.
+			// A successful save updates lastSavedSnapshot, so isDirty() returns false.
+			if ( isDirty() ) {
+				state.pendingOpenPost = false;
+				state.message = ( i18n.error || 'Error: %s' ).replace( '%s', 'Could not save' );
+				setTimeout( () => {
+					state.message = '';
+				}, 4000 );
+				return;
+			}
+
+			if ( state.pendingOpenPost ) {
+				state.pendingOpenPost = false;
+				showPostPickerModal();
+				return;
+			}
 			allowLeave = true;
 			window.location.href = state.adminUrl;
 		},
@@ -1925,16 +3011,25 @@ const { state } = store( 'wpcom-write', {
 			// Backspace can unwrap a neighbouring <p>).
 			promoteGapAtCursor();
 			ensureBlockStructure();
+			pushToUndoHistoryDebounced();
+		},
+
+		undo() {
+			performUndo();
+		},
+
+		redo() {
+			performRedo();
 		},
 
 		handleKeyDown( event ) {
 			// Keep savedRange current before any key changes the selection.
-			if ( ! state.showImageModal && ! state.showVideoModal ) {
+			if ( ! state.showImageModal && ! state.showVideoModal && ! state.showPostPicker ) {
 				saveSelection();
 			}
 
 			// Block all keystrokes while a modal overlay is open.
-			if ( state.showImageModal || state.showVideoModal ) {
+			if ( state.showImageModal || state.showVideoModal || state.showPostPicker ) {
 				if ( event.key === 'Escape' ) {
 					const { actions: a } = store( 'wpcom-write' );
 					if ( state.showImageModal ) {
@@ -1972,14 +3067,27 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			// Block undo/redo (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y).
-			if ( ( event.ctrlKey || event.metaKey ) && /^[zy]$/i.test( event.key ) ) {
+			// Normalize via toLowerCase so Shift+Z and CapsLock don't bypass these
+			// shortcuts — some browser/platform combinations report uppercase keys.
+			const lowerKey = event.key.toLowerCase();
+			// Undo (Cmd+Z / Ctrl+Z).
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && ! event.shiftKey ) {
 				event.preventDefault();
+				performUndo();
+				return;
+			}
+			// Redo (Cmd+Shift+Z / Ctrl+Shift+Z / Ctrl+Y).
+			if (
+				( ( event.ctrlKey || event.metaKey ) && lowerKey === 'z' && event.shiftKey ) ||
+				( event.ctrlKey && lowerKey === 'y' )
+			) {
+				event.preventDefault();
+				performRedo();
 				return;
 			}
 
 			// Ctrl+K / Cmd+K to toggle link input.
-			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
+			if ( ( event.ctrlKey || event.metaKey ) && lowerKey === 'k' ) {
 				event.preventDefault();
 				const { actions: a } = store( 'wpcom-write' );
 				a.toggleLinkInput();
@@ -2045,20 +3153,21 @@ const { state } = store( 'wpcom-write', {
 					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
 					const target = active || document.querySelector( '.bw-slash-item:hover' ) || visible[ 0 ];
 					if ( target ) {
-						// Map menu items to actions by their label text.
-						const label = target.querySelector( 'strong' )?.textContent?.toLowerCase();
+						// Map menu items to actions by their data-action attribute
+						// (not label text, which is translated and would break on non-English sites).
+						const action = target.dataset.action;
 						const { actions: a } = store( 'wpcom-write' );
 						const actionMap = {
 							heading: a.insertHeading,
 							image: a.insertImage,
-							'bulleted list': a.insertBulletedList,
-							'numbered list': a.insertNumberedList,
+							'bulleted-list': a.insertBulletedList,
+							'numbered-list': a.insertNumberedList,
 							video: a.insertVideo,
 							quote: a.insertQuote,
 							divider: a.insertDivider,
 						};
-						if ( actionMap[ label ] ) {
-							actionMap[ label ]();
+						if ( actionMap[ action ] ) {
+							actionMap[ action ]();
 						}
 					}
 					return;
@@ -2097,6 +3206,35 @@ const { state } = store( 'wpcom-write', {
 					return;
 				}
 				// No adjacent figure — fall through to native Backspace/Delete.
+			}
+
+			// Block Backspace at the very start of the first block. With nothing
+			// to merge into, some browsers respond by unwrapping the structure
+			// — including the .bw-content-inner wrapper that protects user
+			// content from the Interactivity API reconciler. Losing the wrapper
+			// breaks undo/redo, so we no-op this keystroke instead.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount && sel.isCollapsed ) {
+					const range = sel.getRangeAt( 0 );
+					const content = getContent();
+					if ( content && content.firstElementChild ) {
+						// Walk up from the cursor to the direct child of .bw-content-inner.
+						let block = range.startContainer;
+						while ( block && block.parentNode !== content ) {
+							block = block.parentNode;
+						}
+						if ( block && block === content.firstElementChild ) {
+							const beforeRange = document.createRange();
+							beforeRange.setStart( block, 0 );
+							beforeRange.setEnd( range.startContainer, range.startOffset );
+							if ( beforeRange.toString() === '' ) {
+								event.preventDefault();
+								return;
+							}
+						}
+					}
+				}
 			}
 
 			// Tab / Shift-Tab inside a list: indent / outdent.
@@ -2147,8 +3285,40 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Enter key: break out of blockquotes/headings and ensure paragraphs.
+			// Backspace in an empty <cite>: remove it and move cursor to quote body.
+			if ( event.key === 'Backspace' ) {
+				const cite = getActiveCite();
+				if ( cite && ! cite.textContent.trim() ) {
+					event.preventDefault();
+					const bq = cite.closest( 'blockquote' );
+					cite.remove();
+					if ( bq ) {
+						const lastP = bq.querySelector( 'p:last-of-type' );
+						if ( lastP ) {
+							placeCursorAtEnd( lastP );
+						}
+					}
+					return;
+				}
+			}
+
+			// Enter key: handle cite break-out and blockquote/heading break-out.
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				// Inside a blockquote <cite>: break out to a new paragraph.
+				const cite = getActiveCite();
+				if ( cite ) {
+					const bq = cite.closest( 'blockquote' );
+					if ( bq ) {
+						event.preventDefault();
+						const p = document.createElement( 'p' );
+						p.innerHTML = '<br>';
+						bq.after( p );
+						placeCursorAt( p );
+						return;
+					}
+				}
+
+				// Break out of blockquotes/headings and ensure paragraphs.
 				const sel = window.getSelection();
 				if ( sel.rangeCount ) {
 					let node = sel.anchorNode;
@@ -2171,7 +3341,15 @@ const { state } = store( 'wpcom-write', {
 						const textAfterCursor = range.cloneRange();
 						textAfterCursor.selectNodeContents( block );
 						textAfterCursor.setStart( range.endContainer, range.endOffset );
-						const remaining = textAfterCursor.toString().trim();
+
+						// Exclude <cite> text from the "remaining" check so Enter at the
+						// end of quote body text breaks out even when a citation follows.
+						const tmpFrag = textAfterCursor.cloneContents();
+						const citeFrag = tmpFrag.querySelector( 'cite' );
+						if ( citeFrag ) {
+							citeFrag.remove();
+						}
+						const remaining = tmpFrag.textContent.trim();
 
 						if ( ! remaining ) {
 							event.preventDefault();
@@ -2186,9 +3364,13 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleBeforeInput( event ) {
-			// Block undo/redo triggered via browser Edit menu.
-			if ( event.inputType === 'historyUndo' || event.inputType === 'historyRedo' ) {
+			// Route Edit menu undo/redo through our history stack.
+			if ( event.inputType === 'historyUndo' ) {
 				event.preventDefault();
+				performUndo();
+			} else if ( event.inputType === 'historyRedo' ) {
+				event.preventDefault();
+				performRedo();
 			}
 		},
 
@@ -2512,27 +3694,74 @@ const { state } = store( 'wpcom-write', {
 		// --- Alignment ---
 
 		alignLeft() {
-			document.execCommand( 'justifyLeft' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Left is the default — remove explicit alignment from
+				// the blockquote and any inner paragraphs.
+				flushUndoDebounce();
+				bq.style.removeProperty( 'text-align' );
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyLeft' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = true;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = false;
+			state.formatAlignJustify = false;
 		},
 
 		alignCenter() {
-			document.execCommand( 'justifyCenter' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				// Apply alignment to the blockquote itself so
+				// convertToBlocks reads it from node.style.textAlign.
+				flushUndoDebounce();
+				bq.style.textAlign = 'center';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyCenter' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = true;
 			state.formatAlignRight = false;
+			state.formatAlignJustify = false;
 		},
 
 		alignRight() {
-			document.execCommand( 'justifyRight' );
-			cleanupAlignmentDivs();
+			const bq = getActiveBlockquote();
+			if ( bq ) {
+				flushUndoDebounce();
+				bq.style.textAlign = 'right';
+				bq.querySelectorAll( ':scope > p, :scope > div' ).forEach( el => {
+					el.style.removeProperty( 'text-align' );
+				} );
+				pushToUndoHistory();
+			} else {
+				document.execCommand( 'justifyRight' );
+				cleanupAlignmentDivs();
+			}
 			state.formatAlignLeft = false;
 			state.formatAlignCenter = false;
 			state.formatAlignRight = true;
+			state.formatAlignJustify = false;
+		},
+
+		alignJustify() {
+			if ( state.cannotJustify ) return;
+			document.execCommand( 'justifyFull' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = false;
+			state.formatAlignJustify = true;
 		},
 
 		// --- Lists ---
@@ -2736,8 +3965,7 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleImageModalKeyDown( event ) {
@@ -2785,6 +4013,12 @@ const { state } = store( 'wpcom-write', {
 
 		updateImageUrl() {
 			const el = getElement();
+			// Typing in the URL field overrides any pending upload — clear
+			// the media ID so insertImageFromUrl doesn't apply uploaded-size
+			// behavior to a manually pasted external URL.
+			if ( state.uploadedMediaId && el.ref.value !== state.imageUrl ) {
+				state.uploadedMediaId = 0;
+			}
 			state.imageUrl = el.ref.value;
 		},
 
@@ -2798,11 +4032,25 @@ const { state } = store( 'wpcom-write', {
 
 			restoreSelection();
 			const figure = document.createElement( 'figure' );
-			figure.className = 'bw-image-figure';
 			const img = document.createElement( 'img' );
 			img.src = state.imageUrl;
 			img.alt = state.imageAlt || '';
-			figure.appendChild( img );
+
+			if ( state.uploadedMediaId ) {
+				// Media-library image: tag it for round-trip with the block
+				// editor and swap src to the Large-sized URL so the natural
+				// img dimensions match the default preset.
+				img.className = 'wp-image-' + state.uploadedMediaId;
+				figure.className = 'bw-image-figure size-large';
+				figure.appendChild( img );
+				trackMediaSizeSwap( applyMediaSizeToFigure( figure, 'large' ) );
+			} else {
+				// External URL (no media library entry, no resized files):
+				// no size preset — the per-image Size button is hidden, matching
+				// block editor behavior.
+				figure.className = 'bw-image-figure';
+				figure.appendChild( img );
+			}
 
 			const p = insertMediaBlock( figure );
 			if ( p ) {
@@ -2811,6 +4059,7 @@ const { state } = store( 'wpcom-write', {
 
 			state.showImageModal = false;
 			resetUploadZone();
+			pushToUndoHistory();
 		},
 
 		async uploadImage() {
@@ -2863,10 +4112,13 @@ const { state } = store( 'wpcom-write', {
 		// --- Slash commands ---
 
 		insertHeading() {
+			flushUndoDebounce();
 			insertNewBlock( 'h2' );
+			pushToUndoHistory();
 		},
 
 		insertImage() {
+			flushUndoDebounce();
 			clearSlashText();
 			clearSlashActive();
 			state.showSlashMenu = false;
@@ -2880,15 +4132,21 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		insertBulletedList() {
+			flushUndoDebounce();
 			insertNewList( 'ul' );
+			pushToUndoHistory();
 		},
 
 		insertNumberedList() {
+			flushUndoDebounce();
 			insertNewList( 'ol' );
+			pushToUndoHistory();
 		},
 
 		insertQuote() {
+			flushUndoDebounce();
 			insertNewBlock( 'blockquote' );
+			pushToUndoHistory();
 		},
 
 		insertVideo() {
@@ -2905,8 +4163,7 @@ const { state } = store( 'wpcom-write', {
 			state.showVideoModal = false;
 			state.videoUrl = '';
 			restoreSelection();
-			const content = document.querySelector( '.bw-content' );
-			if ( content ) content.focus();
+			getContent()?.focus();
 		},
 
 		handleVideoModalKeyDown( event ) {
@@ -2979,9 +4236,11 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			state.showVideoModal = false;
+			pushToUndoHistory();
 		},
 
 		insertDivider() {
+			flushUndoDebounce();
 			clearSlashText();
 			const hr = document.createElement( 'hr' );
 			const p = document.createElement( 'p' );
@@ -2995,7 +4254,7 @@ const { state } = store( 'wpcom-write', {
 				while (
 					block &&
 					block.parentNode &&
-					! block.parentNode.classList.contains( 'bw-content' )
+					! block.parentNode.classList.contains( 'bw-content-inner' )
 				) {
 					block = block.parentNode;
 				}
@@ -3013,6 +4272,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			clearSlashActive();
 			state.showSlashMenu = false;
+			pushToUndoHistory();
 		},
 
 		// --- UI toggles ---
@@ -3041,6 +4301,328 @@ const { state } = store( 'wpcom-write', {
 			const wrap = event.currentTarget;
 			if ( ! wrap.contains( event.relatedTarget ) ) {
 				state.showHelp = false;
+			}
+		},
+
+		// --- Topbar "more" menu (Open in block editor / Preview) ---
+
+		toggleMoreMenu() {
+			state.showMoreMenu = ! state.showMoreMenu;
+			if ( state.showMoreMenu ) {
+				const close = e => {
+					if ( e.target.closest( '.bw-more-wrap' ) ) return;
+					state.showMoreMenu = false;
+					document.removeEventListener( 'click', close );
+				};
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+			}
+		},
+
+		handleMoreMenuKeyDown( event ) {
+			const wrap = event.currentTarget;
+			const menu = wrap.querySelector( '.bw-more-menu' );
+			const items = menu ? [ ...menu.querySelectorAll( '.bw-more-menu-item' ) ] : [];
+			const onToggle = !! event.target.closest( '.bw-more-toggle' );
+
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showMoreMenu = false;
+				// Defer so the focus-restoration happens after the Interactivity
+				// state update; otherwise focus can land on <body>.
+				const toggle = wrap.querySelector( '.bw-more-toggle' );
+				requestAnimationFrame( () => toggle?.focus() );
+				return;
+			}
+
+			// Open the menu from the toggle with ArrowDown/ArrowUp and move focus
+			// to the first/last item respectively.
+			if ( onToggle && ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) ) {
+				event.preventDefault();
+				state.showMoreMenu = true;
+				const target = event.key === 'ArrowUp' ? items[ items.length - 1 ] : items[ 0 ];
+				requestAnimationFrame( () => target?.focus() );
+				return;
+			}
+
+			if ( ! state.showMoreMenu || ! items.length ) {
+				return;
+			}
+
+			const focused = wrap.ownerDocument.activeElement;
+			const idx = items.indexOf( focused );
+
+			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				let next;
+				if ( idx < 0 ) {
+					next = delta > 0 ? 0 : items.length - 1;
+				} else {
+					next = ( idx + delta + items.length ) % items.length;
+				}
+				items[ next ]?.focus();
+			} else if ( event.key === 'Home' ) {
+				event.preventDefault();
+				items[ 0 ]?.focus();
+			} else if ( event.key === 'End' ) {
+				event.preventDefault();
+				items[ items.length - 1 ]?.focus();
+			}
+		},
+
+		handleMoreMenuFocusOut( event ) {
+			const wrap = event.currentTarget;
+			if ( ! wrap.contains( event.relatedTarget ) ) {
+				state.showMoreMenu = false;
+			}
+		},
+
+		async openInBlockEditor() {
+			state.showMoreMenu = false;
+
+			// New posts need a save to create the underlying post before we
+			// have a URL to navigate to. Surface the same "Please write
+			// something" hint the publish flow shows so the menu doesn't
+			// appear unresponsive on an empty page.
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				state.message = i18n.pleaseWriteSomething || 'Please write something';
+				setTimeout( () => {
+					state.message = '';
+				}, 2500 );
+				return;
+			}
+
+			// For unpublished posts, silently save the draft first so the
+			// block editor opens with current edits (and to create the post
+			// if it's new). For published posts, hand off to the block
+			// editor without auto-saving — we don't want to silently push
+			// unsaved Write edits live.
+			if ( state.postStatus !== 'publish' && ( isDirty() || ! state.editPostId ) ) {
+				await savePost( 'draft', true );
+			}
+			if ( ! state.editPostId ) {
+				// Save failed for some other reason — abort.
+				return;
+			}
+
+			// Prefer the SSR-seeded URL; fall back to building it for posts
+			// created in this session (no SSR-seeded URL yet).
+			const url =
+				state.blockEditorUrl ||
+				state.adminUrl +
+					'post.php?post=' +
+					state.editPostId +
+					'&action=edit&classic-editor__forget';
+			allowLeave = true;
+			window.location.href = url;
+		},
+
+		async previewPost() {
+			state.showMoreMenu = false;
+
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				state.message = i18n.pleaseWriteSomething || 'Please write something';
+				setTimeout( () => {
+					state.message = '';
+				}, 2500 );
+				return;
+			}
+
+			// For unpublished posts, silently save the draft first so preview
+			// reflects current edits (and creates the post if it's new).
+			// For published posts, open the live URL without auto-saving to
+			// avoid silently pushing unsaved edits live.
+			if ( state.postStatus !== 'publish' && ( isDirty() || ! state.editPostId ) ) {
+				await savePost( 'draft', true );
+			}
+			if ( ! state.editPostId ) {
+				return;
+			}
+
+			// Use the SSR-seeded preview URL when available — it includes any
+			// nonce returned by get_preview_post_link(). For posts created in
+			// this session, build the draft preview URL from state.homeUrl.
+			const url = state.previewUrl || state.homeUrl + '?p=' + state.editPostId + '&preview=true';
+			window.open( url, '_blank', 'noopener,noreferrer' );
+		},
+
+		// --- Post picker ---
+
+		openPostPicker() {
+			state.showMoreMenu = false;
+
+			if ( isDirty() ) {
+				state.pendingOpenPost = true;
+				state.showLeaveConfirm = true;
+				requestAnimationFrame( () => {
+					const modal = document.querySelector( '.bw-leave-modal' );
+					if ( modal ) {
+						const first = modal.querySelector( 'button' );
+						if ( first ) first.focus();
+					}
+				} );
+				return;
+			}
+
+			showPostPickerModal();
+		},
+
+		closePostPicker() {
+			state.showPostPicker = false;
+			state.postPickerUrl = '';
+			state.openPostError = '';
+			document.documentElement.style.overflow = '';
+			const toggle = document.querySelector( '.bw-more-toggle' );
+			if ( toggle ) toggle.focus();
+		},
+
+		openPickedPost( event ) {
+			const postId = event.target.closest( '[data-post-id]' )?.dataset?.postId;
+			if ( postId ) {
+				if ( window.wpcomTracksRecordEvent ) {
+					window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_select', {
+						post_id: parseInt( postId, 10 ),
+						source: 'draft_list',
+					} );
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + postId;
+			}
+		},
+
+		updatePostPickerUrl( event ) {
+			state.postPickerUrl = event.target.value;
+		},
+
+		async submitPostPickerUrl() {
+			const input = state.postPickerUrl.trim();
+			if ( ! input ) return;
+
+			const numericId = parsePostId( input );
+			if ( window.wpcomTracksRecordEvent ) {
+				window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_go', {
+					input_type: numericId ? 'numeric_id' : 'url',
+					source: 'url_input',
+				} );
+			}
+
+			if ( numericId ) {
+				// Validate the post exists and is editable before navigating.
+				try {
+					await window.wp.apiFetch( {
+						path: state.postsPath + '/' + numericId + '?context=edit&_fields=id',
+						method: 'GET',
+					} );
+				} catch ( err ) {
+					const status = err?.data?.status;
+					if ( status === 403 ) {
+						state.openPostError =
+							i18n.postNoPermission || "You don't have permission to edit this post.";
+					} else {
+						state.openPostError =
+							i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					}
+					return;
+				}
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&post=' + numericId;
+			} else {
+				// Reject input that isn't URL-shaped before hitting the server.
+				const normalized = /^https?:\/\//i.test( input ) ? input : 'https://' + input;
+				let parsed;
+				try {
+					parsed = new URL( normalized );
+				} catch {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+				if ( ! parsed.hostname.includes( '.' ) ) {
+					state.openPostError =
+						i18n.postNotFound || 'Post not found. Check the URL or ID and try again.';
+					return;
+				}
+
+				// If the pasted URL is same-site and contains a numeric ?p= or
+				// ?post= param, navigate directly with &post=<id> instead of
+				// passing the full URL through &url=. This avoids carrying
+				// unrelated params (preview nonces, tracking params, etc.) into
+				// the address bar and server logs.
+				const homeHost = new URL( state.homeUrl ).hostname;
+				if ( parsed.hostname === homeHost ) {
+					const qp = parsed.searchParams.get( 'p' ) || parsed.searchParams.get( 'post' );
+					const extractedId = qp ? parseInt( qp, 10 ) : 0;
+					if ( extractedId > 0 ) {
+						allowLeave = true;
+						window.location.href = state.writeUrl + '&post=' + extractedId;
+						return;
+					}
+				}
+
+				// Pretty permalinks and other URL shapes: delegate resolution
+				// to PHP's url_to_postid(). Server-side checks the host against
+				// home_url() and enforces edit_post capability.
+				allowLeave = true;
+				window.location.href = state.writeUrl + '&url=' + encodeURIComponent( normalized );
+			}
+		},
+
+		handlePostPickerInputKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.submitPostPickerUrl();
+			}
+		},
+
+		handlePostPickerOverlayClick( event ) {
+			if ( event.button !== 0 || event.target !== event.currentTarget ) return;
+			const { actions: a } = store( 'wpcom-write' );
+			a.closePostPicker();
+		},
+
+		handlePostPickerKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.closePostPicker();
+				return;
+			}
+
+			const active = event.target.ownerDocument.activeElement;
+			const items = [ ...document.querySelectorAll( '.bw-postpicker-item' ) ];
+			if ( items.length ) {
+				const idx = items.indexOf( active );
+				let next = -1;
+				if ( event.key === 'ArrowDown' ) {
+					next = idx < items.length - 1 ? idx + 1 : 0;
+				} else if ( event.key === 'ArrowUp' ) {
+					next = idx > 0 ? idx - 1 : items.length - 1;
+				}
+				if ( next >= 0 ) {
+					event.preventDefault();
+					items.forEach( el => el.setAttribute( 'tabindex', '-1' ) );
+					items[ next ].setAttribute( 'tabindex', '0' );
+					items[ next ].focus();
+				}
+			}
+
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-postpicker-modal' );
+				if ( ! modal ) return;
+				const focusable = [
+					...modal.querySelectorAll( 'button, input, [tabindex]:not([tabindex="-1"])' ),
+				];
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
 			}
 		},
 
@@ -3118,13 +4700,24 @@ const { state } = store( 'wpcom-write', {
 			await savePost( 'draft' );
 		},
 
+		async saveDraftFromMenu() {
+			state.showMoreMenu = false;
+			await savePost( 'draft' );
+		},
+
 		/**
 		 * Perform a periodic autosave if the editor is dirty.
 		 */
 		async autosave() {
 			// Skip autosave for published posts — partial edits should not go live silently.
 			// Users can still save manually via the unsaved-changes modal.
-			if ( ! isDirty() || state.isSaving || state.isPublished || state.postStatus === 'publish' ) {
+			if (
+				state.unsupportedWarning ||
+				! isDirty() ||
+				state.isSaving ||
+				state.isPublished ||
+				state.postStatus === 'publish'
+			) {
 				return;
 			}
 
@@ -3161,8 +4754,72 @@ const { state } = store( 'wpcom-write', {
 			localStorage.setItem( DISCLAIMER_STORAGE_KEY, '1' );
 			state.showDisclaimer = false;
 		},
+
+		// --- Unsupported content warning ---
+		goBack() {
+			const sameOrigin =
+				document.referrer && new URL( document.referrer ).origin === window.location.origin;
+			if ( sameOrigin && window.history.length > 1 ) {
+				window.history.back();
+			} else {
+				window.location.href = state.adminUrl + 'edit.php';
+			}
+		},
+
+		openEditor() {
+			if ( state.editorUrl ) {
+				window.location.href = state.editorUrl;
+			}
+		},
+
+		handleUnsupportedKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions } = store( 'wpcom-write' );
+				actions.goBack();
+				return;
+			}
+
+			// Trap Tab within the modal.
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-unsupported-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll( 'button:not([hidden])' );
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
+		},
 	},
 } );
+
+/**
+ * Open the post picker modal, fire a Tracks event, and focus the first item.
+ */
+function showPostPickerModal() {
+	document.documentElement.style.overflow = 'hidden';
+	state.showPostPicker = true;
+	state.openPostError = '';
+	if ( window.wpcomTracksRecordEvent ) {
+		window.wpcomTracksRecordEvent( 'wpcom_write_post_picker_open', {
+			has_drafts: state.recentDrafts.length > 0,
+			draft_count: state.recentDrafts.length,
+		} );
+	}
+	requestAnimationFrame( () => {
+		const firstItem = document.querySelector( '.bw-postpicker-item' );
+		const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+		( firstItem || urlInput )?.focus();
+	} );
+}
 
 /**
  * Save or publish the current post via the REST API.
@@ -3172,8 +4829,11 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
-		const content = getContent();
-		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
+		// Use textContent rather than innerHTML so structural-only markup
+		// (e.g. <p><br></p> left over from clearing the editor) doesn't
+		// pass the client-side guard and reach the server, which would
+		// return a confusing "title, content, or excerpt is empty" error.
+		if ( ! hasWritableContent() ) {
 			state.message = i18n.pleaseWriteSomething || 'Please write something';
 			setTimeout( () => {
 				state.message = '';
@@ -3194,6 +4854,14 @@ async function savePost( postStatus, isAutosave = false ) {
 			savingMessage = i18n.publishing || 'Publishing...';
 		}
 		state.message = savingMessage;
+	}
+
+	// Wait for any in-flight image size swaps to finish so the saved
+	// content's img.src matches its size-* class. Without this, a save
+	// fired between a size click and the REST response would serialize
+	// the new size class with the old src.
+	if ( pendingMediaSizeSwaps.size ) {
+		await Promise.allSettled( [ ...pendingMediaSizeSwaps ] );
 	}
 
 	// Ensure the live DOM has proper structure before cloning — this
@@ -3231,19 +4899,11 @@ async function savePost( postStatus, isAutosave = false ) {
 	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
 		el.removeAttribute( 'contenteditable' );
 	} );
-	// Strip runtime control wrappers and buttons from figures so only
-	// the original media elements are saved.
-	clone.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
-		// Move the img back out of the wrapper.
-		const img = wrapper.querySelector( 'img' );
-		if ( img ) {
-			wrapper.before( img );
-		}
-		wrapper.remove();
+	clone.querySelectorAll( 'blockquote cite' ).forEach( el => {
+		el.removeAttribute( 'data-placeholder' );
+		el.removeAttribute( 'aria-label' );
 	} );
-	clone
-		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
-		.forEach( el => el.remove() );
+	stripRuntimeFigureControls( clone );
 
 	// Safety net: if stripping editor-only elements left the clone
 	// empty, treat it the same as no content.
@@ -3307,6 +4967,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				categories: selectedCats,
 				...tagData,
 				featured_media: state.featuredMediaId || 0,
+				wpcom_write_editor_used: true,
 			},
 		} );
 
@@ -3338,6 +4999,14 @@ async function savePost( postStatus, isAutosave = false ) {
 			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
 			// Clear any autosave draft reference on publish.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+
+			// Track publish event client-side for reliable Write editor attribution.
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_post_published',
+				{ post_id: post.id, is_update: isUpdate },
+			] );
 			setTimeout( () => {
 				// Hide the page before navigating so the bfcache snapshot
 				// stores it hidden — prevents a flash of stale content if
@@ -3376,6 +5045,13 @@ async function savePost( postStatus, isAutosave = false ) {
 
 // --- Autosave timer and recovery ---
 
+// Disable browser scroll restoration so the editor always starts at the top.
+// Without this, refreshing while scrolled down restores the old scroll offset.
+if ( 'scrollRestoration' in history ) {
+	history.scrollRestoration = 'manual';
+}
+window.scrollTo( 0, 0 );
+
 // Start the autosave interval once the content area is ready.
 const autosaveReady = setInterval( () => {
 	const contentEl = document.querySelector( '.bw-content' );
@@ -3384,6 +5060,18 @@ const autosaveReady = setInterval( () => {
 
 	// Capture the initial snapshot so edits are detected relative to load state.
 	updateSavedSnapshot();
+	// Seed the undo history with the initial content so Cmd+Z can return to it.
+	pushToUndoHistory();
+
+	// Focus the unsupported-content warning modal when present on load
+	// and prevent background scrolling while the overlay is visible.
+	if ( state.unsupportedWarning ) {
+		document.body.style.overflow = 'hidden';
+		requestAnimationFrame( () => {
+			const btn = document.querySelector( '.bw-unsupported-open-editor:not([hidden])' );
+			if ( btn ) btn.focus();
+		} );
+	}
 
 	// Start the periodic autosave timer.
 	const { actions } = store( 'wpcom-write' );
@@ -3408,6 +5096,33 @@ const autosaveReady = setInterval( () => {
 		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
+	}
+
+	// Populate relative dates in the post picker draft list.
+	document.querySelectorAll( '.bw-postpicker-item-date[data-modified]' ).forEach( el => {
+		el.textContent = formatRelativeDate( el.dataset.modified );
+	} );
+
+	// If the page was loaded via ?url= and resolved to a post, replace the
+	// address-bar URL with the canonical ?post=<id> form so the raw URL
+	// the user pasted doesn't linger.
+	if ( state.editPostId ) {
+		const params = new URLSearchParams( window.location.search );
+		if ( params.has( 'url' ) ) {
+			params.delete( 'url' );
+			params.set( 'post', state.editPostId );
+			history.replaceState( null, '', window.location.pathname + '?' + params.toString() );
+		}
+	}
+
+	// Auto-open the post picker if there's an error from the server.
+	if ( state.openPostError ) {
+		document.documentElement.style.overflow = 'hidden';
+		state.showPostPicker = true;
+		requestAnimationFrame( () => {
+			const urlInput = document.getElementById( 'bw-postpicker-url-input' );
+			if ( urlInput ) urlInput.focus();
+		} );
 	}
 }, 200 );
 

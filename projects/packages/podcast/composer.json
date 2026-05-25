@@ -7,6 +7,8 @@
 		"php": ">=7.2",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
@@ -53,7 +55,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-podcast",
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "1.0.x-dev"
 		},
 		"textdomain": "jetpack-podcast",
 		"version-constants": {

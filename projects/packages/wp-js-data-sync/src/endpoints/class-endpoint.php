@@ -179,7 +179,7 @@ class Endpoint {
 
 		try {
 			$params = $request->get_json_params();
-			$data   = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$data   = $params['JSON'] ?? null;
 			$result = $this->entry->$entry_method( $data );
 
 			if ( true === DS_Utils::debug_disable( $this->route_base ) ) {

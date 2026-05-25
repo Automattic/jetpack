@@ -13,7 +13,23 @@
 	"attributes": {
 		"placeholder": { "type": "string", "default": "" },
 		"showIcon": { "type": "boolean", "default": true },
-		"submitOnly": { "type": "boolean", "default": false }
+		"submitOnly": { "type": "boolean", "default": false },
+		"enableSuggestions": { "type": "boolean", "default": false },
+		"suggestionTypes": {
+			"type": "array",
+			"default": [ "query", "taxonomy", "post" ],
+			"items": { "type": "string", "enum": [ "query", "taxonomy", "post" ] }
+		},
+		"postTypeMode": {
+			"type": "string",
+			"enum": [ "include", "exclude" ],
+			"default": "exclude"
+		},
+		"postTypes": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "string" }
+		}
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",

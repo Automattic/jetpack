@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Partner Coupon: Migrate ActionButton to @wordpress/ui Button; brings the package to zero ActionButton imports.

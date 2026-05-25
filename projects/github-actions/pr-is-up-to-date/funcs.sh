@@ -24,7 +24,7 @@ function init_repo {
 	echo "::group::Initializing repo"
 	git init -q .
 	git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	echo "::endgroup::"
 
 	echo "::group::Fetching tags"

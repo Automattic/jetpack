@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Expose the useConnectionErrorNotice hook (and ConnectionError component) via a dedicated sub-path so consumers can opt out of the full package barrel.

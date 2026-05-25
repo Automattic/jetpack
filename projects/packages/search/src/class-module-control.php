@@ -45,11 +45,19 @@ class Module_Control {
 
 	/**
 	 * Valid experience values.
+	 *
+	 * `EXPERIENCE_OVERLAY_BLOCKS` is the experimental blocks-powered overlay
+	 * (server-rendered Search blocks template inside a modal). It is gated
+	 * by the `jetpack_search_overlay_block_template_enabled` filter — the
+	 * dashboard option only appears when the filter is on, and the runtime
+	 * swap from the legacy preact app to the new overlay only kicks in when
+	 * the user has explicitly chosen this experience.
 	 */
-	const EXPERIENCE_OVERLAY  = 'overlay';
-	const EXPERIENCE_EMBEDDED = 'embedded';
-	const EXPERIENCE_INLINE   = 'inline';
-	const EXPERIENCE_OFF      = 'off';
+	const EXPERIENCE_OVERLAY        = 'overlay';
+	const EXPERIENCE_OVERLAY_BLOCKS = 'overlay_blocks';
+	const EXPERIENCE_EMBEDDED       = 'embedded';
+	const EXPERIENCE_INLINE         = 'inline';
+	const EXPERIENCE_OFF            = 'off';
 
 	/**
 	 * Contructor
@@ -111,7 +119,11 @@ class Module_Control {
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return true;
 		}
-		if ( self::EXPERIENCE_INLINE === $saved || self::EXPERIENCE_EMBEDDED === $saved ) {
+		if (
+			self::EXPERIENCE_INLINE === $saved
+			|| self::EXPERIENCE_EMBEDDED === $saved
+			|| self::EXPERIENCE_OVERLAY_BLOCKS === $saved
+		) {
 			return false;
 		}
 
@@ -231,11 +243,12 @@ class Module_Control {
 	 * Get the active search experience.
 	 *
 	 * `'off'` is read from the global Jetpack module-active state (not stored in
-	 * this package's option). `'inline'`, `'embedded'`, and `'overlay'` are each
-	 * written as their literal value to `jetpack_search_experience` whenever the
-	 * experience changes, and read straight back here.
+	 * this package's option). `'inline'`, `'embedded'`, `'overlay'`, and
+	 * `'overlay_blocks'` are each written as their literal value to
+	 * `jetpack_search_experience` whenever the experience changes, and read
+	 * straight back here.
 	 *
-	 * @return string One of 'embedded', 'overlay', 'inline', 'off'.
+	 * @return string One of 'embedded', 'overlay', 'overlay_blocks', 'inline', 'off'.
 	 */
 	public function get_experience() {
 		if ( ! $this->is_active() ) {
@@ -244,10 +257,13 @@ class Module_Control {
 
 		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
 		if ( self::EXPERIENCE_EMBEDDED === $saved ) {
-			return self::EXPERIENCE_EMBEDDED;
+			return $this->theme_supports_embedded_experience() ? self::EXPERIENCE_EMBEDDED : self::EXPERIENCE_INLINE;
 		}
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return self::EXPERIENCE_OVERLAY;
+		}
+		if ( self::EXPERIENCE_OVERLAY_BLOCKS === $saved ) {
+			return self::EXPERIENCE_OVERLAY_BLOCKS;
 		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
@@ -257,6 +273,33 @@ class Module_Control {
 		}
 
 		return self::EXPERIENCE_INLINE;
+	}
+
+	/**
+	 * Whether the active theme can render the Embedded search experience.
+	 *
+	 * True for every theme by default: block themes resolve the bundled
+	 * `jetpack-search` block template through `search_template_hierarchy`,
+	 * classic themes get the same block markup wrapped in
+	 * `get_header()` / `get_footer()` via `template_include`. The filter
+	 * remains the escape hatch for sites that want to force Embedded back
+	 * to Theme search (inline) without changing the saved option.
+	 *
+	 * @return bool
+	 */
+	protected function theme_supports_embedded_experience(): bool {
+		/**
+		 * Filter whether the active theme can render the Embedded search experience.
+		 *
+		 * Defaults to true now that both block and classic themes are supported.
+		 * Sites that want to force Embedded to fall back to Theme search (inline)
+		 * regardless of theme can return false here.
+		 *
+		 * @since 0.60.0
+		 *
+		 * @param bool $supported Whether the active theme can render Embedded search.
+		 */
+		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', true );
 	}
 
 	/**
@@ -280,11 +323,35 @@ class Module_Control {
 	 *                      no-op the REST controller treats as success).
 	 */
 	public function update_experience( string $experience ) {
-		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_INLINE, self::EXPERIENCE_OFF );
+		$valid_values = array(
+			self::EXPERIENCE_OVERLAY,
+			self::EXPERIENCE_OVERLAY_BLOCKS,
+			self::EXPERIENCE_EMBEDDED,
+			self::EXPERIENCE_INLINE,
+			self::EXPERIENCE_OFF,
+		);
 		if ( ! in_array( $experience, $valid_values, true ) ) {
 			return new WP_Error(
 				'invalid_experience',
 				esc_html__( 'Invalid experience value.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Defence-in-depth for the experimental blocks-powered overlay: the
+		// dashboard already hides the option when the
+		// `jetpack_search_overlay_block_template_enabled` filter is off, but
+		// a scripted REST POST could otherwise pre-stage `overlay_blocks` on
+		// a site where the operator has pinned the filter to false. Reject
+		// the value at the boundary so the runtime gate isn't the only
+		// safety net.
+		if (
+			self::EXPERIENCE_OVERLAY_BLOCKS === $experience
+			&& ! (bool) apply_filters( 'jetpack_search_overlay_block_template_enabled', true )
+		) {
+			return new WP_Error(
+				'experience_not_available',
+				esc_html__( 'The blocks-powered Overlay search experience is not enabled on this site.', 'jetpack-search-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -325,6 +392,30 @@ class Module_Control {
 					return $result;
 				}
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
+				return true;
+
+			case self::EXPERIENCE_OVERLAY_BLOCKS:
+				// The blocks-powered overlay does not boot the legacy preact
+				// `SearchApp`, so we keep `instant_search_enabled` off; the
+				// runtime hookup lives in `Search_Blocks::is_block_template_overlay_enabled()`
+				// which combines the user's experience choice with the
+				// `jetpack_search_overlay_block_template_enabled` server filter.
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				$this->disable_instant_search();
+				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY_BLOCKS );
+				return true;
+
+			default:
+				// Unreachable — the `in_array` guard at the top of this
+				// method already restricts $experience to the cases above.
+				// Returning a typed value (rather than falling through to an
+				// implicit `null`) satisfies the static analyzers that flag
+				// switch statements without a `default` branch, and keeps the
+				// method's `bool|WP_Error` contract honest if a future caller
+				// loosens the validation.
 				return true;
 		}
 	}

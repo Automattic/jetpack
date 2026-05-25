@@ -7,6 +7,11 @@ build/**         production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 src/client/**     production-exclude
+src/**/*.ts       production-exclude
+src/**/*.tsx      production-exclude
+src/**/*.jsx      production-exclude
+src/**/*.scss     production-exclude
 declarations.d.ts production-exclude
 global.d.ts       production-exclude
 postcss.config.js production-exclude
+routes/**         production-exclude

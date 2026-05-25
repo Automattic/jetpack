@@ -2,6 +2,17 @@
 
 Notes for contributors (and AI agents) working in `src/search-blocks/`.
 
+## Search experiences & server-side search
+
+`Module_Control::get_experience()` decides who answers a front-end search, and whether the server runs a search at all:
+
+- **Theme search (`inline`)** — the theme's own `search.html` renders results server-side. `Classic_Search` (or `Inline_Search` when `swap_classic_to_inline_search` is on) handles `posts_pre_query` and returns real Elasticsearch results.
+- **Overlay (`overlay`)** — legacy preact Instant Search. `Instant_Search` short-circuits the main query (returns `[]`) and fetches results client-side.
+- **Embedded (`embedded`)** — the `jetpack-search.html` block template takes over the search page; the blocks fetch results client-side via the Interactivity API.
+- **Blocks Overlay (`overlay_blocks`, experimental)** — same client-side fetch, but painted as a full-screen modal over the theme's search page; gated behind `is_block_template_overlay_enabled()`.
+
+For the two blocks-driven experiences, `Search_Blocks::owns_search_results()` is the single predicate that says "the blocks render the results, so the server must do no search." It drives two suppressions that together remove all server-side search work: `Initializer::init_search_blocks()` stops Classic/Instant Search from initializing (no ES query, no hydration `WP_Query`), and `Search_Blocks::filter__posts_pre_query()` short-circuits the remaining core database query. Both are front-end only (`! is_admin()`). Note these are independent of how results are *fetched* — there is no opt-out filter to "fall back" to a server query, because the blocks never read `WP_Query` results anyway.
+
 ## Naming
 
 All blocks use the `jetpack-search/*` namespace (mirrors the composer package `automattic/jetpack-search`).
@@ -14,6 +25,29 @@ Current slug shapes — match one if it fits, but new shapes are fine when nothi
 - **Standalone:** bare role slug (`search-input`, `powered-by`, `active-filters`).
 
 Titles aim to read naturally in the inserter, not mirror the slug shape — "Sort By" not "Results Sort", "Collapsible Filters" not "Filters Popover".
+
+## Shared store / bundles
+
+`store/` is a single shared module, not per-block code. A block `view.js` that
+needs store actions/state imports the bare specifier:
+
+```js
+import 'jetpack-search/store';
+```
+
+**Never** `import '../../store'` (relative) — that inlines the whole ~1,250-line
+store into the block's view bundle, and with ~14 interactive blocks that's the
+store shipped ~14 times. The blocks build (`tools/webpack.blocks.config.js`)
+externalizes `jetpack-search/store` via `DependencyExtractionPlugin`'s
+`requestToExternalModule`, so the bare specifier compiles to a dependency on the
+`jetpack-search/store` WordPress Script Module (registered in
+`Search_Blocks::register_store_script_module()`), shipped once and cached.
+
+The same specifier is mapped back to `store/index.js` for Jest
+(`jest*.config.js` `moduleNameMapper`) and for `import/no-unresolved`
+(`eslint.config.mjs` `import/core-modules`). A pure store importer compiles to
+~1 KB; `.size-limit.js` guards `results-list.js` so a regression that re-inlines
+the store trips CI.
 
 ## CSS classes
 
@@ -33,7 +67,7 @@ Price is the one exception, and only because its shape doesn't fit. `activeFilte
 
 WC-only features hang off three canonical gates — **don't add a fourth** by re-implementing the probe in a render path or block edit:
 
-- **PHP:** `Search_Blocks::woocommerce_blocks_enabled()` — single memoized `class_exists( 'WooCommerce', false )` probe. Must be called at or after `plugins_loaded`. Use from any registration / render / parse path that should disappear on non-Woo sites. The probed value passes through the `jetpack_search_woocommerce_blocks_enabled` filter once before being cached, so a site can force the gate either way regardless of WC's plugin state (e.g. hide WC-only blocks on a non-shop content area of a Woo site, or render them in a non-Woo staging preview).
+- **PHP:** `Search_Blocks::woocommerce_blocks_enabled()` — single memoized probe that requires both `class_exists( 'WooCommerce', false )` **and** `woocommerce_version_supported()` (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`, currently `6.5.0` — the release that registers the `product-search-results` template the WC-only features front). Must be called at or after `plugins_loaded`. Use from any registration / render / parse path that should disappear on non-Woo sites. The probed value passes through the `jetpack_search_woocommerce_blocks_enabled` filter once before being cached, so a site can force the gate either way regardless of WC's plugin state or version (e.g. hide WC-only blocks on a non-shop content area of a Woo site, or render them in a non-Woo staging preview).
 - **Interactivity store seed:** `state.isWooCommerceBlocksEnabled` — read from JS store callbacks (e.g. URL-state parsing, sort-order validation) instead of probing for `window.WooCommerce` directly.
 - **Editor:** `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` — localized in `Search_Blocks::enqueue_editor_assets()`. Read from block edit components to hide WC-only options from the inspector.
 

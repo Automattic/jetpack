@@ -471,6 +471,29 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 	return must.length ? { bool: { must } } : undefined;
 }
 
+/**
+ * Build ES `term` clauses for the single-select static filters contributed by
+ * `jetpack-search/filter-static`. Static filters target a flat field whose
+ * name equals the filter key — i.e., the `filter_id` from the host site's
+ * `jetpack_search_static_filters` registration is used directly as the ES
+ * field name. Mirrors the legacy instant-search overlay's static-filter
+ * behavior at src/instant-search/store/effects.js:176-187.
+ *
+ * @param {object} selections    - { [filterKey]: string } single-select values.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
+ * @return {Array<object>} `must` clauses, empty when nothing is selected.
+ */
+export function buildStaticFilterClauses( selections, filterConfigs ) {
+	const clauses = [];
+	for ( const [ filterKey, value ] of Object.entries( selections ?? {} ) ) {
+		if ( ! value || filterConfigs?.[ filterKey ]?.kind !== 'static' ) {
+			continue;
+		}
+		clauses.push( { term: { [ filterKey ]: value } } );
+	}
+	return clauses;
+}
+
 // Memoized: `filterItems` re-runs on every state read and may invoke
 // `formatDateBucketLabel` once per bucket.
 const monthLabelFormatters = new Map();
@@ -577,30 +600,35 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
- * @param {object}      opts                   - Options.
- * @param {number}      opts.siteId            - Site ID.
- * @param {string}      opts.searchQuery       - Search query string.
- * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest', plus
- *                                             'rating_desc' | 'price_asc' | 'price_desc'
- *                                             on WooCommerce sites.
- * @param {string|null} opts.pageHandle        - Cursor for pagination.
- * @param {boolean}     opts.isPrivateSite     - Whether the site is private.
- * @param {boolean}     opts.isWpcom           - Whether the site runs on WordPress.com.
- * @param {string}      opts.apiRoot           - WordPress REST API root URL.
- * @param {object}      [opts.activeFilters]   - { [filterKey]: string[] } selected filters.
- * @param {object}      [opts.filterConfigs]   - { [filterKey]: FilterConfig } registered filters.
- * @param {string}      [opts.homeUrl]         - Home URL; required for private WPcom sites.
- * @param {object|null} [opts.priceRange]      - `{ min, max }` numeric range against the
- *                                             `wc.price` ES field. Either bound may be null
- *                                             for a half-open range. Read by future product
- *                                             filter blocks driven by `min_price` / `max_price`
- *                                             URL params.
- * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
- *                                             contributed by `jetpack-search/filter-post-type`.
- *                                             Folded into the ES filter clause as `bool.should`
- *                                             (include) and `bool.must_not` (exclude). Hidden
- *                                             from visitors — not represented in `activeFilters`
- *                                             and not surfaced in the active-filters pill list.
+ * @param {object}      opts                          - Options.
+ * @param {number}      opts.siteId                   - Site ID.
+ * @param {string}      opts.searchQuery              - Search query string.
+ * @param {string}      opts.sortOrder                - 'relevance' | 'newest' | 'oldest', plus
+ *                                                    'rating_desc' | 'price_asc' | 'price_desc'
+ *                                                    on WooCommerce sites.
+ * @param {string|null} opts.pageHandle               - Cursor for pagination.
+ * @param {boolean}     opts.isPrivateSite            - Whether the site is private.
+ * @param {boolean}     opts.isWpcom                  - Whether the site runs on WordPress.com.
+ * @param {string}      opts.apiRoot                  - WordPress REST API root URL.
+ * @param {object}      [opts.activeFilters]          - { [filterKey]: string[] } selected filters.
+ * @param {object}      [opts.filterConfigs]          - { [filterKey]: FilterConfig } registered filters.
+ * @param {string}      [opts.homeUrl]                - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]             - `{ min, max }` numeric range against the
+ *                                                    `wc.price` ES field. Either bound may be null
+ *                                                    for a half-open range. Read by future product
+ *                                                    filter blocks driven by `min_price` / `max_price`
+ *                                                    URL params.
+ * @param {object|null} [opts.staticPostTypes]        - `{ include, exclude }` post-type slug lists
+ *                                                    contributed by `jetpack-search/filter-post-type`.
+ *                                                    Folded into the ES filter clause as `bool.should`
+ *                                                    (include) and `bool.must_not` (exclude). Hidden
+ *                                                    from visitors — not represented in `activeFilters`
+ *                                                    and not surfaced in the active-filters pill list.
+ * @param {object}      [opts.staticFilterSelections] - { [filterKey]: string } single-select
+ *                                                    static filter values contributed by
+ *                                                    `jetpack-search/filter-static`. Each non-empty
+ *                                                    entry adds a `term` clause against an ES field
+ *                                                    whose name matches the filter key.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -616,6 +644,7 @@ export function buildSearchUrl( {
 	homeUrl = '',
 	priceRange = null,
 	staticPostTypes = null,
+	staticFilterSelections = {},
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -643,6 +672,12 @@ export function buildSearchUrl( {
 		filter = filter
 			? { bool: { must: [ ...filter.bool.must, ...staticPostTypeClauses ] } }
 			: { bool: { must: [ ...staticPostTypeClauses ] } };
+	}
+	const staticFilterClauses = buildStaticFilterClauses( staticFilterSelections, filterConfigs );
+	if ( staticFilterClauses.length > 0 ) {
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, ...staticFilterClauses ] } }
+			: { bool: { must: [ ...staticFilterClauses ] } };
 	}
 	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
 		const range = {};

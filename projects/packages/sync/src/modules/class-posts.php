@@ -812,9 +812,9 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ? $this->previous_status[ $post_ID ] : self::DEFAULT_PREVIOUS_STATE;
+		$previous_status = $this->previous_status[ $post_ID ] ?? self::DEFAULT_PREVIOUS_STATE;
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ? $this->just_published[ $post_ID ] : false;
+		$just_published = $this->just_published[ $post_ID ] ?? false;
 
 		$state = array(
 			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),

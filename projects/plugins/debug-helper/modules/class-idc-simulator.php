@@ -335,8 +335,8 @@ class IDC_Simulator {
 		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 		$response      = array(
 			'url'              => $response['http_response']->get_response_object()->url,
-			'idc_detected'     => isset( $response_body['idc_detected'] ) ? $response_body['idc_detected'] : false,
-			'migrated_for_idc' => isset( $response_body['migrated_for_idc'] ) ? $response_body['migrated_for_idc'] : false,
+			'idc_detected'     => $response_body['idc_detected'] ?? false,
+			'migrated_for_idc' => $response_body['migrated_for_idc'] ?? false,
 		);
 
 		array_unshift( $request_option, $response );
@@ -459,7 +459,7 @@ class IDC_Simulator {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		switch ( isset( $_GET['idc_notice'] ) ? $_GET['idc_notice'] : null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		switch ( $_GET['idc_notice'] ?? null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			case self::STORED_SUCCESS_NOTICE_TYPE:
 				return $this->admin_notice__stored_success();
 

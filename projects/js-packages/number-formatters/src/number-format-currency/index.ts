@@ -8,30 +8,47 @@ const debug = debugFactory( 'number-formatters:number-format-currency' );
 
 /**
  * Retrieves the currency override for a given currency.
+ *
  * If the currency is USD and the user is not in the US, it will return `US$`.
- * @param  currency    - The currency to get the override for.
- * @param  geoLocation - The geo location of the user.
+ *
+ * Per-field merge order is: dynamic overrides (from `currencyOverrides`) → hard-coded defaults.
+ * This means a caller can supply a partial map (eg: only `decimal`) without losing the
+ * default `symbol`.
+ * @param  currency          - The currency to get the override for.
+ * @param  geoLocation       - The geo location of the user.
+ * @param  currencyOverrides - Dynamic per-currency overrides supplied by the host application.
  * @return {CurrencyOverride | undefined} The currency override.
  */
 function getCurrencyOverride(
 	currency: string,
-	geoLocation?: string
+	geoLocation?: string,
+	currencyOverrides?: Record< string, CurrencyOverride >
 ): CurrencyOverride | undefined {
 	if ( currency === 'USD' && geoLocation && geoLocation !== '' && geoLocation !== 'US' ) {
-		return { symbol: 'US$' };
+		return { symbol: 'US$', ...currencyOverrides?.USD };
 	}
-	return defaultCurrencyOverrides[ currency ];
+	const defaultOverride = defaultCurrencyOverrides[ currency ];
+	const dynamicOverride = currencyOverrides?.[ currency ];
+	if ( ! defaultOverride && ! dynamicOverride ) {
+		return undefined;
+	}
+	return { ...defaultOverride, ...dynamicOverride };
 }
 
 /**
  * Returns a valid currency code based on a shortlist of currency codes.
  * Only currencies from the shortlist are allowed. Everything else will fall back to `FALLBACK_CURRENCY`.
- * @param  currency    - The currency to get the valid currency for.
- * @param  geoLocation - The geo location of the user.
+ * @param  currency          - The currency to get the valid currency for.
+ * @param  geoLocation       - The geo location of the user.
+ * @param  currencyOverrides - Dynamic per-currency overrides supplied by the host application.
  * @return {string} The valid currency.
  */
-function getValidCurrency( currency: string, geoLocation?: string ): string {
-	if ( ! getCurrencyOverride( currency, geoLocation ) ) {
+function getValidCurrency(
+	currency: string,
+	geoLocation?: string,
+	currencyOverrides?: Record< string, CurrencyOverride >
+): string {
+	if ( ! getCurrencyOverride( currency, geoLocation, currencyOverrides ) ) {
 		debug(
 			`getValidCurrency was called with a non-existent currency "${ currency }"; falling back to ${ FALLBACK_CURRENCY }`
 		);
@@ -99,6 +116,52 @@ function getCurrencyFormatter( {
 }
 
 /**
+ * Hard-coded smallest-unit exponent overrides for currencies where browser ICU's
+ * `maximumFractionDigits` disagrees with the API's smallest-unit encoding.
+ *
+ * This list exists as a safety net for callers that have not yet wired up the
+ * dynamic `currencyOverrides` path (eg: the WPCOM currencies endpoint). Once a
+ * host application provides overrides via `setCurrencyOverrides`, those take
+ * precedence on a per-currency basis.
+ *
+ * Keep this list minimal — the backend is the source of truth for the API's
+ * smallest-unit encoding, so adding speculative entries here risks silent
+ * drift. Only add a currency once we've verified that browsers report a
+ * value the API does not use.
+ *
+ * - IDR: modern Chrome / Node 24+ ICU reports 0; the API encodes with exponent 2.
+ * - HUF: same browser/API divergence as IDR.
+ */
+const SMALLEST_UNIT_EXPONENT_OVERRIDES: Record< string, number > = {
+	IDR: 2,
+	HUF: 2,
+};
+
+/**
+ * Returns the smallest unit exponent for a currency.
+ *
+ * Lookup order:
+ * 1. The dynamic `currencyOverrides[currency].decimal` if a host application has supplied one (typically via `setCurrencyOverrides`).
+ * 2. The hard-coded `SMALLEST_UNIT_EXPONENT_OVERRIDES` map.
+ * 3. The browser-derived display precision (`fallback`).
+ * @param currency          - The currency code (ISO 4217)
+ * @param fallback          - The browser-derived precision to use when no override applies
+ * @param currencyOverrides - Dynamic per-currency overrides supplied by the host application
+ * @return number           - The smallest unit exponent
+ */
+function getSmallestUnitExponent(
+	currency: string,
+	fallback: number,
+	currencyOverrides?: Record< string, CurrencyOverride >
+): number {
+	const dynamicDecimal = currencyOverrides?.[ currency ]?.decimal;
+	if ( typeof dynamicDecimal === 'number' ) {
+		return dynamicDecimal;
+	}
+	return SMALLEST_UNIT_EXPONENT_OVERRIDES[ currency ] ?? fallback;
+}
+
+/**
  * Returns the precision for a given locale and currency.
  * @param  browserSafeLocale - The browser safe locale.
  * @param  currency          - The currency to get the precision for.
@@ -139,16 +202,18 @@ function scaleNumberForPrecision( number: number, currencyPrecision: number ): n
 /**
  * Prepares a number for formatting.
  * @param  number            - The number to prepare.
- * @param  currencyPrecision - The precision to prepare the number for.
+ * @param  currencyPrecision - The display precision (from the browser) to round the result to.
+ * @param  currency          - The currency code, used to look up any smallest-unit exponent override.
  * @param  isSmallestUnit    - Whether the number is the smallest unit of a currency.
+ * @param  currencyOverrides - Dynamic per-currency overrides supplied by the host application.
  * @return {number} The prepared number.
  */
 function prepareNumberForFormatting(
 	number: number,
-	// currencyPrecision here must be the precision of the currency, regardless
-	// of what precision is requested for display!
 	currencyPrecision: number,
-	isSmallestUnit?: boolean
+	currency: string,
+	isSmallestUnit?: boolean,
+	currencyOverrides?: Record< string, CurrencyOverride >
 ): number {
 	if ( isNaN( number ) ) {
 		debug( 'formatCurrency was called with NaN' );
@@ -162,7 +227,8 @@ function prepareNumberForFormatting(
 				number
 			);
 		}
-		const smallestUnitDivisor = 10 ** currencyPrecision;
+		const smallestUnitDivisor =
+			10 ** getSmallestUnitExponent( currency, currencyPrecision, currencyOverrides );
 		return scaleNumberForPrecision( Math.round( number ) / smallestUnitDivisor, currencyPrecision );
 	}
 
@@ -206,6 +272,7 @@ function prepareNumberForFormatting(
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
  * @param  params.forceLatin        - Whether to force the latin locale.
+ * @param  params.currencyOverrides - Dynamic per-currency overrides supplied by the host application.
  * @return {string} A formatted string.
  */
 const numberFormatCurrency = ( {
@@ -217,9 +284,10 @@ const numberFormatCurrency = ( {
 	signForPositive,
 	geoLocation,
 	forceLatin,
+	currencyOverrides,
 }: NumberFormatCurrencyParams ) => {
-	const validCurrency = getValidCurrency( currency, geoLocation );
-	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation );
+	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
+	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -235,7 +303,9 @@ const numberFormatCurrency = ( {
 	const numberAsFloat = prepareNumberForFormatting(
 		number,
 		currencyPrecision ?? 0,
-		isSmallestUnit
+		validCurrency,
+		isSmallestUnit,
+		currencyOverrides
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,
@@ -304,6 +374,7 @@ const numberFormatCurrency = ( {
  * @param  params.signForPositive   - Whether to show the sign for positive numbers.
  * @param  params.geoLocation       - The geo location of the user.
  * @param  params.forceLatin        - Whether to force the latin locale.
+ * @param  params.currencyOverrides - Dynamic per-currency overrides supplied by the host application.
  * @return {CurrencyObject} A formatted string e.g. { symbol:'$', integer: '$99', fraction: '.99', sign: '-' }
  */
 const getCurrencyObject = ( {
@@ -315,9 +386,10 @@ const getCurrencyObject = ( {
 	signForPositive,
 	geoLocation,
 	forceLatin,
+	currencyOverrides,
 }: NumberFormatCurrencyParams ): CurrencyObject => {
-	const validCurrency = getValidCurrency( currency, geoLocation );
-	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation );
+	const validCurrency = getValidCurrency( currency, geoLocation, currencyOverrides );
+	const currencyOverride = getCurrencyOverride( validCurrency, geoLocation, currencyOverrides );
 	const currencyPrecision = getPrecisionForLocaleAndCurrency(
 		browserSafeLocale,
 		validCurrency,
@@ -326,7 +398,9 @@ const getCurrencyObject = ( {
 	const numberAsFloat = prepareNumberForFormatting(
 		number,
 		currencyPrecision ?? 0,
-		isSmallestUnit
+		validCurrency,
+		isSmallestUnit,
+		currencyOverrides
 	);
 	const formatter = getCurrencyFormatter( {
 		number: numberAsFloat,

@@ -20,6 +20,18 @@ function pcg_maybe_handle_probe() {
 		return;
 	}
 
+	// Stamp the response the instant we recognise a probe request — before
+	// any bail, redirect, or plugin load. PCG_Load_Tester::parse_response()
+	// uses this header to tell "our endpoint ran but emitted no JSON verdict"
+	// (a plugin terminated the request mid-bootstrap — a real fatal) apart
+	// from "the loopback never reached us at all" (a full-page cache, a
+	// security plugin, or a maintenance page answered with a 200). Only the
+	// former should block an activation; without the marker a cached 200
+	// would be misread as a fatal and block a healthy plugin.
+	if ( ! headers_sent() ) {
+		header( 'X-PCG-Probe: 1' );
+	}
+
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.
 	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
@@ -30,11 +42,17 @@ function pcg_maybe_handle_probe() {
 
 	$key     = PCG_Load_Tester::transient_key( $token );
 	$payload = get_transient( $key );
-	delete_transient( $key );
 
 	if ( ! is_array( $payload ) || ! isset( $payload['plugins'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
+
+	// Defer deletion until we actually emit a verdict. If something redirects
+	// (e.g. force_ssl_admin's http->https bounce) before admin_init, Requests
+	// follows with the same token; deleting upfront would make the follow-up
+	// fail with "Invalid or expired probe token". The 30s transient TTL caps
+	// lingering entries when no terminal response runs.
+	pcg_probe_pending_key( $key );
 	$plugin_mains = is_array( $payload['plugins'] ) ? array_values(
 		array_filter(
 			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
@@ -145,11 +163,29 @@ function pcg_probe_shutdown() {
  * @return never
  */
 function pcg_probe_respond( $payload, $status = 200 ) {
+	$key = pcg_probe_pending_key();
+	if ( '' !== $key ) {
+		delete_transient( $key );
+	}
 	while ( ob_get_level() > 0 ) {
 		ob_end_clean();
 	}
 	wp_send_json( $payload, (int) $status, JSON_UNESCAPED_SLASHES );
 	exit;
+}
+
+/**
+ * Get/set the transient key to delete when we emit a verdict.
+ *
+ * @param string|null $set Key to remember; omit to read the current value.
+ * @return string
+ */
+function pcg_probe_pending_key( $set = null ) {
+	static $key = '';
+	if ( null !== $set ) {
+		$key = (string) $set;
+	}
+	return $key;
 }
 
 /**

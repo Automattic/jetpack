@@ -530,7 +530,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "37cff8191289fa89742688ce970f25f702cb6ba8"
+                "reference": "30612a3e27b0391db94d602d42cd765a27985abf"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -546,6 +546,7 @@
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1773,7 +1774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "50a49082c2623dd4e295860c6a3d9b6be5b66f4c"
+                "reference": "b3add2c04a4cd1844f5686cbc8515404cbe6d83d"
             },
             "require": {
                 "php": ">=7.2"
@@ -1815,6 +1816,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run build",
+                    "pnpm run test"
                 ]
             },
             "license": [

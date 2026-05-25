@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.10] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.1.9] - 2026-05-19
+### Fixed
+- Currency formatting: use ISO 4217 minor-unit exponent for smallest-unit conversion to correctly format IDR and other currencies where browser ICU disagrees with ISO 4217. [#48967]
+
+## [1.1.8] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [1.1.7] - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -140,6 +152,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.1.10]: https://github.com/Automattic/number-formatters/compare/1.1.9...1.1.10
+[1.1.9]: https://github.com/Automattic/number-formatters/compare/1.1.8...1.1.9
+[1.1.8]: https://github.com/Automattic/number-formatters/compare/1.1.7...1.1.8
 [1.1.7]: https://github.com/Automattic/number-formatters/compare/1.1.6...1.1.7
 [1.1.6]: https://github.com/Automattic/number-formatters/compare/1.1.5...1.1.6
 [1.1.5]: https://github.com/Automattic/number-formatters/compare/1.1.4...1.1.5

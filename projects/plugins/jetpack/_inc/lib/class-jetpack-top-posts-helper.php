@@ -117,7 +117,7 @@ class Jetpack_Top_Posts_Helper {
 					'title'     => $post['title'],
 					'type'      => $post['type'],
 					'public'    => $post['public'],
-					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
+					'views'     => $post['views'] ?? 0,
 					'thumbnail' => $thumbnail,
 				);
 

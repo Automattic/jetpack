@@ -3,7 +3,8 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
 import NoticesList from 'components/global-notices';
@@ -12,24 +13,57 @@ import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
+import SearchSuggestionsControl from 'components/search-suggestions-control';
+import WooCommerceProductSearchControl from 'components/woocommerce-product-search-control';
 import { STORE_ID } from 'store';
+import { EXPERIENCE } from '../experience-selector/constants';
 import FirstRunSection from './sections/first-run-section';
-import PlanUsageSection from './sections/plan-usage-section';
+import OverviewSection from './sections/overview-section';
 import './dashboard-page.scss';
 
-const DEFAULT_TAB = 'plan-usage';
+const DEFAULT_TAB = 'overview';
 // Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
-const TAB_QUERY_PARAM = 'tab';
+// Tabs are now routed via the URL hash (#/<slug>) to match the my-jetpack
+// admin's HashRouter convention. The pre-hash `?tab=<slug>` query param is
+// still honored on mount so existing bookmarks resolve correctly; mount-time
+// normalization rewrites the URL to the canonical hash form.
+const LEGACY_TAB_QUERY_PARAM = 'tab';
+// Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
+const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
 
-const getInitialTab = () => {
+const resolveTabFromLocation = () => {
 	if ( typeof window === 'undefined' ) {
 		return DEFAULT_TAB;
 	}
 
-	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+	// Hash wins (canonical); fall back to legacy `?tab=` query param.
+	const fromHash = window.location.hash.replace( /^#\/?/, '' );
+	const fromQuery = new URLSearchParams( window.location.search ).get( LEGACY_TAB_QUERY_PARAM );
+	const requestedTab = fromHash || fromQuery;
+	const resolvedTab = LEGACY_TAB_ALIASES[ requestedTab ] ?? requestedTab;
 
-	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+	return VALID_TABS.includes( resolvedTab ) ? resolvedTab : DEFAULT_TAB;
+};
+
+// Rewrites the URL to the canonical `#/<tab>` form and strips any legacy
+// `?tab=` query param. Uses `replaceState` so it doesn't add a back-button
+// entry and doesn't fire a `hashchange` event (safe to call from a
+// `hashchange` handler).
+const normalizeUrlToHash = tab => {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+	const url = new URL( window.location.href );
+	const desiredHash = `#/${ tab }`;
+	if ( url.hash === desiredHash && ! url.searchParams.has( LEGACY_TAB_QUERY_PARAM ) ) {
+		return;
+	}
+	url.searchParams.delete( LEGACY_TAB_QUERY_PARAM );
+	url.hash = desiredHash;
+	// Preserve any existing history.state — assigning {} would clobber state
+	// stashed by other scripts running on the same admin page.
+	window.history.replaceState( window.history.state ?? {}, '', url.toString() );
 };
 
 /**
@@ -41,7 +75,34 @@ const getInitialTab = () => {
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+	const [ activeTab, setActiveTab ] = useState( resolveTabFromLocation );
+
+	// On mount, canonicalize the URL to `#/<tab>` and drop any legacy `?tab=`
+	// query string so reloads stop carrying it.
+	useEffect( () => {
+		normalizeUrlToHash( activeTab );
+		// Intentional: canonicalize once with the initial `activeTab`. Later
+		// hash changes are handled by the `hashchange` listener below.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	// Keep the active tab in sync with external hash changes (back/forward button, manual edit).
+	useEffect( () => {
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+		const onHashChange = () => {
+			const resolved = resolveTabFromLocation();
+			// Skip the state update when the resolved tab already matches —
+			// otherwise user-initiated clicks would `setActiveTab` twice (once
+			// in `handleTabChange`, once via the `hashchange` event echo).
+			setActiveTab( prev => ( prev === resolved ? prev : resolved ) );
+			// External nav might have landed on a legacy slug; canonicalize too.
+			normalizeUrlToHash( resolved );
+		};
+		window.addEventListener( 'hashchange', onHashChange );
+		return () => window.removeEventListener( 'hashchange', onHashChange );
+	}, [] );
 
 	const handleTabChange = tab => {
 		setActiveTab( tab );
@@ -49,10 +110,9 @@ export default function DashboardPage( { isLoading = false } ) {
 		if ( typeof window === 'undefined' ) {
 			return;
 		}
-
-		const url = new URL( window.location.href );
-		url.searchParams.set( TAB_QUERY_PARAM, tab );
-		window.history.replaceState( {}, '', url.toString() );
+		// Assigning to .hash (not replaceState) creates a back-button entry,
+		// matching my-jetpack's HashRouter navigation behavior.
+		window.location.hash = `/${ tab }`;
 	};
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
@@ -66,6 +126,12 @@ export default function DashboardPage( { isLoading = false } ) {
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const readerChatGuidelinesUrl = useSelect( select =>
 		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
+	const aiAgentAccessGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getAIAgentAccessGuidelinesUrl()
+	);
+	const isAIAgentAccessAvailable = useSelect( select =>
+		select( STORE_ID ).isAIAgentAccessAvailable()
 	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
@@ -120,6 +186,40 @@ export default function DashboardPage( { isLoading = false } ) {
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
 	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
+	const isSearchSuggestionsEnabled = useSelect( select =>
+		select( STORE_ID ).isSearchSuggestionsEnabled()
+	);
+	const isWooCommerceActive = useSelect( select => select( STORE_ID ).isWooCommerceActive() );
+	const isWooCommerceSearchTemplateOverrideEnabled = useSelect( select =>
+		select( STORE_ID ).isWooCommerceSearchTemplateOverrideEnabled()
+	);
+	const activeExperience = useSelect( select => select( STORE_ID ).getActiveExperience() );
+	const activeThemeStylesheet = useSelect( select =>
+		select( STORE_ID ).getActiveThemeStylesheet()
+	);
+	// Only meaningful for server-rendered templates; Overlay intercepts
+	// client-side so the override would be a no-op there.
+	const showWooCommerceProductSearchControl =
+		isWooCommerceActive &&
+		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
+	// Site Editor identifies plugin templates as `<stylesheet>//<slug>`;
+	// fall back to the Templates list when the stylesheet is unavailable.
+	const wooProductSearchEditUrl = activeThemeStylesheet
+		? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+				activeThemeStylesheet
+		  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	const showAIAgentAccessGuidelinesLink =
+		! isReaderChatAvailable ||
+		! supportsSearch ||
+		! isReaderChatEnabled ||
+		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
+	const hasAdditionalSettings =
+		isReaderChatControlAvailable ||
+		isAIAgentAccessAvailable ||
+		( supportsInstantSearch && isInstantSearchEnabled ) ||
+		showWooCommerceProductSearchControl;
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -164,9 +264,9 @@ export default function DashboardPage( { isLoading = false } ) {
 					handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 				/>
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-					<div className="jp-admin-page-tabs">
+					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
-							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="ai-answers">
 								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
@@ -176,7 +276,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<Tabs.Panel value="plan-usage">
+					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 							<div className="jp-search-dashboard-row">
@@ -223,47 +323,92 @@ export default function DashboardPage( { isLoading = false } ) {
 					<Tabs.Panel value="settings">
 						{ isPageLoading && <Loading /> }
 						{ ! isPageLoading && (
-							<div className="jp-search-dashboard-bottom">
-								{ isSearchBlocksEnabled ? (
-									<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
-										<div className="jp-search-dashboard-row">
-											<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-												<ExperienceSelector />
-												{ isReaderChatAvailable && (
-													<div className="jp-search-reader-chat-card">
-														<ReaderChatControl
-															isAvailable={ isReaderChatAvailable }
-															isEnabled={ isReaderChatEnabled }
-															isSaving={ isSavingEitherOption }
-															guidelinesUrl={ readerChatGuidelinesUrl }
-															updateOptions={ updateOptions }
-														/>
-													</div>
-												) }
+							<>
+								<div className="jp-search-dashboard-bottom">
+									{ isSearchBlocksEnabled ? (
+										<div className="jp-search-dashboard-wrap jp-search-experience-selector-wrap">
+											<div className="jp-search-dashboard-row">
+												<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+													<ExperienceSelector />
+													{ hasAdditionalSettings && (
+														<h2
+															id="jp-search-additional-settings-heading"
+															className="jp-search-additional-settings__heading"
+														>
+															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
+														</h2>
+													) }
+													{ isReaderChatControlAvailable && (
+														<div className="jp-search-settings-card">
+															<ReaderChatControl
+																isAvailable={ isReaderChatControlAvailable }
+																isEnabled={ isReaderChatEnabled }
+																isSaving={ isSavingEitherOption || isOverLimit }
+																guidelinesUrl={ readerChatGuidelinesUrl }
+																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+													<AIAgentAccessControl
+														className="jp-search-ai-agent-access-card"
+														guidelinesUrl={ aiAgentAccessGuidelinesUrl }
+														isAvailable={ isAIAgentAccessAvailable }
+														showGuidelinesLink={ showAIAgentAccessGuidelinesLink }
+													/>
+													{ supportsInstantSearch && isInstantSearchEnabled && (
+														<div className="jp-search-settings-card">
+															<SearchSuggestionsControl
+																isEnabled={ isSearchSuggestionsEnabled }
+																isInstantSearchEnabled={ isInstantSearchEnabled }
+																supportsInstantSearch={ supportsInstantSearch }
+																isSaving={ isSavingEitherOption }
+																isDisabledFromOverLimit={ isOverLimit }
+																updateOptions={ updateOptions }
+															/>
+														</div>
+													) }
+													{ showWooCommerceProductSearchControl && (
+														<div className="jp-search-settings-card">
+															<WooCommerceProductSearchControl
+																isEnabled={ isWooCommerceSearchTemplateOverrideEnabled }
+																isSaving={ isSavingEitherOption }
+																updateOptions={ updateOptions }
+																editTemplateUrl={ wooProductSearchEditUrl }
+															/>
+														</div>
+													) }
+												</div>
 											</div>
 										</div>
-									</div>
-								) : (
-									<ModuleControl
-										siteAdminUrl={ siteAdminUrl }
-										updateOptions={ updateOptions }
-										domain={ domain }
-										isDisabledFromOverLimit={ isOverLimit }
-										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-										isReaderChatAvailable={ isReaderChatAvailable }
-										isReaderChatEnabled={ isReaderChatEnabled }
-										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-										supportsSearch={ supportsSearch }
-										supportsInstantSearch={ supportsInstantSearch }
-										isModuleEnabled={ isModuleEnabled }
-										isInstantSearchEnabled={ isInstantSearchEnabled }
-										isSavingEitherOption={ isSavingEitherOption }
-										isTogglingModule={ isTogglingModule }
-										isTogglingInstantSearch={ isTogglingInstantSearch }
-										readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
-									/>
-								) }
-							</div>
+									) : (
+										<ModuleControl
+											siteAdminUrl={ siteAdminUrl }
+											updateOptions={ updateOptions }
+											domain={ domain }
+											isDisabledFromOverLimit={ isOverLimit }
+											isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+											isAIAgentAccessAvailable={ isAIAgentAccessAvailable }
+											isReaderChatAvailable={ isReaderChatAvailable }
+											isReaderChatEnabled={ isReaderChatEnabled }
+											supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+											supportsSearch={ supportsSearch }
+											supportsInstantSearch={ supportsInstantSearch }
+											isModuleEnabled={ isModuleEnabled }
+											isInstantSearchEnabled={ isInstantSearchEnabled }
+											isSavingEitherOption={ isSavingEitherOption }
+											isTogglingModule={ isTogglingModule }
+											isTogglingInstantSearch={ isTogglingInstantSearch }
+											aiAgentAccessGuidelinesUrl={ aiAgentAccessGuidelinesUrl }
+											readerChatGuidelinesUrl={ readerChatGuidelinesUrl }
+											isSearchSuggestionsEnabled={ isSearchSuggestionsEnabled }
+										/>
+									) }
+								</div>
+								<NoticesList
+									notices={ notices }
+									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+								/>
+							</>
 						) }
 					</Tabs.Panel>
 					<Tabs.Panel value="ai-answers">
@@ -294,7 +439,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection
+					<OverviewSection
 						isFreePlan={ isFreePlan }
 						isPlanJustUpgraded={ isPlanJustUpgraded }
 						planInfo={ planInfo }

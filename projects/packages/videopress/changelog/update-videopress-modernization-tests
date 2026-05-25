@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comment: VideoPress modernized dashboard: Updates the tests for the modernized dashboard, update storage meter and remove the test overrides.

@@ -163,7 +163,7 @@ function wpcom_display_marketing_tools_page() {
 				'Take our free introductory course about search engine optimization (SEO) and learn how to improve your site or blog for both search engines and humans.',
 				'jetpack-mu-wpcom'
 			),
-			'action'      => __( 'Register now', 'jetpack-mu-wpcom' ),
+			'action'      => __( 'Watch the course', 'jetpack-mu-wpcom' ),
 			'icon'        => plugins_url( 'images/rocket.svg', __FILE__ ),
 			'url'         => 'https://wordpress.com/support/courses/seo/',
 			'event'       => 'calypso_marketing_tools_seo_course_button_click',

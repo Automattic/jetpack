@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugin Conflicts Guardian: log the correct WP.com blog ID instead of falling back to 1, widen the probe-token TTL so slow redirect chains no longer expire it, and stop misreading a cache-intercepted probe response as a fatal.

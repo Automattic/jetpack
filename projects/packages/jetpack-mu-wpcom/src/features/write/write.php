@@ -17,7 +17,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ) ) );
 }
 
 /**
@@ -59,9 +59,15 @@ add_action(
 	'init',
 	function () {
 		wp_register_script_module(
+			'wpcom-write/undo-history',
+			wpcom_write_asset_url( 'undo-history.js' ),
+			array(),
+			WPCOM_WRITE_VERSION
+		);
+		wp_register_script_module(
 			'wpcom-write/view',
 			wpcom_write_asset_url( 'view.js' ),
-			array( '@wordpress/interactivity' ),
+			array( '@wordpress/interactivity', 'wpcom-write/undo-history' ),
 			WPCOM_WRITE_VERSION
 		);
 	}
@@ -139,10 +145,19 @@ add_action(
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+			'size'                 => __( 'Size', 'jetpack-mu-wpcom' ),
+			'sizeThumbnail'        => __( 'Thumbnail', 'jetpack-mu-wpcom' ),
+			'sizeMedium'           => __( 'Medium', 'jetpack-mu-wpcom' ),
+			'sizeLarge'            => __( 'Large', 'jetpack-mu-wpcom' ),
+			'sizeFull'             => __( 'Full', 'jetpack-mu-wpcom' ),
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
 			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
+			'addCitation'          => __( 'Add citation…', 'jetpack-mu-wpcom' ),
+			'citation'             => __( 'Citation', 'jetpack-mu-wpcom' ),
+			'postNotFound'         => __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' ),
+			'postNoPermission'     => __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -237,6 +252,377 @@ function wpcom_write_convert_video_embeds( $content ) {
 }
 
 /**
+ * Return the per-block-type attribute allowlist for Write.
+ *
+ * Attributes listed here are safe for Write to handle — either preserved by
+ * convertToBlocks() in view.js or metadata that doesn't affect visible
+ * content.  Keep this in sync with convertToBlocks(); a PHPUnit test
+ * cross-checks that both sides list the same block types.
+ *
+ * @return array<string, string[]> Block type → allowed attribute keys.
+ */
+function wpcom_write_allowed_block_attrs() {
+	return array(
+		'paragraph' => array( 'align' ),
+		'heading'   => array( 'level', 'align' ),
+		// id: media-library metadata, not visible formatting.
+		// alt: preserved via HTML element, not block JSON.
+		// sizeSlug: thumbnail/medium/large/full size presets.
+		// align: intentionally not in the allowlist — Write has no image-
+		// alignment UI.  Posts with any image alignment bounce to the block
+		// editor via the unsupported-content modal.
+		'image'     => array( 'id', 'sizeSlug', 'alt' ),
+		'embed'     => array( 'url', 'type', 'providerNameSlug', 'responsive' ),
+		'quote'     => array( 'align', 'citation' ),
+		'list'      => array( 'ordered' ),
+		'list-item' => array(),
+		'separator' => array(),
+	);
+}
+
+/**
+ * Detect whether a post contains features the Write editor cannot preserve.
+ *
+ * Uses parse_blocks() to inspect block types and attributes against an
+ * allowlist derived from what convertToBlocks() in view.js can round-trip.
+ * Any block type or attribute not in the allowlist will trigger a warning.
+ *
+ * @param string $content Raw post_content (block markup).
+ * @return string|false 'classic-editor' or 'block-editor' indicating the warning
+ *                      type, or false when no warning is needed.
+ */
+function wpcom_write_detect_unsupported_content( $content ) {
+	if ( empty( $content ) ) {
+		return false;
+	}
+
+	if ( ! has_blocks( $content ) ) {
+		return 'classic-editor';
+	}
+
+	$allowed_attrs = wpcom_write_allowed_block_attrs();
+
+	$blocks = parse_blocks( $content );
+
+	if ( wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) ) {
+		return 'block-editor';
+	}
+
+	// Write supports inline custom text colors only.
+	// Palette colors and highlights stay block-editor-only.
+	// has-text-align-* is not checked — it's converted to inline styles on load.
+	if ( wpcom_write_has_unsupported_color_class( $content ) ) {
+		return 'block-editor';
+	}
+
+	if ( wpcom_write_has_unsupported_mark( $content ) ) {
+		return 'block-editor';
+	}
+
+	return false;
+}
+
+/**
+ * Check whether a CSS background-color value is transparent.
+ *
+ * Matches "transparent", "rgba(0, 0, 0, 0)", and whitespace/case variants.
+ *
+ * @param string $value A CSS background-color value.
+ * @return bool True if the value is transparent.
+ */
+function wpcom_write_is_transparent_background( $value ) {
+	$value = strtolower( trim( $value ) );
+	if ( 'transparent' === $value ) {
+		return true;
+	}
+	// Normalize whitespace so rgba(0,0,0,0) and rgba( 0, 0, 0, 0 ) both match.
+	$value = preg_replace( '/\s+/', '', $value );
+	return 'rgba(0,0,0,0)' === $value;
+}
+
+/**
+ * Check whether content has color classes that Write can't preserve.
+ *
+ * Palette classes (has-vivid-red-color, etc.) and has-text-color indicate
+ * block editor content.  has-inline-color alone is fine — Write produces it.
+ * Only matches inside class attributes to avoid false positives from plain text.
+ *
+ * @param string $content Raw post_content.
+ * @return bool True if unsupported color classes are found.
+ */
+function wpcom_write_has_unsupported_color_class( $content ) {
+	return preg_match( '/class="[^"]*\bhas-(?!inline-color\b)[\w-]+-color\b[^"]*"/', $content ) ||
+		preg_match( "/class='[^']*\bhas-(?!inline-color\b)[\w-]+-color\b[^']*'/", $content );
+}
+
+/**
+ * Check whether content has <mark> elements that Write can't round-trip.
+ *
+ * Catches two cases:
+ * - <mark> without has-inline-color (block editor highlights).
+ * - <mark> with has-inline-color AND a non-transparent background
+ *   (combined text color + highlight from the block editor).
+ *
+ * @param string $content Raw post_content.
+ * @return bool True if unsupported marks are found.
+ */
+function wpcom_write_has_unsupported_mark( $content ) {
+	// Highlights: <mark> without has-inline-color.
+	if ( preg_match( '/<mark\b(?![^>]*\bclass="[^"]*has-inline-color)/', $content ) ) {
+		return true;
+	}
+
+	// Combined text color + highlight: has-inline-color with a real background.
+	if ( preg_match_all( '/<mark\b[^>]*\bclass="[^"]*has-inline-color[^"]*"[^>]*>/', $content, $marks ) ) {
+		foreach ( $marks[0] as $tag ) {
+			if ( preg_match( '/background-color\s*:\s*([^;"]+)/', $tag, $bg ) ) {
+				if ( ! wpcom_write_is_transparent_background( $bg[1] ) ) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check whether any block in the tree has an unsupported type or attributes.
+ *
+ * @param array $blocks        Parsed block array from parse_blocks().
+ * @param array $allowed_attrs Per-block-type allowed attribute keys.
+ * @return bool True if any block is unsupported.
+ */
+function wpcom_write_has_unsupported_blocks( $blocks, $allowed_attrs ) {
+	foreach ( $blocks as $block ) {
+		// Skip freeform HTML / whitespace between blocks.
+		if ( empty( $block['blockName'] ) ) {
+			continue;
+		}
+
+		// Normalize: strip 'core/' namespace prefix.
+		$name = $block['blockName'];
+		if ( strpos( $name, 'core/' ) === 0 ) {
+			$name = substr( $name, 5 );
+		}
+
+		// Unknown block type (including third-party namespaced blocks).
+		if ( ! isset( $allowed_attrs[ $name ] ) ) {
+			return true;
+		}
+
+		// Attributes beyond what Write handles for this block type.
+		$attrs = $block['attrs'] ?? array();
+
+		// The block editor stores alignment in two ways:
+		// 1. Top-level: {"align":"center"}
+		// 2. Nested style: {"style":{"typography":{"textAlign":"center"}}}
+		// Both are converted to inline styles on load, so they round-trip.
+		// Strip the style attr if it only contains typography.textAlign
+		// with a supported value, so it doesn't trigger the extra-attrs check.
+		// Justify is paragraph-only.
+		$supported_text_aligns = 'paragraph' === $name
+			? array( 'left', 'center', 'right', 'justify' )
+			: array( 'left', 'center', 'right' );
+		$style_align           = $attrs['style']['typography']['textAlign'] ?? '';
+		if (
+			isset( $attrs['style'] ) &&
+			$style_align &&
+			in_array( $style_align, $supported_text_aligns, true ) &&
+			array( 'typography' => array( 'textAlign' => $style_align ) ) === $attrs['style']
+		) {
+			unset( $attrs['style'] );
+		}
+
+		// Justify uses the canonical class "has-text-align-justify" on paragraph.
+		// Strip it before the extra-attrs check so the paragraph round-trips.
+		if ( 'paragraph' === $name && ( $attrs['className'] ?? '' ) === 'has-text-align-justify' ) {
+			unset( $attrs['className'] );
+		}
+
+		// The block editor stamps `linkDestination: "none"` onto image
+		// blocks by default, even when the user never set a link.  Strip
+		// that no-op value so block-editor-created images round-trip into
+		// Write.  Actual link configurations (media / attachment / custom)
+		// still flag as unsupported below since Write has no image-link UI.
+		if ( 'image' === $name && ( $attrs['linkDestination'] ?? '' ) === 'none' ) {
+			unset( $attrs['linkDestination'] );
+		}
+
+		$extra = array_diff( array_keys( $attrs ), $allowed_attrs[ $name ] );
+		if ( ! empty( $extra ) ) {
+			return true;
+		}
+
+		// Alignment: convertToBlocks() only preserves center and right
+		// (read from style.textAlign). Block-level values like wide/full
+		// are CSS-class-based and silently lost. Left is the default and
+		// renders identically to no alignment, so allow it too. Justify
+		// is paragraph-only (display type and narrow quotes look poor).
+		if ( isset( $attrs['align'] ) && ! in_array( $attrs['align'], $supported_text_aligns, true ) ) {
+			return true;
+		}
+
+		// Image sizeSlug: convertToBlocks() only emits the four standard
+		// presets. Custom or theme-registered slugs (e.g. "hero") would be
+		// silently stripped on save, so bounce them to the block editor.
+		if ( 'image' === $name && isset( $attrs['sizeSlug'] ) && ! in_array( $attrs['sizeSlug'], array( 'thumbnail', 'medium', 'large', 'full' ), true ) ) {
+			return true;
+		}
+
+		// Embed-specific: only YouTube and Vimeo video embeds round-trip.
+		if ( 'embed' === $name ) {
+			$type     = $attrs['type'] ?? '';
+			$provider = $attrs['providerNameSlug'] ?? '';
+			if ( 'video' !== $type || ! in_array( $provider, array( 'youtube', 'vimeo' ), true ) ) {
+				return true;
+			}
+		}
+
+		// Recurse into inner blocks (e.g. list → list-item).
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			if ( wpcom_write_has_unsupported_blocks( $block['innerBlocks'], $allowed_attrs ) ) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Convert block-editor alignment CSS classes to inline styles.
+ *
+ * The block editor uses `has-text-align-{left,center,right}` classes for
+ * alignment, but Write's convertToBlocks() reads alignment from
+ * node.style.textAlign.  This converts the classes to inline styles so
+ * alignment round-trips through Write.
+ *
+ * @param string $html Rendered HTML content.
+ * @return string HTML with alignment classes replaced by inline styles.
+ */
+function wpcom_write_alignment_classes_to_inline( $html ) {
+	return preg_replace_callback(
+		'/(<(?:p|h[1-6]|blockquote)\b[^>]*?)class="([^"]*has-text-align-(left|center|right|justify)[^"]*)"([^>]*?>)/',
+		function ( $m ) {
+			$before  = $m[1];
+			$classes = $m[2];
+			$align   = $m[3];
+			$after   = $m[4];
+
+			// Remove the has-text-align-* class.
+			$classes = trim( preg_replace( '/\bhas-text-align-(?:left|center|right|justify)\b/', '', $classes ) );
+			$classes = preg_replace( '/  +/', ' ', $classes );
+
+			// Build the new tag, merging alignment into any existing style
+			// attribute to avoid producing invalid duplicate style attrs.
+			$class_attr = $classes ? ' class="' . $classes . '"' : '';
+			$tag        = rtrim( $before ) . $class_attr . $after;
+
+			if ( preg_match( '/style="([^"]*)"/', $tag, $sm ) ) {
+				// Skip prepending if the existing style attr already declares
+				// the same text-align (avoids duplicate text-align declarations
+				// when the saved HTML carries both class and inline style).
+				if ( strpos( $sm[1], 'text-align:' . $align ) === false ) {
+					$tag = preg_replace( '/style="/', 'style="text-align:' . $align . ';', $tag, 1 );
+				}
+			} else {
+				$tag = preg_replace( '/>$/', ' style="text-align:' . $align . '">', $tag );
+			}
+
+			return $tag;
+		},
+		$html
+	);
+}
+
+/**
+ * Convert Gutenberg inline-color marks to spans for contentEditable.
+ *
+ * Write edits colors as spans, saves colors as Gutenberg marks.
+ * On load, marks are converted back to spans so foreColor can interact
+ * with existing colors. normalizeColorMarkup() in view.js reverses this.
+ *
+ * @param string $html Rendered HTML content.
+ * @return string HTML with inline-color marks replaced by color spans.
+ */
+function wpcom_write_inline_color_marks_to_spans( $html ) {
+	return preg_replace_callback(
+		'/<mark\b([^>]*\bclass="[^"]*has-inline-color[^"]*"[^>]*)>(.*?)<\/mark>/s',
+		function ( $m ) {
+			$attrs = $m[1];
+			$inner = $m[2];
+			// Extract the color value from the style attribute.
+			// Use (?<!-) to match the `color` property but not `background-color`.
+			if ( preg_match( '/(?<!-)color\s*:\s*([^;"]+)/', $attrs, $cm ) ) {
+				return '<span style="color:' . $cm[1] . '">' . $inner . '</span>';
+			}
+			// No color found — just unwrap to a plain span.
+			return '<span>' . $inner . '</span>';
+		},
+		$html
+	);
+}
+
+/**
+ * Get the current user's recent Write-compatible drafts.
+ *
+ * Queries up to 20 drafts by post_modified desc, filters out posts with
+ * unsupported content, and returns the first 5 that pass.
+ *
+ * @param int $exclude_post_id Post ID to exclude (the currently-edited post), or 0.
+ * @return array Array of { id: int, title: string, modified: string } objects.
+ */
+function wpcom_write_get_recent_drafts( $exclude_post_id = 0 ) {
+	$args = array(
+		'post_type'      => 'post',
+		'post_status'    => 'draft',
+		'author'         => get_current_user_id(),
+		'orderby'        => 'modified',
+		'order'          => 'DESC',
+		'posts_per_page' => 20,
+		'no_found_rows'  => true,
+	);
+
+	if ( $exclude_post_id ) {
+		$args['post__not_in'] = array( $exclude_post_id );
+	}
+
+	$query  = new WP_Query( $args );
+	$drafts = array();
+
+	foreach ( $query->posts as $post ) {
+		if ( count( $drafts ) >= 5 ) {
+			break;
+		}
+
+		if ( wpcom_write_detect_unsupported_content( $post->post_content ) ) {
+			continue;
+		}
+
+		$gmt = $post->post_modified_gmt;
+		if ( '0000-00-00 00:00:00' !== $gmt ) {
+			$mod = str_replace( ' ', 'T', $gmt ) . 'Z';
+		} else {
+			// Convert local time to UTC using the site's timezone setting
+			// so the browser can compute an accurate relative time.
+			$tz = wp_timezone();
+			$dt = new \DateTime( $post->post_modified, $tz );
+			$dt->setTimezone( new \DateTimeZone( 'UTC' ) );
+			$mod = $dt->format( 'Y-m-d\TH:i:s' ) . 'Z';
+		}
+
+		$drafts[] = array(
+			'id'       => $post->ID,
+			'title'    => $post->post_title,
+			'modified' => $mod,
+		);
+	}
+
+	return $drafts;
+}
+
+/**
  * Render the Write admin page.
  *
  * Called by add_submenu_page as the page callback. Runs inside wp-admin's
@@ -246,16 +632,66 @@ function wpcom_write_convert_video_embeds( $content ) {
 function wpcom_write_render_admin_page() {
 	// Check if editing an existing post.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, gated by capability check via add_submenu_page.
-	$edit_post_id       = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+	$edit_post_id       = isset( $_GET['post'] ) && is_scalar( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
 	$edit_title         = '';
 	$edit_content       = '';
 	$post_status        = 'new';
 	$edit_featured_id   = 0;
 	$video_placeholders = array();
+	$unsupported_type   = false;
+	$open_post_error    = '';
+
+	// Resolve a ?url= param to a post ID.
+	// For same-host URLs, extract ?p= or ?post= query params directly
+	// (covers admin URLs and shortlinks like /?p=123). Then fall back
+	// to url_to_postid() for pretty permalinks — core checks the host
+	// against home_url() internally.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for permalink resolution.
+	if ( ! $edit_post_id && ! empty( $_GET['url'] ) && is_scalar( $_GET['url'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$input_url = esc_url_raw( wp_unslash( $_GET['url'] ) );
+		$url_host  = wp_parse_url( $input_url, PHP_URL_HOST );
+		$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		// Extract ?p= / ?post= only from same-host URLs to avoid
+		// treating foreign post IDs as local ones.
+		if ( $url_host && $url_host === $home_host ) {
+			$query_str = wp_parse_url( $input_url, PHP_URL_QUERY );
+			if ( $query_str ) {
+				parse_str( $query_str, $query_params );
+				$param_id = 0;
+				if ( ! empty( $query_params['p'] ) && is_scalar( $query_params['p'] ) ) {
+					$param_id = absint( $query_params['p'] );
+				} elseif ( ! empty( $query_params['post'] ) && is_scalar( $query_params['post'] ) ) {
+					$param_id = absint( $query_params['post'] );
+				}
+				if ( $param_id ) {
+					$edit_post_id = $param_id;
+				}
+			}
+		}
+		if ( ! $edit_post_id ) {
+			$resolved_id = url_to_postid( $input_url );
+			if ( $resolved_id ) {
+				$edit_post_id = $resolved_id;
+			} else {
+				$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
+			}
+		}
+	}
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
-		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
+		if ( ! $edit_post ) {
+			$open_post_error = __( 'Post not found. Check the URL or ID and try again.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( ! current_user_can( 'edit_post', $edit_post_id ) ) {
+			$open_post_error = __( 'You don\'t have permission to edit this post.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} elseif ( 'post' !== $edit_post->post_type ) {
+			$open_post_error = __( 'Only posts can be opened in Write.', 'jetpack-mu-wpcom' );
+			$edit_post_id    = 0;
+		} else {
 			$edit_title = $edit_post->post_title;
 			// Convert video embed blocks to inert placeholder tokens before the
 			// the_content + wp_kses_post pipeline runs.  Tokens survive all filters;
@@ -266,9 +702,37 @@ function wpcom_write_render_admin_page() {
 			$video_placeholders = $video_result['placeholders'];
 			$post_status        = $edit_post->post_status;
 			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
-		} else {
-			$edit_post_id = 0;
+			$unsupported_type   = wpcom_write_detect_unsupported_content( $edit_post->post_content );
+
+			// Only track the last editor when the post is actually editable
+			// in Write. Posts with unsupported content show a warning modal
+			// and are never editable, so recording Write as the last editor
+			// would be misleading.
+			if ( ! $unsupported_type ) {
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			}
 		}
+	}
+
+	if ( 'classic-editor' === $unsupported_type ) {
+		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor' );
+	} elseif ( 'block-editor' === $unsupported_type ) {
+		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor__forget' );
+	} else {
+		$editor_url = '';
+	}
+
+	// URLs for the topbar "more" menu (Open in block editor / Preview).
+	// Always available when editing an existing post — independent of the
+	// unsupported-content warning's $editor_url which only triggers on load.
+	$block_editor_url = $edit_post_id
+		? admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor__forget' )
+		: '';
+	$preview_url      = '';
+	if ( $edit_post_id ) {
+		$preview_url = 'publish' === $post_status
+			? (string) get_permalink( $edit_post_id )
+			: (string) get_preview_post_link( $edit_post_id );
 	}
 
 	// Determine how the user arrived at the Write editor.
@@ -353,6 +817,9 @@ function wpcom_write_render_admin_page() {
 		? ''
 		: sprintf( $writing_in_fmt, implode( ', ', $selected_cat_names ) );
 
+	// Query recent compatible drafts for the post picker.
+	$recent_drafts = wpcom_write_get_recent_drafts( $edit_post_id );
+
 	// Seed Interactivity API state.
 	wp_interactivity_state(
 		'wpcom-write',
@@ -394,15 +861,27 @@ function wpcom_write_render_admin_page() {
 			'formatAlignLeft'     => true,
 			'formatAlignCenter'   => false,
 			'formatAlignRight'    => false,
+			'formatAlignJustify'  => false,
+			'cannotJustify'       => false,
 			'formatOList'         => false,
 			'formatUList'         => false,
 			'insideList'          => false,
 			'showRecoveryBanner'  => false,
+			'unsupportedWarning'  => $unsupported_type,
+			'editorUrl'           => $editor_url,
+			'blockEditorUrl'      => $block_editor_url,
+			'previewUrl'          => $preview_url,
+			'showMoreMenu'        => false,
+			'recentDrafts'        => $recent_drafts,
+			'openPostError'       => $open_post_error,
+			'showPostPicker'      => '' !== $open_post_error,
+			'postPickerUrl'       => '',
+			'pendingOpenPost'     => false,
 		)
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders, $show_cat_row, $cat_label, $recent_drafts, $open_post_error );
 }
 
 /**
@@ -419,8 +898,10 @@ function wpcom_write_render_admin_page() {
  * @param array  $video_placeholders  Map of comment tokens to iframe HTML for video embeds.
  * @param bool   $show_cat_row        Whether to show the category row (2+ used categories).
  * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
+ * @param array  $recent_drafts       Array of recent draft objects for the post picker.
+ * @param string $open_post_error     Error message for post picker, empty if no error.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '', $recent_drafts = array(), $open_post_error = '' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -454,6 +935,45 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
 			><?php echo 'publish' === $post_status ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-more-wrap" data-wp-on--keydown="actions.handleMoreMenuKeyDown" data-wp-on--focusout="actions.handleMoreMenuFocusOut">
+				<button
+					class="bw-more-toggle"
+					aria-haspopup="menu"
+					aria-expanded="false"
+					data-wp-bind--aria-expanded="state.showMoreMenu"
+					data-wp-on--click="actions.toggleMoreMenu"
+					title="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
+					aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
+				><span class="bw-more-dots" aria-hidden="true">&#x22EE;</span></button>
+				<div class="bw-more-menu" role="menu" aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showMoreMenu">
+					<button
+						class="bw-more-menu-item bw-more-save-draft"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.saveDraftFromMenu"
+						data-wp-bind--hidden="state.isPublishedPost"
+						<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
+					><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.openInBlockEditor"
+					><?php echo esc_html__( 'Open in block editor', 'jetpack-mu-wpcom' ); ?></button>
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.previewPost"
+					><?php echo esc_html__( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
+					<button
+						class="bw-more-menu-item"
+						role="menuitem"
+						tabindex="-1"
+						data-wp-on--click="actions.openPostPicker"
+					><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></button>
+				</div>
+			</div>
 		</div>
 	</header>
 
@@ -479,6 +999,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		data-wp-on--keydown="actions.handleToolbarKeyDown"
 	>
 		<div class="bw-toolbar-scroll">
+			<!-- Undo / Redo -->
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.undo" data-wp-bind--disabled="!state.canUndo" title="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-undo"></span></button>
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.redo" data-wp-bind--disabled="!state.canRedo" title="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-redo"></span></button>
+			<span class="bw-tool-divider"></span>
 			<!-- Heading dropdown -->
 			<div class="bw-tool-dropdown-wrap">
 				<button class="bw-tool bw-tool-heading-toggle" aria-label="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="0" data-wp-bind--aria-expanded="state.showHeadingMenu" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>">
@@ -514,6 +1038,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignleft"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-aligncenter"></span></button>
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignright"></span></button>
+			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-justify"></span></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Lists -->
 			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-ul"></span></button>
@@ -542,7 +1067,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Writing area -->
 	<main class="bw-main" data-wp-on--click="actions.handleMainClick">
-		<div class="bw-editor">
+		<div class="bw-editor" data-wp-bind--inert="state.unsupportedWarning">
 
 			<?php if ( $show_cat_row ) : ?>
 			<!-- Category selector — only shown when site has 2+ used categories -->
@@ -598,15 +1123,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-separator"></div>
 			<div
 				class="bw-content<?php echo $edit_content ? '' : ' bw-is-empty'; ?>"
-				contenteditable="true"
-				role="combobox"
-				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
-				aria-autocomplete="list"
-				aria-haspopup="listbox"
-				aria-expanded="false"
-				aria-controls="bw-slash-menu"
-				data-wp-bind--aria-expanded="state.showSlashMenu"
-				data-wp-bind--aria-activedescendant="state.slashActiveId"
+				data-wp-watch="callbacks.syncComboboxAria"
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
 				data-wp-on--click="actions.handleContentClick"
@@ -614,9 +1131,27 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
+			><div
+				class="bw-content-inner"
+				contenteditable="true"
+				role="combobox"
+				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
+				aria-autocomplete="list"
+				aria-haspopup="listbox"
+				aria-expanded="false"
+				aria-controls="bw-slash-menu"
+				data-wp-ignore
 			>
 			<?php
 			if ( $edit_content ) {
+				// Convert block-editor alignment classes to inline styles so
+				// convertToBlocks() can read them via node.style.textAlign.
+				$edit_content = wpcom_write_alignment_classes_to_inline( $edit_content );
+				// Convert Gutenberg <mark class="has-inline-color"> to
+				// <span style="color:#hex"> so foreColor can interact with
+				// existing colors.  Done before kses so the simpler span+hex
+				// format passes through without needing a custom kses filter.
+				$edit_content = wpcom_write_inline_color_marks_to_spans( $edit_content );
 				// Sanitize through wp_kses_post — video embed tokens (HTML comments)
 				// pass through untouched, then we swap them for the real iframe HTML.
 				// This avoids the pre_kses filter that converts iframes to shortcodes.
@@ -629,7 +1164,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				echo '<p><br></p>';
 			}
 			?>
-			</div>
+			</div></div>
 		</div>
 	</main>
 
@@ -678,33 +1213,47 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</div>
 
+	<!-- Unsupported content warning -->
+	<div class="bw-unsupported-overlay" hidden data-wp-bind--hidden="!state.unsupportedWarning" data-wp-on--keydown="actions.handleUnsupportedKeyDown">
+		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-bind--aria-describedby="state.unsupportedDescId" data-wp-on--click="actions.stopPropagation">
+			<p class="bw-unsupported-title"><?php echo esc_html__( 'This post has formatting that Write can\'t preserve', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-classic" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php echo esc_html__( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-block" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php echo esc_html__( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="bw-unsupported-actions">
+				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php echo esc_html__( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Block Editor', 'jetpack-mu-wpcom' ); ?></button>
+			</div>
+		</div>
+	</div>
+
 	<!-- Slash command menu -->
 	<div class="bw-slash-menu" id="bw-slash-menu" role="listbox" aria-label="<?php echo esc_attr__( 'Insert block', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showSlashMenu">
-		<div class="bw-slash-item" id="bw-slash-opt-heading" role="option" aria-selected="false" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-heading" role="option" aria-selected="false" data-action="heading" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">H</span>
 			<div><strong><?php echo esc_html__( 'Heading', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Large section heading', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-image" role="option" aria-selected="false" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-image" role="option" aria-selected="false" data-action="image" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9653;</span>
 			<div><strong><?php echo esc_html__( 'Image', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Upload or embed an image', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-quote" role="option" aria-selected="false" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-quote" role="option" aria-selected="false" data-action="quote" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&ldquo;</span>
 			<div><strong><?php echo esc_html__( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-bulleted-list" role="option" aria-selected="false" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-bulleted-list" role="option" aria-selected="false" data-action="bulleted-list" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&bull;</span>
 			<div><strong><?php echo esc_html__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An unordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-numbered-list" role="option" aria-selected="false" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-numbered-list" role="option" aria-selected="false" data-action="numbered-list" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">1.</span>
 			<div><strong><?php echo esc_html__( 'Numbered list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An ordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-video" role="option" aria-selected="false" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-video" role="option" aria-selected="false" data-action="video" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9654;</span>
 			<div><strong><?php echo esc_html__( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
-		<div class="bw-slash-item" id="bw-slash-opt-divider" role="option" aria-selected="false" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<div class="bw-slash-item" id="bw-slash-opt-divider" role="option" aria-selected="false" data-action="divider" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&mdash;</span>
 			<div><strong><?php echo esc_html__( 'Divider', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'A horizontal separator', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
@@ -726,6 +1275,49 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</div>
 
+	<!-- Post picker modal -->
+	<div class="bw-postpicker-overlay" hidden data-wp-bind--hidden="!state.showPostPicker" data-wp-on--pointerdown="actions.handlePostPickerOverlayClick" data-wp-on--keydown="actions.handlePostPickerKeyDown">
+		<div class="bw-postpicker-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Open post', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<h3 class="bw-postpicker-title"><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></h3>
+
+			<p class="bw-postpicker-error" <?php echo $open_post_error ? '' : 'hidden'; ?> data-wp-bind--hidden="!state.openPostError" data-wp-text="state.openPostError"><?php echo esc_html( $open_post_error ); ?></p>
+
+			<?php if ( ! empty( $recent_drafts ) ) : ?>
+			<p class="bw-postpicker-label"><?php echo esc_html__( 'Last edited', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="bw-postpicker-list" role="listbox" aria-label="<?php echo esc_attr__( 'Recent drafts', 'jetpack-mu-wpcom' ); ?>">
+				<?php foreach ( $recent_drafts as $idx => $draft ) : ?>
+				<button
+					class="bw-postpicker-item"
+					role="option"
+					tabindex="<?php echo 0 === $idx ? '0' : '-1'; ?>"
+					data-post-id="<?php echo (int) $draft['id']; ?>"
+					data-wp-on--click="actions.openPickedPost"
+				>
+					<span class="bw-postpicker-item-title<?php echo empty( $draft['title'] ) ? ' bw-postpicker-item-untitled' : ''; ?>"><?php echo esc_html( $draft['title'] ? $draft['title'] : __( 'Untitled', 'jetpack-mu-wpcom' ) ); ?></span>
+					<span class="bw-postpicker-item-date" data-modified="<?php echo esc_attr( $draft['modified'] ); ?>"></span>
+				</button>
+				<?php endforeach; ?>
+			</div>
+			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
+			<?php else : ?>
+			<p class="bw-postpicker-empty"><?php echo esc_html__( 'No recent drafts', 'jetpack-mu-wpcom' ); ?></p>
+			<?php endif; ?>
+
+			<div class="bw-postpicker-input-row">
+				<label for="bw-postpicker-url-input" class="bw-visually-hidden"><?php echo esc_html__( 'Post URL or ID', 'jetpack-mu-wpcom' ); ?></label>
+				<input
+					id="bw-postpicker-url-input"
+					type="text"
+					class="bw-image-url-input"
+					placeholder="<?php echo esc_attr__( 'Paste a post URL or enter a post ID', 'jetpack-mu-wpcom' ); ?>"
+					data-wp-bind--value="state.postPickerUrl"
+					data-wp-on--input="actions.updatePostPickerUrl"
+					data-wp-on--keydown="actions.handlePostPickerInputKeyDown"
+				/>
+				<button class="bw-btn bw-btn-publish bw-postpicker-go" data-wp-on--click="actions.submitPostPickerUrl"><?php echo esc_html__( 'Go', 'jetpack-mu-wpcom' ); ?></button>
+			</div>
+		</div>
+	</div>
 
 </div>
 	<?php

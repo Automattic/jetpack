@@ -278,6 +278,10 @@ class Module_Control_Test extends Search_TestCase {
 
 	/**
 	 * Saved 'embedded' / 'overlay' values are returned when the module is active.
+	 *
+	 * Embedded now renders on every theme by default (block themes through
+	 * `search_template_hierarchy`, classic themes through `template_include`),
+	 * so no theme-seam override is needed.
 	 */
 	public function test_get_experience_returns_saved_value() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
@@ -288,6 +292,50 @@ class Module_Control_Test extends Search_TestCase {
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
 
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Saved 'embedded' falls back to 'inline' (Theme search) when the
+	 * `jetpack_search_theme_supports_embedded_experience` filter returns false
+	 * — the opt-out escape hatch for sites that want the search page to keep
+	 * rendering through the theme's own template regardless of theme type.
+	 * The saved option must stay 'embedded' so removing the filter restores
+	 * the experience without a dashboard re-save.
+	 */
+	public function test_get_experience_embedded_falls_back_to_inline_when_filter_disables_support() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		$this->assertEquals( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
+		$this->assertEquals(
+			Module_Control::EXPERIENCE_EMBEDDED,
+			get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ),
+			'The saved experience option must be preserved across the fallback.'
+		);
+
+		// Dropping the filter restores Embedded without a dashboard re-save.
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * The opt-out filter only affects 'embedded' — 'overlay' is
+	 * theme-agnostic (modal overlay) and must be unaffected.
+	 */
+	public function test_get_experience_overlay_unaffected_by_embedded_opt_out_filter() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
+
+		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
@@ -472,6 +520,55 @@ class Module_Control_Test extends Search_TestCase {
 		$result = static::$search_module->update_experience( 'invalid_value' );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'invalid_experience', $result->get_error_code() );
+	}
+
+	/**
+	 * The blocks-powered overlay experience is gated at the REST boundary by
+	 * the `jetpack_search_overlay_block_template_enabled` filter. Without
+	 * this gate a scripted POST could pre-stage `overlay_blocks` on a site
+	 * where operators haven't opted in, and the value would silently
+	 * activate the moment the filter flipped on. With the filter off the
+	 * write must be rejected and the option left untouched.
+	 */
+	public function test_update_experience_overlay_blocks_rejected_when_flag_off() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		// Filter defaults true since the Beta release; pin it back to false
+		// so the REST boundary still rejects the value as this test asserts.
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
+
+		$result = static::$search_module->update_experience( Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_false' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'experience_not_available', $result->get_error_code() );
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+	}
+
+	/**
+	 * With both gates on, the blocks-powered overlay activates the module,
+	 * keeps `instant_search_enabled` off (the new path doesn't boot the
+	 * legacy preact `SearchApp`), and writes `overlay_blocks` to the
+	 * experience option.
+	 */
+	public function test_update_experience_overlay_blocks_persists_when_flag_on() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+		add_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
+
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_OVERLAY_BLOCKS );
+		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+		remove_filter( 'jetpack_search_overlay_block_template_enabled', '__return_true' );
+
+		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
+		$this->assertFalse( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY_BLOCKS, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**

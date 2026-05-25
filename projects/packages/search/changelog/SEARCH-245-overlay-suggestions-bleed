@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: the Search Input suggestions panel inside the blocks-powered Overlay now renders cleanly on top of the results + filters area instead of mixing with them — opaque surface, full-width coverage, and a higher stacking order than the Sort By / Filters popovers.

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
@@ -21,7 +22,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '1.0.2';
 
 	/**
 	 * Whether the class has been initialized.
@@ -52,6 +53,14 @@ class Podcast {
 		// late-registered filter callback still takes effect.
 		Podcast_Episode_Block::register_hooks();
 
+		// Register the local REST routes before request-local rollout gates.
+		// Requests from public-api.wordpress.com may not satisfy those gates,
+		// but the wpcom/v2 routes still need to exist so permission and
+		// callback checks can handle the request.
+		Posts_To_Podcast_Endpoint::init();
+		Podcast_Stats_Endpoint::init();
+		Podcast_Distribution_Endpoint::init();
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}
@@ -62,7 +71,7 @@ class Podcast {
 		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
 		Settings::register();
 
-		// Wire the RSS feed customizations (`<itunes:*>`, `<googleplay:*>`,
+		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 
@@ -74,45 +83,71 @@ class Podcast {
 		if ( is_admin() ) {
 			Admin_Page::init();
 		}
+
+		// Posts to Podcast lives behind its own filter so the Create AI
+		// Podcast page can ship independently of the broader untangle.
+		//
+		// Note: no `is_admin()` guard here. The submenu must also register when
+		// Calypso builds its nav via the `wpcom/v2/admin-menu` REST endpoint,
+		// which fires `admin_menu` by loading `wp-admin/menu.php` but runs as a
+		// REST request where `is_admin()` is false. The hooks `init()` wires
+		// (`admin_menu`, `enqueue_block_editor_assets`) self-gate, so this is a
+		// no-op on non-admin/non-editor requests.
+		if ( self::is_posts_to_podcast_enabled() ) {
+			Create_AI_Podcast_Page::init();
+		}
+	}
+
+	/**
+	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
+	 * proxy) is enabled for the current request.
+	 *
+	 * Mirrors the `jetpack_podcast_untangle` pattern: defaults to true for
+	 * connected WordPress.com users, and can be flipped globally via the
+	 * `jetpack_posts_to_podcast` filter.
+	 */
+	public static function is_posts_to_podcast_enabled() {
+		/**
+		 * Master switch for the Posts to Podcast (Create AI Podcast) feature.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param bool $enabled Whether to enable Posts to Podcast.
+		 */
+		$enabled = self::is_user_connected( get_current_user_id() );
+
+		return (bool) apply_filters( 'jetpack_posts_to_podcast', $enabled );
+	}
+
+	/**
+	 * Whether a user is connected to WordPress.com.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	private static function is_user_connected( $user_id ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
+		return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 	}
 
 	/**
 	 * Whether the Podcast untangle is enabled for the current request.
 	 *
-	 * Defaults to true for A8C-proxied requests so Automatticians dogfood
-	 * the new package; everyone else stays on the legacy stack until the
-	 * `jetpack_podcast_untangle` filter is flipped globally.
+	 * Defaults to true — the new package owns the experience on Simple
+	 * and Atomic. The filter remains as an escape hatch for forcing the
+	 * legacy stack back on (rollback, test fixtures, per-site overrides).
 	 */
 	public static function is_enabled() {
 		/**
 		 * Master switch for the Podcast untangle.
 		 *
-		 * While the legacy podcasting code is still the source of truth on
-		 * Simple and Atomic sites, this filter stays false for non-proxied
-		 * requests. Subsequent PRs layer the new wp-admin SPA, REST
-		 * integration, and feed customization on top of this gate.
-		 *
 		 * @since 0.1.0
 		 *
 		 * @param bool $enabled Whether to enable the new Podcast package.
 		 */
-		return (bool) apply_filters( 'jetpack_podcast_untangle', self::is_proxied_request() );
-	}
-
-	/**
-	 * Whether the current request is coming from the A8C proxy.
-	 */
-	private static function is_proxied_request() {
-		// Simple sites: use the wpcom helper when available.
-		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
-			return wpcom_is_proxied_request();
-		}
-
-		// Atomic/WoA: fall back to the server variable or constant.
-		if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) ) {
-			return (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) );
-		}
-
-		return defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+		return (bool) apply_filters( 'jetpack_podcast_untangle', true );
 	}
 }

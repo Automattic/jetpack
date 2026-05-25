@@ -112,7 +112,7 @@ function load_assets( $attributes ) {
  * @param array  $attributes Array of block attributes.
  * @param string $attribute_name The attribute to get.
  *
- * @return string The filtered attribute
+ * @return string|null The filtered attribute
  */
 function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
@@ -130,7 +130,7 @@ function get_attribute( $attributes, $attribute_name ) {
 		'newtab' => 'false',
 	);
 
-	return isset( $default_attributes[ $attribute_name ] ) ? $default_attributes[ $attribute_name ] : null;
+	return $default_attributes[ $attribute_name ] ?? null;
 }
 
 /**
