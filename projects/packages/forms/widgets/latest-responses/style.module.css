@@ -4,15 +4,17 @@
 	overflow: auto;
 }
 
-.fromLink {
-	color: var(--wpds-color-fg-content-neutral);
-	font-weight: 500;
-	text-decoration: none;
+.fromDisplayName,
+.fromEmail {
+	display: block;
+	max-inline-size: 12.5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.fromLink:hover {
-	color: var(--wpds-color-fg-interactive-neutral-active);
-	text-decoration: underline;
+.fromEmail {
+	color: var(--wpds-color-fg-content-neutral-weak);
 }
 
 .error {

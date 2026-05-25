@@ -9,8 +9,19 @@ const LATEST_RESPONSES_PER_PAGE = 10;
 export type LatestResponseRow = {
 	id: string;
 	responseId: number;
-	from: string;
 	date: string;
+	author_name?: string;
+	author_email?: string;
+	author_url?: string;
+	ip?: string;
+	entry_title?: string;
+	entry_permalink?: string;
+	is_test?: boolean;
+	is_unread?: boolean;
+	preview_url?: string | null;
+	/** Precomputed label for sorting and getValue. */
+	from: string;
+	/** Precomputed label for sorting and getValue. */
 	source: string;
 };
 
@@ -24,6 +35,7 @@ type FeedbackRecord = {
 	entry_title?: string;
 	entry_permalink?: string;
 	is_test?: boolean;
+	is_unread?: boolean;
 	preview_url?: string | null;
 };
 
@@ -65,8 +77,17 @@ function mapFeedbackToRow( record: FeedbackRecord ): LatestResponseRow {
 	return {
 		id: String( record.id ),
 		responseId: record.id,
-		from: getFromLabel( record ),
 		date: typeof record.date === 'string' ? record.date : '',
+		author_name: record.author_name,
+		author_email: record.author_email,
+		author_url: record.author_url,
+		ip: record.ip,
+		entry_title: record.entry_title,
+		entry_permalink: record.entry_permalink,
+		is_test: record.is_test,
+		is_unread: record.is_unread,
+		preview_url: record.preview_url,
+		from: getFromLabel( record ),
 		source: getSourceLabel( record ),
 	};
 }

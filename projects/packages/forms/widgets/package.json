@@ -8,6 +8,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@wordpress/core-data": "7.46.0",
 		"@wordpress/data": "10.46.0",
 		"@wordpress/dataviews": "14.1.0",
