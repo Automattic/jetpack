@@ -21,6 +21,30 @@ pnpm install
 
 ---
 
+## wp-verify (Playwright UI verification)
+
+The `wp-verify` stack runs Playwright tests against a real WordPress + Gutenberg instance for `/wp-admin` UI verification. It's an opt-in Compose profile — only starts when explicitly requested.
+
+```bash
+# Bring up the WP + MySQL + WPCLI stack (waits for WordPress + Gutenberg ready)
+tools/ai-sandbox/wp-verify.sh up
+
+# Run Playwright tests from the repo root (after `pnpm install` once)
+WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-8080}" pnpm exec playwright test \
+  --config tools/ai-sandbox/wp-verify/playwright.config.ts
+
+# Tear down
+tools/ai-sandbox/wp-verify.sh down
+```
+
+Env vars:
+
+- `WP_BASE` — target URL for Playwright. Defaults to `http://wordpress` inside the sandbox container; set explicitly to `http://localhost:${WP_VERIFY_HOST_PORT:-8080}` when running from the host.
+- `WP_VERIFY_HOST_PORT` — host port published by the WordPress container (default `8080`; override if `:8080` is in use).
+- `WP_VERIFY_INSTANCE` — optional suffix appended to all wp-verify container names (`jetpack-ai-sandbox-<INSTANCE>`, `jetpack-ai-mysql-<INSTANCE>`, etc.) so multiple parallel agent workspaces can coexist on one Docker daemon. Unset = default unsuffixed names.
+
+---
+
 ## Verify Environment
 
 ```bash
