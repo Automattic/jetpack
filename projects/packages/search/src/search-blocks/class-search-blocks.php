@@ -1297,6 +1297,13 @@ class Search_Blocks {
  * the centered card, the header strip (search input + close button),
  * open/close animation, and the body-scroll-lock helper. Mirrors the
  * visual idiom of the legacy `instant-search/components/overlay.scss`.
+ *
+ * Surface + ink track the theme's `base` / `contrast` tokens (matching the
+ * suggestions dropdown and sort popover treatment), so the modal reads as
+ * part of the active palette on dark themes instead of a forced-white panel
+ * with illegible inherited light text. Hairlines and the close-button hover
+ * use `color-mix(currentColor)` so they keep a consistent contrast ratio
+ * against whatever surface the theme chose.
  */
 .jetpack-search-block-overlay {
 	position: fixed;
@@ -1322,7 +1329,8 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	background: #fff;
+	background: var(--wp--preset--color--base, #fff);
+	color: var(--wp--preset--color--contrast, inherit);
 	border-radius: 4px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
@@ -1338,13 +1346,30 @@ class Search_Blocks {
 	justify-content: center;
 	background: transparent;
 	border: 0;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid transparent;
 	cursor: pointer;
 	color: inherit;
 }
-.jetpack-search-block-overlay__close:hover,
-.jetpack-search-block-overlay__close:focus-visible {
-	background: #f6f7f7;
+/*
+ * Hairlines and the close-button hover use `color-mix(currentColor)`. On
+ * browsers without color-mix support (~Chrome <111, Firefox <113, Safari
+ * <16.2) the entire `border-bottom`/`background` shorthand would be
+ * invalid and the cascade would land on initial values — `border-style:
+ * none` (no hairline) or `border-color: currentColor` full-opacity (stark
+ * ink on dark themes). The `transparent` defaults paired with `@supports`
+ * overrides give those older browsers a graceful no-affordance state
+ * instead of a stark one — same convention `_chip.scss` uses.
+ */
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__close {
+		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
+}
+@supports (background: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__close:hover,
+	.jetpack-search-block-overlay__close:focus-visible {
+		background: color-mix(in sRGB, currentColor 8%, transparent);
+	}
 }
 .jetpack-search-block-overlay__close svg {
 	width: 24px;
@@ -1369,7 +1394,12 @@ class Search_Blocks {
 	height: 60px;
 	margin: 0;
 	padding: 0;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid transparent;
+}
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
+		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
 }
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__inside-wrapper {
 	height: 100%;
@@ -1443,6 +1473,24 @@ class Search_Blocks {
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	align-items: center;
+}
+/*
+ * Filter sidebar's left divider: track `currentColor` (i.e. the active
+ * theme's ink) so the hairline stays subtle on light themes and visible on
+ * dark themes, instead of rendering as flat grey on either. The width
+ * comes from the column block's inline `border-left-width` (and WP block
+ * border support fills in `border-left-style: solid`); we only own the
+ * color here. `transparent` base + `@supports` override avoids the stark
+ * full-opacity `currentColor` fallback that older browsers would otherwise
+ * land on — mirrors the close-button hairline treatment above.
+ */
+.jetpack-search-block-overlay__filters-column {
+	border-left-color: transparent;
+}
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__filters-column {
+		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
+	}
 }
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
