@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.21.3] - 2026-05-25
+### Added
+- Abilities: opt all 8 Jetpack Forms abilities into the MCP tool surface (meta.mcp public tool). [#49113]
+
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Removed
+- Remove dead legacy grunion assets: grunion-admin.js, grunion-frontend.js, grunion-admin.css, and 13 unused images. [#47609]
+
+### Fixed
+- Fix a JavaScript error in the editor. [#48979]
+- Forms: Fix unread submissions counter badge colors in the admin sidebar. [#48921]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
 ## [7.21.2] - 2026-05-19
 ### Changed
 - Exclude development files from production builds. [#47365]
@@ -2489,6 +2505,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.21.3]: https://github.com/automattic/jetpack-forms/compare/v7.21.2...v7.21.3
 [7.21.2]: https://github.com/automattic/jetpack-forms/compare/v7.21.1...v7.21.2
 [7.21.1]: https://github.com/automattic/jetpack-forms/compare/v7.21.0...v7.21.1
 [7.21.0]: https://github.com/automattic/jetpack-forms/compare/v7.20.0...v7.21.0

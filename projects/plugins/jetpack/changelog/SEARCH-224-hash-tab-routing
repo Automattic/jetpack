@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Search: point the Performance page's "Manage Search settings" link at the Search dashboard's new `#/settings` hash route.

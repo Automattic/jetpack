@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Experience Selector: Release the blocks-powered Overlay as an experimental option. `jetpack_search_overlay_block_template_enabled` now defaults to true, so a new "Overlay search (blocks)" card carrying a Beta badge appears alongside the preact Overlay as a first-class peer (not a replacement). Operators can still pin the filter to false to hide the Beta card.

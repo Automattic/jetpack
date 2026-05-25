@@ -766,7 +766,7 @@ add_filter( 'amp_skip_post', __NAMESPACE__ . '\amp_skip_post', 10, 3 );
  * Admin-driven event only (no donor data). Does not fire on regular updates of
  * an already-published post, on autosaves, or on revisions.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Previous post status.
@@ -808,7 +808,7 @@ add_action( 'transition_post_status', __NAMESPACE__ . '\record_block_published_e
  * Walk a parsed block tree and return a flat list of Donations blocks (including
  * nested ones inside columns / groups / patterns).
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param array  $blocks     Parsed blocks from parse_blocks().
  * @param string $block_name Donations block name (e.g. 'jetpack/donations').
@@ -832,7 +832,7 @@ function collect_donation_blocks( $blocks, $block_name ) {
  *
  * Extracted so it can be tested independently of the WordPress hook plumbing.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param array   $block            Parsed block (with 'attrs' key).
  * @param WP_Post $post             Post being published.
@@ -884,7 +884,7 @@ function build_block_published_event_props( $block, $post, $index, $block_count,
  * Detect whether the block carries any of the customizable style attributes
  * we ship for the RSM project (so we can measure adoption of the new options).
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param array $attrs Block attributes.
  * @return bool Whether any style override is set.
@@ -912,7 +912,7 @@ function has_custom_styles( $attrs ) {
  * Mirrors the dual-path pattern used by the Map block. No-op on environments
  * that have neither path available, so this stays safe on unconnected sites.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param string $event_name Event name WITHOUT the `jetpack_` prefix (the Tracking class adds it).
  * @param array  $props      Tracks event properties.

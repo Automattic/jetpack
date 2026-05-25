@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: add horizontal gutters and a content-width cap to the Embedded search page on classic themes — content no longer hugs the viewport edges, and stops stretching edge-to-edge on wide screens. Honors `--wp--style--global--wide-size` when a classic theme ships theme.json.

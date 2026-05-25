@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Connection abilities: point get-connection-status `registration_url` at the WP 7.0+ Connectors screen when available, falling back to the Jetpack admin page on older WP.

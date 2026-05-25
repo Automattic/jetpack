@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2026-05-25
+### Added
+- Abilities API: register Jetpack Backup abilities (overview, list, restores, run-backup) for WP 6.9+. [#48329]
+
+### Changed
+- Backup abilities: rename slugs to list-*/request-* and register via package actions.php for cross-consumer support [#48329]
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- Backup abilities: clarify jetpack-backup/list-backups pagination — terminate on empty page, not on shorter-than-per_page (client-side filters can shorten a page even when more pages exist). [#48329]
+- Backup abilities: drop dead branch in map_event_status() that returned the same value as the default case. [#48329]
+- Backup abilities: jetpack-backup/request-backup now reports failure when wpcom answers 200 with `{ success: false }` instead of claiming the backup was enqueued. [#48329]
+- Backup abilities: parse_timestamp() now accepts fractional numeric strings (e.g. rewind_id "1778804242.107") so activity-log-derived backup items expose a non-null `period`. [#48329]
+- Backup abilities: replace PHP 7.4+ arrow function with closure and initialize $score so the package builds on PHP 7.2 and passes Phan [#48329]
+
 ## [4.2.56] - 2026-05-19
 ### Changed
 - Build: Run webpack and wp-build scripts concurrently. [#48794]
@@ -1114,6 +1130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.3.0]: https://github.com/Automattic/jetpack-backup/compare/v4.2.56...v4.3.0
 [4.2.56]: https://github.com/Automattic/jetpack-backup/compare/v4.2.55...v4.2.56
 [4.2.55]: https://github.com/Automattic/jetpack-backup/compare/v4.2.54...v4.2.55
 [4.2.54]: https://github.com/Automattic/jetpack-backup/compare/v4.2.53...v4.2.54

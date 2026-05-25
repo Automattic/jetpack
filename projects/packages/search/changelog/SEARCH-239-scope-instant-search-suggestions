@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Instant Search: scope the search suggestions dropdown to the overlay box input, stopping it from leaking onto the WP admin-bar search and other native search inputs.
