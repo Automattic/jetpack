@@ -1385,8 +1385,13 @@ class Search_Blocks {
 	font-weight: 400;
 	line-height: 1;
 }
+/*
+ * Top padding clears the absolutely-positioned 60px header strip — without
+ * it the "Found N results" / Sort by row sat flush against the search
+ * input's bottom border and the modal felt cramped (SEARCH-243).
+ */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
-	padding: 0 2em 2em;
+	padding: .5em 2em 2em;
 }
 /*
  * The "Found N results" + sort dropdown row sits inside the rendered
@@ -1412,7 +1417,7 @@ class Search_Blocks {
 		box-shadow: none;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: 0 1em 1em;
+		padding: .5em 1em 1em;
 	}
 }
 /*
