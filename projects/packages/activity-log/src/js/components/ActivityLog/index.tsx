@@ -486,7 +486,7 @@ export default function ActivityLog() {
 				 */ }
 				<div className="jp-activity-log__inner">
 					{ errorNotice && (
-						<Notice.Root className="jp-activity-log__error-notice" intent={ errorNotice.status }>
+						<Notice.Root intent={ errorNotice.status }>
 							<Notice.Description>{ errorNotice.message }</Notice.Description>
 						</Notice.Root>
 					) }
