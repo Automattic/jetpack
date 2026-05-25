@@ -483,7 +483,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 		$download_link = 'https://downloads.wordpress.org/theme/' . $slug . '.1.0.zip';
 
 		// Mock themes_api() to avoid a real HTTP call to api.wordpress.org.
-		$mock_api = static function () use ( $slug, $download_link ) {
+		$mock_api = static function ( $result ) use ( $slug, $download_link ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			return (object) array(
 				'slug'          => $slug,
 				'download_link' => $download_link,

@@ -297,7 +297,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 			);
 		}
 
-		// Serve theme/plugin zip downloads from local test fixtures when available.
+		// Serve theme zip downloads from local test fixtures when available.
 		// download_url() uses stream=true, so write the zip content to the target file.
 		if ( strpos( $url, 'downloads.wordpress.org/theme/' ) > 0 ) {
 			$slug     = preg_replace( '#.*/theme/([^.]+)\..*#', '$1', $url );
