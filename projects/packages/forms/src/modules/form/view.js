@@ -14,7 +14,7 @@ import {
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
-import { reconcileFieldsFromForm } from './reconcile.ts';
+import { reconcileFieldsFromForm, isFormValidFromDom } from './reconcile.ts';
 import { focusNextInput, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
@@ -698,30 +698,43 @@ const { state, actions } = store( NAMESPACE, {
 				// submit them correctly.  The server re-validates authoritatively,
 				// so it's safe to let a DOM-confirmed submission through.
 				//
-				// Before blocking, attempt to reconcile each field's value from
-				// the live DOM.  If after reconciliation the form is valid, allow
-				// the submission to proceed.  If still invalid, block as normal —
-				// the user genuinely hasn't filled in required fields.
+				// Recovery strategy (DOM-DIRECT):
+				//   1. Reconcile each readable field's value from the live DOM and
+				//      call updateField() for each — this keeps the store/UI in sync
+				//      for when reactivity IS working (so error messages render
+				//      correctly if we do end up blocking).
+				//   2. Compute the actual go/no-go from the DOM directly via
+				//      isFormValidFromDom(), which never re-reads the store.
+				//      Because the store write/read is exactly what is unreliable
+				//      under Safari's protection, isFormValidFromDom() is the only
+				//      signal we trust here.
 				const form = event.target instanceof HTMLFormElement ? event.target : null;
+				let domSaysValid = false;
 				if ( form ) {
+					// Step 1 — keep store/UI in sync (best-effort; may be no-op under Safari).
 					const recovered = reconcileFieldsFromForm( form, context );
 					if ( recovered.size > 0 ) {
 						recovered.forEach( ( value, fieldId ) => {
 							actions.updateField( fieldId, value );
 						} );
 					}
+
+					// Step 2 — DOM-direct validity: do NOT re-read state.isFormValid.
+					domSaysValid = isFormValidFromDom( form, context, {
+						isMultiStep: !! context.isMultiStep,
+						currentStep: context.currentStep || 1,
+						maxSteps: context.maxSteps || 0,
+					} );
 				}
 
-				// Re-evaluate after the reconcile attempt.
-				if ( ! state.isFormValid ) {
+				if ( ! domSaysValid ) {
 					context.showErrors = true;
 					event.preventDefault();
 					event.stopPropagation();
 
 					return;
 				}
-				// If we reach here, reconcile recovered valid values — fall through
-				// to the normal submission path below.
+				// DOM-direct says valid — fall through to the normal submission path.
 			}
 
 			if ( context.isMultiStep && context.currentStep < context.maxSteps ) {

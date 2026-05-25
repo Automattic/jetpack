@@ -7,9 +7,16 @@
  * values.  `reconcileFieldsFromForm` recovers those values from the live DOM
  * so the client-side gate can re-evaluate correctly before blocking submission.
  *
+ * `isFormValidFromDom` computes validity directly from the live DOM, without
+ * touching or re-reading the store.  Because the store write/read is exactly
+ * what is unreliable under Safari's protection, this is the authoritative
+ * go/no-go signal in the recovery path.
+ *
  * This module is intentionally free of any wordpress/interactivity imports so
  * it can be unit-tested in plain jsdom without the Interactivity runtime.
  */
+
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 
 /**
  * Shape of a field entry in the Interactivity store context.
@@ -22,6 +29,10 @@ export interface StoreField {
 	value: unknown;
 	isRequired: boolean;
 	extra: unknown;
+	/** Validation result: 'yes' means valid, anything else is an error key. */
+	error?: string;
+	/** Step number this field belongs to (1-based, used for multistep forms). */
+	step?: number;
 	isOtherSelected?: boolean;
 	otherLabel?: string | null;
 }
@@ -195,4 +206,103 @@ export const reconcileFieldsFromForm = (
 	}
 
 	return recovered;
+};
+
+/**
+ * Options for isFormValidFromDom.
+ */
+export interface IsFormValidFromDomOptions {
+	/** True when the form is a multistep form. */
+	isMultiStep: boolean;
+	/** The current active step (1-based). */
+	currentStep: number;
+	/** The total number of steps (used to detect multistep mode). */
+	maxSteps: number;
+}
+
+/**
+ * Determine form validity directly from the live DOM, without touching or
+ * re-reading the Interactivity store.
+ *
+ * This is the authoritative go/no-go signal in the FORMS-685 recovery path.
+ * Because the store write/read is exactly what is unreliable under Safari's
+ * Advanced Tracking & Fingerprinting Protection, we deliberately bypass the
+ * store here and validate the values that FormData would actually submit.
+ *
+ * Algorithm: for each field in `context.fields` (considering only current-step
+ * fields in multistep forms): if `readFieldValueFromDom` returns a non-null
+ * DOM value, validate that value with `validateField` (must return `'yes'`).
+ * If `readFieldValueFromDom` returns null (file, rating, image-select, hidden),
+ * fall back to the field's existing store `field.error` value — do NOT falsely
+ * pass or fail these; trust whatever the store recorded.
+ *
+ * The `isFormEmpty` short-circuit is preserved: for non-multistep forms, if
+ * every field appears empty in both the DOM and the store, the form is treated
+ * as empty (invalid), matching the `state.isFormValid` behaviour.
+ *
+ * @param {HTMLFormElement}           form    - The live form element.
+ * @param {ReconcileContext}          context - The Interactivity store context.
+ * @param {IsFormValidFromDomOptions} opts    - Step/multistep configuration.
+ * @return {boolean} True only if every considered field is valid.
+ */
+export const isFormValidFromDom = (
+	form: HTMLFormElement,
+	context: ReconcileContext,
+	opts: IsFormValidFromDomOptions
+): boolean => {
+	const { isMultiStep, currentStep, maxSteps } = opts;
+	const fields = Object.values( context.fields );
+
+	// --- isFormEmpty short-circuit (mirrors state.isFormEmpty) ---------------
+	// Multistep forms never fire the "empty form" message (maxSteps guard).
+	const isMultiStepForm = isMultiStep && maxSteps > 0;
+	if ( ! isMultiStepForm ) {
+		// Check whether every field has an empty DOM value.  If so, the form is
+		// "empty" — matches the behaviour of `state.isFormEmpty` in the store.
+		//
+		// For unreadable types (rating, file, image-select): use the store value,
+		// but if the store has error='yes' we treat the value as non-empty (because
+		// the store successfully captured it — it's just not readable from the DOM).
+		const allEmpty = fields.every( field => {
+			const domValue = readFieldValueFromDom( form, field );
+			if ( domValue !== null ) {
+				return isEmptyValue( domValue );
+			}
+			// Unreadable type: if the store says it's valid, it's non-empty.
+			if ( field.error === 'yes' ) {
+				return false;
+			}
+			return isEmptyValue( field.value );
+		} );
+		if ( allEmpty ) {
+			return false;
+		}
+	}
+
+	// --- Per-field validity --------------------------------------------------
+	// For multistep forms, only validate fields on the current step.
+	const fieldsToCheck = isMultiStepForm
+		? fields.filter( field => field.step === currentStep )
+		: fields;
+
+	for ( const field of fieldsToCheck ) {
+		const domValue = readFieldValueFromDom( form, field );
+
+		let fieldValid: boolean;
+		if ( domValue !== null ) {
+			// We can read the DOM — validate the actual submitted value.
+			const result = validateField( field.type, domValue, field.isRequired, field.extra ?? null );
+			fieldValid = result === 'yes';
+		} else {
+			// Unreadable type (file, rating, image-select, hidden…).
+			// Fall back to whatever the store recorded.
+			fieldValid = field.error === 'yes';
+		}
+
+		if ( ! fieldValid ) {
+			return false;
+		}
+	}
+
+	return true;
 };

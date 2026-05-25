@@ -208,4 +208,311 @@ describe( 'FORMS-685 — onFormSubmit recovery path (Store↔DOM divergence)', (
 		expect( testContext.showErrors ).toBe( true );
 		expect( event.preventDefault ).toHaveBeenCalled();
 	} );
+
+	test( 'DOM-direct: recovery uses isFormValidFromDom — store re-read NOT used for decision', async () => {
+		// Even if updateField() fails to persist (as happens under Safari protection),
+		// the DOM-direct path should still proceed because it reads DOM, not store.
+		// We simulate this by: store empty, DOM filled with valid email.
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-ddrect';
+		form.innerHTML = '<input type="email" name="em" value="user@example.com" />';
+		document.body.appendChild( form );
+
+		testContext = {
+			fields: {
+				em: {
+					id: 'em',
+					type: 'email',
+					label: 'Email',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: true,
+			formHash: 'ddrect',
+			isMultiStep: false,
+			elementId: 'jp-form-ddrect',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		// DOM-direct check found a valid email → form proceeds.
+		expect( mockSubmitForm ).toHaveBeenCalledWith( 'ddrect' );
+		// Note: useAjax=true always calls preventDefault() to prevent native form
+		// submission and use AJAX instead — this is expected and correct behaviour.
+		// The key signal is that submitForm was called (not blocked).
+	} );
+
+	test( 'radio field: DOM selection filled, store empty → recovery proceeds', async () => {
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-radiohash';
+		form.innerHTML = `
+			<fieldset>
+				<input type="radio" name="plan" value="basic" />
+				<input type="radio" name="plan" value="pro" checked />
+			</fieldset>
+		`;
+		document.body.appendChild( form );
+
+		testContext = {
+			fields: {
+				plan: {
+					id: 'plan',
+					type: 'radio',
+					label: 'Plan',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: true,
+			formHash: 'radiohash',
+			isMultiStep: false,
+			elementId: 'jp-form-radiohash',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		expect( mockSubmitForm ).toHaveBeenCalledWith( 'radiohash' );
+		expect( testContext.showErrors ).toBe( false );
+	} );
+
+	test( 'mixed: text filled + rating valid in store → recovery proceeds', async () => {
+		// rating is unreadable → isFormValidFromDom falls back to field.error='yes'
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-mixedhash';
+		form.innerHTML = `
+			<input type="text" name="name" value="Alice" />
+			<input type="hidden" name="stars" value="4/5" />
+		`;
+		document.body.appendChild( form );
+
+		testContext = {
+			fields: {
+				name: {
+					id: 'name',
+					type: 'text',
+					label: 'Name',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+				stars: {
+					id: 'stars',
+					type: 'rating',
+					label: 'Rating',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'yes', // ← store has valid rating captured via separate mechanism
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: true,
+			formHash: 'mixedhash',
+			isMultiStep: false,
+			elementId: 'jp-form-mixedhash',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		expect( mockSubmitForm ).toHaveBeenCalledWith( 'mixedhash' );
+		expect( testContext.showErrors ).toBe( false );
+	} );
+
+	test( 'mixed: text filled + rating missing in store → recovery blocks', async () => {
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-ratingmiss';
+		form.innerHTML = `
+			<input type="text" name="name" value="Alice" />
+			<input type="hidden" name="stars" value="" />
+		`;
+		document.body.appendChild( form );
+
+		testContext = {
+			fields: {
+				name: {
+					id: 'name',
+					type: 'text',
+					label: 'Name',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+				stars: {
+					id: 'stars',
+					type: 'rating',
+					label: 'Rating',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required', // ← rating genuinely not set
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: true,
+			formHash: 'ratingmiss',
+			isMultiStep: false,
+			elementId: 'jp-form-ratingmiss',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		expect( mockSubmitForm ).not.toHaveBeenCalled();
+		expect( testContext.showErrors ).toBe( true );
+		expect( event.preventDefault ).toHaveBeenCalled();
+	} );
+
+	test( 'multistep: step-1 fields filled in DOM → recovery proceeds on step 1', async () => {
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-mshash';
+		form.innerHTML = `
+			<input type="text" name="name" value="Alice" />
+			<input type="email" name="email" value="" />
+		`;
+		document.body.appendChild( form );
+
+		// step 1 has 'name'; step 2 has 'email' (empty but not current step).
+		testContext = {
+			fields: {
+				name: {
+					id: 'name',
+					type: 'text',
+					label: 'Name',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+				email: {
+					id: 'email',
+					type: 'email',
+					label: 'Email',
+					value: '',
+					isRequired: true,
+					extra: null,
+					error: 'is_required',
+					showFieldError: false,
+					step: 2,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: false, // native POST for multistep to avoid submitForm complexity
+			formHash: 'mshash',
+			isMultiStep: true,
+			currentStep: 1,
+			maxSteps: 2,
+			elementId: 'jp-form-mshash',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		// DOM-direct says step 1 is valid → recovery proceeds (advances step, doesn't block).
+		// The multistep branch increments currentStep and returns, so submitForm is not called yet.
+		expect( testContext.showErrors ).toBe( false );
+	} );
+
+	test( 'happy path: state.isFormValid already true → recovery never runs, submitForm called directly', async () => {
+		const form = document.createElement( 'form' );
+		form.id = 'jp-form-happy';
+		form.innerHTML = '<input type="text" name="name" value="Bob" />';
+		document.body.appendChild( form );
+
+		testContext = {
+			fields: {
+				name: {
+					id: 'name',
+					type: 'text',
+					label: 'Name',
+					value: 'Bob',
+					isRequired: true,
+					extra: null,
+					error: 'yes', // ← store already valid (normal path, Safari not involved)
+					showFieldError: false,
+					step: 1,
+					isOtherSelected: false,
+					otherLabel: null,
+				},
+			},
+			showErrors: false,
+			isSubmitting: false,
+			submissionSuccess: false,
+			submissionError: null,
+			useAjax: true,
+			formHash: 'happy',
+			isMultiStep: false,
+			elementId: 'jp-form-happy',
+		};
+
+		const event = makeFakeEvent( form );
+		const gen = mergedStore.actions.onFormSubmit( event );
+		await driveGenerator( gen );
+
+		// Happy path: submitForm called without going through the recovery block.
+		expect( mockSubmitForm ).toHaveBeenCalledWith( 'happy' );
+		// Note: useAjax=true always calls preventDefault() for AJAX submission.
+		expect( testContext.showErrors ).toBe( false );
+	} );
 } );
