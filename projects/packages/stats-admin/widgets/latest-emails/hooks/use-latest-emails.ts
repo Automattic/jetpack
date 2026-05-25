@@ -15,15 +15,62 @@ export type LatestEmailRow = {
 };
 
 type EmailSummaryPost = {
+	id?: number | string;
 	post_id?: number;
 	ID?: number;
 	post_title?: string;
 	title?: string;
-	opens?: number;
-	clicks?: number;
+	opens?: number | string;
+	clicks?: number | string;
+	opens_rate?: number | string;
 	open_rate?: number;
 	rate?: number;
 };
+
+/**
+ * Parse a numeric field from the email summary API (values may be numbers or strings).
+ *
+ * @param value - Raw field value.
+ * @return Parsed number or null when missing or invalid.
+ */
+function parseNumericField( value: number | string | undefined | null ): number | null {
+	if ( value === undefined || value === null || value === '' ) {
+		return null;
+	}
+
+	const parsed = typeof value === 'number' ? value : Number( value );
+	return Number.isNaN( parsed ) ? null : parsed;
+}
+
+/**
+ * Resolve the post ID from an email summary row.
+ *
+ * @param raw - API post payload.
+ * @return Post ID or null when missing.
+ */
+function getEmailSummaryPostId( raw: EmailSummaryPost ): number | null {
+	return parseNumericField( raw.id ?? raw.post_id ?? raw.ID );
+}
+
+/**
+ * Resolve open rate (0–100) from an email summary row.
+ *
+ * @param raw - API post payload.
+ * @return Open rate percentage or null when unknown.
+ */
+function getEmailSummaryOpenRate( raw: EmailSummaryPost ): number | null {
+	let openRate = parseNumericField( raw.opens_rate ?? raw.open_rate ?? raw.rate );
+
+	if ( openRate === null ) {
+		return null;
+	}
+
+	if ( openRate >= 0 && openRate <= 1 ) {
+		openRate = openRate * 100;
+	}
+
+	return openRate;
+}
 
 type EmailSummaryResponse = {
 	posts?: EmailSummaryPost[];
@@ -52,24 +99,19 @@ function getEmailSummaryPath( blogId: number ): string {
  * @return Normalized row or null when post ID is missing.
  */
 function mapEmailSummaryPost( raw: EmailSummaryPost ): LatestEmailRow | null {
-	const postId = raw.post_id ?? raw.ID;
-	if ( ! postId ) {
+	const postId = getEmailSummaryPostId( raw );
+	if ( postId === null ) {
 		return null;
 	}
 
 	const title = raw.post_title ?? raw.title ?? '';
-	let openRate: number | null = raw.open_rate ?? raw.rate ?? null;
-
-	if ( typeof openRate === 'number' && openRate >= 0 && openRate <= 1 ) {
-		openRate = openRate * 100;
-	}
 
 	return {
 		id: String( postId ),
 		postId,
 		title: title || String( postId ),
-		openRate,
-		clicks: typeof raw.clicks === 'number' ? raw.clicks : 0,
+		openRate: getEmailSummaryOpenRate( raw ),
+		clicks: parseNumericField( raw.clicks ) ?? 0,
 	};
 }
 
