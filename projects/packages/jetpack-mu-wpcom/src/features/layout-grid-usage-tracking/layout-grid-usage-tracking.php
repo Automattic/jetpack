@@ -222,10 +222,17 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
  */
 function wpcom_layout_grid_usage_attribute_source() {
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional: attribution backtrace for a logstash record.
-	$frames   = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
-	$relevant = array();
+	$frames    = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+	$self_file = __FILE__;
+	$relevant  = array();
 	foreach ( $frames as $frame ) {
 		if ( ! is_array( $frame ) || empty( $frame['file'] ) || ! is_string( $frame['file'] ) ) {
+			continue;
+		}
+		// `jetpack-mu-wpcom` itself is loaded from `wp-content/mu-plugins/`, so
+		// the tracker's own frames would match the extension-path regex and
+		// crowd out real plugin/theme attribution within the 8-frame cap.
+		if ( $frame['file'] === $self_file ) {
 			continue;
 		}
 		if ( ! preg_match( '#/wp-content/(plugins|themes|mu-plugins)/#', $frame['file'] ) ) {
