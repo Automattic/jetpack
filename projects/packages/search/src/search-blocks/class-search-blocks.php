@@ -1417,7 +1417,7 @@ class Search_Blocks {
  * matches the card's hardcoded surface as a final guard against any
  * theme that neutralises the global token fallback.
  */
-.jetpack-search-block-overlay__card .jetpack-search-input__suggestions {
+.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
 	right: -60px;
 	z-index: 30;
 	background: #fff;
