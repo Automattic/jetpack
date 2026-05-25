@@ -512,6 +512,15 @@ class Social_Settings_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_social_invalid_image_generator_template', $result->get_error_code() );
 	}
 
+	public function test_update_settings_rejects_unknown_image_generator_template_slug(): void {
+		$result = Social_Settings_Abilities::update_settings(
+			array( 'image_generator_template' => 'edge_to_edge_text' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_social_invalid_image_generator_template', $result->get_error_code() );
+	}
+
 	public function test_update_settings_auto_share_enabled_toggles_publicize_module(): void {
 		$modules = new Modules();
 		$this->assertFalse( $modules->is_active( 'publicize' ) );

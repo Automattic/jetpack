@@ -21,6 +21,7 @@ namespace Automattic\Jetpack\Publicize\Abilities;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Social_Settings;
+use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_Social;
 use WP_Error;
@@ -84,6 +85,7 @@ class Social_Settings_Abilities extends Registrar {
 				),
 				'image_generator_template' => array(
 					'type'        => array( 'string', 'null' ),
+					'enum'        => array_merge( Templates::TEMPLATES, array( null ) ),
 					'description' => __( 'The default Social Image Generator template slug. Null when the feature is not available.', 'jetpack-publicize-pkg' ),
 				),
 				'utm_enabled'              => array(
@@ -125,6 +127,8 @@ class Social_Settings_Abilities extends Registrar {
 				),
 				'image_generator_template' => array(
 					'type'        => 'string',
+					'enum'        => Templates::TEMPLATES,
+					'minLength'   => 1,
 					'description' => __( 'Set the default Social Image Generator template slug.', 'jetpack-publicize-pkg' ),
 				),
 				'utm_enabled'              => array(
@@ -285,10 +289,14 @@ class Social_Settings_Abilities extends Registrar {
 					break;
 
 				case 'image_generator_template':
-					if ( ! is_string( $value ) ) {
+					if ( ! is_string( $value ) || ! in_array( $value, Templates::TEMPLATES, true ) ) {
 						return new WP_Error(
 							self::ERROR_PREFIX . 'invalid_image_generator_template',
-							__( 'image_generator_template must be a string.', 'jetpack-publicize-pkg' ),
+							sprintf(
+								/* translators: %s is a comma-separated list of valid template slugs. */
+								__( 'image_generator_template must be one of: %s.', 'jetpack-publicize-pkg' ),
+								implode( ', ', Templates::TEMPLATES )
+							),
 							array( 'status' => 400 )
 						);
 					}
