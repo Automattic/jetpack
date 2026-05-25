@@ -1,19 +1,10 @@
 import { test, expect } from '../fixtures/test';
-import {
-	enableInstantSearch,
-	disableInstantSearch,
-	clearSearchPlanInfo,
-} from '../utils/search-utils';
+import { clearSearchPlanInfo } from '../utils/search-utils';
 
 test.describe( 'Search Dashboard', () => {
 	test.beforeAll( async ( { testUtils } ) => {
 		await clearSearchPlanInfo();
 		await testUtils.activateModule( 'search' );
-		await enableInstantSearch();
-	} );
-
-	test.afterAll( async () => {
-		await disableInstantSearch();
 	} );
 
 	test( 'Renders the Experience Selector on the Settings tab.', async ( { page } ) => {
