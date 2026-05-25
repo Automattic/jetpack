@@ -38,6 +38,7 @@ function pcg_maybe_handle_probe() {
 	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
 	if ( '' === $token ) {
 		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
+		return;
 	}
 
 	$key     = PCG_Load_Tester::transient_key( $token );
@@ -45,6 +46,7 @@ function pcg_maybe_handle_probe() {
 
 	if ( ! is_array( $payload ) || ! isset( $payload['plugins'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+		return;
 	}
 
 	// Defer deletion until we actually emit a verdict. If something redirects
@@ -62,6 +64,7 @@ function pcg_maybe_handle_probe() {
 	$mode         = (string) $payload['mode'];
 	if ( empty( $plugin_mains ) || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+		return;
 	}
 
 	// Gate per mode: activation probes need pcg_guard_activation, update
@@ -71,6 +74,7 @@ function pcg_maybe_handle_probe() {
 	$gate_filter    = $is_update_mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
 	if ( ! apply_filters( $gate_filter, true ) ) {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
+		return;
 	}
 
 	// Drop unreadable entries instead of bailing on the first one. Bailing
@@ -85,6 +89,7 @@ function pcg_maybe_handle_probe() {
 	);
 	if ( empty( $plugin_mains ) ) {
 		pcg_probe_bail_error( 'No probe targets are readable.', 404 );
+		return;
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
@@ -115,6 +120,11 @@ function pcg_maybe_handle_probe() {
 						'line'    => $t->getLine(),
 					)
 				);
+				// `pcg_probe_respond` normally exits, but its re-entry
+				// guard can short-circuit silently; stop processing the
+				// rest of the batch either way so a captured throwable
+				// always wins.
+				return;
 			}
 		}
 	}
@@ -185,7 +195,7 @@ function pcg_probe_respond( $payload, $status = 200 ) {
  */
 function pcg_probe_already_emitted( $mark_now = false ) {
 	static $emitted = false;
-	$was = $emitted;
+	$was            = $emitted;
 	if ( $mark_now ) {
 		$emitted = true;
 	}
@@ -209,9 +219,14 @@ function pcg_probe_pending_key( $set = null ) {
 /**
  * Emit an `error` verdict with the given reason + HTTP status, and terminate.
  *
+ * Normally terminates via `pcg_probe_respond`'s `exit`, but returns void
+ * silently when `pcg_probe_already_emitted` short-circuits the call (the
+ * shutdown-phase re-entry path) — hence `@return void` rather than
+ * `@return never`.
+ *
  * @param string $reason Human-readable reason for the failure.
  * @param int    $status HTTP status code.
- * @return never
+ * @return void
  */
 function pcg_probe_bail_error( $reason, $status ) {
 	pcg_probe_respond(

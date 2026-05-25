@@ -207,8 +207,8 @@ class PCG_Load_Tester {
 		// would over-match decorated error messages or wrapped fatals
 		// that mention either substring incidentally, and silently
 		// downgrade real bugs to ok-inconclusive after the retry.
-		$looks_like_class_not_found    = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
-		$looks_like_missing_file_open  = str_contains( $message, 'Failed opening required' )
+		$looks_like_class_not_found   = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
+		$looks_like_missing_file_open = str_contains( $message, 'Failed opening required' )
 			|| str_contains( $message, 'failed to open stream: No such file or directory' );
 		if ( ! $looks_like_missing_file_open && ! $looks_like_class_not_found ) {
 			return false;
