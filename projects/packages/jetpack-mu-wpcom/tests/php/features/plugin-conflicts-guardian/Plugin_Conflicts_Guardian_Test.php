@@ -682,6 +682,184 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `classify_shutdown` returns `fatal` for engine-fatal errno values
+	 * and preserves the message/file/line for the client's notice.
+	 */
+	public function test_classify_shutdown_emits_fatal_for_engine_errors() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_ERROR,
+				'message' => 'Allowed memory size of N bytes exhausted',
+				'file'    => '/srv/htdocs/wp-content/plugins/example/main.php',
+				'line'    => 42,
+			)
+		);
+
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_ERROR, $verdict['errno'] );
+		$this->assertSame( 'Allowed memory size of N bytes exhausted', $verdict['message'] );
+		$this->assertSame( '/srv/htdocs/wp-content/plugins/example/main.php', $verdict['file'] );
+		$this->assertSame( 42, $verdict['line'] );
+	}
+
+	/**
+	 * `classify_shutdown` emits `ok-shutdown` when `error_get_last()` is
+	 * null — the case that previously left the client misclassifying a
+	 * clean `exit()` during init as a fatal.
+	 */
+	public function test_classify_shutdown_emits_ok_shutdown_for_clean_exit() {
+		$verdict = PCG_Load_Tester::classify_shutdown( null );
+
+		$this->assertSame( 'ok-shutdown', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
+	}
+
+	/**
+	 * Non-fatal errnos (notices, warnings, deprecations) must not be
+	 * upgraded to a `fatal` verdict. Otherwise a stray notice from an
+	 * earlier hook would shadow a clean shutdown as a false-positive
+	 * block.
+	 */
+	public function test_classify_shutdown_ignores_non_fatal_errnos() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_NOTICE,
+				'message' => 'Undefined index: foo',
+				'file'    => '/srv/htdocs/wp-content/plugins/example/main.php',
+				'line'    => 7,
+			)
+		);
+
+		$this->assertSame( 'ok-shutdown', $verdict['status'] );
+	}
+
+	/**
+	 * Atomic multi-node propagation flake: PHP can't open a file under
+	 * the candidate plugin's own directory. Should be recognised as a
+	 * flake so the retry path triggers.
+	 */
+	public function test_is_propagation_flake_detects_failed_require_inside_candidate_dir() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/woocommerce-shipstation-integration/woocommerce-shipstation.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => "Failed opening required '{$plugin}-dir/includes/class-main.php' (include_path='/:.')",
+			'file'    => $plugin,
+		);
+
+		$this->assertTrue(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			'A failed-require inside the candidate plugin tree should be classified as a propagation flake.'
+		);
+	}
+
+	/**
+	 * Autoloader miss for a class defined inside the candidate plugin's
+	 * own tree is the same root cause and should also retry.
+	 */
+	public function test_is_propagation_flake_detects_class_not_found_for_candidate() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/invisible-recaptcha/invisible-recaptcha.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => 'Class "InvisibleReCaptcha\\MchLib\\Plugin\\MchBasePlugin" not found for activation',
+			'file'    => $plugin,
+		);
+
+		$this->assertTrue(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) )
+		);
+	}
+
+	/**
+	 * A genuine fatal not related to file presence (e.g. an undefined
+	 * function call) must NOT be classified as a flake — that would
+	 * mask real bugs behind the retry path.
+	 */
+	public function test_is_propagation_flake_ignores_unrelated_fatals() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/seo-by-rank-math/rank-math.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => 'Call to undefined function RankMath\\Analytics\\as_get_scheduled_actions()',
+			'file'    => $plugin,
+		);
+
+		$this->assertFalse(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			'Undefined-function fatals are a timing class, not a propagation flake.'
+		);
+	}
+
+	/**
+	 * A file-not-found whose path lies *outside* every candidate's
+	 * directory tree (e.g. a missing WP core file) is not our class of
+	 * flake; let the existing fatal path handle it so we don\'t mask a
+	 * genuinely broken environment.
+	 */
+	public function test_is_propagation_flake_ignores_failed_require_outside_candidate_dir() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
+
+		$verdict = array(
+			'status'  => 'fatal',
+			'message' => "Failed opening required '/srv/htdocs/wp-includes/missing.php' (include_path='/:.')",
+			'file'    => '/srv/htdocs/wp-load.php',
+		);
+
+		$this->assertFalse(
+			$tester->is_propagation_flake( $verdict, array( $plugin ) )
+		);
+	}
+
+	/**
+	 * Non-fatal verdicts (ok, ok-inconclusive, error) never retry.
+	 */
+	public function test_is_propagation_flake_only_considers_blocking_verdicts() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
+
+		foreach ( array( 'ok', 'ok-inconclusive', 'ok-shutdown', 'error' ) as $status ) {
+			$this->assertFalse(
+				$tester->is_propagation_flake(
+					array(
+						'status'  => $status,
+						'message' => "Failed opening required '{$plugin}-dir/missing.php'",
+						'file'    => $plugin,
+					),
+					array( $plugin )
+				),
+				"Status '$status' should never trigger the propagation-flake retry."
+			);
+		}
+	}
+
+	/**
+	 * Flat-file plugins (dirname === WP_PLUGIN_DIR) must not enable a
+	 * prefix-match against every other plugin's files. Mirrors the
+	 * defence in `pcg_guard_get_blocked_plugin`.
+	 */
+	public function test_is_propagation_flake_does_not_false_match_via_flat_file_plugin() {
+		$tester    = new PCG_Load_Tester();
+		$flat_file = WP_PLUGIN_DIR . '/hello.php';
+		$other     = WP_PLUGIN_DIR . '/other/other.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'message' => "Failed opening required '" . WP_PLUGIN_DIR . "/another/file.php' (include_path='/:.')",
+			'file'    => WP_PLUGIN_DIR . '/another/file.php',
+		);
+
+		$this->assertFalse(
+			$tester->is_propagation_flake( $verdict, array( $flat_file, $other ) ),
+			'A failed-require outside both candidates\' trees must not be claimed via flat-file prefix match.'
+		);
+	}
+
+	/**
 	 * Create a unique temp directory for a single test.
 	 *
 	 * @return string Absolute path.

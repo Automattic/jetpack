@@ -14,6 +14,15 @@ class PCG_Load_Tester {
 	const PROBE_TIMEOUT = 15;
 
 	/**
+	 * Microseconds to wait between the first probe attempt and a retry
+	 * when the verdict looks like an Atomic multi-node propagation flake
+	 * (file-not-found or autoload miss against the candidate plugin's own
+	 * tree). Chosen as a balance between giving the shared filesystem
+	 * time to catch up and not adding noticeable latency to real fatals.
+	 */
+	const PROPAGATION_RETRY_DELAY_US = 500000;
+
+	/**
 	 * Probe-token transient TTL, in seconds.
 	 *
 	 * Must outlast the *whole* probe, not a single hop: each followed
@@ -26,6 +35,13 @@ class PCG_Load_Tester {
 	 * so a generous TTL never leaks.
 	 */
 	const TOKEN_LIFETIME = 300;
+
+	/**
+	 * Engine-fatal mask used by the probe shutdown classifier. Anything
+	 * outside this mask (notice, warning, deprecation, or `error_get_last`
+	 * returning null after a clean `exit`) is treated as not-a-fatal.
+	 */
+	const SHUTDOWN_FATAL_MASK = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
 
 	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
@@ -62,6 +78,47 @@ class PCG_Load_Tester {
 			);
 		}
 
+		$verdict = $this->send_probe_pair( $plugin_mains, $mode );
+
+		// Multi-node propagation flake (Atomic): the loopback can land on a
+		// container whose shared-filesystem view lags the admin node's, so
+		// the candidate plugin's entry file loads but a sibling file under
+		// its own directory is not yet visible. CLI activation works,
+		// because CLI runs on the originating node. Retry once after a
+		// short delay; if the second probe still reports the same flake we
+		// can't distinguish lag from a genuine missing file, so downgrade
+		// to ok-inconclusive (allow + log) per the customer-impact triage.
+		if ( $this->is_propagation_flake( $verdict, $plugin_mains ) ) {
+			clearstatcache( true );
+			usleep( self::PROPAGATION_RETRY_DELAY_US );
+			$retry = $this->send_probe_pair( $plugin_mains, $mode );
+			if ( ! $this->is_propagation_flake( $retry, $plugin_mains ) ) {
+				return $retry;
+			}
+			$this->log_propagation_flake_downgrade( $mode, $plugin_mains, $retry );
+			return array(
+				'status'  => 'ok-inconclusive',
+				'reason'  => 'Probe reported a file-not-found / autoload miss against the plugin\'s own directory on two attempts; treating as a multi-node propagation lag and allowing activation. CLI activation is unaffected.',
+				'message' => (string) ( $retry['message'] ?? '' ),
+				'file'    => (string) ( $retry['file'] ?? '' ),
+			);
+		}
+
+		return $verdict;
+	}
+
+	/**
+	 * Fire one front-end + admin probe pair and reduce to a single verdict.
+	 *
+	 * Extracted from `test()` so the retry path can re-invoke the same
+	 * request shape without duplicating prep/parse logic. Returns the same
+	 * verdict shape as `test()`.
+	 *
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files (already validated).
+	 * @param string   $mode         Probe mode constant.
+	 * @return array Probe verdict.
+	 */
+	protected function send_probe_pair( array $plugin_mains, $mode ) {
 		$front = $this->prepare_probe( $plugin_mains, home_url( '/' ), false, $mode );
 		$admin = $this->prepare_probe( $plugin_mains, admin_url( 'index.php' ), true, $mode );
 
@@ -110,6 +167,100 @@ class PCG_Load_Tester {
 			return $admin_result;
 		}
 		return $front_result;
+	}
+
+	/**
+	 * Whether a verdict looks like an Atomic multi-node filesystem
+	 * propagation lag rather than a genuine fatal: a fatal/throwable
+	 * whose captured `file` is a `Failed opening required` or autoload
+	 * miss inside one of the candidate plugins' own directories.
+	 *
+	 * Exposed for unit tests.
+	 *
+	 * @internal
+	 * @param array    $result       Probe verdict.
+	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
+	 * @return bool
+	 */
+	public function is_propagation_flake( array $result, array $plugin_mains ) {
+		$status = (string) ( $result['status'] ?? '' );
+		if ( 'fatal' !== $status && 'throwable' !== $status ) {
+			return false;
+		}
+		$message = (string) ( $result['message'] ?? '' );
+		$looks_like_missing_file =
+			str_contains( $message, 'Failed opening required' )
+			|| str_contains( $message, 'failed to open stream: No such file or directory' )
+			|| ( str_contains( $message, 'Class ' ) && str_contains( $message, ' not found' ) );
+		if ( ! $looks_like_missing_file ) {
+			return false;
+		}
+		$captured_file = (string) ( $result['file'] ?? '' );
+		if ( '' === $captured_file ) {
+			// For "class not found" the captured file is the autoloader
+			// site (in the candidate's own bootstrap). For others, no
+			// file means we can't attribute — be conservative, don't
+			// retry on something we can't pin to a candidate.
+			return $this->message_references_candidate_path( $message, $plugin_mains );
+		}
+		foreach ( $plugin_mains as $main ) {
+			$dir = dirname( (string) $main );
+			if ( WP_PLUGIN_DIR === $dir ) {
+				continue;
+			}
+			if ( str_starts_with( $captured_file, $dir . '/' ) || $captured_file === $main ) {
+				return true;
+			}
+		}
+		return $this->message_references_candidate_path( $message, $plugin_mains );
+	}
+
+	/**
+	 * Whether the verdict message text mentions a path inside one of the
+	 * candidate plugins' directories. Catches `Failed opening required`
+	 * messages where PHP's reported `file` is the requiring file (in the
+	 * plugin's own tree) — so `file` already passed the dir check above —
+	 * but also handles autoloader cases where the missing-path text only
+	 * appears in the message body.
+	 *
+	 * @param string   $message      Verdict message.
+	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
+	 * @return bool
+	 */
+	protected function message_references_candidate_path( $message, array $plugin_mains ) {
+		foreach ( $plugin_mains as $main ) {
+			$dir = dirname( (string) $main );
+			if ( WP_PLUGIN_DIR === $dir ) {
+				continue;
+			}
+			if ( str_contains( $message, $dir . '/' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Log a propagation-flake downgrade so we can measure how often the
+	 * retry path triggers and how often it still allows through. Sampled
+	 * on the same `atomic_plugin_conflicts_guardian` feature bucket.
+	 *
+	 * @param string   $mode         Probe mode constant.
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param array    $retry_result Verdict from the second probe attempt.
+	 * @return void
+	 */
+	protected function log_propagation_flake_downgrade( $mode, array $plugin_mains, array $retry_result ) {
+		pcg_log_event(
+			'Propagation flake downgrade',
+			array(
+				'mode'    => $mode,
+				'plugins' => $this->relative_basenames( $plugin_mains ),
+				'status'  => (string) ( $retry_result['status'] ?? '' ),
+				'reason'  => (string) ( $retry_result['message'] ?? $retry_result['reason'] ?? '' ),
+				'file'    => isset( $retry_result['file'] ) ? basename( (string) $retry_result['file'] ) : '',
+			)
+		);
 	}
 
 	/**
@@ -419,6 +570,35 @@ class PCG_Load_Tester {
 			}
 		);
 		return $hooks;
+	}
+
+	/**
+	 * Classify a PHP shutdown into a probe verdict. Returns `fatal` only
+	 * for the engine-fatal error mask; anything else becomes
+	 * `ok-shutdown`, signalling that the bootstrap reached PHP shutdown
+	 * without a captured fatal but didn't reach the wp_loaded/admin_init
+	 * verdict point (typical of a plugin calling `exit` during init).
+	 *
+	 * Pure helper so the probe endpoint's shutdown handler can be
+	 * exercised without firing PHP shutdown in tests.
+	 *
+	 * @param array|null $error Result of `error_get_last()`.
+	 * @return array Probe verdict.
+	 */
+	public static function classify_shutdown( $error ) {
+		if ( is_array( $error ) && 0 !== ( ( (int) ( $error['type'] ?? 0 ) ) & self::SHUTDOWN_FATAL_MASK ) ) {
+			return array(
+				'status'  => 'fatal',
+				'errno'   => (int) $error['type'],
+				'message' => (string) ( $error['message'] ?? '' ),
+				'file'    => (string) ( $error['file'] ?? '' ),
+				'line'    => (int) ( $error['line'] ?? 0 ),
+			);
+		}
+		return array(
+			'status' => 'ok-shutdown',
+			'reason' => 'Probe reached shutdown without a captured fatal; bootstrap exited before wp_loaded/admin_init (likely a plugin-initiated exit/redirect during init).',
+		);
 	}
 
 	/**

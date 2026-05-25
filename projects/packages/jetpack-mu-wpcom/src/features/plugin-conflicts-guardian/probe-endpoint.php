@@ -133,26 +133,17 @@ function pcg_probe_emit_ok() {
 }
 
 /**
- * Shutdown handler: on fatal, emit JSON with the captured error.
+ * Shutdown handler: emit a verdict for every shutdown path so the client
+ * can distinguish a real fatal from a plugin that exited cleanly during
+ * bootstrap (init/admin_init redirects, license checks, A/B routers, etc).
+ *
+ * Without the always-emit, a clean exit() during init would leave the
+ * client seeing "marker present + HTTP 200 + non-JSON body", which it
+ * classifies as a fatal. That misfires on legitimate exit paths and was
+ * the dominant cause of false-positive update-healthcheck rollbacks.
  */
 function pcg_probe_shutdown() {
-	$error = error_get_last();
-	if ( ! is_array( $error ) ) {
-		return;
-	}
-	$fatal_mask = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
-	if ( 0 === ( $error['type'] & $fatal_mask ) ) {
-		return;
-	}
-	pcg_probe_respond(
-		array(
-			'status'  => 'fatal',
-			'errno'   => (int) $error['type'],
-			'message' => (string) $error['message'],
-			'file'    => (string) $error['file'],
-			'line'    => (int) $error['line'],
-		)
-	);
+	pcg_probe_respond( PCG_Load_Tester::classify_shutdown( error_get_last() ) );
 }
 
 /**
