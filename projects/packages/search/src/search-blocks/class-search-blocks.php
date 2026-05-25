@@ -1298,12 +1298,18 @@ class Search_Blocks {
  * open/close animation, and the body-scroll-lock helper. Mirrors the
  * visual idiom of the legacy `instant-search/components/overlay.scss`.
  *
- * Surface + ink track the theme's `base` / `contrast` tokens (matching the
- * suggestions dropdown and sort popover treatment), so the modal reads as
- * part of the active palette on dark themes instead of a forced-white panel
- * with illegible inherited light text. Hairlines and the close-button hover
- * use `color-mix(currentColor)` so they keep a consistent contrast ratio
- * against whatever surface the theme chose.
+ * Surface + ink track the theme's color tokens — newer `base` / `contrast`
+ * (TT2/TT3/TT5-family) first, then legacy `background` / `foreground` (TT1,
+ * Kaze, many WPCOM themes) — matching the suggestions dropdown and sort
+ * popover treatment. The two-step fallback chain is required because legacy
+ * themes don't define `base` / `contrast` at all, so the older PR (#49125)
+ * fix landed on hardcoded `#fff` for the surface and inherited body
+ * `--foreground` (often white on dark themes) for the ink — i.e. the same
+ * white-on-white bug the fix was meant to remove. The chain is hoisted onto
+ * two local custom properties so any in-card surface that needs to match the
+ * card (e.g. the suggestions panel) reads from a single source of truth.
+ * Hairlines and the close-button hover use `color-mix(currentColor)` so they
+ * keep a consistent contrast ratio against whatever surface the theme chose.
  */
 .jetpack-search-block-overlay {
 	position: fixed;
@@ -1329,8 +1335,10 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	background: var(--wp--preset--color--base, #fff);
-	color: var(--wp--preset--color--contrast, inherit);
+	--jp-search-overlay-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
+	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+	background: var(--jp-search-overlay-surface);
+	color: var(--jp-search-overlay-ink);
 	border-radius: 4px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
@@ -1443,14 +1451,16 @@ class Search_Blocks {
  * / "Post Type" peeking out on the right; (2) lift `z-index` above the
  * other in-card popovers (`results-sort` and `filters-popover` both at
  * `z-index: 20`) so the panel reliably wins the stacking order even
- * when one of those is open underneath. Explicit `background: #fff`
- * matches the card's hardcoded surface as a final guard against any
- * theme that neutralises the global token fallback.
+ * when one of those is open underneath. Background reads from the card's
+ * `--jp-search-overlay-surface` so the panel surface tracks the resolved
+ * card surface on every theme — a hardcoded `#fff` here would be opaque
+ * white over a theme-coloured card on legacy `--background`/`--foreground`
+ * themes, the same bug the card itself dodges via the chained fallback.
  */
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
 	right: -60px;
 	z-index: 30;
-	background: #fff;
+	background: var(--jp-search-overlay-surface, #fff);
 }
 /*
  * Top padding clears the absolutely-positioned 60px header strip — without
