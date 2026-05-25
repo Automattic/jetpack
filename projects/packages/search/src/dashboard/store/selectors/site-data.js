@@ -1,3 +1,14 @@
+// Identity default for `Singleton_Template_Cpt`-backed dashboard configs
+// (overlay + search template). Empty defaults so a missing initial-state
+// blob safely renders as "no customization, no link" instead of crashing
+// on undefined property reads.
+const singletonTemplateConfigDefault = {
+	enabled: false,
+	editorUrl: null,
+	resetRestPath: null,
+	isCustomized: false,
+};
+
 const siteDataSelectors = {
 	getAPIRootUrl: state => state.siteData?.WP_API_root ?? null,
 	getWpcomOriginApiUrl: state => state.siteData?.wpcomOriginApiUrl ?? null,
@@ -24,12 +35,15 @@ const siteDataSelectors = {
 	// in one go. `resetRestPath` is the apiFetch path the "Restore
 	// default" link DELETEs to roll back the customization.
 	getBlockTemplateOverlayConfig: state =>
-		state.siteData?.blockTemplateOverlay ?? {
-			enabled: false,
-			editorUrl: null,
-			resetRestPath: null,
-			isCustomized: false,
-		},
+		state.siteData?.blockTemplateOverlay ?? singletonTemplateConfigDefault,
+	// Same shape as `getBlockTemplateOverlayConfig`, sibling under the
+	// same singleton-CPT pattern — see `Singleton_Template_Cpt` on the
+	// PHP side. Used by the Embedded card on classic themes (which
+	// can't reach the Site Editor) to surface "Edit search template" +
+	// "Restore default" links pointed at the `Search_Template` CPT
+	// instead of the FSE template editor.
+	getSearchTemplateConfig: state =>
+		state.siteData?.searchTemplate ?? singletonTemplateConfigDefault,
 	isWooCommerceActive: state => state.siteData?.isWooCommerceActive ?? false,
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 	// Defaults to true so Embedded is never blocked when the flag is absent

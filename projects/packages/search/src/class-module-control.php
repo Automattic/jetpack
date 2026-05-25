@@ -278,29 +278,28 @@ class Module_Control {
 	/**
 	 * Whether the active theme can render the Embedded search experience.
 	 *
-	 * Embedded takes over the theme's search results through an FSE block
-	 * template, which only exists on block themes. On a classic theme
-	 * `get_experience()` falls back to Theme search (inline) so the search
-	 * page keeps working instead of resolving to a missing template; the
-	 * saved `embedded` option is left untouched so the experience resumes
-	 * automatically once the site switches back to a block theme.
+	 * True for every theme by default: block themes resolve the bundled
+	 * `jetpack-search` block template through `search_template_hierarchy`,
+	 * classic themes get the same block markup wrapped in
+	 * `get_header()` / `get_footer()` via `template_include`. The filter
+	 * remains the escape hatch for sites that want to force Embedded back
+	 * to Theme search (inline) without changing the saved option.
 	 *
 	 * @return bool
 	 */
 	protected function theme_supports_embedded_experience(): bool {
-		$is_block_theme = function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
-
 		/**
 		 * Filter whether the active theme can render the Embedded search experience.
 		 *
-		 * Defaults to `wp_is_block_theme()`. Sites whose classic theme provides
-		 * block-template support through other means can force this true.
+		 * Defaults to true now that both block and classic themes are supported.
+		 * Sites that want to force Embedded to fall back to Theme search (inline)
+		 * regardless of theme can return false here.
 		 *
 		 * @since 0.60.0
 		 *
-		 * @param bool $supported Whether the active theme can render Embedded search (defaults to whether it is a block theme).
+		 * @param bool $supported Whether the active theme can render Embedded search.
 		 */
-		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', $is_block_theme );
+		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', true );
 	}
 
 	/**

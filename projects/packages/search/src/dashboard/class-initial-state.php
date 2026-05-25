@@ -108,6 +108,14 @@ class Initial_State {
 				 * enforce that capability server-side.
 				 */
 				'blockTemplateOverlay'       => $this->get_block_template_overlay_config(),
+				/**
+				 * Editor affordances for the classic-theme search-template
+				 * singleton CPT. The Embedded card surfaces these on
+				 * classic themes (which can't reach the Site Editor) so
+				 * admins still get an "Edit search template" entry — same
+				 * shape and same React link as `blockTemplateOverlay`.
+				 */
+				'searchTemplate'             => $this->get_search_template_config(),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
@@ -117,10 +125,15 @@ class Initial_State {
 				 */
 				'activeThemeStylesheet'      => get_stylesheet(),
 				/**
-				 * Whether the active theme is a block theme. The Embedded search
-				 * experience is built and customized in the Site Editor, which
-				 * classic themes don't have, so the dashboard blocks switching to
-				 * Embedded when this is false.
+				 * Whether the active theme is a block theme. Embedded itself
+				 * works on every theme — block themes through the FSE
+				 * `search_template_hierarchy` route, classic themes through
+				 * the singleton-CPT shim — but the Embedded card's
+				 * customization affordances diverge: block themes get the
+				 * Site-Editor entry points ("Edit search template" / "Insert
+				 * pattern"), classic themes get the block-editor-on-a-hidden-
+				 * CPT path via `searchTemplate`. This flag is the dashboard's
+				 * branch selector for which to render.
 				 */
 				'themeSupportsBlocks'        => wp_is_block_theme(),
 			),
@@ -207,12 +220,6 @@ class Initial_State {
 	/**
 	 * Build the block-template overlay editor config exposed to the dashboard.
 	 *
-	 * The action handlers gate on `current_user_can( 'manage_options' )`
-	 * server-side, so non-admins can't actually drive the flow. We also
-	 * skip emitting the nonce'd URLs (and the singleton-id lookup that
-	 * decides `isCustomized`) to those users — useless to them and
-	 * needlessly leaks internal URL shape.
-	 *
 	 * `enabled` mirrors `Search_Blocks::is_block_template_overlay_enabled()`
 	 * — true only when the user is currently *on* the blocks Overlay arm.
 	 * The editor URLs, by contrast, are gated on the operator filter alone
@@ -224,24 +231,57 @@ class Initial_State {
 	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
 	 */
 	protected function get_block_template_overlay_config(): array {
-		$can_edit = Search_Blocks::is_block_template_overlay_filter_on()
-			&& current_user_can( 'manage_options' );
+		return $this->build_singleton_template_config(
+			Search_Blocks::is_block_template_overlay_enabled(),
+			Search_Blocks::is_block_template_overlay_filter_on() && current_user_can( 'manage_options' ),
+			Overlay_Template::class
+		);
+	}
+
+	/**
+	 * Build the classic-theme search-template editor config exposed to the
+	 * dashboard. Counterpart of `get_block_template_overlay_config()` —
+	 * same `{enabled, editorUrl, resetRestPath, isCustomized}` shape and
+	 * the same "expose URLs before activation" rule: admins can edit the
+	 * template from the Embedded card on any classic theme, even before
+	 * actually switching to Embedded.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 */
+	protected function get_search_template_config(): array {
+		$is_classic = ! wp_is_block_theme();
+		return $this->build_singleton_template_config(
+			$is_classic && Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience(),
+			$is_classic && current_user_can( 'manage_options' ),
+			Search_Template::class
+		);
+	}
+
+	/**
+	 * Shared assembly for a {@see Singleton_Template_Cpt}-backed editor
+	 * config block. Both `blockTemplateOverlay` and `searchTemplate` ship
+	 * the same `{enabled, editorUrl, resetRestPath, isCustomized}` shape
+	 * to the React dashboard. The `$enabled` and `$can_edit` flags are
+	 * intentionally separate: the card lights up as "active" on
+	 * `$enabled`, but the URLs surface as soon as `$can_edit` is true so
+	 * admins can pre-customize the template before activating the
+	 * experience — without forcing a page reload after the switch.
+	 *
+	 * The action handlers re-check `manage_options` server-side, so
+	 * omitting the URLs here is just to keep the wire payload tight for
+	 * non-admins.
+	 *
+	 * @param bool   $enabled   Whether the CPT-backed route is currently live on the site.
+	 * @param bool   $can_edit  Whether to expose the nonce'd URLs (operator-level gate + capability).
+	 * @param string $cpt_class Concrete `Singleton_Template_Cpt` subclass to query.
+	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 */
+	protected function build_singleton_template_config( bool $enabled, bool $can_edit, string $cpt_class ): array {
 		return array(
-			'enabled'       => Search_Blocks::is_block_template_overlay_enabled(),
-			'editorUrl'     => $can_edit ? Overlay_Template::get_editor_url() : null,
-			// `resetRestPath` is the path the dashboard sends to `apiFetch`
-			// as a DELETE — hits the CPT's built-in REST endpoint
-			// (`/wp/v2/jetpack-search-overlay/<id>?force=true`) so the
-			// reset happens via AJAX with no page navigation. Null when
-			// there's nothing to reset; the link is also gated on
-			// `isCustomized`.
-			'resetRestPath' => $can_edit ? Overlay_Template::get_reset_rest_path() : null,
-			// `isCustomized` lets the React dashboard hide "Restore default"
-			// when there's nothing to restore — checks both that the
-			// singleton exists AND that it isn't in the trash (admins can
-			// trash via post.php directly; in that state the front end
-			// already falls back to the bundled template).
-			'isCustomized'  => $can_edit && Overlay_Template::is_customized(),
+			'enabled'       => $enabled,
+			'editorUrl'     => $can_edit ? $cpt_class::get_editor_url() : null,
+			'resetRestPath' => $can_edit ? $cpt_class::get_reset_rest_path() : null,
+			'isCustomized'  => $can_edit && $cpt_class::is_customized(),
 		);
 	}
 

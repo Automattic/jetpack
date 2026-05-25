@@ -190,9 +190,29 @@ class Search_Blocks {
 		$experience = ( new Module_Control() )->get_experience();
 
 		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
-			add_action( 'init', array( static::class, 'register_search_template' ) );
-			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
-			Theme_Chrome_Slug_Resolver::register_hooks();
+			if ( static::block_templates_active() ) {
+				// Block themes: register the bundled template and front it via
+				// the FSE template-hierarchy filter so the Site Editor and the
+				// block-template render path both pick it up.
+				add_action( 'init', array( static::class, 'register_search_template' ) );
+				add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+				Theme_Chrome_Slug_Resolver::register_hooks();
+			} else {
+				// Classic themes: there is no FSE hierarchy to prepend to and
+				// `locate_template()` can't resolve the `jetpack-search` slug to
+				// a theme PHP file, so swap the resolved template path post-
+				// hierarchy via `template_include`. The bundled block markup
+				// renders inside the theme's `get_header()` / `get_footer()`,
+				// so the search page slots into the theme's chrome instead of
+				// replacing it.
+				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ) );
+				// Classic themes lose the Site Editor entry point for
+				// customizing the bundled template, so wire up the
+				// `Search_Template` singleton CPT — the standard block
+				// editor on a hidden post is the theme-agnostic editing
+				// surface, mirroring `Overlay_Template`.
+				Search_Template::init();
+			}
 		}
 
 		// When the blocks own the front-end search results, the server-side
@@ -1608,6 +1628,108 @@ CSS;
 	}
 
 	/**
+	 * Classic-theme counterpart to `prepend_search_template()`.
+	 *
+	 * Prepending a slug to `search_template_hierarchy` only works on block
+	 * themes — `locate_template()` walks the slugs as `{slug}.php` files in
+	 * the active theme, which a classic theme never ships for our
+	 * `jetpack-search` slug, so the hierarchy filter is a no-op there.
+	 * Instead we let the hierarchy resolve normally (to the theme's
+	 * `search.php` / `index.php`) and then swap the resolved path
+	 * post-resolution via `template_include` for our bundled PHP shim, which
+	 * renders the same block markup inside the theme's
+	 * `get_header()` / `get_footer()`.
+	 *
+	 * Hooked only when `init()` already established Embedded + classic theme,
+	 * so we just guard on `is_search()` and the WooCommerce product-search
+	 * carve-out (the block-template registry doesn't reach classic themes,
+	 * so we don't ship a per-Woo classic shim — let WooCommerce's own
+	 * archive routing render the product search results).
+	 *
+	 * @param string $template Resolved template path.
+	 * @return string
+	 */
+	public static function route_classic_theme_search_template( $template ) {
+		if ( ! is_search() ) {
+			return $template;
+		}
+		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
+			return $template;
+		}
+		// Bail back to the theme's own search template if neither a
+		// customization nor a readable bundled body is available —
+		// rendering header / footer with nothing between them just
+		// looks like a broken page. A saved empty customization
+		// (Search_Template::get_customized_content() returning ''
+		// instead of null) is treated as intentional and honored.
+		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
+			return $template;
+		}
+		return __DIR__ . '/templates/classic-theme-search.php';
+	}
+
+	/**
+	 * Search template body for the classic-theme `template_include` route —
+	 * the same block markup the block-theme path registers, with the leading
+	 * and trailing `core/template-part` references stripped so the theme's
+	 * `get_header()` / `get_footer()` drive the chrome.
+	 *
+	 * Source of truth, in order:
+	 *
+	 *   1. The customized singleton CPT ({@see Search_Template}), if an
+	 *      admin has saved one via the dashboard's "Edit search template"
+	 *      link.
+	 *   2. The bundled `templates/jetpack-search.html` file, template-part
+	 *      wrappers stripped.
+	 *
+	 * Public because the bundled PHP shim (`templates/classic-theme-search.php`)
+	 * needs to call it from outside the class scope.
+	 *
+	 * @return string Block markup, no template-part wrappers.
+	 */
+	public static function get_classic_theme_search_body(): string {
+		// Customization first — singleton CPT seeded from the bundled
+		// markup, edited via post.php; theme-agnostic so the admin can
+		// reach the editor without a Site Editor.
+		$customized = Search_Template::get_customized_content();
+		if ( null !== $customized ) {
+			return $customized;
+		}
+		$content = static::get_search_template_content();
+		if ( '' === $content ) {
+			return '';
+		}
+		// The bundled template emits exactly two top-level `core/template-part`
+		// self-closing comments (header before the main group, footer after).
+		// On classic themes those slugs don't resolve to anything renderable,
+		// so drop the comments before `do_blocks()` walks the markup. The
+		// inner `.*?` is non-greedy and capped by the `-->` sentinel, so a
+		// future template revision that nests JSON (e.g. `{"theme":{"name":"x"}}`)
+		// in a `wp:template-part` attribute keeps matching cleanly.
+		return (string) preg_replace( '#<!--\s*wp:template-part\s+.*?/-->\s*#s', '', $content );
+	}
+
+	/**
+	 * Test override for `block_templates_active()`. Null means "no override
+	 * — read the live state via `wp_is_block_theme()`". Set in tests that
+	 * need to exercise the block-theme `init()` path without standing up a
+	 * real block theme; reset back to null in the teardown.
+	 *
+	 * @var bool|null
+	 */
+	private static $block_templates_active_for_testing = null;
+
+	/**
+	 * Test seam. Set true/false to force `block_templates_active()`'s return
+	 * value, or null to clear the override.
+	 *
+	 * @param bool|null $active Forced value, or null to clear.
+	 */
+	public static function set_block_templates_active_for_testing( ?bool $active ): void {
+		self::$block_templates_active_for_testing = $active;
+	}
+
+	/**
 	 * Whether the active theme resolves block templates. Wraps
 	 * `wp_is_block_theme()` as an overridable seam so tests can exercise the
 	 * block-theme path without standing up a block theme.
@@ -1615,6 +1737,9 @@ CSS;
 	 * @return bool
 	 */
 	protected static function block_templates_active(): bool {
+		if ( null !== self::$block_templates_active_for_testing ) {
+			return self::$block_templates_active_for_testing;
+		}
 		return wp_is_block_theme();
 	}
 
