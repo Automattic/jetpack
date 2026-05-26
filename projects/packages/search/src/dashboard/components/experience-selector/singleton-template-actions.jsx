@@ -1,7 +1,6 @@
-import apiFetch from '@wordpress/api-fetch';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -13,9 +12,9 @@ import CardLink from './card-link';
  * editor flow on the PHP side. The two consumers — the experimental
  * blocks-powered Overlay (SEARCH-216) and the classic-theme Search
  * template route — share an identical shape: one config blob describing
- * the editor URL / reset REST path / isCustomized state, one "Edit …"
- * link, one "Restore default" link that opens a destructive confirm
- * dialog, and an AJAX DELETE that posts a notice on success / failure.
+ * the editor URL / postType / isCustomized state, one "Edit …" link,
+ * one "Restore default" link that opens a destructive confirm dialog,
+ * and an AJAX DELETE that posts a notice on success / failure.
  *
  * Local state (`justReset`, `isResetting`, `isResetConfirmOpen`) is
  * scoped here so two of these components can coexist on a single page
@@ -23,7 +22,7 @@ import CardLink from './card-link';
  * reset flags cross-contaminating.
  *
  * @param {object}  props                       - Props.
- * @param {object}  props.config                - The `{enabled, editorUrl, resetRestPath, isCustomized}` blob from the matching singleton-template selector.
+ * @param {object}  props.config                - The `{enabled, editorUrl, postType, isCustomized}` blob from the matching singleton-template selector.
  * @param {string}  props.editLabel             - Visible label for the "Edit …" link.
  * @param {string}  props.restoreConfirmMessage - Body copy for the destructive confirm dialog.
  * @param {string}  props.successMessage        - Notice copy posted after a successful reset.
@@ -48,6 +47,15 @@ export default function SingletonTemplateActions( {
 	const [ isResetting, setIsResetting ] = useState( false );
 	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
 	const { successNotice, errorNotice } = useDispatch( STORE_ID );
+	// Read the wpcom-origin-prefixed API root + nonce from the dashboard
+	// store directly (same selectors `wrapped-dashboard.jsx` hands to
+	// `restApi.setWpcomOriginApiUrl()` / `setApiNonce()` at boot). Building
+	// the URL here — rather than delegating to a helper in the shared
+	// `@automattic/jetpack-api` package — keeps this fix contained inside
+	// the Search package, so the wpcom-origin DELETE doesn't pull a
+	// monorepo-wide rebuild of every consumer of jetpack-api.
+	const wpcomOriginApiUrl = useSelect( select => select( STORE_ID ).getWpcomOriginApiUrl(), [] );
+	const apiNonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 
 	const restoreLabel = __( 'Restore default', 'jetpack-search-pkg' );
 
@@ -81,15 +89,15 @@ export default function SingletonTemplateActions( {
 					// reality.
 					onClick={ () => setJustReset( false ) }
 				/>
-				{ config.resetRestPath && config.isCustomized && ! justReset && (
+				{ config.postType && config.isCustomized && ! justReset && (
 					<CardLink
 						label={ restoreLabel }
 						href="#"
 						disabled={ linksDisabled || isResetting }
 						onClick={ event => {
 							// Destructive — open the confirm dialog instead of
-							// running the AJAX delete directly. The dialog's
-							// confirm handler is the one that fires `apiFetch`.
+							// running the DELETE directly. The dialog's
+							// confirm handler is the one that fires the request.
 							event.preventDefault();
 							setResetConfirmOpen( true );
 						} }
@@ -101,18 +109,33 @@ export default function SingletonTemplateActions( {
 				onConfirm={ async () => {
 					setResetConfirmOpen( false );
 					// Defensive guard: the dialog can only open via the
-					// `isCustomized && resetRestPath` CardLink above, so
-					// `resetRestPath` is non-null in practice — avoid firing a
-					// DELETE to `undefined` if the gating logic ever shifts.
-					if ( ! config.resetRestPath ) {
+					// `isCustomized && postType` CardLink above, so `postType`
+					// is non-null in practice — avoid firing a DELETE against
+					// `undefined` if the gating logic ever shifts.
+					if ( ! config.postType || ! wpcomOriginApiUrl ) {
 						return;
 					}
 					setIsResetting( true );
 					try {
-						await apiFetch( {
-							path: config.resetRestPath,
+						// Build the URL against `wpcomOriginApiUrl` (not
+						// apiFetch's default /wp-json/ root) so the request
+						// reaches the Jetpack route on WordPress.com Simple
+						// sites, where Jetpack-registered routes are only
+						// exposed under wp-json/wpcom-origin/. The nonce
+						// header matches what the rest of the Search dashboard
+						// sends via restApi for the same reason.
+						const url = `${ wpcomOriginApiUrl }jetpack/v4/search/templates/${ encodeURIComponent(
+							config.postType
+						) }`;
+						const response = await fetch( url, {
 							method: 'DELETE',
+							credentials: 'same-origin',
+							headers: { 'X-WP-Nonce': apiNonce ?? '' },
 						} );
+						if ( ! response.ok ) {
+							const data = await response.json().catch( () => null );
+							throw new Error( data?.message || errorMessage );
+						}
 						setJustReset( true );
 						successNotice( successMessage );
 					} catch ( error ) {
