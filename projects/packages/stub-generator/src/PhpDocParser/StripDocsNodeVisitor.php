@@ -191,7 +191,9 @@ class StripDocsNodeVisitor extends AbstractNodeVisitor {
 			// Keep unrecognized tags?
 			if ( $this->keepTags ) {
 				$this->output->writeln( "Keeping unrecognized tag `{$node->name}`", OutputInterface::VERBOSITY_DEBUG );
+				// @phan-suppress-next-line PhanUndeclaredProperty - Testing before using.
 				if ( isset( $value->description ) ) {
+					// @phan-suppress-next-line PhanUndeclaredProperty - Tested before using.
 					$value->description = '';
 				}
 				return null;
