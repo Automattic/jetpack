@@ -1,12 +1,10 @@
 <?php
 /**
- * Tests for the layout-grid usage tracking feature.
- *
- * Drives the detector handlers and supporting helpers directly. A spy filter
- * at priority 11 records every `$extra` payload that reaches the dispatcher,
- * so tests assert what would have been logged without ever reaching
- * `Jetpack_Mu_Wpcom::log2logstash()` — the module-load `__return_false`
- * filter at priority 10 still blocks dispatch, the spy just observes.
+ * Tests for the layout-grid usage tracking feature. A spy filter at
+ * priority 11 records every `$extra` payload that reaches the dispatcher,
+ * while the module-load `__return_false` at priority 10 blocks real dispatch
+ * — tests assert what would have been logged without reaching
+ * `Jetpack_Mu_Wpcom::log2logstash()`.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -14,13 +12,9 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversFunction;
 
-// Disable real logstash dispatch for the entire phpunit process before the
-// feature file is required — otherwise the hooks it registers at load time
-// (if `Host::is_woa_site()` ever returns true in CI) could fire from any
-// test that inserts a post / saves a widget, and `log_observation()` would
-// reach `Jetpack_Mu_Wpcom::log2logstash()` and its shutdown HTTP POST to
-// `public-api.wordpress.com`. Installed once at module load (not per-test)
-// so it survives across test classes and the bootstrap/inter-test windows.
+// Block real logstash dispatch for the entire phpunit process before the
+// feature file is required. Installed once (not per-test) so the safety net
+// also covers the bootstrap window and any cross-class test runs.
 add_filter( 'wpcom_layout_grid_usage_log_enabled', '__return_false' );
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
@@ -57,17 +51,15 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	const PARAGRAPH_MARKUP               = '<!-- wp:paragraph --><p>hi</p><!-- /wp:paragraph -->';
 
 	/**
-	 * Captured `$extra` payloads from every `wpcom_layout_grid_usage_log_enabled` filter
-	 * invocation during the current test.
+	 * Captured `$extra` payloads from `spy_observation()`.
 	 *
 	 * @var array<int, array>
 	 */
 	private $observations = array();
 
 	/**
-	 * Reset per-test sentinel state and install the observation spy. The
-	 * module-load `__return_false` at priority 10 stays in place; the spy is
-	 * additive at priority 11 and captures but does not unblock.
+	 * Reset state and install the per-test spy at priority 11. The module-load
+	 * `__return_false` at priority 10 stays installed.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -79,8 +71,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Remove the per-test spy so its registration doesn't leak across classes.
-	 * The module-load `__return_false` at priority 10 stays installed.
+	 * Drop the per-test spy so it doesn't leak across classes.
 	 */
 	public function tear_down() {
 		remove_filter( 'wpcom_layout_grid_usage_log_enabled', array( $this, 'spy_observation' ), 11 );
@@ -88,11 +79,11 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Observation spy. Records every dispatch attempt; passes through the
-	 * incoming `$enabled` (false in tests, thanks to `__return_false` at 10).
+	 * Records the candidate `$extra` and passes the incoming `$enabled` through
+	 * (which is `false` in tests, set by the module-load `__return_false`).
 	 *
-	 * @param bool  $enabled Whether the dispatcher will proceed.
-	 * @param array $extra   Surface-specific payload.
+	 * @param bool  $enabled
+	 * @param array $extra
 	 * @return bool
 	 */
 	public function spy_observation( $enabled, $extra ) {
@@ -101,12 +92,11 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Build a minimal `WP_Post` instance with the given content. We don't
-	 * persist to the DB — handlers pass `$post->post_content` to `has_block`
-	 * directly, so an in-memory instance is enough.
+	 * Build an in-memory `WP_Post`. Handlers scan `$post->post_content`
+	 * directly, so we don't need to persist to the DB.
 	 *
-	 * @param string $content   Post content (block markup).
-	 * @param string $post_type Defaults to `'post'`.
+	 * @param string $content
+	 * @param string $post_type
 	 * @return \WP_Post
 	 */
 	private function make_post( $content, $post_type = 'post' ) {
@@ -121,9 +111,8 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Widget content scan returns true only when a widget entry's `content`
-	 * field carries the layout-grid block; every other shape (other blocks,
-	 * non-array option values, malformed widget entries) returns false.
+	 * Widget content scan: true only for entries whose `content` carries the
+	 * layout-grid block; false for every other shape.
 	 */
 	public function test_widget_value_contains_block_detects_layout_grid_only() {
 		$this->assertTrue(
@@ -155,11 +144,9 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The per-frame predicate skips malformed frames, the tracker's own
-	 * frames, and frames outside `wp-content/(plugins|themes|mu-plugins)/`,
-	 * and renders survivors as `<file>:<line>`. This is the real coverage
-	 * for the regex + self-skip behavior — `attribute_source()` itself runs
-	 * against the live PHPUnit stack which has no extension frames.
+	 * Per-frame predicate: skip malformed/self/core frames, format extension
+	 * frames as `<file>:<line>`. `attribute_source()` itself runs against the
+	 * live PHPUnit stack (no extension frames), so this is the real coverage.
 	 */
 	public function test_format_attribution_frame_filters_and_formats_correctly() {
 		$self_file = '/srv/htdocs/__wp__/wp-content/mu-plugins/jetpack-mu-wpcom/src/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
@@ -188,9 +175,9 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$keeps = array(
-			'/srv/htdocs/__wp__/wp-content/plugins/example/example.php'      => 42,
-			'/srv/htdocs/__wp__/wp-content/themes/twentytwentyfive/x.php'    => 88,
-			'/srv/htdocs/__wp__/wp-content/mu-plugins/other.php'             => 5,
+			'/srv/htdocs/__wp__/wp-content/plugins/example/example.php'   => 42,
+			'/srv/htdocs/__wp__/wp-content/themes/twentytwentyfive/x.php' => 88,
+			'/srv/htdocs/__wp__/wp-content/mu-plugins/other.php'          => 5,
 		);
 		foreach ( $keeps as $file => $line ) {
 			$this->assertSame(
@@ -205,7 +192,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 			);
 		}
 
-		// Missing `line` field falls back to 0.
+		// Missing `line` field → 0.
 		$this->assertSame(
 			'/srv/htdocs/__wp__/wp-content/plugins/example/example.php:0',
 			wpcom_layout_grid_usage_format_attribution_frame(
@@ -216,8 +203,8 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Path redaction strips WP_CONTENT_DIR and ABSPATH prefixes, recurses
-	 * into nested arrays, and leaves non-string scalars unchanged.
+	 * Path redaction strips WP_CONTENT_DIR / ABSPATH prefixes and recurses
+	 * into arrays.
 	 */
 	public function test_redact_paths_strips_install_paths_recursively() {
 		$this->assertTrue( defined( 'WP_CONTENT_DIR' ) && '' !== WP_CONTENT_DIR );
@@ -245,19 +232,17 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * `react_to_post_insert` logs on first-landing (new insert, or an update
-	 * whose previous version lacked the block) and short-circuits on every
-	 * other shape: revisions, posts without the block, updates where
-	 * `$post_before` already had the block, and non-WP_Post args.
+	 * Post handler logs first-landings and skips every other shape: revisions,
+	 * posts without the block, `$post_before` already had the block, non-WP_Post.
 	 */
 	public function test_react_to_post_insert_logs_only_on_first_landing() {
-		// Happy: new insert (no $post_before).
+		// New insert (no $post_before).
 		wpcom_layout_grid_usage_react_to_post_insert( 0, $this->make_post( self::WPCOM_LAYOUT_GRID_USAGE_MARKUP, 'page' ), false, null );
 		$this->assertCount( 1, $this->observations );
 		$this->assertSame( 'post_insert', $this->observations[0]['surface'] );
 		$this->assertSame( 'page', $this->observations[0]['post_type'] );
 
-		// Happy: update where the previous version lacked the block.
+		// Update where the prior version lacked the block.
 		wpcom_layout_grid_usage_react_to_post_insert(
 			0,
 			$this->make_post( self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ),
@@ -266,13 +251,13 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertCount( 2, $this->observations );
 
-		// Negatives — each must not capture an additional observation.
-		$negative_count = count( $this->observations );
+		// Negatives must not add to the observation count.
+		$count = count( $this->observations );
 
-		// Skip: post without the block.
+		// No block in the new post.
 		wpcom_layout_grid_usage_react_to_post_insert( 0, $this->make_post( self::PARAGRAPH_MARKUP ), false, null );
 
-		// Skip: update where $post_before already had the block.
+		// $post_before already had the block.
 		wpcom_layout_grid_usage_react_to_post_insert(
 			0,
 			$this->make_post( self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ),
@@ -280,11 +265,11 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 			$this->make_post( self::WPCOM_LAYOUT_GRID_USAGE_MARKUP )
 		);
 
-		// Skip: non-WP_Post arguments (defensive).
+		// Defensive: non-WP_Post inputs.
 		wpcom_layout_grid_usage_react_to_post_insert( 0, null, false, null );
 		wpcom_layout_grid_usage_react_to_post_insert( 0, 'not-a-post', false, null );
 
-		// Skip: revisions short-circuit before the block scan even runs.
+		// Revisions short-circuit before the block scan.
 		$parent = wp_insert_post(
 			array(
 				'post_status'  => 'publish',
@@ -299,16 +284,15 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsInt( $revision_id );
 		wpcom_layout_grid_usage_react_to_post_insert( $revision_id, get_post( $revision_id ), false, null );
 
-		$this->assertCount( $negative_count, $this->observations );
+		$this->assertCount( $count, $this->observations );
 	}
 
 	/**
-	 * The widget detectors log on first-landing for both option add and
-	 * option update, and short-circuit on every other shape: no layout-grid
-	 * in the new value, or an update whose old value already had the block.
+	 * Widget handlers log first-landings and skip every other shape: no block
+	 * in the new value, or an update whose old value already had it.
 	 */
 	public function test_react_to_widget_handlers_log_only_on_first_landing() {
-		// Happy: add fires when the initial value contains the block.
+		// Add: initial value has the block.
 		wpcom_layout_grid_usage_react_to_widget_block_added(
 			'widget_block',
 			array( '1' => array( 'content' => self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ) )
@@ -316,7 +300,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 1, $this->observations );
 		$this->assertSame( 'widget_add', $this->observations[0]['surface'] );
 
-		// Happy: update fires when the new value has the block and the old didn't.
+		// Update: new has, old didn't.
 		wpcom_layout_grid_usage_react_to_widget_block_updated(
 			array( '1' => array( 'content' => self::PARAGRAPH_MARKUP ) ),
 			array( '1' => array( 'content' => self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ) )
@@ -324,18 +308,19 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->assertCount( 2, $this->observations );
 		$this->assertSame( 'widget_update', $this->observations[1]['surface'] );
 
-		// Skip: add with no layout-grid in the initial value.
+		// Skips must not add to the count.
 		$count = count( $this->observations );
+		// Add: no layout-grid in the initial value.
 		wpcom_layout_grid_usage_react_to_widget_block_added(
 			'widget_block',
 			array( '1' => array( 'content' => self::PARAGRAPH_MARKUP ) )
 		);
-		// Skip: update where the old value already had the block.
+		// Update: old already had it.
 		wpcom_layout_grid_usage_react_to_widget_block_updated(
 			array( '1' => array( 'content' => self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ) ),
 			array( '1' => array( 'content' => self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ) )
 		);
-		// Skip: update where the new value lacks the block.
+		// Update: new lacks the block.
 		wpcom_layout_grid_usage_react_to_widget_block_updated(
 			array( '1' => array( 'content' => self::WPCOM_LAYOUT_GRID_USAGE_MARKUP ) ),
 			array( '1' => array( 'content' => self::PARAGRAPH_MARKUP ) )
@@ -344,53 +329,45 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Render backstop captures the observation on first invocation but does
-	 * NOT persist the sentinel when the dispatch attempt was blocked — this
-	 * is the bugfix: a filter-blocked render must leave the backstop
-	 * reversible, otherwise the sentinel would lock the blog out of
-	 * attribution forever once the filter is removed. Then verifies the
-	 * idempotency property: once the sentinel IS set, subsequent renders
-	 * short-circuit before the dispatcher, leaving the existing value alone.
+	 * Render backstop: spy sees the call, but a filter-blocked dispatch must
+	 * NOT persist the sentinel (otherwise the backstop locks out for the blog
+	 * forever, since the option has no TTL). Once the sentinel is set,
+	 * subsequent renders short-circuit and leave its value alone.
 	 */
 	public function test_render_backstop_dispatch_gated_then_idempotent() {
 		$content = '<div class="wp-block-jetpack-layout-grid">hi</div>';
 
-		// First invocation: spy sees the call, but the module-load filter
-		// blocks dispatch (`log_observation` returns false), so the sentinel
-		// is NOT persisted — the backstop stays reversible.
+		// Dispatch blocked → sentinel not persisted.
 		$this->assertFalse( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
 		$this->assertSame( $content, wpcom_layout_grid_usage_react_to_block_render( $content, array() ) );
 		$this->assertCount( 1, $this->observations );
 		$this->assertSame( 'render', $this->observations[0]['surface'] );
 		$this->assertFalse( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
 
-		// Pre-seed a non-default sentinel to catch accidental overwrites: a
-		// subsequent render must short-circuit and leave the value untouched.
+		// Pre-seed a non-default value (catches accidental overwrites that
+		// `=== 1` checks would miss); the second render must leave it alone.
 		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 7, false );
 		$this->assertSame( $content, wpcom_layout_grid_usage_react_to_block_render( $content, array() ) );
-		$this->assertCount( 1, $this->observations, 'no new observation when sentinel already set' );
+		$this->assertCount( 1, $this->observations, 'sentinel-set render must not reach the dispatcher' );
 		$this->assertSame( 7, get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) );
 	}
 
 	/**
-	 * The split context gate is read-only and write-only respectively:
-	 * `should_log_in_context` never mutates state, `mark_context_seen` writes
-	 * only the active context's transient, and import takes precedence at
-	 * both ends when both flags are set.
+	 * Context gate: `should_log_in_context` is read-only, `mark_context_seen`
+	 * writes only the active context's transient, and import wins at both ends.
 	 */
 	public function test_context_gate_is_split_read_then_write_with_import_precedence() {
-		// Read-only: no transient set, pass-through everywhere.
+		// Read: no transient set → pass-through.
 		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( false, false ) );
 		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( true, false ) );
 		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( false, true ) );
 		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
 		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
 
-		// Read-only: pre-set transients only affect their own context.
+		// Read: pre-set transient affects only its own context; import wins on collision.
 		set_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT, 1, DAY_IN_SECONDS );
 		$this->assertFalse( wpcom_layout_grid_usage_should_log_in_context( true, false ) );
 		$this->assertTrue( wpcom_layout_grid_usage_should_log_in_context( false, true ) );
-		// Precedence: import wins when both flags are set.
 		$this->assertFalse( wpcom_layout_grid_usage_should_log_in_context( true, true ) );
 		delete_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT );
 
@@ -408,7 +385,7 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );
 		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT ) );
 
-		// Precedence: import wins on the write side too.
+		// Write: import wins on collision.
 		delete_transient( WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT );
 		wpcom_layout_grid_usage_mark_context_seen( true, true );
 		$this->assertSame( 1, get_transient( WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT ) );

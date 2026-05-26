@@ -1,12 +1,11 @@
 <?php
 /**
  * Layout-grid usage tracking — emit a logstash event when a `jetpack/layout-grid`
- * block is inserted or first rendered on a WoA site. The payload captures the
+ * block is inserted or first rendered on a WoA site. The payload carries the
  * active theme, active plugins, request-context flags, and a sanitized
- * backtrace so the source can be attributed to the responsible plugin or
- * theme rather than just the candidate set.
- *
- * Events ship to the `atomic_layout_grid_block` logstash bucket.
+ * backtrace so the source can be attributed to a responsible plugin or theme
+ * rather than just the candidate set. Events ship to the
+ * `atomic_layout_grid_block` logstash bucket.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -21,9 +20,7 @@ const WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE      = 'atomic_layout_grid_block';
 const WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE      = 'layout_grid_block_observed';
 
 /**
- * Whether to register the detectors. WoA only — non-WoA Atomic / connected
- * Jetpack sites aren't in scope. Extracted so tests can require the file
- * without auto-registering hooks.
+ * WoA-only gate. Extracted so tests can require the file without registering hooks.
  *
  * @return bool
  */
@@ -42,34 +39,27 @@ if ( wpcom_layout_grid_usage_should_load() ) {
 }
 
 /**
- * Post-insert detector. Logs editor-driven first-landings per-event (low
- * volume, and repeat events from the same blog help corroborate single-cause
- * vs multi-cause patterns). Importer- and cron-driven inserts are rate-limited
- * to one event per blog per 24h via transients — same stack on every iteration,
- * so per-event repeats add zero attribution value but a lot of noise.
+ * `wp_after_insert_post` handler. Editor first-landings log per-event; import
+ * and cron contexts are rate-limited to one event per blog per 24h.
  *
  * @param int           $post_id     Post ID.
- * @param \WP_Post      $post        Post after the insert.
+ * @param mixed         $post        Typed as WP_Post by core; checked defensively.
  * @param bool          $update      Whether this is an update.
  * @param \WP_Post|null $post_before Previous post version (null on insert).
  * @return void
  */
 function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update, $post_before ) {
 	unset( $update );
-	// Revisions and autosaves are inserted as their own posts, so the
-	// `$post_before` check below can't see the parent post's previous state —
-	// without this guard every editor autosave on a layout-grid-using post
-	// would log a fresh event.
+	// Revisions/autosaves are inserted as their own posts, so the
+	// `$post_before` check below can't see the parent's prior state.
 	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 		return;
 	}
 	if ( ! $post instanceof \WP_Post ) {
 		return;
 	}
-	// `has_block( $name, $post )` would route through `get_post()`, which can
-	// re-fetch the post via cache (or DB) and return a different content
-	// snapshot than the WP_Post we were handed. Pass the raw content string
-	// directly so the scan is over the exact bytes we observed.
+	// Scan the raw content string so `has_block` doesn't route through
+	// `get_post()` and re-fetch a potentially different cache snapshot.
 	if ( ! has_block( WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, (string) $post->post_content ) ) {
 		return;
 	}
@@ -87,27 +77,22 @@ function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update,
 			'post_type' => (string) $post->post_type,
 		)
 	);
-	// Only burn the 24h budget if we actually dispatched. Setting the
-	// transient before dispatch would mean a filter-blocked or class-missing
-	// observation silently consumes the rate-limit window without recording
-	// anything in Kibana.
+	// Burn the 24h budget only after a successful dispatch — otherwise a
+	// filter-blocked observation consumes the window with nothing logged.
 	if ( $dispatched ) {
 		wpcom_layout_grid_usage_mark_context_seen( $is_importing, $is_cron );
 	}
 }
 
 /**
- * Read-only rate-limit gate for high-volume insert contexts. Returns false
- * when the per-context transient is already set (we've logged within the
- * window). Pair with `wpcom_layout_grid_usage_mark_context_seen()` after a successful
- * dispatch — splitting the read from the write means a logging failure no
- * longer burns the 24h budget.
+ * Read-only rate-limit gate. Returns false when the active context's transient
+ * is already set. Paired with `wpcom_layout_grid_usage_mark_context_seen()`
+ * post-dispatch so a logging failure doesn't burn the 24h budget. Import wins
+ * when both flags are set (cron-triggered import).
  *
- * Import takes precedence when both flags are set (cron-triggered import).
- *
- * @param bool $is_importing Whether `WP_IMPORTING` is set.
- * @param bool $is_cron      Whether `DOING_CRON` is set.
- * @return bool True if the caller should continue and log; false to skip.
+ * @param bool $is_importing WP_IMPORTING flag.
+ * @param bool $is_cron      DOING_CRON flag.
+ * @return bool True if the caller should log.
  */
 function wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron ) {
 	$key = wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron );
@@ -118,11 +103,10 @@ function wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron 
 }
 
 /**
- * Persist the rate-limit transient for the active context (if any) after a
- * successful dispatch. No-op outside import / cron.
+ * Write half of the rate-limit gate. No-op outside import / cron.
  *
- * @param bool $is_importing Whether `WP_IMPORTING` is set.
- * @param bool $is_cron      Whether `DOING_CRON` is set.
+ * @param bool $is_importing WP_IMPORTING flag.
+ * @param bool $is_cron      DOING_CRON flag.
  * @return void
  */
 function wpcom_layout_grid_usage_mark_context_seen( $is_importing, $is_cron ) {
@@ -134,11 +118,10 @@ function wpcom_layout_grid_usage_mark_context_seen( $is_importing, $is_cron ) {
 }
 
 /**
- * Resolve the transient key for the active rate-limit context. Returns null
- * outside import / cron. Import wins when both flags are set.
+ * Active rate-limit context's transient key, or null. Import wins.
  *
- * @param bool $is_importing Whether `WP_IMPORTING` is set.
- * @param bool $is_cron      Whether `DOING_CRON` is set.
+ * @param bool $is_importing WP_IMPORTING flag.
+ * @param bool $is_cron      DOING_CRON flag.
  * @return string|null
  */
 function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron ) {
@@ -152,10 +135,9 @@ function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron 
 }
 
 /**
- * `add_option_widget_block` handler. Fires the first time the option is
- * created; logs when the initial value contains layout-grid markup.
+ * `add_option_widget_block` handler. Logs when the initial value carries the block.
  *
- * @param string $option Option name (unused — pinned to `widget_block` via filter name).
+ * @param string $option Unused — pinned by hook name.
  * @param mixed  $value  New option value.
  * @return void
  */
@@ -168,9 +150,7 @@ function wpcom_layout_grid_usage_react_to_widget_block_added( $option, $value ) 
 }
 
 /**
- * `update_option_widget_block` handler. Logs only when the new value contains
- * the block and the previous value didn't — same "first landing" semantics as
- * the post detector.
+ * `update_option_widget_block` handler. Logs first-landings only (new has, old didn't).
  *
  * @param mixed $old_value Previous option value.
  * @param mixed $value     New option value.
@@ -187,27 +167,24 @@ function wpcom_layout_grid_usage_react_to_widget_block_updated( $old_value, $val
 }
 
 /**
- * Render-time backstop. Sentinel-guarded so it fires at most once per blog:
- * by render time the call stack no longer reaches the cause, so the marginal
- * attribution value of repeat events is zero — but the per-pageview cost on
- * layout-grid-using sites is high. One log per blog tells us the block came
- * from a theme-bundled template / pattern or direct `$wpdb` write that the
- * post / widget detectors didn't see.
+ * Render-time backstop. Sentinel-guarded to fire at most once per blog — by
+ * render time the stack no longer reaches the cause, so per-pageview repeats
+ * add zero attribution value at non-trivial cost. One log per blog still tells
+ * us the block came from a theme template, pattern, or direct `$wpdb` write
+ * that the post/widget detectors didn't see.
  *
  * @param string $block_content Rendered block HTML.
- * @param array  $parsed_block  Parsed block (unused).
- * @return string Unchanged content.
+ * @param array  $parsed_block  Unused.
+ * @return string Unchanged.
  */
 function wpcom_layout_grid_usage_react_to_block_render( $block_content, $parsed_block ) {
 	unset( $parsed_block );
 	if ( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) ) {
 		return $block_content;
 	}
-	// Only persist the sentinel after the dispatch attempt actually went out.
-	// Setting it first would mean a filter-blocked or class-missing
-	// observation permanently disables the render backstop for this blog,
-	// because the option has no TTL — even after the underlying cause is
-	// fixed, the backstop never fires again.
+	// Persist the sentinel only after a successful dispatch. The option has no
+	// TTL, so a filter-blocked observation that wrote it first would
+	// permanently disable the backstop for this blog.
 	if ( wpcom_layout_grid_usage_log_observation( array( 'surface' => 'render' ) ) ) {
 		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 1, false );
 	}
@@ -215,9 +192,8 @@ function wpcom_layout_grid_usage_react_to_block_render( $block_content, $parsed_
 }
 
 /**
- * Whether a `widget_block` option value contains the layout-grid block in
- * any of its widget entries. The option is an array keyed by widget id, with
- * each entry holding a `content` string of block markup.
+ * Whether a `widget_block` option value carries the layout-grid block in any
+ * widget entry's `content`.
  *
  * @param mixed $value Option value.
  * @return bool
@@ -240,29 +216,24 @@ function wpcom_layout_grid_usage_widget_value_contains_block( $value ) {
 }
 
 /**
- * Dispatch a layout-grid observation to logstash. Returns true when dispatch
- * was attempted (filter passed and `Jetpack_Mu_Wpcom` is loaded), false when
- * the call was short-circuited. Callers use the return value to gate sticky
- * side effects (the render sentinel, the import/cron transients) so that a
- * blocked dispatch doesn't lock those out for the next observation.
+ * Dispatch an observation to logstash. Returns true if dispatch was attempted
+ * (filter passed and the wrapper class is loaded), false when short-circuited.
+ * Callers use the return value to gate sticky side effects (sentinel, context
+ * transients) so a blocked dispatch doesn't lock them out. Any failure inside
+ * `Jetpack_Mu_Wpcom::log2logstash()` is swallowed by that method's try/catch.
  *
- * Best-effort beyond that point: a logging failure inside
- * `Jetpack_Mu_Wpcom::log2logstash()` is swallowed by that method's own
- * try/catch — we treat "dispatch was attempted" as the meaningful signal.
- *
- * @param array $extra Caller-supplied properties merged with the default payload.
- *                     Caller keys win on collision.
- * @return bool True if the dispatch was attempted; false if short-circuited.
+ * @param array $extra Caller-supplied payload. Caller keys win on collision.
+ * @return bool
  */
 function wpcom_layout_grid_usage_log_observation( array $extra ) {
 	/**
-	 * Whether layout-grid usage observations should be dispatched to logstash.
-	 * Defaults to true; tests short-circuit this to keep `log2logstash` (and
-	 * its HTTP fallback) out of the unit-test environment, and sites that
-	 * don't want the telemetry can disable it the same way.
+	 * Whether layout-grid usage observations should be dispatched. Tests
+	 * short-circuit this to keep `log2logstash` (and its HTTP fallback) out
+	 * of the unit-test environment; sites that don't want telemetry can
+	 * disable it the same way.
 	 *
-	 * @param bool  $enabled Whether to dispatch the log event.
-	 * @param array $extra   Surface-specific properties for the candidate event.
+	 * @param bool  $enabled
+	 * @param array $extra
 	 */
 	if ( ! (bool) apply_filters( 'wpcom_layout_grid_usage_log_enabled', true, $extra ) ) {
 		return false;
@@ -273,10 +244,8 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 
 	$active_plugins_raw = get_option( 'active_plugins' );
 	$active_plugins     = is_array( $active_plugins_raw ) ? array_values( $active_plugins_raw ) : array();
-	// WoA is multisite-shaped at the platform layer; the platform-managed
-	// plugins live in `active_sitewide_plugins`, not `active_plugins`. Without
-	// this merge, the most common attribution candidates would be invisible
-	// in the payload.
+	// Union network-activated plugins: WoA is multisite-shaped and the
+	// platform's plugins live in `active_sitewide_plugins`.
 	if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_site_option' ) ) {
 		$sitewide_raw = get_site_option( 'active_sitewide_plugins' );
 		if ( is_array( $sitewide_raw ) && ! empty( $sitewide_raw ) ) {
@@ -284,9 +253,7 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 		}
 	}
 
-	// Caller keys win on collision: `array_merge( defaults, $extra )` makes
-	// the caller-supplied `$extra` override same-named default keys, which
-	// matches the natural reading of the `$extra` API.
+	// `array_merge( defaults, $extra )`: caller keys win on collision.
 	$payload = array_merge(
 		array(
 			'active_theme'   => function_exists( 'get_stylesheet' ) ? (string) get_stylesheet() : '',
@@ -309,17 +276,15 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 }
 
 /**
- * Walk the PHP call stack and return up to 8 `file:line` strings whose `file`
- * lives under `wp-content/plugins/`, `wp-content/themes/`, or
- * `wp-content/mu-plugins/`. Those are the cause candidates; core / pluggable
- * frames are filtered out. `wp_debug_backtrace_summary()` is deliberately not
- * used here — it returns function-call summaries (e.g. `WP_Hook->apply_filters()`)
- * without file paths, so the extension-path filter would yield an empty trace.
+ * Walk `debug_backtrace()` and return up to 8 `<file>:<line>` strings for
+ * frames under `wp-content/(plugins|themes|mu-plugins)/`. Core / pluggable
+ * frames are filtered out. `wp_debug_backtrace_summary()` is deliberately
+ * not used: it returns function-call summaries, not file paths.
  *
  * @return string[]
  */
 function wpcom_layout_grid_usage_attribute_source() {
-	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional: attribution backtrace for a logstash record.
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Attribution backtrace for a logstash record.
 	$frames    = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 	$self_file = __FILE__;
 	$relevant  = array();
@@ -337,21 +302,14 @@ function wpcom_layout_grid_usage_attribute_source() {
 }
 
 /**
- * Pure per-frame predicate for `wpcom_layout_grid_usage_attribute_source()`. Returns
- * `<file>:<line>` when the frame should be kept, or `null` to skip. Extracted
- * so the regex + self-skip behavior can be unit-tested without staging a
- * real PHP call stack.
- *
- * Skip rules, in order:
- *   - Malformed frame (no string `file` field).
- *   - Self-frame (`file === $self_file`) — the tracker's own frames would
- *     otherwise pass the extension-path regex (jetpack-mu-wpcom is loaded
- *     from `wp-content/mu-plugins/`) and crowd out real attribution within
- *     the caller's 8-frame cap.
- *   - File outside `wp-content/(plugins|themes|mu-plugins)/`.
+ * Per-frame predicate. Returns `<file>:<line>` for kept frames, null to skip.
+ * Skips: malformed frames, the tracker's own file (jetpack-mu-wpcom loads
+ * from `wp-content/mu-plugins/` and would otherwise dominate the 8-frame cap),
+ * and any file outside the three extension directories. Extracted from
+ * `wpcom_layout_grid_usage_attribute_source()` for unit-testability.
  *
  * @param mixed  $frame     One frame from `debug_backtrace()`.
- * @param string $self_file Path to compare against for the self-skip.
+ * @param string $self_file Tracker file path for the self-skip comparison.
  * @return string|null
  */
 function wpcom_layout_grid_usage_format_attribution_frame( $frame, string $self_file ) {
@@ -369,9 +327,8 @@ function wpcom_layout_grid_usage_format_attribution_frame( $frame, string $self_
 }
 
 /**
- * Strip ABSPATH / WP_CONTENT_DIR prefixes from any string values in the
- * payload so log lines don't leak the install layout. Mirrors the
- * `pcg_log_redact_paths` helper in the Plugin Conflicts Guardian feature.
+ * Strip ABSPATH / WP_CONTENT_DIR prefixes from string values, recursing into
+ * arrays. Mirrors `pcg_log_redact_paths` in Plugin Conflicts Guardian.
  *
  * @param mixed $value Scalar or array.
  * @return mixed
