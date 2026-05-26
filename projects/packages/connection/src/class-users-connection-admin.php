@@ -75,7 +75,7 @@ class Users_Connection_Admin {
 		}
 
 		if ( ( new Manager() )->is_user_connected( $user_id ) ) {
-			$logo_url = Jetpack_Connector::get_connector_logo_url();
+			$logo_url = Jetpack_Connector::get_inline_connector_logo_url();
 
 			return sprintf(
 				'<span title="%1$s" class="jetpack-connection-status"><span class="jetpack-connection-status__icon-slot"><img src="%2$s" alt="" class="jetpack-connection-status__logo" decoding="async" loading="lazy" /></span>%3$s</span>',

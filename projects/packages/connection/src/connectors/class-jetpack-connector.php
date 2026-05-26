@@ -472,6 +472,34 @@ class Jetpack_Connector {
 	}
 
 	/**
+	 * Get the inline (single-row) connector logo for use in compact contexts like table cells.
+	 *
+	 * All circles are arranged horizontally in a single row, unlike the card
+	 * logos which stack circles vertically for 3+ plugins.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string Logo URL.
+	 */
+	public static function get_inline_connector_logo_url() {
+		$families = self::get_connected_plugin_families();
+
+		if ( $families['has_woo'] && $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-all-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_woo'] ) {
+			return plugins_url( 'images/jetpack-connect-woo-inline.svg', __FILE__ );
+		}
+
+		if ( $families['has_a4a'] ) {
+			return plugins_url( 'images/jetpack-connect-a8c-inline.svg', __FILE__ );
+		}
+
+		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );
+	}
+
+	/**
 	 * Map a plugin slug to a brand logo URL.
 	 *
 	 * Jetpack-family plugins get the Jetpack mark, WooCommerce-family
