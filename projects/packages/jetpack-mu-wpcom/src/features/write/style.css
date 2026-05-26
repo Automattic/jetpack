@@ -1175,6 +1175,39 @@
 	pointer-events: none;
 }
 
+/* Horizontal drop indicator on the block where a dragged image will land.
+   `--before` draws above the block; `--after` draws below. */
+.bw-content .bw-drop-target--before,
+.bw-content .bw-drop-target--after {
+	position: relative;
+}
+
+.bw-content .bw-drop-target--before::before,
+.bw-content .bw-drop-target--after::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--studio-blue-50, #1d4fc4);
+	border-radius: 2px;
+	pointer-events: none;
+}
+
+.bw-content .bw-drop-target--before::before {
+	top: -2px;
+}
+
+.bw-content .bw-drop-target--after::after {
+	bottom: -2px;
+}
+
+/* Pre-upload placeholder figure: dim the locally-previewed image while
+   the upload is in flight, then snap back once the real URL is in place. */
+.bw-content .bw-image-figure.bw-image-uploading img {
+	opacity: 0.5;
+}
+
 .bw-content p {
 	font-size: inherit;
 	line-height: inherit;

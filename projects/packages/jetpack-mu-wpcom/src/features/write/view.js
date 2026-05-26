@@ -1972,6 +1972,23 @@ function resetUploadZone() {
 }
 
 /**
+ * POST a file to the media REST endpoint. Returns the media response.
+ * No side effects on state or DOM — callers handle the result.
+ *
+ * @param {File} file - The file to upload.
+ * @return {Promise<Object>} The media library response.
+ */
+async function uploadMedia( file ) {
+	const formData = new FormData();
+	formData.append( 'file', file );
+	return await window.wp.apiFetch( {
+		path: state.mediaPath,
+		method: 'POST',
+		body: formData,
+	} );
+}
+
+/**
  * Upload a file to the media library and update state with the result.
  *
  * @param {File} file - The file to upload.
@@ -1988,15 +2005,8 @@ async function uploadFileToMedia( file ) {
 		if ( saving ) saving.style.display = '';
 	}
 
-	const formData = new FormData();
-	formData.append( 'file', file );
-
 	try {
-		const media = await window.wp.apiFetch( {
-			path: state.mediaPath,
-			method: 'POST',
-			body: formData,
-		} );
+		const media = await uploadMedia( file );
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
 
@@ -2749,6 +2759,183 @@ function insertMediaBlock( mediaEl ) {
 
 	ensureBlockStructure();
 	return p;
+}
+
+/**
+ * Place the caret at the (x, y) viewport coordinates inside the editor.
+ * Uses the standard `caretPositionFromPoint`, falling back to the
+ * WebKit/Chromium-prefixed `caretRangeFromPoint`. Returns true if the
+ * caret was placed inside the editor; false otherwise.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ * @return {boolean} Whether the caret was placed inside the editor.
+ */
+function placeCaretAtPoint( x, y ) {
+	const content = getContent();
+	if ( ! content ) return false;
+
+	let range = null;
+	if ( document.caretPositionFromPoint ) {
+		const pos = document.caretPositionFromPoint( x, y );
+		if ( pos && pos.offsetNode ) {
+			range = document.createRange();
+			range.setStart( pos.offsetNode, pos.offset );
+			range.collapse( true );
+		}
+	} else if ( document.caretRangeFromPoint ) {
+		range = document.caretRangeFromPoint( x, y );
+	}
+
+	if ( ! range || ! content.contains( range.startContainer ) ) {
+		return false;
+	}
+
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+	return true;
+}
+
+// Currently highlighted drop-target block, so dragover can move the
+// indicator between blocks without re-querying every frame.
+let currentDropTarget = null;
+
+/**
+ * Show a visual indicator on the block where a dragged image will land.
+ * The indicator is a class on the block element itself (a top-level
+ * child of .bw-content-inner) so the CSS can position a horizontal line
+ * at the insertion point — under the target block, or above the first
+ * block if the drag is near the top edge.
+ *
+ * @param {number} x - Viewport X coordinate.
+ * @param {number} y - Viewport Y coordinate.
+ */
+function updateDropIndicator( x, y ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	let target = null;
+	let position = 'after';
+
+	if ( document.caretPositionFromPoint || document.caretRangeFromPoint ) {
+		let node = null;
+		if ( document.caretPositionFromPoint ) {
+			const pos = document.caretPositionFromPoint( x, y );
+			node = pos?.offsetNode || null;
+		} else {
+			const range = document.caretRangeFromPoint( x, y );
+			node = range?.startContainer || null;
+		}
+		// Walk up to the direct child of .bw-content-inner.
+		while ( node && node !== content && node.parentNode !== content ) {
+			node = node.parentNode;
+		}
+		if ( node && node.parentNode === content ) {
+			target = node;
+		}
+	}
+
+	// Fallback: pick the block closest to the y-coordinate, or the
+	// last block if the drag is below all content. Lets the indicator
+	// stay visible when hovering over the empty area below the post.
+	if ( ! target ) {
+		const blocks = Array.from( content.children );
+		for ( const block of blocks ) {
+			const rect = block.getBoundingClientRect();
+			if ( y < rect.top ) {
+				target = block;
+				position = 'before';
+				break;
+			}
+			target = block;
+		}
+	}
+
+	if ( ! target ) return;
+	if ( currentDropTarget === target ) {
+		// Position may have flipped on the same block — keep both states
+		// consistent by clearing the other one.
+		target.classList.toggle( 'bw-drop-target--before', position === 'before' );
+		target.classList.toggle( 'bw-drop-target--after', position === 'after' );
+		return;
+	}
+
+	clearDropIndicator();
+	target.classList.add(
+		position === 'before' ? 'bw-drop-target--before' : 'bw-drop-target--after'
+	);
+	currentDropTarget = target;
+}
+
+/**
+ * Remove the drop-target indicator from whichever block currently has it.
+ */
+function clearDropIndicator() {
+	if ( currentDropTarget ) {
+		currentDropTarget.classList.remove( 'bw-drop-target--before', 'bw-drop-target--after' );
+		currentDropTarget = null;
+	}
+}
+
+/**
+ * Upload an image file and insert it at the current caret position.
+ * Inserts a placeholder figure immediately (using a local object URL)
+ * so the user gets feedback while the upload is in flight, then
+ * replaces the placeholder with the media-library URL and ID once
+ * uploaded.
+ *
+ * The whole upload+swap is registered via trackMediaSizeSwap so
+ * savePost waits for it before serializing the editor.
+ *
+ * @param {File} file - The image file to upload.
+ */
+function uploadAndInsertImage( file ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	const figure = document.createElement( 'figure' );
+	figure.className = 'bw-image-figure bw-image-uploading';
+	const img = document.createElement( 'img' );
+	const localUrl = URL.createObjectURL( file );
+	img.src = localUrl;
+	img.alt = '';
+	figure.appendChild( img );
+
+	const p = insertMediaBlock( figure );
+	if ( p ) {
+		placeCursorAt( p );
+	}
+	pushToUndoHistory();
+
+	const swap = ( async () => {
+		try {
+			const media = await uploadMedia( file );
+			// Tag the figure with the media-library id+size so the
+			// save-time serializer produces a real <!-- wp:image --> block.
+			img.src = media.source_url;
+			img.alt = media.alt_text || '';
+			img.className = 'wp-image-' + media.id;
+			figure.className = 'bw-image-figure size-large';
+			mediaSizesCache.set( media.id, media.media_details?.sizes || null );
+			// The figure was decorated by addDeleteButtons() before upload,
+			// so it's missing the Size button (that branch is gated on
+			// getMediaIdFromImg). Strip and re-decorate now that the
+			// wp-image-{id} class is in place.
+			stripRuntimeFigureControls( figure );
+			addDeleteButtons();
+			await applyMediaSizeToFigure( figure, 'large' );
+		} catch ( err ) {
+			figure.remove();
+			state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 3000 );
+		} finally {
+			URL.revokeObjectURL( localUrl );
+		}
+	} )();
+	trackMediaSizeSwap( swap );
 }
 
 // --- Inline category meta helpers ---
@@ -4173,6 +4360,50 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 			await uploadFileToMedia( file );
+		},
+
+		handleEditorDragOver( event ) {
+			// Only react to file drags, not text/selection drags inside
+			// the editor (which we want to leave to the browser default).
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = 'copy';
+			updateDropIndicator( event.clientX, event.clientY );
+		},
+
+		handleEditorDragLeave( event ) {
+			// dragleave fires when the pointer crosses any child element
+			// boundary; only clear the visual state when the drag truly
+			// leaves the editor wrapper.
+			if ( event.relatedTarget && event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			clearDropIndicator();
+		},
+
+		handleEditorDrop( event ) {
+			if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
+			event.preventDefault();
+			clearDropIndicator();
+
+			const images = Array.from( event.dataTransfer.files || [] ).filter( f =>
+				f.type.startsWith( 'image/' )
+			);
+			if ( ! images.length ) return;
+
+			// Place the caret at the drop point once before inserting.
+			// Each insertMediaBlock leaves the caret in the trailing
+			// paragraph, so subsequent figures naturally stack below.
+			// If the drop lands outside the editable area, fall back to
+			// the end of the content.
+			const content = getContent();
+			if ( content && ! placeCaretAtPoint( event.clientX, event.clientY ) ) {
+				placeCursorAtEnd( content );
+			}
+
+			for ( const file of images ) {
+				uploadAndInsertImage( file );
+			}
 		},
 
 		// --- Slash commands ---
