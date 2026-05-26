@@ -25,13 +25,22 @@ pnpm install
 
 The `wp-verify` stack runs Playwright tests against a real WordPress + Gutenberg instance for `/wp-admin` UI verification. It's an opt-in Compose profile — only starts when explicitly requested.
 
+Host-side runs require Playwright + `@playwright/test` installed globally once (the sandbox container has them pre-installed via the `Dockerfile`):
+
+```bash
+npm install -g playwright@1.48.2 @playwright/test@1.48.2
+```
+
 ```bash
 # Bring up the WP + MySQL + WPCLI stack (waits for WordPress + Gutenberg ready)
 tools/ai-sandbox/wp-verify.sh up
 
-# Run Playwright tests from the repo root (after `pnpm install` once)
-WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-8080}" pnpm exec playwright test \
-  --config tools/ai-sandbox/wp-verify/playwright.config.ts
+# Run Playwright tests from the repo root. NODE_PATH points node at the global
+# install so the Playwright config can resolve `@playwright/test` — wp-verify
+# isn't a pnpm workspace package, so `pnpm exec` wouldn't find it locally.
+WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-8080}" \
+  NODE_PATH=$(npm root -g) \
+  playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts
 
 # Tear down
 tools/ai-sandbox/wp-verify.sh down
