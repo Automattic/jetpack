@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
 /**
@@ -16,7 +17,7 @@ export default function useGenerateAll() {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
-	const { requireUpgrade } = useAiFeature();
+	const { hasFeature } = useAiFeature();
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
@@ -24,9 +25,14 @@ export default function useGenerateAll() {
 	}, [] );
 
 	const generate = useCallback( async () => {
-		if ( requireUpgrade ) {
+		if ( ! hasFeature ) {
 			return;
 		}
+
+		const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
+		recordGuidelinesEvent( 'generate_all', {
+			action: allEmpty ? 'generate' : 'improve',
+		} );
 
 		startLoading();
 		try {
@@ -52,14 +58,7 @@ export default function useGenerateAll() {
 		} finally {
 			stopLoading();
 		}
-	}, [
-		requireUpgrade,
-		allGuidelines,
-		startLoading,
-		stopLoading,
-		setSuggestion,
-		createErrorNotice,
-	] );
+	}, [ hasFeature, allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice ] );
 
-	return { generate, loading, requireUpgrade };
+	return { generate, loading, hasFeature };
 }

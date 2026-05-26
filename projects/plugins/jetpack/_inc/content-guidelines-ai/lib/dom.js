@@ -17,13 +17,13 @@ export function setTextareaValue( textarea, value ) {
 /**
  * Accept a block suggestion: write text to the modal textarea and clear the store.
  *
- * @param {string}   blockName       - Block name key in the store.
- * @param {string}   suggestion      - Suggestion text to write.
- * @param {Function} clearSuggestion - Store action to clear the suggestion.
+ * @param {HTMLElement} blockModal      - The block guideline modal element.
+ * @param {string}      blockName       - Block name key in the store.
+ * @param {string}      suggestion      - Suggestion text to write.
+ * @param {Function}    clearSuggestion - Store action to clear the suggestion.
  */
-export function acceptBlockSuggestion( blockName, suggestion, clearSuggestion ) {
-	const modal = document.querySelector( '.block-guideline-modal' );
-	const textarea = modal?.querySelector( '.components-textarea-control__input' );
+export function acceptBlockSuggestion( blockModal, blockName, suggestion, clearSuggestion ) {
+	const textarea = blockModal?.querySelector( '.components-textarea-control__input' );
 	if ( textarea ) {
 		setTextareaValue( textarea, suggestion );
 	}

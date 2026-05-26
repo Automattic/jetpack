@@ -2,11 +2,19 @@ import { createReduxStore, register } from '@wordpress/data';
 
 const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
 
+function isStorageDismissed() {
+	try {
+		return localStorage.getItem( DISMISS_KEY ) === '1';
+	} catch {
+		return false;
+	}
+}
+
 const DEFAULT_STATE = {
 	loading: false,
 	loadingSections: {},
 	suggestions: {},
-	bannerDismissed: localStorage.getItem( DISMISS_KEY ) === '1',
+	bannerDismissed: isStorageDismissed(),
 };
 
 const actions = {
@@ -29,7 +37,11 @@ const actions = {
 		return { type: 'STOP_SECTION_LOADING', slug };
 	},
 	dismissBanner() {
-		localStorage.setItem( DISMISS_KEY, '1' );
+		try {
+			localStorage.setItem( DISMISS_KEY, '1' );
+		} catch {
+			// Ignore storage access failures.
+		}
 		return { type: 'DISMISS_BANNER' };
 	},
 };

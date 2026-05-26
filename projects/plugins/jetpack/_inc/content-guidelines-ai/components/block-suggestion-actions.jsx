@@ -1,12 +1,13 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
 
 // Renders only the diff view. Accept/Dismiss and Improve buttons live in
 // BlockSuggestionButtons, injected as a separate row above the modal action bar.
-export default function BlockSuggestionActions( { blockName } ) {
+export default function BlockSuggestionActions( { blockName, blockModal } ) {
 	const suggestion = useSelect(
 		select => select( AI_STORE_NAME ).getSuggestion( blockName ),
 		[ blockName ]
@@ -27,14 +28,13 @@ export default function BlockSuggestionActions( { blockName } ) {
 
 	// Toggle shimmer and suggestion classes on the modal.
 	useEffect( () => {
-		const modal = document.querySelector( '.block-guideline-modal' );
-		if ( ! modal ) {
+		if ( ! blockModal ) {
 			return;
 		}
 
 		// Capture textarea content and height before hiding it.
-		if ( suggestion && ! modal.classList.contains( 'has-jetpack-suggestion' ) ) {
-			const textarea = modal.querySelector( '.components-textarea-control__input' );
+		if ( suggestion && ! blockModal.classList.contains( 'has-jetpack-suggestion' ) ) {
+			const textarea = blockModal.querySelector( '.components-textarea-control__input' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
 				if ( textarea.offsetHeight > 0 ) {
@@ -46,16 +46,17 @@ export default function BlockSuggestionActions( { blockName } ) {
 			}
 		}
 
-		modal.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
-		modal.classList.toggle( 'is-jetpack-loading', blockLoading && ! suggestion );
+		blockModal.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
+		blockModal.classList.toggle( 'is-jetpack-loading', blockLoading && ! suggestion );
 		return () => {
-			modal.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
+			blockModal.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
 		};
-	}, [ suggestion, blockLoading ] );
+	}, [ blockModal, suggestion, blockLoading ] );
 
 	const handleAccept = useCallback( () => {
-		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
-	}, [ blockName, suggestion, clearSuggestion ] );
+		recordGuidelinesEvent( 'accept', { type: 'block', slug: blockName } );
+		acceptBlockSuggestion( blockModal, blockName, suggestion, clearSuggestion );
+	}, [ blockModal, blockName, suggestion, clearSuggestion ] );
 
 	if ( ! suggestion ) {
 		return null;

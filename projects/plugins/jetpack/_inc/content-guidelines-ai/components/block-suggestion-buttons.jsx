@@ -7,13 +7,14 @@ import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
-export default function BlockSuggestionButtons( { blockName } ) {
+export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
-	const { requireUpgrade } = useAiFeature();
+	const { hasFeature } = useAiFeature();
 
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
@@ -31,8 +32,10 @@ export default function BlockSuggestionButtons( { blockName } ) {
 	);
 
 	const handleGenerate = useCallback( async () => {
-		const modal = document.querySelector( '.block-guideline-modal' );
-		const textarea = modal?.querySelector( '.components-textarea-control__input' );
+		const action = saved ? 'improve' : 'generate';
+		recordGuidelinesEvent( 'generate', { type: 'block', slug: blockName, action } );
+
+		const textarea = blockModal?.querySelector( '.components-textarea-control__input' );
 		const currentText = textarea?.value || '';
 
 		startSectionLoading( blockName );
@@ -50,13 +53,23 @@ export default function BlockSuggestionButtons( { blockName } ) {
 		} finally {
 			stopSectionLoading( blockName );
 		}
-	}, [ blockName, startSectionLoading, stopSectionLoading, setSuggestion, createErrorNotice ] );
+	}, [
+		blockModal,
+		blockName,
+		saved,
+		startSectionLoading,
+		stopSectionLoading,
+		setSuggestion,
+		createErrorNotice,
+	] );
 
 	const handleAccept = useCallback( () => {
-		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
-	}, [ blockName, suggestion, clearSuggestion ] );
+		recordGuidelinesEvent( 'accept', { type: 'block', slug: blockName } );
+		acceptBlockSuggestion( blockModal, blockName, suggestion, clearSuggestion );
+	}, [ blockModal, blockName, suggestion, clearSuggestion ] );
 
 	const handleDismiss = useCallback( () => {
+		recordGuidelinesEvent( 'dismiss', { type: 'block', slug: blockName } );
 		clearSuggestion( blockName );
 	}, [ blockName, clearSuggestion ] );
 
@@ -82,7 +95,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 			<Button
 				variant="secondary"
 				onClick={ handleGenerate }
-				disabled={ blockLoading || requireUpgrade }
+				disabled={ blockLoading || ! hasFeature }
 				accessibleWhenDisabled
 				className="jetpack-content-guidelines-ai__section-generate-button"
 			>

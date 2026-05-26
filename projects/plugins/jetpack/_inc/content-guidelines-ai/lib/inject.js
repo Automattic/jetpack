@@ -211,54 +211,74 @@ function runAll() {
 	const blockModal = document.querySelector( '.block-guideline-modal' );
 	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
 
-	if ( blockName ) {
-		// Suggestion actions (diff + accept/dismiss) inside textarea wrapper,
-		// after the label but before the <textarea> input.
-		inject(
-			'block-actions',
-			() => {
-				const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
-				const field = textareaInput?.parentElement;
-				return field
-					? {
-							parent: field,
-							before: textareaInput,
-							className: 'jetpack-content-guidelines-ai__block-actions-container',
-					  }
-					: null;
-			},
-			BlockSuggestionActions,
-			{ blockName }
-		);
+	// Always invoke inject so previously mounted roots get unmounted when
+	// the modal closes — findParent() returns null for "no place to inject"
+	// and inject()'s cleanup path handles the disconnected container.
+	inject(
+		'block-actions',
+		() => {
+			if ( ! blockName || ! blockModal ) {
+				return null;
+			}
+			const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
+			const field = textareaInput?.parentElement;
+			return field
+				? {
+						parent: field,
+						before: textareaInput,
+						className: 'jetpack-content-guidelines-ai__block-actions-container',
+				  }
+				: null;
+		},
+		BlockSuggestionActions,
+		{ blockName, blockModal }
+	);
 
-		// Improve/Accept/Dismiss buttons — row above the action bar.
-		inject(
-			'block-suggestion-buttons',
-			() => {
-				const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
-				const vStack = actionsBar?.parentElement;
-				return vStack
-					? {
-							parent: vStack,
-							before: actionsBar,
-							className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
-					  }
-					: null;
-			},
-			BlockSuggestionButtons,
-			{ blockName }
-		);
-	}
+	inject(
+		'block-suggestion-buttons',
+		() => {
+			if ( ! blockName || ! blockModal ) {
+				return null;
+			}
+			const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
+			const vStack = actionsBar?.parentElement;
+			return vStack
+				? {
+						parent: vStack,
+						before: actionsBar,
+						className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
+				  }
+				: null;
+		},
+		BlockSuggestionButtons,
+		{ blockName, blockModal }
+	);
 }
 
 /**
  * Start observing DOM and inject all components.
- * The observer never disconnects because Gutenberg's Navigator can
- * remove and re-add the main screen (e.g. revision history navigation).
- * Callbacks are debounced via requestAnimationFrame to avoid running
- * on every individual DOM mutation.
+ *
+ * We observe document.body (not a narrower container) for two reasons:
+ * 1. WordPress Modal portals render directly on document.body — the block
+ *    guideline modal lives outside any Gutenberg container, so a narrower
+ *    root would miss it appearing.
+ * 2. Gutenberg's Navigator can remove and re-add the main screen DOM
+ *    (e.g. revision history navigation), so we can't rely on a specific
+ *    container staying connected.
+ *
+ * The observer never disconnects for the same reasons. Callbacks are
+ * debounced via requestAnimationFrame so runAll() fires at most once
+ * per frame, and each inject() call is a no-op when its container is
+ * still connected.
  */
+let injectionStarted = false;
+
 export function startInjection() {
+	if ( injectionStarted ) {
+		return;
+	}
+	injectionStarted = true;
+
 	runAll();
 
 	let scheduled = false;

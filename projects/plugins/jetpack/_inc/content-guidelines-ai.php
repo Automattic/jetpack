@@ -61,7 +61,7 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 
 	$asset_file = JETPACK__PLUGIN_DIR . '_inc/build/content-guidelines-ai.min.asset.php';
 	$asset      = file_exists( $asset_file ) ? require $asset_file : array(
-		'dependencies' => array( 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-element', 'wp-i18n', 'wp-notices' ),
+		'dependencies' => array( 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-element', 'wp-i18n', 'wp-notices', 'wp-ui' ),
 		'version'      => JETPACK__VERSION,
 	);
 
