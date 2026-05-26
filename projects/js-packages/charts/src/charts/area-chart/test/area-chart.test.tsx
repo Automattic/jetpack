@@ -240,7 +240,7 @@ describe( 'AreaChart', () => {
 			expect( keyboardCall![ 0 ].tooltipData?.nearestDatum?.key ).not.toBe( 'Series A' );
 		} );
 
-		test( 'y-axis domain stays fixed across legend toggles', async () => {
+		test( 'y-axis rescales across legend toggles by default', async () => {
 			const user = userEvent.setup();
 			const ref = createRef< SingleChartRef >();
 			render(
@@ -248,8 +248,39 @@ describe( 'AreaChart', () => {
 					<AreaChartUnresponsive
 						{ ...defaultProps }
 						showLegend
-						chartId="test-interactive-domain"
+						chartId="test-interactive-domain-rescale"
 						legend={ { interactive: true } }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			// Hiding Series A drops the upper bound; visx should refit.
+			expect( afterToggleDomain ).toBeDefined();
+			expect( afterToggleDomain![ 1 ] ).toBeLessThan( initialDomain![ 1 ] );
+		} );
+
+		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin"
+						legend={ { interactive: true } }
+						rescaleYOnLegendToggle={ false }
 						ref={ ref }
 					/>
 				</GlobalChartsProvider>
