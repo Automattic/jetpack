@@ -253,4 +253,35 @@ class Search_Template_Test extends Search_TestCase {
 			array_pop( $wp_current_filter );
 		}
 	}
+
+	/**
+	 * `init()` must also register the CPT synchronously when invoked after
+	 * `init` has already fired — `did_action( 'init' )` returns non-zero
+	 * and queuing on `init:9` would be a permanent no-op.
+	 */
+	public function test_init_after_init_action_registers_cpt_synchronously() {
+		unregister_post_type( Search_Template::POST_TYPE );
+		$this->assertFalse( post_type_exists( Search_Template::POST_TYPE ) );
+
+		// Bump the action counter that `did_action()` reads, without
+		// dispatching `init` (which would re-fire every WP and plugin init
+		// callback in the suite — heavy and unrelated to what we're testing).
+		global $wp_actions;
+		$prev_count         = $wp_actions['init'] ?? 0;
+		$wp_actions['init'] = $prev_count + 1;
+		try {
+			$this->assertGreaterThan( 0, did_action( 'init' ) );
+			Search_Template::init();
+			$this->assertTrue(
+				post_type_exists( Search_Template::POST_TYPE ),
+				'register_post_type() must run inline when init() is invoked after init has fired.'
+			);
+		} finally {
+			if ( 0 === $prev_count ) {
+				unset( $wp_actions['init'] );
+			} else {
+				$wp_actions['init'] = $prev_count;
+			}
+		}
+	}
 }
