@@ -51,8 +51,7 @@
 .blaze-lp-hero-scrim {
 	position: absolute;
 	inset: 0;
-	background:
- linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.7) 100%);
+	background: linear-gradient(to bottom, rgb(0 0 0 / 55%) 0%, rgb(0 0 0 / 35%) 45%, rgb(0 0 0 / 70%) 100%);
 	z-index: 0;
 }
 
