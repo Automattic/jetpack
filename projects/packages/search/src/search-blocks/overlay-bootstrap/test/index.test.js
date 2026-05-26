@@ -72,6 +72,13 @@ async function loadBootstrap() {
 
 const isOpen = () => ! document.getElementById( OVERLAY_ID ).hasAttribute( 'hidden' );
 
+// jsdom locks `window.location.reload` (non-configurable, non-writable, on the
+// instance — not the prototype), and `window.location` itself can't be
+// redefined. Invoking `reload()` emits a "Not implemented: navigation to
+// another Document" `console.error`. Reload-path tests assert
+// `expect( console ).toHaveErrored()` as evidence the call fired — that doubles
+// as the declaration that satisfies the jest-console strict guard.
+
 afterEach( () => {
 	setReadyState( 'complete' );
 	setUrl( '/' );
@@ -139,13 +146,17 @@ describe( 'overlay-bootstrap click dismissal', () => {
 	 * Render the full overlay, open it via the URL trigger, and stub
 	 * `window.scrollTo` (which `closeOverlay` calls when restoring scroll
 	 * position). jsdom doesn't implement scrollTo and the close-path tests
-	 * would otherwise trip `@wordpress/jest-console`'s strict error guard.
+	 * would otherwise trip the jest-console strict error guard.
+	 *
+	 * @param {string} [initialUrl] - Path+query to load the bootstrap against.
+	 *                              Defaults to `?s=hello` so the overlay opens
+	 *                              via the URL trigger.
 	 */
-	async function setUpOpenOverlay() {
+	async function setUpOpenOverlay( initialUrl = '/?s=hello' ) {
 		window.scrollTo = () => {};
 		setReadyState( 'complete' );
 		renderOverlayShell( { full: true } );
-		setUrl( '/?s=hello' );
+		setUrl( initialUrl );
 		await loadBootstrap();
 	}
 
@@ -155,7 +166,10 @@ describe( 'overlay-bootstrap click dismissal', () => {
 		const closeBtn = document.querySelector( '.jetpack-search-block-overlay__close' );
 		closeBtn.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
 
-		expect( isOpen() ).toBe( false );
+		// `?s=hello` was present, so the close path reloads and the DOM-hide
+		// branch is skipped. We can't observe `hidden` here because
+		// `closeOverlay()` returns immediately after `reload()`.
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'closes when the scrim (outside the card) is clicked', async () => {
@@ -165,7 +179,7 @@ describe( 'overlay-bootstrap click dismissal', () => {
 			.getElementById( OVERLAY_ID )
 			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
 
-		expect( isOpen() ).toBe( false );
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'stays open when a click target inside the card is detached mid-bubble', async () => {
@@ -193,5 +207,84 @@ describe( 'overlay-bootstrap click dismissal', () => {
 			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
 
 		expect( isOpen() ).toBe( true );
+	} );
+} );
+
+describe( 'overlay-bootstrap close URL behavior', () => {
+	beforeEach( () => {
+		window.scrollTo = () => {};
+	} );
+
+	/**
+	 * Open the overlay against the given URL and trigger a close-button click.
+	 *
+	 * @param {string} initialUrl - Path+query to start at.
+	 * @return {Promise<void>}
+	 */
+	async function closeFrom( initialUrl ) {
+		setReadyState( 'complete' );
+		renderOverlayShell( { full: true } );
+		setUrl( initialUrl );
+		await loadBootstrap();
+		document
+			.querySelector( '.jetpack-search-block-overlay__close' )
+			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+	}
+
+	it( 'strips ?s= and reloads when closing from a searched URL', async () => {
+		await closeFrom( '/?s=hello' );
+
+		expect( window.location.search ).toBe( '' );
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'strips array-shaped filter params alongside the search query', async () => {
+		await closeFrom( '/?s=hello&category[]=news&category[]=blog&query_type_category=and' );
+
+		const params = new URLSearchParams( window.location.search );
+		expect( params.has( 's' ) ).toBe( false );
+		expect( params.has( 'category[]' ) ).toBe( false );
+		expect( params.has( 'query_type_category' ) ).toBe( false );
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'preserves non-search params and the hash', async () => {
+		await closeFrom( '/page/?s=hello&utm_source=twitter#anchor' );
+
+		const params = new URLSearchParams( window.location.search );
+		expect( params.has( 's' ) ).toBe( false );
+		expect( params.get( 'utm_source' ) ).toBe( 'twitter' );
+		expect( window.location.pathname ).toBe( '/page/' );
+		expect( window.location.hash ).toBe( '#anchor' );
+		expect( console ).toHaveErrored();
+	} );
+
+	it( 'does not reload when closing with no search params (manual trigger close)', async () => {
+		// No `?s=`/`?q=` means the URL-trigger doesn't auto-open. Simulate an
+		// open by removing `hidden` directly, then close — verifies the
+		// no-strip → no-reload branch end-to-end.
+		setReadyState( 'complete' );
+		renderOverlayShell( { full: true } );
+		setUrl( '/' );
+		await loadBootstrap();
+		document.getElementById( OVERLAY_ID ).removeAttribute( 'hidden' );
+
+		document
+			.querySelector( '.jetpack-search-block-overlay__close' )
+			.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		// No params to strip → no reload, overlay hides via the DOM path.
+		expect( isOpen() ).toBe( false );
+	} );
+
+	it( 'reloads on Escape close when the URL carried search params', async () => {
+		setReadyState( 'complete' );
+		renderOverlayShell( { full: true } );
+		setUrl( '/?s=hello' );
+		await loadBootstrap();
+
+		document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape', bubbles: true } ) );
+
+		expect( console ).toHaveErrored();
 	} );
 } );
