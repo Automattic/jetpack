@@ -33,7 +33,8 @@
 }
 
 .jetpack-social-overview__chart-loading,
-.jetpack-social-overview__chart-empty {
+.jetpack-social-overview__chart-empty,
+.jetpack-social-overview__chart-error {
 	align-items: center;
 	display: flex;
 	justify-content: center;
@@ -84,4 +85,10 @@
 	flex: 0 0 auto;
 	inline-size: min(420px, 100%);
 	pointer-events: auto;
+}
+
+// Clamp the error Notice so it doesn't stretch to the full card width on
+// wide viewports, matching the upgrade-notice treatment.
+.jetpack-social-overview__chart-error-notice {
+	inline-size: min(420px, 100%);
 }

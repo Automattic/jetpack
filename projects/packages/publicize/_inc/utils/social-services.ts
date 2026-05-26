@@ -45,8 +45,12 @@ export const SOCIAL_SERVICE_META: Record< string, SocialServiceMeta > = {
 	nextdoor: { hosts: [ 'nextdoor.com' ], label: 'Nextdoor', stroke: '#8ed500' },
 	pinterest: { hosts: [ 'pinterest.com', 'pin.it' ], label: 'Pinterest', stroke: '#e60023' },
 	reddit: { hosts: [ 'reddit.com', 'redd.it' ], label: 'Reddit', stroke: '#ff4500' },
-	threads: { hosts: [ 'threads.net', 'threads.com' ], label: 'Threads', stroke: '#000000' },
-	tiktok: { hosts: [ 'tiktok.com' ], label: 'TikTok', stroke: '#010101' },
+	// X, Threads and TikTok are all black-branded. Three near-black lines on
+	// one chart are indistinguishable, so only X keeps pure black (its most
+	// iconic treatment); Threads takes a dark grey and TikTok its cyan accent
+	// so the three stay legible in the chart and the legend swatches.
+	threads: { hosts: [ 'threads.net', 'threads.com' ], label: 'Threads', stroke: '#454545' },
+	tiktok: { hosts: [ 'tiktok.com' ], label: 'TikTok', stroke: '#25f4ee' },
 	tumblr: { hosts: [ 'tumblr.com' ], label: 'Tumblr', stroke: '#35465c' },
 	x: { hosts: [ 'x.com', 'twitter.com', 't.co' ], label: 'X', stroke: '#000000' },
 	youtube: { hosts: [ 'youtube.com', 'youtu.be' ], label: 'YouTube', stroke: '#ff0000' },

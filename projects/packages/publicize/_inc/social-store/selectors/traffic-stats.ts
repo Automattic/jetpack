@@ -43,3 +43,20 @@ export function isTrafficReferrersLoading(
 	const key = interval ?? state.trafficStats?.interval ?? 30;
 	return Boolean( state.trafficStats?.byInterval?.[ key ]?.loading );
 }
+
+/**
+ * Whether the last referrers fetch failed for the requested interval
+ * (or the active interval when none is provided). Lets the card show a
+ * distinct error affordance instead of the "no traffic yet" empty state.
+ *
+ * @param state      - Store state.
+ * @param [interval] - Interval to read; defaults to the active one.
+ * @return True when the most recent fetch errored.
+ */
+export function getTrafficReferrersError(
+	state: SocialStoreState,
+	interval?: TrafficInterval
+): boolean {
+	const key = interval ?? state.trafficStats?.interval ?? 30;
+	return Boolean( state.trafficStats?.byInterval?.[ key ]?.error );
+}

@@ -1,3 +1,4 @@
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import {
@@ -13,7 +14,11 @@ import {
 	startRenderingMessages,
 } from './actions/rendered-messages';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { fetchTrafficReferrers, receiveTrafficReferrers } from './actions/traffic-stats';
+import {
+	fetchTrafficReferrers,
+	receiveTrafficReferrers,
+	receiveTrafficReferrersError,
+} from './actions/traffic-stats';
 import {
 	PostShareStatus,
 	RenderedMessageBatch,
@@ -143,12 +148,23 @@ type ReferrersResponse = {
 	days?: Record< string, TrafficReferrerDay >;
 };
 
+// Cap on referrers returned per day. The endpoint ranks referrers by
+// volume, so a small cap can push social hosts below the cut on sites
+// dominated by search/direct traffic. Keep it generous so social rows
+// survive the truncation.
+const MAX_REFERRERS = 100;
+
 /**
- * Resolver for `getTrafficReferrers`. Hits the existing stats-app REST
- * endpoint at `/jetpack/v4/stats-app/sites/{site}/stats/referrers` and
- * stores the per-day rows under the requested interval. The endpoint
- * resolves the site from `get_current_blog_id()` server-side, so the
- * frontend path uses a literal `0` segment as the placeholder.
+ * Resolver for `getTrafficReferrers`. Reads the existing WPCOM stats
+ * `referrers` data and stores the per-day rows under the requested
+ * interval.
+ *
+ * The Jetpack-site route is registered with the real blog ID baked into
+ * its path (see `Automattic\Jetpack\Stats_Admin\REST_Controller`), so we
+ * must send the actual ID — a `0` placeholder matches no route and 404s.
+ * Simple sites read the same payload through the public `/rest/v1.1`
+ * namespace instead. Mirrors the path-building in the membership-products
+ * store resolver.
  *
  * @param interval - Number of days the chart should cover.
  * @return Resolver thunk.
@@ -156,13 +172,21 @@ type ReferrersResponse = {
 export function getTrafficReferrers( interval: TrafficInterval = 30 ) {
 	return async ( { dispatch } ) => {
 		dispatch( fetchTrafficReferrers( interval ) );
+
+		const blogId = getScriptData()?.site?.wpcom?.blog_id;
+		if ( ! blogId ) {
+			dispatch( receiveTrafficReferrersError( interval ) );
+			return;
+		}
+
+		const base = isSimpleSite() ? '/rest/v1.1/sites' : '/jetpack/v4/stats-app/sites';
 		try {
 			const result = await apiFetch< ReferrersResponse >( {
-				path: `/jetpack/v4/stats-app/sites/0/stats/referrers?period=day&num=${ interval }&max=20`,
+				path: `${ base }/${ blogId }/stats/referrers?period=day&num=${ interval }&max=${ MAX_REFERRERS }`,
 			} );
 			dispatch( receiveTrafficReferrers( interval, result?.days ?? {} ) );
 		} catch {
-			dispatch( fetchTrafficReferrers( interval, false ) );
+			dispatch( receiveTrafficReferrersError( interval ) );
 		}
 	};
 }

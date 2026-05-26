@@ -2,6 +2,7 @@ import { TrafficInterval, TrafficReferrerDay } from '../types';
 import {
 	FETCH_TRAFFIC_REFERRERS,
 	RECEIVE_TRAFFIC_REFERRERS,
+	RECEIVE_TRAFFIC_REFERRERS_ERROR,
 	SET_TRAFFIC_INTERVAL,
 } from './constants';
 
@@ -49,5 +50,19 @@ export function receiveTrafficReferrers(
 		type: RECEIVE_TRAFFIC_REFERRERS,
 		interval,
 		days,
+	};
+}
+
+/**
+ * Flag the referrers fetch for a given interval as failed so the card
+ * can distinguish a request error from a successful-but-empty window.
+ *
+ * @param interval - Number of days the failed fetch covered.
+ * @return Action object.
+ */
+export function receiveTrafficReferrersError( interval: TrafficInterval ) {
+	return {
+		type: RECEIVE_TRAFFIC_REFERRERS_ERROR,
+		interval,
 	};
 }

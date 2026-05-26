@@ -1,18 +1,23 @@
 import {
 	FETCH_TRAFFIC_REFERRERS,
 	RECEIVE_TRAFFIC_REFERRERS,
+	RECEIVE_TRAFFIC_REFERRERS_ERROR,
 	SET_TRAFFIC_INTERVAL,
 } from '../actions/constants';
 import {
 	fetchTrafficReferrers,
 	receiveTrafficReferrers,
+	receiveTrafficReferrersError,
 	setTrafficInterval,
 } from '../actions/traffic-stats';
 import { SocialStoreState, TrafficStatsState } from '../types';
 
 type Action =
 	| ReturnType<
-			typeof setTrafficInterval | typeof fetchTrafficReferrers | typeof receiveTrafficReferrers
+			| typeof setTrafficInterval
+			| typeof fetchTrafficReferrers
+			| typeof receiveTrafficReferrers
+			| typeof receiveTrafficReferrersError
 	  >
 	| { type: 'default' };
 
@@ -44,6 +49,8 @@ export function trafficStats(
 					[ action.interval ]: {
 						...state?.byInterval?.[ action.interval ],
 						loading: action.loading,
+						// Clear any prior error when a fresh fetch starts.
+						error: false,
 					},
 				},
 			};
@@ -54,7 +61,20 @@ export function trafficStats(
 					...state?.byInterval,
 					[ action.interval ]: {
 						loading: false,
+						error: false,
 						days: action.days,
+					},
+				},
+			};
+		case RECEIVE_TRAFFIC_REFERRERS_ERROR:
+			return {
+				...state,
+				byInterval: {
+					...state?.byInterval,
+					[ action.interval ]: {
+						...state?.byInterval?.[ action.interval ],
+						loading: false,
+						error: true,
 					},
 				},
 			};

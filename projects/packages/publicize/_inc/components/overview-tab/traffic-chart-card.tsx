@@ -11,94 +11,12 @@ import { Button, Card, EmptyState, Notice, Stack, Text, Tooltip } from '@wordpre
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils';
 import { getRefreshPlanQuery } from '../../utils/script-data';
-import { SOCIAL_SERVICE_META, matchSocialService } from '../../utils/social-services';
+import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
 import { buildMockReferrers } from './traffic-mock';
-import type { Connection, TrafficInterval, TrafficReferrerDay } from '../../social-store/types';
+import type { Connection, TrafficInterval } from '../../social-store/types';
 
 const CHART_HEIGHT = 240;
-
-type Series = {
-	label: string;
-	data: { date: Date; value: number }[];
-	options?: { stroke?: string };
-};
-
-/**
- * Reduce a `days` map from the referrers endpoint into one chart series
- * per matched social-service host. Every social referrer renders even
- * if the user hasn't connected that service via Publicize — surfacing a
- * Facebook line on a site that only auto-shares to LinkedIn is a useful
- * discovery cue ("you're already getting traffic here; connect to
- * lean in"), not noise. The Publicize connections list is consulted
- * only to pick a nicer legend label when it's available.
- *
- * Days are sorted ascending so the line draws left to right regardless
- * of the API ordering. Services with zero total over the window are
- * dropped so the legend stays focused on what's actually driving
- * visits.
- *
- * @param days        - Per-day referrer payload keyed by `YYYY-MM-DD`.
- * @param connections - Site's Publicize connections, used to pull a
- *                    human-friendly label for the legend.
- * @return One series per surviving service.
- */
-function buildSeries(
-	days: Record< string, TrafficReferrerDay > | undefined,
-	connections: Connection[]
-): Series[] {
-	if ( ! days ) {
-		return [];
-	}
-
-	const dates = Object.keys( days ).sort();
-	if ( dates.length === 0 ) {
-		return [];
-	}
-
-	const buckets = new Map< string, Map< string, number > >();
-	for ( const date of dates ) {
-		const groups = days[ date ]?.groups ?? [];
-		for ( const group of groups ) {
-			const target = group.url ?? group.name ?? '';
-			const service = matchSocialService( target );
-			if ( ! service ) {
-				continue;
-			}
-			const total = Number( group.total ?? 0 );
-			if ( ! Number.isFinite( total ) ) {
-				continue;
-			}
-			const byDate = buckets.get( service ) ?? new Map< string, number >();
-			byDate.set( date, ( byDate.get( date ) ?? 0 ) + total );
-			buckets.set( service, byDate );
-		}
-	}
-
-	const series: Series[] = [];
-	for ( const [ service, byDate ] of buckets ) {
-		const total = Array.from( byDate.values() ).reduce( ( a, b ) => a + b, 0 );
-		if ( total === 0 ) {
-			continue;
-		}
-		const data = dates.map( date => ( {
-			date: new Date( `${ date }T00:00:00Z` ),
-			value: byDate.get( date ) ?? 0,
-		} ) );
-		const conn = connections.find( c => c.service_name === service );
-		const label =
-			conn?.service_label ??
-			SOCIAL_SERVICE_META[ service ]?.label ??
-			service.replace( /^./, c => c.toUpperCase() );
-		series.push( {
-			label,
-			data,
-			options: { stroke: SOCIAL_SERVICE_META[ service ]?.stroke },
-		} );
-	}
-
-	return series;
-}
 
 const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'Last 7 days', 'jetpack-publicize-pkg' ), value: '7' },
@@ -107,15 +25,15 @@ const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
 ];
 
 /**
- * "Traffic from social media" card on the Overview tab. Three states
- * drive the body: a free-plan locked dummy curve overlaid with a WPDS
+ * "Traffic from social media" card on the Overview tab. The body has
+ * four states: a free-plan locked dummy curve overlaid with a WPDS
  * `Notice` upgrade prompt (no `social-enhanced-publishing` feature);
  * a paid-plan real chart fed by the cached `getTrafficReferrers`
  * resolver, one line per connected service that drove ≥1 visit in the
- * window; and a paid-plan-no-data empty state when nothing comes back.
- * The range Select (7/30/90 days) is always interactive — lets free
- * users feel the control, lets paid users widen the window if 7 was
- * just too narrow.
+ * window; a paid-plan-no-data empty state when nothing comes back; and
+ * an error notice when the fetch fails. The range Select (7/30/90 days)
+ * is always interactive — lets free users feel the control, lets paid
+ * users widen the window if 7 was just too narrow.
  *
  * @return The chart card element.
  */
@@ -126,7 +44,7 @@ export default function TrafficChartCard(): JSX.Element {
 	// Only read real referrer data when we'd actually show it. Reading
 	// the resolver-backed selector triggers the fetch, so skipping it
 	// on the free path keeps us off the stats-app endpoint entirely.
-	const { interval, days, isLoading, connections } = useSelect(
+	const { interval, days, isLoading, hasError, connections } = useSelect(
 		select => {
 			const store = select( socialStore );
 			const current = store.getTrafficInterval();
@@ -134,6 +52,7 @@ export default function TrafficChartCard(): JSX.Element {
 				interval: current,
 				days: needsUpgrade ? undefined : store.getTrafficReferrers( current ),
 				isLoading: needsUpgrade ? false : store.isTrafficReferrersLoading( current ),
+				hasError: needsUpgrade ? false : store.getTrafficReferrersError( current ),
 				connections: ( store.getConnections() ?? [] ) as Connection[],
 			};
 		},
@@ -150,7 +69,9 @@ export default function TrafficChartCard(): JSX.Element {
 		[ needsUpgrade, mockDays, days, connections ]
 	);
 
-	const hasData = series.length > 0 && series[ 0 ].data.length > 0;
+	// Every series spans the full (non-empty) date range, so a non-empty
+	// series list is sufficient to know there's something to draw.
+	const hasData = series.length > 0;
 
 	const subtitle = sprintf(
 		/* translators: %d: number of days the chart covers. */
@@ -174,7 +95,8 @@ export default function TrafficChartCard(): JSX.Element {
 	);
 
 	const showSpinner = ! needsUpgrade && isLoading && ! hasData;
-	const showEmpty = ! needsUpgrade && ! isLoading && ! hasData;
+	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
+	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData;
 
 	return (
 		<Card.Root>
@@ -224,6 +146,21 @@ export default function TrafficChartCard(): JSX.Element {
 				{ showSpinner && (
 					<div className="jetpack-social-overview__chart-loading">
 						<Spinner />
+					</div>
+				) }
+				{ showError && (
+					<div className="jetpack-social-overview__chart-error">
+						<Notice.Root intent="error" className="jetpack-social-overview__chart-error-notice">
+							<Notice.Title>
+								{ __( 'Couldn’t load traffic data', 'jetpack-publicize-pkg' ) }
+							</Notice.Title>
+							<Notice.Description>
+								{ __(
+									'Something went wrong fetching your social traffic. Refresh the page to try again.',
+									'jetpack-publicize-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					</div>
 				) }
 				{ showEmpty && (

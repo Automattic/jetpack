@@ -164,7 +164,10 @@ export type TrafficInterval = 7 | 30 | 90;
 export type TrafficStatsState = {
 	interval: TrafficInterval;
 	byInterval?: Partial<
-		Record< TrafficInterval, { loading?: boolean; days?: Record< string, TrafficReferrerDay > } >
+		Record<
+			TrafficInterval,
+			{ loading?: boolean; error?: boolean; days?: Record< string, TrafficReferrerDay > }
+		>
 	>;
 };
 
