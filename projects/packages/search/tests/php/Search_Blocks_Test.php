@@ -1123,39 +1123,6 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Saved Embedded but the `jetpack_search_theme_supports_embedded_experience`
-	 * Filter forces Embedded off: `get_experience()` resolves to Theme search
-	 * (Inline), so neither the block-theme nor the classic-theme template-
-	 * Takeover hooks register. Guards the opt-out escape hatch — a site that
-	 * Returns false from the filter must keep the search page on the theme's
-	 * Own search template regardless of theme type.
-	 */
-	public function test_init_does_not_register_template_hooks_when_filter_disables_embedded() {
-		$this->reset_search_blocks_hooks();
-		$this->set_module_active( true );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
-
-		Search_Blocks::init();
-
-		$this->assertFalse(
-			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
-			'register_search_template must not hook when the filter disables Embedded'
-		);
-		$this->assertFalse(
-			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
-			'prepend_search_template must not hook when the filter disables Embedded'
-		);
-		$this->assertFalse(
-			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
-			'route_classic_theme_search_template must not hook when the filter disables Embedded'
-		);
-
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-	}
-
-	/**
 	 * If the module isn't active, the experience is `'off'` regardless of any
 	 * Stale value in the experience option, so the template-override hooks
 	 * Must not register. Guards against a leftover `'embedded'` value on a
@@ -1193,7 +1160,6 @@ class Search_Blocks_Test extends TestCase {
 	public function test_init_registers_posts_pre_query_when_embedded() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 
 		Search_Blocks::init();
@@ -1204,7 +1170,6 @@ class Search_Blocks_Test extends TestCase {
 			'posts_pre_query short-circuit must hook at priority 10 on embedded'
 		);
 
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 

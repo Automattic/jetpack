@@ -257,7 +257,7 @@ class Module_Control {
 
 		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
 		if ( self::EXPERIENCE_EMBEDDED === $saved ) {
-			return $this->theme_supports_embedded_experience() ? self::EXPERIENCE_EMBEDDED : self::EXPERIENCE_INLINE;
+			return self::EXPERIENCE_EMBEDDED;
 		}
 		if ( self::EXPERIENCE_OVERLAY === $saved ) {
 			return self::EXPERIENCE_OVERLAY;
@@ -273,33 +273,6 @@ class Module_Control {
 		}
 
 		return self::EXPERIENCE_INLINE;
-	}
-
-	/**
-	 * Whether the active theme can render the Embedded search experience.
-	 *
-	 * True for every theme by default: block themes resolve the bundled
-	 * `jetpack-search` block template through `search_template_hierarchy`,
-	 * classic themes get the same block markup wrapped in
-	 * `get_header()` / `get_footer()` via `template_include`. The filter
-	 * remains the escape hatch for sites that want to force Embedded back
-	 * to Theme search (inline) without changing the saved option.
-	 *
-	 * @return bool
-	 */
-	protected function theme_supports_embedded_experience(): bool {
-		/**
-		 * Filter whether the active theme can render the Embedded search experience.
-		 *
-		 * Defaults to true now that both block and classic themes are supported.
-		 * Sites that want to force Embedded to fall back to Theme search (inline)
-		 * regardless of theme can return false here.
-		 *
-		 * @since 0.60.0
-		 *
-		 * @param bool $supported Whether the active theme can render Embedded search.
-		 */
-		return (bool) apply_filters( 'jetpack_search_theme_supports_embedded_experience', true );
 	}
 
 	/**
