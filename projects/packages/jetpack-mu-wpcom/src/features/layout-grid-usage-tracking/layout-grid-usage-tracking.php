@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-const LAYOUT_GRID_BLOCK_NAME       = 'jetpack/layout-grid';
-const LAYOUT_GRID_SEEN_OPTION      = 'layout_grid_block_seen';
-const LAYOUT_GRID_IMPORT_TRANSIENT = 'layout_grid_block_import_seen';
-const LAYOUT_GRID_CRON_TRANSIENT   = 'layout_grid_block_cron_seen';
-const LAYOUT_GRID_LOG_FEATURE      = 'atomic_layout_grid_block';
-const LAYOUT_GRID_LOG_MESSAGE      = 'layout_grid_block_observed';
+const WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME       = 'jetpack/layout-grid';
+const WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION      = 'wpcom_layout_grid_block_seen';
+const WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT = 'wpcom_layout_grid_block_import_seen';
+const WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT   = 'wpcom_layout_grid_block_cron_seen';
+const WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE      = 'atomic_layout_grid_block';
+const WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE      = 'layout_grid_block_observed';
 
 /**
  * Whether to register the detectors. WoA only — non-WoA Atomic / connected
@@ -27,18 +27,18 @@ const LAYOUT_GRID_LOG_MESSAGE      = 'layout_grid_block_observed';
  *
  * @return bool
  */
-function layout_grid_should_load() {
+function wpcom_layout_grid_usage_should_load() {
 	if ( ! class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
 		return false;
 	}
 	return ( new \Automattic\Jetpack\Status\Host() )->is_woa_site();
 }
 
-if ( layout_grid_should_load() ) {
-	add_action( 'wp_after_insert_post', 'layout_grid_react_to_post_insert', 10, 4 );
-	add_action( 'add_option_widget_block', 'layout_grid_react_to_widget_block_added', 10, 2 );
-	add_action( 'update_option_widget_block', 'layout_grid_react_to_widget_block_updated', 10, 2 );
-	add_filter( 'render_block_' . LAYOUT_GRID_BLOCK_NAME, 'layout_grid_react_to_block_render', 10, 2 );
+if ( wpcom_layout_grid_usage_should_load() ) {
+	add_action( 'wp_after_insert_post', 'wpcom_layout_grid_usage_react_to_post_insert', 10, 4 );
+	add_action( 'add_option_widget_block', 'wpcom_layout_grid_usage_react_to_widget_block_added', 10, 2 );
+	add_action( 'update_option_widget_block', 'wpcom_layout_grid_usage_react_to_widget_block_updated', 10, 2 );
+	add_filter( 'render_block_' . WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, 'wpcom_layout_grid_usage_react_to_block_render', 10, 2 );
 }
 
 /**
@@ -54,7 +54,7 @@ if ( layout_grid_should_load() ) {
  * @param \WP_Post|null $post_before Previous post version (null on insert).
  * @return void
  */
-function layout_grid_react_to_post_insert( $post_id, $post, $update, $post_before ) {
+function wpcom_layout_grid_usage_react_to_post_insert( $post_id, $post, $update, $post_before ) {
 	unset( $update );
 	// Revisions and autosaves are inserted as their own posts, so the
 	// `$post_before` check below can't see the parent post's previous state —
@@ -70,18 +70,18 @@ function layout_grid_react_to_post_insert( $post_id, $post, $update, $post_befor
 	// re-fetch the post via cache (or DB) and return a different content
 	// snapshot than the WP_Post we were handed. Pass the raw content string
 	// directly so the scan is over the exact bytes we observed.
-	if ( ! has_block( LAYOUT_GRID_BLOCK_NAME, (string) $post->post_content ) ) {
+	if ( ! has_block( WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, (string) $post->post_content ) ) {
 		return;
 	}
-	if ( $post_before instanceof \WP_Post && has_block( LAYOUT_GRID_BLOCK_NAME, (string) $post_before->post_content ) ) {
+	if ( $post_before instanceof \WP_Post && has_block( WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, (string) $post_before->post_content ) ) {
 		return;
 	}
 	$is_importing = defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	$is_cron      = defined( 'DOING_CRON' ) && DOING_CRON;
-	if ( ! layout_grid_should_log_in_context( $is_importing, $is_cron ) ) {
+	if ( ! wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron ) ) {
 		return;
 	}
-	$dispatched = layout_grid_log_observation(
+	$dispatched = wpcom_layout_grid_usage_log_observation(
 		array(
 			'surface'   => 'post_insert',
 			'post_type' => (string) $post->post_type,
@@ -92,14 +92,14 @@ function layout_grid_react_to_post_insert( $post_id, $post, $update, $post_befor
 	// observation silently consumes the rate-limit window without recording
 	// anything in Kibana.
 	if ( $dispatched ) {
-		layout_grid_mark_context_seen( $is_importing, $is_cron );
+		wpcom_layout_grid_usage_mark_context_seen( $is_importing, $is_cron );
 	}
 }
 
 /**
  * Read-only rate-limit gate for high-volume insert contexts. Returns false
  * when the per-context transient is already set (we've logged within the
- * window). Pair with `layout_grid_mark_context_seen()` after a successful
+ * window). Pair with `wpcom_layout_grid_usage_mark_context_seen()` after a successful
  * dispatch — splitting the read from the write means a logging failure no
  * longer burns the 24h budget.
  *
@@ -109,8 +109,8 @@ function layout_grid_react_to_post_insert( $post_id, $post, $update, $post_befor
  * @param bool $is_cron      Whether `DOING_CRON` is set.
  * @return bool True if the caller should continue and log; false to skip.
  */
-function layout_grid_should_log_in_context( $is_importing, $is_cron ) {
-	$key = layout_grid_context_transient_key( $is_importing, $is_cron );
+function wpcom_layout_grid_usage_should_log_in_context( $is_importing, $is_cron ) {
+	$key = wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron );
 	if ( null === $key ) {
 		return true;
 	}
@@ -125,8 +125,8 @@ function layout_grid_should_log_in_context( $is_importing, $is_cron ) {
  * @param bool $is_cron      Whether `DOING_CRON` is set.
  * @return void
  */
-function layout_grid_mark_context_seen( $is_importing, $is_cron ) {
-	$key = layout_grid_context_transient_key( $is_importing, $is_cron );
+function wpcom_layout_grid_usage_mark_context_seen( $is_importing, $is_cron ) {
+	$key = wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron );
 	if ( null === $key ) {
 		return;
 	}
@@ -141,12 +141,12 @@ function layout_grid_mark_context_seen( $is_importing, $is_cron ) {
  * @param bool $is_cron      Whether `DOING_CRON` is set.
  * @return string|null
  */
-function layout_grid_context_transient_key( $is_importing, $is_cron ) {
+function wpcom_layout_grid_usage_context_transient_key( $is_importing, $is_cron ) {
 	if ( $is_importing ) {
-		return LAYOUT_GRID_IMPORT_TRANSIENT;
+		return WPCOM_LAYOUT_GRID_USAGE_IMPORT_TRANSIENT;
 	}
 	if ( $is_cron ) {
-		return LAYOUT_GRID_CRON_TRANSIENT;
+		return WPCOM_LAYOUT_GRID_USAGE_CRON_TRANSIENT;
 	}
 	return null;
 }
@@ -159,12 +159,12 @@ function layout_grid_context_transient_key( $is_importing, $is_cron ) {
  * @param mixed  $value  New option value.
  * @return void
  */
-function layout_grid_react_to_widget_block_added( $option, $value ) {
+function wpcom_layout_grid_usage_react_to_widget_block_added( $option, $value ) {
 	unset( $option );
-	if ( ! layout_grid_widget_value_contains_block( $value ) ) {
+	if ( ! wpcom_layout_grid_usage_widget_value_contains_block( $value ) ) {
 		return;
 	}
-	layout_grid_log_observation( array( 'surface' => 'widget_add' ) );
+	wpcom_layout_grid_usage_log_observation( array( 'surface' => 'widget_add' ) );
 }
 
 /**
@@ -176,14 +176,14 @@ function layout_grid_react_to_widget_block_added( $option, $value ) {
  * @param mixed $value     New option value.
  * @return void
  */
-function layout_grid_react_to_widget_block_updated( $old_value, $value ) {
-	if ( ! layout_grid_widget_value_contains_block( $value ) ) {
+function wpcom_layout_grid_usage_react_to_widget_block_updated( $old_value, $value ) {
+	if ( ! wpcom_layout_grid_usage_widget_value_contains_block( $value ) ) {
 		return;
 	}
-	if ( layout_grid_widget_value_contains_block( $old_value ) ) {
+	if ( wpcom_layout_grid_usage_widget_value_contains_block( $old_value ) ) {
 		return;
 	}
-	layout_grid_log_observation( array( 'surface' => 'widget_update' ) );
+	wpcom_layout_grid_usage_log_observation( array( 'surface' => 'widget_update' ) );
 }
 
 /**
@@ -198,9 +198,9 @@ function layout_grid_react_to_widget_block_updated( $old_value, $value ) {
  * @param array  $parsed_block  Parsed block (unused).
  * @return string Unchanged content.
  */
-function layout_grid_react_to_block_render( $block_content, $parsed_block ) {
+function wpcom_layout_grid_usage_react_to_block_render( $block_content, $parsed_block ) {
 	unset( $parsed_block );
-	if ( get_option( LAYOUT_GRID_SEEN_OPTION ) ) {
+	if ( get_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION ) ) {
 		return $block_content;
 	}
 	// Only persist the sentinel after the dispatch attempt actually went out.
@@ -208,8 +208,8 @@ function layout_grid_react_to_block_render( $block_content, $parsed_block ) {
 	// observation permanently disables the render backstop for this blog,
 	// because the option has no TTL — even after the underlying cause is
 	// fixed, the backstop never fires again.
-	if ( layout_grid_log_observation( array( 'surface' => 'render' ) ) ) {
-		update_option( LAYOUT_GRID_SEEN_OPTION, 1, false );
+	if ( wpcom_layout_grid_usage_log_observation( array( 'surface' => 'render' ) ) ) {
+		update_option( WPCOM_LAYOUT_GRID_USAGE_SEEN_OPTION, 1, false );
 	}
 	return $block_content;
 }
@@ -222,7 +222,7 @@ function layout_grid_react_to_block_render( $block_content, $parsed_block ) {
  * @param mixed $value Option value.
  * @return bool
  */
-function layout_grid_widget_value_contains_block( $value ) {
+function wpcom_layout_grid_usage_widget_value_contains_block( $value ) {
 	if ( ! is_array( $value ) ) {
 		return false;
 	}
@@ -231,7 +231,7 @@ function layout_grid_widget_value_contains_block( $value ) {
 			is_array( $widget )
 			&& isset( $widget['content'] )
 			&& is_string( $widget['content'] )
-			&& has_block( LAYOUT_GRID_BLOCK_NAME, $widget['content'] )
+			&& has_block( WPCOM_LAYOUT_GRID_USAGE_BLOCK_NAME, $widget['content'] )
 		) {
 			return true;
 		}
@@ -254,7 +254,7 @@ function layout_grid_widget_value_contains_block( $value ) {
  *                     Caller keys win on collision.
  * @return bool True if the dispatch was attempted; false if short-circuited.
  */
-function layout_grid_log_observation( array $extra ) {
+function wpcom_layout_grid_usage_log_observation( array $extra ) {
 	/**
 	 * Whether layout-grid usage observations should be dispatched to logstash.
 	 * Defaults to true; tests short-circuit this to keep `log2logstash` (and
@@ -264,7 +264,7 @@ function layout_grid_log_observation( array $extra ) {
 	 * @param bool  $enabled Whether to dispatch the log event.
 	 * @param array $extra   Surface-specific properties for the candidate event.
 	 */
-	if ( ! (bool) apply_filters( 'layout_grid_log_enabled', true, $extra ) ) {
+	if ( ! (bool) apply_filters( 'wpcom_layout_grid_usage_log_enabled', true, $extra ) ) {
 		return false;
 	}
 	if ( ! class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
@@ -295,15 +295,15 @@ function layout_grid_log_observation( array $extra ) {
 			'is_cli'         => defined( 'WP_CLI' ) && WP_CLI,
 			'is_cron'        => defined( 'DOING_CRON' ) && DOING_CRON,
 			'is_importing'   => defined( 'WP_IMPORTING' ) && WP_IMPORTING,
-			'trace'          => layout_grid_attribute_source(),
+			'trace'          => wpcom_layout_grid_usage_attribute_source(),
 		),
 		$extra
 	);
 
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
-		LAYOUT_GRID_LOG_FEATURE,
-		LAYOUT_GRID_LOG_MESSAGE,
-		layout_grid_redact_paths( $payload )
+		WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE,
+		WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE,
+		wpcom_layout_grid_usage_redact_paths( $payload )
 	);
 	return true;
 }
@@ -318,13 +318,13 @@ function layout_grid_log_observation( array $extra ) {
  *
  * @return string[]
  */
-function layout_grid_attribute_source() {
+function wpcom_layout_grid_usage_attribute_source() {
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional: attribution backtrace for a logstash record.
 	$frames    = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 	$self_file = __FILE__;
 	$relevant  = array();
 	foreach ( $frames as $frame ) {
-		$entry = layout_grid_format_attribution_frame( $frame, $self_file );
+		$entry = wpcom_layout_grid_usage_format_attribution_frame( $frame, $self_file );
 		if ( null === $entry ) {
 			continue;
 		}
@@ -337,7 +337,7 @@ function layout_grid_attribute_source() {
 }
 
 /**
- * Pure per-frame predicate for `layout_grid_attribute_source()`. Returns
+ * Pure per-frame predicate for `wpcom_layout_grid_usage_attribute_source()`. Returns
  * `<file>:<line>` when the frame should be kept, or `null` to skip. Extracted
  * so the regex + self-skip behavior can be unit-tested without staging a
  * real PHP call stack.
@@ -354,7 +354,7 @@ function layout_grid_attribute_source() {
  * @param string $self_file Path to compare against for the self-skip.
  * @return string|null
  */
-function layout_grid_format_attribution_frame( $frame, string $self_file ) {
+function wpcom_layout_grid_usage_format_attribution_frame( $frame, string $self_file ) {
 	if ( ! is_array( $frame ) || empty( $frame['file'] ) || ! is_string( $frame['file'] ) ) {
 		return null;
 	}
@@ -376,9 +376,9 @@ function layout_grid_format_attribution_frame( $frame, string $self_file ) {
  * @param mixed $value Scalar or array.
  * @return mixed
  */
-function layout_grid_redact_paths( $value ) {
+function wpcom_layout_grid_usage_redact_paths( $value ) {
 	if ( is_array( $value ) ) {
-		return array_map( 'layout_grid_redact_paths', $value );
+		return array_map( 'wpcom_layout_grid_usage_redact_paths', $value );
 	}
 	if ( ! is_string( $value ) || '' === $value ) {
 		return $value;
