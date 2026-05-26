@@ -97,6 +97,7 @@ export function SubscriptionEdit( props ) {
 		selectedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
+		subscribeMessage,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 		showSubscribersTotal,
 		buttonOnNewLine,
@@ -104,6 +105,7 @@ export function SubscriptionEdit( props ) {
 	} = validatedAttributes;
 
 	const activeStyleName = getActiveStyleName( metadata.styles, className );
+	const isButtonOnlyStyle = activeStyleName === 'button';
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
 		const { totalSubscribers, socialFollowers } =
@@ -270,7 +272,9 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					isButtonOnlyStyle={ isButtonOnlyStyle }
 					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
+					subscribeMessage={ subscribeMessage }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }

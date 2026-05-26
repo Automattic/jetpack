@@ -35,6 +35,10 @@
 		"subscribePlaceholder": {
 			"type": "string"
 		},
+		"subscribeMessage": {
+			"type": "string",
+			"default": ""
+		},
 		"showSubscribersTotal": {
 			"type": "boolean",
 			"default": false

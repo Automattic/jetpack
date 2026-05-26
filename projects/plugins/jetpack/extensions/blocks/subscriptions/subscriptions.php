@@ -691,6 +691,7 @@ function render_block( $attributes ) {
 			)
 		),
 		'subscribe_placeholder'             => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
+		'subscribe_message'                 => get_attribute( $attributes, 'subscribeMessage', '' ),
 		'submit_button_text'                => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
 		'submit_button_text_subscribed'     => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
 		'submit_button_text_upgrade'        => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
@@ -808,6 +809,7 @@ function render_for_website( $data, $classes, $styles ) {
 					data-blog="<?php echo esc_attr( $blog_id ); ?>"
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					data-subscriber_email="<?php echo esc_attr( $data['subscribe_email'] ); ?>"
+					data-subscribe_message="<?php echo esc_attr( $data['subscribe_message'] ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">

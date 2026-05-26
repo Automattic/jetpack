@@ -33,6 +33,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 	DEFAULT_SUBSCRIBE_PLACEHOLDER,
+	DEFAULT_SUBSCRIBE_MESSAGE,
 	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 
@@ -63,6 +64,8 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	isButtonOnlyStyle,
+	subscribeMessage,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
@@ -332,6 +335,16 @@ export default function SubscriptionControls( {
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
+				{ isButtonOnlyStyle && (
+					<TextareaControl
+						__nextHasNoMarginBottom={ true }
+						value={ subscribeMessage }
+						label={ __( 'Subscribe message', 'jetpack' ) }
+						placeholder={ DEFAULT_SUBSCRIBE_MESSAGE }
+						help={ __( 'Edit the message shown at the top of your subscribe popup.', 'jetpack' ) }
+						onChange={ message => setAttributes( { subscribeMessage: message } ) }
+					/>
+				) }
 				{ ! isSimpleSite() && (
 					<TextareaControl
 						__nextHasNoMarginBottom={ true }
