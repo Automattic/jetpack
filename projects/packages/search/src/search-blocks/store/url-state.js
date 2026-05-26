@@ -241,6 +241,36 @@ export function urlParamsToState(
 }
 
 /**
+ * Identify URL params owned by Search Blocks state. Used when leaving the
+ * search experience (overlay close) to clear the URL the same way legacy
+ * Instant Search's `restorePreviousHref()` does. The bootstrap layer can't
+ * reach into `filterConfigs`, so we identify filter params by the URL shapes
+ * the writer (`stateToUrlParams`) emits — array-suffixed and `query_type_`-
+ * prefixed — which covers every key the store can have round-tripped.
+ *
+ * Static filter scalars are not stripped here: they share `?key=value` shape
+ * with arbitrary non-search params and the bootstrap has no filter registry to
+ * disambiguate. The reserved set + array shape + query_type prefix is what
+ * legacy strips for the default close path.
+ *
+ * @param {URLSearchParams} params - URL params to scan.
+ * @return {string[]} Unique keys present in `params` that Search owns.
+ */
+export function getSearchOwnedParamKeys( params ) {
+	const owned = new Set();
+	for ( const rawKey of params.keys() ) {
+		if (
+			RESERVED_PARAMS.has( rawKey ) ||
+			rawKey.startsWith( QUERY_TYPE_PREFIX ) ||
+			rawKey.endsWith( '[]' )
+		) {
+			owned.add( rawKey );
+		}
+	}
+	return Array.from( owned );
+}
+
+/**
  * Sync state into the browser URL via `replaceState` so debounced typing
  * doesn't pile up history entries. Back navigates to the page before search.
  *
