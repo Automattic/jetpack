@@ -243,6 +243,101 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Build a fake `Requests::Response`-shaped object so `parse_response`
+	 * can be exercised without a live HTTP loopback. Honours the marker
+	 * header lookup via a case-insensitive array stub.
+	 *
+	 * @param int    $status_code      HTTP status code.
+	 * @param string $body             Response body.
+	 * @param bool   $endpoint_reached Whether to include the X-PCG-Probe marker header.
+	 * @param int    $redirects        Number of redirects followed.
+	 * @return object
+	 */
+	private function make_fake_response( int $status_code, string $body, bool $endpoint_reached = false, int $redirects = 0 ): object {
+		$headers = $endpoint_reached ? array( 'x-pcg-probe' => '1' ) : array();
+		return (object) array(
+			'status_code' => $status_code,
+			'body'        => $body,
+			'redirects'   => $redirects,
+			'headers'     => $headers,
+		);
+	}
+
+	/**
+	 * Call the protected `parse_response` via Reflection so the verdict
+	 * policy can be unit-tested without firing real HTTP.
+	 *
+	 * @param object $response Fake response object.
+	 * @return array
+	 */
+	private function invoke_parse_response( $response ): array {
+		$tester = new PCG_Load_Tester();
+		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'parse_response' );
+		$ref->setAccessible( true );
+		return (array) $ref->invoke( $tester, $response );
+	}
+
+	/**
+	 * HTTP 500 without a JSON body must NOT block. PCG's policy is to
+	 * block only on a captured fatal (status=fatal from classify_shutdown
+	 * or status=throwable from the require-time catch); a 500 with no
+	 * verdict could be an upstream LB, edge proxy, intercepting plugin,
+	 * or engine death we can't attribute, and historically dominated the
+	 * false-positive bucket.
+	 */
+	public function test_parse_response_http_500_no_body_is_ok_inconclusive() {
+		$result = $this->invoke_parse_response( $this->make_fake_response( 500, '' ) );
+		$this->assertSame( 'ok-inconclusive', $result['status'] );
+		$this->assertStringContainsString( 'HTTP 500', $result['reason'] );
+	}
+
+	/**
+	 * HTTP 200 + X-PCG-Probe marker + non-JSON body: the endpoint ran but
+	 * no verdict was written. Under the captured-fatal-only policy this
+	 * is non-blocking — most often engine death or a mid-stream
+	 * connection drop, not a fatal we can attribute.
+	 */
+	public function test_parse_response_marker_present_no_json_is_ok_inconclusive() {
+		$result = $this->invoke_parse_response(
+			$this->make_fake_response( 200, '<html>not json</html>', true )
+		);
+		$this->assertSame( 'ok-inconclusive', $result['status'] );
+		$this->assertStringContainsString( 'no JSON verdict', $result['reason'] );
+	}
+
+	/**
+	 * HTTP 200 without the marker means the loopback never reached the
+	 * PCG endpoint — a cache or intercepting plugin answered. Stays as a
+	 * non-blocking `error` (logged) so we can size how often the loopback
+	 * is short-circuited in production.
+	 */
+	public function test_parse_response_no_marker_no_redirect_is_error() {
+		$result = $this->invoke_parse_response(
+			$this->make_fake_response( 200, '<html>cached page</html>', false, 0 )
+		);
+		$this->assertSame( 'error', $result['status'] );
+	}
+
+	/**
+	 * A JSON verdict from the endpoint passes straight through —
+	 * captured fatals must keep blocking.
+	 */
+	public function test_parse_response_passes_through_captured_fatal() {
+		$body   = wp_json_encode(
+			array(
+				'status'  => 'fatal',
+				'message' => 'Class "Foo\\Bar" not found',
+				'file'    => '/abs/foo/foo.php',
+				'plugin'  => '/abs/foo/foo.php',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$result = $this->invoke_parse_response( $this->make_fake_response( 200, (string) $body, true ) );
+		$this->assertSame( 'fatal', $result['status'] );
+		$this->assertSame( 'Class "Foo\\Bar" not found', $result['message'] );
+	}
+
+	/**
 	 * Scenarios for pcg_guard_format_block_reason.
 	 *
 	 * @return array<string,array{0:array<string,mixed>,1:string}>
