@@ -469,7 +469,7 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -499,7 +499,7 @@ class Search_Blocks_Test extends TestCase {
 				protected static function block_templates_active(): bool {
 					return true;
 				}
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -523,7 +523,10 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_route_woocommerce_product_search_template_fronts_product_slug() {
 		$anon = new class() extends Search_Blocks {
-			protected static function is_woocommerce_product_search(): bool {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			protected static function block_templates_active(): bool {
 				return true;
 			}
 		};
@@ -541,7 +544,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_route_woocommerce_product_search_template_noop_off_product_search() {
 		$anon = new class() extends Search_Blocks {
-			protected static function is_woocommerce_product_search(): bool {
+			public static function is_woocommerce_product_search(): bool {
 				return false;
 			}
 		};
@@ -550,6 +553,28 @@ class Search_Blocks_Test extends TestCase {
 		$result = $anon::route_woocommerce_product_search_template( $input );
 
 		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * The FSE hierarchy router is a strict no-op on classic themes: classic
+	 * Themes resolve template slugs as `{slug}.php` and we don't ship a
+	 * `jetpack-search-product-results.php` — the classic-theme equivalent
+	 * runs through `route_classic_theme_search_template()` instead.
+	 */
+	public function test_route_woocommerce_product_search_template_noop_on_classic_theme() {
+		$anon = new class() extends Search_Blocks {
+			public static function is_woocommerce_product_search(): bool {
+				return true;
+			}
+			protected static function block_templates_active(): bool {
+				return false;
+			}
+		};
+
+		$input  = array( 'product-search-results', 'search', 'index' );
+		$result = $anon::route_woocommerce_product_search_template( $input );
+
+		$this->assertSame( $input, $result, 'Hierarchy must stay untouched on classic themes.' );
 	}
 
 	/**
@@ -603,7 +628,7 @@ class Search_Blocks_Test extends TestCase {
 		delete_option( 'jetpack_search_override_woocommerce_search_template' );
 		$anon           = get_class(
 			new class() extends Search_Blocks {
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -622,19 +647,18 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * WC-on, override-on: with the override flipped on, a product search on
-	 * A classic theme routes through the same generic shim a non-product
-	 * Search would use. There's no dedicated product-results classic-theme
-	 * Template — block themes get one via `register_block_template()`,
-	 * Classic themes share the single shim and rely on the generic blocks
-	 * For the product layout. Pins that documented behavior so an accidental
-	 * WC carve-out for the classic path doesn't slip through.
+	 * WC-on, override-on: on a classic theme the router fronts the dedicated
+	 * `classic-theme-product-search.php` shim — the product-results
+	 * counterpart of the generic shim. Pins that the override actually
+	 * delivers the product layout (filters-product, results-list layout=product,
+	 * WC-only filters) on classic themes instead of falling back to the web
+	 * search body.
 	 */
-	public function test_route_classic_theme_search_template_routes_to_shim_when_override_on() {
+	public function test_route_classic_theme_search_template_routes_to_product_shim_when_override_on() {
 		update_option( 'jetpack_search_override_woocommerce_search_template', true );
 		$anon           = get_class(
 			new class() extends Search_Blocks {
-				protected static function is_woocommerce_product_search(): bool {
+				public static function is_woocommerce_product_search(): bool {
 					return true;
 				}
 			}
@@ -646,10 +670,43 @@ class Search_Blocks_Test extends TestCase {
 			$result = $anon::route_classic_theme_search_template( '/var/www/html/wp-content/themes/twentytwentyone/search.php' );
 
 			$this->assertStringEndsWith(
-				'/src/search-blocks/templates/classic-theme-search.php',
+				'/src/search-blocks/templates/classic-theme-product-search.php',
 				$result,
-				'Classic router must route to the bundled shim on product searches when the override is on.'
+				'Classic router must front the product shim on WC product searches when the override is on.'
 			);
+			$this->assertFileExists( $result, 'Bundled product shim must exist at the routed path.' );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+		}
+	}
+
+	/**
+	 * Defensive bail-out for the product shim: if neither a customization
+	 * Nor the bundled `jetpack-search-product-results.html` produces a body,
+	 * The router must return the input template unchanged so the theme's own
+	 * Template renders instead of the shim wrapping a blank body.
+	 */
+	public function test_route_classic_theme_search_template_bails_when_product_body_is_empty() {
+		update_option( 'jetpack_search_override_woocommerce_search_template', true );
+		$anon           = get_class(
+			new class() extends Search_Blocks {
+				public static function is_woocommerce_product_search(): bool {
+					return true;
+				}
+				public static function get_classic_theme_product_search_body(): string {
+					return '';
+				}
+			}
+		);
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+
+			$input  = '/var/www/html/wp-content/themes/twentytwentyone/search.php';
+			$result = $anon::route_classic_theme_search_template( $input );
+
+			$this->assertSame( $input, $result, 'Empty product body must bail back to the theme template.' );
 		} finally {
 			$GLOBALS['wp_query'] = $original_query;
 			delete_option( 'jetpack_search_override_woocommerce_search_template' );
@@ -736,6 +793,29 @@ class Search_Blocks_Test extends TestCase {
 			$body,
 			'Body must keep the results-list block.'
 		);
+	}
+
+	/**
+	 * `get_classic_theme_product_search_body()` returns the bundled
+	 * Product-results markup with top-level `core/template-part` self-closing
+	 * Comments stripped — same contract as `get_classic_theme_search_body()`,
+	 * Product-flavored. Keeps the product-only blocks intact so the shim
+	 * Renders the WC layout (filters-product, results-list layout=product,
+	 * Filter-wc-price / filter-wc-rating / filter-wc-stock-status).
+	 */
+	public function test_get_classic_theme_product_search_body_strips_template_parts() {
+		$body = Search_Blocks::get_classic_theme_product_search_body();
+
+		$this->assertNotEmpty( $body, 'Body must be non-empty when the bundled product template file exists.' );
+		$this->assertStringNotContainsString(
+			'wp:template-part',
+			$body,
+			'Body must not reference template-parts — those resolve only on block themes.'
+		);
+		$this->assertStringContainsString( 'wp:jetpack-search/search-input', $body, 'Search input must remain.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filters-product', $body, 'Product filters wrapper must remain.' );
+		$this->assertStringContainsString( '"layout":"product"', $body, 'Results-list must keep the product layout.' );
+		$this->assertStringContainsString( 'wp:jetpack-search/filter-wc-price', $body, 'WC-only price filter must remain.' );
 	}
 
 	/**

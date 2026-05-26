@@ -172,6 +172,13 @@ class Search_Blocks {
 		) {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
+			// Classic-theme product-search counterpart of `Search_Template::init()` —
+			// no Site Editor entry, so the singleton CPT gives authors the standard
+			// block editor on a hidden post. Block themes use the FSE Site Editor
+			// against `register_product_search_template()` instead.
+			if ( Module_Control::EXPERIENCE_EMBEDDED === $experience && ! static::block_templates_active() ) {
+				Product_Search_Template::init();
+			}
 		}
 
 		// Two-tier gate: register the editable template CPT + admin-init editor
@@ -423,16 +430,20 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Mirrors WooCommerce's own `ProductSearchResultsTemplate` guard so the
-	 * override only touches requests WooCommerce would itself reroute.
+	 * Whether the current request is a WooCommerce product search — a search
+	 * query scoped to the `product` post-type archive on a Woo-enabled site.
+	 *
+	 * Theme-agnostic. Block-theme-only behavior (FSE hierarchy work) gates on
+	 * {@see block_templates_active()} at the call site so this predicate also
+	 * drives the classic-theme product shim. Public because the
+	 * `classic-theme-product-search.php` shim reads it.
 	 *
 	 * @return bool
 	 */
-	protected static function is_woocommerce_product_search(): bool {
+	public static function is_woocommerce_product_search(): bool {
 		return self::woocommerce_blocks_enabled()
 			&& is_search()
-			&& is_post_type_archive( 'product' )
-			&& static::block_templates_active();
+			&& is_post_type_archive( 'product' );
 	}
 
 	/**
@@ -1450,12 +1461,24 @@ CSS;
 		if ( ! is_search() ) {
 			return $template;
 		}
-		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
+		$is_product_search = static::is_woocommerce_product_search();
+		// Override off: leave product search to WooCommerce / the theme's own
+		// archive routing — we don't impose the product shim without opt-in.
+		if ( ! static::woocommerce_search_template_override_enabled() && $is_product_search ) {
 			return $template;
 		}
-		// Bail back to the theme's template if there's no customization AND no
-		// bundled body — rendering header/footer with nothing between looks
-		// broken. A saved empty customization ('' vs null) is honored as intentional.
+		// Override on + product search: route to the product-results shim.
+		// Bail back to the theme's template if neither a customization nor a
+		// bundled body is available — rendering header/footer around an empty
+		// body looks broken.
+		if ( $is_product_search ) {
+			if ( null === Product_Search_Template::get_customized_content() && '' === static::get_classic_theme_product_search_body() ) {
+				return $template;
+			}
+			return __DIR__ . '/templates/classic-theme-product-search.php';
+		}
+		// Non-product search: same empty-body bail-out for the generic shim.
+		// A saved empty customization ('' vs null) is honored as intentional.
 		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
 			return $template;
 		}
@@ -1477,13 +1500,39 @@ CSS;
 		if ( null !== $customized ) {
 			return $customized;
 		}
-		$content = static::get_search_template_content();
+		return static::strip_top_level_template_parts( static::get_search_template_content() );
+	}
+
+	/**
+	 * Product-search counterpart to {@see get_classic_theme_search_body()} —
+	 * source of truth for the classic-theme product-results shim. Customized
+	 * `Product_Search_Template` CPT → bundled `jetpack-search-product-results.html`.
+	 * Public because `templates/classic-theme-product-search.php` calls it from
+	 * outside the class.
+	 *
+	 * @return string Block markup, no template-part wrappers.
+	 */
+	public static function get_classic_theme_product_search_body(): string {
+		$customized = Product_Search_Template::get_customized_content();
+		if ( null !== $customized ) {
+			return $customized;
+		}
+		return static::strip_top_level_template_parts( static::get_product_search_template_content() );
+	}
+
+	/**
+	 * Strip top-level `core/template-part` self-closing comments — classic
+	 * themes can't resolve their slugs. Non-greedy `.*?` capped by `-->` keeps
+	 * matching cleanly across template revisions and across nested attribute
+	 * payloads.
+	 *
+	 * @param string $content Block markup, possibly empty.
+	 * @return string
+	 */
+	protected static function strip_top_level_template_parts( string $content ): string {
 		if ( '' === $content ) {
 			return '';
 		}
-		// Strip the two top-level `core/template-part` self-closing comments —
-		// classic themes can't resolve their slugs. Non-greedy `.*?` capped by
-		// `-->` keeps matching cleanly across template revisions.
 		return (string) preg_replace( '#<!--\s*wp:template-part\s+.*?/-->\s*#s', '', $content );
 	}
 
@@ -1525,7 +1574,10 @@ CSS;
 	 * @return string[]
 	 */
 	public static function route_woocommerce_product_search_template( $templates ) {
-		if ( ! static::is_woocommerce_product_search() ) {
+		// FSE-hierarchy work — classic themes resolve template slugs as `{slug}.php`
+		// and there's no `jetpack-search-product-results.php`. The classic-theme
+		// equivalent runs through `route_classic_theme_search_template()` instead.
+		if ( ! static::block_templates_active() || ! static::is_woocommerce_product_search() ) {
 			return $templates;
 		}
 		$templates = array_values(
