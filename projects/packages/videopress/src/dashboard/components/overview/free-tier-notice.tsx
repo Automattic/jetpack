@@ -14,6 +14,13 @@ import type { ReactElement } from 'react';
 // against the same funnel.
 const UPGRADE_CLICK_EVENT = 'jetpack_videopress_upgrade_trigger_link_click';
 
+// Path *relative* to wp-admin, not an absolute URL: the connection REST
+// endpoint resolves it server-side with `admin_url( $redirect_uri )`. An
+// absolute URL would be appended onto the wp-admin base, producing a doubled,
+// broken redirect (`…/wp-admin/https:/…/wp-admin/…`) that 404s. Matches the
+// legacy dashboard, which passed the relative `adminUri` from its initial state.
+const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
+
 /**
  * Read the inlined initial state, guarding for environments (tests, the
  * legacy page) where the `var JPVIDEOPRESS_INITIAL_STATE` is absent.
@@ -50,11 +57,10 @@ function getInitialState() {
  */
 export default function FreeTierNotice(): ReactElement {
 	const state = getInitialState();
-	const adminUrl = state?.siteData?.adminUrl ?? '';
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: state?.product?.slug ?? '',
-		redirectUrl: adminUrl ? `${ adminUrl }admin.php?page=jetpack-videopress` : '',
+		redirectUrl: VIDEOPRESS_ADMIN_PAGE,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );

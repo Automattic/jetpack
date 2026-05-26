@@ -12,6 +12,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 import './style.scss';
 
+// Path *relative* to wp-admin, not an absolute URL: the connection REST
+// endpoint resolves it server-side with `admin_url( $redirect_uri )`. An
+// absolute URL would be appended onto the wp-admin base, producing a doubled,
+// broken redirect (`…/wp-admin/https:/…/wp-admin/…`) that 404s. Matches the
+// legacy dashboard, which passed the relative `adminUri` from its initial state.
 const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
 
 /**
@@ -31,9 +36,8 @@ export default function PricingUpsell() {
 	const state =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' ? JPVIDEOPRESS_INITIAL_STATE : undefined;
 	const pricing = state?.pricing;
-	const adminUrl = state?.siteData?.adminUrl ?? '';
 	const siteSuffix = state?.jetpackStatus?.calypsoSlug ?? '';
-	const redirectUrl = adminUrl ? `${ adminUrl }${ VIDEOPRESS_ADMIN_PAGE }` : '';
+	const redirectUrl = VIDEOPRESS_ADMIN_PAGE;
 
 	// These hooks must run unconditionally (Rules of Hooks) and therefore precede
 	// the `! pricing` guard below, which the gate already makes unreachable in
