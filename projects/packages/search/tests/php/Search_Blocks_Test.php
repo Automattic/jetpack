@@ -1354,6 +1354,7 @@ class Search_Blocks_Test extends TestCase {
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
 		remove_filter( 'posts_pre_query', array( Search_Blocks::class, 'filter__posts_pre_query' ), 10 );
+		remove_filter( 'script_module_loader_src', array( Search_Blocks::class, 'same_origin_script_module_src' ), 10 );
 		Search_Blocks::set_block_templates_active_for_testing( null );
 	}
 
@@ -2607,5 +2608,252 @@ class Search_Blocks_Test extends TestCase {
 			$ref->setAccessible( true );
 		}
 		return $ref->invoke( null, ...$args );
+	}
+
+	/**
+	 * Force `home_url()` and `site_url()` to a known host via the
+	 * `pre_option_home` / `pre_option_siteurl` filters. Returns a cleanup
+	 * Callback so callers can restore the originals deterministically (a
+	 * Failed assertion before tearDown would otherwise leak the override).
+	 *
+	 * @param string $home Value to return from `home_url()`.
+	 * @param string $site Value to return from `site_url()`.
+	 * @return callable Cleanup callback.
+	 */
+	private function override_site_hosts( string $home, string $site ): callable {
+		$home_cb = static function () use ( $home ) {
+			return $home;
+		};
+		$site_cb = static function () use ( $site ) {
+			return $site;
+		};
+		add_filter( 'pre_option_home', $home_cb );
+		add_filter( 'pre_option_siteurl', $site_cb );
+		return static function () use ( $home_cb, $site_cb ) {
+			remove_filter( 'pre_option_home', $home_cb );
+			remove_filter( 'pre_option_siteurl', $site_cb );
+		};
+	}
+
+	/**
+	 * Canonical-host src on a Jetpack Search module ID gets relativized so
+	 * The browser resolves the script against the page's actual origin,
+	 * Sidestepping the CORS check on `wp-content/*` from a mapped domain.
+	 */
+	public function test_same_origin_script_module_src_relativizes_canonical_host_src(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * The version query string must survive relativization — it's what
+	 * Defeats stale-cache loads when a build ships a new bundle.
+	 */
+	public function test_same_origin_script_module_src_preserves_query_string(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js?ver=abc123',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js?ver=abc123',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * HTTP-scheme canonicals (local docker, http-only sites) get relativized
+	 * Like HTTPS — the browser binds the relative URL to whatever scheme the
+	 * Page is on, which is the desired behavior either way.
+	 */
+	public function test_same_origin_script_module_src_relativizes_http_canonical(): void {
+		$cleanup = $this->override_site_hosts( 'http://example.com', 'http://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'http://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Hostname comparison must be case-insensitive — DNS treats `EXAMPLE.com`
+	 * And `example.com` as the same host, and a site whose home_url has been
+	 * Saved with mixed case shouldn't dodge the relativization.
+	 */
+	public function test_same_origin_script_module_src_canonical_match_is_case_insensitive(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://EXAMPLE.COM/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * `home_url()` and `site_url()` are checked independently — a site whose
+	 * `home_url()` lives on `example.com` and whose `site_url()` lives on
+	 * `wp.example.com` must relativize either canonical the URL was built
+	 * Against (Multisite sub-directory installs split the two).
+	 */
+	public function test_same_origin_script_module_src_relativizes_site_url_host_when_home_url_differs(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://wp.example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://wp.example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js',
+					'jetpack-search/results-list'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Genuine third-party CDN hosts (configured by the operator, e.g. via
+	 * `JETPACK_SEARCH_PLUGINS_URL` rewrites) pass through unchanged — the
+	 * Filter must not break setups where the operator wants the CDN to serve
+	 * Modules and has configured CORS on that CDN themselves.
+	 */
+	public function test_same_origin_script_module_src_leaves_third_party_cdn_alone(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$cdn_url = 'https://cdn.example.net/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js';
+			$this->assertSame(
+				$cdn_url,
+				Search_Blocks::same_origin_script_module_src( $cdn_url, 'jetpack-search/results-list' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * The identifier-prefix gate is the boundary that keeps this filter from
+	 * Touching other plugins' modules (e.g. core's `@wordpress/interactivity`,
+	 * Or any unrelated `vendor/foo` bundle). A non-`jetpack-search/*` id must
+	 * Pass through unchanged even when the src host matches a canonical.
+	 */
+	public function test_same_origin_script_module_src_skips_non_jetpack_search_identifier(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$src = 'https://example.com/wp-includes/js/dist/interactivity.min.js';
+			$this->assertSame(
+				$src,
+				Search_Blocks::same_origin_script_module_src( $src, '@wordpress/interactivity' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * `register_block_type()` runs `generate_block_asset_handle()` on
+	 * `viewScriptModule` fields and emits hyphen-joined IDs like
+	 * `jetpack-search-results-list-view-script-module` — that's what WP
+	 * Passes to the loader filter for every per-block view module. Without
+	 * Covering this prefix shape the filter would only catch directly-
+	 * Registered modules and miss the bulk of the block bundles, exactly
+	 * The case the bug report describes.
+	 */
+	public function test_same_origin_script_module_src_relativizes_block_generated_handle(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$this->assertSame(
+				'/wp-content/plugins/jetpack-search/build/search-blocks/results-list.js',
+				Search_Blocks::same_origin_script_module_src(
+					'https://example.com/wp-content/plugins/jetpack-search/build/search-blocks/results-list.js',
+					'jetpack-search-results-list-view-script-module'
+				)
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * An already-relative src has no parseable host — `wp_parse_url()` returns
+	 * Null — so the filter must short-circuit instead of feeding the value
+	 * Through `wp_make_link_relative()` (which would return it unchanged) or
+	 * Worse, treating an empty parsed host as a canonical match.
+	 */
+	public function test_same_origin_script_module_src_leaves_relative_src_alone(): void {
+		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
+		try {
+			$relative = '/wp-content/plugins/jetpack-search/build/search-blocks/results-list/view.js';
+			$this->assertSame(
+				$relative,
+				Search_Blocks::same_origin_script_module_src( $relative, 'jetpack-search/results-list' )
+			);
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Defensive guards: empty src and non-string args from a misbehaving
+	 * Upstream filter must not throw — pass through unchanged.
+	 */
+	public function test_same_origin_script_module_src_defensive_guards(): void {
+		$this->assertSame( '', Search_Blocks::same_origin_script_module_src( '', 'jetpack-search/results-list' ) );
+		// @phpstan-ignore-next-line — deliberately exercising the non-string guard.
+		$this->assertNull( Search_Blocks::same_origin_script_module_src( null, 'jetpack-search/results-list' ) );
+	}
+
+	/**
+	 * `init()` must register the same-origin filter so every per-block view
+	 * Module URL goes through it. Registered alongside the other always-on
+	 * Block hooks (not gated on experience) because blocks may be inserted
+	 * Anywhere blocks are configurable.
+	 */
+	public function test_init_registers_script_module_loader_src_filter(): void {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		try {
+			Search_Blocks::init();
+
+			$this->assertSame(
+				10,
+				has_filter(
+					'script_module_loader_src',
+					array( Search_Blocks::class, 'same_origin_script_module_src' )
+				),
+				'same_origin_script_module_src must hook script_module_loader_src at priority 10.'
+			);
+		} finally {
+			remove_filter(
+				'script_module_loader_src',
+				array( Search_Blocks::class, 'same_origin_script_module_src' ),
+				10
+			);
+		}
 	}
 }
