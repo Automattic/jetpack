@@ -80,7 +80,7 @@ Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a C
 ## Limitations
 
 - Only catches errors hit while `require`-ing the main file and during `plugins_loaded` / `init` / `admin_init` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.
-- The probe endpoint is wired up via jetpack-mu-wpcom's `load_features()` at `plugins_loaded` priority 10, so plugin callbacks registered for `plugins_loaded` at priority < 10 will have already fired before the plugin under test is `require`d. Fatals from those earlier-priority callbacks are missed. Hooking the probe handler earlier would require splitting it out of `load_features()`.
+- The probe endpoint is wired up via jetpack-mu-wpcom's `load_features()` at `plugins_loaded` priority 10, and the candidate `require_once` is then deferred to `wp_loaded:1`. Plugin callbacks registered for `muplugins_loaded`, `plugins_loaded` (any priority), or `init` (lower than `wp_loaded`) fire on the probe request before the candidate is loaded — i.e. those callbacks run from already-active plugins, not from the candidate. The candidate's own `plugins_loaded`/`init` callbacks never run in the probe context (we require it after both hooks have fired). This matches the real-activation shape — a real Activate click doesn't fire the newly-activated plugin's `plugins_loaded` until the next request — but fatals that only surface in those candidate-side callbacks won't be caught here either.
 - Other active plugins are live during the probe, so cross-plugin conflicts CAN surface (a full SHORTINIT sandbox would avoid that, but isn't portable here).
 
 ## Update flow (syntax-only, pre-install)

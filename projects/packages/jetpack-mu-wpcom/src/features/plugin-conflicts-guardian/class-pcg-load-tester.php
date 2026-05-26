@@ -218,10 +218,14 @@ class PCG_Load_Tester {
 
 		// Anchor the class-not-found check to PHP's canonical wording —
 		// `Class "Foo\Bar" not found` (PHP 8+) or `Class 'Foo' not found`
-		// (legacy). A loose `str_contains` on 'Class ' / ' not found'
-		// would over-match decorated error messages or wrapped fatals
-		// that mention either substring incidentally, and silently
-		// downgrade real bugs to ok-inconclusive.
+		// (legacy). PHP engine error messages are not localised — they
+		// are always emitted in English — so matching English wording is
+		// the language-agnostic choice; a loose `str_contains` on
+		// `Class ` / ` not found` would over-match decorated messages or
+		// wrapped fatals and silently downgrade real bugs. A user-
+		// installed `set_error_handler` that rewrites messages can
+		// defeat the match; we'd then keep the verdict as fatal (no
+		// downgrade), which is the safer failure mode.
 		$looks_like_class_not_found   = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
 		$looks_like_missing_file_open = str_contains( $message, 'Failed opening required' )
 			|| str_contains( $message, 'failed to open stream: No such file or directory' );
@@ -258,6 +262,14 @@ class PCG_Load_Tester {
 	 * @return bool
 	 */
 	protected function path_inside_candidate( $path, array $plugin_mains ) {
+		// We compare the raw paths PHP gives us (`error_get_last`'s
+		// `file`, the candidate's main as WP saw it) without `realpath`.
+		// If `WP_PLUGIN_DIR` resolves to a symlink and the captured
+		// `file` was emitted via the resolved path, this match would
+		// miss — but that's the same shape WP itself uses internally
+		// when comparing plugin paths, so the activation guard and PCG
+		// stay consistent. Resolving here would risk diverging from
+		// WP's view of the same plugin.
 		if ( '' === (string) $path ) {
 			return false;
 		}
