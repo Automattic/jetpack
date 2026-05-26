@@ -1247,6 +1247,12 @@ class Search_Blocks {
 		padding: .5em 1em 1em;
 	}
 }
+/* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
+@media (min-width: 992px) {
+	.jetpack-search-block-overlay__card {
+		max-width: 95%;
+	}
+}
 /* Body-scroll lock while open. JS side stashes/restores scrollY on toggle. */
 body.jetpack-search-block-overlay-open {
 	position: fixed;
