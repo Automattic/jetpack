@@ -8,18 +8,11 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Lets admins customize the search results template on classic themes via
- * the standard block editor (post.php) — a theme-agnostic editing surface
- * for a route the Site Editor can't reach. Block themes keep using their
- * existing Site Editor entry point; this class is the equivalent
- * affordance for the classic-theme `template_include` render path.
- *
- * All lifecycle / registration / reset machinery lives on
- * {@see Singleton_Template_Cpt}; only the identifiers, copy, and seed
- * source differ from {@see Overlay_Template}. The seed is the same body
- * `Search_Blocks::get_classic_theme_search_body()` returns at render time
- * — placeholders substituted, template-part wrappers stripped — so what
- * the admin edits matches what the front end renders.
+ * Theme-agnostic customization surface for the classic-theme search template
+ * via post.php — the equivalent of the Site Editor entry block themes get.
+ * Lifecycle lives on {@see Singleton_Template_Cpt}. Seed mirrors what
+ * `Search_Blocks::get_classic_theme_search_body()` renders so the editor and
+ * the front end stay in lockstep.
  */
 class Search_Template extends Singleton_Template_Cpt {
 
@@ -31,7 +24,7 @@ class Search_Template extends Singleton_Template_Cpt {
 	const SEED_META_KEY      = '_jetpack_search_template_seeded_version';
 
 	/**
-	 * Subclass hook — labels for the hidden CPT.
+	 * Subclass hook — CPT labels.
 	 *
 	 * @return array{name:string,singular_name:string}
 	 */
@@ -43,7 +36,7 @@ class Search_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — default post title for the lazy-created singleton.
+	 * Subclass hook — default post title.
 	 *
 	 * @return string
 	 */
@@ -52,13 +45,9 @@ class Search_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — seed `post_content` for the lazy-created singleton.
-	 * Reuses `Search_Blocks::get_classic_theme_search_body()` so the seed
-	 * always matches what the front-end classic-theme route renders.
-	 *
-	 * Note: the body source itself preferences a saved customization, but
-	 * `ensure_post_exists()` only runs when one doesn't already exist —
-	 * so this resolves to the bundled (template-part-stripped) markup.
+	 * Subclass hook — seed `post_content`. `ensure_post_exists()` only runs
+	 * when no customization exists, so the body source resolves to the
+	 * bundled (template-part-stripped) markup.
 	 *
 	 * @return string
 	 */
@@ -67,7 +56,7 @@ class Search_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — copy for the editor-URL forbidden response.
+	 * Subclass hook — forbidden-response copy.
 	 *
 	 * @return string
 	 */
@@ -76,7 +65,7 @@ class Search_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — copy for the editor-URL create-failure response.
+	 * Subclass hook — create-failure copy.
 	 *
 	 * @return string
 	 */
