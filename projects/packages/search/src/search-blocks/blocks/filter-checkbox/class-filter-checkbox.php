@@ -121,7 +121,7 @@ class Filter_Checkbox {
 	 * Value→label map for filter types whose buckets don't carry a label.
 	 * Empty for taxonomy/author (their `slug_slash_name` buckets do).
 	 *
-	 * @param string $filter_type
+	 * @param string $filter_type Block `filterType` attribute.
 	 * @return array<string, string>
 	 */
 	protected static function build_value_labels( string $filter_type ): array {
@@ -145,7 +145,7 @@ class Filter_Checkbox {
 	 * Normalize `bucketSortOrder` — unknown values fall back to `count`
 	 * (matches the instant-search overlay default).
 	 *
-	 * @param mixed $value
+	 * @param mixed $value Raw attribute value.
 	 * @return string 'count' or 'alpha'.
 	 */
 	public static function normalize_bucket_sort_order( $value ): string {
@@ -158,8 +158,8 @@ class Filter_Checkbox {
 	 * so AND with 2+ selections always returns zero. Gating here protects the
 	 * ES query builder from tampered saved data.
 	 *
-	 * @param mixed  $value
-	 * @param string $filter_type
+	 * @param mixed  $value       Raw attribute value.
+	 * @param string $filter_type Block `filterType` attribute.
 	 * @return string 'or' or 'and'.
 	 */
 	public static function normalize_query_type( $value, string $filter_type ): string {
@@ -170,7 +170,7 @@ class Filter_Checkbox {
 	 * Back-compat wrapper around `Search_Blocks::normalize_display_style()`.
 	 * Kept so older callers + the unit test still work.
 	 *
-	 * @param mixed $value
+	 * @param mixed $value Raw attribute value.
 	 * @return string 'checkbox-list' or 'chips'.
 	 */
 	public static function normalize_display_style( $value ): string {

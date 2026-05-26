@@ -61,7 +61,7 @@ class Search_Product_Filter_Status {
 	 * `taxonomy.product_visibility.slug` agg with `outofstock` include +
 	 * term/must_not clauses.
 	 *
-	 * @param array  $attributes
+	 * @param array  $attributes  Block attributes.
 	 * @param string $_filter_key Unused; interface parity.
 	 * @return array<string, mixed>
 	 */

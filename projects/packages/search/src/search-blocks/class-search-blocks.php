@@ -1201,7 +1201,7 @@ CSS;
 	 * Substitute `{{FILTER_HEADING}}` / `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` in a
 	 * bundled template. Empty input passes through.
 	 *
-	 * @param string $raw
+	 * @param string $raw Raw template-file contents.
 	 * @return string
 	 */
 	protected static function substitute_template_placeholders( string $raw ): string {
@@ -1408,7 +1408,7 @@ CSS;
 	 * search. Drops WC's `product-search-results` and unshifts ours so it
 	 * resolves before any `jetpack-search` prepend for the generic route.
 	 *
-	 * @param string[] $templates
+	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function route_woocommerce_product_search_template( $templates ) {

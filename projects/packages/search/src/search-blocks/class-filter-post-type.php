@@ -26,7 +26,7 @@ class Filter_Post_Type {
 	 * Translate attributes → `{ include, exclude }`. Slugs validated against
 	 * the live searchable-types registry (typos / retired CPTs dropped).
 	 *
-	 * @param array $attributes
+	 * @param array $attributes Block attributes.
 	 * @return array{include: string[], exclude: string[]}
 	 */
 	public static function build_constraint( array $attributes ): array {
@@ -45,8 +45,8 @@ class Filter_Post_Type {
 	/**
 	 * Sanitize, dedupe, optionally allowlist a slug list.
 	 *
-	 * @param mixed         $raw
-	 * @param string[]|null $allowed
+	 * @param mixed         $raw     Raw attribute value.
+	 * @param string[]|null $allowed Optional allowlist of slugs to keep.
 	 * @return string[]
 	 */
 	private static function sanitize_slug_list( $raw, ?array $allowed = null ): array {
@@ -92,8 +92,8 @@ class Filter_Post_Type {
 	 * Union (not intersect) a block's contribution into `staticPostTypes` so
 	 * stacked blocks can't silently produce zero results.
 	 *
-	 * @param array{include?: mixed, exclude?: mixed}     $existing
-	 * @param array{include: string[], exclude: string[]} $contribution
+	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current slot value.
+	 * @param array{include: string[], exclude: string[]} $contribution New block lists.
 	 * @return array{include: string[], exclude: string[]}
 	 */
 	public static function merge_state( array $existing, array $contribution ): array {

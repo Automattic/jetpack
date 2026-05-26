@@ -83,7 +83,7 @@ class Filter_Static {
 	 * Collapse duplicates by `filter_id`, last-write-wins. Original position
 	 * is preserved so iteration order stays deterministic.
 	 *
-	 * @param array<int, array<string, mixed>> $entries
+	 * @param array<int, array<string, mixed>> $entries Normalized entries.
 	 * @return array<int, array<string, mixed>>
 	 */
 	private static function dedupe_by_filter_id( array $entries ): array {
@@ -105,7 +105,7 @@ class Filter_Static {
 	/**
 	 * Surface duplicate registration via `_doing_it_wrong()`. Silent in production.
 	 *
-	 * @param string $filter_id
+	 * @param string $filter_id The colliding filter id.
 	 */
 	private static function warn_duplicate_filter_id( string $filter_id ): void {
 		if ( ! function_exists( '_doing_it_wrong' ) ) {
@@ -146,8 +146,8 @@ class Filter_Static {
 	 * Normalize variation. Anything but `tabbed` collapses to `sidebar`
 	 * (matches the legacy `getAvailableStaticFilters()` default).
 	 *
-	 * @param mixed $value
-	 * @return string
+	 * @param mixed $value Raw variation value.
+	 * @return string Either 'sidebar' or 'tabbed'.
 	 */
 	public static function normalize_variation( $value ): string {
 		return 'tabbed' === $value ? 'tabbed' : 'sidebar';
@@ -158,7 +158,7 @@ class Filter_Static {
 	 * or a reserved-param collision — the block renders nothing for that entry
 	 * rather than silently failing on round-trip.
 	 *
-	 * @param mixed $entry
+	 * @param mixed $entry Raw entry from the filter hook.
 	 * @return array<string, mixed>|null
 	 */
 	private static function normalize_entry( $entry ): ?array {
@@ -187,7 +187,7 @@ class Filter_Static {
 	 * Sanitize the `values` array. Drops non-array entries and empty `value`s.
 	 * Missing `name` falls back to value so the radio always has a label.
 	 *
-	 * @param mixed $raw
+	 * @param mixed $raw Raw values list.
 	 * @return array<int, array{value: string, name: string}>
 	 */
 	private static function normalize_values( $raw ): array {
@@ -213,8 +213,8 @@ class Filter_Static {
 	 * Build the filterConfig entry. `kind => 'static'` is what the JS store
 	 * checks for scalar URL serialization and the single-select action path.
 	 *
-	 * @param array<string, mixed> $entry
-	 * @param array<string, mixed> $attributes
+	 * @param array<string, mixed> $entry      Normalized server-config entry.
+	 * @param array<string, mixed> $attributes Block attributes.
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $entry, array $attributes ): array {
@@ -232,8 +232,8 @@ class Filter_Static {
 	/**
 	 * Block-attribute label overrides server name; empty falls back.
 	 *
-	 * @param array<string, mixed> $entry
-	 * @param array<string, mixed> $attributes
+	 * @param array<string, mixed> $entry      Normalized server-config entry.
+	 * @param array<string, mixed> $attributes Block attributes.
 	 * @return string
 	 */
 	public static function derive_label( array $entry, array $attributes ): string {

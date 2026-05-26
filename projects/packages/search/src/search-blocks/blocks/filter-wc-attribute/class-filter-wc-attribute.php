@@ -25,7 +25,7 @@ class Filter_Wc_Attribute {
 	 * Derive the URL key from the chosen attribute slug. Empty / reserved /
 	 * non-`pa_` slugs return '' so render.php bails before half-registering.
 	 *
-	 * @param array $attributes
+	 * @param array $attributes Block attributes.
 	 * @return string
 	 */
 	public static function derive_filter_key( array $attributes ): string {
@@ -44,7 +44,7 @@ class Filter_Wc_Attribute {
 	 * Default group label. Prefers the taxonomy's `singular_name`, falls back
 	 * to humanized slug ("pa_screen_size" → "Screen Size").
 	 *
-	 * @param array $attributes
+	 * @param array $attributes Block attributes.
 	 * @return string
 	 */
 	public static function default_label( array $attributes ): string {
@@ -68,7 +68,7 @@ class Filter_Wc_Attribute {
 	 * Build the filterConfig entry. Rides `filterType: 'taxonomy'` →
 	 * `taxonomy.<slug>.slug_slash_name` aggregation field.
 	 *
-	 * @param array  $attributes
+	 * @param array  $attributes Block attributes.
 	 * @param string $filter_key Result of `derive_filter_key()`.
 	 * @return array<string, mixed>
 	 */

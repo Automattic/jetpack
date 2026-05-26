@@ -35,7 +35,7 @@ class Filter_Wc_Rating {
 	 * all five so a stale attribute can't render an empty `<ul>`. Sanitized
 	 * to 1..5, deduplicated, sorted high-to-low.
 	 *
-	 * @param array $attributes
+	 * @param array $attributes Block attributes.
 	 * @return int[]
 	 */
 	public static function get_enabled_stars( array $attributes ): array {
@@ -79,8 +79,8 @@ class Filter_Wc_Rating {
 	/**
 	 * Build the filterConfig entry.
 	 *
-	 * @param array  $attributes
-	 * @param string $key Ignored; always `FILTER_KEY`.
+	 * @param array  $attributes Block attributes.
+	 * @param string $key        Ignored; always `FILTER_KEY`.
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $attributes, string $key = '' ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
