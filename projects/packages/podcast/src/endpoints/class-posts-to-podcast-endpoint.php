@@ -88,7 +88,8 @@ class Posts_To_Podcast_Endpoint extends WP_REST_Controller {
 							'type'        => 'array',
 							'required'    => false,
 							'items'       => array( 'type' => 'integer' ),
-							'description' => __( 'Explicit list of published post IDs to draw from. Required when window is omitted.', 'jetpack-podcast' ),
+							'maxItems'    => 25,
+							'description' => __( 'Explicit list of published post IDs to draw from (up to 25). Required when window is omitted.', 'jetpack-podcast' ),
 						),
 						'length'      => array(
 							'type'        => 'string',
