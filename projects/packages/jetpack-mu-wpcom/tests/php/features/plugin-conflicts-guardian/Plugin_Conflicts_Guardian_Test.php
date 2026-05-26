@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
@@ -47,6 +48,13 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_activation' );
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
+		remove_all_filters( 'pcg_signature_allowlist' );
+		remove_all_filters( 'pcg_rollout_percentage' );
+		remove_all_filters( 'pcg_rollout_force_enable_blogs' );
+		// PCG_Rollout::init() registers itself on require_once; restore
+		// the gate after every test so leak between cases doesn't leave
+		// the gate detached.
+		PCG_Rollout::init();
 		parent::tear_down();
 	}
 
@@ -601,6 +609,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/plugin.php', "<?php function ( {\n" );
@@ -740,7 +749,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * containing the words 'Class ' and ' not found' anywhere, which
 	 * over-matched on wrapped errors and stack-trace-decorated fatals.
 	 */
-	public function test_is_propagation_flake_ignores_decorated_class_not_found_phrasing() {
+	public function test_is_sibling_load_flake_ignores_decorated_class_not_found_phrasing() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
 
@@ -751,7 +760,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) ),
 			'Only PHP\'s canonical Class "Name" not found phrasing should qualify.'
 		);
 	}
@@ -759,11 +768,11 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Class-not-found verdicts require the captured `file` to live
 	 * inside a candidate's directory. A message lacking any path and
-	 * a captured file outside the candidate trees must not be retried
-	 * — that signature indicates a real autoloader bug, not a
-	 * propagation lag.
+	 * a captured file outside the candidate trees must not be downgraded
+	 * — that signature indicates a real autoloader bug, not a sibling
+	 * load flake.
 	 */
-	public function test_is_propagation_flake_requires_captured_file_for_class_not_found() {
+	public function test_is_sibling_load_flake_requires_captured_file_for_class_not_found() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
 
@@ -774,17 +783,17 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) ),
 			'A class-not-found whose captured file is outside every candidate dir is a real bug, not a flake.'
 		);
 	}
 
 	/**
-	 * Atomic multi-node propagation flake: PHP can't open a file under
-	 * the candidate plugin's own directory. Should be recognised as a
-	 * flake so the retry path triggers.
+	 * Sibling-load flake: PHP can't open a file under the candidate
+	 * plugin's own directory. Should be recognised as a flake so the
+	 * downgrade-to-allow path triggers.
 	 */
-	public function test_is_propagation_flake_detects_failed_require_inside_candidate_dir() {
+	public function test_is_sibling_load_flake_detects_failed_require_inside_candidate_dir() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/woocommerce-shipstation-integration/woocommerce-shipstation.php';
 
@@ -795,16 +804,16 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertTrue(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
-			'A failed-require inside the candidate plugin tree should be classified as a propagation flake.'
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) ),
+			'A failed-require inside the candidate plugin tree should be classified as a sibling-load flake.'
 		);
 	}
 
 	/**
 	 * Autoloader miss for a class defined inside the candidate plugin's
-	 * own tree is the same root cause and should also retry.
+	 * own tree shares the signature and should also downgrade to allow.
 	 */
-	public function test_is_propagation_flake_detects_class_not_found_for_candidate() {
+	public function test_is_sibling_load_flake_detects_class_not_found_for_candidate() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/invisible-recaptcha/invisible-recaptcha.php';
 
@@ -815,16 +824,16 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertTrue(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) )
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) )
 		);
 	}
 
 	/**
 	 * A genuine fatal not related to file presence (e.g. an undefined
 	 * function call) must NOT be classified as a flake — that would
-	 * mask real bugs behind the retry path.
+	 * mask real bugs behind the downgrade-to-allow path.
 	 */
-	public function test_is_propagation_flake_ignores_unrelated_fatals() {
+	public function test_is_sibling_load_flake_ignores_unrelated_fatals() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/seo-by-rank-math/rank-math.php';
 
@@ -835,8 +844,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) ),
-			'Undefined-function fatals are a timing class, not a propagation flake.'
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) ),
+			'Undefined-function fatals are a timing class, not a sibling-load flake.'
 		);
 	}
 
@@ -846,7 +855,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * flake; let the existing fatal path handle it so we don\'t mask a
 	 * genuinely broken environment.
 	 */
-	public function test_is_propagation_flake_ignores_failed_require_outside_candidate_dir() {
+	public function test_is_sibling_load_flake_ignores_failed_require_outside_candidate_dir() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
 
@@ -857,20 +866,20 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse(
-			$tester->is_propagation_flake( $verdict, array( $plugin ) )
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) )
 		);
 	}
 
 	/**
-	 * Non-fatal verdicts (ok, ok-inconclusive, error) never retry.
+	 * Non-fatal verdicts (ok, ok-inconclusive, error) never downgrade.
 	 */
-	public function test_is_propagation_flake_only_considers_blocking_verdicts() {
+	public function test_is_sibling_load_flake_only_considers_blocking_verdicts() {
 		$tester = new PCG_Load_Tester();
 		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
 
 		foreach ( array( 'ok', 'ok-inconclusive', 'ok-shutdown', 'error' ) as $status ) {
 			$this->assertFalse(
-				$tester->is_propagation_flake(
+				$tester->is_sibling_load_flake(
 					array(
 						'status'  => $status,
 						'message' => "Failed opening required '{$plugin}-dir/missing.php'",
@@ -878,7 +887,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 					),
 					array( $plugin )
 				),
-				"Status '$status' should never trigger the propagation-flake retry."
+				"Status '$status' should never trigger the sibling-load flake downgrade."
 			);
 		}
 	}
@@ -888,7 +897,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * prefix-match against every other plugin's files. Mirrors the
 	 * defence in `pcg_guard_get_blocked_plugin`.
 	 */
-	public function test_is_propagation_flake_does_not_false_match_via_flat_file_plugin() {
+	public function test_is_sibling_load_flake_does_not_false_match_via_flat_file_plugin() {
 		$tester    = new PCG_Load_Tester();
 		$flat_file = WP_PLUGIN_DIR . '/hello.php';
 		$other     = WP_PLUGIN_DIR . '/other/other.php';
@@ -900,9 +909,217 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse(
-			$tester->is_propagation_flake( $verdict, array( $flat_file, $other ) ),
+			$tester->is_sibling_load_flake( $verdict, array( $flat_file, $other ) ),
 			'A failed-require outside both candidates\' trees must not be claimed via flat-file prefix match.'
 		);
+	}
+
+	/**
+	 * A signature with a message regex + plugin basename matches the
+	 * canonical Gravity Forms 2.10.1 `array_walk()` on null shape and
+	 * returns the entry's label.
+	 */
+	public function test_signature_allowlist_matches_by_plugin_and_message() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
+
+		add_filter(
+			'pcg_signature_allowlist',
+			static function ( $list ) {
+				$list[] = array(
+					'label'   => 'gf-2.10.1-array-walk-null',
+					'plugin'  => 'gravityforms/gravityforms.php',
+					'message' => '/array_walk\(\).+null given/',
+				);
+				return $list;
+			}
+		);
+
+		$verdict = array(
+			'status'  => 'fatal',
+			'plugin'  => $plugin,
+			'message' => 'array_walk() expects parameter 1 to be array, null given',
+			'file'    => $plugin,
+		);
+
+		$this->assertSame(
+			'gf-2.10.1-array-walk-null',
+			$tester->matches_signature_allowlist( $verdict, array( $plugin ) )
+		);
+	}
+
+	/**
+	 * Non-blocking verdicts (`ok`, `ok-inconclusive`, `ok-shutdown`,
+	 * `error`) must not match the allowlist — they're not captured fatals
+	 * and downgrading them changes nothing useful.
+	 */
+	public function test_signature_allowlist_skips_non_blocking_verdicts() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
+
+		add_filter(
+			'pcg_signature_allowlist',
+			static function ( $list ) {
+				$list[] = array(
+					'label'   => 'always-match',
+					'message' => '/./',
+				);
+				return $list;
+			}
+		);
+
+		foreach ( array( 'ok', 'ok-inconclusive', 'ok-shutdown', 'error' ) as $status ) {
+			$this->assertNull(
+				$tester->matches_signature_allowlist(
+					array(
+						'status'  => $status,
+						'message' => 'anything',
+					),
+					array( $plugin )
+				),
+				"Status '$status' must not match the allowlist."
+			);
+		}
+	}
+
+	/**
+	 * A signature missing all three of plugin/file/message is too loose
+	 * to apply — it would match every captured fatal. Skip silently.
+	 */
+	public function test_signature_allowlist_skips_empty_signatures() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/foo/foo.php';
+
+		add_filter(
+			'pcg_signature_allowlist',
+			static function ( $list ) {
+				$list[] = array( 'label' => 'too-loose' );
+				return $list;
+			}
+		);
+
+		$this->assertNull(
+			$tester->matches_signature_allowlist(
+				array(
+					'status'  => 'fatal',
+					'message' => 'anything',
+					'file'    => $plugin,
+				),
+				array( $plugin )
+			)
+		);
+	}
+
+	/**
+	 * Plugin and file fields are matched on basename. An absolute install
+	 * path in the verdict must still match a basename-only signature
+	 * entry, since the install layout shouldn't bleed into rule shape.
+	 */
+	public function test_signature_allowlist_matches_file_by_basename() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
+
+		add_filter(
+			'pcg_signature_allowlist',
+			static function ( $list ) {
+				$list[] = array(
+					'label' => 'gf-block-form',
+					'file'  => 'class-gf-block-form.php',
+				);
+				return $list;
+			}
+		);
+
+		$verdict = array(
+			'status' => 'fatal',
+			'plugin' => $plugin,
+			'file'   => WP_PLUGIN_DIR . '/gravityforms/includes/blocks/class-gf-block-form.php',
+		);
+
+		$this->assertSame(
+			'gf-block-form',
+			$tester->matches_signature_allowlist( $verdict, array( $plugin ) )
+		);
+	}
+
+	/**
+	 * Rollout default is 0% — no blog is in the cohort.
+	 */
+	public function test_rollout_default_is_zero_percent() {
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 99999 ) );
+	}
+
+	/**
+	 * 100% includes every positive blog ID.
+	 */
+	public function test_rollout_full_includes_every_blog() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 240190614 ) );
+	}
+
+	/**
+	 * Invalid or non-positive blog IDs are never enabled, even at 100%.
+	 */
+	public function test_rollout_rejects_non_positive_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 0 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( -1 ) );
+	}
+
+	/**
+	 * Force-enable list overrides the percentage gate, including at 0%.
+	 */
+	public function test_rollout_force_enable_overrides_percentage() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 0 );
+		add_filter( 'pcg_rollout_force_enable_blogs', static fn() => array( 12345 ) );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 12345 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 12346 ) );
+	}
+
+	/**
+	 * Bucketing must be deterministic — the same blog ID stays in the
+	 * same bucket across calls. (Ramping from 10% to 50% should strictly
+	 * add blogs, never reshuffle them.)
+	 */
+	public function test_rollout_blog_bucket_is_deterministic() {
+		$this->assertSame(
+			PCG_Rollout::blog_bucket( 7777 ),
+			PCG_Rollout::blog_bucket( 7777 )
+		);
+		// Different IDs land in different buckets (overwhelmingly likely
+		// for crc32 % 100 — pick two we can verify ourselves).
+		$this->assertNotSame(
+			PCG_Rollout::blog_bucket( 1 ),
+			PCG_Rollout::blog_bucket( 2 )
+		);
+	}
+
+	/**
+	 * The gate wired through `pcg_guard_activation` returns false when
+	 * the rollout would exclude the current blog, regardless of any
+	 * earlier filter that said true.
+	 */
+	public function test_rollout_gate_narrows_pcg_guard_activation() {
+		// Default percentage is 0; gate must veto.
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertFalse( apply_filters( 'pcg_guard_updates', true ) );
+
+		// At 100% the gate passes through.
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertTrue( apply_filters( 'pcg_guard_updates', true ) );
+	}
+
+	/**
+	 * The gate only narrows — if an earlier filter returned false, the
+	 * gate must not flip it back to true.
+	 */
+	public function test_rollout_gate_only_narrows() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
 	}
 
 	/**

@@ -13,6 +13,12 @@
 require_once __DIR__ . '/pcg-log.php';
 require_once __DIR__ . '/class-pcg-load-tester.php';
 
+// Rollout gate — registers filters that narrow `pcg_guard_activation` /
+// `pcg_guard_updates` to the percentage-selected blog set. Must load before
+// `probe-endpoint.php` and `activation-guard.php` so their filter checks
+// see the gate.
+require_once __DIR__ . '/class-pcg-rollout.php';
+
 // Probe endpoint must answer front-end requests, so it's not gated on is_admin().
 require_once __DIR__ . '/probe-endpoint.php';
 

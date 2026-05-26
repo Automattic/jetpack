@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Plugin Conflicts Guardian: retry probes on Atomic multi-node propagation flakes, always emit a verdict from the probe shutdown handler (guarded against re-entry so it doesn't double-emit after the happy-path exit), preserve update snapshots on the new ok-inconclusive verdict, and tighten flake detection to PHP's canonical class-not-found phrasing (exploration spike — feature is currently disabled).
+Plugin Conflicts Guardian: rebuild verdict policy, defer probe require to wp_loaded, add signature allowlist and percentage rollout gate.

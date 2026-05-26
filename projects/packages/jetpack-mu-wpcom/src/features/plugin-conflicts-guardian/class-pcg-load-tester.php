@@ -14,15 +14,6 @@ class PCG_Load_Tester {
 	const PROBE_TIMEOUT = 15;
 
 	/**
-	 * Microseconds to wait between the first probe attempt and a retry
-	 * when the verdict looks like an Atomic multi-node propagation flake
-	 * (file-not-found or autoload miss against the candidate plugin's own
-	 * tree). Chosen as a balance between giving the shared filesystem
-	 * time to catch up and not adding noticeable latency to real fatals.
-	 */
-	const PROPAGATION_RETRY_DELAY_US = 500000;
-
-	/**
 	 * Probe-token transient TTL, in seconds.
 	 *
 	 * Must outlast the *whole* probe, not a single hop: each followed
@@ -80,39 +71,165 @@ class PCG_Load_Tester {
 
 		$verdict = $this->send_probe_pair( $plugin_mains, $mode );
 
-		// Multi-node propagation flake (Atomic): the loopback can land on a
-		// container whose shared-filesystem view lags the admin node's, so
-		// the candidate plugin's entry file loads but a sibling file under
-		// its own directory is not yet visible. CLI activation works,
-		// because CLI runs on the originating node. Retry once after a
-		// short delay; if the second probe still reports the same flake we
-		// can't distinguish lag from a genuine missing file, so downgrade
-		// to ok-inconclusive (allow + log) per the customer-impact triage.
-		if ( $this->is_propagation_flake( $verdict, $plugin_mains ) ) {
-			clearstatcache( true );
-			usleep( self::PROPAGATION_RETRY_DELAY_US );
-			$retry = $this->send_probe_pair( $plugin_mains, $mode );
-			if ( ! $this->is_propagation_flake( $retry, $plugin_mains ) ) {
-				return $retry;
-			}
-			$this->log_propagation_flake_downgrade( $mode, $plugin_mains, $retry );
-			$downgraded = array(
-				'status'  => 'ok-inconclusive',
-				'reason'  => 'Probe reported a file-not-found / autoload miss against the plugin\'s own directory on two attempts; treating as a multi-node propagation lag and allowing activation. CLI activation is unaffected.',
-				'message' => (string) ( $retry['message'] ?? '' ),
-				'file'    => (string) ( $retry['file'] ?? '' ),
+		// Per-signature allowlist for known probe-only fatals — verdicts that
+		// match a signature configured via `pcg_signature_allowlist` are
+		// downgraded to `ok-inconclusive` (allow + log). Intended for
+		// captured fatals that only surface in probe context (e.g. Gravity
+		// Forms 2.10.1 calling `array_walk()` on null because the request-
+		// scoped data the probe lacks resolves to null). Each entry should
+		// carry a code comment + sunset date so it can be deleted once the
+		// upstream fix ships.
+		$allowlist_match = $this->matches_signature_allowlist( $verdict, $plugin_mains );
+		if ( null !== $allowlist_match ) {
+			$this->log_signature_allowlist_match( $mode, $plugin_mains, $verdict, $allowlist_match );
+			return $this->downgrade_to_inconclusive(
+				$verdict,
+				sprintf( 'Verdict matched signature allowlist (%s); allowing activation pending upstream fix.', $allowlist_match )
 			);
-			if ( '' !== (string) ( $retry['plugin'] ?? '' ) ) {
-				// Preserve the throwable-catch attribution from the
-				// probe endpoint so downstream consumers (and future
-				// `ok-inconclusive` readers) can still see which
-				// candidate triggered the flake path.
-				$downgraded['plugin'] = (string) $retry['plugin'];
-			}
-			return $downgraded;
+		}
+
+		// Sibling-load flake (Atomic): the candidate plugin's entry file
+		// loads but a sibling under its own directory fails to require or
+		// autoload. CLI activation works because CLI runs in the same
+		// environment that wrote the files. We can't distinguish a transient
+		// from a genuine missing file by inspecting the verdict, and the
+		// trace shows the same `(blog, file)` failing for hours when it does
+		// happen — so we downgrade to `ok-inconclusive` (allow + log) on the
+		// first match rather than retrying. CLI / second-page-load activation
+		// remains available as the recovery path.
+		if ( $this->is_sibling_load_flake( $verdict, $plugin_mains ) ) {
+			$this->log_sibling_load_flake_downgrade( $mode, $plugin_mains, $verdict );
+			return $this->downgrade_to_inconclusive(
+				$verdict,
+				'Probe reported a file-not-found / autoload miss against the plugin\'s own directory; allowing activation. CLI activation is unaffected.'
+			);
 		}
 
 		return $verdict;
+	}
+
+	/**
+	 * Build an `ok-inconclusive` downgrade verdict that preserves the
+	 * captured-fatal context (`plugin`, `message`, `file`) so downstream
+	 * readers (logstash, snapshot preservation) can still see which
+	 * candidate triggered the downgrade and why.
+	 *
+	 * @param array  $verdict Original blocking verdict.
+	 * @param string $reason  Human-readable reason for the downgrade.
+	 * @return array
+	 */
+	protected function downgrade_to_inconclusive( array $verdict, $reason ) {
+		$out = array(
+			'status'  => 'ok-inconclusive',
+			'reason'  => (string) $reason,
+			'message' => (string) ( $verdict['message'] ?? '' ),
+			'file'    => (string) ( $verdict['file'] ?? '' ),
+		);
+		if ( '' !== (string) ( $verdict['plugin'] ?? '' ) ) {
+			$out['plugin'] = (string) $verdict['plugin'];
+		}
+		return $out;
+	}
+
+	/**
+	 * Match a captured-fatal verdict against the per-signature allowlist
+	 * configured via the `pcg_signature_allowlist` filter. Returns the
+	 * matching signature label, or null if no entry matches.
+	 *
+	 * Allowlist entry shape:
+	 *
+	 *     array(
+	 *         'label'   => 'gf-2.10.1-array-walk-null',   // required, used in logs
+	 *         'plugin'  => 'gravityforms/gravityforms.php', // optional, basename match
+	 *         'file'    => 'class-gf-block-form.php',     // optional, basename match on captured file
+	 *         'message' => '/array_walk\(\).+null given/', // optional, PCRE against verdict message
+	 *         'status'  => 'fatal',                       // optional, defaults to fatal/throwable
+	 *         'sunset'  => '2026-09-01',                  // optional, advisory only
+	 *     )
+	 *
+	 * Plugin / file fields are matched on their basename to avoid coupling
+	 * to install paths. At least one of plugin/file/message must be set;
+	 * an entry with none short-circuits and is skipped.
+	 *
+	 * @internal
+	 * @param array    $verdict      Probe verdict.
+	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
+	 * @return string|null Matching signature label, or null.
+	 */
+	public function matches_signature_allowlist( array $verdict, array $plugin_mains ) {
+		$status = (string) ( $verdict['status'] ?? '' );
+		if ( 'fatal' !== $status && 'throwable' !== $status ) {
+			return null;
+		}
+
+		$signatures = apply_filters( 'pcg_signature_allowlist', array() );
+		if ( ! is_array( $signatures ) || empty( $signatures ) ) {
+			return null;
+		}
+
+		$message      = (string) ( $verdict['message'] ?? '' );
+		$file_base    = isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '';
+		$plugin_bases = $this->relative_basenames( $plugin_mains );
+		// The explicit `plugin` attribution (set when a Throwable is caught
+		// around the require) is the strongest signal for which plugin in a
+		// batch tripped the fatal — prefer it over the batch.
+		if ( ! empty( $verdict['plugin'] ) ) {
+			$plugin_bases = $this->relative_basenames( array( (string) $verdict['plugin'] ) );
+		}
+
+		foreach ( $signatures as $sig ) {
+			if ( ! is_array( $sig ) ) {
+				continue;
+			}
+			$has_plugin  = ! empty( $sig['plugin'] );
+			$has_file    = ! empty( $sig['file'] );
+			$has_message = ! empty( $sig['message'] );
+			if ( ! $has_plugin && ! $has_file && ! $has_message ) {
+				continue;
+			}
+			if ( isset( $sig['status'] ) && (string) $sig['status'] !== $status ) {
+				continue;
+			}
+			if ( $has_plugin && ! in_array( (string) $sig['plugin'], $plugin_bases, true ) ) {
+				continue;
+			}
+			if ( $has_file && (string) $sig['file'] !== $file_base ) {
+				continue;
+			}
+			if ( $has_message && ! preg_match( (string) $sig['message'], $message ) ) {
+				continue;
+			}
+			return isset( $sig['label'] ) ? (string) $sig['label'] : 'unlabelled';
+		}
+
+		return null;
+	}
+
+	/**
+	 * Log a signature-allowlist match so the dashboard can see which
+	 * upstream defects are still being papered over. Sampled on the same
+	 * `atomic_plugin_conflicts_guardian` feature bucket.
+	 *
+	 * @param string   $mode         Probe mode constant.
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param array    $verdict      Original blocking verdict.
+	 * @param string   $label        Matching signature label.
+	 * @return void
+	 */
+	protected function log_signature_allowlist_match( $mode, array $plugin_mains, array $verdict, $label ) {
+		$attributed = (string) ( $verdict['plugin'] ?? '' );
+		pcg_log_event(
+			'Signature allowlist match',
+			array(
+				'mode'    => $mode,
+				'plugins' => $this->relative_basenames( $plugin_mains ),
+				'plugin'  => '' !== $attributed ? $this->relative_basenames( array( $attributed ) )[0] : '',
+				'label'   => (string) $label,
+				'status'  => (string) ( $verdict['status'] ?? '' ),
+				'file'    => isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '',
+				'reason'  => (string) ( $verdict['message'] ?? $verdict['reason'] ?? '' ),
+			)
+		);
 	}
 
 	/**
@@ -182,10 +299,12 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a verdict looks like an Atomic multi-node filesystem
-	 * propagation lag rather than a genuine fatal: a fatal/throwable
-	 * whose captured `file` is a `Failed opening required` or autoload
-	 * miss inside one of the candidate plugins' own directories.
+	 * Whether a verdict looks like a sibling-load flake — a fatal/throwable
+	 * where the candidate plugin's entry file loaded but a sibling under
+	 * its own directory failed to require or autoload. The mechanism is
+	 * not yet identified (logstash shows the same `(blog, file)` failing
+	 * for hours, which rules out a propagation race); the signature is
+	 * stable enough to downgrade-to-allow on, regardless of cause.
 	 *
 	 * Exposed for unit tests.
 	 *
@@ -194,7 +313,7 @@ class PCG_Load_Tester {
 	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
 	 * @return bool
 	 */
-	public function is_propagation_flake( array $result, array $plugin_mains ) {
+	public function is_sibling_load_flake( array $result, array $plugin_mains ) {
 		$status = (string) ( $result['status'] ?? '' );
 		if ( 'fatal' !== $status && 'throwable' !== $status ) {
 			return false;
@@ -206,7 +325,7 @@ class PCG_Load_Tester {
 		// (legacy). A loose `str_contains` on 'Class ' / ' not found'
 		// would over-match decorated error messages or wrapped fatals
 		// that mention either substring incidentally, and silently
-		// downgrade real bugs to ok-inconclusive after the retry.
+		// downgrade real bugs to ok-inconclusive.
 		$looks_like_class_not_found   = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
 		$looks_like_missing_file_open = str_contains( $message, 'Failed opening required' )
 			|| str_contains( $message, 'failed to open stream: No such file or directory' );
@@ -222,8 +341,8 @@ class PCG_Load_Tester {
 		// Fall back to the message body ONLY for the file-open arm: those
 		// messages carry the missing path verbatim, so a substring match
 		// against a candidate's dir is a meaningful signal. The
-		// class-not-found arm requires `captured_file` to live inside a
-		// candidate — its message has no path to match on, and pulling
+		// class-not-found arm requires the captured `file` to live inside
+		// a candidate — its message has no path to match on, and pulling
 		// other text in (autoloader stack traces, wrapped errors) is the
 		// over-match vector we want to avoid.
 		if ( ! $looks_like_missing_file_open ) {
@@ -262,7 +381,7 @@ class PCG_Load_Tester {
 	 * Whether a `Failed opening required` message body mentions a path
 	 * inside one of the candidate plugins' directories. Only safe for
 	 * messages that PHP composes with the failing path verbatim — see
-	 * `is_propagation_flake` for why we don't use this on autoloader
+	 * `is_sibling_load_flake` for why we don't use this on autoloader
 	 * misses.
 	 *
 	 * @param string   $message      Verdict message.
@@ -283,19 +402,19 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Log a propagation-flake downgrade so we can measure how often the
-	 * retry path triggers and how often it still allows through. Sampled
-	 * on the same `atomic_plugin_conflicts_guardian` feature bucket.
+	 * Log a sibling-load flake downgrade so we can measure how often the
+	 * downgrade path triggers and on which plugins. Sampled on the same
+	 * `atomic_plugin_conflicts_guardian` feature bucket.
 	 *
 	 * @param string   $mode         Probe mode constant.
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
-	 * @param array    $retry_result Verdict from the second probe attempt.
+	 * @param array    $verdict      Original blocking verdict.
 	 * @return void
 	 */
-	protected function log_propagation_flake_downgrade( $mode, array $plugin_mains, array $retry_result ) {
-		$attributed = (string) ( $retry_result['plugin'] ?? '' );
+	protected function log_sibling_load_flake_downgrade( $mode, array $plugin_mains, array $verdict ) {
+		$attributed = (string) ( $verdict['plugin'] ?? '' );
 		pcg_log_event(
-			'Propagation flake downgrade',
+			'Sibling-load flake downgrade',
 			array(
 				'mode'    => $mode,
 				'plugins' => $this->relative_basenames( $plugin_mains ),
@@ -304,9 +423,9 @@ class PCG_Load_Tester {
 				// support isolate the offending plugin in a batch
 				// downgrade without grep-ing the full plugins list.
 				'plugin'  => '' !== $attributed ? $this->relative_basenames( array( $attributed ) )[0] : '',
-				'status'  => (string) ( $retry_result['status'] ?? '' ),
-				'reason'  => (string) ( $retry_result['message'] ?? $retry_result['reason'] ?? '' ),
-				'file'    => isset( $retry_result['file'] ) ? basename( (string) $retry_result['file'] ) : '',
+				'status'  => (string) ( $verdict['status'] ?? '' ),
+				'reason'  => (string) ( $verdict['message'] ?? $verdict['reason'] ?? '' ),
+				'file'    => isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '',
 			)
 		);
 	}
@@ -344,10 +463,11 @@ class PCG_Load_Tester {
 	 * through without a captured verdict — the cost of the policy in
 	 * `parse_response`.
 	 *
-	 * The flake-retry path's own ok-inconclusive verdict is logged
-	 * separately via `log_propagation_flake_downgrade` with full
+	 * The sibling-load flake path's own ok-inconclusive verdict is logged
+	 * separately via `log_sibling_load_flake_downgrade` with full
 	 * candidate context; we exclude it here so the same event isn't
-	 * counted twice.
+	 * counted twice. The signature-allowlist downgrade is similarly
+	 * logged via `log_signature_allowlist_match`.
 	 *
 	 * @param array $result Probe verdict.
 	 * @return bool
@@ -361,10 +481,10 @@ class PCG_Load_Tester {
 			return false;
 		}
 		// Distinguish parse_response synthesized ok-inconclusive (no
-		// `plugin` key, no candidate context) from the flake downgrade
-		// (carries `plugin`/`message`/`file` from the retry verdict).
-		// Only the former needs logging here; the latter has its own
-		// dedicated logger.
+		// `plugin` key, no candidate context) from the sibling-load /
+		// signature-allowlist downgrades (which carry `message`/`file`
+		// from the original verdict). Only the former needs logging
+		// here; the latter have their own dedicated loggers.
 		return ! isset( $result['plugin'] ) && ! isset( $result['file'] );
 	}
 

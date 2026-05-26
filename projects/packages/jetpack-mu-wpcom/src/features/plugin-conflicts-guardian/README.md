@@ -12,8 +12,9 @@ Two independent filters:
 | File | Role |
 | --- | --- |
 | `plugin-conflicts-guardian.php` | Bootstrap. Wires the requires for the other files. |
-| `class-pcg-load-tester.php` | Client: fires the probe HTTP request and parses the verdict. |
-| `probe-endpoint.php` | Server: handles `?pcg_probe=1`, requires the plugin, captures any fatal. |
+| `class-pcg-load-tester.php` | Client: fires the probe HTTP request, parses the verdict, applies sibling-load downgrade + signature allowlist. |
+| `class-pcg-rollout.php` | Percentage-based rollout gate that narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. |
+| `probe-endpoint.php` | Server: handles `?pcg_probe=1`, defers `require_once` to `wp_loaded`, captures any fatal. |
 | `activation-guard.php` | Hooks `load-plugins.php` / `load-update.php` and blocks failing activations. |
 | `update-guard.php` | Hooks `upgrader_source_selection` to refuse installs/updates with PHP parse errors. |
 | `class-pcg-snapshot.php` | Transient-backed pre-update snapshot (version + was_active) plus an on-disk copy of the existing plugin files for offline rollback. |
@@ -25,7 +26,7 @@ Two independent filters:
 1. Admin submits an Activate request (`plugins.php?action=activate`, `…=activate-selected`, or `update.php?action=activate-plugin`).
 2. `activation-guard.php` intercepts on `load-plugins.php` / `load-update.php` priority 0, verifies the nonce, filters the request down to eligible plugins (passes `validate_file`, not already active, file exists), and calls `PCG_Load_Tester::test()` once with the full batch.
 3. The load tester stashes `{ plugins, mode }` in a short-lived transient keyed by a random token, then fires the probe against `?pcg_probe=1&token=…` on this same site. Activation flows pass `mode = activation`; the post-update health check passes `mode = update` (see "Post-update health check" below).
-4. `probe-endpoint.php` runs synchronously at require time (already inside `plugins_loaded` priority 10 via `load_features()`), validates + consumes the token, gates on the per-mode filter (`pcg_guard_activation` for activation, `pcg_guard_updates` for update), defines `WP_SANDBOX_SCRAPING` so core's fatal handler steps aside, arms a shutdown handler, and in activation mode `require_once`s each plugin's main file in order under that single request. Probe cost is constant regardless of how many plugins are activated, and conflicts that only fire when two plugins load together (duplicate class, shared global) are caught — which a per-plugin probe model couldn't see. In update mode the files are already loaded by WP's normal bootstrap and re-requiring would fatal with "Cannot redeclare class/function" — the probe just verifies that bootstrap completed cleanly.
+4. `probe-endpoint.php` runs synchronously at require time (already inside `plugins_loaded` priority 10 via `load_features()`), validates + consumes the token, gates on the per-mode filter (`pcg_guard_activation` for activation, `pcg_guard_updates` for update — both narrowed by `PCG_Rollout`'s percentage gate), defines `WP_SANDBOX_SCRAPING` so core's fatal handler steps aside, and arms a shutdown handler. In **activation mode** the `require_once` of each candidate is deferred to `wp_loaded:1`, so dependency shims registered later in the bootstrap (Action Scheduler's `as_*` functions, WC constants like `WC_ADMIN_ABSPATH`, plugin singletons set up during `init`) are available when we exercise the candidate's load path. Probe cost is constant regardless of how many plugins are activated, and conflicts that only fire when two plugins load together (duplicate class, shared global) are caught — which a per-plugin probe model couldn't see. In **update mode** the files are already loaded by WP's normal bootstrap and re-requiring would fatal with "Cannot redeclare class/function" — the probe just verifies that bootstrap completed cleanly.
 5. Two probes fire in parallel via `\WpOrg\Requests\Requests::request_multiple()`: one against `home_url('/')` (front-end) and one against `admin_url('index.php')` with `pcg_admin=1` and the admin's WP auth cookies forwarded so `auth_redirect()` clears. Requests follows up to 5 redirects (matching `wp_remote_get`'s default), so canonical http→https / trailing-slash / non-www→www on the front-end and `force_ssl_admin`'s http→https bounce on the admin probe both reach a real verdict (WP emits full-URL `Location:` headers from `home_url`/`set_url_scheme` so `pcg_probe`/`token` survives, and Requests re-sends the forwarded `Cookie:` header on the followed request so admin auth still validates after the scheme bounce). The admin probe defers its verdict to `admin_init` priority `PHP_INT_MAX`; the front-end probe emits on `wp_loaded`. A captured `fatal` / `throwable` from either probe wins; otherwise the front-end verdict is returned. Inconclusive verdicts (exceeded redirect budget, destination dropped the probe query, unfollowed 3xx, HTTP 500 without a captured fatal, intercepted loopback, marker present but no JSON body) become `ok-inconclusive` — a non-blocking pass — so the user can always proceed and we still get a logstash record of the suspicious signal.
    - The probe endpoint sends an `X-PCG-Probe: 1` header the moment it recognizes a probe request. A `200` response *without* that header means the loopback never reached the endpoint (full-page/edge cache, security plugin, maintenance page); a `200` *with* the marker but no JSON verdict means the endpoint ran but the bootstrap died before either `pcg_probe_emit_ok` or `pcg_probe_shutdown` could write a verdict (genuine engine death — segfault, OOM kill, FastCGI termination — or a mid-stream connection drop). Both are inconclusive: PCG only blocks on a fatal it actually captured, never on one it inferred from a missing response.
 6. On a fatal/throwable the guard attributes the failure to one plugin in the batch — preferring the explicit `plugin` field (set when a `Throwable` is caught around the `require`), then falling back to matching the captured `file` against each plugin's directory. The whole batch is blocked as a unit; the notice tells the admin which plugin caused the fatal so they can retry without it.
@@ -39,9 +40,41 @@ PCG never blocks on a *guessed* fatal. The only two paths that emit `status: fat
 
 The shutdown handler is registered with `register_shutdown_function`, which means it fires after every `exit` — including the `exit` at the end of `pcg_probe_respond` itself. A re-entry guard (`pcg_probe_already_emitted`) ensures the second invocation short-circuits, so the response body always contains exactly one JSON document. Without the guard the always-emit semantics would double-emit on every successful probe, breaking the client's `json_decode` and routing the marker+200 fall-through to a false-positive fatal.
 
-### Atomic multi-node propagation flake
+### Sibling-load flake downgrade
 
-On Atomic the loopback can land on a container whose shared-filesystem view lags the admin node's, so a freshly-uploaded plugin's entry file loads but a sibling `require_once`'d file isn't visible yet. The probe captures a real PHP fatal, but it's a fatal that wouldn't happen on the originating node (CLI activation works). `PCG_Load_Tester::is_propagation_flake()` detects this signature — `Failed opening required` / `failed to open stream` / canonical `Class "Name" not found` whose captured `file` lies inside one of the candidate plugins' own directories — and retries the probe pair once after ~500ms. If the second attempt still flakes the same way, the verdict is downgraded to `ok-inconclusive` (allow + log) since we can't distinguish lag from a genuine missing file by then. The `update-healthcheck` cleanup path explicitly preserves the rollback snapshot on `ok-inconclusive` / `ok-shutdown` so the recovery artifact remains if a real fatal surfaces on a still-lagging node moments later; the snapshot sweep TTL eventually reclaims the disk.
+A captured fatal where the candidate plugin's entry file loads but a sibling under its own directory fails to require or autoload is downgraded to `ok-inconclusive` (allow + log). `PCG_Load_Tester::is_sibling_load_flake()` recognises the signature — `Failed opening required` / `failed to open stream` / canonical `Class "Name" not found` whose captured `file` lies inside one of the candidate plugins' own directories. The downgrade fires on the first match; logstash on the production data shows the same `(blog, file)` combinations reproducing for hours when this happens, so a retry can't convert deterministic failures into successes — CLI activation (or a second admin-page activation attempt) remains the recovery path. The mechanism behind these flakes isn't yet identified; downgrading on the stable signature is defensible regardless of cause.
+
+The `update-healthcheck` cleanup path explicitly preserves the rollback snapshot on `ok-inconclusive` / `ok-shutdown` so the recovery artifact remains if a real fatal surfaces on a subsequent request; the snapshot sweep TTL eventually reclaims the disk.
+
+### Per-signature allowlist
+
+Some captured fatals only fire in the probe context because the probe isn't a perfect replica of a real activation (no request-scoped data, anonymous loopback, etc.). The `pcg_signature_allowlist` filter lets specific signatures be allowlisted so the verdict is downgraded to `ok-inconclusive`:
+
+```php
+add_filter( 'pcg_signature_allowlist', function ( $list ) {
+    // GF 2.10.1+ — null array_walk during block init in probe context.
+    // Sunset when GF ships the fix (tracking: WCCOM-2563).
+    $list[] = array(
+        'label'   => 'gf-2.10.1-array-walk-null',
+        'plugin'  => 'gravityforms/gravityforms.php',
+        'message' => '/array_walk\(\).+null given/',
+    );
+    return $list;
+} );
+```
+
+Each entry should carry a code comment + sunset date so it can be deleted once the upstream fix ships. Matching is on basename for `plugin` / `file` and PCRE for `message`; an entry with none of the three keys is skipped silently (too loose to apply). Matches are sampled to logstash under `Signature allowlist match`.
+
+### Percentage rollout
+
+`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **0%** — PCG is off everywhere until the operator opts in:
+
+```php
+add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
+add_filter( 'pcg_rollout_force_enable_blogs', fn () => array( 12345 ) ); // explicit opt-in
+```
+
+Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). Force-enabling overrides the percentage gate so test blogs can opt in regardless of bucket. The gate only narrows — emergency-override filters at priority > 100 can still re-enable or disable a blog.
 
 ```
  Admin click Activate
@@ -91,9 +124,9 @@ Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a C
 
 ## Limitations
 
-- Only catches errors hit while `require`-ing the main file and during `plugins_loaded` / `init` / `admin_init` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.
-- The probe endpoint is wired up via jetpack-mu-wpcom's `load_features()` at `plugins_loaded` priority 10, so plugin callbacks registered for `plugins_loaded` at priority < 10 will have already fired before the plugin under test is `require`d. Fatals from those earlier-priority callbacks are missed. Conversely, *false* fatals from dependencies that register their function shims at `plugins_loaded` ≥ 10 (e.g. Action Scheduler's `as_*` functions used by RankMath during activation) can be captured at probe time even though they wouldn't fire on a real activation. Hooking the probe handler earlier would require splitting it out of `load_features()`.
-- The probe environment isn't a perfect replica of a real activation: the candidate plugin is `require`d during `plugins_loaded:10` rather than reached via the normal activation path, the request is loopback rather than the original admin context, and on Atomic the loopback may land on a different container than the admin request (multi-node filesystem propagation lag — handled by `is_propagation_flake` retry, see above). A plugin whose bootstrap reads request- or post-scoped data that's null in the isolated probe context (e.g. Gravity Forms 2.10.1 calling `array_walk()` on null during block init) will fatal at probe time without fataling on a real activation; until upstream fixes that or we add a per-signature allowlist, the captured fatal is real from PHP's perspective and PCG will block on it.
+- Only catches errors hit while `require`-ing the main file and during `init` / `admin_init` / `wp_loaded` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.
+- The candidate's `require_once` runs at `wp_loaded:1`, so the candidate's own `plugins_loaded` callbacks are not invoked in the probe context. A real activation click doesn't fire those callbacks either (they fire on the *next* request), so the probe still matches the real activation shape — but a plugin whose `plugins_loaded` callback is the only thing that fatals on its next page-load would slip through.
+- The probe environment isn't a perfect replica of a real activation: the candidate plugin is `require`d under a probe loopback rather than reached via the normal activation path. A plugin whose bootstrap reads request- or post-scoped data that's null in the isolated probe context (e.g. Gravity Forms 2.10.1 calling `array_walk()` on null during block init) will fatal at probe time without fataling on a real activation. Handled by entries on the `pcg_signature_allowlist` filter, see above.
 - Other active plugins are live during the probe, so cross-plugin conflicts CAN surface (a full SHORTINIT sandbox would avoid that, but isn't portable here).
 
 ## Update flow (syntax-only, pre-install)
