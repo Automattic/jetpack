@@ -68,6 +68,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			onPointerUp,
 			onPointerMove,
 			onPointerOut,
+			rescaleYOnLegendToggle = true,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -136,12 +137,14 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		} );
 
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
-		// fixed when series are toggled off — otherwise visx auto-fits to the remaining data
-		// and the chart appears to rescale. Skipped for non-default stack offsets, which
-		// reshape the y-extent (`expand` → [0,1], `wiggle`/`silhouette` → centred around
-		// zero) — letting visx derive the domain is correct there.
+		// fixed when series are toggled off - otherwise visx auto-fits to the remaining
+		// data and the chart's baseline appears to move. Opt-in via
+		// `rescaleYOnLegendToggle={ false }`. Skipped for non-default stack offsets,
+		// which reshape the y-extent (`expand` -> [0,1], `wiggle`/`silhouette` -> centred
+		// around zero); letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
+				rescaleYOnLegendToggle ||
 				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
@@ -184,7 +187,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive ] );
+		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnLegendToggle ] );
 
 		const chartOptions = useMemo( () => {
 			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );

@@ -211,6 +211,37 @@ Animation.args = {
 	legendInteractive: true,
 };
 
+export const RescaleYOnLegendToggle: StoryObj< typeof AreaChart > = {
+	name: 'Y-axis rescales when legends toggle (default)',
+	render: args => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h4>rescaleYOnLegendToggle: true (default)</h4>
+				<AreaChart { ...args } rescaleYOnLegendToggle />
+			</div>
+			<div>
+				<h4>rescaleYOnLegendToggle: false (pinned)</h4>
+				<AreaChart { ...args } rescaleYOnLegendToggle={ false } />
+			</div>
+		</div>
+	),
+	args: {
+		...areaChartStoryArgs,
+		showLegend: true,
+		legend: { interactive: true },
+		width: 480,
+		height: 280,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Click legend items to toggle series. The left chart rescales the Y axis to the visible series; the right chart pins the Y axis to the full data extent so the baseline stays put.',
+			},
+		},
+	},
+};
+
 export const WithCompositionLegend: StoryObj< typeof AreaChart > = {
 	render: args => {
 		const legend = extractLegendConfig( args );
