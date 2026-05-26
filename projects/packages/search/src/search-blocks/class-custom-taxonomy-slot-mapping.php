@@ -8,37 +8,21 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Power-user escape hatch for taxonomies that aren't natively indexed by
- * Jetpack Search.
+ * Power-user escape hatch for taxonomies Jetpack Search doesn't index natively.
  *
- * A site declares a mapping like
+ * A site adds a mapping via the `jetpack_search_custom_taxonomy_map` filter
+ * (e.g. `'genre' => 'jetpack-search-tag1'`). The class then:
  *
- *     add_filter( 'jetpack_search_custom_taxonomy_map', function ( $map ) {
- *         $map['genre'] = 'jetpack-search-tag1';
- *         return $map;
- *     } );
+ *   1. Registers each in-use slot (`jetpack-search-tag0…9`) as a private
+ *      shadow taxonomy on the same object types as its user-side source.
+ *   2. Mirrors assignments onto the slot via `set_object_terms`,
+ *      `deleted_term_relationships`, and `delete_term` so Sync ships the
+ *      slot rows to WPCOM (slot taxonomies are in `Sync\Modules\Search`).
+ *   3. Resolves user-facing slug → slot at query-build time
+ *      (`Filter_Checkbox::build_config()` writes the `effectiveSlug`).
  *
- * Then this class:
- *
- *  1. Registers each in-use slot (`jetpack-search-tag0`…`jetpack-search-tag9`)
- *     as a private shadow taxonomy on the same object types as its
- *     user-side source.
- *  2. Mirrors term assignments from the user-side taxonomy onto the slot
- *     on `set_object_terms`, `deleted_term_relationships`, and `delete_term`
- *     so Sync ships the slot rows to the WPCOM replicastore, where the
- *     Jetpack Search indexer picks them up (the slot taxonomies are on
- *     `Sync\Modules\Search::get_all_taxonomies()`; the user-facing slug
- *     usually isn't).
- *  3. Resolves a user-facing slug to its slot at query-build time
- *     (`Filter_Checkbox::build_config()` stores it on the filterConfig as
- *     `effectiveSlug`) so the front-end aggregates against the slot field.
- *
- * Default `apply_filters( 'jetpack_search_custom_taxonomy_map', array() )`
- * returns empty, so the feature is **off by default**: no slot taxonomies
- * registered, no mirroring, no query rewrite. The filter doubles as the
- * data declaration and the on/off switch — a site that doesn't add an
- * entry pays no runtime cost beyond a cached `isset()` check inside the
- * `set_object_terms` handler.
+ * Empty filter default = feature off. A site with no entry pays only an
+ * `isset()` check inside `mirror_assignment()`.
  *
  * See https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
  */
@@ -47,73 +31,52 @@ class Custom_Taxonomy_Slot_Mapping {
 	/**
 	 * Backfill modes accepted by `backfill()`.
 	 *
-	 * - `mirror`: default. Per-post replacement only. For each post that
-	 *   currently has at least one user-side term, `wp_set_object_terms()`
-	 *   resets the slot's post-set for that post to match the current
-	 *   user-side names. **Posts that lost every user-side term during a
-	 *   gap when the auto-mirror was inactive are *not* visited** — their
-	 *   stale slot relationships orphan. Suitable for the common case:
-	 *   one-time initialization on a site that has data predating the
-	 *   mapping.
-	 * - `rebuild`: full sweep. Every term in the slot taxonomy is deleted
-	 *   first (which cascades to drop every slot term-relationship), then
-	 *   the per-post mirror runs over the current user-side state. The
-	 *   resulting slot is byte-for-byte a fresh projection of the user-side
-	 *   taxonomy with no orphans. Use when a site has had the mapping
-	 *   toggle on and off, changed slot, or otherwise believes the slot has
-	 *   drifted. Costly on large sites — runs N deletes for N slot terms.
+	 * - `mirror`: per-post replacement only. Walks user-side terms and resets
+	 *   each post's slot post-set to match. **Posts that lost every user-side
+	 *   term during an inactive-mirror gap aren't visited** — their stale slot
+	 *   relationships orphan. Common case for first-time setup.
+	 * - `rebuild`: delete every slot term first (cascades to drop relationships),
+	 *   then mirror. Byte-for-byte fresh projection, no orphans. Costly on
+	 *   large sites — N deletes for N slot terms.
 	 */
 	const BACKFILL_MODES = array( 'mirror', 'rebuild' );
 
 	/**
-	 * Per-request memo backing `get_map()`. The map is validated once per
-	 * request — re-running the validation on every filter-block render and
-	 * on every API request would be wasted work, and the
-	 * `_doing_it_wrong()` notices for a misconfigured map would multiply.
+	 * Per-request memo backing `get_map()`. Validation runs once per request
+	 * so `_doing_it_wrong()` for a bad map doesn't multiply.
 	 *
 	 * @var array<string, string>|null
 	 */
 	private static $map_cache = null;
 
 	/**
-	 * Wire the bootstrap and mirror hooks. Called once from
-	 * `Search_Blocks::init()`.
+	 * Wire bootstrap + mirror hooks. Called once from `Search_Blocks::init()`.
 	 *
-	 * The `set_object_terms` / `deleted_term_relationships` / `delete_term`
-	 * hooks attach unconditionally — they short-circuit on `! isset( $map[ $taxonomy ] )`
-	 * before any work, so the per-request cost on sites without a mapping
-	 * is one cached array read + one `isset` call. Attaching unconditionally
-	 * also avoids a load-order foot-gun where a site declares the map after
-	 * `init` has already fired.
+	 * Mirror hooks attach unconditionally — they short-circuit on
+	 * `! isset( $map[ $taxonomy ] )` so sites without a mapping pay only one
+	 * cached read + `isset` call. Avoids a load-order trap if a site declares
+	 * the map after `init` fires.
 	 *
-	 * The slot taxonomy registration runs at priority 20 so user-side
-	 * taxonomies declared on the default priority 10 are present when we
-	 * read their `object_type`.
+	 * Slot-registration priority 20 so user-side taxonomies declared at
+	 * default priority 10 are present when we read their `object_type`.
 	 */
 	public static function init(): void {
 		add_action( 'init', array( static::class, 'register_slot_taxonomies' ), 20 );
 		add_action( 'set_object_terms', array( static::class, 'mirror_assignment' ), 10, 6 );
-		// `wp_remove_object_terms()` (e.g. from `wp post term remove`) fires
-		// `deleted_term_relationships` instead of `set_object_terms`, so the
-		// slot would drift unless we mirror this path too. Block-editor saves
-		// go through `wp_set_object_terms()` (the full replace path) and are
-		// already covered by the `set_object_terms` hook above.
+		// `wp_remove_object_terms()` fires `deleted_term_relationships`, not
+		// `set_object_terms`, so the slot drifts unless we hook both. Block-editor
+		// saves go through the full replace path and are covered above.
 		add_action( 'deleted_term_relationships', array( static::class, 'mirror_removal' ), 10, 3 );
 		add_action( 'delete_term', array( static::class, 'mirror_deletion' ), 10, 4 );
 	}
 
 	/**
-	 * Map of user-facing custom taxonomy slug → reserved Jetpack Search
-	 * index slot (`jetpack-search-tag0`…`jetpack-search-tag9`).
+	 * Map of user-facing taxonomy slug → reserved slot (`jetpack-search-tag0…9`).
 	 *
-	 * Validation:
-	 *  - Slot value must match `jetpack-search-tag[0-9]` exactly. Anything
-	 *    else is dropped with a `_doing_it_wrong()` notice — silently
-	 *    accepting an arbitrary string would route queries to a field that
-	 *    doesn't exist in the index.
-	 *  - Two user-slugs pointing at the same slot are rejected (only the
-	 *    first wins) — both would merge their term spaces in the index and
-	 *    the second filter would silently return results from the first.
+	 * Slots must match `jetpack-search-tag[0-9]` exactly (else dropped with a
+	 * `_doing_it_wrong()` notice — routing to a non-existent ES field would
+	 * silently return nothing). Two slugs claiming the same slot: first wins;
+	 * second is dropped (term spaces would otherwise merge silently).
 	 *
 	 * @return array<string, string>
 	 */
@@ -177,16 +140,10 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Resolve a user-facing taxonomy slug to the Elasticsearch field slug
-	 * that should be queried for it. Returns the matching
-	 * `jetpack-search-tagN` slot when the slug has an entry in `get_map()`,
-	 * otherwise the slug itself. Built-in slugs that have their own
-	 * dedicated variations (`category`, `post_tag`, and the WC product
-	 * taxonomies) are returned verbatim so a stray map entry can never
-	 * silently redirect a built-in filter onto a slot.
-	 *
-	 * Empty input returns empty so callers can pass the raw block attribute
-	 * without a guard.
+	 * Resolve a user-facing slug to the ES field it should query — the
+	 * matching slot when mapped, otherwise the slug itself. Built-ins
+	 * (category, post_tag, product_*) are returned verbatim so a stray
+	 * map entry can't silently redirect them. Empty in → empty out.
 	 *
 	 * @param string $taxonomy User-facing taxonomy slug.
 	 * @return string Effective ES field slug.
@@ -195,8 +152,6 @@ class Custom_Taxonomy_Slot_Mapping {
 		if ( '' === $taxonomy ) {
 			return '';
 		}
-		// Built-ins are anchored to their canonical field paths regardless
-		// of whether a map entry tries to redirect them.
 		if ( in_array( $taxonomy, Search_Blocks::BUILT_IN_CUSTOM_TAXONOMY_EXCLUSIONS, true ) ) {
 			return $taxonomy;
 		}
@@ -205,9 +160,7 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Reset the `get_map()` memo. Tests only — production WP runs a single
-	 * request per process and the map is derived purely from a filter
-	 * hook, so callers should never need to clear the cache.
+	 * Reset the `get_map()` memo. Tests only.
 	 *
 	 * @internal
 	 */
@@ -216,31 +169,21 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Register each in-use Jetpack Search slot as a private shadow taxonomy
-	 * on the same object types as its user-side source.
+	 * Register each in-use slot as a private shadow taxonomy on the same
+	 * object types as its user-side source. They have to be real registered
+	 * taxonomies so `wp_set_object_terms()` accepts them and Sync ships them
+	 * to WPCOM — but invisible (no UI, REST, rewrite, query var, etc.)
+	 * because only `mirror_assignment()` ever writes to them.
 	 *
-	 * The slot taxonomies need to be real registered taxonomies on the
-	 * source site so `wp_set_object_terms()` accepts them and Sync's
-	 * normal Terms / Term-Relationships modules ship them to the WPCOM
-	 * replicastore. They're intentionally invisible — no UI, no REST, no
-	 * rewrites, no admin column, no query var, no nav-menu surface —
-	 * because authors only ever edit the user-side taxonomy (e.g. `genre`);
-	 * `mirror_assignment()` keeps the slot taxonomy in lockstep behind
-	 * the scenes.
-	 *
-	 * Hierarchical: forced flat. The WPCOM search proxy aggregates slot
-	 * taxonomies as bag-of-terms and a parent/child relationship between
-	 * slot terms wouldn't survive the round-trip anyway.
+	 * Forced flat: WPCOM aggregates slot taxonomies as bag-of-terms and
+	 * parent/child wouldn't survive the round trip.
 	 */
 	public static function register_slot_taxonomies(): void {
 		$map = self::get_map();
 		if ( empty( $map ) ) {
 			return;
 		}
-		// Collect the object_type union for each slot — a slot can shadow
-		// taxonomies attached to different post types in principle (rare),
-		// and registering the slot on the union is harmless when a single
-		// taxonomy is involved.
+		// Union object_types per slot in case a slot shadows multiple taxonomies.
 		$object_types_by_slot = array();
 		foreach ( $map as $user_slug => $slot ) {
 			$tax = get_taxonomy( $user_slug );
@@ -274,28 +217,18 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Mirror term assignments from a mapped user-facing taxonomy onto the
-	 * reserved slot. Fires on `set_object_terms` for every
-	 * `wp_set_object_terms()` write; cheap no-op when the taxonomy isn't
-	 * mapped (vast majority of calls).
+	 * Mirror assignments onto the slot. Uses term names because slot terms
+	 * need to display the same label as the source (and `wp_set_object_terms()`
+	 * creates matching terms by name). Idempotent. Recursion bounded by the
+	 * map gate: the inner call fires with `$taxonomy = jetpack-search-tagN`,
+	 * which isn't a map key.
 	 *
-	 * Uses term names rather than slugs / ids: the slot terms need to display
-	 * the same label as the user-side terms (e.g. "Fantasy") in search
-	 * results, and `wp_set_object_terms()` will create matching slot terms
-	 * by name when none exist. Idempotent — re-running with the same source
-	 * assignment is a no-op on the slot.
-	 *
-	 * Recursion is bounded by the `isset( $map[ $taxonomy ] )` gate: the
-	 * inner `wp_set_object_terms()` call fires `set_object_terms` again
-	 * with `$taxonomy = jetpack-search-tagN`, which is never a key in the
-	 * user-facing map, so the second invocation returns immediately.
-	 *
-	 * @param int    $object_id  Post (or other object) id receiving the terms.
-	 * @param array  $terms      Raw input from the caller (ignored — re-fetched).
+	 * @param int    $object_id  Post id receiving the terms.
+	 * @param array  $terms      Raw input (unused — re-fetched).
 	 * @param array  $tt_ids     Term taxonomy ids (unused).
 	 * @param string $taxonomy   Taxonomy slug the assignment targeted.
-	 * @param bool   $append     Whether the caller appended (unused — full mirror).
-	 * @param array  $old_tt_ids Previous term taxonomy ids (unused).
+	 * @param bool   $append     Append flag (unused — full mirror).
+	 * @param array  $old_tt_ids Previous tt_ids (unused).
 	 */
 	public static function mirror_assignment( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ): void {
 		unset( $terms, $tt_ids, $append, $old_tt_ids );
@@ -316,15 +249,12 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Mirror term *removals* (as opposed to full assignment replacements)
-	 * from a mapped user-facing taxonomy onto the slot. Re-reads the
-	 * canonical post-set rather than diffing the removed tt_ids so the slot
-	 * always reflects the current post-set on the source side — same shape
-	 * `mirror_assignment()` uses for the add/replace path.
+	 * Mirror removals onto the slot. Re-reads the canonical post-set rather
+	 * than diffing the removed tt_ids, so the slot tracks the current state.
 	 *
 	 * @param int    $object_id Post receiving the removal.
-	 * @param array  $tt_ids    Term taxonomy ids that were removed (unused).
-	 * @param string $taxonomy  Taxonomy the removal targeted.
+	 * @param array  $tt_ids    Term taxonomy ids removed (unused).
+	 * @param string $taxonomy  Taxonomy targeted.
 	 */
 	public static function mirror_removal( $object_id, $tt_ids, $taxonomy ): void {
 		unset( $tt_ids );
@@ -345,15 +275,14 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * Mirror term deletions from a mapped user-facing taxonomy onto the
-	 * slot. Without this, deleting a "Fantasy" term in `genre` leaves an
-	 * orphan "Fantasy" term in the slot taxonomy that ES would keep
-	 * returning as a (zero-doc) bucket on retained-option lists.
+	 * Mirror deletions onto the slot. Without this a deleted user-side
+	 * "Fantasy" leaves an orphan slot term that ES keeps returning as a
+	 * zero-doc bucket on retained-option lists.
 	 *
-	 * @param int    $term_id      User-side term id (unused — match by name).
+	 * @param int    $term_id      User-side term id (unused).
 	 * @param int    $tt_id        Term taxonomy id (unused).
 	 * @param string $taxonomy     Taxonomy the term lived in.
-	 * @param object $deleted_term Term object as it existed just before deletion.
+	 * @param object $deleted_term Term object as it existed pre-delete.
 	 */
 	public static function mirror_deletion( $term_id, $tt_id, $taxonomy, $deleted_term ): void {
 		unset( $term_id, $tt_id );
@@ -366,11 +295,9 @@ class Custom_Taxonomy_Slot_Mapping {
 		if ( ! taxonomy_exists( $slot ) ) {
 			return;
 		}
-		// Match by slug rather than name: `wp_set_object_terms()` creates the
-		// slot term with `sanitize_title( $name )` as its slug regardless of
-		// the user-side name's case, and `get_term_by( 'name', ... )` is
-		// case-sensitive on case-sensitive collations — slug-based lookup
-		// avoids missing "fantasy" when the source term is "Fantasy".
+		// Match by slug — `wp_set_object_terms()` uses `sanitize_title()` and
+		// `get_term_by('name')` is case-sensitive on case-sensitive collations,
+		// so name lookup misses "fantasy" when the source is "Fantasy".
 		$slug = isset( $deleted_term->slug ) ? (string) $deleted_term->slug : '';
 		if ( '' === $slug ) {
 			return;
@@ -382,25 +309,14 @@ class Custom_Taxonomy_Slot_Mapping {
 	}
 
 	/**
-	 * One-shot backfill: walk every post that carries a term in a mapped
-	 * user-facing taxonomy and mirror its current assignment onto the slot.
-	 * Use after first introducing a mapping on a site whose posts were
-	 * tagged before the auto-mirror was active.
+	 * One-shot backfill: walk posts with mapped-taxonomy terms and mirror onto
+	 * the slot. Use after introducing a mapping on a site with pre-existing
+	 * tagged posts. Idempotent. Not hooked — invoke from a script or `wp eval`.
 	 *
-	 * Idempotent — `wp_set_object_terms()` replaces the post-set on the slot
-	 * each call, so re-running picks up later edits cleanly. Not hooked
-	 * automatically; sites with millions of posts shouldn't pay this cost on
-	 * every request. Call from a one-off script or `wp eval`.
+	 * See `BACKFILL_MODES` for `mirror` vs `rebuild` semantics.
 	 *
-	 * The default `mirror` mode walks user-side terms only and won't clean
-	 * up orphan slot rows from posts that have lost all their user-side
-	 * terms. Pass `rebuild` to wipe the slot taxonomy first and re-project
-	 * from scratch — slower but guarantees no drift survives.
-	 *
-	 * @param string $mode One of `self::BACKFILL_MODES` — `mirror` (default) or `rebuild`.
-	 * @return int Number of (post, taxonomy) pairs mirrored. Slot wipes in
-	 *             `rebuild` mode are not counted; the return value is the
-	 *             count of fresh per-post writes either way.
+	 * @param string $mode `mirror` (default) or `rebuild`.
+	 * @return int Number of (post, taxonomy) pairs mirrored.
 	 */
 	public static function backfill( string $mode = 'mirror' ): int {
 		if ( ! in_array( $mode, self::BACKFILL_MODES, true ) ) {
@@ -420,14 +336,10 @@ class Custom_Taxonomy_Slot_Mapping {
 			if ( ! taxonomy_exists( $user_slug ) || ! taxonomy_exists( $slot ) ) {
 				continue;
 			}
-			// Rebuild mode: drop every term in the slot taxonomy *before*
-			// the user-side walk. `wp_delete_term()` cascades to remove
-			// each term's term_relationship rows, leaving the slot
-			// post-set empty so the mirror loop projects a fresh copy of
-			// the current user-side state with no orphans. The inner
-			// deletes fire `delete_term` on slot taxonomies; the mirror
-			// handler's `isset( $map[ $taxonomy ] )` gate (map keys are
-			// user-side slugs, never slot slugs) prevents recursion.
+			// Rebuild: drop every slot term first. `wp_delete_term()` cascades
+			// to remove relationships, so the mirror loop projects a fresh copy
+			// with no orphans. Map keys are user-side slugs, never slot slugs,
+			// so the inner `delete_term` fires don't recurse.
 			if ( 'rebuild' === $mode ) {
 				// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 				$existing_slot_terms = get_terms(
@@ -451,9 +363,6 @@ class Custom_Taxonomy_Slot_Mapping {
 					'fields'     => 'all',
 				)
 			);
-			// Bail explicitly on `WP_Error` (and on the empty case) rather than
-			// relying on `wp_list_pluck()` silently returning `[]` for an
-			// error input — keeps the failure path readable.
 			if ( is_wp_error( $terms ) || empty( $terms ) ) {
 				continue;
 			}

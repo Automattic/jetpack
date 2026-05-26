@@ -9,6 +9,16 @@
  * `privateApis`. Subsequent opens just toggle the `hidden` attribute.
  */
 
+import { getSearchOwnedParamKeys } from '../store/url-state.js';
+// Side-effect import: the bootstrap calls
+// `store('jetpack-search').actions.dispatchInitialSearchIfNeeded()` after
+// hydrating the cloned subtree. Without this import the bootstrap can run
+// before the per-block view modules pull in `jetpack-search/store`, and the
+// action would still be undefined at call time. Bare specifier resolves to the
+// shared `jetpack-search/store` Script Module via `DependencyExtractionPlugin`
+// (see tools/webpack.blocks.config.js); does NOT inline the store.
+import 'jetpack-search/store';
+
 const PRIVATE_API_CONSENT =
 	'I acknowledge that using private APIs means my theme or plugin will inevitably break in the next version of WordPress.';
 
@@ -92,6 +102,18 @@ function ensureHydrated() {
 			for ( const region of regions ) {
 				apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
 			}
+			// Belt-and-suspenders trigger for the deep-link first fetch. The
+			// `data-wp-init` directive on results-list races with the IA
+			// runtime's DOMContentLoaded auto-walk for cloned regions and
+			// intermittently doesn't fire — most reliably reproducible on a
+			// bare `?s=` deep link, where the result was a "Searching…"
+			// skeleton that never cleared. The store action is idempotent
+			// (module-scope latch in `store/index.js`), so when the directive
+			// does fire, this becomes a no-op.
+			if ( typeof ia.store === 'function' ) {
+				const { actions } = ia.store( 'jetpack-search' );
+				actions?.dispatchInitialSearchIfNeeded?.();
+			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.warn( '[jetpack-search] overlay hydration failed', e );
@@ -127,11 +149,42 @@ async function openOverlay( triggerEl ) {
 }
 
 /**
- * Hide the overlay and restore focus to the element that opened it.
+ * Strip every Search-owned param from the current URL and `replaceState` the
+ * cleaned URL. Returns true when at least one key was actually removed.
+ *
+ * @return {boolean} Whether the URL was changed.
+ */
+function stripSearchParamsFromUrl() {
+	const params = new URLSearchParams( window.location.search );
+	const ownedKeys = getSearchOwnedParamKeys( params );
+	if ( ownedKeys.length === 0 ) {
+		return false;
+	}
+	for ( const key of ownedKeys ) {
+		params.delete( key );
+	}
+	const search = params.toString();
+	const newUrl = window.location.pathname + ( search ? `?${ search }` : '' ) + window.location.hash;
+	window.history.replaceState( {}, '', newUrl );
+	return true;
+}
+
+/**
+ * Hide the overlay and restore focus to the element that opened it. When the
+ * URL carried search/filter state, also strip those params and reload the
+ * page so the visitor lands on the underlying page rather than WP's default
+ * search-results template — matches legacy Instant Search's
+ * `restorePreviousHref()` close path.
  */
 function closeOverlay() {
 	const overlay = getOverlay();
 	if ( ! overlay || ! isOpen( overlay ) ) {
+		return;
+	}
+	if ( stripSearchParamsFromUrl() ) {
+		// Reload swaps in the no-search-params version of the page (e.g. home),
+		// so we skip the local DOM-restore work — it's about to be replaced.
+		window.location.reload();
 		return;
 	}
 	overlay.setAttribute( 'hidden', '' );
@@ -256,13 +309,20 @@ function handleOverlayClick( event ) {
 	if ( ! isOpen( overlay ) ) {
 		return;
 	}
-	if ( event.target.closest( '.jetpack-search-block-overlay__close' ) ) {
+	// `composedPath()` snapshots the propagation path at dispatch time, so
+	// child blocks that detach the clicked node mid-bubble (e.g. the Search
+	// Input's `data-wp-each` re-render on suggestion select) don't leave
+	// `event.target` orphaned by the time we walk for the card.
+	const path = event.composedPath();
+	const inPath = selector =>
+		path.some( el => el instanceof Element && el.classList.contains( selector ) );
+	if ( inPath( 'jetpack-search-block-overlay__close' ) ) {
 		event.preventDefault();
 		closeOverlay();
 		return;
 	}
 	// Click on the scrim — anywhere outside the card — closes.
-	if ( ! event.target.closest( '.jetpack-search-block-overlay__card' ) ) {
+	if ( ! inPath( 'jetpack-search-block-overlay__card' ) ) {
 		closeOverlay();
 	}
 }

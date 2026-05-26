@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: add a "Post types" setting to the Search Input block so authors can scope a search to specific post types (include or exclude) directly on the input, without a separate Post Type Scope block. The scope is per-instance — each Search Input only constrains the searches it initiates, falling back to any page-level filter-post-type block when unset.

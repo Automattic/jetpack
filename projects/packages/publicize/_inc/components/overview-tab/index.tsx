@@ -82,13 +82,21 @@ export default function OverviewTab(): JSX.Element {
 			{ ! hasConnections && <ThemedConnectionsModal /> }
 			<Card.Root>
 				{ hasConnections && (
-					<Card.Header>
+					<Card.Header className="jetpack-social-overview__accounts-card-header">
 						<Card.Title>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</Card.Title>
 					</Card.Header>
 				) }
-				<Card.Content>
+				<Card.Content
+					className={
+						hasConnections ? 'jetpack-social-overview__accounts-card-content' : undefined
+					}
+				>
 					{ hasConnections ? (
-						<ConnectionManagement hideConnectButton hideHeading />
+						<ConnectionManagement
+							hideConnectButton
+							hideHeading
+							className="jetpack-social-overview__connections-wrapper"
+						/>
 					) : (
 						<NoConnectionsEmptyState />
 					) }

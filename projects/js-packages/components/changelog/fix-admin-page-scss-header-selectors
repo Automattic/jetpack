@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Components: AdminPage SCSS module — replace `> header` selectors with `> :first-child` so they keep matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. Mirrors the fix shipped in #49006 for the shared admin-page-layout mixin; together they resolve the publicize page header spacing regression flagged on PR #48404.

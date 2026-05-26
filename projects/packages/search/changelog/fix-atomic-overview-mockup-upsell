@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Dashboard: Route sites without instant search support (including Atomic) to the pricing upsell page instead of showing the Overview tab's mocked-only state.

@@ -32,3 +32,28 @@
 .jetpack-social-jitm-card:empty {
 	display: none;
 }
+
+// Tighten just the Card.Header's bottom padding so the divider sits
+// visually equidistant from the title text and the first row's content.
+// The 20px lands the divider symmetrically once the title's line-height
+// padding is accounted for — pure 16px reads as tighter above than below.
+// The top padding stays at Card.Header's default 24px so the title still
+// has comfortable headroom from the card edge.
+.jetpack-social-overview__accounts-card-header {
+	padding-block-end: var(--wpds-dimension-padding-xl, 20px);
+}
+
+// Strip the Card.Content padding when the body is the flat connections
+// list — the list rows own their own paddings and need to extend edge to
+// edge of the outer Card, with thin separators between them.
+.jetpack-social-overview__accounts-card-content {
+	padding: 0;
+}
+
+// ConnectionManagement's own `.wrapper` ships a `padding-top: 16px` that
+// makes sense for the standalone admin context but is double-padding
+// inside the chassis Card. Zero it here (doubled-class selector for a
+// safe specificity bump over the package-internal `.wrapper` rule).
+.jetpack-social-overview__connections-wrapper.jetpack-social-overview__connections-wrapper {
+	padding-top: 0;
+}

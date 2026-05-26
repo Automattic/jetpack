@@ -342,6 +342,7 @@
 	const episodesList = root.querySelector( '[data-region="episodes-list"]' );
 
 	const selectedPostIds = new Set();
+	const maxSelectedPosts = data.maxPosts || 25;
 	let pollTimer = null;
 
 	// --- Status notice rendering -------------------------------------------------
@@ -797,10 +798,16 @@
 			checkbox.checked = selectedPostIds.has( post.id );
 			checkbox.addEventListener( 'change', () => {
 				if ( checkbox.checked ) {
+					if ( selectedPostIds.size >= maxSelectedPosts ) {
+						checkbox.checked = false;
+						setStatus( 'error', data.i18n.maxPostsReached );
+						return;
+					}
 					selectedPostIds.add( post.id );
 				} else {
 					selectedPostIds.delete( post.id );
 				}
+				refreshPostLimitState();
 			} );
 
 			const title = document.createElement( 'span' );
@@ -826,6 +833,18 @@
 			ul.appendChild( li );
 		} );
 		postsRegion.appendChild( ul );
+		refreshPostLimitState();
+	}
+
+	/**
+	 * Disable unchecked post checkboxes once the selection limit is reached so
+	 * the user can't select more than `maxSelectedPosts` posts.
+	 */
+	function refreshPostLimitState() {
+		const atLimit = selectedPostIds.size >= maxSelectedPosts;
+		postsRegion.querySelectorAll( 'input[type="checkbox"]' ).forEach( cb => {
+			cb.disabled = atLimit && ! cb.checked;
+		} );
 	}
 
 	function renderPostsLoading() {

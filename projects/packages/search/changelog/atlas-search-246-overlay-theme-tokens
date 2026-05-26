@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: Overlay shell honors theme color tokens — card surface, ink, and hairlines track `--wp--preset--color--base`/`--contrast` instead of hardcoded #fff/#e0e0e0, so the modal stays readable on dark block themes.

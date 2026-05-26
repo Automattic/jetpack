@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Abilities API: register the jetpack/get-connection-status read ability from the Jetpack plugin.

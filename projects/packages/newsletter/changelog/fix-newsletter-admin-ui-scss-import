@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Drop dead @wordpress/admin-ui build-style import that no longer exists in 2.x; bump the package's admin-ui pin to 2.1.0.

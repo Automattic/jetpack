@@ -56,22 +56,20 @@ class Search_Template_Test extends Search_TestCase {
 
 	/**
 	 * No singleton on file ⇒ `get_customized_content()` returns null,
-	 * `is_customized()` is false, `get_reset_rest_path()` is null. The
-	 * shape callers depend on to fall back to the bundled template.
+	 * `is_customized()` is false. The shape callers depend on to fall
+	 * back to the bundled template.
 	 */
 	public function test_uncustomized_state_returns_nulls() {
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
-		$this->assertNull( Search_Template::get_reset_rest_path() );
 		$this->assertSame( 0, Search_Template::get_post_id() );
 	}
 
 	/**
 	 * A saved customization round-trips: `get_customized_content()`
-	 * returns the post content, `is_customized()` flips true, and
-	 * `get_reset_rest_path()` resolves to the CPT's REST endpoint.
+	 * returns the post content, `is_customized()` flips true.
 	 */
-	public function test_customized_state_returns_post_content_and_reset_path() {
+	public function test_customized_state_returns_post_content() {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => Search_Template::POST_TYPE,
@@ -90,10 +88,6 @@ class Search_Template_Test extends Search_TestCase {
 			Search_Template::get_customized_content()
 		);
 		$this->assertTrue( Search_Template::is_customized() );
-		$this->assertSame(
-			'/wp/v2/' . Search_Template::REST_BASE . '/' . $post_id . '?force=true',
-			Search_Template::get_reset_rest_path()
-		);
 	}
 
 	/**
@@ -116,7 +110,6 @@ class Search_Template_Test extends Search_TestCase {
 
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
-		$this->assertNull( Search_Template::get_reset_rest_path() );
 	}
 
 	/**
@@ -228,5 +221,60 @@ class Search_Template_Test extends Search_TestCase {
 		$this->assertSame( 0, Search_Template::get_post_id() );
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
+	}
+
+	/**
+	 * `init()` must register the CPT synchronously when invoked from inside
+	 * an `init` callback. Adding a callback to the priority WordPress is
+	 * currently iterating leaves it stranded by PHP's `foreach` snapshot —
+	 * the regression that hid the CPT on downstream consumers hooking
+	 * `Search_Blocks::init()` onto `init`.
+	 */
+	public function test_init_during_init_action_registers_cpt_synchronously() {
+		unregister_post_type( Search_Template::POST_TYPE );
+		$this->assertFalse( post_type_exists( Search_Template::POST_TYPE ) );
+
+		global $wp_current_filter;
+		$wp_current_filter[] = 'init';
+		try {
+			Search_Template::init();
+			$this->assertTrue(
+				post_type_exists( Search_Template::POST_TYPE ),
+				'register_post_type() must run inline when init() is invoked from inside an init callback.'
+			);
+		} finally {
+			array_pop( $wp_current_filter );
+		}
+	}
+
+	/**
+	 * `init()` must also register the CPT synchronously when invoked after
+	 * `init` has already fired — `did_action( 'init' )` returns non-zero
+	 * and queuing on `init:9` would be a permanent no-op.
+	 */
+	public function test_init_after_init_action_registers_cpt_synchronously() {
+		unregister_post_type( Search_Template::POST_TYPE );
+		$this->assertFalse( post_type_exists( Search_Template::POST_TYPE ) );
+
+		// Bump the action counter that `did_action()` reads, without
+		// dispatching `init` (which would re-fire every WP and plugin init
+		// callback in the suite — heavy and unrelated to what we're testing).
+		global $wp_actions;
+		$prev_count         = $wp_actions['init'] ?? 0;
+		$wp_actions['init'] = $prev_count + 1;
+		try {
+			$this->assertGreaterThan( 0, did_action( 'init' ) );
+			Search_Template::init();
+			$this->assertTrue(
+				post_type_exists( Search_Template::POST_TYPE ),
+				'register_post_type() must run inline when init() is invoked after init has fired.'
+			);
+		} finally {
+			if ( 0 === $prev_count ) {
+				unset( $wp_actions['init'] );
+			} else {
+				$wp_actions['init'] = $prev_count;
+			}
+		}
 	}
 }

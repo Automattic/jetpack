@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: Embedded search experience now works on classic themes. The bundled search template renders inside the theme's `get_header()` / `get_footer()` via `template_include`, and the Embedded card surfaces an "Edit search template" link that opens a singleton-CPT block editor (mirroring the experimental Overlay path) so classic-theme admins can edit the template too. Block themes keep using the Site Editor for in-place customization.

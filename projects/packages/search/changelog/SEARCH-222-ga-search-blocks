@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search Blocks: enable by default — flip the `jetpack_search_blocks_enabled` filter default to true so every connected, Search-supported site gets the new Interactivity-API blocks. The filter is retained as a kill-switch (return false to opt out).

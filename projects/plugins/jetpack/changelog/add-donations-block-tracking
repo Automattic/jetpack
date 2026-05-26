@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Donations Block: Record Tracks events covering admin-side block adoption — when the block is loaded in the editor, when a post containing it is published, and when an admin changes a sidebar setting.

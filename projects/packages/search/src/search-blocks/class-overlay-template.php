@@ -8,22 +8,12 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Lets admins customize the experimental Search blocks overlay template via
- * the standard block editor (post.php), which is theme-agnostic — works on
- * both block themes and classic themes, no Site Editor dependency.
- *
- * The customized markup lives in a single hidden CPT post; if the post
- * doesn't exist (admin hasn't customized), the overlay falls back to the
- * bundled `templates/jetpack-search-overlay.html` file. Deleting the
- * singleton restores the default.
- *
- * Lifecycle, register-post-type behavior, capability lockdown, and reset
- * semantics all live on {@see Singleton_Template_Cpt}; this subclass only
- * declares the identifiers, copy, and seed source that vary per template.
+ * Theme-agnostic customization surface for the Search overlay template via
+ * post.php. Falls back to `templates/jetpack-search-overlay.html` when the
+ * singleton doesn't exist. Lifecycle lives on {@see Singleton_Template_Cpt}.
  *
  * Gated behind both `jetpack_search_blocks_enabled` AND
- * `jetpack_search_overlay_block_template_enabled` — only initialized from
- * `Search_Blocks::init()` when the overlay path is wired up.
+ * `jetpack_search_overlay_block_template_enabled`.
  */
 class Overlay_Template extends Singleton_Template_Cpt {
 
@@ -35,7 +25,7 @@ class Overlay_Template extends Singleton_Template_Cpt {
 	const SEED_META_KEY      = '_jetpack_search_overlay_seeded_version';
 
 	/**
-	 * Subclass hook — labels for the hidden CPT.
+	 * Subclass hook — CPT labels.
 	 *
 	 * @return array{name:string,singular_name:string}
 	 */
@@ -47,7 +37,7 @@ class Overlay_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — default post title for the lazy-created singleton.
+	 * Subclass hook — default post title.
 	 *
 	 * @return string
 	 */
@@ -56,10 +46,9 @@ class Overlay_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — seed `post_content` for the lazy-created singleton.
-	 * Reads the bundled overlay template file directly to avoid pulling
-	 * in `Search_Blocks::get_overlay_template_content()`, which would
-	 * loop back through this class's customization check.
+	 * Subclass hook — seed `post_content`. Reads the bundled file directly,
+	 * not via `Search_Blocks::get_overlay_template_content()` (that would
+	 * loop back through this class's customization check).
 	 *
 	 * @return string
 	 */
@@ -68,12 +57,12 @@ class Overlay_Template extends Singleton_Template_Cpt {
 		if ( ! is_readable( $path ) ) {
 			return '';
 		}
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template.
 		return (string) file_get_contents( $path );
 	}
 
 	/**
-	 * Subclass hook — copy for the editor-URL forbidden response.
+	 * Subclass hook — forbidden-response copy.
 	 *
 	 * @return string
 	 */
@@ -82,7 +71,7 @@ class Overlay_Template extends Singleton_Template_Cpt {
 	}
 
 	/**
-	 * Subclass hook — copy for the editor-URL create-failure response.
+	 * Subclass hook — create-failure copy.
 	 *
 	 * @return string
 	 */

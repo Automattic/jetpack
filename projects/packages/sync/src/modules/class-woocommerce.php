@@ -523,6 +523,27 @@ class WooCommerce extends Module {
 		'woocommerce_anonymize_refunded_orders',
 		'woocommerce_anonymize_completed_orders',
 		'woocommerce_anonymize_ended_subscriptions',
+		'woocommerce_enable_delayed_account_creation',
+		'woocommerce_gateway_stripe_retention',
+		'wc_downloads_approved_directories_mode', // This and the below options relate to the WooCommerce Products settings page. Required for the Activity Log.
+		'woocommerce_attribute_lookup_direct_updates',
+		'woocommerce_attribute_lookup_enabled',
+		'woocommerce_attribute_lookup_optimized_updates',
+		'woocommerce_cart_redirect_after_add',
+		'woocommerce_downloads_add_hash_to_filename',
+		'woocommerce_downloads_count_partial',
+		'woocommerce_downloads_deliver_inline',
+		'woocommerce_downloads_grant_access_after_payment',
+		'woocommerce_downloads_redirect_fallback_allowed',
+		'woocommerce_downloads_require_login',
+		'woocommerce_enable_reviews',
+		'woocommerce_hold_stock_minutes',
+		'woocommerce_review_rating_required',
+		'woocommerce_review_rating_verification_label',
+		'woocommerce_review_rating_verification_required',
+		'woocommerce_shop_page_id',
+		'woocommerce_stock_email_recipient',
+		'woocommerce_stock_format',
 	);
 
 	/**

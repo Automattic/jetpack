@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Layout Grid Usage Tracking: log a logstash event the first time a `jetpack/layout-grid` block is observed on a WoA site so we can attribute its source to the responsible plugin or theme.

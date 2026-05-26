@@ -61,7 +61,7 @@ class Jetpack_Reader_Chat {
 		/**
 		 * Filter whether Reader Chat should hook its public frontend loader.
 		 *
-		 * @since $$next-version$$
+		 * @since 15.9
 		 *
 		 * @param bool $enabled Whether the reader chat frontend loader should be hooked.
 		 */
@@ -76,7 +76,7 @@ class Jetpack_Reader_Chat {
 	/**
 	 * Register the reader_chat option so Search settings can read and write it.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @return void
 	 */
