@@ -456,4 +456,35 @@ describe( 'ConnectionStatusCard', () => {
 			expect( button ).toBeDisabled();
 		} );
 	} );
+
+	describe( 'When on WoA site and admin is not connected', () => {
+		const setup = () => {
+			global.JetpackScriptData.site.host = 'woa';
+			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: adminUserConnectionData,
+			} );
+
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.site.host = 'standard';
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'disables the manage connection button since WoA sites cannot be disconnected', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
+		} );
+	} );
 } );
