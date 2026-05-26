@@ -219,8 +219,11 @@ function wpcom_layout_grid_usage_widget_value_contains_block( $value ) {
  * Dispatch an observation to logstash. Returns true if dispatch was attempted
  * (filter passed and the wrapper class is loaded), false when short-circuited.
  * Callers use the return value to gate sticky side effects (sentinel, context
- * transients) so a blocked dispatch doesn't lock them out. Any failure inside
- * `Jetpack_Mu_Wpcom::log2logstash()` is swallowed by that method's try/catch.
+ * transients) so a blocked dispatch doesn't lock them out. Anything throwing
+ * during payload assembly (third-party filter callbacks, option lookups, etc.)
+ * or inside `Jetpack_Mu_Wpcom::log2logstash()` is caught and reported as a
+ * non-dispatch — telemetry must never escalate into a fatal on the host
+ * action chain (post save, front-end render).
  *
  * @param array $extra Caller-supplied payload. Caller keys win on collision.
  * @return bool
@@ -242,37 +245,42 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 		return false;
 	}
 
-	$active_plugins_raw = get_option( 'active_plugins' );
-	$active_plugins     = is_array( $active_plugins_raw ) ? array_values( $active_plugins_raw ) : array();
-	// Union network-activated plugins: WoA is multisite-shaped and the
-	// platform's plugins live in `active_sitewide_plugins`.
-	if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_site_option' ) ) {
-		$sitewide_raw = get_site_option( 'active_sitewide_plugins' );
-		if ( is_array( $sitewide_raw ) && ! empty( $sitewide_raw ) ) {
-			$active_plugins = array_values( array_unique( array_merge( $active_plugins, array_keys( $sitewide_raw ) ) ) );
+	try {
+		$active_plugins_raw = get_option( 'active_plugins' );
+		$active_plugins     = is_array( $active_plugins_raw ) ? array_values( $active_plugins_raw ) : array();
+		// Union network-activated plugins: WoA is multisite-shaped and the
+		// platform's plugins live in `active_sitewide_plugins`.
+		if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_site_option' ) ) {
+			$sitewide_raw = get_site_option( 'active_sitewide_plugins' );
+			if ( is_array( $sitewide_raw ) && ! empty( $sitewide_raw ) ) {
+				$active_plugins = array_values( array_unique( array_merge( $active_plugins, array_keys( $sitewide_raw ) ) ) );
+			}
 		}
+
+		// `array_merge( defaults, $extra )`: caller keys win on collision.
+		$payload = array_merge(
+			array(
+				'active_theme'   => function_exists( 'get_stylesheet' ) ? (string) get_stylesheet() : '',
+				'active_plugins' => $active_plugins,
+				'is_rest'        => defined( 'REST_REQUEST' ) && REST_REQUEST,
+				'is_cli'         => defined( 'WP_CLI' ) && WP_CLI,
+				'is_cron'        => defined( 'DOING_CRON' ) && DOING_CRON,
+				'is_importing'   => defined( 'WP_IMPORTING' ) && WP_IMPORTING,
+				'trace'          => wpcom_layout_grid_usage_attribute_source(),
+			),
+			$extra
+		);
+
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
+			WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE,
+			WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE,
+			wpcom_layout_grid_usage_redact_paths( $payload )
+		);
+		return true;
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: telemetry never escalates a failure into a fatal on the caller's action chain.
+		unset( $e );
+		return false;
 	}
-
-	// `array_merge( defaults, $extra )`: caller keys win on collision.
-	$payload = array_merge(
-		array(
-			'active_theme'   => function_exists( 'get_stylesheet' ) ? (string) get_stylesheet() : '',
-			'active_plugins' => $active_plugins,
-			'is_rest'        => defined( 'REST_REQUEST' ) && REST_REQUEST,
-			'is_cli'         => defined( 'WP_CLI' ) && WP_CLI,
-			'is_cron'        => defined( 'DOING_CRON' ) && DOING_CRON,
-			'is_importing'   => defined( 'WP_IMPORTING' ) && WP_IMPORTING,
-			'trace'          => wpcom_layout_grid_usage_attribute_source(),
-		),
-		$extra
-	);
-
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
-		WPCOM_LAYOUT_GRID_USAGE_LOG_FEATURE,
-		WPCOM_LAYOUT_GRID_USAGE_LOG_MESSAGE,
-		wpcom_layout_grid_usage_redact_paths( $payload )
-	);
-	return true;
 }
 
 /**
