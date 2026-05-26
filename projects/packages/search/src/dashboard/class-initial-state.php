@@ -228,7 +228,7 @@ class Initial_State {
 	 * before any switch, would carry a null `editorUrl` and the link would
 	 * become a no-op once the card flipped to Active without a refresh).
 	 *
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function get_block_template_overlay_config(): array {
 		return $this->build_singleton_template_config(
@@ -241,12 +241,12 @@ class Initial_State {
 	/**
 	 * Build the classic-theme search-template editor config exposed to the
 	 * dashboard. Counterpart of `get_block_template_overlay_config()` —
-	 * same `{enabled, editorUrl, resetRestPath, isCustomized}` shape and
+	 * same `{enabled, editorUrl, postType, isCustomized}` shape and
 	 * the same "expose URLs before activation" rule: admins can edit the
 	 * template from the Embedded card on any classic theme, even before
 	 * actually switching to Embedded.
 	 *
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function get_search_template_config(): array {
 		$is_classic = ! wp_is_block_theme();
@@ -260,28 +260,33 @@ class Initial_State {
 	/**
 	 * Shared assembly for a {@see Singleton_Template_Cpt}-backed editor
 	 * config block. Both `blockTemplateOverlay` and `searchTemplate` ship
-	 * the same `{enabled, editorUrl, resetRestPath, isCustomized}` shape
-	 * to the React dashboard. The `$enabled` and `$can_edit` flags are
+	 * the same `{enabled, editorUrl, postType, isCustomized}` shape to
+	 * the React dashboard. The `$enabled` and `$can_edit` flags are
 	 * intentionally separate: the card lights up as "active" on
-	 * `$enabled`, but the URLs surface as soon as `$can_edit` is true so
-	 * admins can pre-customize the template before activating the
-	 * experience — without forcing a page reload after the switch.
+	 * `$enabled`, but the URLs / `postType` surface as soon as `$can_edit`
+	 * is true so admins can pre-customize the template before activating
+	 * the experience — without forcing a page reload after the switch.
 	 *
-	 * The action handlers re-check `manage_options` server-side, so
-	 * omitting the URLs here is just to keep the wire payload tight for
-	 * non-admins.
+	 * `postType` (rather than a pre-built REST path) is what the dashboard
+	 * needs: the JS `restApi.resetSearchTemplate(postType)` call builds the
+	 * `${wpcomOriginApiUrl}jetpack/v4/search/templates/<post_type>` URL,
+	 * which is how the request reaches the right route on wpcom Simple
+	 * sites (the local /wp-json/ surface there doesn't expose Jetpack
+	 * routes). The action handlers re-check `manage_options` server-side,
+	 * so omitting the URLs / postType here just keeps the wire payload
+	 * tight for non-admins.
 	 *
 	 * @param bool   $enabled   Whether the CPT-backed route is currently live on the site.
-	 * @param bool   $can_edit  Whether to expose the nonce'd URLs (operator-level gate + capability).
+	 * @param bool   $can_edit  Whether to expose the editor URL + postType (operator-level gate + capability).
 	 * @param string $cpt_class Concrete `Singleton_Template_Cpt` subclass to query.
-	 * @return array{enabled: bool, editorUrl: string|null, resetRestPath: string|null, isCustomized: bool}
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function build_singleton_template_config( bool $enabled, bool $can_edit, string $cpt_class ): array {
 		return array(
-			'enabled'       => $enabled,
-			'editorUrl'     => $can_edit ? $cpt_class::get_editor_url() : null,
-			'resetRestPath' => $can_edit ? $cpt_class::get_reset_rest_path() : null,
-			'isCustomized'  => $can_edit && $cpt_class::is_customized(),
+			'enabled'      => $enabled,
+			'editorUrl'    => $can_edit ? $cpt_class::get_editor_url() : null,
+			'postType'     => $can_edit ? $cpt_class::POST_TYPE : null,
+			'isCustomized' => $can_edit && $cpt_class::is_customized(),
 		);
 	}
 

@@ -56,22 +56,20 @@ class Search_Template_Test extends Search_TestCase {
 
 	/**
 	 * No singleton on file ⇒ `get_customized_content()` returns null,
-	 * `is_customized()` is false, `get_reset_rest_path()` is null. The
-	 * shape callers depend on to fall back to the bundled template.
+	 * `is_customized()` is false. The shape callers depend on to fall
+	 * back to the bundled template.
 	 */
 	public function test_uncustomized_state_returns_nulls() {
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
-		$this->assertNull( Search_Template::get_reset_rest_path() );
 		$this->assertSame( 0, Search_Template::get_post_id() );
 	}
 
 	/**
 	 * A saved customization round-trips: `get_customized_content()`
-	 * returns the post content, `is_customized()` flips true, and
-	 * `get_reset_rest_path()` resolves to the jetpack/v4 reset route.
+	 * returns the post content, `is_customized()` flips true.
 	 */
-	public function test_customized_state_returns_post_content_and_reset_path() {
+	public function test_customized_state_returns_post_content() {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => Search_Template::POST_TYPE,
@@ -90,10 +88,6 @@ class Search_Template_Test extends Search_TestCase {
 			Search_Template::get_customized_content()
 		);
 		$this->assertTrue( Search_Template::is_customized() );
-		$this->assertSame(
-			'/jetpack/v4/search/templates/' . Search_Template::POST_TYPE,
-			Search_Template::get_reset_rest_path()
-		);
 	}
 
 	/**
@@ -116,7 +110,6 @@ class Search_Template_Test extends Search_TestCase {
 
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
-		$this->assertNull( Search_Template::get_reset_rest_path() );
 	}
 
 	/**

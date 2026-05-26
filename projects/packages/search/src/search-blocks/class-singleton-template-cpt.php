@@ -38,8 +38,8 @@ abstract class Singleton_Template_Cpt {
 
 	/**
 	 * REST base for the core CPT controller (`/wp/v2/<rest_base>`) the block
-	 * editor uses to load + save the singleton. Distinct from the "Restore
-	 * default" path, which lives on jetpack/v4 — see {@see get_reset_rest_path()}.
+	 * editor uses to load + save the singleton. The "Restore default" path
+	 * lives on jetpack/v4 instead, registered by `REST_Controller`.
 	 */
 	const REST_BASE = '';
 
@@ -266,25 +266,6 @@ abstract class Singleton_Template_Cpt {
 			),
 			admin_url( 'admin.php?page=jetpack-search' )
 		);
-	}
-
-	/**
-	 * REST DELETE path for "Restore default" — `/jetpack/v4/search/templates/<post_type>`.
-	 * Routed through the package's Jetpack-namespaced controller (see
-	 * {@see REST_Controller::reset_singleton_template()}) so the call works
-	 * over wpcom-origin on Simple sites; the equivalent `/wp/v2/<rest_base>/<id>`
-	 * isn't reachable there because the Jetpack-registered CPT controller isn't
-	 * on the wpcom REST surface. `before_delete_post` keeps the option + cache
-	 * in sync. Returns `null` when no singleton exists (the React link is hidden
-	 * in that state).
-	 *
-	 * @return string|null
-	 */
-	public static function get_reset_rest_path(): ?string {
-		if ( ! static::is_customized() ) {
-			return null;
-		}
-		return '/jetpack/v4/search/templates/' . static::POST_TYPE;
 	}
 
 	/**
