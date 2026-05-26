@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Allow admins to access the disconnect dialog without connecting their account first.
