@@ -148,7 +148,14 @@ function pcg_probe_emit_ok() {
  * the response that was just sent.
  */
 function pcg_probe_shutdown() {
-	if ( pcg_probe_already_emitted( true ) ) {
+	// Check-only (no `true` arg): `pcg_probe_respond` is the single
+	// canonical marker. If we marked here, the very next call to
+	// `pcg_probe_respond` would observe the flag and bail without
+	// emitting — and the shutdown verdict would be lost. The role of
+	// this guard is to bail when respond has *already* emitted (the
+	// throwable catch in the require loop, or the post-exit shutdown
+	// re-entry), not to claim ownership preemptively.
+	if ( pcg_probe_already_emitted() ) {
 		return;
 	}
 	pcg_probe_respond( PCG_Load_Tester::classify_shutdown( error_get_last() ) );

@@ -31,6 +31,13 @@ class PCG_Load_Tester {
 	 * Engine-fatal mask used by the probe shutdown classifier. Anything
 	 * outside this mask (notice, warning, deprecation, or `error_get_last`
 	 * returning null after a clean `exit`) is treated as not-a-fatal.
+	 *
+	 * `E_RECOVERABLE_ERROR` is included even though it's "catchable" by a
+	 * custom `set_error_handler` — by the time PHP shutdown fires with
+	 * `error_get_last()` still pointing at it, no handler caught it, so
+	 * it terminated execution like any other fatal. The probe context
+	 * doesn't install a recovery handler, so the only way this errno
+	 * lands in `error_get_last()` here is the uncaught path.
 	 */
 	const SHUTDOWN_FATAL_MASK = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
 
