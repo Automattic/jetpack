@@ -20,6 +20,14 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+// Idempotency latch for the deep-link first fetch. Either entry path — the
+// `data-wp-init` callback on the results-list block, or the overlay-bootstrap's
+// explicit invocation after hydrating the cloned overlay subtree — can flip it
+// safely; only the first one actually dispatches. The bootstrap path exists
+// because the IA private-API render of the cloned overlay regions races with
+// the runtime's auto-walk and the directive intermittently misses, leaving the
+// PHP-seeded "Searching…" spinner latched on.
+let initialSearchDispatched = false;
 
 // Module-scope abort handles so `actions.search()` can cancel the previous
 // stream — across action calls, fetch has no other way to reach them.
@@ -858,6 +866,35 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Idempotent first-fetch dispatcher for deep-linked search URLs
+		 * (`?s=…`, `?q=…`, or a URL carrying filter params). Safe to call
+		 * from multiple entry paths — only the first invocation actually
+		 * fires `actions.search()`. The flag is per-page-load and
+		 * deliberately never cleared; subsequent visitor-initiated searches
+		 * go through the regular `actions.search()` path.
+		 *
+		 * Two callers today, by design. `callbacks.initialize` fires from
+		 * the results-list block's `data-wp-init` directive on the regular
+		 * hydration path (Embedded experience, or the Overlay when the IA
+		 * runtime's auto-walk wins the race). `overlay-bootstrap.ensureHydrated`
+		 * fires after the bootstrap clones the overlay template into the
+		 * shell and runs `apis.render()` on each region — the safety net for
+		 * the Overlay case where the directive doesn't fire reliably for the
+		 * freshly-mounted subtree.
+		 */
+		dispatchInitialSearchIfNeeded() {
+			if ( initialSearchDispatched ) {
+				return;
+			}
+			if ( ! state.searchQuery && ! state.hasActiveFilters && ! state.hasSearchParam ) {
+				return;
+			}
+			initialSearchDispatched = true;
+			// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+			actions.search( { syncUrl: false } );
+		},
+
+		/**
 		 * Run a search and replace the result list.
 		 *
 		 * @param {object}      [options]                 - Options.
@@ -1483,11 +1520,14 @@ const { state, actions } = store( NAMESPACE, {
 					state.filterLogic = gatedLogic;
 				}
 			}
+			// `hasSearchParam` catches `?s=` (empty value) — the param is
+			// present so the visitor expects a search to run, but
+			// `searchQuery` alone is `''` and indistinguishable from a
+			// URL that omits `s`. Seeded from PHP via build_initial_state().
+			// The dispatcher is idempotent so the overlay-bootstrap's
+			// belt-and-suspenders call after hydration doesn't double-fire.
 			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
-				// `hasSearchParam` catches `?s=` (empty value) which `searchQuery`
-				// alone can't distinguish from a URL without `s`.
-				// syncUrl=false: URL already has this state; avoid a dup history entry.
-				actions.search( { syncUrl: false } );
+				actions.dispatchInitialSearchIfNeeded();
 			} else if ( droppedAny ) {
 				// No fetch will fire — clear the spinner + skeleton.
 				state.isLoading = false;

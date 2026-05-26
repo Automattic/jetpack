@@ -9,6 +9,12 @@
 // `ensureHydrated()` dynamically imports this; stub it so the hydration branch
 // no-ops instead of reaching for the real Interactivity runtime in jsdom.
 jest.mock( '@wordpress/interactivity', () => ( {} ), { virtual: true } );
+// The bootstrap statically depends on the shared store as a side-effect
+// import (so the runtime store registers before the bootstrap dispatches
+// `dispatchInitialSearchIfNeeded` after hydration). The store module itself
+// is exercised in `tests/js/search-blocks/store.test.js`; here it would just
+// pull in the real Interactivity API and unrelated build paths, so stub it.
+jest.mock( 'jetpack-search/store', () => ( {} ), { virtual: true } );
 
 const OVERLAY_ID = 'jetpack-search-block-overlay';
 
