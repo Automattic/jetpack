@@ -54,8 +54,13 @@ export default function SingletonTemplateActions( {
 	// `@automattic/jetpack-api` package — keeps this fix contained inside
 	// the Search package, so the wpcom-origin DELETE doesn't pull a
 	// monorepo-wide rebuild of every consumer of jetpack-api.
-	const wpcomOriginApiUrl = useSelect( select => select( STORE_ID ).getWpcomOriginApiUrl(), [] );
-	const apiNonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
+	const { wpcomOriginApiUrl, apiNonce } = useSelect(
+		select => ( {
+			wpcomOriginApiUrl: select( STORE_ID ).getWpcomOriginApiUrl(),
+			apiNonce: select( STORE_ID ).getAPINonce(),
+		} ),
+		[]
+	);
 
 	const restoreLabel = __( 'Restore default', 'jetpack-search-pkg' );
 

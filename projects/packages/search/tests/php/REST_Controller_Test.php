@@ -881,6 +881,29 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * `Overlay_Template::POST_TYPE` is the other half of the resolver
+	 * allowlist in `resolve_singleton_template_class()`; the rest of the
+	 * suite drives only the `Search_Template` slug, so a typo in the
+	 * Overlay entry of the map would slip through. Hitting the route
+	 * with the Overlay slug and getting back the stable
+	 * `jetpack_search_template_not_customized` code proves the slug
+	 * resolved to its class (otherwise it would be the
+	 * `jetpack_search_template_unknown` path).
+	 */
+	public function test_reset_singleton_template_recognizes_overlay_post_type() {
+		wp_set_current_user( $this->admin_id );
+		Overlay_Template::register_post_type();
+		delete_option( Overlay_Template::OPTION_POST_ID );
+		Overlay_Template::reset_customized_content_cache();
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Overlay_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_not_customized', $response->get_data()['code'] );
+	}
+
+	/**
 	 * No customization on file ⇒ the handler returns 404 with a stable error
 	 * code so the dashboard can surface a meaningful message instead of a 500.
 	 */
