@@ -7,6 +7,7 @@ import * as shareStatusSelectors from './share-status';
 import * as socialImageGeneratorSelectors from './social-image-generator';
 import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
+import * as trafficStatsSelectors from './traffic-stats';
 import * as unifiedModalSelectors from './unified-modal';
 import * as xUsageSelectors from './x-usage';
 
@@ -20,6 +21,7 @@ const selectors = {
 	...socialSettingsSelectors,
 	...servicesSelectors,
 	...scheduledSharesSelectors,
+	...trafficStatsSelectors,
 	...unifiedModalSelectors,
 	...xUsageSelectors,
 };
