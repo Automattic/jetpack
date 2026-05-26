@@ -270,6 +270,40 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain![ 1 ] ).toBeLessThan( initialDomain![ 1 ] );
 		} );
 
+		test( 'y-axis stays pinned for unstacked area when rescaleYOnLegendToggle is false', async () => {
+			// Exercises the non-stacked branch of fixedYDomain, which scans the
+			// raw min/max across all series rather than summing stack columns.
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin-unstacked"
+						legend={ { interactive: true } }
+						stacked={ false }
+						rescaleYOnLegendToggle={ false }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+			// defaultProps has values up to 20; pinned-unstacked should cover the max.
+			expect( initialDomain![ 1 ] ).toBeGreaterThanOrEqual( 20 );
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
 		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
 			const user = userEvent.setup();
 			const ref = createRef< SingleChartRef >();
