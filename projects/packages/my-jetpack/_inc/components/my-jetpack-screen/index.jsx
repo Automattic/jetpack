@@ -35,6 +35,7 @@ import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
+import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -82,10 +83,11 @@ export default function MyJetpackScreen() {
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
+		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -161,12 +163,16 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const resetOptionsMenuItem = {
-		label: 'Reset options (devs)',
-		role: 'button',
-		onClick: () => resetJetpackOptions(),
-		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
-	};
+	const optionalMenuItems = buildOptionalMenuItems( {
+		adminUrl,
+		isDevVersion,
+		userIsAdmin,
+		isSiteConnected,
+		isJetpackPluginActive,
+		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+		onResetClick: () => resetJetpackOptions(),
+		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	} );
 
 	return (
 		<AdminPage
@@ -175,7 +181,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
-			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>

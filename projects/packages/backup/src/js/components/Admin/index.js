@@ -9,7 +9,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import {
 	createInterpolateElement,
@@ -19,6 +19,7 @@ import {
 	useMemo,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import useAnalytics from '../../hooks/useAnalytics';
 import useBackupsState from '../../hooks/useBackupsState';
 import useCapabilities from '../../hooks/useCapabilities';
@@ -190,12 +191,13 @@ const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
 					) }
 				</p>
 				<p>
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'jetpack-blog-backup-file-browser' ) }
 						onClick={ trackLearnBackupBrowserClick }
 					>
 						{ __( 'Learn about the file browser', 'jetpack-backup-pkg' ) }
-					</ExternalLink>
+					</Link>
 				</p>
 			</Col>
 			<ReviewMessage connectionLoaded={ connectionLoaded } />

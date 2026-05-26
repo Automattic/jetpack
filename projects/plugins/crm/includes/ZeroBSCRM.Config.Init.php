@@ -82,7 +82,7 @@ $zeroBSCRM_Conf_Def = array(
 	'usercangiveownership'               => 0,
 	'taskownership'                      => 0,
 	'clicktocall'                        => 0,
-	'clicktocalltype'                    => 1, // 1 = tel: , 2 = callto:
+	'clicktocalltype'                    => 1, // 1 = tel: , 2 = callto: , 3 = sip:
 	'objnav'                             => -1,
 	'usesocial'                          => 1,
 	'useaka'                             => 1,

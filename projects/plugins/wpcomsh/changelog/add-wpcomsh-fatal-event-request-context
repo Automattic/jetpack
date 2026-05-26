@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Fatal error: tag log events with request_kind/path/method and dedup per (signature, kind) so a site-wide fatal surfaces as one row per affected surface.

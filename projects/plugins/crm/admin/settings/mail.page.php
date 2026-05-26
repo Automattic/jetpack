@@ -20,6 +20,8 @@ if ( isset( $_POST['editzbsmail'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// check nonce
 	check_admin_referer( 'zbs-update-settings-mail' );
 
+	$updatedSettings = array();
+
 	// } 2.80+
 	$updatedSettings['emailtracking'] = 0;
 	if ( isset( $_POST['wpzbscrm_emailtracking'] ) && ! empty( $_POST['wpzbscrm_emailtracking'] ) ) {
@@ -27,7 +29,7 @@ if ( isset( $_POST['editzbsmail'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['directmsgfrom'] = 1;
 	if ( isset( $_POST['wpzbscrm_directmsgfrom'] ) && ! empty( $_POST['wpzbscrm_directmsgfrom'] ) ) {
-		$updatedSettings['directmsgfrom'] = (int) sanitize_text_field( $_POST['wpzbscrm_directmsgfrom'] );
+		$updatedSettings['directmsgfrom'] = (int) $_POST['wpzbscrm_directmsgfrom'];
 	}
 
 	// } 2.90+
@@ -39,7 +41,7 @@ if ( isset( $_POST['editzbsmail'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['unsubpage'] = -1;
 	if ( isset( $_POST['wpzbscrm_unsubpage'] ) && ! empty( $_POST['wpzbscrm_unsubpage'] ) ) {
-		$updatedSettings['unsubpage'] = (int) sanitize_text_field( $_POST['wpzbscrm_unsubpage'] );
+		$updatedSettings['unsubpage'] = (int) $_POST['wpzbscrm_unsubpage'];
 	}
 	$updatedSettings['unsubmsg'] = '';
 	if ( isset( $_POST['wpzbs_unsubmsg'] ) ) {

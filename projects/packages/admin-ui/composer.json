@@ -10,7 +10,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
@@ -64,7 +63,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.8.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

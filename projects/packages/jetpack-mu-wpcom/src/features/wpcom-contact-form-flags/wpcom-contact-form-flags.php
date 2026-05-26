@@ -55,19 +55,23 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 }
 
 /**
- * Enable the Central Forms Management alpha features when the rollout
- * criteria are met. Called immediately on file load since this file is
- * required during plugins_loaded (priority 10) inside load_wpcom_sites_features(),
- * which is after the priority 1 that the wpcom mu-plugin uses.
+ * Disable Central Forms Management for excluded WordPress.com sites.
+ *
+ * CFM is now enabled by default in the Forms package. This function
+ * explicitly disables it for sites that should be excluded (e2e test
+ * sites, sites with the disable-central-forms-management sticker).
+ *
+ * Called immediately on file load since this file is required during
+ * plugins_loaded (priority 10) inside load_wpcom_sites_features().
  */
-function wpcom_maybe_enable_central_forms_management() {
-	if ( ! wpcom_is_central_forms_management_enabled() ) {
+function wpcom_maybe_disable_central_forms_management() {
+	if ( wpcom_is_central_forms_management_enabled() ) {
 		return;
 	}
 
-	add_filter( 'jetpack_forms_alpha', '__return_true', 999 );
+	add_filter( 'jetpack_forms_alpha', '__return_false', 999 );
 }
-wpcom_maybe_enable_central_forms_management();
+wpcom_maybe_disable_central_forms_management();
 
 /**
  * Set the 'central-form-management' block editor feature flag.

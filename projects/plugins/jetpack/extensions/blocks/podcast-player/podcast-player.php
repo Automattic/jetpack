@@ -219,8 +219,8 @@ function get_colors( $name, $attrs, $property ) {
 	$attr_color  = "{$name}Color";
 	$attr_custom = 'custom' . ucfirst( $attr_color );
 
-	$color        = isset( $attrs[ $attr_color ] ) ? $attrs[ $attr_color ] : null;
-	$custom_color = isset( $attrs[ $attr_custom ] ) ? $attrs[ $attr_custom ] : null;
+	$color        = $attrs[ $attr_color ] ?? null;
+	$custom_color = $attrs[ $attr_custom ] ?? null;
 
 	$colors = array(
 		'class' => '',
@@ -277,7 +277,7 @@ function get_css_vars( $attrs ) {
  */
 function render( $name, $template_props = array(), $print = true ) {
 	if ( ! strpos( $name, '.php' ) ) {
-		$name = $name . '.php';
+		$name .= '.php';
 	}
 
 	$template_path = __DIR__ . '/templates/' . $name;

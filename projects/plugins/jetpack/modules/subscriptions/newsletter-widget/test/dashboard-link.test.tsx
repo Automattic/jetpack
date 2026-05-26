@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import { DashboardLink } from '../src/components/dashboard-link';
 import { TRACKS_EVENT_NAME_PREFIX } from '../src/constants';
 
@@ -34,10 +34,11 @@ describe( 'DashboardLink', () => {
 		expect( link.props.children ).toBe( testText );
 	} );
 
-	it( 'renders as ExternalLink for links that point to external resources', () => {
+	it( 'renders as Link for links that point to external resources', () => {
 		const link = DashboardLink( false, testHref, testEventName, testText );
-		expect( link.type ).toBe( ExternalLink );
+		expect( link.type ).toBe( Link );
 		expect( link.props.href ).toBe( testHref );
+		expect( link.props.openInNewTab ).toBe( true );
 		expect( link.props.children ).toBe( testText );
 	} );
 

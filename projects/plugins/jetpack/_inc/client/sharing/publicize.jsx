@@ -64,9 +64,13 @@ export const Publicize = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="publicize"
-							disabled={ isOfflineMode || ! isLinked || ! userCanManageModules }
+							disabled={
+								isOfflineMode ||
+								! isLinked ||
+								! userCanManageModules ||
+								this.props.isSavingAnyOption( 'publicize' )
+							}
 							activated={ isActive }
-							toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

@@ -1,9 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
-
-import './notice-box.scss';
+import { Notice } from '@wordpress/ui';
 
 const CLOSE_TO_LIMIT_PERCENT = 0.8;
 
@@ -96,26 +93,18 @@ export function NoticeBox( props ) {
 	const NOTICES = getNotices( props.tierMaximumRecords );
 	const notice = NOTICES[ activeNoticeIds[ 0 ] ];
 
-	const noticeBoxClassName = notice.isImportant
-		? 'jp-search-notice-box jp-search-notice-box__important'
-		: 'jp-search-notice-box';
-
 	return (
-		<SimpleNotice
-			isCompact={ false }
-			status={ 'is-info' }
-			className={ noticeBoxClassName }
-			icon={ 'info-outline' }
-			showDismiss={ false }
-		>
-			{ notice.header && <h3 className="dops-notice__header">{ notice.header }</h3> }
-			{ notice.message && <span className="dops-notice__body">{ notice.message }</span> }
+		<Notice.Root intent={ notice.isImportant ? 'error' : 'info' }>
+			{ notice.header && <Notice.Title>{ notice.header }</Notice.Title> }
+			{ notice.message && <Notice.Description>{ notice.message }</Notice.Description> }
 			{ notice.link && (
-				<NoticeAction href={ notice.link.url } external={ true }>
-					{ notice.link.text }
-				</NoticeAction>
+				<Notice.Actions>
+					<Notice.ActionLink href={ notice.link.url } openInNewTab>
+						{ notice.link.text }
+					</Notice.ActionLink>
+				</Notice.Actions>
 			) }
-		</SimpleNotice>
+		</Notice.Root>
 	);
 }
 

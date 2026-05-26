@@ -22,11 +22,11 @@ function siteDataFixture() {
 /**
  * Build an object that can be used as a Redux store initial state.
  *
- * @param {object}  options                      - Options
- * @param {boolean} options.themeSupportsWidgets - whether the current theme supports widgets
+ * @param {object}  options             - Options
+ * @param {boolean} options.offlineMode - whether the site is in Jetpack offline mode
  * @return {object} – initial Redux state
  */
-export function buildInitialState( { themeSupportsWidgets = false } = {} ) {
+export function buildInitialState( { offlineMode = false } = {} ) {
 	return {
 		jetpack: {
 			initialState: {
@@ -39,7 +39,7 @@ export function buildInitialState( { themeSupportsWidgets = false } = {} ) {
 				},
 				themeData: {
 					support: {
-						widgets: themeSupportsWidgets,
+						widgets: false,
 					},
 				},
 			},
@@ -55,7 +55,7 @@ export function buildInitialState( { themeSupportsWidgets = false } = {} ) {
 				status: {
 					siteConnected: {
 						offlineMode: {
-							isActive: false,
+							isActive: offlineMode,
 						},
 						isActive: true,
 					},

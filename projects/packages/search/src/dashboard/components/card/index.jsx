@@ -1,4 +1,4 @@
-import { Gridicon } from '@automattic/jetpack-components';
+import { Icon, external as externalIcon, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component, createElement } from 'react';
@@ -81,9 +81,9 @@ class Card extends Component {
 		let linkIndicator;
 		if ( this.props.href ) {
 			linkIndicator = (
-				<Gridicon
+				<Icon
 					className="dops-card__link-indicator"
-					icon={ this.props.target ? 'external' : 'chevron-right' }
+					icon={ this.props.target ? externalIcon : chevronRight }
 				/>
 			);
 		} else {
@@ -118,9 +118,6 @@ class Card extends Component {
 	_renderIcon = () => {
 		return (
 			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
-				{ this.props.icon && (
-					<Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />
-				) }
 				{ this.props.iconLabel }
 			</span>
 		);

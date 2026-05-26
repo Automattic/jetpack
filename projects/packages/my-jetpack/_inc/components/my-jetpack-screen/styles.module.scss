@@ -1,7 +1,6 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .my-jetpack-screen {
-	overflow-x: hidden;
 
 	:global(.jp-admin-page-header) {
 		padding-inline: 0.5rem;

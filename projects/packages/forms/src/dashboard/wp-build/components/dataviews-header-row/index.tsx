@@ -80,12 +80,7 @@ export default function DataViewsHeaderRow( {
 
 	return (
 		<>
-			<Stack
-				align="center"
-				className="jp-forms-dataviews__view-actions"
-				gap="sm"
-				justify="space-between"
-			>
+			<Stack className="jp-forms-dataviews__view-actions" justify="space-between">
 				<Stack align="center" gap="sm">
 					{ isSingleFormView ? (
 						<InboxStatusToggle

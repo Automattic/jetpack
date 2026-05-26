@@ -87,14 +87,15 @@
 }
 
 .custom-thumbnail {
-	// Change spinner color
-	--wp-admin-theme-color: var(--jp-green-50);
-
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
 	gap: var(--spacing-base);
+
+	> div {
+		height: 3px;
+	}
 
 	.pulse {
 		animation: pulse 1.5s infinite;
@@ -102,18 +103,10 @@
 
 	&.is-row {
 
-		.progress-bar {
-			max-width: 80px;
-		}
-
 		.upload-text {
 			margin-top: 0;
 		}
 	}
-}
-
-.progress-bar {
-	max-width: 112px;
 }
 
 .upload-text {

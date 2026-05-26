@@ -242,15 +242,38 @@ class REST_Controller {
 	 */
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
+		if ( ! is_array( $request_body ) ) {
+			$request_body = array();
+		}
 
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
 		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
+		$experience                    = isset( $request_body['experience'] ) && is_string( $request_body['experience'] )
+			? sanitize_text_field( $request_body['experience'] )
+			: null;
+		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
+		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search );
+		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
+
+		$override_woocommerce_search_template = isset( $request_body['override_woocommerce_search_template'] ) ? (bool) $request_body['override_woocommerce_search_template'] : null;
+
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled, $search_suggestions_enabled, $override_woocommerce_search_template );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
+		}
+
+		// If an experience value was provided, delegate to Module_Control::update_experience(),
+		// which encapsulates the storage shape (off → module deactivate, inline → delete option,
+		// embedded/overlay → write affirmative value) and keeps the legacy booleans in lockstep.
+		if ( $experience !== null ) {
+			$result = $this->search_module->update_experience( $experience );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+			return rest_ensure_response( $this->get_settings() );
 		}
 
 		// Enabling instant search should enable the module too.
@@ -277,6 +300,20 @@ class REST_Controller {
 			$this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
 		}
 
+		if ( $reader_chat !== null ) {
+			update_option( 'reader_chat', $reader_chat );
+		}
+
+		if ( $ai_answers_enabled !== null ) {
+			update_option( 'jetpack_search_ai_answers_enabled', $ai_answers_enabled );
+		}
+		if ( $search_suggestions_enabled !== null ) {
+			update_option( 'jetpack_search_suggestions_enabled', $search_suggestions_enabled );
+		}
+		if ( $override_woocommerce_search_template !== null ) {
+			update_option( 'jetpack_search_override_woocommerce_search_template', $override_woocommerce_search_template );
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
 				'some_updated',
@@ -298,13 +335,56 @@ class REST_Controller {
 	/**
 	 * Validate $module_active and $instant_search_enabled. Returns an WP_Error instance if invalid.
 	 *
-	 * @param boolean $module_active - Module status.
-	 * @param boolean $instant_search_enabled - Instant Search status.
-	 * @param boolean $swap_classic_to_inline_search - New inline search status.
+	 * @param boolean     $module_active - Module status.
+	 * @param boolean     $instant_search_enabled - Instant Search status.
+	 * @param boolean     $swap_classic_to_inline_search - New inline search status.
+	 * @param string|null $experience - Experience value.
+	 * @param bool|null   $reader_chat - Reader Chat status.
+	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
+	 * @param bool|null   $search_suggestions_enabled - New search suggestions status.
+	 * @param bool|null   $override_woocommerce_search_template - New WooCommerce search-template override status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search ) {
-		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
-			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null, $override_woocommerce_search_template = null ) {
+		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
+		// Reject requests that mix it with any other settings field so callers don't silently
+		// lose those fields — the `experience` branch in update_settings() early-returns and
+		// would otherwise drop them.
+		if ( $experience !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $ai_answers_enabled !== null || $search_suggestions_enabled !== null || $override_woocommerce_search_template !== null ) {
+				return new WP_Error(
+					'rest_invalid_arguments',
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, `ai_answers_enabled`, `search_suggestions_enabled`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
+			return true;
+		}
+		if (
+			$module_active === null &&
+			$instant_search_enabled === null &&
+			( $swap_classic_to_inline_search !== null || $reader_chat !== null )
+		) {
+			// Allow updating auxiliary settings without updating/validating the module settings.
+			return true;
+		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $ai_answers_enabled !== null ) {
+			// allow updating 'ai_answers_enabled' without updating/validating other settings.
+			return true;
+		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $search_suggestions_enabled !== null ) {
+			// allow updating 'search_suggestions_enabled' without updating/validating other settings.
+			return true;
+		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $override_woocommerce_search_template !== null ) {
+			// allow updating 'override_woocommerce_search_template' without updating/validating other settings.
 			return true;
 		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
@@ -317,17 +397,37 @@ class REST_Controller {
 		return true;
 	}
 
-	/**
-	 * GET `jetpack/v4/search/settings`
-	 */
+		/**
+		 *     GET `jetpack/v4/search/settings`
+		 */
 	public function get_settings() {
-		return rest_ensure_response(
-			array(
-				'module_active'                 => $this->search_module->is_active(),
-				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
-				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
-			)
+		$settings = array(
+			'module_active'                        => $this->search_module->is_active(),
+			'instant_search_enabled'               => $this->search_module->is_instant_search_enabled(),
+			'swap_classic_to_inline_search'        => $this->search_module->is_swap_classic_to_inline_search(),
+			'experience'                           => $this->search_module->get_experience(),
+			'ai_answers_enabled'                   => AI_Answers::is_enabled(),
+			'search_suggestions_enabled'           => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
+			'override_woocommerce_search_template' => Search_Blocks::woocommerce_search_template_override_enabled(),
 		);
+
+		if ( $this->is_reader_chat_setting_registered() ) {
+			$settings['reader_chat'] = (bool) get_option( 'reader_chat', false );
+		}
+
+		return rest_ensure_response( $settings );
+	}
+
+	/**
+	 * Check whether Reader Chat is available through REST settings in this request.
+	 *
+	 * Reader Chat registers `reader_chat` only for proxied rollout contexts, so the
+	 * Search dashboard should expose the toggle only when that setting exists.
+	 *
+	 * @return bool True when reader_chat is registered.
+	 */
+	protected function is_reader_chat_setting_registered() {
+		return array_key_exists( 'reader_chat', get_registered_settings() );
 	}
 
 	/**
@@ -371,6 +471,7 @@ class REST_Controller {
 			'search_plan_info'      => null,
 			'enable_search'         => true,
 			'enable_instant_search' => true,
+			'search_experience'     => null,
 			'auto_config_search'    => true,
 		);
 		$payload         = $request->get_json_params();
@@ -384,24 +485,49 @@ class REST_Controller {
 
 		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
 		if ( false !== $payload['enable_search'] ) {
-			// Eligibility is checked in `activate` function.
 			$ret = $this->search_module->activate();
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
 		}
 
-		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['enable_instant_search'] ) {
-			// Eligibility is checked in `enable_instant_search` function.
-			$ret = $this->search_module->enable_instant_search();
+		if ( $payload['search_experience'] !== null ) {
+			// Canonical path. Restrict to activate-able experiences — `off`
+			// belongs on `/plan/deactivate`, and a non-string payload would
+			// blow up `update_experience(string $experience)`.
+			$valid_experiences = array(
+				Module_Control::EXPERIENCE_OVERLAY,
+				Module_Control::EXPERIENCE_INLINE,
+				Module_Control::EXPERIENCE_EMBEDDED,
+			);
+			if ( ! is_string( $payload['search_experience'] )
+				|| ! in_array( $payload['search_experience'], $valid_experiences, true )
+			) {
+				return new WP_Error(
+					'invalid_experience',
+					__( 'Invalid experience value.', 'jetpack-search-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
+			$ret = $this->search_module->update_experience( sanitize_text_field( $payload['search_experience'] ) );
 			if ( is_wp_error( $ret ) ) {
 				return $ret;
 			}
 		}
 
-		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
-		if ( false !== $payload['auto_config_search'] ) {
+		if ( $payload['search_experience'] === null && false !== $payload['enable_instant_search'] ) {
+			// Legacy path: old WPCOM callers send `enable_instant_search`
+			// instead of `search_experience`. Gated on the canonical value
+			// being absent so it doesn't overwrite a non-overlay experience
+			// the caller just set.
+			// Error handling intentionally skipped — this is the legacy fallback.
+			$ret = $this->search_module->enable_instant_search();
+		}
+
+		// `auto_config_search` wires up Overlay sidebar widgets — only meaningful
+		// when Overlay is the resulting experience. For Inline / Embedded, the
+		// caller would otherwise get widget side effects they didn't ask for.
+		if ( false !== $payload['auto_config_search'] && $this->search_module->is_instant_search_enabled() ) {
 			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
 		}
 
@@ -470,7 +596,7 @@ class REST_Controller {
 
 		return new WP_Error(
 			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
-			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
+			$body['message'] ?? 'unknown remote error',
 			array( 'status' => $status_code )
 		);
 	}

@@ -13,21 +13,21 @@ function zeroBSCRM_render_add_or_edit_file() {
 
 	$customer = -1;
 	if ( isset( $_GET['customer'] ) ) {
-		$customer = (int) sanitize_text_field( $_GET['customer'] );
+		$customer = (int) $_GET['customer'];
 	}
 	// or company...
 	$company = -1;
 	if ( isset( $_GET['company'] ) ) {
-		$company = (int) sanitize_text_field( $_GET['company'] );
+		$company = (int) $_GET['company'];
 	}
 
 	$is_adding_file = false;
 	$fileid         = '';
 	// fileid can be 0 (zero). So we can't use the 'empty' function here.
 	if ( isset( $_GET['fileid'] ) && $_GET['fileid'] !== '' ) {
-		$fileid = (int) sanitize_text_field( $_GET['fileid'] );
+		$fileid = (int) $_GET['fileid'];
 	} elseif ( isset( $_POST['fileid'] ) && $_POST['fileid'] !== '' ) {
-		$fileid = (int) sanitize_text_field( $_POST['fileid'] );
+		$fileid = (int) $_POST['fileid'];
 	} else {
 		$is_adding_file = true;
 	}
@@ -61,7 +61,7 @@ function zeroBSCRM_render_add_or_edit_file() {
 		$originalSlot = -1;
 		$title        = ! empty( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
 		$desc         = ! empty( $_POST['desc'] ) ? sanitize_text_field( $_POST['desc'] ) : '';
-		$portal       = ! empty( $_POST['fileportal'] ) ? (int) sanitize_text_field( $_POST['fileportal'] ) : '';
+		$portal       = ! empty( $_POST['fileportal'] ) ? (int) $_POST['fileportal'] : '';
 		$slot         = ! empty( $_POST['fileslot'] ) ? sanitize_text_field( $_POST['fileslot'] ) : '';
 
 		if ( ! $is_adding_file ) {
@@ -272,7 +272,7 @@ function zeroBSCRM_render_add_or_edit_file() {
 
 					##WLREMOVE
 					// only get admins!
-					if ( current_user_can( 'admin_zerobs_manage_options' ) && $customer > 0 ) {
+					if ( jpcrm_perms_manage_options() && $customer > 0 ) {
 						?>
 						<label><?php echo esc_html( __( 'Show on Client Portal', 'zero-bs-crm' ) ); ?></label>
 						<div style="margin-bottom:1em;line-height: 1.8em"><input type="checkbox" name="fileportal" disabled="disabled" />&nbsp;&nbsp;<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>?utm_content=inplugin-fileedit" target="_blank"><?php echo esc_html( __( 'Upgrade to a Bundle', 'zero-bs-crm' ) ); ?></a> <?php echo esc_html( __( '(and get Client Portal Pro) to enable this', 'zero-bs-crm' ) ); ?>.</div>

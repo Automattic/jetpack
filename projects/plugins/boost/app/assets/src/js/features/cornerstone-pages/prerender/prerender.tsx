@@ -1,8 +1,11 @@
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { createInterpolateElement, useState } from '@wordpress/element';
+
+import { Link } from '@wordpress/ui';
+
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNotices } from '$features/notice/context';
@@ -92,7 +95,7 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 					) }
 					<br />
 					{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
-						link: <ExternalLink href={ unsafeSpeculationRulesLink } />,
+						link: <Link openInNewTab href={ unsafeSpeculationRulesLink } />,
 					} ) }
 				</IconTooltip>
 			</div>

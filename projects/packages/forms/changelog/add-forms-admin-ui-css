@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Bundle admin-ui base CSS in wp-build output so host applications don't need to load it separately.

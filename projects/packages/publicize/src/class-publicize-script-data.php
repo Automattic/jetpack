@@ -114,10 +114,12 @@ class Publicize_Script_Data {
 			'api_paths'            => self::get_api_paths(),
 			'assets_url'           => plugins_url( '/build/', __DIR__ ),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
+			'message_templates'    => array(),
 			'supported_services'   => array(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
 			'plugin_info'          => self::get_plugin_info(),
+			'nonces'               => self::get_nonces(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -137,6 +139,9 @@ class Publicize_Script_Data {
 				'supported_services'  => self::get_supported_services(),
 				'urls'                => self::get_urls(),
 				'store_initial_state' => self::get_store_initial_state(),
+				'message_templates'   => array(
+					'placeholders' => Message_Templates_Placeholders::get_all(),
+				),
 			)
 		);
 	}
@@ -158,6 +163,7 @@ class Publicize_Script_Data {
 				'config'  => $settings->get_social_notes_config(),
 			),
 			'showPricingPage'      => $settings->should_show_pricing_page(),
+			'messageTemplate'      => $settings->get_message_template(),
 		);
 	}
 
@@ -269,5 +275,16 @@ class Publicize_Script_Data {
 		array_walk( $urls, 'esc_url_raw' );
 
 		return $urls;
+	}
+
+	/**
+	 * Get nonces required by the Social admin UI.
+	 *
+	 * @return array
+	 */
+	private static function get_nonces() {
+		return array(
+			'refresh_plan' => wp_create_nonce( Social_Admin_Page::REFRESH_PLAN_NONCE_ACTION ),
+		);
 	}
 }

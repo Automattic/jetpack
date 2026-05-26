@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: Add full list support — slash menu entries, keyboard handling (Tab/Shift-Tab/Backspace), proper block serialization, and fix for text style changes getting stuck inside lists

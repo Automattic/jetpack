@@ -150,13 +150,13 @@ class Jetpack_Protect {
 	 */
 	public function admin_page_init() {
 		$total_threats = Status::get_total_threats();
-		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		$menu_label    = 'Protect'; // "Protect" is a product name, do not translate.
 		if ( $total_threats ) {
 			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_threats );
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Protect', 'jetpack-protect' ),
+			'Jetpack Protect', // "Jetpack Protect" is a product name, do not translate.
 			$menu_label,
 			'manage_options',
 			'jetpack-protect',

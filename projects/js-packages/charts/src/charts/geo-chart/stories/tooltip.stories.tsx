@@ -5,6 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 const meta: Meta< typeof GeoChart > = {
 	...geoChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Geo Chart/Tooltips',
+	component: geoChartMetaArgs.component, // Make eslint happy.
 };
 
 export default meta;

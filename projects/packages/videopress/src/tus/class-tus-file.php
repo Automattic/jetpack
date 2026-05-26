@@ -384,8 +384,8 @@ class Tus_File {
 	 * @param int $total_bytes The total bytes of the file.
 	 *
 	 * @return int
-	 * @throws Out_Of_Range_Exception Various exceptions.
-	 * @throws Connection_Exception Various exceptions.
+	 * @throws \Out_Of_Range_Exception Various exceptions.
+	 * @throws \Connection_Exception Various exceptions.
 	 * @throws File_Exception Various exceptions.
 	 */
 	public function upload( $total_bytes ) {
@@ -407,7 +407,7 @@ class Tus_File {
 
 			while ( ! feof( $input ) ) {
 				if ( CONNECTION_NORMAL !== connection_status() ) {
-					throw new Connection_Exception( 'Connection aborted by user.' );
+					throw new \Connection_Exception( 'Connection aborted by user.' );
 				}
 
 				$data  = $this->read( $input, self::CHUNK_SIZE );
@@ -418,7 +418,7 @@ class Tus_File {
 				$this->cache->set( $key, array( 'offset' => $this->offset ) );
 
 				if ( $this->offset > $total_bytes ) {
-					throw new Out_Of_Range_Exception( 'The uploaded file is corrupt.' );
+					throw new \Out_Of_Range_Exception( 'The uploaded file is corrupt.' );
 				}
 
 				if ( $this->offset === $total_bytes ) {
@@ -600,7 +600,7 @@ class Tus_File {
 	public function copy( $source, $destination ) {
 		$status = copy( $source, $destination );
 
-		if ( false === $status ) {
+		if ( ! $status ) {
 			Logger::log( 'error', sprintf( 'Cannot copy source (%s) to destination (%s).', $source, $destination ) );
 			throw new File_Exception( 'Cannot copy source file to destination file.' );
 		}

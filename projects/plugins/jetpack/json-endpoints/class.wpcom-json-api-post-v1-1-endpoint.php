@@ -38,6 +38,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		),
 		'sticky'           => '(bool) Is the post sticky?',
 		'password'         => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'has_password'     => '(bool) Whether the post is password protected, regardless of whether the current user can access it.',
 		'parent'           => "(object>post_reference|false) A reference to the post's parent, if it has one.",
 		'type'             => "(string) The post's post_type. Post types besides post, page and revision need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'discussion'       => '(object) Hash of discussion options for the post',
@@ -218,6 +219,9 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 					break;
 				case 'password':
 					$response[ $key ] = $post->get_password();
+					break;
+				case 'has_password':
+					$response[ $key ] = $post->get_has_password();
 					break;
 				/** (object|false) */
 				case 'parent':

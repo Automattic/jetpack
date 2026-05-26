@@ -60,7 +60,7 @@ test.describe( 'Common tests', () => {
 			await expect(
 				page.getByTestId( 'critical-css-meta' ),
 				'Critical CSS meta information should be visible'
-			).toBeVisible( { timeout: 4 * 60 * 1000 } );
+			).toBeVisible( { timeout: 240000 } );
 		} );
 
 		await test.step( 'Deactivate Jetpack Boost plugin', async () => {

@@ -2,6 +2,173 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.5 - 2026-05-25
+### Enhancements
+- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
+- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives. [#48584]
+- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
+- Donations Block: Record Tracks events for admin-side block adoption. [#48847]
+- Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview. [#48961]
+- Newsletter: Enable the subscriptions module by default for all sites. [#49034]
+- Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader. [#48890]
+
+### Improved compatibility
+- ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
+
+### Bug fixes
+- Forms: Fix a JavaScript error in the editor. [#48979]
+- Jetpack AI Sidebar: Fix block editing when another agent provider is present. [#48961]
+- Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored. [#48865]
+- Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites. [#48890]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities: Opt the Shortlinks, Sitemaps, and Newsletter abilities into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Register sitemaps reads and rebuild dispatch. [#48767]
+- Abilities API: Register the `jetpack/get-connection-status` read ability from the Jetpack plugin. [#48735]
+- E2E tests: Update encryption key. [#49115]
+- Infinite Scroll: Address PHP warnings. [#48868]
+- Modules abilities: Align the `jetpack` ability-category description and textdomain with the Connection package so the shared category definition does not drift between registrars. [#48735]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+- Search: Point the Performance page's "Manage Search settings" link at the Search dashboard's new `#/settings` hash route. [#49042]
+- Sitemaps abilities: Simplify get-status output to reflect the child sitemaps actually present in the served `sitemap.xml`. [#48767]
+- Sitemaps abilities: Use the core site ability category. [#48767]
+- Sync: Add test coverage for the newly synced Jetpack Search options. [#48945]
+- Update package dependencies. [#48329] [#48405] [#49012]
+
+## 15.9-a.3 - 2026-05-19
+### Enhancements
+- Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
+- AI Assistant: Add an AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants answer reader questions using the blog's content. [#48362]
+- Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, setting a per-frequency default donation amount, and configuring the suggested custom amount. At least one frequency must remain enabled. [#48799]
+- Donations Block: Add Gutenberg style settings (border, color, typography, spacing) and custom controls for active tab and selected amount colors. [#48415]
+- Donations Block: Add Security inspector panel with configurable minimum and maximum donation amounts to help prevent fraudulent transactions. [#48492]
+- Donations Block: Inherit colors and typography from the active theme, and let the Donate button pick up theme button styles. [#48415]
+- Image Studio: Only allow video clip generation on sites where Image Studio is enabled and the plan supports video uploads. [#48712]
+- Performance settings: Simplify the Search section and link to the Search dashboard so experience selection happens in one place. [#48773]
+- Related Posts: Add configurable result limits for related-post agent requests. [#48335]
+- Related Posts: Register WordPress Abilities API support for fetching related posts. [#48335]
+- Search: Add an auto-complete feature that suggests search queries as users type. [#48473]
+- Shortlinks: Require edit-posts access for Shortlinks ability requests. [#48334]
+
+### Improved compatibility
+- Migrate Status indicator to @wordpress/ui Text. [#48711]
+
+### Bug fixes
+- Copy Post: Fix backslash characters being stripped from post content, title, and excerpt when duplicating a post. [#48870]
+- Jetpack AI: Improve MCP settings UI navigation, setup-list formatting, label alignment, and toggle spacing. [#48524]
+- Jetpack AI: Send non-WordPress.com hosts through the standard checkout workflow for the MCP "Upgrade plan" CTA, and remove WordPress.com-specific upsell copy. [#48661]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Composer: drop the automattic/jetpack-podcast dependency. The package is only consumed via jetpack-mu-wpcom and was never initialized from the Jetpack plugin. [#48907]
+- General: update composer.lock files. [#48743]
+- Internal: regenerate composer.lock to pick up the podcast package's new automattic/jetpack-connection dependency. [#48774]
+- Tests: cover the Search options that ship with the Search sync module's default-option whitelist. [#48745]
+- Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
+- Update package dependencies. [#48683] [#48695]
+- Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
+
+## 15.9-a.1 - 2026-05-11
+### Enhancements
+- AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component. [#48471]
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Image Studio: Expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos. [#48486]
+- Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it. [#48640]
+
+### Improved compatibility
+- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
+
+### Bug fixes
+- AI Page: Update the layout-mixin selector to match the renamed `jetpack-ai` body class so the page layout applies again. [#48668]
+- Search: Bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles. [#48550]
+- Shortcodes: Google Maps shortcode now preserves URL-encoded and HTML-encoded characters inside place names. [#48468] [#48495]
+- Social: Fall back to the site-wide social message template when no per-post share message is set. [#48606]
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Sidebar: Surface a Review Mediator UI feature flag and an extension filter for the agentsManagerData payload. [#48409]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Dashboard: Remove translation wrappers from "Boost" and "CRM" product names in the at-a-glance dashboard. [#48520]
+- Podcast: Add the new Jetpack Podcast package as a dependency. [#48556]
+- Podcast Dashboard: Pull in the wp-build dashboard scaffold from the jetpack-podcast package. [#48557]
+- Reader Chat: Mount the Agents Manager chat UI on public blog frontends, gated by the `jetpack_reader_chat_has_ai_features` filter. Adds a `reader_chat` site option exposed over REST so it can be toggled from wp-admin. [#48144]
+- Scan: Register the new Scan wp-admin page package. No user-visible behavior change yet. [#48458]
+- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48638] [#48540]
+- Update package dependencies. [#48689]
+
+## 15.8 - 2026-05-05
+### Enhancements
+- Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker. [#48244]
+- Activity Log: Default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips. [#48418]
+- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI. [#48048]
+- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails. [#48262]
+- Forms: Support granular date filter in inbox. [#46760]
+- Make phone numbers in the Contact Info widget clickable on all devices, not just mobile. [#48374]
+- Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+. [#48356]
+- Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes. [#48320]
+- Performance: Add early-return guard conditions to skip loading scripts and styles on pages where they are not needed. [#47495]
+- REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload. [#48293]
+- Search: Add fallback image capability in expanded search. [#44657]
+- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator. [#47940]
+- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com. [#48254]
+- Stats: Register abilities. [#48286]
+- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline. [#48241]
+- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block. [#48209]
+
+### Improved compatibility
+- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts. [#48048]
+- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state. [#47317]
+- Tested up to WordPress 7.0. [#48114]
+- Update purchases endpoint from v1.1 `/sites/$site/purchases` to v1.2 `/upgrades?site=$site`. [#48035]
+
+### Bug fixes
+- AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin. [#48483]
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that was breaking the P2 frontend block inserter. [#47987]
+- Fix taxonomies endpoint returning error when number parameter exceeds 1000. [#48070]
+- Forms: Fix the Form block not being usable when the Blocks module is inactive. [#48037]
+- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
+- oEmbed: Prevent PHP warnings when a registered provider is malformed. [#48077]
+- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
+- Paywall: Subscribers can now access tier-gated posts regardless of plan price. [#48373]
+- Settings: Show an empty state when search returns no matching settings. [#48102]
+- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
+- Subscriptions: Prevent warning when $post global is malformed. [#48074]
+- Sync: Increase lock time tolerance in tests. [#48078]
+- WordAds: Prevent PHP warning when headers are already sent. [#48073]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities API: Register `jetpack/get-modules` and `jetpack/set-module-status` for WP 6.9+. [#48278]
+- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]
+- AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. [#47947]
+- AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default. It can be re-enabled via the `ai_correct_spelling_enabled` filter. [#47916]
+- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false). [#47730]
+- AI MCP settings: Add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated). [#48298]
+- Componentry: Replace Chip and custom Recommendations "New" pill with Badge from @wordpress/ui. [#48162]
+- Discussion Settings: Import ToggleControl directly from @wordpress/components. [#48190]
+- Email Preview: Avoid unconditional require_once and file loading in the REST API endpoint to prevent unnecessary file loading and hook registration on every request. [#48316]
+- Google Fonts: Update module description to note native WordPress support. [#48216]
+- Guidelines CPT: Whitelist _guideline_ meta keys for use on WordPress.com sites. [#48212]
+- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection. [#48084]
+- Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions. [#48309]
+- Internal: Migrate the connection banner Notice to @wordpress/ui. [#48173]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- ModuleToggle: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48197]
+- Monetize settings: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48207]
+- Newsletter: Remove the old Jetpack Settings newsletter UI and redirect old route to the new Jetpack > Newsletter settings page. [#48092]
+- Omnibar: Do not send response buffer from the admin-bar endpoint. [#48342]
+- Omnibar: Preserve original node ordering. [#48354]
+- Plugin Search Hints: Use Core colors. [#48470]
+- Remove New badges from the writing settings and recommendations screens. [#48174]
+- Remove the unused Title_Optimization_Ability stub. [#47730]
+- REST API: Defer loading of helper classes in Top Posts, Podcast Player, and Instagram Gallery endpoints until callbacks are invoked, reducing overhead on unrelated REST requests. [#48327]
+- REST API: Expose `apm_enabled` via the GET site endpoint's `?options=` query param. [#48366]
+- SAL: Add `has_password` field to post API response. [#47938]
+- Settings: Import RadioControl and ToggleControl directly from @wordpress/components. [#48170] [#48177] [#48179] [#48186] [#48189]
+- Unify loading indicators to use the WordPress Core Spinner across all contexts. [#47451]
+- Update dependencies. [#48138]
+- Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management. [#47826]
+- Update package dependencies. [#47102] [#47890] [#47998] [#47907] [#48064] [#48106] [#48141] [#48302]
+- VideoPress storage meters: Replace custom Jetpack ProgressBar with @wordpress/components ProgressBar. [#48191]
+
 ## 15.7 - 2026-04-08
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
@@ -55,7 +222,6 @@
 - Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
 - Brute Force Protection: Update error when module can't be activated. [#47660]
 - Build: Sync Social Logos font from @automattic/social-logos. [#47753]
-- Comment: Add Tracking to Jetpack upsell link. [#47937]
 - Display MCP client actor on backup undo card and backup card attribution. [#47429]
 - Donations: Use the core WordPress spinner component. [#47467]
 - Editor: Fix plan upgrade notice for Simple sites. [#47543]

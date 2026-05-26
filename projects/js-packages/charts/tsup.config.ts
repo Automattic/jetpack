@@ -3,10 +3,11 @@ import { sassPlugin, postcssModules } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 import pkg from './package.json';
 
-// Extract entries from package exports
+// Extract JS/TS entries from package exports. Non-JS source paths (e.g. the
+// `./style.css` placeholder) are skipped so tsup doesn't try to bundle them.
 const entry = Object.values( pkg.exports )
 	.map( $export => ( typeof $export === 'object' ? $export[ 'jetpack:src' ] : '' ) )
-	.filter( ( path ): path is string => Boolean( path ) );
+	.filter( ( path ): path is string => Boolean( path ) && /\.[cm]?[jt]sx?$/.test( path ) );
 
 export default defineConfig( {
 	entry,

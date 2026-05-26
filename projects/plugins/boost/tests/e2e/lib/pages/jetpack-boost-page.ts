@@ -32,7 +32,7 @@ export default class JetpackBoostPage {
 
 		const connectionResponse = this.page.waitForResponse(
 			response => response.url().includes( '/jetpack-boost/v1/connection' ),
-			{ timeout: 60 * 1000 }
+			{ timeout: 60000 }
 		);
 		await button.click();
 		await connectionResponse;
@@ -40,7 +40,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'button', { name: 'Refresh' } ),
 			'Refresh button should be visible after connection'
-		).toBeVisible();
+		).toBeVisible( { timeout: 40000 } );
 	}
 
 	/**
@@ -73,7 +73,7 @@ export default class JetpackBoostPage {
 
 		if ( checkForNotice ) {
 			// Wait for the success notice to appear after toggling the module
-			this.expectNoticeToBeVisible( `Module ${ targetState ? 'activated' : 'deactivated' }` );
+			await this.expectNoticeToBeVisible( `Module ${ targetState ? 'activated' : 'deactivated' }` );
 		}
 	}
 
@@ -88,7 +88,7 @@ export default class JetpackBoostPage {
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
 		await score.waitFor( {
 			state: 'visible',
-			timeout: 80 * 1000,
+			timeout: 80000,
 		} );
 
 		return Number( await score.textContent() );
@@ -102,7 +102,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
 			'Overall score heading should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } ); // Wait up to 60 seconds for the overall score heading to be visible
+		).toBeVisible( { timeout: 60000 } ); // Wait up to 60 seconds for the overall score heading to be visible
 		await expect( async () => {
 			const mobileScore = await this.getSpeedScore( 'mobile' );
 			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
@@ -128,6 +128,42 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Waits for the client to send the speed score refresh request.
+	 * Use when the test asserts that the client initiated a refresh — for example,
+	 * to verify that a debounce timer has fired. Decouples from backend latency and
+	 * does not match error responses.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 * @return {Promise<import('@playwright/test').Request>} The request sent to the speed score refresh endpoint.
+	 */
+	async waitForScoreRefreshRequest( timeout = 10000 ) {
+		return this.page.waitForRequest(
+			request =>
+				request.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
+				request.method() === 'POST',
+			{ timeout }
+		);
+	}
+
+	/**
+	 * Waits for a successful response from the speed score refresh endpoint.
+	 * Use when the test depends on the refresh having completed — for example,
+	 * before re-asserting score visibility after clicking Refresh.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 * @return {Promise<import('@playwright/test').Response>} The response from the speed score refresh endpoint.
+	 */
+	async waitForScoreRefreshResponse( timeout = 10000 ) {
+		return this.page.waitForResponse(
+			response =>
+				response.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
+				response.request().method() === 'POST' &&
+				response.ok(),
+			{ timeout }
+		);
+	}
+
+	/**
 	 * Waits for a notice to appear and checks its visibility.
 	 * @param {string|RegExp} message - The message to wait for.
 	 */
@@ -135,7 +171,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByTestId( 'snackbar' ).getByText( message ),
 			`Should show ${ message } notice`
-		).toBeVisible( { timeout: 30 * 1000 } );
+		).toBeVisible( { timeout: 30000 } );
 	}
 
 	// Cornerstone Pages

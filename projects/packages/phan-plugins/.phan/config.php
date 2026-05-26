@@ -4,7 +4,7 @@
  * default configuration. Command-line arguments will be applied
  * after this file is read.
  *
- * @package automattic/jetpack-changelogger
+ * @package automattic/jetpack-phan-plugins
  */
 
 // Require base config.

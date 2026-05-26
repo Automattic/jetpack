@@ -24,7 +24,7 @@ function init_repo {
 	echo "::group::Initializing repo"
 	git init -q .
 	git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	echo "::endgroup::"
 
 	echo "::group::Fetching tags"
@@ -83,7 +83,7 @@ function git_clean_shallow {
 	rm .git/shallow
 	for REV in "${REVS[@]}"; do
 		# Read parents. If any are missing, put the rev back in .git/shallow. If not all are missing, queue the missing ones to be fetched.
-		mapfile -t PP < <(/usr/bin/git cat-file commit "$REV" 2>/dev/null | sed -n 's/^parent //p')
+		mapfile -t PP < <(/usr/bin/git rev-parse "$REV^@" 2>/dev/null)
 		PPM=()
 		for P in "${PP[@]}"; do
 			if ! /usr/bin/git cat-file -e "$P" &>/dev/null; then

@@ -15,12 +15,13 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
-import { Connection } from '../../../social-store/types';
 import { InstagramNoMediaNotice } from '../../form/instagram-no-media-notice';
+import type { ConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
+import type { Connection } from '../../../social-store/types';
 
 export type PostPreviewProps = {
 	connection: Connection;
+	previewData: ConnectionPreviewData;
 };
 
 /**
@@ -44,7 +45,7 @@ function getCombinedText( title: string, excerpt: string ): string {
  *
  * @return - Post preview component.
  */
-export function PostPreview( { connection }: PostPreviewProps ) {
+export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 	const user = useMemo(
 		() => ( {
 			displayName: connection.display_name,
@@ -54,8 +55,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message } =
-		useConnectionPreviewData( connection );
+	const { image, media, title, description, url, excerpt, message } = previewData;
 
 	const commonProps = useMemo(
 		() => ( {
@@ -232,7 +232,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			caption += `\n\n${ url }`;
+			if ( url && ! caption.includes( url ) ) {
+				caption += `\n\n${ url }`;
+			}
 
 			return (
 				<ThreadsPostPreview
@@ -266,7 +268,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				text = getCombinedText( title, excerpt );
 			}
 
-			text += `\n\n${ url }`;
+			if ( url && ! text.includes( url ) ) {
+				text += `\n\n${ url }`;
+			}
 
 			return (
 				<TwitterPostPreview

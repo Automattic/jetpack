@@ -28,3 +28,19 @@ export function hasSocialPaidFeatures() {
 export function getSocialAdminPageUrl() {
 	return getAdminUrl( 'admin.php?page=jetpack-social' );
 }
+
+/**
+ * Get the redirect query for refreshing plan data after purchase.
+ *
+ * @return The redirect query string including nonce when available.
+ */
+export function getRefreshPlanQuery() {
+	const nonce = getSocialScriptData().nonces?.refresh_plan;
+	const baseQuery = 'redirect_to=admin.php?page=jetpack-social&refresh_plan_data=1';
+
+	if ( ! nonce ) {
+		return baseQuery;
+	}
+
+	return `${ baseQuery }&_wpnonce=${ encodeURIComponent( nonce ) }`;
+}

@@ -286,7 +286,7 @@ export const getSubscriberCounts =
 
 export const getTotalEmailsSentCount =
 	( blogId, postId ) =>
-	async ( { dispatch, registry } ) => {
+	async ( { dispatch } ) => {
 		await executionLock.blockExecution( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
@@ -294,8 +294,11 @@ export const getTotalEmailsSentCount =
 			const response = await fetchTotalEmailsSentCount( blogId, postId );
 			dispatch( setTotalEmailsSentCount( response?.total_sends ) );
 		} catch ( error ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+			// Email open stats are informational. Fail silently so a slow or
+			// failed WPCOM response (e.g. 5s timeout on stats/opens/emails) does
+			// not surface a snackbar error in the editor. See NL-578.
+			// eslint-disable-next-line no-console
+			console.warn( 'Failed to fetch total emails sent count:', error?.message );
 		} finally {
 			executionLock.release( lock );
 		}

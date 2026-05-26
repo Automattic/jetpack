@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Defer is_connected() check from init to admin_menu callback to avoid caching a false result before External Storage providers are registered.

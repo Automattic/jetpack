@@ -1,0 +1,123 @@
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
+import * as AreaChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Area Chart" of={ AreaChartStories } />
+
+# Area Chart
+
+Area Charts visualise the magnitude of one or more series over time using filled regions. Stacked area charts make it easy to compare the contribution of each series to a total; overlapping area charts emphasise individual trends.
+
+<Canvas of={ AreaChartStories.Default } />
+
+## Overview
+
+`AreaChart` is built on `@visx/xychart` using `AreaStack` for stacked layouts and `AreaSeries` for overlapping ones. It supports the standard chart features (responsive sizing, legends, accessible tooltips, themes, keyboard navigation) plus stacked-area-specific options like `stackOffset`.
+
+<Source
+	language="jsx"
+	code={ `import { AreaChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
+
+	<AreaChart data={ data } stacked />` }
+/>
+
+## API Reference
+
+For detailed prop information, see the [Area Chart API Reference](./?path=/docs/js-packages-charts-library-charts-area-chart-api-reference--docs).
+
+## Stacked vs. Unstacked
+
+`AreaChart` is **stacked by default**. Series sit on top of each other and the y-axis represents the cumulative total.
+
+<Canvas of={ AreaChartStories.Default } />
+
+Set `stacked={ false }` to render overlapping filled areas instead. Use `fillOpacity` to keep overlapping series visible:
+
+<Canvas of={ AreaChartStories.Unstacked } />
+
+## Stack Offsets
+
+When `stacked` is true, the `stackOffset` prop selects how series are arranged on the y-axis.
+
+### `none` (default)
+
+Standard stacking — values stack at their natural magnitude.
+
+### `expand` — 100% stacked
+
+Each x-position is normalised to 1.0. Useful for visualising relative composition over time.
+
+<Canvas of={ AreaChartStories.PercentageStack } />
+
+### `wiggle` — streamgraph
+
+Series flow around a central baseline. Best for many series where individual trends matter more than absolute totals.
+
+<Canvas of={ AreaChartStories.Streamgraph } />
+
+### `silhouette`
+
+Stack centred around zero — symmetric layout without the wiggle minimisation.
+
+## Curve Types
+
+`AreaChart` supports the same `curveType` options as `LineChart`:
+
+<Canvas of={ AreaChartStories.CurveTypes } />
+
+- **`linear`** — straight segments between points.
+- **`smooth`** — Catmull-Rom interpolation; flowing curves through every point.
+- **`monotone`** — prevents overshooting on steep changes; preferred for financial or scientific data.
+
+## Single Series
+
+A single-series area chart is a useful way to emphasise a single trend with visual weight:
+
+<Canvas of={ AreaChartStories.SingleSeries } />
+
+## Error Handling
+
+The chart gracefully handles common edge cases:
+
+<Canvas of={ AreaChartStories.ErrorStates } />
+
+Supported scenarios: empty data arrays, invalid date values, null/NaN values, single data points.
+
+## Legends
+
+Use the composition API to place a legend explicitly:
+
+<Canvas of={ AreaChartStories.WithCompositionLegend } />
+
+<Source
+	language="jsx"
+	code={ `<AreaChart data={ data }>
+		<AreaChart.Legend />
+	</AreaChart>` }
+/>
+
+For full legend configuration options, see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+## Responsive Behavior
+
+By default, charts fill their parent container's dimensions. The parent must have an explicit height, or the chart must receive an `aspectRatio` prop:
+
+<Canvas of={ AreaChartStories.AspectRatio } />
+
+For more details, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design).
+
+## Animation
+
+The Area Chart supports an optional entry animation:
+
+<Canvas of={ AreaChartStories.Animation } />
+
+- **Opt-in**: Disabled by default; enable with the `animation` prop.
+- **Accessibility**: Respects `prefers-reduced-motion`.
+- **Effect**: Areas scale up from the bottom (1s ease-out).
+
+## Accessibility
+
+- Chart container has `role="grid"` with an `aria-label` of `"Area chart"`.
+- Tab to focus the chart; arrow keys navigate data points; tooltips are announced to screen readers.
+- All series colours can be overridden via theme; do not rely on colour alone to distinguish series.

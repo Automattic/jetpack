@@ -1,12 +1,13 @@
 /**
  *External dependencies
  */
-import { ExternalLink, PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import { VideoControlProps } from '../../types';
 import styles from './style.module.scss';
 /**
@@ -79,7 +80,6 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				help={ <AutoplayHelp /> }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			<ToggleControl
 				label={ __( 'Loop', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'loop' ) }
@@ -87,14 +87,12 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				help={ __( 'Restarts the video when it reaches the end.', 'jetpack-videopress-pkg' ) }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			<ToggleControl
 				label={ __( 'Muted', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'muted' ) }
 				checked={ muted }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			<ToggleControl
 				label={ __( 'Show Controls', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'controls' ) }
@@ -102,7 +100,6 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				help={ __( 'Display the video playback controls.', 'jetpack-videopress-pkg' ) }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			<ToggleControl
 				label={ __( 'Play Inline', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'playsinline' ) }
@@ -113,7 +110,6 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				) }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			<ToggleControl
 				label={ __( 'Preload Metadata', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange(
@@ -127,11 +123,10 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				) }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			{ createInterpolateElement(
 				__( 'Send us your <a>VideoPress feedback</a>', 'jetpack-videopress-pkg' ),
 				{
-					a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+					a: <Link openInNewTab href="https://automattic.survey.fm/videopress-feedback" />,
 				}
 			) }
 		</PanelBody>

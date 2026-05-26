@@ -47,6 +47,7 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Run phan on everything.',
 		} )
+		.option( 'baseline', { type: 'boolean', hidden: true } )
 		.option( 'no-baseline', {
 			type: 'boolean',
 			description: 'Do not use the baseline file.',
@@ -60,6 +61,7 @@ export async function builder( yargs ) {
 			description:
 				'Update the Phan baselines, even if no baseline currently exists. But please try not to use this, fix the issues instead.',
 		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",

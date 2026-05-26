@@ -127,8 +127,8 @@ const requestMediaToken = function (
 						break;
 				}
 			} )
-			.catch( () => {
-				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
+			.catch( error => {
+				debug( 'Token request failed: %o', error );
 				resolve( { token: null } );
 			} );
 	} );

@@ -553,7 +553,7 @@ class Users extends Module {
 					continue;
 				}
 
-				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
+				$flag = $this->user_fields_to_flags_mapping[ $user_field ] ?? 'unknown_field_changed';
 
 				$this->flags[ $user_id ][ $flag ] = true;
 			}

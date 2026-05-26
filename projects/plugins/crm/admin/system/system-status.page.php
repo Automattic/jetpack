@@ -14,7 +14,7 @@ function zeroBSCRM_render_systemstatus_page() {
 	global $wpdb, $zbs;  // } Req
 
 		// catch tools:
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetuserroleszerobscrm' ) ) {
+	if ( jpcrm_perms_manage_options() && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'resetuserroleszerobscrm' ) ) {
 
 		// roles
 		zeroBSCRM_clearUserRoles();

@@ -2,7 +2,7 @@
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable testing-library/no-container */
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
@@ -178,9 +178,9 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
+		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 280 );
 	} );
 
 	it( 'should strip html tags from the description', () => {
@@ -196,7 +196,7 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
 	} );
 
@@ -653,5 +653,58 @@ describe( 'Google Search previews', () => {
 			'https://wordpress.com › alongpathnameheretoensuretruncationoccursbut…'
 		);
 		expect( urlEl.textContent.replace( '…', '' ).trimEnd() ).toHaveLength( 68 );
+	} );
+
+	describe( 'Site icon', () => {
+		it( 'should render the provided site icon URL', () => {
+			const { container } = render(
+				<Search
+					url="https://example.com"
+					siteIcon="https://example.com/wp-content/uploads/site-icon.png"
+				/>
+			);
+
+			const iconImg = container.querySelector( 'img.search-preview__icon' );
+
+			expect( iconImg ).toBeVisible();
+			expect( iconImg ).toHaveAttribute(
+				'src',
+				'https://example.com/wp-content/uploads/site-icon.png'
+			);
+		} );
+
+		it( 'should render the default globe fallback when no site icon is provided', () => {
+			const { container } = render( <Search url="https://example.com" /> );
+
+			expect( container.querySelector( 'img.search-preview__icon' ) ).toBeNull();
+			const fallback = container.querySelector( 'span.search-preview__icon' );
+			expect( fallback ).toBeVisible();
+			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
+		} );
+
+		it( 'should not reference the Google favicon service', () => {
+			const { container } = render( <Search url="https://example.com" /> );
+
+			expect( container.innerHTML ).not.toContain( 'google.com/s2/favicons' );
+		} );
+
+		it( 'should fall back to the default globe if the site icon fails to load', () => {
+			const { container } = render(
+				<Search
+					url="https://example.com"
+					siteIcon="https://example.com/wp-content/uploads/site-icon.png"
+				/>
+			);
+
+			const iconImg = container.querySelector( 'img.search-preview__icon' );
+			expect( iconImg ).toBeVisible();
+
+			fireEvent.error( iconImg );
+
+			expect( container.querySelector( 'img.search-preview__icon' ) ).toBeNull();
+			const fallback = container.querySelector( 'span.search-preview__icon' );
+			expect( fallback ).toBeVisible();
+			expect( fallback.querySelector( 'svg' ) ).toBeVisible();
+		} );
 	} );
 } );

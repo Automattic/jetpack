@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Verbum comments: Fix incorrect hovercard i18n key for 'Gravatar not found' error; add translation string for private profile error state.

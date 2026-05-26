@@ -330,6 +330,7 @@ const videos = ( state, action ) => {
 						..._metaItems,
 						[ id ]: {
 							..._metaVideo,
+							isDeleting: false,
 							hasBeenDeleted,
 							deletedVideo,
 						},

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Defer reconnect backoff reset until WebSocket connection has been stable for 30 seconds

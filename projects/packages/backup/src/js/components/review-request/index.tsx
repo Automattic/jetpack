@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './style.module.scss';
 import { ReviewRequestBaseProps } from './types';
 import type { FC } from 'react';
@@ -20,7 +20,8 @@ const ReviewRequest: FC< ReviewRequestBaseProps > = ( {
 
 	return (
 		<>
-			<ExternalLink
+			<Link
+				openInNewTab
 				className={ `${ styles.rr } ${ styles.emojisPseudo }` }
 				href={ href }
 				onClick={ onClick }
@@ -29,7 +30,7 @@ const ReviewRequest: FC< ReviewRequestBaseProps > = ( {
 					<Text>{ reviewText }</Text>
 					<Text className={ styles.cta }>{ cta }</Text>
 				</div>
-			</ExternalLink>
+			</Link>
 			<a role="button" href="#" onClick={ dismissMessage } className={ styles.dismiss }>
 				{ __( 'Maybe later', 'jetpack-backup-pkg' ) }
 			</a>

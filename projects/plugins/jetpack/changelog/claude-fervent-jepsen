@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Site Logo extension: fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter.

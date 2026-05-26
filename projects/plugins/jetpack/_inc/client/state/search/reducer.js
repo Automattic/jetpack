@@ -64,3 +64,18 @@ export function isModuleFound( state, module ) {
 			.indexOf( currentSearchTerm.toLowerCase() ) > -1
 	);
 }
+
+/**
+ * Returns whether any module matches the current search term.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean}      True only when there is an active search term and at least one module matches it.
+ */
+export function hasAnyMatchingModule( state ) {
+	if ( ! getSearchTerm( state ) ) {
+		return false;
+	}
+
+	const items = state.jetpack?.modules?.items ?? {};
+	return Object.values( items ).some( item => item?.module && isModuleFound( state, item.module ) );
+}

@@ -28,7 +28,7 @@ function jpcrm_settings_page_html_woosync_connections() {
 	// did we just authenticate?
 	if ( isset( $_GET['success'] ) ) {
 
-		$success_value = (int) sanitize_text_field( $_GET['success'] );
+		$success_value = (int) $_GET['success'];
 
 		if ( $success_value == 1 ) {
 

@@ -287,6 +287,7 @@ class Jetpack_Slideshow_Shortcode {
 		);
 		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		wp_localize_script(
 			'jetpack-slideshow',
 			'jetpackSlideshowSettings',
@@ -308,7 +309,7 @@ class Jetpack_Slideshow_Shortcode {
 			apply_filters(
 				'jetpack_js_slideshow_settings',
 				array(
-					'spinner'    => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+					'spinner'    => 'data:image/svg+xml,' . rawurlencode( Jetpack_Spinner::render( 24 ) ),
 					'speed'      => '4000',
 					'label_prev' => __( 'Previous Slide', 'jetpack' ),
 					'label_stop' => __( 'Pause Slideshow', 'jetpack' ),

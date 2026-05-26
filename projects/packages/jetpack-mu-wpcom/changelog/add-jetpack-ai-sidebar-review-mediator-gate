@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Agents Manager: Apply the `jetpack_ai_sidebar_agents_manager_data` filter so hosts can extend the inline `agentsManagerData` payload.

@@ -55,7 +55,7 @@
 		}
 
 		svg {
-			fill: variables.$jetpack-green;
+			fill: var(--wp-admin-theme-color);
 		}
 	}
 

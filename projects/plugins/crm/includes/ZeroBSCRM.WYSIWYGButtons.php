@@ -70,7 +70,8 @@ function zeroBSCRM_exposeFormListJS() {
 		}
 	}
 
-	?><script type="text/javascript">var zbsCRMFormList = <?php echo json_encode( $ret ); ?>;</script>
+	?>
+	<script type="text/javascript">var zbsCRMFormList = <?php echo wp_json_encode( $ret, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 	<?php
 }
 

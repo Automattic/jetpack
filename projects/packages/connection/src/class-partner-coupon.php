@@ -350,7 +350,7 @@ class Partner_Coupon {
 		return array(
 			'name'   => $supported_partners[ $prefix ]['name'],
 			'prefix' => $prefix,
-			'logo'   => isset( $supported_partners[ $prefix ]['logo'] ) ? $supported_partners[ $prefix ]['logo'] : null,
+			'logo'   => $supported_partners[ $prefix ]['logo'] ?? null,
 		);
 	}
 

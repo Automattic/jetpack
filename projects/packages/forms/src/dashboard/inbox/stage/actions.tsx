@@ -36,6 +36,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	if ( currentQuery?.parent ) {
 		queryParams.parent = currentQuery.parent;
 	}
+	if ( currentQuery?.source ) {
+		queryParams.source = currentQuery.source;
+	}
 	if ( currentQuery?.before ) {
 		queryParams.before = currentQuery.before;
 	}
@@ -44,6 +47,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	}
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
+	}
+	if ( currentQuery?.is_test !== undefined ) {
+		queryParams.is_test = currentQuery.is_test;
 	}
 
 	return queryParams;

@@ -1,7 +1,3 @@
-// Needed to use transpiled generator functions.
-// See: https://babeljs.io/docs/en/babel-polyfill for details.
-require( 'regenerator-runtime/runtime' );
-
 // Mock this that's usually set by automattic/jetpack-connection.
 window.JP_CONNECTION_INITIAL_STATE = {
 	userConnectionData: {

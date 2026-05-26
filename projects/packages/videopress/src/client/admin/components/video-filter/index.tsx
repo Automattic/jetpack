@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
+import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Types
@@ -28,7 +27,6 @@ import {
 import { useSearchParams } from '../../hooks/use-search-params';
 import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
-import Checkbox from '../checkbox';
 import styles from './style.module.scss';
 import { FilterObject } from './types';
 import type { JSX } from 'react';
@@ -54,36 +52,20 @@ export const FilterButton = ( props: {
 	);
 };
 
-const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
-	return (
-		<Tooltip position="middle center" text={ props.message }>
-			<span className={ styles[ 'title-adornment' ] }>
-				<Icon icon={ info } />
-			</span>
-		</Tooltip>
-	);
-};
-
 export const CheckboxCheckmark = ( props: {
 	label?: string;
-	for: string;
 	checked?: boolean;
 	disabled?: boolean;
-	disabledReason?: string;
 	onChange?: ( checked: boolean ) => void;
 } ): JSX.Element => {
 	return (
-		<Checkbox
-			id={ props.for }
-			htmlFor={ props.for }
-			className={ styles.checkbox }
-			onChange={ props.onChange }
+		<CheckboxControl
+			className={ styles[ 'filter-checkbox' ] }
+			label={ props.label }
 			checked={ props.checked }
 			disabled={ props.disabled }
-		>
-			<Text variant="body-small">{ props.label }</Text>
-			{ props.disabledReason && <DisabledReasonTooltip message={ props.disabledReason } /> }
-		</Checkbox>
+			onChange={ props.onChange }
+		/>
 	);
 };
 
@@ -117,7 +99,6 @@ export const FilterSection = ( props: {
 						<CheckboxCheckmark
 							key={ uploader.id }
 							label={ uploader.name }
-							for={ `uploader-${ uploader.id }` }
 							onChange={ checked =>
 								props.onChange?.( VIDEO_FILTER_UPLOADER, uploader.id, checked )
 							}
@@ -131,7 +112,6 @@ export const FilterSection = ( props: {
 						{ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 					</Text>
 					<CheckboxCheckmark
-						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
 						onChange={ checked =>
 							props.onChange?.(
@@ -146,7 +126,6 @@ export const FilterSection = ( props: {
 						) }
 					/>
 					<CheckboxCheckmark
-						for="filter-private"
 						label={ __( 'Private', 'jetpack-videopress-pkg' ) }
 						onChange={ checked =>
 							props.onChange?.(
@@ -167,13 +146,11 @@ export const FilterSection = ( props: {
 						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
 					</Text>
 					<CheckboxCheckmark
-						for="filter-g"
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( VIDEO_FILTER_RATING, VIDEO_RATING_G, checked ) }
 						checked={ filterIsChecked( VIDEO_FILTER_RATING, VIDEO_RATING_G ) }
 					/>
 					<CheckboxCheckmark
-						for="filter-pg-13"
 						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
 						onChange={ checked =>
 							props.onChange?.( VIDEO_FILTER_RATING, VIDEO_RATING_PG_13, checked )
@@ -181,7 +158,6 @@ export const FilterSection = ( props: {
 						checked={ filterIsChecked( VIDEO_FILTER_RATING, VIDEO_RATING_PG_13 ) }
 					/>
 					<CheckboxCheckmark
-						for="filter-r"
 						label={ __( 'R', 'jetpack-videopress-pkg' ) }
 						onChange={ checked =>
 							props.onChange?.( VIDEO_FILTER_RATING, VIDEO_RATING_R_17, checked )

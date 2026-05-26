@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Footer: Avoid PHP errors when nested in output buffering.

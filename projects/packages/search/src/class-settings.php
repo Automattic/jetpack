@@ -52,6 +52,8 @@ class Settings {
 			array( $setting_prefix . 'show_post_date', 'boolean', true ),
 			array( $setting_prefix . 'show_product_price', 'boolean', true ),
 			array( $setting_prefix . 'show_powered_by', 'boolean', true ),
+			array( $setting_prefix . 'ai_answers_enabled', 'boolean', false ),
+			array( $setting_prefix . 'suggestions_enabled', 'boolean', false ),
 		);
 		foreach ( $settings as $value ) {
 			register_setting(

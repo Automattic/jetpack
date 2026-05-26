@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 $gray-300: #ddd;
 $border-width: 1px;
 $header-height: 60px;
@@ -5,6 +7,12 @@ $grid-unit: 8px;
 $grid-unit-20: 2 * $grid-unit; // 16px
 
 :global {
+
+	body.jetpack_page_jetpack-videopress {
+
+		@include jetpack-admin-page-layout;
+	}
+
 	// Supporting Gutenberg version (12.5.10) from latest WordPress release (6.0.2)
 	.jetpack_page_jetpack-videopress {
 		// https://github.com/WordPress/gutenberg/pull/40781

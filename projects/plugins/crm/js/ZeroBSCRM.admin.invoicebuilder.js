@@ -237,9 +237,9 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		if ( res.invoiceObj.portal_installed ) {
 			html +=
 				'<a href="' +
-				res.invoiceObj.preview_link +
+				jpcrm.esc_attr( res.invoiceObj.preview_link ) +
 				'" target="_blank" class="ui button black" id="zbs_invoice_preview">' +
-				zbscrm_JS_invoice_lang( 'preview' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'preview' ) ) +
 				'</a>';
 		}
 
@@ -247,12 +247,15 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		if ( res.invoiceObj.pdf_installed ) {
 			html +=
 				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button black">' +
-				zbscrm_JS_invoice_lang( 'dl_pdf' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'dl_pdf' ) ) +
 				'</button>';
 			let Formhtml =
 				'<form target="_blank" method="post" id="zbs_invoicing_download_pdf_form" action="">';
 			Formhtml += '<input type="hidden" name="zbs_invoicing_download_pdf" value="1" />';
-			Formhtml += '<input type="hidden" name="zbs_invoice_id" value="' + res.invoiceObj.id + '" />';
+			Formhtml +=
+				'<input type="hidden" name="zbs_invoice_id" value="' +
+				jpcrm.esc_attr( res.invoiceObj.id ) +
+				'" />';
 			Formhtml += '</form>';
 			jQuery( '#wpbody' ).append( Formhtml );
 		}
@@ -268,7 +271,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 			) {
 				html +=
 					'<button type="button" id="zbs_invoicing_send_email" class="ui button black">' +
-					zbscrm_JS_invoice_lang( 'send_email' ) +
+					jpcrm.esc_html( zbscrm_JS_invoice_lang( 'send_email' ) ) +
 					'</button>';
 			}
 		}
@@ -327,7 +330,7 @@ function zbscrm_JS_draw_invoice_logo_html( res ) {
 	html += '<div class="wh-logo ' + hide + '">';
 	html +=
 		'<i class="fa fa-file-image-o" aria-hidden="true"></i><span class="wh-logo-text">+ ' +
-		zbscrm_JS_invoice_lang( 'add_logo' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'add_logo' ) ) +
 		'</span>';
 	html += '</div>';
 	html += '<div class="wh-logo-set ' + show + '">';
@@ -337,8 +340,10 @@ function zbscrm_JS_draw_invoice_logo_html( res ) {
 		jpcrm.esc_attr( res.invoiceObj.logo_url ) +
 		'" />';
 	html += '<div class="zbs-logo-options">';
-	html += '<span class="zbs-update">' + zbscrm_JS_invoice_lang( 'update' ) + '</span>';
-	html += '<span class="zbs-remove"> ' + zbscrm_JS_invoice_lang( 'remove' ) + '</span>';
+	html +=
+		'<span class="zbs-update">' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'update' ) ) + '</span>';
+	html +=
+		'<span class="zbs-remove"> ' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'remove' ) ) + '</span>';
 	html += '</div>';
 	html += '</div>';
 	html += '</div>';
@@ -370,19 +375,19 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 			// silent
 			html += '<tr class="hide"><th></th><td>';
 
-			html += '<input type="hidden" name="zbsinvid" value="' + zbsID + '" />';
+			html += '<input type="hidden" name="zbsinvid" value="' + jpcrm.esc_attr( zbsID ) + '" />';
 
 			html += '</td></tr>';
 		} else {
 			// show
 			html +=
 				'<tr class="wh-large zbs-invoice-number"><th><label for="no">' +
-				zbscrm_JS_invoice_lang( 'invoice_number' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'invoice_number' ) ) +
 				':</label></th>';
 			html += '<td>';
 
-			html += '<span class="zbs-inv-no">' + potentialInvID + '</span>';
-			html += '<input type="hidden" name="zbsinvid" value="' + zbsID + '" />';
+			html += '<span class="zbs-inv-no">' + jpcrm.esc_html( potentialInvID ) + '</span>';
+			html += '<input type="hidden" name="zbsinvid" value="' + jpcrm.esc_attr( zbsID ) + '" />';
 
 			html += '</td>';
 			html += '</tr>';
@@ -391,7 +396,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	// invoice status.
 	html +=
 		'<tr class="wh-large jpcrm-invoice-status"><th><label for="status">' +
-		zbscrm_JS_invoice_lang( 'invoice_status' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'invoice_status' ) ) +
 		':</label></th>';
 	html += '<td>';
 	html += generateInvoiceStatusHtml( res );
@@ -401,19 +406,22 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	//invoice date :-) date picker. Can we fix this for good in here now? formating etc?
 	html +=
 		'<tr class="wh-large"><th><label for="date">' +
-		zbscrm_JS_invoice_lang( 'invoice_date' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'invoice_date' ) ) +
 		':</label></th>';
 	html += '<td>';
 	html +=
 		'<input type="date" name="zbsi_date" placeholder="yyyy-mm-dd" value="' +
-		res.invoiceObj.date_date +
+		jpcrm.esc_attr( res.invoiceObj.date_date ) +
 		'" />';
 	html += '</td>';
 	html += '</tr>';
 
 	//reference
 	html += '<tr class="wh-large">';
-	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + '</label></th>';
+	html +=
+		'<th><label for="ref">' +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'reference' ) ) +
+		'</label></th>';
 	html += '<td>';
 	if ( 'reftype' in res.invoiceObj.settings && res.invoiceObj.settings.reftype === 'autonumber' ) {
 		if ( res.invoiceObj.status === 'draft' ) {
@@ -425,24 +433,25 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 
 			html +=
 				'<span style="color:grey" title="' +
-				zbscrm_JS_invoice_lang( 'nextref' ) +
+				jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'nextref' ) ) +
 				'">' +
-				zbscrm_JS_invoice_lang( 'autogenerated' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'autogenerated' ) ) +
 				': ' +
-				prefix +
-				next_number +
-				suffix +
+				jpcrm.esc_html( prefix ) +
+				jpcrm.esc_html( next_number ) +
+				jpcrm.esc_html( suffix ) +
 				'</span>';
 			if ( is_first_invoice && prefix === '' && suffix === '' ) {
 				html +=
 					'<br><a href="' +
-					res.invoiceObj.settings.settings_slug +
+					jpcrm.esc_attr( res.invoiceObj.settings.settings_slug ) +
 					'"> ' +
-					zbscrm_JS_invoice_lang( 'refsettings' ) +
+					jpcrm.esc_html( zbscrm_JS_invoice_lang( 'refsettings' ) ) +
 					'</a>';
 			}
 		} else {
-			html += '<span class="zbs-inv-ref">' + res.invoiceObj.id_override + '</span>';
+			html +=
+				'<span class="zbs-inv-ref">' + jpcrm.esc_html( res.invoiceObj.id_override ) + '</span>';
 		}
 	} else {
 		html +=
@@ -471,12 +480,12 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 		// due on date <datepicker>
 		html +=
 			'<tr class="wh-large"><th><label for="due_date">' +
-			zbscrm_JS_invoice_lang( 'due_date' ) +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due_date' ) ) +
 			':</label></th>';
 		html += '<td>';
 		html +=
 			'<input type="date" name="zbsi_due_date" placeholder="yyyy-mm-dd" value="' +
-			res.invoiceObj.due_date_date +
+			jpcrm.esc_attr( res.invoiceObj.due_date_date ) +
 			'" />';
 		html += '</td>';
 		html += '</tr>';
@@ -484,19 +493,45 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 		// due in x days <select>
 
 		html += '<tr class="wh-large">';
-		html += '<th><label for="due">' + zbscrm_JS_invoice_lang( 'due_date' ) + ':</label></th>';
+		html +=
+			'<th><label for="due">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due_date' ) ) +
+			':</label></th>';
 		html += '<td>';
 		html +=
 			'<select id="zbsinv_due_days" name="zbsi_due" class="form-control" style="font-size:16px;">';
-		html += '<option value = "-1">' + zbscrm_JS_invoice_lang( 'due', '', 'none' ) + '</option>';
-		html += '<option value = "0">' + zbscrm_JS_invoice_lang( 'due', '', 'on' ) + '</option>';
-		html += '<option value = "10">' + zbscrm_JS_invoice_lang( 'due', '', 'ten' ) + '</option>';
-		html += '<option value = "15">' + zbscrm_JS_invoice_lang( 'due', '', 'fifteen' ) + '</option>';
-		html += '<option value = "30">' + zbscrm_JS_invoice_lang( 'due', '', 'thirty' ) + '</option>';
 		html +=
-			'<option value = "45">' + zbscrm_JS_invoice_lang( 'due', '', 'fortyfive' ) + '</option>';
-		html += '<option value = "60">' + zbscrm_JS_invoice_lang( 'due', '', 'sixty' ) + '</option>';
-		html += '<option value = "90">' + zbscrm_JS_invoice_lang( 'due', '', 'ninety' ) + '</option>';
+			'<option value = "-1">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'none' ) ) +
+			'</option>';
+		html +=
+			'<option value = "0">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'on' ) ) +
+			'</option>';
+		html +=
+			'<option value = "10">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'ten' ) ) +
+			'</option>';
+		html +=
+			'<option value = "15">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'fifteen' ) ) +
+			'</option>';
+		html +=
+			'<option value = "30">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'thirty' ) ) +
+			'</option>';
+		html +=
+			'<option value = "45">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'fortyfive' ) ) +
+			'</option>';
+		html +=
+			'<option value = "60">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'sixty' ) ) +
+			'</option>';
+		html +=
+			'<option value = "90">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'due', '', 'ninety' ) ) +
+			'</option>';
 		html += '</select>';
 		html += '</td>';
 		html += '</tr>';
@@ -559,7 +594,7 @@ function generateInvoiceStatusHtml( res ) {
 			html += ' selected';
 			is_selected = true;
 		}
-		html += '>' + zbscrm_JS_invoice_lang( status.key ) + '</option>';
+		html += '>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( status.key ) ) + '</option>';
 	}
 
 	// if set to some odd status, append it to the dropdown and select it
@@ -633,24 +668,23 @@ function zbscrm_JS_draw_send_invoice_to( res ) {
 	html += '<div class="billing-to-title">';
 	html +=
 		'<i class="linkify icon"></i> <span class="your-info-biz">' +
-		zbscrm_JS_invoice_lang( 'send_to' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'send_to' ) ) +
 		'</span>';
 	html += '</div>';
 
 	html += '<div class="form-table">';
-	//html += '<div class="inv-to-form">' + zbscrm_JS_invoice_lang('send_to') +':</div>';
 	html += '<div class="wh-large inv-to-input">';
 	html += '<div class="zbs-type-ahead-invoice">';
 	html +=
 		'<input class="form-control typeahead" type="text" id="zbs_inv_bill" name="zbscq_bill" value="' +
-		billTo +
+		jpcrm.esc_attr( billTo ) +
 		'" placeholder="' +
-		zbscrm_JS_invoice_lang( 'bill_to' ) +
+		jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'bill_to' ) ) +
 		'" />';
 	html += '</div>';
 	html +=
 		'<div class="edit-c"><a class="zbs-edit-assign-to" href="#">' +
-		zbscrm_JS_invoice_lang( 'edit_record' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'edit_record' ) ) +
 		'</a></div>';
 	html += '</div>';
 	html += '</div>';
@@ -682,19 +716,21 @@ function zbscrm_JS_draw_customise( res ) {
 	html += '<div class="ui grid" style="margin: 0 0.5em;">';
 	html += '<div class="eight wide column" style="padding:0">';
 	html +=
-		'<span class="header" style="float:left;">' + zbscrm_JS_invoice_lang( 'customise' ) + '</span>';
+		'<span class="header" style="float:left;">' +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'customise' ) ) +
+		'</span>';
 	html +=
 		'<select class="form-control" id="invoice-customiser-type" name="invoice-customiser-type" id="invoice-customiser-type" style="width:30%;">';
 	html += '<option value="quantity"';
 	if ( res.invoiceObj.invoice_hours_or_quantity === 'quantity' ) {
 		html += ' selected="selected"';
 	}
-	html += '>' + zbscrm_JS_invoice_lang( 'quantity' ) + '</option>';
+	html += '>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'quantity' ) ) + '</option>';
 	html += '<option value="hours"';
 	if ( res.invoiceObj.invoice_hours_or_quantity === 'hours' ) {
 		html += ' selected="selected"';
 	}
-	html += '>' + zbscrm_JS_invoice_lang( 'hours' ) + '</option>';
+	html += '>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'hours' ) ) + '</option>';
 	html += '</select>';
 	html += '</div>';
 
@@ -715,25 +751,28 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
 	html += '<div class="business-info-toggle">';
 	html +=
 		'<i class="fa fa-chevron-circle-right" aria-hidden="true" style="color:black;"></i> <span class="your-info-biz">' +
-		zbscrm_JS_invoice_lang( 'biz_info' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'biz_info' ) ) +
 		'</span>';
 	html += '</div>';
 
 	html += '<div class="business-info">';
 	html += '<table class="table zbs-table">';
 	html += '<tbody>';
-	html += '<tr><td>' + res.invoiceObj.settings.bizname + '</td></tr>';
-	html += '<tr><td>' + res.invoiceObj.settings.yourname + '</td></tr>';
-	html += '<tr><td>' + res.invoiceObj.settings.businessextra + '</td></tr>';
-	html += '<tr class="top-pad"><td>' + res.invoiceObj.settings.businessyouremail + '</td></tr>';
-	html += '<tr><td>' + res.invoiceObj.settings.businessyoururl + '</td></tr>';
+	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.bizname ) + '</td></tr>';
+	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.yourname ) + '</td></tr>';
+	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.businessextra ) + '</td></tr>';
+	html +=
+		'<tr class="top-pad"><td>' +
+		jpcrm.esc_html( res.invoiceObj.settings.businessyouremail ) +
+		'</td></tr>';
+	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.businessyoururl ) + '</td></tr>';
 	html += '</tbody>';
 	html += '</table>';
 	html +=
 		'<span class="edit-or-add"><a href="' +
-		res.invoiceObj.settings.biz_settings_slug +
+		jpcrm.esc_attr( res.invoiceObj.settings.biz_settings_slug ) +
 		'" target="_blank">' +
-		zbscrm_JS_invoice_lang( 'add_edit' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'add_edit' ) ) +
 		'</a></span>';
 	html += '</div>';
 	html += '</div>';
@@ -747,7 +786,6 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
  */
 function zbscrm_JS_draw_line_items( res ) {
 	window.zbs_invoice_rownum = 1;
-	//window.zbsremoverow = zbscrm_JS_invoice_lang('remove_row');
 
 	let html = '';
 
@@ -761,18 +799,31 @@ function zbscrm_JS_draw_line_items( res ) {
 	html += '<div id="zbs-invoice-items">';
 	html += '<table class="table">';
 	html += '<thead>';
-	html += '<th>' + zbscrm_JS_invoice_lang( 'description' ) + '</th>';
+	html += '<th>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'description' ) ) + '</th>';
 	if ( res.invoiceObj.invoice_hours_or_quantity === 'quantity' ) {
-		html += '<th class="cen" id="zbs_inv_qoh">' + zbscrm_JS_invoice_lang( 'quantity' ) + '</th>';
-		html += '<th class="cen" id = "zbs_inv_por" >' + zbscrm_JS_invoice_lang( 'price' ) + '</th>';
+		html +=
+			'<th class="cen" id="zbs_inv_qoh">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'quantity' ) ) +
+			'</th>';
+		html +=
+			'<th class="cen" id = "zbs_inv_por" >' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'price' ) ) +
+			'</th>';
 	} else {
-		html += '<th class="cen" id="zbs_inv_qoh">' + zbscrm_JS_invoice_lang( 'hours' ) + '</th>';
-		html += '<th class="cen" id="zbs_inv_por">' + zbscrm_JS_invoice_lang( 'rate' ) + '</th>';
+		html +=
+			'<th class="cen" id="zbs_inv_qoh">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'hours' ) ) +
+			'</th>';
+		html +=
+			'<th class="cen" id="zbs_inv_por">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'rate' ) ) +
+			'</th>';
 	}
 	if ( res.invoiceObj.settings.invtax == 1 ) {
-		html += '<th class="cen taxhide">' + zbscrm_JS_invoice_lang( 'tax' ) + '</th>';
+		html +=
+			'<th class="cen taxhide">' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'tax' ) ) + '</th>';
 	}
-	html += '<th>' + zbscrm_JS_invoice_lang( 'amount' ) + '</th>';
+	html += '<th>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'amount' ) ) + '</th>';
 	html += '</thead>';
 
 	html += '<tbody class="zbs-invoice-line-items">';
@@ -825,7 +876,7 @@ function zbscrm_JS_draw_line_items( res ) {
 	//the add new row UI.
 	html +=
 		'<div id="zbs-add-new-row"><i class="plus circle icon"></i>' +
-		zbscrm_JS_invoice_lang( 'add_row' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'add_row' ) ) +
 		'</div>';
 
 	html += '</div>';
@@ -849,28 +900,32 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 
 	//subtotal
 	html += '<div class="total-row">';
-	html += '<div class="zlabel half">' + zbscrm_JS_invoice_lang( 'subtotal' ) + '</div>';
+	html +=
+		'<div class="zlabel half">' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'subtotal' ) ) + '</div>';
 	html += '<div class="calc-value half ri" id="subtotal-value"></div>';
 	html += '</div>';
 
 	//discount
 	if ( res.invoiceObj.settings.invdis == 1 ) {
 		html += '<div class="total-row">';
-		html += '<div class="zlabel one-four">' + zbscrm_JS_invoice_lang( 'discount' ) + '</div>';
+		html +=
+			'<div class="zlabel one-four">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'discount' ) ) +
+			'</div>';
 		html += "<div class='two-four invoice-discount-total'>";
 		html +=
 			'<input class = "form-control half" type="number" name="invoice_discount_total" id="invoice_discount_total" step="0.01" min="0" value="' +
-			res.invoiceObj.totals.invoice_discount_total +
+			jpcrm.esc_attr( res.invoiceObj.totals.invoice_discount_total ) +
 			'">';
 		if ( res.invoiceObj.totals.invoice_discount_type === 'm' ) {
 			html +=
 				'<select id="invoice_discount_type" name="invoice_discount_type" class="form-control half"><option value="%" >%</option><option value="m" selected>' +
-				zbscrm_JS_invoice_lang( 'amount' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'amount' ) ) +
 				'</option></select>';
 		} else {
 			html +=
 				'<select id="invoice_discount_type" name="invoice_discount_type" class="form-control half"><option value="%">%</option><option value="m">' +
-				zbscrm_JS_invoice_lang( 'amount' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'amount' ) ) +
 				'</option></select>';
 		}
 		html += '</div>';
@@ -881,10 +936,13 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	//shipping
 	if ( res.invoiceObj.settings.invpandp == 1 ) {
 		html += '<div class="total-row pbot30">';
-		html += '<div class="zlabel half">' + zbscrm_JS_invoice_lang( 'shipping' ) + '</div>';
+		html +=
+			'<div class="zlabel half">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'shipping' ) ) +
+			'</div>';
 		html +=
 			'<input class="zbs_gt zbsli_price-1 half ri topmm5" type="number" step="0.01" min="0" name="invoice_postage_total" id="invoice_postage_total" value="' +
-			res.invoiceObj.totals.invoice_postage_total +
+			jpcrm.esc_attr( res.invoiceObj.totals.invoice_postage_total ) +
 			'">';
 		html += '</div>';
 	}
@@ -897,7 +955,10 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	if ( res.invoiceObj.settings.invpandp == 1 && res.invoiceObj.settings.invtax == 1 ) {
 		//tax on shipping (select)
 		html += '<div class="total-row pbot30">';
-		html += '<div class="zlabel half">' + zbscrm_JS_invoice_lang( 'tax_on_shipping' ) + '</div>';
+		html +=
+			'<div class="zlabel half">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'tax_on_shipping' ) ) +
+			'</div>';
 		html +=
 			'<div class="half ri topmm10">' + zbscrm_JS_output_tax_line( res, -1, shipping ) + '</div>';
 		html += '</div>';
@@ -909,7 +970,8 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 
 	//grand total fill with JS from line items
 	html += '<div class="total-row grand-total">';
-	html += '<div class="zlabel half">' + zbscrm_JS_invoice_lang( 'total' ) + '</div>';
+	html +=
+		'<div class="zlabel half">' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'total' ) ) + '</div>';
 	html += '<div class="calc-value half ri zbs-heavy" id="zbs-inv-grand-total"></div>';
 	// #TEMPNEEDSPHPFUNC (search for this hash for other refs to remove)
 	// TEMP: WH added for MS on DAL3 work,
@@ -951,7 +1013,9 @@ function zbscrm_JS_draw_partials_table( res ) {
 		if ( i == 0 ) {
 			//first row
 			html +=
-				'<div class="partial-row-tab">' + zbscrm_JS_invoice_lang( 'partial_table' ) + '</div>';
+				'<div class="partial-row-tab">' +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'partial_table' ) ) +
+				'</div>';
 		}
 		html += '<div class="partial-row">';
 
@@ -962,7 +1026,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 			typeof v.type_accounting !== 'undefined' &&
 			v.type_accounting === 'credit'
 		) {
-			vTypeStr = ' (' + v.type + ')';
+			vTypeStr = ' (' + jpcrm.esc_html( v.type ) + ')';
 		}
 		let vSymbolStart = '',
 			vSymbolEnd = ''; // this gets set to () if is a creditnote/refund transaction
@@ -982,7 +1046,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 		}
 
 		if ( typeof v.status_bool !== 'undefined' && v.status_bool != 1 ) {
-			vFailStr += '<br />(' + vValue + ' - ' + vStatus + ')';
+			vFailStr += '<br />(' + jpcrm.esc_html( vValue ) + ' - ' + jpcrm.esc_html( vStatus ) + ')';
 			// clear value
 			vValue = '0.0';
 			partial_total_value = '0.0';
@@ -991,9 +1055,9 @@ function zbscrm_JS_draw_partials_table( res ) {
 
 		html +=
 			'<div class="zlabel half"><a href="' +
-			link +
+			jpcrm.esc_attr( link ) +
 			'" target="_blank">' +
-			v.ref +
+			jpcrm.esc_html( v.ref ) +
 			vTypeStr +
 			'</a>' +
 			vFailStr +
@@ -1010,7 +1074,9 @@ function zbscrm_JS_draw_partials_table( res ) {
 	if ( window.invoice_partial ) {
 		html += '<div id="amount-due" class="due-row">';
 		html +=
-			'<div class="amt-due-label zlabel half">' + zbscrm_JS_invoice_lang( 'amount_due' ) + '</div>';
+			'<div class="amt-due-label zlabel half">' +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'amount_due' ) ) +
+			'</div>';
 		html += '<div class="amt-due-amt half ri" id="inv-amount-due"></div>';
 		html += '</div>';
 	}
@@ -1048,15 +1114,15 @@ function zbscrm_JS_generate_invoice_row( res, i, v ) {
 	rowhtml += '<td class="first">';
 	rowhtml +=
 		'<input class="form-control zbs-item-name" type="text" name = "zbsli_itemname[]" value = "' +
-		item_title +
+		jpcrm.esc_attr( item_title ) +
 		'" placeholder="' +
-		zbscrm_JS_invoice_lang( 'rowtitleplaceholder' ) +
+		jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'rowtitleplaceholder' ) ) +
 		'" /><br/>';
 	rowhtml +=
 		'<textarea class="form-control" name = "zbsli_itemdes[]" placeholder="' +
-		zbscrm_JS_invoice_lang( 'rowdescplaceholder' ) +
+		jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'rowdescplaceholder' ) ) +
 		'">' +
-		item_description +
+		jpcrm.esc_html( item_description ) +
 		'</textarea>';
 	rowhtml += '</td>';
 
@@ -1068,7 +1134,7 @@ function zbscrm_JS_generate_invoice_row( res, i, v ) {
 		' form-control quan" data-zbsr="' +
 		i +
 		'" name = "zbsli_quan[]" value = "' +
-		v.quantity +
+		jpcrm.esc_attr( v.quantity ) +
 		'" min="0">';
 	rowhtml += '</td>';
 
@@ -1080,7 +1146,7 @@ function zbscrm_JS_generate_invoice_row( res, i, v ) {
 		' form-controm price" data-zbsr="' +
 		i +
 		'" name = "zbsli_price[]" value = "' +
-		v.price +
+		jpcrm.esc_attr( v.price ) +
 		'" step="0.01">';
 	rowhtml += '</td>';
 
@@ -1150,9 +1216,9 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 		'<option value="0" ' +
 		selected +
 		'>' +
-		zbscrm_JS_invoice_lang( 'no_tax' ) +
+		jpcrm.esc_html( zbscrm_JS_invoice_lang( 'no_tax' ) ) +
 		'</option><optgroup label="' +
-		zbscrm_JS_invoice_lang( 'taxgrouplabel' ) +
+		jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'taxgrouplabel' ) ) +
 		'">';
 	jQuery.each( res.tax_linesObj, function ( j, t ) {
 		if ( tax_id == t.id ) {
@@ -1161,7 +1227,15 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			selected = '';
 		}
 		taxhtml +=
-			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
+			'<option value="' +
+			jpcrm.esc_attr( t.id ) +
+			'" ' +
+			selected +
+			'>' +
+			jpcrm.esc_html( t.name ) +
+			' : ' +
+			jpcrm.esc_html( t.rate ) +
+			'%</option>';
 	} );
 
 	taxhtml += '</optgroup>';
@@ -1487,8 +1561,8 @@ function zbscrm_JS_calculate_tax_amounts( this_row_amount, tax_percent, this_shi
 		if ( i > 0 ) {
 			const taxRate = zbscrm_JS_pickTaxRate( i ); //tax_table_index[this_tax_id];
 			tax_html += '<div class="total-row row">';
-			tax_html += '<div class="tax-name third zlabel">' + taxRate.name + '</div>';
-			tax_html += '<div class="tax-rate third ri">(' + taxRate.rate + '%)</div>';
+			tax_html += '<div class="tax-name third zlabel">' + jpcrm.esc_html( taxRate.name ) + '</div>';
+			tax_html += '<div class="tax-rate third ri">(' + jpcrm.esc_html( taxRate.rate ) + '%)</div>';
 			tax_html +=
 				'<div class="tax-amt zbs-total-tax third ri">' +
 				tax_table_output[ i ].toFixed( zbs_root.currencyOptions.noOfDecimals ) +
@@ -1814,14 +1888,14 @@ function zbscrm_JS_invoice_typeahead_bind() {
 							: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
 						const email = r.email
 							? jpcrm.esc_html( r.email )
-							: '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
+							: '<i>' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'noemail' ) ) + '</i>';
 						const sug =
 							'<div class="sug-wrap"><div class="ico">' +
 							ico +
 							'</div><div class="inner"><div class="name">' +
 							jpcrm.esc_html( name ) +
 							'</div><div class="email">' +
-							email +
+							jpcrm.esc_html( email ) +
 							'</div></div><div class="clear"</div></div>';
 						return sug;
 					},
@@ -1829,17 +1903,17 @@ function zbscrm_JS_invoice_typeahead_bind() {
 						//to do - link this to the add new customer (if B2B mode should also show link to add new Company too? hmmm WH thoughts? (needs translating too)
 						let str =
 							'<a href="' +
-							window.zbs_invoice.invoiceObj.settings.addnewcontacturl +
+							jpcrm.esc_attr( window.zbs_invoice.invoiceObj.settings.addnewcontacturl ) +
 							'" target="_blank">' +
-							zbscrm_JS_invoice_lang( 'addnewcontact' ) +
+							jpcrm.esc_html( zbscrm_JS_invoice_lang( 'addnewcontact' ) ) +
 							'</a>';
 						if ( window.zbs_invoice.invoiceObj.settings.b2bmode ) {
-							str += ' ' + zbscrm_JS_invoice_lang( 'or' ) + ' ';
+							str += ' ' + jpcrm.esc_html( zbscrm_JS_invoice_lang( 'or' ) ) + ' ';
 							str +=
 								'<a href="' +
-								window.zbs_invoice.invoiceObj.settings.addnewcompanyurl +
+								jpcrm.esc_attr( window.zbs_invoice.invoiceObj.settings.addnewcompanyurl ) +
 								'" target="_blank">' +
-								zbscrm_JS_invoice_lang( 'newcompany' ) +
+								jpcrm.esc_html( zbscrm_JS_invoice_lang( 'newcompany' ) ) +
 								'</a>';
 						}
 						return (
@@ -1923,10 +1997,9 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 		if ( contactID > 0 ) {
 			const navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact jpcrm-button" href="' +
-				window.zbs_invoice.invoiceObj.settings.contacturlprefix +
-				contactID +
+				jpcrm.esc_attr( window.zbs_invoice.invoiceObj.settings.contacturlprefix + contactID ) +
 				'">' +
-				window.zbsMetaboxFilesLang.viewcontact +
+				jpcrm.esc_html( window.zbsMetaboxFilesLang.viewcontact ) +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
@@ -1947,10 +2020,9 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 		if ( companyID > 0 ) {
 			const navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company jpcrm-button" href="' +
-				window.zbs_invoice.invoiceObj.settings.companyurlprefix +
-				companyID +
+				jpcrm.esc_attr( window.zbs_invoice.invoiceObj.settings.companyurlprefix + companyID ) +
 				'">' +
-				window.zbsMetaboxFilesLang.viewcompany +
+				jpcrm.esc_html( window.zbsMetaboxFilesLang.viewcompany ) +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
@@ -2120,13 +2192,13 @@ function zbscrmJS_sendInvoiceModal() {
 		optsHTML += '<div class="zbs-invoice-email-modal-field">';
 		optsHTML +=
 			'<label for="zbs_invoice_email_modal_toemail">' +
-			zbscrm_JS_invoice_lang( 'toemail' ) +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'toemail' ) ) +
 			'</label>';
 		optsHTML +=
 			'<input type="email" id="zbs_invoice_email_modal_toemail" value="' +
 			invEmail +
 			'" placeholder="' +
-			zbscrm_JS_invoice_lang( 'toemailplaceholder' ) +
+			jpcrm.esc_attr( zbscrm_JS_invoice_lang( 'toemailplaceholder' ) ) +
 			'" />';
 		optsHTML += '</div>';
 
@@ -2143,7 +2215,7 @@ function zbscrmJS_sendInvoiceModal() {
 				'/>';
 			optsHTML +=
 				'<label for="zbs_invoice_email_modal_attachassoc">' +
-				zbscrm_JS_invoice_lang( 'attachassoc' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'attachassoc' ) ) +
 				'</label>';
 			optsHTML += '</div>';
 		}
@@ -2157,7 +2229,7 @@ function zbscrmJS_sendInvoiceModal() {
 			'/>';
 		optsHTML +=
 			'<label for="zbs_invoice_email_modal_attachaspdf">' +
-			zbscrm_JS_invoice_lang( 'attachpdf' ) +
+			jpcrm.esc_html( zbscrm_JS_invoice_lang( 'attachpdf' ) ) +
 			'</label>';
 		optsHTML += '</div>';
 
@@ -2165,10 +2237,10 @@ function zbscrmJS_sendInvoiceModal() {
 
 		// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 		swal( {
-			title: zbscrm_JS_invoice_lang( 'send_email' ),
+			titleText: zbscrm_JS_invoice_lang( 'send_email' ),
 			html:
 				'<div class="ui segment">' +
-				zbscrm_JS_invoice_lang( 'sendthisemail' ) +
+				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendthisemail' ) ) +
 				optsHTML +
 				'</div>',
 			type: 'question',
@@ -2176,7 +2248,7 @@ function zbscrmJS_sendInvoiceModal() {
 			confirmButtonColor: '#000',
 			cancelButtonColor: '#fff',
 			cancelButtonText: '<span style="color: #000">Cancel</span>',
-			confirmButtonText: zbscrm_JS_invoice_lang( 'sendthemail' ),
+			confirmButtonText: jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendthemail' ) ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {
 			// this check required from swal2 6.0+
@@ -2212,7 +2284,7 @@ function zbscrmJS_sendInvoiceModal() {
 
 					// send email
 					swal.fire( {
-						title: zbscrm_JS_invoice_lang( 'sendingemail' ),
+						titleText: zbscrm_JS_invoice_lang( 'sendingemail' ),
 						html: '<div style="clear:both">&nbsp;</div><div class="ui active loader" style="margin-top:2em;padding-bottom:2em"></div><div style="clear:both">&nbsp;</div>',
 						showConfirmButton: false,
 						showCancelButton: false,
@@ -2221,13 +2293,13 @@ function zbscrmJS_sendInvoiceModal() {
 					zbscrmJS_sendInvoiceEmail( params );
 				} else {
 					// not legit email!
-					swal.fire( zbscrm_JS_invoice_lang( 'sendneedsassignment' ) );
+					swal.fire( jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendneedsassignment' ) ) );
 				}
 			}
 		} );
 	} else {
 		// not legit email!
-		swal.fire( zbscrm_JS_invoice_lang( 'sendneedsassignment' ) );
+		swal.fire( jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendneedsassignment' ) ) );
 	}
 }
 
@@ -2255,7 +2327,11 @@ function zbscrmJS_sendInvoiceEmail( params ) {
 				dataType: 'json',
 				success: function () {
 					// done
-					swal( zbscrm_JS_invoice_lang( 'senttitle' ), zbscrm_JS_invoice_lang( 'sent' ), 'info' );
+					swal( {
+						titleText: zbscrm_JS_invoice_lang( 'senttitle' ),
+						text: zbscrm_JS_invoice_lang( 'sent' ),
+						type: 'info',
+					} );
 
 					// blocker
 					window.zbsInvBlocker = false;
@@ -2265,11 +2341,11 @@ function zbscrmJS_sendInvoiceEmail( params ) {
 					console.error( 'senderr', response );
 
 					// err
-					swal(
-						zbscrm_JS_invoice_lang( 'senderrortitle' ) + ' #19v3',
-						zbscrm_JS_invoice_lang( 'senderror' ),
-						'error'
-					);
+					swal( {
+						titleText: zbscrm_JS_invoice_lang( 'senderrortitle' ) + ' #19v3',
+						text: zbscrm_JS_invoice_lang( 'senderror' ),
+						type: 'error',
+					} );
 
 					// blocker
 					window.zbsInvBlocker = false;

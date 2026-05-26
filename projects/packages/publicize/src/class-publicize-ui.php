@@ -204,8 +204,8 @@ class Publicize_UI {
 		$default_suffix = $this->publicize->default_suffix;
 		$default_suffix = preg_replace( '/%([0-9])\$s/', '" + %\\1$s + "', wp_json_encode( (string) $default_suffix, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) );
 
-		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
-		$max_length = $max_length - 24; // t.co link, space.
+		$max_length  = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
+		$max_length -= 24; // t.co link, space.
 
 		?>
 
@@ -329,6 +329,16 @@ jQuery( function($) {
 			fakebox = '<input id="wpas-submit-' + service + '" type="hidden" value="1" name="wpas[submit][' + service + ']" />';
 		$( '#add-publicize-check' ).append( fakebox );
 	} );
+
+	// X Developer Policy forbids posting the same content to more than one
+	// X account. Only one X checkbox may be checked at a time; turning one
+	// on unchecks the others.
+	$( document ).on( 'change', '.wpas-submit-x', function() {
+		if ( ! this.checked ) {
+			return;
+		}
+		$( '.wpas-submit-x' ).not( this ).prop( 'checked', false );
+	} );
 } );
 </script>
 
@@ -400,6 +410,9 @@ jQuery( function($) {
 .publicize__notice-warning .dashicons {
 	font-size: 16px;
 	text-decoration: none;
+}
+.publicize-placeholders-help {
+	margin: 0.5rem 0 1rem;
 }
 </style>
 		<?php
@@ -570,14 +583,36 @@ jQuery( function($) {
 
 		$is_post_published = 'publish' === get_post_status( $post->ID );
 
+		$templates_enabled = Current_Plan::supports( 'social-message-templates' );
+
+		$placeholders = $this->get_message_placeholders();
+
 		?>
 
 			</ul>
 
 			<?php if ( ! $is_social_note ) : ?>
 				<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
-				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+				<?php if ( ! $templates_enabled ) : ?>
+					<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+				<?php endif; ?>
 				<textarea name="wpas_title" id="wpas-title"><?php echo esc_textarea( $title ); ?></textarea>
+				<?php if ( $templates_enabled && ! empty( $placeholders ) ) : ?>
+					<details class="publicize-placeholders-help">
+						<summary><?php esc_html_e( 'Available placeholders', 'jetpack-publicize-pkg' ); ?></summary>
+						<p>
+							<?php esc_html_e( 'Use placeholders to automatically insert post details.', 'jetpack-publicize-pkg' ); ?>
+						</p>
+						<ul>
+							<?php foreach ( $placeholders as $placeholder ) : ?>
+								<li>
+									<code><?php echo esc_html( $placeholder['id'] ); ?></code>
+									&mdash; <?php echo esc_html( $placeholder['label'] ); ?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</details>
+				<?php endif; ?>
 				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 				<input type="hidden" name="wpas[0]" value="1" />
 			<?php endif; ?>
@@ -594,5 +629,17 @@ jQuery( function($) {
 		<?php
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get the catalogue of placeholders supported in custom Publicize messages.
+	 *
+	 * Sourced from WPCOM via `Message_Templates_Placeholders` so the metabox
+	 * hint can never drift from the resolver in `Template_Parser`.
+	 *
+	 * @return array<int, array{id: string, label: string}> Ordered list of placeholders.
+	 */
+	private function get_message_placeholders() {
+		return Message_Templates_Placeholders::get_all();
 	}
 }

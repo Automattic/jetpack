@@ -1,3 +1,19 @@
+## [3.3.16] - 2026-05-25
+### Added
+- Expose `social-logo-colors.css` via a `colors.css` sub-path export, and define the missing `--color-bluesky` brand variable. [#48829]
+
+## [3.3.15] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.3.14] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.3.13] - 2026-04-27
+### Changed
+- Internal updates.
+
 ## [3.3.12] - 2026-03-30
 ### Changed
 - Update package dependencies. [#47818]
@@ -324,6 +340,10 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.16]: https://github.com/Automattic/social-logos/compare/v3.3.15...v3.3.16
+[3.3.15]: https://github.com/Automattic/social-logos/compare/v3.3.14...v3.3.15
+[3.3.14]: https://github.com/Automattic/social-logos/compare/v3.3.13...v3.3.14
+[3.3.13]: https://github.com/Automattic/social-logos/compare/v3.3.12...v3.3.13
 [3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12
 [3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
 [3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10

@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Multiplex all PingHub rooms over a single WebSocket connection per editing session, reducing connection count from N to 1.

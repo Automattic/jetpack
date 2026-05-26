@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
 	isFieldsCollection,
@@ -56,7 +57,7 @@ const ResponseFieldsIterator = ( {
 		}
 
 		if ( isLikelyPhoneNumber( value ) ) {
-			return <a href={ `tel:${ value }` }>{ String( value ) }</a>;
+			return <Link href={ `tel:${ value }` }>{ String( value ) }</Link>;
 		}
 
 		return value as import('react').ReactNode;

@@ -70,14 +70,27 @@ class Utils {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $url The URL to check.
+	 * @param mixed $url The URL to check. Non-strings return false.
 	 * @return bool True if the URL is a VideoPress URL, false otherwise.
 	 */
 	public static function is_videopress_url( $url ) {
+		return null !== self::extract_videopress_guid_from_url( $url );
+	}
+
+	/**
+	 * Extract the VideoPress guid from a recognised VideoPress URL.
+	 *
+	 * @param mixed $url The URL to inspect. Non-strings return null.
+	 * @return string|null The 8-character guid, or null if the URL is not a recognised VideoPress URL.
+	 */
+	public static function extract_videopress_guid_from_url( $url ) {
 		if ( ! is_string( $url ) ) {
-			return false;
+			return null;
 		}
-		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-		return (bool) preg_match( $pattern, $url );
+		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com|videos\.(?:videopress\.com|files\.wordpress\.com))\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		if ( preg_match( $pattern, $url, $matches ) ) {
+			return $matches[1];
+		}
+		return null;
 	}
 }

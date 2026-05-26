@@ -1,6 +1,8 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
-import { EMPTY_ARRAY } from '../constants';
+import { getCurrentPeriod } from '../../components/x-usage/utils';
+import { hasSocialPaidFeatures } from '../../utils/script-data';
+import { EMPTY_ARRAY, FREE_PLAN_LIMIT, PAID_PLAN_LIMIT } from '../constants';
 
 export type XUsageItem = {
 	period: string;
@@ -43,3 +45,90 @@ export const isFetchingXUsage = createRegistrySelector( select => (): boolean =>
 
 	return isResolving( 'getEntityRecords', [ 'wpcom/v2', 'publicize/x-usage' ] );
 } );
+
+/**
+ * Returns the quota limit for the current plan.
+ *
+ * @return The quota limit.
+ */
+function getQuotaLimit() {
+	return hasSocialPaidFeatures() ? PAID_PLAN_LIMIT : FREE_PLAN_LIMIT;
+}
+
+/**
+ * Returns the default period based on plan type.
+ *
+ * @return The default period identifier.
+ */
+function getDefaultPeriod() {
+	return hasSocialPaidFeatures() ? getCurrentPeriod() : 'free';
+}
+
+/**
+ * Returns whether the X sharing quota has been exceeded.
+ *
+ * @param state  - State object.
+ * @param period - The period identifier. Defaults based on plan type.
+ *
+ * @return Whether the quota is exceeded. Defaults to false when data is missing.
+ */
+export function isXQuotaExceeded( state: object, period?: string ): boolean {
+	const resolvedPeriod = period ?? getDefaultPeriod();
+	const usageItem = getXUsageFor( state, resolvedPeriod );
+
+	if ( ! usageItem ) {
+		return false;
+	}
+
+	return usageItem.total >= getQuotaLimit();
+}
+
+/**
+ * Returns whether the user can share to X.
+ *
+ * @param state - State object.
+ *
+ * @return Whether sharing to X is allowed. Defaults to true when data is missing.
+ */
+export function canShareToX( state: object ): boolean {
+	return ! isXQuotaExceeded( state );
+}
+
+/**
+ * Returns whether the user can schedule an X share for the given period.
+ *
+ * - Free plan: quota is lifetime, so the period argument is ignored.
+ * - Paid plan with no period yet: always true (a future month can be picked).
+ * - Paid plan with a specific period: checks that period's quota.
+ *
+ * @param state  - State object.
+ * @param period - Optional period identifier (e.g. 'yyyy-mm').
+ *
+ * @return Whether scheduling an X share is allowed.
+ */
+export function canScheduleXShareFor( state: object, period?: string | null ): boolean {
+	if ( ! hasSocialPaidFeatures() ) {
+		return ! isXQuotaExceeded( state );
+	}
+
+	if ( ! period ) {
+		return true;
+	}
+
+	return ! isXQuotaExceeded( state, period );
+}
+
+/**
+ * Returns the number of remaining X shares for the current period.
+ *
+ * @param state  - State object.
+ * @param period - The period identifier. Defaults based on plan type.
+ *
+ * @return The number of remaining shares, never negative.
+ */
+export function getXQuotaRemaining( state: object, period?: string ): number {
+	const resolvedPeriod = period ?? getDefaultPeriod();
+	const usageItem = getXUsageFor( state, resolvedPeriod );
+
+	return Math.max( 0, getQuotaLimit() - ( usageItem?.total ?? 0 ) );
+}

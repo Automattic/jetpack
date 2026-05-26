@@ -5,15 +5,15 @@ import {
 	AdminPage,
 	Col,
 	Container,
-	JetpackLogo,
 	AiIcon,
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
-import { Button, Card, ExternalLink } from '@wordpress/components';
+import { Button, Card } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useCallback, useState, useEffect } from 'react';
@@ -37,7 +37,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
  * @return {object} React component for the product page
  */
 export default function () {
-	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
+	const { onClickGoBack } = useGoBack( { slug: 'jetpack-ai', fallback: '/products' } );
 	const { detail, isLoading } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
@@ -200,24 +200,17 @@ export default function () {
 	}, [ showRenewalNotice, showUpgradeNotice ] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showBackground={ true }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
-					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
-						<GoBackLink onClick={ onClickGoBack } />
-					</div>
-					<div
-						className={ clsx(
-							styles[ 'product-interstitial__section-wrapper-wide' ],
-							styles[ 'product-interstitial__product-header' ]
-						) }
-					>
-						<JetpackLogo />
-						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-							{ __( 'AI Assistant', 'jetpack-my-jetpack' ) }
-						</div>
-					</div>
-				</Col>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
 						<div className={ styles[ 'product-interstitial__hero-content' ] }>
@@ -520,9 +513,9 @@ export default function () {
 								'Help us improving the accuracy of our results and feel free to give us ideas for future implementations and improvements.',
 								'jetpack-my-jetpack'
 							) }{ ' ' }
-							<ExternalLink href={ feedbackURL }>
+							<Link openInNewTab href={ feedbackURL }>
 								{ __( 'Share your feedback!', 'jetpack-my-jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</p>
 					</div>
 				</Col>

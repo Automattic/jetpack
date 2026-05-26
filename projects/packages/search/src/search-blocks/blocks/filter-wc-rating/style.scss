@@ -1,0 +1,88 @@
+@use "../skeleton" as skeleton;
+
+.jetpack-search-filter-wc-rating {
+
+	&[hidden] {
+		display: none;
+	}
+
+	@include skeleton.shimmer;
+	@include skeleton.filter-rows;
+
+	.jetpack-search-filter__title {
+		font-size: 0.85rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin: 0 0 0.5rem;
+		color: inherit;
+	}
+
+	.jetpack-search-filter__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.jetpack-search-filter__item {
+		padding: 0.25rem 0;
+
+		label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			cursor: pointer;
+		}
+	}
+
+	.jetpack-search-filter__label {
+		flex: 1;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.jetpack-search-filter-rating__stars {
+		display: inline-flex;
+		gap: 0.05em;
+		line-height: 1;
+	}
+
+	.jetpack-search-filter-rating__threshold-suffix {
+		font-size: 0.85rem;
+		opacity: 0.75;
+	}
+
+	.jetpack-search-filter__count {
+		font-size: 0.8rem;
+		color: inherit;
+		background: color-mix(in sRGB, currentColor 12%, transparent);
+		border-radius: 10px;
+		padding: 0 0.4rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	// Stars are inline-rendered text glyphs (★) styled with color so the
+	// markup stays SVG-free and survives WP's content-export pipeline.
+	// Matches WC's color cues — gold for filled, muted gray for empty —
+	// without pulling in WC's icon asset.
+	.jetpack-search-filter-rating__star {
+		display: inline-block;
+		font-size: 1.05em;
+		line-height: 1;
+
+		&.is-filled {
+			color: #f0b800;
+		}
+
+		&.is-empty {
+			color: #c8c8c8;
+		}
+	}
+}

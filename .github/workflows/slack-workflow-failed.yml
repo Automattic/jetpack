@@ -6,6 +6,7 @@ on:
     workflows:
       - Build
       - Build Docker
+      - Build Monorepo Docker
       - Gardening
       - k6 Tests for Jetpack Staging Test Sites
       - Linting

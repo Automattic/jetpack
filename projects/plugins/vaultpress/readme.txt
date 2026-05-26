@@ -2,8 +2,8 @@
 Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, initsogar, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
-Tested up to: 6.9
-Stable tag: 4.0.6
+Tested up to: 7.0
+Stable tag: 4.0.7
 Requires PHP: 7.2
 License: GPLv2
 
@@ -32,9 +32,13 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 4.0.6 - 2025-11-21
+### 4.0.7 - 2026-04-10
+#### Changed
+- Update package dependencies.
+
 #### Fixed
-- Phan: Address PhanPossiblyUndeclaredVariable violations.
+- Ensure proper flags are used with `json_encode()`.
+- Avoid fatal error when receiving an error from the VaultPress service.
 
 --------
 

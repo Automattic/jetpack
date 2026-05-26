@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 
 import './placeholder.scss';
 
@@ -28,11 +29,10 @@ export const SharingPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 					? __( 'Activating Sharing', 'jetpack' )
 					: __( 'Activate Sharing', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 			</Button>
-
 			<div className="components-sharing-placeholder__learn-more">
-				<ExternalLink href={ getRedirectUrl( 'jetpack-support-sharing' ) }>
+				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-sharing' ) }>
 					{ __( 'Learn more about Jetpack Sharing.', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</div>
 		</>
 	);

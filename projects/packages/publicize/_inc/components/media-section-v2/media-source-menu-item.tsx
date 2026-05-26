@@ -2,8 +2,9 @@
  * MediaSourceMenuItem component
  */
 
-import { MenuItem } from '@wordpress/components';
+import { Icon, MenuItem } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
+import { check } from '@wordpress/icons';
 import { MediaSourceOption, MediaSourceType } from './types';
 
 /**
@@ -62,21 +63,28 @@ export default function MediaSourceMenuItem( {
 	disabled = false,
 }: MediaSourceMenuItemProps ) {
 	const handleClick = useCallback( () => {
+		/*
+		 * Media library / AI image always re-open their picker even when active —
+		 * re-clicking the active item means "let me swap to a different image".
+		 * For terminal sources (sig / featured-image / Default), re-clicking is a no-op.
+		 */
 		if ( option.id === 'media-library' ) {
 			onMediaLibraryClick?.();
 		} else if ( option.id === 'ai-image' ) {
 			onAiImageClick?.();
-		} else {
+		} else if ( ! isSelected ) {
 			onSelect( option.id );
 		}
 		onClose();
-	}, [ option.id, onSelect, onClose, onMediaLibraryClick, onAiImageClick ] );
+	}, [ isSelected, option.id, onSelect, onClose, onMediaLibraryClick, onAiImageClick ] );
 
 	return (
 		<MenuItem
-			key={ option.id }
+			role="menuitemradio"
 			icon={ option.icon }
+			iconPosition="left"
 			isSelected={ isSelected }
+			suffix={ isSelected ? <Icon icon={ check } /> : undefined }
 			onClick={ handleClick }
 			disabled={ disabled }
 		>

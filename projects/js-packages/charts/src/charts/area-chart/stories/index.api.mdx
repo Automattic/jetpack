@@ -1,0 +1,64 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Area Chart/API Reference" />
+
+# Area Chart API Reference
+
+## AreaChart
+
+Stacked-by-default area chart component with responsive behaviour.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
+| `width` | `number?` | responsive | Chart width in pixels |
+| `height` | `number?` | responsive | Chart height in pixels |
+| `stacked` | `boolean` | `true` | Whether series should stack on top of each other |
+| `stackOffset` | `'none' \| 'expand' \| 'wiggle' \| 'silhouette'` | `'none'` | Stack offset strategy. `'expand'` produces a 100% stack, `'wiggle'` a streamgraph, `'silhouette'` a centred stack |
+| `smoothing` | `boolean` | `true` | Use Catmull-Rom curve smoothing. Ignored when `curveType` is set |
+| `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | - | Curve interpolation type. Takes precedence over `smoothing` |
+| `fillOpacity` | `number?` | `0.85` (stacked), `0.4` (overlapping) | Fill opacity for the areas (0–1) |
+| `withStroke` | `boolean?` | `false` (stacked), `true` (overlapping) | Render a stroke on top of each area |
+| `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
+| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
+| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
+| `animation` | `boolean` | `false` | Enable entry animation. Respects `prefers-reduced-motion` |
+| `showLegend` | `boolean` | `false` | Display chart legend |
+| `legend` | `ChartLegendConfig` | - | Legend configuration object |
+| `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'?` | grid shown | Control grid visibility |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
+| `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
+| `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
+| `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |
+| `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
+| `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
+| `children` | `ReactNode?` | - | Child components (e.g., `<AreaChart.Legend />`) |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
+
+## AreaChart.Legend
+
+Composition-API legend slot. See the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs) for the full prop surface.
+
+## Notes on stacking
+
+- When `stacked` is `true`, the y-scale is forced to include zero so the stacked baseline is meaningful.
+- Stacking expects each series to have the same x-domain. If x-positions diverge across series, the visx stack layout treats missing values as zero, and the hover-glyph overlay applies the same convention.
+
+## Hover glyphs
+
+When `withTooltips` is `true`, a circular glyph is rendered at each visible series for the hovered x-position, color-matched to the series. Glyph positions are computed directly from the chart's scales:
+
+- **Unstacked**: rendered at the series' raw y-value.
+- **Stacked + `stackOffset='none'`** (default): rendered at the cumulative top edge of each band.
+- **Stacked + `stackOffset` of `'expand'`, `'wiggle'`, or `'silhouette'`**: glyphs are not rendered. Recovering exact positions for these offsets would require re-running the d3-stack layout.
+
+## Stack offset reference
+
+| Offset | Behaviour |
+| ------ | --------- |
+| `none` | Values stack at their natural magnitude. The y-axis represents the cumulative total. |
+| `expand` | Values are normalised so each x-position sums to 1.0. Produces a 100% stacked area chart. |
+| `wiggle` | Streamgraph: minimises the weighted change in slope, producing a flowing layout around a central baseline. |
+| `silhouette` | Stack centred around zero — symmetric layout without the wiggle minimisation. |

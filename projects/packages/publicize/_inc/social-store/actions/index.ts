@@ -1,4 +1,5 @@
 import * as connectionData from './connection-data';
+import * as renderedMessagesActions from './rendered-messages';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
 import * as sharePost from './share-post';
@@ -24,6 +25,7 @@ const actions = {
 	...scheduledSharesActions,
 	...unifiedModal,
 	...xUsageActions,
+	...renderedMessagesActions,
 };
 
 export default actions;

@@ -30,7 +30,6 @@ import useFormsData from '../hooks/use-forms-data.ts';
 import { getFormEditUrl } from '../utils.ts';
 import FormsHelpModal from '../wp-build/components/forms-help-modal/index.tsx';
 import { defaultLayouts, useView } from './views.ts';
-import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
 import type { Action, Operator } from '@wordpress/dataviews/wp';
 

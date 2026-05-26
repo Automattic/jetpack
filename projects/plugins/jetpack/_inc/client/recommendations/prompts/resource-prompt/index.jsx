@@ -1,7 +1,7 @@
 import { ProgressBar } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Fragment, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -132,9 +132,7 @@ const ResourcePromptComponent = props => {
 					? createInterpolateElement( description, {
 							br: <br />,
 							strong: <strong />,
-							ExternalLink: (
-								<ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />
-							),
+							Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
 					  } )
 					: null
 			}
@@ -159,14 +157,15 @@ const ResourcePromptComponent = props => {
 					{ ! hasNoAction ? (
 						<>
 							{ ctaLinkIsExternal ? (
-								<ExternalLink
+								<Link
+									openInNewTab
 									type="button"
 									className="dops-button is-rna is-primary"
 									href={ ctaLink }
 									onClick={ onResourceLinkClick }
 								>
 									{ ctaText }
-								</ExternalLink>
+								</Link>
 							) : (
 								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
 									{ ctaText }

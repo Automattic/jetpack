@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.1 - 2026-05-14
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48106]
+
+### Fixed
+- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded. [#48690]
+- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
+## 3.0 - 2026-04-16
+### Changed
+- Tested up to WordPress 7.0. [#48114]
+- Update package dependencies. [#48064]
+
+## 2.9 - 2026-04-10
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47371] [#47496] [#47505] [#47684] [#47825] [#47890] [#47998]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+
 ## 2.8 - 2026-02-04
 ### Added
 - Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]

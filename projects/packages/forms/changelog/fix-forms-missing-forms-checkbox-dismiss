@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Fix 'Don't show this again' checkbox in the help modal so it only dismisses permanently when clicking 'Got it', not when closing via the X button or Escape key.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Disable RTC for super admins who are not members of the blog to prevent exposing their presence during support sessions.

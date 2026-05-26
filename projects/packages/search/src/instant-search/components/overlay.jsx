@@ -98,9 +98,9 @@ const Overlay = props => {
 			].join( ' ' ) }
 			role="dialog"
 		>
-			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
+			<h2 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
 				{ __( 'Search results', 'jetpack-search-pkg' ) }
-			</h1>
+			</h2>
 			{ children }
 		</div>
 	);

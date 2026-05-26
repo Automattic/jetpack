@@ -78,15 +78,23 @@ await jest.unstable_mockModule( '@wordpress/components', () => {
 		);
 	}
 
+	return {
+		ToggleControl: ToggleControlComponent,
+		FormTokenField: FormTokenFieldComponent,
+	};
+} );
+
+// Mock @wordpress/ui Link
+await jest.unstable_mockModule( '@wordpress/ui', () => {
 	/**
-	 * Mock ExternalLink component.
+	 * Mock Link component.
 	 *
 	 * @param {object} root0          - Component props
 	 * @param {string} root0.href     - Link URL
 	 * @param {*}      root0.children - Child elements
 	 * @return {object} React element
 	 */
-	function ExternalLinkComponent( { href, children } ) {
+	function LinkComponent( { href, children } ) {
 		return (
 			<a href={ href } target="_blank" rel="noopener noreferrer">
 				{ children }
@@ -94,11 +102,7 @@ await jest.unstable_mockModule( '@wordpress/components', () => {
 		);
 	}
 
-	return {
-		ToggleControl: ToggleControlComponent,
-		FormTokenField: FormTokenFieldComponent,
-		ExternalLink: ExternalLinkComponent,
-	};
+	return { Link: LinkComponent };
 } );
 
 // Mock WordPress i18n

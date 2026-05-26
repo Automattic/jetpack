@@ -89,7 +89,7 @@ class CRM_Modules {
 		if ( wp_doing_ajax()
 			|| is_network_admin()
 			|| ! wp_verify_nonce( $_GET['_wpnonce'], 'jpcrmmoduleactivateredirectnonce' )
-			|| ! current_user_can( 'admin_zerobs_manage_options' )
+			|| ! jpcrm_perms_manage_options()
 			|| ! isset( $_GET['jpcrm-module-name'] )
 			|| ! array_key_exists( $_GET['jpcrm-module-name'], $zeroBSCRM_extensionsCompleteList )
 		) {

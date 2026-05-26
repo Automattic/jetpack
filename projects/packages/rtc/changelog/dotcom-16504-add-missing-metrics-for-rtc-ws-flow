@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Add RTC-specific pixel beacons (`pinghub.rtc.*`) alongside existing shared beacons for dedicated RTC dashboarding, and add new beacons for JWT fetch latency/errors and send drops.

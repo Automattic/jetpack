@@ -152,11 +152,11 @@ function zeroBSCRMJS_editContactInit() {
 	}
 
 	jQuery( '.send-sms-none' ).on( 'click', function () {
-		swal(
-			'Twilio Extension Needed!',
-			'To SMS your contacts you need the <a target="_blank" style="font-weight:900;text-decoration:underline;" href="https://jetpackcrm.com/extension-bundles/">Twilio extension</a> (included in our Entrepreneurs Bundle)',
-			'info'
-		);
+		swal( {
+			titleText: 'Twilio Extension Needed!',
+			html: 'To SMS your contacts you need the <a target="_blank" style="font-weight:900;text-decoration:underline;" href="https://jetpackcrm.com/extension-bundles/">Twilio extension</a> (included in our Entrepreneurs Bundle)',
+			type: 'info',
+		} );
 	} );
 }
 
@@ -210,7 +210,7 @@ function zeroBSCRMJS_initLinkify( ele ) {
 	if ( v.length > 5 ) {
 		const possMatch = zeroBSCRMJS_retrieveURLS( v );
 
-		if ( typeof possMatch === 'object' && typeof possMatch[ 0 ] !== 'undefined' ) {
+		if ( possMatch !== null && typeof possMatch[ 0 ] !== 'undefined' ) {
 			// remove any prev
 			jQuery( '.zbs-linkify', jQuery( ele ).parent() ).remove();
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Custom Colors: Ensure Customizer's custom colors are enqueued in the block editor when set.

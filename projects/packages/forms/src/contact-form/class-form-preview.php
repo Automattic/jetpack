@@ -35,7 +35,7 @@ class Form_Preview {
 	 *
 	 * @var string
 	 */
-	const PREVIEW_NONCE_QUERY_VAR = 'preview_nonce';
+	const PREVIEW_NONCE_QUERY_VAR = 'jetpack_form_preview_nonce';
 
 	/**
 	 * Flag to track if we're in preview mode.
@@ -295,6 +295,12 @@ class Form_Preview {
 	/**
 	 * Render the form preview content.
 	 *
+	 * The rendered markup flows through the normal block pipeline, which
+	 * embeds a signed JWT carrying the form's serialized source. Because
+	 * Feedback_Source::get_current() reads Form_Preview::is_preview_mode()
+	 * at render time, the JWT issued here travels to submission with
+	 * `is_test: true` baked into its source — no hidden nonce fields needed.
+	 *
 	 * @param WP_Post|null $form The form post.
 	 * @return string The rendered content.
 	 */
@@ -307,12 +313,11 @@ class Form_Preview {
 
 		// Add preview banner.
 		$output .= '<div class="jetpack-form-preview-banner">';
-		$output .= esc_html__( 'This is a preview. Form submissions are disabled.', 'jetpack-forms' );
+		$output .= esc_html__( 'This is a preview. Submissions are saved as test responses.', 'jetpack-forms' );
 		$output .= '</div>';
 
 		// Parse and render the form blocks.
 		$blocks = parse_blocks( $form->post_content );
-
 		foreach ( $blocks as $block ) {
 			$output .= render_block( $block );
 		}
