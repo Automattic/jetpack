@@ -2814,8 +2814,10 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_same_origin_script_module_src_defensive_guards(): void {
 		$this->assertSame( '', Search_Blocks::same_origin_script_module_src( '', 'jetpack-search/results-list' ) );
-		// @phpstan-ignore-next-line — deliberately exercising the non-string guard.
+		// @phpstan-ignore-next-line — deliberately exercising the non-string $src guard.
 		$this->assertNull( Search_Blocks::same_origin_script_module_src( null, 'jetpack-search/results-list' ) );
+		// @phpstan-ignore-next-line — deliberately exercising the non-string $identifier guard.
+		$this->assertSame( 'https://example.com/x.js', Search_Blocks::same_origin_script_module_src( 'https://example.com/x.js', null ) );
 	}
 
 	/**
