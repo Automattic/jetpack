@@ -5,7 +5,7 @@
 const singletonTemplateConfigDefault = {
 	enabled: false,
 	editorUrl: null,
-	resetRestPath: null,
+	postType: null,
 	isCustomized: false,
 };
 
@@ -31,9 +31,11 @@ const siteDataSelectors = {
 	// Editor affordances for the blocks-powered Overlay. Surface in the
 	// Overlay search card when the active experience is `overlay_blocks`
 	// (the PHP gate). Returns the whole config blob so callers can
-	// destructure `{ enabled, editorUrl, resetRestPath, isCustomized }`
-	// in one go. `resetRestPath` is the apiFetch path the "Restore
-	// default" link DELETEs to roll back the customization.
+	// destructure `{ enabled, editorUrl, postType, isCustomized }` in one
+	// go. `postType` is the CPT slug the "Restore default" handler passes
+	// into the `DELETE /jetpack/v4/search/templates/<post_type>` URL it
+	// builds against `wpcomOriginApiUrl`; null when the admin lacks the
+	// edit gate so the link is hidden in that state.
 	getBlockTemplateOverlayConfig: state =>
 		state.siteData?.blockTemplateOverlay ?? singletonTemplateConfigDefault,
 	// Same shape as `getBlockTemplateOverlayConfig`, sibling under the
