@@ -110,9 +110,18 @@ abstract class Singleton_Template_Cpt {
 	 * Wire the hooks. Called from the subclass's `init()` invocation.
 	 */
 	public static function init() {
-		// Priority 9: register the CPT just before `Search_Blocks::register_blocks()`
-		// (priority 10) so the blocks exist when `do_blocks()` runs on the singleton.
-		add_action( 'init', array( static::class, 'register_post_type' ), 9 );
+		// Self-healing CPT registration: a downstream consumer may hook
+		// `Search_Blocks::init()` onto `init:N` itself, in which case queuing
+		// `register_post_type` onto `init:9` from inside that callback lands on
+		// a priority WordPress is already iterating — PHP's `foreach` snapshot
+		// drops it. Register synchronously when we're already inside (or past)
+		// `init`; queue on `init:9` otherwise to preserve the standard
+		// `plugins_loaded` → `init:9` → `register_blocks` at `init:10` ordering.
+		if ( did_action( 'init' ) || doing_action( 'init' ) ) {
+			static::register_post_type();
+		} else {
+			add_action( 'init', array( static::class, 'register_post_type' ), 9 );
+		}
 		add_action( 'admin_init', array( static::class, 'maybe_handle_editor_request' ) );
 		// `before_delete_post` fires for force-delete too, so it catches every
 		// delete path: AJAX reset, REST DELETE, post.php trash-then-delete.
