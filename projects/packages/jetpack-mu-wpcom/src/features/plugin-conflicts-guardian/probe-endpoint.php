@@ -38,6 +38,7 @@ function pcg_maybe_handle_probe() {
 	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
 	if ( '' === $token ) {
 		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
+		return;
 	}
 
 	$key     = PCG_Load_Tester::transient_key( $token );
@@ -45,6 +46,7 @@ function pcg_maybe_handle_probe() {
 
 	if ( ! is_array( $payload ) || ! isset( $payload['plugins'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+		return;
 	}
 
 	// Defer deletion until we actually emit a verdict. If something redirects
@@ -62,6 +64,7 @@ function pcg_maybe_handle_probe() {
 	$mode         = (string) $payload['mode'];
 	if ( empty( $plugin_mains ) || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+		return;
 	}
 
 	// Gate per mode: activation probes need pcg_guard_activation, update
@@ -71,6 +74,7 @@ function pcg_maybe_handle_probe() {
 	$gate_filter    = $is_update_mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
 	if ( ! apply_filters( $gate_filter, true ) ) {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
+		return;
 	}
 
 	// Drop unreadable entries instead of bailing on the first one. Bailing
@@ -85,6 +89,7 @@ function pcg_maybe_handle_probe() {
 	);
 	if ( empty( $plugin_mains ) ) {
 		pcg_probe_bail_error( 'No probe targets are readable.', 404 );
+		return;
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
@@ -230,11 +235,17 @@ function pcg_probe_pending_key( $set = null ) {
 }
 
 /**
- * Emit an `error` verdict with the given reason + HTTP status, and terminate.
+ * Emit an `error` verdict with the given reason + HTTP status. Returns
+ * silently on the re-entry path (a verdict was already emitted), and
+ * normally terminates via `pcg_probe_respond` → `wp_send_json` → `exit`
+ * on first call. The signature is `@return void` rather than `never`
+ * so static analyzers don't flag the silent-return branch as an
+ * unannotated escape; callers must add an explicit `return;` after
+ * invoking this when they want to stop the surrounding flow.
  *
  * @param string $reason Human-readable reason for the failure.
  * @param int    $status HTTP status code.
- * @return never
+ * @return void
  */
 function pcg_probe_bail_error( $reason, $status ) {
 	pcg_probe_respond(

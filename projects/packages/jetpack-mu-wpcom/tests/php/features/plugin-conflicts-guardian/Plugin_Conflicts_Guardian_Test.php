@@ -422,14 +422,19 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * silently and lose the verdict — this test guards against that
 	 * regression.
 	 *
-	 * Note: the function uses a `static $emitted` whose state persists
-	 * for the whole PHP process, so this test must be the only direct
-	 * consumer in the suite. Subsequent assertions all see the marked
-	 * state; nothing in the wider suite invokes the helper directly.
+	 * Runs in a separate process so the function's `static $emitted`
+	 * starts at its fresh state for this test and can't be poisoned by
+	 * any earlier test that exercises `pcg_probe_respond` (or by a
+	 * future test that does). Without this, adding another consumer of
+	 * the helper anywhere in the suite would silently flip the
+	 * post-mark assertions to passing-for-the-wrong-reason.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	#[\PHPUnit\Framework\Attributes\PreserveGlobalState( false )]
 	public function test_pcg_probe_already_emitted_only_marks_when_asked() {
-		// Fresh state: returns false either way, and the no-arg form
-		// must NOT mark.
 		$this->assertFalse( pcg_probe_already_emitted(), 'fresh check should be false' );
 		$this->assertFalse( pcg_probe_already_emitted(), 'check-only must not mark — second check still false' );
 
