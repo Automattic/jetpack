@@ -253,12 +253,6 @@ Before introducing new dependencies:
 - **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 
-## Package-level guides
-
-Packages can ship their own `AGENTS.md` with conventions specific to that surface — check the package directory first when working in one:
-
-- `projects/packages/search/src/search-blocks/AGENTS.md` — Search blocks: search experiences & SSR ownership, hydration & seeding, shared store / bundles, URL format, filter bucket lifecycle, WooCommerce gating, Interactivity API gotchas, editor ↔ render parity.
-
 ## Maintaining This File
 
 If you discover a pattern or pitfall not covered here, mention it to the developer so they can decide whether to update this file.
