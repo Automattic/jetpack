@@ -2785,6 +2785,7 @@ function placeCaretAtPoint( x, y ) {
 		}
 	} else if ( document.caretRangeFromPoint ) {
 		range = document.caretRangeFromPoint( x, y );
+		range?.collapse( true );
 	}
 
 	if ( ! range || ! content.contains( range.startContainer ) ) {
@@ -2906,11 +2907,22 @@ function uploadAndInsertImage( file ) {
 	if ( p ) {
 		placeCursorAt( p );
 	}
-	pushToUndoHistory();
+	// Deliberately do NOT push undo history here: the placeholder figure's
+	// img.src is a blob: URL that gets revoked when the upload completes.
+	// Capturing the placeholder in an undo snapshot would let Cmd+Z restore
+	// a dead blob URL, which would then serialize into the saved post. The
+	// undo snapshot is pushed inside the swap below, after the real URL
+	// and wp-image-{id} class are in place.
 
 	const swap = ( async () => {
 		try {
 			const media = await uploadMedia( file );
+			// If the figure was removed during the upload (e.g. by undo or
+			// manual delete), skip the DOM swap. The upload still lives in
+			// the media library, which is harmless.
+			if ( ! content.contains( figure ) ) {
+				return;
+			}
 			// Tag the figure with the media-library id+size so the
 			// save-time serializer produces a real <!-- wp:image --> block.
 			img.src = media.source_url;
@@ -2925,8 +2937,11 @@ function uploadAndInsertImage( file ) {
 			stripRuntimeFigureControls( figure );
 			addDeleteButtons();
 			await applyMediaSizeToFigure( figure, 'large' );
+			pushToUndoHistory();
 		} catch ( err ) {
-			figure.remove();
+			if ( content.contains( figure ) ) {
+				figure.remove();
+			}
 			state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
 			setTimeout( () => {
 				state.message = '';
