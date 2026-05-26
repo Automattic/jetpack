@@ -69,11 +69,13 @@ describe( 'SingletonTemplateActions', () => {
 				getAPINonce: () => NONCE,
 			} ) )
 		);
-		jest
-			.spyOn( global, 'fetch' )
-			.mockImplementation( () =>
-				Promise.resolve( { ok: true, status: 200, json: async () => ( { deleted: true } ) } )
-			);
+		// jsdom doesn't ship `fetch`, so jest.spyOn(global, 'fetch') has
+		// no descriptor to wrap. Assigning a jest.fn() directly is the
+		// idiomatic stand-in here.
+		// eslint-disable-next-line jest/prefer-spy-on -- see above.
+		global.fetch = jest.fn( () =>
+			Promise.resolve( { ok: true, status: 200, json: async () => ( { deleted: true } ) } )
+		);
 	} );
 
 	afterEach( () => {
@@ -147,7 +149,8 @@ describe( 'SingletonTemplateActions', () => {
 	} );
 
 	test( 'surfaces the server error message on non-OK response', async () => {
-		jest.spyOn( global, 'fetch' ).mockImplementation( () =>
+		// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no native fetch to spy on.
+		global.fetch = jest.fn( () =>
 			Promise.resolve( {
 				ok: false,
 				status: 500,
@@ -165,7 +168,8 @@ describe( 'SingletonTemplateActions', () => {
 	} );
 
 	test( 'falls back to the prop errorMessage when the response has no JSON body', async () => {
-		jest.spyOn( global, 'fetch' ).mockImplementation( () =>
+		// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no native fetch to spy on.
+		global.fetch = jest.fn( () =>
 			Promise.resolve( {
 				ok: false,
 				status: 502,
