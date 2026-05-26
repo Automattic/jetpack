@@ -898,6 +898,45 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * If `wp_delete_post()` itself fails (here simulated by short-circuiting
+	 * via the `pre_delete_post` filter), the handler returns a 500 with a
+	 * stable error code rather than silently claiming success. Covers the
+	 * defensive branch that exists for the wp_delete_post → false path
+	 * (post vanished mid-request, plugin veto, etc.).
+	 */
+	public function test_reset_singleton_template_returns_500_when_delete_fails() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => Search_Template::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_content' => 'will-fail-to-delete',
+			)
+		);
+		update_option( Search_Template::OPTION_POST_ID, $post_id );
+		Search_Template::reset_customized_content_cache();
+		$veto = static function () {
+			return false;
+		};
+		add_filter( 'pre_delete_post', $veto );
+		try {
+			$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 500, $response->get_status() );
+			$this->assertSame( 'jetpack_search_template_reset_failed', $response->get_data()['code'] );
+			// The post is still on disk because the filter vetoed deletion.
+			$this->assertNotNull( get_post( $post_id ) );
+		} finally {
+			remove_filter( 'pre_delete_post', $veto );
+			wp_delete_post( $post_id, true );
+			delete_option( Search_Template::OPTION_POST_ID );
+			Search_Template::reset_customized_content_cache();
+		}
+	}
+
+	/**
 	 * Happy path: an existing customization is force-deleted, the option
 	 * pointer is cleared (via `before_delete_post`), and the route returns
 	 * `{deleted: true}`. This is the wpcom-origin-reachable replacement for
