@@ -10,6 +10,14 @@
  */
 
 import { getSearchOwnedParamKeys } from '../store/url-state.js';
+// Side-effect import: the bootstrap calls
+// `store('jetpack-search').actions.dispatchInitialSearchIfNeeded()` after
+// hydrating the cloned subtree. Without this import the bootstrap can run
+// before the per-block view modules pull in `jetpack-search/store`, and the
+// action would still be undefined at call time. Bare specifier resolves to the
+// shared `jetpack-search/store` Script Module via `DependencyExtractionPlugin`
+// (see tools/webpack.blocks.config.js); does NOT inline the store.
+import 'jetpack-search/store';
 
 const PRIVATE_API_CONSENT =
 	'I acknowledge that using private APIs means my theme or plugin will inevitably break in the next version of WordPress.';
@@ -93,6 +101,18 @@ function ensureHydrated() {
 			const regions = content.querySelectorAll( '[data-wp-interactive]' );
 			for ( const region of regions ) {
 				apis.render( apis.toVdom( region ), apis.getRegionRootFragment( region ) );
+			}
+			// Belt-and-suspenders trigger for the deep-link first fetch. The
+			// `data-wp-init` directive on results-list races with the IA
+			// runtime's DOMContentLoaded auto-walk for cloned regions and
+			// intermittently doesn't fire — most reliably reproducible on a
+			// bare `?s=` deep link, where the result was a "Searching…"
+			// skeleton that never cleared. The store action is idempotent
+			// (module-scope latch in `store/index.js`), so when the directive
+			// does fire, this becomes a no-op.
+			if ( typeof ia.store === 'function' ) {
+				const { actions } = ia.store( 'jetpack-search' );
+				actions?.dispatchInitialSearchIfNeeded?.();
 			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console

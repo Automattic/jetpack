@@ -1176,6 +1176,56 @@ describe( 'store callbacks', () => {
 		} );
 	} );
 
+	describe( 'dispatchInitialSearchIfNeeded (SEARCH-258)', () => {
+		// The action is the shared seam between the IA-directive entry path
+		// (results-list's `data-wp-init`) and the overlay-bootstrap entry
+		// path (post-hydration explicit call). The flag is module-scoped, so
+		// each case loads a fresh module via `jest.isolateModules` rather
+		// than mutating the shared module instance — otherwise the latch from
+		// the first case would silently make every later case a no-op.
+
+		it( 'fires actions.search once on the first call and is a no-op on subsequent calls', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = true;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				// The latch is what lets the IA directive AND the overlay
+				// bootstrap both call this safely after hydration — only the
+				// first invocation wins.
+				expect( search ).toHaveBeenCalledTimes( 1 );
+				expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+				fresh.state.hasSearchParam = false;
+			} );
+		} );
+
+		it( 'bails without dispatching when no search criteria are present', () => {
+			jest.isolateModules( () => {
+				const fresh = require( '../../../src/search-blocks/store' );
+				const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+				// Plain homepage: no `?s=` / `?q=`, no filters, no price range.
+				fresh.state.searchQuery = '';
+				fresh.state.priceRange = null;
+				fresh.state.filterConfigs = {};
+				fresh.state.activeFilters = {};
+				fresh.state.hasSearchParam = false;
+
+				captured.actions.dispatchInitialSearchIfNeeded();
+
+				expect( search ).not.toHaveBeenCalled();
+			} );
+		} );
+	} );
+
 	describe( 'initLoadMoreObserver', () => {
 		let originalIO;
 		let observerInstances;
