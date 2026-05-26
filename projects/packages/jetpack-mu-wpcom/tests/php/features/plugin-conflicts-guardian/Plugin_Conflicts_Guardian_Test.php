@@ -438,12 +438,129 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( pcg_probe_already_emitted(), 'fresh check should be false' );
 		$this->assertFalse( pcg_probe_already_emitted(), 'check-only must not mark — second check still false' );
 
-		// Mark: returns false on the marking call (flag was just set).
 		$this->assertFalse( pcg_probe_already_emitted( true ), 'marking call returns false because flag was previously unset' );
 
-		// Subsequent reads (with or without mark arg) see the flag.
 		$this->assertTrue( pcg_probe_already_emitted(), 'post-mark check returns true' );
 		$this->assertTrue( pcg_probe_already_emitted( true ), 'post-mark marking call returns true' );
+	}
+
+	/**
+	 * `is_php_engine_error_class` matches built-in engine errors but
+	 * not user-defined subclasses or hand-thrown exceptions. The strict
+	 * gate keeps the sibling-load downgrade from silently allowing a
+	 * plugin that hand-threw a RuntimeException with class-not-found-
+	 * shaped wording.
+	 */
+	public function test_is_php_engine_error_class_recognises_engine_classes() {
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'Error' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( '\\TypeError' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'ParseError' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'DivisionByZeroError' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'RuntimeException' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'LogicException' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'MyCustomError' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( '' ) );
+	}
+
+	/**
+	 * Sibling-load flake: captured fatal where the candidate's entry
+	 * file loaded but a sibling under its own directory failed to
+	 * require. `Failed opening required` with the captured `file`
+	 * inside one of the candidate dirs is the canonical signature.
+	 */
+	public function test_is_sibling_load_flake_detects_failed_require_inside_candidate_dir() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'fatal',
+			'message' => "Failed opening required '" . WP_PLUGIN_DIR . "/some-plugin/inc/missing.php' (include_path='.')",
+			'file'    => WP_PLUGIN_DIR . '/some-plugin/some-plugin.php',
+		);
+		$this->assertTrue( $tester->is_sibling_load_flake( $result, array( $plugin ) ) );
+	}
+
+	/**
+	 * `Class "Foo\Bar" not found` inside one of the candidate plugins'
+	 * own directories also counts as a sibling-load flake — autoloader
+	 * couldn't find a sibling class it should have been able to load.
+	 */
+	public function test_is_sibling_load_flake_detects_class_not_found_for_candidate() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'fatal',
+			'message' => 'Uncaught Error: Class "SomePlugin\\Helper" not found',
+			'file'    => WP_PLUGIN_DIR . '/some-plugin/includes/loader.php',
+		);
+		$this->assertTrue( $tester->is_sibling_load_flake( $result, array( $plugin ) ) );
+	}
+
+	/**
+	 * A hand-thrown `\RuntimeException` whose message happens to match
+	 * the class-not-found wording must NOT be downgraded — the plugin
+	 * is asking to abort, and silently allowing the activation would
+	 * deliver a half-loaded plugin.
+	 */
+	public function test_is_sibling_load_flake_rejects_non_engine_throwable() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'throwable',
+			'class'   => 'RuntimeException',
+			'message' => 'Class "SomePlugin\\Required" not found',
+			'file'    => WP_PLUGIN_DIR . '/some-plugin/loader.php',
+			'plugin'  => $plugin,
+		);
+		$this->assertFalse( $tester->is_sibling_load_flake( $result, array( $plugin ) ) );
+	}
+
+	/**
+	 * Captured file outside any candidate plugin dir → not a sibling-
+	 * load flake. A class-not-found in a third-party autoloader's path
+	 * shouldn't be silenced by association.
+	 */
+	public function test_is_sibling_load_flake_rejects_when_file_outside_candidate() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'fatal',
+			'message' => 'Uncaught Error: Class "SomePlugin\\Helper" not found',
+			'file'    => '/some/random/place/autoloader.php',
+		);
+		$this->assertFalse( $tester->is_sibling_load_flake( $result, array( $plugin ) ) );
+	}
+
+	/**
+	 * Flat-file plugins (e.g. `hello.php` at WP_PLUGIN_DIR root) must
+	 * not act as a prefix that matches every other plugin's files —
+	 * their dir is `WP_PLUGIN_DIR` itself, which would swallow the
+	 * whole plugins tree.
+	 */
+	public function test_is_sibling_load_flake_skips_flat_file_plugin() {
+		$tester = new PCG_Load_Tester();
+		$flat   = WP_PLUGIN_DIR . '/hello.php';
+		$result = array(
+			'status'  => 'fatal',
+			'message' => "Failed opening required '" . WP_PLUGIN_DIR . "/other-plugin/missing.php'",
+			'file'    => WP_PLUGIN_DIR . '/other-plugin/main.php',
+		);
+		$this->assertFalse( $tester->is_sibling_load_flake( $result, array( $flat ) ) );
+	}
+
+	/**
+	 * `is_anomalous_allow` flags `ok-shutdown` (PR 2's always-emit
+	 * verdict) so the rate of silent-bootstrap-exit appears in
+	 * `Probe anomaly allowed`. Sanity-checked here via Reflection.
+	 */
+	public function test_is_anomalous_allow_flags_ok_shutdown() {
+		$tester = new PCG_Load_Tester();
+		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'is_anomalous_allow' );
+		$ref->setAccessible( true );
+		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'ok-shutdown' ) ) );
+		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'ok-inconclusive' ) ) );
+		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'error' ) ) );
+		$this->assertFalse( $ref->invoke( $tester, array( 'status' => 'ok' ) ) );
+		$this->assertFalse( $ref->invoke( $tester, array( 'status' => 'fatal' ) ) );
 	}
 
 	/**

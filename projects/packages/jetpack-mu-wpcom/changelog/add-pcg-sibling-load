@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: defer probe require_once to wp_loaded:1 so dependency shims load before the candidate; add milestone-based shutdown attribution; downgrade captured fatals that look like sibling-load flakes to ok-inconclusive in activation mode only.
