@@ -838,6 +838,93 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * DELETE /jetpack/v4/search/templates/<post_type> requires manage_options —
+	 * an editor user gets 403 from `require_admin_privilege_callback`.
+	 */
+	public function test_reset_singleton_template_unauthorized_for_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * An unknown post_type slug is rejected by the handler's
+	 * `resolve_singleton_template_class()` lookup with a stable 404 + error
+	 * code, so the dashboard surfaces a sensible message instead of leaking
+	 * an upstream 500 if a future slug change drifts client/server.
+	 */
+	public function test_reset_singleton_template_rejects_unknown_post_type() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/not_a_real_cpt' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_unknown', $response->get_data()['code'] );
+	}
+
+	/**
+	 * No customization on file ⇒ the handler returns 404 with a stable error
+	 * code so the dashboard can surface a meaningful message instead of a 500.
+	 */
+	public function test_reset_singleton_template_returns_404_when_not_customized() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		delete_option( Search_Template::OPTION_POST_ID );
+		Search_Template::reset_customized_content_cache();
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$this->assertSame( 'jetpack_search_template_not_customized', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Happy path: an existing customization is force-deleted, the option
+	 * pointer is cleared (via `before_delete_post`), and the route returns
+	 * `{deleted: true}`. This is the wpcom-origin-reachable replacement for
+	 * the legacy `/wp/v2/<rest_base>/<id>?force=true` DELETE.
+	 */
+	public function test_reset_singleton_template_deletes_customization_and_clears_option() {
+		wp_set_current_user( $this->admin_id );
+		Search_Template::register_post_type();
+		// The cleanup hook (option pointer + per-class cache) is normally
+		// wired by `Singleton_Template_Cpt::init()`. The test bootstrap only
+		// registers the CPT, so wire the hook locally for this test and
+		// remove it in the cleanup branch to keep the global state pristine.
+		$cleanup_cb = array( Search_Template::class, 'maybe_cleanup_on_singleton_delete' );
+		add_action( 'before_delete_post', $cleanup_cb );
+		try {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'    => Search_Template::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_content' => 'will-be-restored',
+				)
+			);
+			update_option( Search_Template::OPTION_POST_ID, $post_id );
+			Search_Template::reset_customized_content_cache();
+			$this->assertTrue( Search_Template::is_customized() );
+
+			$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 200, $response->get_status() );
+			$this->assertSame( array( 'deleted' => true ), $response->get_data() );
+			$this->assertSame( 0, (int) get_option( Search_Template::OPTION_POST_ID, 0 ) );
+			$this->assertNull( get_post( $post_id ) );
+		} finally {
+			remove_action( 'before_delete_post', $cleanup_cb );
+			delete_option( Search_Template::OPTION_POST_ID );
+			Search_Template::reset_customized_content_cache();
+		}
+	}
+
+	/**
 	 * Signs a request with a blog token before dispatching it.
 	 *
 	 * Ensures that these tests pass through Connection_Rest_Authentication::wp_rest_authenticate,

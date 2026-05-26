@@ -69,7 +69,7 @@ class Search_Template_Test extends Search_TestCase {
 	/**
 	 * A saved customization round-trips: `get_customized_content()`
 	 * returns the post content, `is_customized()` flips true, and
-	 * `get_reset_rest_path()` resolves to the CPT's REST endpoint.
+	 * `get_reset_rest_path()` resolves to the jetpack/v4 reset route.
 	 */
 	public function test_customized_state_returns_post_content_and_reset_path() {
 		$post_id = wp_insert_post(
@@ -91,7 +91,7 @@ class Search_Template_Test extends Search_TestCase {
 		);
 		$this->assertTrue( Search_Template::is_customized() );
 		$this->assertSame(
-			'/wp/v2/' . Search_Template::REST_BASE . '/' . $post_id . '?force=true',
+			'/jetpack/v4/search/templates/' . Search_Template::POST_TYPE,
 			Search_Template::get_reset_rest_path()
 		);
 	}
