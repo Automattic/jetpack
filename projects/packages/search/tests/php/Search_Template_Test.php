@@ -229,4 +229,28 @@ class Search_Template_Test extends Search_TestCase {
 		$this->assertNull( Search_Template::get_customized_content() );
 		$this->assertFalse( Search_Template::is_customized() );
 	}
+
+	/**
+	 * `init()` must register the CPT synchronously when invoked from inside
+	 * an `init` callback. Adding a callback to the priority WordPress is
+	 * currently iterating leaves it stranded by PHP's `foreach` snapshot —
+	 * the regression that hid the CPT on downstream consumers hooking
+	 * `Search_Blocks::init()` onto `init`.
+	 */
+	public function test_init_during_init_action_registers_cpt_synchronously() {
+		unregister_post_type( Search_Template::POST_TYPE );
+		$this->assertFalse( post_type_exists( Search_Template::POST_TYPE ) );
+
+		global $wp_current_filter;
+		$wp_current_filter[] = 'init';
+		try {
+			Search_Template::init();
+			$this->assertTrue(
+				post_type_exists( Search_Template::POST_TYPE ),
+				'register_post_type() must run inline when init() is invoked from inside an init callback.'
+			);
+		} finally {
+			array_pop( $wp_current_filter );
+		}
+	}
 }
