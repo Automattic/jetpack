@@ -24,21 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-// Classic themes don't emit core's layout block-supports CSS — see the
-// matching note in `classic-theme-search.php` for why we reapply the inner
-// `wp-block-group` layout here.
-?>
-<style id="jetpack-search-classic-theme-layout">
-main.wp-block-group {
-	max-width: var(--wp--style--global--wide-size, 1280px);
-	margin-inline: auto;
-	padding-inline: clamp(1rem, 4vw, 2rem);
-}
-main.wp-block-group .is-layout-flow > * + * {
-	margin-block-start: var(--wp--style--block-gap, 1.5rem);
-}
-</style>
-<?php
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- bundled inline CSS, no untrusted input.
+echo \Automattic\Jetpack\Search\Search_Blocks::get_classic_theme_layout_style();
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks renders trusted bundled markup.
 echo do_blocks( \Automattic\Jetpack\Search\Search_Blocks::get_classic_theme_product_search_body() );

@@ -42,6 +42,11 @@ class Product_Search_Template_Test extends Search_TestCase {
 		$this->assertNotSame( Search_Template::OPTION_POST_ID, Product_Search_Template::OPTION_POST_ID );
 		$this->assertNotSame( Search_Template::EDITOR_REQUEST_KEY, Product_Search_Template::EDITOR_REQUEST_KEY );
 		$this->assertNotSame( Search_Template::EDITOR_NONCE, Product_Search_Template::EDITOR_NONCE );
+		// `SEED_META_KEY` is stamped on every seeded row by the base
+		// `ensure_post_exists()`; a shared key would let a future re-seed
+		// query target the wrong subclass's posts.
+		$this->assertNotSame( Search_Template::SEED_META_KEY, Product_Search_Template::SEED_META_KEY );
+		$this->assertNotSame( Overlay_Template::SEED_META_KEY, Product_Search_Template::SEED_META_KEY );
 		$this->assertSame( 'jp_product_search', Product_Search_Template::POST_TYPE );
 		$this->assertLessThanOrEqual(
 			20,

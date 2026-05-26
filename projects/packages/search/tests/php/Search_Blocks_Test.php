@@ -946,6 +946,77 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The classic-theme product-search singleton CPT is only meaningful when
+	 * The override is on AND the experience is Embedded AND the theme is
+	 * Classic — the same gates that route product searches into our shim.
+	 * `init()` must call `Product_Search_Template::init()` in that exact slice
+	 * Of the matrix and nowhere else, so the hidden CPT + before-delete cleanup
+	 * Don't get registered on sites that wouldn't reach the editor anyway.
+	 *
+	 * Asserts via the `before_delete_post` hook the parent
+	 * `Singleton_Template_Cpt::init()` registers — `register_post_type` is
+	 * Idempotent and `admin_init` may not be reachable without `is_admin()`,
+	 * So before-delete is the cleanest lifecycle signal to probe.
+	 */
+	public function test_init_registers_product_search_template_cpt_only_when_embedded_classic_override_on() {
+		try {
+			$cb = array( Product_Search_Template::class, 'maybe_cleanup_on_singleton_delete' );
+
+			// Embedded + classic + override on → CPT lifecycle wired.
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertNotFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must wire before_delete_post on Embedded + classic + override on'
+			);
+
+			// Embedded + classic + override OFF → no CPT lifecycle (override is what gates it).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			Search_Blocks::init();
+			$this->assertFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must not wire when the override is off'
+			);
+
+			// Embedded + BLOCK theme + override on → no CPT lifecycle (block themes use the Site Editor).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( true );
+			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must not wire on block themes — Site Editor owns that surface'
+			);
+
+			// Inline + classic + override on → no CPT lifecycle (Inline doesn't use the classic shim).
+			$this->reset_search_blocks_hooks();
+			$this->set_module_active( true );
+			Search_Blocks::set_block_templates_active_for_testing( false );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			update_option( 'jetpack_search_override_woocommerce_search_template', true );
+			Search_Blocks::init();
+			$this->assertFalse(
+				has_action( 'before_delete_post', $cb ),
+				'Product_Search_Template::init() must not wire under the Inline experience'
+			);
+		} finally {
+			delete_option( 'jetpack_search_override_woocommerce_search_template' );
+			delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+			Search_Blocks::set_block_templates_active_for_testing( null );
+		}
+	}
+
+	/**
 	 * `init()` must always register the block-level hooks AND the IA state
 	 * Seeding regardless of which experience the site has saved — admins can
 	 * Insert Search blocks anywhere blocks are configurable, and those blocks
@@ -1398,7 +1469,10 @@ class Search_Blocks_Test extends TestCase {
 		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
 		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'route_woocommerce_product_search_template' ), 20 );
-		remove_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) );
+		remove_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ), 20 );
+		remove_action( 'before_delete_post', array( Product_Search_Template::class, 'maybe_cleanup_on_singleton_delete' ) );
+		remove_action( 'admin_init', array( Product_Search_Template::class, 'maybe_handle_editor_request' ) );
+		remove_action( 'init', array( Product_Search_Template::class, 'register_post_type' ), 9 );
 		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
 		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );

@@ -1545,6 +1545,40 @@ CSS;
 	}
 
 	/**
+	 * Inline layout `<style>` block the classic-theme shims emit before the
+	 * Bundled block markup. Classic themes don't emit core's block-supports
+	 * Layout CSS, so two traits the bundled templates rely on collapse on
+	 * Classic themes: the inner group's 1.5rem `blockGap` vanishes (search
+	 * Input runs straight into the results row), and `alignwide` has no
+	 * Effect (content stretches edge-to-edge because `template_include`
+	 * Bypasses the theme's own content wrapper). Reapplying both, scoped to
+	 * `<main class="wp-block-group">`, restores parity without leaking
+	 * Outside the shim. Shared by both shims so a future layout tweak
+	 * Touches one place. The `<style>` `id` is unique per render — routing
+	 * Ensures only one shim runs per request, so duplicate IDs can't occur.
+	 *
+	 * Public because both `templates/classic-theme-search.php` and
+	 * `templates/classic-theme-product-search.php` call it from outside the
+	 * Class.
+	 *
+	 * @return string Inline `<style>` element ready to echo.
+	 */
+	public static function get_classic_theme_layout_style(): string {
+		return <<<'HTML'
+<style id="jetpack-search-classic-theme-layout">
+main.wp-block-group {
+	max-width: var(--wp--style--global--wide-size, 1280px);
+	margin-inline: auto;
+	padding-inline: clamp(1rem, 4vw, 2rem);
+}
+main.wp-block-group .is-layout-flow > * + * {
+	margin-block-start: var(--wp--style--block-gap, 1.5rem);
+}
+</style>
+HTML;
+	}
+
+	/**
 	 * Test override for `block_templates_active()`. Null = read the live state.
 	 *
 	 * @var bool|null
