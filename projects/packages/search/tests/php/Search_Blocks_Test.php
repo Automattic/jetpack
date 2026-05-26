@@ -557,7 +557,7 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * The FSE hierarchy router is a strict no-op on classic themes: classic
-	 * Themes resolve template slugs as `{slug}.php` and we don't ship a
+	 * themes resolve template slugs as `{slug}.php` and we don't ship a
 	 * `jetpack-search-product-results.php` — the classic-theme equivalent
 	 * runs through `route_classic_theme_search_template()` instead.
 	 */
@@ -683,9 +683,9 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * Defensive bail-out for the product shim: if neither a customization
-	 * Nor the bundled `jetpack-search-product-results.html` produces a body,
-	 * The router must return the input template unchanged so the theme's own
-	 * Template renders instead of the shim wrapping a blank body.
+	 * nor the bundled `jetpack-search-product-results.html` produces a body,
+	 * the router must return the input template unchanged so the theme's own
+	 * template renders instead of the shim wrapping a blank body.
 	 */
 	public function test_route_classic_theme_search_template_bails_when_product_body_is_empty() {
 		update_option( 'jetpack_search_override_woocommerce_search_template', true );
@@ -797,11 +797,11 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * `get_classic_theme_product_search_body()` returns the bundled
-	 * Product-results markup with top-level `core/template-part` self-closing
-	 * Comments stripped — same contract as `get_classic_theme_search_body()`,
-	 * Product-flavored. Keeps the product-only blocks intact so the shim
-	 * Renders the WC layout (filters-product, results-list layout=product,
-	 * Filter-wc-price / filter-wc-rating / filter-wc-stock-status).
+	 * product-results markup with top-level `core/template-part` self-closing
+	 * comments stripped — same contract as `get_classic_theme_search_body()`,
+	 * product-flavored. Keeps the product-only blocks intact so the shim
+	 * renders the WC layout (filters-product, results-list layout=product,
+	 * filter-wc-price / filter-wc-rating / filter-wc-stock-status).
 	 */
 	public function test_get_classic_theme_product_search_body_strips_template_parts() {
 		$body = Search_Blocks::get_classic_theme_product_search_body();
@@ -947,16 +947,16 @@ class Search_Blocks_Test extends TestCase {
 
 	/**
 	 * The classic-theme product-search singleton CPT is only meaningful when
-	 * The override is on AND the experience is Embedded AND the theme is
-	 * Classic — the same gates that route product searches into our shim.
+	 * the override is on AND the experience is Embedded AND the theme is
+	 * classic — the same gates that route product searches into our shim.
 	 * `init()` must call `Product_Search_Template::init()` in that exact slice
-	 * Of the matrix and nowhere else, so the hidden CPT + before-delete cleanup
-	 * Don't get registered on sites that wouldn't reach the editor anyway.
+	 * of the matrix and nowhere else, so the hidden CPT + before-delete cleanup
+	 * don't get registered on sites that wouldn't reach the editor anyway.
 	 *
 	 * Asserts via the `before_delete_post` hook the parent
 	 * `Singleton_Template_Cpt::init()` registers — `register_post_type` is
-	 * Idempotent and `admin_init` may not be reachable without `is_admin()`,
-	 * So before-delete is the cleanest lifecycle signal to probe.
+	 * idempotent and `admin_init` may not be reachable without `is_admin()`,
+	 * so before-delete is the cleanest lifecycle signal to probe.
 	 */
 	public function test_init_registers_product_search_template_cpt_only_when_embedded_classic_override_on() {
 		try {

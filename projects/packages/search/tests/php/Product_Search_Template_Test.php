@@ -31,9 +31,9 @@ class Product_Search_Template_Test extends Search_TestCase {
 
 	/**
 	 * `Product_Search_Template` must declare distinct identifiers from the
-	 * Two sibling singleton CPTs so they don't share a singleton — the
-	 * Shared base caches by class but everything else (post-type, option,
-	 * Nonces) is keyed by class constant.
+	 * two sibling singleton CPTs so they don't share a singleton — the
+	 * shared base caches by class but everything else (post-type, option,
+	 * nonces) is keyed by class constant.
 	 */
 	public function test_subclass_constants_are_distinct_from_siblings() {
 		$this->assertNotSame( Search_Template::POST_TYPE, Product_Search_Template::POST_TYPE );
@@ -57,7 +57,7 @@ class Product_Search_Template_Test extends Search_TestCase {
 
 	/**
 	 * No singleton on file ⇒ `get_customized_content()` returns null, the
-	 * Shape callers depend on to fall back to the bundled product template.
+	 * shape callers depend on to fall back to the bundled product template.
 	 */
 	public function test_uncustomized_state_returns_nulls() {
 		$this->assertNull( Product_Search_Template::get_customized_content() );
@@ -68,7 +68,7 @@ class Product_Search_Template_Test extends Search_TestCase {
 	/**
 	 * The REST resolver must map this CPT back to its concrete class so
 	 * "Restore default" reaches the right Singleton_Template_Cpt subclass —
-	 * Without this entry, the route would 404 on the new post-type slug.
+	 * without this entry, the route would 404 on the new post-type slug.
 	 */
 	public function test_rest_controller_resolves_product_search_template() {
 		$controller = new \Automattic\Jetpack\Search\REST_Controller();
@@ -99,9 +99,9 @@ class Product_Search_Template_Test extends Search_TestCase {
 
 	/**
 	 * `Search_Blocks::get_classic_theme_product_search_body()` must prefer
-	 * A saved customization over the bundled file — the whole point of the
+	 * a saved customization over the bundled file — the whole point of the
 	 * CPT path. An empty string customization (admin saved a blank canvas)
-	 * Is honored verbatim.
+	 * is honored verbatim.
 	 */
 	public function test_classic_theme_product_search_body_prefers_customization() {
 		$post_id = wp_insert_post(

@@ -443,8 +443,10 @@ class Search_Blocks {
 	 *
 	 * Theme-agnostic. Block-theme-only behavior (FSE hierarchy work) gates on
 	 * {@see block_templates_active()} at the call site so this predicate also
-	 * drives the classic-theme product shim. Public because the
-	 * `classic-theme-product-search.php` shim reads it.
+	 * drives the classic-theme product shim. Public to keep the WC-gating
+	 * surface (see AGENTS.md § WooCommerce gating) discoverable from outside
+	 * the class; the in-class callers are `route_classic_theme_search_template()`
+	 * and `route_woocommerce_product_search_template()`.
 	 *
 	 * @return bool
 	 */
@@ -1546,20 +1548,20 @@ CSS;
 
 	/**
 	 * Inline layout `<style>` block the classic-theme shims emit before the
-	 * Bundled block markup. Classic themes don't emit core's block-supports
-	 * Layout CSS, so two traits the bundled templates rely on collapse on
-	 * Classic themes: the inner group's 1.5rem `blockGap` vanishes (search
-	 * Input runs straight into the results row), and `alignwide` has no
-	 * Effect (content stretches edge-to-edge because `template_include`
-	 * Bypasses the theme's own content wrapper). Reapplying both, scoped to
+	 * bundled block markup. Classic themes don't emit core's block-supports
+	 * layout CSS, so two traits the bundled templates rely on collapse on
+	 * classic themes: the inner group's 1.5rem `blockGap` vanishes (search
+	 * input runs straight into the results row), and `alignwide` has no
+	 * effect (content stretches edge-to-edge because `template_include`
+	 * bypasses the theme's own content wrapper). Reapplying both, scoped to
 	 * `<main class="wp-block-group">`, restores parity without leaking
-	 * Outside the shim. Shared by both shims so a future layout tweak
-	 * Touches one place. The `<style>` `id` is unique per render — routing
-	 * Ensures only one shim runs per request, so duplicate IDs can't occur.
+	 * outside the shim. Shared by both shims so a future layout tweak
+	 * touches one place. The `<style>` `id` is unique per render — routing
+	 * ensures only one shim runs per request, so duplicate IDs can't occur.
 	 *
 	 * Public because both `templates/classic-theme-search.php` and
 	 * `templates/classic-theme-product-search.php` call it from outside the
-	 * Class.
+	 * class.
 	 *
 	 * @return string Inline `<style>` element ready to echo.
 	 */
