@@ -36,7 +36,7 @@ const NoConnectionsEmptyState = () => {
 					) }
 				</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button variant="primary" onClick={ openConnectionsModal }>
+					<Button variant="solid" onClick={ openConnectionsModal }>
 						{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</EmptyState.Actions>

@@ -24,7 +24,7 @@ import { Button, EmptyState } from '@wordpress/ui';
  */
 export default function PublicizeInactiveEmptyState(): JSX.Element {
 	const onManageModules = useCallback( () => {
-		window.location.href = getAdminUrl( 'admin.php?page=jetpack#/settings' );
+		window.location.href = getAdminUrl( 'admin.php?page=jetpack#/sharing' );
 	}, [] );
 
 	return (
@@ -41,7 +41,7 @@ export default function PublicizeInactiveEmptyState(): JSX.Element {
 					) }
 				</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button variant="primary" onClick={ onManageModules }>
+					<Button variant="solid" onClick={ onManageModules }>
 						{ __( 'Manage modules', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</EmptyState.Actions>
