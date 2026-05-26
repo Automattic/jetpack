@@ -77,6 +77,7 @@ class Blocks {
 			if ( ! empty( $args['plan_check'] ) ) {
 				$existing_attributes = array();
 				$gated_blocks        = array(
+					'jetpack/calendly',
 					'jetpack/donations',
 					'jetpack/payment-buttons',
 					'jetpack/paypal-payment-buttons',
