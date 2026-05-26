@@ -226,6 +226,13 @@ class PCG_Load_Tester {
 		// installed `set_error_handler` that rewrites messages can
 		// defeat the match; we'd then keep the verdict as fatal (no
 		// downgrade), which is the safer failure mode.
+		// `Failed opening required` and `failed to open stream: No such
+		// file or directory` are the verbatim strings the PHP engine
+		// emits — they're not localised and they're stable across
+		// PHP 7/8. If PHP ever rewords either, the substring match here
+		// would silently break and verdicts would stay as fatal (the
+		// safer failure mode), so we'd notice via the `Sibling-load
+		// flake downgrade` event rate dropping to zero.
 		$looks_like_class_not_found   = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
 		$looks_like_missing_file_open = str_contains( $message, 'Failed opening required' )
 			|| str_contains( $message, 'failed to open stream: No such file or directory' );
@@ -264,12 +271,22 @@ class PCG_Load_Tester {
 	protected function path_inside_candidate( $path, array $plugin_mains ) {
 		// We compare the raw paths PHP gives us (`error_get_last`'s
 		// `file`, the candidate's main as WP saw it) without `realpath`.
-		// If `WP_PLUGIN_DIR` resolves to a symlink and the captured
-		// `file` was emitted via the resolved path, this match would
-		// miss — but that's the same shape WP itself uses internally
-		// when comparing plugin paths, so the activation guard and PCG
-		// stay consistent. Resolving here would risk diverging from
-		// WP's view of the same plugin.
+		// This is correct on Atomic + standard hosts where
+		// `WP_PLUGIN_DIR` and plugin install paths are direct (no
+		// symlinks), and matches WP's own internal comparison shape
+		// (e.g. `is_plugin_active`) so the activation guard, the
+		// post-update healthcheck, and PCG agree on which plugin file
+		// is which.
+		//
+		// Symlink caveat for future maintainers: if a host installs
+		// plugins under a symlinked tree (e.g. `WP_PLUGIN_DIR` →
+		// `/var/www/.../plugins-real/`), PHP's error_get_last() often
+		// reports the realpath-resolved `file` while `$plugin_main`
+		// (built from `WP_PLUGIN_DIR`) is the symlink path. This
+		// matcher would silently fail to attribute the fatal to the
+		// candidate. If symlinked layouts become a thing, replace this
+		// with a realpath-of-both comparison (and update the
+		// `message_references_candidate_path` sibling helper too).
 		if ( '' === (string) $path ) {
 			return false;
 		}

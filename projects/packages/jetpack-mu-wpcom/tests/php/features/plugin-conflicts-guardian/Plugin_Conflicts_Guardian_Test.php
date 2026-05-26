@@ -548,6 +548,54 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `Failed opening required` arm: when the captured `file` is OUTSIDE
+	 * every candidate directory but the message itself names a path
+	 * inside one of them, the message-body fallback must still classify
+	 * the verdict as a sibling-load flake. This is the path where Plugin
+	 * A's main file failed to `require` a file inside Plugin A's own
+	 * subdirectory but PHP reported the caller's file (e.g. wrapped via
+	 * an external loader). Without this fallback, the downgrade would
+	 * miss it and we'd block on a known-flaky signature.
+	 */
+	public function test_is_sibling_load_flake_uses_message_fallback_for_failed_require() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'fatal',
+			'message' => "Failed opening required '" . WP_PLUGIN_DIR . "/some-plugin/inc/missing.php' (include_path='.')",
+			// File is outside every candidate dir — would-be Plugin Loader
+			// or composer autoloader path, not the candidate itself.
+			'file'    => '/var/www/html/wp-includes/some-loader.php',
+		);
+		$this->assertTrue(
+			$tester->is_sibling_load_flake( $result, array( $plugin ) ),
+			'Failed-opening-required arm should fall back to message-body path match when captured file is outside the candidate.'
+		);
+	}
+
+	/**
+	 * Class-not-found arm does NOT use the message-body fallback —
+	 * autoloader stack traces and wrapped errors frequently include
+	 * unrelated paths, and matching them silently downgrades real bugs.
+	 * The arm requires the captured `file` to live inside a candidate.
+	 */
+	public function test_is_sibling_load_flake_does_not_use_message_fallback_for_class_not_found() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+		$result = array(
+			'status'  => 'fatal',
+			// Message references the candidate dir, but the captured file
+			// is in someone else's autoloader.
+			'message' => 'Uncaught Error: Class "SomePlugin\\Helper" not found in ' . WP_PLUGIN_DIR . '/some-plugin/loader.php',
+			'file'    => '/var/www/html/wp-includes/PHPMailer/SMTP.php',
+		);
+		$this->assertFalse(
+			$tester->is_sibling_load_flake( $result, array( $plugin ) ),
+			'Class-not-found arm must require captured file inside candidate; message-body fallback would over-match autoloader traces.'
+		);
+	}
+
+	/**
 	 * `is_anomalous_allow` flags `ok-shutdown` (PR 2's always-emit
 	 * verdict) so the rate of silent-bootstrap-exit appears in
 	 * `Probe anomaly allowed`. Sanity-checked here via Reflection.
