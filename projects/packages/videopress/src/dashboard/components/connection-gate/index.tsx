@@ -1,14 +1,8 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
 import type { ReactNode } from 'react';
-
-// Path *relative* to wp-admin, not an absolute URL: the connection REST
-// endpoint resolves it server-side with `admin_url( $redirect_uri )`. An
-// absolute URL would be appended onto the wp-admin base, producing a doubled,
-// broken redirect (`…/wp-admin/https:/…/wp-admin/…`) that 404s. Matches the
-// legacy dashboard, which passed the relative `adminUri` from its initial state.
-const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
 
 /**
  * Gates the whole dashboard behind a WordPress.com connection. VideoPress

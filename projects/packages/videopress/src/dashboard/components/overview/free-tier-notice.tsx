@@ -7,19 +7,13 @@ import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import type { ReactElement } from 'react';
 
 // Tracks event recorded when the upgrade CTA is clicked. Carried over verbatim
 // from the legacy dashboard's `UpgradeTrigger` so both dashboards report
 // against the same funnel.
 const UPGRADE_CLICK_EVENT = 'jetpack_videopress_upgrade_trigger_link_click';
-
-// Path *relative* to wp-admin, not an absolute URL: the connection REST
-// endpoint resolves it server-side with `admin_url( $redirect_uri )`. An
-// absolute URL would be appended onto the wp-admin base, producing a doubled,
-// broken redirect (`…/wp-admin/https:/…/wp-admin/…`) that 404s. Matches the
-// legacy dashboard, which passed the relative `adminUri` from its initial state.
-const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
 
 /**
  * Read the inlined initial state, guarding for environments (tests, the
