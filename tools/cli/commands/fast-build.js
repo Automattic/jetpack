@@ -3,6 +3,7 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import pLimit from 'p-limit';
 import { findOwnerProject } from '../helpers/classOwner.js';
 import { filterDeps, getBuildOrder, getDependencies } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
@@ -20,7 +21,7 @@ export const describe =
  *
  * @see resolveAction
  */
-const ACTION_RANK = {
+export const ACTION_RANK = {
 	skip: 0,
 	'dump-autoload': 1,
 	build: 2,
@@ -85,6 +86,12 @@ export function builder( yargs ) {
 			default: false,
 			description:
 				'Abort on the first failed project. Default is to continue and report which projects need attention at the end.',
+		} )
+		.option( 'concurrency', {
+			type: 'number',
+			default: 4,
+			description:
+				'How many `dump-autoload` actions to run in parallel. Build actions always run serially because they may have inter-project dependencies. Use 1 to force fully serial execution.',
 		} );
 }
 
@@ -95,7 +102,7 @@ export function builder( yargs ) {
  * @param {string} b - Second action.
  * @return {string} The winning action.
  */
-function resolveAction( a, b ) {
+export function resolveAction( a, b ) {
 	return ( ACTION_RANK[ a ] ?? 0 ) >= ( ACTION_RANK[ b ] ?? 0 ) ? a : b;
 }
 
@@ -106,7 +113,7 @@ function resolveAction( a, b ) {
  * @param {string}             project - Project slug.
  * @param {string}             action  - Proposed action.
  */
-function mergeAction( plan, project, action ) {
+export function mergeAction( plan, project, action ) {
 	const existing = plan.get( project );
 	plan.set( project, existing ? resolveAction( existing, action ) : action );
 }
@@ -121,7 +128,7 @@ function mergeAction( plan, project, action ) {
  * @param {string} slug - Project slug.
  * @return {boolean} Whether the project owns a runtime classmap.
  */
-function ownsRuntimeClassmap( slug ) {
+export function ownsRuntimeClassmap( slug ) {
 	return slug.startsWith( 'plugins/' );
 }
 
@@ -233,9 +240,14 @@ async function planFromLogScan( deps, scan, cwd, skipSet ) {
  */
 async function runAction( slug, action, argv ) {
 	const cwd = projectDir( slug );
-	const stdio = [ 'ignore', argv.v ? 'inherit' : 'pipe', argv.v ? 'inherit' : 'pipe' ];
 	if ( action === 'dump-autoload' ) {
-		await execa( 'composer', [ 'dump-autoload' ], { cwd, stdio, buffer: false } );
+		// Buffer stdout/stderr when not verbose so we can surface composer's actual
+		// error output if the command fails (otherwise the user just sees "exit code 1").
+		const stdio = argv.v ? 'inherit' : 'pipe';
+		await execa( 'composer', [ 'dump-autoload', '--no-interaction' ], {
+			cwd,
+			stdio,
+		} );
 		return;
 	}
 	if ( action === 'build' ) {
@@ -243,6 +255,42 @@ async function runAction( slug, action, argv ) {
 		return;
 	}
 	throw new Error( `Unknown action: ${ action }` );
+}
+
+/**
+ * Pull the most informative chunk out of an execa error for inline display.
+ *
+ * Composer's stderr is usually a wall of help text; the actually-useful lines
+ * are above it. We try stderr first (composer puts diagnostics there), then
+ * stdout, then the bare exit message.
+ *
+ * @param {Error}  error - execa error.
+ * @param {number} [n]   - Max number of lines to include.
+ * @return {string} Compact, multi-line snippet suitable for printing under a task title.
+ */
+export function summarizeExecError( error, n = 6 ) {
+	const pickFirst = text => {
+		if ( ! text ) {
+			return '';
+		}
+		const lines = text
+			.split( '\n' )
+			.map( s => s.replace( /\s+$/, '' ) )
+			.filter( s => s.length > 0 );
+		// Strip composer's "dump-autoload [-o|...] ..." usage trailer that follows real errors.
+		const cutAt = lines.findIndex( s => /^dump-autoload\s+\[/i.test( s ) );
+		const trimmed = cutAt >= 0 ? lines.slice( 0, cutAt ) : lines;
+		return trimmed.slice( 0, n ).join( '\n' );
+	};
+	const fromStderr = pickFirst( error.stderr );
+	if ( fromStderr ) {
+		return fromStderr;
+	}
+	const fromStdout = pickFirst( error.stdout );
+	if ( fromStdout ) {
+		return fromStdout;
+	}
+	return error.shortMessage || error.message || 'Unknown error';
 }
 
 /**
@@ -395,26 +443,38 @@ export async function handler( argv ) {
 
 	const t0 = Date.now();
 	const failures = [];
+
+	// dump-autoload actions are independent per plugin (each plugin has its own
+	// vendor/composer/jetpack_autoload_classmap.php), so they can run in parallel.
+	// `build` actions stay serial because Listr-internal topological ordering
+	// guarantees a dependency package's build emits before a dependent plugin's
+	// build starts. Mixed plans are run serial to be safe.
+	const allDumpAutoload = ordered.every( o => o.action === 'dump-autoload' );
+	const concurrency = Math.max( 1, argv.concurrency || 1 );
+	const limit = pLimit( allDumpAutoload ? concurrency : 1 );
+
 	const tasks = ordered.map( ( { slug, action } ) => ( {
 		title: `${ chalk.bold( slug ) } ${ chalk.grey( `[${ action }]` ) }`,
-		task: async ( _ctx, task ) => {
-			const startedAt = Date.now();
-			try {
-				await runAction( slug, action, argv );
-				task.title += chalk.grey( ` (${ formatDuration( Date.now() - startedAt ) }s)` );
-				const sha = await currentHead( cwd );
-				await writeStamp( slug, sha, cwd );
-			} catch ( e ) {
-				const message = e.shortMessage || e.message;
-				failures.push( { slug, action, message } );
-				throw new Error( `[${ slug }] ${ action } failed: ${ message }` );
-			}
-		},
+		task: ( _ctx, task ) =>
+			limit( async () => {
+				const startedAt = Date.now();
+				try {
+					await runAction( slug, action, argv );
+					task.title += chalk.grey( ` (${ formatDuration( Date.now() - startedAt ) }s)` );
+					const sha = await currentHead( cwd );
+					await writeStamp( slug, sha, cwd );
+				} catch ( e ) {
+					const detail = summarizeExecError( e );
+					failures.push( { slug, action, message: detail } );
+					throw new Error( `[${ slug }] ${ action } failed:\n${ detail }` );
+				}
+			} ),
 	} ) );
 
 	const listr = new Listr( tasks, {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
-		concurrent: false,
+		// When parallelism is on, ask Listr to schedule everything at once and let pLimit gate.
+		concurrent: allDumpAutoload && concurrency > 1,
 		exitOnError: !! argv.stopOnError,
 	} );
 
