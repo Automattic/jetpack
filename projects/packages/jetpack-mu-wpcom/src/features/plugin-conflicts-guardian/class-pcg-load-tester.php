@@ -186,10 +186,12 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * One-line label for an anomalous-allow verdict — `<status>: <reason>`
-	 * truncated to a sensible length. Lets a single log entry name both
-	 * the class of allow (error vs ok-inconclusive) and the underlying
-	 * cause (HTTP 500, redirect cycle, intercepted loopback, etc.).
+	 * One-line label for an anomalous-allow verdict — `<status>: <reason>`.
+	 * Lets a single log entry name both the class of allow (error vs
+	 * ok-inconclusive) and the underlying cause (HTTP 500, redirect
+	 * cycle, intercepted loopback, etc.). Reasons are author-written
+	 * sentences from `parse_response` and `pcg_log_event` already caps
+	 * payload size, so we don't truncate here.
 	 *
 	 * @param array $result Probe verdict.
 	 * @return string
