@@ -1,4 +1,4 @@
-import restApi from '@automattic/jetpack-api';
+import apiFetch from '@wordpress/api-fetch';
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -23,7 +23,7 @@ import CardLink from './card-link';
  * reset flags cross-contaminating.
  *
  * @param {object}  props                       - Props.
- * @param {object}  props.config                - The `{enabled, editorUrl, postType, isCustomized}` blob from the matching singleton-template selector.
+ * @param {object}  props.config                - The `{enabled, editorUrl, resetRestPath, isCustomized}` blob from the matching singleton-template selector.
  * @param {string}  props.editLabel             - Visible label for the "Edit …" link.
  * @param {string}  props.restoreConfirmMessage - Body copy for the destructive confirm dialog.
  * @param {string}  props.successMessage        - Notice copy posted after a successful reset.
@@ -81,7 +81,7 @@ export default function SingletonTemplateActions( {
 					// reality.
 					onClick={ () => setJustReset( false ) }
 				/>
-				{ config.postType && config.isCustomized && ! justReset && (
+				{ config.resetRestPath && config.isCustomized && ! justReset && (
 					<CardLink
 						label={ restoreLabel }
 						href="#"
@@ -89,7 +89,7 @@ export default function SingletonTemplateActions( {
 						onClick={ event => {
 							// Destructive — open the confirm dialog instead of
 							// running the AJAX delete directly. The dialog's
-							// confirm handler is the one that fires the request.
+							// confirm handler is the one that fires `apiFetch`.
 							event.preventDefault();
 							setResetConfirmOpen( true );
 						} }
@@ -101,21 +101,18 @@ export default function SingletonTemplateActions( {
 				onConfirm={ async () => {
 					setResetConfirmOpen( false );
 					// Defensive guard: the dialog can only open via the
-					// `isCustomized && postType` CardLink above, so `postType`
-					// is non-null in practice — avoid firing a DELETE against
-					// `undefined` if the gating logic ever shifts.
-					if ( ! config.postType ) {
+					// `isCustomized && resetRestPath` CardLink above, so
+					// `resetRestPath` is non-null in practice — avoid firing a
+					// DELETE to `undefined` if the gating logic ever shifts.
+					if ( ! config.resetRestPath ) {
 						return;
 					}
 					setIsResetting( true );
 					try {
-						// `restApi` (not `apiFetch`) so the call resolves
-						// against the wpcom-origin-prefixed root the dashboard
-						// configures in `wrapped-dashboard.jsx` — that's what
-						// makes the DELETE reachable on WordPress.com Simple
-						// sites, where the local /wp-json/ surface doesn't
-						// expose Jetpack-registered routes.
-						await restApi.resetSearchTemplate( config.postType );
+						await apiFetch( {
+							path: config.resetRestPath,
+							method: 'DELETE',
+						} );
 						setJustReset( true );
 						successNotice( successMessage );
 					} catch ( error ) {

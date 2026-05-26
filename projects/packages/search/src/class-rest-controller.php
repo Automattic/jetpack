@@ -15,7 +15,6 @@ use Automattic\Jetpack\My_Jetpack\Products\Search_Stats as Search_Product_Stats;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
-use WP_REST_Response;
 use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -130,27 +129,6 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'product_pricing' ),
 				'permission_callback' => 'is_user_logged_in',
-			)
-		);
-		// "Restore default" for the singleton-template CPTs. Lives on
-		// jetpack/v4 (not /wp/v2/<rest_base>) so wpcom-origin can proxy it
-		// on Simple sites — the Jetpack-registered CPT controller isn't on
-		// the wpcom REST surface. The allowed `<post_type>` slugs are
-		// enforced inside the handler (single source of truth) rather than
-		// duplicated into a route-level validate_callback.
-		register_rest_route(
-			static::$namespace,
-			'/search/templates/(?P<post_type>[a-z0-9_-]+)',
-			array(
-				'methods'             => WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'reset_singleton_template' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-				'args'                => array(
-					'post_type' => array(
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_key',
-					),
-				),
 			)
 		);
 	}
@@ -585,61 +563,6 @@ class REST_Controller {
 			'post_count'          => Search_Product_Stats::estimate_count(),
 			'post_type_breakdown' => Search_Product_Stats::get_post_type_breakdown(),
 		);
-	}
-
-	/**
-	 * Force-delete the {@see Singleton_Template_Cpt} customization for the
-	 * requested post type, backing the dashboard's "Restore default" link.
-	 * `before_delete_post` in the base class clears the option pointer +
-	 * per-request cache so the next render falls back to the bundled template.
-	 *
-	 * DELETE `jetpack/v4/search/templates/<post_type>`
-	 *
-	 * @param WP_REST_Request $request - REST request.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function reset_singleton_template( $request ) {
-		$cpt_class = $this->resolve_singleton_template_class( $request['post_type'] );
-		if ( ! $cpt_class ) {
-			return new WP_Error(
-				'jetpack_search_template_unknown',
-				__( 'Unknown search template.', 'jetpack-search-pkg' ),
-				array( 'status' => 404 )
-			);
-		}
-		if ( ! $cpt_class::is_customized() ) {
-			return new WP_Error(
-				'jetpack_search_template_not_customized',
-				__( 'No customization to restore.', 'jetpack-search-pkg' ),
-				array( 'status' => 404 )
-			);
-		}
-		$post_id = $cpt_class::get_post_id();
-		if ( ! wp_delete_post( $post_id, true ) ) {
-			return new WP_Error(
-				'jetpack_search_template_reset_failed',
-				__( 'Failed to restore the default template.', 'jetpack-search-pkg' ),
-				array( 'status' => 500 )
-			);
-		}
-		return rest_ensure_response( array( 'deleted' => true ) );
-	}
-
-	/**
-	 * Map a CPT slug to its concrete `Singleton_Template_Cpt` subclass.
-	 * Returns null when the slug isn't one of the registered singleton-template
-	 * CPTs — the route only sanitizes the slug (via `sanitize_key`), so this
-	 * lookup is the primary "is this a known CPT?" filter, not a backup check.
-	 *
-	 * @param string $post_type Post type slug from the request.
-	 * @return class-string<Singleton_Template_Cpt>|null
-	 */
-	protected function resolve_singleton_template_class( $post_type ) {
-		$map = array(
-			Overlay_Template::POST_TYPE => Overlay_Template::class,
-			Search_Template::POST_TYPE  => Search_Template::class,
-		);
-		return $map[ $post_type ] ?? null;
 	}
 
 	/**
