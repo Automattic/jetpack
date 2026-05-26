@@ -156,7 +156,12 @@ class Users_Connection_Admin {
 				left: -170px;
 			}
 			.column-user_jetpack {
-				width: 160px;
+				width: 190px;
+			}
+			@media screen and (max-width: 1100px) {
+				.column-user_jetpack {
+					width: auto;
+				}
 			}
 			td.column-user_jetpack {
 				vertical-align: middle;
