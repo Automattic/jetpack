@@ -89,7 +89,7 @@ class PCG_Load_Tester {
 		// scoped data the probe lacks resolves to null). Each entry should
 		// carry a code comment + sunset date so it can be deleted once the
 		// upstream fix ships.
-		$allowlist_match = $this->matches_signature_allowlist( $verdict, $plugin_mains );
+		$allowlist_match = $this->matches_signature_allowlist( $verdict );
 		if ( null !== $allowlist_match ) {
 			$this->log_signature_allowlist_match( $mode, $plugin_mains, $verdict, $allowlist_match );
 			return $this->downgrade_to_inconclusive(
@@ -161,11 +161,10 @@ class PCG_Load_Tester {
 	 * an entry with none short-circuits and is skipped.
 	 *
 	 * @internal
-	 * @param array    $verdict      Probe verdict.
-	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
+	 * @param array $verdict Probe verdict.
 	 * @return string|null Matching signature label, or null.
 	 */
-	public function matches_signature_allowlist( array $verdict, array $plugin_mains ) {
+	public function matches_signature_allowlist( array $verdict ) {
 		$status = (string) ( $verdict['status'] ?? '' );
 		if ( 'fatal' !== $status && 'throwable' !== $status ) {
 			return null;
@@ -176,9 +175,9 @@ class PCG_Load_Tester {
 			return null;
 		}
 
-		$message              = (string) ( $verdict['message'] ?? '' );
-		$file_base            = isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '';
-		$attributed_basename  = '';
+		$message             = (string) ( $verdict['message'] ?? '' );
+		$file_base           = isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '';
+		$attributed_basename = '';
 		if ( ! empty( $verdict['plugin'] ) ) {
 			$attributed_basename = $this->relative_basenames( array( (string) $verdict['plugin'] ) )[0];
 		}
@@ -507,15 +506,15 @@ class PCG_Load_Tester {
 		// intentionally NOT matched — those carry the same "user is
 		// asking to abort" semantics as a hand-thrown Exception.
 		static $engine_errors = array(
-			'Error'                => true,
-			'TypeError'            => true,
-			'ParseError'           => true,
-			'ValueError'           => true,
-			'ArgumentCountError'   => true,
-			'ArithmeticError'      => true,
-			'DivisionByZeroError'  => true,
-			'AssertionError'       => true,
-			'UnhandledMatchError'  => true,
+			'Error'               => true,
+			'TypeError'           => true,
+			'ParseError'          => true,
+			'ValueError'          => true,
+			'ArgumentCountError'  => true,
+			'ArithmeticError'     => true,
+			'DivisionByZeroError' => true,
+			'AssertionError'      => true,
+			'UnhandledMatchError' => true,
 		);
 		return isset( $engine_errors[ ltrim( (string) $class_name, '\\' ) ] );
 	}

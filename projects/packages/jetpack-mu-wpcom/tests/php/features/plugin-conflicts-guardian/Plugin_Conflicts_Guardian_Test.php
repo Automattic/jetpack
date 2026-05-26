@@ -946,7 +946,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			'gf-2.10.1-array-walk-null',
-			$tester->matches_signature_allowlist( $verdict, array( $plugin ) )
+			$tester->matches_signature_allowlist( $verdict )
 		);
 	}
 
@@ -957,7 +957,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_signature_allowlist_skips_non_blocking_verdicts() {
 		$tester = new PCG_Load_Tester();
-		$plugin = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
 
 		add_filter(
 			'pcg_signature_allowlist',
@@ -976,8 +975,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 					array(
 						'status'  => $status,
 						'message' => 'anything',
-					),
-					array( $plugin )
+					)
 				),
 				"Status '$status' must not match the allowlist."
 			);
@@ -1006,8 +1004,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 					'status'  => 'fatal',
 					'message' => 'anything',
 					'file'    => $plugin,
-				),
-				array( $plugin )
+				)
 			)
 		);
 	}
@@ -1040,7 +1037,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			'gf-block-form',
-			$tester->matches_signature_allowlist( $verdict, array( $plugin ) )
+			$tester->matches_signature_allowlist( $verdict )
 		);
 	}
 
@@ -1133,7 +1130,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_signature_allowlist_requires_attribution_for_plugin_scoped_signature() {
 		$tester       = new PCG_Load_Tester();
-		$gravity      = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
 		$other_plugin = WP_PLUGIN_DIR . '/totally-other/other.php';
 
 		add_filter(
@@ -1156,7 +1152,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertNull(
-			$tester->matches_signature_allowlist( $verdict, array( $gravity, $other_plugin ) ),
+			$tester->matches_signature_allowlist( $verdict ),
 			'Plugin-scoped signature must require an explicit `plugin` attribution on the verdict.'
 		);
 	}
