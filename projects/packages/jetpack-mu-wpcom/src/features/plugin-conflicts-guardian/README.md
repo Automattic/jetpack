@@ -33,18 +33,31 @@ Two independent filters:
 
 ### Block policy: only on captured fatal
 
-PCG never blocks on a *guessed* fatal. The only two paths that emit `status: fatal` / `status: throwable` are:
+PCG never blocks on a *guessed* fatal. The paths that emit `status: fatal` / `status: throwable` are:
 
-- The shutdown handler in `probe-endpoint.php`, which uses `PCG_Load_Tester::classify_shutdown( error_get_last() )` to convert an engine-fatal errno into a `fatal` verdict. Anything outside `SHUTDOWN_FATAL_MASK` (notice, warning, no error after a clean `exit`) becomes `ok-shutdown`, signalling that bootstrap reached PHP shutdown without a captured fatal.
+- The shutdown handler in `probe-endpoint.php`, which uses `PCG_Load_Tester::classify_shutdown( error_get_last() )` to convert an engine-fatal errno into a `fatal` verdict. Anything outside `SHUTDOWN_FATAL_MASK` becomes `ok-shutdown`.
 - The `require_once` catch block in MODE_ACTIVATION, which converts a thrown `\Throwable` into a `throwable` verdict with `plugin`/`class`/`file`/`line`.
+- The shutdown handler also re-attributes via the **require-time milestone** (see below): a missing wp_loaded/admin_init verdict during a candidate's load becomes a `throwable` against that candidate; a missing verdict *before* the candidate's require even ran becomes an `error` (inconclusive).
 
 The shutdown handler is registered with `register_shutdown_function`, which means it fires after every `exit` — including the `exit` at the end of `pcg_probe_respond` itself. A re-entry guard (`pcg_probe_already_emitted`) ensures the second invocation short-circuits, so the response body always contains exactly one JSON document. Without the guard the always-emit semantics would double-emit on every successful probe, breaking the client's `json_decode` and routing the marker+200 fall-through to a false-positive fatal.
 
+### Require-time milestone tracking
+
+In MODE_ACTIVATION the candidate's `require_once` runs from a deferred `wp_loaded:1` closure (see flow step 4). `probe-endpoint.php` tracks a per-request milestone — `pre-require` → `in-require:$plugin` → `required` — so the shutdown handler can distinguish three failure modes that would otherwise all look like a missing verdict:
+
+| Milestone at shutdown | Verdict | Why |
+| --- | --- | --- |
+| `required` (or update mode) | `classify_shutdown` as today (`fatal` / `ok-shutdown`) | Normal post-require shutdown. |
+| `in-require:$plugin` and no engine fatal | `throwable` attributing to `$plugin` | The candidate called `exit` / `die` / `wp_die` from its main file. A real WP activation would abort the same way — block, don't silently allow. |
+| `pre-require` (deferred closure never ran) | `error` | An earlier plugin exited during `init` before our `wp_loaded` callback fired; the probe learned nothing about the candidate, so the verdict is inconclusive (allow + log). |
+
 ### Sibling-load flake downgrade
 
-A captured fatal where the candidate plugin's entry file loads but a sibling under its own directory fails to require or autoload is downgraded to `ok-inconclusive` (allow + log). `PCG_Load_Tester::is_sibling_load_flake()` recognises the signature — `Failed opening required` / `failed to open stream` / canonical `Class "Name" not found` whose captured `file` lies inside one of the candidate plugins' own directories. The downgrade fires on the first match; logstash on the production data shows the same `(blog, file)` combinations reproducing for hours when this happens, so a retry can't convert deterministic failures into successes — CLI activation (or a second admin-page activation attempt) remains the recovery path. The mechanism behind these flakes isn't yet identified; downgrading on the stable signature is defensible regardless of cause.
+A captured fatal where the candidate plugin's entry file loads but a sibling under its own directory fails to require or autoload is downgraded to `ok-inconclusive` (allow + log). `PCG_Load_Tester::is_sibling_load_flake()` recognises the signature — `Failed opening required` / `failed to open stream` / canonical `Class "Name" not found` whose captured `file` lies inside one of the candidate plugins' own directories. For the `throwable` arm, the captured `class` must be a PHP **engine** error class (`\Error`, `\TypeError`, `\ParseError`, etc.) — a plugin hand-throwing a `\RuntimeException` with class-not-found-shaped wording is asking to abort and is *not* downgraded.
 
-The `update-healthcheck` cleanup path explicitly preserves the rollback snapshot on `ok-inconclusive` / `ok-shutdown` so the recovery artifact remains if a real fatal surfaces on a subsequent request; the snapshot sweep TTL eventually reclaims the disk.
+The downgrade fires on the first match; logstash on the production data shows the same `(blog, file)` combinations reproducing for hours when this happens, so a retry can't convert deterministic failures into successes — CLI activation (or a second admin-page activation attempt) remains the recovery path. The mechanism behind these flakes isn't yet identified; downgrading on the stable signature is defensible regardless of cause.
+
+**Scope:** this downgrade only runs in `MODE_ACTIVATION`. In `MODE_UPDATE` the new plugin files are already swapped into place; allowing a captured fatal would leave the broken update active and `PCG_Rollback::to_snapshot()` would never fire. Update-mode captured fatals always block.
 
 ### Per-signature allowlist
 
@@ -63,7 +76,9 @@ add_filter( 'pcg_signature_allowlist', function ( $list ) {
 } );
 ```
 
-Each entry should carry a code comment + sunset date so it can be deleted once the upstream fix ships. Matching is on basename for `plugin` / `file` and PCRE for `message`; an entry with none of the three keys is skipped silently (too loose to apply). Matches are sampled to logstash under `Signature allowlist match`.
+Each entry should carry a code comment + sunset date so it can be deleted once the upstream fix ships. Matching is on basename for `plugin` / `file` and PCRE for `message`. Entries with none of the three narrowing keys are rejected and logged as `Signature allowlist rejected` so operators can see when their allowlist is partially inert. A plugin-scoped entry requires the verdict to carry an explicit `plugin` attribution (i.e. the throwable-arm `plugin` field set when a `\Throwable` is caught around the require); a shutdown-handler `fatal` verdict has no `plugin` key, so plugin-scoped entries never match it — only the `file` and `message` arms apply.
+
+Like the sibling-load downgrade, signature-allowlist downgrades only run in `MODE_ACTIVATION`. Matches are sampled to logstash under `Signature allowlist match`.
 
 ### Percentage rollout
 
@@ -146,7 +161,7 @@ Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP re
 1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()`, stashes them in a transient keyed by the plugin basename, **and copies the live plugin files to `<get_temp_dir()>/pcg-backups/<unique>/<asset>`** (override via the `pcg_backup_root` filter) so we can restore offline without re-downloading.
 2. Core extracts + copies the new files (the original copy is still safely tucked away under `pcg-backups/`).
 3. `upgrader_process_complete` (priority 99) — `update-healthcheck.php` drains the snapshots for every plugin in `hook_extra['plugins']`, keeps the ones that were active and whose new files are still on disk, and runs **one** `PCG_Load_Tester::test( $plugin_mains, PCG_Load_Tester::MODE_UPDATE )` for the whole batch. MODE_UPDATE checks whether the site as a whole bootstraps; it doesn't isolate a specific plugin, so a single probe is enough. The probe endpoint skips the `require_once` in update mode and just observes whether the (already-loaded) new code completes the bootstrap cleanly.
-4. On `ok` (or a transport `error`), every backup in the batch is deleted and we're done. `ok-inconclusive` / `ok-shutdown` verdicts deliberately **preserve** the backups — we allowed the update despite a suspicious signal, so we want the snapshot available for rollback if a real fatal surfaces on the next request. The snapshot sweep TTL reclaims the disk after `STALE_BACKUP_TTL`.
+4. On any non-fatal verdict (`ok`, `ok-shutdown`, `ok-inconclusive`, `error`), every backup in the batch is deleted and we're done. Captured-fatal downgrades don't reach update mode (MODE_UPDATE never downgrades), so a non-fatal verdict here genuinely means there's nothing to roll back. Preserving the backup beyond this point would orphan it anyway — the snapshot transient has already been `consume()`d to build the candidate list.
 5. On `fatal` / `throwable`, `PCG_Rollback::to_snapshot()` runs for **every** snapshot in the batch — deactivating each broken plugin, **swapping the new files for the saved local backup** via rename (or copy + delete-source as a fallback for cross-fs cases), and reactivating if the plugin was active. We can't tell which plugin in the batch caused the fatal, so restoring the whole batch is the safe call.
 6. If a local backup is missing or the swap fails, `PCG_Rollback` falls back to fetching `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip` and reinstalling via `Plugin_Upgrader`. This still helps for .org plugins on hosts where the local backup couldn't be created (full disk, restrictive perms).
 7. If neither path works, the plugin is left deactivated and the admin notice says so.

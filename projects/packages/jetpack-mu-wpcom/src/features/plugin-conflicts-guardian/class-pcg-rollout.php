@@ -85,12 +85,18 @@ class PCG_Rollout {
 	/**
 	 * Stable [0, 100) bucket for a blog ID.
 	 *
+	 * `abs()` is applied to the modulo result (not the raw `crc32`) so the
+	 * bucket is always non-negative even on 32-bit PHP, where `crc32`
+	 * returns a signed int and `abs(PHP_INT_MIN)` overflows back to
+	 * `PHP_INT_MIN`. PHP's `%` operator preserves the sign of the
+	 * dividend, so `abs($x % 100)` cleanly clamps into [0, 100).
+	 *
 	 * @internal Exposed for tests.
 	 * @param int $blog_id Blog ID.
 	 * @return int
 	 */
 	public static function blog_bucket( $blog_id ) {
-		return abs( crc32( (string) (int) $blog_id ) ) % 100;
+		return abs( crc32( (string) (int) $blog_id ) % 100 );
 	}
 }
 

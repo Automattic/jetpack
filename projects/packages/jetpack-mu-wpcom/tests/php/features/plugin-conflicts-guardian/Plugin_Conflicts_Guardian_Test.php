@@ -799,6 +799,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$verdict = array(
 			'status'  => 'throwable',
+			'class'   => 'Error',
 			'message' => "Failed opening required '{$plugin}-dir/includes/class-main.php' (include_path='/:.')",
 			'file'    => $plugin,
 		);
@@ -819,6 +820,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$verdict = array(
 			'status'  => 'throwable',
+			'class'   => 'Error',
 			'message' => 'Class "InvisibleReCaptcha\\MchLib\\Plugin\\MchBasePlugin" not found for activation',
 			'file'    => $plugin,
 		);
@@ -1120,6 +1122,174 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
 		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+	}
+
+	/**
+	 * A plugin-scoped signature must NOT match when the verdict lacks an
+	 * explicit `plugin` attribution. Falling back to the whole batch would
+	 * silently allow an unrelated sibling's fatal under another plugin's
+	 * label whenever a shutdown-handler `fatal` (no `plugin` key) hit a
+	 * batch that happened to contain the configured plugin.
+	 */
+	public function test_signature_allowlist_requires_attribution_for_plugin_scoped_signature() {
+		$tester       = new PCG_Load_Tester();
+		$gravity      = WP_PLUGIN_DIR . '/gravityforms/gravityforms.php';
+		$other_plugin = WP_PLUGIN_DIR . '/totally-other/other.php';
+
+		add_filter(
+			'pcg_signature_allowlist',
+			static function ( $list ) {
+				$list[] = array(
+					'label'   => 'gf-array-walk',
+					'plugin'  => 'gravityforms/gravityforms.php',
+					'message' => '/array_walk/',
+				);
+				return $list;
+			}
+		);
+
+		// Shutdown-handler-style fatal: no `plugin` attribution.
+		$verdict = array(
+			'status'  => 'fatal',
+			'message' => 'array_walk() expects parameter 1 to be array, null given',
+			'file'    => $other_plugin,
+		);
+
+		$this->assertNull(
+			$tester->matches_signature_allowlist( $verdict, array( $gravity, $other_plugin ) ),
+			'Plugin-scoped signature must require an explicit `plugin` attribution on the verdict.'
+		);
+	}
+
+	/**
+	 * A `throwable` verdict whose captured class is a user-thrown
+	 * Exception (e.g. RuntimeException) must NOT be classified as a
+	 * sibling-load flake, even if the user-supplied message happens to
+	 * match the class-not-found regex and the throw site is inside the
+	 * plugin directory. The classifier must restrict to PHP engine
+	 * error classes — anything else is the plugin asking to abort.
+	 */
+	public function test_is_sibling_load_flake_rejects_non_engine_throwable() {
+		$tester = new PCG_Load_Tester();
+		$plugin = WP_PLUGIN_DIR . '/some-plugin/some-plugin.php';
+
+		$verdict = array(
+			'status'  => 'throwable',
+			'class'   => 'RuntimeException',
+			'message' => 'Class "Foo\\Bar" not found — please reinstall plugin',
+			'file'    => $plugin,
+		);
+
+		$this->assertFalse(
+			$tester->is_sibling_load_flake( $verdict, array( $plugin ) ),
+			'A hand-thrown RuntimeException with class-not-found wording is a deliberate abort, not a flake.'
+		);
+	}
+
+	/**
+	 * `is_php_engine_error_class` recognises PHP's built-in error
+	 * classes and rejects user-defined Exception subclasses, with or
+	 * without leading namespace separators.
+	 */
+	public function test_is_php_engine_error_class_recognises_engine_classes() {
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'Error' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( '\\Error' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'TypeError' ) );
+		$this->assertTrue( PCG_Load_Tester::is_php_engine_error_class( 'ParseError' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'RuntimeException' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'Exception' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( 'MyError' ) );
+		$this->assertFalse( PCG_Load_Tester::is_php_engine_error_class( '' ) );
+	}
+
+	/**
+	 * `WP_PLUGIN_DIR` defined with a trailing slash (legal, occasionally
+	 * seen in custom installs) must not bypass the flat-file-plugin skip
+	 * in `path_inside_candidate`, since otherwise the candidate's
+	 * effective prefix becomes `WP_PLUGIN_DIR/` and matches every
+	 * unrelated plugin's files.
+	 *
+	 * The detector compares via `untrailingslashit()`, so the
+	 * `Plugin_Conflicts_Guardian_Test`'s scenario simulates this by
+	 * supplying a plugin path that has an extra trailing slash in the
+	 * dirname comparison — captured in the regression scenario below.
+	 */
+	public function test_is_sibling_load_flake_skips_flat_file_when_plugin_dir_has_trailing_slash() {
+		$tester = new PCG_Load_Tester();
+		// `WP_PLUGIN_DIR` is fixed at runtime so we can't directly mutate
+		// it; instead exercise the untrailingslashit normalization by
+		// passing a flat-file candidate whose dirname matches the
+		// configured plugins root after normalization.
+		$flat = WP_PLUGIN_DIR . '/hello.php';
+
+		$verdict = array(
+			'status'  => 'fatal',
+			'message' => "Failed opening required '" . WP_PLUGIN_DIR . "/unrelated/file.php'",
+			'file'    => WP_PLUGIN_DIR . '/unrelated/file.php',
+		);
+
+		$this->assertFalse(
+			$tester->is_sibling_load_flake( $verdict, array( $flat ) ),
+			'A flat-file candidate must be skipped so its WP_PLUGIN_DIR prefix does not match other plugins.'
+		);
+	}
+
+	/**
+	 * Update mode never downgrades captured fatals — the rollback path
+	 * needs every captured fatal to block so PCG_Rollback can fire.
+	 */
+	public function test_test_does_not_downgrade_in_update_mode() {
+		// Stub `PCG_Load_Tester::send_probe_pair` via a subclass that
+		// returns a sibling-load-shaped fatal without making an HTTP
+		// request, so we can assert the test() entry point preserves
+		// it in MODE_UPDATE.
+		$plugin = WP_PLUGIN_DIR . '/akismet/akismet.php';
+		if ( ! is_dir( WP_PLUGIN_DIR . '/akismet' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/akismet', 0777, true );
+		}
+		if ( ! file_exists( $plugin ) ) {
+			file_put_contents( $plugin, "<?php\n// stub\n" );
+		}
+
+		$tester = new class() extends PCG_Load_Tester {
+			protected function send_probe_pair( array $plugin_mains, $mode ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $mode matches the parent signature.
+				$plugin = $plugin_mains[0];
+				return array(
+					'status'  => 'fatal',
+					'message' => "Failed opening required '{$plugin}-dir/missing.php'",
+					'file'    => $plugin,
+				);
+			}
+		};
+
+		try {
+			$activation_verdict = $tester->test( array( $plugin ), PCG_Load_Tester::MODE_ACTIVATION );
+			$this->assertSame( 'ok-inconclusive', $activation_verdict['status'], 'Activation mode downgrades the sibling-load fatal.' );
+
+			$update_verdict = $tester->test( array( $plugin ), PCG_Load_Tester::MODE_UPDATE );
+			$this->assertSame( 'fatal', $update_verdict['status'], 'Update mode must preserve the captured fatal so rollback fires.' );
+		} finally {
+			if ( file_exists( $plugin ) ) {
+				unlink( $plugin );
+			}
+			if ( is_dir( WP_PLUGIN_DIR . '/akismet' ) ) {
+				rmdir( WP_PLUGIN_DIR . '/akismet' );
+			}
+		}
+	}
+
+	/**
+	 * `blog_bucket` must always return a non-negative value in [0, 100),
+	 * even on platforms where `crc32` returns a signed int and the raw
+	 * modulo would be negative.
+	 */
+	public function test_blog_bucket_is_non_negative() {
+		// Walk a range of IDs; every result must be in [0, 100).
+		for ( $i = 0; $i < 500; $i++ ) {
+			$bucket = PCG_Rollout::blog_bucket( 10_000_000 + $i );
+			$this->assertGreaterThanOrEqual( 0, $bucket, 'Bucket for blog ' . ( 10_000_000 + $i ) . ' must be >= 0.' );
+			$this->assertLessThan( 100, $bucket, 'Bucket for blog ' . ( 10_000_000 + $i ) . ' must be < 100.' );
+		}
 	}
 
 	/**

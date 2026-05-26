@@ -71,6 +71,16 @@ class PCG_Load_Tester {
 
 		$verdict = $this->send_probe_pair( $plugin_mains, $mode );
 
+		// Downgrades (signature allowlist + sibling-load flake) only run for
+		// activation probes. In MODE_UPDATE the post-update healthcheck has
+		// already installed new files over the live plugin and needs every
+		// captured fatal to block so PCG_Rollback::to_snapshot() can fire —
+		// silently allowing an update fatal would leave the site running
+		// the broken new files with no recovery path.
+		if ( self::MODE_ACTIVATION !== $mode ) {
+			return $verdict;
+		}
+
 		// Per-signature allowlist for known probe-only fatals — verdicts that
 		// match a signature configured via `pcg_signature_allowlist` are
 		// downgraded to `ok-inconclusive` (allow + log). Intended for
@@ -88,15 +98,14 @@ class PCG_Load_Tester {
 			);
 		}
 
-		// Sibling-load flake (Atomic): the candidate plugin's entry file
-		// loads but a sibling under its own directory fails to require or
+		// Sibling-load flake: captured fatal where the candidate's entry file
+		// loaded but a sibling under its own directory failed to require or
 		// autoload. CLI activation works because CLI runs in the same
-		// environment that wrote the files. We can't distinguish a transient
-		// from a genuine missing file by inspecting the verdict, and the
-		// trace shows the same `(blog, file)` failing for hours when it does
-		// happen — so we downgrade to `ok-inconclusive` (allow + log) on the
-		// first match rather than retrying. CLI / second-page-load activation
-		// remains available as the recovery path.
+		// environment that wrote the files. Logstash on the production data
+		// shows the same `(blog, file)` combinations reproducing for hours,
+		// so a retry can't help — downgrade to `ok-inconclusive` (allow +
+		// log) on the first match. CLI / second-page activation remains the
+		// recovery path.
 		if ( $this->is_sibling_load_flake( $verdict, $plugin_mains ) ) {
 			$this->log_sibling_load_flake_downgrade( $mode, $plugin_mains, $verdict );
 			return $this->downgrade_to_inconclusive(
@@ -167,14 +176,11 @@ class PCG_Load_Tester {
 			return null;
 		}
 
-		$message      = (string) ( $verdict['message'] ?? '' );
-		$file_base    = isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '';
-		$plugin_bases = $this->relative_basenames( $plugin_mains );
-		// The explicit `plugin` attribution (set when a Throwable is caught
-		// around the require) is the strongest signal for which plugin in a
-		// batch tripped the fatal — prefer it over the batch.
+		$message              = (string) ( $verdict['message'] ?? '' );
+		$file_base            = isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '';
+		$attributed_basename  = '';
 		if ( ! empty( $verdict['plugin'] ) ) {
-			$plugin_bases = $this->relative_basenames( array( (string) $verdict['plugin'] ) );
+			$attributed_basename = $this->relative_basenames( array( (string) $verdict['plugin'] ) )[0];
 		}
 
 		foreach ( $signatures as $sig ) {
@@ -184,14 +190,29 @@ class PCG_Load_Tester {
 			$has_plugin  = ! empty( $sig['plugin'] );
 			$has_file    = ! empty( $sig['file'] );
 			$has_message = ! empty( $sig['message'] );
+			$label       = isset( $sig['label'] ) ? (string) $sig['label'] : 'unlabelled';
 			if ( ! $has_plugin && ! $has_file && ! $has_message ) {
+				// Refuse to apply a signature that has no narrowing
+				// criteria — it would match every captured fatal. Log
+				// so operators see the entry was rejected (a silent
+				// skip during an incident is worse than no entry).
+				$this->log_signature_allowlist_rejected( $label, 'no plugin/file/message narrowing — too loose' );
 				continue;
 			}
 			if ( isset( $sig['status'] ) && (string) $sig['status'] !== $status ) {
 				continue;
 			}
-			if ( $has_plugin && ! in_array( (string) $sig['plugin'], $plugin_bases, true ) ) {
-				continue;
+			if ( $has_plugin ) {
+				// Plugin-scoped signatures require an explicit `plugin`
+				// attribution on the verdict — without it we'd be
+				// matching against the whole batch, which could
+				// silently allow an unrelated sibling's fatal under
+				// another plugin's label. Throwable-arm verdicts carry
+				// `plugin` from the probe-endpoint catch; shutdown-arm
+				// `fatal` verdicts do not.
+				if ( '' === $attributed_basename || (string) $sig['plugin'] !== $attributed_basename ) {
+					continue;
+				}
 			}
 			if ( $has_file && (string) $sig['file'] !== $file_base ) {
 				continue;
@@ -199,10 +220,28 @@ class PCG_Load_Tester {
 			if ( $has_message && ! preg_match( (string) $sig['message'], $message ) ) {
 				continue;
 			}
-			return isset( $sig['label'] ) ? (string) $sig['label'] : 'unlabelled';
+			return $label;
 		}
 
 		return null;
+	}
+
+	/**
+	 * Log a `pcg_signature_allowlist` entry that we refused to apply, so
+	 * operators have feedback that their allowlist is partially inert.
+	 *
+	 * @param string $label  Label from the rejected entry, if any.
+	 * @param string $reason Why we refused.
+	 * @return void
+	 */
+	protected function log_signature_allowlist_rejected( $label, $reason ) {
+		pcg_log_event(
+			'Signature allowlist rejected',
+			array(
+				'label'  => (string) $label,
+				'reason' => (string) $reason,
+			)
+		);
 	}
 
 	/**
@@ -318,6 +357,21 @@ class PCG_Load_Tester {
 		if ( 'fatal' !== $status && 'throwable' !== $status ) {
 			return false;
 		}
+
+		// For the throwable arm, restrict to PHP engine error classes
+		// (`\Error` and its built-in subclasses). A hand-thrown
+		// `\RuntimeException` from a plugin's self-check that happens to
+		// contain class-not-found-shaped wording must NOT be downgraded —
+		// the plugin is asking to abort, and silently allowing the
+		// activation would deliver a half-loaded plugin to production.
+		// classify_shutdown verdicts (`fatal`) never carry a `class` key.
+		if ( 'throwable' === $status ) {
+			$captured_class = (string) ( $result['class'] ?? '' );
+			if ( ! self::is_php_engine_error_class( $captured_class ) ) {
+				return false;
+			}
+		}
+
 		$message = (string) ( $result['message'] ?? '' );
 
 		// Anchor the class-not-found check to PHP's canonical wording —
@@ -365,9 +419,10 @@ class PCG_Load_Tester {
 		if ( '' === (string) $path ) {
 			return false;
 		}
+		$plugins_root = untrailingslashit( WP_PLUGIN_DIR );
 		foreach ( $plugin_mains as $main ) {
-			$dir = dirname( (string) $main );
-			if ( WP_PLUGIN_DIR === $dir ) {
+			$dir = untrailingslashit( dirname( (string) $main ) );
+			if ( $plugins_root === $dir ) {
 				continue;
 			}
 			if ( $path === $main || str_starts_with( $path, $dir . '/' ) ) {
@@ -389,9 +444,10 @@ class PCG_Load_Tester {
 	 * @return bool
 	 */
 	protected function message_references_candidate_path( $message, array $plugin_mains ) {
+		$plugins_root = untrailingslashit( WP_PLUGIN_DIR );
 		foreach ( $plugin_mains as $main ) {
-			$dir = dirname( (string) $main );
-			if ( WP_PLUGIN_DIR === $dir ) {
+			$dir = untrailingslashit( dirname( (string) $main ) );
+			if ( $plugins_root === $dir ) {
 				continue;
 			}
 			if ( str_contains( $message, $dir . '/' ) ) {
@@ -428,6 +484,40 @@ class PCG_Load_Tester {
 				'file'    => isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '',
 			)
 		);
+	}
+
+	/**
+	 * Whether a captured throwable's class name is one of PHP's built-in
+	 * engine error classes (i.e. one that the engine raises directly,
+	 * rather than something user code could throw to signal intent).
+	 *
+	 * Used by `is_sibling_load_flake` to ensure we only downgrade fatals
+	 * that PHP itself produced — a plugin hand-throwing a
+	 * `RuntimeException` with class-not-found-shaped wording must keep
+	 * blocking.
+	 *
+	 * @internal Exposed for tests.
+	 * @param string $class_name Captured `class` value from the verdict.
+	 * @return bool
+	 */
+	public static function is_php_engine_error_class( $class_name ) {
+		// Direct match against the engine error classes PHP can raise
+		// during `require_once` / class resolution. Subclasses created
+		// by user code (e.g. `class MyError extends Error {}`) are
+		// intentionally NOT matched — those carry the same "user is
+		// asking to abort" semantics as a hand-thrown Exception.
+		static $engine_errors = array(
+			'Error'                => true,
+			'TypeError'            => true,
+			'ParseError'           => true,
+			'ValueError'           => true,
+			'ArgumentCountError'   => true,
+			'ArithmeticError'      => true,
+			'DivisionByZeroError'  => true,
+			'AssertionError'       => true,
+			'UnhandledMatchError'  => true,
+		);
+		return isset( $engine_errors[ ltrim( (string) $class_name, '\\' ) ] );
 	}
 
 	/**
@@ -477,6 +567,18 @@ class PCG_Load_Tester {
 			return true;
 		}
 		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
+		// ok-shutdown means the probe reached PHP shutdown without
+		// emitting a wp_loaded/admin_init verdict — either a plugin
+		// did a clean exit() during init, or the probe bootstrap was
+		// terminated by something else before reaching the verdict
+		// point. With the require-time milestone tracking in
+		// probe-endpoint.php, exits *during* the candidate require
+		// now surface as `throwable`; ok-shutdown here therefore
+		// indicates a degraded probe environment that's still worth
+		// logging so operators can see the silent-pass rate.
+		if ( 'ok-shutdown' === $status ) {
+			return true;
+		}
 		if ( 'ok-inconclusive' !== $status ) {
 			return false;
 		}

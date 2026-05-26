@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Plugin Conflicts Guardian: rebuild verdict policy, defer probe require to wp_loaded, add signature allowlist and percentage rollout gate.
+Plugin Conflicts Guardian: rebuild verdict policy, defer probe require to wp_loaded with milestone-based shutdown attribution, restrict downgrades to activation mode, add signature allowlist and percentage rollout gate.

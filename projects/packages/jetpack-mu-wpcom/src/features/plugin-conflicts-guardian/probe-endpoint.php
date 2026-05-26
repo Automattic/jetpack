@@ -118,10 +118,21 @@ function pcg_maybe_handle_probe() {
 	// Update: skip; re-requiring an already-loaded plugin would fatal with
 	// "Cannot redeclare". The shutdown handler catches either way.
 	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
+		// Default milestone is `pre-require`; the shutdown handler reads
+		// this to distinguish "bootstrap exited before our require even
+		// ran" (a different probe issue, not a candidate fault) from
+		// "candidate's main file exited during load" (treat as throwable).
+		pcg_probe_load_milestone( array( 'state' => 'pre-require' ) );
 		add_action(
 			'wp_loaded',
 			static function () use ( $plugin_mains ) {
 				foreach ( $plugin_mains as $plugin_main ) {
+					pcg_probe_load_milestone(
+						array(
+							'state'  => 'in-require',
+							'plugin' => $plugin_main,
+						)
+					);
 					try {
 						require_once $plugin_main;
 					} catch ( \Throwable $t ) {
@@ -142,9 +153,16 @@ function pcg_maybe_handle_probe() {
 						return;
 					}
 				}
+				pcg_probe_load_milestone( array( 'state' => 'required' ) );
 			},
 			1
 		);
+	} else {
+		// Update mode doesn't require anything — the new plugin files are
+		// already loaded by WP's normal bootstrap. Mark the milestone as
+		// `required` so the shutdown handler treats `ok-shutdown` /
+		// captured fatals normally (no candidate-load attribution).
+		pcg_probe_load_milestone( array( 'state' => 'required' ) );
 	}
 
 	// Admin probe: defer the verdict to admin_init so admin-time hook fatals
@@ -171,9 +189,78 @@ function pcg_probe_emit_ok() {
  * client seeing "marker present + HTTP 200 + non-JSON body", which it
  * classifies as a fatal. That misfires on legitimate exit paths and was
  * the dominant cause of false-positive update-healthcheck rollbacks.
+ *
+ * When the milestone tracker says the bootstrap was mid-`require_once` of
+ * a candidate plugin and the classify_shutdown verdict is *not* a fatal
+ * (i.e. PHP didn't capture an error — the candidate called `exit` / `die`
+ * / `wp_die` from its main file), we re-attribute as a `throwable`
+ * against that plugin. A real WP activation would abort the same way, so
+ * silently allowing it is the wrong default.
+ *
+ * When the milestone is still `pre-require` (the deferred `wp_loaded`
+ * callback never ran — usually because an earlier plugin exited during
+ * `init`), the verdict is downgraded to `error`: the probe learned
+ * nothing about the candidate, and shouldn't pretend success.
  */
 function pcg_probe_shutdown() {
-	pcg_probe_respond( PCG_Load_Tester::classify_shutdown( error_get_last() ) );
+	$verdict = PCG_Load_Tester::classify_shutdown( error_get_last() );
+
+	if ( 'fatal' === ( $verdict['status'] ?? '' ) ) {
+		pcg_probe_respond( $verdict );
+		return;
+	}
+
+	$milestone = pcg_probe_load_milestone();
+	$state     = (string) ( $milestone['state'] ?? 'required' );
+
+	if ( 'in-require' === $state ) {
+		$plugin_main = (string) ( $milestone['plugin'] ?? '' );
+		pcg_probe_respond(
+			array(
+				'status'  => 'throwable',
+				'plugin'  => $plugin_main,
+				'class'   => 'PCG_Probe_Load_Exit',
+				'message' => 'Candidate plugin terminated the request during load (exit/die/wp_die before returning). Real activation would abort the same way.',
+				'file'    => $plugin_main,
+				'line'    => 0,
+			)
+		);
+		return;
+	}
+
+	if ( 'pre-require' === $state ) {
+		pcg_probe_respond(
+			array(
+				'status' => 'error',
+				'reason' => 'Probe bootstrap exited before the candidate plugin could be loaded; verdict is inconclusive.',
+			)
+		);
+		return;
+	}
+
+	pcg_probe_respond( $verdict );
+}
+
+/**
+ * Track the candidate-load milestone so the shutdown handler can decide
+ * whether a missing wp_loaded/admin_init verdict reflects a candidate's
+ * mid-load exit (treat as throwable), a pre-require bootstrap abort
+ * (treat as error), or a normal post-require clean exit (treat as
+ * ok-shutdown via classify_shutdown).
+ *
+ * @internal
+ * @param array|null $set Optional partial state to merge in (`state` and/or `plugin`).
+ * @return array{state:string,plugin:string}
+ */
+function pcg_probe_load_milestone( $set = null ) {
+	static $milestone = array(
+		'state'  => 'required',
+		'plugin' => '',
+	);
+	if ( is_array( $set ) ) {
+		$milestone = array_merge( $milestone, $set );
+	}
+	return $milestone;
 }
 
 /**
