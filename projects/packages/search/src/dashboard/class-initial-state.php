@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
@@ -206,15 +205,13 @@ class Initial_State {
 	/**
 	 * Check whether the AI Agent Access toggle should be available.
 	 *
-	 * The feature is rollout-gated to proxied Automattic contexts so regular
-	 * site owners, and non-proxied staff, do not see unfinished controls.
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 * Private sites are not eligible because external AI agents cannot read
+	 * their public content.
 	 *
 	 * @return bool
 	 */
 	protected function is_ai_agent_access_available() {
-		return $this->is_automattic_proxied_request() && ! $this->is_private_site();
+		return ! $this->is_private_site();
 	}
 
 	/**
@@ -301,41 +298,6 @@ class Initial_State {
 		}
 
 		return -1 === (int) get_option( 'blog_public', 1 );
-	}
-
-	/**
-	 * Check whether the current request is coming from a proxied Automattic context.
-	 *
-	 * Keep this check local to the rollout gate so WPCOM environments with older
-	 * vendored Jetpack packages do not fatal during bootstrap.
-	 *
-	 * @return bool
-	 */
-	protected function is_automattic_proxied_request() {
-		if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
-			return true;
-		}
-
-		if (
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
-			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-			Constants::is_true( 'A8C_PROXIED_REQUEST' )
-		) {
-			return true;
-		}
-
-		if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
-			switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
-				case 1:
-				case 2:
-				case 3: // Pressable.
-				case 32:
-				case 118: // Commerce garden client (ciab).
-					return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
