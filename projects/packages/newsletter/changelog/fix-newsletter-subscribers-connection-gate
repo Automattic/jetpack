@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Gate the modernized Newsletter Subscribers tab behind a WordPress.com user connection (shows a connect prompt instead of failing subscriber requests) and pass the REST root/nonce to AdminPage so the Settings tab loads on direct navigation. Behind the off-by-default rsm_jetpack_ui_modernization_newsletter filter — no default behavior change.
-
-

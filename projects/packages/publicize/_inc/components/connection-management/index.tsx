@@ -4,12 +4,15 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useIsModernized } from '../../hooks/use-is-modernized';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
+import { ModernConnectionInfo } from './connection-info-modern';
+import modernStyles from './style-modern.module.scss';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( {
@@ -18,6 +21,12 @@ const ConnectionManagement = ( {
 	hideConnectButton = false,
 	hideHeading = false,
 } ) => {
+	const isModernized = useIsModernized();
+	const ConnectionInfoVariant = isModernized ? ModernConnectionInfo : ConnectionInfo;
+	// The modernized chassis owns its list chrome (edge-to-edge dividers, no
+	// outline, rows supply their own padding). The legacy admin page / block
+	// editor keep the trunk `style.module.scss` classes byte-for-byte.
+	const listStyles = isModernized ? modernStyles : styles;
 	const { refresh } = useSocialMediaConnections();
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
@@ -49,23 +58,26 @@ const ConnectionManagement = ( {
 
 	return (
 		<div
-			className={ clsx( styles.wrapper, className ) }
+			className={ clsx( listStyles.wrapper, className ) }
 			// @ts-expect-error inert propery is not yet in react types
 			inert={ disabled ? 'true' : undefined }
 		>
 			{ connections.length ? (
 				<>
 					{ ! hideHeading && <h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3> }
-					<ul className={ styles[ 'connection-list' ] }>
+					<ul className={ listStyles[ 'connection-list' ] }>
 						{ connections.map( connection => {
 							const isUpdatingOrDeleting =
 								updatingConnections.includes( connection.connection_id ) ||
 								deletingConnections.includes( connection.connection_id );
 
 							return (
-								<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+								<li
+									className={ listStyles[ 'connection-list-item' ] }
+									key={ connection.connection_id }
+								>
 									<Disabled isDisabled={ isUpdatingOrDeleting }>
-										<ConnectionInfo
+										<ConnectionInfoVariant
 											connection={ connection }
 											service={ getService( connection.service_name ) }
 											canMarkAsShared={ canMarkAsShared }

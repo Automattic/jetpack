@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Expose social-logo-colors.css via a colors.css sub-path export, and define the missing --color-bluesky brand variable.

@@ -41,7 +41,7 @@ add_filter( 'activitypub_oauth_check_permission', 'jetpack_activitypub_reader_au
  * WordPress filter ABI provides no guarantee — `is_target_route()` performs
  * the shape check before any method is dispatched on the argument.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param mixed $result  Result from a previous filter, or null.
  * @param mixed $request The REST request being checked, expected to be a `\WP_REST_Request`.
@@ -97,7 +97,7 @@ function jetpack_activitypub_reader_auth_check_permission( $result, $request ) {
  * Wrapped so the `Server` class absence in non-AP environments is a clean
  * `false` rather than a fatal.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return bool
  */
@@ -116,7 +116,7 @@ function jetpack_activitypub_reader_auth_is_oauth_request(): bool {
  * blog token otherwise. Either is sufficient evidence the call originated
  * from a wpcom shadow request the destination already trusts.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return bool
  */
@@ -147,7 +147,7 @@ function jetpack_activitypub_reader_auth_is_jetpack_signed(): bool {
  * falling back to a blog-accepting mode here would silently widen the
  * grant surface on fresh installs.
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @return bool
  */
@@ -163,7 +163,7 @@ function jetpack_activitypub_reader_auth_is_blog_mode(): bool {
  * so callers can't widen the shim by sending an unexpected verb at an allowed
  * path (e.g. POSTing to inbox).
  *
- * @since $$next-version$$
+ * @since 15.9
  *
  * @param \WP_REST_Request $request The REST request.
  * @return bool

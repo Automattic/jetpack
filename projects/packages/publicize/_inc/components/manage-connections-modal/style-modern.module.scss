@@ -1,0 +1,30 @@
+// While listing services we pin the Dialog frame so expanding a disclosure row
+// scrolls inside the popup instead of growing the (otherwise vertically
+// centered) frame and shifting its contents.
+
+// We pin with explicit top/bottom insets rather than the Dialog's default
+// `top: 50%` + `translateY(-50%)` centering, for two reasons:
+//   1. The Dialog is built for the block editor and is unaware of wp-admin's
+//      fixed `#wpadminbar`; centering a near-full-height frame tucks its top
+//      under the bar. `--wp-admin--admin-bar--height` (kept in sync by
+//      WordPress — 32px desktop, 46px ≤782px, 0 when absent) plus the Dialog's
+//      usual 24px gutter gives the top inset.
+//   2. Centering a tall frame lands it on a half-pixel (odd viewport height),
+//      which misaligns the native scrollbar by ~1px. Integer insets avoid that.
+// `translateX(-50%)` is kept so the frame stays horizontally centered against
+// the base `left: 50%`.
+.services-list {
+	top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--wpds-dimension-padding-2xl, 24px));
+	bottom: var(--wpds-dimension-padding-2xl, 24px);
+	height: auto;
+	max-height: none;
+	transform: translateX(-50%);
+
+	// Reserve the scrollbar gutter on both sides so the rows don't shift when a
+	// disclosure (e.g. the Instagram preview) makes the frame overflow + scroll.
+	scrollbar-gutter: stable both-edges;
+}
+
+.manual-share {
+	padding-block: 2rem;
+}

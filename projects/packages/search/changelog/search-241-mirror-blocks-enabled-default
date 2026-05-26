@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search dashboard: mirror the `jetpack_search_blocks_enabled` server default in the React initial state so the Experience Selector renders on stock sites after the SEARCH-222 GA flip.

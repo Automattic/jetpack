@@ -1,30 +1,17 @@
 /**
- * Filter-visibility predicates, kept as pure functions of a plain state object
- * so they're unit-testable without the Interactivity runtime. The store wires
- * them into `data-wp-bind` via thin getters.
+ * Filter-visibility predicates as pure state-only functions (Jest-testable
+ * without the IA runtime). Wired into `data-wp-bind` via thin getters.
  */
 
 /**
- * True when a filter key has anything to render: live aggregation buckets,
- * session-retained options, or an active selection. Drives wrapper
- * visibility — without the retained / selection check a narrower query
- * could hide the section that holds the user's own selection.
- *
- * Static filters render their server-provided `values` regardless of the
- * result set (they don't aggregate, retain, or write to `activeFilters`), so
- * a non-empty `values` list always counts as content — otherwise a sidebar
- * holding only a static filter would falsely report itself empty.
- *
- * Date filters bail out before the retention / selection clauses: they
- * don't accumulate retained options (mergeRetainedFilterOptions skips
- * them) and dateFilterItems doesn't render selected values that aren't
- * in the current aggregation, so an empty bucket list means an empty
- * <ul> and the wrapper should hide. Selections still surface via the
- * active-filters pills.
+ * Does this filter have anything to show — live buckets, retained options,
+ * or an active selection. Static filters count their server `values`
+ * regardless. Date filters skip the retained/selected clauses since
+ * `dateFilterItems` doesn't render selected values that aren't in the agg.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
- * @return {boolean} True when the wrapper has something to show.
+ * @return {boolean} True when the wrapper has content.
  */
 export function filterHasContent( sharedState, filterKey ) {
 	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
@@ -44,12 +31,11 @@ export function filterHasContent( sharedState, filterKey ) {
 }
 
 /**
- * True when any facet is active — selected filter values, a static-filter
- * selection, or a price range. priceRange counts so a price-only selection
- * (including a half-open range like `?min_price=10`) still reads as active.
+ * Whether any facet is active — values, static selection, or price range
+ * (half-open `?min_price=10` counts).
  *
  * @param {object} sharedState - Live store state.
- * @return {boolean} Whether any filter is active.
+ * @return {boolean} True when a facet is active.
  */
 export function hasAnyActiveFilter( sharedState ) {
 	const hasSelections = Object.values( sharedState.activeFilters ?? {} ).some(
@@ -69,29 +55,18 @@ export function hasAnyActiveFilter( sharedState ) {
 }
 
 /**
- * True when the `filters` / `filters-product` containers have nothing to show
- * and should surface their empty state. Those are layout-only wrappers, so
- * when a search resolves with no buckets, no retained (session-cached)
- * options, and no active selections, every child filter hides itself and the
- * wrapper renders an empty box.
- *
- * Gated like `showNoResults` (a search has run, hydration is done, not
- * loading, no error) so it doesn't flash on a bare `/search/` page or
- * mid-fetch. Any active filter short-circuits it because the active-filters /
- * clear-filters children still have something to show. `filterHasContent`
- * already counts `retainedFilterOptions`, so a cached filter keeps this false.
+ * Filters empty-state visibility. Gated like `showNoResults` (search has run,
+ * not loading, no error) plus `skeletonHidden` — sidebar flashes are more
+ * disorienting than results flashes, so this waits for hydration to settle.
+ * Any active filter short-circuits.
  *
  * @param {object} sharedState - Live store state.
- * @return {boolean} True when the filters empty state should show.
+ * @return {boolean} True when the empty state should show.
  */
 export function filtersHaveNothingToShow( sharedState ) {
 	if ( ! ( sharedState.searchQuery || sharedState.hasSearchParam ) ) {
 		return false;
 	}
-	// `skeletonHidden` is intentionally stricter here than `showNoResults`,
-	// which doesn't gate on it: a flash in the sidebar before hydration is
-	// more disorienting than in the results region, so "No filters available"
-	// waits for the skeleton to clear even when "No results" can already show.
 	if ( ! sharedState.skeletonHidden || sharedState.isLoading || sharedState.hasError ) {
 		return false;
 	}

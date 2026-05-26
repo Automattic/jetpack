@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AdminPage: fix header-height tab-shift rule not matching after admin-ui 2.1 changed the page header element from header to div

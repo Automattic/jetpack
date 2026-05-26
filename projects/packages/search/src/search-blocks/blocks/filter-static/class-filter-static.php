@@ -8,16 +8,9 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack-search/filter-static block.
- *
- * Static filters are configured entirely by the host site (no editor UI for
- * adding values) and rendered as a single-select radio list. Selections
- * round-trip through the URL as scalar `?filter_id=value` params (not the
- * `?key[]=value` array shape used by dynamic facet filters). This mirrors the
- * legacy instant-search overlay's static-filter widget so a site already wired
- * up for the overlay gets the blocks for free — see
- * src/instant-search/lib/filters.js getAvailableStaticFilters() and
- * src/instant-search/store/effects.js updateStaticFilterQueryString().
+ * Helpers for `jetpack-search/filter-static`. Host-configured (no editor UI
+ * for values), single-select radio. URL round-trips as scalar `?filter_id=value`
+ * (not `[]=`). Mirrors the legacy overlay's static-filter widget.
  */
 class Filter_Static {
 
@@ -29,10 +22,8 @@ class Filter_Static {
 	private static $config_cache = null;
 
 	/**
-	 * Read the site-configured static-filter list (memoised per request).
-	 *
-	 * Composes three steps: read raw entries from the host-site filter hooks,
-	 * normalise each one, dedupe by `filter_id` (last write wins).
+	 * Site-configured static-filter list, memoized per request. Reads raw
+	 * entries from the hooks, normalizes, dedupes by `filter_id`.
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -54,14 +45,9 @@ class Filter_Static {
 	}
 
 	/**
-	 * Read raw static-filter entries from the host-site filter hooks. Resolves
-	 * the union of two seams so sites already wired up for the legacy overlay
-	 * pick up the new block for free:
-	 *
-	 * 1. `jetpack_instant_search_options` — the legacy options blob's
-	 *    `staticFilters` key. Used by the overlay today.
-	 * 2. `jetpack_search_static_filters` — narrower sibling whose payload is
-	 *    just the static-filter array. New, blocks-only callers register here.
+	 * Read raw entries — union of legacy `jetpack_instant_search_options`
+	 * (`staticFilters` key, overlay-era) and `jetpack_search_static_filters`
+	 * (narrower, blocks-only). Sites wired up for the overlay get the block for free.
 	 *
 	 * @return array<int, mixed>
 	 */
@@ -94,12 +80,10 @@ class Filter_Static {
 	}
 
 	/**
-	 * Collapse entries with duplicate `filter_id` to a single entry per id,
-	 * keeping the last registration (matches PHP `apply_filters` semantics).
-	 * The duplicate's position is preserved so iteration order stays
-	 * deterministic regardless of how many duplicates were registered.
+	 * Collapse duplicates by `filter_id`, last-write-wins. Original position
+	 * is preserved so iteration order stays deterministic.
 	 *
-	 * @param array<int, array<string, mixed>> $entries Normalised entries.
+	 * @param array<int, array<string, mixed>> $entries Normalized entries.
 	 * @return array<int, array<string, mixed>>
 	 */
 	private static function dedupe_by_filter_id( array $entries ): array {
@@ -119,8 +103,7 @@ class Filter_Static {
 	}
 
 	/**
-	 * Surface a duplicate-registration via `_doing_it_wrong()` so abuse is
-	 * visible in debug. Silent in production.
+	 * Surface duplicate registration via `_doing_it_wrong()`. Silent in production.
 	 *
 	 * @param string $filter_id The colliding filter id.
 	 */
@@ -160,10 +143,10 @@ class Filter_Static {
 	}
 
 	/**
-	 * Normalize the variation value. Anything other than 'tabbed' collapses to
-	 * 'sidebar' — matches the legacy `getAvailableStaticFilters()` default.
+	 * Normalize variation. Anything but `tabbed` collapses to `sidebar`
+	 * (matches the legacy `getAvailableStaticFilters()` default).
 	 *
-	 * @param mixed $value Raw value.
+	 * @param mixed $value Raw variation value.
 	 * @return string Either 'sidebar' or 'tabbed'.
 	 */
 	public static function normalize_variation( $value ): string {
@@ -171,12 +154,11 @@ class Filter_Static {
 	}
 
 	/**
-	 * Sanitize and validate a single configured entry. Returns null when the
-	 * entry is missing required fields or its `filter_id` collides with a
-	 * reserved URL param — the block then renders nothing for that entry
+	 * Sanitize + validate one entry. Returns null on missing required fields
+	 * or a reserved-param collision — the block renders nothing for that entry
 	 * rather than silently failing on round-trip.
 	 *
-	 * @param mixed $entry Raw entry.
+	 * @param mixed $entry Raw entry from the filter hook.
 	 * @return array<string, mixed>|null
 	 */
 	private static function normalize_entry( $entry ): ?array {
@@ -202,10 +184,8 @@ class Filter_Static {
 	}
 
 	/**
-	 * Sanitize the per-entry `values` array. Drops entries that aren't
-	 * objects, entries with an empty `value`, and any non-array element.
-	 * A missing display `name` falls back to the value so the radio still
-	 * has a visible label rather than rendering blank.
+	 * Sanitize the `values` array. Drops non-array entries and empty `value`s.
+	 * Missing `name` falls back to value so the radio always has a label.
 	 *
 	 * @param mixed $raw Raw values list.
 	 * @return array<int, array{value: string, name: string}>
@@ -230,10 +210,8 @@ class Filter_Static {
 	}
 
 	/**
-	 * Build the filterConfig entry this block contributes to the shared
-	 * Interactivity state. The `kind => 'static'` flag is what the JS store
-	 * keys off to decide URL serialization (scalar vs array shape) and the
-	 * single-select vs toggle action path.
+	 * Build the filterConfig entry. `kind => 'static'` is what the JS store
+	 * checks for scalar URL serialization and the single-select action path.
 	 *
 	 * @param array<string, mixed> $entry      Normalized server-config entry.
 	 * @param array<string, mixed> $attributes Block attributes.
@@ -252,7 +230,7 @@ class Filter_Static {
 	}
 
 	/**
-	 * Block-attribute label override beats server name; empty falls back.
+	 * Block-attribute label overrides server name; empty falls back.
 	 *
 	 * @param array<string, mixed> $entry      Normalized server-config entry.
 	 * @param array<string, mixed> $attributes Block attributes.
@@ -267,12 +245,8 @@ class Filter_Static {
 	}
 
 	/**
-	 * Parse scalar URL params that match a configured static-filter key into a
-	 * `{ filter_id => value }` map. Called from the seed path so a deep link
-	 * pre-checks the right radio and the SSR pass shows the filtered count.
-	 *
-	 * Iterates the configured filters rather than the entire `$_GET` so
-	 * arbitrary plugin-emitted params can't end up in the map.
+	 * Scalar URL params matching configured static-filter keys → `{ filter_id => value }`.
+	 * Iterates configured filters (not `$_GET`) so arbitrary plugin params don't leak in.
 	 *
 	 * @return array<string, string>
 	 */
@@ -289,8 +263,7 @@ class Filter_Static {
 		foreach ( self::get_static_filters_config() as $entry ) {
 			$filter_id = $entry['filter_id'];
 			$value     = $raw[ $filter_id ] ?? null;
-			// `! is_string` drops both missing values and array-shaped misuse
-			// (e.g. a stray `?section[]=…` under a static-filter key).
+			// Drops missing values + array-shaped misuse (`?section[]=…`).
 			if ( ! is_string( $value ) ) {
 				continue;
 			}

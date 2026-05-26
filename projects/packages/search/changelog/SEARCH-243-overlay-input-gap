@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: add a small (0.5em) top gap between the Search Input header and the first row of results / filter UI inside the blocks-powered Overlay so the modal no longer feels cramped. Same gap is applied in the mobile-narrow (`<=781px`) layout.
