@@ -144,6 +144,17 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 * `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
 
+#### `cache`
+
+`cache` is an object suitable for use as Webpack's `cache` setting. Opt in by setting `cache: jetpackWebpackConfig.cache` in your config. It enables Webpack's filesystem cache, scoped per consumer project:
+
+* `type`: `'filesystem'`.
+* `cacheDirectory`: `path.resolve( process.cwd(), '.cache/webpack' )`.
+* `name`: `` `jetpack-${ mode }` `` — keeps production and development caches separate.
+* `store`: `'pack'`.
+
+The cache invalidates on Webpack version change. If you need invalidation on your own config-file changes, extend the object with `buildDependencies: { config: [ require.resolve( './webpack.config.js' ) ] }`. To force-invalidate manually, delete the project's `.cache/webpack/` directory.
+
 #### `DevServer( options )`
 
 Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.

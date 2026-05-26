@@ -91,6 +91,24 @@ const watchOptions = {
 	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
 };
 
+// Filesystem cache rooted at the consumer's project directory. Opt-in: consumers
+// pass `cache: jetpackWebpackConfig.cache` in their webpack config. Mode-namespacing
+// keeps production and development caches separate. The `babel` cache is unaffected;
+// it still lives at .cache/babel via the TranspileRule defaults.
+//
+// To invalidate the cache after upgrading webpack-config or changing your own
+// webpack config, delete `.cache/webpack/` in the project. (We deliberately don't
+// list config files in `buildDependencies.config` from here — the consumer's config
+// path isn't known to this module. Consumers can extend this object with their own
+// `buildDependencies.config: [ require.resolve('./webpack.config.js') ]` if they
+// want config-change invalidation.)
+const cache = {
+	type: 'filesystem',
+	cacheDirectory: path.resolve( process.cwd(), '.cache/webpack' ),
+	name: `jetpack-${ mode }`,
+	store: 'pack',
+};
+
 /****** Plugins ******/
 
 const DefinePlugin = defines => [
@@ -281,6 +299,7 @@ module.exports = {
 	CssMinimizerPlugin,
 	resolve,
 	watchOptions,
+	cache,
 	DevServer,
 	// Plugins.
 	StandardPlugins,
