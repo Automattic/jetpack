@@ -133,36 +133,70 @@ function pcg_probe_emit_ok() {
 }
 
 /**
- * Shutdown handler: on fatal, emit JSON with the captured error.
+ * Shutdown handler: always emits a JSON verdict.
+ *
+ * On a captured engine fatal, emits status=fatal. On any other shutdown
+ * — including a plugin that called `exit`/`die` cleanly during init —
+ * emits status=ok-shutdown so the client can distinguish "bootstrap
+ * died silently" (previously seen as "marker present, no JSON body"
+ * — historically the biggest false-positive class) from a real
+ * captured fatal.
+ *
+ * Returning silently on re-entry preserves the original verdict.
+ * `wp_send_json` calls `exit`, which fires this handler again on the
+ * shutdown phase; without the guard the second pass would over-write
+ * the response that was just sent.
  */
 function pcg_probe_shutdown() {
-	$error = error_get_last();
-	if ( ! is_array( $error ) ) {
+	if ( pcg_probe_already_emitted( true ) ) {
 		return;
 	}
-	$fatal_mask = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
-	if ( 0 === ( $error['type'] & $fatal_mask ) ) {
-		return;
+	pcg_probe_respond( PCG_Load_Tester::classify_shutdown( error_get_last() ) );
+}
+
+/**
+ * Module-local "we've already emitted a verdict" flag, shared between
+ * `pcg_probe_respond` and `pcg_probe_shutdown`. Reading sets nothing;
+ * writing flips the flag to true permanently. This is the re-entry
+ * guard that keeps a single probe request from emitting two verdicts:
+ *
+ *   - `pcg_probe_respond` calls `wp_send_json` then `exit`. The `exit`
+ *     triggers the shutdown phase, which fires the registered shutdown
+ *     handler a second time. Without this guard, the handler would
+ *     re-emit (or attempt to) and corrupt the response.
+ *   - A `\Throwable` caught in the require loop emits via
+ *     `pcg_probe_respond`; the subsequent shutdown handler must stay
+ *     silent rather than overwrite with `ok-shutdown`.
+ *
+ * @param bool $mark_now Pass true to flip the flag to its terminal value.
+ * @return bool Whether a verdict has been emitted (or just-now claimed).
+ */
+function pcg_probe_already_emitted( $mark_now = false ) {
+	static $emitted = false;
+	if ( $emitted ) {
+		return true;
 	}
-	pcg_probe_respond(
-		array(
-			'status'  => 'fatal',
-			'errno'   => (int) $error['type'],
-			'message' => (string) $error['message'],
-			'file'    => (string) $error['file'],
-			'line'    => (int) $error['line'],
-		)
-	);
+	if ( $mark_now ) {
+		$emitted = true;
+	}
+	return false;
 }
 
 /**
  * Emit a JSON response and terminate.
  *
+ * Returns silently if a verdict was already emitted — the most likely
+ * caller in that state is the shutdown phase re-running after our own
+ * `exit`, and the original verdict has already been written.
+ *
  * @param array $payload JSON-serializable payload.
  * @param int   $status  HTTP status code.
- * @return never
+ * @return void
  */
 function pcg_probe_respond( $payload, $status = 200 ) {
+	if ( pcg_probe_already_emitted( true ) ) {
+		return;
+	}
 	$key = pcg_probe_pending_key();
 	if ( '' !== $key ) {
 		delete_transient( $key );

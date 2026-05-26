@@ -337,6 +337,57 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `classify_shutdown` maps an engine-fatal `error_get_last()` array to
+	 * status=fatal with the captured errno/message/file/line preserved so
+	 * the activation guard can attribute the failure to the right plugin.
+	 */
+	public function test_classify_shutdown_emits_fatal_for_engine_error() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_ERROR,
+				'message' => 'Uncaught Error: Class "Foo\\Bar" not found',
+				'file'    => '/abs/foo/foo.php',
+				'line'    => 42,
+			)
+		);
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_ERROR, $verdict['errno'] );
+		$this->assertSame( '/abs/foo/foo.php', $verdict['file'] );
+		$this->assertSame( 42, $verdict['line'] );
+	}
+
+	/**
+	 * `classify_shutdown` returns status=ok-shutdown when there is no
+	 * captured fatal — covers the clean-`exit`-during-init case that
+	 * previously surfaced as "marker present, no JSON body" and got
+	 * misclassified as a fatal.
+	 */
+	public function test_classify_shutdown_emits_ok_shutdown_when_no_fatal() {
+		$verdict = PCG_Load_Tester::classify_shutdown( null );
+		$this->assertSame( 'ok-shutdown', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] );
+	}
+
+	/**
+	 * Notice/warning/deprecation errors are NOT fatals — they're routine
+	 * non-blocking signals. Misclassifying them would re-introduce the
+	 * old false-positive class the always-emit fix is meant to remove.
+	 */
+	public function test_classify_shutdown_treats_non_fatal_errno_as_ok_shutdown() {
+		foreach ( array( E_WARNING, E_NOTICE, E_USER_WARNING, E_DEPRECATED, E_USER_DEPRECATED ) as $type ) {
+			$verdict = PCG_Load_Tester::classify_shutdown(
+				array(
+					'type'    => $type,
+					'message' => 'noise',
+					'file'    => '',
+					'line'    => 0,
+				)
+			);
+			$this->assertSame( 'ok-shutdown', $verdict['status'], "errno $type should NOT be classified as fatal" );
+		}
+	}
+
+	/**
 	 * Scenarios for pcg_guard_format_block_reason.
 	 *
 	 * @return array<string,array{0:array<string,mixed>,1:string}>
