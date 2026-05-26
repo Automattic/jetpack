@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
@@ -13,6 +12,7 @@ import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } fro
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { sanitizeHtml } from '../../utils/sanitize-html';
+import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
@@ -60,15 +60,13 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart-loading"
 			style={ { width, height } }
 		>
 			{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
-		</Stack>
+		</Center>
 	);
 
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
@@ -149,9 +147,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	);
 
 	return (
-		<Stack
-			align="center"
-			justify="center"
+		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }
@@ -164,7 +160,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>
-		</Stack>
+		</Center>
 	);
 };
 
