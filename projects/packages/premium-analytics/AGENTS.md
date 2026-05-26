@@ -103,12 +103,7 @@ requires human approval.
 
 ## After opening a PR
 
-The `.github/workflows/pr-review-cycle.yml` workflow runs review cycle rounds automatically —
-no manual trigger needed when `ANTHROPIC_API_KEY` is configured as a repo secret.
-Automatic runs only apply to same-repo, non-draft PR branches; fork PRs and draft
-PRs are skipped. Draft PRs trigger once marked ready for review.
-
-If the workflow is not available or you need to run a round manually:
+Run the review cycle after the PR is opened to request Copilot review, address feedback, and keep the branch rebased on fresh trunk:
 
 ```bash
 /jetpack-pr-review-cycle
