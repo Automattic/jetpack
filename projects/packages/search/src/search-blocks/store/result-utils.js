@@ -38,8 +38,9 @@ const NAMED_ENTITY_MAP = {
 
 /**
  * Promote API URLs to a safe http(s)/protocol-relative form. Hostless URLs
- * (`example.com/foo/`) → `//example.com/foo/`. Any other scheme
- * (javascript:, data:, ftp:) is rejected.
+ * (`example.com/foo/`) → `//example.com/foo/`. **Security**: any other scheme
+ * (`javascript:`, `data:`, `ftp:`) is rejected so a compromised API response
+ * can't smuggle a script/data URL into an `href`.
  *
  * @param {string} raw - Raw URL from the API.
  * @return {string} Safe URL or ''.

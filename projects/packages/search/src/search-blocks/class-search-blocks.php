@@ -91,7 +91,9 @@ class Search_Blocks {
 	private static $woocommerce_blocks_enabled_cache = null;
 
 	/**
-	 * Per-request memo for `supported_custom_taxonomies()`. Same inputs every request.
+	 * Per-request memo for `supported_custom_taxonomies()`. Derived from the
+	 * Sync allowlist intersected with registered taxonomies and unioned with
+	 * the map's user-facing keys — same inputs every request.
 	 *
 	 * @var string[]|null
 	 */
