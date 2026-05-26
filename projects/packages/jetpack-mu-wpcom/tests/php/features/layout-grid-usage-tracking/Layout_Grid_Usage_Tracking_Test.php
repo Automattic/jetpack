@@ -262,8 +262,15 @@ class Layout_Grid_Usage_Tracking_Test extends \WorDBless\BaseTestCase {
 		// Happy: update where the prior version lacked the block.
 		$this->observations = array();
 		wpcom_layout_grid_usage_react_to_post_insert( 0, $this->make_post( self::LAYOUT_GRID ), true, $without );
-		$this->assertCount( 1, $this->observations );
-		$this->assertSame( 'post_insert', $this->observations[0]['surface'] );
+		$this->assertSame(
+			array(
+				array(
+					'surface'   => 'post_insert',
+					'post_type' => 'post',
+				),
+			),
+			$this->observations
+		);
 
 		// Set up a revision for the revisions-skip case.
 		$parent = wp_insert_post(
