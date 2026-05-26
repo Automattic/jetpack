@@ -94,9 +94,14 @@ export default function TrafficChartCard(): JSX.Element {
 		[ setTrafficInterval ]
 	);
 
-	const showSpinner = ! needsUpgrade && isLoading && ! hasData;
+	// `days === undefined` means the resolver hasn't run yet (or is mid-fetch
+	// for a freshly selected interval); a fetched-but-empty window comes back
+	// as `{}`. Treating the unresolved case as loading avoids a one-tick flash
+	// of the empty state before the resolver flips the loading flag on.
+	const isUnresolved = ! needsUpgrade && days === undefined && ! hasError;
+	const showSpinner = ! needsUpgrade && ! hasData && ( isLoading || isUnresolved );
 	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
-	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData;
+	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData && days !== undefined;
 
 	return (
 		<Card.Root>
