@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: add an internal Center layout primitive and use it for centered chart wrappers.
