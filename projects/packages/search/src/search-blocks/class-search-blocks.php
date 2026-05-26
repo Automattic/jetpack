@@ -15,126 +15,95 @@ use Automattic\Jetpack\Status;
 class Search_Blocks {
 
 	/**
-	 * Reserved query params that must not be parsed as filter keys. Mirrors
-	 * `RESERVED_PARAMS` in store/url-state.js.
-	 *
-	 * Includes both `s` (used on the WP search route) and `q` (used by the
-	 * inline blocks on non-search pages, see `get_search_param_name()`) so
-	 * neither name can be misread as a filter key.
+	 * Reserved query params (mirrors `RESERVED_PARAMS` in `store/url-state.js`).
+	 * `s` is the WP search route key; `q` is what the inline blocks use on
+	 * non-search pages (see `get_search_param_name()`). Neither may be parsed as a filter key.
 	 */
 	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
 
 	/**
-	 * URL param the inline search blocks use to carry the query string when
-	 * embedded on a non-search page (e.g. `/about/?q=boots`). On the WP
-	 * search route (`is_search()`) the canonical `s` key is used instead.
-	 *
-	 * The non-`s` name on singular pages is what dodges core's
-	 * `WP_Query::get_posts()` AND'ing a `post_content LIKE` clause into the
-	 * singular page lookup and 404'ing the page on refresh. `q` matches the
-	 * de-facto search-URL convention (Google, GitHub, Wikipedia, etc.) so
-	 * shared links read naturally. See
+	 * Query-string param for inline search on non-search pages (e.g. `/about/?q=boots`).
+	 * Not `s`, because on singular pages WP's `WP_Query::get_posts()` AND's a
+	 * `post_content LIKE` clause into the lookup and 404s on refresh. See
 	 * `docs/explorations/embedded-search-refresh-404.md` (RSM-1754).
 	 */
 	const NON_SEARCH_QUERY_PARAM = 'q';
 
 	/**
-	 * Template slug used for the Jetpack Search page template.
-	 *
-	 * Intentionally distinct from WordPress's `search` slug so the plugin
-	 * template never collides with (and gets deduplicated against) a block
-	 * theme's own `search.html`. `search_template_hierarchy` prepends this
-	 * slug so it still wins on `/?s=...` requests.
+	 * Jetpack Search page template slug. Distinct from WP's `search` slug so a
+	 * block theme's `search.html` doesn't dedupe ours; `search_template_hierarchy`
+	 * prepends this slug so it still wins on `/?s=...`.
 	 */
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
-	 * Slug for the dedicated Jetpack product-search template, registered and
-	 * fronted (in place of WooCommerce's) when the override is on. Separate
-	 * from `SEARCH_TEMPLATE_SLUG` so it's its own Site Editor entry.
+	 * Jetpack product-search template slug. Separate from `SEARCH_TEMPLATE_SLUG`
+	 * so it gets its own Site Editor entry.
 	 */
 	const PRODUCT_SEARCH_TEMPLATE_SLUG = 'jetpack-search-product-results';
 
 	/**
-	 * Mirror of `ProductSearchResultsTemplate::SLUG`, copied to avoid a hard
+	 * Mirror of `ProductSearchResultsTemplate::SLUG`, inlined to avoid a hard
 	 * dependency on the WooCommerce class.
 	 */
 	const WC_PRODUCT_SEARCH_TEMPLATE_SLUG = 'product-search-results';
 
 	/**
-	 * Lowest WooCommerce version that registers the `product-search-results`
-	 * block template. WooCommerce 6.5 bundled WooCommerce Blocks 7.4, the
-	 * release that first added the template; on anything older the WC-only
-	 * Search features have no template to front and no modern block
-	 * infrastructure to hang off, so the WC gate stays closed.
+	 * Lowest WC version that registers the `product-search-results` template
+	 * (WC 6.5 bundled WC Blocks 7.4, the release that first added it). Below
+	 * this, WC-only Search features have nothing to front and the gate stays closed.
 	 */
 	const MIN_WOOCOMMERCE_VERSION = '6.5.0';
 
 	/**
-	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
-	 * method's local `static` so tests can clear it between cases via
-	 * `reset_initial_loading_cache()` — function-local statics aren't
-	 * reachable from outside the function, so they'd otherwise leak the
-	 * first test's URL state into every subsequent test in the same
-	 * PHPUnit process.
+	 * Per-request memo for `is_initial_loading()`. Lifted out of a method-local
+	 * `static` so tests can clear it via `reset_initial_loading_cache()`;
+	 * otherwise URL state from the first test leaks into subsequent ones.
 	 *
 	 * @var bool|null
 	 */
 	private static $is_initial_loading_cache = null;
 
 	/**
-	 * Per-request memo backing `is_free_plan()`. Block render callbacks
-	 * (`search-results`, `powered-by`) call into the plan gate on every
-	 * inner render, including the auto-injected colophon path. WP's option
-	 * cache absorbs the redundancy in steady state, but on a cold cache
+	 * Per-request memo for `is_free_plan()`. Avoids the cold-cache hazard where
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
-	 * memoizing here fences that hazard to a single well-known site per
-	 * request.
+	 * render callbacks hit the plan gate on every inner render.
 	 *
 	 * @var bool|null
 	 */
 	private static $is_free_plan_cache = null;
 
 	/**
-	 * Per-request memo backing `supports_paid_search()`. Reads the same
-	 * `Plan::get_plan_info()` option as `is_free_plan_cache`, but answers
-	 * the inverse question — "does the site have a paid Search plan?" —
-	 * which is what paid-only block surfaces (today: AI Answer) gate on.
-	 * Kept separate from `is_free_plan_cache` because the two helpers can
-	 * disagree: a site with no plan info at all is neither on the free
-	 * plan nor on a paid one.
+	 * Per-request memo for `supports_paid_search()`. Separate from
+	 * `is_free_plan_cache` because the two answers can disagree: a site with
+	 * no plan info is neither on the free plan nor on a paid one.
 	 *
 	 * @var bool|null
 	 */
 	private static $supports_paid_search_cache = null;
 
 	/**
-	 * Per-request memo backing `woocommerce_blocks_enabled()`. Centralized here
-	 * (rather than inside any one WC-aware block helper) so every gate that
-	 * needs the answer — block-registration filters that hide WC-only blocks
-	 * on non-Woo sites, render callbacks that drop product-format sort keys,
-	 * the editor-side localized config, the Interactivity store seed —
-	 * shares the same `class_exists()` probe.
+	 * Per-request memo for `woocommerce_blocks_enabled()`. Centralized so every
+	 * gate (registration, render, editor config, IA store seed) shares one probe.
 	 *
 	 * @var bool|null
 	 */
 	private static $woocommerce_blocks_enabled_cache = null;
 
 	/**
-	 * Per-request memo backing `supported_custom_taxonomies()`. Derived from
-	 * the Sync allowlist intersected with registered taxonomies and unioned
-	 * with the map's user-facing keys; same inputs every request.
+	 * Per-request memo for `supported_custom_taxonomies()`. Derived from the
+	 * Sync allowlist intersected with registered taxonomies and unioned with
+	 * the map's user-facing keys — same inputs every request.
 	 *
 	 * @var string[]|null
 	 */
 	private static $supported_custom_taxonomies_cache = null;
 
 	/**
-	 * Cached rendered HTML for the overlay template. Filled during
-	 * `wp_enqueue_scripts` so the embedded blocks' view-module enqueues
-	 * land before `wp_print_import_map()` runs (footer priority 1) — that
-	 * walk is what puts `jetpack-search/store` into the importmap, and
-	 * deferring the render to footer priority 10 misses it.
+	 * Cached rendered overlay-template HTML. Filled during `wp_enqueue_scripts`
+	 * so the embedded blocks' view-module enqueues land before
+	 * `wp_print_import_map()` (footer priority 1) — see AGENTS.md
+	 * § Hydration & SSR seeding.
 	 *
 	 * @var string|null
 	 */
@@ -143,47 +112,21 @@ class Search_Blocks {
 	/**
 	 * Register block types and hook into WordPress.
 	 *
-	 * Two gates apply:
-	 *
-	 * 1. The caller (Initializer) gates the whole method behind the
-	 *    `jetpack_search_blocks_enabled` feature flag — when off, the blocks
-	 *    don't exist at all.
-	 * 2. Within this method, only the *template-takeover* surface (registering
-	 *    the Jetpack Search block template and prepending it to
-	 *    `search_template_hierarchy`) is additionally gated on the saved
-	 *    experience being `'embedded'`. Everything else — block registration,
-	 *    editor assets, and Interactivity API state seeding — runs whenever
-	 *    the feature flag is on, since admins can insert Search blocks
-	 *    anywhere blocks are configurable (post content, sidebar widgets,
-	 *    custom templates) regardless of which experience the dashboard has
-	 *    saved. Those blocks need the seeded base state (`apiRoot`, `nonce`,
-	 *    URL-derived `searchQuery` / `activeFilters`, `filterConfigs` slot,
-	 *    etc.) to hydrate; per-block `render.php` files only contribute their
-	 *    own config and rely on the global seed for the base.
-	 *
-	 * Why the template gate: with four experiences (`embedded` / `overlay` /
-	 * `inline` / `off`), only Embedded should override the theme's
-	 * `search.html`. A site that saves Overlay or Inline still expects
-	 * `/?s=…` to resolve through the theme — the Jetpack template is the
-	 * right answer only when the user has explicitly opted into the
-	 * block-built search page.
-	 *
-	 * `Module_Control::get_experience()` reads `get_option( 'jetpack_search_experience' )`
-	 * (object-cached) and falls back to deriving from the legacy booleans, so
-	 * this is cheap on every request. `update_experience()` writes the option
-	 * synchronously, so the next request after a save sees the new gate.
+	 * Two gates apply: the caller (`Initializer`) gates everything behind the
+	 * `jetpack_search_blocks_enabled` feature flag, and within this method the
+	 * template-takeover surface (registering the Search template and prepending
+	 * it to `search_template_hierarchy`) is additionally gated on the saved
+	 * experience being `'embedded'` — only Embedded should override the theme's
+	 * `search.html`. Block registration, editor assets, and IA state seeding
+	 * always run so blocks inserted anywhere (post content, widgets, custom
+	 * templates) get their base seed.
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		Custom_Taxonomy_Slot_Mapping::init();
-		// FSE block-template rendering runs *before* `wp_head()` (see
-		// `wp-includes/template-canvas.php`), so blocks would resolve
-		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
-		// only hooked `wp_enqueue_scripts`. Seeding on `template_redirect`
-		// closes that gap; the second call from `wp_enqueue_scripts` is a
-		// deep-merge no-op and keeps classic-theme paths covered.
+		// Both hooks needed; see AGENTS.md § Hydration & SSR seeding.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 
@@ -191,49 +134,31 @@ class Search_Blocks {
 
 		if ( Module_Control::EXPERIENCE_EMBEDDED === $experience ) {
 			if ( static::block_templates_active() ) {
-				// Block themes: register the bundled template and front it via
-				// the FSE template-hierarchy filter so the Site Editor and the
-				// block-template render path both pick it up.
+				// Block themes: register the template and front it via the FSE hierarchy filter.
 				add_action( 'init', array( static::class, 'register_search_template' ) );
 				add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 				Theme_Chrome_Slug_Resolver::register_hooks();
 			} else {
-				// Classic themes: there is no FSE hierarchy to prepend to and
-				// `locate_template()` can't resolve the `jetpack-search` slug to
-				// a theme PHP file, so swap the resolved template path post-
-				// hierarchy via `template_include`. The bundled block markup
-				// renders inside the theme's `get_header()` / `get_footer()`,
-				// so the search page slots into the theme's chrome instead of
-				// replacing it.
+				// Classic themes: no FSE hierarchy to prepend to, so swap the
+				// resolved template path via `template_include`. The block markup
+				// renders inside the theme's `get_header()`/`get_footer()`.
 				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ) );
-				// Classic themes lose the Site Editor entry point for
-				// customizing the bundled template, so wire up the
-				// `Search_Template` singleton CPT — the standard block
-				// editor on a hidden post is the theme-agnostic editing
-				// surface, mirroring `Overlay_Template`.
+				// No Site Editor entry on classic themes; the `Search_Template` singleton
+				// CPT gives authors the standard block editor on a hidden post instead.
 				Search_Template::init();
 			}
 		}
 
-		// When the blocks own the front-end search results, the server-side
-		// search is wasted work — short-circuit the main query the way Instant
-		// Search already does. (Classic / Instant init is also suppressed in
-		// `Initializer::init_search_blocks()`; see `owns_search_results()`.)
+		// Blocks render results client-side, so the server-side search is wasted work.
+		// (Classic/Instant init is also suppressed in `Initializer::init_search_blocks()`.)
 		if ( ! is_admin() && static::owns_search_results() ) {
 			add_filter( 'posts_pre_query', array( static::class, 'filter__posts_pre_query' ), 10, 2 );
 		}
 
-		// Priority 20: after WooCommerce's priority-10 prepend (so the
-		// result is load-order independent), leaving 11-19 free for other
-		// integrations. The WC/product-search guard lives in the callback,
-		// which runs late enough to satisfy woocommerce_blocks_enabled()'s
-		// load-order contract.
-		//
-		// Gated to the server-rendered experiences (Embedded / Theme search):
-		// Overlay intercepts client-side so the override is a no-op there, and
-		// the dashboard hides the toggle in that state — mirror it server-side
-		// so a stale option from a since-switched experience can't keep
-		// rerouting the template hierarchy.
+		// Priority 20: after WC's priority-10 prepend so the result is load-order
+		// independent. Gated to server-rendered experiences (Embedded / Inline) —
+		// Overlay intercepts client-side, and a stale option from a since-switched
+		// experience must not keep rerouting the template hierarchy.
 		if (
 			static::woocommerce_search_template_override_enabled()
 			&& in_array( $experience, array( Module_Control::EXPERIENCE_EMBEDDED, Module_Control::EXPERIENCE_INLINE ), true )
@@ -282,21 +207,17 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Bypass the main search query for the blocks-driven experiences.
+	 * Short-circuit the main front-end search query when the blocks own results
+	 * (see AGENTS.md § Search experiences). Registered only when
+	 * `owns_search_results()` is true and off `is_admin()`.
 	 *
-	 * Registered on `posts_pre_query` only when `owns_search_results()` is true
-	 * and off `is_admin()` (see `init()`). The guard here just has to confirm
-	 * this is the main front-end search query and let everything else (secondary
-	 * queries, REST requests, non-search routes) fall through.
-	 *
-	 * WP core skips `set_found_posts()` when `posts_pre_query` returns an array,
-	 * so the pagination totals are set by hand — `1` rather than `0` so
-	 * `have_posts()`-gated templates still render the shell the client hydrates.
+	 * Pagination totals are set to `1` (not `0`) so `have_posts()`-gated
+	 * templates still render the shell the client hydrates — WP core skips
+	 * `set_found_posts()` when `posts_pre_query` returns an array.
 	 *
 	 * @param array|null $posts Posts to return in place of the query (null by default).
 	 * @param \WP_Query  $query The WP_Query being filtered.
-	 *
-	 * @return array|null Empty array to short-circuit the query, or $posts to let it run.
+	 * @return array|null Empty array to short-circuit, or $posts to let it run.
 	 */
 	public static function filter__posts_pre_query( $posts, $query ) {
 		if ( ! $query->is_main_query() || ! $query->is_search() ) {
@@ -310,28 +231,15 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether the legacy instant-search overlay should be replaced by the
+	 * Whether to replace the legacy instant-search overlay with the
 	 * server-rendered Search blocks template
 	 * (`templates/jetpack-search-overlay.html`).
 	 *
-	 * EXPERIMENTAL — available by default; opt-in via the Experience
-	 * Selector. Two conditions must hold for the runtime swap to occur:
-	 *
-	 *   1. The `jetpack_search_overlay_block_template_enabled` filter is on
-	 *      (defaults true). This is the operator-level gate that surfaces
-	 *      the new option in the Experience Selector and registers the
-	 *      overlay assets. Operators can still pin it back to false to
-	 *      hide the experimental card.
-	 *   2. The site owner has chosen the new overlay experience in the
-	 *      dashboard (`Module_Control::EXPERIENCE_OVERLAY_BLOCKS`).
-	 *
-	 * Both conditions let the legacy and blocks-powered overlays coexist
-	 * on the same site — operators can hide the new path on sites where
-	 * they don't want it surfaced, and site owners can still flip back to
-	 * the legacy experience without touching any server-side filter. When
-	 * both are true the legacy `SearchApp` is bypassed via the
-	 * `jetpack_search_init_instant_search` filter (wired in
-	 * `Initializer::init_search_blocks()`).
+	 * Two conditions: the operator filter `is_block_template_overlay_filter_on()`
+	 * is on (defaults true), AND the site owner has chosen
+	 * `Module_Control::EXPERIENCE_OVERLAY_BLOCKS` in the dashboard. When both
+	 * hold, the legacy `SearchApp` is bypassed via
+	 * `jetpack_search_init_instant_search` in `Initializer::init_search_blocks()`.
 	 *
 	 * @return bool
 	 */
@@ -343,16 +251,12 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether the operator filter that exposes the blocks-powered overlay is
-	 * on. Available by default; operators can pin to false to hide the Beta
-	 * card and disable the editable-template machinery entirely.
+	 * Whether the operator filter that exposes the blocks-powered overlay is on.
 	 *
-	 * Lighter check than `is_block_template_overlay_enabled()` — does not
-	 * require the user to have committed to the new overlay experience.
-	 * Use this to gate one-time setup that should also work *before* the
-	 * user opts in (e.g. registering the editable template CPT so admins
-	 * can preview the editor from the Beta card while preact Overlay is
-	 * still active).
+	 * Lighter than `is_block_template_overlay_enabled()` — doesn't require the
+	 * user to have opted into the new overlay. Use for one-time setup that
+	 * should run *before* opt-in (e.g. registering the editable template CPT
+	 * so admins can preview the editor while preact Overlay is still active).
 	 *
 	 * @return bool
 	 */
@@ -368,11 +272,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Per-request memoized read of `Plan::is_free_plan()`. Use from any
-	 * block render callback that needs the plan gate — avoids paying the
-	 * `get_option()` array-parse cost on every block, and ensures the
-	 * cold-cache WPCOM round-trip in `Plan::get_plan_info()` happens at
-	 * most once per request even when several blocks ask.
+	 * Memoized `Plan::is_free_plan()`. See `$is_free_plan_cache`.
 	 *
 	 * @return bool
 	 */
@@ -384,34 +284,23 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Reset the `is_free_plan()` memo. Tests only — production callers
-	 * should never need this; the boolean state of the site's plan
-	 * doesn't change inside a single request.
+	 * Reset the `is_free_plan()` memo. Tests only.
 	 */
 	public static function reset_is_free_plan_cache() {
 		self::$is_free_plan_cache = null;
 	}
 
 	/**
-	 * Whether the site has a paid Jetpack Search subscription. Paid-only
-	 * block surfaces (AI Answer's `render.php` and editor preview) call
-	 * this on every render to decide whether to emit the panel scaffold
-	 * or short-circuit; same cold-cache WPCOM round-trip hazard
-	 * `is_free_plan()` guards against, so memoize the same way.
+	 * Whether the site has a paid Jetpack Search subscription. Paid-only block
+	 * surfaces (AI Answer) call this on every render.
 	 *
-	 * Why both probes: WPCOM reports `supports_instant_search: true` on
-	 * the free Search plan too — "this plan supports instant search as a
-	 * feature," not "the plan is paid." So `supports_instant_search()`
-	 * alone would let the free plan through. Combining with
-	 * `! is_free_plan()` rules out both the free product
-	 * (`jetpack_search_free`) and the forced-free filter, while
-	 * `supports_instant_search()` still rules out the no-plan / no-Search
-	 * case (which `is_free_plan()` returns false for).
+	 * Both probes are needed: `supports_instant_search()` is true on the free
+	 * Search plan too ("plan supports the feature"), so it alone would let free
+	 * through. `! is_free_plan()` excludes free + forced-free; `supports_instant_search()`
+	 * excludes the no-plan case (which `is_free_plan()` returns false for).
 	 *
-	 * No `apply_filters()` wrapper here by design (cf. the
-	 * `jetpack_search_woocommerce_blocks_enabled` filter on the WC gate).
-	 * This is a paid-feature gate — a filter that any plugin could flip
-	 * would defeat its purpose. Tests bypass the probe via
+	 * No `apply_filters()` wrapper by design — a filter that any plugin could
+	 * flip would defeat a paid-feature gate. Tests bypass via
 	 * `set_supports_paid_search_for_testing()`.
 	 *
 	 * @return bool
@@ -425,14 +314,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Force the `supports_paid_search()` answer to a specific boolean —
-	 * tests only. Pass `null` to clear the override and revive the real
-	 * `Plan` probe (also done by `reset_supports_paid_search_cache()`).
-	 * Mirrors `set_woocommerce_blocks_enabled_for_testing()`, the
-	 * canonical setter pattern documented in `AGENTS.md`.
+	 * Force the `supports_paid_search()` answer — tests only. Pass `null` to clear.
 	 *
 	 * @internal
-	 *
 	 * @param bool|null $value Forced answer or null to clear.
 	 */
 	public static function set_supports_paid_search_for_testing( ?bool $value ): void {
@@ -440,8 +324,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Reset the `supports_paid_search()` memo. Tests only — production
-	 * callers should never need this.
+	 * Reset the `supports_paid_search()` memo. Tests only.
 	 *
 	 * @internal
 	 */
@@ -451,47 +334,26 @@ class Search_Blocks {
 
 	/**
 	 * Whether Jetpack Search exposes its WooCommerce-only blocks, filter
-	 * variations, and render paths. Use from any gate that needs to skip
-	 * a WC-only feature (block registration of `filter-wc-*` blocks, the
-	 * product-format sort keys on `results-sort`, etc.). Memoized
-	 * per-request so adding a new caller doesn't multiply autoloader probes.
+	 * variations, and render paths. See AGENTS.md § WooCommerce gating.
 	 *
-	 * **Load-order contract:** must be called at or after `plugins_loaded`.
-	 * WooCommerce includes its main `WooCommerce` class only when its plugin
-	 * file runs (during `plugins_loaded`), so an earlier call would return
-	 * false on a WC site. Every existing caller fires from a hook later
-	 * than that — `enqueue_block_editor_assets`, `template_redirect`,
-	 * `wp_enqueue_scripts`, or block render — so the contract is naturally
-	 * satisfied. New callers earlier in the request lifecycle should defer
-	 * the probe to a `plugins_loaded`-or-later hook.
-	 *
-	 * **Filter:** `jetpack_search_woocommerce_blocks_enabled` lets a site
-	 * force the gate either way regardless of WC's plugin state — e.g. a
-	 * Woo site hiding WC-only blocks on a non-shop content area, or a
-	 * non-Woo site previewing them in staging. Default is a
-	 * `class_exists( 'WooCommerce', false )` probe gated on
-	 * `woocommerce_version_supported()`. Filter fires once per request
-	 * before the result is memoized, so an expensive callback (DB probe,
-	 * option read) pays its cost at most once.
+	 * **Load-order contract:** call at or after `plugins_loaded`. WC includes
+	 * its main class during `plugins_loaded`, so an earlier call returns false
+	 * on a WC site. Existing callers all fire later (`enqueue_block_editor_assets`,
+	 * `template_redirect`, `wp_enqueue_scripts`, block render).
 	 *
 	 * @return bool
 	 */
 	public static function woocommerce_blocks_enabled(): bool {
 		if ( null === self::$woocommerce_blocks_enabled_cache ) {
-			// Pass `false` so a missing class doesn't fire the autoloader
-			// on non-Woo sites — the gate is hit on every request, and
-			// any upstream autoloader work is wasted when the answer is "no".
-			// Also require a WooCommerce new enough to register the
-			// `product-search-results` template (see MIN_WOOCOMMERCE_VERSION).
+			// `false` second arg: skip the autoloader on non-Woo sites — this
+			// gate is hit on every request and autoloader work would be wasted.
 			$probed = class_exists( 'WooCommerce', false ) && self::woocommerce_version_supported();
 
 			/**
 			 * Whether Jetpack Search exposes its WooCommerce-only blocks,
 			 * filter variations, and render paths. Default is the
 			 * `class_exists( 'WooCommerce', false )` probe AND a minimum
-			 * WooCommerce version check; cast to bool before caching so a
-			 * truthy non-bool return (e.g. `1`) doesn't poison
-			 * strictly-typed callers.
+			 * WooCommerce version check.
 			 *
 			 * @since 0.59.0
 			 *
@@ -506,22 +368,17 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether the active WooCommerce is recent enough to register the
-	 * `product-search-results` block template the WC-only Search features
-	 * depend on (WooCommerce >= `MIN_WOOCOMMERCE_VERSION`). An older or
-	 * absent WooCommerce reads as unsupported.
+	 * Whether the active WooCommerce is at `MIN_WOOCOMMERCE_VERSION` or newer.
+	 * Older or absent WooCommerce reads as unsupported.
 	 *
 	 * @since 7.1.0
 	 *
 	 * @param string|null $version WooCommerce version to test; defaults to the
-	 *   live `WC_VERSION` constant. The override exists so tests can pin a
-	 *   version without polluting global constants.
+	 *   live `WC_VERSION` constant. Override is for tests pinning a version.
 	 * @return bool
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
-		// `constant()` rather than a bare `WC_VERSION` so static analysis
-		// doesn't flag it as undeclared — WooCommerce isn't a dependency of
-		// this package (cf. the mirrored WC_PRODUCT_SEARCH_TEMPLATE_SLUG).
+		// `constant()` keeps static analysis happy — WC isn't a dependency here.
 		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
@@ -572,17 +429,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Canonical list of WooCommerce-only block names. Single source of
-	 * truth for the WC-only gate applied to block registration
-	 * (`register_blocks()`), the `filter_block_helpers()` map, and the
-	 * editor's `register-blocks.js` bundle (read after being localized
-	 * onto `window.JetpackSearchBlocksConfig.woocommerceOnlyBlocks` in
-	 * `enqueue_editor_assets()`).
-	 *
-	 * Add a new WC-only block by appending one entry — every gate picks
-	 * it up automatically. Names are full namespaced names (not bare
-	 * slugs) so the list reads identically to what `BLOCKS` contains in
-	 * `register-blocks.js` and what `filter_block_helpers()` keys against.
+	 * Canonical list of WooCommerce-only block names. Single source of truth
+	 * for the WC gate across registration, helpers, and editor bundle — see
+	 * AGENTS.md § WooCommerce gating. Add an entry and every gate picks it up.
 	 *
 	 * @return string[]
 	 */
@@ -597,12 +446,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether a block name (or block-directory basename) belongs to a
-	 * WooCommerce-only block. Membership is decided by exact match against
-	 * `woocommerce_only_block_names()`; either form (full namespaced name
-	 * or bare directory basename) works because `register_blocks()` walks
-	 * directory basenames while the helpers map and editor bundle hold
-	 * full names.
+	 * Whether a block name belongs to a WooCommerce-only block. Accepts either
+	 * the full namespaced name or a bare directory basename (the registration
+	 * loop walks basenames; helpers and editor hold full names).
 	 *
 	 * @param string $block_name Full block name (`jetpack-search/filter-wc-rating`)
 	 *                           or bare directory basename (`filter-wc-rating`).
@@ -616,12 +462,10 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Built-in taxonomies that have their own dedicated filter-checkbox
-	 * variations — Category / Tag plus the three WooCommerce product
-	 * taxonomies. Excluded from the "Custom Taxonomy" picker (both server
-	 * and editor) so site builders reach for the dedicated variation rather
-	 * than the generic Custom Taxonomy entry. Mirrors `BUILT_IN_TAXONOMY_SLUGS`
-	 * in filter-checkbox/edit.js — must stay in lockstep.
+	 * Built-in taxonomies that have dedicated filter-checkbox variations.
+	 * Excluded from the "Custom Taxonomy" picker so authors reach for the
+	 * dedicated variation. Mirrors `BUILT_IN_TAXONOMY_SLUGS` in
+	 * `filter-checkbox/edit.js` — must stay in lockstep.
 	 *
 	 * @var string[]
 	 */
@@ -635,8 +479,6 @@ class Search_Blocks {
 
 	/**
 	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::get_map()`.
-	 * The slot-mapping logic lives in its own class; this proxy keeps the
-	 * editor enqueue + `supported_custom_taxonomies()` call sites stable.
 	 *
 	 * @return array<string, string>
 	 */
@@ -646,8 +488,6 @@ class Search_Blocks {
 
 	/**
 	 * Back-compat proxy for `Custom_Taxonomy_Slot_Mapping::resolve_slot()`.
-	 * Used by `Filter_Checkbox::build_config()` to seed `effectiveSlug`
-	 * on each filterConfig at config-build time.
 	 *
 	 * @param string $taxonomy User-facing taxonomy slug.
 	 * @return string Effective ES field slug.
@@ -657,10 +497,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Reset both the slot-mapping memo and the `supported_custom_taxonomies()`
-	 * memo. Tests only — production WP runs a single request per process and
-	 * the map is derived purely from a filter hook, so callers should never
-	 * need to clear the cache.
+	 * Reset both the slot-mapping and `supported_custom_taxonomies()` memos. Tests only.
 	 *
 	 * @internal
 	 */
@@ -670,25 +507,14 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Custom-taxonomy slugs the "Custom Taxonomy" filter variation should
-	 * offer in the editor picker. A taxonomy is "supported" when:
+	 * Custom-taxonomy slugs the "Custom Taxonomy" filter variation offers.
 	 *
-	 *   1. It's registered locally AND in Jetpack Search's indexable
-	 *      allowlist (`Sync\Modules\Search::get_all_taxonomies()`), so an
-	 *      aggregation against it will actually return buckets; OR
-	 *   2. It's a key in `custom_taxonomy_map()` AND registered locally —
-	 *      the mapping routes its queries through a reserved slot.
-	 *
-	 * Built-in slugs already covered by dedicated filter variations
-	 * (`category`, `post_tag`, `product_cat`, `product_tag`, `product_brand`)
-	 * are stripped so the Custom Taxonomy variation never offers them as
-	 * alternatives.
-	 *
-	 * The Sync allowlist comes from `automattic/jetpack-sync` (a runtime
-	 * dependency of `automattic/jetpack-search`); the class_exists guard is
-	 * defensive for partial installs / isolated tests where the Sync
-	 * package isn't autoloaded — in that case the helper falls back to
-	 * "map keys only", which is the most conservative answer.
+	 * Supported when registered locally AND either (a) in the Jetpack Search
+	 * indexable allowlist (`Sync\Modules\Search::get_all_taxonomies()`, so
+	 * aggregations actually return buckets) or (b) a key in `custom_taxonomy_map()`
+	 * (queries route through a reserved slot). Built-ins with dedicated variations
+	 * are stripped. The Sync `class_exists` guard is defensive — partial installs
+	 * fall back to "map keys only".
 	 *
 	 * @return string[] Distinct, zero-indexed list of supported taxonomy slugs.
 	 */
@@ -697,10 +523,8 @@ class Search_Blocks {
 			return self::$supported_custom_taxonomies_cache;
 		}
 
-		// Limit to public taxonomies so the picker stays in lockstep with
-		// the editor's `core.getTaxonomies()` call, which only returns
-		// REST-visible (public) taxonomies. Avoids surfacing a private
-		// taxonomy that happens to be in the Sync allowlist.
+		// Public taxonomies only — the editor's `core.getTaxonomies()` only returns
+		// REST-visible ones, and a private taxonomy in the Sync allowlist shouldn't surface.
 		$registered = function_exists( 'get_taxonomies' )
 			? array_values( get_taxonomies( array( 'public' => true ), 'names' ) )
 			: array();
@@ -711,8 +535,6 @@ class Search_Blocks {
 
 		$map_keys = array_keys( self::custom_taxonomy_map() );
 
-		// A registered taxonomy is supported when it sits in the index
-		// allowlist OR when the site owner has mapped it to a slot.
 		$candidates = array_unique( array_merge( $indexed, $map_keys ) );
 		$supported  = array_values(
 			array_diff(
@@ -727,14 +549,7 @@ class Search_Blocks {
 
 	/**
 	 * URL param key the inline search experience uses for the current request.
-	 *
-	 * On WP's search route (`is_search()`) the canonical `s` key is used so
-	 * the blocks interoperate with core's search routing, body classes, and
-	 * any theme/plugin code keyed off `s`. On non-search pages — singular
-	 * permalinks, archives, the front page — the blocks switch to
-	 * `NON_SEARCH_QUERY_PARAM` (`q`) so a refresh of an inline-search URL
-	 * like `/about/?q=boots` doesn't trip core's `WP_Query::get_posts()`
-	 * `post_content LIKE` AND clause and 404 the page.
+	 * On the WP search route `s`; elsewhere `q` (see `NON_SEARCH_QUERY_PARAM`).
 	 *
 	 * @return string
 	 */
@@ -745,10 +560,9 @@ class Search_Blocks {
 	/**
 	 * Enqueue the client-side block registration bundle in the block editor.
 	 *
-	 * WordPress bootstraps server-side block metadata into the editor, but a
-	 * client-side registerBlockType() call is still needed for each block so
-	 * the editor knows how to render a preview. This script registers all
-	 * Jetpack Search blocks with ServerSideRender for the editor preview.
+	 * WP bootstraps server-side block metadata into the editor, but each block
+	 * still needs a client-side `registerBlockType()` call so the editor knows
+	 * how to render a preview. This script does that with ServerSideRender.
 	 */
 	public static function enqueue_editor_assets() {
 		$base_path  = Package::get_installed_path() . 'build/search-blocks-editor/';
@@ -758,9 +572,8 @@ class Search_Blocks {
 		}
 		$asset = require $asset_file;
 
-		// Convert the filesystem path to a URL. plugins_url() resolves against
-		// the nearest plugin directory, which handles the jetpack_vendor
-		// location that Composer installs the package into.
+		// `plugins_url()` resolves against the nearest plugin directory, which
+		// handles the `jetpack_vendor` location Composer installs into.
 		$url = plugins_url( 'register-blocks.js', $base_path . 'register-blocks.js' );
 
 		wp_enqueue_script(
@@ -771,43 +584,18 @@ class Search_Blocks {
 			true
 		);
 
-		// Surface the WC gate to the editor bundle. `isWooCommerceBlocksEnabled`
-		// drives per-component branches (e.g. the results-sort inspector
-		// hiding product-format checkboxes, the results-list inspector
-		// hiding the Product layout) and the `register-blocks.js`
-		// registration loop. `woocommerceOnlyBlocks` is the canonical
-		// list the registration loop intersects with — keeping it
-		// localized (rather than duplicated in JS) means
-		// `Search_Blocks::woocommerce_only_block_names()` is the single
-		// source of truth across the PHP and JS sides.
-		// `wp_add_inline_script` (rather than `wp_localize_script`) per
-		// core ticket #25280 — the latter HTML-encodes ampersands inside
-		// nested values.
+		// Surface PHP gates to the editor bundle so block edits and the
+		// registration loop branch consistently with server-side renders.
+		// `wp_add_inline_script` (not `wp_localize_script`) per core #25280 —
+		// the latter HTML-encodes ampersands inside nested values.
 		wp_add_inline_script(
 			'jetpack-search-blocks-register',
 			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
 				array(
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
-					// `supportsPaidSearch` mirrors the PHP gate the AI Answer
-					// block applies in its `render.php` — paid-only block
-					// edits read this flag and swap their preview for an
-					// upgrade Placeholder when it's false. Server-side is
-					// the source of truth; the editor flag just lets the
-					// preview match what the front end will actually emit.
 					'supportsPaidSearch'         => self::supports_paid_search(),
-					// `supportedCustomTaxonomies` drives the "Custom Taxonomy"
-					// picker in filter-checkbox/edit.js — only taxonomies in
-					// this list (Jetpack-Search-indexed OR mapped to a
-					// reserved slot via `jetpack_search_custom_taxonomy_map`)
-					// are offered. See `supported_custom_taxonomies()` for
-					// the derivation and the FAQ link:
-					// https://jetpack.com/support/search/frequently-asked-questions/#troubleshoot-custom-tax
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
-					// `customTaxonomyMap` is keyed by the user-facing slug;
-					// the picker uses key membership to append a "(mapped)"
-					// suffix to those entries' labels so authors know the
-					// filter routes through a reserved slot.
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
@@ -874,12 +662,7 @@ class Search_Blocks {
 
 	/**
 	 * Register the shared store as the `jetpack-search/store` Script Module.
-	 *
-	 * Every interactive block's `view.js` imports this bare specifier instead
-	 * of inlining the ~1,250-line store; the build externalizes it (see
-	 * `tools/webpack.blocks.config.js`) and writes the dependency into each
-	 * block's generated `.asset.php`, so WordPress resolves it to this single
-	 * module and ships the store once instead of ~14 duplicated copies.
+	 * See AGENTS.md § Shared store / bundles for why this is externalized.
 	 */
 	public static function register_store_script_module() {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
@@ -904,16 +687,10 @@ class Search_Blocks {
 	/**
 	 * Inject named block variations for the filter-checkbox block.
 	 *
-	 * Hooks `get_block_type_variations` (added in WP 6.5) rather than calling
-	 * `register_block_variation()` because the latter is a JS-only API; no
-	 * matching PHP function exists in WordPress core. Filtering on the block
-	 * type's own variations getter is the supported PHP-side path and keeps
-	 * the editor-only JS bundle out of the ESM pipeline. Jetpack already
-	 * requires WP 6.8+, so the hook is always live in supported environments.
-	 *
-	 * Variation names and default `taxonomy` / `filterType` attributes
-	 * intentionally mirror the filter types exposed by the instant-search
-	 * overlay so the two surfaces describe the same filters.
+	 * Uses the `get_block_type_variations` filter (WP 6.5+) rather than
+	 * `register_block_variation()` — the latter is JS-only and has no PHP
+	 * equivalent. Variation names + default attributes mirror the
+	 * instant-search overlay so both surfaces describe the same filters.
 	 *
 	 * @param array          $variations Variations registered on the block type.
 	 * @param \WP_Block_Type $block_type Block type the filter is being applied to.
@@ -969,15 +746,9 @@ class Search_Blocks {
 			),
 		);
 
-		// WC-only product taxonomies. Gated on `woocommerce_blocks_enabled()` so
-		// they don't appear in the inserter on non-Woo sites where the
-		// taxonomies happen to exist via another plugin (or a previous WC
-		// install that left them registered). `product_brand` layers an
-		// extra `taxonomy_exists()` probe on top because it isn't a core WC
-		// taxonomy — extensions like WC Brands / Perfect Brands / recent
-		// bundled WC versions provide it. The three product variations stay
-		// grouped before `custom_taxonomy` below so the inserter renders
-		// them as a contiguous cluster.
+		// WC-only product-taxonomy variations. `product_brand` gets an extra
+		// `taxonomy_exists()` probe — it isn't core WC, it ships via extensions
+		// (WC Brands, Perfect Brands) or recent bundled WC versions.
 		if ( self::woocommerce_blocks_enabled() ) {
 			$additions[] = array(
 				'name'        => 'product_cat',
@@ -1025,20 +796,16 @@ class Search_Blocks {
 				'taxonomy'   => '',
 				'label'      => '',
 			),
-			// Match on filterType only (no taxonomy comparison) so the
-			// variation identity survives once the author picks a slug
-			// via the inspector. Category, Tag, and the product taxonomy
-			// variations all pin `taxonomy` in their isActive arrays, so
-			// WP's most-specific-match resolution still routes those
-			// slugs to their dedicated variations — Custom Taxonomy
-			// claims every other registered taxonomy.
+			// Match on filterType only so identity survives the author picking a
+			// slug. The dedicated variations pin `taxonomy` in their isActive
+			// arrays, so WP's most-specific-match resolution still routes named
+			// slugs to those; Custom Taxonomy claims every other taxonomy.
 			'isActive'    => array( 'filterType' ),
 		);
 
-		// Merge by `name` so a variation already registered upstream (block.json
-		// or a higher-priority filter) wins over our preset of the same name —
-		// `array_merge` would otherwise append duplicates and the inserter
-		// would render two cards for the same variation.
+		// Merge by `name` so an upstream variation (block.json or earlier filter)
+		// wins over our preset of the same name; plain `array_merge` would
+		// append duplicates and the inserter would render two cards.
 		$variations    = (array) $variations;
 		$existing_keys = array_flip( array_column( $variations, 'name' ) );
 		foreach ( $additions as $variation ) {
@@ -1050,12 +817,8 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Register block patterns.
-	 *
-	 * Convention: a pattern file whose basename starts with `wc-` composes
-	 * WooCommerce-only blocks and is loaded only when WC is active. Mirrors
-	 * the `filter-wc-*` block-slug convention so a new WC-only pattern
-	 * auto-enrolls in the gate without an extra registration step.
+	 * Register block patterns. Files prefixed `wc-` compose WooCommerce-only
+	 * blocks and load only when WC is active (mirrors `filter-wc-*` blocks).
 	 */
 	protected static function register_patterns() {
 		$patterns_dir = __DIR__ . '/patterns';
@@ -1078,17 +841,8 @@ class Search_Blocks {
 	/**
 	 * Build the full search page template content.
 	 *
-	 * Mirrors the "Blog Search Page" pattern's layout (see
-	 * `src/search-blocks/patterns/blog-search.php`) wrapped in header/main/
-	 * footer template parts so the plugin-registered template renders the
-	 * same page users get from inserting the pattern directly. Markup lives
-	 * in `templates/jetpack-search.html` — the canonical block-theme format
-	 * for block templates — with a `{{FILTER_HEADING}}` placeholder for the
-	 * filter-sidebar heading so that string still goes through `esc_html__()`.
-	 *
-	 * Memoized: `register_search_template()` runs on every `init`, and the
-	 * template markup is identical every request, so read the file and run
-	 * the translation substitution once per process.
+	 * Markup lives in `templates/jetpack-search.html` with a `{{FILTER_HEADING}}`
+	 * placeholder so the sidebar heading still goes through `esc_html__()`.
 	 *
 	 * @return string Block markup for a complete page template.
 	 */
@@ -1100,31 +854,19 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Register the Jetpack Search page template with the block-template
-	 * registry so it surfaces in the Site Editor's Templates list and can be
-	 * resolved via the template hierarchy.
-	 *
-	 * Uses `register_block_template()` (WP 6.7+). Jetpack requires WP 6.8+,
-	 * so the function is always present at runtime — the function_exists
-	 * guard is defensive for phpstan/phan and edge environments.
-	 *
-	 * DB-stored customizations continue to take precedence: if a site owner
-	 * edits this template in the Site Editor, the `custom` source wins during
-	 * resolution automatically.
-	 *
-	 * Skipped on classic themes: the registry is only consulted by the Site
-	 * Editor and the block-theme render path. Re-checked every `init`.
+	 * Register the Jetpack Search page template so it surfaces in the Site
+	 * Editor and resolves via the template hierarchy. DB-stored customizations
+	 * still win automatically — the `custom` source beats `plugin`. Classic
+	 * themes are skipped: the registry is only consulted by block themes.
 	 */
 	public static function register_search_template() {
 		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
 			return;
 		}
 		$content = static::get_search_template_content();
-		// Skip registration if the bundled template file is missing or
-		// unreadable. Since this template's slug is prepended to the
-		// search hierarchy, registering with empty content would take
-		// over `/?s=...` and render a blank page; bailing here lets core
-		// fall through to the theme's `search.html` instead.
+		// Bail on missing/unreadable file: our slug is prepended to the search
+		// hierarchy, so registering empty content would render a blank page on
+		// `/?s=…`. Falling through lets core resolve the theme's `search.html`.
 		if ( '' === $content ) {
 			return;
 		}
@@ -1141,28 +883,13 @@ class Search_Blocks {
 	/**
 	 * Read the dedicated overlay-template markup (`jetpack-search-overlay.html`).
 	 *
-	 * Distinct from `get_search_template_content()`: that one wraps the
-	 * search blocks inside `header` / `main` / `footer` template-parts so
-	 * the result renders as a full page. The overlay needs only the main
-	 * region — a modal isn't a page — so it ships as its own file rather
-	 * than runtime-stripping the page template's wrappers.
-	 *
-	 * Memoized like the page template: the markup is identical every
-	 * request, so the file read happens once per process. Unlike the
-	 * page-template variant, this template has no `{{FILTER_HEADING}}`
-	 * placeholder — the per-filter labels on each filter block render
-	 * the headings directly, matching the legacy overlay's per-filter
-	 * subheading layout.
+	 * Distinct from `get_search_template_content()`: a modal isn't a page, so
+	 * the overlay markup ships without `header`/`main`/`footer` template-parts
+	 * rather than runtime-stripping them.
 	 *
 	 * Source of truth, in order:
-	 *
-	 *   1. The customized singleton CPT (`Overlay_Template`), if an admin
-	 *      has saved one via the dashboard's "Edit the Search overlay" link.
-	 *   2. The bundled `templates/jetpack-search-overlay.html` file.
-	 *
-	 * Memoized per-request. The customization branch is hit at most once
-	 * per request even when the singleton's content is empty, because
-	 * `Overlay_Template::get_customized_content()` does its own caching.
+	 *   1. Customized singleton CPT (`Overlay_Template`) if an admin saved one.
+	 *   2. The bundled `templates/jetpack-search-overlay.html`.
 	 *
 	 * @return string Block markup for the overlay body.
 	 */
@@ -1183,16 +910,10 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Echo the Search-blocks overlay shell into `wp_footer`.
-	 *
-	 * Server-renders `jetpack-search.html` once per request (template-part
-	 * comments stripped), wraps it in a hidden modal container, and prints
-	 * the result. Block markup carries `data-wp-interactive` directives, so
-	 * the Interactivity API's standard `DOMContentLoaded` hydration picks it
-	 * up — no client-side fetch and no private-API re-hydration needed.
-	 *
-	 * Caller (`init()`) gates this on `is_block_template_overlay_enabled()`,
-	 * so the action isn't even registered when the legacy overlay is in use.
+	 * Echo the Search-blocks overlay shell into `wp_footer`. Block markup
+	 * carries `data-wp-interactive` so the IA's standard `DOMContentLoaded`
+	 * hydration picks it up — no client-side fetch needed. The caller (`init()`)
+	 * gates registration on `is_block_template_overlay_enabled()`.
 	 */
 	public static function print_block_template_overlay() {
 		$rendered = self::$block_template_overlay_rendered_html;
@@ -1209,11 +930,9 @@ class Search_Blocks {
 		?>
 		<script id="jetpack-search-block-overlay-config">window.JetpackSearchBlockOverlay=<?php echo $config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode + JSON_HEX_* flags. ?>;</script>
 		<?php
-		// `<template>` keeps `data-wp-interactive` regions out of
-		// `document.querySelectorAll`, so the IA runtime's one-shot
-		// DOMContentLoaded hydration walk skips them; the bootstrap
-		// clones the content into the shell on first open and hydrates
-		// there.
+		// `<template>` keeps the region out of `document.querySelectorAll` so
+		// the IA runtime's DOMContentLoaded walk skips it. The bootstrap clones
+		// into the shell on first open and hydrates there.
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks output.
 		printf( '<template id="jetpack-search-block-overlay-template">%s</template>', $rendered );
 		?>
@@ -1243,11 +962,9 @@ class Search_Blocks {
 
 	/**
 	 * Register + enqueue the overlay-bootstrap Script Module that wires
-	 * theme-defined search triggers (input, form, button) to the rendered
-	 * overlay shell, plus a minimal inline stylesheet for the modal chrome.
-	 * Config (trigger selectors) is emitted alongside the overlay HTML in
-	 * `print_block_template_overlay()` so it's guaranteed to land in the
-	 * page before the deferred module imports it.
+	 * theme-defined search triggers to the rendered shell. Inline-CSS for the
+	 * modal chrome. Config emits alongside the overlay HTML in
+	 * `print_block_template_overlay()`.
 	 */
 	public static function enqueue_block_template_overlay_assets() {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
@@ -1271,46 +988,30 @@ class Search_Blocks {
 		wp_enqueue_style( 'jetpack-search-block-overlay' );
 		wp_add_inline_style( 'jetpack-search-block-overlay', static::block_template_overlay_inline_css() );
 
-		// Render the template content now (during `wp_enqueue_scripts`) so
-		// the view-module enqueues triggered by `do_blocks()` are in place
-		// before the importmap is printed in `wp_footer` priority 1.
-		// `wp_footer` priority 10 (where `print_block_template_overlay`
-		// runs) is too late — the importmap walk has already happened and
-		// `jetpack-search/store` would be missing from it.
+		// Render here (during `wp_enqueue_scripts`) so view-module enqueues
+		// from `do_blocks()` land before the importmap prints — see
+		// AGENTS.md § Hydration & SSR seeding.
 		self::$block_template_overlay_rendered_html = trim(
 			do_blocks( static::get_overlay_template_content() )
 		);
 	}
 
 	/**
-	 * Minimal CSS for the overlay shell. Block-rendered content brings its
-	 * own styling; this only handles the modal chrome (positioning, scrim,
-	 * close button) and the hidden/visible toggle.
+	 * Inline CSS for the overlay modal chrome. Block content brings its own
+	 * theme styling; this is just the scrim, centered card, 60px header strip,
+	 * close button, animation, and scroll lock.
+	 *
+	 * Surface/ink follow a two-step token fallback: newer `base`/`contrast`
+	 * (TT2/TT3/TT5-family) first, then legacy `background`/`foreground` (TT1,
+	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
+	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
+	 * two custom props so in-card surfaces (suggestions panel) share one source.
+	 * Hairlines use `color-mix(currentColor)`.
 	 *
 	 * @return string
 	 */
 	protected static function block_template_overlay_inline_css(): string {
 		return <<<'CSS'
-/*
- * Modal chrome only. The rendered Search blocks bring their own styling
- * from the active theme; this stylesheet handles only the overlay scrim,
- * the centered card, the header strip (search input + close button),
- * open/close animation, and the body-scroll-lock helper. Mirrors the
- * visual idiom of the legacy `instant-search/components/overlay.scss`.
- *
- * Surface + ink track the theme's color tokens — newer `base` / `contrast`
- * (TT2/TT3/TT5-family) first, then legacy `background` / `foreground` (TT1,
- * Kaze, many WPCOM themes) — matching the suggestions dropdown and sort
- * popover treatment. The two-step fallback chain is required because legacy
- * themes don't define `base` / `contrast` at all, so the older PR (#49125)
- * fix landed on hardcoded `#fff` for the surface and inherited body
- * `--foreground` (often white on dark themes) for the ink — i.e. the same
- * white-on-white bug the fix was meant to remove. The chain is hoisted onto
- * two local custom properties so any in-card surface that needs to match the
- * card (e.g. the suggestions panel) reads from a single source of truth.
- * Hairlines and the close-button hover use `color-mix(currentColor)` so they
- * keep a consistent contrast ratio against whatever surface the theme chose.
- */
 .jetpack-search-block-overlay {
 	position: fixed;
 	inset: 0;
@@ -1358,16 +1059,9 @@ class Search_Blocks {
 	cursor: pointer;
 	color: inherit;
 }
-/*
- * Hairlines and the close-button hover use `color-mix(currentColor)`. On
- * browsers without color-mix support (~Chrome <111, Firefox <113, Safari
- * <16.2) the entire `border-bottom`/`background` shorthand would be
- * invalid and the cascade would land on initial values — `border-style:
- * none` (no hairline) or `border-color: currentColor` full-opacity (stark
- * ink on dark themes). The `transparent` defaults paired with `@supports`
- * overrides give those older browsers a graceful no-affordance state
- * instead of a stark one — same convention `_chip.scss` uses.
- */
+/* `@supports` + `transparent` defaults: pre-color-mix browsers (~Chrome <111,
+ * FF <113, Safari <16.2) get a graceful no-affordance state instead of stark
+ * full-opacity `currentColor`. Same convention as `_chip.scss`. */
 @supports (border-color: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__close {
 		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
@@ -1383,17 +1077,9 @@ class Search_Blocks {
 	width: 24px;
 	height: 24px;
 }
-/*
- * The first child of the rendered template is the search-input block.
- * Promote it to a 60px header strip flush with the close button so the
- * two read as a single top bar — matching the legacy `__box` header:
- * 60px magnifying-glass column on the left, full-width input in the
- * middle, ×-clear column on the right (before the overlay's own X).
- * The block's default `border-bottom: 1px solid currentColor` on
- * `.jetpack-search-input__inside-wrapper` is intentionally suppressed
- * inside the overlay — the header strip's own border-bottom handles
- * the visual separation from the results area.
- */
+/* Promote the first child (search-input) to a 60px header strip flush with
+ * the close button, matching the legacy `__box` header. Suppress the input
+ * block's own border-bottom — the header strip's border handles separation. */
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
 	position: absolute;
 	top: 0;
@@ -1443,57 +1129,32 @@ class Search_Blocks {
 	font-weight: 400;
 	line-height: 1;
 }
-/*
- * Suggestions dropdown sits on top of the results + filters area below
- * the input row. Two adjustments vs. the base style: (1) cancel out the
- * input wrapper's `right: 60px` offset so the panel reaches the card's
- * right edge and covers the filters column instead of leaving "Category"
- * / "Post Type" peeking out on the right; (2) lift `z-index` above the
- * other in-card popovers (`results-sort` and `filters-popover` both at
- * `z-index: 20`) so the panel reliably wins the stacking order even
- * when one of those is open underneath. Background reads from the card's
- * `--jp-search-overlay-surface` so the panel surface tracks the resolved
- * card surface on every theme — a hardcoded `#fff` here would be opaque
- * white over a theme-coloured card on legacy `--background`/`--foreground`
- * themes, the same bug the card itself dodges via the chained fallback.
- */
+/* Suggestions panel covers the full card width (cancel the input's `right: 60px`
+ * offset) and sits above `results-sort` / `filters-popover` (both `z-index: 20`).
+ * Background reads from `--jp-search-overlay-surface` so the panel tracks the
+ * resolved card surface — a hardcoded `#fff` would re-introduce the white-on-dark
+ * bug on legacy `--background`/`--foreground` themes. */
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__suggestions {
 	right: -60px;
 	z-index: 30;
 	background: var(--jp-search-overlay-surface, #fff);
 }
-/*
- * Top padding clears the absolutely-positioned 60px header strip — without
- * it the "Found N results" / Sort by row sat flush against the search
- * input's bottom border and the modal felt cramped (SEARCH-243).
- */
+/* Top padding clears the absolutely-positioned 60px header strip (SEARCH-243). */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
 	padding: .5em 2em 2em;
 }
-/*
- * The "Found N results" + sort dropdown row sits inside the rendered
- * `search-results` block. The wp:group inline layout
- * (`justifyContent: space-between`) does not always emit the matching
- * core flex-layout class in this context, so we force the row layout
- * explicitly. Results count anchors left, sort anchors right — matching
- * the legacy `__search-results-controls` row.
- */
+/* Force flex-row for the "Found N results" + sort row — `wp:group` inline
+ * layout (`justifyContent: space-between`) doesn't always emit the core
+ * flex-layout class in this context. */
 .jetpack-search-block-overlay__results-header {
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	align-items: center;
 }
-/*
- * Filter sidebar's left divider: track `currentColor` (i.e. the active
- * theme's ink) so the hairline stays subtle on light themes and visible on
- * dark themes, instead of rendering as flat grey on either. The width
- * comes from the column block's inline `border-left-width` (and WP block
- * border support fills in `border-left-style: solid`); we only own the
- * color here. `transparent` base + `@supports` override avoids the stark
- * full-opacity `currentColor` fallback that older browsers would otherwise
- * land on — mirrors the close-button hairline treatment above.
- */
+/* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
+ * light themes and visible on dark themes. We only set color; the column
+ * block's inline `border-left-width` does the rest. */
 .jetpack-search-block-overlay__filters-column {
 	border-left-color: transparent;
 }
@@ -1515,11 +1176,7 @@ class Search_Blocks {
 		padding: .5em 1em 1em;
 	}
 }
-/*
- * Body-scroll lock — set `position: fixed` while the overlay is open so
- * the page underneath doesn't scroll, with the JS side stashing and
- * restoring scrollY around the toggle to keep the visible position stable.
- */
+/* Body-scroll lock while open. JS side stashes/restores scrollY on toggle. */
 body.jetpack-search-block-overlay-open {
 	position: fixed;
 	left: 0;
@@ -1531,9 +1188,7 @@ CSS;
 	}
 
 	/**
-	 * Product-search counterpart of `get_search_template_content()`. Seeds
-	 * from `templates/jetpack-search-product-results.html` (a copy of the search
-	 * layout for now; product-specific blocks land in a follow-up).
+	 * Product-search counterpart of `get_search_template_content()`.
 	 *
 	 * @return string Block markup for the product-search template.
 	 */
@@ -1545,9 +1200,8 @@ CSS;
 	}
 
 	/**
-	 * Substitute {{FILTER_HEADING}} / {{HEADER_SLUG}} / {{FOOTER_SLUG}}
-	 * in a bundled template's raw markup. Empty input passes through so
-	 * the "missing-file" bail-out in the registrars still fires.
+	 * Substitute `{{FILTER_HEADING}}` / `{{HEADER_SLUG}}` / `{{FOOTER_SLUG}}` in a
+	 * bundled template. Empty input passes through.
 	 *
 	 * @param string $raw Raw template-file contents.
 	 * @return string
@@ -1569,9 +1223,8 @@ CSS;
 	}
 
 	/**
-	 * Active theme's chrome slugs. Seam — tests override to inject
-	 * canned values; the resolver itself lives in
-	 * Theme_Chrome_Slug_Resolver.
+	 * Active theme's chrome slugs. Test seam; resolver lives on
+	 * `Theme_Chrome_Slug_Resolver`.
 	 *
 	 * @return array{header:string,footer:string}
 	 */
@@ -1580,9 +1233,9 @@ CSS;
 	}
 
 	/**
-	 * Idempotent wrapper around register_block_template — unregisters
-	 * first so a stale entry from a prior init (long-lived PHP-FPM
-	 * worker) is replaced rather than triggering doing_it_wrong.
+	 * Idempotent wrapper around `register_block_template`. Unregisters first so
+	 * a stale entry from a prior init (long-lived PHP-FPM worker) is replaced
+	 * rather than triggering `doing_it_wrong`.
 	 *
 	 * @param string              $name Fully-qualified template name.
 	 * @param array<string,mixed> $args Args for register_block_template().
@@ -1598,9 +1251,7 @@ CSS;
 	}
 
 	/**
-	 * Register the dedicated Jetpack product-search template. Counterpart of
-	 * `register_search_template()`; same Site Editor / DB-customization
-	 * semantics and empty-content / classic-theme bail-outs.
+	 * Counterpart of `register_search_template()` for product search.
 	 */
 	public static function register_product_search_template() {
 		if ( ! function_exists( 'register_block_template' ) || ! static::block_templates_active() ) {
@@ -1621,28 +1272,14 @@ CSS;
 	}
 
 	/**
-	 * Directory slug of the plugin that should own the template in the
-	 * Site Editor UI.
-	 *
-	 * The Templates list labels plugin-registered templates by looking up an
-	 * active plugin whose directory slug matches the namespace portion of
-	 * the registered template name. We pick the slug by preference rather
-	 * than by install path so that on sites running both the Jetpack
-	 * monolith and the standalone Jetpack Search plugin, the more-specific
-	 * "Jetpack Search" label always wins:
-	 *
-	 * - Jetpack Search plugin active → `jetpack-search` → "Jetpack Search"
-	 * - Otherwise Jetpack plugin active → `jetpack` → "Jetpack"
-	 * - Neither active (unexpected) → `jetpack-search` fallback
+	 * Directory slug of the plugin that owns the template in the Site Editor UI.
+	 * Picked by preference so the more-specific "Jetpack Search" label wins
+	 * when both the standalone plugin and the Jetpack monolith are active:
+	 * `jetpack-search` → `jetpack` → `jetpack-search` fallback.
 	 *
 	 * @return string
 	 */
 	protected static function get_parent_plugin_slug(): string {
-		// Helper::get_active_plugins() already centralizes single-site +
-		// multisite active-plugin discovery (reads `active_plugins`, unions
-		// network-activated plugins from `active_sitewide_plugins`, dedupes).
-		// Reuse it so multisite/activation behavior stays consistent across
-		// the package if it ever evolves.
 		$active    = Helper::get_active_plugins();
 		$preferred = array(
 			'jetpack-search' => 'jetpack-search/jetpack-search.php',
@@ -1657,28 +1294,13 @@ CSS;
 	}
 
 	/**
-	 * Prepend the Jetpack Search template slug to the search template hierarchy
-	 * so `/?s=…` requests resolve to our plugin-registered template instead of
-	 * the theme's `search.html`.
+	 * Prepend the Jetpack Search slug to the search template hierarchy on
+	 * block-theme search requests. Existing occurrences are stripped first
+	 * so a second init pass / another filter on the same hook can't dup.
 	 *
-	 * Core resolves each slug in order, stopping at the first template it
-	 * finds. Because our slug is unique (`jetpack-search`, not `search`), the
-	 * theme's `search.html` is never consulted when this prepend is in effect.
-	 * Site Editor customizations (stored in the DB keyed by this slug) still
-	 * take precedence over the plugin-registered default.
-	 *
-	 * Existing occurrences of the slug are stripped first so the hierarchy
-	 * can't accumulate duplicates from a second init pass or another filter
-	 * on the same hook.
-	 *
-	 * Only takes effect on a block-theme search request — the slug resolves
-	 * only through the block-template system, so injecting it anywhere else
-	 * just mis-shapes the hierarchy.
-	 *
-	 * WooCommerce product-search carve-out: override off → leave the
-	 * hierarchy to WooCommerce's prepend; override on → fall through here,
-	 * then `route_woocommerce_product_search_template()` swaps WooCommerce's
-	 * slug for `jetpack-search-product-results`.
+	 * WooCommerce product-search carve-out: override off → leave to WC's
+	 * prepend; override on → fall through here, then
+	 * `route_woocommerce_product_search_template()` swaps WC's slug for ours.
 	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
@@ -1703,23 +1325,12 @@ CSS;
 	}
 
 	/**
-	 * Classic-theme counterpart to `prepend_search_template()`.
-	 *
-	 * Prepending a slug to `search_template_hierarchy` only works on block
-	 * themes — `locate_template()` walks the slugs as `{slug}.php` files in
-	 * the active theme, which a classic theme never ships for our
-	 * `jetpack-search` slug, so the hierarchy filter is a no-op there.
-	 * Instead we let the hierarchy resolve normally (to the theme's
-	 * `search.php` / `index.php`) and then swap the resolved path
-	 * post-resolution via `template_include` for our bundled PHP shim, which
-	 * renders the same block markup inside the theme's
-	 * `get_header()` / `get_footer()`.
-	 *
-	 * Hooked only when `init()` already established Embedded + classic theme,
-	 * so we just guard on `is_search()` and the WooCommerce product-search
-	 * carve-out (the block-template registry doesn't reach classic themes,
-	 * so we don't ship a per-Woo classic shim — let WooCommerce's own
-	 * archive routing render the product search results).
+	 * Classic-theme counterpart to `prepend_search_template()`. Block-theme
+	 * hierarchy filters are a no-op on classic themes — `locate_template()`
+	 * walks slugs as `{slug}.php` and a classic theme doesn't ship one for
+	 * our slug. So let the hierarchy resolve normally, then swap the path
+	 * via `template_include` to our bundled PHP shim, which renders the same
+	 * block markup inside the theme's `get_header()`/`get_footer()`.
 	 *
 	 * @param string $template Resolved template path.
 	 * @return string
@@ -1731,12 +1342,9 @@ CSS;
 		if ( ! static::woocommerce_search_template_override_enabled() && static::is_woocommerce_product_search() ) {
 			return $template;
 		}
-		// Bail back to the theme's own search template if neither a
-		// customization nor a readable bundled body is available —
-		// rendering header / footer with nothing between them just
-		// looks like a broken page. A saved empty customization
-		// (Search_Template::get_customized_content() returning ''
-		// instead of null) is treated as intentional and honored.
+		// Bail back to the theme's template if there's no customization AND no
+		// bundled body — rendering header/footer with nothing between looks
+		// broken. A saved empty customization ('' vs null) is honored as intentional.
 		if ( null === Search_Template::get_customized_content() && '' === static::get_classic_theme_search_body() ) {
 			return $template;
 		}
@@ -1744,28 +1352,16 @@ CSS;
 	}
 
 	/**
-	 * Search template body for the classic-theme `template_include` route —
-	 * the same block markup the block-theme path registers, with the leading
-	 * and trailing `core/template-part` references stripped so the theme's
+	 * Classic-theme search body — same markup as the block-theme path with
+	 * top-level `core/template-part` references stripped so the theme's
 	 * `get_header()` / `get_footer()` drive the chrome.
 	 *
-	 * Source of truth, in order:
-	 *
-	 *   1. The customized singleton CPT ({@see Search_Template}), if an
-	 *      admin has saved one via the dashboard's "Edit search template"
-	 *      link.
-	 *   2. The bundled `templates/jetpack-search.html` file, template-part
-	 *      wrappers stripped.
-	 *
-	 * Public because the bundled PHP shim (`templates/classic-theme-search.php`)
-	 * needs to call it from outside the class scope.
+	 * Source of truth: customized `Search_Template` CPT → bundled `jetpack-search.html`.
+	 * Public because `templates/classic-theme-search.php` calls it from outside the class.
 	 *
 	 * @return string Block markup, no template-part wrappers.
 	 */
 	public static function get_classic_theme_search_body(): string {
-		// Customization first — singleton CPT seeded from the bundled
-		// markup, edited via post.php; theme-agnostic so the admin can
-		// reach the editor without a Site Editor.
 		$customized = Search_Template::get_customized_content();
 		if ( null !== $customized ) {
 			return $customized;
@@ -1774,29 +1370,21 @@ CSS;
 		if ( '' === $content ) {
 			return '';
 		}
-		// The bundled template emits exactly two top-level `core/template-part`
-		// self-closing comments (header before the main group, footer after).
-		// On classic themes those slugs don't resolve to anything renderable,
-		// so drop the comments before `do_blocks()` walks the markup. The
-		// inner `.*?` is non-greedy and capped by the `-->` sentinel, so a
-		// future template revision that nests JSON (e.g. `{"theme":{"name":"x"}}`)
-		// in a `wp:template-part` attribute keeps matching cleanly.
+		// Strip the two top-level `core/template-part` self-closing comments —
+		// classic themes can't resolve their slugs. Non-greedy `.*?` capped by
+		// `-->` keeps matching cleanly across template revisions.
 		return (string) preg_replace( '#<!--\s*wp:template-part\s+.*?/-->\s*#s', '', $content );
 	}
 
 	/**
-	 * Test override for `block_templates_active()`. Null means "no override
-	 * — read the live state via `wp_is_block_theme()`". Set in tests that
-	 * need to exercise the block-theme `init()` path without standing up a
-	 * real block theme; reset back to null in the teardown.
+	 * Test override for `block_templates_active()`. Null = read the live state.
 	 *
 	 * @var bool|null
 	 */
 	private static $block_templates_active_for_testing = null;
 
 	/**
-	 * Test seam. Set true/false to force `block_templates_active()`'s return
-	 * value, or null to clear the override.
+	 * Test seam. Set true/false to force `block_templates_active()`, or null to clear.
 	 *
 	 * @param bool|null $active Forced value, or null to clear.
 	 */
@@ -1805,9 +1393,8 @@ CSS;
 	}
 
 	/**
-	 * Whether the active theme resolves block templates. Wraps
-	 * `wp_is_block_theme()` as an overridable seam so tests can exercise the
-	 * block-theme path without standing up a block theme.
+	 * Whether the theme resolves block templates. Overridable seam over
+	 * `wp_is_block_theme()` for tests.
 	 *
 	 * @return bool
 	 */
@@ -1819,12 +1406,9 @@ CSS;
 	}
 
 	/**
-	 * Front the dedicated `jetpack-search-product-results` template for a WooCommerce
-	 * product search: drop WooCommerce's `product-search-results` slug and
-	 * unshift ours so it resolves first (ahead of any `jetpack-search`
-	 * prepended for the generic search route). Registered at priority 20
-	 * only when the override is on; no-op outside a WooCommerce product
-	 * search.
+	 * Front the `jetpack-search-product-results` template for WC product
+	 * search. Drops WC's `product-search-results` and unshifts ours so it
+	 * resolves before any `jetpack-search` prepend for the generic route.
 	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
@@ -1847,18 +1431,9 @@ CSS;
 	}
 
 	/**
-	 * Seed the Interactivity API store with initial state.
-	 *
-	 * Individual block render.php files may also call wp_interactivity_state()
-	 * — core deep-merges each call, so each block can contribute its own
-	 * entries (e.g. filter-checkbox writes its filterConfig). Filter blocks
-	 * placed in templates or template parts contribute their config the same
-	 * way; the complete registry exists by the time JS hydrates.
-	 *
-	 * URL-derived `activeFilters` is passed straight through; the JS store
-	 * gates it against the complete `filterConfigs` registry on hydration
-	 * (see `gateActiveFilters()` in `store/index.js`), so any stray params
-	 * don't round-trip back into subsequent search URLs.
+	 * Seed the Interactivity API store with initial state. Per-block render
+	 * callbacks deep-merge their own entries on top (e.g. filter-checkbox
+	 * writes its filterConfig). See AGENTS.md § Hydration & SSR seeding.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
@@ -1873,11 +1448,7 @@ CSS;
 	/**
 	 * Compose the final seeded state for `wp_interactivity_state()`.
 	 *
-	 * `activeFilters` is passed through from the URL — the JS store gates
-	 * against the complete `filterConfigs` registry on hydration.
-	 *
-	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
-	 *   configs collected from the current post (or injected by tests).
+	 * @param array<string, array<string, mixed>> $filter_configs Map of filter configs.
 	 * @return array<string, mixed>
 	 */
 	public static function build_seed_state( array $filter_configs ): array {
@@ -1887,14 +1458,10 @@ CSS;
 	}
 
 	/**
-	 * Walk the current post's block tree for jetpack-search/filter-checkbox blocks
-	 * and build the matching filterConfigs map.
-	 *
-	 * Covers the common case where a page uses the Blog Search Page pattern
-	 * (or blocks inserted directly into $post->post_content). Template-part
-	 * / block-theme scans are not performed here — a filter block placed
-	 * inside a template part will still work, but its config won't be
-	 * available to the search-results SSR until hydration.
+	 * Walk the current post's block tree for filter blocks and build the
+	 * filterConfigs map. Template-part scans are not performed — a filter
+	 * inside a template part still works, but its config isn't available to
+	 * the search-results SSR until hydration.
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
@@ -1934,10 +1501,8 @@ CSS;
 		if ( self::woocommerce_blocks_enabled() ) {
 			return $helpers;
 		}
-		// On non-Woo sites the WC-only blocks aren't registered (see
-		// `register_blocks()`), so any saved instance in post content has no
-		// renderer. Drop them from the helper map too — that keeps the
-		// filter-config walk symmetrical with what the inserter offers.
+		// Non-Woo sites: drop WC-only entries so the filter-config walk stays
+		// symmetric with what `register_blocks()` actually registered.
 		foreach ( array_keys( $helpers ) as $name ) {
 			if ( self::is_woocommerce_only_block( $name ) ) {
 				unset( $helpers[ $name ] );
@@ -1999,158 +1564,77 @@ CSS;
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
-			// Whether the product-format sort keys (rating, price asc/desc)
-			// are valid on this site, plus a JS-side gate any WC-only block
-			// can read. The store threads it into url-state so a
-			// `?orderby=price_asc` deep link round-trips on Woo sites and
-			// collapses to relevance everywhere else.
+			// Threaded through url-state so `?orderby=price_asc` round-trips on Woo only.
 			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',
-			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
-			// client. Converts WP's `en_US` underscore form. Uses the blog
-			// locale (site setting) rather than the viewer's user-profile
-			// locale so formatting is consistent for logged-out visitors
-			// hitting a search page.
+			// Blog locale (not viewer's profile locale) for consistent
+			// logged-out formatting. BCP47-ish (`en-US`).
 			'locale'                     => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
-			// Site `date_format` token string (PHP `date()` syntax — e.g.
-			// `F j, Y`, `Y-m-d`) so the result card's date matches the rest of
-			// the site rather than `toLocaleDateString`'s fixed shape. Parsed
-			// client-side by `wp-date-format.js` because the Interactivity API
-			// view bundle can't import `@wordpress/date`. Empty string falls
-			// the JS side back to its legacy `{ year, month, day }` Intl
-			// shape, which keeps tests that don't seed a format passing.
+			// PHP-style token string parsed client-side by `wp-date-format.js`
+			// (IA view bundle can't import `@wordpress/date`). Empty → Intl fallback.
 			'dateFormat'                 => function_exists( 'get_option' )
 				? (string) get_option( 'date_format', '' )
 				: '',
 
-			// Search state, seeded from the URL so a deep link like
-			// /?s=boots&orderby=newest&category[]=news renders correctly on
-			// first paint.
+			// URL-seeded so deep links render on first paint.
 			'searchQuery'                => $search_query,
-			// Whether the search-query URL key was present in `$_GET`, even
-			// when its value is empty. The JS store's `initialize()` reads
-			// this so a `?s=` deep link still fires the initial search —
-			// `searchQuery` alone can't carry that signal because an empty
-			// param and a missing param both round-trip as `''`.
+			// `?s=` (empty value) must still fire the initial fetch; `searchQuery`
+			// alone collapses present-but-empty and missing to `''`.
 			'hasSearchParam'             => static::has_search_param(),
-			// URL key the JS store uses to read/write the search query. `s`
-			// on the WP search route, `q` on non-search pages — see
-			// `get_search_param_name()`. Threaded through the seed so the JS
-			// store reads from the same key the seed pulled `searchQuery`
-			// from.
 			'searchParamName'            => static::get_search_param_name(),
 			'sortOrder'                  => static::parse_url_sort(),
 			'activeFilters'              => $active_filters,
 			'filterLogic'                => $filter_logic,
 			'priceRange'                 => $price_range,
-			// Static filters (`jetpack-search/filter-static`) round-trip as
-			// scalar `?filter_id=value` URL params. The block's render.php
-			// merges the URL-seeded selections in alongside its filterConfig
-			// entry so a deep link pre-checks the right radio. Seeded as an
-			// empty object here so JS readers always see a defined shape on
-			// pages without the block.
+			// Scalar `?filter_id=value`; seeded as `{}` so JS readers see a defined shape.
 			'staticFilterSelections'     => (object) array(),
 
-			// filterConfigs: each filter-checkbox block's render.php merges its
-			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
-			// taxonomy, effectiveSlug, label, showCount, maxItems } }. The
-			// `effectiveSlug` is resolved server-side at config-build time
-			// against `jetpack_search_custom_taxonomy_map`, so JS query
-			// builders never have to consult the global map themselves.
+			// Each filter block's render.php deep-merges its entry. Shape:
+			// `{ [key]: { filterKey, filterType, taxonomy, effectiveSlug, label, showCount, maxItems } }`.
 			'filterConfigs'              => array(),
 
-			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
-			// is intentionally NOT seeded here. FSE block templates can render
-			// before `wp_enqueue_scripts` fires (where this seed runs), so
-			// pre-seeding the slot with `{ include: [], exclude: [] }` would
-			// merge AFTER the block contribution and clobber it. Letting
-			// render.php own the slot keeps template-rendered blocks working;
-			// the JS reader treats `state.staticPostTypes` undefined as
-			// "no constraint" via Array.isArray() checks in store/api.js.
+			// `staticPostTypes` deliberately NOT seeded — FSE templates render
+			// before this seed, so pre-seeding `{include:[],exclude:[]}` would
+			// clobber the block contribution. JS treats undefined as no-constraint.
 
-			// Results + aggregations are populated by the JS store on hydration —
-			// seed empty defaults so template bindings always have a shape to read.
-			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
+			// JS hydration fills these. `aggregations` is stdClass so JS sees `{}`.
 			'results'                    => array(),
 			'aggregations'               => (object) array(),
-			// Per-filter union of values seen across the session's aggregation
-			// responses. The JS store appends to this on each successful fetch
-			// so checkbox-filter lists can keep options visible even after a
-			// narrower query drops them from ES results.
+			// See AGENTS.md § Filter bucket lifecycle.
 			'retainedFilterOptions'      => (object) array(),
 			'totalResults'               => 0,
 			'pageHandle'                 => null,
 
-			// UI state. `isLoading` is seeded true when the URL carries a
-			// search query or filter selection so the empty-state region inside
-			// `jetpack-search/results-list` stays hidden between first paint and JS
-			// hydrating the initial fetch — otherwise a "No results found" flash
-			// appears on deep links.
+			// `isLoading` true on deep links keeps the empty-state hidden until
+			// JS fires the initial fetch (otherwise "No results found" flashes).
 			'isLoading'                  => $is_initial_loading,
 			'isLoadingMore'              => false,
 			'hasError'                   => false,
 
-			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
-			// `data-wp-bind--hidden` against literal seeded values (it can't
-			// run JS getters), so skeleton elements bind directly to this
-			// boolean. JS flips it to true once `actions.search()` resolves
-			// and never resets it — subsequent re-searches keep live results
-			// on screen without re-flashing placeholders.
+			// One-shot pre-hydration skeleton gate; never re-flashed on re-search.
 			'skeletonHidden'             => false,
 
-			// Seeded so the SSR pass can resolve `data-wp-text` to a real
-			// string on first paint; `actions.search()` keeps it in lockstep
-			// with `isLoading` / `totalResults` via `computeResultsCountText`.
+			// Seeded so SSR resolves `data-wp-text` on first paint.
 			'resultsCountText'           => $is_initial_loading ? $searching_text : '',
 
-			// Translated view-bundle strings. The Interactivity API view bundle
-			// can't import @wordpress/i18n (only @wordpress/interactivity is
-			// registered as a script module), so any JS-produced text is seeded
-			// here and read via state.strings.* on the client. Both _n() forms
-			// are seeded so the client can pick based on the live totalResults
-			// without a round trip; languages with more than two plural forms
-			// degrade to "plural for all count > 1" as an accepted tradeoff.
 			'strings'                    => static::build_initial_strings(),
-
-			// Currency symbol displayed inside the price filter pill rendered
-			// by the active-filters block. Defaults to `$`; the price block's
-			// render.php overrides this with the author's currencySymbol
-			// attribute so a single chip on the page reflects whatever symbol
-			// the price input itself uses. The stored numeric value stays
-			// locale-agnostic — only the display string carries the symbol.
 			'priceCurrencySymbol'        => '$',
 
-			// Localized rotating loading hints shown while the "Show more"
-			// extended AI answer streams. Lives on the top-level seed (not
-			// under `strings`) because the `strings` map is typed
-			// `array<string,string>` for Phan, and an `array<int,string>`
-			// value would break that contract — splitting it out keeps both
-			// surfaces strictly typed.
+			// Top-level (not under `strings`) — keeps Phan's `array<string,string>`
+			// contract on `strings` intact.
 			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
 
-			// Display labels for `wc_stock_status` selections, keyed by slug.
-			// Seeded from the status block's static option list so an active-
-			// filters chip for "instock" reads "In stock" rather than the raw
-			// slug. RSM-1932 will swap this with WC's translated labels so
-			// non-English locales render correctly; the map shape stays the
-			// same.
 			'wcStockStatusLabels'        => static::build_stock_status_labels(),
 		);
 	}
 
 	/**
-	 * Slug → display label map for `wc_stock_status` selections, used by the
-	 * active-filters block to render product-aware chips.
-	 *
-	 * Sourced from the status block's `get_options()` so there's one source of
-	 * truth for the label set; in RSM-1932 we'll switch to WC's translated
-	 * labels (`wc_get_product_stock_status_options()`) without changing this
-	 * shape. Returns an empty array when the status helper class isn't loaded
-	 * — defensive for environments that pull the search package in isolation
-	 * (tests, partial installs, or sites where the status block PR hasn't
-	 * landed yet).
+	 * Slug → display-label map for `wc_stock_status` selections, used by the
+	 * active-filters block for product-aware chips. RSM-1932 will swap this
+	 * for WC's translated labels (`wc_get_product_stock_status_options()`)
+	 * without changing the shape. Empty when the status helper isn't loaded.
 	 *
 	 * @return array<string, string>
 	 */
@@ -2170,37 +1654,24 @@ CSS;
 	}
 
 	/**
-	 * Whether the page starts in a loading state — i.e. the URL carries a
-	 * search query, filter selection, or price range, so the JS store will
-	 * fire an initial fetch on hydration.
+	 * Whether the URL carries a search query, filter, or price range — i.e.
+	 * the JS store will fire an initial fetch on hydration. Render callbacks
+	 * use this to emit pre-hydration affordances (skeleton, "Searching…").
 	 *
-	 * Render.php callers branch on this to emit pre-hydration affordances
-	 * (skeleton placeholders, seeded "Searching…" text). The value is derived
-	 * from the request URL rather than read back through
-	 * `wp_interactivity_state()` because in block themes individual block
-	 * renders can run before `seed_interactivity_state()` finishes (FSE
-	 * pre-resolves template attributes by walking blocks before the
-	 * `wp_enqueue_scripts` hook fires) — so a state-read fallback would
-	 * silently return false on the very pages this helper is meant to flag.
-	 * The condition mirrors the `isLoading` value seeded into
-	 * `build_initial_state()` exactly so PHP-time and JS-side answers stay
-	 * in lockstep.
+	 * URL-derived rather than read back from `wp_interactivity_state()`
+	 * because FSE pre-resolves block attributes before `wp_enqueue_scripts`
+	 * fires, so a state-read would silently return false on the very pages
+	 * this is meant to flag. Mirrors the `isLoading` seed exactly.
 	 *
 	 * @return bool
 	 */
 	public static function is_initial_loading(): bool {
-		// Memoize per-request: the URL doesn't change mid-request, and this
-		// helper is hit by every block render.php (one per filter block plus
-		// search-results, results-count, etc.) AND by `build_initial_state()`,
-		// each of which would otherwise re-parse `$_GET` independently.
 		if ( null !== self::$is_initial_loading_cache ) {
 			return self::$is_initial_loading_cache;
 		}
-		// `has_search_param()` rather than `parse_url_search_query() !== ''` —
-		// an explicit `?s=` (empty value) still means the visitor landed on a
-		// search page and expects an initial unfiltered result set, the same
-		// as submitting a blank search form. The non-empty case is a subset
-		// of "param present" so this guard subsumes the old text-query check.
+		// `has_search_param()` not `parse_url_search_query() !== ''` — an
+		// explicit `?s=` (empty value) still means "visitor landed on a
+		// search page" and should fire an unfiltered initial fetch.
 		if ( static::has_search_param() ) {
 			self::$is_initial_loading_cache = true;
 			return true;
@@ -2214,16 +1685,9 @@ CSS;
 	}
 
 	/**
-	 * Reset the `is_initial_loading()` memo. Test-only — production WP runs
-	 * a single request per process, so the memo never needs clearing there.
-	 * The PHPUnit harness reuses one process across every test method, so
-	 * without this hook a `$_GET` set by an earlier test would pin the
-	 * memoized value and silently override later tests' URL fixtures.
-	 *
-	 * Guarded so a misconfigured production caller can't accidentally drop
-	 * the cache mid-request: bail when running under WordPress (`ABSPATH`
-	 * defined) but not under PHPUnit (`PHPUNIT_COMPOSER_INSTALL` is set by
-	 * PHPUnit's composer-installed autoloader).
+	 * Reset the `is_initial_loading()` memo. Tests only — PHPUnit reuses a
+	 * single process so `$_GET` from an earlier test would pin the value.
+	 * Guarded against accidental production use.
 	 */
 	public static function reset_initial_loading_cache(): void {
 		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
@@ -2233,31 +1697,15 @@ CSS;
 	}
 
 	/**
-	 * Whether the current request is scoped to exactly the `product` post
-	 * type via the URL. In practice this is driven by the Jetpack Search
-	 * array shape `?post_types[]=product` — the shape store/url-state.js
-	 * writes and round-trips. The scalar `?post_type=product` is also
-	 * accepted for completeness, but a top-level `?post_type=product` is a
-	 * WordPress core query var that reroutes the request to the product
-	 * post-type archive (the WooCommerce shop template) before any Jetpack
-	 * Search block renders, so it does not reach this code on a normal
-	 * search page; it only matters for a custom search context that carries
-	 * the scalar param within the Search template.
+	 * Whether the URL scopes the request to exactly `product` — via the
+	 * Jetpack Search array shape `?post_types[]=product` or the scalar
+	 * `?post_type=product`. Used by results-list to auto-switch to the
+	 * product layout. "Exactly product" is deliberate: a mixed request keeps
+	 * the saved layout so non-product results don't render as product cards.
 	 *
-	 * Used by results-list/render.php to auto-switch to the product layout
-	 * for a product search without the author hand-picking it. "Exactly
-	 * product" is deliberate: a mixed request (e.g.
-	 * `?post_types[]=product&post_types[]=post`) keeps the saved layout so
-	 * non-product results never render as product cards. Reads `$_GET`
-	 * directly rather than `parse_url_filters()` because post-type scope is
-	 * not a registered visitor-facing filter — it never lands in
-	 * `activeFilters`.
-	 *
-	 * Deliberately not memoized (unlike `is_initial_loading()`): the only
-	 * caller is results-list/render.php, and a page carries one such block,
-	 * so this runs at most once per request. Mirrors `parse_url_filters()`,
-	 * which is likewise uncached. Skipping the static-cache + test-reset
-	 * plumbing keeps the no-shared-state contract the tests rely on.
+	 * Reads `$_GET` directly — post-type scope isn't a visitor-facing filter,
+	 * so it never lands in `activeFilters`. Not memoized: one caller, one
+	 * call per request.
 	 *
 	 * @return bool
 	 */
@@ -2342,20 +1790,11 @@ CSS;
 	}
 
 	/**
-	 * Normalize the `displayStyle` attribute shared by the bucket-driven
-	 * filter blocks (`filter-checkbox`, `filter-date`, `filter-wc-attribute`)
-	 * so render wrappers always emit one of the two supported CSS variants.
-	 * Per-block classes delegate here so every adopting block applies the
-	 * same fallback rule.
+	 * Normalize the shared `displayStyle` attribute to one of the two CSS
+	 * variants. `filter-wc-stock-status` and `filter-wc-rating` deliberately
+	 * don't ship a chip variant and don't call this helper.
 	 *
-	 * `filter-wc-stock-status` (single option) and `filter-wc-rating` (star
-	 * rows + "& up" suffix + count badge) deliberately don't ship a chip
-	 * variant — see the PR thread for the discussion — so they don't call
-	 * this helper today. Adding them later is a one-attribute change in
-	 * their respective `block.json` / `render.php` / `edit.js`; the helper
-	 * doesn't need updating.
-	 *
-	 * @param mixed $value Raw attribute value (string, null, or unexpected type).
+	 * @param mixed $value Raw attribute value.
 	 * @return string Either 'checkbox-list' or 'chips'.
 	 */
 	public static function normalize_display_style( $value ): string {
@@ -2424,19 +1863,15 @@ CSS;
 	}
 
 	/**
-	 * Localized rotating loading hints shown while the "Show more" extended
-	 * AI answer streams. Mirrors the overlay's copy verbatim so the two
-	 * surfaces read the same to a visitor switching between them.
+	 * Rotating loading hints for the "Show more" extended AI answer.
+	 * Mirrors the overlay verbatim so visitors switching surfaces see
+	 * the same copy.
 	 *
 	 * @return array<int, string>
 	 */
 	protected static function build_ai_extended_loading_hints(): array {
-		// Source strings deliberately omit a trailing `…`. The block's
-		// render.php emits an animated three-dot ellipsis right after the
-		// label, so a static one in the source would read as a doubled
-		// "Searching harder… …". The overlay strips the trailing `…` for
-		// the same reason — keeping the source clean here means the two
-		// surfaces share the same translation keys.
+		// Strings omit trailing `…` — render.php appends an animated ellipsis,
+		// so a static one would double up. Overlay does the same.
 		if ( ! function_exists( '__' ) ) {
 			return array(
 				'Searching harder',
@@ -2476,14 +1911,9 @@ CSS;
 	}
 
 	/**
-	 * Parse the search query from the URL, reading whichever key
-	 * `get_search_param_name()` says is active for this request (`s` on
-	 * the WP search route, `q` everywhere else). Sanitization mirrors
-	 * what WP would have done for `s` (sanitize_text_field + trim).
-	 *
-	 * Public so block render templates (e.g. `search-input/render.php`)
-	 * can seed their initial `value=` from the same source the
-	 * Interactivity store seeds `searchQuery` from.
+	 * Parse the search query from the URL using whichever key
+	 * `get_search_param_name()` returns (`s` on search routes, `q` elsewhere).
+	 * Public so render templates can seed their input from the same source.
 	 *
 	 * @return string
 	 */
@@ -2498,17 +1928,10 @@ CSS;
 	}
 
 	/**
-	 * Whether the active search-query URL key is present in `$_GET`, regardless
-	 * of value. Distinguishes `?s=` (visitor submitted a blank search and
-	 * expects an unfiltered result set) from a URL that omits `s` entirely
-	 * (homepage, archive, etc.) — `parse_url_search_query()` collapses both
-	 * to `''`. Mirrors the JS-side `hasSearchParam` field seeded into the
-	 * Interactivity store.
-	 *
-	 * Array-shaped `?s[]=foo` is treated as "not present" to stay in lockstep
-	 * with `parse_url_search_query()` (which returns `''` for non-scalar
-	 * input) — otherwise a malformed deep link would flip the page into the
-	 * loading state with no usable query to fire.
+	 * Whether the search-query key is present in `$_GET` (any value).
+	 * Distinguishes `?s=` (blank search) from a URL that omits the key —
+	 * `parse_url_search_query()` collapses both to `''`. Array-shaped
+	 * `?s[]=foo` reads as "not present" to stay in lockstep.
 	 *
 	 * @return bool
 	 */
@@ -2519,12 +1942,10 @@ CSS;
 	}
 
 	/**
-	 * Parse the sort order from the URL, defaulting to 'relevance'. Valid
-	 * values come from `Results_Sort::get_all_option_keys()` so the seeded
-	 * sort matches what the results-sort block would render — including the
-	 * product-format keys when WooCommerce is active. On non-Woo sites a
-	 * `?orderby=price_asc` deep link collapses to `relevance`, mirroring the
-	 * JS-side gate in store/url-state.js.
+	 * Parse the sort order from the URL, defaulting to 'relevance'. Allowed
+	 * values track `Results_Sort::get_all_option_keys()` — on non-Woo sites
+	 * a `?orderby=price_asc` deep link collapses to `relevance` (mirrors
+	 * `store/url-state.js`).
 	 *
 	 * @return string
 	 */
@@ -2543,17 +1964,11 @@ CSS;
 	}
 
 	/**
-	 * Parse the price range from the URL, mirroring the contract in
-	 * src/search-blocks/store/url-state.js. Either bound may be null for a
-	 * half-open range; non-numeric or negative values yield null so a
-	 * garbage URL can't drive the API into producing zero results.
-	 *
-	 * Returns null when neither bound is set, so callers can early-out
-	 * without checking individual fields. Also returns null on non-Woo
-	 * sites — `min_price` / `max_price` are WC-only and the price filter
-	 * block (`filter-wc-price`) isn't registered there, so a stray
-	 * `?min_price=10` in the URL can't drive the API into building a
-	 * `range` clause for a field the index doesn't have.
+	 * Parse the price range from the URL. Mirrors `store/url-state.js`.
+	 * Either bound may be null for a half-open range; non-numeric or
+	 * negative values null out. Returns null entirely on non-Woo sites —
+	 * `min_price`/`max_price` are WC-only and a stray param shouldn't drive
+	 * the API into a `range` clause for a field the index doesn't have.
 	 *
 	 * @return array{min: float|null, max: float|null}|null
 	 */
@@ -2561,7 +1976,7 @@ CSS;
 		if ( ! self::woocommerce_blocks_enabled() ) {
 			return null;
 		}
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to float in parse_price_bound() which discards any non-numeric input.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- coerced to float in parse_price_bound().
 		$min = self::parse_price_bound( $_GET['min_price'] ?? null );
 		$max = self::parse_price_bound( $_GET['max_price'] ?? null );
 		// phpcs:enable
@@ -2569,11 +1984,8 @@ CSS;
 		if ( null === $min && null === $max ) {
 			return null;
 		}
-		// Both bounds present but inverted (min > max) yields an empty ES
-		// `range` clause that returns zero results silently. Treat the URL
-		// as garbage and bail so the page renders a normal (unfiltered)
-		// search rather than a guaranteed-empty one. Mirrors the same
-		// rejection in store/url-state.js.
+		// Inverted bounds → empty ES `range` clause / zero results silently.
+		// Treat as garbage and bail so the page falls back to unfiltered search.
 		if ( null !== $min && null !== $max && $min > $max ) {
 			return null;
 		}
@@ -2593,10 +2005,9 @@ CSS;
 		if ( null === $raw || '' === $raw || ! is_scalar( $raw ) ) {
 			return null;
 		}
-		// `is_numeric` rejects partially-numeric strings like "1.5.3" that
-		// the (float) cast would silently extract as 1.5 — JS's Number()
-		// returns NaN for the same input, so without this gate the PHP
-		// initial render and JS hydration disagree on parsed value.
+		// `is_numeric` keeps PHP in lockstep with JS's `Number()`: rejects
+		// partially-numeric strings ("1.5.3") that `(float)` would silently
+		// extract as `1.5` while `Number()` returns `NaN`.
 		$raw = wp_unslash( $raw );
 		if ( ! is_numeric( $raw ) ) {
 			return null;
@@ -2609,15 +2020,10 @@ CSS;
 	}
 
 	/**
-	 * Parse flat filter selections from the current request URL.
-	 *
-	 * Accepts any top-level array-shaped `?<filterKey>[]=<value>` param
-	 * (the same shape store/url-state.js writes) and returns an
-	 * { [filterKey]: string[] } map. The JS layer drops filters whose keys
-	 * are not registered in `filterConfigs`; doing the same here would
-	 * require access to block attributes at state-seed time (before blocks
-	 * render), which we don't have. Values are sanitized so any garbage
-	 * round-tripped through the URL never reaches ES.
+	 * Parse `?<filterKey>[]=<value>` URL params into `{ [filterKey]: string[] }`.
+	 * Mirrors the shape `store/url-state.js` writes (see AGENTS.md § URL format).
+	 * No registered-key filtering here — `filterConfigs` aren't available until
+	 * blocks render. The JS layer gates on hydration.
 	 *
 	 * @return array<string, string[]>
 	 */
@@ -2653,14 +2059,10 @@ CSS;
 	}
 
 	/**
-	 * Parse the per-filter AND/OR override params (`?query_type_<key>=and`)
-	 * from the current request URL. Returns `{ [filterKey]: 'and' }` —
-	 * matches the JS-side parser in `store/url-state.js`. Only the literal
-	 * value `'and'` is honoured; anything else collapses to the default and
-	 * is omitted so it can never round-trip back through `pushStateToUrl`.
-	 *
-	 * Filter keys for which no active selection exists are dropped because
-	 * they'd otherwise hang around in state and re-emit on the next URL push.
+	 * Parse `?query_type_<key>=and` overrides into `{ [filterKey]: 'and' }`.
+	 * Only literal `'and'` is honoured — anything else is dropped so it
+	 * can't round-trip back through `pushStateToUrl`. Mirrors
+	 * `store/url-state.js`.
 	 *
 	 * @param array<string, string[]> $active_filters Result of parse_url_filters().
 	 * @return array<string, string>

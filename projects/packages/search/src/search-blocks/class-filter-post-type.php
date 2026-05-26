@@ -8,29 +8,23 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Server-side post-type scope helpers.
- *
- * Shared by the standalone `jetpack-search/filter-post-type` block and the
- * `jetpack-search/search-input` block's post-type setting. Single-mode
- * (`include` OR `exclude`); translates the `{ mode, postTypes }` attributes
- * into the `{ include, exclude }` shape `store/api.js`'s
- * `buildStaticPostTypeClauses()` consumes.
+ * Server-side post-type scope helpers shared by `filter-post-type` and
+ * `search-input`'s post-type setting. Single-mode (include OR exclude);
+ * translates `{ mode, postTypes }` into the `{ include, exclude }` shape
+ * that `buildStaticPostTypeClauses()` consumes.
  */
 class Filter_Post_Type {
 
 	/**
-	 * Per-request cache of slugs registered with `exclude_from_search => false`.
-	 * Tests reset this via Reflection.
+	 * Per-request cache. Tests reset via Reflection.
 	 *
 	 * @var string[]|null
 	 */
 	private static $searchable_cache = null;
 
 	/**
-	 * Translate block attributes into `{ include, exclude }`. Slugs are
-	 * sanitized and validated against the live searchable-post-type
-	 * registry — typos / retired CPTs / private types are dropped before
-	 * reaching ES.
+	 * Translate attributes → `{ include, exclude }`. Slugs validated against
+	 * the live searchable-types registry (typos / retired CPTs dropped).
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return array{include: string[], exclude: string[]}
@@ -49,7 +43,7 @@ class Filter_Post_Type {
 	}
 
 	/**
-	 * Sanitize, dedupe, optionally allowlist-filter a slug list.
+	 * Sanitize, dedupe, optionally allowlist a slug list.
 	 *
 	 * @param mixed         $raw     Raw attribute value.
 	 * @param string[]|null $allowed Optional allowlist of slugs to keep.
@@ -95,10 +89,8 @@ class Filter_Post_Type {
 	}
 
 	/**
-	 * Union a block's contribution into the existing `staticPostTypes`
-	 * state slot. Multi-instance composition broadens (rather than
-	 * intersects) each side so stacked blocks cannot silently produce
-	 * zero results.
+	 * Union (not intersect) a block's contribution into `staticPostTypes` so
+	 * stacked blocks can't silently produce zero results.
 	 *
 	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current slot value.
 	 * @param array{include: string[], exclude: string[]} $contribution New block lists.

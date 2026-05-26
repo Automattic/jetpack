@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: trim verbose inline comments and promote shared patterns to AGENTS.md.

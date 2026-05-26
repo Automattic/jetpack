@@ -1,6 +1,6 @@
 <?php
 /**
- * Search product filter — stock status block helpers.
+ * Search product filter — stock-status block helpers.
  *
  * @package automattic/jetpack-search
  */
@@ -8,35 +8,22 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack-search/filter-wc-stock-status block.
- *
- * Single source of truth for the block's filterKey, fixed option list, and
- * filterConfig shape. Both render.php (when seeding interactivity state)
- * and Search_Blocks::collect_product_filter_configs_from_post() rely on
- * these so the URL gate sees the same key the block registers at render
- * time, regardless of block order in the post.
+ * Helpers for `jetpack-search/filter-wc-stock-status` — filterKey, fixed
+ * option list, and filterConfig shape shared between render.php and the
+ * block-walker in `Search_Blocks`.
  */
 class Search_Product_Filter_Status {
 
 	/**
-	 * URL key + interactivity-state filter key for stock-status selections.
-	 * Written and read as the standard array form (`?filter_stock_status[]=…`),
-	 * matching the other Search 3.0 filter blocks.
+	 * URL + IA-state key. Standard array form (`?filter_stock_status[]=…`).
 	 */
 	const FILTER_KEY = 'filter_stock_status';
 
 	/**
-	 * Fixed option set for the filter. v1 surfaces a single "In stock"
-	 * toggle: the data plane reads from the `product_visibility` taxonomy
-	 * where only `outofstock` exists — backorder lives solely in the
-	 * `_stock_status` postmeta which the WPCOM-side ES indexer doesn't
-	 * currently retain, and an explicit "Out of stock" option rarely makes
-	 * sense on a shop UI. When the indexer adds `_stock_status`, the full
-	 * three-option list (`instock` / `outofstock` / `onbackorder`) can be
-	 * restored here and the data-plane wiring in `store/api.js` reverted
-	 * to the meta path. Hardcoded English labels for now (RSM-1932 will
-	 * server-render the WC translations into `wp_interactivity_state` so
-	 * non-en-US locales render correctly).
+	 * Fixed option set. v1 surfaces only "In stock" — `product_visibility`
+	 * carries only `outofstock`, and `_stock_status` postmeta isn't indexed
+	 * yet (RSM-1932 will restore the full three-option list and switch to
+	 * WC's translated labels).
 	 *
 	 * @return array<int, array{value: string, label: string}>
 	 */
@@ -50,12 +37,10 @@ class Search_Product_Filter_Status {
 	}
 
 	/**
-	 * Filter key derivation. Constant for this block — there's only one
-	 * stock-status field per WC store, so no per-instance variation. Kept
-	 * as a method (mirroring Filter_Checkbox::derive_filter_key) so the
-	 * walker in Search_Blocks doesn't need to special-case the API.
+	 * Filter key — constant. Method form mirrors `Filter_Checkbox::derive_filter_key()`
+	 * so the walker can call this uniformly.
 	 *
-	 * @param array $_attributes Block attributes (unused; present for interface parity).
+	 * @param array $_attributes Unused; interface parity.
 	 * @return string
 	 */
 	public static function derive_filter_key( array $_attributes = array() ): string { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -63,9 +48,7 @@ class Search_Product_Filter_Status {
 	}
 
 	/**
-	 * Default group label when the block author leaves the label attribute
-	 * empty. v1 ships English; RSM-1932 will switch this to read from the
-	 * WC-provided translation map.
+	 * Default group label. RSM-1932 will read from WC's translation map.
 	 *
 	 * @return string
 	 */
@@ -74,13 +57,12 @@ class Search_Product_Filter_Status {
 	}
 
 	/**
-	 * Build the filterConfig entry this block contributes to the shared
-	 * Interactivity state. JS reads filterType to dispatch onto the
-	 * `taxonomy.product_visibility.slug` ES path with `outofstock`-include
-	 * agg and `term` / `must_not term` clauses.
+	 * Build the filterConfig entry. `filterType` dispatches in JS onto the
+	 * `taxonomy.product_visibility.slug` agg with `outofstock` include +
+	 * term/must_not clauses.
 	 *
-	 * @param array  $attributes Block attributes.
-	 * @param string $_filter_key Resolved filter key (unused; present for interface parity).
+	 * @param array  $attributes  Block attributes.
+	 * @param string $_filter_key Unused; interface parity.
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $attributes, string $_filter_key = '' ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
