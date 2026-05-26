@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add resetSearchTemplate( postType ) for the search dashboard's Restore Default action, routed via wpcom-origin so it reaches Simple sites.
