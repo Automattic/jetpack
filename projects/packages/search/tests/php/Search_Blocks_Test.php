@@ -1186,9 +1186,13 @@ class Search_Blocks_Test extends TestCase {
 
 		Search_Blocks::init();
 
-		$this->assertNotFalse(
+		// Priority 20: WC's `WC_Template_Loader::template_loader` hooks at 10
+		// And rewrites product searches to `archive-product.php`; running after
+		// WC is what makes the override actually stick on product searches.
+		$this->assertSame(
+			20,
 			has_filter( 'template_include', array( Search_Blocks::class, 'route_classic_theme_search_template' ) ),
-			'classic-theme template_include route must hook on embedded + classic theme'
+			'classic-theme template_include route must hook at priority 20 (after WC) on embedded + classic theme'
 		);
 		$this->assertFalse(
 			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),

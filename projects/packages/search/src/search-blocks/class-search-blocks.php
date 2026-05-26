@@ -149,7 +149,15 @@ class Search_Blocks {
 				// Classic themes: no FSE hierarchy to prepend to, so swap the
 				// resolved template path via `template_include`. The block markup
 				// renders inside the theme's `get_header()`/`get_footer()`.
-				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ) );
+				//
+				// Priority 20: WooCommerce's `WC_Template_Loader::template_loader`
+				// hooks at priority 10 and rewrites the path to `archive-product.php`
+				// on product-archive requests — that includes product search. We
+				// need to run *after* WC so the override actually sticks; running
+				// at 10 (same priority, later registration) is order-of-load
+				// dependent. Higher priorities (anything > 20 used by chrome
+				// filters) aren't relevant — nothing else swaps the path.
+				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ), 20 );
 				// No Site Editor entry on classic themes; the `Search_Template` singleton
 				// CPT gives authors the standard block editor on a hidden post instead.
 				Search_Template::init();
