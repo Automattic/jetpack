@@ -13,10 +13,12 @@ services:
   wordpress:
     # Publish the WordPress HTTP port to the host so verify backends running
     # from the host (not just from inside jetpack-ai-sandbox) can reach the
-    # stack at http://localhost:${WP_VERIFY_HOST_PORT:-8080}/ — wp-verify.sh's
+    # stack at http://localhost:${WP_VERIFY_HOST_PORT:-18080}/ — wp-verify.sh's
     # in-sandbox flow still uses the docker-network hostname `http://wordpress`.
-    # Default port 8080; override via WP_VERIFY_HOST_PORT for parallel stacks
-    # or to avoid collisions with other local services.
+    # Default port 18080 (IANA-unassigned; less likely to clash with common
+    # local services on 8080 like SSH tunnels, Tomcat, or other dev servers).
+    # Override via WP_VERIFY_HOST_PORT for parallel stacks or to avoid
+    # collisions with other local services.
     #
     # Bound explicitly to 127.0.0.1 — this is a throwaway test WP with known
     # admin credentials (admin/password) and a header-host-driven siteurl, so
@@ -24,7 +26,7 @@ services:
     # host with a non-loopback interface. Local-only access matches the
     # threat model.
     ports:
-      - "127.0.0.1:${WP_VERIFY_HOST_PORT:-8080}:80"
+      - "127.0.0.1:${WP_VERIFY_HOST_PORT:-18080}:80"
     volumes:
       # premium-analytics plugin source (read-only bind mount from host)
       - ${JETPACK_HOST_PATH:?JETPACK_HOST_PATH not set — run via wp-verify.sh}/projects/packages/premium-analytics:/var/www/html/wp-content/plugins/premium-analytics:ro

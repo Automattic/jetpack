@@ -186,7 +186,7 @@ case "${1:-up}" in
     echo "WordPress stack started${INSTANCE:+ (instance: $INSTANCE)}."
     echo ""
     if [ -f /.dockerenv ]; then
-      # Inside the sandbox container: localhost:${WP_VERIFY_HOST_PORT:-8080} is the
+      # Inside the sandbox container: localhost:${WP_VERIFY_HOST_PORT:-18080} is the
       # container's own loopback, not the host's published port, so the
       # host-side instructions would be misleading. Only print the sandbox-
       # reachable hostname + sandbox-side invocation here.
@@ -200,7 +200,7 @@ case "${1:-up}" in
     else
       # On the host: both access paths are reachable depending on where the
       # caller runs Playwright. Print both with their respective invocations.
-      echo "Host access:    http://localhost:${WP_VERIFY_HOST_PORT:-8080}/  (WordPress, published from container)"
+      echo "Host access:    http://localhost:${WP_VERIFY_HOST_PORT:-18080}/  (WordPress, published from container)"
       echo "Sandbox access: http://wordpress  (docker-network hostname; only resolvable from inside jetpack-ai-sandbox)"
       echo ""
       echo "Wait for wpcli setup, then run:"
@@ -211,7 +211,7 @@ case "${1:-up}" in
       echo "  NODE_PATH=\$(npm root -g) playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts"
       echo ""
       echo "Host-side verify (from this terminal):"
-      echo "  WP_BASE=http://localhost:${WP_VERIFY_HOST_PORT:-8080} NODE_PATH=\$(npm root -g) playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts"
+      echo "  WP_BASE=http://localhost:${WP_VERIFY_HOST_PORT:-18080} NODE_PATH=\$(npm root -g) playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts"
     fi
     ;;
   down)

@@ -57,12 +57,12 @@ services:
       # Make WP serve URLs (siteurl, home, redirects, admin links) based on
       # the incoming Host header instead of the value baked into the options
       # table at install time. Without this, a request from the host at
-      # http://localhost:${WP_VERIFY_HOST_PORT:-8080} redirects to
+      # http://localhost:${WP_VERIFY_HOST_PORT:-18080} redirects to
       # http://wordpress/wp-admin/ (the install-time --url=http://wordpress),
       # which the host browser can't resolve. The constant overrides win at site_url() / home_url() call
       # sites, so login + admin pages now correctly route back to whichever
       # network the client reached WP on (`http://wordpress` from inside the
-      # sandbox, `http://localhost:${WP_VERIFY_HOST_PORT:-8080}` from the host).
+      # sandbox, `http://localhost:${WP_VERIFY_HOST_PORT:-18080}` from the host).
       #
       # The Host header is unvalidated input, so an attacker who can reach
       # WP with an arbitrary Host could poison admin URLs (host-header

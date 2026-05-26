@@ -38,7 +38,7 @@ tools/ai-sandbox/wp-verify.sh up
 # Run Playwright tests from the repo root. NODE_PATH points node at the global
 # install so the Playwright config can resolve `@playwright/test` — wp-verify
 # isn't a pnpm workspace package, so `pnpm exec` wouldn't find it locally.
-WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-8080}" \
+WP_BASE="http://localhost:${WP_VERIFY_HOST_PORT:-18080}" \
   NODE_PATH=$(npm root -g) \
   playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts
 
@@ -48,8 +48,8 @@ tools/ai-sandbox/wp-verify.sh down
 
 Env vars:
 
-- `WP_BASE` — target URL for Playwright. Defaults to `http://wordpress` inside the sandbox container; set explicitly to `http://localhost:${WP_VERIFY_HOST_PORT:-8080}` when running from the host.
-- `WP_VERIFY_HOST_PORT` — host port published by the WordPress container (default `8080`; override if `:8080` is in use).
+- `WP_BASE` — target URL for Playwright. Defaults to `http://wordpress` inside the sandbox container; set explicitly to `http://localhost:${WP_VERIFY_HOST_PORT:-18080}` when running from the host.
+- `WP_VERIFY_HOST_PORT` — host port published by the WordPress container (default `18080`, picked from the IANA-unassigned range to avoid clashing with common dev services on `8080`; override if `:18080` is in use).
 - `WP_VERIFY_INSTANCE` — optional suffix appended to all wp-verify container names (`jetpack-ai-sandbox-<INSTANCE>`, `jetpack-ai-mysql-<INSTANCE>`, etc.) so multiple parallel agent workspaces can coexist on one Docker daemon. Unset = default unsuffixed names.
 
 ---
