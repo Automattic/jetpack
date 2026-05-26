@@ -89,7 +89,9 @@ describe( 'PricingUpsell', () => {
 		expect( mockCheckoutWorkflow ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				productSlug: 'jetpack_videopress',
-				redirectUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-videopress',
+				// Relative to wp-admin; the REST endpoint makes it absolute via
+				// `admin_url()`. An absolute URL here would be doubled and 404.
+				redirectUrl: 'admin.php?page=jetpack-videopress',
 				siteSuffix: 'example.com',
 				from: 'jetpack-videopress',
 			} )
