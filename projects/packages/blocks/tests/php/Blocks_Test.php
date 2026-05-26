@@ -337,13 +337,16 @@ class Blocks_Test extends TestCase {
 			$this->assertInstanceOf( 'WP_Block_Type', $block_type );
 			$this->assertEquals( 'jetpack/calendly', $block_type->name );
 
-			$this->assertArrayHasKey( 'style', $block_type->attributes );
-			$this->assertEquals( 'string', $block_type->attributes['style']['type'] );
-			$this->assertEquals( array( 'inline', 'link' ), $block_type->attributes['style']['enum'] );
-			$this->assertEquals( 'inline', $block_type->attributes['style']['default'] );
+			$attributes = $block_type->attributes;
+			$this->assertIsArray( $attributes );
 
-			$this->assertArrayHasKey( 'url', $block_type->attributes );
-			$this->assertArrayHasKey( 'shouldDisplayFrontendBanner', $block_type->attributes );
+			$this->assertArrayHasKey( 'style', $attributes );
+			$this->assertEquals( 'string', $attributes['style']['type'] );
+			$this->assertEquals( array( 'inline', 'link' ), $attributes['style']['enum'] );
+			$this->assertEquals( 'inline', $attributes['style']['default'] );
+
+			$this->assertArrayHasKey( 'url', $attributes );
+			$this->assertArrayHasKey( 'shouldDisplayFrontendBanner', $attributes );
 		} finally {
 			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
 			unregister_block_type( 'jetpack/calendly' );
