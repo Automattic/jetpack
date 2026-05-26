@@ -614,7 +614,8 @@ class REST_Controller {
 				array( 'status' => 404 )
 			);
 		}
-		if ( ! wp_delete_post( $cpt_class::get_post_id(), true ) ) {
+		$post_id = $cpt_class::get_post_id();
+		if ( ! wp_delete_post( $post_id, true ) ) {
 			return new WP_Error(
 				'jetpack_search_template_reset_failed',
 				__( 'Failed to restore the default template.', 'jetpack-search-pkg' ),
@@ -627,8 +628,8 @@ class REST_Controller {
 	/**
 	 * Map a CPT slug to its concrete `Singleton_Template_Cpt` subclass.
 	 * Returns null when the slug isn't one of the registered singleton-template
-	 * CPTs — the route's `validate_callback` already filters those, this is a
-	 * defense-in-depth check that also keeps the mapping in one place.
+	 * CPTs — the route only sanitizes the slug (via `sanitize_key`), so this
+	 * lookup is the primary "is this a known CPT?" filter, not a backup check.
 	 *
 	 * @param string $post_type Post type slug from the request.
 	 * @return class-string<Singleton_Template_Cpt>|null

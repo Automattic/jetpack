@@ -851,6 +851,20 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Anonymous callers get 401 from `require_admin_privilege_callback` — the
+	 * same auth matrix the rest of the controller's destructive endpoints
+	 * (`activate_plan`, `deactivate_plan`) cover.
+	 */
+	public function test_reset_singleton_template_unauthorized_for_anonymous() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/search/templates/' . Search_Template::POST_TYPE );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * An unknown post_type slug is rejected by the handler's
 	 * `resolve_singleton_template_class()` lookup with a stable 404 + error
 	 * code, so the dashboard surfaces a sensible message instead of leaking
