@@ -69,7 +69,7 @@ export const ModernManageConnectionsModal = () => {
 					size={ isSmall ? 'full' : 'large' }
 					className={ ! hasKeyringResult && ! isSmall ? styles[ 'services-list' ] : undefined }
 				>
-					<Dialog.Header>
+					<Dialog.Header className={ styles[ 'modal-header' ] }>
 						<Dialog.Title>{ title }</Dialog.Title>
 						<Dialog.CloseIcon />
 					</Dialog.Header>
@@ -80,7 +80,15 @@ export const ModernManageConnectionsModal = () => {
 							canMarkAsShared={ canMarkAsShared }
 						/>
 					) : (
-						<>
+						/*
+						 * `Dialog.Content` is the library's scroll region (flex:1;
+						 * min-block-size:0; overflow-block:auto), so when the pinned
+						 * frame (`services-list`) is shorter than the content —
+						 * e.g. an expanded disclosure row like the Instagram preview —
+						 * the body scrolls inside the frame instead of clipping, and
+						 * the header/footer stay pinned at the popup edges.
+						 */
+						<Dialog.Content className={ styles[ 'modal-content' ] }>
 							<ModernServicesList />
 							<Text variant="body-sm" render={ <p className={ styles[ 'manual-share' ] } /> }>
 								{ __(
@@ -92,7 +100,7 @@ export const ModernManageConnectionsModal = () => {
 									{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
 								</Link>
 							</Text>
-						</>
+						</Dialog.Content>
 					) }
 				</Dialog.Popup>
 			</Dialog.Root>
