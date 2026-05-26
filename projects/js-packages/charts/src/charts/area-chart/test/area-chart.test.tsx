@@ -299,7 +299,11 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
-		test( 'supports negative stacked values without clipping', () => {
+		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
+			// The mixed-sign full-extent pin only kicks in when the consumer
+			// opts into pinned-Y behavior; visx's natural domain derivation for
+			// a `stackOffset: 'none'` stack does not extend below zero for
+			// purely-negative series, which is what this test guards against.
 			const ref = createRef< SingleChartRef >();
 			render(
 				<GlobalChartsProvider>
@@ -309,6 +313,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-negative"
 						showLegend
 						legend={ { interactive: true } }
+						rescaleYOnLegendToggle={ false }
 						data={ [
 							{
 								label: 'Pos',
