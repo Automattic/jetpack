@@ -125,6 +125,13 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		// Relativize `jetpack-search/*` Script Module URLs whose host matches
+		// the site canonical so the rendered `<script type="module">` is
+		// same-origin with the page. ES modules go through CORS even without
+		// a `crossorigin` attribute, and `wp-content/*` typically lacks the
+		// `Access-Control-Allow-Origin` header — see
+		// `same_origin_script_module_src()`.
+		add_filter( 'script_module_loader_src', array( static::class, 'same_origin_script_module_src' ), 10, 2 );
 		Custom_Taxonomy_Slot_Mapping::init();
 		// Both hooks needed; see AGENTS.md § Hydration & SSR seeding.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
@@ -682,6 +689,70 @@ class Search_Blocks {
 			$asset['dependencies'] ?? array(),
 			$asset['version'] ?? false
 		);
+	}
+
+	/**
+	 * Relativize Jetpack Search Script Module URLs so the browser fetches them
+	 * same-origin with the page.
+	 *
+	 * `wp_register_script_module()` resolves src via `plugins_url()`, which
+	 * returns the canonical `site_url()` host. When a visitor is on a
+	 * different host (Multisite mapped domains, www vs non-www without a
+	 * canonical redirect, asset-offload plugins, reverse-proxy staging) the
+	 * `<script type="module">` becomes cross-origin and is blocked with
+	 * `MissingAllowOriginHeader` — ES modules always go through the CORS
+	 * algorithm, even without a `crossorigin` attribute, and typical WP
+	 * hosts don't send `Access-Control-Allow-Origin` for `wp-content/*`.
+	 *
+	 * Stripping scheme + host with `wp_make_link_relative()` lets the browser
+	 * resolve against the page's actual origin. No `$_SERVER['HTTP_HOST']`
+	 * trust — emitting an attacker-controllable host into a `<script src>`
+	 * would be a cache-poisoning vector.
+	 *
+	 * No-op when the src host is a deliberately external host (CDN that
+	 * doesn't match `home_url()`/`site_url()`); operators of those setups
+	 * configure CORS on the CDN themselves.
+	 *
+	 * Identifier gate covers both shapes Jetpack Search ships: directly-
+	 * registered modules with a slash (`jetpack-search/store`,
+	 * `jetpack-search/overlay-bootstrap`) and the per-block view modules
+	 * WP auto-registers from `block.json`'s `viewScriptModule`, which run
+	 * `generate_block_asset_handle()` and emit hyphen-joined IDs like
+	 * `jetpack-search-results-list-view-script-module`.
+	 *
+	 * @param string $src        Module src URL.
+	 * @param string $identifier Module identifier (e.g. `jetpack-search/results-list`
+	 *                           or `jetpack-search-results-list-view-script-module`).
+	 * @return string Relativized src on match, original otherwise.
+	 */
+	public static function same_origin_script_module_src( $src, $identifier ) {
+		if ( ! is_string( $src ) || '' === $src || ! is_string( $identifier ) ) {
+			return $src;
+		}
+		if ( 0 !== strpos( $identifier, 'jetpack-search/' ) && 0 !== strpos( $identifier, 'jetpack-search-' ) ) {
+			return $src;
+		}
+
+		$src_host = wp_parse_url( $src, PHP_URL_HOST );
+		if ( ! $src_host ) {
+			return $src;
+		}
+
+		$canonical_hosts = array_map(
+			'strtolower',
+			array_filter(
+				array(
+					wp_parse_url( home_url(), PHP_URL_HOST ),
+					wp_parse_url( site_url(), PHP_URL_HOST ),
+				)
+			)
+		);
+
+		if ( ! in_array( strtolower( $src_host ), $canonical_hosts, true ) ) {
+			return $src;
+		}
+
+		return wp_make_link_relative( $src );
 	}
 
 	/**
