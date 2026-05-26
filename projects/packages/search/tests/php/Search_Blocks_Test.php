@@ -2611,14 +2611,14 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Force `home_url()` and `site_url()` to a known host via the
-	 * `pre_option_home` / `pre_option_siteurl` filters. Returns a cleanup
-	 * Callback so callers can restore the originals deterministically (a
-	 * Failed assertion before tearDown would otherwise leak the override).
+	 * Override `home_url()` / `site_url()` for the scope of a test.
 	 *
-	 * @param string $home Value to return from `home_url()`.
-	 * @param string $site Value to return from `site_url()`.
-	 * @return callable Cleanup callback.
+	 * Returns a cleanup callback so a failed assertion can't leak the
+	 * override past `tearDown`.
+	 *
+	 * @param string $home Value `home_url()` should return.
+	 * @param string $site Value `site_url()` should return.
+	 * @return callable Cleanup callback — call from a `finally`.
 	 */
 	private function override_site_hosts( string $home, string $site ): callable {
 		$home_cb = static function () use ( $home ) {
@@ -2636,9 +2636,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Canonical-host src on a Jetpack Search module ID gets relativized so
-	 * The browser resolves the script against the page's actual origin,
-	 * Sidestepping the CORS check on `wp-content/*` from a mapped domain.
+	 * Golden path: a canonical-host src on a Jetpack Search module ID
+	 * comes back relativized so the browser resolves against the page
+	 * origin rather than triggering CORS on `wp-content/*`.
 	 */
 	public function test_same_origin_script_module_src_relativizes_canonical_host_src(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2656,8 +2656,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The version query string must survive relativization — it's what
-	 * Defeats stale-cache loads when a build ships a new bundle.
+	 * The `?ver=…` cache-buster must survive relativization — it's what
+	 * keeps a stale bundle from sticking after a build.
 	 */
 	public function test_same_origin_script_module_src_preserves_query_string(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2675,9 +2675,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * HTTP-scheme canonicals (local docker, http-only sites) get relativized
-	 * Like HTTPS — the browser binds the relative URL to whatever scheme the
-	 * Page is on, which is the desired behavior either way.
+	 * HTTP-scheme canonicals (local docker, http-only sites) relativize
+	 * the same way HTTPS does — the browser binds the relative URL to the
+	 * page scheme either way.
 	 */
 	public function test_same_origin_script_module_src_relativizes_http_canonical(): void {
 		$cleanup = $this->override_site_hosts( 'http://example.com', 'http://example.com' );
@@ -2695,9 +2695,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Hostname comparison must be case-insensitive — DNS treats `EXAMPLE.com`
-	 * And `example.com` as the same host, and a site whose home_url has been
-	 * Saved with mixed case shouldn't dodge the relativization.
+	 * Host comparison is case-insensitive so a mixed-case `home_url`
+	 * (or an upper-case host in a hand-built src) doesn't dodge the gate.
 	 */
 	public function test_same_origin_script_module_src_canonical_match_is_case_insensitive(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2715,10 +2714,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `home_url()` and `site_url()` are checked independently — a site whose
-	 * `home_url()` lives on `example.com` and whose `site_url()` lives on
-	 * `wp.example.com` must relativize either canonical the URL was built
-	 * Against (Multisite sub-directory installs split the two).
+	 * `home_url()` and `site_url()` are checked independently — Multisite
+	 * sub-directory installs split the two, and a src built against either
+	 * canonical must relativize.
 	 */
 	public function test_same_origin_script_module_src_relativizes_site_url_host_when_home_url_differs(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://wp.example.com' );
@@ -2736,10 +2734,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Genuine third-party CDN hosts (configured by the operator, e.g. via
-	 * `JETPACK_SEARCH_PLUGINS_URL` rewrites) pass through unchanged — the
-	 * Filter must not break setups where the operator wants the CDN to serve
-	 * Modules and has configured CORS on that CDN themselves.
+	 * Genuine third-party CDN hosts pass through unchanged so operators
+	 * who deliberately route assets through a configured CDN (with their
+	 * own CORS headers) aren't broken.
 	 */
 	public function test_same_origin_script_module_src_leaves_third_party_cdn_alone(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2755,10 +2752,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The identifier-prefix gate is the boundary that keeps this filter from
-	 * Touching other plugins' modules (e.g. core's `@wordpress/interactivity`,
-	 * Or any unrelated `vendor/foo` bundle). A non-`jetpack-search/*` id must
-	 * Pass through unchanged even when the src host matches a canonical.
+	 * Identifier-prefix gate keeps the filter off other plugins' modules
+	 * (`@wordpress/interactivity`, etc.) even when their src host happens
+	 * to match a canonical site host.
 	 */
 	public function test_same_origin_script_module_src_skips_non_jetpack_search_identifier(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2774,13 +2770,10 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `register_block_type()` runs `generate_block_asset_handle()` on
-	 * `viewScriptModule` fields and emits hyphen-joined IDs like
-	 * `jetpack-search-results-list-view-script-module` — that's what WP
-	 * Passes to the loader filter for every per-block view module. Without
-	 * Covering this prefix shape the filter would only catch directly-
-	 * Registered modules and miss the bulk of the block bundles, exactly
-	 * The case the bug report describes.
+	 * WP's `generate_block_asset_handle()` emits hyphen-joined IDs for
+	 * `viewScriptModule` (e.g. `jetpack-search-results-list-view-script-module`)
+	 * — that's the bulk of the block bundles and the prefix gate must
+	 * cover it, not only the slash-namespaced shape.
 	 */
 	public function test_same_origin_script_module_src_relativizes_block_generated_handle(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2798,10 +2791,9 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * An already-relative src has no parseable host — `wp_parse_url()` returns
-	 * Null — so the filter must short-circuit instead of feeding the value
-	 * Through `wp_make_link_relative()` (which would return it unchanged) or
-	 * Worse, treating an empty parsed host as a canonical match.
+	 * An already-relative src has no parseable host — short-circuit on the
+	 * `wp_parse_url() === null` branch rather than treating an empty parsed
+	 * host as a canonical match.
 	 */
 	public function test_same_origin_script_module_src_leaves_relative_src_alone(): void {
 		$cleanup = $this->override_site_hosts( 'https://example.com', 'https://example.com' );
@@ -2817,8 +2809,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Defensive guards: empty src and non-string args from a misbehaving
-	 * Upstream filter must not throw — pass through unchanged.
+	 * Empty src or a non-string from a misbehaving upstream filter must
+	 * not throw — pass through unchanged.
 	 */
 	public function test_same_origin_script_module_src_defensive_guards(): void {
 		$this->assertSame( '', Search_Blocks::same_origin_script_module_src( '', 'jetpack-search/results-list' ) );
@@ -2827,10 +2819,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `init()` must register the same-origin filter so every per-block view
-	 * Module URL goes through it. Registered alongside the other always-on
-	 * Block hooks (not gated on experience) because blocks may be inserted
-	 * Anywhere blocks are configurable.
+	 * The filter is registered from `init()` unconditionally (no experience
+	 * gate) because blocks can be placed on any page that supports blocks.
 	 */
 	public function test_init_registers_script_module_loader_src_filter(): void {
 		$this->reset_search_blocks_hooks();
