@@ -24,7 +24,6 @@ class Initializer_Test extends Search_TestCase {
 		remove_all_filters( 'jetpack_search_overlay_block_template_enabled' );
 		remove_all_filters( 'jetpack_search_init_instant_search' );
 		remove_all_filters( 'jetpack_search_classic_search_enabled' );
-		remove_all_filters( 'jetpack_search_theme_supports_embedded_experience' );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		$this->reset_block_search_active();
 		$this->remove_search_blocks_hooks();
@@ -219,7 +218,6 @@ class Initializer_Test extends Search_TestCase {
 
 	public function test_init_search_blocks_suppresses_classic_search_when_embedded() {
 		add_filter( 'jetpack_search_blocks_enabled', '__return_true' );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_true' );
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		( new \Automattic\Jetpack\Modules() )->activate( Module_Control::JETPACK_SEARCH_MODULE_SLUG, false, false );
 

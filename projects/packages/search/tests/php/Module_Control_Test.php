@@ -277,11 +277,9 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Saved 'embedded' / 'overlay' values are returned when the module is active.
-	 *
-	 * Embedded now renders on every theme by default (block themes through
-	 * `search_template_hierarchy`, classic themes through `template_include`),
-	 * so no theme-seam override is needed.
+	 * Saved 'embedded' / 'overlay' values are returned verbatim when the module
+	 * is active — Embedded renders on every theme (block themes through
+	 * `search_template_hierarchy`, classic themes through `template_include`).
 	 */
 	public function test_get_experience_returns_saved_value() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
@@ -292,50 +290,6 @@ class Module_Control_Test extends Search_TestCase {
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
 
-		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-	}
-
-	/**
-	 * Saved 'embedded' falls back to 'inline' (Theme search) when the
-	 * `jetpack_search_theme_supports_embedded_experience` filter returns false
-	 * — the opt-out escape hatch for sites that want the search page to keep
-	 * rendering through the theme's own template regardless of theme type.
-	 * The saved option must stay 'embedded' so removing the filter restores
-	 * the experience without a dashboard re-save.
-	 */
-	public function test_get_experience_embedded_falls_back_to_inline_when_filter_disables_support() {
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
-
-		$this->assertEquals( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
-		$this->assertEquals(
-			Module_Control::EXPERIENCE_EMBEDDED,
-			get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ),
-			'The saved experience option must be preserved across the fallback.'
-		);
-
-		// Dropping the filter restores Embedded without a dashboard re-save.
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
-
-		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-	}
-
-	/**
-	 * The opt-out filter only affects 'embedded' — 'overlay' is
-	 * theme-agnostic (modal overlay) and must be unaffected.
-	 */
-	public function test_get_experience_overlay_unaffected_by_embedded_opt_out_filter() {
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
-		add_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
-		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
-
-		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
-
-		remove_filter( 'jetpack_search_theme_supports_embedded_experience', '__return_false' );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
