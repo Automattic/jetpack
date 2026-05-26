@@ -9,6 +9,7 @@ import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
+import * as fastBuildCommand from './commands/fast-build.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
@@ -46,6 +47,7 @@ export async function cli() {
 	argv = dockerDefine( argv );
 	argv = docsDefine( argv );
 	argv = draftDefine( argv );
+	argv.command( fastBuildCommand );
 	argv = generateDefine( argv );
 	argv.command( installCommand );
 	argv.command( noopCommand );

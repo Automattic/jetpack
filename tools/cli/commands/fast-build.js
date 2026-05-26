@@ -1,0 +1,574 @@
+import chalk from 'chalk';
+import { execa } from 'execa';
+import Listr from 'listr';
+import SilentRenderer from 'listr-silent-renderer';
+import UpdateRenderer from 'listr-update-renderer';
+import { findOwnerProject } from '../helpers/classOwner.js';
+import { filterDeps, getBuildOrder, getDependencies } from '../helpers/dependencyAnalysis.js';
+import formatDuration from '../helpers/format-duration.js';
+import { projectDir } from '../helpers/install.js';
+import { currentHead, inspectProjectChanges, readStamp, writeStamp } from '../helpers/lastBuilt.js';
+import { scanForMissingSymbols } from '../helpers/logScan.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+
+export const command = 'fast-build [project...]';
+export const describe =
+	'Restore the local dev site by doing only the targeted rebuild work the diff actually needs (autoloader regen + minimal builds).';
+
+/**
+ * Action ranking — higher wins when two signals disagree about a project.
+ *
+ * @see resolveAction
+ */
+const ACTION_RANK = {
+	skip: 0,
+	'dump-autoload': 1,
+	build: 2,
+};
+
+/**
+ * Options definition for fast-build.
+ *
+ * @param {object} yargs - Yargs instance.
+ * @return {object} Yargs.
+ */
+export function builder( yargs ) {
+	return yargs
+		.positional( 'project', {
+			describe:
+				'Restrict to specific projects (e.g. plugins/jetpack). Default: every project with a last-built stamp.',
+			type: 'string',
+		} )
+		.option( 'url', {
+			type: 'string',
+			default: 'http://localhost',
+			description: 'URL to curl when verifying the fix.',
+		} )
+		.option( 'verify', {
+			type: 'boolean',
+			default: true,
+			description: 'After fixes, curl --url and re-scan the docker debug.log for new fatals.',
+		} )
+		.option( 'since', {
+			type: 'string',
+			description:
+				'Override per-project last-built stamps and diff every project against this git ref instead.',
+		} )
+		.option( 'dry-run', {
+			type: 'boolean',
+			description: 'Print the planned actions without executing.',
+		} )
+		.option( 'autoload-only', {
+			type: 'boolean',
+			description:
+				'Skip JS rebuilds entirely — Signal 1 + PHP-only changes. Use when you only care about clearing the class-not-found fatal.',
+		} )
+		.option( 'log-scan', {
+			type: 'boolean',
+			default: true,
+			description:
+				'Scan the docker debug.log for class-not-found fatals (Signal 1). Use --no-log-scan to skip.',
+		} )
+		.option( 'lines', {
+			type: 'number',
+			default: 500,
+			description: 'How many lines of debug.log to scan.',
+		} )
+		.option( 'skip', {
+			type: 'array',
+			default: [],
+			description:
+				'Exclude one or more projects from the plan (repeatable). Useful when a project needs a full `jetpack build` instead.',
+		} )
+		.option( 'stop-on-error', {
+			type: 'boolean',
+			default: false,
+			description:
+				'Abort on the first failed project. Default is to continue and report which projects need attention at the end.',
+		} );
+}
+
+/**
+ * Pick the higher-priority of two actions for the same project.
+ *
+ * @param {string} a - First action.
+ * @param {string} b - Second action.
+ * @return {string} The winning action.
+ */
+function resolveAction( a, b ) {
+	return ( ACTION_RANK[ a ] ?? 0 ) >= ( ACTION_RANK[ b ] ?? 0 ) ? a : b;
+}
+
+/**
+ * Merge an action into a plan map, keeping the higher-priority action.
+ *
+ * @param {Map<string,string>} plan    - Plan being built.
+ * @param {string}             project - Project slug.
+ * @param {string}             action  - Proposed action.
+ */
+function mergeAction( plan, project, action ) {
+	const existing = plan.get( project );
+	plan.set( project, existing ? resolveAction( existing, action ) : action );
+}
+
+/**
+ * Project slugs that own a runtime jetpack-autoloader classmap (i.e. anything
+ * with its own vendor/composer/jetpack_autoload_classmap.php).
+ *
+ * In practice this is `projects/plugins/*`, since packages are consumed by
+ * plugins and don't ship their own runtime classmap.
+ *
+ * @param {string} slug - Project slug.
+ * @return {boolean} Whether the project owns a runtime classmap.
+ */
+function ownsRuntimeClassmap( slug ) {
+	return slug.startsWith( 'plugins/' );
+}
+
+/**
+ * Build the action plan from the source-drift signal (Signal 2).
+ *
+ * fast-build intentionally caps automatic work at cheap actions:
+ * `dump-autoload` for PHP / composer-autoload-block changes, and `build` for
+ * JS / asset source changes.
+ *
+ * When a project's `require` (composer) or `dependencies` (npm) block changed,
+ * we don't auto-install — installs belong to `jetpack build`. Such projects
+ * are returned separately so the caller can warn instead.
+ *
+ * @param {Map<string,Set<string>>} deps         - Dependency map (slug → Set of deps).
+ * @param {Iterable<string>}        targets      - Projects to consider.
+ * @param {string|null}             since        - Override base ref, or null to use per-project stamps.
+ * @param {boolean}                 autoloadOnly - When true, also downgrade `build` to `dump-autoload`.
+ * @param {string}                  cwd          - Monorepo root.
+ * @return {Promise<object>} Object with `plan` (Map of slug → action) and `heavy` (Array of {slug, reason} for projects whose changes need a full `jetpack build` instead).
+ */
+async function planFromSourceDrift( deps, targets, since, autoloadOnly, cwd ) {
+	const plan = new Map();
+	const heavy = [];
+	for ( const slug of targets ) {
+		if ( slug === 'monorepo' ) {
+			continue;
+		}
+		const base = since || ( await readStamp( slug, cwd ) );
+		if ( ! base ) {
+			// No stamp and no override → this project has never been recorded as built
+			// by fast-build; skip silently (the user can run `jetpack build` first to seed).
+			continue;
+		}
+		const buckets = await inspectProjectChanges( slug, base, cwd );
+		if ( buckets.missing ) {
+			heavy.push( { slug, reason: 'last-built SHA is no longer reachable in git' } );
+			continue;
+		}
+		if ( buckets.none ) {
+			continue;
+		}
+		if ( buckets.composerRequire ) {
+			heavy.push( { slug, reason: 'composer require/require-dev/extra.dependencies changed' } );
+			continue;
+		}
+		if ( buckets.jsDeps ) {
+			heavy.push( { slug, reason: 'package.json dependencies or scripts changed' } );
+			continue;
+		}
+		if ( buckets.jsSources ) {
+			mergeAction( plan, slug, autoloadOnly ? 'dump-autoload' : 'build' );
+		} else if ( buckets.phpAutoload ) {
+			mergeAction( plan, slug, 'dump-autoload' );
+		}
+	}
+	return { plan, heavy };
+}
+
+/**
+ * Build the action plan from the docker debug.log signal (Signal 1).
+ *
+ * For each missing class FQN, find the owning project and the plugins that
+ * consume it transitively; schedule `dump-autoload` on each plugin (and on the
+ * owner itself for symmetry).
+ *
+ * @param {Map<string,Set<string>>} deps    - Dependency map.
+ * @param {object}                  scan    - Output of scanForMissingSymbols.
+ * @param {string}                  cwd     - Monorepo root.
+ * @param {Set<string>}             skipSet - Projects to exclude from the plan and the diagnostic.
+ * @return {Promise<object>} Object with `plan` (Map of slug → action) and `resolved` (Array of {fqn, owner, plugins}).
+ */
+async function planFromLogScan( deps, scan, cwd, skipSet ) {
+	const plan = new Map();
+	const resolved = [];
+	if ( ! scan.missing.length ) {
+		return { plan, resolved };
+	}
+	for ( const fqn of scan.missing ) {
+		const owner = await findOwnerProject( fqn, cwd );
+		if ( ! owner ) {
+			resolved.push( { fqn, owner: null, plugins: [] } );
+			continue;
+		}
+		// Find every dependent that owns its own runtime classmap.
+		const dependents = filterDeps( deps, [ owner ], { dependents: true } );
+		let consumers = [ ...dependents.keys() ].filter( ownsRuntimeClassmap );
+		// Always regenerate in the owner too, in case it's a plugin itself.
+		if ( ownsRuntimeClassmap( owner ) && ! consumers.includes( owner ) ) {
+			consumers.push( owner );
+		}
+		if ( skipSet && skipSet.size ) {
+			consumers = consumers.filter( slug => ! skipSet.has( slug ) );
+		}
+		for ( const slug of consumers ) {
+			mergeAction( plan, slug, 'dump-autoload' );
+		}
+		resolved.push( { fqn, owner, plugins: consumers } );
+	}
+	return { plan, resolved };
+}
+
+/**
+ * Execute a single planned action for one project.
+ *
+ * @param {string} slug   - Project slug.
+ * @param {string} action - Action to run.
+ * @param {object} argv   - Argv.
+ */
+async function runAction( slug, action, argv ) {
+	const cwd = projectDir( slug );
+	const stdio = [ 'ignore', argv.v ? 'inherit' : 'pipe', argv.v ? 'inherit' : 'pipe' ];
+	if ( action === 'dump-autoload' ) {
+		await execa( 'composer', [ 'dump-autoload' ], { cwd, stdio, buffer: false } );
+		return;
+	}
+	if ( action === 'build' ) {
+		await runBuildScriptIfAny( slug, cwd, argv );
+		return;
+	}
+	throw new Error( `Unknown action: ${ action }` );
+}
+
+/**
+ * Run a project's composer build-development (or build-production) script when present.
+ *
+ * @param {string} slug - Project slug (for diagnostics).
+ * @param {string} cwd  - Project directory.
+ * @param {object} argv - Argv.
+ */
+async function runBuildScriptIfAny( slug, cwd, argv ) {
+	const fs = await import( 'fs/promises' );
+	let composerJson;
+	try {
+		composerJson = JSON.parse(
+			await fs.readFile( `${ cwd }/composer.json`, { encoding: 'utf8' } )
+		);
+	} catch {
+		return;
+	}
+	const candidates = argv.production
+		? [ 'build-production', 'build-development' ]
+		: [ 'build-development', 'build-production' ];
+	const script = candidates.find( s => composerJson.scripts?.[ s ] );
+	if ( ! script ) {
+		return;
+	}
+	await execa( 'composer', [ 'run', '--timeout=0', script ], {
+		cwd,
+		stdio: [ 'ignore', argv.v ? 'inherit' : 'pipe', argv.v ? 'inherit' : 'pipe' ],
+		buffer: false,
+	} );
+}
+
+/**
+ * Convert a plan map to a topologically-ordered list of (slug, action) pairs.
+ *
+ * Reuses dependencyAnalysis.getBuildOrder for ordering so that a package builds
+ * before any plugin that depends on it.
+ *
+ * @param {Map<string,Set<string>>} deps - Full dependency map.
+ * @param {Map<string,string>}      plan - Plan map.
+ * @return {Array<{ slug: string, action: string }>} Ordered work items.
+ */
+function orderPlan( deps, plan ) {
+	if ( plan.size === 0 ) {
+		return [];
+	}
+	const slugs = [ ...plan.keys() ];
+	const filtered = filterDeps( deps, slugs );
+	// Clone so getBuildOrder can mutate.
+	const clone = new Map();
+	for ( const [ k, v ] of filtered ) {
+		clone.set( k, new Set( v ) );
+	}
+	const order = getBuildOrder( clone ).flat();
+	return order
+		.filter( slug => plan.has( slug ) )
+		.map( slug => ( { slug, action: plan.get( slug ) } ) );
+}
+
+/**
+ * Verify the site by curling --url and re-scanning the log for fatals.
+ *
+ * @param {object} argv - Argv.
+ * @return {Promise<{ status: number|null, missing: string[] }>} Verification result.
+ */
+async function verify( argv ) {
+	let status = null;
+	try {
+		const { stdout } = await execa(
+			'curl',
+			[ '-sS', '-o', '/dev/null', '-w', '%{http_code}', argv.url ],
+			{ reject: false }
+		);
+		status = parseInt( stdout, 10 );
+	} catch {
+		// Leave status null — caller decides how strict to be.
+	}
+	const scan = await scanForMissingSymbols( { lines: argv.lines } );
+	return { status, missing: scan.missing };
+}
+
+/**
+ * Handle the fast-build command.
+ *
+ * @param {object} argv - Argv.
+ */
+export async function handler( argv ) {
+	const cwd = process.cwd();
+	const deps = await getDependencies( cwd, 'build' );
+
+	const skipSet = new Set( argv.skip || [] );
+	const targets =
+		argv.project && argv.project.length ? new Set( argv.project ) : new Set( deps.keys() );
+	for ( const slug of skipSet ) {
+		targets.delete( slug );
+	}
+
+	// Signal 1 — log scan.
+	let logScan = { container: null, missing: [] };
+	let logPlan = new Map();
+	let logResolved = [];
+	if ( argv.logScan ) {
+		logScan = await scanForMissingSymbols( { lines: argv.lines } );
+		( { plan: logPlan, resolved: logResolved } = await planFromLogScan(
+			deps,
+			logScan,
+			cwd,
+			skipSet
+		) );
+		// Honor the explicit project filter too (--skip is already applied inside planFromLogScan).
+		if ( argv.project && argv.project.length ) {
+			for ( const slug of [ ...logPlan.keys() ] ) {
+				if ( ! targets.has( slug ) ) {
+					logPlan.delete( slug );
+				}
+			}
+		}
+	}
+
+	// Signal 2 — source drift.
+	const { plan: driftPlan, heavy } = await planFromSourceDrift(
+		deps,
+		targets,
+		argv.since || null,
+		!! argv.autoloadOnly,
+		cwd
+	);
+
+	// Merge.
+	const plan = new Map();
+	for ( const [ slug, action ] of logPlan ) {
+		mergeAction( plan, slug, action );
+	}
+	for ( const [ slug, action ] of driftPlan ) {
+		mergeAction( plan, slug, action );
+	}
+
+	const ordered = orderPlan( deps, plan );
+
+	printPlanHeader( logScan, logResolved, ordered, heavy, argv );
+
+	if ( ordered.length === 0 ) {
+		console.log( chalkJetpackGreen( 'Nothing to do.' ) );
+		return;
+	}
+	if ( argv.dryRun ) {
+		return;
+	}
+
+	const t0 = Date.now();
+	const failures = [];
+	const tasks = ordered.map( ( { slug, action } ) => ( {
+		title: `${ chalk.bold( slug ) } ${ chalk.grey( `[${ action }]` ) }`,
+		task: async ( _ctx, task ) => {
+			const startedAt = Date.now();
+			try {
+				await runAction( slug, action, argv );
+				task.title += chalk.grey( ` (${ formatDuration( Date.now() - startedAt ) }s)` );
+				const sha = await currentHead( cwd );
+				await writeStamp( slug, sha, cwd );
+			} catch ( e ) {
+				const message = e.shortMessage || e.message;
+				failures.push( { slug, action, message } );
+				throw new Error( `[${ slug }] ${ action } failed: ${ message }` );
+			}
+		},
+	} ) );
+
+	const listr = new Listr( tasks, {
+		renderer: argv.v ? SilentRenderer : UpdateRenderer,
+		concurrent: false,
+		exitOnError: !! argv.stopOnError,
+	} );
+
+	await listr.run().catch( err => {
+		// With exitOnError: false, listr resolves and we report below. With
+		// stopOnError: true, the run rejects and we abort.
+		if ( argv.stopOnError ) {
+			console.error( chalk.red( err.message ) );
+			process.exit( err.exitCode || 1 );
+		}
+	} );
+
+	const total = ordered.length;
+	const succeeded = total - failures.length;
+	if ( failures.length === 0 ) {
+		console.log( chalkJetpackGreen( `Done in ${ formatDuration( Date.now() - t0 ) }s.` ) );
+	} else {
+		console.log(
+			chalk.yellow(
+				`Done in ${ formatDuration( Date.now() - t0 ) }s with ${
+					failures.length
+				} failure(s) (${ succeeded } succeeded).`
+			)
+		);
+		printFailures( failures );
+	}
+
+	if ( argv.verify ) {
+		const result = await verify( argv );
+		printVerifyResult( result, argv );
+	}
+
+	if ( failures.length > 0 && ! argv.stopOnError ) {
+		// Exit non-zero so scripts/aliases can detect partial failure, but only after reporting.
+		process.exit( 1 );
+	}
+}
+
+/**
+ * Print a digestible summary of failed projects with a suggested next step.
+ *
+ * @param {Array<{ slug: string, action: string, message: string }>} failures - Failed tasks.
+ */
+function printFailures( failures ) {
+	console.log( chalk.bold( '\nFailed projects:' ) );
+	for ( const { slug, action, message } of failures ) {
+		console.log( `  ${ chalk.red( slug ) }  ${ chalk.grey( `[${ action }]` ) }` );
+		const compact = message.split( '\n' ).slice( 0, 4 ).join( '\n    ' );
+		console.log( `    ${ chalk.grey( compact ) }` );
+	}
+	const slugList = failures.map( f => f.slug ).join( ' ' );
+	const skipArgs = failures.map( f => `--skip ${ f.slug }` ).join( ' ' );
+	console.log(
+		chalk.yellow(
+			`\nNext steps: run \`jetpack build ${ slugList }\` (composer install + build) ` +
+				`to fix these, or re-run with \`${ skipArgs }\` to ignore them.`
+		)
+	);
+}
+
+/**
+ * Pretty-print the resolved plan before execution.
+ *
+ * @param {object}                                                        logScan     - scanForMissingSymbols result.
+ * @param {Array<{ fqn: string, owner: string|null, plugins: string[] }>} logResolved - Resolved log-scan info.
+ * @param {Array<{ slug: string, action: string }>}                       ordered     - Final ordered plan.
+ * @param {Array<{ slug: string, reason: string }>}                       heavy       - Projects that need full `jetpack build`.
+ * @param {object}                                                        argv        - Argv.
+ */
+function printPlanHeader( logScan, logResolved, ordered, heavy, argv ) {
+	if ( logScan.container ) {
+		console.log( chalk.grey( `Scanned debug.log in ${ logScan.container }.` ) );
+	} else if ( argv.logScan ) {
+		console.log( chalk.grey( 'No running Jetpack dev container detected — skipping log scan.' ) );
+	}
+	if ( logResolved.length ) {
+		console.log( chalk.bold( '\nMissing symbols in debug.log:' ) );
+		for ( const r of logResolved ) {
+			if ( r.owner ) {
+				console.log(
+					`  ${ chalk.yellow( r.fqn ) }  →  owner ${ chalk.cyan( r.owner ) }, regen in: ${
+						r.plugins.map( p => chalk.cyan( p ) ).join( ', ' ) || chalk.grey( 'none' )
+					}`
+				);
+			} else {
+				console.log(
+					`  ${ chalk.yellow( r.fqn ) }  →  ${ chalk.red(
+						'owner not found'
+					) } (you may need to run a full jetpack build)`
+				);
+			}
+		}
+	}
+	if ( heavy.length ) {
+		console.log(
+			chalk.bold(
+				`\nSkipping ${ heavy.length } project(s) whose dependency manifests changed — run \`jetpack build\` for these:`
+			)
+		);
+		for ( const { slug, reason } of heavy ) {
+			console.log( `  ${ chalk.cyan( slug ) }  ${ chalk.grey( `(${ reason })` ) }` );
+		}
+		console.log(
+			chalk.grey(
+				'  e.g. ' +
+					chalk.bold(
+						`jetpack build ${ heavy
+							.map( h => h.slug )
+							.slice( 0, 3 )
+							.join( ' ' ) }`
+					)
+			)
+		);
+	}
+	if ( ordered.length === 0 ) {
+		return;
+	}
+	console.log( chalk.bold( `\nPlanned actions (${ ordered.length }):` ) );
+	for ( const { slug, action } of ordered ) {
+		console.log( `  ${ chalk.cyan( slug ) }  ${ chalk.grey( `[${ action }]` ) }` );
+	}
+	console.log( '' );
+}
+
+/**
+ * Print the result of the post-fix verification step.
+ *
+ * @param {object} result - { status, missing }.
+ * @param {object} argv   - Argv.
+ */
+function printVerifyResult( result, argv ) {
+	const { status, missing } = result;
+	if ( status === null ) {
+		console.log( chalk.yellow( `Verify: could not curl ${ argv.url } (is the site running?).` ) );
+	} else if ( status >= 500 ) {
+		console.log( chalk.red( `Verify: ${ argv.url } returned HTTP ${ status }.` ) );
+	} else {
+		console.log( chalk.green( `Verify: ${ argv.url } → HTTP ${ status }.` ) );
+	}
+	if ( missing.length ) {
+		console.log(
+			chalk.red(
+				`Verify: debug.log still shows missing symbols: ${ missing
+					.slice( 0, 3 )
+					.map( m => chalk.yellow( m ) )
+					.join( ', ' ) }${ missing.length > 3 ? ', ...' : '' }`
+			)
+		);
+		console.log(
+			chalk.yellow(
+				'You may need a full `jetpack build <plugin>` if a transitive change is involved.'
+			)
+		);
+	} else if ( argv.logScan ) {
+		console.log( chalk.green( 'Verify: no class-not-found fatals in debug.log.' ) );
+	}
+}

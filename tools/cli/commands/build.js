@@ -14,6 +14,7 @@ import pLimit from 'p-limit';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { currentHead, writeStamp } from '../helpers/lastBuilt.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
@@ -790,8 +791,15 @@ async function buildProject( t ) {
 		} );
 	}
 
-	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
+	// Stamp the project as built at the current HEAD so `jetpack fast-build` has a baseline.
+	// Only meaningful outside of mirror/CI builds, where the working tree is ephemeral.
 	if ( ! t.argv.forMirrors ) {
+		try {
+			const sha = await currentHead();
+			await writeStamp( t.project, sha );
+		} catch {
+			// Stamping is best-effort; never fail a build over it.
+		}
 		return;
 	}
 
