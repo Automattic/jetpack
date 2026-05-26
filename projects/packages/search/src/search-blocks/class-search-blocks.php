@@ -1247,6 +1247,19 @@ class Search_Blocks {
 		padding: .5em 1em 1em;
 	}
 }
+/*
+ * Wide-viewport widen: match the legacy Instant Search overlay's
+ * `break-large-up` rule (`$break-lg: 992px` → `max-width: 95%`). The base
+ * 1080px cap above is the comfortable reading width on tablet-class screens;
+ * past 992px the card scales with the viewport so the filters + results
+ * columns get breathing room on 1440 / 4K displays, matching how the
+ * preact-era modal behaved.
+ */
+@media (min-width: 992px) {
+	.jetpack-search-block-overlay__card {
+		max-width: 95%;
+	}
+}
 /* Body-scroll lock while open. JS side stashes/restores scrollY on toggle. */
 body.jetpack-search-block-overlay-open {
 	position: fixed;
