@@ -42,7 +42,7 @@ class Landing_Page_CPT {
 	const META_HIGHLIGHTS = '_blaze_landing_highlights';
 	const META_GEN_IMAGES = '_blaze_landing_gen_images';
 
-	const ASSET_VERSION  = '1.1.0';
+	const ASSET_VERSION  = '1.2.0';
 	const MAX_HIGHLIGHTS = 6;
 	const MAX_GEN_IMAGES = 8;
 
@@ -227,37 +227,6 @@ class Landing_Page_CPT {
 	}
 
 	/**
-	 * Build the ordered list of image URLs to show: the product's featured image,
-	 * its WooCommerce gallery, then any AI-generated lifestyle images. Falls back
-	 * to the stored image_url when there is no live product.
-	 *
-	 * @param array            $f       Stored fields.
-	 * @param \WC_Product|null $product Live product, if any.
-	 * @return string[] De-duplicated image URLs.
-	 */
-	private static function get_images( $f, $product ) {
-		$urls = array();
-		if ( $product instanceof \WC_Product ) {
-			$ids = array_merge( array( $product->get_image_id() ), $product->get_gallery_image_ids() );
-			foreach ( $ids as $id ) {
-				$url = $id ? wp_get_attachment_image_url( (int) $id, 'large' ) : '';
-				if ( $url ) {
-					$urls[] = $url;
-				}
-			}
-		} elseif ( '' !== $f['image_url'] ) {
-			$urls[] = $f['image_url'];
-		}
-		foreach ( $f['gen_images'] as $gen ) {
-			$gen = esc_url_raw( (string) $gen );
-			if ( '' !== $gen ) {
-				$urls[] = $gen;
-			}
-		}
-		return array_values( array_unique( $urls ) );
-	}
-
-	/**
 	 * Pick an accent color from the active theme's palette so the landing's own
 	 * accents (CTA, dividers) match the store.
 	 *
@@ -360,7 +329,6 @@ class Landing_Page_CPT {
 	private static function render_template( $post ) {
 		$f       = self::get_fields( $post->ID );
 		$product = self::get_wc_product( $f );
-		$images  = self::get_images( $f, $product );
 		$accent  = self::theme_accent_color();
 
 		$headline = '' !== $f['headline'] ? $f['headline'] : ( $product ? $product->get_name() : $post->post_title );
@@ -375,7 +343,27 @@ class Landing_Page_CPT {
 			$price_html = esc_html( trim( $f['price'] . ( '' !== $f['currency'] ? ' ' . $f['currency'] : '' ) ) );
 		}
 
-		$main_image = array_shift( $images );
+		// Split images by source so each plays its proper role on the page:
+		// - The product photo (first WC image) anchors the full-viewport hero.
+		// - The AI-generated lifestyle images (`gen_images`) each get their own
+		// scroll-revealed feature section.
+		$product_images = array();
+		if ( $product instanceof \WC_Product ) {
+			$ids = array_merge( array( $product->get_image_id() ), $product->get_gallery_image_ids() );
+			foreach ( $ids as $id ) {
+				$url = $id ? wp_get_attachment_image_url( (int) $id, 'large' ) : '';
+				if ( $url ) {
+					$product_images[] = $url;
+				}
+			}
+		} elseif ( '' !== $f['image_url'] ) {
+			$product_images[] = $f['image_url'];
+		}
+		$gen_images   = array_values( array_filter( $f['gen_images'], 'strlen' ) );
+		$hero_image   = $product_images[0] ?? ( $gen_images[0] ?? '' );
+		$feature_imgs = array_slice( $gen_images, 0, 3 );
+
+		$highlights = array_values( array_filter( $f['highlights'], 'strlen' ) );
 
 		ob_start();
 		?>
@@ -400,22 +388,14 @@ class Landing_Page_CPT {
 <body <?php body_class( 'blaze-lp' ); ?>>
 		<?php self::render_site_chrome( 'header' ); ?>
 <main class="blaze-lp-main">
-	<section class="blaze-lp-hero">
-		<div class="blaze-lp-gallery">
-		<?php if ( $main_image ) : ?>
-			<figure class="blaze-lp-gallery-main">
-				<img src="<?php echo esc_url( $main_image ); ?>" alt="<?php echo esc_attr( $headline ); ?>">
-			</figure>
-			<?php if ( ! empty( $images ) ) : ?>
-			<ul class="blaze-lp-gallery-thumbs">
-				<?php foreach ( $images as $img ) : ?>
-				<li><img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( $headline ); ?>" loading="lazy"></li>
-				<?php endforeach; ?>
-			</ul>
-			<?php endif; ?>
-		<?php endif; ?>
-		</div>
-		<div class="blaze-lp-copy">
+	<!-- HERO: full-viewport with the product photo as full-bleed background. -->
+	<section class="blaze-lp-hero"
+		<?php
+		if ( '' !== $hero_image ) :
+			?>
+		style="background-image: url('<?php echo esc_url( $hero_image ); ?>');"<?php endif; ?>>
+		<div class="blaze-lp-hero-scrim" aria-hidden="true"></div>
+		<div class="blaze-lp-hero-content">
 			<h1 class="blaze-lp-headline"><?php echo esc_html( $headline ); ?></h1>
 		<?php if ( '' !== $f['subheadline'] ) : ?>
 			<p class="blaze-lp-sub"><?php echo esc_html( $f['subheadline'] ); ?></p>
@@ -427,19 +407,84 @@ class Landing_Page_CPT {
 		<?php endif; ?>
 		<?php if ( '' !== $cta_url ) : ?>
 			<p class="blaze-lp-cta-wrap">
-				<a class="blaze-lp-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta ); ?></a>
+				<a class="blaze-lp-cta blaze-lp-cta--hero" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta ); ?></a>
 			</p>
 		<?php endif; ?>
 		</div>
+		<a class="blaze-lp-scroll-hint" href="#blaze-lp-features" aria-label="<?php esc_attr_e( 'Scroll for more', 'jetpack-blaze' ); ?>"></a>
 	</section>
-		<?php if ( ! empty( $f['highlights'] ) ) : ?>
-	<ul class="blaze-lp-highlights">
-			<?php foreach ( $f['highlights'] as $highlight ) : ?>
-		<li><?php echo esc_html( (string) $highlight ); ?></li>
+
+	<!-- LIFESTYLE FEATURE SECTIONS: one per AI-generated image, alternating sides. -->
+		<?php if ( ! empty( $feature_imgs ) ) : ?>
+	<div id="blaze-lp-features" class="blaze-lp-features">
+			<?php foreach ( $feature_imgs as $i => $img ) : ?>
+		<section class="blaze-lp-feature blaze-lp-feature--<?php echo 0 === $i % 2 ? 'left' : 'right'; ?> blaze-lp-reveal">
+			<div class="blaze-lp-feature-img">
+				<img src="<?php echo esc_url( $img ); ?>" alt="<?php echo esc_attr( $headline ); ?>" loading="lazy">
+			</div>
+			<div class="blaze-lp-feature-copy">
+				<?php if ( isset( $highlights[ $i ] ) ) : ?>
+				<h2 class="blaze-lp-feature-title"><?php echo esc_html( (string) $highlights[ $i ] ); ?></h2>
+				<?php endif; ?>
+				<?php if ( '' !== $cta_url ) : ?>
+				<p class="blaze-lp-cta-wrap">
+					<a class="blaze-lp-cta" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta ); ?></a>
+				</p>
+				<?php endif; ?>
+			</div>
+		</section>
 			<?php endforeach; ?>
-	</ul>
+	</div>
+		<?php endif; ?>
+
+	<!-- Any remaining highlights (beyond the 3 used as feature titles) as a feature grid. -->
+		<?php $extra_highlights = array_slice( $highlights, count( $feature_imgs ) ); ?>
+		<?php if ( ! empty( $extra_highlights ) ) : ?>
+	<section class="blaze-lp-extras blaze-lp-reveal">
+		<ul class="blaze-lp-highlights">
+			<?php foreach ( $extra_highlights as $highlight ) : ?>
+			<li><?php echo esc_html( (string) $highlight ); ?></li>
+			<?php endforeach; ?>
+		</ul>
+	</section>
+		<?php endif; ?>
+
+	<!-- FINAL closing CTA so the buy moment is one tap away from the bottom. -->
+		<?php if ( '' !== $cta_url ) : ?>
+	<section class="blaze-lp-final blaze-lp-reveal">
+		<h2 class="blaze-lp-final-title"><?php echo esc_html( $headline ); ?></h2>
+			<?php if ( '' !== $f['subheadline'] ) : ?>
+		<p class="blaze-lp-final-sub"><?php echo esc_html( $f['subheadline'] ); ?></p>
+		<?php endif; ?>
+			<?php if ( '' !== $price_html ) : ?>
+		<div class="blaze-lp-price">
+				<?php echo wp_kses_post( $price_html ); ?>
+		</div>
+		<?php endif; ?>
+		<p class="blaze-lp-cta-wrap">
+			<a class="blaze-lp-cta blaze-lp-cta--big" href="<?php echo esc_url( $cta_url ); ?>"><?php echo esc_html( $cta ); ?></a>
+		</p>
+	</section>
 		<?php endif; ?>
 </main>
+<script>
+/* Reveal each .blaze-lp-reveal section as it scrolls into view. Progressive
+	enhancement: if IntersectionObserver is missing, sections are visible by
+	default (no class added → CSS treats them as already revealed). */
+(function () {
+	if (!('IntersectionObserver' in window)) { return; }
+	document.body.classList.add('blaze-lp-js');
+	var io = new IntersectionObserver(function (entries) {
+		entries.forEach(function (e) {
+			if (e.isIntersecting) {
+				e.target.classList.add('is-revealed');
+				io.unobserve(e.target);
+			}
+		});
+	}, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+	document.querySelectorAll('.blaze-lp-reveal').forEach(function (el) { io.observe(el); });
+})();
+</script>
 		<?php
 		self::render_site_chrome( 'footer' );
 		wp_footer();

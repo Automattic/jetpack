@@ -12,102 +12,239 @@
 
 :root {
 	--blaze-accent: #1e6fff;
-	--blaze-radius: 12px;
+	--blaze-radius: 14px;
+	--blaze-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+	--blaze-section-pad: clamp(3rem, 8vw, 6rem);
 }
 
 .blaze-lp .blaze-lp-main {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: clamp(2rem, 5vw, 4.5rem) 1.5rem;
+	max-width: none;
+	margin: 0;
+	padding: 0;
 	box-sizing: border-box;
 }
 
-/* Hero: gallery on the left, copy on the right. */
-.blaze-lp-hero {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: clamp(1.5rem, 4vw, 3.5rem);
-	align-items: start;
-}
+/* ──────────────────────────────────────────────────────────────────────────
+ * HERO — full-viewport, product photo as full-bleed background.
+ * ────────────────────────────────────────────────────────────────────────── */
 
-/* Gallery */
-.blaze-lp-gallery {
+.blaze-lp-hero {
+	position: relative;
+	min-height: 100vh;
+	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
-	gap: 0.85rem;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	padding: 6rem 1.5rem 3rem;
+	color: #fff;
+	background-color: #111;
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	overflow: hidden;
+	isolation: isolate;
 }
 
-.blaze-lp-gallery-main {
+/* Dark scrim so the headline reads regardless of the underlying image. */
+.blaze-lp-hero-scrim {
+	position: absolute;
+	inset: 0;
+	background:
+ linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.7) 100%);
+	z-index: 0;
+}
+
+.blaze-lp-hero-content {
+	position: relative;
+	z-index: 1;
+	max-width: 760px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.25rem;
+}
+
+.blaze-lp-hero .blaze-lp-headline {
+	color: #fff;
+	font-size: clamp(2.4rem, 6vw, 4.6rem);
+	line-height: 1.05;
 	margin: 0;
+	letter-spacing: -0.01em;
+	text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 
-.blaze-lp-gallery-main img {
-	width: 100%;
-	height: auto;
-	display: block;
-	border-radius: var(--blaze-radius);
-	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
-	aspect-ratio: 1 / 1;
-	object-fit: cover;
-}
-
-.blaze-lp-gallery-thumbs {
-	list-style: none;
+.blaze-lp-hero .blaze-lp-sub {
+	color: rgba(255, 255, 255, 0.9);
+	font-size: clamp(1.1rem, 1.8vw, 1.4rem);
 	margin: 0;
-	padding: 0;
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 0.6rem;
+	max-width: 56ch;
+	text-shadow: 0 1px 18px rgba(0, 0, 0, 0.35);
 }
 
-.blaze-lp-gallery-thumbs img {
-	width: 100%;
-	height: auto;
-	display: block;
-	border-radius: 8px;
-	aspect-ratio: 1 / 1;
-	object-fit: cover;
-}
-
-/* Copy column */
-.blaze-lp-copy {
-	align-self: center;
-}
-
-.blaze-lp-headline {
-	font-size: clamp(2rem, 4.2vw, 3.25rem);
-	line-height: 1.1;
-	margin: 0 0 0.75rem;
-}
-
-.blaze-lp-sub {
-	font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-	opacity: 0.8;
-	margin: 0 0 1.5rem;
-	max-width: 46ch;
-}
-
-.blaze-lp-price {
-	font-size: 1.6rem;
+.blaze-lp-hero .blaze-lp-price {
+	color: #fff;
+	font-size: clamp(1.4rem, 2.6vw, 2rem);
 	font-weight: 700;
-	margin: 0 0 1.6rem;
+	margin: 0.25rem 0 0;
+	text-shadow: 0 1px 18px rgba(0, 0, 0, 0.4);
 }
 
-.blaze-lp-price del {
-	opacity: 0.5;
+.blaze-lp-hero .blaze-lp-price del {
+	opacity: 0.55;
 	font-weight: 400;
 	margin-right: 0.5rem;
 }
 
-.blaze-lp-price ins {
+.blaze-lp-hero .blaze-lp-price ins {
 	text-decoration: none;
 }
 
-.blaze-lp-price .woocommerce-Price-amount {
+.blaze-lp-hero .blaze-lp-price .woocommerce-Price-amount {
 	white-space: nowrap;
 }
 
-/* CTA — styled with the theme's brand accent so it matches the store. */
+.blaze-lp-scroll-hint {
+	position: absolute;
+	left: 50%;
+	bottom: 2rem;
+	width: 32px;
+	height: 32px;
+	transform: translateX(-50%);
+	border-right: 2px solid rgba(255, 255, 255, 0.85);
+	border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+	transform-origin: center;
+	z-index: 1;
+	animation: blaze-lp-bounce 2.4s ease-in-out infinite;
+	text-decoration: none;
+	rotate: 45deg;
+}
+
+@keyframes blaze-lp-bounce {
+
+	0%,
+ 100% {
+		transform: translate(-50%, 0) rotate(0);
+	}
+
+	50% {
+		transform: translate(-50%, 12px) rotate(0);
+	}
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * FEATURE SECTIONS — one per AI image, alternating image/copy sides.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.blaze-lp-features {
+	background: #fff;
+}
+
+.blaze-lp-feature {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	align-items: center;
+	gap: clamp(2rem, 5vw, 5rem);
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: var(--blaze-section-pad) 1.5rem;
+	box-sizing: border-box;
+}
+
+.blaze-lp-feature--right .blaze-lp-feature-img {
+	order: 2;
+}
+
+.blaze-lp-feature--right .blaze-lp-feature-copy {
+	order: 1;
+}
+
+.blaze-lp-feature-img img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: var(--blaze-radius);
+	box-shadow: var(--blaze-shadow);
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+}
+
+.blaze-lp-feature-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.blaze-lp-feature-title {
+	font-size: clamp(1.6rem, 3vw, 2.4rem);
+	line-height: 1.18;
+	margin: 0;
+	letter-spacing: -0.005em;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * EXTRAS — remaining highlights as a tidy card grid.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.blaze-lp-extras {
+	background: #fafafa;
+	padding: var(--blaze-section-pad) 1.5rem;
+}
+
+.blaze-lp-highlights {
+	list-style: none;
+	margin: 0 auto;
+	padding: 0;
+	max-width: 1100px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1rem;
+}
+
+.blaze-lp-highlights li {
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-top: 3px solid var(--blaze-accent);
+	border-radius: 10px;
+	padding: 1.25rem 1.4rem;
+	background: #fff;
+	font-size: 1rem;
+	line-height: 1.4;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * FINAL CTA — closing pitch + big button.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.blaze-lp-final {
+	background: linear-gradient(180deg, #fff 0%, #f3f3f3 100%);
+	text-align: center;
+	padding: var(--blaze-section-pad) 1.5rem;
+}
+
+.blaze-lp-final-title {
+	font-size: clamp(2rem, 4vw, 3rem);
+	margin: 0 0 0.5rem;
+	line-height: 1.1;
+}
+
+.blaze-lp-final-sub {
+	font-size: clamp(1rem, 1.6vw, 1.2rem);
+	opacity: 0.75;
+	margin: 0 auto 1.5rem;
+	max-width: 56ch;
+}
+
+.blaze-lp-final .blaze-lp-price {
+	font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+	font-weight: 700;
+	margin: 0 0 1.5rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * CTA BUTTON — themed with the store's brand accent.
+ * ────────────────────────────────────────────────────────────────────────── */
+
 .blaze-lp-cta-wrap {
 	margin: 0;
 }
@@ -122,33 +259,58 @@
 	text-transform: uppercase;
 	font-size: 0.95rem;
 	padding: 1rem 2.2rem;
-	border-radius: 6px;
-	transition: transform 0.15s ease, opacity 0.15s ease;
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+	transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
-.blaze-lp-cta:hover {
-	opacity: 0.92;
-	transform: translateY(-1px);
+.blaze-lp-cta:hover,
+.blaze-lp-cta:focus-visible {
 	color: #fff;
+	transform: translateY(-2px);
+	box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
 }
 
-/* Highlights */
-.blaze-lp-highlights {
-	list-style: none;
-	margin: clamp(2.5rem, 5vw, 4rem) 0 0;
-	padding: 0;
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
-}
-
-.blaze-lp-highlights li {
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-top: 3px solid var(--blaze-accent);
-	border-radius: 10px;
-	padding: 1.15rem 1.25rem;
-	background: rgba(0, 0, 0, 0.015);
+.blaze-lp-cta--hero {
 	font-size: 1rem;
+	padding: 1.15rem 2.6rem;
+	margin-top: 0.5rem;
+}
+
+.blaze-lp-cta--big {
+	font-size: 1.1rem;
+	padding: 1.3rem 3rem;
+	border-radius: 10px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * REVEAL-ON-SCROLL — only when the JS hook ran. Without JS, sections show
+ * normally (no flash-of-empty content for users with scripts disabled).
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.blaze-lp-js .blaze-lp-reveal {
+	opacity: 0;
+	transform: translateY(28px);
+	transition: opacity 0.7s ease, transform 0.7s ease;
+	will-change: opacity, transform;
+}
+
+.blaze-lp-js .blaze-lp-reveal.is-revealed {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.blaze-lp-js .blaze-lp-reveal {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+
+	.blaze-lp-scroll-hint {
+		animation: none;
+	}
 }
 
 /* Fallback chrome for classic (non-block) themes. */
@@ -176,16 +338,30 @@
 	opacity: 0.7;
 	padding: 2.5rem 1.5rem;
 	border-top: 1px solid rgba(0, 0, 0, 0.1);
-	margin-top: 3.5rem;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * MOBILE — stack feature sections, tighten hero.
+ * ────────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 781px) {
 
 	.blaze-lp-hero {
-		grid-template-columns: 1fr;
+		padding: 5rem 1.25rem 4rem;
 	}
 
-	.blaze-lp-gallery-thumbs {
-		grid-template-columns: repeat(5, 1fr);
+	.blaze-lp-feature {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		padding: clamp(2.5rem, 8vw, 4rem) 1.25rem;
+	}
+
+	/* On mobile every section reads top-to-bottom: image first, copy second. */
+	.blaze-lp-feature--right .blaze-lp-feature-img {
+		order: 1;
+	}
+
+	.blaze-lp-feature--right .blaze-lp-feature-copy {
+		order: 2;
 	}
 }
