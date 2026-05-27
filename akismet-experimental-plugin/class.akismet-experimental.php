@@ -200,9 +200,14 @@ class Akismet_Experimental {
 	 * hit server-side WP REST endpoints (added in plans 2 + 3) which forward
 	 * to Blackbox with the Bearer key held in PHP.
 	 *
+	 * Public so `Akismet_Experimental_REST_API` can short-circuit the
+	 * Blackbox aggregates proxy when the site isn't enrolled. The Bearer
+	 * key itself is read via `defined( 'AKISMET_BLACKBOX_API_KEY' )`
+	 * inside the REST handler — it is intentionally NOT returned here.
+	 *
 	 * @return array
 	 */
-	protected static function blackbox_client_config() {
+	public static function blackbox_client_config() {
 		$client_id = defined( 'AKISMET_BLACKBOX_CLIENT_ID' ) ? AKISMET_BLACKBOX_CLIENT_ID : null;
 		$bearer    = defined( 'AKISMET_BLACKBOX_API_KEY' ) ? AKISMET_BLACKBOX_API_KEY : '';
 

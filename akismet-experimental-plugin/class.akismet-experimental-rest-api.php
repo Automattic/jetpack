@@ -119,6 +119,80 @@ class Akismet_Experimental_REST_API {
 				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
 			)
 		);
+
+		// Plan 2 — Overview tab data sources.
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/stats/(?P<interval>[a-z0-9-]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_stats' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'interval' => array(
+						'type'     => 'string',
+						'enum'     => array( '30-days', '60-days', '6-months', 'all' ),
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/stats/timeseries',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_stats_timeseries' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'interval' => array(
+						'type'    => 'string',
+						'enum'    => array( '30-days', '60-days', '6-months', 'all' ),
+						'default' => '30-days',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/blackbox/aggregates',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_blackbox_aggregates' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'category' => array(
+						'type'     => 'string',
+						'enum'     => array( 'logins', 'bots', 'brute-force', 'forms' ),
+						'required' => true,
+					),
+					'interval' => array(
+						'type'    => 'string',
+						'enum'    => array( '30-days', '60-days', '6-months', 'all' ),
+						'default' => '30-days',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/woocommerce/fraud-summary',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_woocommerce_fraud_summary' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'interval' => array(
+						'type'    => 'string',
+						'enum'    => array( '30-days', '60-days', '6-months', 'all' ),
+						'default' => '30-days',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -307,5 +381,327 @@ class Akismet_Experimental_REST_API {
 	 */
 	protected static function looks_like_key( $key ) {
 		return is_string( $key ) && (bool) preg_match( '/^[a-z0-9]{12,}$/', $key );
+	}
+
+	// ─── Plan 2 — Overview tab handlers ──────────────────────────────────────
+	//
+	// Per the project's "What's real, what's mocked" table (README.md): the
+	// standalone experimental plugin never loads the legacy `Akismet` class,
+	// so `Akismet::get_stats()` is unavailable. Comments stats here are
+	// deterministic-fixture with `preview: true` — same honesty contract the
+	// other five categories carry. When this code eventually moves into a
+	// build where `class_exists( 'Akismet' )` is true, swap the fixture
+	// branch for `Akismet::get_stats( $interval )` and set `preview => false`.
+
+	/**
+	 * GET /akismet/v1/stats/{interval} — Comments totals (mocked).
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response
+	 */
+	public static function get_stats( WP_REST_Request $request ) {
+		$interval = (string) $request->get_param( 'interval' );
+		return rest_ensure_response( self::comments_mock_totals( $interval ) );
+	}
+
+	/**
+	 * GET /akismet/v1/stats/timeseries — Comments per-bucket series (mocked).
+	 *
+	 * Proposed contract in `akismet-modernization/endpoint-spec-stats-timeseries.md`.
+	 * Returns the same shape that endpoint will once it lands upstream; the
+	 * sparkline adapter in the front-end reads from here.
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response
+	 */
+	public static function get_stats_timeseries( WP_REST_Request $request ) {
+		$interval = (string) $request->get_param( 'interval' );
+		return rest_ensure_response( self::comments_mock_timeseries( $interval ) );
+	}
+
+	/**
+	 * GET /akismet/v1/blackbox/aggregates — per-category Blackbox counts.
+	 *
+	 * Per GUARDRAILS.md: real Blackbox API calls require both
+	 * `AKISMET_EXPERIMENTAL_ALLOW_BLACKBOX_API` AND a configured client
+	 * (`AKISMET_BLACKBOX_CLIENT_ID` + `AKISMET_BLACKBOX_API_KEY`). Otherwise
+	 * we serve a deterministic mock no matter what — preventing preview
+	 * sessions from burning Blackbox quota or producing telemetry rows.
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response
+	 */
+	public static function get_blackbox_aggregates( WP_REST_Request $request ) {
+		$category = (string) $request->get_param( 'category' );
+		$interval = (string) $request->get_param( 'interval' );
+		$config   = Akismet_Experimental::blackbox_client_config();
+
+		if ( ! Akismet_Experimental::allow_blackbox_api() || empty( $config['enrolled'] ) ) {
+			return rest_ensure_response(
+				self::deterministic_mock_aggregate( $category, $interval, true )
+			);
+		}
+
+		// Real path — gated. Coordinate the aggregate-query shape with
+		// @dtbecher before flipping the constant on any environment.
+		$bearer = defined( 'AKISMET_BLACKBOX_API_KEY' ) ? AKISMET_BLACKBOX_API_KEY : '';
+		$url    = sprintf(
+			'%s/v1/aggregates?client_id=%s&category=%s&interval=%s',
+			esc_url_raw( $config['apiHost'] ),
+			rawurlencode( (string) $config['clientId'] ),
+			rawurlencode( $category ),
+			rawurlencode( $interval )
+		);
+
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout' => 8,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $bearer,
+					'Accept'        => 'application/json',
+				),
+			)
+		);
+		if ( is_wp_error( $response ) || (int) wp_remote_retrieve_response_code( $response ) >= 400 ) {
+			// Fail soft to the deterministic mock rather than 5xx the reviewer.
+			return rest_ensure_response(
+				self::deterministic_mock_aggregate( $category, $interval, true )
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return rest_ensure_response(
+				self::deterministic_mock_aggregate( $category, $interval, true )
+			);
+		}
+		$body['preview'] = false;
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * GET /akismet/v1/woocommerce/fraud-summary — store fraud KPIs (mocked).
+	 *
+	 * 400s when WooCommerce is not installed — the front-end short-circuits
+	 * via `isWooCommerceActive()` and never hits this in that case, but the
+	 * server check exists for defense-in-depth (a direct REST hit shouldn't
+	 * leak a synthetic shape from an unrelated site).
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function get_woocommerce_fraud_summary( WP_REST_Request $request ) {
+		$interval = (string) $request->get_param( 'interval' );
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return new WP_Error(
+				'woocommerce_inactive',
+				__( 'WooCommerce is not installed on this site.', 'akismet' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$wfp_active = class_exists( 'WC_Fraud_Protection' ) || defined( 'WC_FRAUD_PROTECTION_PLUGIN_VERSION' );
+
+		// TODO: when WFP is active, query real data from $wpdb against orders
+		// + `_woofraud_score` meta. Coordinate the meta key + query shape
+		// with @luizfreis / @tautvidas. Mocked here so the UI is testable
+		// end-to-end. `preview` mirrors the badge state in the UI.
+		$seed = crc32( 'wc-fraud|' . $interval );
+		$n    = static function ( $offset ) use ( $seed ) {
+			return abs( ( $seed + ( $offset * 31 ) ) % 9999 );
+		};
+
+		return rest_ensure_response(
+			array(
+				'interval'                          => $interval,
+				'orders_flagged'                    => $n( 1 ) % 250,
+				'blocked_checkouts'                 => $n( 2 ) % 600,
+				'estimated_chargebacks_averted_usd' => $n( 3 ) % 12000,
+				'top_signals'                       => array(
+					array(
+						'name'  => 'avs_mismatch',
+						'count' => $n( 4 ) % 60,
+					),
+					array(
+						'name'  => 'high_risk_geo',
+						'count' => $n( 5 ) % 40,
+					),
+					array(
+						'name'  => 'velocity_threshold',
+						'count' => $n( 6 ) % 35,
+					),
+					array(
+						'name'  => 'card_testing_pattern',
+						'count' => $n( 7 ) % 25,
+					),
+					array(
+						'name'  => 'proxy_or_vpn',
+						'count' => $n( 8 ) % 20,
+					),
+				),
+				'wfp_active'                        => $wfp_active,
+				'preview'                           => ! $wfp_active,
+				'generated_at'                      => gmdate( 'c' ),
+			)
+		);
+	}
+
+	/**
+	 * Deterministic Blackbox aggregate mock — seeded off the category +
+	 * interval so the same call returns the same shape (testable, no jitter).
+	 *
+	 * @param string $category Category id (logins / bots / brute-force / forms).
+	 * @param string $interval Interval id (30-days / 60-days / 6-months / all).
+	 * @param bool   $preview  Whether to mark the response as preview data.
+	 * @return array
+	 */
+	protected static function deterministic_mock_aggregate( $category, $interval, $preview ) {
+		$seed = crc32( $category . '|' . $interval );
+		$n    = static function ( $offset ) use ( $seed ) {
+			return abs( ( $seed + ( $offset * 31 ) ) % 9999 );
+		};
+
+		$bucket_counts = array(
+			'30-days'  => 30,
+			'60-days'  => 60,
+			'6-months' => 26,
+			'all'      => 12,
+		);
+		$bucket_count  = isset( $bucket_counts[ $interval ] ) ? $bucket_counts[ $interval ] : 30;
+
+		$series = array();
+		for ( $i = $bucket_count - 1; $i >= 0; $i-- ) {
+			$series[] = array(
+				'date'       => gmdate( 'Y-m-d', strtotime( "-{$i} days" ) ),
+				'blocked'    => $n( $i + 1 ) % 80,
+				'challenged' => $n( $i + 2 ) % 30,
+				'passed'     => $n( $i + 3 ) % 20,
+			);
+		}
+
+		return array(
+			'category'     => $category,
+			'interval'     => $interval,
+			'blocked'      => $n( 1 ) * 7,
+			'challenged'   => $n( 2 ) * 3,
+			'passed'       => $n( 3 ) * 2,
+			'series'       => $series,
+			'preview'      => (bool) $preview,
+			'generated_at' => gmdate( 'c' ),
+		);
+	}
+
+	/**
+	 * Comments-stats totals fixture. Seeded off interval so the response is
+	 * stable across calls. `preview: true` until a real upstream source is
+	 * wired up — see the block comment above for the swap point.
+	 *
+	 * @param string $interval Interval id.
+	 * @return array
+	 */
+	protected static function comments_mock_totals( $interval ) {
+		$seed = crc32( 'comments|' . $interval );
+		$n    = static function ( $offset ) use ( $seed ) {
+			return abs( ( $seed + ( $offset * 31 ) ) % 9999 );
+		};
+
+		$spam            = $n( 1 ) * 7;
+		$ham             = $n( 2 ) % 300;
+		$missed_spam     = $n( 3 ) % 8;
+		$false_positives = $n( 4 ) % 3;
+		$accuracy        = ( $spam + $ham ) > 0
+			? round(
+				( ( $spam + $ham - $missed_spam - $false_positives ) / ( $spam + $ham ) ) * 100,
+				2
+			)
+			: 100.0;
+
+		return array(
+			'interval'        => $interval,
+			'spam'            => $spam,
+			'ham'             => $ham,
+			'missed_spam'     => $missed_spam,
+			'false_positives' => $false_positives,
+			'accuracy'        => $accuracy,
+			// Seconds; ~30s per spam comment is the legacy Akismet methodology.
+			'time_saved'      => $spam * 30,
+			'preview'         => true,
+			'generated_at'    => gmdate( 'c' ),
+		);
+	}
+
+	/**
+	 * Comments time-series fixture for the sparkline on the Comments card.
+	 * Maps to the `endpoint-spec-stats-timeseries.md` proposal shape.
+	 *
+	 * @param string $interval Interval id.
+	 * @return array
+	 */
+	protected static function comments_mock_timeseries( $interval ) {
+		$bucket_counts = array(
+			'30-days'  => 30,
+			'60-days'  => 60,
+			'6-months' => 26,
+			'all'      => 12,
+		);
+		$bucket_count  = isset( $bucket_counts[ $interval ] ) ? $bucket_counts[ $interval ] : 30;
+
+		$seed = crc32( 'comments-ts|' . $interval );
+		$n    = static function ( $offset ) use ( $seed ) {
+			return abs( ( $seed + ( $offset * 31 ) ) % 9999 );
+		};
+
+		$series = array();
+		$totals = array(
+			'spam'            => 0,
+			'ham'             => 0,
+			'missed_spam'     => 0,
+			'false_positives' => 0,
+		);
+		$bucket = ( '6-months' === $interval || 'all' === $interval ) ? 'week' : 'day';
+		$step   = ( 'day' === $bucket ) ? 1 : 7;
+		for ( $i = $bucket_count - 1; $i >= 0; $i-- ) {
+			$date                       = gmdate( 'Y-m-d', strtotime( '-' . ( $i * $step ) . ' days' ) );
+			$spam                       = $n( $i + 1 ) % 250;
+			$ham                        = $n( $i + 2 ) % 20;
+			$missed_spam                = $n( $i + 3 ) % 3;
+			$false_positives            = $n( $i + 4 ) % 2;
+			$series[]                   = array(
+				'date'            => $date,
+				'spam'            => $spam,
+				'ham'             => $ham,
+				'missed_spam'     => $missed_spam,
+				'false_positives' => $false_positives,
+			);
+			$totals['spam']            += $spam;
+			$totals['ham']             += $ham;
+			$totals['missed_spam']     += $missed_spam;
+			$totals['false_positives'] += $false_positives;
+		}
+
+		$total_evaluated = $totals['spam'] + $totals['ham'];
+		$accuracy        = $total_evaluated > 0
+			? round(
+				( ( $total_evaluated - $totals['missed_spam'] - $totals['false_positives'] ) / $total_evaluated ) * 100,
+				2
+			)
+			: 100.0;
+
+		return array(
+			'interval'     => $interval,
+			'bucket'       => $bucket,
+			'series'       => $series,
+			'totals'       => array_merge(
+				$totals,
+				array(
+					'accuracy'   => $accuracy,
+					'time_saved' => $totals['spam'] * 30,
+				)
+			),
+			'preview'      => true,
+			'generated_at' => gmdate( 'c' ),
+		);
 	}
 }
