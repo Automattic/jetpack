@@ -299,7 +299,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			'message' => 'Class "Foo\\Bar" not found',
 			'file'    => '/abs/foo/inc/missing.php',
 		);
-		$out = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+		$out     = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
 
 		$this->assertSame( 'ok-inconclusive', $out['status'] );
 		$this->assertSame( '/abs/foo/foo.php', $out['plugin'] );
@@ -321,7 +321,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			'message' => 'engine death',
 			'file'    => '/abs/foo/foo.php',
 		);
-		$out = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+		$out     = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
 
 		$this->assertSame( 'ok-inconclusive', $out['status'] );
 		$this->assertArrayNotHasKey( 'plugin', $out );

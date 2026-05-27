@@ -339,7 +339,8 @@ class PCG_Load_Tester {
 	 * @internal
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
 	 * @param string   $mode         Probe mode constant.
-	 * @return array{plugins:string[],mode:string}
+	 * @param bool     $is_confirm   Whether this payload is for a confirmation probe.
+	 * @return array{plugins:string[],mode:string,confirm:bool}
 	 */
 	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
 		return array(
@@ -357,6 +358,7 @@ class PCG_Load_Tester {
 	 * @param string   $base_url     Front-end or admin base URL.
 	 * @param bool     $is_admin     Adds `pcg_admin=1` and forwards auth cookies.
 	 * @param string   $mode         Probe mode constant.
+	 * @param bool     $is_confirm   Adds `pcg_confirm=1` so the early bootstrap injects candidates into active_plugins.
 	 * @return array{token:string,request:array}
 	 */
 	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
@@ -367,11 +369,11 @@ class PCG_Load_Tester {
 			'pcg_probe' => '1',
 			'token'     => $token,
 		);
+		$headers = array();
+		$options = array();
 		if ( $is_confirm ) {
 			$query['pcg_confirm'] = '1';
 		}
-		$headers = array();
-		$options = array();
 		if ( $is_admin ) {
 			$query['pcg_admin'] = '1';
 			$cookie_header      = $this->collect_auth_cookie_header();

@@ -7,8 +7,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-require_once __DIR__ . '/class-pcg-load-tester.php';
-
 pcg_confirm_maybe_register_hook();
 
 /**
@@ -23,18 +21,18 @@ function pcg_confirm_maybe_register_hook() {
 		return;
 	}
 
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- token is the nonce, validated below.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- only used as a literal flag comparison; no sanitization needed.
 	if ( '1' !== ( $_GET['pcg_probe'] ?? '' ) || '1' !== ( $_GET['pcg_confirm'] ?? '' ) ) {
 		return;
 	}
-	// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
 	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' );
 	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
-	// phpcs:enable
 	if ( '' === $token ) {
 		return;
 	}
 
+	require_once __DIR__ . '/class-pcg-load-tester.php';
 	$payload = get_transient( PCG_Load_Tester::transient_key( $token ) );
 	if ( ! is_array( $payload ) || true !== ( $payload['confirm'] ?? false ) ) {
 		return;
