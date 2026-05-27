@@ -655,6 +655,13 @@ function printPlanHeader( logScan, logResolved, ordered, heavy, argv ) {
 		console.log( chalk.grey( `Scanned debug.log in ${ logScan.container }.` ) );
 	} else if ( argv.logScan ) {
 		console.log( chalk.grey( 'No running Jetpack dev container detected — skipping log scan.' ) );
+		console.log(
+			chalk.grey(
+				`  Tip: ${ chalk.bold(
+					'jetpack docker up -d'
+				) } starts the dev environment so Signal 1 can read its debug.log.`
+			)
+		);
 	}
 	if ( logResolved.length ) {
 		console.log( chalk.bold( '\nMissing symbols in debug.log:' ) );
