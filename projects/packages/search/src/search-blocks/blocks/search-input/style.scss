@@ -7,13 +7,22 @@
 
 .wp-block-jetpack-search-search-input {
 
+	// Bottom hairline tracks the same 15%-currentColor mix used by the sidebar
+	// left-divider and the overlay header hairline, so all three surfaces read
+	// as one family across experiences. `transparent` is the fallback on UAs
+	// without color-mix support — divider disappears rather than reverting to
+	// a hard full-strength rule.
 	.jetpack-search-input__inside-wrapper {
 		position: relative;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		padding: 0.5rem 0;
-		border-bottom: 1px solid currentColor;
+		border-bottom: 1px solid transparent;
+
+		@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+			border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
+		}
 	}
 
 	.jetpack-search-input__icon {
