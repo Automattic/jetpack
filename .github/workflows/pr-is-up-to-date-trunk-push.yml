@@ -4,7 +4,7 @@ on:
     branches: [ trunk ]
 
 concurrency:
-  group: pr-is-up-to-date-trunk-push-
+  group: pr-is-up-to-date-trunk-push-all
   queue: max
 
 # Everything, including actions/checkout, is using secrets.API_TOKEN_GITHUB, so no need for permissions.
