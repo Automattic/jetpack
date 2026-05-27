@@ -52,7 +52,8 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * One data set per REST-enabled simple GET endpoint, as [ path, version ] for the test to re-resolve.
+	 * One data set per REST-enabled simple GET endpoint. Captures the endpoint object itself --
+	 * the shared registry can be overwritten by other tests, so re-resolving by path later is unsafe.
 	 *
 	 * @return array
 	 *
@@ -73,10 +74,7 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 				continue;
 			}
 
-			$cases[ $endpoint->path . ' (v' . $endpoint->max_version . ')' ] = array(
-				$endpoint->path,
-				(string) $endpoint->max_version,
-			);
+			$cases[ $endpoint->path . ' (v' . $endpoint->max_version . ')' ] = array( $endpoint );
 		}
 
 		return $cases;
@@ -88,13 +86,12 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 	 * @dataProvider simple_get_endpoints_provider
 	 * @group json-api
 	 *
-	 * @param string $path        Endpoint path template.
-	 * @param string $max_version Endpoint max version.
+	 * @param WPCOM_JSON_API_Endpoint $endpoint The discovered endpoint.
 	 */
 	#[DataProvider( 'simple_get_endpoints_provider' )]
 	#[Group( 'json-api' )]
-	public function test_endpoint_has_rest_xmlrpc_parity( string $path, string $max_version ) {
-		$this->assert_rest_parity( $this->resolve_endpoint( $path, $max_version ) );
+	public function test_endpoint_has_rest_xmlrpc_parity( WPCOM_JSON_API_Endpoint $endpoint ) {
+		$this->assert_rest_parity( $endpoint );
 	}
 
 	/**
@@ -108,30 +105,5 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 			self::simple_get_endpoints_provider(),
 			'Expected at least one REST-enabled simple GET endpoint to be discovered.'
 		);
-	}
-
-	/**
-	 * Look up the registered GET endpoint for a provider case.
-	 *
-	 * @param string $path        Endpoint path template.
-	 * @param string $max_version Endpoint max version.
-	 * @return WPCOM_JSON_API_Endpoint
-	 *
-	 * @phan-suppress PhanTypeArraySuspicious -- $api->endpoints is a map of method => endpoint.
-	 */
-	private function resolve_endpoint( string $path, string $max_version ): WPCOM_JSON_API_Endpoint {
-		foreach ( WPCOM_JSON_API::init()->endpoints as $endpoints_by_method ) {
-			$endpoint = $endpoints_by_method['GET'] ?? null;
-
-			if (
-				$endpoint instanceof WPCOM_JSON_API_Endpoint
-				&& $endpoint->path === $path
-				&& (string) $endpoint->max_version === $max_version
-			) {
-				return $endpoint;
-			}
-		}
-
-		$this->fail( "GET endpoint not found in registry: {$path} (v{$max_version})" );
 	}
 }
