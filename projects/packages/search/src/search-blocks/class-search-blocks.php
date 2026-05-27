@@ -1171,10 +1171,17 @@ class Search_Blocks {
 	cursor: pointer;
 	color: inherit;
 }
+/* Hover / focus surface is an opaque ink-over-surface mix rather than a
+ * `color-mix(currentColor, transparent)` wash. The wash form (a) collapsed
+ * to full-opacity ink on Safari <16.4 (a `color-mix` × `transparent` bug)
+ * which made the X icon disappear into the hover background, and (b) was
+ * too subtle at 8% to read as a real interactive affordance. Binding to the
+ * card's resolved `--jp-search-overlay-ink` / `--jp-search-overlay-surface`
+ * tokens keeps the affordance theme-aware on every variation. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__close:hover,
 	.jetpack-search-block-overlay__close:focus-visible {
-		background: color-mix(in sRGB, currentColor 8%, transparent);
+		background: color-mix(in sRGB, var(--jp-search-overlay-ink) 14%, var(--jp-search-overlay-surface));
 	}
 }
 .jetpack-search-block-overlay__close svg {
