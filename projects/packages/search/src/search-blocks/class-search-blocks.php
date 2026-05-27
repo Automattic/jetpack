@@ -1135,13 +1135,7 @@ class Search_Blocks {
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
 }
-/* Single hairline under the 60px header strip — drawn on the card so the line
- * spans the search-input block AND the close button as one continuous element.
- * Two separate `border-bottom`s on the sibling `div` + `button` (SEARCH-260)
- * painted with a visible seam at the boundary because browsers apply different
- * paint defaults to the two element types. `@supports` + `transparent` default
- * keeps pre-color-mix browsers (~Chrome <111, FF <113, Safari <16.2) graceful;
- * same convention as `_chip.scss`. */
+/* Single hairline over the full 60px header strip — siblings paint with a seam (SEARCH-260). */
 .jetpack-search-block-overlay__card::before {
 	content: "";
 	position: absolute;
@@ -1154,7 +1148,7 @@ class Search_Blocks {
 }
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__card::before {
-		background: color-mix(in sRGB, currentColor 15%, transparent);
+		background: color-mix(in sRGB, var(--jp-search-overlay-ink) 15%, var(--jp-search-overlay-surface));
 	}
 }
 .jetpack-search-block-overlay__close {
@@ -1171,13 +1165,7 @@ class Search_Blocks {
 	cursor: pointer;
 	color: inherit;
 }
-/* Hover / focus surface is an opaque ink-over-surface mix rather than a
- * `color-mix(currentColor, transparent)` wash. The wash form (a) collapsed
- * to full-opacity ink on Safari <16.4 (a `color-mix` × `transparent` bug)
- * which made the X icon disappear into the hover background, and (b) was
- * too subtle at 8% to read as a real interactive affordance. Binding to the
- * card's resolved `--jp-search-overlay-ink` / `--jp-search-overlay-surface`
- * tokens keeps the affordance theme-aware on every variation. */
+/* Opaque ink-over-surface mix — `color-mix(currentColor, transparent)` collapses to full-opacity ink on Safari <16.4 and swallows the X icon. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__close:hover,
 	.jetpack-search-block-overlay__close:focus-visible {
