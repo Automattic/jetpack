@@ -1267,11 +1267,12 @@ class Search_Blocks {
 		display: none;
 	}
 	/* The right column's 260px width is set via inline `flex-basis`, so the
-	 * results column needs `!important` to claim the full row. */
-	.jetpack-search-block-overlay .wp-block-columns {
-		gap: 0;
-	}
-	.jetpack-search-block-overlay .wp-block-column:not(.jetpack-search-block-overlay__filters-column) {
+	 * results column needs `!important` to claim the full row. Parent `gap`
+	 * doesn't need zeroing — flexbox removes `display: none` children from
+	 * the layout entirely, so there is no sibling for a gap rule to apply
+	 * against. The selector is scoped to the named outer column so nested
+	 * `wp-block-column`s inside result-card templates aren't affected. */
+	.jetpack-search-block-overlay__results-column {
 		flex-basis: 100% !important;
 	}
 }

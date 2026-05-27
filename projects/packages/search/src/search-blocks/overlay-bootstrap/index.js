@@ -113,6 +113,20 @@ function ensureHydrated() {
 			if ( typeof ia.store === 'function' ) {
 				const { actions } = ia.store( 'jetpack-search' );
 				actions?.dispatchInitialSearchIfNeeded?.();
+				// Reset popover state when crossing into the wide breakpoint:
+				// the overlay's CSS hides `.jetpack-search-filters-popover` at
+				// ≥992px (the sidebar handles filters at that width), but the
+				// store still carries `isFilterPopoverOpen: true` from a prior
+				// narrow-mode open. Without this, resizing wide → narrow makes
+				// the panel pop in without any user interaction.
+				if ( typeof window.matchMedia === 'function' ) {
+					const wideMedia = window.matchMedia( '(min-width: 992px)' );
+					wideMedia.addEventListener( 'change', e => {
+						if ( e.matches ) {
+							actions?.closeAllPopovers?.();
+						}
+					} );
+				}
 			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
