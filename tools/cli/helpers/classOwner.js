@@ -102,26 +102,63 @@ export async function findOwnerProject( fqn, cwd = process.cwd() ) {
 	const namespace = normalized.split( '\\' ).slice( 0, -1 ).join( '\\' );
 	const candidates = grepStdout.split( '\n' ).filter( Boolean );
 
-	// If we have a namespace, verify each candidate declares the same namespace
-	// before accepting it — multiple packages can declare classes with the same short name.
+	// Phase 1: namespace-verified match. Multiple packages can declare classes
+	// with the same short name (e.g. "Manager"), so when we have a namespace,
+	// only accept candidates whose `namespace X\Y;` declaration matches.
 	for ( const candidate of candidates ) {
 		const slug = candidate.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ];
 		if ( ! slug ) {
 			continue;
 		}
 		if ( ! namespace ) {
-			return slug;
+			// No namespace to verify — bail out of phase 1, let phase 2 handle it.
+			break;
 		}
 		const fileNs = await readNamespace( path.join( cwd, candidate ) );
 		if ( fileNs === namespace ) {
 			return slug;
 		}
 	}
-	// Namespace-verified match wasn't found; if there's only one candidate, fall back to it.
-	if ( candidates.length === 1 ) {
+
+	// Phase 2: no namespace-verified match. Restrict candidates to files that
+	// look like real class definitions (Jetpack's class-<short>.php convention,
+	// or files under a src/, classes/, lib/, or legacy/ directory). This filters
+	// out test fixtures, README excerpts, and incidental "class Foo" mentions.
+	const plausible = candidates.filter( looksLikeClassFile );
+	if ( plausible.length === 1 ) {
+		return plausible[ 0 ].match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] || null;
+	}
+	if ( ! namespace && candidates.length === 1 ) {
+		// FQN had no namespace and exactly one candidate exists — accept it.
 		return candidates[ 0 ].match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] || null;
 	}
 	return null;
+}
+
+/**
+ * Heuristic: does this file path look like a class definition (vs. a test
+ * fixture, README, or arbitrary mention of "class X" in a comment or string)?
+ *
+ * @param {string} file - Repo-relative path returned by `git grep`.
+ * @return {boolean} True when the path matches a Jetpack class-file convention.
+ */
+function looksLikeClassFile( file ) {
+	if ( /\/(tests|test|__tests__|fixtures|stubs)\//i.test( file ) ) {
+		return false;
+	}
+	if ( /\/class-[a-z0-9-]+\.php$/i.test( file ) ) {
+		return true;
+	}
+	// PSR-4-style same-name file (Manager.php for class Manager). Looser than
+	// strict PSR-4 but catches the convention.
+	if ( /\/[A-Z][A-Za-z0-9_]*\.php$/.test( file ) ) {
+		return true;
+	}
+	// Inside a conventional source directory.
+	if ( /\/(src|classes|lib|legacy)\//i.test( file ) ) {
+		return true;
+	}
+	return false;
 }
 
 /**
