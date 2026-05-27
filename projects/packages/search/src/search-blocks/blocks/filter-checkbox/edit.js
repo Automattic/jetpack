@@ -371,6 +371,13 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// leaving and re-entering the Custom Taxonomy variation — drops the guard
 	// so the picker can seed again. Built-in variations don't pass this gate;
 	// they already get a hardcoded default via variationDefaultLabel().
+	//
+	// Both refs reset whenever the component unmounts (Code/Visual editor
+	// toggle, certain undo sequences). That means a saved post whose `label`
+	// is the empty string re-seeds on the next editor open — by design,
+	// since `labelHelp` already tells authors a label is required for the
+	// front-end heading to render. There's no "persistently empty" custom
+	// taxonomy label state.
 	const manuallyClearedTaxonomyRef = useRef( null );
 	const previousCustomTaxonomyStateRef = useRef( {
 		isCustomTaxonomy,

@@ -544,6 +544,26 @@ describe( 'FilterCheckboxEdit custom taxonomy label seeding', () => {
 		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 
+	it( 'does not overwrite an existing label when switching to a different custom taxonomy slug', () => {
+		// Simulates: author had `genre` with label "Pick a genre", then picks
+		// `mood`. The label must stay "Pick a genre" — the slug change alone
+		// is not enough to overwrite an author-typed value.
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'mood', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
 	it( 'seeds again when returning to Custom Taxonomy with the same cleared slug', () => {
 		const setAttributes = jest.fn();
 		const { rerender } = render(
