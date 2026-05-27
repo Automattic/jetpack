@@ -108,6 +108,13 @@ const createSelectMethods = () => ( {
 	isSearchSuggestionsEnabled: jest.fn( () => false ),
 	isWooCommerceActive: jest.fn( () => false ),
 	isWooCommerceSearchTemplateOverrideEnabled: jest.fn( () => false ),
+	isBlockTheme: jest.fn( () => true ),
+	getProductSearchTemplateConfig: jest.fn( () => ( {
+		enabled: false,
+		editorUrl: null,
+		postType: null,
+		isCustomized: false,
+	} ) ),
 	getActiveExperience: jest.fn( () => 'embedded' ),
 	isTogglingInstantSearch: jest.fn( () => false ),
 	isTogglingModule: jest.fn( () => false ),
