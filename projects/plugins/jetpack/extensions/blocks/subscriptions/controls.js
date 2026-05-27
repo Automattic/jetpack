@@ -14,7 +14,8 @@ import {
 	TextareaControl,
 	CheckboxControl,
 } from '@wordpress/components';
-import { useEntityProp } from '@wordpress/core-data';
+import { store as coreStore, useEntityProp } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
@@ -76,6 +77,17 @@ export default function SubscriptionControls( {
 		'subscription_options'
 	);
 	const subscribeModalHeading = subscriptionOptions?.subscribe_modal_heading ?? '';
+
+	// The Subscribe message control writes to a site-wide setting through
+	// /wp/v2/settings, which requires `manage_options`. Hide the control for
+	// users who lack the capability so the field doesn't appear editable but
+	// silently fail to save. `canUser` returns `undefined` while the OPTIONS
+	// probe is in flight; the falsy default keeps the field hidden until the
+	// capability is confirmed, which only delays appearance for admins.
+	const canEditSiteSettings = useSelect(
+		select => select( coreStore ).canUser( 'update', 'settings' ),
+		[]
+	);
 
 	// Unset any selected categories that are no longer available
 	useEffect( () => {
@@ -341,7 +353,7 @@ export default function SubscriptionControls( {
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
-				{ isButtonOnlyStyle && (
+				{ isButtonOnlyStyle && canEditSiteSettings && (
 					<TextareaControl
 						__nextHasNoMarginBottom={ true }
 						value={ subscribeModalHeading }
