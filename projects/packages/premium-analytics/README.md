@@ -45,11 +45,11 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 
    ```json
    {
-   	"name": "<name>-route",
-   	"route": {
-   		"path": "/<name>",
-   		"page": "jetpack-premium-analytics"
-   	}
+     "name": "<name>-route",
+     "route": {
+       "path": "/<name>",
+       "page": "jetpack-premium-analytics"
+     }
    }
    ```
 
