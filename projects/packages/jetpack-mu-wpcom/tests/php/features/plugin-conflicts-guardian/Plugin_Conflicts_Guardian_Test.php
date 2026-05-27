@@ -10,6 +10,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
+// probe-endpoint.php registers a shutdown handler and reads $_GET on
+// require; the entry function `pcg_maybe_handle_probe()` is the one
+// that does that work, and it bails immediately when `$_GET['pcg_probe']`
+// isn't set. Loading the file in tests is safe and gives us access to
+// helpers like `pcg_probe_already_emitted()` for unit testing.
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-endpoint.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
@@ -334,6 +340,110 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		$result = $this->invoke_parse_response( $this->make_fake_response( 200, (string) $body, true ) );
 		$this->assertSame( 'fatal', $result['status'] );
 		$this->assertSame( 'Class "Foo\\Bar" not found', $result['message'] );
+	}
+
+	/**
+	 * `classify_shutdown` maps an engine-fatal `error_get_last()` array to
+	 * status=fatal with the captured errno/message/file/line preserved so
+	 * the activation guard can attribute the failure to the right plugin.
+	 */
+	public function test_classify_shutdown_emits_fatal_for_engine_error() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_ERROR,
+				'message' => 'Uncaught Error: Class "Foo\\Bar" not found',
+				'file'    => '/abs/foo/foo.php',
+				'line'    => 42,
+			)
+		);
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_ERROR, $verdict['errno'] );
+		$this->assertSame( '/abs/foo/foo.php', $verdict['file'] );
+		$this->assertSame( 42, $verdict['line'] );
+	}
+
+	/**
+	 * `classify_shutdown` returns status=ok-shutdown when there is no
+	 * captured fatal — covers the clean-`exit`-during-init case that
+	 * previously surfaced as "marker present, no JSON body" and got
+	 * misclassified as a fatal.
+	 */
+	public function test_classify_shutdown_emits_ok_shutdown_when_no_fatal() {
+		$verdict = PCG_Load_Tester::classify_shutdown( null );
+		$this->assertSame( 'ok-shutdown', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] );
+	}
+
+	/**
+	 * Notice/warning/deprecation errors are NOT fatals — they're routine
+	 * non-blocking signals. Misclassifying them would re-introduce the
+	 * old false-positive class the always-emit fix is meant to remove.
+	 */
+	/**
+	 * `E_RECOVERABLE_ERROR` is in the fatal mask. It IS catchable by a
+	 * custom `set_error_handler`, but the probe doesn't install one and
+	 * the only way this errno reaches `error_get_last()` at shutdown is
+	 * the uncaught path. Treating it as fatal is correct in probe
+	 * context and matches PHP's own "unhandled = fatal" behaviour.
+	 */
+	public function test_classify_shutdown_treats_recoverable_error_as_fatal() {
+		$verdict = PCG_Load_Tester::classify_shutdown(
+			array(
+				'type'    => E_RECOVERABLE_ERROR,
+				'message' => 'Argument 1 passed to foo() must be array, null given',
+				'file'    => '/abs/foo/foo.php',
+				'line'    => 17,
+			)
+		);
+		$this->assertSame( 'fatal', $verdict['status'] );
+		$this->assertSame( E_RECOVERABLE_ERROR, $verdict['errno'] );
+	}
+
+	public function test_classify_shutdown_treats_non_fatal_errno_as_ok_shutdown() {
+		foreach ( array( E_WARNING, E_NOTICE, E_USER_WARNING, E_DEPRECATED, E_USER_DEPRECATED ) as $type ) {
+			$verdict = PCG_Load_Tester::classify_shutdown(
+				array(
+					'type'    => $type,
+					'message' => 'noise',
+					'file'    => '',
+					'line'    => 0,
+				)
+			);
+			$this->assertSame( 'ok-shutdown', $verdict['status'], "errno $type should NOT be classified as fatal" );
+		}
+	}
+
+	/**
+	 * `pcg_probe_already_emitted` is the re-entry guard shared by
+	 * `pcg_probe_shutdown` and `pcg_probe_respond`. Verifies the
+	 * contract that **only respond marks the flag**; the shutdown
+	 * handler must check without marking. A prior implementation marked
+	 * the flag in shutdown, which made the very next respond call bail
+	 * silently and lose the verdict — this test guards against that
+	 * regression.
+	 *
+	 * Runs in a separate process so the function's `static $emitted`
+	 * starts at its fresh state for this test and can't be poisoned by
+	 * any earlier test that exercises `pcg_probe_respond` (or by a
+	 * future test that does). Without this, adding another consumer of
+	 * the helper anywhere in the suite would silently flip the
+	 * post-mark assertions to passing-for-the-wrong-reason.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+	#[\PHPUnit\Framework\Attributes\PreserveGlobalState( false )]
+	public function test_pcg_probe_already_emitted_only_marks_when_asked() {
+		$this->assertFalse( pcg_probe_already_emitted(), 'fresh check should be false' );
+		$this->assertFalse( pcg_probe_already_emitted(), 'check-only must not mark — second check still false' );
+
+		// Mark: returns false on the marking call (flag was just set).
+		$this->assertFalse( pcg_probe_already_emitted( true ), 'marking call returns false because flag was previously unset' );
+
+		// Subsequent reads (with or without mark arg) see the flag.
+		$this->assertTrue( pcg_probe_already_emitted(), 'post-mark check returns true' );
+		$this->assertTrue( pcg_probe_already_emitted( true ), 'post-mark marking call returns true' );
 	}
 
 	/**

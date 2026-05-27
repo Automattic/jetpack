@@ -27,6 +27,20 @@ class PCG_Load_Tester {
 	 */
 	const TOKEN_LIFETIME = 300;
 
+	/**
+	 * Engine-fatal mask used by the probe shutdown classifier. Anything
+	 * outside this mask (notice, warning, deprecation, or `error_get_last`
+	 * returning null after a clean `exit`) is treated as not-a-fatal.
+	 *
+	 * `E_RECOVERABLE_ERROR` is included even though it's "catchable" by a
+	 * custom `set_error_handler` — by the time PHP shutdown fires with
+	 * `error_get_last()` still pointing at it, no handler caught it, so
+	 * it terminated execution like any other fatal. The probe context
+	 * doesn't install a recovery handler, so the only way this errno
+	 * lands in `error_get_last()` here is the uncaught path.
+	 */
+	const SHUTDOWN_FATAL_MASK = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
+
 	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
 
@@ -157,7 +171,13 @@ class PCG_Load_Tester {
 			return true;
 		}
 		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
-		return 'ok-inconclusive' === $status;
+		// `ok-shutdown` means the probe reached PHP shutdown without a
+		// wp_loaded/admin_init verdict — bootstrap died silently or a
+		// plugin called `exit` during init. Not a captured fatal, so we
+		// allow under the policy, but the rate is worth logging because
+		// it's the new replacement for the old "marker present, no
+		// JSON body" class.
+		return 'ok-inconclusive' === $status || 'ok-shutdown' === $status;
 	}
 
 	/**
@@ -461,6 +481,35 @@ class PCG_Load_Tester {
 			}
 		);
 		return $hooks;
+	}
+
+	/**
+	 * Classify a PHP shutdown into a probe verdict. Returns `fatal` only
+	 * for the engine-fatal error mask; anything else becomes
+	 * `ok-shutdown`, signalling that the bootstrap reached PHP shutdown
+	 * without a captured fatal but didn't reach the wp_loaded/admin_init
+	 * verdict point (typical of a plugin calling `exit` during init).
+	 *
+	 * Pure helper so the probe endpoint's shutdown handler can be
+	 * exercised without firing PHP shutdown in tests.
+	 *
+	 * @param array|null $error Result of `error_get_last()`.
+	 * @return array Probe verdict.
+	 */
+	public static function classify_shutdown( $error ) {
+		if ( is_array( $error ) && 0 !== ( ( (int) ( $error['type'] ?? 0 ) ) & self::SHUTDOWN_FATAL_MASK ) ) {
+			return array(
+				'status'  => 'fatal',
+				'errno'   => (int) $error['type'],
+				'message' => (string) ( $error['message'] ?? '' ),
+				'file'    => (string) ( $error['file'] ?? '' ),
+				'line'    => (int) ( $error['line'] ?? 0 ),
+			);
+		}
+		return array(
+			'status' => 'ok-shutdown',
+			'reason' => 'Probe reached shutdown without a captured fatal; bootstrap exited before wp_loaded/admin_init (likely a plugin-initiated exit/redirect during init).',
+		);
 	}
 
 	/**
