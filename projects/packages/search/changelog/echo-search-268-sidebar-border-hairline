@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: sidebar left divider now tracks the theme's text color (a soft currentColor hairline) instead of a hardcoded grey, matching the search-input underline and the existing overlay treatment across all three templates.
