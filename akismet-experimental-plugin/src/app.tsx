@@ -22,7 +22,7 @@ export function App(): JSX.Element {
 				<Page className="akismet-experimental" title={ __( 'Akismet Anti-Spam', 'akismet' ) }>
 					{ /* Feature children added in subsequent plans. */ }
 				</Page>
-				{ isJetpackActive() && <JetpackFooter a8cLogoHref="https://automattic.com" /> }
+				{ isJetpackActive() && <JetpackFooter /> }
 			</QueryClientProvider>
 		</SlotFillProvider>
 	);
