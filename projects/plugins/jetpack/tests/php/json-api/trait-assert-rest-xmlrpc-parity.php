@@ -84,18 +84,21 @@ trait Assert_Rest_Xmlrpc_Parity {
 	 *
 	 * @param WPCOM_JSON_API_Endpoint $endpoint   The endpoint under test.
 	 * @param array                   $query      Request params (number, context, type, ...).
-	 * @param array                   $url_params Route placeholder values (post id, slug, ...).
-	 * @param string|null             $api_path   Concrete API path; defaults to the endpoint
-	 *                                            path with the blog id substituted.
+	 * @param array                   $url_params Route placeholder values beyond the site, in path
+	 *                                            order (post id, slug, ...).
+	 * @param string|null             $api_path   Concrete API path; defaults to the endpoint path
+	 *                                            with the blog id and $url_params substituted.
 	 * @return array{0: mixed, 1: mixed} [ xmlrpc_body, rest_body ] for further assertions.
 	 */
 	protected function assert_rest_parity( WPCOM_JSON_API_Endpoint $endpoint, array $query = array(), array $url_params = array(), $api_path = null ) {
 		$this->prepare_rest_parity_env();
 
 		if ( null === $api_path ) {
+			// The site is always the first placeholder; any remaining placeholders (post id, slug)
+			// are filled positionally from $url_params, so multi-placeholder paths resolve too.
 			$api_path = false === strpos( (string) $endpoint->path, '%' )
 				? $endpoint->path
-				: sprintf( $endpoint->path, $this->rest_parity_blog_id );
+				: vsprintf( $endpoint->path, array_merge( array( $this->rest_parity_blog_id ), array_values( $url_params ) ) );
 		}
 
 		// The endpoint is actually REST-enabled and its route resolves.
@@ -224,13 +227,20 @@ trait Assert_Rest_Xmlrpc_Parity {
 	/**
 	 * Run the endpoint through the real rest_callback() and return its decoded body.
 	 *
+	 * Query params reach callback() the same way they do in production: via the shared
+	 * WPCOM_JSON_API singleton's ->query, which the real request populates by parsing the
+	 * request URL (class.json-api.php). rest_callback() itself only pulls the route placeholders
+	 * (get_url_params()) plus `language`/`http_envelope` off the WP_REST_Request, so we set the
+	 * query on the singleton and also mirror it onto the request to cover those request-read keys.
+	 * Both transports therefore read the identical ->query — this asserts callback()/rest_callback()
+	 * parity, not the URL-to-query parsing, which is shared and not REST-specific.
+	 *
 	 * @param WPCOM_JSON_API_Endpoint $endpoint   Endpoint.
 	 * @param array                   $query      Request params.
 	 * @param array                   $url_params Route placeholder values.
 	 * @return mixed Decoded body.
 	 */
 	private function dispatch_rest_body( WPCOM_JSON_API_Endpoint $endpoint, array $query, array $url_params ) {
-		// callback() reads params from $this->api->query, same source as the XML-RPC path.
 		WPCOM_JSON_API::init()->query = $query;
 
 		$this->set_up_rest_authentication();
