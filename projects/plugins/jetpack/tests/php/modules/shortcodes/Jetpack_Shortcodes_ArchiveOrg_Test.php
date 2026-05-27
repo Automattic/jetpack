@@ -52,7 +52,7 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	public function test_shortcode_autoplay_and_poster() {
 		$content           = "[archiveorg id='Wonderfu1958' autoplay=1 poster='http://archive.org/img.png']";
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( 'src="https://archive.org/embed/Wonderfu1958?autoplay=1&#038;poster=http%3A%2F%2Farchive.org%2Fimg.png"', $shortcode_content );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/Wonderfu1958?autoplay=1&#038;poster=http://archive.org/img.png"', $shortcode_content );
 	}
 
 	/**
