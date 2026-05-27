@@ -432,7 +432,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		$args['page']             = $parent_args['page'];
 		$args['per_page']         = $parent_args['per_page'];
 		$args['order']            = $parent_args['order'];
-		$args['order']['default'] = 'asc';
+		$args['order']['default'] = 'desc';
 		$args['orderby']          = $parent_args['orderby'];
 		$args['search']           = $parent_args['search'];
 

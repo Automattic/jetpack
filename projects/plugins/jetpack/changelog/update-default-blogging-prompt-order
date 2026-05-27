@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blogging Prompts: changed the default sort order of the wpcom/v3 endpoint to descending (newest prompts first).
