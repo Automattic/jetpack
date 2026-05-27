@@ -1,0 +1,200 @@
+/**
+ * Styles for the Overview tab.
+ *
+ * Layout: a vertically-stacked grid (gap: spacing-5) inside the
+ * `@wordpress/admin-ui` page shell. The category grid is 3 / 2 / 1
+ * columns at decreasing widths; the WC panel is full-width.
+ *
+ * Sparkline is `currentColor`-stroked so it inherits the surrounding
+ * link/text color — light/dark themes pick up automatically.
+ */
+
+.akismet-overview {
+	display: grid;
+	gap: var(--wp-components-spacing-5, 24px);
+}
+
+.akismet-overview__header {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.akismet-overview-empty {
+	margin: var(--wp-components-spacing-3, 12px) 0;
+
+	button {
+		margin-top: 12px;
+	}
+}
+
+.akismet-threat-kpis {
+
+	&__headline {
+		font-size: 22px;
+		margin: 0 0 4px;
+
+		strong {
+			font-size: 32px;
+			margin-right: 8px;
+		}
+	}
+
+	&__breakdown {
+		color: var(--wp-admin-theme-color, #2271b1);
+		margin: 0;
+	}
+
+	&__caveat {
+		color: var(--wp-components-color-foreground-muted, #757575);
+		font-size: 12px;
+		margin-top: 4px;
+	}
+}
+
+.akismet-category-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--wp-components-spacing-4, 16px);
+
+	@media (max-width: 960px) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.akismet-category-card {
+
+	&--inactive {
+		opacity: 0.7;
+	}
+
+	&__title {
+		font-weight: 600;
+	}
+
+	&__badge {
+		background: var(--wp-components-color-accent-04, #fff9c4);
+		color: var(--wp-components-color-foreground, #1e1e1e);
+		font-size: 11px;
+		font-weight: 500;
+		padding: 2px 6px;
+		margin-left: 8px;
+		border-radius: 4px;
+	}
+
+	&__short {
+		font-size: 13px;
+		color: var(--wp-components-color-foreground-muted, #757575);
+		margin: 0 0 12px;
+	}
+
+	&__stats {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		gap: 12px;
+		margin: 0 0 12px;
+
+		dt {
+			font-size: 11px;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: var(--wp-components-color-foreground-muted, #757575);
+		}
+
+		dd {
+			font-size: 20px;
+			margin: 0;
+		}
+	}
+
+	&__sparkline {
+		display: block;
+		width: 100%;
+		height: 32px;
+		margin: 12px 0;
+		color: var(--wp-admin-theme-color, #2271b1);
+	}
+
+	&__empty {
+		font-style: italic;
+		color: var(--wp-components-color-foreground-muted, #757575);
+		margin: 0;
+	}
+}
+
+.akismet-woocommerce-panel {
+	border: 1px solid var(--wp-components-color-foreground-tertiary, #e0e0e0);
+	border-radius: 8px;
+	padding: var(--wp-components-spacing-4, 16px);
+
+	&__header {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		h2 {
+			margin: 0;
+			font-size: 18px;
+		}
+	}
+
+	&__badge {
+		background: var(--wp-components-color-accent-04, #fff9c4);
+		font-size: 11px;
+		font-weight: 500;
+		padding: 2px 6px;
+		border-radius: 4px;
+	}
+
+	&__lede {
+		color: var(--wp-components-color-foreground-muted, #757575);
+		font-size: 13px;
+		margin: 12px 0;
+	}
+
+	&__metrics {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--wp-components-spacing-4, 16px);
+		margin: var(--wp-components-spacing-4, 16px) 0;
+
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__methodology {
+		font-size: 11px;
+		margin: 6px 0 0;
+	}
+
+	&__signals {
+		margin: var(--wp-components-spacing-3, 12px) 0;
+
+		ul {
+			list-style: none;
+			padding: 0;
+			display: grid;
+			gap: 4px;
+		}
+
+		li {
+			display: flex;
+			justify-content: space-between;
+			font-size: 13px;
+
+			code {
+				background: var(--wp-components-color-background-secondary, #f0f0f1);
+				padding: 1px 6px;
+				border-radius: 3px;
+			}
+		}
+	}
+
+	&__deep-link {
+		margin: 12px 0 0;
+	}
+}
