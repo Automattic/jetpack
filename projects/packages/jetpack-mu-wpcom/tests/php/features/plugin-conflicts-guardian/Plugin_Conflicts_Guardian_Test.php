@@ -265,6 +265,69 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `prepare_probe` adds `pcg_confirm=1` to the loopback URL when
+	 * `$is_confirm` is true, so the early-bootstrap hook and the probe
+	 * endpoint can both detect the confirmation path.
+	 */
+	public function test_prepare_probe_includes_pcg_confirm_query_when_confirming() {
+		$tester = new PCG_Load_Tester();
+		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'prepare_probe' );
+		$probe  = $ref->invoke( $tester, array( '/abs/foo/foo.php' ), 'https://example.test/', false, PCG_Load_Tester::MODE_ACTIVATION, true );
+
+		$this->assertStringContainsString( 'pcg_confirm=1', (string) $probe['request']['url'] );
+		$this->assertStringContainsString( 'pcg_probe=1', (string) $probe['request']['url'] );
+
+		// Non-confirm probes must NOT carry the flag — that would route
+		// the request through the early-bootstrap injection path
+		// inadvertently.
+		$normal = $ref->invoke( $tester, array( '/abs/foo/foo.php' ), 'https://example.test/', false );
+		$this->assertStringNotContainsString( 'pcg_confirm', (string) $normal['request']['url'] );
+	}
+
+	/**
+	 * `downgrade_after_confirmation` rewrites the captured-fatal verdict
+	 * as `ok-inconclusive` while preserving the original `plugin`,
+	 * `message`, and `file` so logstash can still attribute the
+	 * downgrade to a specific candidate.
+	 */
+	public function test_downgrade_after_confirmation_preserves_attribution() {
+		$tester  = new PCG_Load_Tester();
+		$ref     = new \ReflectionMethod( PCG_Load_Tester::class, 'downgrade_after_confirmation' );
+		$verdict = array(
+			'status'  => 'fatal',
+			'plugin'  => '/abs/foo/foo.php',
+			'message' => 'Class "Foo\\Bar" not found',
+			'file'    => '/abs/foo/inc/missing.php',
+		);
+		$out = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+
+		$this->assertSame( 'ok-inconclusive', $out['status'] );
+		$this->assertSame( '/abs/foo/foo.php', $out['plugin'] );
+		$this->assertSame( 'Class "Foo\\Bar" not found', $out['message'] );
+		$this->assertSame( '/abs/foo/inc/missing.php', $out['file'] );
+		$this->assertNotEmpty( $out['reason'] );
+	}
+
+	/**
+	 * Downgrade omits the `plugin` key when the original verdict didn't
+	 * carry one (e.g. shutdown-classify fatal without explicit
+	 * attribution).
+	 */
+	public function test_downgrade_after_confirmation_omits_plugin_when_unset() {
+		$tester  = new PCG_Load_Tester();
+		$ref     = new \ReflectionMethod( PCG_Load_Tester::class, 'downgrade_after_confirmation' );
+		$verdict = array(
+			'status'  => 'fatal',
+			'message' => 'engine death',
+			'file'    => '/abs/foo/foo.php',
+		);
+		$out = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+
+		$this->assertSame( 'ok-inconclusive', $out['status'] );
+		$this->assertArrayNotHasKey( 'plugin', $out );
+	}
+
+	/**
 	 * Unknown mode strings fall back to activation rather than poisoning
 	 * the transient with a value the endpoint will reject.
 	 */

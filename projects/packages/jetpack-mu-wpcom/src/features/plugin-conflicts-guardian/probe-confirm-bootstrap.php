@@ -1,13 +1,8 @@
 <?php
 /**
- * Early-bootstrap hook for the PCG confirmation probe.
- *
- * Confirmation probes carry `pcg_confirm=1` on the URL. To load the
- * candidates via WP's normal active-plugin flow (rather than the manual
- * require_once in probe-endpoint.php), we hook `pre_option_active_plugins`
- * BEFORE wp-settings.php reads the option. That means this file must be
- * required at mu-plugin load time — too late if it waits for
- * `plugins_loaded`.
+ * Early-bootstrap hook for the PCG confirmation probe. Must load at
+ * mu-plugin time — `pre_option_active_plugins` has to be registered
+ * before wp-settings.php reads `active_plugins`.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -17,10 +12,17 @@ require_once __DIR__ . '/class-pcg-load-tester.php';
 pcg_confirm_maybe_register_hook();
 
 /**
- * Validate the request and, if it's a valid confirmation probe,
- * register the `pre_option_active_plugins` filter to inject candidates.
+ * Validate the request and register the `pre_option_active_plugins`
+ * filter when this is a valid confirmation probe.
  */
 function pcg_confirm_maybe_register_hook() {
+	// Bail if `plugins_loaded` already fired — we're loaded too late for
+	// the active-plugin injection to take effect (dev path where
+	// jetpack-mu-wpcom runs as a regular plugin, not a mu-plugin).
+	if ( did_action( 'plugins_loaded' ) ) {
+		return;
+	}
+
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- token is the nonce, validated below.
 	if ( '1' !== ( $_GET['pcg_probe'] ?? '' ) || '1' !== ( $_GET['pcg_confirm'] ?? '' ) ) {
 		return;
@@ -50,13 +52,8 @@ function pcg_confirm_maybe_register_hook() {
 	add_filter(
 		'pre_option_active_plugins',
 		static function ( $value ) use ( $plugin_mains ) {
-			// `false` means "let WP read the real option." Merge our
-			// candidates onto whatever WP would have returned.
-			$existing = false === $value ? get_option( 'active_plugins', array() ) : (array) $value;
-			$basenames = array();
-			foreach ( $plugin_mains as $main ) {
-				$basenames[] = plugin_basename( (string) $main );
-			}
+			$existing  = false === $value ? get_option( 'active_plugins', array() ) : (array) $value;
+			$basenames = array_map( 'plugin_basename', $plugin_mains );
 			return array_values( array_unique( array_merge( $existing, $basenames ) ) );
 		}
 	);

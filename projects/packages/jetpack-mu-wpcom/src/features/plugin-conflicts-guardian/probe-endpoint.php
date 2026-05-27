@@ -102,15 +102,10 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	// Activation: load each plugin to exercise its load path. Update: skip;
-	// re-requiring an already-loaded plugin would fatal with
-	// "Cannot redeclare". The shutdown handler catches either way.
-	//
-	// Confirmation probes also skip the manual require: the
-	// `probe-confirm-bootstrap.php` early hook injected the candidates
-	// into `active_plugins`, so wp-settings.php has already loaded them
-	// via WP's normal flow — at real-activation timing. We just observe
-	// whether wp_loaded/admin_init fires cleanly.
+	// Activation: load each candidate. Update: skip (already loaded by
+	// WP's bootstrap; re-requiring would fatal). Confirmation probes
+	// also skip — the early hook injected them into active_plugins so
+	// wp-settings.php loaded them at real-activation timing.
 	$is_confirm = true === ( $payload['confirm'] ?? false );
 	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode && ! $is_confirm ) {
 		foreach ( $plugin_mains as $plugin_main ) {

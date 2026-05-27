@@ -117,14 +117,10 @@ class PCG_Load_Tester {
 			$verdict = $admin_result;
 		}
 
-		// Activation-mode captured fatal: re-probe via WP's normal active-
-		// plugin bootstrap to disambiguate "probe-only loading-order
-		// artifact" from "real fatal." A clean confirmation downgrades
-		// the verdict; a confirming fatal keeps it. Update mode never
-		// confirms — the candidate is already loaded by WP's bootstrap
-		// before the probe fires, so there's no different ordering to
-		// test against, and an update fatal MUST block to let
-		// `PCG_Rollback::to_snapshot()` fire.
+		// Activation-mode captured fatal: re-probe via WP's normal
+		// active-plugin bootstrap to confirm. Clean confirmation →
+		// downgrade. Update mode never confirms — fatals must block so
+		// `PCG_Rollback::to_snapshot()` can fire.
 		if ( null !== $verdict && self::MODE_ACTIVATION === $mode ) {
 			$confirmation = $this->confirm_via_normal_load( $plugin_mains );
 			if ( null !== $confirmation && ! $this->is_block( $confirmation ) ) {
@@ -150,15 +146,9 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Fire a confirmation probe pair with `pcg_confirm=1`. The probe
-	 * endpoint will skip its manual `require_once` because the early
-	 * bootstrap (`probe-confirm-bootstrap.php`) injected the candidates
-	 * into `active_plugins`, so WP's normal bootstrap has already loaded
-	 * them at real-activation timing.
-	 *
-	 * Returns null if the confirmation probe itself failed to round-trip
-	 * (transport exception, both responses unusable). The caller treats
-	 * that as "don't downgrade" — uncertainty keeps the original verdict.
+	 * Fire a confirmation probe pair with `pcg_confirm=1`. Returns null
+	 * on transport failure — the caller keeps the original verdict on
+	 * uncertainty.
 	 *
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
 	 * @return array|null Verdict (most-blocking of front/admin), or null on transport failure.
@@ -197,9 +187,8 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Build the downgraded verdict after a clean confirmation probe.
-	 * Preserves the original captured-fatal context so logstash can
-	 * still see which candidate triggered the downgrade.
+	 * Downgraded verdict after a clean confirmation. Preserves the
+	 * original captured-fatal context for log attribution.
 	 *
 	 * @param array $verdict      Original captured-fatal verdict.
 	 * @param array $confirmation Clean confirmation-probe verdict.
