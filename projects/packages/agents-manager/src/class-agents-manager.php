@@ -2,10 +2,10 @@
 /**
  * Agents manager
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-agents-manager
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
@@ -13,6 +13,13 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Class Agents_Manager
  */
 class Agents_Manager {
+	/**
+	 * The package version of the Agents Manager package.
+	 *
+	 * @var string
+	 */
+	public const PACKAGE_VERSION = '0.1.0';
+
 	/**
 	 * Help Center URL for disconnected variants.
 	 *
@@ -89,7 +96,7 @@ class Agents_Manager {
 			array(
 				'parent' => 'agents-manager-menu-panel-chat',
 				'id'     => 'agents-manager-chat-support',
-				'title'  => $this->get_icon( 'comment' ) . '<span>' . __( 'Chat support', 'jetpack-mu-wpcom' ) . '</span>',
+				'title'  => $this->get_icon( 'comment' ) . '<span>' . __( 'Chat support', 'jetpack-agents-manager' ) . '</span>',
 			)
 		);
 
@@ -98,7 +105,7 @@ class Agents_Manager {
 			array(
 				'parent' => 'agents-manager-menu-panel-chat',
 				'id'     => 'agents-manager-chat-history',
-				'title'  => $this->get_icon( 'backup' ) . '<span>' . __( 'Chat history', 'jetpack-mu-wpcom' ) . '</span>',
+				'title'  => $this->get_icon( 'backup' ) . '<span>' . __( 'Chat history', 'jetpack-agents-manager' ) . '</span>',
 			)
 		);
 
@@ -118,7 +125,7 @@ class Agents_Manager {
 			array(
 				'parent' => 'agents-manager-menu-panel-links',
 				'id'     => 'agents-manager-support-guides',
-				'title'  => $this->get_icon( 'page' ) . '<span>' . __( 'Support guides', 'jetpack-mu-wpcom' ) . '</span>',
+				'title'  => $this->get_icon( 'page' ) . '<span>' . __( 'Support guides', 'jetpack-agents-manager' ) . '</span>',
 			)
 		);
 
@@ -127,7 +134,7 @@ class Agents_Manager {
 			array(
 				'parent' => 'agents-manager-menu-panel-links',
 				'id'     => 'agents-manager-courses',
-				'title'  => $this->get_icon( 'video' ) . '<span>' . __( 'Courses', 'jetpack-mu-wpcom' ) . '</span>',
+				'title'  => $this->get_icon( 'video' ) . '<span>' . __( 'Courses', 'jetpack-agents-manager' ) . '</span>',
 				'href'   => 'https://wordpress.com/support/courses/',
 				'meta'   => array(
 					'target' => '_blank',
@@ -141,7 +148,7 @@ class Agents_Manager {
 			array(
 				'parent' => 'agents-manager-menu-panel-links',
 				'id'     => 'agents-manager-product-updates',
-				'title'  => $this->get_icon( 'rss' ) . '<span>' . __( 'Product updates', 'jetpack-mu-wpcom' ) . '</span>',
+				'title'  => $this->get_icon( 'rss' ) . '<span>' . __( 'Product updates', 'jetpack-agents-manager' ) . '</span>',
 				'href'   => 'https://wordpress.com/blog/category/product-features/',
 				'meta'   => array(
 					'target' => '_blank',
@@ -191,7 +198,7 @@ class Agents_Manager {
 
 					$menu_args = array(
 						'id'     => 'agents-manager',
-						'title'  => '<span title="' . __( 'Help Center', 'jetpack-mu-wpcom' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						'title'  => '<span title="' . __( 'Help Center', 'jetpack-agents-manager' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 										<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
 									</svg></span>',
 						'parent' => 'top-secondary',
@@ -854,5 +861,3 @@ class Agents_Manager {
 		);
 	}
 }
-
-add_action( 'init', array( __NAMESPACE__ . '\Agents_Manager', 'init' ) );

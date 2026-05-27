@@ -5,19 +5,20 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Agents_Manager;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/agents-manager/class-wp-rest-agents-manager-persisted-open-state.php';
+require_once __DIR__ . '/../../src/class-wp-rest-agents-manager-persisted-open-state.php';
 
 /**
  * Class WP_REST_Agents_Manager_Persisted_Open_State_Test
  *
  * @covers \A8C\FSE\WP_REST_Agents_Manager_Persisted_Open_State
+ * @covers \Automattic\Jetpack\Agents_Manager\WP_REST_Agents_Manager_Persisted_Open_State
  */
 #[CoversClass( WP_REST_Agents_Manager_Persisted_Open_State::class )]
+#[CoversClass( \A8C\FSE\WP_REST_Agents_Manager_Persisted_Open_State::class )]
 class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTestCase {
 
 	/**

@@ -5,22 +5,21 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/agents-manager/class-agents-manager.php';
+require_once __DIR__ . '/../../src/class-agents-manager.php';
 
 /**
  * Class Agents_Manager_Test
  *
- * @covers \A8C\FSE\Agents_Manager
+ * @covers \Automattic\Jetpack\Agents_Manager\Agents_Manager
  */
 #[CoversClass( Agents_Manager::class )]
 class Agents_Manager_Test extends \WorDBless\BaseTestCase {

@@ -2,6 +2,16 @@
 
 The Agents Manager provides REST API endpoints for managing AI agent-related state and preferences for WordPress.com users.
 
+This feature is loaded for WordPress.com-connected users via the `load_wpcom_user_features()` method in `Jetpack_Mu_Wpcom`.
+
+Otherwise, you can load it by installing the `@automattic/jetpack-agents-manager` Composer package and instantiate it by calling the `Agents_Manager::init()` method. Example:
+
+```php
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
+
+add_action( 'plugins_loaded', array( Agents_Manager::class, 'init' ) );
+```
+
 ## Features
 
 - Persisted open state management via REST API
@@ -49,30 +59,3 @@ All parameters are optional; only provided parameters will be updated.
 ## Router History Cleanup
 
 The Agents Manager automatically limits router history entries to 50 via the `calypso_preferences_update` filter. When the limit is exceeded, it keeps the last 49 entries and prepends a root entry to ensure the back button always works.
-
-## Development
-
-This feature is loaded for WordPress.com-connected users via the `load_wpcom_user_features()` method in `Jetpack_Mu_Wpcom`.
-
-To develop this feature, follow the standard [`jetpack-mu-wpcom` development process](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/jetpack-mu-wpcom/README.md).
-
-### How to develop the Help Center
-
-This currently gets loaded via the help-center Calypso app.
-
-#### In Calypso
-
-Follow the classic Calypso development setup. Run `yarn start` and edit away. Nothing else should be needed.
-
-#### In Simple sites
-
-0. Go to Calypso repository root.
-1. cd into `apps/help-center` (note: This currently gets loaded via `help-center`).
-2. run `yarn dev --sync`.
-3. Sandbox your site and `widgets.wp.com`.
-4. Your changes should be reflected on the site live.
-
-
-## Deployment
-
-After every change to the Agents Manager PHP files, deploy `jetpack-mu-wpcom`.

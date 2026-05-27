@@ -1,6 +1,6 @@
 # Agents Manager (Jetpack Backend)
 
-Backend for the Agents Manager in `jetpack-mu-wpcom`. Handles script enqueueing, feature gating, and UI state persistence.
+Backend for the Agents Manager in `jetpack-agents-manager`. Handles script enqueueing, feature gating, and UI state persistence.
 
 The frontend code lives in the Calypso repo (`packages/agents-manager/` and `apps/agents-manager/`). This feature only handles loading those bundles and backend concerns.
 
@@ -27,7 +27,3 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 - **Enqueue priority matters**: Scripts enqueue at priority 101 (after Help Center at 100) so the Agents Manager can dequeue Help Center. Changing priority breaks this.
 - **Feature gating is multi-layered**: `is_enabled()` checks CIAB, unified experience, and block editor filters in order. The first match wins. This is not a simple on/off.
 - **Router history cleanup**: The `calypso_preferences_update` filter silently limits history to 50 entries. If debugging missing history state, check this.
-
-## Development
-
-Follow the standard [`jetpack-mu-wpcom` development process](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/jetpack-mu-wpcom/README.md). For frontend-only changes, work in the Calypso repo instead.
