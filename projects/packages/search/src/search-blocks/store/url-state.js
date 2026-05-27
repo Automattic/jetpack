@@ -168,8 +168,11 @@ export function urlParamsToState(
 	const hasFilterConfigGate = filterConfigs && Object.keys( filterConfigs ).length > 0;
 
 	// `?post_type=<slug>` → static include-mode scope. Trimmed + lowercased to
-	// `[a-z0-9_-]` to mirror PHP `sanitize_key()` (no allowlist gate on the JS
-	// side — the server seed already applied the searchable-types allowlist).
+	// `[a-z0-9_-]` to mirror PHP `sanitize_key()`. No allowlist gate on the JS
+	// side — the server seed already applied the searchable-types allowlist for
+	// initial hydration. `handlePopState()` also calls this path; an unknown
+	// slug surviving from a hostile / typo'd URL produces an ES `term` clause
+	// that matches nothing (0 results), so the asymmetry isn't security-bearing.
 	const rawPostType = params.get( 'post_type' );
 	const normalizedPostType =
 		typeof rawPostType === 'string'

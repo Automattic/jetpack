@@ -221,12 +221,16 @@ class Filter_Post_Type_Test extends TestCase {
 
 	/**
 	 * Allowlist still applies — the URL is visitor-controllable, so a slug
-	 * that isn't searchable must drop rather than reach ES.
+	 * that isn't searchable must drop rather than reach ES. The gate is
+	 * `is_string`, so booleans / ints / arrays drop outright (a browser will
+	 * never send those, but a callsite mishandling `$_GET` could).
 	 */
-	public function test_from_url_param_drops_unknown_slugs() {
+	public function test_from_url_param_drops_non_string_or_unknown_input() {
 		$this->assertNull( Filter_Post_Type::from_url_param( 'not-a-post-type' ) );
 		$this->assertNull( Filter_Post_Type::from_url_param( '' ) );
 		$this->assertNull( Filter_Post_Type::from_url_param( array( 'product' ) ) );
 		$this->assertNull( Filter_Post_Type::from_url_param( null ) );
+		$this->assertNull( Filter_Post_Type::from_url_param( true ) );
+		$this->assertNull( Filter_Post_Type::from_url_param( 42 ) );
 	}
 }
