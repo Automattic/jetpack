@@ -1,14 +1,25 @@
 /**
  * Editor preview for jetpack-search/filters-popover.
  *
- * Two display modes share this block. `popover-always` (default) shows the trigger button
- * to signal the runtime collapse, but children still render inline so authors can edit them.
- * `responsive` renders children inline, mirroring the ≥992px front-end appearance; CSS swaps
- * in the trigger + popover below. Runtime visibility is class-driven.
+ * Two display modes share this block. In `popover-always` (default) the trigger button
+ * renders as a non-interactive preview of the front-end control, and a block-toolbar
+ * button toggles whether the panel is expanded in the canvas — so authors can edit the
+ * panel contents when expanded or the surrounding template parts when collapsed. The
+ * trigger itself stays inert because clicking it would select the block (and pop the
+ * settings sidebar) without giving the author a way to collapse the panel afterwards.
+ * `responsive` renders children inline, mirroring the ≥992px front-end appearance;
+ * runtime visibility on the front end stays class-driven by the Interactivity store.
  */
-import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import {
+	BlockControls,
+	InnerBlocks,
+	InspectorControls,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import { PanelBody, SelectControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { filter } from '@wordpress/icons';
 
 const TEMPLATE = [
 	[ 'jetpack-search/active-filters' ],
@@ -47,12 +58,36 @@ const DISPLAY_MODE_OPTIONS = [
 export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 	const displayMode = attributes?.displayMode === 'responsive' ? 'responsive' : 'popover-always';
 	const isResponsive = displayMode === 'responsive';
+	const [ isPopoverOpen, setIsPopoverOpen ] = useState( false );
 	const blockProps = useBlockProps( {
-		className: `jetpack-search-filters-popover is-mode-${ displayMode } is-editor-preview`,
+		className: [
+			'jetpack-search-filters-popover',
+			`is-mode-${ displayMode }`,
+			'is-editor-preview',
+			! isResponsive && isPopoverOpen && 'is-popover-open',
+		]
+			.filter( Boolean )
+			.join( ' ' ),
 	} );
 
 	return (
 		<>
+			{ ! isResponsive && (
+				<BlockControls>
+					<ToolbarGroup>
+						<ToolbarButton
+							icon={ filter }
+							label={
+								isPopoverOpen
+									? __( 'Hide filter panel', 'jetpack-search-pkg' )
+									: __( 'Show filter panel', 'jetpack-search-pkg' )
+							}
+							isPressed={ isPopoverOpen }
+							onClick={ () => setIsPopoverOpen( open => ! open ) }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+			) }
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
 					<SelectControl

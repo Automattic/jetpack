@@ -131,11 +131,12 @@ $jetpack-search-filters-popover-collapse: 992px;
 		}
 	}
 
-	// Editor preview always shows children inline regardless of `displayMode`
-	// so authors can edit them. The popover-always trigger button still
-	// renders to signal the runtime collapse, but the panel doesn't hide
-	// behind it in the canvas.
-	&.is-editor-preview &__panel {
+	// Editor preview renders the panel inline (no floating popover) so authors
+	// can edit it. `responsive` mode always shows it; `popover-always` shows it
+	// only when the trigger has been toggled open (mirrors the front-end
+	// `.is-popover-open` hook, but driven by editor-local React state).
+	&.is-mode-responsive.is-editor-preview &__panel,
+	&.is-mode-popover-always.is-editor-preview.is-popover-open &__panel {
 		position: static;
 		display: flex;
 		min-width: 0;
