@@ -97,6 +97,12 @@ export function builder( yargs ) {
 			default: 4,
 			description:
 				'How many `dump-autoload` actions to run in parallel. Build actions always run serially because they may have inter-project dependencies. Use 1 to force fully serial execution.',
+		} )
+		.option( 'seed', {
+			type: 'boolean',
+			default: false,
+			description:
+				'Stamp every project (or those named as positionals) at the current HEAD without running anything, so future runs have a baseline. Useful for first-time setup without doing a full `jetpack build`.',
 		} );
 }
 
@@ -336,6 +342,33 @@ async function runBuildScriptIfAny( slug, cwd, argv ) {
 }
 
 /**
+ * Stamp every target project at the current HEAD without running any work.
+ *
+ * Used by `--seed`. Writes the `build` stamp (which implies the `autoload`
+ * stamp), so future runs of fast-build will diff against the seeded SHA.
+ *
+ * @param {Set<string>} targets - Project slugs to seed.
+ * @param {string}      cwd     - Monorepo root.
+ */
+async function seedStamps( targets, cwd ) {
+	const sha = await currentHead( cwd );
+	const slugs = [ ...targets ].filter( s => s !== 'monorepo' ).sort();
+	if ( slugs.length === 0 ) {
+		console.log( chalk.yellow( 'No projects to seed.' ) );
+		return;
+	}
+	await Promise.all( slugs.map( slug => writeStamp( slug, sha, 'build', cwd ) ) );
+	console.log(
+		chalkJetpackGreen(
+			`Seeded ${ slugs.length } project(s) at ${ sha.substring(
+				0,
+				10
+			) }. Future fast-builds will diff from this SHA.`
+		)
+	);
+}
+
+/**
  * Convert a plan map to a topologically-ordered list of (slug, action) pairs.
  *
  * Reuses dependencyAnalysis.getBuildOrder for ordering so that a package builds
@@ -398,6 +431,11 @@ export async function handler( argv ) {
 		argv.project && argv.project.length ? new Set( argv.project ) : new Set( deps.keys() );
 	for ( const slug of skipSet ) {
 		targets.delete( slug );
+	}
+
+	if ( argv.seed ) {
+		await seedStamps( targets, cwd );
+		return;
 	}
 
 	// Signal 1 — log scan.
