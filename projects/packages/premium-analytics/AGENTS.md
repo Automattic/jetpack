@@ -181,8 +181,8 @@ know up front, so individual task issues don't re-explain the rationale.
 `import/no-unresolved` fires on the import (because `dist/index.css` is
 gitignored and not built during ESLint CI), and therefore that a
 disable directive was needed. The host dogfood for
-[RSM-3726](https://linear.app/a8c/issue/RSM-3726) (PR #50) falsified
-that premise: the rule never fires on this import.
+[RSM-3726](https://linear.app/a8c/issue/RSM-3726) falsified that
+premise: the rule never fires on this import.
 
 Why: the repo's import-resolver config
 (`tools/js-tools/eslintrc/base.mjs:251-266`) wires
@@ -199,8 +199,8 @@ comment on this import is genuinely *unused*. ESLint 9's default
 `linterOptions.reportUnusedDisableDirectives` reports unused disable
 directives as warnings, and pre-commit `lint-file --max-warnings=0
 --fix` autofixes them — the comment gets stripped on the initial
-commit AND on a directive-only follow-up commit (verified on PR #50
-where the follow-up landed empty). The relevant warning text from
+commit AND on a directive-only follow-up commit (verified on the
+RSM-3726 dogfood where the follow-up landed empty). The relevant warning text from
 `pnpm run lint-file` (full output reproduced in
 `docs/research/eslint-disable-line-discovery.md` → Round 6):
 

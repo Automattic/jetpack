@@ -119,9 +119,9 @@ The practical fix (inline `eslint-disable-line`) is unchanged; the
 spec just stopped making claims about lint internals it couldn't
 substantiate.
 
-## Round 5 — host dogfood (PR #49 / [RSM-3713](https://linear.app/a8c/issue/RSM-3713)) falsifies "inline is robust"
+## Round 5 — host dogfood ([RSM-3713](https://linear.app/a8c/issue/RSM-3713)) falsifies "inline is robust"
 
-The Phase 1 Linear-first restructure (PR #48) shipped an AGENTS.md
+The Phase 1 Linear-first restructure (an earlier dogfood iteration) shipped an AGENTS.md
 "ESLint patterns" section claiming the inline form persists because
 "the trailing-on-the-same-line form travels with the import token, so
 reordering doesn't separate them." The first dogfood task run under
@@ -155,15 +155,10 @@ git log --all -S 'eslint-disable-line import/no-unresolved' --oneline \
 ```
 
 …returned a single commit: `e60c87ea93` (the Round 5 follow-up above).
-No commit on `fork/add/premium-analytics-pie-chart` — the branch whose
-review cycle drove Rounds 1–4 — ever contained the inline directive
-in `stage.tsx`. Confirming directly with:
-
-```bash
-git show fork/add/premium-analytics-pie-chart:projects/packages/premium-analytics/routes/dashboard/stage.tsx
-```
-
-…shows the import is there, the directive is not.
+The pie-chart branch — the one whose review cycle drove Rounds 1–4 —
+never contained the inline directive in `stage.tsx` at any commit;
+direct inspection of the branch tip showed the import present, the
+directive absent.
 
 Implication: the Round 2 conclusion that "the inline form survived
 the pipeline" appears to have been a misread of the local working
@@ -172,7 +167,7 @@ Rounds 3–4's confident claims about *why* the inline form was robust
 were therefore built on a load-bearing observation that turned out
 to be wrong.
 
-## Round 6 — second host dogfood (PR #50 / [RSM-3726](https://linear.app/a8c/issue/RSM-3726)) falsifies "follow-up commit lets the comment through" and "the directive is needed at all"
+## Round 6 — second host dogfood ([RSM-3726](https://linear.app/a8c/issue/RSM-3726)) falsifies "follow-up commit lets the comment through" and "the directive is needed at all"
 
 The Round 5 update to AGENTS.md installed an operational rule: after
 `git commit`, run `git show HEAD -- <file>` and confirm the directive
@@ -296,9 +291,9 @@ the import bare:
 import '@automattic/charts/style.css';
 ```
 
-No post-commit verification step. No follow-up commit. The PR #50
-description and DoD verification comment record this finding inline;
-the AGENTS.md "ESLint patterns" section is updated to match.
+No post-commit verification step. No follow-up commit. The Round 6
+dogfood task's PR description and DoD verification comment record this
+finding inline; the AGENTS.md "ESLint patterns" section is updated to match.
 
 ### Lessons (revised)
 
@@ -311,9 +306,9 @@ The Round 5 lessons stand with one revision:
    directive as needed-but-fragile. Round 6 shows it was never needed.
    The load-bearing thing is *not having a disable directive at all*.
 3. (unchanged) **Multi-round Copilot review is genuinely useful**…
-4. **Dogfood-as-validation actually fires — repeatedly.** PR #49
-   (Round 5) falsified Round 4's mechanism. PR #50 (Round 6)
-   falsified Round 5's operational rule. The pattern is robust: each
+4. **Dogfood-as-validation actually fires — repeatedly.** Round 5
+   falsified Round 4's mechanism. Round 6 falsified Round 5's
+   operational rule. The pattern is robust: each
    dogfood catches the latest wrong-but-plausible claim.
 5. **Verify the premise, not just the workaround.** Rounds 1–5 all
    assumed `import/no-unresolved` fires on this import; nobody ran
