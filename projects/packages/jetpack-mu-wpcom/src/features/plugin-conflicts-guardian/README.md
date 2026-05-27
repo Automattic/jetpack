@@ -77,6 +77,16 @@ Two independent filters:
 
 Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a CLI binary (`open_basedir` + restricted exec). A separate HTTP request is isolated from the admin request: if the plugin fatals, the probe 500s but the parent sees JSON via the shutdown handler, and the admin page keeps rendering.
 
+## Percentage rollout
+
+`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **0%** — PCG is off everywhere until the operator opts in:
+
+```php
+add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
+```
+
+Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). The gate only narrows — emergency-override filters at priority > 100 on `pcg_guard_activation` / `pcg_guard_updates` can still re-enable or disable a blog.
+
 ## Limitations
 
 - Only catches errors hit while `require`-ing the main file and during `plugins_loaded` / `init` / `admin_init` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.
