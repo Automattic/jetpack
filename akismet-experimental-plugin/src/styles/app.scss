@@ -1,19 +1,75 @@
 // Page-shell styles for the experimental Akismet UI.
-// Modeled on Boost's boost-page.scss (jetpack-monorepo projects/plugins/boost/_inc/components/boost-page.scss).
+//
+// `@wordpress/admin-ui`'s <Page> and `@wordpress/ui`'s <Tabs> ship as CSS
+// Modules with hashed class names (e.g. `_19ce0419607e1896__stack`). The
+// HASH varies between builds but the SUFFIX after `__` is stable (it comes
+// from the source file's class name). We target via attribute selectors on
+// those suffixes: `[class*="__header-title"]`, `[class*="__tablist"]`, etc.
+//
+// If a future version of admin-ui renames a suffix, these rules will silently
+// stop matching — we'll catch that in manual QA and update.
 
 .akismet-experimental {
-	// Sticky header within the `<Page>` scroll container, matching the
-	// Backup / Scan / Activity-Log unified pattern.
-	.admin-ui-page__header {
-		position: sticky;
-		top: 0;
-		z-index: 1;
-		background: var(--wp-admin-theme-color-darker-10, #fff);
+	// Override the Page header h1: <Page> ships it at 15px / weight ~500.
+	// Standard wp-admin h1s (e.g. Settings → General) are 23px / 400.
+	h1[class*="__header-title"] {
+		font-size: 23px;
+		font-weight: 400;
+		line-height: 1.3;
 	}
 
-	// Body slot scrolls; header stays put.
-	.admin-ui-page__content {
-		padding: var(--wp-components-spacing-4, 16px);
+	// Tab row: align horizontally with the page-header padding and span the
+	// full page width so the bottom border reads as a separator. base-ui
+	// renders the tablist as a flex container that defaults to fit-content;
+	// force `width: 100%` + `justify-content: flex-start` so the border
+	// extends across the viewport while buttons stay natural-width on the
+	// left.
+	[class*="__tablist"] {
+		display: flex;
+		width: 100%;
+		justify-content: flex-start;
+		padding: 0 24px;
+		background: #fff;
+		border-bottom: 1px solid #e4e4e4;
+	}
+
+	// Tab buttons — bump to 14px and add comfortable vertical padding so the
+	// row isn't cramped against the page header above it. Selector scoped to
+	// `button` because `[class*="__tab"]` also matches `__tablist` (which
+	// contains the substring) — we don't want to repad the container.
+	// `flex: 0 0 auto` keeps each tab at its content width inside the
+	// `width: 100%` flex tablist; otherwise the buttons stretch to fill.
+	button[class*="__tab"] {
+		flex: 0 0 auto;
+		font-size: 14px;
+		line-height: 1.4;
+		padding: 12px 16px;
+		min-height: 48px;
+	}
+
+	// Active tab: surface the WP admin theme color so the underline indicator
+	// (which the base-ui Tabs render at 2px) reads as the selected state.
+	button[class*="__tab"][aria-selected="true"] {
+		color: var(--wp-admin-theme-color, #3858e9);
+		font-weight: 500;
+	}
+
+	[class*="__indicator"] {
+		// `!important` overrides the base-ui inline color (a neutral grey).
+		// Without it the indicator visually disappears against the hairline.
+		background-color: var(--wp-admin-theme-color, #3858e9) !important;
+		height: 2px;
+	}
+
+	// Tab panels: where our routes mount. Pad the body and constrain max width
+	// so settings forms / connect cards don't stretch across an ultrawide.
+	[role="tabpanel"] {
+		padding: 24px;
+
+		// All direct children inherit the cap so forms + cards line up.
+		> * {
+			max-width: 720px;
+		}
 	}
 
 	// Standard "preview data" badge used by category cards (Plan 2) and

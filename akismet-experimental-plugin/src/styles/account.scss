@@ -1,11 +1,60 @@
-.akismet-connect-choices {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: var(--wp-components-spacing-3, 12px);
-	margin-top: var(--wp-components-spacing-4, 16px);
-}
+// Account-tab styles. Scoped under `.akismet-experimental` so they don't
+// leak into other admin pages.
 
-.akismet-connect-back {
-	margin-top: var(--wp-components-spacing-3, 12px);
+.akismet-experimental {
+	// CardHeader from @wordpress/components ships at 13px / 400. The
+	// "Set up Akismet" / "Akismet account" / "Connect with Jetpack" header
+	// reads as body copy without a visual lift.
+	.components-card__header {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	// Tighten the card-body's lower padding when our connect-choices block
+	// is the last child — it already has its own margin-top.
+	.components-card__body {
+		padding-bottom: 24px;
+	}
+
+	.akismet-connect-choices {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--wp-components-spacing-3, 12px);
+		margin-top: var(--wp-components-spacing-4, 16px);
+	}
+
+	.akismet-connect-back {
+		margin-top: var(--wp-components-spacing-3, 12px);
+	}
+
+	// EnterKeyStep + the rest of the in-card forms: vertical stack with a
+	// consistent gap. The @wordpress/components TextControl ships with
+	// `__nextHasNoMarginBottom` so we own the spacing — without this rule
+	// the submit button bumps right up against the input.
+	.components-card__body form {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--wp-components-spacing-3, 12px);
+	}
+
+	// TextControl inside a flex column needs to fill the width — its label +
+	// input wrap in a flex item that defaults to content width.
+	.components-card__body form .components-base-control {
+		width: 100%;
+	}
+
+	// Settings tab: give the radio + toggle some breathing room from each other.
+	.akismet-settings {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wp-components-spacing-5, 24px);
+	}
+
+	// The masked-key paragraph in <AccountPanel> reads as small body copy —
+	// nudge to 14px so the masking dots render legibly.
+	.components-card__body p {
+		font-size: 14px;
+	}
 }
