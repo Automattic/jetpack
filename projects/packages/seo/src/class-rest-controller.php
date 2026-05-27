@@ -64,11 +64,13 @@ class REST_Controller {
 	public static function get_overview( WP_REST_Request $request ) {
 		unset( $request );
 
-		$modules          = new Modules();
+		$modules = new Modules();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$seo_enabled      = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		$seo_tools_active = $modules->is_active( 'seo-tools' );
 		$sitemaps_active  = (bool) get_option( 'jetpack_seo_sitemap_enabled', false );
-		$front_page_desc  = $seo_enabled ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Same as above; only invoked when class_exists.
+		$front_page_desc = $seo_enabled ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
 		return new WP_REST_Response(
 			array(

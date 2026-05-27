@@ -52,13 +52,8 @@ class Initializer {
 
 		Connection_Rest_Authentication::init();
 
-		LLMS_Txt::init();
-		AI_Crawlers::init();
-		Schema_Builder::init();
-
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ) );
-		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_legacy_surfaces' ) );
 
 		/**
 		 * Fires after the Jetpack SEO package is initialized.
@@ -200,6 +195,7 @@ class Initializer {
 	 */
 	private static function is_seo_enabled() {
 		if ( class_exists( 'Jetpack_SEO_Utils' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Class lives in plugins/jetpack and is guarded by class_exists.
 			return (bool) Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		}
 		return false;
@@ -212,29 +208,5 @@ class Initializer {
 	 */
 	public static function register_rest_endpoints() {
 		REST_Controller::register_routes();
-	}
-
-	/**
-	 * 301-redirect legacy SEO surfaces to the unified screen.
-	 *
-	 * The old routes are:
-	 *   - admin.php?page=jetpack#/traffic
-	 *   - admin.php?page=jetpack&tab=seo
-	 *
-	 * Only hash fragments arrive client-side, so the hash-based redirect
-	 * happens from a tiny script enqueued on the main Jetpack settings
-	 * page — the server-side path handles the ?tab= variant.
-	 *
-	 * @return void
-	 */
-	public static function maybe_redirect_legacy_surfaces() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : '';
-		if ( 'jetpack' === $page && in_array( $tab, array( 'seo', 'traffic' ), true ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=' . self::MENU_SLUG ), 301 );
-			exit;
-		}
 	}
 }
