@@ -29,7 +29,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
@@ -364,6 +364,33 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// always returns zero results. Hiding the control on those variations
 	// keeps authors from setting it by mistake.
 	const isTaxonomyFilter = attributes?.filterType === 'taxonomy';
+
+	// Default the label to the taxonomy's display name the first time we see
+	// a given custom-taxonomy slug with an empty label. The ref captures
+	// "this slug has already been labeled at least once" so a manual clear
+	// by the author is respected — only moving to a not-yet-seeded slug
+	// re-triggers the seed. Built-in variations don't pass this gate; they
+	// already get a hardcoded default via variationDefaultLabel().
+	const lastLabeledTaxonomyRef = useRef( null );
+	useEffect( () => {
+		if ( ! isCustomTaxonomy ) {
+			return;
+		}
+		if ( ! Array.isArray( taxonomies ) || ! taxonomy ) {
+			return;
+		}
+		if ( rawLabel ) {
+			lastLabeledTaxonomyRef.current = taxonomy;
+			return;
+		}
+		if ( lastLabeledTaxonomyRef.current === taxonomy ) {
+			return;
+		}
+		const match = taxonomies.find( t => t?.slug === taxonomy );
+		if ( match?.name ) {
+			setAttributes( { label: match.name } );
+		}
+	}, [ isCustomTaxonomy, taxonomies, taxonomy, rawLabel, setAttributes ] );
 
 	// Swapping the filter type via the inspector shouldn't wipe an author's
 	// custom label, but when the stored label still matches the prior
