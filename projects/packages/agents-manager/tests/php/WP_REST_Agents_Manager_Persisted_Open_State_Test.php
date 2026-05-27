@@ -14,11 +14,9 @@ require_once __DIR__ . '/../../src/class-wp-rest-agents-manager-persisted-open-s
 /**
  * Class WP_REST_Agents_Manager_Persisted_Open_State_Test
  *
- * @covers \A8C\FSE\WP_REST_Agents_Manager_Persisted_Open_State
  * @covers \Automattic\Jetpack\Agents_Manager\WP_REST_Agents_Manager_Persisted_Open_State
  */
-#[CoversClass( WP_REST_Agents_Manager_Persisted_Open_State::class )]
-#[CoversClass( \A8C\FSE\WP_REST_Agents_Manager_Persisted_Open_State::class )]
+#[CoversClass( \Automattic\Jetpack\Agents_Manager\WP_REST_Agents_Manager_Persisted_Open_State::class )]
 class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTestCase {
 
 	/**
