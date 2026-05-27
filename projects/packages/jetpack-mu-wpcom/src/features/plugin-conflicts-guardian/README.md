@@ -85,7 +85,7 @@ When the first probe captures a fatal in activation mode, the load tester fires 
 
 - Clean confirmation → downgrade to `ok-inconclusive`; log `Probe fatal downgraded after confirmation`.
 - Confirmation also fatals → keep the original verdict; block.
-- Confirmation transport error → keep the original verdict (uncertainty doesn't downgrade).
+- Confirmation transport error → downgrade as well — we've lost the ability to disambiguate, and keeping the block would re-introduce the false-positive class. CLI activation remains the recovery path.
 
 Update mode never confirms — the candidate is already loaded by WP's normal bootstrap before the probe fires, so there's no different ordering to test against, and a fatal MUST block to let `PCG_Rollback::to_snapshot()` fire.
 

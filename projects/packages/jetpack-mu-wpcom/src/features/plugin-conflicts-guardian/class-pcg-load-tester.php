@@ -118,13 +118,27 @@ class PCG_Load_Tester {
 		}
 
 		// Activation-mode captured fatal: re-probe via WP's normal
-		// active-plugin bootstrap to confirm. Clean confirmation →
-		// downgrade. Update mode never confirms — fatals must block so
-		// `PCG_Rollback::to_snapshot()` can fire.
+		// active-plugin bootstrap to confirm. Block only when the
+		// confirmation also captures a fatal. Clean confirmation OR
+		// confirmation transport failure → downgrade (we either have
+		// positive evidence the plugin loads cleanly, or we've lost
+		// the ability to disambiguate — keeping the block in the
+		// latter case would re-introduce the false positives the
+		// confirmation is meant to eliminate). Update mode never
+		// confirms — fatals must block so PCG_Rollback can fire.
 		if ( null !== $verdict ) {
 			if ( self::MODE_ACTIVATION === $mode ) {
 				$confirmation = $this->confirm_via_normal_load( $plugin_mains );
-				if ( null !== $confirmation && ! $this->is_block( $confirmation ) ) {
+				if ( null === $confirmation ) {
+					return $this->downgrade_after_confirmation(
+						$verdict,
+						array(
+							'status' => 'error',
+							'reason' => 'Confirmation probe transport failure; treating original fatal as inconclusive.',
+						)
+					);
+				}
+				if ( ! $this->is_block( $confirmation ) ) {
 					return $this->downgrade_after_confirmation( $verdict, $confirmation );
 				}
 			}
