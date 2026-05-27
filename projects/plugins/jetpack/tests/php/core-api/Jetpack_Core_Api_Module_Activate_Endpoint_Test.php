@@ -260,7 +260,10 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$request->set_body_params(
 			array(
 				'subscription_options' => array(
-					'subscribe_modal_heading' => '<script>alert(1)</script>Subscribe today',
+					// `<script>` is disallowed, but `wp_kses` only strips the
+					// tags — it keeps the text content. Use an empty-content
+					// `<iframe>` so the post-kses string is unambiguous.
+					'subscribe_modal_heading' => '<iframe src="evil"></iframe>Subscribe today',
 				),
 			)
 		);
@@ -269,7 +272,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertSame( 200, $result->get_status() );
 		$stored = get_option( 'subscription_options' );
-		$this->assertStringNotContainsString( '<script>', $stored['subscribe_modal_heading'] );
+		$this->assertStringNotContainsString( '<iframe', $stored['subscribe_modal_heading'] );
 		$this->assertSame( 'Subscribe today', $stored['subscribe_modal_heading'] );
 	}
 }
