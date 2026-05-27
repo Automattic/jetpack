@@ -1,8 +1,6 @@
-import { Button, ExternalLink } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
-import { NavLink } from 'react-router';
-import { JetpackSeoRoutes } from '../../constants';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
 import type { OverviewResponse } from '../../data/overview-types';
@@ -49,11 +47,6 @@ const SiteVisibilityCard: FC< Props > = ( { data } ) => {
 								: __( 'SEO tools inactive', 'jetpack-seo' )
 						}
 					/>
-				</div>
-				<div className={ styles.cardFooter }>
-					<Button variant="secondary" as={ NavLink } to={ JetpackSeoRoutes.Settings }>
-						{ __( 'Manage settings', 'jetpack-seo' ) }
-					</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>

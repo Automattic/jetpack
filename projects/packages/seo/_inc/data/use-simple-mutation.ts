@@ -33,11 +33,11 @@ const useSimpleMutation = < T = unknown, V = unknown >( {
 				...query,
 				data: ( variables ?? undefined ) as unknown as Record< string, unknown >,
 			} ),
-		onSuccess: ( data, variables, context ) => {
+		onSuccess: ( data, variables, onMutateResult, context ) => {
 			invalidates.forEach( key => {
 				queryClient.invalidateQueries( { queryKey: [ key ] } );
 			} );
-			options?.onSuccess?.( data, variables, context );
+			options?.onSuccess?.( data, variables, onMutateResult, context );
 		},
 		onError: options?.onError,
 	} );
