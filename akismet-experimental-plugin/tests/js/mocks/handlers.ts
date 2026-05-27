@@ -17,10 +17,48 @@ export type SettingsState = {
 	akismet_show_user_comments_approved: '0' | '1';
 };
 
+/**
+ * Overrides the mock store hands back to the fake apiClient when it serves
+ * `stats/{interval}` or `stats/timeseries`. Lets tests pick specific spam
+ * counts without rebuilding the whole fixture.
+ */
+export type StatsOverride = {
+	spam?: number;
+	ham?: number;
+	missed_spam?: number;
+	false_positives?: number;
+	preview?: boolean;
+};
+
+/**
+ * Same idea for Blackbox aggregates — tests want to assert on specific
+ * blocked/challenged/passed totals without recreating series fixtures.
+ */
+export type BlackboxAggregateOverride = {
+	blocked?: number;
+	challenged?: number;
+	passed?: number;
+	preview?: boolean;
+};
+
+/**
+ * And for WC fraud summaries.
+ */
+export type WooFraudOverride = {
+	orders_flagged?: number;
+	blocked_checkouts?: number;
+	estimated_chargebacks_averted_usd?: number;
+	wfp_active?: boolean;
+	preview?: boolean;
+};
+
 export type MockState = {
 	key: string;
 	keyValid: boolean;
 	settings: SettingsState;
+	stats: Partial< Record< string, StatsOverride > >; // keyed by interval
+	blackboxAggregates: Partial< Record< string, BlackboxAggregateOverride > >; // keyed by `${category}|${interval}`
+	wooFraud: Partial< Record< string, WooFraudOverride > >; // keyed by interval
 };
 
 const initialState = (): MockState => ( {
@@ -30,6 +68,9 @@ const initialState = (): MockState => ( {
 		akismet_strictness: '0',
 		akismet_show_user_comments_approved: '0',
 	},
+	stats: {},
+	blackboxAggregates: {},
+	wooFraud: {},
 } );
 
 let state: MockState = initialState();

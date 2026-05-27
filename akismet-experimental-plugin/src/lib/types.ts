@@ -40,3 +40,69 @@ export type StatsInterval = '30-days' | '60-days' | '6-months' | 'all';
  * `category` enum on `GET /akismet/v1/blackbox/aggregates`.
  */
 export type BlackboxCategory = 'logins' | 'bots' | 'brute-force' | 'forms';
+
+/**
+ * The `/akismet/v1/stats/{interval}` response (Comments totals).
+ *
+ * `preview: true` while served from the deterministic-mock branch in
+ * `Akismet_Experimental_REST_API`. Drops to `false` when the handler is
+ * later swapped for `Akismet::get_stats()` against a build that has the
+ * legacy plugin loaded.
+ */
+export type StatsTotals = {
+	interval: StatsInterval;
+	spam: number;
+	ham: number;
+	missed_spam: number;
+	false_positives: number;
+	accuracy: number;
+	time_saved: number;
+	preview: boolean;
+	generated_at: string;
+};
+
+/**
+ * The `/akismet/v1/stats/timeseries` response. Per-bucket spam/ham/etc.
+ * Shape matches the proposed contract in
+ * `akismet-modernization/endpoint-spec-stats-timeseries.md`.
+ */
+export type StatsTimeseries = {
+	interval: StatsInterval;
+	bucket: 'day' | 'week' | 'month';
+	series: Array< {
+		date: string;
+		spam: number;
+		ham: number;
+		missed_spam: number;
+		false_positives: number;
+	} >;
+	totals: {
+		spam: number;
+		ham: number;
+		missed_spam: number;
+		false_positives: number;
+		accuracy: number;
+		time_saved: number;
+	};
+	preview: boolean;
+	generated_at: string;
+};
+
+/**
+ * The `/akismet/v1/woocommerce/fraud-summary` response.
+ *
+ * Endpoint 400s with `woocommerce_inactive` when WC isn't installed; the
+ * front-end short-circuits via `isWooCommerceActive()` and never hits it
+ * in that case. When WFP (Woo Fraud Protection) is detected,
+ * `wfp_active: true` and `preview: false`.
+ */
+export type WooFraudSummary = {
+	interval: StatsInterval;
+	orders_flagged: number;
+	blocked_checkouts: number;
+	estimated_chargebacks_averted_usd: number;
+	top_signals: Array< { name: string; count: number } >;
+	wfp_active: boolean;
+	preview: boolean;
+	generated_at: string;
+};
