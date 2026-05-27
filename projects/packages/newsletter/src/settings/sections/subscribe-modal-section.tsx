@@ -74,6 +74,7 @@ export function SubscribeModalSection( {
 			label: __( 'Subscribe modal heading', 'jetpack-newsletter' ),
 			type: 'text' as const,
 			Edit: 'textarea' as const,
+			placeholder: __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack-newsletter' ),
 			description: __(
 				'Only affects Subscribe blocks using the "Button only" style. Leave blank to use the default heading.',
 				'jetpack-newsletter'

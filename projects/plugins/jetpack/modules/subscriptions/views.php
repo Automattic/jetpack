@@ -1121,7 +1121,14 @@ function jetpack_sanitize_subscription_options( $value ) {
 	);
 
 	foreach ( $filtered as $key => $val ) {
-		$filtered[ $key ] = wp_kses( (string) $val, $allowed_html );
+		$sanitized = wp_kses( (string) $val, $allowed_html );
+		if ( 'subscribe_modal_heading' === $key ) {
+			// Normalize whitespace-only input to empty so the modal template's
+			// `empty()` fallback fires. PHP's `empty()` treats `"   "` as
+			// non-empty, which would otherwise render a blank heading.
+			$sanitized = trim( $sanitized );
+		}
+		$filtered[ $key ] = $sanitized;
 	}
 
 	return array_merge( $existing, $filtered );
