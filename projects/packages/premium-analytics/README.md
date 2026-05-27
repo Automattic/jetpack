@@ -92,7 +92,8 @@ To import one from a route/another package, the build also needs it symlinked in
 `node_modules` under that specifier. Name the package
 `@automattic/jetpack-premium-analytics-<dir>` (a bare `@jetpack-premium-analytics/*`
 name fails the repo name lint and `_@…` is invalid to pnpm), then add a `link:`
-dep on the top-level `package.json` (routes aren't workspace members):
+dep in this package's `projects/packages/premium-analytics/package.json`
+(not the repo root `package.json`; routes aren't workspace members):
 
 ```jsonc
 "dependencies": { "@jetpack-premium-analytics/<dir>": "link:packages/<dir>" }
