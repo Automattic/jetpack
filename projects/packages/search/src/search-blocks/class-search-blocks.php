@@ -1411,16 +1411,49 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Pull the filters column up by the outer-group `blockGap` so its left
- * border meets the search-input hairline; matching `padding-top` keeps the
- * sidebar's visible content aligned with the results column. The 1.5rem
- * literal mirrors the `spacing.blockGap` set on the outer `wp:group` in
- * every template under `templates/` — if that gap changes, this must too.
- * Scoped to >= 992px because below that the sidebar is `display: none`. */
+/* Visually join the sidebar's left divider to the search-input hairline.
+ * Two cooperating rules, both scoped to >= 992px (below that, the sidebar
+ * is `display: none`):
+ *
+ * 1. Force the columns row to top-align — the block-layout default
+ *    (`.is-layout-flex { align-items: center }`) vertically centers the
+ *    shorter filters column inside the taller results column, dropping
+ *    the sidebar's top edge well below the columns-row top. Top-aligning
+ *    pins it back to the row's top so the border-left starts at a
+ *    predictable y, alongside the results column.
+ *
+ * 2. Bridge the outer-group `blockGap` with a 1px `::before` extending
+ *    upward from the column's top edge to (just past) the hairline. The
+ *    1.5rem height matches the `spacing.blockGap` declared on the outer
+ *    `wp:group` in every template under `templates/`; on themes whose
+ *    block-layout system swallows the per-container override and falls
+ *    back to a smaller `--wp--style--block-gap` (e.g. TT5's 1.2rem), the
+ *    extra ~0.3rem overshoots into the search-input's vertical padding
+ *    — invisible against the hairline-colored padding area.
+ *
+ * The `:has()` selector caps the alignment override to columns rows that
+ * actually contain our filter sidebar, so unrelated `wp:columns` blocks
+ * elsewhere in the template are unaffected. */
 @media (min-width: 992px) {
+	.wp-block-columns:has(> .jetpack-search-layout__filters-column) {
+		align-items: flex-start;
+	}
 	.jetpack-search-layout__filters-column {
-		margin-top: -1.5rem;
-		padding-top: 1.5rem;
+		position: relative;
+	}
+	.jetpack-search-layout__filters-column::before {
+		content: "";
+		position: absolute;
+		left: -1px;
+		bottom: 100%;
+		width: 1px;
+		height: 1.5rem;
+		background-color: transparent;
+	}
+	@supports (background-color: color-mix(in sRGB, black 50%, white)) {
+		.jetpack-search-layout__filters-column::before {
+			background-color: color-mix(in sRGB, currentColor 15%, transparent);
+		}
 	}
 }
 CSS;
