@@ -266,19 +266,24 @@ class Initial_State {
 	 * Build the classic-theme product-search-template editor config exposed
 	 * to the dashboard. Counterpart of `get_search_template_config()` for the
 	 * WooCommerce product shim — same `{enabled, editorUrl, postType, isCustomized}`
-	 * shape. `enabled` requires the override option on as well (the shim
-	 * itself is a no-op without it), so the WC card only lights up as
-	 * "active" when the front-end render path is actually wired.
+	 * shape. `enabled` adds the override-on check on top of the Embedded +
+	 * classic gate — it signals "the front-end render path is actually
+	 * wired", distinct from "the override toggle is on" in
+	 * `jetpackSettings.override_woocommerce_search_template`. `$can_edit`
+	 * mirrors the Embedded gate too: `Product_Search_Template::init()` (in
+	 * `Search_Blocks::init()`) only registers `maybe_handle_editor_request`
+	 * on Embedded + classic, so exposing the editor URL on, say, classic +
+	 * Inline would produce a link that silently does nothing when clicked.
 	 *
 	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
 	 */
 	protected function get_product_search_template_config(): array {
-		$is_classic = ! wp_is_block_theme();
+		$is_classic          = ! wp_is_block_theme();
+		$is_classic_embedded = $is_classic
+			&& Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience();
 		return $this->build_singleton_template_config(
-			$is_classic
-				&& Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience()
-				&& Search_Blocks::woocommerce_search_template_override_enabled(),
-			$is_classic && current_user_can( 'manage_options' ),
+			$is_classic_embedded && Search_Blocks::woocommerce_search_template_override_enabled(),
+			$is_classic_embedded && current_user_can( 'manage_options' ),
 			Product_Search_Template::class
 		);
 	}

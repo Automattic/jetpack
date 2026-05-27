@@ -283,6 +283,54 @@ describe( 'DashboardPage', () => {
 		expect( mockWooCommerceProductSearchControl ).not.toHaveBeenCalled();
 	} );
 
+	test( 'routes editTemplateUrl through the Site Editor on block themes', () => {
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'embedded' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isBlockTheme' ).mockImplementation( () => true );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				editTemplateUrl: expect.stringContaining( 'site-editor.php' ),
+			} )
+		);
+	} );
+
+	test( 'routes editTemplateUrl through the singleton CPT on classic themes', () => {
+		// Regression guard for SEARCH-259's classic-theme fix: a classic
+		// theme has no Site Editor, so the Site Editor URL is a dead link.
+		// `dashboard-page.jsx` branches on `isBlockTheme` and routes to
+		// `Product_Search_Template`'s CPT editor URL instead.
+		const cptEditorUrl =
+			'https://example.com/wp-admin/admin.php?page=jetpack-search&jetpack_search_open_product_template_editor=1&_wpnonce=ABC';
+		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'getActiveExperience' ).mockImplementation( () => 'embedded' );
+		jest
+			.spyOn( mockSelectMethods, 'isWooCommerceSearchTemplateOverrideEnabled' )
+			.mockImplementation( () => true );
+		jest.spyOn( mockSelectMethods, 'isBlockTheme' ).mockImplementation( () => false );
+		jest.spyOn( mockSelectMethods, 'getProductSearchTemplateConfig' ).mockImplementation( () => ( {
+			enabled: true,
+			editorUrl: cptEditorUrl,
+			postType: 'jp_product_search',
+			isCustomized: false,
+		} ) );
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		expect( mockWooCommerceProductSearchControl ).toHaveBeenCalledWith(
+			expect.objectContaining( { editTemplateUrl: cptEditorUrl } )
+		);
+	} );
+
 	test( 'hides WooCommerceProductSearchControl under the Overlay experience (moot — instant search intercepts)', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 		jest.spyOn( mockSelectMethods, 'isWooCommerceActive' ).mockImplementation( () => true );
