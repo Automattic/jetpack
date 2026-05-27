@@ -54,10 +54,20 @@ foreach ( $seeded_active as $values ) {
 if ( ! $has_any_active && is_array( $seeded_price ) ) {
 	$has_any_active = ( $seeded_price['min'] ?? null ) !== null || ( $seeded_price['max'] ?? null ) !== null;
 }
+
+// Skip `data-wp-interactive` when an ancestor already owns the
+// `jetpack-search` interactive scope (e.g. when nested in `filters-popover`).
+// Same defensive pattern as `active-filters` / `filter-checkbox` — see
+// SEARCH-266. Today `clear-filters` has no `data-wp-each` so the nested-scope
+// double-materialization trigger doesn't apply, but skipping the redundant
+// scope declaration keeps the door closed if a future change adds one. The
+// `instanceof` check narrows `$block`'s type for static analysis.
+$in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
+	&& ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-clear-filters' ) ) ); ?>
-	data-wp-interactive="jetpack-search"
+	<?php echo $in_interactive_scope ? '' : 'data-wp-interactive="jetpack-search"'; ?>
 	<?php
 	if ( $hide_when_inactive ) :
 		?>
