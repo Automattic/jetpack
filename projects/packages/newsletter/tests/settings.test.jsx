@@ -49,6 +49,7 @@ jest.mock( '../src/settings/sections', () => ( {
 	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
 	NewsletterSection: () => <div data-testid="newsletter-section" />,
 	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
+	SubscribeModalSection: () => <div data-testid="subscribe-modal-section" />,
 	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
 	WelcomeEmailSection: () => <div data-testid="welcome-email-section" />,
 } ) );
