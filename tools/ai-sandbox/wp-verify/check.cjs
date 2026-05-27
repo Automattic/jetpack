@@ -14,7 +14,11 @@ const { chromium } = require( 'playwright' );
 ( async () => {
 	const WP_BASE = process.env.WP_BASE || 'http://wordpress';
 	const ANALYTICS_URL = `${ WP_BASE }/wp-admin/admin.php?page=jetpack-premium-analytics`;
-	const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR || '/tmp/pa-verify';
+	// Honour PA_VERIFY_ARTIFACT_DIR (used by the Playwright runner + docs) first
+	// so artifacts land in the same directory regardless of which runner is
+	// invoked; SCREENSHOT_DIR is kept as a legacy alias for older skill invocations.
+	const SCREENSHOT_DIR =
+		process.env.PA_VERIFY_ARTIFACT_DIR || process.env.SCREENSHOT_DIR || '/tmp/pa-verify';
 	const SCREENSHOT_PATH = path.join( SCREENSHOT_DIR, 'analytics-dashboard.png' );
 
 	fs.mkdirSync( SCREENSHOT_DIR, { recursive: true } );

@@ -68,6 +68,17 @@ fi
 # would default to managing the *unsuffixed* `ai-sandbox` project, stopping
 # the wrong stack.
 if [ -f /.dockerenv ]; then
+  # wp-verify.sh needs the host Docker socket to orchestrate WP services from
+  # inside the sandbox and to discover the current container's compose project
+  # label below. Validate the socket up front so callers see an actionable
+  # error instead of a downstream "could not read compose project label..."
+  # which is a symptom, not the cause.
+  if [ ! -S /var/run/docker.sock ] || ! docker info >/dev/null 2>&1; then
+    echo "Error: Docker socket at /var/run/docker.sock is missing or not usable from inside this container." >&2
+    echo "       wp-verify.sh needs it to manage the WP stack from the sandbox." >&2
+    echo "       Either re-run from the host, or ensure the sandbox was started with docker-compose.wp-verify.yml's socket mount active." >&2
+    exit 1
+  fi
   CURRENT_PROJECT=$(docker inspect "$HOSTNAME" \
     --format '{{index .Config.Labels "com.docker.compose.project"}}' 2>/dev/null || true)
   if [ -z "$CURRENT_PROJECT" ]; then
