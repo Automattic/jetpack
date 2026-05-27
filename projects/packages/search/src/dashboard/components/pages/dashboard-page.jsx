@@ -202,13 +202,26 @@ export default function DashboardPage( { isLoading = false } ) {
 	const showWooCommerceProductSearchControl =
 		isWooCommerceActive &&
 		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
-	// Site Editor identifies plugin templates as `<stylesheet>//<slug>`;
-	// fall back to the Templates list when the stylesheet is unavailable.
-	const wooProductSearchEditUrl = activeThemeStylesheet
-		? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-				activeThemeStylesheet
-		  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
-		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	// Block themes get the Site Editor entry (templates resolve as
+	// `<stylesheet>//<slug>`); classic themes don't have a Site Editor at
+	// all, so route to the `Product_Search_Template` singleton-CPT editor
+	// instead. The CPT URL is nonce'd by PHP and is `null` for any visitor
+	// without `manage_options` — keep the WC control's existing
+	// `editTemplateUrl && …` guard so the link hides cleanly in that case.
+	const isBlockTheme = useSelect( select => select( STORE_ID ).isBlockTheme() );
+	const productSearchTemplate = useSelect( select =>
+		select( STORE_ID ).getProductSearchTemplateConfig()
+	);
+	let wooProductSearchEditUrl;
+	if ( isBlockTheme ) {
+		wooProductSearchEditUrl = activeThemeStylesheet
+			? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+					activeThemeStylesheet
+			  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+			: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	} else {
+		wooProductSearchEditUrl = productSearchTemplate.editorUrl;
+	}
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
 		! supportsSearch ||

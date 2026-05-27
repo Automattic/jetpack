@@ -115,6 +115,14 @@ class Initial_State {
 				 * shape and same React link as `blockTemplateOverlay`.
 				 */
 				'searchTemplate'             => $this->get_search_template_config(),
+				/**
+				 * Same as `searchTemplate` but for the WooCommerce product
+				 * search shim — the `WooCommerceProductSearchControl`
+				 * surfaces this on classic themes so the "Edit the product
+				 * search template" link routes to `post.php` on the hidden
+				 * CPT instead of a useless Site Editor URL.
+				 */
+				'productSearchTemplate'      => $this->get_product_search_template_config(),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
@@ -251,6 +259,32 @@ class Initial_State {
 			$is_classic && Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience(),
 			$is_classic && current_user_can( 'manage_options' ),
 			Search_Template::class
+		);
+	}
+
+	/**
+	 * Build the classic-theme product-search-template editor config exposed
+	 * to the dashboard. Counterpart of `get_search_template_config()` for the
+	 * WooCommerce product shim — same `{enabled, editorUrl, postType, isCustomized}`
+	 * shape. `enabled` adds the override-on check on top of the Embedded +
+	 * classic gate — it signals "the front-end render path is actually
+	 * wired", distinct from "the override toggle is on" in
+	 * `jetpackSettings.override_woocommerce_search_template`. `$can_edit`
+	 * mirrors the Embedded gate too: `Product_Search_Template::init()` (in
+	 * `Search_Blocks::init()`) only registers `maybe_handle_editor_request`
+	 * on Embedded + classic, so exposing the editor URL on, say, classic +
+	 * Inline would produce a link that silently does nothing when clicked.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
+	 */
+	protected function get_product_search_template_config(): array {
+		$is_classic          = ! wp_is_block_theme();
+		$is_classic_embedded = $is_classic
+			&& Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience();
+		return $this->build_singleton_template_config(
+			$is_classic_embedded && Search_Blocks::woocommerce_search_template_override_enabled(),
+			$is_classic_embedded && current_user_can( 'manage_options' ),
+			Product_Search_Template::class
 		);
 	}
 
