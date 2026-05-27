@@ -115,6 +115,14 @@ class Initial_State {
 				 * shape and same React link as `blockTemplateOverlay`.
 				 */
 				'searchTemplate'             => $this->get_search_template_config(),
+				/**
+				 * Same as `searchTemplate` but for the WooCommerce product
+				 * search shim — the `WooCommerceProductSearchControl`
+				 * surfaces this on classic themes so the "Edit the product
+				 * search template" link routes to `post.php` on the hidden
+				 * CPT instead of a useless Site Editor URL.
+				 */
+				'productSearchTemplate'      => $this->get_product_search_template_config(),
 				// Gates the WooCommerce Product Search control to stores.
 				'isWooCommerceActive'        => Search_Blocks::woocommerce_blocks_enabled(),
 				/**
@@ -251,6 +259,27 @@ class Initial_State {
 			$is_classic && Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience(),
 			$is_classic && current_user_can( 'manage_options' ),
 			Search_Template::class
+		);
+	}
+
+	/**
+	 * Build the classic-theme product-search-template editor config exposed
+	 * to the dashboard. Counterpart of `get_search_template_config()` for the
+	 * WooCommerce product shim — same `{enabled, editorUrl, postType, isCustomized}`
+	 * shape. `enabled` requires the override option on as well (the shim
+	 * itself is a no-op without it), so the WC card only lights up as
+	 * "active" when the front-end render path is actually wired.
+	 *
+	 * @return array{enabled: bool, editorUrl: string|null, postType: string|null, isCustomized: bool}
+	 */
+	protected function get_product_search_template_config(): array {
+		$is_classic = ! wp_is_block_theme();
+		return $this->build_singleton_template_config(
+			$is_classic
+				&& Module_Control::EXPERIENCE_EMBEDDED === $this->module_control->get_experience()
+				&& Search_Blocks::woocommerce_search_template_override_enabled(),
+			$is_classic && current_user_can( 'manage_options' ),
+			Product_Search_Template::class
 		);
 	}
 

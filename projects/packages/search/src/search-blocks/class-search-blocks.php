@@ -158,9 +158,15 @@ class Search_Blocks {
 				// dependent. Higher priorities (anything > 20 used by chrome
 				// filters) aren't relevant — nothing else swaps the path.
 				add_filter( 'template_include', array( static::class, 'route_classic_theme_search_template' ), 20 );
-				// No Site Editor entry on classic themes; the `Search_Template` singleton
-				// CPT gives authors the standard block editor on a hidden post instead.
+				// No Site Editor entry on classic themes; the singleton CPTs give
+				// authors the standard block editor on hidden posts instead. Both
+				// init regardless of the WooCommerce override option so admins can
+				// pre-customize either template before activating the relevant
+				// surface — matching `Search_Template`'s "expose URLs before
+				// activation" rule. The override option still gates the actual
+				// front-end render path in `route_classic_theme_search_template()`.
 				Search_Template::init();
+				Product_Search_Template::init();
 			}
 		}
 
@@ -180,13 +186,6 @@ class Search_Blocks {
 		) {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
-			// Classic-theme product-search counterpart of `Search_Template::init()` —
-			// no Site Editor entry, so the singleton CPT gives authors the standard
-			// block editor on a hidden post. Block themes use the FSE Site Editor
-			// against `register_product_search_template()` instead.
-			if ( Module_Control::EXPERIENCE_EMBEDDED === $experience && ! static::block_templates_active() ) {
-				Product_Search_Template::init();
-			}
 		}
 
 		// Two-tier gate: register the editable template CPT + admin-init editor

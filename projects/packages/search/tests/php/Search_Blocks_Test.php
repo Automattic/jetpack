@@ -946,19 +946,22 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The classic-theme product-search singleton CPT is only meaningful when
-	 * the override is on AND the experience is Embedded AND the theme is
-	 * classic — the same gates that route product searches into our shim.
-	 * `init()` must call `Product_Search_Template::init()` in that exact slice
-	 * of the matrix and nowhere else, so the hidden CPT + before-delete cleanup
-	 * don't get registered on sites that wouldn't reach the editor anyway.
+	 * The classic-theme product-search singleton CPT lifecycle wires up on
+	 * Embedded + classic, regardless of the WooCommerce override option —
+	 * mirroring `Search_Template`'s "expose URLs before activation" rule so
+	 * admins can pre-customize the product template before flipping the
+	 * override on. The override still gates the front-end render path in
+	 * `route_classic_theme_search_template()`; it just doesn't gate the
+	 * editor surface. Block themes and non-Embedded experiences must not
+	 * wire the CPT — block themes get the Site Editor, and Inline doesn't
+	 * use the classic shim at all.
 	 *
 	 * Asserts via the `before_delete_post` hook the parent
 	 * `Singleton_Template_Cpt::init()` registers — `register_post_type` is
 	 * idempotent and `admin_init` may not be reachable without `is_admin()`,
 	 * so before-delete is the cleanest lifecycle signal to probe.
 	 */
-	public function test_init_registers_product_search_template_cpt_only_when_embedded_classic_override_on() {
+	public function test_init_registers_product_search_template_cpt_on_embedded_classic() {
 		try {
 			$cb = array( Product_Search_Template::class, 'maybe_cleanup_on_singleton_delete' );
 
@@ -974,16 +977,16 @@ class Search_Blocks_Test extends TestCase {
 				'Product_Search_Template::init() must wire before_delete_post on Embedded + classic + override on'
 			);
 
-			// Embedded + classic + override OFF → no CPT lifecycle (override is what gates it).
+			// Embedded + classic + override OFF → still wired (pre-customization affordance).
 			$this->reset_search_blocks_hooks();
 			$this->set_module_active( true );
 			Search_Blocks::set_block_templates_active_for_testing( false );
 			update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 			delete_option( 'jetpack_search_override_woocommerce_search_template' );
 			Search_Blocks::init();
-			$this->assertFalse(
+			$this->assertNotFalse(
 				has_action( 'before_delete_post', $cb ),
-				'Product_Search_Template::init() must not wire when the override is off'
+				'Product_Search_Template::init() must wire on Embedded + classic even with the override off (pre-customization)'
 			);
 
 			// Embedded + BLOCK theme + override on → no CPT lifecycle (block themes use the Site Editor).
