@@ -83,10 +83,13 @@ $jetpack-search-filters-popover-collapse: 992px;
 		flex-direction: column;
 		gap: 1rem;
 		padding: 12px;
-		background: var(--wp--preset--color--base);
-		// The panel owns its surface, so don't inherit a low-contrast body
-		// accent color from the surrounding page.
-		color: var(--wp--preset--color--contrast);
+		// `background-color` (longhand) + the same fallback chain the overlay
+		// card and suggestions panel use (class-search-blocks.php). The
+		// shorthand `background:` collapses to `transparent` on themes that
+		// don't define `--wp--preset--color--base` (classic themes, block
+		// themes without the token), letting result-card content bleed through.
+		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
+		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
 		// Reset the inherited theme base size so popover body text tracks the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. Rem-based children (filter title, count pill)
