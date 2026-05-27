@@ -1073,6 +1073,61 @@ function subscription_options_fallback( $default, $option, $passed_default ) {
 add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );
 
 /**
+ * Sanitize a `subscription_options` value written through the core Settings REST API
+ * (`/wp/v2/settings`).
+ *
+ * Mirrors the behaviour of the equivalent inline handlers in `Jetpack_Core_API_Data`
+ * and the WPCOM v1.4 site settings endpoint so the option is sanitized consistently
+ * regardless of which endpoint the write came through:
+ *
+ *  - keys outside the known allowlist are dropped,
+ *  - leaf values are passed through `wp_kses` with the same allowed tags the Jetpack
+ *    `/jetpack/v4/settings` endpoint already uses for these messages,
+ *  - the result is merged with the existing option so writes that only include a
+ *    subset of sub-keys do not clobber siblings.
+ *
+ * @param mixed $value Raw value from the REST request, after JSON schema validation.
+ * @return array Sanitized option value to be persisted.
+ */
+function jetpack_sanitize_subscription_options( $value ) {
+	$existing = get_option( 'subscription_options' );
+	if ( ! is_array( $existing ) ) {
+		$existing = array();
+	}
+
+	if ( ! is_array( $value ) ) {
+		return $existing;
+	}
+
+	$allowed_keys = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading' );
+	$filtered     = array_filter(
+		$value,
+		function ( $key ) use ( $allowed_keys ) {
+			return in_array( $key, $allowed_keys, true );
+		},
+		ARRAY_FILTER_USE_KEY
+	);
+
+	$allowed_html = array(
+		'ul'     => array(),
+		'li'     => array(),
+		'p'      => array(),
+		'strong' => array(),
+		'ol'     => array(),
+		'em'     => array(),
+		'a'      => array(
+			'href' => array(),
+		),
+	);
+
+	foreach ( $filtered as $key => $val ) {
+		$filtered[ $key ] = wp_kses( (string) $val, $allowed_html );
+	}
+
+	return array_merge( $existing, $filtered );
+}
+
+/**
  * Register `subscription_options` with the core Settings REST API so it is exposed
  * on `/wp/v2/settings`. This allows the Subscriptions block editor inspector to read
  * and write the option through Gutenberg's site entity store (`useEntityProp`).
@@ -1087,22 +1142,22 @@ function register_subscription_options_setting() {
 		'general',
 		'subscription_options',
 		array(
-			'type'         => 'object',
-			'description'  => __( 'Subscription email and Subscribe block modal copy.', 'jetpack' ),
-			'show_in_rest' => array(
+			'type'              => 'object',
+			'description'       => __( 'Subscription email and Subscribe block modal copy.', 'jetpack' ),
+			'sanitize_callback' => 'jetpack_sanitize_subscription_options',
+			'show_in_rest'      => array(
 				'schema' => array(
-					'type'                 => 'object',
+					'type'       => 'object',
 					// Used as the user-facing label in the editor's "entities saved states"
 					// panel (the multi-entity save dialog). Plural because everything in
 					// `subscription_options` is a subscription-related message string.
-					'title'                => __( 'Subscribe messages', 'jetpack' ),
-					'properties'           => array(
+					'title'      => __( 'Subscribe messages', 'jetpack' ),
+					'properties' => array(
 						'invitation'              => array( 'type' => 'string' ),
 						'welcome'                 => array( 'type' => 'string' ),
 						'comment_follow'          => array( 'type' => 'string' ),
 						'subscribe_modal_heading' => array( 'type' => 'string' ),
 					),
-					'additionalProperties' => false,
 				),
 			),
 		)
