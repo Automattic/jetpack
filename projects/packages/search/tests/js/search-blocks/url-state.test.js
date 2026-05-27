@@ -472,68 +472,49 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 	} );
 } );
 
-describe( 'staticPostTypes URL round-trip (`?post_type=<slug>`)', () => {
-	it( 'stateToUrlParams emits ?post_type=<slug> for a single-slug include scope', () => {
-		const params = stateToUrlParams( {
-			searchQuery: '',
-			sortOrder: 'relevance',
-			staticPostTypes: { include: [ 'product' ], exclude: [] },
-		} );
-		expect( params.get( 'post_type' ) ).toBe( 'product' );
-	} );
+describe( '?post_type=<slug> singular alias for ?post_types[]=<slug>', () => {
+	// WP/WC's product-search URL uses `?post_type=product` (scalar). The store
+	// reads that as if it were `?post_types[]=product` so deep links from those
+	// flows populate the `filter-checkbox{filterType:"post_type"}` facet when
+	// it's registered. Multi-value selections still use the array form.
+	const postTypeConfig = { filterType: 'post_type' };
 
-	it( 'stateToUrlParams omits post_type for multi-slug include — only single-slug round-trips', () => {
-		const params = stateToUrlParams( {
-			searchQuery: '',
-			sortOrder: 'relevance',
-			staticPostTypes: { include: [ 'product', 'post' ], exclude: [] },
-		} );
-		expect( params.has( 'post_type' ) ).toBe( false );
-	} );
-
-	it( 'stateToUrlParams omits post_type for exclude-mode scope', () => {
-		const params = stateToUrlParams( {
-			searchQuery: '',
-			sortOrder: 'relevance',
-			staticPostTypes: { include: [], exclude: [ 'page' ] },
-		} );
-		expect( params.has( 'post_type' ) ).toBe( false );
-	} );
-
-	it( 'stateToUrlParams omits post_type when scope is null or empty', () => {
-		expect( stateToUrlParams( { searchQuery: '' } ).has( 'post_type' ) ).toBe( false );
-		expect(
-			stateToUrlParams( {
-				searchQuery: '',
-				staticPostTypes: { include: [], exclude: [] },
-			} ).has( 'post_type' )
-		).toBe( false );
-	} );
-
-	it( 'urlParamsToState reads ?post_type=<slug> into a single-slug include scope', () => {
-		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ) );
-		expect( state.staticPostTypes ).toEqual( { include: [ 'product' ], exclude: [] } );
-	} );
-
-	it( 'urlParamsToState returns null staticPostTypes when post_type is absent or empty', () => {
-		expect( urlParamsToState( new URLSearchParams( '' ) ).staticPostTypes ).toBeNull();
-		expect( urlParamsToState( new URLSearchParams( 'post_type=' ) ).staticPostTypes ).toBeNull();
-	} );
-
-	it( 'urlParamsToState sanitizes post_type via sanitize_key semantics', () => {
-		// Mirrors PHP `sanitize_key`: lowercase + strip everything outside `[a-z0-9_-]`.
-		const state = urlParamsToState( new URLSearchParams( 'post_type=Product%20Type%21' ) );
-		expect( state.staticPostTypes ).toEqual( { include: [ 'producttype' ], exclude: [] } );
-	} );
-
-	it( 'urlParamsToState does not treat post_type as a static-filter scalar', () => {
-		// Without the RESERVED_PARAMS gate, post_type configured as a static
-		// filter would have its value land in staticFilterSelections too.
+	it( 'reads ?post_type=foo into activeFilters.post_types when the facet is registered', () => {
 		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
-			post_type: { filterType: 'post_type', kind: 'static' },
+			post_types: postTypeConfig,
 		} );
-		expect( state.staticFilterSelections ).toEqual( {} );
-		expect( state.staticPostTypes ).toEqual( { include: [ 'product' ], exclude: [] } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
+	} );
+
+	it( 'drops ?post_type=foo when filter-checkbox{post_type} is not registered (filterConfigs gate)', () => {
+		// Without the facet on the page the scalar is ignored — same gate the
+		// array form already obeys. Keeps stray WC URLs from leaking into ES.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'merges ?post_type=foo with existing ?post_types[]=bar, deduping', () => {
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'post_type', 'product' );
+		params.append( 'post_type', 'post' ); // dup — should not double up.
+		const state = urlParamsToState( params, { post_types: postTypeConfig } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post', 'product' ] } );
+	} );
+
+	it( 'drops empty / whitespace-only ?post_type values', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=&post_type=%20%20' ), {
+			post_types: postTypeConfig,
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'admits ?post_type when no filterConfigs gate is supplied', () => {
+		// Mirrors the "accepts all keys when no gate" behaviour of the array form.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ) );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'product' ] } );
 	} );
 } );
 

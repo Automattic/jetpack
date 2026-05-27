@@ -19,7 +19,7 @@ class Search_Blocks {
 	 * `s` is the WP search route key; `q` is what the inline blocks use on
 	 * non-search pages (see `get_search_param_name()`). Neither may be parsed as a filter key.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price', 'post_type' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
 
 	/**
 	 * Query-string param for inline search on non-search pages (e.g. `/about/?q=boots`).
@@ -1906,7 +1906,6 @@ HTML;
 		$active_filters     = static::parse_url_filters();
 		$filter_logic       = static::parse_url_filter_logic( $active_filters );
 		$price_range        = static::parse_url_price_range();
-		$static_post_types  = static::parse_url_post_type_scope();
 		$is_initial_loading = static::is_initial_loading();
 		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
@@ -1943,9 +1942,6 @@ HTML;
 			'priceRange'                 => $price_range,
 			// Scalar `?filter_id=value`; seeded as `{}` so JS readers see a defined shape.
 			'staticFilterSelections'     => (object) array(),
-			// Static post-type scope from `?post_type=<slug>`. Null when the
-			// URL doesn't carry the param or the slug isn't searchable.
-			'staticPostTypes'            => $static_post_types,
 
 			// Each filter block's render.php deep-merges its entry. Shape:
 			// `{ [key]: { filterKey, filterType, taxonomy, effectiveSlug, label, showCount, maxItems } }`.
@@ -2377,6 +2373,12 @@ HTML;
 	 * No registered-key filtering here — `filterConfigs` aren't available until
 	 * blocks render. The JS layer gates on hydration.
 	 *
+	 * Scalar `?post_type=<slug>` is also accepted as a shortcut for
+	 * `?post_types[]=<slug>` — matches WP/WC's own URL convention. Merged into
+	 * any existing array selections so `?post_type=foo&post_types[]=bar` reads
+	 * as `[foo, bar]`. Singular-form-on-an-array-key keeps its existing
+	 * "ignored noise" behaviour for every other filter.
+	 *
 	 * @return array<string, string[]>
 	 */
 	protected static function parse_url_filters(): array {
@@ -2392,6 +2394,18 @@ HTML;
 			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
 				continue;
 			}
+			if ( 'post_type' === $filter_key ) {
+				if ( ! is_scalar( $values ) ) {
+					continue;
+				}
+				$slug = sanitize_text_field( (string) $values );
+				if ( '' === $slug ) {
+					continue;
+				}
+				$existing          = $out['post_types'] ?? array();
+				$out['post_types'] = array_values( array_unique( array_merge( $existing, array( $slug ) ) ) );
+				continue;
+			}
 			if ( ! is_array( $values ) ) {
 				continue;
 			}
@@ -2404,26 +2418,11 @@ HTML;
 				)
 			);
 			if ( $clean ) {
-				$out[ $filter_key ] = $clean;
+				$existing           = $out[ $filter_key ] ?? array();
+				$out[ $filter_key ] = array_values( array_unique( array_merge( $existing, $clean ) ) );
 			}
 		}
 		return $out;
-	}
-
-	/**
-	 * Parse the `?post_type=<slug>` URL contract into a `{ include, exclude }`
-	 * static-scope shape, or `null` if the slug is missing / unknown.
-	 * Single-slug include only — mirrors the JS emitter (`store/url-state.js`).
-	 *
-	 * @return array{include: string[], exclude: string[]}|null
-	 */
-	protected static function parse_url_post_type_scope(): ?array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized in Filter_Post_Type::from_url_param().
-		$raw = isset( $_GET['post_type'] ) ? wp_unslash( $_GET['post_type'] ) : null;
-		if ( null === $raw ) {
-			return null;
-		}
-		return Filter_Post_Type::from_url_param( $raw );
 	}
 
 	/**

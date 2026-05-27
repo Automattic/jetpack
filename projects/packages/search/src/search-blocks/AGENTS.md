@@ -71,7 +71,9 @@ Don't add a comma-joined / WC-style scalar shape (`?filter_stock_status=in,out`)
 
 Price is the one exception, and only because its shape doesn't fit. `activeFilters` is typed `{ [filterKey]: string[] }` — discrete, OR-able selections that build a `terms` ES clause. `priceRange` is `{ min, max }`, builds a `range` clause, and writes scalar `min_price` / `max_price` URL params. It lives as a sibling on store state rather than getting shoehorned into `activeFilters` with a sentinel encoding.
 
-Static post-type scope (the `search-input` block's "Post types" inspector setting) round-trips as scalar `?post_type=<slug>` for the single-slug include-mode case only — pairs with WP/WC's own `?post_type=` URL convention. Multi-slug and exclude-mode scopes stay session-local (the input still constrains its dispatches, but those scopes don't get serialized into the URL). `post_type` is reserved on both sides (`store/url-state.js` `RESERVED_PARAMS` + `Search_Blocks::RESERVED_QUERY_PARAMS`) so it can't double-book as a filter or static-filter scalar.
+Scalar `?post_type=<slug>` is accepted as a read-only alias for `?post_types[]=<slug>` — matches WP/WC's own URL convention so deep links from those flows populate the `filter-checkbox{filterType:"post_type"}` facet when present. The store always *writes* the array form; the singular form is parse-only.
+
+Static post-type scope is *per-instance*, not URL-driven: the `search-input` block carries the scope in its own `data-wp-context` and passes it to `actions.search()` via the module-level `activePostTypeScope` slot. No state.staticPostTypes is seeded from the URL.
 
 ## Filter bucket lifecycle
 

@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Filter_Post_Type helpers — single-mode constraint building,
- * registry-allowlist enforcement, and the `?post_type=<slug>` URL contract.
+ * Tests for Filter_Post_Type helpers — single-mode constraint building
+ * and registry-allowlist enforcement.
  */
 class Filter_Post_Type_Test extends TestCase {
 
@@ -208,29 +208,5 @@ class Filter_Post_Type_Test extends TestCase {
 			array( 'postTypes' => array( 'page', array( 'nested' ), null, false, 'product' ) )
 		);
 		$this->assertSame( array( 'page', 'product' ), $mixed_input['exclude'] );
-	}
-
-	/**
-	 * `?post_type=product` round-trip — single-slug include scope.
-	 */
-	public function test_from_url_param_returns_include_scope_for_searchable_slug() {
-		$scope = Filter_Post_Type::from_url_param( 'product' );
-		$this->assertSame( array( 'product' ), $scope['include'] );
-		$this->assertSame( array(), $scope['exclude'] );
-	}
-
-	/**
-	 * Allowlist still applies — the URL is visitor-controllable, so a slug
-	 * that isn't searchable must drop rather than reach ES. The gate is
-	 * `is_string`, so booleans / ints / arrays drop outright (a browser will
-	 * never send those, but a callsite mishandling `$_GET` could).
-	 */
-	public function test_from_url_param_drops_non_string_or_unknown_input() {
-		$this->assertNull( Filter_Post_Type::from_url_param( 'not-a-post-type' ) );
-		$this->assertNull( Filter_Post_Type::from_url_param( '' ) );
-		$this->assertNull( Filter_Post_Type::from_url_param( array( 'product' ) ) );
-		$this->assertNull( Filter_Post_Type::from_url_param( null ) );
-		$this->assertNull( Filter_Post_Type::from_url_param( true ) );
-		$this->assertNull( Filter_Post_Type::from_url_param( 42 ) );
 	}
 }

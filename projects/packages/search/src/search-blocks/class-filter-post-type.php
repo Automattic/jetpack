@@ -23,36 +23,6 @@ class Filter_Post_Type {
 	private static $searchable_cache = null;
 
 	/**
-	 * Translate a single `?post_type=<slug>` URL value into the same
-	 * `{ include, exclude }` shape `build_constraint()` returns, or `null`
-	 * if the slug is missing / empty / not searchable. Single-slug include
-	 * only — the URL contract round-trips just that case (see
-	 * `store/url-state.js`). Non-string inputs (arrays from `?post_type[]=`,
-	 * booleans, null, ints) are dropped outright — `$_GET['post_type']` from
-	 * a browser is always a string, and tightening the gate keeps the API
-	 * contract narrow.
-	 *
-	 * @param mixed $raw Raw URL value; only `string` is accepted.
-	 * @return array{include: string[], exclude: string[]}|null
-	 */
-	public static function from_url_param( $raw ): ?array {
-		if ( ! is_string( $raw ) ) {
-			return null;
-		}
-		$slugs = static::sanitize_slug_list(
-			array( $raw ),
-			static::searchable_post_type_slugs()
-		);
-		if ( empty( $slugs ) ) {
-			return null;
-		}
-		return array(
-			'include' => $slugs,
-			'exclude' => array(),
-		);
-	}
-
-	/**
 	 * Translate attributes → `{ include, exclude }`. Slugs validated against
 	 * the live searchable-types registry (typos / retired CPTs dropped).
 	 *
