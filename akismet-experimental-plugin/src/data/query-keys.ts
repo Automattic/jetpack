@@ -9,6 +9,7 @@
  * `akismetKeys.<resource>.…` so prefix-based invalidation continues to work.
  */
 import type { BlackboxCategory, StatsInterval } from '@/lib/types';
+import type { ActivityQueryParams } from '@/routes/activity/activity-types';
 
 export const akismetKeys = {
 	all: [ 'akismet' ] as const,
@@ -37,11 +38,24 @@ export const akismetKeys = {
 		all: () => [ ...akismetKeys.all, 'blackbox' ] as const,
 		aggregates: ( cat: BlackboxCategory, interval: StatsInterval ) =>
 			[ ...akismetKeys.blackbox.all(), 'aggregates', cat, interval ] as const,
+		// Plan 3 — per-session verdict for the row drawer.
+		verdict: ( sessionId: string ) =>
+			[ ...akismetKeys.blackbox.all(), 'verdict', sessionId ] as const,
 	},
 	woocommerce: {
 		all: () => [ ...akismetKeys.all, 'woocommerce' ] as const,
 		fraudSummary: ( interval: StatsInterval ) =>
 			[ ...akismetKeys.woocommerce.all(), 'fraud-summary', interval ] as const,
+	},
+
+	// Plan 3 — Activity tab. The `list` key includes the full params object
+	// so flipping any filter creates a new cache entry; mutations that flip
+	// rows in or out of the list invalidate `activity.all()` to refetch
+	// every active filter combination.
+	activity: {
+		all: () => [ ...akismetKeys.all, 'activity' ] as const,
+		list: ( params: ActivityQueryParams ) =>
+			[ ...akismetKeys.activity.all(), 'list', params ] as const,
 	},
 };
 
@@ -57,5 +71,8 @@ export type AkismetQueryKey =
 	| ReturnType< typeof akismetKeys.category.summary >
 	| ReturnType< typeof akismetKeys.blackbox.all >
 	| ReturnType< typeof akismetKeys.blackbox.aggregates >
+	| ReturnType< typeof akismetKeys.blackbox.verdict >
 	| ReturnType< typeof akismetKeys.woocommerce.all >
-	| ReturnType< typeof akismetKeys.woocommerce.fraudSummary >;
+	| ReturnType< typeof akismetKeys.woocommerce.fraudSummary >
+	| ReturnType< typeof akismetKeys.activity.all >
+	| ReturnType< typeof akismetKeys.activity.list >;

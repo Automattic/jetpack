@@ -9,7 +9,7 @@
  *
  * See `akismet-modernization/react-query-conventions.md` §5.
  */
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import { akismetKeys } from '@/data/query-keys';
 import { apiClient, type WpError } from '@/lib/api-client';
 import type { BlackboxAggregates } from '@/lib/blackbox-client';
@@ -22,6 +22,11 @@ import type {
 	StatsTotals,
 	WooFraudSummary,
 } from '@/lib/types';
+import type {
+	ActivityQueryParams,
+	ActivityResponse,
+	BlackboxVerdict,
+} from '@/routes/activity/activity-types';
 
 /**
  * Read the current Akismet API key state.
@@ -110,4 +115,54 @@ export const wooFraudSummaryQuery = ( interval: StatsInterval ) =>
 			apiClient.get< WooFraudSummary >(
 				`woocommerce/fraud-summary?interval=${ encodeURIComponent( interval ) }`
 			),
+	} );
+
+/**
+ * Activity list (Plan 3). Paginated by the server; the hook key includes
+ * the full params object so flipping any filter is its own cache entry.
+ * `placeholderData: keepPreviousData` keeps the prior page visible while
+ * the next loads — Newsletter / VideoPress convention.
+ *
+ * @param params - Page / per-page / category / outcome / source / search.
+ * @return TanStack queryOptions bag.
+ */
+export const activityListQuery = ( params: ActivityQueryParams ) =>
+	queryOptions< ActivityResponse, WpError >( {
+		queryKey: akismetKeys.activity.list( params ),
+		queryFn: () => {
+			const search = new URLSearchParams( {
+				page: String( params.page ),
+				per_page: String( params.perPage ),
+				category: params.category,
+				outcome: params.outcome,
+				source: params.source,
+			} );
+			if ( params.search ) {
+				search.set( 'search', params.search );
+			}
+			if ( params.from ) {
+				search.set( 'from', params.from );
+			}
+			if ( params.to ) {
+				search.set( 'to', params.to );
+			}
+			return apiClient.get< ActivityResponse >( `activity?${ search.toString() }` );
+		},
+		placeholderData: keepPreviousData,
+	} );
+
+/**
+ * Blackbox per-row verdict (Plan 3). Backed by the PHP proxy at
+ * `/akismet/v1/blackbox/verdict/{session_id}`. The row drawer only
+ * mounts this query when `row.visitor_id` is present — so by the time
+ * the hook runs, the id is guaranteed truthy.
+ *
+ * @param sessionId - Blackbox session id from `row.visitor_id`.
+ * @return TanStack queryOptions bag.
+ */
+export const blackboxVerdictQuery = ( sessionId: string ) =>
+	queryOptions< BlackboxVerdict, WpError >( {
+		queryKey: akismetKeys.blackbox.verdict( sessionId ),
+		queryFn: () =>
+			apiClient.get< BlackboxVerdict >( `blackbox/verdict/${ encodeURIComponent( sessionId ) }` ),
 	} );

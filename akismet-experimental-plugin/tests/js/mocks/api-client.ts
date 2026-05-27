@@ -85,6 +85,14 @@ async function fakeGet< T >( endpoint: string ): Promise< T > {
 		const params = parseQs( endpoint );
 		return fakeWooFraud( params.interval ?? '30-days' ) as unknown as T;
 	}
+	if ( endpoint.startsWith( 'activity' ) ) {
+		const params = parseQs( endpoint );
+		return fakeActivity( params ) as unknown as T;
+	}
+	if ( endpoint.startsWith( 'blackbox/verdict/' ) ) {
+		const sessionId = endpoint.slice( 'blackbox/verdict/'.length );
+		return fakeBlackboxVerdict( sessionId ) as unknown as T;
+	}
 
 	throw notFound( endpoint );
 }
@@ -185,6 +193,201 @@ function fakeBlackboxAggregates( category: string, interval: string ) {
 		],
 		preview: override.preview ?? true,
 		generated_at: '2026-05-27T12:00:00Z',
+	};
+}
+
+/**
+ * Activity-row fixture set (Plan 3). Built once per call, deterministic
+ * across categories. The shape mirrors the PHP union-query response in
+ * `Akismet_Experimental_Activity::query()`.
+ *
+ * @param params - Decoded query string parameters from the endpoint URL.
+ * @return Paginated activity response.
+ */
+function fakeActivity( params: Record< string, string > ) {
+	const category = params.category ?? 'all';
+	const outcome = params.outcome ?? 'all';
+	const source = params.source ?? 'all';
+	const search = params.search ?? '';
+	const page = Math.max( 1, parseInt( params.page ?? '1', 10 ) );
+	const perPage = Math.max( 1, Math.min( 100, parseInt( params.per_page ?? '25', 10 ) ) );
+
+	type Row = ReturnType< typeof makeRow >;
+	const counts: Record< string, number > = {
+		comments: 3, // small real-ish set so the test fixture stays cheap
+		forms: 18,
+		logins: 24,
+		bots: 31,
+		'brute-force': 12,
+		checkouts: 9,
+	};
+
+	const out: Row[] = [];
+	const cats = [ 'comments', 'forms', 'logins', 'checkouts', 'bots', 'brute-force' ];
+	for ( const c of cats ) {
+		if ( category !== 'all' && category !== c ) {
+			continue;
+		}
+		for ( let i = 0; i < counts[ c ]; i++ ) {
+			out.push( makeRow( c, i ) );
+		}
+	}
+
+	let rows = out;
+	if ( outcome !== 'all' ) {
+		rows = rows.filter( r => r.outcome === outcome );
+	}
+	if ( source !== 'all' ) {
+		rows = rows.filter( r => r.source === source );
+	}
+	if ( search ) {
+		const needle = search.toLowerCase();
+		rows = rows.filter( r =>
+			( r.subject.label + ' ' + ( r.subject.secondary ?? '' ) ).toLowerCase().includes( needle )
+		);
+	}
+
+	rows.sort( ( a, b ) => ( a.timestamp < b.timestamp ? 1 : -1 ) );
+
+	const total = rows.length;
+	const offset = ( page - 1 ) * perPage;
+	const items = rows.slice( offset, offset + perPage );
+
+	return {
+		items,
+		total,
+		page,
+		per_page: perPage,
+		total_pages: total > 0 ? Math.ceil( total / perPage ) : 0,
+	};
+}
+
+/**
+ * Build one fake ActivityRow. Comments are 'real' (preview:false);
+ * everything else is preview:true to match the PHP union default.
+ *
+ * @param category - Category id.
+ * @param i        - Row index.
+ * @return A fixture row.
+ */
+function makeRow( category: string, i: number ) {
+	const id = `${ category }-${ i }`;
+	const override = getMockState().activityOverrides[ id ] ?? {};
+	const isComment = category === 'comments';
+
+	const sourcesByCategory: Record< string, string[] > = {
+		comments: [ 'akismet-content' ],
+		forms: [ 'akismet-content', 'blackbox-behavioral' ],
+		logins: [ 'blackbox-behavioral', 'blackbox-fingerprint' ],
+		bots: [ 'blackbox-edge', 'blackbox-fingerprint' ],
+		'brute-force': [ 'blackbox-behavioral' ],
+		checkouts: [ 'woocommerce-fraud', 'blackbox-fingerprint' ],
+	};
+	const sources = sourcesByCategory[ category ] ?? [ 'akismet-rules' ];
+	const outcomes = [ 'block', 'challenge-passed', 'challenge-failed', 'allowed-but-flagged' ];
+
+	const subject = ( () => {
+		switch ( category ) {
+			case 'comments':
+				return {
+					kind: 'comment' as const,
+					label: `Spammer ${ i + 1 }`,
+					secondary: `Comment on “Hello world ${ i + 1 }”`,
+				};
+			case 'forms':
+				return {
+					kind: 'form-submission' as const,
+					label: `Form submission #${ i + 1 }`,
+					secondary: 'contact-form-7',
+				};
+			case 'logins':
+				return {
+					kind: 'login-attempt' as const,
+					label: `admin (attempt #${ i + 1 })`,
+					secondary: 'wp-login.php',
+				};
+			case 'bots':
+				return {
+					kind: 'visitor' as const,
+					label: `Crawler ${ i + 1 }`,
+					secondary: '/wp-json/wp/v2/posts',
+				};
+			case 'brute-force':
+				return {
+					kind: 'login-attempt' as const,
+					label: `user-${ i + 1 }`,
+					secondary: '142 attempts in 60s',
+				};
+			case 'checkouts':
+				return {
+					kind: 'order' as const,
+					label: `Order #${ 1000 + i }`,
+					secondary: `$${ 50 + i * 11 }.00`,
+				};
+			default:
+				return { kind: 'visitor' as const, label: 'unknown' };
+		}
+	} )();
+
+	return {
+		id,
+		timestamp: `2026-05-${ String( 27 - ( i % 27 ) ).padStart( 2, '0' ) }T12:00:00Z`,
+		category,
+		source: override.source ?? sources[ i % sources.length ],
+		outcome: override.outcome ?? outcomes[ i % outcomes.length ],
+		subject,
+		signals: [
+			{
+				name: `${ category }_mock_signal`,
+				weight: 0.5 + ( i % 5 ) * 0.1,
+				description: `Preview signal for ${ category }.`,
+			},
+		],
+		ip: `10.0.${ i % 256 }.${ ( i * 7 ) % 256 }`,
+		visitor_id: isComment ? null : `bbx_preview_${ category }_${ i }`,
+		context: isComment ? { comment_id: i + 1 } : {},
+		preview: override.preview ?? ! isComment,
+	};
+}
+
+/**
+ * Per-session Blackbox verdict fixture (Plan 3).
+ *
+ * @param sessionId - Opaque session id.
+ * @return Verdict fixture.
+ */
+function fakeBlackboxVerdict( sessionId: string ) {
+	const override = getMockState().blackboxVerdicts[ sessionId ] ?? {};
+	const decisions = [ 'allow', 'challenge', 'block' ] as const;
+	// Stable per session: hash by character codes so a given id always
+	// gets the same decision in tests (no randomness).
+	const seed = sessionId.split( '' ).reduce( ( acc, ch ) => acc + ch.charCodeAt( 0 ), 0 );
+	return {
+		session_id: sessionId,
+		decision: override.decision ?? decisions[ seed % decisions.length ],
+		risk_score: override.risk_score ?? Math.round( ( ( seed % 100 ) / 100 ) * 100 ) / 100,
+		confidence: 'medium',
+		visitor_id: sessionId,
+		ip_address: `10.0.${ seed % 255 }.${ ( seed * 3 ) % 255 }`,
+		signals: [
+			{
+				name: 'velocity_threshold',
+				log_odds: 2.4,
+				confidence: 0.86,
+				category: 'velocity',
+				rule_id: 'velocity_v3',
+				rule_version: '3.1.0',
+			},
+			{
+				name: 'webdriver_detected',
+				log_odds: 4.1,
+				confidence: 0.99,
+				category: 'automation',
+				rule_id: 'webdriver_v2',
+				rule_version: '2.0.0',
+			},
+		],
+		preview: override.preview ?? true,
 	};
 }
 

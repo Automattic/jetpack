@@ -42,6 +42,27 @@ export type BlackboxAggregateOverride = {
 };
 
 /**
+ * Per-session Blackbox verdict override (Plan 3). Lets a single test
+ * force a specific decision / score / preview shape on the row drawer
+ * without rebuilding the whole signals array.
+ */
+export type BlackboxVerdictOverride = {
+	decision?: 'allow' | 'challenge' | 'block';
+	risk_score?: number;
+	preview?: boolean;
+};
+
+/**
+ * Activity-row override (Plan 3). The fake apiClient serves a built-in
+ * fixture set; tests can override per-row by id.
+ */
+export type ActivityOverride = {
+	preview?: boolean;
+	outcome?: string;
+	source?: string;
+};
+
+/**
  * And for WC fraud summaries.
  */
 export type WooFraudOverride = {
@@ -59,6 +80,8 @@ export type MockState = {
 	stats: Partial< Record< string, StatsOverride > >; // keyed by interval
 	blackboxAggregates: Partial< Record< string, BlackboxAggregateOverride > >; // keyed by `${category}|${interval}`
 	wooFraud: Partial< Record< string, WooFraudOverride > >; // keyed by interval
+	blackboxVerdicts: Partial< Record< string, BlackboxVerdictOverride > >; // keyed by session_id
+	activityOverrides: Partial< Record< string, ActivityOverride > >; // keyed by row id
 };
 
 const initialState = (): MockState => ( {
@@ -71,6 +94,8 @@ const initialState = (): MockState => ( {
 	stats: {},
 	blackboxAggregates: {},
 	wooFraud: {},
+	blackboxVerdicts: {},
+	activityOverrides: {},
 } );
 
 let state: MockState = initialState();

@@ -82,4 +82,46 @@ describe( 'akismetKeys', () => {
 			expect( akismetKeys.woocommerce.fraudSummary( 'all' )[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
 		} );
 	} );
+
+	describe( 'Plan 3 — activity + blackbox verdict nodes', () => {
+		it( 'activity.list key embeds the params object', () => {
+			const params = {
+				page: 1,
+				perPage: 25,
+				category: 'logins' as const,
+				outcome: 'all' as const,
+				source: 'all' as const,
+				search: '',
+			};
+			expect( akismetKeys.activity.all() ).toEqual( [ 'akismet', 'activity' ] );
+			expect( akismetKeys.activity.list( params ) ).toEqual( [
+				'akismet',
+				'activity',
+				'list',
+				params,
+			] );
+		} );
+
+		it( 'blackbox.verdict key includes session id', () => {
+			expect( akismetKeys.blackbox.verdict( 'sess_abc_123' ) ).toEqual( [
+				'akismet',
+				'blackbox',
+				'verdict',
+				'sess_abc_123',
+			] );
+		} );
+
+		it( "every activity / verdict key begins with akismetKeys.all's prefix", () => {
+			const params = {
+				page: 1,
+				perPage: 25,
+				category: 'all' as const,
+				outcome: 'all' as const,
+				source: 'all' as const,
+				search: '',
+			};
+			expect( akismetKeys.activity.list( params )[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
+			expect( akismetKeys.blackbox.verdict( 'x' )[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
+		} );
+	} );
 } );
