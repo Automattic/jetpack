@@ -110,6 +110,17 @@ export function builder( yargs ) {
 			type: 'string',
 			description:
 				'Read debug.log from this host-side path instead of the docker container (also honors $JETPACK_FASTBUILD_LOG). Use for wp-env / Playground / custom local setups.',
+		} )
+		.option( 'watch', {
+			type: 'boolean',
+			default: false,
+			description:
+				'Stay running, re-scan the debug.log every few seconds, and auto-fix on each new class-not-found fatal. Ctrl-C to exit.',
+		} )
+		.option( 'watch-interval', {
+			type: 'number',
+			default: 3,
+			description: 'In --watch mode, seconds between log scans.',
 		} );
 }
 
@@ -348,6 +359,110 @@ async function runBuildScriptIfAny( slug, cwd, argv ) {
 }
 
 /**
+ * Watch loop: poll the debug.log for new class-not-found fatals and re-run a
+ * Signal-1-only pass each time the set of missing symbols changes.
+ *
+ * Stays alive until SIGINT (Ctrl-C). Source-drift planning is skipped here on
+ * purpose — `--watch` is for reacting to fatals while you're developing, not
+ * for ambient rebuilds.
+ *
+ * @param {object}      argv    - Argv.
+ * @param {Map}         deps    - Dependency map.
+ * @param {Set<string>} skipSet - Projects to ignore.
+ * @param {string}      cwd     - Monorepo root.
+ */
+async function runWatchLoop( argv, deps, skipSet, cwd ) {
+	const intervalMs = Math.max( 500, ( argv.watchInterval || 3 ) * 1000 );
+	console.log(
+		chalkJetpackGreen( `Watching debug.log every ${ intervalMs / 1000 }s. Ctrl-C to exit.` )
+	);
+	let lastSignature = '';
+	let busy = false;
+	let stopped = false;
+	const stop = () => {
+		stopped = true;
+		console.log( chalk.grey( '\nStopping watch.' ) );
+	};
+	process.once( 'SIGINT', stop );
+	process.once( 'SIGTERM', stop );
+
+	while ( ! stopped ) {
+		if ( ! busy ) {
+			busy = true;
+			try {
+				const scan = await scanForMissingSymbols( {
+					lines: argv.lines,
+					logPath: argv.logPath,
+				} );
+				const signature = scan.missing.join( '|' );
+				if ( signature && signature !== lastSignature ) {
+					console.log(
+						chalk.bold(
+							`\n[${ new Date().toLocaleTimeString() }] Detected ${
+								scan.missing.length
+							} missing symbol(s):`
+						)
+					);
+					for ( const fqn of scan.missing ) {
+						console.log( `  ${ chalk.yellow( fqn ) }` );
+					}
+					const { plan, resolved } = await planFromLogScan( deps, scan, cwd, skipSet );
+					await runPlanOnce( plan, resolved, argv, cwd );
+					lastSignature = signature;
+				}
+			} catch ( e ) {
+				console.log( chalk.red( `Watch loop error: ${ e.message }` ) );
+			}
+			busy = false;
+		}
+		await new Promise( resolve => setTimeout( resolve, intervalMs ) );
+	}
+}
+
+/**
+ * Execute a single plan (used by --watch). Reuses runAction + stamping; skips
+ * the headline planning printouts and the final exit code.
+ *
+ * @param {Map<string,string>} plan     - Slug → action.
+ * @param {Array}              resolved - Signal-1 resolution info for the verify step.
+ * @param {object}             argv     - Argv.
+ * @param {string}             cwd      - Monorepo root.
+ */
+async function runPlanOnce( plan, resolved, argv, cwd ) {
+	const deps = await getDependencies( cwd, 'build' );
+	const ordered = orderPlan( deps, plan );
+	if ( ordered.length === 0 ) {
+		console.log( chalk.grey( '  Nothing to do.' ) );
+		return;
+	}
+	const concurrency = Math.max( 1, argv.concurrency || 1 );
+	const allDumpAutoload = ordered.every( o => o.action === 'dump-autoload' );
+	const limit = pLimit( allDumpAutoload ? concurrency : 1 );
+	await Promise.all(
+		ordered.map( ( { slug, action } ) =>
+			limit( async () => {
+				const t0 = Date.now();
+				try {
+					await runAction( slug, action, argv );
+					const sha = await currentHead( cwd );
+					await writeStamp( slug, sha, action === 'build' ? 'build' : 'autoload', cwd );
+					console.log(
+						chalk.green( `  ✓ ${ slug } [${ action }] (${ formatDuration( Date.now() - t0 ) }s)` )
+					);
+				} catch ( e ) {
+					console.log( chalk.red( `  ✖ ${ slug } [${ action }]: ${ summarizeExecError( e ) }` ) );
+				}
+			} )
+		)
+	);
+	if ( argv.verify ) {
+		const expected = resolved.filter( r => r.owner ).map( r => r.fqn );
+		const result = await verify( argv, { expected, cwd } );
+		printVerifyResult( result, argv );
+	}
+}
+
+/**
  * Read the persistent skip list at `.jetpack-cli/skip.txt`. One project slug per
  * line, blank lines and `#`-prefixed comments ignored.
  *
@@ -531,6 +646,11 @@ export async function handler( argv ) {
 
 	if ( argv.seed ) {
 		await seedStamps( targets, cwd );
+		return;
+	}
+
+	if ( argv.watch ) {
+		await runWatchLoop( argv, deps, skipSet, cwd );
 		return;
 	}
 
