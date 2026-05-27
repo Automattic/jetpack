@@ -118,18 +118,9 @@ class PCG_Load_Tester {
 			$verdict = $front_result;
 		}
 
-		// Sibling-load flake: captured fatal where the candidate's entry
-		// file loaded but a sibling under its own directory failed to
-		// require or autoload. Logstash on production data shows the same
-		// `(blog, file)` combinations reproducing for hours, so a retry
-		// can't help — downgrade to `ok-inconclusive` on the first match.
-		// CLI activation remains the recovery path.
-		//
-		// Restricted to MODE_ACTIVATION: the post-update healthcheck has
-		// already installed new files over the live plugin and needs every
-		// captured fatal to block so `PCG_Rollback::to_snapshot()` can
-		// fire. Silently allowing an update fatal would leave the site
-		// running broken new files with no recovery path.
+		// Sibling-load flakes are stable across retries — downgrade to
+		// ok-inconclusive on first match. Activation only: update mode
+		// must still block so PCG_Rollback can fire on broken updates.
 		if ( self::MODE_ACTIVATION === $mode && $this->is_sibling_load_flake( $verdict, $plugin_mains ) ) {
 			$this->log_sibling_load_flake_downgrade( $mode, $plugin_mains, $verdict );
 			return $this->downgrade_to_inconclusive(
@@ -157,10 +148,8 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Build an `ok-inconclusive` downgrade verdict that preserves the
-	 * captured-fatal context (`plugin`, `message`, `file`) so downstream
-	 * readers (logstash, snapshot preservation) can still see which
-	 * candidate triggered the downgrade and why.
+	 * Downgrade to `ok-inconclusive`, preserving the captured-fatal
+	 * context so logstash can still attribute the downgrade.
 	 *
 	 * @param array  $verdict Original blocking verdict.
 	 * @param string $reason  Human-readable reason for the downgrade.
@@ -180,16 +169,11 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a verdict looks like a sibling-load flake — a fatal/throwable
-	 * where the candidate plugin's entry file loaded but a sibling under
-	 * its own directory failed to require or autoload. Logstash on the
-	 * production data shows the same `(blog, file)` failing for hours, so
-	 * a retry can't help; the signature is stable enough to downgrade-to-
-	 * allow on regardless of the underlying cause.
+	 * Whether a verdict is a fatal/throwable where the candidate's entry
+	 * file loaded but a sibling under its own directory failed to
+	 * require or autoload.
 	 *
-	 * Exposed for unit tests.
-	 *
-	 * @internal
+	 * @internal Exposed for unit tests.
 	 * @param array    $result       Probe verdict.
 	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
 	 * @return bool
@@ -200,13 +184,9 @@ class PCG_Load_Tester {
 			return false;
 		}
 
-		// For the throwable arm, restrict to PHP engine error classes
-		// (`\Error` and its built-in subclasses). A hand-thrown
-		// `\RuntimeException` from a plugin's self-check that happens to
-		// contain class-not-found-shaped wording must NOT be downgraded —
-		// the plugin is asking to abort, and silently allowing the
-		// activation would deliver a half-loaded plugin to production.
-		// `classify_shutdown` verdicts (`fatal`) never carry a `class` key.
+		// Throwables: only downgrade engine errors. A hand-thrown
+		// RuntimeException with similar wording is asking to abort and
+		// must keep blocking. `classify_shutdown` fatals carry no `class`.
 		if ( 'throwable' === $status ) {
 			$captured_class = (string) ( $result['class'] ?? '' );
 			if ( ! self::is_php_engine_error_class( $captured_class ) ) {
@@ -216,23 +196,10 @@ class PCG_Load_Tester {
 
 		$message = (string) ( $result['message'] ?? '' );
 
-		// Anchor the class-not-found check to PHP's canonical wording —
-		// `Class "Foo\Bar" not found` (PHP 8+) or `Class 'Foo' not found`
-		// (legacy). PHP engine error messages are not localised — they
-		// are always emitted in English — so matching English wording is
-		// the language-agnostic choice; a loose `str_contains` on
-		// `Class ` / ` not found` would over-match decorated messages or
-		// wrapped fatals and silently downgrade real bugs. A user-
-		// installed `set_error_handler` that rewrites messages can
-		// defeat the match; we'd then keep the verdict as fatal (no
-		// downgrade), which is the safer failure mode.
-		// `Failed opening required` and `failed to open stream: No such
-		// file or directory` are the verbatim strings the PHP engine
-		// emits — they're not localised and they're stable across
-		// PHP 7/8. If PHP ever rewords either, the substring match here
-		// would silently break and verdicts would stay as fatal (the
-		// safer failure mode), so we'd notice via the `Sibling-load
-		// flake downgrade` event rate dropping to zero.
+		// Anchor on the verbatim engine wording (English-only, stable
+		// across PHP 7/8). If PHP ever rewords either, the match breaks
+		// silently — verdicts stay as fatal, the safer failure mode,
+		// and the `Sibling-load flake downgrade` event rate drops.
 		$looks_like_class_not_found   = (bool) preg_match( '/\bClass\s+["\'][^"\']+["\']\s+not found\b/', $message );
 		$looks_like_missing_file_open = str_contains( $message, 'Failed opening required' )
 			|| str_contains( $message, 'failed to open stream: No such file or directory' );
@@ -245,13 +212,10 @@ class PCG_Load_Tester {
 			return true;
 		}
 
-		// Fall back to the message body ONLY for the file-open arm: those
-		// messages carry the missing path verbatim, so a substring match
-		// against a candidate's dir is a meaningful signal. The
-		// class-not-found arm requires the captured `file` to live inside
-		// a candidate — its message has no path to match on, and pulling
-		// other text in (autoloader stack traces, wrapped errors) is the
-		// over-match vector we want to avoid.
+		// Message-body fallback is safe for the file-open arm only — the
+		// message carries the missing path verbatim. Class-not-found
+		// messages don't, and matching their text risks over-matching
+		// autoloader traces and silently downgrading real bugs.
 		if ( ! $looks_like_missing_file_open ) {
 			return false;
 		}
@@ -259,34 +223,19 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether an absolute path lies inside one of the candidate plugins'
-	 * own directories (or equals a candidate's main file). Flat-file
-	 * plugins are skipped because their dirname is `WP_PLUGIN_DIR`, which
-	 * would prefix-match every other plugin's files.
+	 * Whether an absolute path lies inside a candidate plugin's directory
+	 * (or equals its main file). Flat-file plugins are skipped because
+	 * their dirname is `WP_PLUGIN_DIR` itself.
+	 *
+	 * Paths are compared raw (no `realpath`) to match WP's own shape.
+	 * Symlinked plugin trees would need realpath-of-both on both this
+	 * and `message_references_candidate_path`.
 	 *
 	 * @param string   $path         Absolute path to test.
 	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
 	 * @return bool
 	 */
 	protected function path_inside_candidate( $path, array $plugin_mains ) {
-		// We compare the raw paths PHP gives us (`error_get_last`'s
-		// `file`, the candidate's main as WP saw it) without `realpath`.
-		// This is correct on Atomic + standard hosts where
-		// `WP_PLUGIN_DIR` and plugin install paths are direct (no
-		// symlinks), and matches WP's own internal comparison shape
-		// (e.g. `is_plugin_active`) so the activation guard, the
-		// post-update healthcheck, and PCG agree on which plugin file
-		// is which.
-		//
-		// Symlink caveat for future maintainers: if a host installs
-		// plugins under a symlinked tree (e.g. `WP_PLUGIN_DIR` →
-		// `/var/www/.../plugins-real/`), PHP's error_get_last() often
-		// reports the realpath-resolved `file` while `$plugin_main`
-		// (built from `WP_PLUGIN_DIR`) is the symlink path. This
-		// matcher would silently fail to attribute the fatal to the
-		// candidate. If symlinked layouts become a thing, replace this
-		// with a realpath-of-both comparison (and update the
-		// `message_references_candidate_path` sibling helper too).
 		if ( '' === (string) $path ) {
 			return false;
 		}
@@ -304,11 +253,9 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a `Failed opening required` message body mentions a path
-	 * inside one of the candidate plugins' directories. Only safe for
-	 * messages that PHP composes with the failing path verbatim — see
-	 * `is_sibling_load_flake` for why we don't use this on autoloader
-	 * misses.
+	 * Whether a `Failed opening required` message mentions a path inside
+	 * a candidate's directory. Only safe for messages PHP composes with
+	 * the failing path verbatim.
 	 *
 	 * @param string   $message      Verdict message.
 	 * @param string[] $plugin_mains Absolute paths to the candidate plugins' main files.
@@ -329,9 +276,7 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Log a sibling-load flake downgrade so we can measure how often the
-	 * downgrade path triggers and on which plugins. Sampled on the same
-	 * `atomic_plugin_conflicts_guardian` feature bucket.
+	 * Log a sibling-load flake downgrade so we can measure the rate.
 	 *
 	 * @param string   $mode         Probe mode constant.
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
@@ -354,23 +299,16 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a captured throwable's class name is one of PHP's built-in
-	 * engine error classes (i.e. one that the engine raises directly,
-	 * rather than something user code could throw to signal intent).
-	 *
-	 * Used by `is_sibling_load_flake` to ensure we only downgrade fatals
-	 * that PHP itself produced — a plugin hand-throwing a
-	 * `RuntimeException` with class-not-found-shaped wording must keep
-	 * blocking.
+	 * Whether a class name is one of PHP's built-in engine error classes.
+	 * User-defined subclasses are intentionally NOT matched — those
+	 * carry the same "asking to abort" semantics as a hand-thrown
+	 * exception.
 	 *
 	 * @internal Exposed for tests.
 	 * @param string $class_name Captured `class` value from the verdict.
 	 * @return bool
 	 */
 	public static function is_php_engine_error_class( $class_name ) {
-		// Subclasses created by user code (e.g. `class MyError extends Error {}`)
-		// are intentionally NOT matched — those carry the same
-		// "user is asking to abort" semantics as a hand-thrown Exception.
 		static $engine_errors = array(
 			'Error'               => true,
 			'TypeError'           => true,

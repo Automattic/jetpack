@@ -102,26 +102,15 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	// Activation: load each plugin to exercise its load path. Deferred to
-	// `wp_loaded` (priority 1) so dependency shims registered later in the
-	// bootstrap — Action Scheduler's `as_*` functions, WC constants like
-	// `WC_ADMIN_ABSPATH`, plugin singletons set up during `init` — are
-	// available when we require the candidate. The original design ran
-	// the require inline at `plugins_loaded:10`, which captured real PHP
-	// fatals against undefined functions/constants that wouldn't fire
-	// on a real activation page-load. Trade-off: the candidate's own
-	// `plugins_loaded` callbacks are never invoked in the probe context
-	// (we require it after that hook has finished), but a real activation
-	// click also doesn't fire the new plugin's `plugins_loaded` until the
-	// next request, so the probe still matches the real activation shape.
+	// Activation: load each candidate to exercise its load path. Deferred
+	// to `wp_loaded:1` so dependency shims (Action Scheduler's `as_*`, WC
+	// constants like `WC_ADMIN_ABSPATH`, init-time singletons) are in
+	// place — running inline at `plugins_loaded:10` captured fatals
+	// against undefined functions that wouldn't fire on a real activation.
 	//
-	// Update: skip; re-requiring an already-loaded plugin would fatal with
-	// "Cannot redeclare". The shutdown handler catches either way.
+	// Update mode skips this: the new files are already loaded by WP's
+	// bootstrap and re-requiring would fatal with "Cannot redeclare."
 	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
-		// Default milestone is `pre-require`; the shutdown handler reads
-		// this to distinguish "bootstrap exited before our require even
-		// ran" (a different probe issue, not a candidate fault) from
-		// "candidate's main file exited during load" (treat as throwable).
 		pcg_probe_load_milestone( array( 'state' => 'pre-require' ) );
 		add_action(
 			'wp_loaded',
@@ -146,10 +135,8 @@ function pcg_maybe_handle_probe() {
 								'line'    => $t->getLine(),
 							)
 						);
-						// `pcg_probe_respond` normally exits, but its
-						// re-entry guard can short-circuit silently;
-						// stop processing the rest of the batch either
-						// way so a captured throwable always wins.
+						// `pcg_probe_respond` may return silently via the
+						// re-entry guard; stop the batch regardless.
 						return;
 					}
 				}
@@ -158,17 +145,12 @@ function pcg_maybe_handle_probe() {
 			1
 		);
 	} else {
-		// Update mode doesn't require anything — the new plugin files are
-		// already loaded by WP's normal bootstrap. Mark the milestone as
-		// `required` so the shutdown handler treats `ok-shutdown` /
-		// captured fatals normally (no candidate-load attribution).
+		// Update mode: nothing to require; skip candidate-load attribution.
 		pcg_probe_load_milestone( array( 'state' => 'required' ) );
 	}
 
-	// Admin probe: defer the verdict to admin_init so admin-time hook fatals
-	// surface (admin_init fires after wp_loaded in admin, so the require has
-	// already happened by then). Front-end probe: emit on wp_loaded once
-	// init has fired and the require + any wp_loaded callbacks have run.
+	// Admin probe: emit on admin_init so admin-time hook fatals surface.
+	// Front-end probe: emit on wp_loaded once init has fired.
 	$is_admin_probe = '1' === sanitize_text_field( wp_unslash( $_GET['pcg_admin'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token already validated above.
 	add_action( $is_admin_probe ? 'admin_init' : 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
 }
@@ -183,31 +165,16 @@ function pcg_probe_emit_ok() {
 /**
  * Shutdown handler: always emits a JSON verdict.
  *
- * On a captured engine fatal, emits status=fatal. Otherwise the
- * candidate-load milestone is consulted:
- *
- * - `in-require` → emit a synthetic `throwable` against the in-flight
- *   candidate. The plugin called `exit`/`die`/`wp_die` from its main
- *   file; a real activation would abort the same way, so attributing
- *   it to that plugin is correct.
- * - `pre-require` → emit `error`. The deferred `wp_loaded` callback
- *   never ran (an earlier plugin exited during `init`), so the probe
- *   learned nothing about the candidate.
- * - `required` (or default) → emit the classify_shutdown verdict
- *   (`fatal` or `ok-shutdown`).
- *
- * The re-entry guard at the top is what keeps a single probe request
- * from emitting two verdicts: `wp_send_json` → `exit` fires this
- * handler again on the shutdown phase, and we must not over-write.
+ * Captured engine fatal → `fatal`. Otherwise dispatch on the
+ * candidate-load milestone:
+ *   - `in-require` → synthetic `throwable` against the in-flight candidate.
+ *   - `pre-require` → `error` (bootstrap exited before our require ran).
+ *   - `required` → classify_shutdown verdict (`fatal` / `ok-shutdown`).
  */
 function pcg_probe_shutdown() {
-	// Check-only (no `true` arg): `pcg_probe_respond` is the single
-	// canonical marker. If we marked here, the very next call to
-	// `pcg_probe_respond` would observe the flag and bail without
-	// emitting — and the shutdown verdict would be lost. The role of
-	// this guard is to bail when respond has *already* emitted (the
-	// throwable catch in the require loop, or the post-exit shutdown
-	// re-entry), not to claim ownership preemptively.
+	// Check-only: `pcg_probe_respond` is the single canonical marker.
+	// Marking here would make the next respond call bail and lose the
+	// shutdown verdict.
 	if ( pcg_probe_already_emitted() ) {
 		return;
 	}
@@ -250,11 +217,8 @@ function pcg_probe_shutdown() {
 }
 
 /**
- * Track the candidate-load milestone so the shutdown handler can decide
- * whether a missing wp_loaded/admin_init verdict reflects a candidate's
- * mid-load exit (treat as throwable), a pre-require bootstrap abort
- * (treat as error), or a normal post-require clean exit (treat as
- * ok-shutdown via classify_shutdown).
+ * Track the candidate-load milestone so the shutdown handler can
+ * attribute a missing verdict.
  *
  * @internal
  * @param array|null $set Optional partial state to merge in (`state` and/or `plugin`).
