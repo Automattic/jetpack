@@ -273,7 +273,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	private function invoke_parse_response( $response ): array {
 		$tester = new PCG_Load_Tester();
 		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'parse_response' );
-		$ref->setAccessible( true );
 		return (array) $ref->invoke( $tester, $response );
 	}
 
