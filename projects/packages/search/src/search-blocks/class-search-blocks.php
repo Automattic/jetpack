@@ -1133,7 +1133,7 @@ class Search_Blocks {
 	width: 100%;
 	max-width: 1080px;
 	--jp-search-overlay-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border-radius: 4px;
@@ -1180,6 +1180,20 @@ class Search_Blocks {
 .jetpack-search-block-overlay__close svg {
 	width: 24px;
 	height: 24px;
+}
+/* Pin in-overlay button `color` against host-theme `button:hover|:focus` overrides
+ * (fieldguide and similar legacy themes flip button color to a brand accent on hover).
+ * Our block-level rules set `color: inherit` at (0,1,0); a stray `button:hover` rule
+ * at (0,1,1) outranks it on `:hover`, and the `color-mix(currentColor X%, …)` hover
+ * affordances on the filters-popover trigger, results-sort trigger, suggestions
+ * options, etc. then resolve against the host's hover color (often white-on-white).
+ * Card-scoped `:hover|:focus|[aria-expanded=true]` lands at (0,2,1) — beats the
+ * theme rule without escalating to `!important`. */
+.jetpack-search-block-overlay__card button:hover,
+.jetpack-search-block-overlay__card button:focus,
+.jetpack-search-block-overlay__card button:focus-visible,
+.jetpack-search-block-overlay__card button[aria-expanded="true"] {
+	color: var(--jp-search-overlay-ink);
 }
 /* Promote the first child (search-input) to a 60px header strip flush with
  * the close button, matching the legacy `__box` header. Suppress the input
