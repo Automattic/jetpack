@@ -110,11 +110,30 @@ class PCG_Load_Tester {
 		// fatal/throwable wins; an inconclusive `error` from one probe must
 		// not shadow a real fatal from the other. Front-end is the canonical
 		// "site works" signal when neither probe captured a fatal.
+		$verdict = null;
 		if ( $this->is_block( $front_result ) ) {
-			return $front_result;
+			$verdict = $front_result;
+		} elseif ( $this->is_block( $admin_result ) ) {
+			$verdict = $admin_result;
 		}
-		if ( $this->is_block( $admin_result ) ) {
-			return $admin_result;
+
+		// Activation-mode captured fatal: re-probe via WP's normal active-
+		// plugin bootstrap to disambiguate "probe-only loading-order
+		// artifact" from "real fatal." A clean confirmation downgrades
+		// the verdict; a confirming fatal keeps it. Update mode never
+		// confirms — the candidate is already loaded by WP's bootstrap
+		// before the probe fires, so there's no different ordering to
+		// test against, and an update fatal MUST block to let
+		// `PCG_Rollback::to_snapshot()` fire.
+		if ( null !== $verdict && self::MODE_ACTIVATION === $mode ) {
+			$confirmation = $this->confirm_via_normal_load( $plugin_mains );
+			if ( null !== $confirmation && ! $this->is_block( $confirmation ) ) {
+				return $this->downgrade_after_confirmation( $verdict, $confirmation );
+			}
+			return $verdict;
+		}
+		if ( null !== $verdict ) {
+			return $verdict;
 		}
 
 		// Neither probe blocked. Log if either verdict was a transport-level
@@ -128,6 +147,85 @@ class PCG_Load_Tester {
 		}
 
 		return $front_result;
+	}
+
+	/**
+	 * Fire a confirmation probe pair with `pcg_confirm=1`. The probe
+	 * endpoint will skip its manual `require_once` because the early
+	 * bootstrap (`probe-confirm-bootstrap.php`) injected the candidates
+	 * into `active_plugins`, so WP's normal bootstrap has already loaded
+	 * them at real-activation timing.
+	 *
+	 * Returns null if the confirmation probe itself failed to round-trip
+	 * (transport exception, both responses unusable). The caller treats
+	 * that as "don't downgrade" — uncertainty keeps the original verdict.
+	 *
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @return array|null Verdict (most-blocking of front/admin), or null on transport failure.
+	 */
+	protected function confirm_via_normal_load( array $plugin_mains ) {
+		$front = $this->prepare_probe( $plugin_mains, home_url( '/' ), false, self::MODE_ACTIVATION, true );
+		$admin = $this->prepare_probe( $plugin_mains, admin_url( 'index.php' ), true, self::MODE_ACTIVATION, true );
+
+		try {
+			$responses = \WpOrg\Requests\Requests::request_multiple(
+				array(
+					'front' => $front['request'],
+					'admin' => $admin['request'],
+				),
+				array(
+					'timeout'   => self::PROBE_TIMEOUT,
+					'redirects' => 5,
+				)
+			);
+		} catch ( \Throwable $t ) {
+			return null;
+		} finally {
+			delete_transient( self::transient_key( $front['token'] ) );
+			delete_transient( self::transient_key( $admin['token'] ) );
+		}
+
+		$front_result = $this->parse_response( $responses['front'] );
+		$admin_result = $this->parse_response( $responses['admin'] );
+		if ( $this->is_block( $front_result ) ) {
+			return $front_result;
+		}
+		if ( $this->is_block( $admin_result ) ) {
+			return $admin_result;
+		}
+		return $front_result;
+	}
+
+	/**
+	 * Build the downgraded verdict after a clean confirmation probe.
+	 * Preserves the original captured-fatal context so logstash can
+	 * still see which candidate triggered the downgrade.
+	 *
+	 * @param array $verdict      Original captured-fatal verdict.
+	 * @param array $confirmation Clean confirmation-probe verdict.
+	 * @return array
+	 */
+	protected function downgrade_after_confirmation( array $verdict, array $confirmation ) {
+		pcg_log_event(
+			'Probe fatal downgraded after confirmation',
+			array(
+				'plugin'  => isset( $verdict['plugin'] ) ? $this->relative_basenames( array( (string) $verdict['plugin'] ) )[0] : '',
+				'status'  => (string) ( $verdict['status'] ?? '' ),
+				'reason'  => (string) ( $verdict['message'] ?? $verdict['reason'] ?? '' ),
+				'file'    => isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '',
+				'confirm' => (string) ( $confirmation['status'] ?? '' ),
+			)
+		);
+		$out = array(
+			'status'  => 'ok-inconclusive',
+			'reason'  => 'Captured fatal did not reproduce when the candidate was loaded via WP\'s normal active-plugin bootstrap; downgrading to allow.',
+			'message' => (string) ( $verdict['message'] ?? '' ),
+			'file'    => (string) ( $verdict['file'] ?? '' ),
+		);
+		if ( '' !== (string) ( $verdict['plugin'] ?? '' ) ) {
+			$out['plugin'] = (string) $verdict['plugin'];
+		}
+		return $out;
 	}
 
 	/**
@@ -254,10 +352,11 @@ class PCG_Load_Tester {
 	 * @param string   $mode         Probe mode constant.
 	 * @return array{plugins:string[],mode:string}
 	 */
-	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
+	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
 		return array(
 			'plugins' => array_values( array_map( static fn( $p ) => (string) $p, $plugin_mains ) ),
 			'mode'    => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
+			'confirm' => (bool) $is_confirm,
 		);
 	}
 
@@ -271,14 +370,17 @@ class PCG_Load_Tester {
 	 * @param string   $mode         Probe mode constant.
 	 * @return array{token:string,request:array}
 	 */
-	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION ) {
+	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
 		$token = wp_generate_password( 32, false );
-		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_mains, $mode ), self::TOKEN_LIFETIME );
+		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_mains, $mode, $is_confirm ), self::TOKEN_LIFETIME );
 
 		$query   = array(
 			'pcg_probe' => '1',
 			'token'     => $token,
 		);
+		if ( $is_confirm ) {
+			$query['pcg_confirm'] = '1';
+		}
 		$headers = array();
 		$options = array();
 		if ( $is_admin ) {

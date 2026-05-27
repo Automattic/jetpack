@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: on a captured fatal in activation mode, re-probe with the candidate injected into active_plugins so WP's normal bootstrap loads it at real-activation timing; downgrade to ok-inconclusive if the confirmation probe is clean.

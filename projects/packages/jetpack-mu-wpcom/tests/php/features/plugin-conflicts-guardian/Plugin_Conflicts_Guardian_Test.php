@@ -239,6 +239,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins' => array( '/abs/foo/foo.php' ),
 				'mode'    => 'activation',
+				'confirm' => false,
 			),
 			$default
 		);
@@ -248,9 +249,19 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins' => array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
 				'mode'    => 'update',
+				'confirm' => false,
 			),
 			$update
 		);
+	}
+
+	/**
+	 * `build_probe_payload` carries the `confirm` flag so the early
+	 * bootstrap and probe endpoint can branch on confirmation-mode.
+	 */
+	public function test_build_probe_payload_carries_confirm_flag() {
+		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), PCG_Load_Tester::MODE_ACTIVATION, true );
+		$this->assertTrue( $payload['confirm'] );
 	}
 
 	/**

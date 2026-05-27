@@ -32,6 +32,12 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
+		// PCG confirmation probe needs to hook `pre_option_active_plugins`
+		// before wp-settings.php reads the option, so we wire it up here
+		// (mu-plugin load time) rather than via the usual `plugins_loaded`
+		// feature loader.
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
