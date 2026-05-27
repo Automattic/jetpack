@@ -15,6 +15,12 @@
 // The overlay equivalent stays in the inline CSS function; sharing one
 // stylesheet would mean renaming the overlay classes (wider scope, just-
 // landed code). Two parallel class hierarchies is the smaller risk.
+// The block group already carries `layout.type:flex` which makes the WordPress
+// block-layout system emit `display:flex` / `flex-wrap:nowrap` /
+// `justify-content:space-between`. Restating them here is defensive (decouples
+// us from block-layout CSS being present); the operative net-new rule is
+// `align-items: center`, which centers `results-count` against the controls
+// cluster.
 .jetpack-search-results-page__results-header {
 	display: flex;
 	flex-wrap: nowrap;
@@ -43,6 +49,12 @@
 		display: none;
 	}
 
+	// `!important` defends against the parent `wp:columns` block-layout CSS
+	// that pins `.wp-block-column` to its inline `flex-basis` (or to an even
+	// split when no width is set). Mirrors the overlay equivalent in
+	// `block_template_overlay_inline_css()`. Same rationale as the overlay:
+	// once the filter column is `display:none`, the results column has to be
+	// able to claim the full row at any specificity.
 	.jetpack-search-results-page__results-column {
 		flex-basis: 100% !important;
 	}
