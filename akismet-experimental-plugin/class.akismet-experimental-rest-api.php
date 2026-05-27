@@ -121,23 +121,10 @@ class Akismet_Experimental_REST_API {
 		);
 
 		// Plan 2 — Overview tab data sources.
-		register_rest_route(
-			self::NAMESPACE_V1,
-			'/stats/(?P<interval>[a-z0-9-]+)',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( __CLASS__, 'get_stats' ),
-				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
-				'args'                => array(
-					'interval' => array(
-						'type'     => 'string',
-						'enum'     => array( '30-days', '60-days', '6-months', 'all' ),
-						'required' => true,
-					),
-				),
-			)
-		);
-
+		// IMPORTANT: register `/stats/timeseries` BEFORE `/stats/{interval}`.
+		// WP REST dispatches the first matching route; the `{interval}` regex
+		// is greedy and would otherwise match `timeseries` as the interval and
+		// fail the enum check.
 		register_rest_route(
 			self::NAMESPACE_V1,
 			'/stats/timeseries',
@@ -150,6 +137,23 @@ class Akismet_Experimental_REST_API {
 						'type'    => 'string',
 						'enum'    => array( '30-days', '60-days', '6-months', 'all' ),
 						'default' => '30-days',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/stats/(?P<interval>[a-z0-9-]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_stats' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'interval' => array(
+						'type'     => 'string',
+						'enum'     => array( '30-days', '60-days', '6-months', 'all' ),
+						'required' => true,
 					),
 				),
 			)
