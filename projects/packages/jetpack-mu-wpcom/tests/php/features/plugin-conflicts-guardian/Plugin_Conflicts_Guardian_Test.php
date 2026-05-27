@@ -18,6 +18,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian
 // isn't set. Loading the file in tests is safe and gives us access to
 // helpers like `pcg_probe_already_emitted()` for unit testing.
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-endpoint.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
@@ -325,6 +326,66 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'ok-inconclusive', $out['status'] );
 		$this->assertArrayNotHasKey( 'plugin', $out );
+	}
+
+	/**
+	 * When the `pre_option_active_plugins` filter passes `false` (meaning
+	 * "let WP read the option"), the injector must read the alloptions
+	 * cache directly instead of calling `get_option` — otherwise it
+	 * would re-enter the same filter and recurse forever.
+	 */
+	public function test_confirm_inject_active_plugins_merges_without_recursion() {
+		// Seed the alloptions cache so wp_load_alloptions() returns the
+		// existing active-plugin list.
+		update_option( 'active_plugins', array( 'akismet/akismet.php' ) );
+		wp_cache_delete( 'alloptions', 'options' );
+
+		$plugin_mains = array( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' );
+
+		// Counter to detect recursion: every time the filter fires, bump.
+		// If the injector calls get_option, the filter re-fires.
+		$fire_count = 0;
+		$counter    = static function ( $value ) use ( &$fire_count ) {
+			++$fire_count;
+			return $value;
+		};
+		add_filter( 'pre_option_active_plugins', $counter, 1 );
+
+		$merged = pcg_confirm_inject_active_plugins( false, $plugin_mains );
+
+		remove_filter( 'pre_option_active_plugins', $counter, 1 );
+		delete_option( 'active_plugins' );
+
+		$this->assertContains( 'akismet/akismet.php', $merged );
+		$this->assertContains( 'woocommerce/woocommerce.php', $merged );
+		// Injector itself must not have re-fired the filter while
+		// resolving existing active plugins.
+		$this->assertSame( 0, $fire_count, 'pcg_confirm_inject_active_plugins must not call get_option on active_plugins' );
+	}
+
+	/**
+	 * When the filter already has a list (someone hooked at higher
+	 * priority), the injector merges onto that list rather than the DB
+	 * value, so other filters compose cleanly.
+	 */
+	public function test_confirm_inject_active_plugins_respects_filtered_value() {
+		$merged = pcg_confirm_inject_active_plugins(
+			array( 'a/a.php', 'b/b.php' ),
+			array( WP_PLUGIN_DIR . '/c/c.php' )
+		);
+		$this->assertSame( array( 'a/a.php', 'b/b.php', 'c/c.php' ), $merged );
+	}
+
+	/**
+	 * Duplicate basenames (a candidate already in active_plugins) appear
+	 * only once in the merged list.
+	 */
+	public function test_confirm_inject_active_plugins_dedupes_candidates() {
+		$merged = pcg_confirm_inject_active_plugins(
+			array( 'foo/foo.php' ),
+			array( WP_PLUGIN_DIR . '/foo/foo.php' )
+		);
+		$this->assertSame( array( 'foo/foo.php' ), $merged );
 	}
 
 	/**

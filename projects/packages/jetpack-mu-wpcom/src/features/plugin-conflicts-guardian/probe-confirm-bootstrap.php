@@ -27,7 +27,10 @@ function pcg_confirm_maybe_register_hook() {
 	}
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
 	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' );
-	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
+	// Length is locked to what wp_generate_password( 32, false ) emits;
+	// the transient lookup is still the real gate, but anchoring length
+	// here rules out truncation / accidental-collision noise.
+	$token = preg_match( '/^[A-Za-z0-9]{32}$/', $raw_token ) ? $raw_token : '';
 	if ( '' === $token ) {
 		return;
 	}
@@ -47,12 +50,33 @@ function pcg_confirm_maybe_register_hook() {
 		return;
 	}
 
+	// Only single-site active_plugins is hooked; pre_option_active_sitewide_plugins
+	// would need the same treatment if PCG ever guards network activations.
 	add_filter(
 		'pre_option_active_plugins',
-		static function ( $value ) use ( $plugin_mains ) {
-			$existing  = false === $value ? get_option( 'active_plugins', array() ) : (array) $value;
-			$basenames = array_map( 'plugin_basename', $plugin_mains );
-			return array_values( array_unique( array_merge( $existing, $basenames ) ) );
-		}
+		static fn( $value ) => pcg_confirm_inject_active_plugins( $value, $plugin_mains )
 	);
+}
+
+/**
+ * Merge confirmation-probe candidates into the `active_plugins` option
+ * value. When $value is false, read the cached option without going
+ * through `get_option()` — `get_option()` re-fires the same
+ * `pre_option_active_plugins` filter, which would recurse forever.
+ *
+ * @internal Exposed for unit tests.
+ * @param mixed    $value         Existing filter value (false = "let WP read the option").
+ * @param string[] $plugin_mains  Absolute paths to candidate plugin main files.
+ * @return string[] Merged active_plugins list of basenames.
+ */
+function pcg_confirm_inject_active_plugins( $value, array $plugin_mains ) {
+	if ( false === $value ) {
+		$alloptions = wp_load_alloptions();
+		$raw        = $alloptions['active_plugins'] ?? array();
+		$existing   = is_array( $raw ) ? $raw : (array) maybe_unserialize( $raw );
+	} else {
+		$existing = (array) $value;
+	}
+	$basenames = array_map( 'plugin_basename', $plugin_mains );
+	return array_values( array_unique( array_merge( $existing, $basenames ) ) );
 }

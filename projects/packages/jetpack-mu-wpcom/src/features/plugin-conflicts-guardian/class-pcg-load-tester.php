@@ -121,14 +121,13 @@ class PCG_Load_Tester {
 		// active-plugin bootstrap to confirm. Clean confirmation →
 		// downgrade. Update mode never confirms — fatals must block so
 		// `PCG_Rollback::to_snapshot()` can fire.
-		if ( null !== $verdict && self::MODE_ACTIVATION === $mode ) {
-			$confirmation = $this->confirm_via_normal_load( $plugin_mains );
-			if ( null !== $confirmation && ! $this->is_block( $confirmation ) ) {
-				return $this->downgrade_after_confirmation( $verdict, $confirmation );
-			}
-			return $verdict;
-		}
 		if ( null !== $verdict ) {
+			if ( self::MODE_ACTIVATION === $mode ) {
+				$confirmation = $this->confirm_via_normal_load( $plugin_mains );
+				if ( null !== $confirmation && ! $this->is_block( $confirmation ) ) {
+					return $this->downgrade_after_confirmation( $verdict, $confirmation );
+				}
+			}
 			return $verdict;
 		}
 
