@@ -93,17 +93,6 @@ class PCG_Load_Tester {
 		$front_result = $this->parse_response( $responses['front'] );
 		$admin_result = $this->parse_response( $responses['admin'] );
 
-		// Log transport-level errors (timeouts at PROBE_TIMEOUT, connection
-		// failures, non-PCG-endpoint 200s) and synthesized ok-inconclusive
-		// verdicts (HTTP 500, marker+non-JSON without a captured fatal,
-		// redirect-budget exhaustion). Both are allow paths under the
-		// "only block on captured fatal" policy, so we rely on these logs
-		// to measure how often we're silently letting activations/updates
-		// through despite a suspicious signal.
-		if ( $this->is_anomalous_allow( $front_result ) || $this->is_anomalous_allow( $admin_result ) ) {
-			$this->log_probe_anomaly( $mode, $plugin_mains, $front_result, $admin_result );
-		}
-
 		// fatal/throwable wins; an inconclusive `error` from one probe must
 		// not shadow a real fatal from the other. Front-end is the canonical
 		// "site works" signal when neither probe captured a fatal.
@@ -113,6 +102,17 @@ class PCG_Load_Tester {
 		if ( $this->is_block( $admin_result ) ) {
 			return $admin_result;
 		}
+
+		// Neither probe blocked. Log if either verdict was a transport-level
+		// error or a synthesized ok-inconclusive (HTTP 500, marker+non-JSON,
+		// redirect-budget exhaustion) — those are the allow paths under the
+		// "only block on captured fatal" policy, and the log is how we
+		// measure how often we let an activation/update through despite a
+		// suspicious signal.
+		if ( $this->is_anomalous_allow( $front_result ) || $this->is_anomalous_allow( $admin_result ) ) {
+			$this->log_probe_anomaly( $mode, $plugin_mains, $front_result, $admin_result );
+		}
+
 		return $front_result;
 	}
 
