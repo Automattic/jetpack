@@ -2,12 +2,12 @@
 description: >
   Implement a premium-analytics task end-to-end: read the task spec from a local
   scratch md file (Phase 1 transition; Phase 2 will read the Linear issue directly —
-  see "Input"), create a branch from fork/trunk, implement, build, run UI verification
+  see "Input"), create a branch from `origin/trunk`, implement, build, run UI verification
   (default backend: wp-verify Playwright in jetpack-ai-sandbox; override via
   `VERIFY_SKILL` env var for non-sandbox backends), add a changelog entry, push, open
   a PR, start the review cycle, and audit for new invariants worth capturing into
   package docs.
-allowed-tools: Bash(docker:*), Bash(node:*), Bash(npx:*), Bash(playwright:*), Bash(npm:*), Bash(pnpm:*), Bash(bash:*), Bash(curl:*), Bash(sleep:*), Bash(test:*), Bash(mkdir:p), Bash(cat:*), Bash(cp:*), Bash(tr:*), Bash(sed:*), Bash(grep:*), Bash(git symbolic-ref:*), Bash(git rev-parse:*), Bash(git fetch:*), Bash(git checkout:*), Bash(git add:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git remote:*), Bash(git rm:*), Bash(git log:*), Bash(git status:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr comment:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(mktemp:*), Write, Read
+allowed-tools: Bash(docker:*), Bash(node:*), Bash(npx:*), Bash(playwright:*), Bash(npm:*), Bash(pnpm:*), Bash(bash:*), Bash(curl:*), Bash(sleep:*), Bash(test:*), Bash(mkdir:*), Bash(cat:*), Bash(cp:*), Bash(tr:*), Bash(sed:*), Bash(grep:*), Bash(git symbolic-ref:*), Bash(git rev-parse:*), Bash(git fetch:*), Bash(git checkout:*), Bash(git add:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git remote:*), Bash(git rm:*), Bash(git log:*), Bash(git status:*), Bash(gh pr create:*), Bash(gh pr view:*), Bash(gh pr comment:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(mktemp:*), Write, Read
 ---
 
 # premium-analytics Implement Task
@@ -123,11 +123,11 @@ do the same for their own environments.
 Read the branch name from the task md's Submitting section.
 
 ```bash
-git fetch fork
+git fetch origin
 CURRENT=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 if [ "$CURRENT" = "trunk" ] || [ -z "$CURRENT" ]; then
-  # On trunk (or detached HEAD) — create the task's branch fresh from fork/trunk.
-  git checkout -b <branch-name> fork/trunk
+  # On trunk (or detached HEAD) — create the task's branch fresh from origin/trunk.
+  git checkout -b <branch-name> origin/trunk
   TARGET_BRANCH=<branch-name>
 else
   # Already on a feature branch — assume the caller wants to continue here
@@ -261,17 +261,17 @@ Do not stage or commit files outside the task's Scope section.
 ## Step 8 — Push and open or update PR
 
 ```bash
-git push fork "$TARGET_BRANCH"
+git push -u origin "$TARGET_BRANCH"
 ```
 
 Use the `TARGET_BRANCH` captured in Step 1 — in continue-on-branch mode this may
 differ from `<branch-name>` in the task md, and pushing the wrong ref will either fail
 or publish stale work.
 
-If no PR exists yet for this branch, open one against `dognose24/jetpack` trunk using
-`/jetpack-pr`. If a PR is already open (continue-on-branch mode from Step 1), the push
-updates it automatically — afterwards, update the PR title/description to cover the
-new scope.
+If no PR exists yet for this branch, open one targeting `trunk` using `/jetpack-pr`
+(it derives the base repo from `gh repo view` defaults). If a PR is already open
+(continue-on-branch mode from Step 1), the push updates it automatically —
+afterwards, update the PR title/description to cover the new scope.
 
 Fill or update the Agent Session Report section in the PR body:
 
@@ -314,23 +314,11 @@ verification` comment when Step 5 was in scope as task failure.
 
 ## Step 9 — Review cycle
 
-`.github/workflows/pr-review-cycle.yml` fires on `pull_request: [opened, ready_for_review]`
-(plus later review / comment / workflow_run events). It does **not** listen for
-`pull_request.synchronize`, so it only auto-starts the kickoff round when the PR is
-first opened or moved out of draft.
+Invoke the review-cycle skill manually right after Step 8 finishes:
 
-* **Brand-new PR** (trunk-branch case from Step 1) — the workflow kicks off
-  automatically when the PR is opened.
-* **Update-existing-PR / continue-on-branch mode** — a subsequent push to an
-  already-open PR is `synchronize` and will not trigger a new round. Invoke manually:
-
-  ```bash
-  /jetpack-pr-review-cycle <PR-number>
-  ```
-
-Also fall back to manual invocation if the workflow is not configured for this repo
-(e.g. missing `ANTHROPIC_API_KEY`) or if a workflow path filter excludes the PR's
-changed files.
+```bash
+/jetpack-pr-review-cycle <PR-number>
+```
 
 Keep the sandbox session alive (tmux recommended) so all rounds complete without
 interruption.
@@ -375,15 +363,15 @@ This is a separate PR.
 # Anchor cwd and branch off the current trunk (not the implementation PR's
 # branch — invariants should land on trunk independently of the implementation).
 cd "$(git rev-parse --show-toplevel)"
-git fetch fork
-git checkout -b "docs/<invariant-topic>" fork/trunk
+git fetch origin
+git checkout -b "docs/<invariant-topic>" origin/trunk
 # Edit AGENTS.md / docs/ as needed, then:
 pnpm jetpack changelogger add packages/premium-analytics \
   --significance=patch --type=changed \
   --entry="Docs: capture <invariant> learned during <RSM-XXXX> implementation."
 git add <docs-files> changelog/
 git commit -m "docs(premium-analytics): capture <invariant> from <RSM-XXXX>"
-git push fork "docs/<invariant-topic>"
+git push -u origin "docs/<invariant-topic>"
 /jetpack-pr
 ```
 
@@ -398,4 +386,4 @@ audit trail links both directions.
 - Never merge or close the PR — that is always the human's call.
 - If any step fails, stop and report the error. Do not skip steps.
 - If Step 5 ran (task md DoD has Agent-verifiable items beyond build + UI verification), the PR **must** contain a `## DoD verification` comment posted in Step 8. The post-revert filesystem state is identical whether Step 5 ran clean or was silently skipped, so this comment is the only durable evidence the verification mechanism actually fired. Missing comment when Step 5 was in scope = treat the task as failed.
-- Step 10's invariant capture, when it produces output, is always a separate docs-only PR off `fork/trunk` — never bundled into the implementation PR or pushed onto the implementation branch. Bundling inflates the implementation PR's scope and slows merge.
+- Step 10's invariant capture, when it produces output, is always a separate docs-only PR off `origin/trunk` — never bundled into the implementation PR or pushed onto the implementation branch. Bundling inflates the implementation PR's scope and slows merge.

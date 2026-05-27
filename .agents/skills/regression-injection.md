@@ -131,6 +131,21 @@ cd "$(git rev-parse --show-toplevel)"
 # prefix; sandbox uses /usr/local/lib/nodejs).
 : "${BUILD_COMMAND:=CI=true pnpm --filter='@automattic/jetpack-premium-analytics' build}"
 : "${VERIFY_COMMAND:=NODE_PATH=\$(npm root -g) playwright test --config tools/ai-sandbox/wp-verify/playwright.config.ts}"
+
+# If the caller relies on the wp-verify defaults, confirm the wp-verify subtree
+# is actually checked out. The defaults reference paths under
+# `tools/ai-sandbox/wp-verify/`, which land via their own PR — running the
+# defaults on a branch where that subtree is absent would surface as an
+# opaque "config file not found" deep inside Playwright.
+case "${VERIFY_COMMAND}" in
+  *tools/ai-sandbox/wp-verify/*)
+    test -f tools/ai-sandbox/wp-verify/playwright.config.ts || {
+      echo "ERROR: VERIFY_COMMAND uses the wp-verify default but tools/ai-sandbox/wp-verify/playwright.config.ts is missing from this checkout." >&2
+      echo "       Either rebase onto a branch that includes the wp-verify subsystem, or set BUILD_COMMAND + VERIFY_COMMAND to a backend that doesn't depend on it (see the Configuration section above)." >&2
+      exit 1
+    }
+    ;;
+esac
 ```
 
 The caller (usually `/premium-analytics-implement-task` Step 5) invokes this skill

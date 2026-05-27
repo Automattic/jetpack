@@ -16,7 +16,19 @@ Verify that the analytics dashboard mounts correctly in wp-admin after a premium
 
 ## Pre-flight
 
-1. **Confirm Docker is reachable** (from either sandbox or host).
+1. **Confirm the wp-verify tooling is checked out.** The wp-verify stack and
+   Playwright config live under `tools/ai-sandbox/`. They land in this repo via
+   their own PR (see `tools/ai-sandbox/README.md`); if you're on a branch where
+   that subtree isn't present, this skill can't run.
+   ```bash
+   test -f tools/ai-sandbox/wp-verify.sh && \
+     test -f tools/ai-sandbox/wp-verify/playwright.config.ts || {
+     echo "tools/ai-sandbox/wp-verify/ not found in this checkout — rebase onto trunk (or a branch that has the wp-verify subsystem) before invoking this skill";
+     exit 1;
+   }
+   ```
+
+2. **Confirm Docker is reachable** (from either sandbox or host).
    Inside the sandbox, this is the mounted socket. On the host, it's the
    normal local Docker daemon. The wp-verify WP stack itself always runs
    under Docker — only the *caller* invoking Playwright varies between
@@ -25,7 +37,7 @@ Verify that the analytics dashboard mounts correctly in wp-admin after a premium
    docker info > /dev/null 2>&1 || { echo "Docker not reachable — start Docker (host) or run inside jetpack-ai-sandbox with socket mounted"; exit 1; }
    ```
 
-2. **Confirm Playwright Test runner is installed globally.** The
+3. **Confirm Playwright Test runner is installed globally.** The
    documented invocation uses `command -v playwright` (needs the binary
    on `PATH`) plus `NODE_PATH=$(npm root -g)` (npm's global
    node_modules dir) — both assume an npm global install, not a
@@ -41,7 +53,7 @@ Verify that the analytics dashboard mounts correctly in wp-admin after a premium
    invocation. The default skill body uses the global form because the
    sandbox image already provides it.)
 
-3. **Confirm build artifacts exist:**
+4. **Confirm build artifacts exist:**
    ```bash
    test -f projects/packages/premium-analytics/build/build.php || {
      echo "Build artifacts missing — run: pnpm --filter=@automattic/jetpack-premium-analytics build"
@@ -202,7 +214,7 @@ cp /tmp/pa-verify/analytics-dashboard.png "$SCREENSHOT_DEST"
 git add "$SCREENSHOT_DEST"
 git diff --cached --quiet -- "$SCREENSHOT_DEST" || \
   git commit -m "chore: add wp-verify screenshot for ${BRANCH}" -- "$SCREENSHOT_DEST" || exit 1
-git remote | grep -q '^fork$' && REMOTE=fork || REMOTE=origin
+REMOTE=origin
 REPO=$(git remote get-url "$REMOTE" \
   | sed 's/.*github\.com[:/]\(.*\)\.git$/\1/' \
   | sed 's/.*github\.com[:/]\(.*\)$/\1/')
