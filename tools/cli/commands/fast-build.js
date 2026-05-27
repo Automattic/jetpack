@@ -396,12 +396,17 @@ function orderPlan( deps, plan ) {
 }
 
 /**
- * Verify the site by curling --url and re-scanning the log for fatals.
+ * Verify the site by curling --url, re-scanning the log for fatals, and
+ * (when targeted FQNs are provided) confirming each is now present in at
+ * least one regenerated plugin classmap.
  *
- * @param {object} argv - Argv.
- * @return {Promise<{ status: number|null, missing: string[] }>} Verification result.
+ * @param {object}   argv               - Argv.
+ * @param {object}   options            - Verification options.
+ * @param {string[]} [options.expected] - FQNs we tried to resolve via Signal 1.
+ * @param {string}   [options.cwd]      - Monorepo root.
+ * @return {Promise<object>} Verification result with `status`, `missing`, and `expected`.
  */
-async function verify( argv ) {
+async function verify( argv, { expected = [], cwd = process.cwd() } = {} ) {
 	let status = null;
 	try {
 		const { stdout } = await execa(
@@ -414,7 +419,56 @@ async function verify( argv ) {
 		// Leave status null — caller decides how strict to be.
 	}
 	const scan = await scanForMissingSymbols( { lines: argv.lines } );
-	return { status, missing: scan.missing };
+	const expectedReport = expected.length ? await checkClassmaps( expected, cwd ) : [];
+	return { status, missing: scan.missing, expected: expectedReport };
+}
+
+/**
+ * For each FQN, check whether at least one plugin's
+ * `vendor/composer/jetpack_autoload_classmap.php` now lists it.
+ *
+ * Classmap entries look like `'Namespace\\ClassName' => $vendorDir . '/…'`.
+ * We grep for the FQN as a quoted key (with the standard PHP single-backslash
+ * encoding inside single quotes).
+ *
+ * @param {string[]} fqns - FQNs to check.
+ * @param {string}   cwd  - Monorepo root.
+ * @return {Promise<Array<{ fqn: string, resolvedIn: string[] }>>} Per-FQN report.
+ */
+async function checkClassmaps( fqns, cwd ) {
+	const report = [];
+	for ( const fqn of fqns ) {
+		// Inside a single-quoted PHP string, `\` is a literal backslash. The classmap
+		// file stores `'A\\B\\C'`, which is `A\B\C` after PHP string escaping. We
+		// already get `A\B\C` (with single backslashes) from the log parser.
+		const needle = fqn
+			.replace( /\\/g, '\\\\' ) // escape for grep's fixed-string mode below
+			.replace( /'/g, "\\'" );
+		const { stdout } = await execa(
+			'git',
+			[
+				'grep',
+				'-l',
+				'--no-index',
+				'-F',
+				`'${ needle }'`,
+				'projects/plugins/*/vendor/composer/jetpack_autoload_classmap.php',
+			],
+			{ cwd, reject: false }
+		);
+		const resolvedIn = stdout
+			.split( '\n' )
+			.filter( Boolean )
+			.map(
+				line =>
+					line.match(
+						/^projects\/(plugins\/[^/]+)\/vendor\/composer\/jetpack_autoload_classmap\.php$/
+					)?.[ 1 ] || null
+			)
+			.filter( Boolean );
+		report.push( { fqn, resolvedIn } );
+	}
+	return report;
 }
 
 /**
@@ -554,7 +608,8 @@ export async function handler( argv ) {
 	}
 
 	if ( argv.verify ) {
-		const result = await verify( argv );
+		const expected = logResolved.filter( r => r.owner ).map( r => r.fqn );
+		const result = await verify( argv, { expected, cwd } );
 		printVerifyResult( result, argv );
 	}
 
@@ -657,13 +712,33 @@ function printPlanHeader( logScan, logResolved, ordered, heavy, argv ) {
  * @param {object} argv   - Argv.
  */
 function printVerifyResult( result, argv ) {
-	const { status, missing } = result;
+	const { status, missing, expected = [] } = result;
 	if ( status === null ) {
 		console.log( chalk.yellow( `Verify: could not curl ${ argv.url } (is the site running?).` ) );
 	} else if ( status >= 500 ) {
 		console.log( chalk.red( `Verify: ${ argv.url } returned HTTP ${ status }.` ) );
 	} else {
 		console.log( chalk.green( `Verify: ${ argv.url } → HTTP ${ status }.` ) );
+	}
+	if ( expected.length ) {
+		const resolved = expected.filter( e => e.resolvedIn.length > 0 );
+		const stillMissing = expected.filter( e => e.resolvedIn.length === 0 );
+		if ( resolved.length ) {
+			console.log(
+				chalk.green(
+					`Verify: ${ resolved.length }/${ expected.length } targeted class(es) now resolve in their plugin classmaps.`
+				)
+			);
+		}
+		for ( const e of stillMissing ) {
+			console.log(
+				chalk.red(
+					`Verify: ${ chalk.yellow(
+						e.fqn
+					) } is still not in any plugin classmap — dump-autoload may have failed.`
+				)
+			);
+		}
 	}
 	if ( missing.length ) {
 		console.log(
