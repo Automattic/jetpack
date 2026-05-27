@@ -1,0 +1,33 @@
+// Page-shell styles for the experimental Akismet UI.
+// Modeled on Boost's boost-page.scss (jetpack-monorepo projects/plugins/boost/_inc/components/boost-page.scss).
+
+.akismet-experimental {
+	// Sticky header within the `<Page>` scroll container, matching the
+	// Backup / Scan / Activity-Log unified pattern.
+	.admin-ui-page__header {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background: var(--wp-admin-theme-color-darker-10, #fff);
+	}
+
+	// Body slot scrolls; header stays put.
+	.admin-ui-page__content {
+		padding: var(--wp-components-spacing-4, 16px);
+	}
+
+	// Standard "preview data" badge used by category cards (Plan 2) and
+	// activity rows (Plan 3). Kept in the foundation styles so any surface
+	// can mark mocked output consistently.
+	&__badge {
+		display: inline-block;
+		background: var(--wp-components-color-accent-04, #fff9c4);
+		color: var(--wp-components-color-foreground, #1e1e1e);
+		font-size: 11px;
+		font-weight: 500;
+		padding: 2px 6px;
+		margin-left: 8px;
+		border-radius: 4px;
+		text-transform: lowercase;
+	}
+}

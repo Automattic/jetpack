@@ -1,0 +1,10 @@
+/node_modules/
+/build/
+/coverage/
+*.log
+.DS_Store
+
+# Lockfile excluded — the monorepo's JSON linter conflicts with npm's
+# package-lock.json empty-key entry. Re-run `npm install` to regenerate.
+# When this plugin moves to wpcom proper, the lockfile gets committed there.
+package-lock.json

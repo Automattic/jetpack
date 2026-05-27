@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"lib": [ "DOM", "DOM.Iterable", "ES2020" ],
+		"jsx": "preserve",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitOverride": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"baseUrl": "src",
+		"paths": {
+			"@/*": [ "./*" ]
+		}
+	},
+	"include": [ "src/**/*", "tests/js/**/*" ],
+	"exclude": [ "build", "node_modules" ]
+}
