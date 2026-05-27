@@ -365,14 +365,37 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// keeps authors from setting it by mistake.
 	const isTaxonomyFilter = attributes?.filterType === 'taxonomy';
 
-	// Default the label to the taxonomy's display name the first time we see
-	// a given custom-taxonomy slug with an empty label. The ref captures
-	// "this slug has already been labeled at least once" so a manual clear
-	// by the author is respected — only moving to a not-yet-seeded slug
-	// re-triggers the seed. Built-in variations don't pass this gate; they
-	// already get a hardcoded default via variationDefaultLabel().
-	const lastLabeledTaxonomyRef = useRef( null );
+	// Default the label to the taxonomy's display name when the current
+	// custom-taxonomy selection has an empty label, except immediately after
+	// the author manually clears that same slug. Changing the slug — or
+	// leaving and re-entering the Custom Taxonomy variation — drops the guard
+	// so the picker can seed again. Built-in variations don't pass this gate;
+	// they already get a hardcoded default via variationDefaultLabel().
+	const manuallyClearedTaxonomyRef = useRef( null );
+	const previousCustomTaxonomyStateRef = useRef( {
+		isCustomTaxonomy,
+		taxonomy,
+		rawLabel,
+	} );
 	useEffect( () => {
+		const previous = previousCustomTaxonomyStateRef.current;
+		if ( previous.isCustomTaxonomy !== isCustomTaxonomy || previous.taxonomy !== taxonomy ) {
+			manuallyClearedTaxonomyRef.current = null;
+		}
+		if (
+			isCustomTaxonomy &&
+			previous.isCustomTaxonomy &&
+			previous.taxonomy === taxonomy &&
+			previous.rawLabel &&
+			! rawLabel
+		) {
+			manuallyClearedTaxonomyRef.current = taxonomy;
+		}
+		previousCustomTaxonomyStateRef.current = {
+			isCustomTaxonomy,
+			taxonomy,
+			rawLabel,
+		};
 		if ( ! isCustomTaxonomy ) {
 			return;
 		}
@@ -380,10 +403,9 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 			return;
 		}
 		if ( rawLabel ) {
-			lastLabeledTaxonomyRef.current = taxonomy;
 			return;
 		}
-		if ( lastLabeledTaxonomyRef.current === taxonomy ) {
+		if ( manuallyClearedTaxonomyRef.current === taxonomy ) {
 			return;
 		}
 		const match = taxonomies.find( t => t?.slug === taxonomy );

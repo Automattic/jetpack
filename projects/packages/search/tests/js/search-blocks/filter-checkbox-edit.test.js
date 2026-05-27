@@ -543,6 +543,29 @@ describe( 'FilterCheckboxEdit custom taxonomy label seeding', () => {
 		);
 		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
+
+	it( 'seeds again when returning to Custom Taxonomy with the same cleared slug', () => {
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'author', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { label: 'Genre' } );
+	} );
 } );
 
 describe( 'normalizeQueryType', () => {
