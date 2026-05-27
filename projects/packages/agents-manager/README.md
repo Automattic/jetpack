@@ -1,6 +1,6 @@
 # agents-manager
 
-Shared AI infrastucture helpers for Automattic plugins
+Shared AI infrastructure helpers for Automattic plugins
 
 ## How to install agents-manager
 

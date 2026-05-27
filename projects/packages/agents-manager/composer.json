@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-agents-manager",
-	"description": "Shared AI infrastucture helpers for Automattic plugins",
+	"description": "Shared AI infrastructure helpers for Automattic plugins",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
