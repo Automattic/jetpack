@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { execa } from 'execa';
 
 const DEBUG_LOG = '/var/www/html/wp-content/debug.log';
@@ -42,17 +43,34 @@ export async function findWordPressContainer() {
 }
 
 /**
- * Read the tail of the WordPress debug.log inside the container.
+ * Read the tail of the WordPress debug.log.
+ *
+ * Resolution order:
+ * 1. Explicit `logPath` option (or `JETPACK_FASTBUILD_LOG` env var) → host-side file.
+ * 2. Explicit `container` option → `docker exec`.
+ * 3. Auto-detected Jetpack dev container → `docker exec`.
+ * 4. Nothing available → returns `{ container: null, log: '' }`.
  *
  * @param {object} [options]           - Options.
  * @param {string} [options.container] - Container name (auto-detected when omitted).
+ * @param {string} [options.logPath]   - Host-side path to debug.log (overrides docker).
  * @param {number} [options.lines]     - Number of trailing lines to read.
- * @return {Promise<{ container: string|null, log: string }>} Tail contents (empty string when unavailable).
+ * @return {Promise<{ container: string|null, source: string, log: string }>} Tail contents and where they came from.
  */
-export async function readDebugLogTail( { container, lines = 500 } = {} ) {
+export async function readDebugLogTail( { container, logPath, lines = 500 } = {} ) {
+	const effectiveLogPath = logPath || process.env.JETPACK_FASTBUILD_LOG || '';
+	if ( effectiveLogPath ) {
+		try {
+			const data = await fs.readFile( effectiveLogPath, { encoding: 'utf8' } );
+			const tail = data.split( '\n' ).slice( -lines ).join( '\n' );
+			return { container: null, source: effectiveLogPath, log: tail };
+		} catch {
+			return { container: null, source: effectiveLogPath, log: '' };
+		}
+	}
 	const name = container || ( await findWordPressContainer() );
 	if ( ! name ) {
-		return { container: null, log: '' };
+		return { container: null, source: '', log: '' };
 	}
 	try {
 		const { stdout } = await execa(
@@ -60,9 +78,9 @@ export async function readDebugLogTail( { container, lines = 500 } = {} ) {
 			[ 'exec', name, 'tail', '-n', String( lines ), DEBUG_LOG ],
 			{ reject: false }
 		);
-		return { container: name, log: stdout || '' };
+		return { container: name, source: `docker:${ name }`, log: stdout || '' };
 	} catch {
-		return { container: name, log: '' };
+		return { container: name, source: `docker:${ name }`, log: '' };
 	}
 }
 
@@ -107,6 +125,6 @@ export function extractMissingSymbols( log ) {
  * @return {Promise<{ container: string|null, missing: string[] }>} Result.
  */
 export async function scanForMissingSymbols( options = {} ) {
-	const { container, log } = await readDebugLogTail( options );
-	return { container, missing: extractMissingSymbols( log ) };
+	const { container, source, log } = await readDebugLogTail( options );
+	return { container, source, missing: extractMissingSymbols( log ) };
 }

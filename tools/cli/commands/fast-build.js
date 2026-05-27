@@ -105,6 +105,11 @@ export function builder( yargs ) {
 			default: false,
 			description:
 				'Stamp every project (or those named as positionals) at the current HEAD without running anything, so future runs have a baseline. Useful for first-time setup without doing a full `jetpack build`.',
+		} )
+		.option( 'log-path', {
+			type: 'string',
+			description:
+				'Read debug.log from this host-side path instead of the docker container (also honors $JETPACK_FASTBUILD_LOG). Use for wp-env / Playground / custom local setups.',
 		} );
 }
 
@@ -442,7 +447,7 @@ async function verify( argv, { expected = [], cwd = process.cwd() } = {} ) {
 	} catch {
 		// Leave status null — caller decides how strict to be.
 	}
-	const scan = await scanForMissingSymbols( { lines: argv.lines } );
+	const scan = await scanForMissingSymbols( { lines: argv.lines, logPath: argv.logPath } );
 	const expectedReport = expected.length ? await checkClassmaps( expected, cwd ) : [];
 	return { status, missing: scan.missing, expected: expectedReport };
 }
@@ -534,7 +539,7 @@ export async function handler( argv ) {
 	let logPlan = new Map();
 	let logResolved = [];
 	if ( argv.logScan ) {
-		logScan = await scanForMissingSymbols( { lines: argv.lines } );
+		logScan = await scanForMissingSymbols( { lines: argv.lines, logPath: argv.logPath } );
 		( { plan: logPlan, resolved: logResolved } = await planFromLogScan(
 			deps,
 			logScan,
@@ -688,15 +693,19 @@ function printFailures( failures ) {
  * @param {object}                                                        argv        - Argv.
  */
 function printPlanHeader( logScan, logResolved, ordered, heavy, argv ) {
-	if ( logScan.container ) {
+	if ( logScan.source && logScan.source.startsWith( 'docker:' ) ) {
 		console.log( chalk.grey( `Scanned debug.log in ${ logScan.container }.` ) );
+	} else if ( logScan.source ) {
+		console.log( chalk.grey( `Scanned debug.log from ${ logScan.source }.` ) );
 	} else if ( argv.logScan ) {
 		console.log( chalk.grey( 'No running Jetpack dev container detected — skipping log scan.' ) );
 		console.log(
 			chalk.grey(
 				`  Tip: ${ chalk.bold(
 					'jetpack docker up -d'
-				) } starts the dev environment so Signal 1 can read its debug.log.`
+				) } starts the dev environment, or pass ${ chalk.bold(
+					'--log-path /path/to/debug.log'
+				) } to read a host-side log file (e.g. wp-env / Playground / custom setups).`
 			)
 		);
 	}
