@@ -1143,9 +1143,22 @@ class Search_Blocks {
 	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
+	border: 1px solid rgba(128, 128, 128, 0.25);
 	border-radius: 4px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
+}
+/* Token-aware card / scrim separation (SEARCH-270): tint the resolved surface
+ * ~5% toward ink and paint the hairline border with the same ink-over-surface
+ * mix used for the header `::before`. Both auto-invert polarity per theme, so
+ * dark themes get a card that visibly layers above the scrim without losing
+ * the themed surface color. The static `rgba(128,128,128,.25)` border + the
+ * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
+@supports (background: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__card {
+		--jp-search-overlay-surface: color-mix(in sRGB, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)) 5%, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		border-color: color-mix(in sRGB, var(--jp-search-overlay-ink) 20%, var(--jp-search-overlay-surface));
+	}
 }
 /* Single hairline over the full 60px header strip — siblings paint with a seam (SEARCH-260). */
 .jetpack-search-block-overlay__card::before {
@@ -1269,6 +1282,7 @@ class Search_Blocks {
 	}
 	.jetpack-search-block-overlay__card {
 		min-height: 100vh;
+		border: 0;
 		border-radius: 0;
 		box-shadow: none;
 	}
