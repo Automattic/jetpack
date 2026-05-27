@@ -9,6 +9,7 @@ src/build-module/**  production-include
 # Remember to end all directories with `/**` to properly tag every file.
 bin/**                     production-exclude
 src/**/test/**             production-exclude
+src/**/tests/**            production-exclude
 src/**/*.scss              production-exclude
 src/**/*.ts                production-exclude
 src/**/*.tsx               production-exclude
