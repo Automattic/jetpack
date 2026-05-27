@@ -84,8 +84,13 @@ trait Assert_Rest_Xmlrpc_Parity {
 	 *
 	 * @param WPCOM_JSON_API_Endpoint $endpoint   The endpoint under test.
 	 * @param array                   $query      Request params (number, context, type, ...).
-	 * @param array                   $url_params Route placeholder values beyond the site, in path
-	 *                                            order (post id, slug, ...).
+	 * @param array                   $url_params Route placeholder values beyond the site, as an
+	 *                                            associative map of REST param name => value, in path
+	 *                                            order (e.g. array( 'post_id' => 5 )). Must be string
+	 *                                            keyed: rest_callback() merges these as
+	 *                                            array( $path, $blog_id ) + get_url_params(), so
+	 *                                            numeric keys (0, 1) would collide with $path/$blog_id
+	 *                                            and the value would be dropped on the REST side.
 	 * @param string|null             $api_path   Concrete API path; defaults to the endpoint path
 	 *                                            with the blog id and $url_params substituted.
 	 * @return array{0: mixed, 1: mixed} [ xmlrpc_body, rest_body ] for further assertions.
@@ -94,8 +99,8 @@ trait Assert_Rest_Xmlrpc_Parity {
 		$this->prepare_rest_parity_env();
 
 		if ( null === $api_path ) {
-			// The site is always the first placeholder; any remaining placeholders (post id, slug)
-			// are filled positionally from $url_params, so multi-placeholder paths resolve too.
+			// The site is always the first placeholder; remaining placeholders (post id, slug) are
+			// filled from $url_params values in path order, so multi-placeholder paths resolve too.
 			$api_path = false === strpos( (string) $endpoint->path, '%' )
 				? $endpoint->path
 				: vsprintf( $endpoint->path, array_merge( array( $this->rest_parity_blog_id ), array_values( $url_params ) ) );

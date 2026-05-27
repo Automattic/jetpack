@@ -32,6 +32,21 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 	use Assert_Rest_Xmlrpc_Parity;
 
 	/**
+	 * Per-test setup.
+	 *
+	 * Endpoints build links via WPCOM_JSON_API__BASE (sal/class.json-api-links.php); define it as
+	 * the sibling endpoint tests do so the sweep is runnable in isolation, not just when another
+	 * test in the run has already defined the constant.
+	 */
+	public function set_up() {
+		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
+			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+		}
+
+		parent::set_up();
+	}
+
+	/**
 	 * Per-test cleanup.
 	 */
 	public function tear_down() {
