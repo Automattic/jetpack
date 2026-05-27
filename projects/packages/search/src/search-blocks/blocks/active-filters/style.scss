@@ -4,11 +4,7 @@
 	gap: 0.5rem;
 	flex-wrap: wrap;
 
-	// `[hidden]` covers the pre-paint FOUC guard emitted by render.php;
-	// `.is-empty` covers post-hydration state-change visibility via
-	// `data-wp-class--is-empty`.
-	&[hidden],
-	&.is-empty {
+	&[hidden] {
 		display: none;
 	}
 

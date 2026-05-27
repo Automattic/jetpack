@@ -13,10 +13,10 @@ namespace Automattic\Jetpack\Search;
 
 // First-paint FOUC guard: emit `hidden` on the wrapper when the seeded state
 // has no active filters, so the "Active filters:" heading doesn't briefly
-// render before hydration and push siblings ~30px down. `data-wp-class--is-empty`
-// takes over once hydration starts. Reads activeFilters AND priceRange so a
-// price-only deep link doesn't keep the wrapper hidden after hydration sees a
-// half-open range come through the URL.
+// render before hydration and push siblings ~30px down — `data-wp-bind--hidden`
+// keeps the attribute reactive afterwards. Reads activeFilters AND priceRange
+// so a price-only deep link doesn't keep the wrapper hidden after hydration
+// sees a half-open range come through the URL.
 $seeded_state        = function_exists( 'wp_interactivity_state' )
 	? wp_interactivity_state( 'jetpack-search' )
 	: array();
@@ -51,7 +51,7 @@ $in_interactive_scope = ! empty( $block->context['jetpack-search/inInteractiveSc
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	<?php echo $in_interactive_scope ? '' : 'data-wp-interactive="jetpack-search"'; ?>
-	data-wp-class--is-empty="!state.hasActiveFilters"
+	data-wp-bind--hidden="!state.hasActiveFilters"
 	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
 >
 	<span class="jetpack-search-active-filters__heading">
