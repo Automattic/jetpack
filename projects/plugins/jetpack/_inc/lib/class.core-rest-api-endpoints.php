@@ -1498,7 +1498,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function jetpack_connection_test() {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 
 		if ( $cxntests->pass() ) {
 			return rest_ensure_response(
@@ -1567,7 +1567,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
 		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 
 		if ( $cxntests->pass() ) {
 			$result = array(

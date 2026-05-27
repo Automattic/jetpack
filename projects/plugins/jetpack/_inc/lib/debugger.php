@@ -17,9 +17,41 @@ require_once __DIR__ . '/debugger/class-jetpack-cxn-tests.php';
 require_once __DIR__ . '/debugger/class-jetpack-debug-data.php';
 /* The "In-Plugin Debugger" admin page. */
 require_once __DIR__ . '/debugger/class-jetpack-debugger.php';
-/* General Debugging Functions */
-require_once __DIR__ . '/debugger/debug-functions.php';
 
 add_filter( 'debug_information', array( 'Jetpack_Debug_Data', 'core_debug_data' ) );
-add_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' );
-add_action( 'wp_ajax_health-check-jetpack-local_testing_suite', 'jetpack_debugger_ajax_local_testing_suite' );
+
+/*
+ * Use the beta support group URL for development versions of Jetpack.
+ */
+add_filter(
+	'jetpack_connection_support_url',
+	function ( $url ) {
+		if ( Jetpack::is_development_version() ) {
+			return Automattic\Jetpack\Redirect::get_url( 'jetpack-contact-support-beta-group' );
+		}
+		return $url;
+	}
+);
+
+/*
+ * Provide the Jetpack reconnect URL for connection health test failures.
+ */
+add_filter(
+	'jetpack_connection_reconnect_url',
+	function () {
+		return admin_url( 'admin.php?page=jetpack#/reconnect' );
+	}
+);
+
+/*
+ * Register Jetpack-specific tests with the connection package's Site Health integration.
+ * This adds Jetpack tests (sync health) alongside the connection package's own tests
+ * when Site Health runs.
+ */
+add_action(
+	'jetpack_connection_tests_loaded',
+	function ( $connection_tests ) {
+		$jetpack_tests = new Jetpack_Cxn_Tests();
+		$jetpack_tests->register_tests_on( $connection_tests );
+	}
+);
