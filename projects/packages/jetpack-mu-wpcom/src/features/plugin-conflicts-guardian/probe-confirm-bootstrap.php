@@ -21,12 +21,14 @@ function pcg_confirm_maybe_register_hook() {
 		return;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- only used as a literal flag comparison; no sanitization needed.
-	if ( '1' !== ( $_GET['pcg_probe'] ?? '' ) || '1' !== ( $_GET['pcg_confirm'] ?? '' ) ) {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- token (validated below) is the nonce.
+	$probe_flag   = sanitize_text_field( wp_unslash( $_GET['pcg_probe'] ?? '' ) );
+	$confirm_flag = sanitize_text_field( wp_unslash( $_GET['pcg_confirm'] ?? '' ) );
+	$raw_token    = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	if ( '1' !== $probe_flag || '1' !== $confirm_flag ) {
 		return;
 	}
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
-	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' );
 	// Length is locked to what wp_generate_password( 32, false ) emits;
 	// the transient lookup is still the real gate, but anchoring length
 	// here rules out truncation / accidental-collision noise.
