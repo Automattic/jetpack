@@ -121,6 +121,13 @@ export function builder( yargs ) {
 			type: 'number',
 			default: 3,
 			description: 'In --watch mode, seconds between log scans.',
+		} )
+		.option( 'production', {
+			alias: 'p',
+			type: 'boolean',
+			default: false,
+			description:
+				'Select the `build-production` composer script for `build` actions instead of `build-development`. Mirrors `jetpack build --production`.',
 		} );
 }
 
