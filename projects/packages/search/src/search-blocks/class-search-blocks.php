@@ -1390,13 +1390,6 @@ CSS;
 		flex-basis: 100% !important;
 	}
 }
-/* Sidebar is showing; hide the in-header popover entirely so a stale
- * `is-popover-open` class can't leak its panel into view. */
-@media (min-width: 992px) {
-	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
-		display: none;
-	}
-}
 /* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
  * light themes and visible on dark themes, matching the search-input
  * underline. We only set color; each template's column block sets
@@ -1411,30 +1404,32 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Visually join the sidebar's left divider to the search-input hairline.
- * Two cooperating rules, both scoped to >= 992px (below that, the sidebar
- * is `display: none`):
+/* Sidebar-showing rules (>= 992px):
  *
- * 1. Force the columns row to top-align — the block-layout default
+ * 1. Hide the in-header filters-popover entirely so a stale
+ *    `is-popover-open` class can't leak its panel into view while the
+ *    sidebar is doing the filter job.
+ *
+ * 2. Force the columns row to top-align — the block-layout default
  *    (`.is-layout-flex { align-items: center }`) vertically centers the
  *    shorter filters column inside the taller results column, dropping
  *    the sidebar's top edge well below the columns-row top. Top-aligning
- *    pins it back to the row's top so the border-left starts at a
- *    predictable y, alongside the results column.
+ *    pins it back to the row's top so the border-left starts alongside
+ *    the results column. Scoped via `:has(> filters-column)` so unrelated
+ *    `wp:columns` blocks elsewhere in the template are unaffected.
  *
- * 2. Bridge the outer-group `blockGap` with a 1px `::before` extending
+ * 3. Bridge the outer-group `blockGap` with a 1px `::before` extending
  *    upward from the column's top edge to (just past) the hairline. The
  *    1.5rem height matches the `spacing.blockGap` declared on the outer
  *    `wp:group` in every template under `templates/`; on themes whose
- *    block-layout system swallows the per-container override and falls
- *    back to a smaller `--wp--style--block-gap` (e.g. TT5's 1.2rem), the
- *    extra ~0.3rem overshoots into the search-input's vertical padding
- *    — invisible against the hairline-colored padding area.
- *
- * The `:has()` selector caps the alignment override to columns rows that
- * actually contain our filter sidebar, so unrelated `wp:columns` blocks
- * elsewhere in the template are unaffected. */
+ *    block-layout swallows the per-container override and falls back to
+ *    a smaller `--wp--style--block-gap` (e.g. TT5's 1.2rem), the extra
+ *    ~0.3rem overshoots into the search-input's vertical padding —
+ *    visually neutral. */
 @media (min-width: 992px) {
+	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
+		display: none;
+	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) {
 		align-items: flex-start;
 	}
