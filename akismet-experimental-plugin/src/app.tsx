@@ -3,6 +3,7 @@ import { Page } from '@wordpress/admin-ui';
 import { SlotFillProvider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { createQueryClient } from '@/lib/query-client';
+import '@/styles/app.scss';
 
 const queryClient = createQueryClient();
 
