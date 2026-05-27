@@ -1411,6 +1411,18 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
+/* Pull the filters column up by the outer-group `blockGap` so its left
+ * border meets the search-input hairline; matching `padding-top` keeps the
+ * sidebar's visible content aligned with the results column. The 1.5rem
+ * literal mirrors the `spacing.blockGap` set on the outer `wp:group` in
+ * every template under `templates/` — if that gap changes, this must too.
+ * Scoped to >= 992px because below that the sidebar is `display: none`. */
+@media (min-width: 992px) {
+	.jetpack-search-layout__filters-column {
+		margin-top: -1.5rem;
+		padding-top: 1.5rem;
+	}
+}
 CSS;
 	}
 
