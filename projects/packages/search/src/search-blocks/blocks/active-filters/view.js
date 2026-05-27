@@ -1,6 +1,6 @@
-import { store, getContext, getElement } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import 'jetpack-search/store';
-import { buildActivePills, dedupePillsInUl } from './lib';
+import { buildActivePills } from './lib';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
@@ -22,43 +22,6 @@ store( NAMESPACE, {
 		get activePills() {
 			const { state } = store( NAMESPACE );
 			return buildActivePills( state );
-		},
-	},
-
-	callbacks: {
-		/**
-		 * Reconcile materialized `<li>` pill children against
-		 * `state.activePills` on every state change. Defends against an
-		 * Interactivity API hydration quirk on some hosts that doubles the
-		 * `data-wp-each` materialization (see SEARCH-266 + `dedupePillsInUl`).
-		 *
-		 * Reads `state.activePills` so the watch tracks it as a dep. The
-		 * dedupe runs both eagerly (on every state change) and via a
-		 * MutationObserver attached on first run: the duplicate `<li>` can
-		 * be added by the Interactivity runtime AFTER the watch callback's
-		 * synchronous tick (and after a single rAF) — the observer catches
-		 * those late insertions without polling.
-		 */
-		reconcilePills() {
-			const { ref } = getElement();
-			const ul = ref?.querySelector( 'ul.jetpack-search-active-filters__pills' );
-			if ( ! ul ) {
-				return;
-			}
-			const { state } = store( NAMESPACE );
-			// Touch the array so the watch picks it up as a dep.
-			void state.activePills;
-			// Attach a one-time childList observer that re-runs dedupe on
-			// every late `<li>` insertion. Stored on the element so it's
-			// idempotent across watch firings.
-			if ( ! ul.__jetpackPillObserver && typeof MutationObserver !== 'undefined' ) {
-				const observer = new MutationObserver( () => {
-					dedupePillsInUl( ul, store( NAMESPACE ).state.activePills );
-				} );
-				observer.observe( ul, { childList: true } );
-				ul.__jetpackPillObserver = observer;
-			}
-			dedupePillsInUl( ul, state.activePills );
 		},
 	},
 

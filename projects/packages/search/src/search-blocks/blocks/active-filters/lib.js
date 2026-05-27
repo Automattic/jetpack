@@ -106,47 +106,6 @@ export function formatPriceRangeChip( state, range ) {
 }
 
 /**
- * Reconcile the `<li>` children of an active-filters `<ul>` against the
- * authoritative `activePills` list. Defensive cleanup for an Interactivity
- * API hydration quirk on some hosts where a `data-wp-each` template nested
- * inside a same-namespace `data-wp-interactive` ancestor with a
- * `data-wp-bind--hidden` wrapper materializes pills twice (see SEARCH-266).
- *
- * Keeps the first `<li>` per `data-pill-id`, drops duplicates and any
- * `<li>` whose pill id is no longer active.
- *
- * Split out as a pure function so it's testable without an Interactivity
- * API runtime.
- *
- * @param {Element}       ul          - The pills `<ul>` element.
- * @param {Array<object>} activePills - Current pill descriptors.
- */
-export function dedupePillsInUl( ul, activePills ) {
-	if ( ! ul ) {
-		return;
-	}
-	const validIds = new Set( ( activePills || [] ).map( pill => pill.id ) );
-	const seen = new Set();
-	const toRemove = [];
-	for ( const child of ul.children ) {
-		// Skip the `data-wp-each` <template> source — only materialized
-		// children carry `data-pill-id`.
-		if ( child.tagName === 'TEMPLATE' || ! child.hasAttribute( 'data-pill-id' ) ) {
-			continue;
-		}
-		const pillId = child.getAttribute( 'data-pill-id' );
-		if ( ! validIds.has( pillId ) || seen.has( pillId ) ) {
-			toRemove.push( child );
-			continue;
-		}
-		seen.add( pillId );
-	}
-	for ( const li of toRemove ) {
-		li.remove();
-	}
-}
-
-/**
  * Pill descriptors for the active-filters block. `kind: 'filter'` per
  * selected value, plus a `kind: 'priceRange'` pill when a price range is active.
  *

@@ -10,7 +10,14 @@
 		"displayMode": {
 			"type": "string",
 			"default": "popover-always"
+		},
+		"interactiveScope": {
+			"type": "boolean",
+			"default": true
 		}
+	},
+	"providesContext": {
+		"jetpack-search/inInteractiveScope": "interactiveScope"
 	},
 	"supports": {
 		"html": false,
