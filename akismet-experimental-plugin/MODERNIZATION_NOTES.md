@@ -3,7 +3,7 @@
 - **Plugin name:** Akismet Experimental UI
 - **Path in this worktree:** `akismet-experimental-plugin/`
 - **Production target path:** `wpcom/wp-content/mu-plugins/akismet-3.0/` (file copy / sync on approval)
-- **Branch:** `claude/crazy-blackwell-8993b6` (this worktree's branch)
+- **Branch:** `claude/akismet-experimental-ui-exploration` (this worktree's branch — local only, never pushed; the public-facing snapshot lives at `claude/akismet-experimental-plugin-foundation`)
 - **Purpose:** Internal R&D — prototype the unified-threat dashboard articulated in [../akismet-modernization/strategy.md](../akismet-modernization/strategy.md). Not shipped to wp.org.
 
 ## Activation
