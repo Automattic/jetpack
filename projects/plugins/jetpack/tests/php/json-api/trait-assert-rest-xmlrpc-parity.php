@@ -292,10 +292,8 @@ trait Assert_Rest_Xmlrpc_Parity {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 
-		// rest_callback()'s signature check (Connection\Manager::verify_xml_rpc_signature) rebuilds
-		// the HMAC from these superglobals, not from the WP_REST_Request route. So the request line
-		// here is fixed and self-consistent with the signature computed below -- the actual endpoint
-		// route the request object carries is irrelevant to verification.
+		// Signature verification rebuilds the HMAC from these superglobals, not the WP_REST_Request
+		// route, so this fixed request line only has to match the signature computed below.
 		$_SERVER['HTTP_HOST']      = 'example.org';
 		$_SERVER['REQUEST_URI']    = '/jetpack/v4/test?qstest=yep';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
