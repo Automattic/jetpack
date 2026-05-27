@@ -2008,4 +2008,71 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 	}
+
+	// ---- Connection test endpoints ----
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint without authentication.
+	 */
+	public function test_connection_test_unauthenticated() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint with an editor (no manage_options).
+	 */
+	public function test_connection_test_insufficient_permissions() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'invalid_user_permission_manage_options', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test` endpoint when all tests pass.
+	 */
+	public function test_connection_test_success() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Without a real connection the tests will fail, but the endpoint itself should return 200.
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'code', $data );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint without signature params.
+	 */
+	public function test_connection_test_wpcom_missing_signature() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection/test-wpcom` endpoint with an expired timestamp.
+	 */
+	public function test_connection_test_wpcom_expired_signature() {
+		$expired_timestamp  = time() - 600; // 10 minutes ago, limit is 5.
+		$_GET['signature']  = base64_encode( 'fake-signature' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['timestamp']  = (string) $expired_timestamp;
+		$_GET['url']        = 'https://example.org';
+		$_GET['rest_route'] = '/jetpack/v4/connection/test-wpcom';
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test-wpcom' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
 }

@@ -130,6 +130,30 @@ class REST_Connector {
 			)
 		);
 
+		// Run all connection health tests.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/test',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_test' ),
+				'permission_callback' => __CLASS__ . '::connection_test_permission_check',
+			),
+			true // override other implementations.
+		);
+
+		// Connection health tests for privileged external callers (WP.com debugger).
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/test-wpcom',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_test_for_external' ),
+				'permission_callback' => __CLASS__ . '::is_request_signed_by_jetpack_debugger',
+			),
+			true // override other implementations.
+		);
+
 		// Get current connection status of Jetpack.
 		register_rest_route(
 			'jetpack/v4',
@@ -1065,6 +1089,112 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Permission check for the connection/test endpoint.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function connection_test_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_manage_options',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Run all connection health tests and return the result.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function connection_test() {
+		$cxntests = new Connection_Health_Tests();
+
+		if ( $cxntests->pass() ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => __( 'All connection tests passed.', 'jetpack-connection' ),
+				)
+			);
+		}
+
+		return $cxntests->output_fails_as_wp_error();
+	}
+
+	/**
+	 * Run connection health tests for a privileged external caller (WP.com debugger).
+	 *
+	 * Results are encrypted so only WP.com can read them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function connection_test_for_external() {
+		// Since we are running this test for inclusion in the WP.com testing suite,
+		// let's not try to run them as part of these results.
+		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
+
+		$cxntests = new Connection_Health_Tests();
+
+		if ( $cxntests->pass() ) {
+			$result = array(
+				'code'    => 'success',
+				'message' => __( 'All connection tests passed.', 'jetpack-connection' ),
+			);
+		} else {
+			$error  = $cxntests->output_fails_as_wp_error();
+			$errors = array();
+
+			// Borrowed from WP_REST_Server::error_to_response().
+			foreach ( (array) $error->errors as $code => $messages ) {
+				foreach ( (array) $messages as $message ) {
+					$errors[] = array(
+						'code'    => $code,
+						'message' => $message,
+						'data'    => $error->get_error_data( $code ),
+					);
+				}
+			}
+
+			$result = ( ! empty( $errors ) ) ? $errors[0] : null;
+			if ( count( $errors ) > 1 ) {
+				// Remove the primary error.
+				array_shift( $errors );
+				$result['additional_errors'] = $errors;
+			}
+		}
+
+		$result = wp_json_encode( $result, JSON_UNESCAPED_SLASHES );
+
+		$encrypted = $cxntests->encrypt_string_for_wpcom( $result );
+
+		if ( ! $encrypted || ! is_array( $encrypted ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'action_required',
+					'message' => 'Please request results from the in-plugin debugger',
+				)
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'  => 'response',
+				'debug' => $encrypted,
+			)
+		);
 	}
 
 	/**
