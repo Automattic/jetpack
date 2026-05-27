@@ -87,13 +87,24 @@
 	}
 
 	&__button {
+		// Full-width CTA; the @wordpress/ui Button owns the rest of its chrome
+		// (fill, padding, radius) via its `solid` variant.
 		width: 100%;
-		height: auto;
-		font-size: 18px;
-		padding: 14px 24px;
 		margin: 24px 0 32px;
-		justify-content: center;
-		align-items: center;
+
+		// Bump the font one step up from the Button default (md/13px) to lg
+		// (15px) for a more prominent hero CTA. No exact 18px token exists
+		// (the scale jumps 15px -> 20px). We must set the Button's own
+		// `--wp-ui-button-font-size` knob rather than `font-size` directly:
+		// @wordpress/ui ships an unlayered "global-CSS-defense" rule
+		// (`font-size: var(--_gcd-button-font-size)`) that outranks our
+		// unlayered class on source order, so a plain `font-size` here is
+		// ignored. The knob feeds both that defense and the layered rule.
+
+		// NOTE: `--wp-ui-button-font-size` is an *internal* @wordpress/ui
+		// variable (not a public API). Re-check this still exists / is named
+		// the same whenever @wordpress/ui is upgraded.
+		--wp-ui-button-font-size: var(--wpds-typography-font-size-lg);
 	}
 
 	&__info,

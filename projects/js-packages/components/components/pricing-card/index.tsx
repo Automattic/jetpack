@@ -1,6 +1,6 @@
 import { getCurrencyObject } from '@automattic/number-formatters';
-import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import LoadingPlaceholder from '../loading-placeholder/index.tsx';
 import TermsOfService from '../terms-of-service/index.tsx';
 import type { PricingCardProps } from './types.ts';
@@ -113,8 +113,8 @@ const PricingCard: FC< PricingCardProps > = ( {
 					) }
 					<div className="jp-components__pricing-card__cta">
 						<Button
+							variant="solid"
 							className="jp-components__pricing-card__button"
-							label={ props.ctaText }
 							onClick={ props.onCtaClick }
 						>
 							{ props.ctaText }
