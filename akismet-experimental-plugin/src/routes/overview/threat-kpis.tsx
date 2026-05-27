@@ -1,11 +1,15 @@
 /**
- * `<ThreatKPIs>` — the headline row above the category grid.
+ * `<ThreatKPIs>` — the headline panel at the top of the Overview tab.
  *
  * Sums blocked / challenged / passed across all categories that have
  * data (skips `not_active_here` cards so the WC contribution doesn't
  * inflate the total on sites without WC). When any contributing category
  * is `preview: true`, surfaces a caveat line so reviewers can tell what
  * portion of the headline is mocked.
+ *
+ * Visual treatment: a single light surface with eyebrow → big number →
+ * label → colored-dot breakdown → optional caveat. Matches modern WP.com
+ * stats-panel hierarchy. All counts use tabular-nums.
  *
  * Rules-of-hooks: calls `useCategorySummary` once per CATEGORIES entry in
  * a stable-length array. React's hook order stays consistent across
@@ -30,7 +34,7 @@ function formatNumber( value: number ): string {
 }
 
 /**
- * Map an interval to its English-localized "in the last X" copy.
+ * Map an interval to the "in the last X" copy used in the headline.
  *
  * @param interval - The interval id.
  * @return Translated phrase.
@@ -49,7 +53,7 @@ function intervalLabel( interval: StatsInterval ): string {
 }
 
 /**
- * Render the headline KPI row.
+ * Render the headline KPI panel.
  *
  * @param props - The component props.
  * @return The headline + breakdown + (optional) preview caveat.
@@ -63,7 +67,11 @@ export function ThreatKPIs( props: Props ): JSX.Element {
 	const summaries = CATEGORIES.map( def => useCategorySummary( def.id, interval ) );
 
 	if ( summaries.some( s => s.isLoading ) ) {
-		return <Spinner />;
+		return (
+			<section className="akismet-threat-kpis">
+				<Spinner />
+			</section>
+		);
 	}
 
 	let totalBlocked = 0;
@@ -87,22 +95,37 @@ export function ThreatKPIs( props: Props ): JSX.Element {
 
 	return (
 		<section className="akismet-threat-kpis">
-			<p className="akismet-threat-kpis__headline">
-				<strong>{ formatNumber( total ) }</strong>{ ' ' }
-				{ _n( 'threat handled', 'threats handled', total, 'akismet' ) }{ ' ' }
-				{ intervalLabel( interval ) }
+			<span className="akismet-threat-kpis__eyebrow">{ __( 'Threat protection', 'akismet' ) }</span>
+			<p className="akismet-threat-kpis__total">
+				<span className="akismet-threat-kpis__total-value">{ formatNumber( total ) }</span>
+				<span className="akismet-threat-kpis__total-label">
+					{ _n( 'threat handled', 'threats handled', total, 'akismet' ) }{ ' ' }
+					{ intervalLabel( interval ) }
+				</span>
 			</p>
-			<p className="akismet-threat-kpis__breakdown">
-				{ sprintf(
-					/* translators: 1: blocked count 2: challenged count 3: passed-challenge count */
-					__( '%1$s blocked · %2$s challenged · %3$s passed challenge', 'akismet' ),
-					formatNumber( totalBlocked ),
-					formatNumber( totalChallenged ),
-					formatNumber( totalPassed )
-				) }
-			</p>
+			<ul className="akismet-threat-kpis__breakdown">
+				<li className="akismet-threat-kpis__breakdown-item akismet-threat-kpis__breakdown-item--blocked">
+					<span className="akismet-threat-kpis__breakdown-count">
+						{ formatNumber( totalBlocked ) }
+					</span>
+					<span>{ __( 'Blocked', 'akismet' ) }</span>
+				</li>
+				<li className="akismet-threat-kpis__breakdown-item akismet-threat-kpis__breakdown-item--challenged">
+					<span className="akismet-threat-kpis__breakdown-count">
+						{ formatNumber( totalChallenged ) }
+					</span>
+					<span>{ __( 'Challenged', 'akismet' ) }</span>
+				</li>
+				<li className="akismet-threat-kpis__breakdown-item akismet-threat-kpis__breakdown-item--passed">
+					<span className="akismet-threat-kpis__breakdown-count">
+						{ formatNumber( totalPassed ) }
+					</span>
+					<span>{ __( 'Passed challenge', 'akismet' ) }</span>
+				</li>
+			</ul>
 			{ totalPreview > 0 && (
 				<p className="akismet-threat-kpis__caveat">
+					<span className="dashicons dashicons-info-outline" aria-hidden="true" />
 					{ sprintf(
 						/* translators: %s: count of preview-data threats. */
 						__(

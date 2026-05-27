@@ -1,13 +1,15 @@
-// Page-shell styles for the experimental Akismet UI.
-//
-// `@wordpress/admin-ui`'s <Page> and `@wordpress/ui`'s <Tabs> ship as CSS
-// Modules with hashed class names (e.g. `_19ce0419607e1896__stack`). The
-// HASH varies between builds but the SUFFIX after `__` is stable (it comes
-// from the source file's class name). We target via attribute selectors on
-// those suffixes: `[class*="__header-title"]`, `[class*="__tablist"]`, etc.
-//
-// If a future version of admin-ui renames a suffix, these rules will silently
-// stop matching — we'll catch that in manual QA and update.
+/*
+ * Page-shell styles for the experimental Akismet UI.
+ *
+ * `@wordpress/admin-ui`'s <Page> and `@wordpress/ui`'s <Tabs> ship as CSS
+ * Modules with hashed class names (e.g. `_19ce0419607e1896__stack`). The
+ * HASH varies between builds but the SUFFIX after `__` is stable (it comes
+ * from the source file's class name). We target via attribute selectors on
+ * those suffixes: `[class*="__header-title"]`, `[class*="__tablist"]`, etc.
+ *
+ * If a future version of admin-ui renames a suffix, these rules will silently
+ * stop matching — we'll catch that in manual QA and update.
+ */
 
 .akismet-experimental {
 	// Override the Page header h1: <Page> ships it at 15px / weight ~500.
@@ -63,6 +65,8 @@
 
 	// Tab panels: where our routes mount. Pad the body and constrain max width
 	// so settings forms / connect cards don't stretch across an ultrawide.
+	// The Overview tab opts OUT of the cap via .akismet-overview-wide because
+	// its six-card grid + WC panel need the full container width to breathe.
 	[role="tabpanel"] {
 		padding: 24px;
 
@@ -70,20 +74,41 @@
 		> * {
 			max-width: 720px;
 		}
+
+		// Opt-out: anything tagged .akismet-overview-wide goes edge-to-edge
+		// (capped only by a sensible "wide content" max so it doesn't sprawl
+		// on ultra-wide monitors). The Overview tab uses this.
+		> .akismet-overview-wide {
+			max-width: 1280px;
+		}
 	}
 
 	// Standard "preview data" badge used by category cards (Plan 2) and
 	// activity rows (Plan 3). Kept in the foundation styles so any surface
-	// can mark mocked output consistently.
+	// can mark mocked output consistently. Subtle pill — gray bg, dark text,
+	// no bright fill (the WP.com / Gutenberg badge convention).
 	&__badge {
-		display: inline-block;
-		background: var(--wp-components-color-accent-04, #fff9c4);
-		color: var(--wp-components-color-foreground, #1e1e1e);
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		background: rgb(0 0 0 / 4%);
+		color: #50575e;
 		font-size: 11px;
 		font-weight: 500;
-		padding: 2px 6px;
+		line-height: 1;
+		padding: 4px 8px;
 		margin-left: 8px;
-		border-radius: 4px;
-		text-transform: lowercase;
+		border-radius: 2px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+
+		&::before {
+			content: "";
+			display: inline-block;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: #b8b8c0;
+		}
 	}
 }

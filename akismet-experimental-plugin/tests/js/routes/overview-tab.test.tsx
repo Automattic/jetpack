@@ -31,14 +31,14 @@ describe( 'OverviewTab', () => {
 	it( 'renders the empty state when no API key is configured', async () => {
 		renderWithClient( <OverviewTab /> );
 		await expect(
-			screen.findByRole( 'button', { name: /Go to Account/i } )
+			screen.findByRole( 'button', { name: /Connect Akismet/i } )
 		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'invokes onNavigateToAccount when the empty-state button is clicked', async () => {
 		const onNavigateToAccount = jest.fn();
 		renderWithClient( <OverviewTab onNavigateToAccount={ onNavigateToAccount } /> );
-		const button = await screen.findByRole( 'button', { name: /Go to Account/i } );
+		const button = await screen.findByRole( 'button', { name: /Connect Akismet/i } );
 		await userEvent.click( button );
 		expect( onNavigateToAccount ).toHaveBeenCalled();
 	} );

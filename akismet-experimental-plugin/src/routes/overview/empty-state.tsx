@@ -1,10 +1,10 @@
 /**
  * `<OverviewEmptyState>` — shown on the Overview tab when no Akismet
- * key is configured. Points the reviewer at the Account tab.
- *
- * Kept minimal; the Account tab's <ConnectFlow> is the actual onboarding.
+ * key is configured. Centered hero: icon → headline → sub → primary
+ * button. Drops the @wordpress/components Notice in favor of a proper
+ * empty-state surface matching modern WP.com onboarding panels.
  */
-import { Notice } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 type Props = {
@@ -15,18 +15,29 @@ type Props = {
  * Render the no-key empty state.
  *
  * @param props - The component props.
- * @return The rendered notice.
+ * @return The rendered hero.
  */
 export function OverviewEmptyState( props: Props ): JSX.Element {
 	const { onGoToAccount } = props;
 	return (
-		<div className="akismet-overview-empty">
-			<Notice status="info" isDismissible={ false }>
-				<p>{ __( 'Connect Akismet to start seeing protection data for this site.', 'akismet' ) }</p>
-				<button type="button" className="components-button is-primary" onClick={ onGoToAccount }>
-					{ __( 'Go to Account', 'akismet' ) }
-				</button>
-			</Notice>
-		</div>
+		<section className="akismet-overview-empty">
+			<span className="akismet-overview-empty__icon" aria-hidden="true">
+				<span className="dashicons dashicons-shield" />
+			</span>
+			<h2 className="akismet-overview-empty__title">
+				{ __( 'Turn on protection for this site', 'akismet' ) }
+			</h2>
+			<p className="akismet-overview-empty__body">
+				{ __(
+					'Connect Akismet to start filtering spam, blocking bots, and protecting logins, checkouts, and forms — all from one place.',
+					'akismet'
+				) }
+			</p>
+			<div className="akismet-overview-empty__button">
+				<Button variant="primary" onClick={ onGoToAccount } __next40pxDefaultSize>
+					{ __( 'Connect Akismet', 'akismet' ) }
+				</Button>
+			</div>
+		</section>
 	);
 }

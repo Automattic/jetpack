@@ -8,9 +8,14 @@
  * Empty state when no API key is configured. The drill-down callback
  * is wired up by <App> once Plan 3's Activity tab lands; for now it
  * receives the category id and may no-op or update the URL.
+ *
+ * The wrapper carries `akismet-overview-wide` so it opts out of the
+ * tab-panel 720px cap in app.scss — the six-card grid + WC panel
+ * need the full container width.
  */
 import { Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useApiKey } from '@/hooks/use-api-key';
 import { CategoryGrid } from '@/routes/overview/category-grid';
 import { OverviewEmptyState } from '@/routes/overview/empty-state';
@@ -46,8 +51,14 @@ export function OverviewTab( props: Props ): JSX.Element {
 	}
 
 	return (
-		<div className="akismet-overview">
+		<div className="akismet-overview akismet-overview-wide">
 			<header className="akismet-overview__header">
+				<div className="akismet-overview__header-meta">
+					<span className="akismet-overview__header-eyebrow">{ __( 'Overview', 'akismet' ) }</span>
+					<span className="akismet-overview__header-title">
+						{ __( 'Site-wide threat protection', 'akismet' ) }
+					</span>
+				</div>
 				<IntervalSelector value={ interval } onChange={ setIntervalValue } />
 			</header>
 			<ThreatKPIs interval={ interval } />

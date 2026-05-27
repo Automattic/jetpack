@@ -42,7 +42,7 @@ describe( 'CategoryCard', () => {
 		renderCard( 'comments' );
 		await expect( screen.findByText( /^Comments$/ ) ).resolves.toBeInTheDocument();
 		// Badge appears once data resolves — async.
-		await expect( screen.findByText( /preview data/i ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /^preview$/i ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows blocked count on the Logins card', async () => {
@@ -56,7 +56,7 @@ describe( 'CategoryCard', () => {
 	it( 'renders the Logins card with the preview-data badge', async () => {
 		renderCard( 'logins' );
 		await expect( screen.findByText( /^Logins$/ ) ).resolves.toBeInTheDocument();
-		await expect( screen.findByText( /preview data/i ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /^preview$/i ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders Checkouts as not-active-here when WooCommerce is absent', async () => {

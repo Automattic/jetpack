@@ -4,11 +4,12 @@
  * checkout fraud is the product-meaningful demo because it's measurable
  * in dollars.
  *
- * Three metric cards (orders flagged / blocked checkouts / chargebacks
- * averted) plus a top-signals collapsible. Methodology link points to
- * the (future) blackboxdocs page so the chargeback estimate is honest.
+ * Three KPI tiles + collapsible top-signals list + deep-link into WC
+ * Analytics. Plain divs (not `@wordpress/components` Card) so the WC
+ * purple accent and tile typography stay consistent with the category
+ * cards above.
  */
-import { Card, CardBody, CardHeader, ExternalLink, Spinner } from '@wordpress/components';
+import { ExternalLink, Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { isWooCommerceActive } from '@/hooks/use-is-woocommerce-active';
 import { useWooCommerceFraudSummary } from '@/hooks/use-woocommerce-fraud-summary';
@@ -56,42 +57,59 @@ export function WooCommercePanel( props: Props ): JSX.Element | null {
 	}
 
 	if ( isLoading || ! data ) {
-		return <Spinner />;
+		return (
+			<section className="akismet-woocommerce-panel">
+				<Spinner />
+			</section>
+		);
 	}
 
 	return (
 		<section className="akismet-woocommerce-panel" aria-labelledby="akismet-wc-heading">
 			<header className="akismet-woocommerce-panel__header">
-				<h2 id="akismet-wc-heading">{ __( 'WooCommerce store protection', 'akismet' ) }</h2>
+				<span className="akismet-woocommerce-panel__icon" aria-hidden="true">
+					<span className="dashicons dashicons-cart" />
+				</span>
+				<h2 id="akismet-wc-heading" className="akismet-woocommerce-panel__title">
+					{ __( 'WooCommerce store protection', 'akismet' ) }
+				</h2>
 				{ data.preview && (
-					<span className="akismet-woocommerce-panel__badge">
-						{ __( 'preview data', 'akismet' ) }
-					</span>
+					<span className="akismet-woocommerce-panel__badge">{ __( 'Preview', 'akismet' ) }</span>
 				) }
 			</header>
 			<p className="akismet-woocommerce-panel__lede">
 				{ __( 'Fraud and abuse caught on your store before the order completes.', 'akismet' ) }
 			</p>
 			<div className="akismet-woocommerce-panel__metrics">
-				<Card>
-					<CardHeader>{ __( 'Orders flagged', 'akismet' ) }</CardHeader>
-					<CardBody>{ formatNumber( data.orders_flagged ) }</CardBody>
-				</Card>
-				<Card>
-					<CardHeader>{ __( 'Blocked checkouts', 'akismet' ) }</CardHeader>
-					<CardBody>{ formatNumber( data.blocked_checkouts ) }</CardBody>
-				</Card>
-				<Card>
-					<CardHeader>{ __( 'Chargebacks averted (est.)', 'akismet' ) }</CardHeader>
-					<CardBody>
+				<div className="akismet-woocommerce-panel__metric">
+					<span className="akismet-woocommerce-panel__metric-label">
+						{ __( 'Orders flagged', 'akismet' ) }
+					</span>
+					<span className="akismet-woocommerce-panel__metric-value">
+						{ formatNumber( data.orders_flagged ) }
+					</span>
+				</div>
+				<div className="akismet-woocommerce-panel__metric">
+					<span className="akismet-woocommerce-panel__metric-label">
+						{ __( 'Blocked checkouts', 'akismet' ) }
+					</span>
+					<span className="akismet-woocommerce-panel__metric-value">
+						{ formatNumber( data.blocked_checkouts ) }
+					</span>
+				</div>
+				<div className="akismet-woocommerce-panel__metric">
+					<span className="akismet-woocommerce-panel__metric-label">
+						{ __( 'Chargebacks averted (est.)', 'akismet' ) }
+					</span>
+					<span className="akismet-woocommerce-panel__metric-value">
 						{ formatUsd( data.estimated_chargebacks_averted_usd ) }
-						<p className="akismet-woocommerce-panel__methodology">
-							<ExternalLink href="https://blackboxdocs.wordpress.com/methodology-chargebacks-averted">
-								{ __( 'How is this estimated?', 'akismet' ) }
-							</ExternalLink>
-						</p>
-					</CardBody>
-				</Card>
+					</span>
+					<p className="akismet-woocommerce-panel__methodology">
+						<ExternalLink href="https://blackboxdocs.wordpress.com/methodology-chargebacks-averted">
+							{ __( 'How is this estimated?', 'akismet' ) }
+						</ExternalLink>
+					</p>
+				</div>
 			</div>
 			<details className="akismet-woocommerce-panel__signals">
 				<summary>{ __( 'Top fraud signals', 'akismet' ) }</summary>

@@ -58,6 +58,6 @@ describe( 'WooCommercePanel', () => {
 			wooFraud: { '30-days': { wfp_active: false } },
 		} );
 		renderWithClient( <WooCommercePanel interval="30-days" /> );
-		await expect( screen.findByText( /preview data/i ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /^preview$/i ) ).resolves.toBeInTheDocument();
 	} );
 } );
