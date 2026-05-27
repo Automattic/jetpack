@@ -1310,14 +1310,22 @@ CSS;
 	 * Register + enqueue the inline CSS that drives the shared responsive
 	 * layout pattern across all three Search Blocks templates — narrow-width
 	 * sidebar collapse and in-header popover toggle. Called from both the
-	 * overlay enqueue path and the page-template enqueue path; the style
-	 * handle is idempotent under repeat enqueue calls.
+	 * overlay enqueue path and the page-template enqueue path.
+	 *
+	 * `wp_register_style` / `wp_enqueue_style` are idempotent, but
+	 * `wp_add_inline_style` is **not** — it appends to an internal array on
+	 * every call, so a second invocation would double the inline payload.
+	 * The `wp_style_is( …, 'enqueued' )` short-circuit makes the helper safe
+	 * to call from multiple sites in one request.
 	 */
 	public static function enqueue_search_layout_style() {
 		// No src — this handle exists only as a target for `wp_add_inline_style`.
 		// Version tracks the package so a release bust cache-invalidates any
 		// reusing site's inline-style cache.
 		wp_register_style( 'jetpack-search-layout', false, array(), Package::VERSION );
+		if ( wp_style_is( 'jetpack-search-layout', 'enqueued' ) ) {
+			return;
+		}
 		wp_enqueue_style( 'jetpack-search-layout' );
 		wp_add_inline_style( 'jetpack-search-layout', static::search_layout_inline_css() );
 	}
