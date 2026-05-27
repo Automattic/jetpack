@@ -31,7 +31,6 @@
 		"@wordpress/eslint-plugin": "^25.2.0",
 		"@wordpress/jest-preset-default": "^12.46.0",
 		"@wordpress/scripts": "^32.2.0",
-		"msw": "^2.14.6",
 		"typescript": "^5.7.0"
 	},
 	"engines": {
