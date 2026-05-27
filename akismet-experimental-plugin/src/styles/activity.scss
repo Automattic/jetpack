@@ -1,0 +1,282 @@
+/*
+ * Styles for the Activity tab.
+ *
+ * Matches Plan 2's tokenized Calypso aesthetic — restrained colors,
+ * 1px hairline borders, tabular-nums where data lives. Outcome badges
+ * use the WP red / yellow / green semantics from the breakdown chips
+ * in the Overview ThreatKPIs panel.
+ */
+
+.akismet-activity {
+	--akismet-activity-color-text: #1e1e1e;
+	--akismet-activity-color-text-muted: #50575e;
+	--akismet-activity-color-text-subtle: #787c82;
+	--akismet-activity-color-border: #dcdcde;
+	--akismet-activity-color-surface-subtle: #f6f7f7;
+	--akismet-activity-color-accent: var(--wp-admin-theme-color, #3858e9);
+
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	&__loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 240px;
+	}
+
+	&__subject {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	&__subject-label {
+		font-weight: 500;
+		color: var(--akismet-activity-color-text);
+	}
+
+	&__subject-secondary {
+		font-size: 12px;
+		color: var(--akismet-activity-color-text-subtle);
+	}
+
+	&__preview-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		align-self: flex-start;
+		background: rgb(0 0 0 / 4%);
+		color: var(--akismet-activity-color-text-muted);
+		font-size: 10px;
+		font-weight: 500;
+		line-height: 1;
+		padding: 3px 6px;
+		border-radius: 2px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-top: 4px;
+
+		&::before {
+			content: "";
+			width: 5px;
+			height: 5px;
+			border-radius: 50%;
+			background: #b8b8c0;
+		}
+	}
+
+	&__category {
+		font-size: 13px;
+		color: var(--akismet-activity-color-text);
+	}
+
+	&__outcome {
+		display: inline-flex;
+		align-items: center;
+		font-size: 11px;
+		font-weight: 500;
+		padding: 3px 8px;
+		border-radius: 12px;
+		line-height: 1.4;
+
+		&--destructive {
+			background: rgb(214 54 56 / 12%);
+			color: #a8001f;
+		}
+
+		&--warning {
+			background: rgb(219 166 23 / 18%);
+			color: #7a5300;
+		}
+
+		&--success {
+			background: rgb(0 138 32 / 14%);
+			color: #00604a;
+		}
+
+		&--info {
+			background: rgb(56 88 233 / 12%);
+			color: #1a4e8a;
+		}
+	}
+
+	&__source {
+		font-family:
+			ui-monospace,
+			"SF Mono",
+			"Cascadia Code",
+			"Source Code Pro",
+			menlo,
+			consolas,
+			monospace;
+		font-size: 11px;
+		background: var(--akismet-activity-color-surface-subtle);
+		padding: 2px 6px;
+		border-radius: 3px;
+		color: var(--akismet-activity-color-text-muted);
+	}
+
+	&__timestamp {
+		font-variant-numeric: tabular-nums;
+		font-size: 13px;
+		color: var(--akismet-activity-color-text-muted);
+		white-space: nowrap;
+	}
+}
+
+/* Row drawer (Modal) — scoped via the className we pass to <Modal>. */
+.akismet-activity-drawer {
+
+	&__secondary {
+		margin: 0 0 8px;
+		color: var(--akismet-activity-color-text-muted, #50575e);
+	}
+
+	&__signals-section,
+	&__meta,
+	&__blackbox {
+		margin-top: 20px;
+
+		h4 {
+			margin: 0 0 8px;
+			font-size: 13px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--akismet-activity-color-text-subtle, #787c82);
+		}
+
+		h5 {
+			margin: 16px 0 8px;
+			font-size: 12px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--akismet-activity-color-text-subtle, #787c82);
+		}
+	}
+
+	&__signals {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: grid;
+		gap: 6px;
+
+		li {
+			padding: 8px 12px;
+			background: var(--akismet-activity-color-surface-subtle, #f6f7f7);
+			border-radius: 4px;
+			font-size: 13px;
+		}
+	}
+
+	&__signal-name {
+		font-family:
+			ui-monospace,
+			"SF Mono",
+			"Cascadia Code",
+			"Source Code Pro",
+			menlo,
+			consolas,
+			monospace;
+		font-size: 12px;
+		color: var(--akismet-activity-color-text, #1e1e1e);
+	}
+
+	&__signal-desc {
+		color: var(--akismet-activity-color-text-muted, #50575e);
+	}
+
+	&__signal-meta {
+		color: var(--akismet-activity-color-text-subtle, #787c82);
+		font-size: 12px;
+		font-variant-numeric: tabular-nums;
+		margin-left: 6px;
+	}
+
+	&__blackbox-header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		h4 {
+			margin: 0;
+		}
+	}
+
+	&__verdict-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px 24px;
+		margin: 0;
+
+		div {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		dt {
+			font-size: 11px;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: var(--akismet-activity-color-text-subtle, #787c82);
+		}
+
+		dd {
+			margin: 0;
+			font-size: 14px;
+			color: var(--akismet-activity-color-text, #1e1e1e);
+			font-variant-numeric: tabular-nums;
+		}
+	}
+
+	&__decision {
+		display: inline-flex;
+		align-items: center;
+		font-size: 12px;
+		font-weight: 600;
+		padding: 2px 8px;
+		border-radius: 4px;
+
+		&--allow {
+			background: rgb(0 138 32 / 14%);
+			color: #00604a;
+		}
+
+		&--challenge {
+			background: rgb(219 166 23 / 18%);
+			color: #7a5300;
+		}
+
+		&--block {
+			background: rgb(214 54 56 / 12%);
+			color: #a8001f;
+		}
+	}
+
+	&__meta {
+
+		p {
+			margin: 6px 0;
+			font-size: 13px;
+			color: var(--akismet-activity-color-text, #1e1e1e);
+		}
+
+		code {
+			font-family:
+				ui-monospace,
+				"SF Mono",
+				"Cascadia Code",
+				"Source Code Pro",
+				menlo,
+				consolas,
+				monospace;
+			font-size: 12px;
+		}
+	}
+}

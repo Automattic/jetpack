@@ -8,15 +8,26 @@ import { JetpackFooter } from '@/components/jetpack-footer';
 import { isJetpackActive } from '@/lib/is-jetpack-active';
 import { createQueryClient } from '@/lib/query-client';
 import { AccountTab } from '@/routes/account-tab';
+import { ActivityTab } from '@/routes/activity-tab';
 import { OverviewTab } from '@/routes/overview-tab';
 import { SettingsTab } from '@/routes/settings-tab';
+import type { ActivityCategory } from '@/routes/activity/activity-types';
 import '@/styles/app.scss';
 
 const queryClient = createQueryClient();
 
-type TabValue = 'overview' | 'account' | 'settings';
+type TabValue = 'overview' | 'activity' | 'account' | 'settings';
 
-const TAB_VALUES: ReadonlyArray< TabValue > = [ 'overview', 'account', 'settings' ];
+const TAB_VALUES: ReadonlyArray< TabValue > = [ 'overview', 'activity', 'account', 'settings' ];
+
+const ACTIVITY_CATEGORIES: ReadonlyArray< ActivityCategory > = [
+	'comments',
+	'forms',
+	'logins',
+	'checkouts',
+	'bots',
+	'brute-force',
+];
 
 /**
  * Read the initial tab from `?tab=` so deep-links work. Falls back to
@@ -35,33 +46,58 @@ function getInitialTab(): TabValue {
 }
 
 /**
- * Mirror the active tab back into the URL with `history.replaceState`. Keeps
- * deep-links working without polluting the back-button history (each tab
- * switch shouldn't be a navigation event).
+ * Read the initial Activity category filter from `?category=`. The
+ * Overview cards' "See activity →" buttons set this so Activity opens
+ * pre-filtered.
  *
- * @param value - The new active tab value.
+ * @return The category id, or null when unset / invalid.
  */
-function syncTabToUrl( value: TabValue ): void {
+function getInitialActivityCategory(): ActivityCategory | null {
+	if ( typeof window === 'undefined' ) {
+		return null;
+	}
+	const value = new URL( window.location.href ).searchParams.get( 'category' );
+	return ( ACTIVITY_CATEGORIES as readonly string[] ).includes( value ?? '' )
+		? ( value as ActivityCategory )
+		: null;
+}
+
+/**
+ * Mirror the active tab + (optional) Activity category back into the URL
+ * with `history.replaceState`. Keeps deep-links working without polluting
+ * the back-button history.
+ *
+ * @param value    - The new active tab value.
+ * @param category - Optional category to pin on the Activity tab.
+ */
+function syncTabToUrl( value: TabValue, category?: ActivityCategory | null ): void {
 	if ( typeof window === 'undefined' ) {
 		return;
 	}
 	const url = new URL( window.location.href );
 	url.searchParams.set( 'tab', value );
+	if ( value === 'activity' && category ) {
+		url.searchParams.set( 'category', category );
+	} else {
+		url.searchParams.delete( 'category' );
+	}
 	window.history.replaceState( null, '', url.toString() );
 }
 
 /**
  * Root component for the Akismet experimental admin UI.
  *
- * Mounts the @wordpress/admin-ui `<Page>` shell with three tabs
- * (Overview / Account / Settings), wrapped in `SlotFillProvider`
- * (required by `<Page>`) and `QueryClientProvider`. Footer is
- * conditional on Jetpack being active.
+ * Mounts the @wordpress/admin-ui `<Page>` shell with four tabs
+ * (Overview / Activity / Account / Settings), wrapped in
+ * `SlotFillProvider` (required by `<Page>`) and `QueryClientProvider`.
  *
  * @return The rendered tree.
  */
 export function App(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useState< TabValue >( getInitialTab() );
+	const [ activityCategory, setActivityCategory ] = useState< ActivityCategory | null >(
+		getInitialActivityCategory()
+	);
 
 	return (
 		<SlotFillProvider>
@@ -72,11 +108,18 @@ export function App(): JSX.Element {
 						onValueChange={ value => {
 							const next = value as TabValue;
 							setActiveTab( next );
-							syncTabToUrl( next );
+							// Clear the category filter when leaving the Activity tab.
+							if ( next !== 'activity' ) {
+								setActivityCategory( null );
+								syncTabToUrl( next, null );
+							} else {
+								syncTabToUrl( next, activityCategory );
+							}
 						} }
 					>
 						<Tabs.List>
 							<Tabs.Tab value="overview">{ __( 'Overview', 'akismet' ) }</Tabs.Tab>
+							<Tabs.Tab value="activity">{ __( 'Activity', 'akismet' ) }</Tabs.Tab>
 							<Tabs.Tab value="account">{ __( 'Account', 'akismet' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'akismet' ) }</Tabs.Tab>
 						</Tabs.List>
@@ -86,7 +129,15 @@ export function App(): JSX.Element {
 									setActiveTab( 'account' );
 									syncTabToUrl( 'account' );
 								} }
+								onNavigateToActivity={ category => {
+									setActivityCategory( category );
+									setActiveTab( 'activity' );
+									syncTabToUrl( 'activity', category );
+								} }
 							/>
+						</Tabs.Panel>
+						<Tabs.Panel value="activity">
+							<ActivityTab initialCategoryFilter={ activityCategory } />
 						</Tabs.Panel>
 						<Tabs.Panel value="account">
 							<AccountTab />

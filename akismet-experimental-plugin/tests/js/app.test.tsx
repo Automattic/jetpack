@@ -26,11 +26,23 @@ describe( '<App>', () => {
 		expect( console ).toHaveWarned();
 	} );
 
-	it( 'renders the Overview, Account, and Settings tabs', () => {
+	it( 'renders the Overview, Activity, Account, and Settings tabs', () => {
 		render( <App /> );
 		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: /^activity$/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: /account/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: /settings/i } ) ).toBeInTheDocument();
+	} );
+
+	it( 'reads the initial tab from ?tab=activity', async () => {
+		window.history.replaceState( null, '', '/?tab=activity' );
+		render( <App /> );
+		await waitFor( () =>
+			expect( screen.getByRole( 'tab', { name: /^activity$/i } ) ).toHaveAttribute(
+				'aria-selected',
+				'true'
+			)
+		);
 	} );
 
 	it( 'defaults to the Overview tab as the first/landing tab', async () => {
