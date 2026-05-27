@@ -752,6 +752,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_ignores_non_plugin_types() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -774,6 +775,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_ignores_unrelated_actions() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -796,6 +798,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_allows_clean_plugin_package() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/plugin.php', "<?php\n// Plugin Name: PCG Ok\n" );
@@ -818,7 +821,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
-		// Bump the rollout to 100% so the gate doesn't veto this test.
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
