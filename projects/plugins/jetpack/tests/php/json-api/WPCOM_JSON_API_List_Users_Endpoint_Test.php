@@ -125,24 +125,32 @@ class WPCOM_JSON_API_List_Users_Endpoint_Test extends WP_UnitTestCase {
 	/**
 	 * Retrieve the registered endpoint instance.
 	 *
-	 * The endpoint file registers itself via a top-level `new` call when required,
-	 * so we look it up from the API's registered endpoints by class and version.
+	 * The endpoint file registers itself via a top-level `new` call when required, so we look it
+	 * up from the API's registered endpoints. There is a single list-users registration today, but
+	 * each version is stored as its own entry; should a future version be added we want the latest,
+	 * so we return the class match with the highest max_version -- the one supports_rest()/production
+	 * REST routes to -- rather than whichever happens to be iterated first.
 	 *
 	 * @return WPCOM_JSON_API_List_Users_Endpoint
 	 *
 	 * @phan-suppress PhanTypeArraySuspicious
 	 */
 	private function get_endpoint() {
-		$api = WPCOM_JSON_API::init();
+		$api    = WPCOM_JSON_API::init();
+		$latest = null;
 		foreach ( $api->endpoints as $endpoints_by_method ) {
+			$endpoint = $endpoints_by_method['GET'] ?? null;
 			if (
-				isset( $endpoints_by_method['GET'] )
-				&& get_class( $endpoints_by_method['GET'] ) === 'WPCOM_JSON_API_List_Users_Endpoint'
+				$endpoint instanceof WPCOM_JSON_API_List_Users_Endpoint
+				&& ( null === $latest || version_compare( (string) $endpoint->max_version, (string) $latest->max_version, '>' ) )
 			) {
-				return $endpoints_by_method['GET'];
+				$latest = $endpoint;
 			}
 		}
-		$this->fail( 'WPCOM_JSON_API_List_Users_Endpoint not found in registered endpoints.' );
+		if ( null === $latest ) {
+			$this->fail( 'WPCOM_JSON_API_List_Users_Endpoint not found in registered endpoints.' );
+		}
+		return $latest;
 	}
 
 	/**
