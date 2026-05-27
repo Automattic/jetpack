@@ -28,9 +28,12 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
  * Asserts REST-vs-XML-RPC body parity for a JSON API endpoint.
  *
  * Intended to be used only by WP_UnitTestCase subclasses; it relies on their assert*()
- * and factory() methods. The @mixin resolves those for static analysis.
+ * and factory() methods. The mixin annotation below resolves the instance assertions for
+ * static analysis; the static factory() is declared explicitly (a trait can't resolve a
+ * self:: call against the mixin).
  *
  * @mixin \WP_UnitTestCase
+ * @method static \WP_UnitTest_Factory factory()
  */
 trait Assert_Rest_Xmlrpc_Parity {
 
