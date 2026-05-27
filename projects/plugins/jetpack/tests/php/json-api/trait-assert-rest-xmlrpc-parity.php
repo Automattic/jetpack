@@ -59,6 +59,27 @@ trait Assert_Rest_Xmlrpc_Parity {
 	private $rest_parity_server = array();
 
 	/**
+	 * Current user id before the parity env switched it, restored in tear_down.
+	 *
+	 * @var int
+	 */
+	private $rest_parity_prior_user_id;
+
+	/**
+	 * API singleton token_details before the parity env overwrote them, restored in tear_down.
+	 *
+	 * @var array
+	 */
+	private $rest_parity_prior_token_details;
+
+	/**
+	 * Jetpack blog id option before the parity env aligned it, restored in tear_down.
+	 *
+	 * @var mixed
+	 */
+	private $rest_parity_prior_blog_option;
+
+	/**
 	 * Assert that the REST dispatch of $endpoint matches its XML-RPC dispatch.
 	 *
 	 * @param WPCOM_JSON_API_Endpoint $endpoint   The endpoint under test.
@@ -121,6 +142,19 @@ trait Assert_Rest_Xmlrpc_Parity {
 		}
 
 		WPCOM_JSON_API::init()->query = array();
+
+		// Restore the global/singleton state prepare_rest_parity_env() switched, so a consumer
+		// whose tear_down() only calls this helper (e.g. the coverage sweep) does not leak it.
+		if ( isset( $this->rest_parity_blog_id ) ) {
+			wp_set_current_user( (int) $this->rest_parity_prior_user_id );
+			WPCOM_JSON_API::init()->token_details = $this->rest_parity_prior_token_details;
+
+			if ( empty( $this->rest_parity_prior_blog_option ) ) {
+				Jetpack_Options::delete_option( 'id' );
+			} else {
+				Jetpack_Options::update_option( 'id', $this->rest_parity_prior_blog_option );
+			}
+		}
 	}
 
 	/**
@@ -131,6 +165,12 @@ trait Assert_Rest_Xmlrpc_Parity {
 		if ( isset( $this->rest_parity_blog_id ) ) {
 			return;
 		}
+
+		// Capture the global/singleton state we are about to mutate so tear_down can restore it;
+		// the DB transaction rollback covers option rows, but not the API singleton or current user.
+		$this->rest_parity_prior_user_id       = get_current_user_id();
+		$this->rest_parity_prior_token_details = WPCOM_JSON_API::init()->token_details;
+		$this->rest_parity_prior_blog_option   = Jetpack_Options::get_option( 'id' );
 
 		$this->rest_parity_blog_id = (int) $GLOBALS['blog_id'];
 		$this->rest_parity_user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
@@ -232,6 +272,9 @@ trait Assert_Rest_Xmlrpc_Parity {
 			Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		}
 
+		// dispatch_rest_body() calls this once per assert_rest_parity(); remove before adding so a
+		// multi-endpoint test (the coverage sweep) keeps exactly one copy of the callback.
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 
 		$_SERVER['HTTP_HOST']      = 'example.org';
