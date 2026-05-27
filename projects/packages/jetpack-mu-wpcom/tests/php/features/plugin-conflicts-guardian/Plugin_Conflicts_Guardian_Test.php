@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
 // probe-endpoint.php registers a shutdown handler and reads $_GET on
 // require; the entry function `pcg_maybe_handle_probe()` is the one
 // that does that work, and it bails immediately when `$_GET['pcg_probe']`
@@ -53,6 +54,18 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_activation' );
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
+		remove_all_filters( 'pcg_rollout_percentage' );
+		// PCG_Rollout::init() registers itself on require_once. We tear
+		// the gate callbacks down by name (not via remove_all_filters,
+		// which would also drop any test-local pcg_guard_* filters set
+		// up above) and then re-add via init() so every test starts
+		// with exactly one copy of the gate at priority 100. Without
+		// this, calling init() unconditionally in tear_down would stack
+		// the same callback N times across the suite — harmless
+		// functionally but wasteful and noisy in some test envs.
+		remove_filter( 'pcg_guard_activation', array( 'PCG_Rollout', 'gate' ), 100 );
+		remove_filter( 'pcg_guard_updates', array( 'PCG_Rollout', 'gate' ), 100 );
+		PCG_Rollout::init();
 		parent::tear_down();
 	}
 
@@ -805,6 +818,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
 		add_filter( 'pcg_guard_activation', '__return_true' );
+		// Bump the rollout to 100% so the gate doesn't veto this test.
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/plugin.php', "<?php function ( {\n" );
@@ -917,5 +932,86 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			}
 		}
 		rmdir( $dir );
+	}
+
+	/**
+	 * Rollout default is 0% — no blog is in the cohort.
+	 */
+	public function test_rollout_default_is_zero_percent() {
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 99999 ) );
+	}
+
+	/**
+	 * 100% includes every positive blog ID.
+	 */
+	public function test_rollout_full_includes_every_blog() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 1 ) );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 240190614 ) );
+	}
+
+	/**
+	 * Invalid or non-positive blog IDs are never enabled, even at 100%.
+	 */
+	public function test_rollout_rejects_non_positive_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 0 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( -1 ) );
+	}
+
+	/**
+	 * Bucketing must be deterministic — the same blog ID stays in the
+	 * same bucket across calls. (Ramping from 10% to 50% should
+	 * strictly add blogs, never reshuffle them.)
+	 */
+	public function test_rollout_blog_bucket_is_deterministic() {
+		$this->assertSame(
+			PCG_Rollout::blog_bucket( 7777 ),
+			PCG_Rollout::blog_bucket( 7777 )
+		);
+		$this->assertNotSame(
+			PCG_Rollout::blog_bucket( 1 ),
+			PCG_Rollout::blog_bucket( 2 )
+		);
+	}
+
+	/**
+	 * Bucket is always in [0, 100). On 32-bit PHP `crc32` returns a
+	 * signed int and `abs(PHP_INT_MIN)` overflows — taking the modulo
+	 * before `abs()` is the 32-bit-safe ordering.
+	 */
+	public function test_rollout_blog_bucket_is_non_negative() {
+		foreach ( array( 1, 2, 100, 999999, 2147483647 ) as $blog_id ) {
+			$bucket = PCG_Rollout::blog_bucket( $blog_id );
+			$this->assertGreaterThanOrEqual( 0, $bucket, "blog_id=$blog_id" );
+			$this->assertLessThan( 100, $bucket, "blog_id=$blog_id" );
+		}
+	}
+
+	/**
+	 * The gate wired through `pcg_guard_activation` / `pcg_guard_updates`
+	 * returns false when the rollout would exclude the current blog,
+	 * regardless of any earlier filter that said true.
+	 */
+	public function test_rollout_gate_narrows_pcg_guard_filters() {
+		// Default percentage is 0; gate must veto.
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertFalse( apply_filters( 'pcg_guard_updates', true ) );
+
+		// At 100% the gate passes through.
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertTrue( apply_filters( 'pcg_guard_updates', true ) );
+	}
+
+	/**
+	 * The gate only narrows — if an earlier filter returned false, the
+	 * gate must not flip it back to true.
+	 */
+	public function test_rollout_gate_only_narrows() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
 	}
 }
