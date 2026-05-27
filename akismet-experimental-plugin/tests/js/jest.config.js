@@ -32,6 +32,6 @@ module.exports = {
 	// ESM-only packages need to be transformed by Jest. Common offenders: uuid,
 	// nanoid, react-markdown chain, @tanstack/router-core, change-case, etc.
 	transformIgnorePatterns: [
-		'/node_modules/(?!(uuid|nanoid|@tanstack|change-case|escape-string-regexp|p-locate|locate-path|path-exists|find-up|@wordpress/route|@wordpress/admin-ui)/)',
+		'/node_modules/(?!(uuid|nanoid|@tanstack|change-case|escape-string-regexp|p-locate|locate-path|path-exists|find-up|@wordpress/route|@wordpress/admin-ui|@automattic/jetpack-.*)/)',
 	],
 };
