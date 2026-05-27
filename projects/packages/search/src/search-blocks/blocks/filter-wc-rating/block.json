@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Filter by Rating",
 	"category": "jetpack-search",
-	"icon": "star-filled",
 	"description": "Let shoppers filter products by star rating. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,

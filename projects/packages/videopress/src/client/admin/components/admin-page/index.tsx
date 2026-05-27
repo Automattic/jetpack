@@ -10,7 +10,6 @@ import {
 	Button,
 	Col,
 	useBreakpointMatch,
-	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -19,6 +18,7 @@ import {
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
@@ -95,73 +95,80 @@ const Admin = () => {
 			</div>
 
 			{ showPricingSection ? (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) : (
-				<>
+				<div className={ styles[ 'hero-shrink-guard' ] }>
 					<AdminSectionHero>
-						<Container horizontalSpacing={ 0 }>
-							<Col>
-								<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
-							</Col>
-						</Container>
-
-						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
-							{ hasConnectionError && (
-								<Col>
-									<ConnectionError />
-								</Col>
-							) }
-
-							{ ( ! hasConnectedOwner || ! isUserConnected ) && (
-								<Col sm={ 4 } md={ 8 } lg={ 12 }>
-									<NeedUserConnectionGlobalNotice />
-								</Col>
-							) }
-
-							<Col sm={ 4 } md={ 8 } lg={ 8 }>
-								<Text variant="headline-small" mb={ 3 }>
-									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
-								</Text>
-
-								{ hasVideoPressPurchase && (
-									<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
-								) }
-
-								{ hasVideos ? (
-									<FormFileUpload
-										onChange={ evt =>
-											handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
-										}
-										accept={ fileInputExtensions }
-										multiple={ hasVideoPressPurchase }
-										render={ ( { openFileDialog } ) => (
-											<Button
-												fullWidth={ isSm }
-												onClick={ openFileDialog }
-												isLoading={ loading }
-												disabled={ ! canUpload }
-											>
-												{ __( 'Add new video', 'jetpack-videopress-pkg' ) }
-											</Button>
-										) }
-										__next40pxDefaultSize={ true }
-									/>
-								) : (
-									<Text variant="title-medium">
-										{ __( "Let's add your first video below!", 'jetpack-videopress-pkg' ) }
-									</Text>
-								) }
-
-								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col sm={ 4 } md={ 8 } lg={ 12 }>
+								<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
 							</Col>
 						</Container>
 					</AdminSectionHero>
+				</div>
+			) : (
+				<>
+					<div className={ styles[ 'hero-shrink-guard' ] }>
+						<AdminSectionHero>
+							<Container horizontalSpacing={ 0 }>
+								<Col>
+									<div
+										id="jp-admin-notices"
+										className={ styles[ 'jetpack-videopress-jitm-card' ] }
+									/>
+								</Col>
+							</Container>
+
+							<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+								{ hasConnectionError && (
+									<Col>
+										<ConnectionError />
+									</Col>
+								) }
+
+								{ ( ! hasConnectedOwner || ! isUserConnected ) && (
+									<Col sm={ 4 } md={ 8 } lg={ 12 }>
+										<NeedUserConnectionGlobalNotice />
+									</Col>
+								) }
+
+								<Col sm={ 4 } md={ 8 } lg={ 8 }>
+									<Text variant="headline-small" mb={ 3 }>
+										{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
+									</Text>
+
+									{ hasVideoPressPurchase && (
+										<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
+									) }
+
+									{ hasVideos ? (
+										<FormFileUpload
+											onChange={ evt =>
+												handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+											}
+											accept={ fileInputExtensions }
+											multiple={ hasVideoPressPurchase }
+											render={ ( { openFileDialog } ) => (
+												<Button
+													fullWidth={ isSm }
+													onClick={ openFileDialog }
+													isLoading={ loading }
+													disabled={ ! canUpload }
+												>
+													{ __( 'Add new video', 'jetpack-videopress-pkg' ) }
+												</Button>
+											) }
+											__next40pxDefaultSize={ true }
+										/>
+									) : (
+										<Text variant="title-medium">
+											{ __( "Let's add your first video below!", 'jetpack-videopress-pkg' ) }
+										</Text>
+									) }
+
+									{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
+								</Col>
+							</Container>
+						</AdminSectionHero>
+					</div>
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							{ hasVideos ? (
@@ -239,11 +246,11 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	);
 
 	return (
-		<ContextualUpgradeTrigger
-			description={ description }
-			cta={ cta }
-			className={ styles[ 'upgrade-trigger' ] }
-			onClick={ onButtonClickHandler }
-		/>
+		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
+			{ description && <Notice.Description>{ description }</Notice.Description> }
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ onButtonClickHandler }>{ cta }</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 };

@@ -122,8 +122,8 @@ function wpcom_enqueue_error_reporting_script() {
 	}
 
 	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.asset.php';
-	$script_dependencies = isset( $asset_file['dependencies'] ) ? $asset_file['dependencies'] : array();
-	$script_version      = isset( $asset_file['version'] ) ? $asset_file['version'] : filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.js' );
+	$script_dependencies = $asset_file['dependencies'] ?? array();
+	$script_version      = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/error-reporting/error-reporting.js' );
 	$script_id           = 'wpcom-error-reporting-script';
 
 	wp_enqueue_script(

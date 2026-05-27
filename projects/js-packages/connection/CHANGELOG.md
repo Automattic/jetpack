@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.53] - 2026-05-25
+### Added
+- Add direct `useProductCheckoutWorkflow` hook export. [#49032]
+- Expose the `useConnectionErrorNotice` hook and `ConnectionError` component via a dedicated sub-path so consumers can opt out of the full package barrel. [#48829]
+
+## [1.4.52] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.4.51] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.4.50] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+## [1.4.49] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
 ## [1.4.48] - 2026-05-04
 ### Changed
 - ConnectScreen: Rewrite the private-network error message to reference WordPress.com (the connection target) instead of Jetpack, so the copy reads consistently for any plugin that uses the connection package. [#48263]
@@ -1330,6 +1352,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.53]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.52...v1.4.53
+[1.4.52]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.51...v1.4.52
+[1.4.51]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.50...v1.4.51
+[1.4.50]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.49...v1.4.50
+[1.4.49]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.48...v1.4.49
 [1.4.48]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.47...v1.4.48
 [1.4.47]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.46...v1.4.47
 [1.4.46]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.45...v1.4.46

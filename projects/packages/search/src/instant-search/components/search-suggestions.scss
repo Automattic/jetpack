@@ -1,0 +1,67 @@
+.jetpack-instant-search__search-suggestions {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	list-style: none;
+	margin: 0;
+	max-height: 60vh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 4px 0 8px;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 100;
+
+	@media (max-width: 480px) {
+		max-height: 50vh;
+	}
+}
+
+.jetpack-instant-search__search-suggestions-separator {
+	border: none;
+	border-top: 1px solid #f0f0f0;
+	margin: 4px 0;
+}
+
+.jetpack-instant-search__search-suggestions-label {
+	color: #787c82;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	padding: 8px 16px 4px;
+	text-transform: uppercase;
+}
+
+.jetpack-instant-search__search-suggestion {
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #1e1e1e;
+	padding: 10px 16px;
+
+	// Larger touch targets on mobile.
+	@media (max-width: 480px) {
+		padding: 13px 16px;
+	}
+
+	&:hover,
+	&.is-active {
+		background: #f0f6fc;
+		color: #0675c4;
+	}
+
+	// Post and taxonomy items are slightly indented to sit visually
+	// under their group label.
+	&--post,
+	&--taxonomy {
+		padding-left: 20px;
+
+		@media (max-width: 480px) {
+			padding-left: 20px;
+		}
+	}
+}

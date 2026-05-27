@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Image Studio: expose a video clip generation capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the entry point on WordPress.com sites that cannot upload videos. On WordPress.com the value mirrors `wpcom_site_can_upload_videos()`; on other environments the flag is `true` and the server is the source of truth.

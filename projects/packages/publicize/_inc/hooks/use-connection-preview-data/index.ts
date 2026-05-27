@@ -7,7 +7,7 @@ import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
-import { useRenderMessageItems } from '../use-render-message-items';
+import { useRenderMessageInputs } from '../use-render-message-items';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -90,32 +90,24 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	] );
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const items = useRenderMessageItems();
-	const messageTemplate = useSelect(
+	const { items, postIntent } = useRenderMessageInputs();
+	const siteMessageTemplate = useSelect(
 		select =>
 			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
 		[ templatesEnabled ]
 	);
-	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
-	// Falls back to the admin-page main template (`messageTemplate`) when no
-	// per-post message is set. Mirrors the rule in `useRenderMessageItems` so the
-	// consumer's view of `baseMessage` matches what the resolver was sent.
-	const globalFallback = globalMessage || messageTemplate || '';
-
-	let baseMessage: string;
-	if ( isPerNetworkMode ) {
-		if ( hasConnectionMessage ) {
-			baseMessage = connection.message ?? '';
-		} else if ( templatesEnabled && connection.template ) {
-			baseMessage = connection.template;
-		} else {
-			baseMessage = globalFallback;
-		}
-	} else {
-		baseMessage = globalFallback;
-	}
-	baseMessage = baseMessage.trim();
-	const currentRenderItem = items.find( item => item.id === connection.connection_id );
+	/*
+	 * Mirror `useRenderMessageItems` exactly: in per-network mode fall back to
+	 * the saved site template (not `globalMessage`) when the connection has no
+	 * per-post override; in global mode use `globalMessage`. Keeping this
+	 * identical to the items array's rule ensures `currentRenderItem.message`
+	 * matches `baseMessage` and `isDebouncingRenderedMessage` doesn't stay
+	 * stuck true.
+	 */
+	const baseMessage = (
+		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
+	).trim();
+	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );
 
 	const { rendered, isLoadingRendered } = useSelect(
 		select => {
@@ -125,14 +117,14 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 			// Read from the cache-only selector so this hook does not trigger requests.
 			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
 			const social = select( socialStore );
-			const batch = social.getCachedRenderedMessages( postId, items );
+			const batch = social.getCachedRenderedMessages( postId, items, postIntent );
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
-				isLoadingRendered: social.isLoadingRenderedMessages( postId, items ),
+				isLoadingRendered: social.isLoadingRenderedMessages( postId, items, postIntent ),
 			};
 		},
-		[ templatesEnabled, postId, items, connection.connection_id ]
+		[ templatesEnabled, postId, items, postIntent, connection.connection_id ]
 	);
 
 	// True while the user has typed but the debounced items array hasn't caught

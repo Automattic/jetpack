@@ -10,6 +10,7 @@
  * (filter-checkbox-scoped) original.
  */
 @use "../skeleton" as skeleton;
+@use "../chip" as chip;
 
 .wp-block-jetpack-search-filter-wc-attribute {
 
@@ -60,5 +61,10 @@
 		&[hidden] {
 			display: none;
 		}
+	}
+
+	&[data-display-style="chips"] {
+
+		@include chip.checkbox-filter-chips;
 	}
 }

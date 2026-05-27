@@ -1,18 +1,22 @@
 import {
 	SEARCH_FIELDS,
 	WC_RATING_RANGES,
+	aggregationKeyFor,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
+	buildStaticFilterClauses,
 	buildStaticPostTypeClauses,
 	formatDateBucketLabel,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
 
 describe( 'SEARCH_FIELDS', () => {
-	it( 'does not request author fields for result cards', () => {
-		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
-		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	it( 'requests the bare `author` field for the expanded result card', () => {
+		// The expanded results-list layout renders the post author in the meta
+		// row. Without `author` in the requested fields list, the v1.3 API
+		// would omit it entirely (default response is just date / post_id).
+		expect( SEARCH_FIELDS ).toContain( 'author' );
 	} );
 
 	it( 'requests WooCommerce price and rating fields for the product layout', () => {
@@ -96,6 +100,27 @@ describe( 'buildSearchUrl', () => {
 		} );
 		expect( url ).toContain( 'sort=date_asc' );
 	} );
+
+	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
+		'passes the product-format sort key %s through to the API verbatim (RSM-1082)',
+		key => {
+			// Mirrors instant-search/lib/api.js → mapSortToApiValue: the v1.3
+			// API accepts these three keys unchanged. Without the pass-through
+			// they'd hit the SORT_QUERY_MAP fallback and silently sort by
+			// relevance, leaving deep links broken on WC sites.
+			const url = buildSearchUrl( {
+				siteId: 12345,
+				searchQuery: 'shirt',
+				sortOrder: key,
+				pageHandle: null,
+				isPrivateSite: false,
+				isWpcom: false,
+				apiRoot: 'https://example.com/wp-json/',
+			} );
+			expect( url ).toContain( 'sort=' + key );
+			expect( url ).not.toContain( 'sort=score_default' );
+		}
+	);
 
 	it( 'single-encodes special characters in the search query', () => {
 		// `qss.encode` already runs encodeURIComponent, so the string we pass
@@ -181,6 +206,49 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'aggregations%5Bauthors%5D%5Bterms%5D%5Border%5D%5B_key%5D=asc' );
 	} );
 
+	it( 'rewrites a mapped custom taxonomy onto the slot in both aggregations and the filter clause', () => {
+		// End-to-end pin: a filter-checkbox block authored against `genre`
+		// with a slot mapping must aggregate against the slot field AND
+		// send the aggregation under the slot key — the WPCOM search proxy
+		// validates the agg name against indexable taxonomies, so
+		// `aggregations[genre]` against a non-indexed slug silently returns
+		// nothing. Filter clauses also target the slot field. The response
+		// is remapped back to `genre` (the filterKey) in `store/index.js`
+		// before downstream consumers see it, so URL params, the in-store
+		// `activeFilters` shape, and the active-filters pill list all stay
+		// user-facing.
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'paperback',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			filterConfigs: {
+				genre: {
+					filterType: 'taxonomy',
+					taxonomy: 'genre',
+					effectiveSlug: 'jetpack-search-tag1',
+					maxItems: 10,
+				},
+			},
+			activeFilters: { genre: [ 'fiction' ] },
+		} );
+		const decoded = decodeURIComponent( url );
+		// Aggregation key and field path both swap to the slot.
+		expect( decoded ).toContain(
+			'aggregations[jetpack-search-tag1][terms][field]=taxonomy.jetpack-search-tag1.slug_slash_name'
+		);
+		// Filter clause similarly targets the slot field rather than `taxonomy.genre.*`.
+		expect( decoded ).toContain(
+			'filter[bool][must][0][term][taxonomy.jetpack-search-tag1.slug]=fiction'
+		);
+		// And we never leak the user-facing slug into the API surface.
+		expect( decoded ).not.toContain( 'aggregations[genre]' );
+		expect( decoded ).not.toContain( 'taxonomy.genre.slug_slash_name' );
+	} );
+
 	it( 'omits aggregations and filter when no configs or selections are supplied', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
@@ -217,6 +285,67 @@ describe( 'resolveFilterFields', () => {
 		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
 			aggField: 'taxonomy.genre.slug_slash_name',
 			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'rewrites a mapped custom taxonomy onto the reserved jetpack-search-tagN slot via effectiveSlug', () => {
+		// `jetpack_search_custom_taxonomy_map` is the supported escape
+		// hatch for taxonomies that aren't natively indexed by Jetpack
+		// Search. PHP `Filter_Checkbox::build_config()` pre-resolves the
+		// slot into the filterConfig's `effectiveSlug` field at config-
+		// build time, so this function stays a pure transform — no global
+		// map argument and no need for response-side normalization.
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toEqual( {
+			aggField: 'taxonomy.jetpack-search-tag1.slug_slash_name',
+			filterField: 'taxonomy.jetpack-search-tag1.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'falls back to the raw taxonomy slug when effectiveSlug is absent', () => {
+		// Older saved filterConfigs may predate the `effectiveSlug` field;
+		// new configs always set it (equal to `taxonomy` for unmapped
+		// slugs). Pin the defensive fallback so the front-end still
+		// renders a working request shape.
+		expect( resolveFilterFields( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toEqual( {
+			aggField: 'taxonomy.genre.slug_slash_name',
+			filterField: 'taxonomy.genre.slug',
+			bucketFormat: 'slash',
+		} );
+	} );
+
+	it( 'pins built-in taxonomies on their canonical fields regardless of effectiveSlug', () => {
+		// Server-side `Search_Blocks::resolve_taxonomy_slot()` never
+		// returns a slot for a built-in slug. Pin the JS-side defense
+		// anyway so a hand-rolled filterConfig (or a future server-side
+		// bug) can't silently redirect a built-in filter onto a slot.
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toEqual( {
+			aggField: 'category.slug_slash_name',
+			filterField: 'category.slug',
+			bucketFormat: 'slash',
+		} );
+		expect(
+			resolveFilterFields( {
+				filterType: 'taxonomy',
+				taxonomy: 'post_tag',
+				effectiveSlug: 'jetpack-search-tag2',
+			} )
+		).toEqual( {
+			aggField: 'tag.slug_slash_name',
+			filterField: 'tag.slug',
 			bucketFormat: 'slash',
 		} );
 	} );
@@ -261,6 +390,53 @@ describe( 'resolveFilterFields', () => {
 			filterField: 'date',
 			bucketFormat: 'date',
 		} );
+	} );
+} );
+
+describe( 'aggregationKeyFor', () => {
+	// Pure-function pin for the request-side agg key. Built-ins and
+	// unmapped customs key by `filterKey`; mapped customs key by the slot
+	// so the WPCOM search proxy's taxonomy-name validation accepts the
+	// aggregation.
+	it( 'returns the slot when effectiveSlug differs from taxonomy', () => {
+		expect(
+			aggregationKeyFor( 'genre', {
+				filterType: 'taxonomy',
+				taxonomy: 'genre',
+				effectiveSlug: 'jetpack-search-tag1',
+			} )
+		).toBe( 'jetpack-search-tag1' );
+	} );
+
+	it( 'returns the filterKey for unmapped custom taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'mood', {
+				filterType: 'taxonomy',
+				taxonomy: 'mood',
+				effectiveSlug: 'mood',
+			} )
+		).toBe( 'mood' );
+	} );
+
+	it( 'returns the filterKey for built-in taxonomies', () => {
+		expect(
+			aggregationKeyFor( 'category', {
+				filterType: 'taxonomy',
+				taxonomy: 'category',
+				effectiveSlug: 'category',
+			} )
+		).toBe( 'category' );
+	} );
+
+	it( 'returns the filterKey for non-taxonomy filterTypes', () => {
+		// `effectiveSlug` is the empty string for non-taxonomy filterTypes
+		// (per `Filter_Checkbox::build_config()`), and a missing `taxonomy`
+		// must never produce a slot routing — only mapped *taxonomy*
+		// filters get rerouted.
+		expect(
+			aggregationKeyFor( 'post_types', { filterType: 'post_type', effectiveSlug: '' } )
+		).toBe( 'post_types' );
+		expect( aggregationKeyFor( 'authors', { filterType: 'author' } ) ).toBe( 'authors' );
 	} );
 } );
 
@@ -421,6 +597,46 @@ describe( 'buildFilterClause', () => {
 
 	it( 'returns undefined when no selections are active', () => {
 		expect( buildFilterClause( {}, {} ) ).toBeUndefined();
+	} );
+
+	it( 'wraps multi-value taxonomy selections in flat `must` clauses when queryType is `and`', () => {
+		const clause = buildFilterClause(
+			{ category: [ 'news', 'sports' ] },
+			{ category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [ { term: { 'category.slug': 'news' } }, { term: { 'category.slug': 'sports' } } ],
+			},
+		} );
+	} );
+
+	it( 'keeps single-value taxonomy selections as a bare `term` clause even under queryType `and`', () => {
+		const clause = buildFilterClause(
+			{ category: [ 'news' ] },
+			{ category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: { must: [ { term: { 'category.slug': 'news' } } ] },
+		} );
+	} );
+
+	it( 'ignores queryType `and` for non-taxonomy filters (defensive — post_type is single-valued per doc)', () => {
+		const clause = buildFilterClause(
+			{ post_types: [ 'post', 'page' ] },
+			{ post_types: { filterType: 'post_type', queryType: 'and' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						bool: {
+							should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+						},
+					},
+				],
+			},
+		} );
 	} );
 
 	it( 'emits a half-open `range` clause for a single year selection', () => {
@@ -817,5 +1033,131 @@ describe( 'product-shaped filter helpers', () => {
 				'filter[bool][must][2][bool][must_not][0][term][post_type]=product'
 			);
 		} );
+	} );
+
+	describe( 'buildSearchUrl: queryType `and`', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'encodes flat `must` clauses for an AND-mode taxonomy filter', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news', 'sports' ] },
+				filterConfigs: {
+					category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' },
+				},
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][term][category.slug]=sports' );
+			expect( decoded ).not.toContain( 'filter[bool][must][0][bool][should]' );
+		} );
+
+		it( 'keeps the legacy `bool.should` wrapper for the default OR mode', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news', 'sports' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][should][0][term][category.slug]=news'
+			);
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][should][1][term][category.slug]=sports'
+			);
+		} );
+	} );
+} );
+
+describe( 'buildStaticFilterClauses', () => {
+	it( 'emits one `term` clause per non-empty static-filter selection, keyed by the filter id', () => {
+		// Static filters target a flat ES field whose name equals the filter
+		// key — `?section=guides` ⇒ `{ term: { section: 'guides' } }`. Mirrors
+		// the legacy instant-search overlay's static-filter URL → ES mapping.
+		const clauses = buildStaticFilterClauses(
+			{ section: 'guides', audience: 'dev' },
+			{
+				section: { filterKey: 'section', kind: 'static' },
+				audience: { filterKey: 'audience', kind: 'static' },
+			}
+		);
+		expect( clauses ).toEqual( [ { term: { section: 'guides' } }, { term: { audience: 'dev' } } ] );
+	} );
+
+	it( 'gates on kind === "static" so a stray entry with a non-static config is dropped', () => {
+		// Belt-and-suspenders: even if a stale `staticFilterSelections` entry
+		// somehow names a dynamic filter, the gate prevents it from generating
+		// an ES clause that would target the wrong field.
+		const clauses = buildStaticFilterClauses(
+			{ category: 'news' },
+			{ category: { filterKey: 'category', filterType: 'taxonomy' } }
+		);
+		expect( clauses ).toEqual( [] );
+	} );
+
+	it( 'drops empty-value entries', () => {
+		// An empty string means "no selection" — equivalent to no entry.
+		// A `{ term: { section: '' } }` clause would match zero documents
+		// and silently zero the result set; drop it before the URL builder
+		// sees it.
+		const clauses = buildStaticFilterClauses(
+			{ section: '' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( clauses ).toEqual( [] );
+	} );
+
+	it( 'returns an empty array when nothing is selected', () => {
+		expect( buildStaticFilterClauses( {}, {} ) ).toEqual( [] );
+		expect( buildStaticFilterClauses( undefined, {} ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'buildSearchUrl: static filter selections', () => {
+	const baseOpts = {
+		siteId: 1,
+		searchQuery: '',
+		sortOrder: 'relevance',
+		pageHandle: null,
+		isPrivateSite: false,
+		isWpcom: false,
+		apiRoot: '',
+	};
+
+	it( 'folds static-filter term clauses into the existing bool.must pipeline', () => {
+		// A static filter alone should produce a single-clause bool.must.
+		const url = buildSearchUrl( {
+			...baseOpts,
+			staticFilterSelections: { section: 'guides' },
+			filterConfigs: { section: { filterKey: 'section', kind: 'static' } },
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][section]=guides' );
+	} );
+
+	it( 'combines static-filter clauses with active dynamic filters under one bool.must', () => {
+		// Dynamic + static together: bool.must accumulates both. The static
+		// clause appends after the dynamic clauses so the ES request keeps a
+		// flat must array rather than nested bool wrappers.
+		const url = buildSearchUrl( {
+			...baseOpts,
+			activeFilters: { category: [ 'news' ] },
+			staticFilterSelections: { section: 'guides' },
+			filterConfigs: {
+				category: { filterType: 'taxonomy', taxonomy: 'category' },
+				section: { filterKey: 'section', kind: 'static' },
+			},
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+		expect( decoded ).toContain( 'filter[bool][must][1][term][section]=guides' );
 	} );
 } );

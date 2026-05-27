@@ -155,7 +155,7 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 }
 
 /**
- * Log a post-update rollback to logstash. Best-effort; no-op off WordPress.com.
+ * Log a post-update rollback to logstash. Best-effort.
  *
  * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`.
  * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()`.

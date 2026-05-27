@@ -49,7 +49,7 @@ class PluginDownloader {
 
 		$file_path = $this->output_dir . $url_filename;
 		if (false === strpos($url_filename, '.zip')) {
-			$file_path = $file_path  . '.zip';
+			$file_path .= '.zip';
 		}
 		$context = stream_context_create(array('http' => array(
 			'header' => 'User-Agent: jp-analyzer',

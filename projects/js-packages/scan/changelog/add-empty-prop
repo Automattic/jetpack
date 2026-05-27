@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an optional `empty` prop to `ThreatsDataViews` that's forwarded to the underlying `DataViews` so consumers can render their own empty-state node (heading, body, CTA) instead of DataViews' built-in "no items" body.

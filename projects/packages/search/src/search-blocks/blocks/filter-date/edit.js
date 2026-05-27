@@ -1,5 +1,11 @@
 /**
  * Editor preview for jetpack-search/filter-date.
+ *
+ * `displayStyle` swaps between the default checkbox-list rendering and a
+ * chip-pill variant for the date buckets, mirroring the same attribute on
+ * filter-checkbox / filter-wc-*. The runtime DOM stays identical across
+ * variants — only the wrapper data attribute changes — so the existing
+ * Interactivity bindings keep working.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
@@ -8,8 +14,13 @@ import {
 	RangeControl,
 	TextControl,
 	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { normalizeDisplayStyle } from '../display-style.js';
 
 const SAMPLE_BUCKETS_YEAR = [
 	{ value: '2024', label: '2024', count: 42 },
@@ -32,7 +43,8 @@ const SAMPLE_BUCKETS_MONTH = [
  * @return {object} Rendered element.
  */
 export default function FilterDateEdit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps();
+	const displayStyle = normalizeDisplayStyle( attributes?.displayStyle );
+	const blockProps = useBlockProps( { 'data-display-style': displayStyle } );
 	const rawLabel = attributes?.label || '';
 	const placeholderLabel = __( 'Date', 'jetpack-search-pkg' );
 	const previewLabel = rawLabel || placeholderLabel;
@@ -83,6 +95,20 @@ export default function FilterDateEdit( { attributes, setAttributes } ) {
 						checked={ showCount }
 						onChange={ value => setAttributes( { showCount: !! value } ) }
 					/>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						isBlock
+						label={ __( 'Display style', 'jetpack-search-pkg' ) }
+						value={ displayStyle }
+						onChange={ value => setAttributes( { displayStyle: normalizeDisplayStyle( value ) } ) }
+					>
+						<ToggleGroupControlOption
+							value="checkbox-list"
+							label={ __( 'Checkbox list', 'jetpack-search-pkg' ) }
+						/>
+						<ToggleGroupControlOption value="chips" label={ __( 'Chips', 'jetpack-search-pkg' ) } />
+					</ToggleGroupControl>
 					<RangeControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

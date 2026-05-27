@@ -36,7 +36,7 @@ class Jetpack_Sync_WP_Super_Cache_Test extends Jetpack_Sync_TestBase {
 
 	public function define_constants() {
 		foreach ( WP_Super_Cache::$wp_super_cache_constants as $constant ) {
-			if ( false === defined( $constant ) ) {
+			if ( ! defined( $constant ) ) {
 				define( $constant, $constant );
 			}
 		}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: shutdown handler always emits a verdict (status=fatal for engine fatals, status=ok-shutdown otherwise); add re-entry guard so a single probe request emits exactly one JSON response.

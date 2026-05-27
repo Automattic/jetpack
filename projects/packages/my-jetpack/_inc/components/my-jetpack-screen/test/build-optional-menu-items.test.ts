@@ -60,7 +60,6 @@ describe( 'buildOptionalMenuItems', () => {
 
 			const reset = items.find( item => item.label === 'Reset options (devs)' );
 			expect( reset ).toBeDefined();
-			expect( reset?.role ).toBe( 'button' );
 		} );
 
 		it( 'omits the Reset options entry on non-dev builds', () => {

@@ -415,7 +415,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 
 		// Images.
 		$media_file  = isset( $input['media'] ) ? (array) $input['media'] : null;
-		$media_url   = isset( $input['media_url'] ) ? $input['media_url'] : null;
+		$media_url   = $input['media_url'] ?? null;
 		$media_attrs = isset( $input['attrs'] ) ? (array) $input['attrs'] : null;
 
 		if ( isset( $media_url ) || $media_file ) {

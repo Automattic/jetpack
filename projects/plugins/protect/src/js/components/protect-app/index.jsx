@@ -94,8 +94,8 @@ const ProtectApp = () => {
 		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Tabs.Root ref={ tabsRootRef } value={ activeTab } onValueChange={ onValueChange }>
-				<div className="jp-admin-page-tabs">
-					<Tabs.List>
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+					<Tabs.List variant="minimal">
 						<Tabs.Tab value="scan">{ scanLabel }</Tabs.Tab>
 						<Tabs.Tab value="firewall">{ __( 'Firewall', 'jetpack-protect' ) }</Tabs.Tab>
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>

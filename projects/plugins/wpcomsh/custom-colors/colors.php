@@ -568,8 +568,6 @@ class Colors_Manager_Common {
 					<input type="text" id="iris" />
 				</div>
 			</div>
-			<?php Colors_Manager::color_palettes(); ?>
-			<?php Colors_Manager::color_patterns(); ?>
 		</div>
 		<?php
 	}
@@ -1263,42 +1261,6 @@ class Colors_Manager_Common {
 		}
 
 		return $patterns;
-	}
-
-	/**
-	 * Renders the color palettes
-	 */
-	public static function color_palettes() {
-		?>
-		<div id="colourlovers-palettes-container">
-			<h3><?php esc_html_e( 'Choose a Palette', 'wpcomsh' ); ?></h3>
-			<div id="colourlovers-palettes"></div>
-			<div class="palette-buttons">
-				<a class="button next" id="more-palettes"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
-				<a class="button previous" id="less-palettes" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
-				<a class="button generate" id="generate-palette"><?php esc_html_e( 'Match header image', 'wpcomsh' ); ?></a>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the pattern grid
-	 */
-	public static function color_patterns() {
-		?>
-		<div class="the-pattern-picker" id="the-pattern-picker" style="display: none;">
-			<span class="customize-control-title">
-				<?php esc_html_e( 'Pick a Background Pattern', 'wpcomsh' ); ?>
-			</span>
-			<ul id="colourlovers-patterns"></ul>
-			<div class="pagination">
-				<a id="more-patterns" class="button"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
-				<a id="less-patterns" class="button previous" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
-			</div>
-			<p class="noresults" style="display: none;"><?php esc_html_e( "There aren't any patterns that match your chosen color scheme. It's just too unique!", 'wpcomsh' ); ?></p>
-		</div>
-		<?php
 	}
 
 	/**

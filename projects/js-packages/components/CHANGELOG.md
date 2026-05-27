@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.12.0] - 2026-05-25
+### Added
+- Add subpath exports for `Button`, `PricingTable`, and `ProductPrice` so they can be imported directly from bundles that cannot import the package barrel. [#49063]
+
+### Changed
+- Replace self-imports via package name with relative imports to remove circular-dep risk. [#49096]
+
+### Fixed
+- AdminPage: Update the header-height tab-shift rule so it keeps matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49101]
+- AdminPage: Keep header height consistent across tabs so the tab strip no longer shifts vertically when switching tabs. [#49080]
+- AdminPage: Update the SCSS module's `> header` selectors to `> :first-child` so they keep matching after `@wordpress/admin-ui` 2.1 changed the page header element from `<header>` to `<div>`. [#49018]
+
+## [1.11.3] - 2026-05-21
+### Changed
+- Mark ContextualUpgradeTrigger as @deprecated. Use Notice from @wordpress/ui instead. The implementation is unchanged. [#48909]
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.11.2] - 2026-05-19
+### Changed
+- Deprecate Status; inline @wordpress/ui Text in consumers. [#48711]
+
+## [1.11.1] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+## [1.11.0] - 2026-05-11
+### Added
+- AdminPage: Add admin-page and jetpack-footer sub-path exports for use in wp-build dashboards. [#48510]
+- Global Notices: Add global-notices sub-path export for use in wp-build dashboards. [#48586]
+- Gravatar: Add a component with hovercard support at the `./gravatar` subpath, shared across products that render subscriber or response avatars. [#48581]
+
+### Changed
+- AdminPage: Update to @wordpress/admin-ui 2.0.0 and use the new `visual` prop to render the Jetpack logo alongside the page title. [#48410]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+### Removed
+- Components: Remove Gridicon component. [#48537]
+
+### Fixed
+- AdminPage: Pass a stable `jp-admin-page__page` className to admin-ui's Page so layout overrides survive admin-ui 2.0.0's switch to CSS Modules; pin the header heading level to `<h2>` and center the new `visual` slot to keep the Jetpack logo aligned with the title. [#48410]
+
 ## [1.10.0] - 2026-05-04
 ### Added
 - AdminPage: Add `unwrapped` prop to render children directly inside the admin-ui Page, skipping the default Container/Col grid wrap. Use for full-bleed pages (DataViews-based admin surfaces) that own their own scroll/layout model. [#48244]
@@ -1764,6 +1806,11 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.12.0]: https://github.com/Automattic/jetpack-components/compare/1.11.3...1.12.0
+[1.11.3]: https://github.com/Automattic/jetpack-components/compare/1.11.2...1.11.3
+[1.11.2]: https://github.com/Automattic/jetpack-components/compare/1.11.1...1.11.2
+[1.11.1]: https://github.com/Automattic/jetpack-components/compare/1.11.0...1.11.1
+[1.11.0]: https://github.com/Automattic/jetpack-components/compare/1.10.0...1.11.0
 [1.10.0]: https://github.com/Automattic/jetpack-components/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/Automattic/jetpack-components/compare/1.8.3...1.9.0
 [1.8.3]: https://github.com/Automattic/jetpack-components/compare/1.8.2...1.8.3

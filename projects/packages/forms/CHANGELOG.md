@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.21.3] - 2026-05-25
+### Added
+- Abilities: Opt all 8 Forms abilities into the MCP tool surface (meta.mcp public tool). [#49113]
+
+### Changed
+- Update package dependencies. [#48405] [#49012]
+
+### Removed
+- Remove dead legacy grunion assets: `grunion-admin.js`, `grunion-frontend.js`, `grunion-admin.css`, and 13 unused images. [#47609]
+
+### Fixed
+- Fix a JavaScript error in the editor. [#48979]
+- Fix unread submissions counter badge colors in the admin sidebar. [#48921]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [7.21.2] - 2026-05-19
+### Changed
+- Exclude development files from production builds. [#47365]
+- Update package dependencies. [#48695]
+- Use `@wordpress/ui` links in integrations, response modals, and mail/phone links, keeping dashboard navigation in the same tab where appropriate. [#48407]
+
+### Fixed
+- Contact Form: Restore full theme text color for the "Required" label so it meets WCAG contrast requirements across common themes. [#48925]
+- Contact Form: Restore full-width submit buttons on small screens for horizontal inline forms. [#48928]
+
+## [7.21.1] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Dashboard: Update to @wordpress/admin-ui 2.0.0 and use the Page component's new `visual` prop for the Jetpack logo. [#48410]
+- Forms: Use the shared `Gravatar` component from `@automattic/jetpack-components/gravatar`. No user-visible change. [#48581]
+
+### Fixed
+- Forms: Fix phantom unread counter badge appearing when there are no unread form submissions. [#47281]
+
 ## [7.21.0] - 2026-05-04
 ### Added
 - Add admin abilities for form CRUD (list-forms, get-form, create-form, delete-form) and bulk-update-responses. [#47102]
@@ -2470,6 +2504,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.21.3]: https://github.com/automattic/jetpack-forms/compare/v7.21.2...v7.21.3
+[7.21.2]: https://github.com/automattic/jetpack-forms/compare/v7.21.1...v7.21.2
+[7.21.1]: https://github.com/automattic/jetpack-forms/compare/v7.21.0...v7.21.1
 [7.21.0]: https://github.com/automattic/jetpack-forms/compare/v7.20.0...v7.21.0
 [7.20.0]: https://github.com/automattic/jetpack-forms/compare/v7.19.0...v7.20.0
 [7.19.0]: https://github.com/automattic/jetpack-forms/compare/v7.18.0...v7.19.0

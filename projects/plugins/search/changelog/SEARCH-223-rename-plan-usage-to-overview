@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: e2e: update stale tab-name comment after Plan & Usage → Overview rename. Test-only.

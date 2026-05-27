@@ -15,10 +15,21 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl, TextControl } from '@wordpress/components';
+import { PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-const LAYOUTS = [ 'compact', 'expanded', 'product' ];
+// `product` is WC-only. On non-Woo sites it's pruned from the picker and a
+// saved `product` value collapses to `expanded` — the renderer applies the
+// same fallback in `render.php`, so the editor preview stays in lockstep.
+// `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` is the canonical
+// editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
+// Read at call time (not module init) so the editor responds to a runtime
+// change in the localized config, and so tests can flip the gate per case.
+const isWooCommerceBlocksEnabled = () =>
+	typeof window !== 'undefined' &&
+	window.JetpackSearchBlocksConfig?.isWooCommerceBlocksEnabled === true;
+const allowedLayouts = () =>
+	isWooCommerceBlocksEnabled() ? [ 'compact', 'expanded', 'product' ] : [ 'compact', 'expanded' ];
 const DEFAULT_LAYOUT = 'expanded';
 
 const SAMPLE_RESULTS = [
@@ -29,6 +40,7 @@ const SAMPLE_RESULTS = [
 			'jetpack-search-pkg'
 		),
 		path: 'example.com/articles/first',
+		author: __( 'Sample Author', 'jetpack-search-pkg' ),
 		date: 'Apr 1, 2026',
 	},
 	{
@@ -38,6 +50,7 @@ const SAMPLE_RESULTS = [
 			'jetpack-search-pkg'
 		),
 		path: 'example.com/guides/another',
+		author: __( 'A. Writer, B. Editor', 'jetpack-search-pkg' ),
 		date: 'Mar 22, 2026',
 	},
 	{
@@ -82,11 +95,19 @@ const SAMPLE_PRODUCTS = [
 // calls run after the block editor's i18n is loaded — otherwise the strings
 // would be cached in the source locale on module init. Mirrors the same
 // pattern in `results-sort/edit.js`.
-const LAYOUT_OPTIONS = () => [
-	{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
-	{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },
-	{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
-];
+const LAYOUT_OPTIONS = () => {
+	const options = [
+		{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
+		{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },
+	];
+	if ( isWooCommerceBlocksEnabled() ) {
+		options.push( {
+			label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ),
+			value: 'product',
+		} );
+	}
+	return options;
+};
 
 /**
  * Editor preview for the results-list block.
@@ -103,7 +124,7 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 	// class layout binding instead of falling through to the unknown-layout
 	// fallback. Mirrors `$resolve_layout` in render.php.
 	const normalized = stored === 'card' ? 'expanded' : stored;
-	const layout = LAYOUTS.includes( normalized ) ? normalized : DEFAULT_LAYOUT;
+	const layout = allowedLayouts().includes( normalized ) ? normalized : DEFAULT_LAYOUT;
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
@@ -119,6 +140,21 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
+					{ isWooCommerceBlocksEnabled() && (
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Auto-switch to Product view for product searches',
+								'jetpack-search-pkg'
+							) }
+							checked={ attributes?.autoProductView ?? true }
+							onChange={ value => setAttributes( { autoProductView: value } ) }
+							help={ __(
+								'When the search is scoped to products (a ?post_types[]=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
+								'jetpack-search-pkg'
+							) }
+						/>
+					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -178,8 +214,8 @@ function renderCompactPreview( results ) {
 }
 
 /**
- * Expanded preview — title, breadcrumb path, date, and a side image. The
- * default layout for blogs and content sites.
+ * Expanded preview — title, breadcrumb path, author + date meta, and a side
+ * image. The default layout for blogs and content sites.
  *
  * @param {Array} results - Sample rows.
  * @return {object} Rendered element.
@@ -196,7 +232,17 @@ function renderExpandedPreview( results ) {
 						) }
 						<div className="jetpack-search-results__path">{ result.path }</div>
 						<div className="jetpack-search-results__meta">
-							<span className="jetpack-search-results__date">{ result.date }</span>
+							{ result.author && (
+								<span className="jetpack-search-results__author">{ result.author }</span>
+							) }
+							{ result.author && result.date && (
+								<span className="jetpack-search-results__meta-separator" aria-hidden="true">
+									·
+								</span>
+							) }
+							{ result.date && (
+								<span className="jetpack-search-results__date">{ result.date }</span>
+							) }
 						</div>
 					</div>
 					<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">

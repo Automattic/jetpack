@@ -5,7 +5,6 @@
 	"version": "0.1.0",
 	"title": "Filter by Stock Status",
 	"category": "jetpack-search",
-	"icon": "tag",
 	"description": "Let shoppers narrow product results to in-stock items. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,

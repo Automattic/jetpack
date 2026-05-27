@@ -30,6 +30,7 @@ const PROPS_FROM_WINDOW = {
  */
 export default function AppWrapper() {
 	const {
+		aiAnswersEnabled,
 		color,
 		excludedPostTypes,
 		infiniteScroll,
@@ -37,6 +38,7 @@ export default function AppWrapper() {
 		postDate,
 		productPrice,
 		resultFormat,
+		searchSuggestionsEnabled,
 		showLogo,
 		sort,
 		sortEnabled,
@@ -64,6 +66,20 @@ export default function AppWrapper() {
 			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),
 	};
+
+	// aiAnswersEnabled + searchSuggestionsEnabled live at the top level of the
+	// instant-search options object (not under `overlayOptions`). Override them
+	// here so the preview reacts to the sidebar toggles without a save round-trip.
+	const options = {
+		...window[ SERVER_OBJECT_NAME ],
+		...Object.fromEntries(
+			Object.entries( {
+				aiAnswersEnabled,
+				searchSuggestionsEnabled,
+			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
+		),
+	};
+
 	const { isLoading } = useSiteLoadingState();
 
 	return (
@@ -90,6 +106,7 @@ export default function AppWrapper() {
 						initialIsVisible={ true }
 						initialShowResults={ true }
 						isInCustomizer={ false }
+						options={ options }
 						overlayOptions={ overlayOptions }
 						shouldCreatePortal={ false }
 						shouldIntegrateWithDom={ false }

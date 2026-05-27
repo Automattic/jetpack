@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Initial release of the Scan package: hosts the in-wp-admin Scan UI shell, data-layer skeleton, and REST namespace placeholder.

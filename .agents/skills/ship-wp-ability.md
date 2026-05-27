@@ -83,8 +83,12 @@ Do NOT consolidate across these hard boundaries:
 
 Then the rest of the naming:
 
-- **Category slug:** kebab-case, plugin-scoped. Good: `jetpack-monitor`, `jetpack-forms`, `jetpack-modules`. Bad: `monitor`, `forms`.
-- **Ability slugs:** `<category>/<verb>-<object>`, e.g. `jetpack-monitor/get-monitor-status`.
+- **Category slug — prefer a core / shared category over a plugin-scoped one when the abilities are general site management.** Think of categories as broad surface labels for the agent, not as plugin namespaces. If the abilities act on the *site* (backup/restore, modules, connection state, content), use the upstream-registered `site` category. Reach for a plugin-scoped slug only when the abilities are genuinely product-specific and don't fit any shared bucket.
+  - **Use a shared/core category** (`site`, etc.) for: backup/restore, module toggles, connection-state readers, content-management actions, anything an agent would discover under "manage this site".
+  - **Use a plugin-scoped slug** (`jetpack-forms`, `jetpack-boost`) when the abilities cover a product-specific surface that wouldn't sit naturally next to another plugin's tools.
+  - Bad either way: bare single words you invent (`monitor`, `cache`) — pick a real shared category or namespace it.
+  - **If the category you pick is registered upstream**, override `register_category()` to a no-op and skip `wp_register_ability_category()`. The base `Registrar` still hooks the categories-init callback; making it a no-op avoids "already registered" notices. `get_category_definition()` stays on the class to satisfy the abstract contract but isn't called.
+- **Ability slugs:** `<product-or-feature>/<verb>-<object>`, e.g. `jetpack-monitor/get-monitor-status`, `jetpack-backup/get-backup-overview`. The slug prefix is a product/feature namespace and is independent of the category — abilities under the shared `site` category still use `jetpack-<feature>/...` slugs.
 - **Class name:** `<Name>_Abilities` (e.g. `Monitor_Abilities`, `Forms_Abilities`, `Modules_Abilities`).
 - **Namespace:** plugin context (Case A, Case C) → `Automattic\Jetpack\Plugin\Abilities`. Package context (Case B) → `Automattic\Jetpack\<Pkg>\Abilities`.
 
@@ -115,6 +119,7 @@ For every entry in `get_abilities()`:
 - `execute_callback` — `[ __CLASS__, 'method_name' ]`. Method signature is `( $input = null )`. Return value is a plain array (or `WP_Error`). Keep the shape **high-signal** — don't return raw `$mod` / `WP_Post` / option dumps; summarize. See the anti-patterns section of `references/agent-ergonomics.md`.
 - `permission_callback` — `[ __CLASS__, 'can_method' ]`. See the permissions table below.
 - `meta.annotations` — `readonly`, `destructive`, `idempotent` booleans. These must match execute behavior; `wp-abilities-verify` will flag mismatches.
+- `meta.mcp` — every ability gets `'mcp' => array( 'public' => true, 'type' => 'tool' )`. This is what surfaces the ability to MCP-bridged AI agents as a tool. Matches the convention used by Stats / Boost / Modules abilities; leaving it off makes the ability invisible to MCP consumers even though it shows up in `/wp-abilities/v1/abilities/`. Flip `public => false` only when the ability is for internal callers and explicitly shouldn't be agent-discoverable.
 - `meta.show_in_rest` — `true` when the ability should be callable via REST.
 - **Do NOT set `category`** in the spec. `Registrar` auto-injects it. Setting it duplicates info that drifts.
 - `WP_Error` codes — use the shared vocabulary in `wp-abilities-api/references/error-code-vocabulary.md` (`<plugin>_not_initialized`, `<plugin>_missing_<field>`, `<plugin>_invalid_<field>`, `<plugin>_<resource>_data_unavailable`). The **message** should tell the agent *what to do next* — e.g. "Unknown module slug. Call jetpack-modules/get-modules to enumerate." — not just restate the error condition.
@@ -188,7 +193,17 @@ If `composer update automattic/jetpack-wp-abilities` reports "Nothing to modify 
 
 ### 10) Write tests
 
-Follow `references/test-templates.md`. The test file lives at:
+Follow `references/test-templates.md`. **In particular, do NOT add
+`setExpectedIncorrectUsage('WP_Ability_Categories_Registry::register')` or
+`setExpectedIncorrectUsage('WP_Abilities_Registry::register')` to test
+helpers that re-fire the Abilities API lifecycle actions — that's a
+mandatory assertion, and the underlying core listeners don't always emit
+the expected notice in CI, which fails every test that uses the helper.
+See the "Anti-pattern" entry in `references/test-templates.md` for the full
+story. Mirror the Monitor test pattern (just `do_action()` twice, no
+incorrect-usage expectations).**
+
+The test file lives at:
 
 - Plugin context: `projects/plugins/jetpack/tests/php/src/<Name>_Abilities_Test.php` (extends `WP_UnitTestCase`, uses `WP_UnitTestCase_Fix` trait + `#[CoversClass]` attribute).
 - Package context: `projects/packages/<pkg>/tests/php/abilities/<Name>AbilitiesTest.php` (extends `PHPUnit\Framework\TestCase`, uses Brain Monkey + Mockery).
@@ -313,6 +328,7 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.
 - **Duplicate `category` in a spec.** Silent smell — `Registrar` injects the slug when missing. Setting `'category' => self::CATEGORY_SLUG` in each spec is redundant and drifts.
 - **Annotation mismatch** (`readonly: true` on a writer, `destructive: false` on a deleter). `wp-abilities-verify` is the source of truth; this skill doesn't re-check annotation correctness.
+- **CI fails with "Failed to assert that `WP_Ability_Categories_Registry::register` triggered an incorrect usage notice."** A previous version of the test added `setExpectedIncorrectUsage()` calls as a "whitelist" inside a `trigger_registration()` helper. `setExpectedIncorrectUsage` is a *mandatory* assertion — the test fails when the notice doesn't fire, which it usually doesn't in CI because core's site-category / `get-site-info` listeners aren't loaded. Fix: delete the `setExpectedIncorrectUsage` lines from the helper. See `references/test-templates.md` "Anti-pattern" note and PR #48335 commit `af3cdfb51a`.
 - **Description is a label, not a spec.** `"Activate a module."` tells the agent nothing. Rewrite to include return shape, idempotency, preconditions, and which abilities typically precede or follow. See `references/agent-ergonomics.md`.
 - **Raw backing-object dump in the response.** Returning `Jetpack::get_module()` verbatim, a full `WP_Post`, or a REST controller payload unadapted leaks internal fields the agent can't use and wastes context. Summarize to the shape the agent actually consumes.
 - **Unbounded list response.** A `list-*` / `get-*s` read with no `per_page` or `limit` ceiling is a latent OOM on the agent side. Cap at ~100 items, paginate past that.

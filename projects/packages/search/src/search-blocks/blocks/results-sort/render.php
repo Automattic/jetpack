@@ -61,12 +61,6 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 
 $select_id = wp_unique_id( 'jetpack-search-results-sort-' );
 $menu_id   = wp_unique_id( 'jetpack-search-results-sort-menu-' );
-
-$checked_getters = array(
-	'relevance' => 'state.isSortByRelevance',
-	'newest'    => 'state.isSortByNewest',
-	'oldest'    => 'state.isSortByOldest',
-);
 ?>
 <?php if ( 'popover' === $display_as ) : ?>
 	<div
@@ -101,10 +95,7 @@ $checked_getters = array(
 			hidden
 		>
 			<?php foreach ( $options as $sort_key ) : ?>
-				<?php
-				$option_label    = $option_labels[ $sort_key ] ?? $sort_key;
-				$checked_binding = $checked_getters[ $sort_key ] ?? 'false';
-				?>
+				<?php $option_label = $option_labels[ $sort_key ] ?? $sort_key; ?>
 				<button
 					type="button"
 					role="menuitemradio"
@@ -112,7 +103,7 @@ $checked_getters = array(
 					value="<?php echo esc_attr( $sort_key ); ?>"
 					tabindex="-1"
 					data-wp-context='<?php echo esc_attr( wp_json_encode( array( 'sortKey' => $sort_key ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ); ?>'
-					data-wp-bind--aria-checked="<?php echo esc_attr( $checked_binding ); ?>"
+					data-wp-bind--aria-checked="state.isSortOptionSelected"
 					data-wp-bind--tabindex="state.sortMenuItemTabIndex"
 					data-wp-on--click="actions.selectSortOrder"
 					data-wp-on--keydown="actions.onSortMenuKeydown"

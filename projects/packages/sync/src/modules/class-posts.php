@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -480,6 +481,10 @@ class Posts extends Module {
 			return false;
 		}
 
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
@@ -500,6 +505,11 @@ class Posts extends Module {
 		}
 
 		list( $post_id, $flags, $post ) = $args;
+
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
@@ -802,9 +812,9 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ? $this->previous_status[ $post_ID ] : self::DEFAULT_PREVIOUS_STATE;
+		$previous_status = $this->previous_status[ $post_ID ] ?? self::DEFAULT_PREVIOUS_STATE;
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ? $this->just_published[ $post_ID ] : false;
+		$just_published = $this->just_published[ $post_ID ] ?? false;
 
 		$state = array(
 			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),

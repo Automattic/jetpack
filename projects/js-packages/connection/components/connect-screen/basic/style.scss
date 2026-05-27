@@ -17,25 +17,16 @@
 		}
 	}
 
-	.jp-action-button {
+	// Structural-only: top spacing + responsive width. All other treatment
+	// (colors, padding, border-radius, font-weight) honors the
+	// @wordpress/ui Button defaults.
+	.jp-connection__connect-screen__action-button {
 		margin-top: 40px;
+		max-width: 100%;
 
-		&--button {
-			border-radius: 4px;
-			font-weight: 600;
-		}
-
-		button {
-			max-width: 100%;
-
-			&:disabled {
-				color: hsla(0, 0%, 100%, 0.4);
-			}
-
-			@media ( max-width: breakpoints.$break-medium ) {
-				max-width: none;
-				width: 100%;
-			}
+		@media ( max-width: breakpoints.$break-medium ) {
+			max-width: none;
+			width: 100%;
 		}
 	}
 

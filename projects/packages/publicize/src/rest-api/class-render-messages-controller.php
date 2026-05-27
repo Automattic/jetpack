@@ -25,9 +25,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * fetch all enabled connections' previews in one round-trip when the
  * `social-message-templates` feature is enabled.
  *
- * POST takes a JSON body of `{ post_id, items: [...] }` and returns one
- * record per input item, in input order, keyed by client-supplied `id`
- * (typically the connection_id). Body-based POST is used instead of a GET
+ * POST takes a JSON body of `{ post_id, items: [...], post_intent: {...} }`
+ * and returns one record per input item, in input order, keyed by the
+ * client-supplied `connection_id`. Body-based POST is used instead of a GET
  * collection so multi-connection / long-message batches don't hit
  * infrastructure URL caps.
  *
@@ -69,12 +69,12 @@ class Render_Messages_Controller extends Base_Controller {
 					'allow_blog_token_access' => true,
 				),
 				'args'                           => array(
-					'post_id' => array(
+					'post_id'     => array(
 						'description' => __( 'The ID of the post to render the messages for.', 'jetpack-publicize-pkg' ),
 						'type'        => 'integer',
 						'required'    => true,
 					),
-					'items'   => array(
+					'items'       => array(
 						'description' => __( 'List of per-connection render inputs.', 'jetpack-publicize-pkg' ),
 						'type'        => 'array',
 						'required'    => true,
@@ -82,18 +82,14 @@ class Render_Messages_Controller extends Base_Controller {
 						'items'       => array(
 							'type'                 => 'object',
 							'additionalProperties' => false,
-							'required'             => array( 'id', 'network' ),
+							'required'             => array( 'connection_id' ),
 							'properties'           => array(
-								'id'             => array(
-									'description' => __( 'Client-supplied identifier echoed back in the response (typically the connection_id).', 'jetpack-publicize-pkg' ),
-									'type'        => 'string',
-								),
-								'network'        => array(
-									'description' => __( 'The social network slug (e.g. facebook, x, linkedin).', 'jetpack-publicize-pkg' ),
+								'connection_id'  => array(
+									'description' => __( 'Publicize connection ID — used to dispatch the renderer and resolve the per-connection template.', 'jetpack-publicize-pkg' ),
 									'type'        => 'string',
 								),
 								'message'        => array(
-									'description' => __( 'The message template to render. Empty uses the network default.', 'jetpack-publicize-pkg' ),
+									'description' => __( 'Optional message override. Empty walks the per-connection / site / network-default chain.', 'jetpack-publicize-pkg' ),
 									'type'        => 'string',
 									'default'     => '',
 								),
@@ -102,6 +98,29 @@ class Render_Messages_Controller extends Base_Controller {
 									'type'        => 'boolean',
 									'default'     => false,
 								),
+							),
+						),
+					),
+					'post_intent' => array(
+						'description'          => __( 'Edited post fields to use when rendering unsaved preview changes.', 'jetpack-publicize-pkg' ),
+						'type'                 => 'object',
+						'default'              => array(),
+						'additionalProperties' => false,
+						'properties'           => array(
+							'title'   => array(
+								'description' => __( 'Edited post title.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+								'default'     => '',
+							),
+							'excerpt' => array(
+								'description' => __( 'Edited post excerpt.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+								'default'     => '',
+							),
+							'content' => array(
+								'description' => __( 'Edited post content.', 'jetpack-publicize-pkg' ),
+								'type'        => 'string',
+								'default'     => '',
 							),
 						),
 					),
@@ -122,8 +141,8 @@ class Render_Messages_Controller extends Base_Controller {
 			'title'      => 'publicize-render-messages-item',
 			'type'       => 'object',
 			'properties' => array(
-				'id'               => array(
-					'description' => __( 'Client-supplied identifier echoed back from the request.', 'jetpack-publicize-pkg' ),
+				'connection_id'    => array(
+					'description' => __( 'Connection identifier echoed back from the request.', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
@@ -208,6 +227,7 @@ class Render_Messages_Controller extends Base_Controller {
 
 			$post_id = (int) $request->get_param( 'post_id' );
 			$items   = (array) $request->get_param( 'items' );
+			$intent  = (array) $request->get_param( 'post_intent' );
 
 			$post = get_post( $post_id );
 
@@ -220,11 +240,11 @@ class Render_Messages_Controller extends Base_Controller {
 			}
 
 			return rest_ensure_response(
-				\Publicize\render_messages_for_networks( $post, $items )
+				\Publicize\render_messages( $post, $items, $intent )
 			);
 		}
 
-		// Self-hosted Jetpack: proxy the GET (with its query string) to WPCOM.
+		// Self-hosted Jetpack: proxy the request body to WPCOM.
 		return rest_ensure_response(
 			$this->proxy_request_to_wpcom_as_blog( $request )
 		);

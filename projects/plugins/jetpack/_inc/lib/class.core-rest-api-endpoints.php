@@ -1805,8 +1805,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
 	public static function build_connect_url( $request = array() ) {
-		$from     = isset( $request['from'] ) ? $request['from'] : false;
-		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
+		$from     = $request['from'] ?? false;
+		$redirect = $request['redirect'] ?? false;
 
 		$url = Jetpack::init()->build_connect_url( true, $redirect, $from );
 		if ( $url ) {
@@ -3920,7 +3920,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
 				$other_sharedaddy_options                     = array( 'jetpack-twitter-cards-site-tag', 'sharedaddy_disable_resources', 'sharing_delete_service' );
 				foreach ( $other_sharedaddy_options as $key ) {
-					$default_value                    = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$default_value                    = $options[ $key ]['default'] ?? '';
 					$current_value                    = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
@@ -3933,7 +3933,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			default:
 				// These option are just stored as plain WordPress options.
 				foreach ( $options as $key => $value ) {
-					$default_value                    = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$default_value                    = $options[ $key ]['default'] ?? '';
 					$current_value                    = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
@@ -3945,7 +3945,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			if ( isset( $options[ $key ]['validate_callback'] ) ) {
 				unset( $options[ $key ]['validate_callback'] );
 			}
-			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+			$default_value = $options[ $key ]['default'] ?? '';
 			if ( ! array_key_exists( 'current_value', $options[ $key ] ) ) {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}

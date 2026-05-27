@@ -309,7 +309,7 @@ function fetch_subscriber_counts() {
 					'status'  => 'failed',
 					'code'    => $xml->getErrorCode(),
 					'message' => $xml->getErrorMessage(),
-					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
+					'value'   => $subs_count['value'] ?? array(
 						'total_subscribers' => 0,
 						'email_subscribers' => 0,
 						'social_followers'  => 0,

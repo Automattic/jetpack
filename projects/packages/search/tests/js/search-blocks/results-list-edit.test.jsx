@@ -32,6 +32,20 @@ jest.mock( '@wordpress/components', () => ( {
 			} ) }
 		</fieldset>
 	),
+	ToggleControl: ( { label, checked, onChange } ) => {
+		const id = `toggle-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ !! checked }
+					onChange={ event => onChange( event.target.checked ) }
+				/>
+			</>
+		);
+	},
 	TextControl: ( { label, value, onChange, placeholder } ) => {
 		const id = `text-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
 		return (
@@ -59,6 +73,17 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 describe( 'ResultsListEdit', () => {
+	// Default the editor's localized WC flag to true so the existing
+	// product-layout tests keep exercising the full picker. The non-Woo
+	// path (Product option absent, saved `product` collapses to `expanded`)
+	// is covered in its own `describe` block below.
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
+	} );
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
 	it( 'does not show author names in the compact preview', () => {
 		render( <ResultsListEdit attributes={ { layout: 'compact' } } setAttributes={ jest.fn() } /> );
 
@@ -98,6 +123,41 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( '$24.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$30.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the auto-product-view toggle, defaulting on when the attribute is unset', () => {
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect(
+			screen.getByRole( 'checkbox', {
+				name: 'Auto-switch to Product view for product searches',
+			} )
+		).toBeChecked();
+	} );
+
+	it( 'reflects autoProductView=false as an unchecked toggle', () => {
+		render(
+			<ResultsListEdit attributes={ { autoProductView: false } } setAttributes={ jest.fn() } />
+		);
+
+		expect(
+			screen.getByRole( 'checkbox', {
+				name: 'Auto-switch to Product view for product searches',
+			} )
+		).not.toBeChecked();
+	} );
+
+	it( 'updates the autoProductView attribute when the toggle changes', () => {
+		const setAttributes = jest.fn();
+		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click(
+			screen.getByRole( 'checkbox', {
+				name: 'Auto-switch to Product view for product searches',
+			} )
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { autoProductView: false } );
 	} );
 
 	it( 'exposes message controls for the empty and error states in the inspector', () => {
@@ -148,5 +208,49 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'ResultsListEdit on non-WooCommerce sites (RSM-2805)', () => {
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
+	} );
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'omits the Product layout option from the picker', () => {
+		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );
+
+		// Compact and Expanded remain; Product is hidden so authors can't
+		// pick a layout that reads WC-shaped fields the index doesn't have.
+		expect( screen.getByRole( 'radio', { name: 'Compact' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'omits the auto-product-view toggle (the product layout it controls is WC-only)', () => {
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'checkbox', {
+				name: 'Auto-switch to Product view for product searches',
+			} )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'collapses a saved product layout to expanded so the editor matches the renderer', () => {
+		// Authors who saved `product` on a Woo site that later deactivates
+		// WC should see the neutral expanded preview, not a broken product
+		// card. The PHP `render.php` applies the same fallback.
+		render( <ResultsListEdit attributes={ { layout: 'product' } } setAttributes={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeChecked();
+		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
+		// Product-only sample data must not bleed into the canvas.
+		expect( screen.queryByText( 'Sample product' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '$24.00' ) ).not.toBeInTheDocument();
 	} );
 } );

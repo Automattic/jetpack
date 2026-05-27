@@ -108,7 +108,7 @@ class Post_Settings {
 	 * @return string
 	 */
 	public function get_image_type() {
-		$type              = isset( $this->settings['image_type'] ) ? $this->settings['image_type'] : null;
+		$type              = $this->settings['image_type'] ?? null;
 		$featured_image_id = get_post_thumbnail_id( $this->post_id );
 
 		// By default, we use the featured image.
@@ -136,12 +136,12 @@ class Post_Settings {
 				$image_id = get_post_thumbnail_id( $this->post_id );
 				break;
 			case 'custom':
-				$image_id = isset( $this->settings['image_id'] ) ? $this->settings['image_id'] : null;
+				$image_id = $this->settings['image_id'] ?? null;
 				break;
 			case 'none':
 				return null;
 			case 'default':
-				$image_id = isset( $this->settings['default_image_id'] ) ? $this->settings['default_image_id'] : null;
+				$image_id = $this->settings['default_image_id'] ?? null;
 				break;
 		}
 

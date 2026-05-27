@@ -111,6 +111,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	 */
 	public function test_routes_not_registered_when_modernization_disabled() {
 		remove_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
 		$GLOBALS['wp_rest_server'] = new Spy_REST_Server();
 		// @phan-suppress-next-line PhanNoopNew -- instantiated for the constructor's add_action side effect.
 		new WPCOM_REST_API_V2_Endpoint_Subscribers_List();
@@ -122,6 +123,8 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 
 		$this->assertSame( 404, $response->get_status() );
 		$this->assertSame( 'rest_no_route', $response->get_data()['code'] );
+
+		remove_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
 	}
 
 	/**

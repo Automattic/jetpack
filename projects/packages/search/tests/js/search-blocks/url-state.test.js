@@ -36,13 +36,33 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
-	it( 'omits product-format sort orders until WooCommerce integration lands (RSM-1082)', () => {
+	it( 'omits product-format sort orders on non-WooCommerce sites (RSM-1082)', () => {
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'price_asc' } );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
+	it( 'serializes product-format sort orders when isWooCommerceBlocksEnabled is true (RSM-1082)', () => {
+		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
+			const params = stateToUrlParams( {
+				searchQuery: '',
+				sortOrder: key,
+				isWooCommerceBlocksEnabled: true,
+			} );
+			expect( params.get( 'orderby' ) ).toBe( key );
+		}
+	} );
+
 	it( 'omits unknown sort orders', () => {
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'bogus' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
+
+	it( 'still rejects unknown sort orders even when isWooCommerceBlocksEnabled is true', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'bogus',
+			isWooCommerceBlocksEnabled: true,
+		} );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
@@ -66,11 +86,12 @@ describe( 'stateToUrlParams', () => {
 		expect( params.getAll( 'authors[]' ) ).toEqual( [ 'jane' ] );
 	} );
 
-	it( 'serializes priceRange bounds to min_price/max_price', () => {
+	it( 'serializes priceRange bounds to min_price/max_price on Woo sites', () => {
 		const params = stateToUrlParams( {
 			searchQuery: 'shoes',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: 50 },
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.get( 'max_price' ) ).toBe( '50' );
@@ -81,6 +102,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: null },
+			isWooCommerceBlocksEnabled: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -91,6 +113,23 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: null,
+			isWooCommerceBlocksEnabled: true,
+		} );
+		expect( params.has( 'min_price' ) ).toBe( false );
+		expect( params.has( 'max_price' ) ).toBe( false );
+	} );
+
+	it( 'omits min_price/max_price entirely on non-Woo sites (RSM-2805)', () => {
+		// `filter-wc-price` isn't registered on non-Woo sites, so a stray
+		// `priceRange` in store state must not leak into the URL — otherwise
+		// the next API request would carry a `range` clause for a field the
+		// index doesn't have. Mirrors the PHP-side gate in
+		// Search_Blocks::parse_url_price_range().
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			priceRange: { min: 10, max: 50 },
+			isWooCommerceBlocksEnabled: false,
 		} );
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -107,6 +146,60 @@ describe( 'stateToUrlParams', () => {
 		} );
 		expect( params.get( 'q' ) ).toBe( 'boots' );
 		expect( params.has( 's' ) ).toBe( false );
+	} );
+
+	it( 'serializes staticFilterSelections as scalar params (no `[]` suffix) gated on kind === "static"', () => {
+		// Static filters use scalar `?filter_id=value` URL params, matching
+		// the legacy instant-search overlay contract. The kind === "static"
+		// gate prevents a stray scalar entry under a dynamic key from being
+		// serialized.
+		const params = stateToUrlParams( {
+			searchQuery: 'shoes',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: 'guides', topic: 'wordpress' },
+			filterConfigs: {
+				section: { filterKey: 'section', kind: 'static' },
+				topic: { filterKey: 'topic', kind: 'static' },
+			},
+		} );
+		expect( params.get( 'section' ) ).toBe( 'guides' );
+		expect( params.get( 'topic' ) ).toBe( 'wordpress' );
+		// Crucially: no `[]` suffix anywhere.
+		expect( params.has( 'section[]' ) ).toBe( false );
+		expect( params.has( 'topic[]' ) ).toBe( false );
+	} );
+
+	it( 'skips static-filter keys whose filterConfigs entry is missing or not kind=static', () => {
+		// A stale staticFilterSelections entry for a since-removed
+		// registration shouldn't leak back into the URL. Gate on
+		// filterConfigs presence + the explicit `kind === "static"` marker.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: 'guides', dropped: 'x', dynamic: 'y' },
+			filterConfigs: {
+				// `section` is registered as static — passes.
+				section: { filterKey: 'section', kind: 'static' },
+				// `dynamic` exists but isn't a static filter — skipped.
+				dynamic: { filterKey: 'dynamic', filterType: 'taxonomy' },
+				// `dropped` isn't in filterConfigs at all — skipped.
+			},
+		} );
+		expect( params.get( 'section' ) ).toBe( 'guides' );
+		expect( params.has( 'dynamic' ) ).toBe( false );
+		expect( params.has( 'dropped' ) ).toBe( false );
+	} );
+
+	it( 'omits static-filter entries whose value is empty', () => {
+		// Empty string means "no selection" — equivalent to no entry. Drop
+		// it so the URL doesn't carry `?section=`.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticFilterSelections: { section: '' },
+			filterConfigs: { section: { filterKey: 'section', kind: 'static' } },
+		} );
+		expect( params.has( 'section' ) ).toBe( false );
 	} );
 
 	it( 'preserves empty search param so a refresh keeps the inline-search URL shape', () => {
@@ -127,6 +220,27 @@ describe( 'urlParamsToState', () => {
 	it( 'reads search query from URL', () => {
 		const state = urlParamsToState( new URLSearchParams( 's=cats' ) );
 		expect( state.searchQuery ).toBe( 'cats' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=true for `?s=` (empty value) — distinguishes a blank search from a missing param (SEARCH-183)', () => {
+		const state = urlParamsToState( new URLSearchParams( 's=' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=false when the search key is absent', () => {
+		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( false );
+	} );
+
+	it( 'reads hasSearchParam against the threaded `searchParamName` (`q` off the search route)', () => {
+		const present = urlParamsToState( new URLSearchParams( 'q=' ), {}, 'q' );
+		expect( present.hasSearchParam ).toBe( true );
+		// Stray `s` on a non-search route doesn't satisfy the `q` gate.
+		const absent = urlParamsToState( new URLSearchParams( 's=stray' ), {}, 'q' );
+		expect( absent.hasSearchParam ).toBe( false );
 	} );
 
 	it( 'reads sort order from URL', () => {
@@ -139,8 +253,20 @@ describe( 'urlParamsToState', () => {
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
-	it( 'collapses product-format URL sort to relevance until WooCommerce integration lands (RSM-1082)', () => {
+	it( 'collapses product-format URL sort to relevance on non-WooCommerce sites (RSM-1082)', () => {
 		const state = urlParamsToState( new URLSearchParams( 'orderby=price_asc' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
+
+	it( 'admits product-format URL sort when isWooCommerceBlocksEnabled is true (RSM-1082)', () => {
+		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
+			const state = urlParamsToState( new URLSearchParams( `orderby=${ key }` ), {}, 's', true );
+			expect( state.sortOrder ).toBe( key );
+		}
+	} );
+
+	it( 'still collapses unknown sort to relevance even when isWooCommerceBlocksEnabled is true', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ), {}, 's', true );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
@@ -240,24 +366,136 @@ describe( 'urlParamsToState', () => {
 	} );
 } );
 
+describe( 'filterLogic round-trip (RSM-2815)', () => {
+	const taxonomyConfig = { filterType: 'taxonomy', taxonomy: 'category' };
+
+	it( 'stateToUrlParams emits query_type_<key>=and when the filter has selections and logic is `and`', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: { category: 'and' },
+		} );
+		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
+	} );
+
+	it( 'stateToUrlParams emits query_type_<key>=and when filterConfigs has queryType `and` (block-author config)', () => {
+		// filterLogic is only seeded from the URL; the block-author choice
+		// lives in filterConfigs. Without this source the URL would never
+		// emit query_type_* for a block configured with Logic = All, so a
+		// shared deep link couldn't carry the AND semantics across pages.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: {},
+			filterConfigs: {
+				category: { filterType: 'taxonomy', taxonomy: 'category', queryType: 'and' },
+			},
+		} );
+		expect( params.get( 'query_type_category' ) ).toBe( 'and' );
+	} );
+
+	it( 'stateToUrlParams omits query_type_<key> when logic is the default `or`', () => {
+		// `or` is the default; serializing it would only bloat URLs and
+		// invite encoded-URL diff churn in tests of unrelated features.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { category: [ 'news', 'sports' ] },
+			filterLogic: { category: 'or' },
+		} );
+		expect( params.has( 'query_type_category' ) ).toBe( false );
+	} );
+
+	it( 'stateToUrlParams omits query_type_<key> when the filter has no active selections', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: {},
+			filterLogic: { category: 'and' },
+		} );
+		expect( params.has( 'query_type_category' ) ).toBe( false );
+	} );
+
+	it( 'urlParamsToState parses ?category[]=…&query_type_category=and into both slices', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_category', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.activeFilters ).toEqual( { category: [ 'news' ] } );
+		expect( state.filterLogic ).toEqual( { category: 'and' } );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when <key> is not registered', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_mystery', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when <key> targets a non-taxonomy filter', () => {
+		// post_type / author have one value per document, so AND combination
+		// is semantically meaningless. Without this gate a stray
+		// `query_type_post_types=and` would linger in filterLogic and re-emit
+		// on every URL push.
+		const params = new URLSearchParams();
+		params.append( 'post_types[]', 'post' );
+		params.append( 'query_type_post_types', 'and' );
+		const state = urlParamsToState( params, { post_types: { filterType: 'post_type' } } );
+		expect( state.activeFilters ).toEqual( { post_types: [ 'post' ] } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> with a non-`and` value (only `and` is honoured)', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'query_type_category', 'banana' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState drops query_type_<key> when its filter has no surviving active selections', () => {
+		// Without this gate a `?query_type_category=and` without `?category[]=…`
+		// would leak through and re-emit on the next URL push.
+		const params = new URLSearchParams();
+		params.append( 'query_type_category', 'and' );
+		const state = urlParamsToState( params, { category: taxonomyConfig } );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+
+	it( 'urlParamsToState ignores query_type_<key> targeting a reserved param', () => {
+		const params = new URLSearchParams( 'query_type_orderby=and' );
+		const state = urlParamsToState( params );
+		expect( state.filterLogic ).toEqual( {} );
+	} );
+} );
+
 describe( 'urlParamsToState: priceRange', () => {
+	// All priceRange-parsing tests opt into `isWooCommerceBlocksEnabled=true` to
+	// exercise the parsing logic; the WC-off behaviour (price params are
+	// dropped entirely) is covered separately in the next describe block.
+	const wcOn = ( params, filterConfigs = {} ) =>
+		urlParamsToState( params, filterConfigs, 's', true );
+
 	it( 'returns null priceRange when neither bound is set', () => {
-		const state = urlParamsToState( new URLSearchParams() );
+		const state = wcOn( new URLSearchParams() );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'parses min and max into a numeric priceRange', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=10&max_price=50' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=10&max_price=50' ) );
 		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
 	} );
 
 	it( 'allows a half-open range when only one bound is set', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=10' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=10' ) );
 		expect( state.priceRange ).toEqual( { min: 10, max: null } );
 	} );
 
 	it( 'rejects garbage URL values so a bad URL cannot zero out results', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=abc&max_price=-5' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=abc&max_price=-5' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
@@ -265,22 +503,22 @@ describe( 'urlParamsToState: priceRange', () => {
 		// `(float)"1.5.3"` is 1.5 in PHP but `Number("1.5.3")` is NaN in JS;
 		// without the explicit numeric gate on both sides the PHP initial
 		// render and the JS hydration would disagree on the parsed value.
-		const state = urlParamsToState( new URLSearchParams( '?min_price=1.5.3' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=1.5.3' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'rejects inverted bounds (min > max) so an empty ES range clause is never sent', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=100&max_price=10' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=100&max_price=10' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'accepts equal bounds (min === max) as a single-value range', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=42&max_price=42' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=42&max_price=42' ) );
 		expect( state.priceRange ).toEqual( { min: 42, max: 42 } );
 	} );
 
 	it( 'accepts min_price=0 (free products are a valid lower bound)', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=0' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=0' ) );
 		expect( state.priceRange ).toEqual( { min: 0, max: null } );
 	} );
 
@@ -288,7 +526,92 @@ describe( 'urlParamsToState: priceRange', () => {
 		const params = new URLSearchParams();
 		params.append( 'min_price[]', '10' );
 		params.append( 'max_price[]', '50' );
-		const state = urlParamsToState( params );
+		const state = wcOn( params );
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+} );
+
+describe( 'urlParamsToState: priceRange WooCommerce gate (RSM-2805)', () => {
+	it( 'drops min_price/max_price entirely on non-Woo sites', () => {
+		// A stray `?min_price=10&max_price=50` deep link must not seed the
+		// `priceRange` slice on a non-Woo site — `filter-wc-price` isn't
+		// registered there, so admitting the params would build a `range`
+		// clause against an index field that doesn't exist, *and* round-
+		// trip the params back into the URL on every URL push.
+		const state = urlParamsToState( new URLSearchParams( '?min_price=10&max_price=50' ) );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'still admits price params when isWooCommerceBlocksEnabled is true', () => {
+		const state = urlParamsToState(
+			new URLSearchParams( '?min_price=10&max_price=50' ),
+			{},
+			's',
+			true
+		);
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+	} );
+
+	it( 'pulls scalar params into staticFilterSelections when the key is kind=static', () => {
+		// Scalar `?section=guides` is the static-filter URL contract. Only
+		// keys whose filterConfigs entry is kind === "static" are pulled;
+		// everything else falls through to the existing branches (or is
+		// ignored).
+		const state = urlParamsToState(
+			new URLSearchParams( '?s=shoes&section=guides&topic=wordpress' ),
+			{
+				section: { filterKey: 'section', kind: 'static' },
+				topic: { filterKey: 'topic', kind: 'static' },
+			}
+		);
+		expect( state.staticFilterSelections ).toEqual( {
+			section: 'guides',
+			topic: 'wordpress',
+		} );
+		// Static-keyed params don't end up in activeFilters even when they
+		// share a name with a hypothetical dynamic filter.
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'ignores scalar params for keys that are not registered as static filters', () => {
+		// Arbitrary plugin-emitted scalar params (`?utm_source=...`,
+		// `?page_id=42`) must not seep into staticFilterSelections.
+		const state = urlParamsToState(
+			new URLSearchParams( '?s=shoes&utm_source=newsletter&page_id=42&section=guides' ),
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( state.staticFilterSelections ).toEqual( { section: 'guides' } );
+	} );
+
+	it( 'leaves staticFilterSelections empty when filterConfigs has no kind=static entries', () => {
+		// The whole branch is filterConfig-driven — without a kind=static
+		// entry there is no way for a scalar URL param to mark itself as a
+		// static filter. Important: this is the behaviour the JS store
+		// relies on so plugin-emitted scalar params can't hijack the slice.
+		const state = urlParamsToState( new URLSearchParams( '?section=guides' ), {
+			section: { filterKey: 'section', filterType: 'taxonomy' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( {} );
+	} );
+
+	it( 'drops scalar params whose value is empty', () => {
+		// `?section=` is the "cleared" state — equivalent to no selection.
+		// Drop it so a refresh doesn't keep an empty entry around that
+		// re-emits on the next URL push.
+		const state = urlParamsToState( new URLSearchParams( '?section=' ), {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( {} );
+	} );
+
+	it( 'last-write wins for duplicate scalar static-filter params', () => {
+		// `?section=a&section=b` is malformed for a single-select filter.
+		// Mirror the radio-input change handler (latest click wins) rather
+		// than the first-wins ordering URLSearchParams.get() would default
+		// to.
+		const state = urlParamsToState( new URLSearchParams( '?section=a&section=b' ), {
+			section: { filterKey: 'section', kind: 'static' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( { section: 'b' } );
 	} );
 } );

@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.0.68 - 2026-05-25
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.67 - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+## 1.0.66 - 2026-05-19
+### Changed
+- Internal updates.
+
+## 1.0.65 - 2026-05-14
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.64 - 2026-05-11
+### Changed
+- Update dependencies. [#46035]
+
 ## 1.0.63 - 2026-05-04
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]

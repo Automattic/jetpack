@@ -257,6 +257,62 @@ describe( 'filter-checkbox view store — filterItems', () => {
 		] );
 	} );
 
+	it( 'caps the rendered list at maxItems when retained options push it past the limit', () => {
+		// Repro of SEARCH-208: the ES request is bounded at `size: maxItems`,
+		// but retained options accumulated from earlier searches are appended
+		// on the client. Once the merged set exceeds the cap the list must
+		// still slice to `maxItems`. Sort by count, so the live (non-zero)
+		// buckets win their slots and the retained-but-now-empty entries
+		// drop off the bottom first.
+		contextRef.current = { filterKey: 'category' };
+		captured.state.aggregations = {
+			category: {
+				buckets: [
+					{ key: 'news/News', doc_count: 9 },
+					{ key: 'reviews/Reviews', doc_count: 4 },
+				],
+			},
+		};
+		captured.state.retainedFilterOptions = {
+			category: [
+				{ value: 'news', label: 'News' },
+				{ value: 'reviews', label: 'Reviews' },
+				{ value: 'archive', label: 'Archive' },
+				{ value: 'opinion', label: 'Opinion' },
+				{ value: 'sports', label: 'Sports' },
+			],
+		};
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {}, maxItems: 3 },
+		};
+		const items = captured.state.filterItems;
+		expect( items.map( i => i.value ) ).toEqual( [ 'news', 'reviews', 'archive' ] );
+	} );
+
+	it( 'falls back to a maxItems default of 10 when the config omits it', () => {
+		contextRef.current = { filterKey: 'category' };
+		const buckets = Array.from( { length: 12 }, ( _, i ) => ( {
+			key: `cat-${ i }/Cat ${ i }`,
+			doc_count: 12 - i,
+		} ) );
+		captured.state.aggregations = { category: { buckets } };
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {} },
+		};
+		expect( captured.state.filterItems ).toHaveLength( 10 );
+	} );
+
+	it( 'coerces a maxItems below 1 up to 1 so the slice never empties the list', () => {
+		contextRef.current = { filterKey: 'category' };
+		captured.state.aggregations = {
+			category: { buckets: [ { key: 'news/News', doc_count: 9 } ] },
+		};
+		captured.state.filterConfigs = {
+			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {}, maxItems: 0 },
+		};
+		expect( captured.state.filterItems.map( i => i.value ) ).toEqual( [ 'news' ] );
+	} );
+
 	it( 'renders selected values that are not in any aggregation yet (URL-seeded deep link)', () => {
 		contextRef.current = { filterKey: 'post_types' };
 		captured.state.activeFilters = { post_types: [ 'post' ] };
@@ -428,5 +484,28 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		captured.state.activeFilters = { post_date: [ '2023-01-01' ] };
 		run();
 		expect( contextRef.current.wrapperHidden ).toBe( true );
+	} );
+} );
+
+describe( 'filter-checkbox view store — onFilterChange', () => {
+	// onFilterChange is display-style-agnostic: chip clicks and checkbox-list
+	// clicks both flow through the same actions.onFilterChange → setFilter
+	// path because the DOM (input + label + count) is identical across
+	// display styles. build_config() also does not emit `displayStyle` into
+	// `filterConfigs`, so the action handler has no display-style branch to
+	// exercise here — one click-routing assertion covers both variants.
+	it( 'routes filter clicks through actions.onFilterChange to setFilter', () => {
+		contextRef.current = { filterKey: 'category' };
+		captured.state.filterConfigs = { category: {} };
+
+		const setFilter = jest
+			.spyOn( captured.actions, 'setFilter' )
+			.mockImplementation( function* () {} );
+
+		const iterator = captured.actions.onFilterChange( { target: { value: 'news' } } );
+		iterator.next();
+
+		expect( setFilter ).toHaveBeenCalledWith( 'category', 'news' );
+		setFilter.mockRestore();
 	} );
 } );

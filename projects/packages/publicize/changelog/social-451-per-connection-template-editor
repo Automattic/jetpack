@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Social: add a per-connection message template editor in the connections list and the connection-confirmation modal (SOCIAL-451).

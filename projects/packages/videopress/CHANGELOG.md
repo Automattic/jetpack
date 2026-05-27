@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.11] - 2026-05-25
+### Changed
+- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`): Gate the dashboard behind a WordPress.com connection so the uploader is no longer exposed pre-connection. [#49063]
+- Modernized dashboard (gated behind `rsm_jetpack_ui_modernization_videopress`) now wires Overview, Library, Video Details, and Settings to real REST endpoints. Also corrects the stats proxy's watch-time unit conversion. [#48919]
+- Modernized dashboard: Add a thumbnail editor to the Video details screen. [#49013]
+- Modernized dashboard: Pre-release polish across empty states, date-range button, breadcrumbs, ribbons, chart curve, Library grid, and row actions. Also fixes a free-tier counting bug where local video attachments were gating a free user's first VideoPress upload. [#48988]
+- Modernized dashboard: Update the dashboard tests and storage meter. [#49022]
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Update package dependencies. [#48405] [#49012]
+- Migrate dashboard tabs from default to minimal variant; align via the shared `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+
+### Fixed
+- Fix duplicate Jetpack logo rendering in the Edit Video page header. [#48962]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.36.10] - 2026-05-19
+### Added
+- Add free-tier notice, disabled upload controls, and a storage meter to the modernized dashboard. [#48843]
+
+### Changed
+- Exclude development files from production builds. [#47365]
+
+### Fixed
+- Use the stored processing-completion timestamp for `finish_date_gmt` instead of the current time. [#48886]
+
+## [0.36.9] - 2026-05-14
+### Added
+- Comment: Add a user-signed REST proxy for VideoPress stats and seeds the modernized dashboard's React initial state behind the existing modernization filter. [#48817]
+- Comment: Add the modernized Overview screen behind the existing modernization filter. [#48682]
+- Comment: Add the modernized Video details screen behind the existing modernization filter. [#48669]
+
+### Changed
+- Update package dependencies. [#48695] [#48696]
+
+## [0.36.8] - 2026-05-11
+### Added
+- VideoPress: Add Library tab as a DataViews grid with table alternate and mocked uploads, all behind the existing modernization filter. [#48586]
+- VideoPress: Add shared chrome with Overview/Library/Settings tabs and a working Restrict access toggle, all behind the existing modernization filter. [#48510]
+
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- VideoPress: Remove translation wrappers from the "VideoPress" product name. [#48519]
+
+### Fixed
+- VideoPress: Fix the "Add new video" button disappearing on the admin dashboard after the first video is uploaded. [#48690]
+
 ## [0.36.7] - 2026-05-04
 ### Changed
 - Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
@@ -1947,6 +1993,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.10...v0.36.11
+[0.36.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.9...v0.36.10
+[0.36.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.8...v0.36.9
+[0.36.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.7...v0.36.8
 [0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
 [0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6
 [0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5

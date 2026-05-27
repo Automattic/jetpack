@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a package-level `Jetpack_Mu_Wpcom::log2logstash( $feature, $message, $extra )` helper that dispatches to the in-process `log2logstash()` on WP.com Simple and falls back to the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on Atomic. Plugin Conflicts Guardian now uses it, so its `Activation blocked` / `Update blocked` / `Update rolled back` events are observable on Atomic sites too.
