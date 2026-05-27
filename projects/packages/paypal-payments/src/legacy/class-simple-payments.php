@@ -527,9 +527,9 @@ class Simple_Payments {
 	 * or read-only callers no longer see the address in collection or single-item
 	 * responses for the `jp_pay_product` post type.
 	 *
-	 * @param \WP_REST_Response $response The response object.
-	 * @param \WP_Post          $post     The product post.
-	 * @return \WP_REST_Response
+	 * @param mixed $response The response object (expected: \WP_REST_Response).
+	 * @param mixed $post     The product post (expected: \WP_Post).
+	 * @return mixed
 	 */
 	public function redact_spay_email_for_unauthorized( $response, $post ) {
 		if ( ! $response instanceof \WP_REST_Response || ! $post instanceof WP_Post ) {

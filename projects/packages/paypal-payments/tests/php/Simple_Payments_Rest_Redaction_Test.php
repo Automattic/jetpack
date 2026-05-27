@@ -184,10 +184,14 @@ class Simple_Payments_Rest_Redaction_Test extends BaseTestCase {
 	public function test_response_without_meta_is_unchanged() {
 		wp_set_current_user( 0 );
 
-		$response = new WP_REST_Response( array( 'id' => $this->product_id, 'title' => 'no meta' ) );
+		$payload  = array(
+			'id'    => $this->product_id,
+			'title' => 'no meta',
+		);
+		$response = new WP_REST_Response( $payload );
 		$result   = $this->simple_payments->redact_spay_email_for_unauthorized( $response, get_post( $this->product_id ) );
 
-		$this->assertSame( array( 'id' => $this->product_id, 'title' => 'no meta' ), $result->get_data() );
+		$this->assertSame( $payload, $result->get_data() );
 	}
 
 	/**
