@@ -1,6 +1,6 @@
 # Agents Manager (Jetpack Backend)
 
-Backend for the Agents Manager in `jetpack-agents-manager`. Handles script enqueueing, feature gating, and UI state persistence.
+Backend for the Agents Manager. Handles script enqueueing, feature gating, and UI state persistence.
 
 The frontend code lives in the Calypso repo (`packages/agents-manager/` and `apps/agents-manager/`). This feature only handles loading those bundles and backend concerns.
 
