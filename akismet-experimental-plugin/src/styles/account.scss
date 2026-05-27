@@ -1,0 +1,11 @@
+.akismet-connect-choices {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wp-components-spacing-3, 12px);
+	margin-top: var(--wp-components-spacing-4, 16px);
+}
+
+.akismet-connect-back {
+	margin-top: var(--wp-components-spacing-3, 12px);
+}
