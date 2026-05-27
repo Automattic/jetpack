@@ -1263,19 +1263,6 @@ class Search_Blocks {
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
 	padding: .5em 2em 2em;
 }
-/* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
- * light themes and visible on dark themes. We only set color; the column
- * block's inline `border-left-width` does the rest. Scoped under the overlay
- * container so the divider remains overlay-only — the embedded / WC-product
- * page templates set their own border-left-color inline on the column. */
-.jetpack-search-block-overlay .jetpack-search-layout__filters-column {
-	border-left-color: transparent;
-}
-@supports (border-color: color-mix(in sRGB, black 50%, white)) {
-	.jetpack-search-block-overlay .jetpack-search-layout__filters-column {
-		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
-	}
-}
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
 		padding: 0;
@@ -1408,6 +1395,20 @@ CSS;
 @media (min-width: 992px) {
 	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
 		display: none;
+	}
+}
+/* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
+ * light themes and visible on dark themes, matching the search-input
+ * underline. We only set color; each template's column block sets
+ * `border-left-width: 1px` inline. Fallback to `transparent` so themes/UAs
+ * without `color-mix` support get an invisible divider rather than a hard
+ * grey rule. */
+.jetpack-search-layout__filters-column {
+	border-left-color: transparent;
+}
+@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-layout__filters-column {
+		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
 CSS;
