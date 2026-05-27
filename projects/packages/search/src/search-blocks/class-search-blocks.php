@@ -1097,7 +1097,7 @@ class Search_Blocks {
 	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
 	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
 	 * two custom props so in-card surfaces (suggestions panel) share one source.
-	 * Hairlines use `color-mix(currentColor)`.
+	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
 	 */
