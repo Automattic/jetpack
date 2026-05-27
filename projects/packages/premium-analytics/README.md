@@ -42,17 +42,19 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 ### Adding a route
 
 1. Create `routes/<name>/package.json`:
+
    ```json
    {
-     "name": "<name>-route",
-     "route": {
-       "path": "/<name>",
-       "page": "jetpack-premium-analytics"
-     }
+   	"name": "<name>-route",
+   	"route": {
+   		"path": "/<name>",
+   		"page": "jetpack-premium-analytics"
+   	}
    }
    ```
 
 2. Create `routes/<name>/stage.tsx` exporting `stage()`:
+
    ```tsx
    export const stage = () => <div>My new page</div>;
    ```
@@ -74,10 +76,27 @@ fixes the template or the minimum WordPress version is 7.0+.
 ### Init module (`packages/init/`)
 
 Serves two purposes:
+
 1. Sets the dashboard menu icon via `@wordpress/boot` store
 2. Forces `@wordpress/build` to track `@wordpress/boot` as a module
    dependency — without an init module that imports boot, the build
    skips it
+
+## Internal packages (`packages/*`)
+
+App-internal modules discovered by `@wordpress/build`. Types/IDE resolve
+`@jetpack-premium-analytics/<dir>` imports via the `tsconfig.json` `paths` alias
+(`pnpm typecheck`).
+
+To import one from a route/another package, the build also needs it symlinked in
+`node_modules` under that specifier. Name the package
+`@automattic/jetpack-premium-analytics-<dir>` (a bare `@jetpack-premium-analytics/*`
+name fails the repo name lint and `_@…` is invalid to pnpm), then add a `link:`
+dep on the top-level `package.json` (routes aren't workspace members):
+
+```jsonc
+"dependencies": { "@jetpack-premium-analytics/<dir>": "link:packages/<dir>" }
+```
 
 ## File structure
 

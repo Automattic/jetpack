@@ -1,4 +1,13 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		// Resolve cross-package imports between internal `packages/*` modules
+		// (`@jetpack-premium-analytics/<dir>`) to their TypeScript source for
+		// type-checking + IDE. The build resolves the same specifier separately (see
+		// README → "Internal packages"); this keeps tsc/esbuild and `tsgo` in sync.
+		"paths": {
+			"@jetpack-premium-analytics/*": [ "./packages/*/src" ]
+		}
+	},
 	"include": [ "routes/**/*", "packages/**/*" ]
 }
