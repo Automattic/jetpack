@@ -1,0 +1,16 @@
+/*
+ * Inline the @wordpress/components and @wordpress/dataviews stylesheets
+ * into our own bundle. Studio's WP version doesn't register a
+ * `wp-dataviews` style handle, so we can't rely on PHP enqueue.
+ *
+ * Importing the CSS from a JS module gets tree-shaken because
+ * `@wordpress/dataviews`'s package.json sets `sideEffects: false`.
+ * Importing from SCSS sidesteps that — sass-loader resolves node_modules
+ * paths and emits the CSS into our extracted `build/index.css`.
+ *
+ * Keep this file as the first SCSS imported in `src/index.tsx` so the
+ * core components / dataviews rules sit above our own overrides.
+ */
+
+@import "@wordpress/components/build-style/style.css";
+@import "@wordpress/dataviews/build-style/style.css";

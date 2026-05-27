@@ -154,11 +154,21 @@ class Akismet_Experimental {
 			true
 		);
 
+		// The @wordpress/components + @wordpress/dataviews stylesheets are
+		// imported in `src/index.tsx` and inlined by webpack into our own
+		// `build/index.css`, so we only need one style handle here. We
+		// declare `wp-components` as a dep when registered so that any
+		// admin-side rules with the same selectors stay ordered correctly,
+		// but the bundle is self-sufficient if the handle isn't present.
+		$wp_style_deps = wp_style_is( 'wp-components', 'registered' )
+			? array( 'wp-components' )
+			: array();
+
 		if ( file_exists( AKISMET_EXPERIMENTAL__PLUGIN_DIR . 'build/index.css' ) ) {
 			wp_enqueue_style(
 				'akismet-experimental',
 				plugins_url( 'build/index.css', AKISMET_EXPERIMENTAL__PLUGIN_FILE ),
-				array(),
+				$wp_style_deps,
 				$asset['version']
 			);
 		}

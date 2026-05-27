@@ -1,3 +1,12 @@
+// Vendor stylesheets come first — @wordpress/components +
+// @wordpress/dataviews chrome (filter toolbar, density / sort menus,
+// action menus, modal portal) requires their CSS on the page. Studio's
+// WP version doesn't register a `wp-dataviews` style handle, so we
+// inline both into our own build via vendor.scss; sass-loader
+// resolves the node_modules paths and avoids the tree-shaking issue
+// `sideEffects: false` causes on direct JS imports.
+import '@/styles/vendor.scss';
+
 import apiFetch from '@wordpress/api-fetch';
 import { createRoot } from '@wordpress/element';
 import { App } from '@/app';
