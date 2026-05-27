@@ -144,6 +144,7 @@ class Search_Blocks {
 				// Block themes: register the template and front it via the FSE hierarchy filter.
 				add_action( 'init', array( static::class, 'register_search_template' ) );
 				add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+				add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_search_page_assets' ) );
 				Theme_Chrome_Slug_Resolver::register_hooks();
 			} else {
 				// Classic themes: no FSE hierarchy to prepend to, so swap the
@@ -186,6 +187,10 @@ class Search_Blocks {
 		) {
 			add_action( 'init', array( static::class, 'register_product_search_template' ) );
 			add_filter( 'search_template_hierarchy', array( static::class, 'route_woocommerce_product_search_template' ), 20 );
+			// Inline experience doesn't go through the EMBEDDED branch above, so
+			// hook the page-template CSS enqueue here too. Idempotent on EMBEDDED
+			// — `add_action` dedupes same callback at same priority.
+			add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_search_page_assets' ) );
 		}
 
 		// Two-tier gate: register the editable template CPT + admin-init editor
@@ -1317,6 +1322,90 @@ body.jetpack-search-block-overlay-open {
 	right: 0;
 	width: 100%;
 	overflow: hidden;
+}
+CSS;
+	}
+
+	/**
+	 * Register + enqueue the inline CSS that drives the narrow-width sidebar
+	 * collapse on the page templates (`jetpack-search.html`,
+	 * `jetpack-search-product-results.html`). Self-gates on `is_search()` so it
+	 * only fires when one of those templates is actually about to render —
+	 * non-search requests skip the work entirely.
+	 *
+	 * Lives next to `block_template_overlay_inline_css()` rather than in the
+	 * `search-results` block stylesheet because the rules target the page
+	 * templates' outer columns + results-header, none of which the block owns.
+	 */
+	public static function enqueue_search_page_assets() {
+		if ( ! is_search() ) {
+			return;
+		}
+		// No src — this handle exists only as a target for `wp_add_inline_style`.
+		// Version tracks the package so a release bust cache-invalidates any
+		// reusing site's inline-style cache.
+		wp_register_style( 'jetpack-search-page', false, array(), Package::VERSION );
+		wp_enqueue_style( 'jetpack-search-page' );
+		wp_add_inline_style( 'jetpack-search-page', static::search_page_inline_css() );
+	}
+
+	/**
+	 * Inline CSS for the embedded / product-search page templates. Mirrors the
+	 * narrow-width sidebar-collapse pattern from
+	 * `block_template_overlay_inline_css()` (the overlay's equivalent) but
+	 * scoped to the page templates' own `__results-page__*` class hierarchy so
+	 * the two sets of rules don't overlap and the overlay's CSS stays
+	 * untouched.
+	 *
+	 * @return string
+	 */
+	protected static function search_page_inline_css(): string {
+		return <<<'CSS'
+/* The block group already carries `layout.type:flex` which makes the WordPress
+ * block-layout system emit `display:flex` / `flex-wrap:nowrap` /
+ * `justify-content:space-between`. Restating them is defensive (decouples us
+ * from block-layout CSS being present); the operative net-new rule is
+ * `align-items: center`, which centers `results-count` against the controls
+ * cluster. */
+.jetpack-search-results-page__results-header {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+/* Right-side controls cluster: sort + filters-popover trigger. Without this
+ * the three `__results-header` children get spread evenly by the parent's
+ * `space-between`; nesting sort + popover here pins them as one block on the
+ * trailing edge. */
+.jetpack-search-results-page__results-header-controls {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+/* Below 992px the right-column filter sidebar collapses to a popover trigger
+ * docked next to results-sort. Same breakpoint and rationale as the overlay.
+ * The selector is scoped to the named outer column so nested
+ * `wp-block-column`s inside result-card templates aren't affected. */
+@media (max-width: 991.98px) {
+	.jetpack-search-results-page__filters-column {
+		display: none;
+	}
+	/* `!important` defends against the parent `wp:columns` block-layout CSS
+	 * that pins `.wp-block-column` to its inline `flex-basis` (or to an even
+	 * split when no width is set). Mirrors the overlay equivalent. Once the
+	 * filter column is `display:none`, the results column has to be able to
+	 * claim the full row at any specificity. */
+	.jetpack-search-results-page__results-column {
+		flex-basis: 100% !important;
+	}
+}
+/* Sidebar is showing; hide the in-header popover entirely so a stale
+ * `is-popover-open` class can't leak its panel into view. */
+@media (min-width: 992px) {
+	.jetpack-search-results-page__results-header .jetpack-search-filters-popover {
+		display: none;
+	}
 }
 CSS;
 	}
