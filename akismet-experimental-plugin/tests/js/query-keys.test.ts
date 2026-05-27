@@ -21,4 +21,65 @@ describe( 'akismetKeys', () => {
 		expect( akismetKeys.settings()[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
 		expect( akismetKeys.jetpackKey()[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
 	} );
+
+	describe( 'Plan 2 — stats / category / blackbox / woocommerce nodes', () => {
+		it( 'stats — exposes hierarchical helpers under akismet/stats/*', () => {
+			expect( akismetKeys.stats.all() ).toEqual( [ 'akismet', 'stats' ] );
+			expect( akismetKeys.stats.totals( '30-days' ) ).toEqual( [
+				'akismet',
+				'stats',
+				'totals',
+				'30-days',
+			] );
+			expect( akismetKeys.stats.timeseries( '60-days' ) ).toEqual( [
+				'akismet',
+				'stats',
+				'timeseries',
+				'60-days',
+			] );
+		} );
+
+		it( 'category — summary key includes the category id + interval', () => {
+			expect( akismetKeys.category.all() ).toEqual( [ 'akismet', 'category' ] );
+			expect( akismetKeys.category.summary( 'logins', '30-days' ) ).toEqual( [
+				'akismet',
+				'category',
+				'summary',
+				'logins',
+				'30-days',
+			] );
+		} );
+
+		it( 'blackbox — aggregates key includes category + interval', () => {
+			expect( akismetKeys.blackbox.all() ).toEqual( [ 'akismet', 'blackbox' ] );
+			expect( akismetKeys.blackbox.aggregates( 'bots', '6-months' ) ).toEqual( [
+				'akismet',
+				'blackbox',
+				'aggregates',
+				'bots',
+				'6-months',
+			] );
+		} );
+
+		it( 'woocommerce — fraud summary key includes interval', () => {
+			expect( akismetKeys.woocommerce.all() ).toEqual( [ 'akismet', 'woocommerce' ] );
+			expect( akismetKeys.woocommerce.fraudSummary( 'all' ) ).toEqual( [
+				'akismet',
+				'woocommerce',
+				'fraud-summary',
+				'all',
+			] );
+		} );
+
+		it( "every new child key begins with akismetKeys.all's prefix", () => {
+			expect( akismetKeys.stats.totals( '30-days' )[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
+			expect( akismetKeys.category.summary( 'logins', '30-days' )[ 0 ] ).toBe(
+				akismetKeys.all[ 0 ]
+			);
+			expect( akismetKeys.blackbox.aggregates( 'bots', '6-months' )[ 0 ] ).toBe(
+				akismetKeys.all[ 0 ]
+			);
+			expect( akismetKeys.woocommerce.fraudSummary( 'all' )[ 0 ] ).toBe( akismetKeys.all[ 0 ] );
+		} );
+	} );
 } );

@@ -26,3 +26,17 @@ export type AkismetSettings = {
 	akismet_strictness: '0' | '1';
 	akismet_show_user_comments_approved: '0' | '1';
 };
+
+/**
+ * Time intervals the Overview tab queries can request. Mirrors the
+ * `enum` on the PHP REST routes added in Plan 2 (stats / blackbox /
+ * woocommerce). Kept in `types.ts` (not a hook file) so `query-keys.ts`
+ * can import it without depending on React.
+ */
+export type StatsInterval = '30-days' | '60-days' | '6-months' | 'all';
+
+/**
+ * Blackbox-side categories the proxy understands. Maps 1:1 to the
+ * `category` enum on `GET /akismet/v1/blackbox/aggregates`.
+ */
+export type BlackboxCategory = 'logins' | 'bots' | 'brute-force' | 'forms';
