@@ -32,24 +32,33 @@ store( NAMESPACE, {
 		 * Interactivity API hydration quirk on some hosts that doubles the
 		 * `data-wp-each` materialization (see SEARCH-266 + `dedupePillsInUl`).
 		 *
-		 * Reads `state.activePills` so the watch tracks it as a dep, then
-		 * defers the DOM cleanup to the next animation frame: `data-wp-each`
-		 * materializes children as part of the same hydration / state-change
-		 * pass, so the duplicate `<li>` doesn't exist yet when the watch
-		 * first fires — the rAF lets the materialization land first.
+		 * Reads `state.activePills` so the watch tracks it as a dep. The
+		 * dedupe runs both eagerly (on every state change) and via a
+		 * MutationObserver attached on first run: the duplicate `<li>` can
+		 * be added by the Interactivity runtime AFTER the watch callback's
+		 * synchronous tick (and after a single rAF) — the observer catches
+		 * those late insertions without polling.
 		 */
 		reconcilePills() {
-			const { state } = store( NAMESPACE );
 			const { ref } = getElement();
-			const pills = state.activePills;
 			const ul = ref?.querySelector( 'ul.jetpack-search-active-filters__pills' );
 			if ( ! ul ) {
 				return;
 			}
-			const raf =
-				( typeof window !== 'undefined' && window.requestAnimationFrame ) ||
-				( fn => setTimeout( fn, 0 ) );
-			raf( () => dedupePillsInUl( ul, pills ) );
+			const { state } = store( NAMESPACE );
+			// Touch the array so the watch picks it up as a dep.
+			void state.activePills;
+			// Attach a one-time childList observer that re-runs dedupe on
+			// every late `<li>` insertion. Stored on the element so it's
+			// idempotent across watch firings.
+			if ( ! ul.__jetpackPillObserver && typeof MutationObserver !== 'undefined' ) {
+				const observer = new MutationObserver( () => {
+					dedupePillsInUl( ul, store( NAMESPACE ).state.activePills );
+				} );
+				observer.observe( ul, { childList: true } );
+				ul.__jetpackPillObserver = observer;
+			}
+			dedupePillsInUl( ul, state.activePills );
 		},
 	},
 
