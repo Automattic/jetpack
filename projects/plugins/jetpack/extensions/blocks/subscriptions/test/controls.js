@@ -1,8 +1,21 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useEntityProp } from '@wordpress/core-data';
+import * as wpData from '@wordpress/data';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
+
+// `@wordpress/core-data` exposes its exports as non-configurable bindings, so
+// `jest.spyOn(wpCoreData, 'useEntityProp')` fails with "Cannot redefine
+// property". Mock the two exports the component actually uses (the `store`
+// reference is only passed to selectors inside a `useSelect` callback, which
+// we override via the spy below, so a stub value is fine here).
+jest.mock( '@wordpress/core-data', () => ( {
+	__esModule: true,
+	store: 'core',
+	useEntityProp: jest.fn( () => [ undefined, () => {} ] ),
+} ) );
 
 // These settings need to be set. Easiest way to do that seems to be to use a hook.
 const overrideSettings = {
@@ -92,11 +105,52 @@ const defaultProps = {
 	selectedNewsletterCategoryIds: [],
 };
 
+const setSubscriptionOptions = jest.fn();
+let useSelectSpy;
+
+/**
+ * Make the Subscribe message control's `canUser('update','settings')` call
+ * resolve to `value`. All other `useSelect` callsites in the render tree
+ * still fall through to the real implementation.
+ *
+ * @param {boolean|undefined} value - Value the canUser selector should return.
+ */
+function mockCanEditSiteSettings( value ) {
+	const realUseSelect = jest.requireActual( '@wordpress/data' ).useSelect;
+	useSelectSpy.mockImplementation( ( mapSelect, deps ) => {
+		const fnStr = typeof mapSelect === 'function' ? mapSelect.toString() : '';
+		if ( fnStr.includes( 'canUser' ) ) {
+			return value;
+		}
+		return realUseSelect( mapSelect, deps );
+	} );
+}
+
+/**
+ * Make `useEntityProp('root','site','subscription_options')` return `value`
+ * plus the `setSubscriptionOptions` mock setter.
+ *
+ * @param {object|undefined} value - Value the hook should return.
+ */
+function mockSubscriptionOptions( value ) {
+	useEntityProp.mockImplementation( () => [ value, setSubscriptionOptions ] );
+}
+
 beforeEach( () => {
 	setAttributes.mockClear();
 	setGradient.mockClear();
 	setTextColor.mockClear();
 	setButtonBackgroundColor.mockClear();
+	setSubscriptionOptions.mockClear();
+	useSelectSpy = jest.spyOn( wpData, 'useSelect' );
+	// Default to "loading"/empty so existing tests (which never exercise the
+	// new control) keep behaving as if the gated branch is hidden.
+	mockCanEditSiteSettings( undefined );
+	mockSubscriptionOptions( undefined );
+} );
+
+afterEach( () => {
+	jest.restoreAllMocks();
 } );
 
 describe( 'Inspector controls', () => {
@@ -435,6 +489,65 @@ describe( 'Inspector controls', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( {
 					selectedNewsletterCategoryIds: [],
 					preselectNewsletterCategories: false,
+				} );
+			} );
+		} );
+
+		describe( 'Subscribe message control', () => {
+			test( 'is hidden when isButtonOnlyStyle is false (even with edit cap)', async () => {
+				mockCanEditSiteSettings( true );
+				mockSubscriptionOptions( { subscribe_modal_heading: 'Hello' } );
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ false } />
+				);
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByLabelText( 'Subscribe message' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'is hidden when user cannot edit site settings', async () => {
+				mockCanEditSiteSettings( false );
+				mockSubscriptionOptions( { subscribe_modal_heading: 'Hello' } );
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ true } /> );
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByLabelText( 'Subscribe message' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'is hidden while edit capability is still loading (undefined)', async () => {
+				mockCanEditSiteSettings( undefined );
+				mockSubscriptionOptions( { subscribe_modal_heading: 'Hello' } );
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ true } /> );
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByLabelText( 'Subscribe message' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'renders and merges typed value into subscription_options on change', async () => {
+				mockCanEditSiteSettings( true );
+				mockSubscriptionOptions( {
+					invitation: 'I',
+					welcome: 'W',
+					comment_follow: 'CF',
+					subscribe_modal_heading: '',
+				} );
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ true } /> );
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				const textarea = screen.getByLabelText( 'Subscribe message' );
+				expect( textarea ).toBeInTheDocument();
+
+				await user.type( textarea, 'H' );
+
+				expect( setSubscriptionOptions ).toHaveBeenLastCalledWith( {
+					invitation: 'I',
+					welcome: 'W',
+					comment_follow: 'CF',
+					subscribe_modal_heading: 'H',
 				} );
 			} );
 		} );
