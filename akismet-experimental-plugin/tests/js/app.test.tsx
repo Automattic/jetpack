@@ -17,6 +17,13 @@ describe( '<App>', () => {
 	it( 'renders the Akismet page title', () => {
 		render( <App /> );
 		expect( screen.getByRole( 'heading', { name: /akismet/i, level: 1 } ) ).toBeInTheDocument();
+		// `@wordpress/components` 34 + `@wordpress/admin-ui` 2 emit a one-time
+		// deprecation / experimental-API warning on first mount under React 19.
+		// `@wordpress/jest-console` fails the test unless the warning is
+		// acknowledged. The warning is benign — it's an internal API note,
+		// not something our code triggers.
+
+		expect( console ).toHaveWarned();
 	} );
 
 	it( 'renders the Overview, Account, and Settings tabs', () => {
