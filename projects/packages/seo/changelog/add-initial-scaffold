@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial package scaffold. Adds the Jetpack SEO admin page at admin.php?page=jetpack-seo with an Overview screen and a Site visibility card. Foundation for additional tabs and cards in follow-up PRs.

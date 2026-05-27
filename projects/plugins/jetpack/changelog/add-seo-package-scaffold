@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: scaffold the new jetpack-seo package and mount its admin page at admin.php?page=jetpack-seo, reachable on every site type. Initial release ships the Overview screen with a Site visibility card.
