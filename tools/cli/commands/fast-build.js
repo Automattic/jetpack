@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import path from 'path';
 import chalk from 'chalk';
 import { execa } from 'execa';
 import Listr from 'listr';
@@ -318,7 +320,6 @@ export function summarizeExecError( error, n = 6 ) {
  * @param {object} argv - Argv.
  */
 async function runBuildScriptIfAny( slug, cwd, argv ) {
-	const fs = await import( 'fs/promises' );
 	let composerJson;
 	try {
 		composerJson = JSON.parse(
@@ -339,6 +340,29 @@ async function runBuildScriptIfAny( slug, cwd, argv ) {
 		stdio: [ 'ignore', argv.v ? 'inherit' : 'pipe', argv.v ? 'inherit' : 'pipe' ],
 		buffer: false,
 	} );
+}
+
+/**
+ * Read the persistent skip list at `.jetpack-cli/skip.txt`. One project slug per
+ * line, blank lines and `#`-prefixed comments ignored.
+ *
+ * @param {string} cwd - Monorepo root.
+ * @return {Promise<string[]>} Slugs to skip.
+ */
+async function readSkipFile( cwd ) {
+	const file = path.join( cwd, '.jetpack-cli/skip.txt' );
+	try {
+		const data = await fs.readFile( file, { encoding: 'utf8' } );
+		return data
+			.split( '\n' )
+			.map( s => s.trim() )
+			.filter( s => s.length > 0 && ! s.startsWith( '#' ) );
+	} catch ( e ) {
+		if ( e.code === 'ENOENT' ) {
+			return [];
+		}
+		throw e;
+	}
 }
 
 /**
@@ -481,6 +505,19 @@ export async function handler( argv ) {
 	const deps = await getDependencies( cwd, 'build' );
 
 	const skipSet = new Set( argv.skip || [] );
+	const persistentSkip = await readSkipFile( cwd );
+	for ( const slug of persistentSkip ) {
+		skipSet.add( slug );
+	}
+	if ( persistentSkip.length ) {
+		console.log(
+			chalk.grey(
+				`Honoring ${
+					persistentSkip.length
+				} entry(s) from .jetpack-cli/skip.txt: ${ persistentSkip.join( ', ' ) }`
+			)
+		);
+	}
 	const targets =
 		argv.project && argv.project.length ? new Set( argv.project ) : new Set( deps.keys() );
 	for ( const slug of skipSet ) {
