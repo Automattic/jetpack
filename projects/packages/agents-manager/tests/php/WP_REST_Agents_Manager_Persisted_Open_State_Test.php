@@ -2,7 +2,7 @@
 /**
  * WP_REST_Agents_Manager_Persisted_Open_State Tests File
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-agents-manager
  */
 
 namespace Automattic\Jetpack\Agents_Manager;
@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../src/class-wp-rest-agents-manager-persisted-open-s
  *
  * @covers \Automattic\Jetpack\Agents_Manager\WP_REST_Agents_Manager_Persisted_Open_State
  */
-#[CoversClass( \Automattic\Jetpack\Agents_Manager\WP_REST_Agents_Manager_Persisted_Open_State::class )]
+#[CoversClass( WP_REST_Agents_Manager_Persisted_Open_State::class )]
 class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTestCase {
 
 	/**

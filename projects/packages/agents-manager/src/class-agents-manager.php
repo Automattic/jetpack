@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * Class Agents_Manager
@@ -564,7 +565,7 @@ class Agents_Manager {
 		// On WoA/Garden sites, check server variable or constant.
 		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
-			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+			: Constants::is_true( 'A8C_PROXIED_REQUEST' );
 	}
 
 	/**
@@ -586,8 +587,8 @@ class Agents_Manager {
 			return true;
 		}
 
-		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
-			switch ( ATOMIC_CLIENT_ID ) {
+		if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
 				case 1:
 				case 2:
 				case 3: // Pressable
