@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.0] - 2026-05-25
+### Added
+- Currency formatting: Add `setCurrencyOverrides` for installing a dynamic per-currency override map (e.g. from the WordPress.com currencies endpoint). Falls back to the hard-coded smallest-unit exponent overrides when not called. [#49016]
+
+## [1.1.10] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
 ## [1.1.9] - 2026-05-19
 ### Fixed
 - Currency formatting: use ISO 4217 minor-unit exponent for smallest-unit conversion to correctly format IDR and other currencies where browser ICU disagrees with ISO 4217. [#48967]
@@ -148,6 +156,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.2.0]: https://github.com/Automattic/number-formatters/compare/1.1.10...1.2.0
+[1.1.10]: https://github.com/Automattic/number-formatters/compare/1.1.9...1.1.10
 [1.1.9]: https://github.com/Automattic/number-formatters/compare/1.1.8...1.1.9
 [1.1.8]: https://github.com/Automattic/number-formatters/compare/1.1.7...1.1.8
 [1.1.7]: https://github.com/Automattic/number-formatters/compare/1.1.6...1.1.7

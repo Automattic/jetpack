@@ -1,8 +1,18 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isSimpleSite, siteHasFeature } from '@automattic/jetpack-script-data';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
+import { useIsModernized } from '../../../hooks/use-is-modernized';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { features } from '../../../utils/constants';
@@ -25,27 +35,47 @@ const HELP_TEXT = __(
 	'jetpack-publicize-pkg'
 );
 
+const LABEL = __( 'Custom message for this connection', 'jetpack-publicize-pkg' );
+
+const NOOP = () => {};
+
 /**
  * Per-connection message template editor.
  *
- * Renders only when the site has the `social-message-templates` feature
- * AND the `social-enhanced-publishing` paid plan, AND the user can manage
- * the connection. Auto-saves through `updateConnectionById` after the user
- * pauses typing.
+ * The per-connection message area only exists once the `social-message-templates`
+ * engine is enabled (currently a rollout flag, not a purchasable plan feature),
+ * so the component renders nothing for every connection until then. With the
+ * engine on, it renders the live editor when the site also has the
+ * `social-enhanced-publishing` paid plan and the user can manage the connection,
+ * or — in the modernized chassis only — a disabled-textarea variant with an
+ * Upgrade link for plan tiers that lack per-connection customization.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
- * @return The rendered editor, or `null` when gated out.
+ * @return The rendered editor, its locked upsell variant, or null.
  */
 export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps ) {
 	const { connection } = props;
 
-	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
+	const isModernized = useIsModernized();
 
-	const canManageConnection = useSelect(
-		select => select( socialStore ).canUserManageConnection( connection ),
-		[ connection ]
+	const { canManageConnection, globalTemplate } = useSelect(
+		select => ( {
+			canManageConnection: select( socialStore ).canUserManageConnection( connection ),
+			// Only the modernized chassis renders the gated upsell, which is the
+			// only consumer of the global default message. Keeping this read out
+			// of the legacy path preserves the trunk data dependencies exactly.
+			globalTemplate: isModernized
+				? select( socialStore ).getSocialSettings().messageTemplate ?? ''
+				: '',
+		} ),
+		[ connection, isModernized ]
 	);
+
+	const { recordEvent } = useAnalytics();
+
+	const onUpgradeClick = useCallback( () => {
+		recordEvent( 'jetpack_social_per_network_customization_upgrade_click' );
+	}, [ recordEvent ] );
 
 	const savedTemplate = connection.template ?? '';
 
@@ -83,14 +113,71 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 		[ debouncedSave ]
 	);
 
-	if ( ! featureEnabled || ! planEnabled || ! canManageConnection ) {
+	if ( ! canManageConnection ) {
 		return null;
+	}
+
+	// The message-templates engine is a rollout flag (a WPCOM blog sticker), not
+	// a purchasable plan feature, so no plan unlocks it. Hide the per-connection
+	// message area entirely until the engine is on — otherwise every site,
+	// including paid plans that already have `social-enhanced-publishing`, sees a
+	// misleading "upgrade your plan" upsell for something no plan can unlock.
+	// Once the engine ships the area appears and the plan-based upsell below
+	// becomes meaningful again.
+	if ( ! siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+		return null;
+	}
+
+	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
+
+	if ( ! planEnabled ) {
+		// Engine is on but the site's plan tier lacks per-connection
+		// customization; surface the upgrade path. Ships only in the modernized
+		// chassis — the legacy admin page and block editor keep the trunk
+		// behavior (no editor when the plan is missing).
+		if ( ! isModernized || isSimpleSite() ) {
+			return null;
+		}
+
+		const upgradeUrl = getRedirectUrl( 'jetpack-social-per-connection-template-upsell', {
+			site: getSiteFragment() || '',
+			query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+		} );
+
+		const upsellHelp = createInterpolateElement(
+			__(
+				'Showing your default share message. To customize it for this account, <a>upgrade your plan</a>.',
+				'jetpack-publicize-pkg'
+			),
+			{
+				a: (
+					<Link href={ upgradeUrl } onClick={ onUpgradeClick } openInNewTab>
+						{ null }
+					</Link>
+				),
+			}
+		);
+
+		return (
+			<div className={ styles.editor }>
+				<MessageTemplateEditor
+					label={ LABEL }
+					placeholder=""
+					helpText={ upsellHelp }
+					value={ globalTemplate }
+					onChange={ NOOP }
+					disabled
+					rows={ 3 }
+					showPlaceholders={ false }
+				/>
+			</div>
+		);
 	}
 
 	return (
 		<div className={ styles.editor }>
 			<MessageTemplateEditor
-				label={ __( 'Custom message for this connection', 'jetpack-publicize-pkg' ) }
+				label={ LABEL }
 				placeholder={ PLACEHOLDER_TEXT }
 				helpText={ HELP_TEXT }
 				value={ draft }

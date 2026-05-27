@@ -1,35 +1,77 @@
+import analytics from '@automattic/jetpack-analytics';
+// Imported via its deep export rather than the package barrel: the barrel
+// (`@automattic/jetpack-connection`) re-exports the disconnect dialog, which
+// imports `.jpg` assets the wp-build esbuild pipeline has no loader for, so a
+// barrel import fails the build even though the hook itself needs none of it.
+import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import type { ReactElement } from 'react';
 
+// Tracks event recorded when the upgrade CTA is clicked. Carried over verbatim
+// from the legacy dashboard's `UpgradeTrigger` so both dashboards report
+// against the same funnel.
+const UPGRADE_CLICK_EVENT = 'jetpack_videopress_upgrade_trigger_link_click';
+
 /**
- * Build the WPCOM checkout URL for the VideoPress upgrade CTA. The slug
- * is read from `JPVIDEOPRESS_INITIAL_STATE.jetpackStatus.calypsoSlug`,
- * set on every initial-state render (`class-initial-state.php`). Falls
- * back to bare `/checkout/videopress` when the slug isn't available so
- * the link still works (WPCOM resolves the active site server-side).
+ * Read the inlined initial state, guarding for environments (tests, the
+ * legacy page) where the `var JPVIDEOPRESS_INITIAL_STATE` is absent.
  *
- * @return Absolute checkout URL.
+ * @return The initial-state payload, or undefined when it isn't present.
  */
-function buildUpgradeUrl(): string {
-	const base = 'https://wordpress.com/checkout';
-	const slug =
-		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-			? JPVIDEOPRESS_INITIAL_STATE?.jetpackStatus?.calypsoSlug
-			: '';
-	return slug ? `${ base }/${ slug }/videopress` : `${ base }/videopress`;
+function getInitialState() {
+	return typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' ? JPVIDEOPRESS_INITIAL_STATE : undefined;
 }
 
 /**
- * Permanent (non-dismissible) free-plan Notice rendered at the top of
- * the Overview tab. The `@wordpress/ui` Notice compound API expresses
- * non-dismissibility by omitting `<Notice.CloseIcon>` rather than via a
- * boolean prop. Uses `ActionLink` (not `ActionButton`) because the CTA
- * navigates to WPCOM checkout.
+ * Permanent (non-dismissible) free-plan Notice rendered at the top of the
+ * Overview tab. The `@wordpress/ui` Notice compound API expresses
+ * non-dismissibility by omitting `<Notice.CloseIcon>` rather than via a boolean
+ * prop.
+ *
+ * The upgrade CTA reuses the shared `useProductCheckoutWorkflow` hook — the
+ * same one the legacy dashboard used — so VideoPress stays in lockstep with
+ * every other product's checkout behavior instead of hand-rolling a URL. The
+ * connection details the hook needs are hydrated server-side by
+ * `class-initial-state.php` (`Connection_Initial_State::render_script()`); the
+ * product to purchase and the post-checkout redirect come from
+ * `JPVIDEOPRESS_INITIAL_STATE`. The hook exposes an action (`run`, which
+ * registers the site if needed then redirects) rather than a URL, so the CTA is
+ * an `ActionLink` with a placeholder `href` whose default `run` cancels before
+ * redirecting — keeping anchor semantics (focus, hover) while delegating
+ * navigation to the workflow.
+ *
+ * Tracks identity is initialized centrally by `useDashboardAnalytics`, so the
+ * click handler only records the event; its `blog_id` is supplied
+ * automatically by `window.jpTracksContext`.
  *
  * @return The Notice element.
  */
 export default function FreeTierNotice(): ReactElement {
+	const state = getInitialState();
+
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: state?.product?.slug ?? '',
+		redirectUrl: VIDEOPRESS_ADMIN_PAGE,
+		useBlogIdSuffix: true,
+		from: 'jetpack-videopress',
+	} );
+
+	const handleUpgradeClick = useCallback(
+		( event: { preventDefault: () => void } ) => {
+			// Cancel the placeholder-href default, record the click, then defer the
+			// checkout redirect by a microtask so the Tracks pixel is dispatched
+			// before navigation can cancel it. Mirrors the legacy dashboard's
+			// `recordEvent( … ).then( run )`.
+			event.preventDefault();
+			analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT );
+			void Promise.resolve().then( () => run() );
+		},
+		[ run ]
+	);
+
 	return (
 		<Notice.Root intent="info">
 			<Notice.Description>
@@ -39,7 +81,7 @@ export default function FreeTierNotice(): ReactElement {
 				) }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionLink href={ buildUpgradeUrl() }>
+				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>
 					{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
 				</Notice.ActionLink>
 			</Notice.Actions>

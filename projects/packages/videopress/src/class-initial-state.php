@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -36,6 +39,16 @@ use function wp_script_is;
 class Initial_State {
 
 	const SCRIPT_HANDLE = 'jetpack-videopress-dashboard-wp-admin-prerequisites';
+
+	/**
+	 * WPCOM product slug purchased by the dashboard's upgrade CTA.
+	 *
+	 * Mirrors the product `Plan::get_product()` resolves to
+	 * (`$products->jetpack_videopress`). Kept as a constant rather than read
+	 * from `Plan::get_product()` because that helper issues a synchronous
+	 * WPCOM request, which we don't want to incur on every page render.
+	 */
+	const VIDEOPRESS_PRODUCT_SLUG = 'jetpack_videopress';
 
 	/**
 	 * Register the inline-state enqueue hook.
@@ -67,6 +80,13 @@ class Initial_State {
 		}
 
 		wp_add_inline_script( self::SCRIPT_HANDLE, ( new self() )->render(), 'before' );
+
+		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
+		// so shared connection-aware hooks — notably
+		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
+		// the modernized dashboard exactly as they do on the legacy one. This
+		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 	}
 
 	/**
@@ -87,6 +107,10 @@ class Initial_State {
 			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
+			),
+			'product'       => array(
+				// Fed to `useProductCheckoutWorkflow` as the product to purchase.
+				'slug' => self::VIDEOPRESS_PRODUCT_SLUG,
 			),
 			'siteData'      => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
@@ -109,6 +133,38 @@ class Initial_State {
 			'assets'        => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Product/pricing payload for the pre-connection upsell. Only
+			// populated when the site isn't connected — the only time the
+			// connection gate renders the upsell — so connected dashboards never
+			// incur the synchronous WPCOM pricing request `get_pricing_data()`
+			// makes.
+			'pricing'       => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
+		);
+	}
+
+	/**
+	 * Product description, feature list, and yearly price for the
+	 * pre-connection upsell (a port of the legacy dashboard's pricing table).
+	 *
+	 * Backed by `Plan::get_product_price()`, which issues a synchronous WPCOM
+	 * request, so this only runs for disconnected sites. Returns null when the
+	 * product or price data isn't available (e.g. the WPCOM request fails), in
+	 * which case the gate falls back to the plain connect screen.
+	 *
+	 * @return array|null The upsell payload, or null when it can't be built.
+	 */
+	private function get_pricing_data() {
+		$site_product  = My_Jetpack_Products::get_product( 'videopress' );
+		$product_price = Plan::get_product_price();
+
+		if ( ! is_array( $site_product ) || ! isset( $product_price['yearly'] ) ) {
+			return null;
+		}
+
+		return array(
+			'title'    => isset( $site_product['description'] ) ? (string) $site_product['description'] : '',
+			'features' => isset( $site_product['features'] ) ? array_values( (array) $site_product['features'] ) : array(),
+			'yearly'   => $product_price['yearly'],
 		);
 	}
 

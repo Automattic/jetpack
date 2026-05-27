@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Podcast\Feed;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Settings;
 use WP_Post;
 
@@ -272,33 +273,38 @@ class Customize_Feed {
 		$attachment_id = attachment_url_to_postid( $original_url );
 
 		if ( null !== $post_obj && $enable && $attachment_id > 0 ) {
+			// `null` when the site isn't connected; passed through so the filter can still inject a value.
+			$default_blog_id = Connection_Manager::get_site_id( true );
+
 			/**
-			 * Override the blog ID baked into the stats URL. Atomic / non-Simple
-			 * sites should return the WPCOM shadow ID so the public-api endpoint
-			 * routes to the right blog.
+			 * Override the blog ID baked into the stats URL.
 			 *
-			 * @param int     $blog_id Default current blog ID.
-			 * @param WP_Post $post    The post being rendered.
+			 * @param int|null $blog_id Default Jetpack connection site ID, or null when unavailable.
+			 * @param WP_Post  $post    The post being rendered.
 			 */
-			$blog_id   = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post_obj );
-			$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
-			$enclosure = preg_replace_callback(
-				'/url="[^"]*"/i',
-				/**
-				 * Replace the matched `url="…"` attribute with the stats URL.
-				 * `$matches` is required by `preg_replace_callback`'s callable
-				 * signature but ignored — we always emit the same value.
-				 *
-				 * @param array $matches Regex matches.
-				 * @return string
-				 */
-				static function ( array $matches ) use ( $stats_url ) {
-					unset( $matches );
-					return 'url="' . esc_url( $stats_url ) . '"';
-				},
-				$enclosure,
-				1
-			);
+			$blog_id = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', $default_blog_id, $post_obj );
+
+			// Bail when we can't resolve a real blog ID — emit the original URL rather than a guaranteed-404 stats URL.
+			if ( $blog_id > 0 ) {
+				$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
+				$enclosure = preg_replace_callback(
+					'/url="[^"]*"/i',
+					/**
+					 * Replace the matched `url="…"` attribute with the stats URL.
+					 * `$matches` is required by `preg_replace_callback`'s callable
+					 * signature but ignored — we always emit the same value.
+					 *
+					 * @param array $matches Regex matches.
+					 * @return string
+					 */
+					static function ( array $matches ) use ( $stats_url ) {
+						unset( $matches );
+						return 'url="' . esc_url( $stats_url ) . '"';
+					},
+					$enclosure,
+					1
+				);
+			}
 		}
 
 		if ( 0 === $attachment_id ) {

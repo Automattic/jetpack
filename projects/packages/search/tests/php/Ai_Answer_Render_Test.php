@@ -12,10 +12,12 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the ai-answer block's render template.
  *
- * Asserts that render output is gated by `AI_Answers::is_enabled()`, and that
- * the attribute-driven affordances (heading, citations region, Show-more
- * button) appear / disappear in the markup the way the front-end consumer
- * expects.
+ * Asserts that render output is independent of the site-wide
+ * `jetpack_search_ai_answers_enabled` option (block presence in post
+ * content is the opt-in signal — the option only governs the overlay),
+ * and that the attribute-driven affordances (heading, citations region,
+ * Show-more button) appear / disappear in the markup the way the
+ * front-end consumer expects.
  */
 class Ai_Answer_Render_Test extends TestCase {
 
@@ -56,13 +58,32 @@ class Ai_Answer_Render_Test extends TestCase {
 		\unregister_block_type( 'jetpack-search/ai-answer' );
 	}
 
-	protected function setUp(): void {
+	/**
+	 * Seed a paid-plan option so the per-render paid-plan gate in
+	 * `render.php` lets through; the assertions in this suite are about
+	 * markup shape, not plan logic. The `supports_paid_search()` memo is
+	 * cleared in setUp / tearDown so cases that explicitly hide the plan
+	 * (`test_renders_nothing_without_paid_search_plan`) get a clean read.
+	 */
+	public function setUp(): void {
 		parent::setUp();
-		update_option( 'jetpack_search_ai_answers_enabled', true );
+		// Paid Search plan: `supports_instant_search: true` AND a
+		// non-free product_slug. The slug matters because WPCOM also
+		// reports `supports_instant_search: true` on the free plan, so
+		// the gate combines both probes to rule it out.
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
+		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
-	protected function tearDown(): void {
-		delete_option( 'jetpack_search_ai_answers_enabled' );
+	public function tearDown(): void {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		Search_Blocks::reset_supports_paid_search_cache();
 		parent::tearDown();
 	}
 
@@ -79,16 +100,37 @@ class Ai_Answer_Render_Test extends TestCase {
 		return do_blocks( '<!-- wp:jetpack-search/ai-answer ' . $json . ' /-->' );
 	}
 
-	public function test_disabled_renders_nothing() {
+	public function test_renders_panel_wrapper_independent_of_site_option() {
+		// The block is its own opt-in surface: presence of the block in
+		// post content is the only switch. The site-wide AI Answers option
+		// only governs the instant-search overlay; flipping it must not
+		// affect the embedded block's render.
 		update_option( 'jetpack_search_ai_answers_enabled', false );
-		$markup = $this->render();
-		$this->assertSame( '', trim( $markup ) );
-	}
+		$markup_with_option_off = $this->render();
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+		$markup_with_option_unset = $this->render();
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$markup_with_option_on = $this->render();
+		delete_option( 'jetpack_search_ai_answers_enabled' );
 
-	public function test_enabled_renders_panel_wrapper() {
-		$markup = $this->render();
-		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
-		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
+		foreach (
+			array(
+				'option off'   => $markup_with_option_off,
+				'option unset' => $markup_with_option_unset,
+				'option on'    => $markup_with_option_on,
+			) as $label => $markup
+		) {
+			$this->assertStringContainsString(
+				'jp-search-answers-panel',
+				$markup,
+				"Block wrapper should render with the site option $label."
+			);
+			$this->assertStringContainsString(
+				'data-wp-interactive="jetpack-search"',
+				$markup,
+				"Interactivity directive should render with the site option $label."
+			);
+		}
 	}
 
 	public function test_default_heading_is_ai_answer() {
@@ -122,6 +164,39 @@ class Ai_Answer_Render_Test extends TestCase {
 		$markup = $this->render( array( 'enableShowMore' => false ) );
 		$this->assertStringNotContainsString( 'jp-search-answers-panel__toggle', $markup );
 		$this->assertStringNotContainsString( 'showExtendedAiAnswer', $markup );
+	}
+
+	public function test_renders_nothing_without_paid_search_plan() {
+		// Drop the plan and re-prime the memo: a no-plan site must not
+		// emit the panel scaffold (no wrapper, no `data-wp-interactive`
+		// hook). Mirrors how WordAds / Premium Content's render_callbacks
+		// short-circuit when their plan check fails.
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		Search_Blocks::reset_supports_paid_search_cache();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
+	}
+
+	public function test_renders_nothing_on_free_search_plan() {
+		// WPCOM reports `supports_instant_search: true` on the free
+		// Search plan too, so the gate has to combine that probe with
+		// the product_slug check. This case exercises that second probe.
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+		Search_Blocks::reset_supports_paid_search_cache();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
 	public function test_panel_is_hidden_until_status_changes() {

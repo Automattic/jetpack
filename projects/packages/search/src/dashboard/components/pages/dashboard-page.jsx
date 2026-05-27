@@ -3,7 +3,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AIAgentAccessControl from 'components/ai-agent-access-control';
 import AiAnswersTab from 'components/ai-answers-tab';
 import ExperienceSelector from 'components/experience-selector';
@@ -18,22 +18,52 @@ import WooCommerceProductSearchControl from 'components/woocommerce-product-sear
 import { STORE_ID } from 'store';
 import { EXPERIENCE } from '../experience-selector/constants';
 import FirstRunSection from './sections/first-run-section';
-import PlanUsageSection from './sections/plan-usage-section';
+import OverviewSection from './sections/overview-section';
 import './dashboard-page.scss';
 
-const DEFAULT_TAB = 'plan-usage';
+const DEFAULT_TAB = 'overview';
 // Keep this allowlist in sync with the <Tabs.Tab value="..."> definitions below.
 const VALID_TABS = [ DEFAULT_TAB, 'settings', 'ai-answers' ];
-const TAB_QUERY_PARAM = 'tab';
+// Tabs are now routed via the URL hash (#/<slug>) to match the my-jetpack
+// admin's HashRouter convention. The pre-hash `?tab=<slug>` query param is
+// still honored on mount so existing bookmarks resolve correctly; mount-time
+// normalization rewrites the URL to the canonical hash form.
+const LEGACY_TAB_QUERY_PARAM = 'tab';
+// Maps removed slugs to their current equivalents so existing bookmarks/links keep working.
+const LEGACY_TAB_ALIASES = { 'plan-usage': 'overview' };
 
-const getInitialTab = () => {
+const resolveTabFromLocation = () => {
 	if ( typeof window === 'undefined' ) {
 		return DEFAULT_TAB;
 	}
 
-	const requestedTab = new URLSearchParams( window.location.search ).get( TAB_QUERY_PARAM );
+	// Hash wins (canonical); fall back to legacy `?tab=` query param.
+	const fromHash = window.location.hash.replace( /^#\/?/, '' );
+	const fromQuery = new URLSearchParams( window.location.search ).get( LEGACY_TAB_QUERY_PARAM );
+	const requestedTab = fromHash || fromQuery;
+	const resolvedTab = LEGACY_TAB_ALIASES[ requestedTab ] ?? requestedTab;
 
-	return VALID_TABS.includes( requestedTab ) ? requestedTab : DEFAULT_TAB;
+	return VALID_TABS.includes( resolvedTab ) ? resolvedTab : DEFAULT_TAB;
+};
+
+// Rewrites the URL to the canonical `#/<tab>` form and strips any legacy
+// `?tab=` query param. Uses `replaceState` so it doesn't add a back-button
+// entry and doesn't fire a `hashchange` event (safe to call from a
+// `hashchange` handler).
+const normalizeUrlToHash = tab => {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+	const url = new URL( window.location.href );
+	const desiredHash = `#/${ tab }`;
+	if ( url.hash === desiredHash && ! url.searchParams.has( LEGACY_TAB_QUERY_PARAM ) ) {
+		return;
+	}
+	url.searchParams.delete( LEGACY_TAB_QUERY_PARAM );
+	url.hash = desiredHash;
+	// Preserve any existing history.state — assigning {} would clobber state
+	// stashed by other scripts running on the same admin page.
+	window.history.replaceState( window.history.state ?? {}, '', url.toString() );
 };
 
 /**
@@ -45,7 +75,34 @@ const getInitialTab = () => {
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( getInitialTab );
+	const [ activeTab, setActiveTab ] = useState( resolveTabFromLocation );
+
+	// On mount, canonicalize the URL to `#/<tab>` and drop any legacy `?tab=`
+	// query string so reloads stop carrying it.
+	useEffect( () => {
+		normalizeUrlToHash( activeTab );
+		// Intentional: canonicalize once with the initial `activeTab`. Later
+		// hash changes are handled by the `hashchange` listener below.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	// Keep the active tab in sync with external hash changes (back/forward button, manual edit).
+	useEffect( () => {
+		if ( typeof window === 'undefined' ) {
+			return;
+		}
+		const onHashChange = () => {
+			const resolved = resolveTabFromLocation();
+			// Skip the state update when the resolved tab already matches —
+			// otherwise user-initiated clicks would `setActiveTab` twice (once
+			// in `handleTabChange`, once via the `hashchange` event echo).
+			setActiveTab( prev => ( prev === resolved ? prev : resolved ) );
+			// External nav might have landed on a legacy slug; canonicalize too.
+			normalizeUrlToHash( resolved );
+		};
+		window.addEventListener( 'hashchange', onHashChange );
+		return () => window.removeEventListener( 'hashchange', onHashChange );
+	}, [] );
 
 	const handleTabChange = tab => {
 		setActiveTab( tab );
@@ -53,10 +110,9 @@ export default function DashboardPage( { isLoading = false } ) {
 		if ( typeof window === 'undefined' ) {
 			return;
 		}
-
-		const url = new URL( window.location.href );
-		url.searchParams.set( TAB_QUERY_PARAM, tab );
-		window.history.replaceState( {}, '', url.toString() );
+		// Assigning to .hash (not replaceState) creates a back-button entry,
+		// matching my-jetpack's HashRouter navigation behavior.
+		window.location.hash = `/${ tab }`;
 	};
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
@@ -146,19 +202,34 @@ export default function DashboardPage( { isLoading = false } ) {
 	const showWooCommerceProductSearchControl =
 		isWooCommerceActive &&
 		( activeExperience === EXPERIENCE.EMBEDDED || activeExperience === EXPERIENCE.INLINE );
-	// Site Editor identifies plugin templates as `<stylesheet>//<slug>`;
-	// fall back to the Templates list when the stylesheet is unavailable.
-	const wooProductSearchEditUrl = activeThemeStylesheet
-		? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-				activeThemeStylesheet
-		  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
-		: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	// Block themes get the Site Editor entry (templates resolve as
+	// `<stylesheet>//<slug>`); classic themes don't have a Site Editor at
+	// all, so route to the `Product_Search_Template` singleton-CPT editor
+	// instead. The CPT URL is nonce'd by PHP and is `null` for any visitor
+	// without `manage_options` — keep the WC control's existing
+	// `editTemplateUrl && …` guard so the link hides cleanly in that case.
+	const isBlockTheme = useSelect( select => select( STORE_ID ).isBlockTheme() );
+	const productSearchTemplate = useSelect( select =>
+		select( STORE_ID ).getProductSearchTemplateConfig()
+	);
+	let wooProductSearchEditUrl;
+	if ( isBlockTheme ) {
+		wooProductSearchEditUrl = activeThemeStylesheet
+			? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+					activeThemeStylesheet
+			  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+			: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`;
+	} else {
+		wooProductSearchEditUrl = productSearchTemplate.editorUrl;
+	}
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
+		! supportsSearch ||
 		! isReaderChatEnabled ||
 		readerChatGuidelinesUrl !== aiAgentAccessGuidelinesUrl;
+	const isReaderChatControlAvailable = isReaderChatAvailable && supportsSearch;
 	const hasAdditionalSettings =
-		isReaderChatAvailable ||
+		isReaderChatControlAvailable ||
 		isAIAgentAccessAvailable ||
 		( supportsInstantSearch && isInstantSearchEnabled ) ||
 		showWooCommerceProductSearchControl;
@@ -208,7 +279,7 @@ export default function DashboardPage( { isLoading = false } ) {
 				<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
-							<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="ai-answers">
 								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
@@ -218,7 +289,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<Tabs.Panel value="plan-usage">
+					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 							<div className="jp-search-dashboard-row">
@@ -280,12 +351,12 @@ export default function DashboardPage( { isLoading = false } ) {
 															{ __( 'Additional settings', 'jetpack-search-pkg' ) }
 														</h2>
 													) }
-													{ isReaderChatAvailable && (
+													{ isReaderChatControlAvailable && (
 														<div className="jp-search-settings-card">
 															<ReaderChatControl
-																isAvailable={ isReaderChatAvailable }
+																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption }
+																isSaving={ isSavingEitherOption || isOverLimit }
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>
@@ -381,7 +452,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection
+					<OverviewSection
 						isFreePlan={ isFreePlan }
 						isPlanJustUpgraded={ isPlanJustUpgraded }
 						planInfo={ planInfo }
@@ -415,7 +486,7 @@ const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch
 				<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
 			</div>
 			<div className="jp-search-dashboard-row" aria-hidden="true">
-				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-12 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<MockedSearch
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }

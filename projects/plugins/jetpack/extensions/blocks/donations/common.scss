@@ -110,6 +110,13 @@
 		margin: 0;
 	}
 
+	// Pop-up display mode: suppress the default border — the block wrapper is
+	// larger than just the trigger button, so a border here looks wrong.
+	// User-set borders in In-page mode are handled via the per-instance <style>.
+	&.is-display-modal {
+		border: none;
+	}
+
 	// "Buttons" style variation: render the frequency selectors as a row of
 	// pill-shaped buttons instead of edge-to-edge tabs. Per-state colors and
 	// tab dimensions set in the inspector still apply on top of these rules.

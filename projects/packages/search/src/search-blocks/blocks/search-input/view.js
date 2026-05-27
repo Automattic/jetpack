@@ -1,4 +1,4 @@
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import 'jetpack-search/store';
 import {
 	clearSuggestionsContext,
@@ -10,31 +10,41 @@ import './style.scss';
 const NAMESPACE = 'jetpack-search';
 const SEARCH_DEBOUNCE_MS = 300;
 
-// Per-input debounce state. Keyed by the input element itself so two
-// search-input blocks on the same page (e.g. header + sidebar) don't
-// reset each other's typing timer. WeakMap lets GC reclaim entries
-// when an input is removed from the DOM.
+// Per-input debounce keyed on the element so two inputs (header + sidebar)
+// don't reset each other; WeakMap lets GC reclaim when the input goes away.
 const debounceTimers = new WeakMap();
 
 /**
- * Start (or restart) the debounced search for a single input.
+ * Start/restart the debounced search. `staticPostTypes` is captured
+ * synchronously by the caller — `getContext()` isn't available once the
+ * debounce fires outside the element context.
  *
- * @param {HTMLInputElement} input - The input whose timer should be reset.
+ * @param {HTMLInputElement}                            input           - The input.
+ * @param {{include: string[], exclude: string[]}|null} staticPostTypes - Input scope, or null.
  */
-function scheduleSearch( input ) {
+function scheduleSearch( input, staticPostTypes ) {
 	clearTimeout( debounceTimers.get( input ) );
 	const timer = setTimeout( () => {
 		debounceTimers.delete( input );
-		store( NAMESPACE ).actions.search();
+		store( NAMESPACE ).actions.search( { staticPostTypes } );
 	}, SEARCH_DEBOUNCE_MS );
 	debounceTimers.set( input, timer );
 }
 
 /**
- * Cancel any in-flight search debounce for a single input — used when a
- * keystroke should fire a search immediately (e.g. Enter).
+ * Per-input scope from `data-wp-context`. Null clears any prior scope and
+ * falls back to the page-global seed.
  *
- * @param {HTMLInputElement} input - The input whose timer should be cleared.
+ * @return {{include: string[], exclude: string[]}|null} Scope or null.
+ */
+function readPostTypeScope() {
+	return getContext()?.staticPostTypes ?? null;
+}
+
+/**
+ * Cancel any pending debounce — used when Enter should fire immediately.
+ *
+ * @param {HTMLInputElement} input - The input.
  */
 function cancelPendingSearch( input ) {
 	clearTimeout( debounceTimers.get( input ) );
@@ -46,31 +56,26 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
-			// `submitOnly` inputs still keep `state.searchQuery` in sync so
-			// bindings render the typed value, but defer the actual API call
-			// until Enter / the clear button — useful for sites that want
-			// fewer requests than the default live-search debounce produces.
+			// Capture scope synchronously (debounce fires outside element context).
+			const staticPostTypes = readPostTypeScope();
+			// `submitOnly` keeps state in sync but defers the API call until Enter.
 			if ( event.target.dataset.submitOnly === 'true' ) {
 				cancelPendingSearch( event.target );
 			} else {
-				scheduleSearch( event.target );
+				scheduleSearch( event.target, staticPostTypes );
 			}
-			// Delegated to ./suggestions.js — short-circuits on non-suggestions
-			// inputs, so this stays a single unconditional call.
+			// Short-circuits on non-suggestions inputs.
 			handleInputForSuggestions( event.target );
 		},
 
 		onSearchKeydown( event ) {
-			// The suggestions layer claims ArrowUp / ArrowDown / Escape
-			// outright, and `Enter` only when a row is highlighted. Any
-			// other keystroke — including an unclaimed Enter — falls
-			// through to the default search dispatch below.
+			// Suggestions claim Arrow/Escape, and Enter only when a row is highlighted.
 			if ( handleKeydownForSuggestions( event, event.target ) ) {
 				return;
 			}
 			if ( event.key === 'Enter' ) {
 				cancelPendingSearch( event.target );
-				store( NAMESPACE ).actions.search();
+				store( NAMESPACE ).actions.search( { staticPostTypes: readPostTypeScope() } );
 			}
 		},
 
@@ -83,7 +88,9 @@ store( NAMESPACE, {
 			const { state, actions } = store( NAMESPACE );
 			state.searchQuery = '';
 			clearSuggestionsContext();
-			yield actions.search();
+			// Read scope before yield — `getContext()` needs the element context.
+			const staticPostTypes = readPostTypeScope();
+			yield actions.search( { staticPostTypes } );
 		},
 	},
 } );

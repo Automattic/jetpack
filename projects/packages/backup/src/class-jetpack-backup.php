@@ -153,6 +153,11 @@ class Jetpack_Backup {
 
 		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
 
+		// Jetpack Backup abilities are registered from `actions.php` at package
+		// autoload time so the surface is available in every consumer that
+		// loads this package (both the standalone Backup plugin and the
+		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
+
 		/**
 		 * Runs right after the Jetpack Backup package is initialized.
 		 *
@@ -558,6 +563,72 @@ class Jetpack_Backup {
 		$blog_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/restores',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
+	 * Query backup-completion events from the wpcom activity-log via the
+	 * general `/sites/<id>/activity` endpoint with the action filter pinned
+	 * to backup-completion event names. This endpoint paginates real-ly
+	 * (Elasticsearch `from` offset under the hood) — the `/activity/rewindable`
+	 * sibling looks like a more natural fit but hardcodes `page: 1,
+	 * totalPages: 1` and ignores the `page` parameter.
+	 *
+	 * Auth: signs as user. The endpoint gates on the requesting WP user
+	 * being an administrator of the blog (see
+	 * sites-activity.php::readable_permission_check); blog-level tokens
+	 * return 401.
+	 *
+	 * Returned shape (success): a W3C ActivityStreams envelope:
+	 *   {
+	 *     "@context": ..., "type": "OrderedCollection", "totalItems": int,
+	 *     "page": int, "totalPages": int, "itemsPerPage": int,
+	 *     "orderedItems": [ <event>, ... ]
+	 *   }
+	 * Each event has at least `published`, `rewind_id`, `is_rewindable`,
+	 * `name`, `status`, `summary`.
+	 *
+	 * @param array $args Query args passed through to wpcom. Supported keys:
+	 *                    `after` (ISO 8601), `before` (ISO 8601), `on` (ISO 8601),
+	 *                    `date_range`, `number` (max 1000), `page` (1-based),
+	 *                    `sort_order` ('asc'|'desc'). Any `action` key is
+	 *                    overridden with the curated backup-completion list.
+	 * @return array|\WP_REST_Response|null
+	 */
+	public static function list_backup_events( array $args = array() ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// Curated set of activity actions that represent "a backup completed".
+		// Mirrors `WPCOM_REST_API_V2_Endpoint_Site_Activity::$backup_action_names`.
+		// Pinned here (and overriding any caller-supplied `action`) so the
+		// helper is always scoped to backups regardless of what the caller passes.
+		$args['action'] = array(
+			'backup_complete_full',
+			'backup_complete_initial',
+			'backup_only_complete_full',
+			'backup_only_complete_initial',
+			'rewind__backup_complete_full',
+			'rewind__backup_complete_initial',
+			'rewind__backup_only_complete_full',
+			'rewind__backup_only_complete_initial',
+		);
+
+		$path = '/sites/' . (int) $blog_id . '/activity?' . http_build_query( $args );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
 			'v2',
 			array(),
 			null,

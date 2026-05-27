@@ -1,4 +1,5 @@
 import formatCurrency from '@automattic/format-currency';
+import { __, sprintf } from '@wordpress/i18n';
 import type { Subscriber, SubscriptionPlan } from '../data/types';
 
 export type ResolvedPlan = {
@@ -33,9 +34,15 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 
 		let label: string;
 		if ( isComplimentary ) {
-			label = plan.title ? `Comp: ${ plan.title }` : 'Comp';
+			label = plan.title
+				? sprintf(
+						/* translators: %s: title of the paid plan being comped, e.g. "Comp: Gold". */
+						__( 'Comp: %s', 'jetpack-newsletter' ),
+						plan.title
+				  )
+				: __( 'Comp', 'jetpack-newsletter' );
 		} else if ( isFree ) {
-			label = 'Free';
+			label = __( 'Free', 'jetpack-newsletter' );
 		} else {
 			const interval = plan.renew_interval || plan.renewal_period || '';
 			const price = formatPrice( plan.renewal_price, plan.currency );
@@ -53,6 +60,26 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 
 		return acc;
 	}, [] );
+}
+
+/**
+ * Resolve a subscriber's overall subscription type, applying the same priority
+ * `SubscriptionTypeCell` renders: paid wins over comp, comp over free. Shared with
+ * the DataViews "Subscription type" filter so filtering and the rendered badge
+ * agree (a free-only subscriber must read as `free`, not `paid`).
+ *
+ * @param subscriber - Subscriber.
+ * @return The subscription type.
+ */
+export function getSubscriptionType( subscriber: Subscriber ): 'paid' | 'comp' | 'free' {
+	const plans = getResolvedPlans( subscriber );
+	if ( plans.some( plan => ! plan.is_complimentary && ! plan.is_free ) ) {
+		return 'paid';
+	}
+	if ( plans.some( plan => plan.is_complimentary ) ) {
+		return 'comp';
+	}
+	return 'free';
 }
 
 /**

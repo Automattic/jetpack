@@ -1,6 +1,10 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
+	// ES2027
+	'no-temporal': 'javascript.builtins.Temporal',
+	'no-date-prototype-totemporalinstant': 'javascript.builtins.Date.toTemporalInstant',
+
 	// ES2026
 	'no-array-fromasync': 'javascript.builtins.Array.fromAsync',
 	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
@@ -427,6 +431,7 @@ module.exports = {
 
 	// "No nonstandard properties" rules.
 	// No compat data for any of these, as far as I can tell.
+	'no-nonstandard-temporal-zoneddatetime-prototype-properties': false,
 	'no-nonstandard-array-properties': false,
 	'no-nonstandard-array-prototype-properties': false,
 	'no-nonstandard-arraybuffer-properties': false,
@@ -492,6 +497,7 @@ module.exports = {
 	'no-nonstandard-string-prototype-properties': false,
 	'no-nonstandard-symbol-properties': false,
 	'no-nonstandard-symbol-prototype-properties': false,
+	'no-nonstandard-temporal-duration-properties': false,
 	'no-nonstandard-typed-array-properties': false,
 	'no-nonstandard-typed-array-prototype-properties': false,
 	'no-nonstandard-weakmap-properties': false,
@@ -500,4 +506,20 @@ module.exports = {
 	'no-nonstandard-weakref-prototype-properties': false,
 	'no-nonstandard-weakset-properties': false,
 	'no-nonstandard-weakset-prototype-properties': false,
+	'no-nonstandard-temporal-duration-prototype-properties': false,
+	'no-nonstandard-temporal-instant-properties': false,
+	'no-nonstandard-temporal-instant-prototype-properties': false,
+	'no-nonstandard-temporal-now-properties': false,
+	'no-nonstandard-temporal-plaindate-properties': false,
+	'no-nonstandard-temporal-plaindate-prototype-properties': false,
+	'no-nonstandard-temporal-plaindatetime-properties': false,
+	'no-nonstandard-temporal-plaindatetime-prototype-properties': false,
+	'no-nonstandard-temporal-plainmonthday-properties': false,
+	'no-nonstandard-temporal-plainmonthday-prototype-properties': false,
+	'no-nonstandard-temporal-plaintime-properties': false,
+	'no-nonstandard-temporal-plaintime-prototype-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-prototype-properties': false,
+	'no-nonstandard-temporal-properties': false,
+	'no-nonstandard-temporal-zoneddatetime-properties': false,
 };

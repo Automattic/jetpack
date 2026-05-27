@@ -15,15 +15,6 @@
 }
 
 /* Interstitial */
-.product-interstitial__product-header {
-
-	@include mixins.product-header;
-
-	.product-interstitial__product-header-name {
-		padding-bottom: calc(var(--spacing-base) / 3);
-	}
-}
-
 .product-interstitial__hero-section {
 
 	@include mixins.hero-section;

@@ -36,11 +36,22 @@ const STORE_MODULE_ID = 'jetpack-search/store';
 const storeIndexPath = path.join( __dirname, '../src/search-blocks/store/index.js' );
 const storeEntries = fs.existsSync( storeIndexPath ) ? { 'store/index': storeIndexPath } : {};
 
+// Standalone overlay-bootstrap entry. Wires theme search triggers to the
+// server-rendered Search blocks overlay; opt-in feature, not part of any block.
+const overlayBootstrapPath = path.join(
+	__dirname,
+	'../src/search-blocks/overlay-bootstrap/index.js'
+);
+const overlayBootstrapEntries = fs.existsSync( overlayBootstrapPath )
+	? { 'overlay-bootstrap/index': overlayBootstrapPath }
+	: {};
+
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		...storeEntries,
+		...overlayBootstrapEntries,
 		...blockViewEntries,
 	},
 	output: {

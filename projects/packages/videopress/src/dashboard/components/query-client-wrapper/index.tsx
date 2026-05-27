@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useDashboardAnalytics } from '../../hooks/use-dashboard-analytics';
+import ConnectionGate from '../connection-gate';
 import type { ReactNode } from 'react';
 
 const STORE_KEY = '__jetpackVideopressQueryClient' as const;
@@ -32,9 +34,17 @@ function getClient(): QueryClient {
 	return window[ STORE_KEY ];
 }
 
-const QueryClientWrapper = ( { children }: { children: ReactNode } ) => (
-	<QueryClientProvider client={ getClient() }>{ children }</QueryClientProvider>
-);
+const QueryClientWrapper = ( { children }: { children: ReactNode } ) => {
+	// Rendered by every route stage, so it's the single shared spot to record
+	// the once-per-load dashboard page view.
+	useDashboardAnalytics();
+
+	return (
+		<QueryClientProvider client={ getClient() }>
+			<ConnectionGate>{ children }</ConnectionGate>
+		</QueryClientProvider>
+	);
+};
 
 export default QueryClientWrapper;
 export { getClient as getVideopressQueryClient };

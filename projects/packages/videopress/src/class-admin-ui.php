@@ -179,9 +179,14 @@ class Admin_UI {
 				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 			}
 
-			// Beyond the shell stylesheet, wp-build manages its own enqueue
-			// pipeline. The legacy script, initial state, tracking, and
-			// media-library bootstrap are all intentionally skipped for the
+			// The Video details screen's thumbnail editor opens the WordPress
+			// media library (via window.wp.media) for the "Upload image"
+			// action, so the media scripts must be present here too.
+			wp_enqueue_media();
+
+			// Beyond the shell stylesheet and the media library, wp-build
+			// manages its own enqueue pipeline. The legacy script, initial
+			// state, and tracking are all intentionally skipped for the
 			// wp-build dashboard.
 			return;
 		}

@@ -58,6 +58,10 @@
 		{
 			extends: [ 'packages:eslint' ],
 			groupName: 'Eslint packages',
+			matchPackageNames: [
+				// Let this go to the Storybook monorepo group instead. It has a tightly tied peer dep.
+				'!eslint-plugin-storybook',
+			],
 		},
 		{
 			extends: [ 'packages:jsUnitTest' ],

@@ -45,7 +45,7 @@ class Jetpack_Debugger {
 			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
 			: Redirect::get_url( 'jetpack-contact-support' );
 
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Automattic\Jetpack\Connection\Connection_Health_Tests();
 		?>
 		<div class="wrap">
 			<div class="jp-static-block">
