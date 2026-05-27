@@ -47,6 +47,40 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify that autoplay and poster attributes render as a proper query string.
+	 */
+	public function test_shortcode_autoplay_and_poster() {
+		$content           = "[archiveorg id='Wonderfu1958' autoplay=1 poster='http://archive.org/img.png']";
+		$shortcode_content = do_shortcode( $content );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/Wonderfu1958?autoplay=1&#038;poster=http%3A%2F%2Farchive.org%2Fimg.png"', $shortcode_content );
+	}
+
+	/**
+	 * Verify that the playlist attribute renders as a proper query parameter.
+	 */
+	public function test_shortcode_playlist_attribute() {
+		$content           = "[archiveorg id='sentidodelobjeto' playlist=1]";
+		$shortcode_content = do_shortcode( $content );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/sentidodelobjeto?playlist=1"', $shortcode_content );
+	}
+
+	/**
+	 * Verify that query parameters baked into the identifier with "&" are converted to a proper query string.
+	 */
+	public function test_shortcode_query_string_in_id_with_ampersand() {
+		$shortcode_content = do_shortcode( '[archiveorg sentidodelobjeto&playlist=1 width=640 height=300]' );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/sentidodelobjeto?playlist=1"', $shortcode_content );
+	}
+
+	/**
+	 * Verify that query parameters baked into the identifier with "?" pass through correctly.
+	 */
+	public function test_shortcode_query_string_in_id_with_question_mark() {
+		$shortcode_content = do_shortcode( '[archiveorg sentidodelobjeto?playlist=1 width=640 height=300]' );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/sentidodelobjeto?playlist=1"', $shortcode_content );
+	}
+
+	/**
 	 * Verify that rendering the archiveorg-book shortcode returns an ArchiveOrg book.
 	 *
 	 * @since 4.5.0

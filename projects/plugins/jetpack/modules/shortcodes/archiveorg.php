@@ -60,6 +60,7 @@ function jetpack_archiveorg_shortcode( $atts ) {
 			'height'   => 480,
 			'autoplay' => 0,
 			'poster'   => '',
+			'playlist' => 0,
 		),
 		$atts
 	);
@@ -69,6 +70,13 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	}
 
 	$id = $atts['id'];
+
+	// Allow extra query parameters to be baked into the identifier, e.g. "myitem&playlist=1" or "myitem?playlist=1".
+	$extra_query = '';
+	if ( preg_match( '/^([^?&]*)[?&](.*)$/', $id, $id_match ) ) {
+		$id          = $id_match[1];
+		$extra_query = $id_match[2];
+	}
 
 	if ( ! $atts['width'] ) {
 		$width = absint( $content_width );
@@ -82,22 +90,29 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$height = (int) $atts['height'];
 	}
 
-	if ( $atts['autoplay'] ) {
-		$autoplay = '&autoplay=1';
-	} else {
-		$autoplay = '';
-	}
+	$url = 'https://archive.org/embed/' . $id;
 
+	$query_args = array();
+	if ( $atts['autoplay'] ) {
+		$query_args['autoplay'] = 1;
+	}
 	if ( $atts['poster'] ) {
-		$poster = '&poster=' . $atts['poster'];
-	} else {
-		$poster = '';
+		$query_args['poster'] = $atts['poster'];
+	}
+	if ( $atts['playlist'] ) {
+		$query_args['playlist'] = 1;
+	}
+	if ( ! empty( $query_args ) ) {
+		$url = add_query_arg( $query_args, $url );
+	}
+	if ( '' !== $extra_query ) {
+		$url .= ( str_contains( $url, '?' ) ? '&' : '?' ) . $extra_query;
 	}
 
 	return sprintf(
 		'<div class="embed-archiveorg" style="text-align:center;"><iframe title="%s" src="%s" width="%s" height="%s" style="border:0;" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe></div>',
 		esc_attr__( 'Archive.org', 'jetpack' ),
-		esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ),
+		esc_url( $url ),
 		esc_attr( $width ),
 		esc_attr( $height )
 	);
