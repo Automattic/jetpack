@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `BoundedLayout` — a shared content-width wrapper with `compact` (660px) and `wide` (1344px) presets, mirroring MSD layout conventions so products can stay visually aligned across Overview/Settings/Dashboard screens.
