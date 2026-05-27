@@ -108,17 +108,29 @@ const extractErrorMessage = ( error: unknown ): string => {
 /**
  * Compute the error/warning notice to show above the DataViews table.
  *
- * @param isListError - Whether the list query failed.
- * @param listError   - The raw error value from the list query.
- * @param hasAuxError - Whether either the filters or actors query failed.
+ * @param isListError     - Whether the list query failed.
+ * @param listError       - The raw error value from the list query.
+ * @param hasAuxError     - Whether either the filters or actors query failed.
+ * @param hasExistingRows - Whether the table is currently displaying previously-loaded rows.
  * @return The notice descriptor, or `null` when all queries succeeded.
  */
 const buildErrorNotice = (
 	isListError: boolean,
 	listError: unknown,
-	hasAuxError: boolean
+	hasAuxError: boolean,
+	hasExistingRows: boolean
 ): ErrorNoticeState | null => {
 	if ( isListError ) {
+		// A failed refetch keeps the previous rows on screen, so a red error notice would contradict them.
+		if ( hasExistingRows ) {
+			return {
+				status: 'warning',
+				message: __(
+					'Couldn’t refresh the activity log. The events shown may be out of date.',
+					'jetpack-activity-log'
+				),
+			};
+		}
 		const rawMessage = extractErrorMessage( listError );
 		return {
 			status: 'error',
@@ -321,10 +333,18 @@ export default function ActivityLog() {
 
 	const isFetching = isFetchingData || isFetchingFilters || isFetchingActors;
 
+	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
+
 	// Surface request failures so a broken WPCOM round-trip doesn't read as "no events".
 	const errorNotice = useMemo< ErrorNoticeState | null >(
-		() => buildErrorNotice( isListError, listError, isFiltersError || isActorsError ),
-		[ isListError, listError, isFiltersError, isActorsError ]
+		() =>
+			buildErrorNotice(
+				isListError,
+				listError,
+				isFiltersError || isActorsError,
+				logData.length > 0
+			),
+		[ isListError, listError, isFiltersError, isActorsError, logData.length ]
 	);
 
 	const paginationInfo = {
@@ -435,8 +455,6 @@ export default function ActivityLog() {
 	}, [ resetView, tracks ] );
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
-
-	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
