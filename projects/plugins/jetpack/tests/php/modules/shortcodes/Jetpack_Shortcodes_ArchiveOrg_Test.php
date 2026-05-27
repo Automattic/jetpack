@@ -81,6 +81,15 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify that an HTML-encoded "&amp;" baked into the identifier is normalized before splitting,
+	 * matching what reaches do_shortcode in environments where the_content encodes ampersands first.
+	 */
+	public function test_shortcode_query_string_in_id_with_html_encoded_ampersand() {
+		$shortcode_content = do_shortcode( '[archiveorg sentidodelobjeto&amp;playlist=1 width=640 height=300]' );
+		$this->assertStringContainsString( 'src="https://archive.org/embed/sentidodelobjeto?playlist=1"', $shortcode_content );
+	}
+
+	/**
 	 * Verify that rendering the archiveorg-book shortcode returns an ArchiveOrg book.
 	 *
 	 * @since 4.5.0
