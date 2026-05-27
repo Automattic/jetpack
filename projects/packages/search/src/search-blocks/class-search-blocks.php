@@ -1404,51 +1404,47 @@ CSS;
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
-/* Sidebar-showing rules (>= 992px):
+/* Sidebar-showing rules (>= 992px). The corner-join is structural, not
+ * decorative: the columns row is pulled flush against the search-input
+ * hairline, and visual breathing room is re-added as internal column
+ * padding. Three sources of vertical gap have to be neutralised for the
+ * column's `border-left` to start *at* the hairline:
  *
- * 1. Hide the in-header filters-popover entirely so a stale
- *    `is-popover-open` class can't leak its panel into view while the
- *    sidebar is doing the filter job.
+ *   a) The outer `wp:group`'s declared `spacing.blockGap` (1.5rem in the
+ *      templates) or the theme's default block-gap (e.g. TT5 falls back
+ *      to 1.2rem when the block-layout system doesn't emit the
+ *      per-container override for templates rendered into a `<template>`
+ *      element). Both manifest as `margin-block-start` on the columns row.
  *
- * 2. Force the columns row to top-align — the block-layout default
- *    (`.is-layout-flex { align-items: center }`) vertically centers the
- *    shorter filters column inside the taller results column, dropping
- *    the sidebar's top edge well below the columns-row top. Top-aligning
- *    pins it back to the row's top so the border-left starts alongside
- *    the results column. Scoped via `:has(> filters-column)` so unrelated
- *    `wp:columns` blocks elsewhere in the template are unaffected.
+ *   b) `.is-layout-flex { align-items: center }` (theme default, also in
+ *      WordPress core), which vertically centres the shorter filters
+ *      column inside the taller results column, dropping the sidebar's
+ *      top edge below the row's top.
  *
- * 3. Bridge the outer-group `blockGap` with a 1px `::before` extending
- *    upward from the column's top edge to (just past) the hairline. The
- *    1.5rem height matches the `spacing.blockGap` declared on the outer
- *    `wp:group` in every template under `templates/`; on themes whose
- *    block-layout swallows the per-container override and falls back to
- *    a smaller `--wp--style--block-gap` (e.g. TT5's 1.2rem), the extra
- *    ~0.3rem overshoots into the search-input's vertical padding —
- *    visually neutral. */
+ *   c) Overlay-only: the `__content > .wp-block-group:first-child` rule
+ *      (SEARCH-243) gives the alignwide group a `padding: .5em 2em 2em`
+ *      to "clear the 60px header strip." But the search-input is
+ *      `position: absolute` in the overlay — it doesn't take flow space —
+ *      so the 0.5em top-pad just pushes the columns row 8px below the
+ *      card's `::before` hairline at `top: 60px`.
+ *
+ * The `.is-layout-flex` class match bumps the columns selector to
+ * specificity (0,3,0), enough to outrank any per-container `blockGap`
+ * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
+ * scope keeps these overrides off any unrelated `wp:columns` block. */
 @media (min-width: 992px) {
 	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
 		display: none;
 	}
-	.wp-block-columns:has(> .jetpack-search-layout__filters-column) {
+	.wp-block-columns.is-layout-flex:has(> .jetpack-search-layout__filters-column) {
 		align-items: flex-start;
+		margin-block-start: 0;
 	}
-	.jetpack-search-layout__filters-column {
-		position: relative;
+	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
+		padding-top: 0;
 	}
-	.jetpack-search-layout__filters-column::before {
-		content: "";
-		position: absolute;
-		left: -1px;
-		bottom: 100%;
-		width: 1px;
-		height: 1.5rem;
-		background-color: transparent;
-	}
-	@supports (background-color: color-mix(in sRGB, black 50%, white)) {
-		.jetpack-search-layout__filters-column::before {
-			background-color: color-mix(in sRGB, currentColor 15%, transparent);
-		}
+	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
+		padding-top: 0.5em;
 	}
 }
 CSS;
