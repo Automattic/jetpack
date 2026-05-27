@@ -681,13 +681,6 @@ function render_block( $attributes ) {
 	// We want to disencourage including social count as it's misleading.
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 
-	// Site-wide subscribe modal heading (used by the "Button only" style of the block).
-	// Stored alongside the other newsletter copy strings under `subscription_options`.
-	$subscription_options    = (array) get_option( 'subscription_options', array() );
-	$subscribe_modal_heading = isset( $subscription_options['subscribe_modal_heading'] )
-		? (string) $subscription_options['subscribe_modal_heading']
-		: '';
-
 	$data = array(
 		'widget_id'                         => Jetpack_Subscriptions_Widget::$instance_count,
 		'subscribe_email'                   => $subscribe_email,
@@ -698,7 +691,6 @@ function render_block( $attributes ) {
 			)
 		),
 		'subscribe_placeholder'             => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
-		'subscribe_message'                 => $subscribe_modal_heading,
 		'submit_button_text'                => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
 		'submit_button_text_subscribed'     => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
 		'submit_button_text_upgrade'        => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
@@ -816,7 +808,6 @@ function render_for_website( $data, $classes, $styles ) {
 					data-blog="<?php echo esc_attr( $blog_id ); ?>"
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					data-subscriber_email="<?php echo esc_attr( $data['subscribe_email'] ); ?>"
-					data-subscribe_message="<?php echo esc_attr( $data['subscribe_message'] ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">

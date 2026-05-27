@@ -83,7 +83,6 @@ domReady( function () {
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
 					const selected_newsletter_categories =
 						form.querySelector( 'input[name=selected_newsletter_categories]' )?.value ?? '';
-					const subscribe_message = form.dataset.subscribe_message ?? '';
 
 					const params = {
 						email,
@@ -97,11 +96,6 @@ domReady( function () {
 						display: 'alternate',
 						selected_newsletter_categories,
 					};
-
-					// Only forward the custom subscribe message when set, to keep the URL clean otherwise.
-					if ( subscribe_message ) {
-						params.subscribe_message = subscribe_message;
-					}
 
 					show_iframe( params ).then( () => {
 						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
