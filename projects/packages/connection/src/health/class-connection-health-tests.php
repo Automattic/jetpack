@@ -1,6 +1,6 @@
 <?php
 /**
- * Collection of health tests for the WordPress.com connection.
+ * Collection of health tests for the Jetpack Connection.
  *
  * @package automattic/jetpack-connection
  */
@@ -111,7 +111,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					'long_description' => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
-						__( 'A healthy WordPress.com connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
+						__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
 						/* translators: Screen reader text indicating a test has passed */
 						__( 'Passed', 'jetpack-connection' ),
 						__( 'Your site is connected to WordPress.com.', 'jetpack-connection' )
@@ -162,7 +162,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 
 		return self::connection_failing_test(
 			$name,
-			__( 'The user who set up the WordPress.com connection no longer exists on this site.', 'jetpack-connection' )
+			__( 'The user who set up the Jetpack Connection no longer exists on this site.', 'jetpack-connection' )
 		);
 	}
 
@@ -197,7 +197,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		}
 
 		/* translators: a WordPress username */
-		$connection_error = sprintf( __( 'The user (%s) who set up the WordPress.com connection is not an administrator.', 'jetpack-connection' ), $owner_user->user_login );
+		$connection_error = sprintf( __( 'The user (%s) who set up the Jetpack Connection is not an administrator.', 'jetpack-connection' ), $owner_user->user_login );
 		/* translators: a WordPress username */
 		$recommendation = sprintf( __( 'We recommend either upgrading the user (%s) or reconnecting your site to WordPress.com.', 'jetpack-connection' ), $owner_user->user_login );
 
@@ -284,7 +284,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		if ( isset( $identity_crisis['home'] ) && isset( $identity_crisis['wpcom_home'] ) && $identity_crisis['home'] !== $identity_crisis['wpcom_home'] ) {
 			$messages[] = sprintf(
 				/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-				__( 'Your home URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack-connection' ),
+				__( 'Your home URL is set as `%1$s`, but your Jetpack Connection lists it as `%2$s`.', 'jetpack-connection' ),
 				$identity_crisis['home'],
 				$identity_crisis['wpcom_home']
 			);
@@ -293,7 +293,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		if ( isset( $identity_crisis['siteurl'] ) && isset( $identity_crisis['wpcom_siteurl'] ) && $identity_crisis['siteurl'] !== $identity_crisis['wpcom_siteurl'] ) {
 			$messages[] = sprintf(
 				/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-				__( 'Your site URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack-connection' ),
+				__( 'Your site URL is set as `%1$s`, but your Jetpack Connection lists it as `%2$s`.', 'jetpack-connection' ),
 				$identity_crisis['siteurl'],
 				$identity_crisis['wpcom_siteurl']
 			);
@@ -408,7 +408,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
-		return self::connection_failing_test( $name, __( 'Invalid WordPress.com connection tokens.', 'jetpack-connection' ) );
+		return self::connection_failing_test( $name, __( 'Invalid Jetpack Connection tokens.', 'jetpack-connection' ) );
 	}
 
 	/**

@@ -432,7 +432,7 @@ class Connection_Health_Test_Base {
 		return sprintf(
 			'<p>%1$s</p>' .
 			'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s</p><p><strong>%4$s</strong></p>',
-			__( 'A healthy WordPress.com connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
+			__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
 			/* translators: screen reader text indicating a test failed */
 			__( 'Error', 'jetpack-connection' ),
 			$connection_error,
@@ -574,7 +574,7 @@ class Connection_Health_Test_Base {
 		$badge_label = $this->get_site_health_badge_label();
 
 		$result = array(
-			'label'       => __( 'WordPress.com connection passed all async tests.', 'jetpack-connection' ),
+			'label'       => __( 'Jetpack Connection passed all async tests.', 'jetpack-connection' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => $badge_label,
@@ -582,7 +582,7 @@ class Connection_Health_Test_Base {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( "The WordPress.com connection's async local testing suite passed all tests!", 'jetpack-connection' )
+				__( "The Jetpack Connection's async local testing suite passed all tests!", 'jetpack-connection' )
 			),
 			'actions'     => '',
 			'test'        => 'jetpack_connection_local_testing_suite',
@@ -717,8 +717,8 @@ class Connection_Health_Test_Base {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $label The badge label. Default 'WordPress.com Connection'.
+		 * @param string $label The badge label. Default 'Jetpack Connection'.
 		 */
-		return apply_filters( 'jetpack_connection_site_health_badge_label', __( 'WordPress.com Connection', 'jetpack-connection' ) );
+		return apply_filters( 'jetpack_connection_site_health_badge_label', __( 'Jetpack Connection', 'jetpack-connection' ) );
 	}
 }
