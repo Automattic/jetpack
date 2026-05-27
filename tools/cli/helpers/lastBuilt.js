@@ -15,27 +15,34 @@ export function stampDir( cwd = process.cwd() ) {
 }
 
 /**
- * Path to a project's last-built stamp file.
+ * Path to a project's stamp file for a given kind.
+ *
+ * Two kinds are tracked independently:
+ * - `build`: project was fully built at this SHA (JS + PHP autoload).
+ * - `autoload`: project's autoloader classmap was regenerated at this SHA (PHP only).
+ *
+ * Tracking them separately prevents a cheap `dump-autoload` from making future
+ * runs blind to stale JS bundles that were never rebuilt.
  *
  * @param {string} slug  - Project slug (e.g. "plugins/jetpack").
+ * @param {string} kind  - "build" or "autoload".
  * @param {string} [cwd] - Monorepo root.
  * @return {string} Absolute path.
  */
-function stampPath( slug, cwd = process.cwd() ) {
+function stampPath( slug, kind, cwd = process.cwd() ) {
 	const safe = slug.replace( /\//g, '__' );
-	return path.join( stampDir( cwd ), `${ safe }.sha` );
+	return path.join( stampDir( cwd ), `${ safe }.${ kind }.sha` );
 }
 
 /**
- * Read the last-built SHA for a project, if any.
+ * Read a single stamp SHA, returning null when missing.
  *
- * @param {string} slug  - Project slug.
- * @param {string} [cwd] - Monorepo root.
+ * @param {string} file - Absolute stamp path.
  * @return {Promise<string|null>} The SHA, or null if no stamp exists.
  */
-export async function readStamp( slug, cwd = process.cwd() ) {
+async function readSha( file ) {
 	try {
-		const data = await fs.readFile( stampPath( slug, cwd ), { encoding: 'utf8' } );
+		const data = await fs.readFile( file, { encoding: 'utf8' } );
 		const sha = data.trim();
 		return sha || null;
 	} catch ( e ) {
@@ -47,16 +54,46 @@ export async function readStamp( slug, cwd = process.cwd() ) {
 }
 
 /**
- * Write the last-built SHA for a project.
+ * Read both stamp kinds for a project.
+ *
+ * @param {string} slug  - Project slug.
+ * @param {string} [cwd] - Monorepo root.
+ * @return {Promise<{ build: string|null, autoload: string|null }>} Both SHAs.
+ */
+export async function readStamps( slug, cwd = process.cwd() ) {
+	const [ build, autoload ] = await Promise.all( [
+		readSha( stampPath( slug, 'build', cwd ) ),
+		readSha( stampPath( slug, 'autoload', cwd ) ),
+	] );
+	return { build, autoload };
+}
+
+/**
+ * Write a stamp of the given kind.
+ *
+ * `writeStamp(slug, sha, 'build')` also updates the autoload stamp, since a
+ * full build implies the autoloader was regenerated as part of it.
+ * `writeStamp(slug, sha, 'autoload')` only updates the autoload stamp.
  *
  * @param {string} slug  - Project slug.
  * @param {string} sha   - Git SHA to record.
+ * @param {string} kind  - "build" or "autoload".
  * @param {string} [cwd] - Monorepo root.
  */
-export async function writeStamp( slug, sha, cwd = process.cwd() ) {
-	const file = stampPath( slug, cwd );
-	await fs.mkdir( path.dirname( file ), { recursive: true } );
-	await fs.writeFile( file, sha + '\n', { encoding: 'utf8' } );
+export async function writeStamp( slug, sha, kind, cwd = process.cwd() ) {
+	if ( kind !== 'build' && kind !== 'autoload' ) {
+		throw new Error( `Unknown stamp kind: ${ kind }` );
+	}
+	await fs.mkdir( stampDir( cwd ), { recursive: true } );
+	const writes = [
+		fs.writeFile( stampPath( slug, 'autoload', cwd ), sha + '\n', { encoding: 'utf8' } ),
+	];
+	if ( kind === 'build' ) {
+		writes.push(
+			fs.writeFile( stampPath( slug, 'build', cwd ), sha + '\n', { encoding: 'utf8' } )
+		);
+	}
+	await Promise.all( writes );
 }
 
 /**
@@ -259,18 +296,15 @@ async function packageJsonDepsChanged( file, since, cwd ) {
 }
 
 /**
- * Async, JSON-aware variant of classifyChanges.
+ * Bucket one set of changed files. Pure helper, no IO besides the JSON-aware
+ * composer.json / package.json checks.
  *
- * Inspects composer.json / package.json contents at `since` vs. HEAD so that
- * a pure version bump no longer triggers a full install. The remaining file
- * patterns are bucketed identically to classifyChanges().
- *
- * @param {string} slug  - Project slug.
- * @param {string} since - Base ref (a SHA or symbolic ref).
- * @param {string} [cwd] - Monorepo root.
- * @return {Promise<object>} Bucket flags (booleans): composerRequire, phpAutoload, jsDeps, jsSources, other, none, missing. `missing: true` indicates the base ref is unreachable.
+ * @param {string[]} files - Changed file paths.
+ * @param {string}   since - Base ref used to derive `files` (needed for JSON diffs).
+ * @param {string}   cwd   - Monorepo root.
+ * @return {Promise<object>} Same shape as classifyChanges (no `missing` field).
  */
-export async function inspectProjectChanges( slug, since, cwd = process.cwd() ) {
+async function bucketFiles( files, since, cwd ) {
 	const out = {
 		composerRequire: false,
 		phpAutoload: false,
@@ -278,13 +312,7 @@ export async function inspectProjectChanges( slug, since, cwd = process.cwd() ) 
 		jsSources: false,
 		other: false,
 		none: false,
-		missing: false,
 	};
-	const files = await getChangedFiles( slug, since, cwd );
-	if ( files === null ) {
-		out.missing = true;
-		return out;
-	}
 	if ( files.length === 0 ) {
 		out.none = true;
 		return out;
@@ -312,6 +340,75 @@ export async function inspectProjectChanges( slug, since, cwd = process.cwd() ) 
 			out.other = true;
 		}
 	}
+	if (
+		! out.composerRequire &&
+		! out.phpAutoload &&
+		! out.jsDeps &&
+		! out.jsSources &&
+		! out.other
+	) {
+		out.none = true;
+	}
+	return out;
+}
+
+/**
+ * Async, JSON-aware variant of classifyChanges.
+ *
+ * Accepts both a build baseline and an autoload baseline (typically the same
+ * SHA for fresh-built projects, or different SHAs when a previous fast-build
+ * regenerated the autoloader but didn't rebuild JS). The autoload-only buckets
+ * (`phpAutoload`) are derived from `sinceAutoload`; everything else from
+ * `sinceBuild`. When the two baselines are equal the function makes one git
+ * diff call.
+ *
+ * @param {string} slug      - Project slug.
+ * @param {object} baselines - `{ sinceBuild, sinceAutoload }` (each a SHA or null).
+ * @param {string} [cwd]     - Monorepo root.
+ * @return {Promise<object>} Bucket flags (booleans): composerRequire, phpAutoload, jsDeps, jsSources, other, none, missing. `missing: true` indicates the build baseline is unreachable.
+ */
+export async function inspectProjectChanges( slug, baselines, cwd = process.cwd() ) {
+	const out = {
+		composerRequire: false,
+		phpAutoload: false,
+		jsDeps: false,
+		jsSources: false,
+		other: false,
+		none: false,
+		missing: false,
+	};
+	const { sinceBuild, sinceAutoload } = baselines;
+	if ( ! sinceBuild ) {
+		// No build baseline → caller treats as "skip" (no stamp = never built by us).
+		out.missing = true;
+		return out;
+	}
+	const filesBuild = await getChangedFiles( slug, sinceBuild, cwd );
+	if ( filesBuild === null ) {
+		out.missing = true;
+		return out;
+	}
+	const baseAutoload = sinceAutoload || sinceBuild;
+	let filesAutoload = filesBuild;
+	if ( baseAutoload !== sinceBuild ) {
+		const fromAutoload = await getChangedFiles( slug, baseAutoload, cwd );
+		if ( fromAutoload !== null ) {
+			filesAutoload = fromAutoload;
+		}
+	}
+	const buckBuild = await bucketFiles( filesBuild, sinceBuild, cwd );
+	const buckAutoload =
+		filesAutoload === filesBuild
+			? buckBuild
+			: await bucketFiles( filesAutoload, baseAutoload, cwd );
+
+	// jsSources / jsDeps / composerRequire / other / none come from the build baseline.
+	out.composerRequire = buckBuild.composerRequire;
+	out.jsDeps = buckBuild.jsDeps;
+	out.jsSources = buckBuild.jsSources;
+	out.other = buckBuild.other;
+	// phpAutoload is what's changed since the autoloader was last regenerated.
+	out.phpAutoload = buckAutoload.phpAutoload;
 	if (
 		! out.composerRequire &&
 		! out.phpAutoload &&

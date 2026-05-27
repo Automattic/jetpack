@@ -8,7 +8,12 @@ import { findOwnerProject } from '../helpers/classOwner.js';
 import { filterDeps, getBuildOrder, getDependencies } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { projectDir } from '../helpers/install.js';
-import { currentHead, inspectProjectChanges, readStamp, writeStamp } from '../helpers/lastBuilt.js';
+import {
+	currentHead,
+	inspectProjectChanges,
+	readStamps,
+	writeStamp,
+} from '../helpers/lastBuilt.js';
 import { scanForMissingSymbols } from '../helpers/logScan.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
@@ -157,13 +162,19 @@ async function planFromSourceDrift( deps, targets, since, autoloadOnly, cwd ) {
 		if ( slug === 'monorepo' ) {
 			continue;
 		}
-		const base = since || ( await readStamp( slug, cwd ) );
-		if ( ! base ) {
-			// No stamp and no override → this project has never been recorded as built
-			// by fast-build; skip silently (the user can run `jetpack build` first to seed).
-			continue;
+		let baselines;
+		if ( since ) {
+			baselines = { sinceBuild: since, sinceAutoload: since };
+		} else {
+			const stamps = await readStamps( slug, cwd );
+			if ( ! stamps.build ) {
+				// No build stamp → this project has never been recorded as built by us; skip
+				// silently. The user can `jetpack fast-build --seed` to bootstrap.
+				continue;
+			}
+			baselines = { sinceBuild: stamps.build, sinceAutoload: stamps.autoload || stamps.build };
 		}
-		const buckets = await inspectProjectChanges( slug, base, cwd );
+		const buckets = await inspectProjectChanges( slug, baselines, cwd );
 		if ( buckets.missing ) {
 			heavy.push( { slug, reason: 'last-built SHA is no longer reachable in git' } );
 			continue;
@@ -462,7 +473,9 @@ export async function handler( argv ) {
 					await runAction( slug, action, argv );
 					task.title += chalk.grey( ` (${ formatDuration( Date.now() - startedAt ) }s)` );
 					const sha = await currentHead( cwd );
-					await writeStamp( slug, sha, cwd );
+					// `build` updates both build + autoload stamps; `dump-autoload`
+					// only advances the autoload stamp so we don't claim JS is fresh.
+					await writeStamp( slug, sha, action === 'build' ? 'build' : 'autoload', cwd );
 				} catch ( e ) {
 					const detail = summarizeExecError( e );
 					failures.push( { slug, action, message: detail } );
