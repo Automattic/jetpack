@@ -23,11 +23,11 @@ function pcg_maybe_handle_probe() {
 	// Stamp the response the instant we recognise a probe request — before
 	// any bail, redirect, or plugin load. PCG_Load_Tester::parse_response()
 	// uses this header to tell "our endpoint ran but emitted no JSON verdict"
-	// (a plugin terminated the request mid-bootstrap — a real fatal) apart
-	// from "the loopback never reached us at all" (a full-page cache, a
-	// security plugin, or a maintenance page answered with a 200). Only the
-	// former should block an activation; without the marker a cached 200
-	// would be misread as a fatal and block a healthy plugin.
+	// (marker-present, non-JSON body — `ok-inconclusive`, non-blocking and
+	// logged) apart from "the loopback never reached us at all" (no marker —
+	// `error`, also non-blocking and logged). Under the "only block on a
+	// captured fatal" policy, neither blocks; the marker just lets us bucket
+	// the two in the `Probe anomaly allowed` log so we can size each class.
 	if ( ! headers_sent() ) {
 		header( 'X-PCG-Probe: 1' );
 	}
