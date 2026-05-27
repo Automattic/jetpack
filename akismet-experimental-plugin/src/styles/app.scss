@@ -75,9 +75,14 @@
 			max-width: 720px;
 		}
 
-		// Opt-out: anything tagged .akismet-overview-wide goes edge-to-edge
-		// (capped only by a sensible "wide content" max so it doesn't sprawl
-		// on ultra-wide monitors). The Overview tab uses this.
+		// Opt-out: anything tagged .akismet-experimental-wide goes
+		// edge-to-edge (capped only by a sensible "wide content" max so
+		// it doesn't sprawl on ultra-wide monitors). The Overview +
+		// Activity tabs both use this — they need the full container
+		// width for their grid / DataViews chrome.
+		// The legacy `.akismet-overview-wide` alias is kept for backward
+		// compatibility with any external CSS that might target it.
+		> .akismet-experimental-wide,
 		> .akismet-overview-wide {
 			max-width: 1280px;
 		}

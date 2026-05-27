@@ -93,7 +93,7 @@ export function ActivityTab( props: Props ): JSX.Element {
 	}
 
 	return (
-		<div className="akismet-activity">
+		<div className="akismet-activity akismet-experimental-wide">
 			<DataViews< ActivityRow >
 				data={ data?.items ?? [] }
 				fields={ activityFields }
