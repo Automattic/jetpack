@@ -46,14 +46,17 @@ $view          = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label         = $config['label'];
 $display_style = Filter_Checkbox::normalize_display_style( $attributes['displayStyle'] ?? null );
 
-// Skip `data-wp-interactive` when an ancestor already owns the
-// `jetpack-search` interactive scope. Nesting two same-namespace interactive
-// scopes is the SEARCH-266 trigger — the Interactivity runtime re-runs its
-// `data-wp-each` pass against the inner scope and the first-rendered item's
-// `data-wp-text` / `data-wp-bind--hidden` bindings end up frozen. Inheriting
-// from the parent's scope keeps every directive resolving against a single
-// store hydration.
-// @phan-suppress-next-line PhanUndeclaredGlobalVariable
+/**
+ * Skip `data-wp-interactive` when an ancestor already owns the
+ * `jetpack-search` interactive scope. Nesting two same-namespace interactive
+ * scopes is the SEARCH-266 trigger — the Interactivity runtime re-runs its
+ * `data-wp-each` pass against the inner scope and the first-rendered item's
+ * `data-wp-text` / `data-wp-bind--hidden` bindings end up frozen. Inheriting
+ * from the parent's scope keeps every directive resolving against a single
+ * store hydration.
+ *
+ * @var \WP_Block $block Block instance supplied by WP_Block::render() at runtime.
+ */
 $in_interactive_scope = ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div

@@ -37,15 +37,18 @@ if ( ! $has_active_on_paint && is_array( $seeded_price_range ) ) {
 	}
 }
 
-// Skip `data-wp-interactive` when an ancestor already owns the
-// `jetpack-search` interactive scope (signalled by the
-// `jetpack-search/inInteractiveScope` block context from
-// `jetpack-search/filters-popover`). Nesting two same-namespace interactive
-// scopes makes the Interactivity runtime re-run its `data-wp-each` pass
-// against the inner scope and materializes the pill template twice — the
-// SEARCH-266 trigger. Inheriting the parent's scope keeps every directive
-// resolving against a single store hydration.
-// @phan-suppress-next-line PhanUndeclaredGlobalVariable
+/**
+ * Skip `data-wp-interactive` when an ancestor already owns the
+ * `jetpack-search` interactive scope (signalled by the
+ * `jetpack-search/inInteractiveScope` block context from
+ * `jetpack-search/filters-popover`). Nesting two same-namespace interactive
+ * scopes makes the Interactivity runtime re-run its `data-wp-each` pass
+ * against the inner scope and materializes the pill template twice — the
+ * SEARCH-266 trigger. Inheriting the parent's scope keeps every directive
+ * resolving against a single store hydration.
+ *
+ * @var \WP_Block $block Block instance supplied by WP_Block::render() at runtime.
+ */
 $in_interactive_scope = ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div
