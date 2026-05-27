@@ -43,6 +43,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
 		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"

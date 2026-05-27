@@ -205,7 +205,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "136da00726aab4628720a154d902385684b26955"
+                "reference": "a3184b07242c481bd660610a371997f8b7ef430e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -222,6 +222,7 @@
             },
             "type": "jetpack-library",
             "extra": {
+                "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
