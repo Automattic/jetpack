@@ -37,19 +37,18 @@ if ( ! $has_active_on_paint && is_array( $seeded_price_range ) ) {
 	}
 }
 
-/**
- * Skip `data-wp-interactive` when an ancestor already owns the
- * `jetpack-search` interactive scope (signalled by the
- * `jetpack-search/inInteractiveScope` block context from
- * `jetpack-search/filters-popover`). Nesting two same-namespace interactive
- * scopes makes the Interactivity runtime re-run its `data-wp-each` pass
- * against the inner scope and materializes the pill template twice — the
- * SEARCH-266 trigger. Inheriting the parent's scope keeps every directive
- * resolving against a single store hydration.
- *
- * @var \WP_Block $block Block instance supplied by WP_Block::render() at runtime.
- */
-$in_interactive_scope = ! empty( $block->context['jetpack-search/inInteractiveScope'] );
+// Skip `data-wp-interactive` when an ancestor already owns the
+// `jetpack-search` interactive scope (signalled by the
+// `jetpack-search/inInteractiveScope` block context from
+// `jetpack-search/filters-popover`). Nesting two same-namespace interactive
+// scopes makes the Interactivity runtime re-run its `data-wp-each` pass
+// against the inner scope and materializes the pill template twice — the
+// SEARCH-266 trigger. Inheriting the parent's scope keeps every directive
+// resolving against a single store hydration. The `instanceof` check
+// narrows `$block`'s type for static analysis — WP guarantees it's set
+// to a `WP_Block` instance when render.php is included from `WP_Block::render()`.
+$in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
+	&& ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
