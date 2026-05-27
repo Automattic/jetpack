@@ -1092,6 +1092,10 @@ function register_subscription_options_setting() {
 			'show_in_rest' => array(
 				'schema' => array(
 					'type'                 => 'object',
+					// Used as the user-facing label in the editor's "entities saved states"
+					// panel (the multi-entity save dialog). Plural because everything in
+					// `subscription_options` is a subscription-related message string.
+					'title'                => __( 'Subscribe messages', 'jetpack' ),
 					'properties'           => array(
 						'invitation'              => array( 'type' => 'string' ),
 						'welcome'                 => array( 'type' => 'string' ),
