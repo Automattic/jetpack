@@ -59,6 +59,13 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 	const displayMode = attributes?.displayMode === 'responsive' ? 'responsive' : 'popover-always';
 	const isResponsive = displayMode === 'responsive';
 	const [ isPopoverOpen, setIsPopoverOpen ] = useState( false );
+	// Split into a top-level if/else so Terser doesn't collapse two __() calls
+	// into `__( cond ? 'a' : 'b' )` — the post-build i18n validator requires a
+	// string literal as the first argument.
+	let togglePanelLabel = __( 'Show filter panel', 'jetpack-search-pkg' );
+	if ( isPopoverOpen ) {
+		togglePanelLabel = __( 'Hide filter panel', 'jetpack-search-pkg' );
+	}
 	const blockProps = useBlockProps( {
 		className: [
 			'jetpack-search-filters-popover',
@@ -77,11 +84,7 @@ export default function FiltersPopoverEdit( { attributes, setAttributes } ) {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ filter }
-							label={
-								isPopoverOpen
-									? __( 'Hide filter panel', 'jetpack-search-pkg' )
-									: __( 'Show filter panel', 'jetpack-search-pkg' )
-							}
+							label={ togglePanelLabel }
 							isPressed={ isPopoverOpen }
 							onClick={ () => setIsPopoverOpen( open => ! open ) }
 						/>
