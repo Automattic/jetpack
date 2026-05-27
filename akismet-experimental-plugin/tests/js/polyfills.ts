@@ -8,3 +8,15 @@ if ( typeof globalThis.TextEncoder === 'undefined' ) {
 if ( typeof globalThis.TextDecoder === 'undefined' ) {
 	globalThis.TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder;
 }
+
+// JSDOM doesn't ship `ResizeObserver`; `@wordpress/ui`'s Tabs.List uses it at
+// effect time. A no-op stub is enough for tests — we never depend on resize
+// callbacks firing.
+if ( typeof globalThis.ResizeObserver === 'undefined' ) {
+	class ResizeObserverStub {
+		observe(): void {}
+		unobserve(): void {}
+		disconnect(): void {}
+	}
+	( globalThis as unknown as Record< string, unknown > ).ResizeObserver = ResizeObserverStub;
+}
