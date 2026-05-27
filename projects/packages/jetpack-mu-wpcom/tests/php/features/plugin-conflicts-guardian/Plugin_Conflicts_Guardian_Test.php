@@ -603,7 +603,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	public function test_is_anomalous_allow_flags_ok_shutdown() {
 		$tester = new PCG_Load_Tester();
 		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'is_anomalous_allow' );
-		$ref->setAccessible( true );
 		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'ok-shutdown' ) ) );
 		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'ok-inconclusive' ) ) );
 		$this->assertTrue( $ref->invoke( $tester, array( 'status' => 'error' ) ) );
