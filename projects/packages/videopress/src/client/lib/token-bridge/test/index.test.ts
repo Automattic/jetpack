@@ -18,10 +18,13 @@ window.videopressAjax = {
 	bridgeUrl: '/bridge.js',
 	post_id: 42,
 	context: 'test',
-};
+} as unknown as typeof window.videopressAjax;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports -- require() is intentional: the module captures window.videopressAjax at load time, and ES imports are hoisted above the assignment.
-const { tokenBridgeHandler } = require( '../index' );
+declare const require: ( id: string ) => unknown;
+
+const { tokenBridgeHandler } = require( '../index' ) as {
+	tokenBridgeHandler: ( event: MessageEvent ) => Promise< void >;
+};
 
 /**
  * Create a synthetic MessageEvent for testing.

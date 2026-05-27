@@ -84,16 +84,25 @@ const requestMediaToken = function (
 		// middleware), but fall back to native fetch everywhere else — including
 		// the block editor, token-bridge.js, and the front-end — where
 		// wp.apiFetch may not be enqueued.
-		const useApiFetch = !! window?.GBKit && typeof window.wp?.apiFetch === 'function';
+		const useApiFetch =
+			!! window?.GBKit &&
+			typeof ( window.wp as ClassicEditorWp | undefined )?.apiFetch === 'function';
 
-		const fetchOptions = {
+		const body = new URLSearchParams();
+		for ( const [ key, value ] of Object.entries( fetchData ) ) {
+			if ( value !== undefined ) {
+				body.append( key, String( value ) );
+			}
+		}
+
+		const fetchOptions: RequestInit = {
 			method: 'POST',
 			credentials: 'same-origin',
-			body: new URLSearchParams( fetchData ),
+			body,
 		};
 
 		const fetchPromise: Promise< Response > = useApiFetch
-			? window.wp.apiFetch( {
+			? ( window.wp as Required< ClassicEditorWp > ).apiFetch( {
 					url: adminAjaxAPI,
 					...fetchOptions,
 					parse: false,

@@ -88,7 +88,7 @@ export const VideoLibraryWrapper = ( {
 	const pluralTotalVideosLabel = sprintf(
 		/* translators: %s: the number of videos */
 		__( '%s Videos', 'jetpack-videopress-pkg' ),
-		totalVideos
+		String( totalVideos )
 	);
 	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
 

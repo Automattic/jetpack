@@ -18,7 +18,7 @@ type MediaFrame = {
  * @return A Promise that resolves to the selected `{ id, url }` attachment, or `null` if the user closed the frame without selecting.
  */
 export async function selectImageFromMediaLibrary(): Promise< Attachment | null > {
-	const mediaFactory = window.wp?.media as
+	const mediaFactory = ( window.wp as ClassicEditorWp | undefined )?.media as
 		| ( ( opts: {
 				title: string;
 				multiple: boolean;

@@ -252,7 +252,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< NodeJS.Timeout | void >();
+	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >();
 
 	/**
 	 * Clean the generating process timer.
@@ -498,7 +498,7 @@ export default function VideoPressEdit( {
 					onNoticeRemove={ invalidateResolution }
 				>
 					<div className="videopress-uploader__error-actions">
-						<Button variant="primary" onClick={ invalidateResolution }>
+						<Button variant="primary" onClick={ invalidateResolution as unknown as () => void }>
 							{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 						</Button>
 						<Button

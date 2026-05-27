@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+
 import { Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
@@ -103,9 +104,9 @@ export const Input = ( {
 			<Text
 				component="label"
 				variant={ size === 'small' ? 'body-small' : 'body' }
-				htmlFor={ name }
 				mb={ 1 }
 				className={ styles.label }
+				{ ...( { htmlFor: name } as Record< string, unknown > ) }
 			>
 				{ label }
 			</Text>

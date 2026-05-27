@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -80,7 +81,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 			<Button
 				size="small"
 				variant="tertiary"
-				icon={ icon }
+				icon={ icon as never }
 				onMouseEnter={ () => setIsHovering( true ) }
 				onMouseLeave={ () => setIsHovering( false ) }
 				onFocus={ () => setIsFocused( true ) }

@@ -61,7 +61,7 @@ export const useDashboardVideos = () => {
 			// update url to match store update
 			if ( page !== tempPage.current ) {
 				tempPage.current = page;
-				searchParams.setParam( 'page', page );
+				searchParams.setParam( 'page', String( page ) );
 				searchParams.update();
 			} else {
 				tempPage.current = pageFromSearchParam;

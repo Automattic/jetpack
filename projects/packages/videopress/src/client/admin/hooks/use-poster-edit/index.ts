@@ -28,7 +28,18 @@ const usePosterEdit = ( { video } ) => {
 
 	const selectAttachmentFromLibrary = (): Promise< { id: number; url: string } | null > => {
 		return new Promise( resolve => {
-			const mediaFrame = window.wp.media( {
+			type MediaFrame = {
+				on: ( evt: string, fn: () => void ) => void;
+				state: () => {
+					get: ( k: string ) => {
+						first: () => { toJSON: () => { id: number; url: string } };
+					};
+				};
+				open: () => void;
+			};
+			const mediaFrame = (
+				( window.wp as Required< ClassicEditorWp > ).media as ( opts: unknown ) => MediaFrame
+			 )( {
 				title: __( 'Select Thumbnail', 'jetpack-videopress-pkg' ),
 				multiple: false,
 				library: {

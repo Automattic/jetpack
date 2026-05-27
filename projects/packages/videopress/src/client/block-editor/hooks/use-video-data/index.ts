@@ -15,7 +15,7 @@ import { fetchVideoItem } from '../../../lib/fetch-video-item';
  */
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
-const isNative = Platform.isNative;
+const isNative = Platform.OS !== 'web';
 
 const debug = debugFactory( 'videopress:video:use-video-data' );
 

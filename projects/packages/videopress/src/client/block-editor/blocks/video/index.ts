@@ -18,9 +18,11 @@ import './style.scss';
 import '../../extend/core-embed';
 
 export const { name, title, description, attributes } = metadata;
+const { category } = metadata;
 
 registerBlockType( name, {
 	edit: Edit,
+	category,
 	title,
 	save: () => null,
 	icon,
@@ -29,8 +31,8 @@ registerBlockType( name, {
 		attributes: {
 			src: editorImageURL( videoPressBlockExampleImage ),
 			isExample: true,
-		},
+		} as unknown as Record< string, never >,
 	},
-	transforms,
+	transforms: transforms as never,
 	deprecated,
 } );
