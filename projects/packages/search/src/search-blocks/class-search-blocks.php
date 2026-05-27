@@ -1097,7 +1097,7 @@ class Search_Blocks {
 	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
 	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
 	 * two custom props so in-card surfaces (suggestions panel) share one source.
-	 * Hairlines use `color-mix(currentColor)`.
+	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
 	 */
@@ -1135,6 +1135,22 @@ class Search_Blocks {
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	padding-top: 60px;
 }
+/* Single hairline over the full 60px header strip — siblings paint with a seam (SEARCH-260). */
+.jetpack-search-block-overlay__card::before {
+	content: "";
+	position: absolute;
+	top: 60px;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: transparent;
+	pointer-events: none;
+}
+@supports (background: color-mix(in sRGB, black 50%, white)) {
+	.jetpack-search-block-overlay__card::before {
+		background: color-mix(in sRGB, var(--jp-search-overlay-ink) 15%, var(--jp-search-overlay-surface));
+	}
+}
 .jetpack-search-block-overlay__close {
 	position: absolute;
 	top: 0;
@@ -1146,22 +1162,14 @@ class Search_Blocks {
 	justify-content: center;
 	background: transparent;
 	border: 0;
-	border-bottom: 1px solid transparent;
 	cursor: pointer;
 	color: inherit;
 }
-/* `@supports` + `transparent` defaults: pre-color-mix browsers (~Chrome <111,
- * FF <113, Safari <16.2) get a graceful no-affordance state instead of stark
- * full-opacity `currentColor`. Same convention as `_chip.scss`. */
-@supports (border-color: color-mix(in sRGB, black 50%, white)) {
-	.jetpack-search-block-overlay__close {
-		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
-	}
-}
+/* Opaque ink-over-surface mix — `color-mix(currentColor, transparent)` collapses to full-opacity ink on Safari <16.4 and swallows the X icon. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__close:hover,
 	.jetpack-search-block-overlay__close:focus-visible {
-		background: color-mix(in sRGB, currentColor 8%, transparent);
+		background: color-mix(in sRGB, var(--jp-search-overlay-ink) 14%, var(--jp-search-overlay-surface));
 	}
 }
 .jetpack-search-block-overlay__close svg {
@@ -1170,7 +1178,8 @@ class Search_Blocks {
 }
 /* Promote the first child (search-input) to a 60px header strip flush with
  * the close button, matching the legacy `__box` header. Suppress the input
- * block's own border-bottom — the header strip's border handles separation. */
+ * block's own border-bottom — the card's `::before` hairline handles the
+ * separator across the whole strip. */
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
 	position: absolute;
 	top: 0;
@@ -1179,12 +1188,6 @@ class Search_Blocks {
 	height: 60px;
 	margin: 0;
 	padding: 0;
-	border-bottom: 1px solid transparent;
-}
-@supports (border-color: color-mix(in sRGB, black 50%, white)) {
-	.jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input {
-		border-bottom-color: color-mix(in sRGB, currentColor 15%, transparent);
-	}
 }
 .jetpack-search-block-overlay__card .wp-block-jetpack-search-search-input .jetpack-search-input__inside-wrapper {
 	height: 100%;
