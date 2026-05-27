@@ -197,6 +197,69 @@ class Akismet_Experimental_REST_API {
 				),
 			)
 		);
+
+		// Plan 3 — Activity log union endpoint.
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/activity',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_activity' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'page'     => array(
+						'type'    => 'integer',
+						'default' => 1,
+						'minimum' => 1,
+					),
+					'per_page' => array(
+						'type'    => 'integer',
+						'default' => 25,
+						'minimum' => 1,
+						'maximum' => 100,
+					),
+					'category' => array(
+						'type'    => 'string',
+						'enum'    => array_merge( array( 'all' ), Akismet_Experimental_Activity::CATEGORIES ),
+						'default' => 'all',
+					),
+					'outcome'  => array(
+						'type'    => 'string',
+						'enum'    => array_merge( array( 'all' ), Akismet_Experimental_Activity::OUTCOMES ),
+						'default' => 'all',
+					),
+					'source'   => array(
+						'type'    => 'string',
+						'enum'    => array_merge( array( 'all' ), Akismet_Experimental_Activity::SOURCES ),
+						'default' => 'all',
+					),
+					'search'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'from'     => array( 'type' => 'string' ),
+					'to'       => array( 'type' => 'string' ),
+				),
+			)
+		);
+
+		// Plan 3 — Blackbox per-row verdict (server-side proxy; mock-first
+		// when AKISMET_EXPERIMENTAL_ALLOW_BLACKBOX_API is off).
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/blackbox/verdict/(?P<session_id>[A-Za-z0-9_-]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_blackbox_verdict' ),
+				'permission_callback' => array( __CLASS__, 'manage_options_permission' ),
+				'args'                => array(
+					'session_id' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -371,6 +434,115 @@ class Akismet_Experimental_REST_API {
 				'key'   => $jetpack_key,
 				'valid' => true,
 			)
+		);
+	}
+
+	/**
+	 * GET /akismet/v1/activity — unified activity list (Plan 3).
+	 *
+	 * Delegates to Akismet_Experimental_Activity::query() which unions
+	 * real comment-spam rows with mock rows for the other categories.
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response
+	 */
+	public static function get_activity( WP_REST_Request $request ) {
+		return rest_ensure_response(
+			Akismet_Experimental_Activity::query( $request->get_params() )
+		);
+	}
+
+	/**
+	 * GET /akismet/v1/blackbox/verdict/{session_id} — per-session
+	 * Blackbox verdict. Mock-first; real proxy is gated on
+	 * AKISMET_EXPERIMENTAL_ALLOW_BLACKBOX_API per GUARDRAILS.md.
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response
+	 */
+	public static function get_blackbox_verdict( WP_REST_Request $request ) {
+		$session_id = (string) $request->get_param( 'session_id' );
+		$config     = Akismet_Experimental::blackbox_client_config();
+
+		if ( ! Akismet_Experimental::allow_blackbox_api() || empty( $config['enrolled'] ) ) {
+			return rest_ensure_response( self::deterministic_mock_verdict( $session_id, true ) );
+		}
+
+		$bearer   = defined( 'AKISMET_BLACKBOX_API_KEY' ) ? AKISMET_BLACKBOX_API_KEY : '';
+		$url      = sprintf(
+			'%s/v1/verify/%s',
+			esc_url_raw( $config['apiHost'] ),
+			rawurlencode( $session_id )
+		);
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout' => 8,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $bearer,
+					'Accept'        => 'application/json',
+				),
+			)
+		);
+		if ( is_wp_error( $response ) || (int) wp_remote_retrieve_response_code( $response ) >= 400 ) {
+			return rest_ensure_response( self::deterministic_mock_verdict( $session_id, true ) );
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return rest_ensure_response( self::deterministic_mock_verdict( $session_id, true ) );
+		}
+		$body['preview'] = false;
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Deterministic mock verdict seeded off the session id so the same
+	 * session always returns the same shape (testable, no jitter).
+	 *
+	 * @param string $session_id Blackbox session id (opaque to us).
+	 * @param bool   $preview    Whether to mark the response preview.
+	 * @return array
+	 */
+	protected static function deterministic_mock_verdict( $session_id, $preview ) {
+		$seed = crc32( $session_id );
+		$n    = static function ( $offset ) use ( $seed ) {
+			return abs( ( $seed + ( $offset * 31 ) ) % 9999 );
+		};
+
+		$decisions = array( 'allow', 'challenge', 'block' );
+
+		return array(
+			'session_id' => $session_id,
+			'decision'   => $decisions[ $n( 1 ) % count( $decisions ) ],
+			'risk_score' => round( $n( 2 ) / 9999, 2 ),
+			'confidence' => 'medium',
+			'visitor_id' => $session_id,
+			'ip_address' => sprintf(
+				'%d.%d.%d.%d',
+				$n( 4 ) % 255,
+				$n( 5 ) % 255,
+				$n( 6 ) % 255,
+				$n( 7 ) % 255
+			),
+			'signals'    => array(
+				array(
+					'name'         => 'velocity_threshold',
+					'log_odds'     => 2.4,
+					'confidence'   => 0.86,
+					'category'     => 'velocity',
+					'rule_id'      => 'velocity_v3',
+					'rule_version' => '3.1.0',
+				),
+				array(
+					'name'         => 'webdriver_detected',
+					'log_odds'     => 4.1,
+					'confidence'   => 0.99,
+					'category'     => 'automation',
+					'rule_id'      => 'webdriver_v2',
+					'rule_version' => '2.0.0',
+				),
+			),
+			'preview'    => (bool) $preview,
 		);
 	}
 

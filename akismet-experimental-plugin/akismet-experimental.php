@@ -25,8 +25,10 @@ if ( ! defined( 'AKISMET_EXPERIMENTAL__PLUGIN_FILE' ) ) {
 // Bootstrap the experimental class only when the wp-config gate is on.
 // See GUARDRAILS.md §"Code-level guardrails".
 if ( defined( 'AKISMET_EXPERIMENTAL_UI' ) && AKISMET_EXPERIMENTAL_UI === true ) {
-	// REST API class must load before the main class — the main class calls
-	// REST init at the bottom of its file, so it needs the dependency in scope.
+	// Order matters — the REST API class references Akismet_Experimental_Activity
+	// inside its activity handler, and the main class references both. Load
+	// support classes first, then the REST class, then the main class.
+	require_once AKISMET_EXPERIMENTAL__PLUGIN_DIR . 'class.akismet-experimental-activity.php';
 	require_once AKISMET_EXPERIMENTAL__PLUGIN_DIR . 'class.akismet-experimental-rest-api.php';
 	require_once AKISMET_EXPERIMENTAL__PLUGIN_DIR . 'class.akismet-experimental.php';
 }
