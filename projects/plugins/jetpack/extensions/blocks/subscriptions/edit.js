@@ -97,7 +97,6 @@ export function SubscriptionEdit( props ) {
 		selectedNewsletterCategoryIds,
 		spacing,
 		submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
-		subscribeMessage,
 		subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 		showSubscribersTotal,
 		buttonOnNewLine,
@@ -274,7 +273,6 @@ export function SubscriptionEdit( props ) {
 					buttonWidth={ buttonWidth }
 					isButtonOnlyStyle={ isButtonOnlyStyle }
 					selectedNewsletterCategoryIds={ selectedNewsletterCategoryIds }
-					subscribeMessage={ subscribeMessage }
 					subscribePlaceholder={ subscribePlaceholder }
 					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }

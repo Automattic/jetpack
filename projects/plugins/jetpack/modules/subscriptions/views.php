@@ -1062,11 +1062,46 @@ function subscription_options_fallback( $default, $option, $passed_default ) {
 
 	return array(
 		/* translators: Both %1$s and %2$s is site address */
-		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
-		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+		'invitation'              => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
+		'comment_follow'          => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
 		/* translators: %1$s is the site address */
-		'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
+		'welcome'                 => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
+		'subscribe_modal_heading' => '',
 	);
 }
 
 add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );
+
+/**
+ * Register `subscription_options` with the core Settings REST API so it is exposed
+ * on `/wp/v2/settings`. This allows the Subscriptions block editor inspector to read
+ * and write the option through Gutenberg's site entity store (`useEntityProp`).
+ *
+ * The option continues to be available through the Jetpack and WPCOM JSON API
+ * endpoints — this registration is additive.
+ *
+ * @return void
+ */
+function register_subscription_options_setting() {
+	register_setting(
+		'general',
+		'subscription_options',
+		array(
+			'type'         => 'object',
+			'description'  => __( 'Subscription email and Subscribe block modal copy.', 'jetpack' ),
+			'show_in_rest' => array(
+				'schema' => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'invitation'              => array( 'type' => 'string' ),
+						'welcome'                 => array( 'type' => 'string' ),
+						'comment_follow'          => array( 'type' => 'string' ),
+						'subscribe_modal_heading' => array( 'type' => 'string' ),
+					),
+					'additionalProperties' => false,
+				),
+			),
+		)
+	);
+}
+add_action( 'init', 'register_subscription_options_setting' );

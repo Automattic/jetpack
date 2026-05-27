@@ -14,6 +14,7 @@ import {
 	TextareaControl,
 	CheckboxControl,
 } from '@wordpress/components';
+import { useEntityProp } from '@wordpress/core-data';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
@@ -33,7 +34,6 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 	DEFAULT_SUBSCRIBE_PLACEHOLDER,
-	DEFAULT_SUBSCRIBE_MESSAGE,
 	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 
@@ -65,11 +65,17 @@ export default function SubscriptionControls( {
 	textColor,
 	buttonWidth,
 	isButtonOnlyStyle,
-	subscribeMessage,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
+
+	const [ subscriptionOptions, setSubscriptionOptions ] = useEntityProp(
+		'root',
+		'site',
+		'subscription_options'
+	);
+	const subscribeModalHeading = subscriptionOptions?.subscribe_modal_heading ?? '';
 
 	// Unset any selected categories that are no longer available
 	useEffect( () => {
@@ -338,11 +344,19 @@ export default function SubscriptionControls( {
 				{ isButtonOnlyStyle && (
 					<TextareaControl
 						__nextHasNoMarginBottom={ true }
-						value={ subscribeMessage }
+						value={ subscribeModalHeading }
 						label={ __( 'Subscribe message', 'jetpack' ) }
-						placeholder={ DEFAULT_SUBSCRIBE_MESSAGE }
-						help={ __( 'Edit the message shown at the top of your subscribe popup.', 'jetpack' ) }
-						onChange={ message => setAttributes( { subscribeMessage: message } ) }
+						placeholder={ __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack' ) }
+						help={ __(
+							'Shown at the top of your subscribe popup. This is a site-wide setting — changes here update every Subscribe block on this site using the Button only style.',
+							'jetpack'
+						) }
+						onChange={ value =>
+							setSubscriptionOptions( {
+								...( subscriptionOptions || {} ),
+								subscribe_modal_heading: value,
+							} )
+						}
 					/>
 				) }
 				{ ! isSimpleSite() && (

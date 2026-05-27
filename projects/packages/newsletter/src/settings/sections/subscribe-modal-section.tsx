@@ -12,7 +12,7 @@ import { Button, Card, Fieldset, Text } from '@wordpress/ui';
  */
 import type { NewsletterSettings } from '../types';
 
-interface WelcomeEmailSectionProps {
+interface SubscribeModalSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 	onSave: () => void;
@@ -24,19 +24,20 @@ interface WelcomeEmailSectionProps {
 }
 
 // Flattened data structure for DataForm
-interface WelcomeEmailFormData {
-	welcome_message: string;
+interface SubscribeModalFormData {
+	subscribe_modal_heading: string;
 }
 
 /**
- * Welcome Email Section Component
+ * Subscribe Modal Section Component
  *
- * Handles the welcome email message configuration for new subscribers.
+ * Configures the heading shown above the email input in the Subscribe block's modal popup.
+ * Only takes effect when a Subscribe block uses the "Button only" style.
  *
- * @param {WelcomeEmailSectionProps} props - Component props
- * @return {JSX.Element} The welcome email section
+ * @param {SubscribeModalSectionProps} props - Component props
+ * @return {JSX.Element} The subscribe modal section
  */
-export function WelcomeEmailSection( {
+export function SubscribeModalSection( {
 	data,
 	onChange,
 	onSave,
@@ -44,55 +45,52 @@ export function WelcomeEmailSection( {
 	hasChanges,
 	changedKeys,
 	isNewsletterEnabled,
-}: WelcomeEmailSectionProps ): JSX.Element {
+}: SubscribeModalSectionProps ): JSX.Element {
 	const siteType = getSiteType();
 
-	// Flatten data for DataForm
-	const formData: WelcomeEmailFormData = useMemo(
+	const formData: SubscribeModalFormData = useMemo(
 		() => ( {
-			welcome_message: data.subscription_options?.welcome || '',
+			subscribe_modal_heading: data.subscription_options?.subscribe_modal_heading || '',
 		} ),
-		[ data.subscription_options?.welcome ]
+		[ data.subscription_options?.subscribe_modal_heading ]
 	);
 
-	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
-			section: 'welcome_email',
+			section: 'subscribe_modal',
 			changed_keys: ( changedKeys ?? [] ).join( ',' ),
 			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
 
-	const fields: Field< WelcomeEmailFormData >[] = [
+	const fields: Field< SubscribeModalFormData >[] = [
 		{
-			id: 'welcome_message',
-			label: __( 'Welcome message', 'jetpack-newsletter' ),
+			id: 'subscribe_modal_heading',
+			label: __( 'Subscribe modal heading', 'jetpack-newsletter' ),
 			type: 'text' as const,
 			Edit: 'textarea' as const,
 			description: __(
-				'You can use plain text or HTML tags in this textarea for formatting.',
+				'Only affects Subscribe blocks using the "Button only" style. Leave blank to use the default heading.',
 				'jetpack-newsletter'
 			),
 		},
 	];
 
 	const handleDataFormChange = useCallback(
-		( updates: Partial< WelcomeEmailFormData > ) => {
-			if ( updates.welcome_message !== undefined ) {
+		( updates: Partial< SubscribeModalFormData > ) => {
+			if ( updates.subscribe_modal_heading !== undefined ) {
 				// Preserve all properties of subscription_options when updating
 				onChange( {
 					subscription_options: {
 						invitation: data.subscription_options?.invitation || '',
-						welcome: updates.welcome_message,
+						welcome: data.subscription_options?.welcome || '',
 						comment_follow: data.subscription_options?.comment_follow || '',
-						subscribe_modal_heading: data.subscription_options?.subscribe_modal_heading || '',
+						subscribe_modal_heading: updates.subscribe_modal_heading,
 					},
 				} );
 			}
@@ -103,13 +101,13 @@ export function WelcomeEmailSection( {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Card.Title>
+				<Card.Title>{ __( 'Subscribe modal heading', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<p>
 					<Text>
 						{ __(
-							'Sent to your email subscribers when they subscribe to your newsletter.',
+							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block. Only applies to blocks using the "Button only" style.',
 							'jetpack-newsletter'
 						) }
 					</Text>
@@ -123,7 +121,7 @@ export function WelcomeEmailSection( {
 								type: 'regular',
 								labelPosition: 'top',
 							},
-							fields: [ 'welcome_message' ],
+							fields: [ 'subscribe_modal_heading' ],
 						} }
 						onChange={ handleDataFormChange }
 					/>

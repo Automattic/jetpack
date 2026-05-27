@@ -20,10 +20,6 @@ export const DEFAULT_FONTSIZE_VALUE = '16px';
 
 export const DEFAULT_SUBSCRIBE_PLACEHOLDER = __( 'Type your email…', 'jetpack' );
 export const DEFAULT_SUBMIT_BUTTON_LABEL = __( 'Subscribe', 'jetpack' );
-export const DEFAULT_SUBSCRIBE_MESSAGE = __(
-	'Subscribe now to stay ahead and never miss a beat!',
-	'jetpack'
-);
 export const DEFAULT_SUCCESS_MESSAGE = __(
 	"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.",
 	'jetpack'

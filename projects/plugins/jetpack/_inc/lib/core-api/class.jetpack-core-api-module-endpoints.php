@@ -1003,7 +1003,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
