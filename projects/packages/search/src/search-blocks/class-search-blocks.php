@@ -1084,6 +1084,11 @@ class Search_Blocks {
 		wp_enqueue_style( 'jetpack-search-block-overlay' );
 		wp_add_inline_style( 'jetpack-search-block-overlay', static::block_template_overlay_inline_css() );
 
+		// Shared responsive layout CSS (narrow-width sidebar collapse +
+		// in-header popover toggle). Same rules ship to the embedded /
+		// WC-product page templates via `enqueue_search_page_assets()`.
+		static::enqueue_search_layout_style();
+
 		// Render here (during `wp_enqueue_scripts`) so view-module enqueues
 		// from `do_blocks()` land before the importmap prints — see
 		// AGENTS.md § Hydration & SSR seeding.
@@ -1095,7 +1100,9 @@ class Search_Blocks {
 	/**
 	 * Inline CSS for the overlay modal chrome. Block content brings its own
 	 * theme styling; this is just the scrim, centered card, 60px header strip,
-	 * close button, animation, and scroll lock.
+	 * close button, mobile padding tweaks, and scroll lock. The responsive
+	 * sidebar-collapse + in-header popover rules shared with the page
+	 * templates live in `search_layout_inline_css()`.
 	 *
 	 * Surface/ink follow a two-step token fallback: newer `base`/`contrast`
 	 * (TT2/TT3/TT5-family) first, then legacy `background`/`foreground` (TT1,
@@ -1256,33 +1263,16 @@ class Search_Blocks {
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
 	padding: .5em 2em 2em;
 }
-/* Force flex-row for the "Found N results" + sort row — `wp:group` inline
- * layout (`justifyContent: space-between`) doesn't always emit the core
- * flex-layout class in this context. */
-.jetpack-search-block-overlay__results-header {
-	display: flex;
-	flex-wrap: nowrap;
-	justify-content: space-between;
-	align-items: center;
-}
-/* Right-side controls cluster: sort + filters-popover trigger. Without this
- * the three `__results-header` children get spread evenly by the parent's
- * `space-between`; nesting sort + popover here pins them as one block on the
- * trailing edge. */
-.jetpack-search-block-overlay__results-header-controls {
-	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	gap: 0.75rem;
-}
 /* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
  * light themes and visible on dark themes. We only set color; the column
- * block's inline `border-left-width` does the rest. */
-.jetpack-search-block-overlay__filters-column {
+ * block's inline `border-left-width` does the rest. Scoped under the overlay
+ * container so the divider remains overlay-only — the embedded / WC-product
+ * page templates set their own border-left-color inline on the column. */
+.jetpack-search-block-overlay .jetpack-search-layout__filters-column {
 	border-left-color: transparent;
 }
 @supports (border-color: color-mix(in sRGB, black 50%, white)) {
-	.jetpack-search-block-overlay__filters-column {
+	.jetpack-search-block-overlay .jetpack-search-layout__filters-column {
 		border-left-color: color-mix(in sRGB, currentColor 15%, transparent);
 	}
 }
@@ -1299,34 +1289,10 @@ class Search_Blocks {
 		padding: .5em 1em 1em;
 	}
 }
-/* Below 992px the right-column filter sidebar collapses to a popover trigger
- * docked next to results-sort. Mirrors the legacy Instant Search overlay UX
- * (`.jetpack-instant-search__search-results-secondary { display: none }` below
- * `$break-lg`). The trigger comes from the `jetpack-search/filters-popover`
- * block that ships in the default overlay template. */
-@media (max-width: 991.98px) {
-	.jetpack-search-block-overlay__filters-column {
-		display: none;
-	}
-	/* The right column's 260px width is set via inline `flex-basis`, so the
-	 * results column needs `!important` to claim the full row. Parent `gap`
-	 * doesn't need zeroing — flexbox removes `display: none` children from
-	 * the layout entirely, so there is no sibling for a gap rule to apply
-	 * against. The selector is scoped to the named outer column so nested
-	 * `wp-block-column`s inside result-card templates aren't affected. */
-	.jetpack-search-block-overlay__results-column {
-		flex-basis: 100% !important;
-	}
-}
 /* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
 @media (min-width: 992px) {
 	.jetpack-search-block-overlay__card {
 		max-width: 95%;
-	}
-	/* Sidebar is showing; hide the in-header popover entirely so a stale
-	 * `is-popover-open` class can't leak its panel into view. */
-	.jetpack-search-block-overlay__results-header .jetpack-search-filters-popover {
-		display: none;
 	}
 }
 /* Body-scroll lock while open. JS side stashes/restores scrollY on toggle. */
@@ -1341,39 +1307,61 @@ CSS;
 	}
 
 	/**
-	 * Register + enqueue the inline CSS that drives the narrow-width sidebar
-	 * collapse on the page templates (`jetpack-search.html`,
-	 * `jetpack-search-product-results.html`). Self-gates on `is_search()` so it
-	 * only fires when one of those templates is actually about to render —
-	 * non-search requests skip the work entirely.
-	 *
-	 * Lives next to `block_template_overlay_inline_css()` rather than in the
-	 * `search-results` block stylesheet because the rules target the page
-	 * templates' outer columns + results-header, none of which the block owns.
+	 * Register + enqueue the shared responsive layout CSS on the embedded /
+	 * WC-product page templates (`jetpack-search.html`,
+	 * `jetpack-search-product-results.html`). Self-gates on `is_search()` so
+	 * non-search requests skip the work entirely; the overlay path enqueues
+	 * the same handle unconditionally from its own asset hook.
 	 */
 	public static function enqueue_search_page_assets() {
 		if ( ! is_search() ) {
 			return;
 		}
-		// No src — this handle exists only as a target for `wp_add_inline_style`.
-		// Version tracks the package so a release bust cache-invalidates any
-		// reusing site's inline-style cache.
-		wp_register_style( 'jetpack-search-page', false, array(), Package::VERSION );
-		wp_enqueue_style( 'jetpack-search-page' );
-		wp_add_inline_style( 'jetpack-search-page', static::search_page_inline_css() );
+		static::enqueue_search_layout_style();
 	}
 
 	/**
-	 * Inline CSS for the embedded / product-search page templates. Mirrors the
-	 * narrow-width sidebar-collapse pattern from
-	 * `block_template_overlay_inline_css()` (the overlay's equivalent) but
-	 * scoped to the page templates' own `__results-page__*` class hierarchy so
-	 * the two sets of rules don't overlap and the overlay's CSS stays
-	 * untouched.
+	 * Register + enqueue the inline CSS that drives the shared responsive
+	 * layout pattern across all three Search Blocks templates — narrow-width
+	 * sidebar collapse and in-header popover toggle. Called from both the
+	 * overlay enqueue path and the page-template enqueue path.
+	 *
+	 * `wp_register_style` / `wp_enqueue_style` are idempotent, but
+	 * `wp_add_inline_style` is **not** — it appends to an internal array on
+	 * every call, so a second invocation would double the inline payload.
+	 * The `wp_style_is( …, 'enqueued' )` short-circuit makes the helper safe
+	 * to call from multiple sites in one request.
+	 */
+	public static function enqueue_search_layout_style() {
+		// No src — this handle exists only as a target for `wp_add_inline_style`.
+		// Version tracks the package so a release bust cache-invalidates any
+		// reusing site's inline-style cache.
+		wp_register_style( 'jetpack-search-layout', false, array(), Package::VERSION );
+		if ( wp_style_is( 'jetpack-search-layout', 'enqueued' ) ) {
+			return;
+		}
+		wp_enqueue_style( 'jetpack-search-layout' );
+		wp_add_inline_style( 'jetpack-search-layout', static::search_layout_inline_css() );
+	}
+
+	/**
+	 * Inline CSS for the responsive search-results layout shared across the
+	 * overlay, embedded (`jetpack-search.html`), and WC product
+	 * (`jetpack-search-product-results.html`) templates.
+	 *
+	 * Below 992px the right-column filter sidebar collapses to a popover
+	 * trigger docked next to results-sort; at >= 992px the sidebar is the
+	 * sole filter UI and the in-header popover is hidden so the two don't
+	 * double up. Same breakpoint as the legacy Instant Search overlay
+	 * (`.jetpack-instant-search__search-results-secondary { display: none }`
+	 * below `$break-lg`). Lives next to `block_template_overlay_inline_css()`
+	 * (which keeps overlay-only chrome) because the rules target the
+	 * templates' outer columns + results-header, none of which any single
+	 * block owns.
 	 *
 	 * @return string
 	 */
-	protected static function search_page_inline_css(): string {
+	protected static function search_layout_inline_css(): string {
 		return <<<'CSS'
 /* The block group already carries `layout.type:flex` which makes the WordPress
  * block-layout system emit `display:flex` / `flex-wrap:nowrap` /
@@ -1381,7 +1369,7 @@ CSS;
  * from block-layout CSS being present); the operative net-new rule is
  * `align-items: center`, which centers `results-count` against the controls
  * cluster. */
-.jetpack-search-results-page__results-header {
+.jetpack-search-layout__results-header {
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: space-between;
@@ -1391,33 +1379,34 @@ CSS;
  * the three `__results-header` children get spread evenly by the parent's
  * `space-between`; nesting sort + popover here pins them as one block on the
  * trailing edge. */
-.jetpack-search-results-page__results-header-controls {
+.jetpack-search-layout__results-header-controls {
 	display: flex;
 	flex-wrap: nowrap;
 	align-items: center;
 	gap: 0.75rem;
 }
 /* Below 992px the right-column filter sidebar collapses to a popover trigger
- * docked next to results-sort. Same breakpoint and rationale as the overlay.
- * The selector is scoped to the named outer column so nested
- * `wp-block-column`s inside result-card templates aren't affected. */
+ * docked next to results-sort. The trigger comes from the
+ * `jetpack-search/filters-popover` block that ships in each template. The
+ * selector is scoped to the named outer column so nested `wp-block-column`s
+ * inside result-card templates aren't affected. */
 @media (max-width: 991.98px) {
-	.jetpack-search-results-page__filters-column {
+	.jetpack-search-layout__filters-column {
 		display: none;
 	}
 	/* `!important` defends against the parent `wp:columns` block-layout CSS
 	 * that pins `.wp-block-column` to its inline `flex-basis` (or to an even
-	 * split when no width is set). Mirrors the overlay equivalent. Once the
-	 * filter column is `display:none`, the results column has to be able to
-	 * claim the full row at any specificity. */
-	.jetpack-search-results-page__results-column {
+	 * split when no width is set). Once the filter column is `display:none`,
+	 * the results column has to be able to claim the full row at any
+	 * specificity. */
+	.jetpack-search-layout__results-column {
 		flex-basis: 100% !important;
 	}
 }
 /* Sidebar is showing; hide the in-header popover entirely so a stale
  * `is-popover-open` class can't leak its panel into view. */
 @media (min-width: 992px) {
-	.jetpack-search-results-page__results-header .jetpack-search-filters-popover {
+	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
 		display: none;
 	}
 }
