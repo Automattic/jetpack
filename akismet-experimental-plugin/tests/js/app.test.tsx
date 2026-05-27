@@ -19,10 +19,21 @@ describe( '<App>', () => {
 		expect( screen.getByRole( 'heading', { name: /akismet/i, level: 1 } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the Account and Settings tabs', () => {
+	it( 'renders the Overview, Account, and Settings tabs', () => {
 		render( <App /> );
+		expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: /account/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: /settings/i } ) ).toBeInTheDocument();
+	} );
+
+	it( 'defaults to the Overview tab as the first/landing tab', async () => {
+		render( <App /> );
+		await waitFor( () =>
+			expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
+				'aria-selected',
+				'true'
+			)
+		);
 	} );
 
 	it( 'reads the initial tab from ?tab=settings', async () => {
@@ -30,6 +41,28 @@ describe( '<App>', () => {
 		render( <App /> );
 		await waitFor( () =>
 			expect( screen.getByRole( 'tab', { name: /settings/i } ) ).toHaveAttribute(
+				'aria-selected',
+				'true'
+			)
+		);
+	} );
+
+	it( 'reads the initial tab from ?tab=account', async () => {
+		window.history.replaceState( null, '', '/?tab=account' );
+		render( <App /> );
+		await waitFor( () =>
+			expect( screen.getByRole( 'tab', { name: /account/i } ) ).toHaveAttribute(
+				'aria-selected',
+				'true'
+			)
+		);
+	} );
+
+	it( 'ignores unknown ?tab= values and stays on Overview', async () => {
+		window.history.replaceState( null, '', '/?tab=garbage' );
+		render( <App /> );
+		await waitFor( () =>
+			expect( screen.getByRole( 'tab', { name: /overview/i } ) ).toHaveAttribute(
 				'aria-selected',
 				'true'
 			)
