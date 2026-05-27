@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Search Blocks: prevent duplicate Active Filters pills when the block is nested inside a same-namespace Interactivity API wrapper (e.g. the collapsible filters popover).
+Search Blocks: prevent duplicate Active Filters pills and missing checkbox labels/counts when the blocks are nested inside a same-namespace Interactivity API wrapper (e.g. the collapsible filters popover).

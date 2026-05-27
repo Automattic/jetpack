@@ -62,7 +62,10 @@ $display_style = Filter_Checkbox::normalize_display_style( $attributes['displayS
 		require __DIR__ . '/../filter-skeleton-partial.php';
 	}
 	?>
-	<ul class="jetpack-search-filter__list">
+	<ul
+		class="jetpack-search-filter__list"
+		data-wp-watch="callbacks.reconcileFilterItems"
+	>
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
