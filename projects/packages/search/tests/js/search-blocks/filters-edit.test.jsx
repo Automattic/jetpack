@@ -19,7 +19,6 @@ describe( 'FiltersEdit', () => {
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
 		expect( props.template ).toEqual( [
 			[ 'jetpack-search/active-filters' ],
-			[ 'jetpack-search/clear-filters' ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],

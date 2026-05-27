@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.38.4] - 2026-05-25
+### Fixed
+- Options: Include late sync whitelist entries in cached option modules. [#49076]
+
+## [4.38.3] - 2026-05-21
+### Added
+- Sync: Whitelist the new Jetpack Search ai_answers_enabled, search_suggestions_enabled, override_woocommerce_search_template, and reader_chat options so they propagate to WPcom. [#48945]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [4.38.2] - 2026-05-19
+### Changed
+- Internal updates.
+
 ## [4.38.1] - 2026-05-14
 ### Added
 - Sync wp_guideline CPT when Jetpack Search AI Answers is enabled. [#48592]
@@ -1743,6 +1758,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.38.4]: https://github.com/Automattic/jetpack-sync/compare/v4.38.3...v4.38.4
+[4.38.3]: https://github.com/Automattic/jetpack-sync/compare/v4.38.2...v4.38.3
+[4.38.2]: https://github.com/Automattic/jetpack-sync/compare/v4.38.1...v4.38.2
 [4.38.1]: https://github.com/Automattic/jetpack-sync/compare/v4.38.0...v4.38.1
 [4.38.0]: https://github.com/Automattic/jetpack-sync/compare/v4.37.0...v4.38.0
 [4.37.0]: https://github.com/Automattic/jetpack-sync/compare/v4.36.0...v4.37.0

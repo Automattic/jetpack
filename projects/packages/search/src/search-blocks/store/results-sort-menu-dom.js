@@ -1,12 +1,8 @@
 /**
- * Tiny DOM helpers used by the sort-popover ARIA menu keyboard handlers.
- *
- * The store's roving-tabindex code needs the ordered list of currently
- * rendered sort keys so it can wrap arrow-key navigation. The list is the
- * server-rendered `availableSortOptions` and isn't shipped through
- * Interactivity state — pulling it off the live menu DOM keeps server and
- * client in sync without duplicating the data, and matches the rest of the
- * sort block which already drives selection from the DOM (`event.currentTarget.value`).
+ * DOM helpers for the sort-popover ARIA menu. Read the rendered sort keys
+ * straight off the live menu rather than threading `availableSortOptions`
+ * through IA state — matches the rest of the sort block, which already
+ * drives selection from `event.currentTarget.value`.
  */
 
 const MENU_SELECTOR = '.jetpack-search-results-sort__menu';
@@ -15,13 +11,10 @@ const TRIGGER_SELECTOR = '.jetpack-search-results-sort__trigger';
 const POPOVER_ROOT_SELECTOR = '[data-jetpack-search-popover-root]';
 
 /**
- * Read the rendered sort keys from a menu element in DOM order. The
- * server emits one button per `availableSortOptions` entry and never
- * mutates that list, so reading `value` straight off the buttons is
- * a stable contract.
+ * Sort keys from a menu element in DOM order.
  *
- * @param {Element|null} menu - The menu container.
- * @return {string[]} Ordered sort keys, or an empty array when missing.
+ * @param {Element|null} menu - Menu container.
+ * @return {string[]} Ordered sort keys.
  */
 function readMenuOptionKeys( menu ) {
 	if ( ! menu ) {
@@ -32,9 +25,7 @@ function readMenuOptionKeys( menu ) {
 }
 
 /**
- * Resolve the ordered sort keys when a menu item dispatched an event.
- * Walks up to the menu container and reads its children — handles the
- * case where the rendered options differ from the default base keys.
+ * Sort keys, given a menu item.
  *
  * @param {Element|null} menuItem - The menu-item button.
  * @return {string[]} Ordered sort keys.
@@ -48,9 +39,7 @@ export function getSortMenuOptionKeysFromItem( menuItem ) {
 }
 
 /**
- * Resolve the ordered sort keys from the trigger button's popover root.
- * The trigger and menu share the same `[data-jetpack-search-popover-root]`
- * wrapper — find that, then locate the menu inside it.
+ * Sort keys, given the trigger button (trigger + menu share the popover root).
  *
  * @param {Element|null} trigger - The trigger button.
  * @return {string[]} Ordered sort keys.
@@ -65,12 +54,11 @@ export function getSortMenuOptionKeysFromTrigger( trigger ) {
 }
 
 /**
- * Move focus back to the sort trigger when closing the menu via Escape
- * or after activating an item. Called with any element inside the popover
- * root (trigger or menu item) so we can locate the trigger reliably even
- * when the menu has already been hidden.
+ * Focus the trigger when closing via Escape / after activation. Accepts any
+ * element in the popover root so we can find the trigger even when the menu
+ * has been hidden.
  *
- * @param {Element|null} elementInRoot - Any element inside the popover root.
+ * @param {Element|null} elementInRoot - Element inside the popover root.
  */
 export function focusSortTrigger( elementInRoot ) {
 	if ( ! elementInRoot ) {

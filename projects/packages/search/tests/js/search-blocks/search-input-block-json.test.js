@@ -12,4 +12,18 @@ describe( 'search-input block.json', () => {
 		expect( attrs.showIcon ).toEqual( { type: 'boolean', default: true } );
 		expect( attrs.submitOnly ).toEqual( { type: 'boolean', default: false } );
 	} );
+
+	it( 'declares the post-type scope attributes with exclude-by-default semantics', () => {
+		const attrs = blockJson.attributes;
+		expect( attrs.postTypeMode ).toEqual( {
+			type: 'string',
+			enum: [ 'include', 'exclude' ],
+			default: 'exclude',
+		} );
+		expect( attrs.postTypes ).toEqual( {
+			type: 'array',
+			default: [],
+			items: { type: 'string' },
+		} );
+	} );
 } );

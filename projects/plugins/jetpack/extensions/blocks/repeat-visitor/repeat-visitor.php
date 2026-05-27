@@ -43,7 +43,7 @@ function render_block( $attributes, $content ) {
 	$classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes );
 
 	$count     = isset( $_COOKIE['jp-visit-counter'] ) ? (int) $_COOKIE['jp-visit-counter'] : 0;
-	$criteria  = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
+	$criteria  = $attributes['criteria'] ?? 'after-visits';
 	$threshold = isset( $attributes['threshold'] ) ? (int) $attributes['threshold'] : 3;
 
 	if (

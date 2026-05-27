@@ -45,6 +45,3 @@ projects/*/*/tests/**  production-exclude
 # We only need package.json in js-packages.
 projects/*/*/package.json            production-exclude
 projects/js-packages/*/package.json  !production-exclude
-
-# Temporary. #47365 should remove this after adding the missing package-level excludes.
-projects/plugins/*/jetpack_vendor/automattic/*/routes/*/package.json  production-exclude

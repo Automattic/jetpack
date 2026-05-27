@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Users list: use dynamic connector logo and tooltip based on connected plugin families.

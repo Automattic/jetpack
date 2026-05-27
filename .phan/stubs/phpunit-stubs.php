@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.25
+ * Stubs automatically generated from PHPUnit 12.5.27
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -28877,7 +28877,7 @@ final readonly class Version
 }
 namespace SebastianBergmann\CliParser;
 
-final class Parser
+final readonly class Parser
 {
     /**
      * @param list<string> $argv
@@ -32024,6 +32024,18 @@ final class ComparisonFailure extends \RuntimeException
     public function __construct(mixed $expected, mixed $actual, string $expectedAsString, string $actualAsString, string $message = '')
     {
     }
+    /**
+     * @return array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string}
+     */
+    public function __serialize(): array
+    {
+    }
+    /**
+     * @param array{expected: mixed, actual: mixed, expectedAsString: string, actualAsString: string, message: string} $data
+     */
+    public function __unserialize(array $data): void
+    {
+    }
     public function getActual(): mixed
     {
     }
@@ -32830,13 +32842,23 @@ final class Runtime
     }
     /**
      * Parses the loaded php.ini file (if any) as well as all
-     * additional php.ini files from the additional ini dir for
-     * a list of all configuration settings loaded from files
-     * at startup. Then checks for each php.ini setting passed
-     * via the `$values` parameter whether this setting has
-     * been changed at runtime. Returns an array of strings
-     * where each string has the format `key=value` denoting
-     * the name of a changed php.ini setting with its new value.
+     * additional php.ini files from the additional ini dir into a
+     * single merged map of settings, and also obtains the compiled-in
+     * defaults by spawning a `php -n` child once per process.
+     * Then checks for each setting passed via the `$values` parameter
+     * whether the runtime value (`ini_get()`) differs from what the
+     * ini files specified or, when a setting is not configured in any
+     * ini file, from the compiled-in default. Returns an array of
+     * `key=value` strings for the changed settings.
+     *
+     * A setting whose runtime value is the empty string but that is
+     * absent from both the ini files and the compiled-in defaults is
+     * left alone: there is no evidence that it was overridden, so it
+     * is not forwarded. This avoids spurious empty overrides for
+     * settings of extensions that are not visible to the compiled-in
+     * defaults probe (e.g. extensions loaded only via php.ini), which
+     * would otherwise break child processes (see
+     * https://github.com/sebastianbergmann/environment/issues/99).
      *
      * @param list<string> $values
      *

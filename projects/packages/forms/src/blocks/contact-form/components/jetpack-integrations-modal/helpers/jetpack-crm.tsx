@@ -60,14 +60,7 @@ export function buildJetpackCrmCard( {
 								'jetpack-forms'
 							),
 							{
-								a: (
-									<Button
-										variant="link"
-										href={ settingsUrl }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
+								a: <Link openInNewTab href={ settingsUrl } />,
 							}
 						) }
 					</p>

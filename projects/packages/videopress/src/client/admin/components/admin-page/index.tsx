@@ -10,7 +10,6 @@ import {
 	Button,
 	Col,
 	useBreakpointMatch,
-	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -19,6 +18,7 @@ import {
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
@@ -246,11 +246,11 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	);
 
 	return (
-		<ContextualUpgradeTrigger
-			description={ description }
-			cta={ cta }
-			className={ styles[ 'upgrade-trigger' ] }
-			onClick={ onButtonClickHandler }
-		/>
+		<Notice.Root intent="info" className={ styles[ 'upgrade-trigger' ] }>
+			{ description && <Notice.Description>{ description }</Notice.Description> }
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ onButtonClickHandler }>{ cta }</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 };

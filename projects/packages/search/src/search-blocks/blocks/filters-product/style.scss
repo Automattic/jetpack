@@ -9,3 +9,12 @@
 .jetpack-search-filters-product {
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
+
+.jetpack-search-filters-product__empty {
+	margin: 0;
+	opacity: 0.6;
+
+	&[hidden] {
+		display: none;
+	}
+}

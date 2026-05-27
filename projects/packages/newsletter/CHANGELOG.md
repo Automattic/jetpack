@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.9] - 2026-05-25
+### Changed
+- Normalize page tabs onto the shared minimal variant and `jp-admin-page-tabs--minimal` wrapper modifier. [#48964]
+- Update package dependencies. [#48405] [#49012]
+
+### Fixed
+- Drop dead `@wordpress/admin-ui` build-style import that no longer exists in 2.x. [#49007]
+- Fix Settings tab toggles that controlled the wrong setting due to duplicate element IDs. [#49102]
+
+## [0.8.8] - 2026-05-19
+### Changed
+- Build: Run webpack and wp-build scripts concurrently. [#48794]
+- Exclude development files from production builds. [#47365]
+
+### Fixed
+- Fix saving settings on the Newsletter admin page on Atomic and self-hosted sites. [#48813]
+
 ## [0.8.7] - 2026-05-11
 ### Changed
 - Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
@@ -179,6 +196,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.8.9]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.8...v0.8.9
+[0.8.8]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.5...v0.8.6
 [0.8.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.4...v0.8.5

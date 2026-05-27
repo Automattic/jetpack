@@ -273,6 +273,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
 			'reader_chat'                                  => false,
+			'jetpack_ai_agents_enabled'                    => false,
 			'wpcom_classic_early_release'                  => true,
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
@@ -295,6 +296,9 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_search_inf_scroll'                    => true,
 			'jetpack_search_show_powered_by'               => true,
 			'jetpack_search_experience'                    => 'pineapple',
+			'jetpack_search_ai_answers_enabled'            => true,
+			'jetpack_search_suggestions_enabled'           => true,
+			'jetpack_search_override_woocommerce_search_template' => true,
 			'instant_search_enabled'                       => true,
 		);
 

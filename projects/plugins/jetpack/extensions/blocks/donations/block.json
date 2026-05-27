@@ -50,18 +50,6 @@
 			"fontWeight": true,
 			"lineHeight": true,
 			"letterSpacing": true
-		},
-		"__experimentalBorder": {
-			"color": true,
-			"radius": true,
-			"style": true,
-			"width": true,
-			"__experimentalDefaultControls": {
-				"color": true,
-				"radius": true,
-				"style": true,
-				"width": true
-			}
 		}
 	},
 	"attributes": {
@@ -180,6 +168,32 @@
 		},
 		"maximumAmount": {
 			"type": "number"
+		},
+		"displayMode": {
+			"type": "string",
+			"enum": [ "inline", "modal" ],
+			"default": "inline"
+		},
+		"triggerButtonText": {
+			"type": "string"
+		},
+		"triggerIcon": {
+			"type": "string",
+			"default": "heart"
+		},
+		"triggerSticky": {
+			"type": "boolean",
+			"default": false
+		},
+		"blockBorder": {
+			"type": "object"
+		},
+		"blockBorderRadius": {
+			"type": [ "string", "object" ]
+		},
+		"variationName": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"example": {}

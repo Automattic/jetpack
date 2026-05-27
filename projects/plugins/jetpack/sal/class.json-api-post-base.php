@@ -954,7 +954,7 @@ abstract class SAL_Post {
 
 		$file      = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : '';
+		$ext       = $file_info['extension'] ?? '';
 
 		$response = array(
 			'ID'          => $media_item->ID,

@@ -29,7 +29,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			);
 		}
 
-		$annotations = isset( $result['data']['annotations'] ) ? $result['data']['annotations'] : array();
+		$annotations = $result['data']['annotations'] ?? array();
 		// Sanitize the annotations
 		foreach ( $annotations as $key => $annotation ) {
 			$annotations[ $key ] = array(

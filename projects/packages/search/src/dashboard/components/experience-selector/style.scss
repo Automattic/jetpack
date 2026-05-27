@@ -2,32 +2,14 @@
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
-.jp-search-experience-selector__heading-row {
-	margin-block-end: var(--wpds-dimension-gap-xl);
-}
-
 .jp-search-experience-selector__heading {
-	margin: 0;
+	margin: 0 0 var(--wpds-dimension-gap-xl);
 	font-size: var(--wpds-typography-font-size-xl);
 	line-height: var(--wpds-typography-line-height-md);
 }
 
-.jp-search-experience-selector__pending-notice {
+.jp-search-experience-selector__fieldset {
+	border: 0;
 	margin: 0;
-	color: var(--wpds-color-fg-content-neutral-weak);
-	font-size: var(--wpds-typography-font-size-md);
-	line-height: var(--wpds-typography-line-height-sm);
-}
-
-.jp-search-experience-selector {
-
-	&__fieldset {
-		border: 0;
-		margin: 0;
-		padding: 0;
-	}
-
-	&__footer {
-		margin-block-start: var(--wpds-dimension-gap-xl);
-	}
+	padding: 0;
 }

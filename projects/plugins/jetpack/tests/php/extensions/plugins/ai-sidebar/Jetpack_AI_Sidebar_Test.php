@@ -50,6 +50,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		$this->reset_sidebar_hooks();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		update_option( 'jetpack_offline_mode', '0' );
 		Status_Cache::clear();
@@ -75,10 +76,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		delete_transient( AiAssistantPlugin\AM_ASSET_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AM_ASSET_DC_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
-		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
-		remove_all_filters( 'agents_manager_agent_providers' );
-		remove_all_filters( 'jetpack_ai_review_mediator_enabled' );
-		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'jetpack_offline_mode' );
@@ -92,6 +90,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
 		parent::tear_down();
+	}
+
+	/**
+	 * Reset sidebar hooks that may be registered by plugin bootstrap or earlier tests.
+	 */
+	private function reset_sidebar_hooks() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
+		remove_all_filters( 'jetpack_ai_editorial_review_enabled' );
+		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
+		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ), 200 );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 	}
 
 	/**
@@ -121,6 +135,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private function set_block_editor_screen() {
 		set_current_screen( 'post' );
 		get_current_screen()->is_block_editor = true;
+	}
+
+	/**
+	 * Set the current screen to the page block editor.
+	 */
+	private function set_page_block_editor_screen() {
+		set_current_screen( 'post' );
+		$screen                  = get_current_screen();
+		$screen->post_type       = 'page';
+		$screen->is_block_editor = true;
 	}
 
 	/**
@@ -212,14 +236,74 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that init() does nothing when the feature filter is false (default).
+	 * Test that init() registers hooks by default for AI Editorial Review.
+	 */
+	public function test_init_registers_hooks_by_default() {
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should be hooked by default.'
+		);
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should be hooked by default.'
+		);
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ) ),
+			'maybe_enqueue_am should be hooked by default.'
+		);
+	}
+
+	/**
+	 * Test that init() does nothing when the sidebar gate is explicitly disabled.
 	 */
 	public function test_init_does_nothing_when_filter_is_false() {
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
 			'register_provider should not be hooked when filter is false.'
+		);
+		$this->assertFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should not be hooked when filter is false.'
+		);
+	}
+
+	/**
+	 * Test that init() does nothing when the preview gate is disabled.
+	 */
+	public function test_init_does_nothing_when_preview_gate_is_false() {
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when the preview gate is false.'
+		);
+		$this->assertFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should not be hooked when the preview gate is false.'
+		);
+	}
+
+	/**
+	 * Test that the preview surface can initialize without AI Editorial Review.
+	 */
+	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should be hooked when the preview gate is true.'
+		);
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ) ),
+			'maybe_enqueue_am should be hooked when the preview gate is true.'
 		);
 	}
 
@@ -239,6 +323,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'add_agents_manager_data should be hooked when filter is true.'
 		);
 		$this->assertNotFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_in_post_editor' ) ),
+			'enable_agents_manager_in_post_editor should be hooked when filter is true.'
+		);
+		$this->assertNotFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ) ),
 			'maybe_enqueue_am should be hooked when filter is true.'
 		);
@@ -246,6 +334,69 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
 			'maybe_enqueue_abilities_script should be hooked when filter is true.'
 		);
+	}
+
+	// ──────────────────────────────────────────────────
+	// agents_manager_enabled_in_block_editor() tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Test that the Agents Manager block-editor gate opens in the post editor.
+	 */
+	public function test_enable_agents_manager_in_post_editor_enables_post_editor() {
+		$this->set_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate does not open in the page editor.
+	 */
+	public function test_enable_agents_manager_in_post_editor_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate preserves existing true values.
+	 */
+	public function test_enable_agents_manager_in_post_editor_preserves_existing_true() {
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		$this->set_page_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( true ) );
+	}
+
+	/**
+	 * Test that the AI Editorial Review kill switch closes this Agents Manager entrypoint.
+	 */
+	public function test_enable_agents_manager_in_post_editor_respects_ai_editorial_review_filter() {
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		$this->set_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the preview surface can open independently of AI Editorial Review.
+	 */
+	public function test_enable_agents_manager_in_post_editor_respects_preview_filter() {
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
+		$this->set_block_editor_screen();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
+	}
+
+	/**
+	 * Test that the Agents Manager block-editor gate does not open when AI features are disabled.
+	 */
+	public function test_enable_agents_manager_in_post_editor_skips_when_ai_disabled() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+		$this->set_block_editor_screen();
+
+		$this->assertFalse( Jetpack_AI_Sidebar::enable_agents_manager_in_post_editor( false ) );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -258,6 +409,31 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_maybe_enqueue_am_skips_non_block_editor() {
 		set_current_screen( 'dashboard' );
 		$this->cache_am_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that maybe_enqueue_am does nothing outside the post editor.
+	 */
+	public function test_maybe_enqueue_am_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+		$this->cache_am_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that maybe_enqueue_am does nothing when the preview gate is disabled.
+	 */
+	public function test_maybe_enqueue_am_skips_when_preview_disabled() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
@@ -291,66 +467,144 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Filter override flips the flag on regardless of dev-mode signals.
+	 * The AI Editorial Review-specific filter controls the feature flag.
 	 */
-	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_via_filter() {
+	public function test_maybe_enqueue_am_respects_ai_editorial_review_filter() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
-		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"agentId":"wp-orchestrator"', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
-	 * Default off when no dev-mode signal is present and no filter override.
+	 * AI Editorial Review is on by default when no filter override is present.
 	 */
-	public function test_maybe_enqueue_am_hides_review_mediator_by_default() {
+	public function test_maybe_enqueue_am_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"agentId":"wp-orchestrator"', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"blockTransformations":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"optimizeTitleSuggestion":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"chatHistory":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"supportGuides":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
-	 * Dev-mode signals enable the review mediator flag by default.
+	 * Dev-mode signals keep AI Editorial Review enabled by default.
 	 */
-	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_in_dev_mode() {
+	public function test_maybe_enqueue_am_exposes_ai_editorial_review_enabled_in_dev_mode() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
-	 * The review mediator-specific filter can suppress the flag even in dev mode.
+	 * The AI Editorial Review-specific filter can suppress the flag even in dev mode.
 	 */
-	public function test_maybe_enqueue_am_allows_review_mediator_filter_to_disable_dev_mode() {
+	public function test_maybe_enqueue_am_allows_ai_editorial_review_filter_to_disable_dev_mode() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"jetpackAiSidebarPreview":{"enabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
-	 * Platform-emitted Agents Manager data gets the review mediator flag.
+	 * Platform-emitted Agents Manager data gets the AI Editorial Review flag.
 	 */
-	public function test_add_agents_manager_data_exposes_review_mediator_enabled() {
-		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+	public function test_add_agents_manager_data_exposes_ai_editorial_review_enabled() {
+		$this->set_block_editor_screen();
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_true' );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
-		$this->assertSame( true, $data['reviewMediatorEnabled'] );
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
+		$this->assertSame( true, $data['aiEditorialReviewEnabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['chatHistory'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['supportGuides'] );
+	}
+
+	/**
+	 * Big Sky's provider should not participate in the Jetpack AI Sidebar surface.
+	 */
+	public function test_add_agents_manager_data_filters_big_sky_provider() {
+		$this->set_block_editor_screen();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName'    => 'gutenberg',
+				'agentProviders' => array(
+					'https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123',
+					'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+					array( 'provider' => 'metadata' ),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs',
+				array( 'provider' => 'metadata' ),
+			),
+			$data['agentProviders']
+		);
+	}
+
+	/**
+	 * Preview and AI Editorial Review have separate gates.
+	 */
+	public function test_add_agents_manager_data_allows_preview_without_ai_editorial_review() {
+		$this->set_block_editor_screen();
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
+		$this->assertSame( false, $data['aiEditorialReviewEnabled'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['enabled'] );
+		$this->assertSame( false, $data['jetpackAiSidebarPreview']['features']['aiEditorialReview'] );
+		$this->assertSame( true, $data['jetpackAiSidebarPreview']['features']['blockTransformations'] );
+	}
+
+	/**
+	 * Platform-emitted preview data is scoped to the post editor.
+	 */
+	public function test_add_agents_manager_data_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertArrayNotHasKey( 'agentId', $data );
+		$this->assertArrayNotHasKey( 'aiEditorialReviewEnabled', $data );
+		$this->assertArrayNotHasKey( 'jetpackAiSidebarPreview', $data );
 	}
 
 	/**
@@ -370,24 +624,32 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		// Original payload (with reviewMediatorEnabled) is still emitted.
+		// Original payload with Jetpack's authoritative flags is still emitted.
 		$this->assertStringContainsString(
-			'"reviewMediatorEnabled":',
+			'"agentId":"wp-orchestrator"',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'"aiEditorialReviewEnabled":',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'"jetpackAiSidebarPreview":',
 			$this->get_agents_manager_inline_script()
 		);
 	}
 
 	/**
-	 * Generic Agents Manager data filters should not override the Jetpack-owned review mediator flag.
+	 * Generic Agents Manager data filters should not override Jetpack's AI Editorial Review flag.
 	 */
-	public function test_maybe_enqueue_am_keeps_review_mediator_flag_authoritative_after_data_filter() {
+	public function test_maybe_enqueue_am_keeps_ai_editorial_review_flag_authoritative_after_data_filter() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
-		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_true' );
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
-				$data['reviewMediatorEnabled'] = false;
+				$data['aiEditorialReviewEnabled'] = false;
 				return $data;
 			},
 			20
@@ -395,19 +657,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":true', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReview":true', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
-	 * The generic data filter should not bypass the review mediator-specific gate.
+	 * The generic data filter should not bypass the AI Editorial Review-specific gate.
 	 */
-	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_review_mediator() {
+	public function test_maybe_enqueue_am_prevents_data_filter_from_enabling_ai_editorial_review() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_true' );
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
-				$data['reviewMediatorEnabled'] = true;
+				$data['aiEditorialReviewEnabled'] = true;
 				return $data;
 			},
 			20
@@ -415,7 +680,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReviewEnabled":false', $this->get_agents_manager_inline_script() );
+		$this->assertStringContainsString( '"aiEditorialReview":false', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
@@ -460,26 +726,46 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
-	// maybe_patch_review_mediator_flag() tests
+	// maybe_patch_jetpack_ai_sidebar_preview_data() tests
 	// ──────────────────────────────────────────────────
 
 	/**
 	 * When AM is enqueued by an external host (e.g. Big Sky on Atomic) and our
-	 * data filter never fires, the patch script sets reviewMediatorEnabled so
-	 * the client gating still works.
+	 * data filter never fires, the patch script sets Jetpack AI Sidebar Preview
+	 * data so the client gating still works.
 	 */
-	public function test_patch_review_mediator_flag_sets_field_when_am_enqueued_externally() {
+	public function test_patch_jetpack_ai_sidebar_preview_data_sets_fields_when_am_enqueued_externally() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		// Simulate external host (mu-wpcom / Big Sky) having enqueued AM and
-		// declared the upstream const.
+		// Simulate an external host having enqueued AM and declared upstream
+		// data with both Jetpack AI Sidebar and Big Sky providers.
 		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
-		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+		wp_add_inline_script(
+			'agents-manager',
+			'const agentsManagerData = { sectionName: "gutenberg", agentProviders: [ "https://example.com/wp-content/plugins/big-sky-plugin/build/calypso-agent-provider/index.js?ver=123", "https://widgets.wp.com/agents-manager/jetpack-ai-sidebar.provider.mjs" ] };',
+			'before'
+		);
 
-		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
 		$this->assertStringContainsString(
-			'agentsManagerData.reviewMediatorEnabled = true',
+			'agentsManagerData.agentProviders = agentsManagerData.agentProviders.filter',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'/big-sky-plugin/build/calypso-agent-provider/',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.agentId = "wp-orchestrator"',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.aiEditorialReviewEnabled = true',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringContainsString(
+			'agentsManagerData.jetpackAiSidebarPreview = {"enabled":true',
 			$this->get_agents_manager_inline_script()
 		);
 	}
@@ -487,13 +773,63 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	/**
 	 * When AM was not enqueued by anyone, the patch is a no-op.
 	 */
-	public function test_patch_review_mediator_flag_noop_when_am_not_enqueued() {
+	public function test_patch_jetpack_ai_sidebar_preview_data_noop_when_am_not_enqueued() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
-		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
 		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
+	 * The external AM payload patch is limited to the post editor.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentId',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.aiEditorialReviewEnabled',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.jetpackAiSidebarPreview',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
+	 * The external AM payload patch is gated by the preview surface.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_preview_disabled() {
+		$this->set_block_editor_screen();
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$this->assertStringNotContainsString(
+			'agentsManagerData.agentId',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.aiEditorialReviewEnabled',
+			$this->get_agents_manager_inline_script()
+		);
+		$this->assertStringNotContainsString(
+			'agentsManagerData.jetpackAiSidebarPreview',
+			$this->get_agents_manager_inline_script()
+		);
 	}
 
 	// ──────────────────────────────────────────────────
@@ -513,7 +849,32 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that abilities script is enqueued in block editor.
+	 * Test that abilities script is not enqueued outside the post editor.
+	 */
+	public function test_abilities_script_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that abilities script is not enqueued when the preview gate is disabled.
+	 */
+	public function test_abilities_script_skips_when_preview_disabled() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that abilities script is enqueued in the post block editor.
 	 */
 	public function test_abilities_script_enqueues_in_block_editor() {
 		$this->set_block_editor_screen();
@@ -545,6 +906,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that register_provider adds provider URL (does not enqueue assets).
 	 */
 	public function test_register_provider_adds_url() {
+		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
@@ -560,6 +922,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that register_provider returns existing providers unchanged when asset data fails.
 	 */
 	public function test_register_provider_returns_unchanged_when_no_asset_data() {
+		$this->set_block_editor_screen();
 		// Block remote fetches.
 		add_filter(
 			'pre_http_request',
@@ -582,6 +945,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that register_provider preserves existing providers.
 	 */
 	public function test_register_provider_preserves_existing_providers() {
+		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 
 		$existing  = array( 'https://example.com/provider-a.mjs', 'https://example.com/provider-b.mjs' );
@@ -591,6 +955,33 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
 		$this->assertSame( 'https://example.com/provider-b.mjs', $providers[1] );
 		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[2] );
+	}
+
+	/**
+	 * Test that register_provider returns existing providers unchanged outside the post editor.
+	 */
+	public function test_register_provider_skips_page_editor() {
+		$this->set_page_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+
+		$existing  = array( 'https://example.com/provider-a.mjs' );
+		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
+
+		$this->assertSame( $existing, $providers );
+	}
+
+	/**
+	 * Test that register_provider returns existing providers when the preview gate is disabled.
+	 */
+	public function test_register_provider_skips_when_preview_disabled() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		add_filter( 'jetpack_ai_sidebar_preview_enabled', '__return_false' );
+
+		$existing  = array( 'https://example.com/provider-a.mjs' );
+		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
+
+		$this->assertSame( $existing, $providers );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -648,10 +1039,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test full flow: enable filter, init, simulate AM filter, verify provider registered.
+	 * Test full flow: init, simulate AM filter, verify provider registered.
 	 */
-	public function test_full_flow_with_filter_enabled() {
-		$this->enable_sidebar();
+	public function test_full_flow_with_default_enabled() {
+		$this->set_block_editor_screen();
 		Jetpack_AI_Sidebar::init();
 		$this->cache_sidebar_asset_data();
 
@@ -662,10 +1053,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test full flow: filter disabled (default), init, verify no provider registered.
+	 * Test full flow: filter disabled, init, verify no provider registered.
 	 */
 	public function test_full_flow_with_filter_disabled() {
-		// Don't enable the filter — defaults to false.
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		Jetpack_AI_Sidebar::init();
 
 		$providers = apply_filters( 'agents_manager_agent_providers', array() );

@@ -31,6 +31,8 @@ const sharedWebpackConfig = {
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../dist/blocks' ),
+		// We need a more unique uniqueName here so ai-form-plugin's `dependOn` doesn't get confused with modules from other builds in the package.
+		uniqueName: jetpackWebpackConfig.output.uniqueName + '/blocks',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,

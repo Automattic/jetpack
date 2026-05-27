@@ -2,6 +2,71 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9-a.5 - 2026-05-25
+### Enhancements
+- Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
+- Donations Block: Add a "Tips" variation with coffee-themed defaults for creatives. [#48584]
+- Donations block: Add modal display mode with trigger button, configurable icon, and animated overlay. [#48539]
+- Donations Block: Record Tracks events for admin-side block adoption. [#48847]
+- Jetpack AI Sidebar: Allow AI Editorial Review through the sidebar preview. [#48961]
+- Newsletter: Enable the subscriptions module by default for all sites. [#49034]
+- Reader Chat: Use Jetpack Search plan eligibility for the public opt-in loader. [#48890]
+
+### Improved compatibility
+- ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
+
+### Bug fixes
+- Forms: Fix a JavaScript error in the editor. [#48979]
+- Jetpack AI Sidebar: Fix block editing when another agent provider is present. [#48961]
+- Newsletter Categories: Stop returning a 400 response when saving the same category selection that's already stored. [#48865]
+- Reader Chat: Prevent the frontend widget from loading on Coming Soon or unlaunched sites. [#48890]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities: Opt the Shortlinks, Sitemaps, and Newsletter abilities into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Register sitemaps reads and rebuild dispatch. [#48767]
+- Abilities API: Register the `jetpack/get-connection-status` read ability from the Jetpack plugin. [#48735]
+- E2E tests: Update encryption key. [#49115]
+- Infinite Scroll: Address PHP warnings. [#48868]
+- Modules abilities: Align the `jetpack` ability-category description and textdomain with the Connection package so the shared category definition does not drift between registrars. [#48735]
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+- Search: Point the Performance page's "Manage Search settings" link at the Search dashboard's new `#/settings` hash route. [#49042]
+- Sitemaps abilities: Simplify get-status output to reflect the child sitemaps actually present in the served `sitemap.xml`. [#48767]
+- Sitemaps abilities: Use the core site ability category. [#48767]
+- Sync: Add test coverage for the newly synced Jetpack Search options. [#48945]
+- Update package dependencies. [#48329] [#48405] [#49012]
+
+## 15.9-a.3 - 2026-05-19
+### Enhancements
+- Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
+- AI Assistant: Add an AI Agent Access toggle in the Jetpack Search dashboard, allowing site owners to opt in to letting AI assistants answer reader questions using the blog's content. [#48362]
+- Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, setting a per-frequency default donation amount, and configuring the suggested custom amount. At least one frequency must remain enabled. [#48799]
+- Donations Block: Add Gutenberg style settings (border, color, typography, spacing) and custom controls for active tab and selected amount colors. [#48415]
+- Donations Block: Add Security inspector panel with configurable minimum and maximum donation amounts to help prevent fraudulent transactions. [#48492]
+- Donations Block: Inherit colors and typography from the active theme, and let the Donate button pick up theme button styles. [#48415]
+- Image Studio: Only allow video clip generation on sites where Image Studio is enabled and the plan supports video uploads. [#48712]
+- Performance settings: Simplify the Search section and link to the Search dashboard so experience selection happens in one place. [#48773]
+- Related Posts: Add configurable result limits for related-post agent requests. [#48335]
+- Related Posts: Register WordPress Abilities API support for fetching related posts. [#48335]
+- Search: Add an auto-complete feature that suggests search queries as users type. [#48473]
+- Shortlinks: Require edit-posts access for Shortlinks ability requests. [#48334]
+
+### Improved compatibility
+- Migrate Status indicator to @wordpress/ui Text. [#48711]
+
+### Bug fixes
+- Copy Post: Fix backslash characters being stripped from post content, title, and excerpt when duplicating a post. [#48870]
+- Jetpack AI: Improve MCP settings UI navigation, setup-list formatting, label alignment, and toggle spacing. [#48524]
+- Jetpack AI: Send non-WordPress.com hosts through the standard checkout workflow for the MCP "Upgrade plan" CTA, and remove WordPress.com-specific upsell copy. [#48661]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Composer: drop the automattic/jetpack-podcast dependency. The package is only consumed via jetpack-mu-wpcom and was never initialized from the Jetpack plugin. [#48907]
+- General: update composer.lock files. [#48743]
+- Internal: regenerate composer.lock to pick up the podcast package's new automattic/jetpack-connection dependency. [#48774]
+- Tests: cover the Search options that ship with the Search sync module's default-option whitelist. [#48745]
+- Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
+- Update package dependencies. [#48683] [#48695]
+- Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
+
 ## 15.9-a.1 - 2026-05-11
 ### Enhancements
 - AI Page: Ensure the layout matches the rest of the Jetpack admin pages that use the AdminPage component. [#48471]

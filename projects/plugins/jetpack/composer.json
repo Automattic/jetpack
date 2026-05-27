@@ -44,7 +44,6 @@
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
-		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-publicize": "@dev",
@@ -55,7 +54,6 @@
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
@@ -115,7 +113,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_9_a_1",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_9_a_5",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

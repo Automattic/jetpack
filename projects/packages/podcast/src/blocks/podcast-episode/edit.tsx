@@ -11,9 +11,11 @@ import {
 import {
 	BaseControl,
 	Button,
+	ExternalLink,
 	PanelBody,
 	Placeholder,
 	SelectControl,
+	TextareaControl,
 	TextControl,
 	ToggleControl,
 	ToolbarGroup,
@@ -21,8 +23,10 @@ import {
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import metadata from './block.json';
 import { microphone } from './icons';
 import { getValidatedAttributes } from './util/get-validated-attributes';
@@ -33,11 +37,6 @@ interface Person {
 	role?: string;
 	href?: string;
 	img?: string;
-}
-
-interface Chapter {
-	startTime?: number;
-	title?: string;
 }
 
 interface CoverArt {
@@ -57,7 +56,8 @@ interface PodcastEpisodeAttributes {
 	duration?: string;
 	transcriptUrl?: string;
 	transcriptType?: string;
-	chapters?: Chapter[];
+	chaptersUrl?: string;
+	chaptersType?: string;
 	locationName?: string;
 	license?: string;
 	licenseUrl?: string;
@@ -82,7 +82,6 @@ interface EditProps {
 	context?: {
 		postId?: number;
 		postType?: string;
-		queryId?: number;
 	};
 }
 
@@ -101,84 +100,6 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 	{ label: __( 'JSON (application/json)', 'jetpack-podcast' ), value: 'application/json' },
 ];
 
-const PERSON_ROW_STYLE = { marginBottom: '1em' };
-
-const formatTimeCode = ( seconds: number | undefined ): string => {
-	if ( ! seconds || seconds < 0 || Number.isNaN( seconds ) ) {
-		return '';
-	}
-	const total = Math.floor( seconds );
-	const h = Math.floor( total / 3600 );
-	const m = Math.floor( ( total % 3600 ) / 60 );
-	const s = total % 60;
-	const mm = String( m ).padStart( 2, '0' );
-	const ss = String( s ).padStart( 2, '0' );
-	return h > 0 ? `${ h }:${ mm }:${ ss }` : `${ m }:${ ss }`;
-};
-
-const parseTimeCode = ( value: string ): number | undefined => {
-	const trimmed = value.trim();
-	if ( '' === trimmed ) {
-		return undefined;
-	}
-	const parts = trimmed.split( ':' ).map( p => Number( p ) );
-	if ( parts.some( Number.isNaN ) || parts.length > 3 ) {
-		return undefined;
-	}
-	return parts.reduce( ( total, p ) => total * 60 + p, 0 );
-};
-
-interface ChaptersEditorProps {
-	chapters: Chapter[];
-	onChange: ( next: Chapter[] ) => void;
-}
-
-function ChaptersEditor( { chapters, onChange }: ChaptersEditorProps ) {
-	const updateChapter = ( index: number, patch: Partial< Chapter > ) => {
-		onChange(
-			chapters.map( ( chapter, i ) => ( i === index ? { ...chapter, ...patch } : chapter ) )
-		);
-	};
-	const removeChapter = ( index: number ) => onChange( chapters.filter( ( _, i ) => i !== index ) );
-	const addChapter = () => {
-		const lastTime = chapters.reduce(
-			( max, c ) => ( typeof c.startTime === 'number' && c.startTime > max ? c.startTime : max ),
-			-1
-		);
-		onChange( [ ...chapters, { startTime: lastTime + 1, title: '' } ] );
-	};
-
-	return (
-		<>
-			{ chapters.map( ( chapter, index ) => (
-				<div className="jetpack-podcast-episode__chapter-row" key={ index }>
-					<TextControl
-						label={ __( 'Start', 'jetpack-podcast' ) }
-						help={ __( 'HH:MM:SS or MM:SS.', 'jetpack-podcast' ) }
-						value={ formatTimeCode( chapter.startTime ) }
-						onChange={ value => updateChapter( index, { startTime: parseTimeCode( value ) } ) }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-					<TextControl
-						label={ __( 'Title', 'jetpack-podcast' ) }
-						value={ chapter.title || '' }
-						onChange={ title => updateChapter( index, { title } ) }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-					<Button variant="link" isDestructive onClick={ () => removeChapter( index ) }>
-						{ __( 'Remove chapter', 'jetpack-podcast' ) }
-					</Button>
-				</div>
-			) ) }
-			<Button variant="secondary" onClick={ addChapter }>
-				{ __( 'Add chapter', 'jetpack-podcast' ) }
-			</Button>
-		</>
-	);
-}
-
 interface PeopleEditorProps {
 	people: Person[];
 	onChange: ( next: Person[] ) => void;
@@ -196,9 +117,10 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 		<>
 			{ people.map( ( person, index ) => (
 				<div
-					className="jetpack-podcast-episode__person-editor"
+					className={ clsx( 'jetpack-podcast-episode__person-editor', {
+						'jetpack-podcast-episode__person-editor--alt': index % 2 === 1,
+					} ) }
 					key={ index }
-					style={ PERSON_ROW_STYLE }
 				>
 					<TextControl
 						label={ __( 'Name', 'jetpack-podcast' ) }
@@ -244,10 +166,10 @@ function PeopleEditor( { people, onChange }: PeopleEditorProps ) {
 }
 
 export default function PodcastEpisodeEdit( { attributes, setAttributes, context }: EditProps ) {
-	const validated = getValidatedAttributes(
-		metadata.attributes,
-		attributes
-	) as PodcastEpisodeAttributes;
+	const validated = useMemo(
+		() => getValidatedAttributes( metadata.attributes, attributes ) as PodcastEpisodeAttributes,
+		[ attributes ]
+	);
 	const {
 		mediaId,
 		mediaUrl,
@@ -260,7 +182,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		duration,
 		transcriptUrl,
 		transcriptType,
-		chapters = [],
+		chaptersUrl,
+		chaptersType,
 		locationName,
 		license,
 		licenseUrl,
@@ -274,6 +197,21 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 	const [ postTitle ] = useEntityProp( 'postType', postType, 'title', postId );
 	const [ postDate ] = useEntityProp( 'postType', postType, 'date', postId );
 	const [ authorId ] = useEntityProp( 'postType', postType, 'author', postId );
+	const [ featuredImageId ] = useEntityProp< number >(
+		'postType',
+		postType,
+		'featured_media',
+		postId
+	);
+	// `post_excerpt` is the show notes — feed `<description>` / `<itunes:summary>`
+	// read from here. Bound to the same REST field as the sidebar Excerpt panel
+	// so the two controls stay in sync.
+	const [ postExcerpt, setPostExcerpt ] = useEntityProp< string >(
+		'postType',
+		postType,
+		'excerpt',
+		postId
+	);
 
 	// Source the show-level cover from the same REST surface the dashboard
 	// reads: /wp/v2/settings exposes `podcasting_image` (registered in
@@ -293,7 +231,23 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		[ authorId ]
 	);
 
-	const coverArtUrl = coverArt?.url || showCoverUrl;
+	const featuredImageUrl = useSelect(
+		select => {
+			if ( ! featuredImageId ) {
+				return '';
+			}
+			const media = (
+				select( coreStore ) as {
+					getMedia: ( id: number ) => { source_url?: string } | null;
+				}
+			 ).getMedia( featuredImageId );
+			return media?.source_url || '';
+		},
+		[ featuredImageId ]
+	);
+
+	// Editor preview mirrors the PHP chain: episode override → featured image → show cover.
+	const coverArtUrl = coverArt?.url || featuredImageUrl || showCoverUrl;
 
 	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState< string | null >( null );
@@ -415,10 +369,21 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Episode', 'jetpack-podcast' ) }>
+					<TextareaControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show notes', 'jetpack-podcast' ) }
+						help={ __(
+							'Episode description shown in Apple Podcasts, Spotify, and Pocket Casts. Synced with the post’s Excerpt.',
+							'jetpack-podcast'
+						) }
+						value={ postExcerpt || '' }
+						onChange={ setPostExcerpt }
+						rows={ 4 }
+					/>
 					<TextControl
 						label={ __( 'Season number', 'jetpack-podcast' ) }
 						type="number"
-						min={ 0 }
+						min={ 1 }
 						value={ seasonNumber ?? '' }
 						onChange={ value =>
 							setAttributes( {
@@ -431,7 +396,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					<TextControl
 						label={ __( 'Episode number', 'jetpack-podcast' ) }
 						type="number"
-						min={ 0 }
+						min={ 1 }
 						value={ episodeNumber ?? '' }
 						onChange={ value =>
 							setAttributes( {
@@ -459,72 +424,72 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					/>
 					<ToggleControl
 						label={ __( 'Show cover art', 'jetpack-podcast' ) }
-						help={ __( 'Display cover art alongside the player.', 'jetpack-podcast' ) }
+						help={ __(
+							'Display cover art alongside the player on the post page. Cover art stays in schema metadata either way.',
+							'jetpack-podcast'
+						) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
 						__nextHasNoMarginBottom
 					/>
-					{ showPoster && (
-						<BaseControl __nextHasNoMarginBottom>
-							<BaseControl.VisualLabel>
-								{ __( 'Cover art', 'jetpack-podcast' ) }
-							</BaseControl.VisualLabel>
-							<MediaUploadCheck>
-								<MediaUpload
-									onSelect={ ( media: MediaAttachment ) =>
-										setAttributes( {
-											coverArt: media?.url ? { id: media.id, url: media.url } : {},
-										} )
-									}
-									allowedTypes={ [ 'image' ] }
-									value={ coverArt?.id }
-									render={ ( { open }: { open: () => void } ) => (
-										<div className="jetpack-podcast-episode__cover-picker">
-											<Button
-												className={
-													coverArtUrl
-														? 'jetpack-podcast-episode__cover-button'
-														: 'jetpack-podcast-episode__cover-button jetpack-podcast-episode__cover-button--empty'
-												}
-												onClick={ open }
-												aria-label={
-													coverArt?.url
-														? __( 'Replace cover art', 'jetpack-podcast' )
-														: __( 'Set episode cover art', 'jetpack-podcast' )
-												}
-											>
-												{ coverArtUrl ? (
-													<img src={ coverArtUrl } alt="" />
-												) : (
-													<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
-												) }
-											</Button>
-											{ coverArt?.url && (
-												<div className="jetpack-podcast-episode__cover-actions">
-													<Button variant="link" onClick={ open }>
-														{ __( 'Replace', 'jetpack-podcast' ) }
-													</Button>
-													<Button
-														variant="link"
-														isDestructive
-														onClick={ () => setAttributes( { coverArt: {} } ) }
-													>
-														{ __( 'Remove', 'jetpack-podcast' ) }
-													</Button>
-												</div>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'Cover art', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<MediaUploadCheck>
+							<MediaUpload
+								onSelect={ ( media: MediaAttachment ) =>
+									setAttributes( {
+										coverArt: media?.url ? { id: media.id, url: media.url } : {},
+									} )
+								}
+								allowedTypes={ [ 'image' ] }
+								value={ coverArt?.id }
+								render={ ( { open }: { open: () => void } ) => (
+									<div className="jetpack-podcast-episode__cover-picker">
+										<Button
+											variant="secondary"
+											className={ clsx( 'jetpack-podcast-episode__cover-button', {
+												'jetpack-podcast-episode__cover-button--empty': ! coverArtUrl,
+											} ) }
+											onClick={ open }
+											aria-label={
+												coverArt?.url
+													? __( 'Replace cover art', 'jetpack-podcast' )
+													: __( 'Set episode cover art', 'jetpack-podcast' )
+											}
+										>
+											{ coverArtUrl ? (
+												<img src={ coverArtUrl } alt="" />
+											) : (
+												<span>{ __( 'Set episode cover art', 'jetpack-podcast' ) }</span>
 											) }
-										</div>
-									) }
-								/>
-							</MediaUploadCheck>
-							<p className="components-base-control__help">
-								{ __(
-									'Defaults to the show cover art set in Settings → Writing → Podcasting.',
-									'jetpack-podcast'
+										</Button>
+										{ coverArt?.url && (
+											<div className="jetpack-podcast-episode__cover-actions">
+												<Button variant="link" onClick={ open }>
+													{ __( 'Replace', 'jetpack-podcast' ) }
+												</Button>
+												<Button
+													variant="link"
+													isDestructive
+													onClick={ () => setAttributes( { coverArt: {} } ) }
+												>
+													{ __( 'Remove', 'jetpack-podcast' ) }
+												</Button>
+											</div>
+										) }
+									</div>
 								) }
-							</p>
-						</BaseControl>
-					) }
+							/>
+						</MediaUploadCheck>
+						<p className="components-base-control__help">
+							{ __(
+								'Defaults to the post’s featured image, then the show cover art from Settings → Writing → Podcasting.',
+								'jetpack-podcast'
+							) }
+						</p>
+					</BaseControl>
 				</PanelBody>
 
 				<PanelBody title={ __( 'Audio', 'jetpack-podcast' ) }>
@@ -556,10 +521,54 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						<BaseControl.VisualLabel>
 							{ __( 'Chapters', 'jetpack-podcast' ) }
 						</BaseControl.VisualLabel>
-						<ChaptersEditor
-							chapters={ chapters }
-							onChange={ value => setAttributes( { chapters: value } ) }
+						<p className="components-base-control__help">
+							{ __(
+								'Link to a chapters JSON file hosted on a public URL. Podcasting 2.0 players fetch the file directly and display chapter markers in their UI.',
+								'jetpack-podcast'
+							) }
+						</p>
+						<TextControl
+							label={ __( 'Chapters file URL', 'jetpack-podcast' ) }
+							type="url"
+							value={ chaptersUrl || '' }
+							onChange={ value => setAttributes( { chaptersUrl: value } ) }
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
 						/>
+						{ chaptersUrl && (
+							<Button
+								variant="link"
+								isDestructive
+								onClick={ () =>
+									setAttributes( {
+										chaptersUrl: '',
+										chaptersType: 'application/json+chapters',
+									} )
+								}
+							>
+								{ __( 'Remove chapters URL', 'jetpack-podcast' ) }
+							</Button>
+						) }
+						<SelectControl
+							label={ __( 'Chapters file format', 'jetpack-podcast' ) }
+							value={ chaptersType || 'application/json+chapters' }
+							options={ [
+								{
+									label: __( 'JSON Chapters (application/json+chapters)', 'jetpack-podcast' ),
+									value: 'application/json+chapters',
+								},
+								{
+									label: __( 'JSON (application/json)', 'jetpack-podcast' ),
+									value: 'application/json',
+								},
+							] }
+							onChange={ value => setAttributes( { chaptersType: value } ) }
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+						/>
+						<ExternalLink href="https://github.com/Podcastindex-org/podcast-namespace/blob/main/chapters/jsonChapters.md">
+							{ __( 'Learn about the chapters JSON format', 'jetpack-podcast' ) }
+						</ExternalLink>
 					</BaseControl>
 				</PanelBody>
 
@@ -591,8 +600,19 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Podcasting 2.0', 'jetpack-podcast' ) } initialOpen={ false }>
 					<BaseControl __nextHasNoMarginBottom>
-						<BaseControl.VisualLabel>{ __( 'People', 'jetpack-podcast' ) }</BaseControl.VisualLabel>
+						<BaseControl.VisualLabel>
+							{ __( 'Guests & credits', 'jetpack-podcast' ) }
+						</BaseControl.VisualLabel>
+						<p className="components-base-control__help">
+							{ __(
+								'Credit hosts, guests, and producers. Read by Podcasting 2.0 apps (Podverse, Fountain, Podcast Addict) and rendered as a credits list on the post page.',
+								'jetpack-podcast'
+							) }
+						</p>
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
@@ -650,7 +670,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					) }
 
 					<h3 className="jetpack-podcast-episode__title">
-						{ postTitle || __( 'Untitled episode', 'jetpack-podcast' ) }
+						{ postTitle
+							? decodeEntities( postTitle )
+							: __( 'Untitled episode', 'jetpack-podcast' ) }
 					</h3>
 
 					{ ( postAuthor || postDate || duration ) && (
@@ -674,18 +696,14 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							<video
 								src={ mediaUrl }
 								controls
-								preload="metadata"
+								preload="none"
 								poster={ showPoster ? coverArtUrl : undefined }
 								data-mime={ mediaMimeType || undefined }
 							/>
 						) : (
-							<audio src={ mediaUrl } controls preload="metadata" />
+							<audio src={ mediaUrl } controls preload="none" />
 						) }
 					</div>
-
-					<p className="jetpack-podcast-episode__notes-hint">
-						{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
-					</p>
 				</div>
 			</article>
 		</div>

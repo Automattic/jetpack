@@ -53,7 +53,7 @@ class Block_Editor_Content {
 		/**
 		 * We only accept GUIDs as a first unnamed argument.
 		 */
-		$guid = isset( $atts[0] ) ? $atts[0] : null;
+		$guid = $atts[0] ?? null;
 
 		/**
 		 * Make sure the GUID passed in matches how actual GUIDs are formatted.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: register singleton template CPTs synchronously when init() is invoked from inside an init action, so downstream consumers hooking Search_Blocks::init() onto init don't drop the registration.

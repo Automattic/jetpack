@@ -15,7 +15,7 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl, TextControl } from '@wordpress/components';
+import { PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 // `product` is WC-only. On non-Woo sites it's pruned from the picker and a
@@ -140,6 +140,21 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
+					{ isWooCommerceBlocksEnabled() && (
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Auto-switch to Product view for product searches',
+								'jetpack-search-pkg'
+							) }
+							checked={ attributes?.autoProductView ?? true }
+							onChange={ value => setAttributes( { autoProductView: value } ) }
+							help={ __(
+								'When the search is scoped to products (a ?post_types[]=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
+								'jetpack-search-pkg'
+							) }
+						/>
+					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

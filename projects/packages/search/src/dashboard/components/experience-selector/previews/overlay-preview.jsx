@@ -1,9 +1,12 @@
 import { Icon, search } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
+import TextRowPlaceHolder from '../../mocked-search/placeholder';
 import './overlay-preview.scss';
 
 /**
- * Decorative Overlay mockup — `aria-hidden`, strings intentionally not translated.
+ * Decorative Overlay mockup — `aria-hidden`. Text content is rendered with
+ * the dashboard's existing `TextRowPlaceHolder` so the layout reads as a
+ * skeleton, matching the Overview mocked-search interface.
  *
  * @return {import('react').Element} - The preview.
  */
@@ -21,34 +24,22 @@ export default function OverlayPreview() {
 						className="jp-search-overlay-preview__search"
 					>
 						<Icon className="jp-search-overlay-preview__search-icon" icon={ search } size={ 16 } />
-						pasta
+						<TextRowPlaceHolder style={ { height: '8px', width: '60px' } } />
 					</Stack>
-					<Stack
-						direction="row"
-						gap="sm"
-						align="center"
-						className="jp-search-overlay-preview__result"
-					>
-						<span className="jp-search-overlay-preview__thumb" />
-						<div>
-							<div className="jp-search-overlay-preview__result-title">10 Easy Pasta Recipes</div>
-							<div className="jp-search-overlay-preview__result-meta">Recipes</div>
-						</div>
-					</Stack>
-					<Stack
-						direction="row"
-						gap="sm"
-						align="center"
-						className="jp-search-overlay-preview__result"
-					>
-						<span className="jp-search-overlay-preview__thumb" />
-						<div>
-							<div className="jp-search-overlay-preview__result-title">Best Pasta Sauces</div>
-							<div className="jp-search-overlay-preview__result-meta">Reviews</div>
-						</div>
-					</Stack>
+					<Result />
+					<Result />
 				</div>
 			</div>
 		</Stack>
 	);
 }
+
+const Result = () => (
+	<Stack direction="row" gap="sm" align="center" className="jp-search-overlay-preview__result">
+		<span className="jp-search-overlay-preview__thumb" />
+		<div className="jp-search-overlay-preview__result-content">
+			<TextRowPlaceHolder style={ { height: '8px', width: '80%' } } />
+			<TextRowPlaceHolder style={ { height: '6px', width: '40%', marginTop: '4px' } } />
+		</div>
+	</Stack>
+);

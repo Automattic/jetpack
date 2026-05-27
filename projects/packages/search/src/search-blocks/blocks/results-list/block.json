@@ -12,6 +12,7 @@
 			"enum": [ "compact", "expanded", "product" ],
 			"default": "expanded"
 		},
+		"autoProductView": { "type": "boolean", "default": true },
 		"noResultsMessage": { "type": "string", "default": "" },
 		"errorMessage": { "type": "string", "default": "" }
 	},

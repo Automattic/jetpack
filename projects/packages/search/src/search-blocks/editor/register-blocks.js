@@ -20,6 +20,7 @@ import { getCategories, registerBlockType, setCategories } from '@wordpress/bloc
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import AiAnswerEdit from '../blocks/ai-answer/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
@@ -48,6 +49,7 @@ import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
 const save = () => null;
 
 const BLOCKS = [
+	[ 'jetpack-search/ai-answer', AiAnswerEdit ],
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
