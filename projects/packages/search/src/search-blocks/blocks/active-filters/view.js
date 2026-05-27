@@ -1,6 +1,6 @@
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
 import 'jetpack-search/store';
-import { buildActivePills } from './lib';
+import { buildActivePills, dedupePillsInUl } from './lib';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
@@ -22,6 +22,34 @@ store( NAMESPACE, {
 		get activePills() {
 			const { state } = store( NAMESPACE );
 			return buildActivePills( state );
+		},
+	},
+
+	callbacks: {
+		/**
+		 * Reconcile materialized `<li>` pill children against
+		 * `state.activePills` on every state change. Defends against an
+		 * Interactivity API hydration quirk on some hosts that doubles the
+		 * `data-wp-each` materialization (see SEARCH-266 + `dedupePillsInUl`).
+		 *
+		 * Reads `state.activePills` so the watch tracks it as a dep, then
+		 * defers the DOM cleanup to the next animation frame: `data-wp-each`
+		 * materializes children as part of the same hydration / state-change
+		 * pass, so the duplicate `<li>` doesn't exist yet when the watch
+		 * first fires — the rAF lets the materialization land first.
+		 */
+		reconcilePills() {
+			const { state } = store( NAMESPACE );
+			const { ref } = getElement();
+			const pills = state.activePills;
+			const ul = ref?.querySelector( 'ul.jetpack-search-active-filters__pills' );
+			if ( ! ul ) {
+				return;
+			}
+			const raf =
+				( typeof window !== 'undefined' && window.requestAnimationFrame ) ||
+				( fn => setTimeout( fn, 0 ) );
+			raf( () => dedupePillsInUl( ul, pills ) );
 		},
 	},
 
