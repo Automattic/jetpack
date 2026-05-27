@@ -77,6 +77,10 @@ class Akismet_Experimental {
 		}
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+
+		if ( class_exists( 'Akismet_Experimental_REST_API' ) ) {
+			Akismet_Experimental_REST_API::init();
+		}
 	}
 
 	/**
