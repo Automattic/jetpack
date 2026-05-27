@@ -22,7 +22,9 @@ function validSortOrders( isWooCommerceBlocksEnabled ) {
 const DEFAULT_SEARCH_PARAM = 's';
 
 // Reserved params; not treated as filter keys. Mirrors PHP `RESERVED_QUERY_PARAMS`.
-const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
+// `post_type` carries the static-scope contract (`?post_type=<slug>`) — gated
+// here so the scalar static-filter reader can't mistake it for a filter selection.
+const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price', 'post_type' ] );
 
 // Per-filter AND/OR override prefix (`?query_type_category=and`). Mirrors
 // WooCommerce's `product-filter-attribute` convention.
@@ -63,6 +65,10 @@ function parsePriceBound( raw ) {
  *                                                         block-author `queryType` + the static-filter gate.
  * @param {object|null} [state.priceRange]                 - `{ min, max }`; either may be null.
  * @param {object}      [state.staticFilterSelections]     - Scalar `?filter_id=value` (legacy contract).
+ * @param {object|null} [state.staticPostTypes]            - `{ include, exclude }` static post-type scope.
+ *                                                         Round-trips through `?post_type=<slug>` for the
+ *                                                         single-slug include case only; multi-slug or
+ *                                                         exclude scopes stay session-local.
  * @param {string}      [state.searchParamName]            - `s` or `q`. Defaults to `s`.
  * @param {boolean}     [state.isWooCommerceBlocksEnabled] - Gate for WC-only URL surface.
  * @return {URLSearchParams} URL-ready params.
@@ -75,6 +81,7 @@ export function stateToUrlParams( {
 	filterConfigs = {},
 	priceRange = null,
 	staticFilterSelections = {},
+	staticPostTypes = null,
 	searchParamName = DEFAULT_SEARCH_PARAM,
 	isWooCommerceBlocksEnabled = false,
 } ) {
@@ -122,6 +129,17 @@ export function stateToUrlParams( {
 		params.set( key, String( value ) );
 	}
 
+	// Static post-type scope round-trips as `?post_type=<slug>` for the single-
+	// slug include case only — that's the contract that pairs with WP/WC's own
+	// `?post_type=` URL convention. Multi-slug or exclude scopes are author-
+	// configured on a search-input and stay session-local; serializing those
+	// would need a richer URL grammar we don't have a use case for yet.
+	const include = Array.isArray( staticPostTypes?.include ) ? staticPostTypes.include : [];
+	const exclude = Array.isArray( staticPostTypes?.exclude ) ? staticPostTypes.exclude : [];
+	if ( include.length === 1 && exclude.length === 0 ) {
+		params.set( 'post_type', String( include[ 0 ] ) );
+	}
+
 	return params;
 }
 
@@ -134,7 +152,7 @@ export function stateToUrlParams( {
  * @param {object}          [filterConfigs]              - Validate filter keys against this.
  * @param {string}          [searchParamName]            - `s` or `q`.
  * @param {boolean}         [isWooCommerceBlocksEnabled] - WC URL-surface gate.
- * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object }} Partial state.
+ * @return {{ searchQuery: string, hasSearchParam: boolean, sortOrder: string, activeFilters: object, filterLogic: object, priceRange: object|null, staticFilterSelections: object, staticPostTypes: object|null }} Partial state.
  */
 export function urlParamsToState(
 	params,
@@ -148,6 +166,21 @@ export function urlParamsToState(
 	const filterLogic = {};
 	const staticFilterSelections = {};
 	const hasFilterConfigGate = filterConfigs && Object.keys( filterConfigs ).length > 0;
+
+	// `?post_type=<slug>` → static include-mode scope. Trimmed + lowercased to
+	// `[a-z0-9_-]` to mirror PHP `sanitize_key()` (no allowlist gate on the JS
+	// side — the server seed already applied the searchable-types allowlist).
+	const rawPostType = params.get( 'post_type' );
+	const normalizedPostType =
+		typeof rawPostType === 'string'
+			? rawPostType
+					.trim()
+					.toLowerCase()
+					.replace( /[^a-z0-9_-]/g, '' )
+			: '';
+	const staticPostTypes = normalizedPostType
+		? { include: [ normalizedPostType ], exclude: [] }
+		: null;
 
 	for ( const [ rawKey, value ] of params.entries() ) {
 		// `query_type_<key>` runs before the `[]` gate so the prefix can't be missed.
@@ -237,6 +270,7 @@ export function urlParamsToState(
 		filterLogic,
 		priceRange,
 		staticFilterSelections,
+		staticPostTypes,
 	};
 }
 

@@ -472,6 +472,71 @@ describe( 'filterLogic round-trip (RSM-2815)', () => {
 	} );
 } );
 
+describe( 'staticPostTypes URL round-trip (`?post_type=<slug>`)', () => {
+	it( 'stateToUrlParams emits ?post_type=<slug> for a single-slug include scope', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticPostTypes: { include: [ 'product' ], exclude: [] },
+		} );
+		expect( params.get( 'post_type' ) ).toBe( 'product' );
+	} );
+
+	it( 'stateToUrlParams omits post_type for multi-slug include — only single-slug round-trips', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticPostTypes: { include: [ 'product', 'post' ], exclude: [] },
+		} );
+		expect( params.has( 'post_type' ) ).toBe( false );
+	} );
+
+	it( 'stateToUrlParams omits post_type for exclude-mode scope', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			staticPostTypes: { include: [], exclude: [ 'page' ] },
+		} );
+		expect( params.has( 'post_type' ) ).toBe( false );
+	} );
+
+	it( 'stateToUrlParams omits post_type when scope is null or empty', () => {
+		expect( stateToUrlParams( { searchQuery: '' } ).has( 'post_type' ) ).toBe( false );
+		expect(
+			stateToUrlParams( {
+				searchQuery: '',
+				staticPostTypes: { include: [], exclude: [] },
+			} ).has( 'post_type' )
+		).toBe( false );
+	} );
+
+	it( 'urlParamsToState reads ?post_type=<slug> into a single-slug include scope', () => {
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ) );
+		expect( state.staticPostTypes ).toEqual( { include: [ 'product' ], exclude: [] } );
+	} );
+
+	it( 'urlParamsToState returns null staticPostTypes when post_type is absent or empty', () => {
+		expect( urlParamsToState( new URLSearchParams( '' ) ).staticPostTypes ).toBeNull();
+		expect( urlParamsToState( new URLSearchParams( 'post_type=' ) ).staticPostTypes ).toBeNull();
+	} );
+
+	it( 'urlParamsToState sanitizes post_type via sanitize_key semantics', () => {
+		// Mirrors PHP `sanitize_key`: lowercase + strip everything outside `[a-z0-9_-]`.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=Product%20Type%21' ) );
+		expect( state.staticPostTypes ).toEqual( { include: [ 'producttype' ], exclude: [] } );
+	} );
+
+	it( 'urlParamsToState does not treat post_type as a static-filter scalar', () => {
+		// Without the RESERVED_PARAMS gate, post_type configured as a static
+		// filter would have its value land in staticFilterSelections too.
+		const state = urlParamsToState( new URLSearchParams( 'post_type=product' ), {
+			post_type: { filterType: 'post_type', kind: 'static' },
+		} );
+		expect( state.staticFilterSelections ).toEqual( {} );
+		expect( state.staticPostTypes ).toEqual( { include: [ 'product' ], exclude: [] } );
+	} );
+} );
+
 describe( 'urlParamsToState: priceRange', () => {
 	// All priceRange-parsing tests opt into `isWooCommerceBlocksEnabled=true` to
 	// exercise the parsing logic; the WC-off behaviour (price params are

@@ -151,7 +151,6 @@ describe( 'store actions', () => {
 			filterConfigs: {},
 			priceRange: null,
 			staticFilterSelections: {},
-			staticPostTypes: undefined,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -212,7 +211,7 @@ describe( 'store actions', () => {
 		expect( state.isLoading ).toBe( false );
 	} );
 
-	it( 'applies a per-instance post-type scope, reuses it across re-runs, and falls back to the global seed for an unscoped input', async () => {
+	it( 'applies a per-instance post-type scope, reuses it across re-runs, and clears it when an unscoped input dispatches', async () => {
 		const ok = () =>
 			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
 
@@ -234,14 +233,13 @@ describe( 'store actions', () => {
 			'filter[bool][must][0][term][post_type]=post'
 		);
 
-		// 3. An unscoped input passes null, clearing the active scope and falling
-		//    back to the page-global seed a filter-post-type block contributed.
-		state.staticPostTypes = { include: [ 'page' ], exclude: [] };
+		// 3. An unscoped input passes null, clearing the active scope; the next
+		//    search emits no post_type constraint.
 		global.fetch.mockResolvedValueOnce( ok() );
 		await runGenerator( actions.search( { syncUrl: false, staticPostTypes: null } ) );
-		const decoded = decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] );
-		expect( decoded ).toContain( 'filter[bool][must][0][term][post_type]=page' );
-		expect( decoded ).not.toContain( '[post_type]=post&' );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
+			'[term][post_type]'
+		);
 	} );
 
 	it( 'reuses the active per-instance scope on popstate (omits the scope key)', async () => {

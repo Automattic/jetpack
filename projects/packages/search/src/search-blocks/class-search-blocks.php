@@ -19,7 +19,7 @@ class Search_Blocks {
 	 * `s` is the WP search route key; `q` is what the inline blocks use on
 	 * non-search pages (see `get_search_param_name()`). Neither may be parsed as a filter key.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price', 'post_type' );
 
 	/**
 	 * Query-string param for inline search on non-search pages (e.g. `/about/?q=boots`).
@@ -1906,6 +1906,7 @@ HTML;
 		$active_filters     = static::parse_url_filters();
 		$filter_logic       = static::parse_url_filter_logic( $active_filters );
 		$price_range        = static::parse_url_price_range();
+		$static_post_types  = static::parse_url_post_type_scope();
 		$is_initial_loading = static::is_initial_loading();
 		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
@@ -1942,14 +1943,13 @@ HTML;
 			'priceRange'                 => $price_range,
 			// Scalar `?filter_id=value`; seeded as `{}` so JS readers see a defined shape.
 			'staticFilterSelections'     => (object) array(),
+			// Static post-type scope from `?post_type=<slug>`. Null when the
+			// URL doesn't carry the param or the slug isn't searchable.
+			'staticPostTypes'            => $static_post_types,
 
 			// Each filter block's render.php deep-merges its entry. Shape:
 			// `{ [key]: { filterKey, filterType, taxonomy, effectiveSlug, label, showCount, maxItems } }`.
 			'filterConfigs'              => array(),
-
-			// `staticPostTypes` deliberately NOT seeded — FSE templates render
-			// before this seed, so pre-seeding `{include:[],exclude:[]}` would
-			// clobber the block contribution. JS treats undefined as no-constraint.
 
 			// JS hydration fills these. `aggregations` is stdClass so JS sees `{}`.
 			'results'                    => array(),
@@ -2408,6 +2408,22 @@ HTML;
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Parse the `?post_type=<slug>` URL contract into a `{ include, exclude }`
+	 * static-scope shape, or `null` if the slug is missing / unknown.
+	 * Single-slug include only — mirrors the JS emitter (`store/url-state.js`).
+	 *
+	 * @return array{include: string[], exclude: string[]}|null
+	 */
+	protected static function parse_url_post_type_scope(): ?array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized in Filter_Post_Type::from_url_param().
+		$raw = isset( $_GET['post_type'] ) ? wp_unslash( $_GET['post_type'] ) : null;
+		if ( null === $raw ) {
+			return null;
+		}
+		return Filter_Post_Type::from_url_param( $raw );
 	}
 
 	/**

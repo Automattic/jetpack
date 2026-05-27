@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Filter_Post_Type helpers — single-mode constraint building,
- * registry-allowlist enforcement, and multi-instance state merging.
+ * registry-allowlist enforcement, and the `?post_type=<slug>` URL contract.
  */
 class Filter_Post_Type_Test extends TestCase {
 
@@ -211,45 +211,22 @@ class Filter_Post_Type_Test extends TestCase {
 	}
 
 	/**
-	 * Multi-instance composition is union, not intersection — picking
-	 * intersection would silently zero out results when an editor stacks
-	 * two blocks configured for non-overlapping post types.
+	 * `?post_type=product` round-trip — single-slug include scope.
 	 */
-	public function test_merge_state_unions_lists_across_instances() {
-		$merged = Filter_Post_Type::merge_state(
-			array(
-				'include' => array( 'post' ),
-				'exclude' => array( 'product' ),
-			),
-			array(
-				'include' => array( 'page' ),
-				'exclude' => array( 'shop_order' ),
-			)
-		);
-		$this->assertSame( array( 'post', 'page' ), $merged['include'] );
-		$this->assertSame( array( 'product', 'shop_order' ), $merged['exclude'] );
+	public function test_from_url_param_returns_include_scope_for_searchable_slug() {
+		$scope = Filter_Post_Type::from_url_param( 'product' );
+		$this->assertSame( array( 'product' ), $scope['include'] );
+		$this->assertSame( array(), $scope['exclude'] );
 	}
 
 	/**
-	 * Existing state may carry malformed entries (forward-compat with a
-	 * future shape change); the merge sanitizes both sides before unioning
-	 * so a stray non-array value can't poison the merged output.
-	 * `merge_state` does not enforce the registry allowlist on the
-	 * existing-state side (already-filtered by the contributing block's
-	 * own `build_constraint()` call).
+	 * Allowlist still applies — the URL is visitor-controllable, so a slug
+	 * that isn't searchable must drop rather than reach ES.
 	 */
-	public function test_merge_state_sanitizes_existing_state() {
-		$merged = Filter_Post_Type::merge_state(
-			array(
-				'include' => 'malformed',
-				'exclude' => array( 'product', 42 ),
-			),
-			array(
-				'include' => array( 'post' ),
-				'exclude' => array( 'shop_order' ),
-			)
-		);
-		$this->assertSame( array( 'post' ), $merged['include'] );
-		$this->assertSame( array( 'product', '42', 'shop_order' ), $merged['exclude'] );
+	public function test_from_url_param_drops_unknown_slugs() {
+		$this->assertNull( Filter_Post_Type::from_url_param( 'not-a-post-type' ) );
+		$this->assertNull( Filter_Post_Type::from_url_param( '' ) );
+		$this->assertNull( Filter_Post_Type::from_url_param( array( 'product' ) ) );
+		$this->assertNull( Filter_Post_Type::from_url_param( null ) );
 	}
 }

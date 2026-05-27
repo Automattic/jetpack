@@ -51,13 +51,13 @@ $input_id      = wp_unique_id( 'jetpack-search-input-' );
 // DOM ids. Only generated (and only emitted) when suggestions are on, to
 // keep the default DOM untouched for authors who haven't opted in.
 $listbox_id = $enable_suggestions ? wp_unique_id( 'jetpack-search-suggestions-' ) : '';
-// Per-instance post-type scope. Reusing `Filter_Post_Type::build_constraint()`
-// keeps slug sanitization + the live-post-type allowlist identical to the
-// standalone `jetpack-search/filter-post-type` block. Carried in this block's
-// own `data-wp-context` (not the shared store) so each Search Input only
-// constrains the searches it initiates — view.js hands the scope to
-// `actions.search()`, which overrides the page-global `state.staticPostTypes`
-// for that input while an unscoped input falls back to it.
+// Per-instance post-type scope. `Filter_Post_Type::build_constraint()` does
+// the slug sanitization + searchable-types allowlist check. Carried in this
+// block's own `data-wp-context` (not the shared store) so each Search Input
+// only constrains the searches it initiates — view.js hands the scope to
+// `actions.search()`, which overrides any URL-seeded `state.staticPostTypes`
+// for that session. An unscoped input clears the session scope outright
+// (the input is the authority once it fires).
 $post_type_scope     = Filter_Post_Type::build_constraint(
 	array(
 		'mode'      => ( $attributes['postTypeMode'] ?? 'exclude' ) === 'include' ? 'include' : 'exclude',

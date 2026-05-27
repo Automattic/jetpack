@@ -434,9 +434,12 @@ function dateFilterItems( sharedState, filterKey, config ) {
 let searchToken = 0;
 
 // Per-instance post-type scope of the Search Input that started the session.
-// `actions.search()` sets it; filter/sort/load-more leave it. `undefined`/`null`
-// fall through to the page-global `state.staticPostTypes` so an unscoped
-// input never clobbers a `filter-post-type` block contribution.
+// `actions.search()` sets it; filter/sort/load-more leave it. Tri-state:
+//   `undefined` — no input has initiated yet; fall through to the URL-seeded
+//                 `state.staticPostTypes`.
+//   `null`      — an unscoped input fired; clear the constraint entirely
+//                 (input authority overrides the URL seed).
+//   object      — scoped input fired; constrain to `{include, exclude}`.
 let activePostTypeScope;
 
 /**
@@ -496,8 +499,10 @@ function* fetchResults( pageHandle ) {
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticFilterSelections: state.staticFilterSelections,
-		// Per-instance scope wins over the page-global seed.
-		staticPostTypes: activePostTypeScope ?? state.staticPostTypes,
+		// Per-instance scope wins; falls through to the URL-seeded
+		// `state.staticPostTypes` (parsed from `?post_type=<slug>`).
+		staticPostTypes:
+			activePostTypeScope !== undefined ? activePostTypeScope : state.staticPostTypes ?? null,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -1115,6 +1120,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * Push current state to browser URL.
 		 */
 		syncToUrl() {
+			// Mirror the same `staticPostTypes` `fetchResults()` uses (per-instance
+			// scope wins; falls through to the URL-seeded slot). Keeps the URL the
+			// querier looked at and the URL the next visitor lands on identical.
+			const effectiveScope =
+				activePostTypeScope !== undefined ? activePostTypeScope : state.staticPostTypes ?? null;
 			pushStateToUrl( {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
@@ -1123,6 +1133,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterConfigs: state.filterConfigs,
 				priceRange: state.priceRange,
 				staticFilterSelections: state.staticFilterSelections,
+				staticPostTypes: effectiveScope,
 				searchParamName: state.searchParamName,
 				isWooCommerceBlocksEnabled: state.isWooCommerceBlocksEnabled,
 			} );
@@ -1142,6 +1153,7 @@ const { state, actions } = store( NAMESPACE, {
 				filterLogic,
 				priceRange,
 				staticFilterSelections,
+				staticPostTypes,
 			} = readStateFromUrl(
 				state.filterConfigs,
 				state.searchParamName,
@@ -1161,8 +1173,11 @@ const { state, actions } = store( NAMESPACE, {
 				staticFilterSelections,
 				state.filterConfigs
 			).gated;
-			// No `staticPostTypes` key: per-instance scope is session-local and
-			// never serialized; popstate keeps whatever the last input set.
+			// The URL is the single source of truth on popstate, so clear the
+			// session-active scope so `fetchResults()` reads the URL-restored
+			// `state.staticPostTypes` instead of whatever input fired last.
+			state.staticPostTypes = staticPostTypes;
+			activePostTypeScope = undefined;
 			yield actions.search( { syncUrl: false } );
 		},
 

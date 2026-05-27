@@ -8,10 +8,10 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Server-side post-type scope helpers shared by `filter-post-type` and
- * `search-input`'s post-type setting. Single-mode (include OR exclude);
- * translates `{ mode, postTypes }` into the `{ include, exclude }` shape
- * that `buildStaticPostTypeClauses()` consumes.
+ * Server-side post-type scope helpers for `search-input`'s per-instance
+ * post-type setting. Single-mode (include OR exclude); translates
+ * `{ mode, postTypes }` into the `{ include, exclude }` shape that
+ * `buildStaticPostTypeClauses()` consumes.
  */
 class Filter_Post_Type {
 
@@ -21,6 +21,32 @@ class Filter_Post_Type {
 	 * @var string[]|null
 	 */
 	private static $searchable_cache = null;
+
+	/**
+	 * Translate a single `?post_type=<slug>` URL value into the same
+	 * `{ include, exclude }` shape `build_constraint()` returns, or `null`
+	 * if the slug is empty / not searchable. Single-slug include only — the
+	 * URL contract round-trips just that case (see `store/url-state.js`).
+	 *
+	 * @param mixed $raw Raw URL value (typically string).
+	 * @return array{include: string[], exclude: string[]}|null
+	 */
+	public static function from_url_param( $raw ): ?array {
+		if ( ! is_scalar( $raw ) ) {
+			return null;
+		}
+		$slugs = static::sanitize_slug_list(
+			array( (string) $raw ),
+			static::searchable_post_type_slugs()
+		);
+		if ( empty( $slugs ) ) {
+			return null;
+		}
+		return array(
+			'include' => $slugs,
+			'exclude' => array(),
+		);
+	}
 
 	/**
 	 * Translate attributes → `{ include, exclude }`. Slugs validated against
@@ -86,23 +112,5 @@ class Filter_Post_Type {
 			get_post_types( array( 'exclude_from_search' => false ) )
 		);
 		return static::$searchable_cache;
-	}
-
-	/**
-	 * Union (not intersect) a block's contribution into `staticPostTypes` so
-	 * stacked blocks can't silently produce zero results.
-	 *
-	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current slot value.
-	 * @param array{include: string[], exclude: string[]} $contribution New block lists.
-	 * @return array{include: string[], exclude: string[]}
-	 */
-	public static function merge_state( array $existing, array $contribution ): array {
-		$existing_include = static::sanitize_slug_list( $existing['include'] ?? array() );
-		$existing_exclude = static::sanitize_slug_list( $existing['exclude'] ?? array() );
-
-		return array(
-			'include' => array_values( array_unique( array_merge( $existing_include, $contribution['include'] ) ) ),
-			'exclude' => array_values( array_unique( array_merge( $existing_exclude, $contribution['exclude'] ) ) ),
-		);
 	}
 }

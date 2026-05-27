@@ -27,7 +27,7 @@ All blocks use the `jetpack-search/*` namespace (mirrors the composer package `a
 
 Current slug shapes — match one if it fits, but new shapes are fine when nothing here covers it:
 
-- **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`, `filter-post-type`). Visitor-facing titles read "Filter by X". Author-configured filters with no front-end UI take a distinct title (e.g. "Post Type Scope") so they don't collide with visitor-facing variations of the same dimension.
+- **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`). Visitor-facing titles read "Filter by X". Author-configured scoping (e.g. the `search-input` block's "Post types" inspector panel) lives on the input that fires the search rather than as a standalone filter block.
 - **Filter compositions:** `filters` for the default vertical stack; layout-suffixed `filters-{layout}` for variants (e.g. `filters-popover`, `filters-product`).
 - **Results region:** `search-results` for the container; `results-{role}` for atoms inside it (`results-list`, `results-count`, `results-sort`, `results-load-more`).
 - **Standalone:** bare role slug (`search-input`, `powered-by`, `active-filters`).
@@ -70,6 +70,8 @@ Filters round-trip through the URL in Jetpack Search's array shape: `?<filterKey
 Don't add a comma-joined / WC-style scalar shape (`?filter_stock_status=in,out`) for new product filters either. Stick to `?filter_stock_status[]=in&filter_stock_status[]=out` so deep links stay interchangeable with instant-search and the PHP parser doesn't need a per-filter URL-format opt-in.
 
 Price is the one exception, and only because its shape doesn't fit. `activeFilters` is typed `{ [filterKey]: string[] }` — discrete, OR-able selections that build a `terms` ES clause. `priceRange` is `{ min, max }`, builds a `range` clause, and writes scalar `min_price` / `max_price` URL params. It lives as a sibling on store state rather than getting shoehorned into `activeFilters` with a sentinel encoding.
+
+Static post-type scope (the `search-input` block's "Post types" inspector setting) round-trips as scalar `?post_type=<slug>` for the single-slug include-mode case only — pairs with WP/WC's own `?post_type=` URL convention. Multi-slug and exclude-mode scopes stay session-local (the input still constrains its dispatches, but those scopes don't get serialized into the URL). `post_type` is reserved on both sides (`store/url-state.js` `RESERVED_PARAMS` + `Search_Blocks::RESERVED_QUERY_PARAMS`) so it can't double-book as a filter or static-filter scalar.
 
 ## Filter bucket lifecycle
 
