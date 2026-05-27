@@ -1223,6 +1223,16 @@ class Search_Blocks {
 	justify-content: space-between;
 	align-items: center;
 }
+/* Right-side controls cluster: sort + filters-popover trigger. Without this
+ * the three `__results-header` children get spread evenly by the parent's
+ * `space-between`; nesting sort + popover here pins them as one block on the
+ * trailing edge. */
+.jetpack-search-block-overlay__results-header-controls {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.75rem;
+}
 /* Sidebar left divider tracks `currentColor` so the hairline stays subtle on
  * light themes and visible on dark themes. We only set color; the column
  * block's inline `border-left-width` does the rest. */
@@ -1247,10 +1257,33 @@ class Search_Blocks {
 		padding: .5em 1em 1em;
 	}
 }
+/* Below 992px the right-column filter sidebar collapses to a popover trigger
+ * docked next to results-sort. Mirrors the legacy Instant Search overlay UX
+ * (`.jetpack-instant-search__search-results-secondary { display: none }` below
+ * `$break-lg`). The trigger comes from the `jetpack-search/filters-popover`
+ * block that ships in the default overlay template. */
+@media (max-width: 991.98px) {
+	.jetpack-search-block-overlay__filters-column {
+		display: none;
+	}
+	/* The right column's 260px width is set via inline `flex-basis`, so the
+	 * results column needs `!important` to claim the full row. */
+	.jetpack-search-block-overlay .wp-block-columns {
+		gap: 0;
+	}
+	.jetpack-search-block-overlay .wp-block-column:not(.jetpack-search-block-overlay__filters-column) {
+		flex-basis: 100% !important;
+	}
+}
 /* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
 @media (min-width: 992px) {
 	.jetpack-search-block-overlay__card {
 		max-width: 95%;
+	}
+	/* Sidebar is showing; hide the in-header popover entirely so a stale
+	 * `is-popover-open` class can't leak its panel into view. */
+	.jetpack-search-block-overlay__results-header .jetpack-search-filters-popover {
+		display: none;
 	}
 }
 /* Body-scroll lock while open. JS side stashes/restores scrollY on toggle. */
