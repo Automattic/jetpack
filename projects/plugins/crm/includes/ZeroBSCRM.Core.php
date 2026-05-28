@@ -2827,11 +2827,11 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Obsolete function kept for backwards compatibility.
+	 * Obsolete method kept for backwards compatibility with older versions (<2.2.5) of the Client Portal Pro extension.
 	 *
 	 * @param string $libKey Library slug.
 	 */
-	public function libLoad( $libKey = '' ) {
+	public function libLoad( $libKey = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 
