@@ -5249,7 +5249,6 @@ endif;
 	 * @param \Automattic\Jetpack\Connection\Connection_Health_Tests $connection_tests The test suite instance.
 	 */
 	public function register_jetpack_connection_tests( $connection_tests ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger/class-jetpack-cxn-test-base.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger/class-jetpack-cxn-tests.php';
 		$jetpack_tests = new Jetpack_Cxn_Tests();
 		$jetpack_tests->register_tests_on( $connection_tests );
