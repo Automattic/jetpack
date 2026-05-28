@@ -65,13 +65,23 @@ Manual wrapper classes (set via `useBlockProps({ className })` and the matching 
 
 ## Theme tokens & `var()` chains
 
-Two things to know before touching surface colors:
+The search-blocks bundle uses its own postcss config (`postcss.blocks.config.js`) with `postcss-custom-properties` set to `preserve: true`. Every `var(--foo, fallback)` ships as two declarations: a literal substitution (the deepest fallback) followed by the full `var()` call. The browser cascade picks the var when defined and falls through to the literal otherwise — runtime theme tokens work, and there's always a static safety net.
 
-1. **`postcss-custom-properties` (`preserve: false` in `postcss.config.js`) folds every `var(--foo, fallback)` to its literal fallback at build time.** Single-argument `var(--foo)` (no fallback) is preserved through to the runtime. Empirically: `background-color: var(--wp--preset--color--base, #fff);` compiles to `background-color: #fff;`. So the long `--base → --background → #fff` chain you see across the SCSS files is **source documentation + forward-compat** for when the plugin's `preserve` flag flips — at runtime, every `var(--, fallback)` already ships its deepest literal. Anything that needs runtime token resolution has to either go through PHP-emitted inline CSS (which postcss never sees), or use single-arg `var()` against a custom property that's defined elsewhere.
+The other Search bundles (`inline-search`, `customberg`, `instant-search`) keep the shared `postcss.config.js` with `preserve: false`. `instant-search` in particular reads calypso-color-schemes vars that aren't shipped to the runtime; preserving them as `var()` would paint invalid. Don't change those bundles' config without auditing every var() usage there.
 
-2. **Themes don't always expose `--wp--preset--color--base/--contrast/--background/--foreground`.** wp.com Global Styles palette customization emits positional slugs (`--wp--preset--color--theme-1` / `--theme-2` / `--theme-N`) and binds them to `body` via a separate rule — the slug name carrying the semantic role is theme-specific. To stay theme-accurate regardless of slug convention, sample `getComputedStyle(document.body)` at `wp_body_open` and write the resolved `color` / `backgroundColor` onto `:root` as `--jp-search-page-ink` / `--jp-search-page-surface` (see `Search_Blocks::print_theme_token_sampler()`). PHP defaults for those two props are also emitted on `wp_head` priority 1 (`print_theme_token_defaults_style()`) so the props are defined even when JS doesn't run.
+Surface colors in search-blocks SCSS follow one shape:
 
-The current shape every Search surface should follow: `var(--jp-search-page-{ink|surface}, <existing --wp--preset--color--* chain>)`. The sampler wins when available; the chain is the safety net.
+```scss
+background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+```
+
+The chain reaches each layer in order:
+
+1. `--jp-search-page-*` — sampled from `body`'s computed `color` / `backgroundColor` at `wp_body_open` (see `Search_Blocks::print_theme_token_sampler()`). Theme-accurate regardless of palette slug convention, so themes that emit positional slugs like wp.com Global Styles' `--wp--preset--color--theme-1`/`--theme-2` still drive Search surfaces to the right value.
+2. WP 6.1+ `--base`/`--contrast` pair.
+3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
+4. Static literal — also emitted by the PHP `:root` defaults (`print_theme_token_defaults_style()` at `wp_head` priority 1) so the custom props are always defined even when JS doesn't run.
 
 Guard the sampler against `getComputedStyle().backgroundColor === 'rgba(0, 0, 0, 0)'` — classic themes that don't set body bg resolve to transparent, and writing that would override the PHP default and paint surfaces transparent.
 

@@ -103,12 +103,8 @@
 		overscroll-behavior: contain;
 		// `background-color` longhand (not shorthand) — `background:` collapses
 		// to `transparent` when the var resolves to nothing.
-		// stylelint-disable-next-line declaration-block-no-duplicate-properties
-		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-		// stylelint-disable-next-line declaration-block-no-duplicate-properties
-		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
-		background-color: var(--jp-search-page-surface);
-		color: var(--jp-search-page-ink);
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so option text tracks the
 		// other block surfaces (sort menu, filters popover) at 1rem instead
 		// of the host theme's oversized default.
