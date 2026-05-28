@@ -85,33 +85,28 @@ class Akismet_Experimental {
 
 	/**
 	 * Register the "Akismet (Experimental)" admin menu item.
+	 *
+	 * Always parented under `options-general.php`. Registering under `'jetpack'`
+	 * at admin_menu priority 20 runs BEFORE Jetpack adds its top-level menu at
+	 * priority 998, so the submenu lands orphaned and WordPress's
+	 * `user_can_access_admin_page()` returns false — the user sees
+	 * "Sorry, you are not allowed to access this page." Settings is always
+	 * present, shares the `manage_options` cap, and the URL
+	 * `admin.php?page=akismet-experimental` works the same either way.
 	 */
 	public static function register_menu() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		$title = __( 'Akismet (Experimental)', 'akismet' );
-
-		if ( class_exists( 'Jetpack' ) ) {
-			add_submenu_page(
-				'jetpack',
-				$title,
-				$title,
-				'manage_options',
-				self::PAGE_SLUG,
-				array( __CLASS__, 'render_page' )
-			);
-		} else {
-			add_submenu_page(
-				'options-general.php',
-				$title,
-				$title,
-				'manage_options',
-				self::PAGE_SLUG,
-				array( __CLASS__, 'render_page' )
-			);
-		}
+		add_submenu_page(
+			'options-general.php',
+			__( 'Akismet (Experimental)', 'akismet' ),
+			__( 'Akismet (Experimental)', 'akismet' ),
+			'manage_options',
+			self::PAGE_SLUG,
+			array( __CLASS__, 'render_page' )
+		);
 	}
 
 	/**
