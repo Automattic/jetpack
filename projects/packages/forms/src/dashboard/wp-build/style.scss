@@ -2,37 +2,42 @@
  * Holds shared styling for the wp-build routes.
  */
 
-/**
- * Temporary overrides to align styling of core elements with Jetpack Forms
- * designs and Commerce in a Box designs.
- *
- * To remove these overrides
- *
- * The breadcrumbs component would need to support:
- * - removing bottom margin on breadcrumb list items
- * - applying a color attribute to breadcrumb links
- *
- * The search control component would need to support:
- * - removing bottom margin on the search field
- */
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
 
-	.admin-ui-breadcrumbs__list li {
-		margin-bottom: 0;
+	// The wp-build dashboard mounts `@wordpress/admin-ui` 2.x chrome via the
+	// local `FormsPage` wrapper (`.jp-admin-page` root + `<Page
+	// className="jp-admin-page__page">` + `<JetpackFooter>`). The shared mixin
+	// owns the viewport-pinned layout (fixed content column, scrolling middle,
+	// pinned footer) and resets the wp-admin globals — notably `ul li {
+	// margin-bottom }` — that otherwise inflate the breadcrumb list and push the
+	// header logo below the title baseline.
+	@include jetpack-admin-page-layout-wp-build;
 
-		&:first-of-type {
-			margin-inline-start: 4px;
-		}
-
-		a {
-			color: var(--wp-components-color-foreground, #1e1e1e);
-			font-weight: 600;
-		}
+	// Match the breadcrumb link color/weight to the Jetpack Forms design. The
+	// mixin already handles the margin reset and the underline behavior; this
+	// only adds the color treatment the mixin intentionally leaves alone.
+	nav[aria-label="Breadcrumbs"] a {
+		color: var(--wp-components-color-foreground, #1e1e1e);
+		font-weight: 600;
 	}
 
 	.dataviews-search .components-base-control__field {
 		margin-bottom: 0;
 	}
-}
 
+	// Continue the layout mixin's flex chain through the DataViews surface so
+	// the table fills the bounded middle and its pagination footer pins to the
+	// bottom (mirrors Newsletter's Subscribers DataViews chain). The mixin
+	// already flexes the page's scrollable middle and its direct child; walk
+	// the rest down to `.dataviews-wrapper`.
+	.jp-admin-page:has(.dataviews-wrapper) {
+
+		.dataviews-wrapper {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
+	}
+}
