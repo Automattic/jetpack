@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Server-side post-type scope helpers for `search-input`'s per-instance
- * post-type setting. Single-mode (include OR exclude); translates
- * `{ mode, postTypes }` into the `{ include, exclude }` shape that
- * `buildStaticPostTypeClauses()` consumes.
+ * Server-side post-type scope helpers for the `search-results` block's
+ * `postTypeMode` / `postTypes` author setting. Single-mode (include OR
+ * exclude); translates `{ mode, postTypes }` into the `{ include, exclude }`
+ * shape that `buildStaticPostTypeClauses()` consumes. Slugs are validated
+ * against the live searchable-types registry.
  */
 class Filter_Post_Type {
 

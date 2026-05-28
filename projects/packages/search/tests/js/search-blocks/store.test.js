@@ -36,7 +36,6 @@ import {
 	gateActiveFilters,
 	gateStaticFilterSelections,
 	remapAggregationsToFilterKeys,
-	resetActivePostTypeScopeForTesting,
 	state,
 } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -135,9 +134,6 @@ describe( 'store helpers round-trip', () => {
 describe( 'store actions', () => {
 	beforeEach( () => {
 		Object.assign( actions, originalActions );
-		// The active per-instance scope lives in a module variable the state
-		// reset below can't reach, so clear it explicitly to keep cases isolated.
-		resetActivePostTypeScopeForTesting();
 		Object.assign( state, {
 			siteId: 123,
 			searchQuery: 'old query',
@@ -151,6 +147,7 @@ describe( 'store actions', () => {
 			filterConfigs: {},
 			priceRange: null,
 			staticFilterSelections: {},
+			staticPostTypes: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -211,49 +208,49 @@ describe( 'store actions', () => {
 		expect( state.isLoading ).toBe( false );
 	} );
 
-	it( 'applies a per-instance post-type scope, reuses it across re-runs, and clears it when an unscoped input dispatches', async () => {
+	it( 'applies the page-level post-type scope from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.staticPostTypes` once at
+		// template render; the store reads it on every fetch — initial search,
+		// typed search, filter/sort, load-more — without any per-instance
+		// override or fall-through ladder.
 		const ok = () =>
 			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
 
-		// 1. A scoped Search Input dispatches — its include list constrains the
-		//    ES filter clause for the search it initiates.
+		state.staticPostTypes = { include: [ 'product' ], exclude: [] };
+
 		global.fetch.mockResolvedValueOnce( ok() );
-		await runGenerator(
-			actions.search( { syncUrl: false, staticPostTypes: { include: [ 'post' ], exclude: [] } } )
-		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain(
-			'filter[bool][must][0][term][post_type]=post'
+			'filter[bool][must][0][term][post_type]=product'
 		);
 
-		// 2. A filter / sort re-run omits the scope key, so the session keeps the
-		//    active scope rather than dropping the constraint.
+		// A filter/sort re-run uses the same seeded scope — no separate session
+		// state, the slot is the single source of truth.
 		global.fetch.mockResolvedValueOnce( ok() );
 		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( decodeURIComponent( global.fetch.mock.calls[ 1 ][ 0 ] ) ).toContain(
-			'filter[bool][must][0][term][post_type]=post'
+			'filter[bool][must][0][term][post_type]=product'
 		);
 
-		// 3. An unscoped input passes null, clearing the active scope; the next
-		//    search emits no post_type constraint.
+		// Clearing `state.staticPostTypes` (no `search-results` scope set)
+		// produces an unconstrained query.
+		state.staticPostTypes = null;
 		global.fetch.mockResolvedValueOnce( ok() );
-		await runGenerator( actions.search( { syncUrl: false, staticPostTypes: null } ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
 		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
 			'[term][post_type]'
 		);
 	} );
 
-	it( 'reuses the active per-instance scope on popstate (omits the scope key)', async () => {
-		// A back/forward restore re-runs search without a `staticPostTypes` key
-		// so the session-local scope from the last input survives — the scope is
-		// never serialized to the URL, so passing one here would be wrong.
+	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
+		// Page-level scope is set by render.php and doesn't move; popstate
+		// only restores URL-driven state slices (query, filters, sort, etc).
 		state.searchParamName = 's';
 		state.isWooCommerceBlocksEnabled = false;
 		const searchSpy = jest.spyOn( actions, 'search' ).mockImplementation( function* () {} );
 		await runGenerator( actions.handlePopState() );
 		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
-		const arg = searchSpy.mock.calls[ 0 ][ 0 ];
-		expect( arg ).toEqual( { syncUrl: false } );
-		expect( 'staticPostTypes' in arg ).toBe( false );
+		expect( searchSpy.mock.calls[ 0 ][ 0 ] ).toEqual( { syncUrl: false } );
 		searchSpy.mockRestore();
 	} );
 

@@ -433,18 +433,6 @@ function dateFilterItems( sharedState, filterKey, config ) {
 // older query can't overwrite fresh results.
 let searchToken = 0;
 
-// Per-instance post-type scope of the Search Input that started the session.
-// `actions.search()` sets it; filter/sort/load-more leave it. `undefined`/`null`
-// leave clauses unconstrained — only an input dispatch can establish scope.
-let activePostTypeScope;
-
-/**
- * Reset the module-level active post-type scope. Tests only.
- */
-export function resetActivePostTypeScopeForTesting() {
-	activePostTypeScope = undefined;
-}
-
 /**
  * Build the results-count string from live state — "Searching…", "Found N
  * results", or empty (empty-state region owns the no-hits copy). Called by
@@ -495,7 +483,9 @@ function* fetchResults( pageHandle ) {
 		filterConfigs: overlayFilterLogic( state.filterConfigs, state.filterLogic ),
 		priceRange: state.priceRange,
 		staticFilterSelections: state.staticFilterSelections,
-		staticPostTypes: activePostTypeScope ?? null,
+		// Page-level scope from the `search-results` block (seeded at render).
+		// Singular per page; no per-instance overrides.
+		staticPostTypes: state.staticPostTypes ?? null,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -895,20 +885,13 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Run a search and replace the result list.
 		 *
-		 * @param {object}      [options]                 - Options.
-		 * @param {boolean}     [options.syncUrl]         - Push to URL on success (default true);
-		 *                                                pass `false` for popstate-triggered searches.
-		 * @param {object|null} [options.staticPostTypes] - Initiating input's scope (`{include,exclude}`)
-		 *                                                or `null`. Set only on input-initiated searches;
-		 *                                                persists as the session's active scope.
+		 * @param {object}  [options]         - Options.
+		 * @param {boolean} [options.syncUrl] - Push to URL on success (default true);
+		 *                                    pass `false` for popstate-triggered searches.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
 		*search( options = {} ) {
 			const { syncUrl = true } = options;
-			// Persist scope from input-initiated searches; omitting leaves the active scope.
-			if ( 'staticPostTypes' in options ) {
-				activePostTypeScope = options.staticPostTypes ?? null;
-			}
 			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.isLoadingMore = false;
