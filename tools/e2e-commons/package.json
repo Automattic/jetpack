@@ -31,7 +31,7 @@
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.58.2",
+		"@playwright/test": "1.60.0",
 		"@slack/web-api": "7.15.1",
 		"@types/lodash-es": "4.17.12",
 		"@types/node": "^24.12.0",
