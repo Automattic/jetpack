@@ -113,7 +113,9 @@ class Sync_Status_Tracker_Test extends TestCase {
 	public function test_filter_overrides_analytics_sync_module() {
 		add_filter(
 			'jetpack_premium_analytics_sync_module_name',
-			static fn() => 'custom_module_name'
+			static function () {
+				return 'custom_module_name';
+			}
 		);
 
 		Sync_Status_Tracker::maybe_set_milestone(
