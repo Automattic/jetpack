@@ -4,8 +4,10 @@ $jetpack-search-filters-popover-collapse: 992px;
 
 // Inline-sidebar mode — the popover root becomes a block-flow region, the
 // trigger drops out of the tree, and the panel sheds its popover chrome.
-// Used by the `@media` rule below and by the editor-preview selector
-// further down — they need the same body, so it lives here as one mixin.
+// Used by the `@media` rule on `.is-mode-responsive` below. (The editor-
+// preview selector further down restates the panel-only portion of these
+// styles directly because it only targets `&__panel`, not the root or
+// trigger — it can't reuse the full mixin.)
 @mixin filters-popover-inline-mode {
 	display: block;
 
@@ -55,10 +57,13 @@ $jetpack-search-filters-popover-collapse: 992px;
 		z-index: 20;
 	}
 
-	// The base `.is-popover-open .__panel { display: flex }` rule earlier in
-	// source has lower source-order than this @container block, so its
-	// `display: flex` would be lost to the `display: none` above. Restate it
-	// at higher source-order so the popover still opens on click.
+	// The base `.is-popover-open .__panel { display: flex }` rule (specificity
+	// 0,3,0) already outranks this mixin's `.__panel { display: none }`
+	// (0,2,0), so the popover would open on click without this rule. The
+	// restated rule at 0,4,0 (the extra `.is-mode-responsive` class) is a
+	// belt-and-braces guarantee that survives any future specificity churn —
+	// adding a class higher up the chain wouldn't accidentally suppress the
+	// open state.
 	&.is-popover-open .jetpack-search-filters-popover__panel {
 		display: flex;
 	}
