@@ -143,9 +143,10 @@ class REST_Connector {
 		);
 
 		// Connection health tests for privileged external callers (WP.com debugger).
+		// Trailing slash matches the old Jetpack plugin registration so the override takes effect.
 		register_rest_route(
 			'jetpack/v4',
-			'/connection/test-wpcom',
+			'/connection/test-wpcom/',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_test_for_external' ),

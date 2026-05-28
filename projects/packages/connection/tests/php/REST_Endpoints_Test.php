@@ -2038,21 +2038,30 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/connection/test` endpoint returns a response with tests_run.
+	 * Testing the `/jetpack/v4/connection/test` callback includes tests_run in the response.
+	 * Called directly to avoid auth dispatch and to deterministically control the test outcome.
 	 */
 	public function test_connection_test_returns_tests_run() {
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/test' );
-		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+		// Remove all default health tests so pass() returns true deterministically.
+		add_action(
+			'jetpack_connection_tests_loaded',
+			function ( $cxntests ) {
+				$reflection = new \ReflectionClass( $cxntests );
+				$prop       = $reflection->getProperty( 'tests' );
+				$prop->setAccessible( true );
+				$prop->setValue( $cxntests, array() );
+			},
+			PHP_INT_MAX
+		);
 
-		$this->assertArrayHasKey( 'code', $data );
+		$connector = new REST_Connector( new Manager() );
+		$response  = $connector->connection_test();
+		$data      = $response->get_data();
 
-		// On success the response includes the list of tests that were executed.
-		if ( 200 === $response->get_status() ) {
-			$this->assertArrayHasKey( 'tests_run', $data );
-			$this->assertIsArray( $data['tests_run'] );
-			$this->assertNotEmpty( $data['tests_run'] );
-		}
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertArrayHasKey( 'tests_run', $data );
+		$this->assertIsArray( $data['tests_run'] );
 	}
 
 	/**
