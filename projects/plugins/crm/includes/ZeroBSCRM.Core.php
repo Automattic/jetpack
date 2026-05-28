@@ -2827,6 +2827,34 @@ final class ZeroBSCRM {
 	}
 
 	/**
+	 * Legacy list of loaded libraries. Only used by libLoad(), which is only used by Client Portal Pro.
+	 * Note: All paths need to be prepended by ZEROBSCRM_PATH before use
+	 *
+	 * @var array
+	 */
+	private $libs = array();
+
+	/**
+	 * Load a library via include. Legacy (only used by Client Portal Pro).
+	 *
+	 * @param string $libKey Library slug.
+	 */
+	public function libLoad( $libKey = '' ) {
+
+		if (
+			isset( $this->libs[ $libKey ] ) &&
+			isset( $this->libs[ $libKey ]['include'] ) &&
+			! isset( $this->libs[ $libKey ]['loaded'] ) &&
+			file_exists( ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'] )
+		) {
+			require_once ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
+				$this->libs[ $libKey ]['loaded'] = true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Autoload files from a directory which match a regex filter
 	 */
 	public function autoload_from_directory( string $directory, string $regex_filter ) {
