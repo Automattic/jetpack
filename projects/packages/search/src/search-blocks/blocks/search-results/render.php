@@ -32,7 +32,6 @@ namespace Automattic\Jetpack\Search;
 // of the slot's deep-merge entry. The block attribute is `postTypeMode`
 // (renamed from the helper's neutral `mode` prop to avoid colliding with
 // any future generic `mode` attribute on this block).
-// @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $scope = Filter_Post_Type::build_constraint(
 	array(
 		'mode'      => ( $attributes['postTypeMode'] ?? 'exclude' ) === 'include' ? 'include' : 'exclude',
