@@ -75,18 +75,20 @@ $layout = $attrs['layout'] ?? 'expanded';
 if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
-// Auto-switch to the product layout when the request is scoped to exactly
-// the `product` post type via the Jetpack Search `?post_types[]=product`
-// URL parameter, so a product search renders as a shop grid without the
-// author hand-picking the layout. (`request_is_product_only()` also
-// accepts the scalar `?post_type=product`, but that is a WP core query
-// var that reroutes to the WC shop archive before this block renders —
-// see its docblock.) Opt-out per block via the `autoProductView`
-// attribute (default on). The non-Woo collapse below is still the final
-// gate, so this can never force `product` on a non-Woo site even if the
-// URL asks for it.
-$auto_product_view = $attrs['autoProductView'] ?? true;
-if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && Search_Blocks::request_is_product_only() ) {
+// Auto-switch to the product layout when the search is scoped to exactly the
+// `product` post type, so a product search renders as a shop grid without the
+// author hand-picking the layout. Two scope sources count: the visitor's
+// request (`?post_types[]=product` / the scalar `?post_type=product` alias)
+// and the author-set static scope on the parent search-results block
+// (`postTypeMode:"include"` / `postTypes:["product"]`, reaching here as block
+// context) — the latter is the post-SEARCH-273 way to scope a region to
+// products, and a URL-only check would miss it. Opt-out per block via the
+// `autoProductView` attribute (default on). The non-Woo collapse below is
+// still the final gate, so this can never force `product` on a non-Woo site.
+$auto_product_view  = $attrs['autoProductView'] ?? true;
+$is_product_request = Search_Blocks::request_is_product_only()
+	|| Search_Blocks::scope_is_product_only( $block->context ?? array() );
+if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && $is_product_request ) {
 	$layout = 'product';
 }
 // The product layout reads WC-shaped fields (price, sale price, rating)

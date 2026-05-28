@@ -2260,6 +2260,41 @@ HTML;
 	}
 
 	/**
+	 * Whether an author-set post-type scope constrains the region to exactly
+	 * `product`. The static-scope counterpart to `request_is_product_only()`:
+	 * post-SEARCH-273, a region's product scope lives on the parent
+	 * search-results block's `postTypeMode` / `postTypes` attributes — passed
+	 * to results-list as block context — rather than on the request, so the
+	 * URL-only check alone misses an author-scoped product search. Mirrors that
+	 * method's "exactly product" semantics: an `include` set of more than
+	 * `product`, or an `exclude` scope, keeps the saved layout.
+	 *
+	 * @param array $context Block context; reads `jetpack-search/postTypeMode`
+	 *                       and `jetpack-search/postTypes`.
+	 * @return bool
+	 */
+	public static function scope_is_product_only( array $context ): bool {
+		if ( 'include' !== ( $context['jetpack-search/postTypeMode'] ?? '' ) ) {
+			return false;
+		}
+		$post_types = $context['jetpack-search/postTypes'] ?? null;
+		if ( ! is_array( $post_types ) ) {
+			return false;
+		}
+		$slugs = array();
+		foreach ( $post_types as $value ) {
+			if ( ! is_scalar( $value ) ) {
+				continue;
+			}
+			$slug = sanitize_key( (string) $value );
+			if ( '' !== $slug ) {
+				$slugs[ $slug ] = true;
+			}
+		}
+		return array( 'product' ) === array_keys( $slugs );
+	}
+
+	/**
 	 * Pre-hydration view state for a filter block's wrapper. Centralizes the
 	 * seeded-state read shared by filter-checkbox and filter-date so each
 	 * render.php branches on a single struct rather than re-deriving the

@@ -41,8 +41,9 @@ class Results_List_Render_Test extends TestCase {
 						'default' => '',
 					),
 				),
+				'uses_context'    => array( 'jetpack-search/postTypeMode', 'jetpack-search/postTypes' ),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				'render_callback' => static function ( $attributes ) {
+				'render_callback' => static function ( $attributes, $content, $block ) {
 					ob_start();
 					include __DIR__ . '/../../src/search-blocks/blocks/results-list/render.php';
 					return (string) ob_get_clean();
@@ -50,13 +51,37 @@ class Results_List_Render_Test extends TestCase {
 				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			)
 		);
+		// Minimal stand-in for the parent search-results block — provides the
+		// author-set post-type scope to results-list as block context (the real
+		// block's render.php does the same via `provides_context`). Lets the
+		// static-scope auto-switch cases render results-list nested under a
+		// context provider without pulling in the full search-results renderer.
+		\register_block_type(
+			'jetpack-search/search-results',
+			array(
+				'attributes'       => array(
+					'postTypeMode' => array( 'type' => 'string' ),
+					'postTypes'    => array( 'type' => 'array' ),
+				),
+				'provides_context' => array(
+					'jetpack-search/postTypeMode' => 'postTypeMode',
+					'jetpack-search/postTypes'    => 'postTypes',
+				),
+				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				'render_callback'  => static function ( $attributes, $content ) {
+					return (string) $content;
+				},
+				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			)
+		);
 	}
 
 	/**
-	 * Unregister the block so other test classes start from a clean slate.
+	 * Unregister the blocks so other test classes start from a clean slate.
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/results-list' );
+		\unregister_block_type( 'jetpack-search/search-results' );
 		parent::tearDownAfterClass();
 	}
 
@@ -639,5 +664,153 @@ class Results_List_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-results__price', $markup );
+	}
+
+	/**
+	 * Render a results-list nested under the parent search-results stub so it
+	 * receives the given author-set post-type scope as block context — the
+	 * static-scope counterpart to `render_with_request()`.
+	 *
+	 * @param string $mode       Parent `postTypeMode` (`include` / `exclude`).
+	 * @param array  $post_types Parent `postTypes` slugs.
+	 * @param array  $attributes results-list block attributes.
+	 * @return string Rendered markup.
+	 */
+	private function render_in_scope( string $mode, array $post_types, array $attributes = array() ): string {
+		Search_Blocks::reset_initial_loading_cache();
+		$inner  = empty( $attributes ) ? '' : wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES );
+		$scope  = wp_json_encode(
+			array(
+				'postTypeMode' => $mode,
+				'postTypes'    => $post_types,
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$markup = do_blocks(
+			'<!-- wp:jetpack-search/search-results ' . $scope . ' -->'
+			. '<!-- wp:jetpack-search/results-list ' . $inner . ' /-->'
+			. '<!-- /wp:jetpack-search/search-results -->'
+		);
+		Search_Blocks::reset_initial_loading_cache();
+		return $markup;
+	}
+
+	/**
+	 * A static author-set product scope on the parent search-results block —
+	 * provided to results-list as block context — auto-switches to the product
+	 * layout even with no `post_type` URL param. This is the post-SEARCH-273
+	 * scoping model: a region's product scope lives on the search-results
+	 * `postTypeMode` / `postTypes` attributes, not on the request.
+	 */
+	public function test_static_product_scope_auto_switches_to_product_layout() {
+		$markup = $this->render_in_scope( 'include', array( 'product' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__price', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__rating', $markup );
+	}
+
+	/**
+	 * The static-scope switch overrides the saved layout, mirroring the
+	 * URL-driven switch — a block saved as `compact` still renders as a
+	 * product grid when its region is scoped to include only products.
+	 */
+	public function test_static_product_scope_overrides_saved_layout() {
+		$markup = $this->render_in_scope( 'include', array( 'product' ), array( 'layout' => 'compact' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--compact', $markup );
+	}
+
+	/**
+	 * `autoProductView` off pins the saved layout even when the region is
+	 * scoped to include only products.
+	 */
+	public function test_static_product_scope_respects_auto_product_view_off() {
+		$markup = $this->render_in_scope(
+			'include',
+			array( 'product' ),
+			array(
+				'layout'          => 'compact',
+				'autoProductView' => false,
+			)
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--compact', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * A scope that includes products alongside other post types is not
+	 * "exactly product", so it keeps the saved layout — non-product results
+	 * must not render as product cards.
+	 */
+	public function test_static_scope_with_extra_post_types_keeps_saved_layout() {
+		$markup = $this->render_in_scope(
+			'include',
+			array( 'product', 'post' ),
+			array( 'layout' => 'expanded' )
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * An exclude scope — even one naming `product` — never means "show only
+	 * products", so it keeps the saved layout.
+	 */
+	public function test_static_exclude_scope_keeps_saved_layout() {
+		$markup = $this->render_in_scope(
+			'exclude',
+			array( 'product' ),
+			array( 'layout' => 'expanded' )
+		);
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+	}
+
+	/**
+	 * `scope_is_product_only()` recognizes only an include scope that resolves
+	 * to exactly `product`; every other mode / set keeps the saved layout.
+	 */
+	public function test_scope_is_product_only_recognizes_exact_include_product() {
+		$cases = array(
+			array(
+				'context'  => array(
+					'jetpack-search/postTypeMode' => 'include',
+					'jetpack-search/postTypes'    => array( 'product' ),
+				),
+				'expected' => true,
+			),
+			array(
+				'context'  => array(
+					'jetpack-search/postTypeMode' => 'include',
+					'jetpack-search/postTypes'    => array( 'product', 'post' ),
+				),
+				'expected' => false,
+			),
+			array(
+				'context'  => array(
+					'jetpack-search/postTypeMode' => 'exclude',
+					'jetpack-search/postTypes'    => array( 'product' ),
+				),
+				'expected' => false,
+			),
+			array(
+				'context'  => array(
+					'jetpack-search/postTypeMode' => 'include',
+					'jetpack-search/postTypes'    => array(),
+				),
+				'expected' => false,
+			),
+			array(
+				'context'  => array(),
+				'expected' => false,
+			),
+		);
+		foreach ( $cases as $case ) {
+			$this->assertSame(
+				$case['expected'],
+				Search_Blocks::scope_is_product_only( $case['context'] ),
+				'Unexpected result for ' . wp_json_encode( $case['context'], JSON_UNESCAPED_SLASHES )
+			);
+		}
 	}
 }

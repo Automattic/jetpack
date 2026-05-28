@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: auto-switch Results List to the Product layout when the parent Search Results block scopes the region to only products, not just when the URL is product-scoped.

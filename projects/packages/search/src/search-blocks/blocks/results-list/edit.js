@@ -227,7 +227,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 							checked={ attributes?.autoProductView ?? true }
 							onChange={ value => setAttributes( { autoProductView: value } ) }
 							help={ __(
-								'When the search is scoped to products (a ?post_types[]=product link), show results as a product grid regardless of the format above. Turn off to always use the format above.',
+								'When the search is scoped to only products — by the parent Search Results block’s scope or a ?post_type=product link — show results as a product grid regardless of the format above. Turn off to always use the format above.',
 								'jetpack-search-pkg'
 							) }
 						/>
