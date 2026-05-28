@@ -32,7 +32,6 @@ const ALLOWED = [
 	'jetpack-search/filter-checkbox',
 	'jetpack-search/active-filters',
 	'jetpack-search/clear-filters',
-	'jetpack-search/filter-post-type',
 ];
 
 const DISPLAY_MODE_OPTIONS = [

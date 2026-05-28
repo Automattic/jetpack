@@ -7,6 +7,11 @@ jest.mock( '@wordpress/block-editor', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
+	Button: ( { children, onClick } ) => (
+		<button type="button" onClick={ onClick }>
+			{ children }
+		</button>
+	),
 	PanelBody: ( { title, children } ) => (
 		<section data-testid="panel" aria-label={ title }>
 			{ children }
@@ -72,6 +77,22 @@ jest.mock( '@wordpress/i18n', () => ( {
 	},
 } ) );
 
+// `@wordpress/data` powers the parent-block lookup for the "Search scope"
+// hint panel. Tests override `__mockSearchResultsParent` (a captured client
+// id) and `__mockSearchResultsAttrs` to drive the useSelect call.
+let mockSearchResultsParent = null;
+let mockSearchResultsAttrs = null;
+const mockSelectBlock = jest.fn();
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: callback =>
+		callback( () => ( {
+			getBlockParentsByBlockName: () =>
+				mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
+			getBlockAttributes: () => mockSearchResultsAttrs,
+		} ) ),
+	useDispatch: () => ( { selectBlock: mockSelectBlock } ),
+} ) );
+
 describe( 'ResultsListEdit', () => {
 	// Default the editor's localized WC flag to true so the existing
 	// product-layout tests keep exercising the full picker. The non-Woo
@@ -79,6 +100,9 @@ describe( 'ResultsListEdit', () => {
 	// is covered in its own `describe` block below.
 	beforeEach( () => {
 		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
+		mockSearchResultsParent = null;
+		mockSearchResultsAttrs = null;
+		mockSelectBlock.mockClear();
 	} );
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
@@ -206,6 +230,62 @@ describe( 'ResultsListEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			errorMessage: 'Search is offline right now.',
 		} );
+	} );
+
+	it( 'omits the Search-scope hint panel when no search-results parent is found', () => {
+		// Results List dropped outside a Search Results wrapper (e.g. directly
+		// on a page) has no parent to navigate to — surfacing the panel anyway
+		// would just confuse the author with a dead-end "Edit on Search Results"
+		// button. Keeps the inspector minimal in the unscoped case.
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.queryByRole( 'region', { name: 'Search scope' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders a Search-scope hint panel when nested inside a search-results parent', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'include', postTypes: [ 'product' ] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.getByRole( 'region', { name: 'Search scope' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Include only: product' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Edit on Search Results' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'summarises the parent scope as "All post types" when the list is empty', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'exclude', postTypes: [] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.getByText( 'All post types' ) ).toBeInTheDocument();
+	} );
+
+	it( 'summarises exclude-mode scope distinctly from include-mode', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'exclude', postTypes: [ 'page', 'attachment' ] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.getByText( 'Exclude: page, attachment' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^Include only:/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'collapses to "All post types" when the parent has a non-empty postTypes but no recognised mode', () => {
+		// Defensive: a saved-attribute mismatch (older schema, hand-edited
+		// markup) shouldn't surface as either "Include only:" or "Exclude:" —
+		// both would read as the wrong scope. The summary collapses to the
+		// unscoped variant so the hint matches what the renderer actually does
+		// (build_constraint defaults to exclude-mode with an empty list).
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'something-else', postTypes: [ 'product' ] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.getByText( 'All post types' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^Include only:/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Exclude:/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'navigates to the parent search-results block when the hint button is clicked', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'include', postTypes: [ 'product' ] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit on Search Results' } ) );
+		expect( mockSelectBlock ).toHaveBeenCalledWith( 'sr-1' );
 	} );
 
 	it( 'keeps the empty and error copy out of the editor canvas', () => {

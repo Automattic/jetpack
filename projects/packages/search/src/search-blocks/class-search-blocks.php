@@ -1963,10 +1963,6 @@ HTML;
 			// `{ [key]: { filterKey, filterType, taxonomy, effectiveSlug, label, showCount, maxItems } }`.
 			'filterConfigs'              => array(),
 
-			// `staticPostTypes` deliberately NOT seeded — FSE templates render
-			// before this seed, so pre-seeding `{include:[],exclude:[]}` would
-			// clobber the block contribution. JS treats undefined as no-constraint.
-
 			// JS hydration fills these. `aggregations` is stdClass so JS sees `{}`.
 			'results'                    => array(),
 			'aggregations'               => (object) array(),
@@ -2393,6 +2389,12 @@ HTML;
 	 * No registered-key filtering here — `filterConfigs` aren't available until
 	 * blocks render. The JS layer gates on hydration.
 	 *
+	 * Scalar `?post_type=<slug>` is also accepted as a shortcut for
+	 * `?post_types[]=<slug>` — matches WP/WC's own URL convention. Merged into
+	 * any existing array selections so `?post_type=foo&post_types[]=bar` reads
+	 * as `[foo, bar]`. Singular-form-on-an-array-key keeps its existing
+	 * "ignored noise" behaviour for every other filter.
+	 *
 	 * @return array<string, string[]>
 	 */
 	protected static function parse_url_filters(): array {
@@ -2408,6 +2410,26 @@ HTML;
 			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
 				continue;
 			}
+			if ( 'post_type' === $filter_key ) {
+				// `is_string` (not `is_scalar`) keeps the gate consistent with
+				// `parse_url_filter_logic`'s value check — `$_GET` only ever
+				// carries strings or arrays, and the array case takes the
+				// `is_array( $values )` branch immediately below.
+				if ( ! is_string( $values ) ) {
+					continue;
+				}
+				// `sanitize_key`, not `sanitize_text_field` — post-type slugs are
+				// always lowercase + `[a-z0-9_-]`; the lowercase pass keeps a
+				// `?post_type=Product` URL from reaching ES with the wrong case
+				// and silently returning zero results.
+				$slug = sanitize_key( $values );
+				if ( '' === $slug ) {
+					continue;
+				}
+				$existing          = $out['post_types'] ?? array();
+				$out['post_types'] = array_values( array_unique( array_merge( $existing, array( $slug ) ) ) );
+				continue;
+			}
 			if ( ! is_array( $values ) ) {
 				continue;
 			}
@@ -2420,7 +2442,8 @@ HTML;
 				)
 			);
 			if ( $clean ) {
-				$out[ $filter_key ] = $clean;
+				$existing           = $out[ $filter_key ] ?? array();
+				$out[ $filter_key ] = array_values( array_unique( array_merge( $existing, $clean ) ) );
 			}
 		}
 		return $out;

@@ -22,6 +22,8 @@ function validSortOrders( isWooCommerceBlocksEnabled ) {
 const DEFAULT_SEARCH_PARAM = 's';
 
 // Reserved params; not treated as filter keys. Mirrors PHP `RESERVED_QUERY_PARAMS`.
+// Note: `post_type` is NOT reserved — it's read as a scalar alias for
+// `?post_types[]=` (matches WP/WC convention) in `urlParamsToState` below.
 const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
 
 // Per-filter AND/OR override prefix (`?query_type_category=and`). Mirrors
@@ -170,8 +172,25 @@ export function urlParamsToState(
 			}
 			continue;
 		}
-		// Scalar param: either a static-filter selection or ignored noise.
+		// Scalar param: a static-filter selection, the `?post_type=<slug>`
+		// alias for `?post_types[]=<slug>` (WP/WC convention), or ignored noise.
 		if ( ! rawKey.endsWith( '[]' ) ) {
+			if ( rawKey === 'post_type' ) {
+				const slug = String( value ?? '' ).trim();
+				if ( ! slug ) {
+					continue;
+				}
+				if ( hasFilterConfigGate && ! ( 'post_types' in filterConfigs ) ) {
+					continue;
+				}
+				if ( ! activeFilters.post_types ) {
+					activeFilters.post_types = [];
+				}
+				if ( ! activeFilters.post_types.includes( slug ) ) {
+					activeFilters.post_types.push( slug );
+				}
+				continue;
+			}
 			if (
 				hasFilterConfigGate &&
 				! RESERVED_PARAMS.has( rawKey ) &&

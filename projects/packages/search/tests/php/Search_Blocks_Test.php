@@ -1949,6 +1949,113 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Scalar `?post_type=<slug>` is read as a shortcut for `?post_types[]=<slug>`
+	 * (WP/WC URL convention). Without this, deep links from WC's product-search
+	 * route would never populate the `filter-checkbox{filterType:"post_type"}`
+	 * facet on the page.
+	 */
+	public function test_build_initial_state_reads_post_type_scalar_as_post_types_alias() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => 'product' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'post_types' => array( 'product' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Array-shaped `?post_type[]=foo` is intentionally dropped — only the scalar
+	 * form is the WP/WC convention, and the canonical multi-value contract is
+	 * the existing `?post_types[]=…` (plural) array key. Allowing both would
+	 * mean two URL shapes feed the same slot, which adds parser ambiguity.
+	 */
+	public function test_build_initial_state_drops_array_post_type_param() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => array( 'product' ) );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array(), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Scalar `?post_type=Product` (uppercase) is normalised through
+	 * `sanitize_key` so it agrees with WP's lowercase-slug convention. Without
+	 * the lowercase pass the URL value reaches ES verbatim and silently returns
+	 * zero results.
+	 */
+	public function test_build_initial_state_lowercases_post_type_alias_via_sanitize_key() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => 'Product' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'post_types' => array( 'product' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Scalar `?post_type=foo` merges with any pre-existing `?post_types[]=…`
+	 * array selection and dedupes — so `?post_type=product&post_types[]=post`
+	 * reads as `['post', 'product']`, not duplicate entries or one-or-the-other.
+	 */
+	public function test_build_initial_state_merges_post_type_alias_with_post_types_array() {
+		$original_get   = $_GET;
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		// The production code produces the same deduplicated set regardless of
+		// `$_GET` key order; this ordering is what `assertSame` (strict on
+		// element order) below expects. `array_unique` keeps the first occurrence,
+		// so iterating `post_types` first means the result reads `[post, product]`.
+		$_GET                = array(
+			'post_types' => array( 'post', 'product' ),
+			'post_type'  => 'product',
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame(
+				array( 'post_types' => array( 'post', 'product' ) ),
+				$state['activeFilters']
+			);
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Empty-string `?post_type=` is dropped outright — otherwise an empty value
+	 * would create a `term` filter against an empty slug, returning zero results.
+	 */
+	public function test_build_initial_state_drops_empty_post_type_alias() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 'post_type' => '' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array(), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
 	 * The filter-checkbox inserter cards come from
 	 * Search_Blocks::inject_filter_checkbox_variations(); if these names or
 	 * Seeded attributes drift, the editor stops offering the expected filter
