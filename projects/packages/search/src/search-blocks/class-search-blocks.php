@@ -1156,6 +1156,14 @@ class Search_Blocks {
 	max-width: 1080px;
 	--jp-search-overlay-surface: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
 	--jp-search-overlay-ink: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)));
+	/* Single source for the content group's inset. The corner-join in
+	 * search_layout_inline_css() zeroes the block-start/block-end of this
+	 * padding on the group and re-adds the same tokens on the columns, so the
+	 * sidebar hairline reaches both card edges — keep them as var()s so the
+	 * two sites can't drift. */
+	--jp-search-overlay-content-pad-block-start: 0.5em;
+	--jp-search-overlay-content-pad-inline: 2em;
+	--jp-search-overlay-content-pad-block-end: 2em;
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border: 1px solid rgba(128, 128, 128, 0.25);
@@ -1290,7 +1298,7 @@ class Search_Blocks {
 }
 /* Top padding clears the absolutely-positioned 60px header strip (SEARCH-243). */
 .jetpack-search-block-overlay__content > .wp-block-group:first-child {
-	padding: .5em 2em 2em;
+	padding: var(--jp-search-overlay-content-pad-block-start) var(--jp-search-overlay-content-pad-inline) var(--jp-search-overlay-content-pad-block-end);
 }
 @media (max-width: 781px) {
 	.jetpack-search-block-overlay {
@@ -1301,9 +1309,8 @@ class Search_Blocks {
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
-	}
-	.jetpack-search-block-overlay__content > .wp-block-group:first-child {
-		padding: .5em 1em 1em;
+		--jp-search-overlay-content-pad-inline: 1em;
+		--jp-search-overlay-content-pad-block-end: 1em;
 	}
 }
 /* Mirror legacy `$break-lg: 992px → $modal-max-width-lg: 95%` from `instant-search/components/search-results.scss`. */
@@ -1465,12 +1472,13 @@ CSS;
  *      to `stretch` (not `flex-start`) so the column also grows to full row
  *      height; it's flow layout, so its content stays top-aligned regardless.
  *
- *   c) Overlay-only: SEARCH-243's `padding: .5em 2em 2em` on the alignwide
- *      group sits outside the columns, so the stretched column stops 0.5em
- *      below the `::before` hairline (top) and 2em short of the card edge
- *      (bottom). Zeroed on the group and re-added as column `padding-top` /
- *      `padding-bottom` so the divider reaches both edges while content keeps
- *      its breathing room.
+ *   c) Overlay-only: SEARCH-243's content-group inset sits outside the
+ *      columns, so the stretched column stops short of the card edges (below
+ *      the `::before` hairline at the top, and short of the bottom). Zeroed
+ *      on the group's block axis and re-added on the columns, both sides
+ *      reading the same `--jp-search-overlay-content-pad-*` tokens the group
+ *      itself uses — so the divider reaches both edges while content keeps
+ *      its breathing room, and the two sites can't drift.
  *
  * `.is-layout-flex` bumps the columns selector to (0,3,0) to outrank
  * per-container `blockGap` CSS; `:has(> filters-column)` scopes it to our
@@ -1495,10 +1503,10 @@ CSS;
 		padding-bottom: 0;
 	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
-		padding-top: 0.5em;
+		padding-top: var(--jp-search-overlay-content-pad-block-start, 0.5em);
 	}
 	.jetpack-search-block-overlay__content .wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
-		padding-bottom: 2em;
+		padding-bottom: var(--jp-search-overlay-content-pad-block-end, 2em);
 	}
 }
 /* @container override: applies when the named container exists. Placed AFTER
