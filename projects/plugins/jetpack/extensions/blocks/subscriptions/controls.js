@@ -338,7 +338,7 @@ export default function SubscriptionControls( {
 					<p className="jetpack-subscriptions__inspector-help">
 						{ createInterpolateElement(
 							__(
-								'To update the message shown in the subscribe pop-up used with the Button only style, please visit the <link>Newsletter settings page</link>.',
+								'To update the message shown in the subscribe pop-up, please visit the <link>Newsletter settings page</link>.',
 								'jetpack'
 							),
 							{
