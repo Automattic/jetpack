@@ -1477,6 +1477,7 @@ describe( 'TrainTracks relevance events', () => {
 			retainedFilterOptions: {},
 			results: [],
 			resultsLayout: 'expanded',
+			disableTracking: false,
 			locale: 'en-US',
 			isLoading: false,
 			isLoadingMore: false,
@@ -1545,6 +1546,42 @@ describe( 'TrainTracks relevance events', () => {
 
 		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
 		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-minimal' );
+	} );
+
+	it( 'maps the product layout to the product ui_algo', async () => {
+		state.resultsLayout = 'product';
+		global.fetch.mockResolvedValueOnce(
+			createResponse( { results: [ railcarResult( 'Only', 0 ) ], total: 1, page_handle: null } )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		const render = window._tkq.find( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' );
+		expect( render[ 2 ].ui_algo ).toBe( 'jetpack-instant-search-ui/v1-product' );
+	} );
+
+	it( 'fires no render events when tracking is disabled', async () => {
+		state.disableTracking = true;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ railcarResult( 'First', 0 ), railcarResult( 'Second', 1 ) ],
+				total: 2,
+				page_handle: null,
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_render' )
+		).toHaveLength( 0 );
+	} );
+
+	it( 'fires no interact event when tracking is disabled', () => {
+		state.disableTracking = true;
+		captured.context = { result: { index: 0, railcar: { railcar: 'rc-x' } } };
+		actions.recordResultInteract();
+		expect(
+			window._tkq.filter( e => e[ 1 ] === 'jetpack_instant_search_traintracks_interact' )
+		).toHaveLength( 0 );
 	} );
 
 	it( 'fires no event for results lacking a railcar', async () => {

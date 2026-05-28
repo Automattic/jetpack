@@ -1978,6 +1978,11 @@ HTML;
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
+			// TrainTracks gate, mirroring instant search's `disableTracking`
+			// (Helper::get_search_options): suppresses `_tkq` pushes for
+			// `?disable_tracking=1` crawlers/QA and the filter override.
+			'disableTracking'            => ( class_exists( Helper::class ) && Helper::is_tracking_disabled() )
+				|| apply_filters( 'jetpack_instant_search_disable_tracking', false ),
 			// Threaded through url-state so `?orderby=price_asc` round-trips on Woo only.
 			'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 			'homeUrl'                    => function_exists( 'home_url' ) ? home_url() : '',

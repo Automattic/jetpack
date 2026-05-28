@@ -539,6 +539,9 @@ function trainTracksProps( railcar, uiPosition ) {
  * @param {Array<object>} results - Normalized results just added to the list.
  */
 function recordResultRenders( results ) {
+	if ( state.disableTracking ) {
+		return;
+	}
 	for ( const result of results ) {
 		if ( result.railcar ) {
 			recordTrainTracksRender( trainTracksProps( result.railcar, result.index ) );
@@ -556,6 +559,11 @@ const { state, actions } = store( NAMESPACE, {
 		// Drives the TrainTracks `ui_algo`; default keeps a valid value on pages
 		// where the seed hasn't landed.
 		resultsLayout: 'expanded',
+
+		// Suppresses TrainTracks `_tkq` pushes. PHP-seeded from
+		// `?disable_tracking=1` + the `jetpack_instant_search_disable_tracking`
+		// filter, mirroring instant search. Default off so a missing seed tracks.
+		disableTracking: false,
 
 		// Roving-tabindex active descendant for the sort menu. `null` /
 		// unknown-key = menu hasn't been keyboard-engaged; the currently
@@ -1051,6 +1059,9 @@ const { state, actions } = store( NAMESPACE, {
 		 * reuses the result's stamped index so it matches its render event.
 		 */
 		recordResultInteract() {
+			if ( state.disableTracking ) {
+				return;
+			}
 			const { result } = getContext();
 			if ( result?.railcar ) {
 				recordTrainTracksInteract( {
@@ -1546,7 +1557,9 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			initialized = true;
-			identifySite( state.siteId );
+			if ( ! state.disableTracking ) {
+				identifySite( state.siteId );
+			}
 			// PHP seed; `formatDate()` reads from module scope rather than threading per-call.
 			setSeededDateFormat( state.dateFormat );
 			window.addEventListener( 'popstate', actions.handlePopState );
