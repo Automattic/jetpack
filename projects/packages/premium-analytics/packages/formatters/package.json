@@ -1,9 +1,11 @@
 {
-	"name": "@wc-analytics/formatters",
-	"description": "Formatting utilities for WooCommerce Analytics",
-	"version": "1.0.0",
+	"name": "@automattic/jetpack-premium-analytics-formatters",
+	"version": "0.1.0",
+	"private": true,
 	"type": "module",
 	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"sideEffects": false,
 	"dependencies": {
 		"@automattic/number-formatters": "*",
 		"date-fns": "^4.1.0"
