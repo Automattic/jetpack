@@ -29,7 +29,7 @@ const TEMPLATE = [
 		{ filterType: 'taxonomy', taxonomy: 'product_brand', displayStyle: 'chips' },
 	],
 	[ 'jetpack-search/filter-wc-rating', { enabledStars: [ 4 ] } ],
-	[ 'jetpack-search/filter-wc-price' ],
+	[ 'jetpack-search/filter-wc-price', { showSlider: true } ],
 	[ 'jetpack-search/filter-wc-stock-status' ],
 ];
 
