@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the `layout` package from `next-woocommerce-analytics` as an internal package providing the `BaseLayout` primitive.
