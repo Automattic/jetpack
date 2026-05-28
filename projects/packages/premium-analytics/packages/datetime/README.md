@@ -1,11 +1,15 @@
-# @next-woo-analytics/datetime
+# @jetpack-premium-analytics/datetime
 
-Date and timezone utilities for WooCommerce Analytics.
+Date and timezone utilities for Jetpack Premium Analytics.
+
+Internal package — bundled with `@automattic/jetpack-premium-analytics`,
+not published to npm. Imported as `@jetpack-premium-analytics/datetime`
+(see the parent `README.md` → "Internal packages" for the naming convention).
 
 ## Overview
 
-This package provides timezone-aware date handling and comparison range
-calculations for the WooCommerce Analytics dashboard.
+Provides timezone-aware date handling and comparison range calculations
+for analytics widgets and date-range pickers.
 
 ## Functions
 
@@ -23,8 +27,8 @@ const date = toLocalTZ( [ 2025, 9, 9 ], 'America/New_York' );
 
 **Parameters:**
 
--   `dateParts` : `number[]` - Date value to convert
--   `timezone` (optional): `string` - Target timezone, default is GMT
+- `dateParts` : `number[]` - Date value to convert
+- `timezone` (optional): `string` - Target timezone, default is GMT
 
 **Returns:** `TZDate` - Timezone-aware date object
 
@@ -39,8 +43,8 @@ const now = toLocalTZ( undefined, '+05:30' ); // Current time in +05:30
 
 **Parameters:**
 
--   `value` (optional): `number | string | Date` - Date value to convert
--   `timezone` (optional): `string` - Target timezone
+- `value` (optional): `number | string | Date` - Date value to convert
+- `timezone` (optional): `string` - Target timezone
 
 **Returns:** `TZDate` - Timezone-aware date object
 
@@ -55,8 +59,8 @@ const naive = formatToTimezoneNaiveString( new Date(), 'Europe/London' );
 
 **Parameters:**
 
--   `date`: `Date` - Date to format
--   `timezone`: `string` - Timezone for interpretation
+- `date`: `Date` - Date to format
+- `timezone`: `string` - Timezone for interpretation
 
 **Returns:** `string` - ISO string without timezone offset
 
@@ -71,8 +75,8 @@ const withTZ = dateToISOStringWithTZ( new Date(), 'America/New_York' );
 
 **Parameters:**
 
--   `date`: `Date` - Date to convert
--   `timezone`: `string` - Target timezone
+- `date`: `Date` - Date to convert
+- `timezone`: `string` - Target timezone
 
 **Returns:** `string` - ISO string with timezone offset
 
@@ -93,18 +97,18 @@ const comparison = getComparisonRangeFromPreset( reference, 'previous-week' );
 
 **Parameters:**
 
--   `reference`: `DateRange` - Reference date range with `from` and `to`
--   `presetId`: `ComparisonPresetId` - One of the supported preset identifiers
+- `reference`: `DateRange` - Reference date range with `from` and `to`
+- `presetId`: `ComparisonPresetId` - One of the supported preset identifiers
 
 **Returns:** `DateRange | undefined` - Comparison date range or undefined
 if inputs are invalid
 
 **Supported presets:**
 
--   `previous-period` - Same duration, immediately before reference
--   `previous-week` - One week before reference dates
--   `previous-month` - One month before reference dates
--   `previous-year` - One year before reference dates
+- `previous-period` - Same duration, immediately before reference
+- `previous-week` - One week before reference dates
+- `previous-month` - One month before reference dates
+- `previous-year` - One year before reference dates
 
 ## Types
 
@@ -120,14 +124,10 @@ type DateRange = {
 ### `ComparisonPresetId`
 
 ```typescript
-type ComparisonPresetId =
-	| 'previous-period'
-	| 'previous-week'
-	| 'previous-month'
-	| 'previous-year';
+type ComparisonPresetId = 'previous-period' | 'previous-week' | 'previous-month' | 'previous-year';
 ```
 
 ## Dependencies
 
--   `date-fns` - Date manipulation functions
--   `@date-fns/tz` - Timezone support for date-fns
+- `date-fns` - Date manipulation functions
+- `@date-fns/tz` - Timezone support for date-fns
