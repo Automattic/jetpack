@@ -5482,12 +5482,17 @@ window.addEventListener( 'drop', event => {
 	if ( ! event.dataTransfer?.types?.includes( 'Files' ) ) return;
 	// The editor (.bw-content) and the image-modal overlay each have
 	// their own data-wp-on--drop handlers; those fire on the inner
-	// target first and bubble up to here. Only handle drops that
-	// landed outside both.
-	const target = event.target;
+	// target first and bubble up to here. Check via composedPath rather
+	// than target.closest because the editor handler removes the empty
+	// <p> that was the drop target (insertMediaBlock collapses an empty
+	// trailing paragraph into the figure), leaving event.target detached
+	// and breaking ancestor lookups. composedPath is snapshotted at
+	// dispatch time and stays valid through the mutation.
+	const path = event.composedPath();
 	if (
-		target instanceof Element &&
-		( target.closest( '.bw-content' ) || target.closest( '.bw-image-overlay:not([hidden])' ) )
+		path.some(
+			el => el instanceof Element && el.matches?.( '.bw-content, .bw-image-overlay:not([hidden])' )
+		)
 	) {
 		return;
 	}
