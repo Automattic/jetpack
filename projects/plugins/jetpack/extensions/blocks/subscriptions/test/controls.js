@@ -450,7 +450,7 @@ describe( 'Inspector controls', () => {
 				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
 
 				expect(
-					screen.queryByRole( 'link', { name: /Open Newsletter settings/i } )
+					screen.queryByRole( 'link', { name: /Newsletter settings page/i } )
 				).not.toBeInTheDocument();
 			} );
 
@@ -459,7 +459,7 @@ describe( 'Inspector controls', () => {
 				render( <SubscriptionsInspectorControls { ...defaultProps } isButtonOnlyStyle={ true } /> );
 				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
 
-				const link = screen.getByRole( 'link', { name: /Open Newsletter settings/i } );
+				const link = screen.getByRole( 'link', { name: /Newsletter settings page/i } );
 				expect( link ).toBeInTheDocument();
 				expect( link ).toHaveAttribute(
 					'href',

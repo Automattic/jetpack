@@ -336,13 +336,15 @@ export default function SubscriptionControls( {
 				/>
 				{ isButtonOnlyStyle && (
 					<p className="jetpack-subscriptions__inspector-help">
-						{ __(
-							'The Subscribe popup heading is a site-wide setting. Edit it in the Newsletter settings — changes apply to every Subscribe block on this site using the Button only style.',
-							'jetpack'
+						{ createInterpolateElement(
+							__(
+								'To update the message shown in the subscribe pop-up used with the Button only style, please visit the <link>Newsletter settings page</link>.',
+								'jetpack'
+							),
+							{
+								link: <ExternalLink href={ getAdminUrl( 'admin.php?page=jetpack-newsletter' ) } />,
+							}
 						) }
-						<ExternalLink href={ getAdminUrl( 'admin.php?page=jetpack-newsletter' ) }>
-							{ __( 'Open Newsletter settings', 'jetpack' ) }
-						</ExternalLink>
 					</p>
 				) }
 				{ ! isSimpleSite() && (
