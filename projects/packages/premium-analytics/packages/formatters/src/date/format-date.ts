@@ -4,10 +4,8 @@
 import { format } from 'date-fns';
 
 /**
- * Named date format presets for common use cases.
- * Follows US date format standards as per CIAB guidelines.
- *
- * Link: https://ciabp2.wordpress.com/2025/10/16/ciab-date-and-time-formats/
+ * Named date format presets for common use cases. Follows US date format
+ * standards.
  *
  * |-------------|------------------------------|---------------------------|
  * | Format      | Output                       | Use Case                  |

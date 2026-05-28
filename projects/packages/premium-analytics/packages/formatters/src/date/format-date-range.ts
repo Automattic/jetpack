@@ -6,10 +6,10 @@ import { formatDate } from './format-date';
 /**
  * A date range with optional start and end.
  *
- * Mirrors `DateRange` from `@next-woo-analytics/datetime`.
- * Defined locally to avoid a cross-namespace dependency.
- * When `datetime` moves to root (`@wc-analytics/datetime`),
- * import from there instead.
+ * Defined locally to avoid a cross-package import on
+ * `@jetpack-premium-analytics/datetime` (which exports an identical
+ * `DateRange` type). Switch to that import once the sibling-package
+ * `link:` wiring is settled.
  */
 type DateRange = { from?: Date; to?: Date };
 
