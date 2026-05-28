@@ -1477,7 +1477,13 @@ CSS;
  *      to "clear the 60px header strip." But the search-input is
  *      `position: absolute` in the overlay — it doesn't take flow space —
  *      so the 0.5em top-pad just pushes the columns row 8px below the
- *      card's `::before` hairline at `top: 60px`.
+ *      card's `::before` hairline at `top: 60px`. The matching 2em
+ *      *bottom*-pad sits below the columns row, inside the group but
+ *      outside the columns, so the stretched column — and its
+ *      `border-left` — stops 2em short of the card's bottom edge. Zero
+ *      both on the group and re-add the 2em as `padding-bottom` on the
+ *      columns themselves (overlay-scoped) so the divider runs to the card
+ *      edge while the powered-by row keeps its breathing room.
  *
  * The `.is-layout-flex` class match bumps the columns selector to
  * specificity (0,3,0), enough to outrank any per-container `blockGap`
@@ -1503,9 +1509,13 @@ CSS;
 	}
 	.jetpack-search-block-overlay__content > .wp-block-group:first-child:has(.jetpack-search-layout__filters-column) {
 		padding-top: 0;
+		padding-bottom: 0;
 	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
 		padding-top: 0.5em;
+	}
+	.jetpack-search-block-overlay__content .wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
+		padding-bottom: 2em;
 	}
 }
 /* @container override: applies when the named container exists. Placed AFTER
