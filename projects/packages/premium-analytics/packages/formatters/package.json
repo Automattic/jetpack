@@ -7,7 +7,7 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
-		"@automattic/number-formatters": "*",
-		"date-fns": "^4.1.0"
+		"@automattic/number-formatters": "workspace:*",
+		"date-fns": "4.1.0"
 	}
 }
