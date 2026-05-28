@@ -23,12 +23,17 @@ describe( 'layout block.json', () => {
 			margin: true,
 			blockGap: true,
 		} );
-		expect( supports.border ).toEqual( {
+		// Border support uses the `__experimentalBorder` key, not `border` — WP's
+		// PHP border-support serialization (wp_apply_border_support) only reads
+		// the experimental key, so `border` would render no border on the front
+		// end. Matches core/group.
+		expect( supports.__experimentalBorder ).toMatchObject( {
 			color: true,
 			radius: true,
 			style: true,
 			width: true,
 		} );
+		expect( supports.border ).toBeUndefined();
 		expect( supports.dimensions ).toEqual( { minHeight: true } );
 		expect( supports.layout ).toEqual( { default: { type: 'constrained' } } );
 	} );
