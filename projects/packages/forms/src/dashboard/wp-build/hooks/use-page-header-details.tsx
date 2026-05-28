@@ -459,13 +459,6 @@ export default function usePageHeaderDetails(
 		trackAction,
 	] );
 
-	// Match the canonical `<AdminPage>` logo (`<JetpackLogo showText={ false }
-	// height={ 20 } />`): the admin-ui Page `visual` slot is a 24px grid cell that
-	// pins (does not center) its child to the cell top. The square viewBox
-	// (`0 0 32 32`) scales from `height`; passing `width={ 20 }` instead left
-	// `height` at its 32px default, so the logo overflowed the slot and sat ~4px
-	// below the title baseline. Sizing by `height={ 20 }` keeps the square aspect
-	// and fits the slot, aligning the logo with the title.
 	const visual = <JetpackLogo showText={ false } height={ 20 } />;
 
 	const ariaLabel = useMemo( () => {
