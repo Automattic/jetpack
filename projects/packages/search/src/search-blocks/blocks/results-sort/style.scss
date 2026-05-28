@@ -151,12 +151,8 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		// See the matching note in filters-popover/style.scss: the shorthand
-		// drops to `transparent` on themes that don't define
-		// `--wp--preset--color--base`, so use the longhand with the same
-		// fallback chain the overlay card and suggestions panel use.
-		// Two-declaration sampled-token pattern — see filters-popover for the
-		// rationale (SEARCH-274).
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
 		// stylelint-disable-next-line declaration-block-no-duplicate-properties
 		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
 		// stylelint-disable-next-line declaration-block-no-duplicate-properties

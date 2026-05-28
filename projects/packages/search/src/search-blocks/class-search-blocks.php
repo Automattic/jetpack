@@ -125,12 +125,7 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
-		// Front-end theme-token sampler — see `print_theme_token_defaults_style()`
-		// for the rationale. PHP defaults at `wp_head` priority 1 so the `:root`
-		// properties exist before any block CSS reads them; JS at `wp_body_open`
-		// overrides those defaults with the resolved body computed color/bg so
-		// themes that emit positional palette slugs (wp.com `--theme-N`) still
-		// drive every Search surface to a theme-accurate value.
+		// Priority 1 so `:root` defaults are defined before any block CSS reads them.
 		add_action( 'wp_head', array( static::class, 'print_theme_token_defaults_style' ), 1 );
 		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
 		// Relativize `jetpack-search/*` Script Module URLs whose host matches
@@ -1106,16 +1101,9 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Print the `:root` defaults for the two Search-wide theme tokens read by
-	 * the overlay card and the popover / sort / suggestions surfaces. PHP
-	 * layer of the two-layer story documented at `print_theme_token_sampler()`.
-	 *
-	 * Defaults track the existing `--wp--preset--color--*` chain so themes
-	 * that follow the WP 6.1+ semantic-slug convention (`base` / `contrast`)
-	 * or the legacy `background` / `foreground` pair Just Work without the JS
-	 * sampler. The JS sampler then overrides these with the resolved body
-	 * computed values for themes that use positional palette slugs (wp.com
-	 * Global Styles emits `--theme-N`).
+	 * Print the `:root` defaults for `--jp-search-page-ink` /
+	 * `--jp-search-page-surface`. `print_theme_token_sampler()` overrides
+	 * these once `<body>` exists. See AGENTS.md § Theme tokens & `var()` chains.
 	 */
 	public static function print_theme_token_defaults_style(): void {
 		if ( is_admin() ) {
@@ -1126,35 +1114,11 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Print the inline `<script>` that samples the body's computed `color` and
-	 * `background-color` and overrides `--jp-search-page-ink` /
-	 * `--jp-search-page-surface` on `:root`. Hooked on `wp_body_open` so the
-	 * `<body>` already exists (computed styles are resolvable) but before any
-	 * block paints.
-	 *
-	 * Why sample at runtime: the existing `var(--wp--preset--color--base, …)`
-	 * chains static-match the WP 6.1+ semantic slug convention. Themes that
-	 * customize the palette through the wp.com Global Styles editor emit
-	 * positional slugs (`--theme-1` / `--theme-2`) and bind them to body via
-	 * a separate rule (`body { color: var(--wp--preset--color--theme-2); }`).
-	 * The slug name is opaque to a static chain; the *resolved* value isn't —
-	 * `getComputedStyle` returns it regardless of which slug the theme used.
-	 *
-	 * Carriers: every Search surface that reads `--jp-search-page-*` then
-	 * matches the theme — overlay card (see `block_template_overlay_inline_css`),
-	 * `filters-popover __panel`, `results-sort __menu`, `search-input __suggestions`.
-	 *
-	 * Themes that omit `wp_body_open()` (very old classic themes) fall back
-	 * to the PHP-emitted defaults — same behavior as today, no regression.
-	 *
-	 * Transparent-body guard: classic themes that don't explicitly set
-	 * `body { background-color }` resolve `getComputedStyle(body).backgroundColor`
-	 * to `rgba(0, 0, 0, 0)` even though the page visually paints on the
-	 * browser canvas (white). Writing that transparent string onto
-	 * `--jp-search-page-surface` would override the PHP default and make
-	 * Search surfaces transparent. The conditional keeps the PHP default
-	 * (literal `#fff`) intact for those themes — visually they were already
-	 * rendering on a white canvas, so the literal matches.
+	 * Print the body-sampler `<script>` that overrides the `:root` defaults
+	 * with the body's resolved `color` / `backgroundColor`. Surface is skipped
+	 * when bg resolves to `transparent` — classic themes without an explicit
+	 * `body { background-color }` paint on the browser canvas, where the PHP
+	 * default already matches. See AGENTS.md § Theme tokens & `var()` chains.
 	 */
 	public static function print_theme_token_sampler(): void {
 		if ( is_admin() ) {
@@ -1171,13 +1135,10 @@ class Search_Blocks {
 	 * sidebar-collapse + in-header popover rules shared with the page
 	 * templates live in `search_layout_inline_css()`.
 	 *
-	 * Surface/ink read `--jp-search-page-*` first (theme-accurate values from
-	 * the JS sampler), then fall back to the WP 6.1+ semantic-slug chain
-	 * (`base`/`contrast`), then the legacy `background`/`foreground` pair
-	 * (TT1, Kaze, many WPCOM themes), then literals. The chain wins on
-	 * JS-disabled clients and very old themes that omit `wp_body_open()`.
-	 * Hoisted onto two custom props so in-card surfaces (suggestions panel)
-	 * share one source. Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
+	 * Surface/ink hoist `--jp-search-page-*` (with the legacy
+	 * `--wp--preset--color--*` chain as fallback — see AGENTS.md § Theme
+	 * tokens) onto two custom props so in-card surfaces share one source.
+	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
 	 */
@@ -1221,14 +1182,7 @@ class Search_Blocks {
  * mix used for the header `::before`. Both auto-invert polarity per theme, so
  * dark themes get a card that visibly layers above the scrim without losing
  * the themed surface color. The static `rgba(128,128,128,.25)` border + the
- * un-tinted token chain stay as the fallback for browsers without `color-mix`.
- *
- * The tint inputs read `--jp-search-page-*` first (theme-accurate values
- * from the JS body sampler, SEARCH-274), then fall back to the
- * `--wp--preset--color--*` chain so themes that don't expose
- * `--base`/`--contrast` (wp.com Global Styles palettes that emit
- * positional `--theme-N` slugs) still drive the tint from the page's
- * actual surface and ink rather than the literal fallbacks. */
+ * un-tinted token chain stay as the fallback for browsers without `color-mix`. */
 @supports (background: color-mix(in sRGB, black 50%, white)) {
 	.jetpack-search-block-overlay__card {
 		--jp-search-overlay-surface: color-mix(in sRGB, var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327))) 5%, var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff))));
