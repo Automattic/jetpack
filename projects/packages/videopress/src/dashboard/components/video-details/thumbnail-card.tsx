@@ -187,7 +187,7 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						{ showUpdateButton && (
 							<ThumbnailUpdateButton
 								canSelectFromVideo={ Boolean( video.sourceUrl ) }
-								canUploadImage={ Boolean( ( window.wp as ClassicEditorWp | undefined )?.media ) }
+								canUploadImage={ Boolean( ( window.wp as WpGlobal | undefined )?.media ) }
 								isBusy={ isUpdating }
 								onSelectFromVideo={ () => setDialogOpen( true ) }
 								onUploadImage={ handleUploadImage }

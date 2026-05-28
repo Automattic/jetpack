@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  * @return A Promise that resolves to the selected `{ id, url }` attachment, or `null` if the user closed the frame without selecting.
  */
 export async function selectImageFromMediaLibrary(): Promise< WpMediaAttachment | null > {
-	const mediaFactory = ( window.wp as ClassicEditorWp | undefined )?.media as
+	const mediaFactory = ( window.wp as WpGlobal | undefined )?.media as
 		| ( ( opts: {
 				title: string;
 				multiple: boolean;

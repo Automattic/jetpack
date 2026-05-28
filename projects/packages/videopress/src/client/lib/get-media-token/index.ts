@@ -85,8 +85,7 @@ const requestMediaToken = function (
 		// the block editor, token-bridge.js, and the front-end — where
 		// wp.apiFetch may not be enqueued.
 		const useApiFetch =
-			!! window?.GBKit &&
-			typeof ( window.wp as ClassicEditorWp | undefined )?.apiFetch === 'function';
+			!! window?.GBKit && typeof ( window.wp as WpGlobal | undefined )?.apiFetch === 'function';
 
 		const body = new URLSearchParams();
 		for ( const [ key, value ] of Object.entries( fetchData ) ) {
@@ -102,7 +101,7 @@ const requestMediaToken = function (
 		};
 
 		const fetchPromise: Promise< Response > = useApiFetch
-			? ( window.wp as Required< ClassicEditorWp > ).apiFetch( {
+			? ( window.wp as Required< WpGlobal > ).apiFetch( {
 					url: adminAjaxAPI,
 					...fetchOptions,
 					parse: false,

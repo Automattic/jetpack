@@ -7,13 +7,13 @@ declare module '*.css';
 declare module '*.mdx';
 
 /**
- * The classic-editor `window.wp` namespace pieces the package consumes.
+ * The pieces of the global `window.wp` namespace this package consumes.
  * Cast to this rather than augmenting `Window.wp` directly — other workspace
  * packages (e.g. `@automattic/number-formatters`) declare their own minimal
  * shape of `Window.wp`, and TypeScript can't merge two anonymous inline
  * object types on the same global property.
  */
-type ClassicEditorWp = {
+type WpGlobal = {
 	media?: ( opts: unknown ) => WpMediaFrame;
 	apiFetch?: ( options: Record< string, unknown > ) => Promise< Response >;
 };
