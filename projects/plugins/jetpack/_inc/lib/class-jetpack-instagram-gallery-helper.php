@@ -74,7 +74,7 @@ class Jetpack_Instagram_Gallery_Helper {
 		if ( $cached_gallery ) {
 			$decoded_cached_gallery = json_decode( $cached_gallery );
 			// Assuming the json_decode succeeds, `images` can be an array of images or a string 'ERROR'.
-			$cached_images = isset( $decoded_cached_gallery->images ) ? $decoded_cached_gallery->images : null;
+			$cached_images = $decoded_cached_gallery->images ?? null;
 			$cached_count  = is_array( $cached_images ) ? count( $cached_images ) : 0;
 			if ( $cached_count >= $count ) {
 				return $decoded_cached_gallery;
