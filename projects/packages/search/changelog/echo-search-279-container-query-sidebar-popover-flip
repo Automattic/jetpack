@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: drive the sidebar/popover responsive flip from a container query against the columns row; the existing @media (min-width: 992px) rules are kept as a fallback for browsers without container-query support.

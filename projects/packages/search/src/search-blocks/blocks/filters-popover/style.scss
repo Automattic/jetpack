@@ -2,6 +2,68 @@
 // at the same width.
 $jetpack-search-filters-popover-collapse: 992px;
 
+// Inline-sidebar mode — the popover root becomes a block-flow region, the
+// trigger drops out of the tree, and the panel sheds its popover chrome.
+// Used by the `@media` rule below and by the editor-preview selector
+// further down — they need the same body, so it lives here as one mixin.
+@mixin filters-popover-inline-mode {
+	display: block;
+
+	.jetpack-search-filters-popover__trigger {
+		display: none;
+	}
+
+	.jetpack-search-filters-popover__panel {
+		position: static;
+		display: flex;
+		min-width: 0;
+		max-width: none;
+		padding: 0;
+		background: transparent;
+		color: inherit;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		z-index: auto;
+	}
+}
+
+// Popover-mode restore — explicitly re-applies the popover-chrome values
+// that inline-mode above had overridden. Used by the `@container (max-width)`
+// rule to undo `@media (min-width)` when the named container is narrower
+// than the viewport. Property values mirror the base `.__panel` block; keep
+// them in sync if the base changes.
+@mixin filters-popover-popover-mode {
+	display: inline-block;
+
+	.jetpack-search-filters-popover__trigger {
+		display: inline-flex;
+	}
+
+	.jetpack-search-filters-popover__panel {
+		position: absolute;
+		display: none;
+		min-width: 260px;
+		max-width: min(360px, 90vw);
+		padding: 12px;
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+		z-index: 20;
+	}
+
+	// The base `.is-popover-open .__panel { display: flex }` rule earlier in
+	// source has lower source-order than this @container block, so its
+	// `display: flex` would be lost to the `display: none` above. Restate it
+	// at higher source-order so the popover still opens on click.
+	&.is-popover-open .jetpack-search-filters-popover__panel {
+		display: flex;
+	}
+}
+
 .jetpack-search-filters-popover {
 	position: relative;
 	display: inline-block;
@@ -105,31 +167,26 @@ $jetpack-search-filters-popover-collapse: 992px;
 	}
 
 	// Responsive mode above the breakpoint: the popover becomes an inline
-	// sidebar. The trigger is taken out of the flow (its `aria-controls` is
-	// unreachable too, which is correct — the target panel is now an inline
-	// region) and the panel sheds every popover-only style.
+	// sidebar. The `@media` rule is the universal base — it fires in every
+	// browser (including legacy ones without container-query support), and
+	// drives standalone usage outside the named container declared on the
+	// shared Search templates' columns row (see
+	// `Search_Blocks::search_layout_inline_css()`). The `@container` rule
+	// then overrides `@media` via source-order cascade when the named
+	// container is in scope AND narrower than 992px — the "wide viewport,
+	// narrow container" case, which is the whole point of the change. The
+	// override has to explicitly restore popover-mode values; the cascade
+	// can't infer them.
 	&.is-mode-responsive {
 
 		@media (min-width: $jetpack-search-filters-popover-collapse) {
-			display: block;
 
-			.jetpack-search-filters-popover__trigger {
-				display: none;
-			}
+			@include filters-popover-inline-mode;
+		}
 
-			.jetpack-search-filters-popover__panel {
-				position: static;
-				display: flex;
-				min-width: 0;
-				max-width: none;
-				padding: 0;
-				background: transparent;
-				color: inherit;
-				border: none;
-				border-radius: 0;
-				box-shadow: none;
-				z-index: auto;
-			}
+		@container jetpack-search-layout (max-width: #{$jetpack-search-filters-popover-collapse - 0.02px}) {
+
+			@include filters-popover-popover-mode;
 		}
 	}
 

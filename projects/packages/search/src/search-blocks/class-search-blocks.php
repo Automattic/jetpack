@@ -1402,6 +1402,23 @@ CSS;
 	align-items: center;
 	gap: 0.75rem;
 }
+/* Name the columns row as the layout container so the sidebar/popover flip
+ * tracks its inline-size. The `@media` rules below are the universal base —
+ * they fire in every browser (including legacy ones without container-query
+ * support) and they drive standalone usage outside the named container (no
+ * container ancestor → only `@media` applies). The `@container` rule further
+ * down overrides `@media` via source-order cascade at equal specificity when
+ * the named container is in scope AND narrower than 992px. The override has
+ * to undo `@media (min-width: 992px)`'s `popover { display: none }`
+ * explicitly: in the "wide viewport, narrow container" case `@media
+ * (min-width: 992px)` keeps firing on the viewport width and would otherwise
+ * leave the visitor with no filter UI at all. `@container (min-width: 992px)`
+ * isn't defined — container width is bounded by viewport width in practice,
+ * so the matching `@media (min-width: 992px)` already covers the wide case. */
+.wp-block-columns:has(> .jetpack-search-layout__filters-column) {
+	container-type: inline-size;
+	container-name: jetpack-search-layout;
+}
 /* Below 992px the right-column filter sidebar collapses to a popover trigger
  * docked next to results-sort. The trigger comes from the
  * `jetpack-search/filters-popover` block that ships in each template. The
@@ -1461,8 +1478,18 @@ CSS;
  * The `.is-layout-flex` class match bumps the columns selector to
  * specificity (0,3,0), enough to outrank any per-container `blockGap`
  * CSS WP might emit (typically (0,1,0)). The `:has(> filters-column)`
- * scope keeps these overrides off any unrelated `wp:columns` block. */
+ * scope keeps these overrides off any unrelated `wp:columns` block.
+ *
+ * The layout fine-tuning rules below (`align-items`, `margin-block-start`,
+ * overlay `padding-top`, column `padding-top`) target the columns row itself
+ * and its parent group — `@container` can't reach those from inside the
+ * named container, so they stay viewport-driven. Effect is harmless when the
+ * sidebar is collapsed via `@container` (align-items has no effect with one
+ * visible column; the margin/padding tightening is universally fine). */
 @media (min-width: 992px) {
+	/* Sidebar shown, popover-in-results-header hidden. The `@container
+	 * (max-width: 991.98px)` block below re-shows the popover when the
+	 * named container is narrower than the viewport. */
 	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
 		display: none;
 	}
@@ -1475,6 +1502,25 @@ CSS;
 	}
 	.wp-block-columns:has(> .jetpack-search-layout__filters-column) > .wp-block-column {
 		padding-top: 0.5em;
+	}
+}
+/* @container override: applies when the named container exists. Placed AFTER
+ * the `@media` rules so source-order cascade lets it win over them at equal
+ * specificity. In "wide viewport, narrow container" (the case the change is
+ * meant to fix), `@media (max-width: 991.98px)` doesn't fire but `@media
+ * (min-width: 992px)` does — this block undoes the latter's `popover {
+ * display: none }` via `display: inline-block` and hides the sidebar that
+ * the `@media (max-width)` rule wouldn't have hidden at this viewport. Same
+ * `!important` reasoning on `flex-basis: 100%` as the @media block. */
+@container jetpack-search-layout (max-width: 991.98px) {
+	.jetpack-search-layout__filters-column {
+		display: none;
+	}
+	.jetpack-search-layout__results-column {
+		flex-basis: 100% !important;
+	}
+	.jetpack-search-layout__results-header .jetpack-search-filters-popover {
+		display: inline-block;
 	}
 }
 CSS;
