@@ -41,6 +41,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
+		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/build": "0.13.0",
 		"browserslist": "4.28.2"

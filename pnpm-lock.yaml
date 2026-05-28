@@ -3855,6 +3855,9 @@ importers:
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
