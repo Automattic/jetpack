@@ -174,9 +174,13 @@ swap the invocation to `pnpm exec playwright test --config …` and drop
 the `NODE_PATH=$(npm root -g)` prefix; the `WP_BASE` env var still
 applies.)
 
-The wp-verify Docker stack must still be running on the same host via
-`bash tools/ai-sandbox/wp-verify.sh up` — this skill only does
-verification; it doesn't bring the stack up or down.
+The wp-verify Docker stack must be running before Playwright runs.
+Step 1 brings it up via `bash tools/ai-sandbox/wp-verify.sh up`, which
+is idempotent — a no-op when the stack is already healthy, so the
+verify-loop iteration pattern (one Step 1 invocation per session,
+many Step 3 reruns) works without explicit re-check. Teardown lives
+in the optional "Teardown" section below; the skill deliberately
+leaves the stack up between rounds so subsequent reruns skip Steps 1–2.
 
 `NODE_PATH=$(npm root -g)` is required because the sandbox image installs
 `@playwright/test` globally; without it, the config file's
