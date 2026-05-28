@@ -1,4 +1,3 @@
 Significance: patch
 Type: added
-
-Add CLAUDE.md agent contract for safe autonomous development.
+Comment: Internal tooling only — added CLAUDE.md as a thin `@AGENTS.md` import alias so editors/runtimes that look for `CLAUDE.md` by convention resolve to the same agent contract. No user-facing package change.
