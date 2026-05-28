@@ -26,4 +26,13 @@ describe( 'search-input block.json', () => {
 			items: { type: 'string' },
 		} );
 	} );
+
+	it( 'declares opt-in width + widthUnit attributes (no defaults — matches core/search)', () => {
+		const attrs = blockJson.attributes;
+		// No defaults: the (value, unit) pair only takes effect when the
+		// author has set both halves, matching `render_block_core_search`'s
+		// `! empty( $width ) && ! empty( $widthUnit )` gate.
+		expect( attrs.width ).toEqual( { type: 'number' } );
+		expect( attrs.widthUnit ).toEqual( { type: 'string' } );
+	} );
 } );
