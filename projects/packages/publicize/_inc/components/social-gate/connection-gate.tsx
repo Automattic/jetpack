@@ -56,6 +56,7 @@ export default function ConnectionGate(): JSX.Element {
 						variant="solid"
 						onClick={ onGetStarted }
 						loading={ isLoading }
+						loadingAnnouncement={ __( 'Registering…', 'jetpack-publicize-pkg' ) }
 						disabled={ isLoading }
 					>
 						{ __( 'Get Started', 'jetpack-publicize-pkg' ) }
