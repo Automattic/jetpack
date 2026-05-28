@@ -60,7 +60,7 @@ export async function handler( argv ) {
 	const pluginPath = projectDir( `plugins/${ argv.plugin }` );
 
 	// Read the plugin slug from composer.json so the mount path inside
-	// Playground uses the correct wp-plugin-slug (e.g. zero-bs-crm for crm).
+	// Playground uses the correct wp-plugin-slug.
 	const composerJson = readComposerJson( `plugins/${ argv.plugin }`, false );
 	const wpPluginSlug =
 		composerJson?.extra?.[ 'wp-plugin-slug' ] ??

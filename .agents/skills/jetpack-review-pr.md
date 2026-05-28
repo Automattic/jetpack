@@ -257,7 +257,7 @@ Flag changes that could break consumers (changed signatures, removed methods, al
 ### 6. Test and static analysis (thorough only)
 
 Identify the test runner for each project and **always report it**, even when skipped:
-- `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh` → `jp docker phpunit <target>`
+- `plugins/jetpack`, `plugins/wpcomsh` → `jp docker phpunit <target>`
 - Everything else → `jp test php <project>` / `jp test js <project>`
 
 Run in the worktree with 5-minute timeouts:
