@@ -80,10 +80,7 @@ export function formatMetricValue(
 	switch ( type ) {
 		case 'currency': {
 			if ( useMultipliers ) {
-				const { symbol, symbolPosition } = getCurrencyObject(
-					0,
-					currencyCode
-				);
+				const { symbol, symbolPosition } = getCurrencyObject( 0, currencyCode );
 
 				// Detect if the locale places a space between symbol
 				// and number (e.g. BRL "R$ 1.5K", EUR "1.5K €").
@@ -96,11 +93,7 @@ export function formatMetricValue(
 					symbolPosition === 'before'
 						? probe.indexOf( symbol ) + symbol.length
 						: probe.lastIndexOf( symbol ) - 1;
-				const separator = /\s/.test(
-					probe.charAt( charIndex )
-				)
-					? ' '
-					: '';
+				const separator = /\s/.test( probe.charAt( charIndex ) ) ? ' ' : '';
 
 				let sign = '';
 				let absoluteValue = numericValue;
@@ -126,10 +119,7 @@ export function formatMetricValue(
 					: `${ sign }${ compactFormatted }${ separator }${ symbol }`;
 			}
 
-			const baseFormatted = formatCurrency(
-				numericValue,
-				currencyCode
-			);
+			const baseFormatted = formatCurrency( numericValue, currencyCode );
 
 			if (
 				numericValue > 0 &&

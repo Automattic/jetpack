@@ -44,10 +44,7 @@ export const formatDateRange = ( range?: DateRange ): string => {
 	}
 
 	if ( sameMonth ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate(
-			to,
-			'd, yyyy'
-		) }`;
+		return `${ formatDate( from, 'short' ) }-${ formatDate( to, 'd, yyyy' ) }`;
 	}
 
 	if ( sameYear ) {

@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	formatCurrency,
-	getCurrencyObject,
-} from '@automattic/number-formatters';
-
+import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
 /**
  * Internal dependencies
  */
@@ -27,7 +23,6 @@ describe( 'formatMetricValue', () => {
 	const setupCurrency = ( {
 		symbol = '$',
 		position = 'before',
-		code = 'USD',
 		hasSpace = false,
 	}: {
 		symbol?: string;
@@ -46,19 +41,17 @@ describe( 'formatMetricValue', () => {
 			hasNonZeroFraction: false,
 		} );
 
-		( formatCurrency as jest.Mock ).mockImplementation(
-			( value: number ) => {
-				const formatted = Math.abs( value ).toLocaleString( 'en-US', {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-				} );
-				const sign = value < 0 ? '-' : '';
+		( formatCurrency as jest.Mock ).mockImplementation( ( value: number ) => {
+			const formatted = Math.abs( value ).toLocaleString( 'en-US', {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2,
+			} );
+			const sign = value < 0 ? '-' : '';
 
-				return position === 'before'
-					? `${ sign }${ symbol }${ sp }${ formatted }`
-					: `${ sign }${ formatted }${ sp }${ symbol }`;
-			}
-		);
+			return position === 'before'
+				? `${ sign }${ symbol }${ sp }${ formatted }`
+				: `${ sign }${ formatted }${ sp }${ symbol }`;
+		} );
 	};
 
 	beforeEach( () => {
@@ -72,15 +65,11 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'returns empty string for null', () => {
-			expect( formatMetricValue( null as unknown as number ) ).toBe(
-				''
-			);
+			expect( formatMetricValue( null as unknown as number ) ).toBe( '' );
 		} );
 
 		it( 'returns empty string for undefined', () => {
-			expect(
-				formatMetricValue( undefined as unknown as number )
-			).toBe( '' );
+			expect( formatMetricValue( undefined as unknown as number ) ).toBe( '' );
 		} );
 
 		it( 'coerces empty string to zero', () => {
@@ -92,9 +81,7 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'accepts numeric strings with decimals', () => {
-			expect( formatMetricValue( '99.99', 'average' ) ).toBe(
-				'99.99'
-			);
+			expect( formatMetricValue( '99.99', 'average' ) ).toBe( '99.99' );
 		} );
 
 		it( 'formats zero', () => {
@@ -114,16 +101,11 @@ describe( 'formatMetricValue', () => {
 		it( 'delegates to formatCurrency', () => {
 			formatMetricValue( 192088.05, 'currency' );
 
-			expect( formatCurrency ).toHaveBeenCalledWith(
-				192088.05,
-				'USD'
-			);
+			expect( formatCurrency ).toHaveBeenCalledWith( 192088.05, 'USD' );
 		} );
 
 		it( 'formats currency without multipliers', () => {
-			expect( formatMetricValue( 192088.05, 'currency' ) ).toBe(
-				'$192,088.05'
-			);
+			expect( formatMetricValue( 192088.05, 'currency' ) ).toBe( '$192,088.05' );
 		} );
 
 		it( 'passes currencyCode to formatCurrency', () => {
@@ -143,46 +125,30 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'formats currency with multipliers and signDisplay', () => {
-			const negativeResult = formatMetricValue(
-				-192088.05,
-				'currency',
-				{
-					useMultipliers: true,
-					signDisplay: 'always',
-					decimals: 2,
-				}
-			);
+			const negativeResult = formatMetricValue( -192088.05, 'currency', {
+				useMultipliers: true,
+				signDisplay: 'always',
+				decimals: 2,
+			} );
 			expect( negativeResult ).toBe( '-$192.09K' );
 
-			const positiveResult = formatMetricValue(
-				192088.05,
-				'currency',
-				{
-					useMultipliers: true,
-					signDisplay: 'always',
-					decimals: 2,
-				}
-			);
+			const positiveResult = formatMetricValue( 192088.05, 'currency', {
+				useMultipliers: true,
+				signDisplay: 'always',
+				decimals: 2,
+			} );
 			expect( positiveResult ).toBe( '+$192.09K' );
 		} );
 
 		it( 'formats currency with signDisplay', () => {
-			const negativeResult = formatMetricValue(
-				-192088.05,
-				'currency',
-				{
-					signDisplay: 'always',
-				}
-			);
+			const negativeResult = formatMetricValue( -192088.05, 'currency', {
+				signDisplay: 'always',
+			} );
 			expect( negativeResult ).toBe( '-$192,088.05' );
 
-			const positiveResult = formatMetricValue(
-				192088.05,
-				'currency',
-				{
-					signDisplay: 'always',
-				}
-			);
+			const positiveResult = formatMetricValue( 192088.05, 'currency', {
+				signDisplay: 'always',
+			} );
 			expect( positiveResult ).toBe( '+$192,088.05' );
 		} );
 	} );
@@ -308,15 +274,11 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'respects decimals option', () => {
-			expect(
-				formatMetricValue( 0.12345, 'percentage', { decimals: 1 } )
-			).toBe( '+12.3%' );
+			expect( formatMetricValue( 0.12345, 'percentage', { decimals: 1 } ) ).toBe( '+12.3%' );
 		} );
 
 		it( 'formats negative percentage', () => {
-			expect( formatMetricValue( -0.25, 'percentage' ) ).toBe(
-				'-25%'
-			);
+			expect( formatMetricValue( -0.25, 'percentage' ) ).toBe( '-25%' );
 		} );
 
 		it( 'allows disabling the sign display', () => {
@@ -350,9 +312,7 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'respects custom decimals', () => {
-			expect(
-				formatMetricValue( 3.14159, 'average', { decimals: 4 } )
-			).toBe( '3.1416' );
+			expect( formatMetricValue( 3.14159, 'average', { decimals: 4 } ) ).toBe( '3.1416' );
 		} );
 
 		it( 'formats zero with default 2 decimals', () => {
@@ -362,9 +322,7 @@ describe( 'formatMetricValue', () => {
 
 	describe( 'type: number', () => {
 		it( 'formats number without multipliers', () => {
-			expect( formatMetricValue( 9876.543, 'number' ) ).toBe(
-				'9,877'
-			);
+			expect( formatMetricValue( 9876.543, 'number' ) ).toBe( '9,877' );
 		} );
 
 		it( 'formats number with multipliers (default 0 decimals)', () => {

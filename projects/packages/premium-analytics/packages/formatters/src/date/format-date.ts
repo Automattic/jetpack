@@ -56,10 +56,7 @@ type DateType = Parameters< typeof format >[ 0 ];
  * formatDate( new Date( '2025-06-21' ), 'short' )     // 'Jun 21'
  * formatDate( new Date( '2025-06-21' ), 'dd/MM/yyyy' ) // '21/06/2025'
  */
-export const formatDate = (
-	date: DateType,
-	formatString: DateFormatString = 'medium'
-): string => {
+export const formatDate = ( date: DateType, formatString: DateFormatString = 'medium' ): string => {
 	const formatPattern = Object.hasOwn( DATE_FORMATS, formatString )
 		? DATE_FORMATS[ formatString as DateFormatName ]
 		: formatString;

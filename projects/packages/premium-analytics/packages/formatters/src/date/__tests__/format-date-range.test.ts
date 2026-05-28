@@ -11,54 +11,52 @@ describe( 'formatDateRange', () => {
 	 * Setup mock for formatDate function.
 	 */
 	const setupMocks = () => {
-		( formatDate as jest.Mock ).mockImplementation(
-			( date: Date, formatString?: string ) => {
-				const monthNames = [
-					'Jan',
-					'Feb',
-					'Mar',
-					'Apr',
-					'May',
-					'Jun',
-					'Jul',
-					'Aug',
-					'Sep',
-					'Oct',
-					'Nov',
-					'Dec',
-				];
+		( formatDate as jest.Mock ).mockImplementation( ( date: Date, formatString?: string ) => {
+			const monthNames = [
+				'Jan',
+				'Feb',
+				'Mar',
+				'Apr',
+				'May',
+				'Jun',
+				'Jul',
+				'Aug',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dec',
+			];
 
-				const dateStr = date.toISOString().split( 'T' )[ 0 ];
+			const dateStr = date.toISOString().split( 'T' )[ 0 ];
 
-				if ( formatString === 'iso' ) {
-					return dateStr;
-				}
-
-				// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- allow unused vars before return for test mock
-				const [ year, month, day ] = dateStr.split( '-' );
-				const monthName = monthNames[ parseInt( month, 10 ) - 1 ];
-
-				if ( formatString === 'year' ) {
-					return year;
-				}
-
-				if ( formatString === 'monthYear' ) {
-					return `${ monthName } ${ year }`;
-				}
-
-				const dayNum = parseInt( day, 10 );
-				if ( formatString === 'short' ) {
-					return `${ monthName } ${ dayNum }`;
-				}
-
-				if ( formatString === 'd, yyyy' ) {
-					return `${ dayNum }, ${ year }`;
-				}
-
-				// Default: medium format
-				return `${ monthName } ${ dayNum }, ${ year }`;
+			if ( formatString === 'iso' ) {
+				return dateStr;
 			}
-		);
+
+			// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- allow unused vars before return for test mock
+			const [ year, month, day ] = dateStr.split( '-' );
+			const monthName = monthNames[ parseInt( month, 10 ) - 1 ];
+
+			if ( formatString === 'year' ) {
+				return year;
+			}
+
+			if ( formatString === 'monthYear' ) {
+				return `${ monthName } ${ year }`;
+			}
+
+			const dayNum = parseInt( day, 10 );
+			if ( formatString === 'short' ) {
+				return `${ monthName } ${ dayNum }`;
+			}
+
+			if ( formatString === 'd, yyyy' ) {
+				return `${ dayNum }, ${ year }`;
+			}
+
+			// Default: medium format
+			return `${ monthName } ${ dayNum }, ${ year }`;
+		} );
 	};
 
 	beforeEach( () => {

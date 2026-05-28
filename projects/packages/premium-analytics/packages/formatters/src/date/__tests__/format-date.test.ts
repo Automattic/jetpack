@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { format } from 'date-fns';
-
 /**
  * Internal dependencies
  */
@@ -98,10 +97,7 @@ describe( 'formatDate', () => {
 		it( 'formats date with "monthYear" preset', () => {
 			const result = formatDate( testDate, 'monthYear' );
 			expect( result ).toBe( 'Jun 2025' );
-			expect( format ).toHaveBeenCalledWith(
-				testDate,
-				FORMATS.monthYear
-			);
+			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.monthYear );
 		} );
 
 		it( 'formats date with "numeric" preset', () => {
