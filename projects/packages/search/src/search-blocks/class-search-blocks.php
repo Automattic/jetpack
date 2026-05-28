@@ -125,6 +125,14 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+		// Front-end theme-token sampler — see `print_theme_token_defaults_style()`
+		// for the rationale. PHP defaults at `wp_head` priority 1 so the `:root`
+		// properties exist before any block CSS reads them; JS at `wp_body_open`
+		// overrides those defaults with the resolved body computed color/bg so
+		// themes that emit positional palette slugs (wp.com `--theme-N`) still
+		// drive every Search surface to a theme-accurate value.
+		add_action( 'wp_head', array( static::class, 'print_theme_token_defaults_style' ), 1 );
+		add_action( 'wp_body_open', array( static::class, 'print_theme_token_sampler' ) );
 		// Relativize `jetpack-search/*` Script Module URLs whose host matches
 		// the site canonical so the rendered `<script type="module">` is
 		// same-origin with the page. ES modules go through CORS even without
@@ -1098,18 +1106,67 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Print the `:root` defaults for the two Search-wide theme tokens read by
+	 * the overlay card and the popover / sort / suggestions surfaces. PHP
+	 * layer of the two-layer story documented at `print_theme_token_sampler()`.
+	 *
+	 * Defaults track the existing `--wp--preset--color--*` chain so themes
+	 * that follow the WP 6.1+ semantic-slug convention (`base` / `contrast`)
+	 * or the legacy `background` / `foreground` pair Just Work without the JS
+	 * sampler. The JS sampler then overrides these with the resolved body
+	 * computed values for themes that use positional palette slugs (wp.com
+	 * Global Styles emits `--theme-N`).
+	 */
+	public static function print_theme_token_defaults_style(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		echo "<style id='jetpack-search-theme-token-defaults'>:root{--jp-search-page-ink:var(--wp--preset--color--contrast,var(--wp--preset--color--foreground,#1d2327));--jp-search-page-surface:var(--wp--preset--color--base,var(--wp--preset--color--background,#fff))}</style>";
+	}
+
+	/**
+	 * Print the inline `<script>` that samples the body's computed `color` and
+	 * `background-color` and overrides `--jp-search-page-ink` /
+	 * `--jp-search-page-surface` on `:root`. Hooked on `wp_body_open` so the
+	 * `<body>` already exists (computed styles are resolvable) but before any
+	 * block paints.
+	 *
+	 * Why sample at runtime: the existing `var(--wp--preset--color--base, …)`
+	 * chains static-match the WP 6.1+ semantic slug convention. Themes that
+	 * customize the palette through the wp.com Global Styles editor emit
+	 * positional slugs (`--theme-1` / `--theme-2`) and bind them to body via
+	 * a separate rule (`body { color: var(--wp--preset--color--theme-2); }`).
+	 * The slug name is opaque to a static chain; the *resolved* value isn't —
+	 * `getComputedStyle` returns it regardless of which slug the theme used.
+	 *
+	 * Carriers: every Search surface that reads `--jp-search-page-*` then
+	 * matches the theme — overlay card (see `block_template_overlay_inline_css`),
+	 * `filters-popover __panel`, `results-sort __menu`, `search-input __suggestions`.
+	 *
+	 * Themes that omit `wp_body_open()` (very old classic themes) fall back
+	 * to the PHP-emitted defaults — same behavior as today, no regression.
+	 */
+	public static function print_theme_token_sampler(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement;r.style.setProperty('--jp-search-page-ink',c.color);r.style.setProperty('--jp-search-page-surface',c.backgroundColor);}catch(e){}})();</script>";
+	}
+
+	/**
 	 * Inline CSS for the overlay modal chrome. Block content brings its own
 	 * theme styling; this is just the scrim, centered card, 60px header strip,
 	 * close button, mobile padding tweaks, and scroll lock. The responsive
 	 * sidebar-collapse + in-header popover rules shared with the page
 	 * templates live in `search_layout_inline_css()`.
 	 *
-	 * Surface/ink follow a two-step token fallback: newer `base`/`contrast`
-	 * (TT2/TT3/TT5-family) first, then legacy `background`/`foreground` (TT1,
-	 * Kaze, many WPCOM themes). #49125's hardcoded `#fff` resurrected the
-	 * white-on-white bug on legacy themes; the chain fixes it. Hoisted onto
-	 * two custom props so in-card surfaces (suggestions panel) share one source.
-	 * Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
+	 * Surface/ink read `--jp-search-page-*` first (theme-accurate values from
+	 * the JS sampler), then fall back to the WP 6.1+ semantic-slug chain
+	 * (`base`/`contrast`), then the legacy `background`/`foreground` pair
+	 * (TT1, Kaze, many WPCOM themes), then literals. The chain wins on
+	 * JS-disabled clients and very old themes that omit `wp_body_open()`.
+	 * Hoisted onto two custom props so in-card surfaces (suggestions panel)
+	 * share one source. Hairlines use `color-mix(--jp-search-overlay-ink, --jp-search-overlay-surface)`.
 	 *
 	 * @return string
 	 */
@@ -1139,8 +1196,8 @@ class Search_Blocks {
 	position: relative;
 	width: 100%;
 	max-width: 1080px;
-	--jp-search-overlay-surface: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
-	--jp-search-overlay-ink: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327));
+	--jp-search-overlay-surface: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+	--jp-search-overlay-ink: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #1d2327)));
 	background: var(--jp-search-overlay-surface);
 	color: var(--jp-search-overlay-ink);
 	border: 1px solid rgba(128, 128, 128, 0.25);

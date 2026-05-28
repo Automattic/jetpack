@@ -155,8 +155,14 @@
 		// drops to `transparent` on themes that don't define
 		// `--wp--preset--color--base`, so use the longhand with the same
 		// fallback chain the overlay card and suggestions panel use.
+		// Two-declaration sampled-token pattern — see filters-popover for the
+		// rationale (SEARCH-274).
+		// stylelint-disable-next-line declaration-block-no-duplicate-properties
 		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
+		// stylelint-disable-next-line declaration-block-no-duplicate-properties
 		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+		background-color: var(--jp-search-page-surface);
+		color: var(--jp-search-page-ink);
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

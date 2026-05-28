@@ -62,9 +62,19 @@ $jetpack-search-filters-popover-collapse: 992px;
 		}
 	}
 
+	/* stylelint-disable declaration-block-no-duplicate-properties --
+	 * Two declarations are intentional (SEARCH-274): the first compiles to
+	 * a literal via postcss-custom-properties, the second is preserved to
+	 * runtime and reads `--jp-search-page-surface` — the sampled body bg
+	 * (see `class-search-blocks.php::print_theme_token_sampler`). Badge
+	 * text uses the surface color so it stays readable on top of the
+	 * foreground-mixed badge background — the "opposite-of-foreground"
+	 * cue inverts polarity per theme. */
 	&__badge-count {
 		color: var(--wp--preset--color--background, #fff);
+		color: var(--jp-search-page-surface);
 	}
+	/* stylelint-enable declaration-block-no-duplicate-properties */
 
 	// Panel base — popover form. Collapsed by default; visibility is driven
 	// by `.is-popover-open` on the root (toggled by the Interactivity store
@@ -88,8 +98,16 @@ $jetpack-search-filters-popover-collapse: 992px;
 		// shorthand `background:` collapses to `transparent` on themes that
 		// don't define `--wp--preset--color--base` (classic themes, block
 		// themes without the token), letting result-card content bleed through.
+		// Two declarations apply to each of `background-color` and `color` —
+		// postcss folds the chain above to its literal fallback, single-arg
+		// `var()` below is preserved to runtime where `--jp-search-page-*`
+		// (set on `:root` by the PHP defaults and the body sampler) wins.
+		// stylelint-disable-next-line declaration-block-no-duplicate-properties
 		background-color: var(--wp--preset--color--base, var(--wp--preset--color--background, #fff));
+		// stylelint-disable-next-line declaration-block-no-duplicate-properties
 		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit));
+		background-color: var(--jp-search-page-surface);
+		color: var(--jp-search-page-ink);
 		// Reset the inherited theme base size so popover body text tracks the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. Rem-based children (filter title, count pill)
