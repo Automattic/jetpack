@@ -2398,7 +2398,11 @@ HTML;
 				if ( ! is_scalar( $values ) ) {
 					continue;
 				}
-				$slug = sanitize_text_field( (string) $values );
+				// `sanitize_key`, not `sanitize_text_field` — post-type slugs are
+				// always lowercase + `[a-z0-9_-]`; the lowercase pass keeps a
+				// `?post_type=Product` URL from reaching ES with the wrong case
+				// and silently returning zero results.
+				$slug = sanitize_key( (string) $values );
 				if ( '' === $slug ) {
 					continue;
 				}
