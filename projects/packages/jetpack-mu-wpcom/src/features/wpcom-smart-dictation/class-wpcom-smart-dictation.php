@@ -23,6 +23,20 @@ class WPCOM_Smart_Dictation {
 	 */
 	public static function init() {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ), 100 );
+		add_action( 'rest_api_init', array( self::class, 'register_rest_api' ) );
+	}
+
+	/**
+	 * Register the Smart Dictation endpoints.
+	 */
+	public static function register_rest_api() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/class-wp-rest-wpcom-smart-dictation-client-secret.php';
+		$controller = new WP_REST_WPCOM_Smart_Dictation_Client_Secret();
+		$controller->register_rest_route();
 	}
 
 	/**
