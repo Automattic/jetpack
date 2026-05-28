@@ -265,6 +265,20 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.queryByText( /^Include only:/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'collapses to "All post types" when the parent has a non-empty postTypes but no recognised mode', () => {
+		// Defensive: a saved-attribute mismatch (older schema, hand-edited
+		// markup) shouldn't surface as either "Include only:" or "Exclude:" —
+		// both would read as the wrong scope. The summary collapses to the
+		// unscoped variant so the hint matches what the renderer actually does
+		// (build_constraint defaults to exclude-mode with an empty list).
+		mockSearchResultsParent = 'sr-1';
+		mockSearchResultsAttrs = { postTypeMode: 'something-else', postTypes: [ 'product' ] };
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+		expect( screen.getByText( 'All post types' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^Include only:/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Exclude:/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'navigates to the parent search-results block when the hint button is clicked', () => {
 		mockSearchResultsParent = 'sr-1';
 		mockSearchResultsAttrs = { postTypeMode: 'include', postTypes: [ 'product' ] };

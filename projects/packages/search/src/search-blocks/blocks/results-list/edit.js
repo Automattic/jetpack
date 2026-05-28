@@ -126,18 +126,25 @@ function describeParentScope( parentAttributes ) {
 		return __( 'All post types', 'jetpack-search-pkg' );
 	}
 	const joined = postTypes.join( ', ' );
-	if ( parentAttributes?.postTypeMode === 'include' ) {
+	const mode = parentAttributes?.postTypeMode;
+	if ( mode === 'include' ) {
 		return sprintf(
 			/* translators: %s — comma-separated post-type slugs. */
 			__( 'Include only: %s', 'jetpack-search-pkg' ),
 			joined
 		);
 	}
-	return sprintf(
-		/* translators: %s — comma-separated post-type slugs. */
-		__( 'Exclude: %s', 'jetpack-search-pkg' ),
-		joined
-	);
+	if ( mode === 'exclude' ) {
+		return sprintf(
+			/* translators: %s — comma-separated post-type slugs. */
+			__( 'Exclude: %s', 'jetpack-search-pkg' ),
+			joined
+		);
+	}
+	// Unknown / missing mode with a non-empty list — the schema shouldn't
+	// produce this, but a saved-attribute mismatch shouldn't read as the
+	// wrong scope. Collapse to the unscoped summary.
+	return __( 'All post types', 'jetpack-search-pkg' );
 }
 
 /**
