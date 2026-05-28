@@ -140,6 +140,34 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * When modernization is on but the page preempts to the legacy callback
+	 * (e.g. free plan / not connected), the wp-build render function is never
+	 * loaded. The legacy `social-admin-page` script must still be enqueued, or
+	 * the legacy `#jetpack-social-root` div renders with nothing to mount it.
+	 */
+	public function test_enqueue_falls_back_to_legacy_script_when_wp_build_render_fn_missing() {
+		add_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_true' );
+
+		// Mirrors the preempt-to-legacy path: load_wp_build() is skipped, so the
+		// wp-build render function is never defined.
+		$this->assertFalse(
+			function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' ),
+			'Test relies on the wp-build render function being absent.'
+		);
+
+		Social_Admin_Page::init()->enqueue_admin_scripts();
+
+		$this->assertTrue(
+			wp_script_is( 'social-admin-page', 'enqueued' ),
+			'Legacy Social admin script should be enqueued when modernization is on but the page renders the legacy callback.'
+		);
+
+		remove_filter( Social_Admin_Page::MODERNIZATION_FILTER, '__return_true' );
+		wp_dequeue_script( 'social-admin-page' );
+		wp_deregister_script( 'social-admin-page' );
+	}
+
+	/**
 	 * It rejects plan refresh when the nonce is missing or invalid.
 	 */
 	public function test_admin_init_rejects_plan_refresh_without_valid_nonce() {

@@ -119,7 +119,7 @@ class Social_Admin_Page {
 			return;
 		}
 
-		$callback = self::is_modernized() && function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' )
+		$callback = self::is_wp_build_dashboard_active()
 			? 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page'
 			: array( $this, 'render' );
 
@@ -173,7 +173,15 @@ class Social_Admin_Page {
 	public function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_menu()`,
 		// so it only fires on the Social admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
+		//
+		// Gate on `is_wp_build_dashboard_active()` (not `is_modernized()` alone) so
+		// this mirrors the exact decision `add_menu()` made when choosing the menu
+		// callback. When modernization is on but the page preempts to the legacy
+		// callback (e.g. free plan pricing nudge, or site not connected), the
+		// wp-build render function is never loaded — so we must still enqueue the
+		// legacy bundle here, or the legacy `#jetpack-social-root` div renders with
+		// no script to mount it.
+		if ( self::is_wp_build_dashboard_active() ) {
 			// wp-build manages its own enqueue pipeline. The legacy script,
 			// localized config, and media-library bootstrap are intentionally
 			// skipped for the wp-build dashboard.
@@ -255,6 +263,24 @@ class Social_Admin_Page {
 	 */
 	private static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the wp-build dashboard is the page that will actually render.
+	 *
+	 * This is the single source of truth shared by `add_menu()` (which picks the
+	 * menu callback) and `enqueue_admin_scripts()` (which decides whether to skip
+	 * the legacy bundle). `maybe_load_wp_build()` only loads the wp-build entry —
+	 * and therefore only defines its render function — when modernization is on AND
+	 * the request is not preempted to the legacy flow (`should_preempt_to_legacy()`).
+	 * Checking `function_exists()` here captures both conditions in one place, so
+	 * the callback and the enqueue gate can never diverge and leave an empty
+	 * `#jetpack-social-root`.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_build_dashboard_active() {
+		return self::is_modernized() && function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' );
 	}
 
 	/**
