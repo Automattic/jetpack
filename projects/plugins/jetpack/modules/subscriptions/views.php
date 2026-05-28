@@ -1062,112 +1062,11 @@ function subscription_options_fallback( $default, $option, $passed_default ) {
 
 	return array(
 		/* translators: Both %1$s and %2$s is site address */
-		'invitation'              => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
-		'comment_follow'          => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
+		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
 		/* translators: %1$s is the site address */
-		'welcome'                 => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
-		'subscribe_modal_heading' => '',
+		'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
 	);
 }
 
 add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );
-
-/**
- * Sanitize a `subscription_options` value written through the core Settings REST API
- * (`/wp/v2/settings`).
- *
- * Mirrors the behaviour of the equivalent inline handlers in `Jetpack_Core_API_Data`
- * and the WPCOM v1.4 site settings endpoint so the option is sanitized consistently
- * regardless of which endpoint the write came through:
- *
- *  - keys outside the known allowlist are dropped,
- *  - leaf values are passed through `wp_kses` with the same allowed tags the Jetpack
- *    `/jetpack/v4/settings` endpoint already uses for these messages,
- *  - the result is merged with the existing option so writes that only include a
- *    subset of sub-keys do not clobber siblings.
- *
- * @param mixed $value Raw value from the REST request, after JSON schema validation.
- * @return array Sanitized option value to be persisted.
- */
-function jetpack_sanitize_subscription_options( $value ) {
-	$existing = get_option( 'subscription_options' );
-	if ( ! is_array( $existing ) ) {
-		$existing = array();
-	}
-
-	if ( ! is_array( $value ) ) {
-		return $existing;
-	}
-
-	$allowed_keys = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading' );
-	$filtered     = array_filter(
-		$value,
-		function ( $key ) use ( $allowed_keys ) {
-			return in_array( $key, $allowed_keys, true );
-		},
-		ARRAY_FILTER_USE_KEY
-	);
-
-	$allowed_html = array(
-		'ul'     => array(),
-		'li'     => array(),
-		'p'      => array(),
-		'strong' => array(),
-		'ol'     => array(),
-		'em'     => array(),
-		'a'      => array(
-			'href' => array(),
-		),
-	);
-
-	foreach ( $filtered as $key => $val ) {
-		$sanitized = wp_kses( (string) $val, $allowed_html );
-		if ( 'subscribe_modal_heading' === $key ) {
-			// Normalize whitespace-only input to empty so the modal template's
-			// `empty()` fallback fires. PHP's `empty()` treats `"   "` as
-			// non-empty, which would otherwise render a blank heading.
-			$sanitized = trim( $sanitized );
-		}
-		$filtered[ $key ] = $sanitized;
-	}
-
-	return array_merge( $existing, $filtered );
-}
-
-/**
- * Register `subscription_options` with the core Settings REST API so it is exposed
- * on `/wp/v2/settings`. This allows the Subscriptions block editor inspector to read
- * and write the option through Gutenberg's site entity store (`useEntityProp`).
- *
- * The option continues to be available through the Jetpack and WPCOM JSON API
- * endpoints — this registration is additive.
- *
- * @return void
- */
-function register_subscription_options_setting() {
-	register_setting(
-		'general',
-		'subscription_options',
-		array(
-			'type'              => 'object',
-			'description'       => __( 'Subscription email and Subscribe block modal copy.', 'jetpack' ),
-			'sanitize_callback' => 'jetpack_sanitize_subscription_options',
-			'show_in_rest'      => array(
-				'schema' => array(
-					'type'       => 'object',
-					// Used as the user-facing label in the editor's "entities saved states"
-					// panel (the multi-entity save dialog). Plural because everything in
-					// `subscription_options` is a subscription-related message string.
-					'title'      => __( 'Subscribe messages', 'jetpack' ),
-					'properties' => array(
-						'invitation'              => array( 'type' => 'string' ),
-						'welcome'                 => array( 'type' => 'string' ),
-						'comment_follow'          => array( 'type' => 'string' ),
-						'subscribe_modal_heading' => array( 'type' => 'string' ),
-					),
-				),
-			),
-		)
-	);
-}
-add_action( 'init', 'register_subscription_options_setting' );

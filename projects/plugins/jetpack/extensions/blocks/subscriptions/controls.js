@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import {
@@ -13,9 +13,8 @@ import {
 	RangeControl,
 	TextareaControl,
 	CheckboxControl,
+	ExternalLink,
 } from '@wordpress/components';
-import { store as coreStore, useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
@@ -70,24 +69,6 @@ export default function SubscriptionControls( {
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
 	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
-
-	const [ subscriptionOptions, setSubscriptionOptions ] = useEntityProp(
-		'root',
-		'site',
-		'subscription_options'
-	);
-	const subscribeModalHeading = subscriptionOptions?.subscribe_modal_heading ?? '';
-
-	// The Subscribe message control writes to a site-wide setting through
-	// /wp/v2/settings, which requires `manage_options`. Hide the control for
-	// users who lack the capability so the field doesn't appear editable but
-	// silently fail to save. `canUser` returns `undefined` while the OPTIONS
-	// probe is in flight; the falsy default keeps the field hidden until the
-	// capability is confirmed, which only delays appearance for admins.
-	const canEditSiteSettings = useSelect(
-		select => select( coreStore ).canUser( 'update', 'settings' ),
-		[]
-	);
 
 	// Unset any selected categories that are no longer available
 	useEffect( () => {
@@ -353,23 +334,16 @@ export default function SubscriptionControls( {
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
-				{ isButtonOnlyStyle && canEditSiteSettings && (
-					<TextareaControl
-						__nextHasNoMarginBottom={ true }
-						value={ subscribeModalHeading }
-						label={ __( 'Subscribe message', 'jetpack' ) }
-						placeholder={ __( 'Subscribe now to stay ahead and never miss a beat!', 'jetpack' ) }
-						help={ __(
-							'Shown at the top of your subscribe popup. This is a site-wide setting — changes here update every Subscribe block on this site using the Button only style.',
+				{ isButtonOnlyStyle && (
+					<p className="jetpack-subscriptions__inspector-help">
+						{ __(
+							'The Subscribe popup heading is a site-wide setting. Edit it in the Newsletter settings — changes apply to every Subscribe block on this site using the Button only style.',
 							'jetpack'
 						) }
-						onChange={ value =>
-							setSubscriptionOptions( {
-								...( subscriptionOptions || {} ),
-								subscribe_modal_heading: value,
-							} )
-						}
-					/>
+						<ExternalLink href={ getAdminUrl( 'admin.php?page=jetpack-newsletter' ) }>
+							{ __( 'Open Newsletter settings', 'jetpack' ) }
+						</ExternalLink>
+					</p>
 				) }
 				{ ! isSimpleSite() && (
 					<TextareaControl
