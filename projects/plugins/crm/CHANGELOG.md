@@ -5,6 +5,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.1] - 2026-05-28
+### Changed
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Update package dependencies. [#48405] [#49075]
+
+### Fixed
+- Client Portal: Prevent PHP fatal when downloading PDFs. [#49242]
+
 ## [6.8.0] - 2026-05-13
 ### Added
 - Exports: Add tags as an exportable field for contacts, companies, quotes, invoices, and transactions. [#48364]
@@ -3770,6 +3778,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.8.1]: https://github.com/Automattic/jetpack-crm/compare/6.8.0...6.8.1
 [6.8.0]: https://github.com/Automattic/jetpack-crm/compare/6.7.2...6.8.0
 [6.7.2]: https://github.com/Automattic/jetpack-crm/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Automattic/jetpack-crm/compare/6.7.0...6.7.1
