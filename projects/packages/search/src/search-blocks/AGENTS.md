@@ -63,6 +63,18 @@ WordPress derives `.wp-block-jetpack-search-{bare-slug}` from the full block nam
 
 Manual wrapper classes (set via `useBlockProps({ className })` and the matching `get_block_wrapper_attributes()` call in `render.php`) don't have to track the slug exactly — they're just CSS hooks.
 
+## Theme tokens & `var()` chains
+
+Two things to know before touching surface colors:
+
+1. **`postcss-custom-properties` (`preserve: false` in `postcss.config.js`) folds every `var(--foo, fallback)` to its literal fallback at build time.** Single-argument `var(--foo)` (no fallback) is preserved through to the runtime. Empirically: `background-color: var(--wp--preset--color--base, #fff);` compiles to `background-color: #fff;`. So the long `--base → --background → #fff` chain you see across the SCSS files is **source documentation + forward-compat** for when the plugin's `preserve` flag flips — at runtime, every `var(--, fallback)` already ships its deepest literal. Anything that needs runtime token resolution has to either go through PHP-emitted inline CSS (which postcss never sees), or use single-arg `var()` against a custom property that's defined elsewhere.
+
+2. **Themes don't always expose `--wp--preset--color--base/--contrast/--background/--foreground`.** wp.com Global Styles palette customization emits positional slugs (`--wp--preset--color--theme-1` / `--theme-2` / `--theme-N`) and binds them to `body` via a separate rule — the slug name carrying the semantic role is theme-specific. To stay theme-accurate regardless of slug convention, sample `getComputedStyle(document.body)` at `wp_body_open` and write the resolved `color` / `backgroundColor` onto `:root` as `--jp-search-page-ink` / `--jp-search-page-surface` (see `Search_Blocks::print_theme_token_sampler()`). PHP defaults for those two props are also emitted on `wp_head` priority 1 (`print_theme_token_defaults_style()`) so the props are defined even when JS doesn't run.
+
+The current shape every Search surface should follow: `var(--jp-search-page-{ink|surface}, <existing --wp--preset--color--* chain>)`. The sampler wins when available; the chain is the safety net.
+
+Guard the sampler against `getComputedStyle().backgroundColor === 'rgba(0, 0, 0, 0)'` — classic themes that don't set body bg resolve to transparent, and writing that would override the PHP default and paint surfaces transparent.
+
 ## URL format
 
 Filters round-trip through the URL in Jetpack Search's array shape: `?<filterKey>[]=<value>`, one param per selected value. Both sides agree on this contract — `store/url-state.js` writes/reads it on the JS side, `Search_Blocks::parse_url_filters()` reads it on the PHP side.
