@@ -125,8 +125,10 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const width = attributes?.width;
 	const widthUnit = attributes?.widthUnit;
 	const hasWidth = width !== undefined && width !== null && !! widthUnit;
+	// `useBlockProps` drops a `style: undefined` entry on its own, so no need
+	// to gate the call on `wrapperStyle` — keeps the call site to one line.
 	const wrapperStyle = hasWidth ? { width: `${ width }${ widthUnit }` } : undefined;
-	const blockProps = useBlockProps( wrapperStyle ? { style: wrapperStyle } : undefined );
+	const blockProps = useBlockProps( { style: wrapperStyle } );
 	// Per-instance id keeps the label→input association valid when the editor
 	// renders more than one Search Input on the same canvas.
 	const inputId = useId();
