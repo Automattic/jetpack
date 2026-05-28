@@ -4,8 +4,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
+	"wpScript": true,
 	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
 	"types": "src/index.ts",
+	"wpScriptModuleExports": "./build-module/index.mjs",
 	"sideEffects": false,
 	"dependencies": {
 		"@wordpress/ui": "0.13.0"
