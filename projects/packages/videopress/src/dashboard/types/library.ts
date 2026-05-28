@@ -1,14 +1,16 @@
 export type LibraryItemType = 'videopress' | 'local';
 export type LibraryItemPrivacy = 'public' | 'private' | 'site-default';
-export type UploadStatus = 'idle' | 'uploading' | 'failed';
+export type UploadStatus = 'idle' | 'uploading' | 'promoting' | 'failed';
+export type VideoRating = 'G' | 'PG-13' | 'R';
 
 export interface UploadState {
 	status: UploadStatus;
 	progress: number;
 }
 
-export interface MockLibraryItem {
+export interface LibraryItem {
 	id: string;
+	guid: string;
 	type: LibraryItemType;
 	title: string;
 	filename: string;
@@ -16,6 +18,21 @@ export interface MockLibraryItem {
 	durationSeconds: number;
 	uploadDate: string;
 	privacy: LibraryItemPrivacy;
+	isPrivate: boolean;
 	fileSizeBytes: number;
 	upload: UploadState;
+	description: string;
+	rating: VideoRating;
+	displayEmbed: boolean;
+	allowDownloads: boolean;
+	shortcode: string;
+	sourceUrl?: string;
+	isProcessing: boolean;
 }
+
+export type VideoDetailsPatch = Partial<
+	Pick<
+		LibraryItem,
+		'title' | 'description' | 'privacy' | 'displayEmbed' | 'allowDownloads' | 'rating'
+	>
+>;

@@ -27,7 +27,7 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_author:bool, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
@@ -36,6 +36,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => false,
 			'show_path'    => false,
 			'show_content' => false,
+			'show_author'  => false,
 			'show_date'    => true,
 			'show_price'   => false,
 			'show_rating'  => false,
@@ -45,6 +46,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => true,
 			'show_path'    => true,
 			'show_content' => true,
+			'show_author'  => true,
 			'show_date'    => true,
 			'show_price'   => false,
 			'show_rating'  => false,
@@ -54,6 +56,7 @@ $resolve_layout = static function ( $layout ) {
 			'show_image'   => true,
 			'show_path'    => false,
 			'show_content' => false,
+			'show_author'  => false,
 			'show_date'    => false,
 			'show_price'   => true,
 			'show_rating'  => true,
@@ -72,13 +75,27 @@ $layout = $attrs['layout'] ?? 'expanded';
 if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
+// Auto-switch to the product layout when the request is scoped to exactly
+// the `product` post type via the Jetpack Search `?post_types[]=product`
+// URL parameter, so a product search renders as a shop grid without the
+// author hand-picking the layout. (`request_is_product_only()` also
+// accepts the scalar `?post_type=product`, but that is a WP core query
+// var that reroutes to the WC shop archive before this block renders —
+// see its docblock.) Opt-out per block via the `autoProductView`
+// attribute (default on). The non-Woo collapse below is still the final
+// gate, so this can never force `product` on a non-Woo site even if the
+// URL asks for it.
+$auto_product_view = $attrs['autoProductView'] ?? true;
+if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && Search_Blocks::request_is_product_only() ) {
+	$layout = 'product';
+}
 // The product layout reads WC-shaped fields (price, sale price, rating)
 // off each result. On a non-Woo site those fields don't exist, so
 // rendering would emit empty price/rating regions. Collapse to the
 // neutral `expanded` layout so an author who saved `product` on a Woo
 // site that later deactivates WC still sees a sensible result page.
 // Mirrors the inspector-side gate in edit.js.
-if ( 'product' === $layout && ! Search_Blocks::is_woocommerce_active() ) {
+if ( 'product' === $layout && ! Search_Blocks::woocommerce_blocks_enabled() ) {
 	$layout = 'expanded';
 }
 $features      = $resolve_layout( $layout );
@@ -98,6 +115,14 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 $no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+}
+
+// Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
+// variants live in the markup so the store's existing reactive getter picks
+// which `<p>` is visible without a store-side message-resolution branch.
+$no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
+if ( '' === $no_results_with_filters_message ) {
+	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
 }
 
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
@@ -267,13 +292,29 @@ if ( '' === $error_message ) {
 							</mark>
 						</div>
 					<?php endif; ?>
-					<?php if ( $features['show_date'] ) : ?>
+					<?php if ( $features['show_author'] || $features['show_date'] ) : ?>
 						<div class="jetpack-search-results__meta">
-							<span
-								class="jetpack-search-results__date"
-								data-wp-bind--hidden="!context.result.dateLabel"
-								data-wp-text="context.result.dateLabel"
-							></span>
+							<?php if ( $features['show_author'] ) : ?>
+								<span
+									class="jetpack-search-results__author"
+									data-wp-bind--hidden="!context.result.authorLabel"
+									data-wp-text="context.result.authorLabel"
+								></span>
+							<?php endif; ?>
+							<?php if ( $features['show_author'] && $features['show_date'] ) : ?>
+								<span
+									class="jetpack-search-results__meta-separator"
+									aria-hidden="true"
+									data-wp-bind--hidden="!context.result.authorLabel || !context.result.dateLabel"
+								>&middot;</span>
+							<?php endif; ?>
+							<?php if ( $features['show_date'] ) : ?>
+								<span
+									class="jetpack-search-results__date"
+									data-wp-bind--hidden="!context.result.dateLabel"
+									data-wp-text="context.result.dateLabel"
+								></span>
+							<?php endif; ?>
 						</div>
 					<?php endif; ?>
 				</div>
@@ -303,9 +344,19 @@ if ( '' === $error_message ) {
 	<div
 		class="jetpack-search-results__no-results"
 		data-wp-bind--hidden="!state.showNoResults"
+		role="status"
 		hidden
 	>
-		<p><?php echo esc_html( $no_results_message ); ?></p>
+		<?php
+		// Both `<p>` variants render without an initial `hidden` attribute —
+		// the outer wrapper's `hidden` covers them on the SSR path, and the IA
+		// runtime resolves the inner `data-wp-bind--hidden` atomically when it
+		// reveals the region. Don't remove the outer `hidden` without also
+		// adding initial `hidden` to one of the variants, or both messages
+		// will flash briefly on hydration.
+		?>
+		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
+		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>
 	<div
 		class="jetpack-search-results__error"

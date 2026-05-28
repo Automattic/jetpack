@@ -1,3 +1,4 @@
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import {
@@ -13,7 +14,17 @@ import {
 	startRenderingMessages,
 } from './actions/rendered-messages';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { PostShareStatus, RenderedMessageBatch } from './types';
+import {
+	fetchTrafficReferrers,
+	receiveTrafficReferrers,
+	receiveTrafficReferrersError,
+} from './actions/traffic-stats';
+import {
+	PostShareStatus,
+	RenderedMessageBatch,
+	TrafficInterval,
+	TrafficReferrerDay,
+} from './types';
 
 /**
  * Resolves the connections from the post.
@@ -121,7 +132,7 @@ export function getRenderedMessages(
 				if ( record.error ) {
 					slot.error = record.error;
 				}
-				batch[ record.id ] = slot;
+				batch[ record.connection_id ] = slot;
 			}
 
 			dispatch( receiveRenderedMessages( postId, items, batch, postIntent ) );
@@ -133,8 +144,56 @@ export function getRenderedMessages(
 	};
 }
 
+type ReferrersResponse = {
+	days?: Record< string, TrafficReferrerDay >;
+};
+
+// Cap on referrers returned per day. The endpoint ranks referrers by
+// volume, so a small cap can push social hosts below the cut on sites
+// dominated by search/direct traffic. Keep it generous so social rows
+// survive the truncation.
+const MAX_REFERRERS = 100;
+
+/**
+ * Resolver for `getTrafficReferrers`. Reads the existing WPCOM stats
+ * `referrers` data and stores the per-day rows under the requested
+ * interval.
+ *
+ * The Jetpack-site route is registered with the real blog ID baked into
+ * its path (see `Automattic\Jetpack\Stats_Admin\REST_Controller`), so we
+ * must send the actual ID — a `0` placeholder matches no route and 404s.
+ * Simple sites read the same payload through the public `/rest/v1.1`
+ * namespace instead. Mirrors the path-building in the membership-products
+ * store resolver.
+ *
+ * @param interval - Number of days the chart should cover.
+ * @return Resolver thunk.
+ */
+export function getTrafficReferrers( interval: TrafficInterval = 30 ) {
+	return async ( { dispatch } ) => {
+		dispatch( fetchTrafficReferrers( interval ) );
+
+		const blogId = getScriptData()?.site?.wpcom?.blog_id;
+		if ( ! blogId ) {
+			dispatch( receiveTrafficReferrersError( interval ) );
+			return;
+		}
+
+		const base = isSimpleSite() ? '/rest/v1.1/sites' : '/jetpack/v4/stats-app/sites';
+		try {
+			const result = await apiFetch< ReferrersResponse >( {
+				path: `${ base }/${ blogId }/stats/referrers?period=day&num=${ interval }&max=${ MAX_REFERRERS }`,
+			} );
+			dispatch( receiveTrafficReferrers( interval, result?.days ?? {} ) );
+		} catch {
+			dispatch( receiveTrafficReferrersError( interval ) );
+		}
+	};
+}
+
 export default {
 	getConnections,
 	getPostShareStatus,
 	getRenderedMessages,
+	getTrafficReferrers,
 };

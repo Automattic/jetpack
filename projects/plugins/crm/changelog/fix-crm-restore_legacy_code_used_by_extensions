@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Client Portal: Prevent PHP fatal when downloading PDFs.

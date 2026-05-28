@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	const VERSION = '6.7.2';
+	const VERSION = '6.8.0';
 
 	/**
 	 * Jetpack CRM version (used in various extensions as of January 2025).
@@ -39,7 +39,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.9';
+	public $wp_tested = '7.0';
 
 	/**
 	 * WordPress update API version.
@@ -2824,6 +2824,15 @@ final class ZeroBSCRM {
 	public function has_min_php_version( $php_version ) {
 
 		return version_compare( PHP_VERSION, $php_version, '>=' );
+	}
+
+	/**
+	 * Obsolete method kept for backwards compatibility with older versions (<2.2.5) of the Client Portal Pro extension.
+	 *
+	 * @param string $libKey Library slug.
+	 */
+	public function libLoad( $libKey = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
 	}
 
 	/**

@@ -134,10 +134,6 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 describe( 'deriveVariation', () => {
-	afterEach( () => {
-		delete globalThis.JetpackSearchBlocksConfig;
-	} );
-
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
 			VARIATION_CATEGORY
@@ -149,8 +145,7 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
 	} );
 
-	it( 'maps the WC product taxonomy slugs to their dedicated variations on Woo sites', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+	it( 'maps the WC product taxonomy slugs to their dedicated variations', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_PRODUCT_CAT
 		);
@@ -160,19 +155,6 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
 			VARIATION_PRODUCT_BRAND
 		);
-	} );
-
-	it( 'collapses saved WC product slugs to Custom Taxonomy when WooCommerce is inactive', () => {
-		// Mirrors the dormant-attribute pattern in results-list: the saved
-		// attribute stays (re-activating WC restores the dedicated variation
-		// next render), but the inspector picker collapses to a value that
-		// still exists in `variationOptions()` so the SelectControl doesn't
-		// try to render an option that isn't there.
-		[ 'product_cat', 'product_tag', 'product_brand' ].forEach( taxonomy => {
-			expect( deriveVariation( { filterType: 'taxonomy', taxonomy } ) ).toBe(
-				VARIATION_CUSTOM_TAXONOMY
-			);
-		} );
 	} );
 
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
@@ -198,7 +180,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'lists all eight variations when WooCommerce is active', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		expect( variationOptions().map( o => o.value ) ).toEqual( [
 			VARIATION_CATEGORY,
 			VARIATION_POST_TAG,
@@ -222,7 +204,7 @@ describe( 'variationOptions', () => {
 	} );
 
 	it( 'drops the three product variations when the gate is explicitly false', () => {
-		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: false };
 		const values = variationOptions().map( o => o.value );
 		expect( values ).not.toContain( VARIATION_PRODUCT_CAT );
 		expect( values ).not.toContain( VARIATION_PRODUCT_TAG );
@@ -475,6 +457,134 @@ describe( 'FilterCheckboxEdit custom taxonomy picker', () => {
 		);
 
 		expect( screen.getByText( /jetpack_search_custom_taxonomy_map/ ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'FilterCheckboxEdit custom taxonomy label seeding', () => {
+	const useSelectMock = jest.requireMock( '@wordpress/data' ).useSelect;
+
+	const taxonomyEntities = [
+		{ slug: 'genre', name: 'Genre', visibility: { public: true } },
+		{ slug: 'mood', name: 'Mood', visibility: { public: true } },
+	];
+
+	beforeEach( () => {
+		globalThis.JetpackSearchBlocksConfig = {
+			supportedCustomTaxonomies: [ 'genre', 'mood' ],
+			customTaxonomyMap: {},
+		};
+		useSelectMock.mockImplementation( () => taxonomyEntities );
+	} );
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+		useSelectMock.mockReset();
+		useSelectMock.mockImplementation( () => null );
+	} );
+
+	it( 'seeds label from the taxonomy display name when a custom taxonomy is picked with an empty label', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { label: 'Genre' } );
+	} );
+
+	it( 'does not overwrite an author-provided label when the taxonomy is set', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'genre',
+					label: 'Pick a genre',
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'skips seeding when no taxonomy has been picked yet', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: '', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves built-in variations alone (they keep their hardcoded defaults)', () => {
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'category', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not seed before the taxonomies list has loaded', () => {
+		// Simulate the in-flight state: core-data returns null until the
+		// /wp/v2/taxonomies request resolves.
+		useSelectMock.mockImplementation( () => null );
+		const setAttributes = jest.fn();
+		render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not overwrite an existing label when switching to a different custom taxonomy slug', () => {
+		// Simulates: author had `genre` with label "Pick a genre", then picks
+		// `mood`. The label must stay "Pick a genre" — the slug change alone
+		// is not enough to overwrite an author-typed value.
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'mood', label: 'Pick a genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'seeds again when returning to Custom Taxonomy with the same cleared slug', () => {
+		const setAttributes = jest.fn();
+		const { rerender } = render(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: 'Genre' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'author', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		rerender(
+			<FilterCheckboxEdit
+				attributes={ { filterType: 'taxonomy', taxonomy: 'genre', label: '' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { label: 'Genre' } );
 	} );
 } );
 

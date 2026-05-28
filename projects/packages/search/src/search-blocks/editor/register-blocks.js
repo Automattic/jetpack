@@ -20,10 +20,10 @@ import { getCategories, registerBlockType, setCategories } from '@wordpress/bloc
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import AiAnswerEdit from '../blocks/ai-answer/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
-import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
 import FilterWcAttributeEdit from '../blocks/filter-wc-attribute/edit';
 import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
@@ -48,13 +48,13 @@ import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
 const save = () => null;
 
 const BLOCKS = [
+	[ 'jetpack-search/ai-answer', AiAnswerEdit ],
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
-	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
 	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters', FiltersEdit, filtersSave ],
 	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],
@@ -103,7 +103,7 @@ setCategories(
 // gated out" — defensive against the bundle being loaded outside its
 // enqueue path (e.g. test harness), which can't happen in production.
 const config = ( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig ) || {};
-const isWooCommerceActive = config.isWooCommerceActive === true;
+const isWooCommerceBlocksEnabled = config.isWooCommerceBlocksEnabled === true;
 const wcOnlyBlocks = new Set(
 	Array.isArray( config.woocommerceOnlyBlocks ) ? config.woocommerceOnlyBlocks : []
 );
@@ -138,7 +138,7 @@ addFilter(
 );
 
 BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
-	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
+	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
 	// Dev-only safety net: since `block.json` no longer carries an `icon`

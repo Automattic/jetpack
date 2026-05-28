@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites. Sites with the `disable-classic-block-deprecation` blog sticker continue to use the Classic block.

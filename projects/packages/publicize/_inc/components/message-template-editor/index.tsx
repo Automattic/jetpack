@@ -20,6 +20,8 @@ export type MessageTemplateEditorProps = {
 	disabled?: boolean;
 	/** Number of textarea rows. Defaults to 4. */
 	rows?: number;
+	/** Whether to render the placeholders dropdown. Defaults to true. */
+	showPlaceholders?: boolean;
 };
 
 const getDefaultPlaceholder = () =>
@@ -57,7 +59,16 @@ const getDefaultHelpText = () =>
  * @return Element.
  */
 export function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
-	const { value, onChange, label, placeholder, helpText, disabled, rows = 4 } = props;
+	const {
+		value,
+		onChange,
+		label,
+		placeholder,
+		helpText,
+		disabled,
+		rows = 4,
+		showPlaceholders = true,
+	} = props;
 	const resolvedLabel = label ?? __( 'Message template', 'jetpack-publicize-pkg' );
 	const resolvedPlaceholder = placeholder ?? getDefaultPlaceholder();
 	const resolvedHelpText = helpText ?? getDefaultHelpText();
@@ -74,7 +85,7 @@ export function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
 				help={ resolvedHelpText }
 				__nextHasNoMarginBottom={ true }
 			/>
-			<PlaceholdersHelp />
+			{ showPlaceholders && <PlaceholdersHelp /> }
 		</div>
 	);
 }

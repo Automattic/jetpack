@@ -1,0 +1,68 @@
+.jpb-file-browser {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&__selection {
+		padding: 8px 0;
+		border-bottom: 1px solid #dcdcde;
+	}
+
+	&__layout {
+		// Single-column by default — the tree owns the full panel width so
+		// zebra-stripe rows can run edge-to-edge. The 280px sidebar slot is
+		// only carved out when a `FileInfoCard` is actually rendered.
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 16px;
+
+		&:has(> .jpb-file-info-card) {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+		}
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 8px;
+
+		// Alt-row tint. Applied via a class set by `<NodeRow>` so the
+		// stripe respects the legacy backup-contents component's parity
+		// rule — a white parent's first child renders gray, a gray
+		// parent's first child renders white. Using a literal hex
+		// rather than `--wp-components-color-gray-100` because the
+		// token is locally re-mapped to white inside `Card.Content`.
+		// The row is a block-level flex container that fills its
+		// wrapper's full width, so the tint spans the panel edge to
+		// edge — no inner border-radius (which would have looked like
+		// a "pill" cropped from the surrounding bg).
+		&--alt {
+			background-color: #f6f7f7;
+		}
+	}
+
+	&__toggle,
+	&__file {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: transparent;
+		border: 0;
+		cursor: pointer;
+		font-family: inherit;
+		font-size: inherit;
+		padding: 0;
+		color: inherit;
+	}
+
+	&__empty {
+		font-style: italic;
+		color: var(--wp-components-color-foreground-muted, #757575);
+		padding: 4px 0;
+	}
+
+	&__loading {
+		padding: 4px 0;
+	}
+}

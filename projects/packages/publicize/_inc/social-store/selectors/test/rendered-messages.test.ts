@@ -2,9 +2,8 @@ import { renderMessagesCacheKey, type RenderItem } from '../../../utils/render-m
 import { getRenderedMessages, isLoadingRenderedMessages } from '../rendered-messages';
 import type { RenderedMessages, SocialStoreState } from '../../types';
 
-const item = ( id: string, message = '' ): RenderItem => ( {
-	id,
-	network: 'x',
+const item = ( connection_id: string, message = '' ): RenderItem => ( {
+	connection_id,
 	message,
 	is_social_post: false,
 } );

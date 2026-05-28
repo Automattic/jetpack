@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Settings tab on the modernized chassis with WPDS cards for the default share message, Social Notes, image generation, and link UTM parameters; gated behind the modernization flag.

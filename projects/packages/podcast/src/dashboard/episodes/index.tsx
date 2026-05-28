@@ -2,20 +2,40 @@
 // merged client-side, so those columns are display-only (not sortable).
 
 import { getSiteData } from '@automattic/jetpack-script-data';
+import { Button } from '@wordpress/components';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
-import type { EpisodeStats } from '../types';
+import type { EpisodeStats, TabName } from '../types';
 
 const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
 
 const editPostUrl = ( postId: number ): string =>
 	`${ ADMIN_URL }post.php?action=edit&post=${ postId }`;
+
+// Server-side filters key off `?podcast_episode=1` to apply the configured
+// podcast category (and, on Premium, prefill the Podcast Episode block).
+const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
+
+const EmptyEpisodes = () => (
+	<div className="podcast__empty-state">
+		<h2 className="podcast__section-heading">
+			{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
+		</h2>
+		<p>
+			{ __( 'Publish a podcast post in your chosen category to see it here.', 'jetpack-podcast' ) }
+		</p>
+		<Button variant="primary" href={ NEW_EPISODE_URL }>
+			{ __( 'Create episode', 'jetpack-podcast' ) }
+		</Button>
+	</div>
+);
 
 interface EpisodeRow {
 	id: number;
@@ -63,6 +83,32 @@ const defaultView: ViewTable = {
 
 const getEpisodeRowId = ( item: EpisodeRow ) => String( item.id );
 
+type PlaysCellProps = {
+	count: number;
+	episodeId: number;
+	episodeTitle: string;
+	onOpen: ( episodeId: number ) => void;
+};
+
+const PlaysCell = ( { count, episodeId, episodeTitle, onOpen }: PlaysCellProps ) => {
+	const handleClick = useCallback( () => onOpen( episodeId ), [ onOpen, episodeId ] );
+	return count > 0 ? (
+		<Button
+			variant="link"
+			onClick={ handleClick }
+			aria-label={ sprintf(
+				/* translators: %s: episode title */
+				__( 'View stats for %s', 'jetpack-podcast' ),
+				episodeTitle || __( '(Untitled)', 'jetpack-podcast' )
+			) }
+		>
+			{ count }
+		</Button>
+	) : (
+		<>{ count }</>
+	);
+};
+
 const STATUS_LABELS: Record< string, string > = {
 	publish: __( 'Published', 'jetpack-podcast' ),
 	future: __( 'Scheduled', 'jetpack-podcast' ),
@@ -74,8 +120,28 @@ const STATUS_LABELS: Record< string, string > = {
 const EpisodesTab = () => {
 	const { data: settings } = usePodcastSettings();
 	const categoryId = settings?.podcasting_category_id ?? 0;
+	const showCoverImage = settings?.podcasting_image ?? '';
 
 	const [ view, setView ] = useState< View >( defaultView );
+
+	const navigate = useNavigate();
+
+	const openEpisodeStats = useCallback(
+		( episodeId: number ) => {
+			const tab: TabName = 'stats';
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					tab,
+					episode: episodeId,
+					// Episodes tab shows all-time plays, so open the drilldown at the
+					// widest window the episode endpoint supports ("Last year").
+					period: 'all',
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	const queryArgs = useMemo( () => {
 		const sortField = view.sort?.field;
@@ -116,7 +182,10 @@ const EpisodesTab = () => {
 			const media = post._embedded?.[ 'wp:featuredmedia' ]?.[ 0 ];
 			const sizes = media?.media_details?.sizes;
 			const thumbnail =
-				sizes?.thumbnail?.source_url ?? sizes?.medium?.source_url ?? media?.source_url ?? '';
+				sizes?.thumbnail?.source_url ??
+				sizes?.medium?.source_url ??
+				media?.source_url ??
+				showCoverImage;
 			const stat = statsByPostId.get( post.id );
 			return {
 				id: post.id,
@@ -129,7 +198,7 @@ const EpisodesTab = () => {
 				durationSeconds: stat?.duration_seconds ?? null,
 			};
 		} );
-	}, [ posts, statsByPostId ] );
+	}, [ posts, statsByPostId, showCoverImage ] );
 
 	const fields = useMemo(
 		() => [
@@ -139,7 +208,9 @@ const EpisodesTab = () => {
 				getValue: ( { item }: { item: EpisodeRow } ) => item.featuredMediaUrl,
 				render: ( { item }: { item: EpisodeRow } ) =>
 					item.featuredMediaUrl ? (
-						<img src={ item.featuredMediaUrl } alt="" className="podcast__episode-thumb" />
+						<div className="podcast__episode-thumb">
+							<img src={ item.featuredMediaUrl } alt="" className="podcast__episode-thumb__image" />
+						</div>
 					) : (
 						<div
 							className="podcast__episode-thumb podcast__episode-thumb--placeholder"
@@ -175,6 +246,14 @@ const EpisodesTab = () => {
 				type: 'integer' as const,
 				label: __( 'Plays', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.playsAll,
+				render: ( { item }: { item: EpisodeRow } ) => (
+					<PlaysCell
+						count={ item.playsAll }
+						episodeId={ item.id }
+						episodeTitle={ item.title }
+						onOpen={ openEpisodeStats }
+					/>
+				),
 				enableSorting: false,
 			},
 			{
@@ -198,7 +277,7 @@ const EpisodesTab = () => {
 				enableSorting: true,
 			},
 		],
-		[]
+		[ openEpisodeStats ]
 	);
 
 	const actions = useMemo< Action< EpisodeRow >[] >(
@@ -243,6 +322,10 @@ const EpisodesTab = () => {
 		);
 	}
 
+	// Only show the CTA empty state when the table is empty for real; under an
+	// active search/filter, let DataViews render its own "no results" UI.
+	const hasFiltersOrSearch = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+
 	return (
 		<DataViews< EpisodeRow >
 			data={ rows }
@@ -257,6 +340,7 @@ const EpisodesTab = () => {
 			getItemId={ getEpisodeRowId }
 			isLoading={ isLoading }
 			defaultLayouts={ { table: {} } }
+			empty={ hasFiltersOrSearch ? undefined : <EmptyEpisodes /> }
 			search
 		/>
 	);

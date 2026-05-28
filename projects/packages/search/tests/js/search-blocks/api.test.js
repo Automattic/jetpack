@@ -5,15 +5,18 @@ import {
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
+	buildStaticFilterClauses,
 	buildStaticPostTypeClauses,
 	formatDateBucketLabel,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
 
 describe( 'SEARCH_FIELDS', () => {
-	it( 'does not request author fields for result cards', () => {
-		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
-		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	it( 'requests the bare `author` field for the expanded result card', () => {
+		// The expanded results-list layout renders the post author in the meta
+		// row. Without `author` in the requested fields list, the v1.3 API
+		// would omit it entirely (default response is just date / post_id).
+		expect( SEARCH_FIELDS ).toContain( 'author' );
 	} );
 
 	it( 'requests WooCommerce price and rating fields for the product layout', () => {
@@ -1071,5 +1074,90 @@ describe( 'product-shaped filter helpers', () => {
 				'filter[bool][must][0][bool][should][1][term][category.slug]=sports'
 			);
 		} );
+	} );
+} );
+
+describe( 'buildStaticFilterClauses', () => {
+	it( 'emits one `term` clause per non-empty static-filter selection, keyed by the filter id', () => {
+		// Static filters target a flat ES field whose name equals the filter
+		// key — `?section=guides` ⇒ `{ term: { section: 'guides' } }`. Mirrors
+		// the legacy instant-search overlay's static-filter URL → ES mapping.
+		const clauses = buildStaticFilterClauses(
+			{ section: 'guides', audience: 'dev' },
+			{
+				section: { filterKey: 'section', kind: 'static' },
+				audience: { filterKey: 'audience', kind: 'static' },
+			}
+		);
+		expect( clauses ).toEqual( [ { term: { section: 'guides' } }, { term: { audience: 'dev' } } ] );
+	} );
+
+	it( 'gates on kind === "static" so a stray entry with a non-static config is dropped', () => {
+		// Belt-and-suspenders: even if a stale `staticFilterSelections` entry
+		// somehow names a dynamic filter, the gate prevents it from generating
+		// an ES clause that would target the wrong field.
+		const clauses = buildStaticFilterClauses(
+			{ category: 'news' },
+			{ category: { filterKey: 'category', filterType: 'taxonomy' } }
+		);
+		expect( clauses ).toEqual( [] );
+	} );
+
+	it( 'drops empty-value entries', () => {
+		// An empty string means "no selection" — equivalent to no entry.
+		// A `{ term: { section: '' } }` clause would match zero documents
+		// and silently zero the result set; drop it before the URL builder
+		// sees it.
+		const clauses = buildStaticFilterClauses(
+			{ section: '' },
+			{ section: { filterKey: 'section', kind: 'static' } }
+		);
+		expect( clauses ).toEqual( [] );
+	} );
+
+	it( 'returns an empty array when nothing is selected', () => {
+		expect( buildStaticFilterClauses( {}, {} ) ).toEqual( [] );
+		expect( buildStaticFilterClauses( undefined, {} ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'buildSearchUrl: static filter selections', () => {
+	const baseOpts = {
+		siteId: 1,
+		searchQuery: '',
+		sortOrder: 'relevance',
+		pageHandle: null,
+		isPrivateSite: false,
+		isWpcom: false,
+		apiRoot: '',
+	};
+
+	it( 'folds static-filter term clauses into the existing bool.must pipeline', () => {
+		// A static filter alone should produce a single-clause bool.must.
+		const url = buildSearchUrl( {
+			...baseOpts,
+			staticFilterSelections: { section: 'guides' },
+			filterConfigs: { section: { filterKey: 'section', kind: 'static' } },
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][section]=guides' );
+	} );
+
+	it( 'combines static-filter clauses with active dynamic filters under one bool.must', () => {
+		// Dynamic + static together: bool.must accumulates both. The static
+		// clause appends after the dynamic clauses so the ES request keeps a
+		// flat must array rather than nested bool wrappers.
+		const url = buildSearchUrl( {
+			...baseOpts,
+			activeFilters: { category: [ 'news' ] },
+			staticFilterSelections: { section: 'guides' },
+			filterConfigs: {
+				category: { filterType: 'taxonomy', taxonomy: 'category' },
+				section: { filterKey: 'section', kind: 'static' },
+			},
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+		expect( decoded ).toContain( 'filter[bool][must][1][term][section]=guides' );
 	} );
 } );

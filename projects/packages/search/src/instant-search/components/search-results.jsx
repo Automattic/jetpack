@@ -6,6 +6,7 @@ import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import { getErrorMessage } from '../lib/errors';
 import { getAvailableStaticFilters } from '../lib/filters';
+import AnswersPanel from './answers-panel';
 import Gridicon from './gridicon';
 import JetpackColophon from './jetpack-colophon';
 import Notice from './notice';
@@ -152,9 +153,50 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
+				<AnswersPanel
+					status={ this.props.aiStatus }
+					text={ this.props.aiText }
+					citations={ this.props.aiCitations }
+					error={ this.props.aiError }
+					loadingHint={ this.props.aiLoadingHint }
+					onShowMore={ this.props.onShowMoreAiAnswer }
+				/>
 				<TabbedSearchFilters />
 
-				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
+				<div className="jetpack-instant-search__search-results-header">
+					<h2 className="jetpack-instant-search__search-results-title">
+						{ this.getSearchTitle() }
+					</h2>
+					<SearchControls
+						enableSort={ this.props.enableSort }
+						onChangeSort={ this.props.onChangeSort }
+						resultFormat={ this.props.resultFormat }
+						sort={ this.props.sort }
+					>
+						{ ( this.hasFilterOptions() || this.props.hasNonSearchWidgets ) && (
+							<div
+								role="button"
+								onClick={ this.toggleMobileSecondary }
+								onKeyDown={ this.toggleMobileSecondary }
+								tabIndex="0"
+								className="jetpack-instant-search__search-results-filter-button"
+							>
+								{ __( 'Filters', 'jetpack-search-pkg' ) }
+								<Gridicon
+									icon="chevron-down"
+									size={ 16 }
+									alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
+									aria-hidden="true"
+								/>
+								<span className="screen-reader-text assistive-text">
+									{ this.state.shouldShowMobileSecondary
+										? __( 'Hide filters', 'jetpack-search-pkg' )
+										: __( 'Show filters', 'jetpack-search-pkg' ) }
+								</span>
+							</div>
+						) }
+					</SearchControls>
+				</div>
 
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
@@ -251,7 +293,10 @@ class SearchResults extends Component {
 							className="jetpack-instant-search__search-results-search-form"
 							isVisible={ this.props.isVisible }
 							onChangeSearch={ this.props.onChangeSearch }
+							onSelectFilter={ this.props.onSelectFilter }
 							searchQuery={ this.props.searchQuery }
+							suggestionsEnabled={ this.props.suggestionsEnabled }
+							siteId={ this.props.siteId }
 						/>
 						<button
 							className="jetpack-instant-search__overlay-close"
@@ -263,36 +308,6 @@ class SearchResults extends Component {
 							<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 						</button>
 					</div>
-
-					<SearchControls
-						enableSort={ this.props.enableSort }
-						onChangeSort={ this.props.onChangeSort }
-						resultFormat={ this.props.resultFormat }
-						sort={ this.props.sort }
-					>
-						{ ( this.hasFilterOptions() || this.props.hasNonSearchWidgets ) && (
-							<div
-								role="button"
-								onClick={ this.toggleMobileSecondary }
-								onKeyDown={ this.toggleMobileSecondary }
-								tabIndex="0"
-								className="jetpack-instant-search__search-results-filter-button"
-							>
-								{ __( 'Filters', 'jetpack-search-pkg' ) }
-								<Gridicon
-									icon="chevron-down"
-									size={ 16 }
-									alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
-									aria-hidden="true"
-								/>
-								<span className="screen-reader-text assistive-text">
-									{ this.state.shouldShowMobileSecondary
-										? __( 'Hide filters', 'jetpack-search-pkg' )
-										: __( 'Show filters', 'jetpack-search-pkg' ) }
-								</span>
-							</div>
-						) }
-					</SearchControls>
 
 					<div
 						aria-live="polite"

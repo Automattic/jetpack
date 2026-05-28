@@ -406,7 +406,7 @@ class Sharing_Service {
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
-			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array(),
+			'custom'        => $options['global']['custom'] ?? array(),
 		);
 
 		/**

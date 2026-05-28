@@ -369,7 +369,7 @@ class Search_Widget extends \WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		$default_sort            = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
+		$default_sort            = $instance['sort'] ?? self::DEFAULT_SORT;
 		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
 		$current_sort            = "{$orderby}|{$order}";
 
@@ -409,7 +409,7 @@ class Search_Widget extends \WP_Widget {
 			do_action(
 				'jetpack_search_render_filters',
 				$filters,
-				isset( $instance['post_types'] ) ? $instance['post_types'] : null
+				$instance['post_types'] ?? null
 			);
 		}
 
@@ -496,7 +496,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 8.3.0
 	 */
 	public function widget_empty_instant( $args, $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+		$title = $instance['title'] ?? '';
 
 		if ( empty( $title ) ) {
 			$title = '';
@@ -732,12 +732,12 @@ class Search_Widget extends \WP_Widget {
 
 		$instance = $widget_instance;
 		foreach ( $widget_instance['filters'] as $index => $filter ) {
-			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
-			$instance['taxonomy_type'][]           = isset( $filter['taxonomy'] ) ? $filter['taxonomy'] : '';
-			$instance['filter_name'][]             = isset( $filter['name'] ) ? $filter['name'] : '';
-			$instance['num_filters'][]             = isset( $filter['count'] ) ? $filter['count'] : 5;
-			$instance['date_histogram_field'][]    = isset( $filter['field'] ) ? $filter['field'] : '';
-			$instance['date_histogram_interval'][] = isset( $filter['interval'] ) ? $filter['interval'] : '';
+			$instance['filter_type'][]             = $filter['type'] ?? '';
+			$instance['taxonomy_type'][]           = $filter['taxonomy'] ?? '';
+			$instance['filter_name'][]             = $filter['name'] ?? '';
+			$instance['num_filters'][]             = $filter['count'] ?? 5;
+			$instance['date_histogram_field'][]    = $filter['field'] ?? '';
+			$instance['date_histogram_interval'][] = $filter['interval'] ?? '';
 			// Handle included_attributes for product_attribute filters.
 			if ( isset( $filter['included_attributes'] ) && is_array( $filter['included_attributes'] ) ) {
 				$instance[ 'included_attributes_' . $index ] = $filter['included_attributes'];

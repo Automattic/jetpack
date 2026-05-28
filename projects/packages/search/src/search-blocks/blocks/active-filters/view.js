@@ -1,5 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
-import '../../store';
+import 'jetpack-search/store';
 import { buildActivePills } from './lib';
 import './style.scss';
 

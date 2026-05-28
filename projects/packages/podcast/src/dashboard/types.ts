@@ -8,6 +8,11 @@ export type PodcatcherId =
 
 export type PodcastShowUrls = Record< PodcatcherId, string >;
 
+// Empty string means "no recorded state"; the relay clears the entry that way.
+export type PodcastShowState = '' | 'pending' | 'active';
+
+export type PodcastShowStates = Record< PodcatcherId, PodcastShowState >;
+
 export interface PodcastSettings {
 	podcasting_category_id: number;
 	podcasting_title: string;
@@ -22,12 +27,16 @@ export interface PodcastSettings {
 	podcasting_category_3: string;
 	podcasting_email: string;
 	podcasting_show_urls: PodcastShowUrls;
+	podcasting_show_states: PodcastShowStates;
 }
 
 // `podcasting_show_urls` is Partial because the server merges patches into the
 // stored map — callers can send `{ apple: 'url' }` without touching siblings.
-export type PodcastSettingsUpdate = Partial< Omit< PodcastSettings, 'podcasting_show_urls' > > & {
+export type PodcastSettingsUpdate = Partial<
+	Omit< PodcastSettings, 'podcasting_show_urls' | 'podcasting_show_states' >
+> & {
 	podcasting_show_urls?: Partial< PodcastShowUrls >;
+	podcasting_show_states?: Partial< PodcastShowStates >;
 };
 
 export interface Episode {

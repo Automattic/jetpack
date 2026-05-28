@@ -29,7 +29,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { normalizeDisplayStyle } from '../display-style.js';
 
@@ -83,12 +83,13 @@ export const VARIATION_PRODUCT_TAG = 'product_tag';
 export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
-// `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
+// `window.JetpackSearchBlocksConfig.isWooCommerceBlocksEnabled` is the canonical
 // editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
 // Read at call time (not module init) so tests can flip the gate per case
 // and the editor responds to a runtime change in the localized config.
-const isWooCommerceActive = () =>
-	typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.isWooCommerceActive === true;
+const isWooCommerceBlocksEnabled = () =>
+	typeof window !== 'undefined' &&
+	window.JetpackSearchBlocksConfig?.isWooCommerceBlocksEnabled === true;
 
 // `JetpackSearchBlocksConfig.supportedCustomTaxonomies` is the editor-side
 // whitelist of taxonomy slugs the "Custom Taxonomy" picker may offer.
@@ -136,19 +137,13 @@ export function deriveVariation( attributes ) {
 	if ( taxonomy === 'post_tag' ) {
 		return VARIATION_POST_TAG;
 	}
-	// Product taxonomies map to their dedicated variations only when WC is
-	// active. On non-Woo sites the dedicated variations don't exist in the
-	// inspector picker, so a saved `product_cat` block surfaces as Custom
-	// Taxonomy with the slug preserved — author can still edit the block,
-	// and re-activating WC restores the dedicated variation on the next
-	// render. Mirrors the dormant-attribute pattern used by results-list.
-	if ( taxonomy === 'product_cat' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_cat' ) {
 		return VARIATION_PRODUCT_CAT;
 	}
-	if ( taxonomy === 'product_tag' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_tag' ) {
 		return VARIATION_PRODUCT_TAG;
 	}
-	if ( taxonomy === 'product_brand' && isWooCommerceActive() ) {
+	if ( taxonomy === 'product_brand' ) {
 		return VARIATION_PRODUCT_BRAND;
 	}
 	return VARIATION_CUSTOM_TAXONOMY;
@@ -174,7 +169,7 @@ export function variationOptions() {
 		{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
 		{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
 	];
-	if ( isWooCommerceActive() ) {
+	if ( isWooCommerceBlocksEnabled() ) {
 		options.push(
 			{ value: VARIATION_PRODUCT_CAT, label: __( 'Product Category', 'jetpack-search-pkg' ) },
 			{ value: VARIATION_PRODUCT_TAG, label: __( 'Product Tag', 'jetpack-search-pkg' ) },
@@ -369,6 +364,62 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// always returns zero results. Hiding the control on those variations
 	// keeps authors from setting it by mistake.
 	const isTaxonomyFilter = attributes?.filterType === 'taxonomy';
+
+	// Default the label to the taxonomy's display name when the current
+	// custom-taxonomy selection has an empty label, except immediately after
+	// the author manually clears that same slug. Changing the slug — or
+	// leaving and re-entering the Custom Taxonomy variation — drops the guard
+	// so the picker can seed again. Built-in variations don't pass this gate;
+	// they already get a hardcoded default via variationDefaultLabel().
+	//
+	// Both refs reset whenever the component unmounts (Code/Visual editor
+	// toggle, certain undo sequences). That means a saved post whose `label`
+	// is the empty string re-seeds on the next editor open — by design,
+	// since `labelHelp` already tells authors a label is required for the
+	// front-end heading to render. There's no "persistently empty" custom
+	// taxonomy label state.
+	const manuallyClearedTaxonomyRef = useRef( null );
+	const previousCustomTaxonomyStateRef = useRef( {
+		isCustomTaxonomy,
+		taxonomy,
+		rawLabel,
+	} );
+	useEffect( () => {
+		const previous = previousCustomTaxonomyStateRef.current;
+		if ( previous.isCustomTaxonomy !== isCustomTaxonomy || previous.taxonomy !== taxonomy ) {
+			manuallyClearedTaxonomyRef.current = null;
+		}
+		if (
+			isCustomTaxonomy &&
+			previous.isCustomTaxonomy &&
+			previous.taxonomy === taxonomy &&
+			previous.rawLabel &&
+			! rawLabel
+		) {
+			manuallyClearedTaxonomyRef.current = taxonomy;
+		}
+		previousCustomTaxonomyStateRef.current = {
+			isCustomTaxonomy,
+			taxonomy,
+			rawLabel,
+		};
+		if ( ! isCustomTaxonomy ) {
+			return;
+		}
+		if ( ! Array.isArray( taxonomies ) || ! taxonomy ) {
+			return;
+		}
+		if ( rawLabel ) {
+			return;
+		}
+		if ( manuallyClearedTaxonomyRef.current === taxonomy ) {
+			return;
+		}
+		const match = taxonomies.find( t => t?.slug === taxonomy );
+		if ( match?.name ) {
+			setAttributes( { label: match.name } );
+		}
+	}, [ isCustomTaxonomy, taxonomies, taxonomy, rawLabel, setAttributes ] );
 
 	// Swapping the filter type via the inspector shouldn't wipe an author's
 	// custom label, but when the stored label still matches the prior

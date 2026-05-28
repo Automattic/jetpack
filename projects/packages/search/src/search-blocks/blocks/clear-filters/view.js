@@ -4,5 +4,5 @@
 // picks up the shared module so `data-wp-on--click` and `data-wp-bind--hidden`
 // resolve when the block is hydrated in isolation (e.g. dropped onto a
 // page outside the parent wrapper).
-import '../../store';
+import 'jetpack-search/store';
 import './style.scss';

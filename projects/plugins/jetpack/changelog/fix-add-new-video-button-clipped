@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: fix the Add new video button disappearing on the admin dashboard after the first video is uploaded.

@@ -53,6 +53,9 @@ export interface SocialScriptData {
 		refresh_plan: string;
 	};
 	is_publicize_enabled: boolean;
+	message_templates: {
+		placeholders: Array< { id: string; label: string } >;
+	};
 	plugin_info: PluginInfo;
 	settings: SocialSettings;
 	store_initial_state: SocialStoreState;

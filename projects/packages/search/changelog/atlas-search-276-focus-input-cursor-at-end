@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: when the overlay opens or a search page renders with an existing query, focus the search input and place the caret at the end of that query so visitors can keep typing to refine without re-positioning the cursor.

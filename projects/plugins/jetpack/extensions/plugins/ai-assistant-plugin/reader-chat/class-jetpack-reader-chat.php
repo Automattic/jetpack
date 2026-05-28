@@ -18,6 +18,7 @@
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Search\Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -37,8 +38,8 @@ class Jetpack_Reader_Chat {
 	 * @return void
 	 */
 	public static function init(): void {
-		// Register the setting unconditionally so the REST API can flip it even
-		// when the feature is currently disabled.
+		// Register the setting unconditionally so the Search REST endpoint can
+		// flip it even when the feature is currently disabled.
 		add_action( 'init', array( __CLASS__, 'register_settings' ) );
 		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_sync_options_whitelist' ) );
 
@@ -49,7 +50,7 @@ class Jetpack_Reader_Chat {
 		 * unset). Override programmatically with:
 		 *   add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
 		 *
-		 * @since $$next-version$$
+		 * @since 15.9
 		 *
 		 * @param bool $enabled Whether the reader chat is enabled.
 		 */
@@ -57,13 +58,14 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
-		// Rollout gate: only serve the widget to Automatticians for now.
-		// The opt-in + orchestrator agents are still being validated
-		// end-to-end; showing the widget to arbitrary visitors would
-		// produce a 403 from the (also staff-only) reader-chat agent.
-		// Falls back to the proxied-request check when is_automattician
-		// isn't available (non-wpcom hosts). Filterable for dev overrides.
-		if ( ! apply_filters( 'jetpack_reader_chat_enqueue_enabled', self::current_user_is_staff() ) ) {
+		/**
+		 * Filter whether Reader Chat should hook its public frontend loader.
+		 *
+		 * @since 15.9
+		 *
+		 * @param bool $enabled Whether the reader chat frontend loader should be hooked.
+		 */
+		if ( ! apply_filters( 'jetpack_reader_chat_enqueue_enabled', true ) ) {
 			return;
 		}
 
@@ -72,23 +74,13 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Register the reader_chat option so it is readable and writable
-	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
+	 * Register the reader_chat option so Search settings can read and write it.
 	 *
-	 * Gated to proxied Automattic requests during the rollout so regular
-	 * site owners (and even non-proxied staff on JN / localhost) do not
-	 * see an unfinished toggle. The admin UI in the Jetpack Search
-	 * dashboard also checks for the setting's presence before rendering.
-	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @return void
 	 */
 	public static function register_settings(): void {
-		if ( ! self::is_proxied_request() ) {
-			return;
-		}
-
 		register_setting(
 			'general',
 			'reader_chat',
@@ -96,7 +88,6 @@ class Jetpack_Reader_Chat {
 				'type'              => 'boolean',
 				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),
 				'sanitize_callback' => 'rest_sanitize_boolean',
-				'show_in_rest'      => true,
 				'default'           => false,
 			)
 		);
@@ -106,11 +97,11 @@ class Jetpack_Reader_Chat {
 	 * Add Reader Chat's setting to Jetpack Sync's option whitelist.
 	 *
 	 * Atomic and Jurassic Ninja sites write `reader_chat` locally via
-	 * /wp/v2/settings, while the wpcom-hosted agent reads the wpcom-side
-	 * option before serving public chat requests. Syncing the option keeps
+	 * Search settings, while the wpcom-hosted agent reads the wpcom-side option
+	 * before serving public chat requests. Syncing the option keeps
 	 * the local toggle and agent permission gate aligned.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.9
 	 *
 	 * @param array $options Option names allowed to sync.
 	 * @return array Updated option names.
@@ -118,69 +109,6 @@ class Jetpack_Reader_Chat {
 	public static function add_sync_options_whitelist( array $options ): array {
 		$options[] = 'reader_chat';
 		return array_values( array_unique( $options ) );
-	}
-
-	/**
-	 * Check whether the current request is from an Automattician.
-	 *
-	 * Uses the wpcom is_automattician() helper when available (wpcom
-	 * Simple / Atomic). Falls back to the proxied-request heuristic
-	 * on self-hosted Jetpack sites where is_automattician() does not
-	 * exist. Returns false for logged-out visitors on wpcom (since
-	 * get_current_user_id() is 0 and is_automattician( 0 ) is false).
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	private static function current_user_is_staff(): bool {
-		if ( function_exists( 'is_automattician' ) ) {
-			return is_automattician( get_current_user_id() );
-		}
-
-		return self::is_proxied_request();
-	}
-
-	/**
-	 * Check whether the current request is coming from a proxied
-	 * Automattic context (a12 staff on a sandbox / proxy).
-	 *
-	 * This is a strict subset of is_dev_mode(): it excludes the
-	 * hostname-based matches (localhost, jurassic.ninja, jurassic.tube)
-	 * because a non-staff dev on JN should not see the rollout toggle.
-	 *
-	 * IMPORTANT: Only use for feature gating, not for authorization.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	private static function is_proxied_request(): bool {
-		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
-			return true;
-		}
-
-		if (
-			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-		) {
-			return true;
-		}
-
-		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
-			switch ( ATOMIC_CLIENT_ID ) {
-				case 1:
-				case 2:
-				case 3: // Pressable
-				case 32:
-				case 118: // Commerce garden client (ciab)
-					return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -198,6 +126,10 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
+		if ( self::is_site_coming_soon_or_unlaunched() ) {
+			return;
+		}
+
 		/**
 		 * Filter to override the AI features check.
 		 *
@@ -209,6 +141,10 @@ class Jetpack_Reader_Chat {
 		 */
 		$has_features = apply_filters( 'jetpack_reader_chat_has_ai_features', null );
 		if ( ! ( $has_features ?? self::has_ai_features() ) ) {
+			return;
+		}
+
+		if ( ! self::has_search_plan_access() ) {
 			return;
 		}
 
@@ -239,6 +175,23 @@ class Jetpack_Reader_Chat {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Check whether the current site is Coming Soon or unlaunched.
+	 *
+	 * Reader Chat is a public frontend widget, so it should not mount on sites
+	 * that are still hidden behind launch or Coming Soon visibility.
+	 *
+	 * @return bool Whether the site is hidden by launch or Coming Soon visibility.
+	 */
+	private static function is_site_coming_soon_or_unlaunched(): bool {
+		$status = new Status();
+		if ( $status->is_coming_soon() ) {
+			return true;
+		}
+
+		return 'unlaunched' === get_option( 'launch-status' );
 	}
 
 	/**
@@ -456,6 +409,52 @@ class Jetpack_Reader_Chat {
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 			&& ! ( new Status() )->is_offline_mode()
 			&& apply_filters( 'jetpack_ai_enabled', true );
+	}
+
+	/**
+	 * Check whether the current site can serve Reader Chat under its Search plan.
+	 *
+	 * Uses WordPress.com's local Search plan source on Simple sites. Elsewhere,
+	 * uses the cached Jetpack Search plan option instead of forcing a remote
+	 * refresh on public frontend requests.
+	 *
+	 * @return bool
+	 */
+	private static function has_search_plan_access(): bool {
+		$plan_access = apply_filters( 'jetpack_reader_chat_has_search_plan_access', null );
+		if ( null !== $plan_access ) {
+			return (bool) $plan_access;
+		}
+
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$blog_id = get_current_blog_id();
+			if ( $blog_id <= 0 ) {
+				return false;
+			}
+
+			if ( function_exists( 'require_lib' ) ) {
+				require_lib( 'jetpack-search' );
+			}
+
+			$wpcom_plan_info_class = '\Jetpack\Search\Plan_Info';
+			if ( class_exists( $wpcom_plan_info_class ) ) {
+				$plan_info = new $wpcom_plan_info_class( $blog_id );
+				return $plan_info->supports_search() && ! $plan_info->is_disabled_due_to_overage();
+			}
+		}
+
+		if ( ! class_exists( Plan::class ) ) {
+			return false;
+		}
+
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		if ( ! is_array( $plan_info ) ) {
+			return false;
+		}
+
+		return ! empty( $plan_info['supports_search'] )
+			&& empty( $plan_info['plan_usage']['must_upgrade'] );
 	}
 
 	/**

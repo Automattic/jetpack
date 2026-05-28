@@ -186,7 +186,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			'orderby'        => $args['order_by'],
 			'post_type'      => $args['type'],
 			'post_status'    => $status,
-			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'post_parent'    => $args['parent_id'] ?? null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
 			'fields'         => 'ids',

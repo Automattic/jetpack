@@ -26,8 +26,8 @@ import {
 	cart,
 	category,
 	chevronUpDown,
+	commentContent,
 	currencyDollar,
-	customPostType,
 	filter,
 	formatListBullets,
 	funnel,
@@ -54,6 +54,7 @@ const BRAND_FOREGROUND = '#069e08';
 const greened = src => ( { src, foreground: BRAND_FOREGROUND } );
 
 const BLOCK_ICONS = {
+	'jetpack-search/ai-answer': greened( commentContent ),
 	'jetpack-search/search-input': greened( search ),
 	'jetpack-search/search-results': greened( listView ),
 	'jetpack-search/results-list': greened( grid ),
@@ -62,7 +63,6 @@ const BLOCK_ICONS = {
 	'jetpack-search/results-load-more': greened( plus ),
 	'jetpack-search/filter-checkbox': greened( formatListBullets ),
 	'jetpack-search/filter-date': greened( calendar ),
-	'jetpack-search/filter-post-type': greened( customPostType ),
 	'jetpack-search/filter-wc-attribute': greened( tag ),
 	'jetpack-search/filter-wc-price': greened( currencyDollar ),
 	'jetpack-search/filter-wc-rating': greened( starFilled ),

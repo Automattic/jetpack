@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.0] - 2026-05-25
+### Added
+- Abilities: Opt `jetpack/get-connection-status` into the MCP tool surface (meta.mcp public tool). [#49113]
+- Abilities API: Add `jetpack/get-connection-status` read ability. [#48735]
+
+### Changed
+- Abilities: Align the shared `jetpack` ability-category description with the Jetpack plugin's registrar so the visible text is consistent regardless of which subpackage registers first. [#48735]
+- Abilities: Point `jetpack/get-connection-status` `registration_url` at the WP 7.0+ Connectors screen when available. [#48735]
+- Abilities: Rename `jetpack/get-connection-status` `site_connected` output field to `site_registered` to match site-registration terminology. [#48735]
+- Abilities: Tighten `jetpack/get-connection-status` permission to `current_user_can( 'jetpack_admin_page' )`. [#48735]
+
+## [8.3.7] - 2026-05-21
+### Added
+- Connection: Signal to Calypso that the site already has a connection owner so the authorize page can show appropriate content for secondary user connections. [#48904]
+
+### Changed
+- Connection: Show the Jetpack icon beside the Connected label in the WordPress.com account column on the Users screen. [#48951]
+- Connectors: Show shorter, role-appropriate connect prompt for secondary user connections when the site already has a connection owner. [#48904]
+- Update package dependencies. [#48405]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [8.3.6] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [8.3.5] - 2026-05-14
+### Changed
+- Connection: Include the comma-separated list of connection-using plugin slugs on every authorize URL, not only those built by the connectors card flow. [#48713]
+- Update dependencies. [#48778]
+
+## [8.3.4] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
 ## [8.3.3] - 2026-05-04
 ### Added
 - Connector: Forward `from` and `plugins` parameters to the register and authorize_url REST endpoints, and expose connectedPlugins to the connectors card before registration. [#48318]
@@ -1816,6 +1852,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.4.0]: https://github.com/Automattic/jetpack-connection/compare/v8.3.7...v8.4.0
+[8.3.7]: https://github.com/Automattic/jetpack-connection/compare/v8.3.6...v8.3.7
+[8.3.6]: https://github.com/Automattic/jetpack-connection/compare/v8.3.5...v8.3.6
+[8.3.5]: https://github.com/Automattic/jetpack-connection/compare/v8.3.4...v8.3.5
+[8.3.4]: https://github.com/Automattic/jetpack-connection/compare/v8.3.3...v8.3.4
 [8.3.3]: https://github.com/Automattic/jetpack-connection/compare/v8.3.2...v8.3.3
 [8.3.2]: https://github.com/Automattic/jetpack-connection/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/Automattic/jetpack-connection/compare/v8.3.0...v8.3.1

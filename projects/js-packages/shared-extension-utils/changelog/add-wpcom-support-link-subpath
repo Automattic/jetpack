@@ -1,3 +1,0 @@
-Significance: patch
-Type: added
-Comment: Expose `WpcomSupportLink` via its own subpath export so consumers can import the support link without pulling in the rest of the components barrel.

@@ -20,6 +20,10 @@ module.exports = {
 	},
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
+		// The blocks build externalizes this bare specifier to the
+		// `jetpack-search/store` Script Module; Jest has no such resolver,
+		// so point it at the real store source.
+		'^jetpack-search/store$': '<rootDir>/src/search-blocks/store/index.js',
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 		'instant-search/components/gridicon':
 			'<rootDir>/src/instant-search/components/gridicon/index.jsx',

@@ -26,7 +26,10 @@ const getRollbackSettings = settings =>
 				k === 'module_active' ||
 				k === 'instant_search_enabled' ||
 				k === 'experience' ||
-				k === 'reader_chat'
+				k === 'reader_chat' ||
+				k === 'ai_answers_enabled' ||
+				k === 'search_suggestions_enabled' ||
+				k === 'override_woocommerce_search_template'
 		)
 	);
 
@@ -51,12 +54,10 @@ export function* updateJetpackSettings( settings = {} ) {
 		yield setUpdatingJetpackSettings();
 		previousSettings = getRollbackSettings( store.getSearchModuleStatus() );
 		yield setJetpackSettings( settings );
-		yield updateJetpackSettingsControl( settings );
-		const updatedSettings = yield fetchJetpackSettings();
-		yield setJetpackSettings( updatedSettings );
+		const savedSettings = yield updateJetpackSettingsControl( settings );
 		if ( shouldTrackReaderChat ) {
-			const updatedReaderChatEnabled = hasOwnSetting( updatedSettings, 'reader_chat' )
-				? Boolean( updatedSettings.reader_chat )
+			const updatedReaderChatEnabled = hasOwnSetting( savedSettings, 'reader_chat' )
+				? Boolean( savedSettings.reader_chat )
 				: Boolean( settings.reader_chat );
 
 			if ( updatedReaderChatEnabled !== previousReaderChatEnabled ) {
@@ -68,6 +69,8 @@ export function* updateJetpackSettings( settings = {} ) {
 				} );
 			}
 		}
+		const updatedSettings = yield fetchJetpackSettings();
+		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
 		yield setJetpackSettings( previousSettings ?? {} );
@@ -140,7 +143,7 @@ export function setActiveExperience( experience ) {
  * the signal we read here. On failure we leave `pending_experience` in place
  * so the user can retry without re-clicking.
  *
- * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
+ * The whole experience-selector UI is gated behind `jetpack_search_blocks_enabled`,
  * so we send only `{ experience }`. The back end resolves the storage shape —
  * `'off'` deactivates the module, `'inline'` deletes the experience option,
  * `'embedded'` / `'overlay'` write affirmative values — and resolves the

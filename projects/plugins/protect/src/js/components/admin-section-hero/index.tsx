@@ -3,6 +3,8 @@ import {
 	H3,
 	getIconBySlug,
 } from '@automattic/jetpack-components';
+import { Text as UIText } from '@wordpress/ui';
+import clsx from 'clsx';
 import SeventyFiveLayout from '../seventy-five-layout';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
@@ -15,9 +17,15 @@ interface AdminSectionHeroProps {
 	spacing?: number;
 }
 
+interface StatusIndicatorProps {
+	status: 'active' | 'inactive';
+	label: ReactNode;
+}
+
 interface AdminSectionHeroComponent extends FC< AdminSectionHeroProps > {
 	Heading: FC< { children: ReactNode; showIcon?: boolean } >;
 	Subheading: FC< { children: ReactNode } >;
+	StatusIndicator: FC< StatusIndicatorProps >;
 }
 
 const AdminSectionHero: AdminSectionHeroComponent = ( {
@@ -62,6 +70,15 @@ AdminSectionHero.Heading = ( {
 
 AdminSectionHero.Subheading = ( { children }: { children: ReactNode } ) => {
 	return <div className={ styles.subheading }>{ children }</div>;
+};
+
+AdminSectionHero.StatusIndicator = ( { status, label }: StatusIndicatorProps ) => {
+	return (
+		<UIText variant="body-sm" className={ clsx( styles.status, styles[ `is-${ status }` ] ) }>
+			<span className={ styles.indicator } />
+			<span>{ label }</span>
+		</UIText>
+	);
 };
 
 export default AdminSectionHero;

@@ -943,7 +943,7 @@ class Jetpack_Carousel {
 
 		$attachment_id   = (int) $attachment->ID;
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
-		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
+		$orig_file       = $orig_file[0] ?? wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
 		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
@@ -965,7 +965,7 @@ class Jetpack_Carousel {
 		 */
 
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
-		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
+		$large_file      = $large_file_info[0] ?? '';
 
 		$attachment_title   = wptexturize( $attachment->post_title );
 		$attachment_desc    = wpautop( wptexturize( $attachment->post_content ) );

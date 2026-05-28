@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: per-block "Logic" toggle on `jetpack-search/filter-checkbox` taxonomy filters — pick between Any (OR, default) and All (AND) combination of multi-value selections; URL round-trips as `?query_type_<filterKey>=and`.

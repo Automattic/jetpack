@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: migrate link-variant Buttons in Plans section and product interstitial modal to @wordpress/ui Link.

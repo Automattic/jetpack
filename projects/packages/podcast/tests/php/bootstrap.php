@@ -26,3 +26,13 @@ if ( ! function_exists( 'tracks_record_event' ) ) {
 		return true;
 	}
 }
+
+/**
+ * Shim WordPress multisite `get_blog_details` for non-multisite test runs.
+ */
+if ( ! function_exists( 'get_blog_details' ) ) {
+	function get_blog_details( $blog_id = 0 ) {
+		$details = $GLOBALS['jetpack_podcast_test_blog_details'][ $blog_id ] ?? null;
+		return $details ? (object) $details : false;
+	}
+}

@@ -645,7 +645,7 @@ class Publicize_Test extends WP_UnitTestCase {
 	public function publicize_connection_filter_no_normal( $enabled, $post_id, $service_name, $connection ) {
 		// This is silly - make this function work in both 'wpas_submit_post?' (fourth parameter $connection_data)
 		// and 'publicize_checkbox_default' (fourt parameter $connection) filters.
-		$connection_data = isset( $connection['connection_data'] ) ? $connection['connection_data'] : $connection;
+		$connection_data = $connection['connection_data'] ?? $connection;
 		if ( $connection_data['user_id'] ) {
 			return false;
 		} else {
@@ -672,7 +672,7 @@ class Publicize_Test extends WP_UnitTestCase {
 	public function publicize_connection_filter_no_global( $enabled, $post_id, $service_name, $connection ) {
 		// This is silly - make this function work in both 'wpas_submit_post?' (fourth parameter $connection_data)
 		// and 'publicize_checkbox_default' (fourt parameter $connection) filters.
-		$connection_data = isset( $connection['connection_data'] ) ? $connection['connection_data'] : $connection;
+		$connection_data = $connection['connection_data'] ?? $connection;
 		if ( ! $connection_data['user_id'] ) {
 			return false;
 		} else {

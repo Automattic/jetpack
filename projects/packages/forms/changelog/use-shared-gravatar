@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Forms now uses the shared `Gravatar` component from `@automattic/jetpack-components/gravatar`. No user-visible change.

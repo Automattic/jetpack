@@ -12,6 +12,7 @@
  */
 require_once __DIR__ . '/pcg-log.php';
 require_once __DIR__ . '/class-pcg-load-tester.php';
+require_once __DIR__ . '/class-pcg-rollout.php';
 
 // Probe endpoint must answer front-end requests, so it's not gated on is_admin().
 require_once __DIR__ . '/probe-endpoint.php';
