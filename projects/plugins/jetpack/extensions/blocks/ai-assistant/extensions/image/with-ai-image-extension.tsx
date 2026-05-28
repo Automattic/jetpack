@@ -21,7 +21,10 @@ import debugFactory from 'debug';
 import { store as seoStore } from '../../../../plugins/ai-assistant-plugin/components/seo-enhancer/store';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
-import { canAIAssistantBeEnabled } from '../lib/can-ai-assistant-be-enabled';
+import {
+	canAIAssistantBeEnabled,
+	isJetpackAiSidebarBlockToolbarEnabled,
+} from '../lib/can-ai-assistant-be-enabled';
 import { preprocessImageContent } from '../lib/preprocess-image-content';
 import { TYPE_ALT_TEXT, TYPE_CAPTION } from '../types';
 import AiAssistantImageExtensionToolbarDropdown from './components/image-toolbar-dropdown';
@@ -231,16 +234,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		return (
 			<>
 				<BlockEdit { ...props } />
-				<BlockControls { ...blockControlsProps }>
-					<AiAssistantImageExtensionToolbarDropdown
-						onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
-						onRequestCaption={ () => request( TYPE_CAPTION ) }
-						loadingAltText={ loadingAltText }
-						loadingCaption={ loadingCaption }
-						disabled={ ! hasImage }
-						wrapperRef={ wrapperRef }
-					/>
-				</BlockControls>
+				{ ! isJetpackAiSidebarBlockToolbarEnabled && (
+					<BlockControls { ...blockControlsProps }>
+						<AiAssistantImageExtensionToolbarDropdown
+							onRequestAltText={ () => request( TYPE_ALT_TEXT ) }
+							onRequestCaption={ () => request( TYPE_CAPTION ) }
+							loadingAltText={ loadingAltText }
+							loadingCaption={ loadingCaption }
+							disabled={ ! hasImage }
+							wrapperRef={ wrapperRef }
+						/>
+					</BlockControls>
+				) }
 			</>
 		);
 	}
