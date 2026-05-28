@@ -113,10 +113,25 @@ describe( 'ResultsListEdit', () => {
 
 		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Apr 1, 2026' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Grace Hopper' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Katherine Johnson' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Sample Author' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'A. Writer, B. Editor' ) ).not.toBeInTheDocument();
 	} );
+
+	// SAMPLE_RESULTS has three rows: the first two carry hasImage:true, the
+	// third demonstrates the runtime collapse when imageUrl is empty. We count
+	// `__image-link` elements directly because the element is aria-hidden by
+	// design (it's a decorative click-target for sighted users); there's no
+	// role or accessible name to query against via Testing Library.
+	/* eslint-disable testing-library/no-container, testing-library/no-node-access -- see comment above. */
+	it( 'renders the image-link column only for sample rows that have an image in the expanded preview', () => {
+		const { container } = render(
+			<ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } />
+		);
+
+		expect( container.querySelectorAll( '.jetpack-search-results__image-link' ) ).toHaveLength( 2 );
+		expect( screen.getByText( 'Older archived entry' ) ).toBeInTheDocument();
+	} );
+	/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 
 	it( 'renders the layout picker in the inspector', () => {
 		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );
