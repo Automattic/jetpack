@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace A8C\WPCOM_DICTATION;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,7 +15,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-smart-dictation/cla
 /**
  * Class WP_REST_WPCOM_Smart_Dictation_Client_Secret_Test
  *
- * @covers \A8C\FSE\WP_REST_WPCOM_Smart_Dictation_Client_Secret
+ * @covers \A8C\WPCOM_DICTATION\WP_REST_WPCOM_Smart_Dictation_Client_Secret
  */
 #[CoversClass( WP_REST_WPCOM_Smart_Dictation_Client_Secret::class )]
 class WP_REST_WPCOM_Smart_Dictation_Client_Secret_Test extends \WorDBless\BaseTestCase {

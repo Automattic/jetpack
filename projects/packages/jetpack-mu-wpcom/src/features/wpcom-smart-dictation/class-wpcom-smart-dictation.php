@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace A8C\WPCOM_DICTATION;
 
 use Automattic\Jetpack\Status\Host;
 
