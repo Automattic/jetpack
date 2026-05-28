@@ -85,8 +85,10 @@ if ( 'card' === $layout ) {
 // products, and a URL-only check would miss it. Opt-out per block via the
 // `autoProductView` attribute (default on). The non-Woo collapse below is
 // still the final gate, so this can never force `product` on a non-Woo site.
-$auto_product_view  = $attrs['autoProductView'] ?? true;
-$block_context      = $block instanceof \WP_Block ? $block->context : array();
+$auto_product_view = $attrs['autoProductView'] ?? true;
+// `$block` is provided by `WP_Block::render()`; the isset + instanceof check
+// narrows its type for static analysis and tolerates a non-block render path.
+$block_context      = isset( $block ) && $block instanceof \WP_Block ? $block->context : array();
 $is_product_request = Search_Blocks::request_is_product_only()
 	|| Search_Blocks::scope_is_product_only( $block_context );
 if ( $auto_product_view && Search_Blocks::woocommerce_blocks_enabled() && $is_product_request ) {
