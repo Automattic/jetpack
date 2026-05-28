@@ -52,8 +52,6 @@
 /vendor/automattic/custom-fonts/package-lock.json        production-exclude
 /vendor/automattic/custom-fonts/package.json             production-exclude
 /vendor/automattic/custom-fonts/annotations.md           production-exclude
-/vendor/automattic/custom-fonts/providers/typekit.json   production-exclude
-/vendor/automattic/custom-fonts/providers/google.json    production-exclude
 /vendor/automattic/custom-fonts/tests/**                 production-exclude
 /vendor/automattic/wc-calypso-bridge/.*                  production-exclude
 /vendor/automattic/wc-calypso-bridge/.*/**               production-exclude
