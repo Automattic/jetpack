@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 use Automattic\Jetpack\Plugin\Abilities\Related_Posts_Abilities;
 use PHPUnit\Framework\Attributes\CoversClass;
 

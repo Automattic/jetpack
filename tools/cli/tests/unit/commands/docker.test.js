@@ -37,6 +37,7 @@ const {
 	detectEnvConflicts,
 	persistParallelEnv,
 	applyUpdateEnv,
+	shouldManageParallelEnv,
 	PARALLEL_ENV_KEYS,
 } = await import( '../../../commands/docker.js' );
 
@@ -194,6 +195,34 @@ describe( 'resolveDevCloneSource', () => {
 
 	test( 'returns null when target would be the same as source (--name dev)', () => {
 		expect( resolveDevCloneSource( { type: 'dev', name: 'dev', clone: true } ) ).toBeNull();
+	} );
+} );
+
+describe( 'shouldManageParallelEnv', () => {
+	test( 'true for `up` on the default dev type', () => {
+		expect( shouldManageParallelEnv( { type: 'dev', _: [ 'docker', 'up' ] } ) ).toBe( true );
+	} );
+
+	test( 'true for `up --name` on dev', () => {
+		expect(
+			shouldManageParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'up' ] } )
+		).toBe( true );
+	} );
+
+	// Regression: the e2e framework runs `docker --type e2e --name t1 up -d`. Before the
+	// type gate, that --name leaked COMPOSE_PROJECT_NAME/PORT_* into the shared
+	// tools/docker/.env of a plain checkout. See PR #48643 review follow-up.
+	test( 'false for the e2e flow (--type e2e --name t1 up)', () => {
+		expect( shouldManageParallelEnv( { type: 'e2e', name: 't1', _: [ 'docker', 'up' ] } ) ).toBe(
+			false
+		);
+	} );
+
+	test( 'false for non-up commands on dev', () => {
+		expect( shouldManageParallelEnv( { type: 'dev', _: [ 'docker', 'down' ] } ) ).toBe( false );
+		expect(
+			shouldManageParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'clean' ] } )
+		).toBe( false );
 	} );
 } );
 

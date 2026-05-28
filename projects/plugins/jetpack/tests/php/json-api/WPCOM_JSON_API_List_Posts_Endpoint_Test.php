@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-list-posts-endpoint.php';
+require_once __DIR__ . '/trait-assert-rest-xmlrpc-parity.php';
 
 /**
  * Tests for the /sites/%s/posts/ list posts endpoint.
@@ -22,6 +23,7 @@ require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-list-pos
 #[CoversClass( WPCOM_JSON_API_List_Posts_Endpoint::class )]
 class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 	use WP_UnitTestCase_Fix;
+	use Assert_Rest_Xmlrpc_Parity;
 
 	/**
 	 * An admin user ID.
@@ -96,6 +98,8 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		$this->tear_down_rest_parity();
+
 		parent::tear_down();
 
 		$_SERVER = $this->pre_globals;
@@ -103,6 +107,43 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 		WPCOM_JSON_API::init()->token_details = array();
 		WPCOM_JSON_API::init()->query         = array();
 		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Lock the jetpack#42377 fix: with context=edit the post content comes back identically on
+	 * both transports. If rest_callback() ever drops the user_can_richedit / comment_edit_pre
+	 * filters, the REST body re-escapes the content and this parity assertion fails.
+	 *
+	 * (Default-request parity for /posts is covered generically by
+	 * WPCOM_JSON_API_Rest_Parity_Coverage_Test; this case adds the edit-context input.)
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_rest_xmlrpc_parity_edit_context_locks_jetpack_42377() {
+		self::factory()->post->create(
+			array(
+				'post_status'  => 'publish',
+				'post_author'  => self::$admin_user_id,
+				'post_content' => 'Café &amp; <!-- wp:paragraph --><b>x</b><!-- /wp:paragraph -->',
+			)
+		);
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'number'  => 5,
+				'context' => 'edit',
+			)
+		);
+
+		$this->assertNotEmpty( $rest['posts'] );
+		$this->assertStringContainsString(
+			'<b>x</b>',
+			$rest['posts'][0]['content'],
+			'edit-context returns raw markup on the REST path.'
+		);
+		$this->assertSame( $xmlrpc['posts'][0]['content'], $rest['posts'][0]['content'] );
 	}
 
 	/**

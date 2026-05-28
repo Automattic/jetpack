@@ -10,6 +10,7 @@
 		"html": false,
 		"interactivity": true
 	},
+	"usesContext": [ "jetpack-search/inInteractiveScope" ],
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
 		"filterType": {

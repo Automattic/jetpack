@@ -29,4 +29,34 @@ describe( 'siteDataSelectors', () => {
 		expect( siteDataSelectors.isBlockTheme( {} ) ).toBe( true );
 		expect( siteDataSelectors.isBlockTheme( { siteData: {} } ) ).toBe( true );
 	} );
+
+	test( 'returns the product search template config from siteData', () => {
+		const config = {
+			enabled: true,
+			editorUrl: 'https://example.com/wp-admin/post.php?post=42&action=edit',
+			postType: 'jp_product_search',
+			isCustomized: false,
+		};
+		expect(
+			siteDataSelectors.getProductSearchTemplateConfig( {
+				siteData: { productSearchTemplate: config },
+			} )
+		).toEqual( config );
+	} );
+
+	test( 'falls back to the singleton-template default when productSearchTemplate is missing', () => {
+		// Match `singletonTemplateConfigDefault` in site-data.js: a stale or
+		// older initial-state blob must read as "no customization, no link"
+		// instead of crashing on undefined property reads in the WC control.
+		const fallback = {
+			enabled: false,
+			editorUrl: null,
+			postType: null,
+			isCustomized: false,
+		};
+		expect( siteDataSelectors.getProductSearchTemplateConfig( {} ) ).toEqual( fallback );
+		expect( siteDataSelectors.getProductSearchTemplateConfig( { siteData: {} } ) ).toEqual(
+			fallback
+		);
+	} );
 } );

@@ -27,7 +27,7 @@ const queryClient = new QueryClient();
 const AddAccountAction = () => {
 	const { openConnectionsModal } = useDispatch( socialStore );
 	return (
-		<Button variant="primary" size="compact" onClick={ openConnectionsModal }>
+		<Button variant="solid" size="compact" onClick={ openConnectionsModal }>
 			{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 		</Button>
 	);

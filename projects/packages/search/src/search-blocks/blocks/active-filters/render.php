@@ -11,13 +11,12 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-// Render `hidden` on first paint when no facet is active. JS unhides once
-// `state.hasActiveFilters` flips — relying only on data-wp-bind--hidden
-// leaves the "Active filters:" label visible on the server-rendered HTML
-// until hydration, which pushes sibling filter blocks ~30px down and
-// misaligns the sidebar with the adjacent results column. Reads activeFilters
-// AND priceRange so a price-only deep link doesn't keep the wrapper hidden
-// after hydration sees a half-open range come through the URL.
+// First-paint FOUC guard: emit `hidden` on the wrapper when the seeded state
+// has no active filters, so the "Active filters:" heading doesn't briefly
+// render before hydration and push siblings ~30px down — `data-wp-bind--hidden`
+// keeps the attribute reactive afterwards. Reads activeFilters AND priceRange
+// so a price-only deep link doesn't keep the wrapper hidden after hydration
+// sees a half-open range come through the URL.
 $seeded_state        = function_exists( 'wp_interactivity_state' )
 	? wp_interactivity_state( 'jetpack-search' )
 	: array();
@@ -37,10 +36,23 @@ if ( ! $has_active_on_paint && is_array( $seeded_price_range ) ) {
 		$has_active_on_paint = true;
 	}
 }
+
+// Skip `data-wp-interactive` when an ancestor already owns the
+// `jetpack-search` interactive scope (signalled by the
+// `jetpack-search/inInteractiveScope` block context from
+// `jetpack-search/filters-popover`). Nesting two same-namespace interactive
+// scopes makes the Interactivity runtime re-run its `data-wp-each` pass
+// against the inner scope and materializes the pill template twice — the
+// SEARCH-266 trigger. Inheriting the parent's scope keeps every directive
+// resolving against a single store hydration. The `instanceof` check
+// narrows `$block`'s type for static analysis — WP guarantees it's set
+// to a `WP_Block` instance when render.php is included from `WP_Block::render()`.
+$in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
+	&& ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
-	data-wp-interactive="jetpack-search"
+	<?php echo $in_interactive_scope ? '' : 'data-wp-interactive="jetpack-search"'; ?>
 	data-wp-bind--hidden="!state.hasActiveFilters"
 	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
 >

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.27
+ * Stubs automatically generated from PHPUnit 12.5.28
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -25859,13 +25859,13 @@ final readonly class Loader
     /**
      * @throws XmlException
      */
-    public function loadFile(string $filename): \DOMDocument
+    public function loadFile(string $filename, bool $ignoreComments = false): \DOMDocument
     {
     }
     /**
      * @throws XmlException
      */
-    public function load(string $actual): \DOMDocument
+    public function load(string $actual, bool $ignoreComments = false): \DOMDocument
     {
     }
 }

@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -63,10 +62,6 @@ Jetpack_Reader_Chat::init();
  * @return void
  */
 function register_ai_agents_setting() {
-	if ( ! is_proxied_request() ) {
-		return;
-	}
-
 	$show_in_rest = ! ( new Host() )->is_wpcom_simple();
 
 	register_setting(
@@ -82,59 +77,6 @@ function register_ai_agents_setting() {
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
-
-/**
- * Check whether the current request is coming from an Automattic rollout context.
- *
- * This gates the AI Agent Access toggle during rollout so regular site owners,
- * and non-proxied staff, do not see unfinished controls.
- *
- * IMPORTANT: Only use for feature gating, not for authorization.
- *
- * @since 15.9
- *
- * @return bool
- */
-function is_proxied_request(): bool {
-	return is_automattic_proxied_request();
-}
-
-/**
- * Check whether the current request is coming from a proxied Automattic context.
- *
- * Keep this check local to the rollout gate so WPCOM environments with older
- * vendored Jetpack packages do not fatal during bootstrap.
- *
- * @since 15.9
- *
- * @return bool
- */
-function is_automattic_proxied_request(): bool {
-	if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
-		return true;
-	}
-
-	if (
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
-		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-		Constants::is_true( 'A8C_PROXIED_REQUEST' )
-	) {
-		return true;
-	}
-
-	if ( Constants::is_true( 'AT_PROXIED_REQUEST' ) && Constants::is_defined( 'ATOMIC_CLIENT_ID' ) ) {
-		switch ( (int) Constants::get_constant( 'ATOMIC_CLIENT_ID' ) ) {
-			case 1:
-			case 2:
-			case 3: // Pressable.
-			case 32:
-			case 118: // Commerce garden client (ciab).
-				return true;
-		}
-	}
-
-	return false;
-}
 
 /**
  * Add the AI Agent Access setting to Jetpack Sync's option whitelist.

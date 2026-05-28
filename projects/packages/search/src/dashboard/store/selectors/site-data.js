@@ -46,6 +46,13 @@ const siteDataSelectors = {
 	// instead of the FSE template editor.
 	getSearchTemplateConfig: state =>
 		state.siteData?.searchTemplate ?? singletonTemplateConfigDefault,
+	// Sibling of `getSearchTemplateConfig` for the WooCommerce product-search
+	// shim. The `WooCommerceProductSearchControl` reads this to route the
+	// "Edit the product search template" link to `post.php` on the hidden
+	// `Product_Search_Template` CPT on classic themes — the Site Editor URL
+	// the control falls back to is useless there.
+	getProductSearchTemplateConfig: state =>
+		state.siteData?.productSearchTemplate ?? singletonTemplateConfigDefault,
 	isWooCommerceActive: state => state.siteData?.isWooCommerceActive ?? false,
 	getActiveThemeStylesheet: state => state.siteData?.activeThemeStylesheet ?? '',
 	// Defaults to true so Embedded is never blocked when the flag is absent

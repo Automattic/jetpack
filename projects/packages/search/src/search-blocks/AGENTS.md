@@ -27,7 +27,7 @@ All blocks use the `jetpack-search/*` namespace (mirrors the composer package `a
 
 Current slug shapes — match one if it fits, but new shapes are fine when nothing here covers it:
 
-- **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`, `filter-post-type`). Visitor-facing titles read "Filter by X". Author-configured filters with no front-end UI take a distinct title (e.g. "Post Type Scope") so they don't collide with visitor-facing variations of the same dimension.
+- **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`). Visitor-facing titles read "Filter by X". Author-configured scoping (post-type bounds for the whole search experience) lives on the `search-results` block's "Search scope" inspector panel, not as a standalone filter block — same shape as core's Query Loop carrying `postType` on the block that renders the results.
 - **Filter compositions:** `filters` for the default vertical stack; layout-suffixed `filters-{layout}` for variants (e.g. `filters-popover`, `filters-product`).
 - **Results region:** `search-results` for the container; `results-{role}` for atoms inside it (`results-list`, `results-count`, `results-sort`, `results-load-more`).
 - **Standalone:** bare role slug (`search-input`, `powered-by`, `active-filters`).
@@ -63,6 +63,31 @@ WordPress derives `.wp-block-jetpack-search-{bare-slug}` from the full block nam
 
 Manual wrapper classes (set via `useBlockProps({ className })` and the matching `get_block_wrapper_attributes()` call in `render.php`) don't have to track the slug exactly — they're just CSS hooks.
 
+## Theme tokens & `var()` chains
+
+The search-blocks bundle uses its own postcss config (`postcss.blocks.config.js`) with `postcss-custom-properties` set to `preserve: true`. Every `var(--foo, fallback)` ships as two declarations: a literal substitution (the deepest fallback) followed by the full `var()` call. The browser cascade picks the var when defined and falls through to the literal otherwise — runtime theme tokens work, and there's always a static safety net.
+
+The other Search bundles (`inline-search`, `customberg`, `instant-search`) keep the shared `postcss.config.js` with `preserve: false`. `instant-search` in particular reads calypso-color-schemes vars that aren't shipped to the runtime; preserving them as `var()` would paint invalid. Don't change those bundles' config without auditing every var() usage there.
+
+Surface colors in search-blocks SCSS follow one shape:
+
+```scss
+background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
+```
+
+The chain reaches each layer in order:
+
+1. `--jp-search-page-*` — sampled from `body`'s computed `color` / `backgroundColor` at `wp_body_open` (see `Search_Blocks::print_theme_token_sampler()`). Theme-accurate regardless of palette slug convention, so themes that emit positional slugs like wp.com Global Styles' `--wp--preset--color--theme-1`/`--theme-2` still drive Search surfaces to the right value.
+2. WP 6.1+ `--base`/`--contrast` pair.
+3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
+4. Static literal — postcss-custom-properties emits this as a separate declaration alongside the `var()` call, so the surface always has a paintable value even when no var resolves.
+
+Two guards in the sampler against degenerate cases:
+
+- `backgroundColor === 'rgba(0, 0, 0, 0)'` / `'transparent'` — classic themes that don't set body bg resolve to transparent; the theme paints on the browser canvas instead. Skip the surface write so the SCSS chain's literal fallback wins.
+- `backgroundColor === color` — vintage frame-themes (Twenty Sixteen and similar) use `<body>` as a colored border around a lighter `.site` content wrapper, so body's resolved bg matches body's resolved color. Sampling that pair would paint same-color ink on same-color surface. Skip the surface write so the chain's literal fallback wins; ink still samples (it matches the content wrapper's text color via the cascade).
+
 ## URL format
 
 Filters round-trip through the URL in Jetpack Search's array shape: `?<filterKey>[]=<value>`, one param per selected value. Both sides agree on this contract — `store/url-state.js` writes/reads it on the JS side, `Search_Blocks::parse_url_filters()` reads it on the PHP side.
@@ -70,6 +95,10 @@ Filters round-trip through the URL in Jetpack Search's array shape: `?<filterKey
 Don't add a comma-joined / WC-style scalar shape (`?filter_stock_status=in,out`) for new product filters either. Stick to `?filter_stock_status[]=in&filter_stock_status[]=out` so deep links stay interchangeable with instant-search and the PHP parser doesn't need a per-filter URL-format opt-in.
 
 Price is the one exception, and only because its shape doesn't fit. `activeFilters` is typed `{ [filterKey]: string[] }` — discrete, OR-able selections that build a `terms` ES clause. `priceRange` is `{ min, max }`, builds a `range` clause, and writes scalar `min_price` / `max_price` URL params. It lives as a sibling on store state rather than getting shoehorned into `activeFilters` with a sentinel encoding.
+
+Scalar `?post_type=<slug>` is accepted as a read-only alias for `?post_types[]=<slug>` — matches WP/WC's own URL convention so deep links from those flows populate the `filter-checkbox{filterType:"post_type"}` facet when present. The store always *writes* the array form; the singular form is parse-only.
+
+Static post-type scope is **author-set, not URL-driven**, and lives on the `search-results` block as `postTypeMode` + `postTypes` attributes. Its `render.php` seeds `state.staticPostTypes` (`{ include, exclude }`) at template render via `wp_interactivity_state()`; the store reads that slot in `fetchResults()` and `syncToUrl()`. Singular per page (one `search-results` per search experience), so there's no merge — straight overwrite. The slot is *not* URL-serialized: scope is a property of the page's design, not the visitor's request.
 
 ## Filter bucket lifecycle
 
@@ -123,3 +152,16 @@ Block edit components mirror the server `render.php` so the canvas preview match
 - **`previewSelected` fallback.** When a saved `defaultSort` no longer appears in `availableSortOptions` (author just unchecked it), fall back to the first visible option for the preview. The render callback already does this; the edit component has to do it too.
 - **Snap empty selections to the full set.** Persisting `availableSortOptions: []` would make the renderer fall back to "all options" while every inspector checkbox stays unchecked — invisible mismatch. The setter writes the canonical full set back instead.
 - **Per-instance IDs.** Edit components that emit `<label htmlFor=…>` use `useId()` — the editor canvas may render the same block twice, and a shared static id breaks the label→control association on the second instance.
+
+## Comments
+
+Code is the source of truth — well-named identifiers should make most code easier to read than any prose attached to it. Default to **no comment**.
+
+Narrow exceptions:
+
+- **Linting requires it** (phpcs short description, JSDoc on exports). Meet the linter's minimum, nothing more.
+- **The code is non-obvious** — a workaround, a hidden constraint, a counter-intuitive choice. Keep it short and inline next to the line(s) it explains.
+
+Do not restate what the code does. Do not narrate the flow. Do not write paragraph-long block comments for routine cascades, fallback chains, or two-declaration patterns where the source already reads clearly.
+
+If a surprise is global enough that a future agent landing in unrelated code could hit it, document it here in AGENTS.md — not as a comment in the file. The file comment risks rotting; AGENTS.md is what agents read first.

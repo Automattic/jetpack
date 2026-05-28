@@ -636,8 +636,9 @@ class REST_Controller {
 	 */
 	protected function resolve_singleton_template_class( $post_type ) {
 		$map = array(
-			Overlay_Template::POST_TYPE => Overlay_Template::class,
-			Search_Template::POST_TYPE  => Search_Template::class,
+			Overlay_Template::POST_TYPE        => Overlay_Template::class,
+			Search_Template::POST_TYPE         => Search_Template::class,
+			Product_Search_Template::POST_TYPE => Product_Search_Template::class,
 		);
 		return $map[ $post_type ] ?? null;
 	}

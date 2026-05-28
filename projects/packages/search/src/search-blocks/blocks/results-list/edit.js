@@ -15,7 +15,8 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 // `product` is WC-only. On non-Woo sites it's pruned from the picker and a
@@ -110,14 +111,79 @@ const LAYOUT_OPTIONS = () => {
 };
 
 /**
+ * Summarize a `{ postTypeMode, postTypes }` pair into a single inspector line.
+ * No `postTypes` → "All post types"; otherwise "Include only: slug, slug" or
+ * "Exclude: slug, slug". Slugs only (no label resolution) — keeps the hint
+ * dependency-free; the picker in the parent's "Search scope" panel renders
+ * the friendly labels.
+ *
+ * @param {object} parentAttributes - Parent search-results block attributes.
+ * @return {string} Human-readable scope summary.
+ */
+function describeParentScope( parentAttributes ) {
+	const postTypes = Array.isArray( parentAttributes?.postTypes ) ? parentAttributes.postTypes : [];
+	if ( postTypes.length === 0 ) {
+		return __( 'All post types', 'jetpack-search-pkg' );
+	}
+	const joined = postTypes.join( ', ' );
+	const mode = parentAttributes?.postTypeMode;
+	if ( mode === 'include' ) {
+		return sprintf(
+			/* translators: %s — comma-separated post-type slugs. */
+			__( 'Include only: %s', 'jetpack-search-pkg' ),
+			joined
+		);
+	}
+	if ( mode === 'exclude' ) {
+		return sprintf(
+			/* translators: %s — comma-separated post-type slugs. */
+			__( 'Exclude: %s', 'jetpack-search-pkg' ),
+			joined
+		);
+	}
+	// Unknown / missing mode with a non-empty list — the schema shouldn't
+	// produce this, but a saved-attribute mismatch shouldn't read as the
+	// wrong scope. Collapse to the unscoped summary.
+	return __( 'All post types', 'jetpack-search-pkg' );
+}
+
+/**
  * Editor preview for the results-list block.
  *
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Attribute setter.
+ * @param {string}   props.clientId      - Block client id; used to look up the
+ *                                       parent `search-results` for the scope
+ *                                       hint panel.
  * @return {object} Rendered element.
  */
-export default function ResultsListEdit( { attributes, setAttributes } ) {
+export default function ResultsListEdit( { attributes, setAttributes, clientId } ) {
+	// Hint panel mirrors the parent `search-results` block's "Search scope"
+	// configuration so authors who click into Results List (the visible block)
+	// can see what scope is in effect and jump straight to the parent's panel
+	// to change it. Single source of truth — the attribute lives on the parent;
+	// this is read-only + a navigation affordance.
+	const { parentScopeBlockId, parentScopeAttributes } = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' );
+			const parents = blockEditor.getBlockParentsByBlockName(
+				clientId,
+				'jetpack-search/search-results',
+				true
+			);
+			const parentId = parents[ 0 ];
+			if ( ! parentId ) {
+				return { parentScopeBlockId: null, parentScopeAttributes: null };
+			}
+			return {
+				parentScopeBlockId: parentId,
+				parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
+			};
+		},
+		[ clientId ]
+	);
+	const { selectBlock } = useDispatch( 'core/block-editor' );
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
 	// `expanded`. Promote the legacy value so saved content keeps its first-
@@ -128,7 +194,13 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
+	// Defaults mirror render.php so the inspector placeholder matches what
+	// visitors actually see when the field is left empty.
 	const noResultsDefault = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	const noResultsWithFiltersDefault = __(
+		'No results match these filters. Try clearing some, or searching for something else.',
+		'jetpack-search-pkg'
+	);
 	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	return (
 		<>
@@ -170,6 +242,18 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
+						label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
+						value={ attributes?.noResultsWithFiltersMessage || '' }
+						placeholder={ noResultsWithFiltersDefault }
+						onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
+						help={ __(
+							'Shown when active filters return zero results. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Error message', 'jetpack-search-pkg' ) }
 						value={ attributes?.errorMessage || '' }
 						placeholder={ errorDefault }
@@ -180,6 +264,40 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 						) }
 					/>
 				</PanelBody>
+				{ parentScopeBlockId && (
+					<PanelBody title={ __( 'Search scope', 'jetpack-search-pkg' ) } initialOpen={ false }>
+						<p
+							style={ {
+								marginTop: 0,
+								marginBottom: '8px',
+								fontSize: '12px',
+								color: 'rgba(30, 30, 30, 0.62)',
+							} }
+						>
+							{ __(
+								'Configured on the parent Search Results block — the block that frames this search experience owns its post-type scope.',
+								'jetpack-search-pkg'
+							) }
+						</p>
+						<p
+							style={ {
+								marginTop: 0,
+								marginBottom: '12px',
+								fontSize: '13px',
+								fontWeight: 500,
+							} }
+						>
+							{ describeParentScope( parentScopeAttributes ) }
+						</p>
+						<Button
+							__next40pxDefaultSize
+							variant="secondary"
+							onClick={ () => selectBlock( parentScopeBlockId ) }
+						>
+							{ __( 'Edit on Search Results', 'jetpack-search-pkg' ) }
+						</Button>
+					</PanelBody>
+				) }
 			</InspectorControls>
 			<div { ...blockProps }>
 				{ layout === 'compact' && renderCompactPreview( SAMPLE_RESULTS ) }

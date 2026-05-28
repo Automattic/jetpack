@@ -151,10 +151,10 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		background: var(--wp--preset--color--base);
-		// The menu owns its surface, so don't inherit a low-contrast body
-		// accent color from the surrounding page.
-		color: var(--wp--preset--color--contrast);
+		// `background-color` longhand (not shorthand) — `background:` collapses
+		// to `transparent` when the var resolves to nothing.
+		background-color: var(--jp-search-page-surface, var(--wp--preset--color--base, var(--wp--preset--color--background, #fff)));
+		color: var(--jp-search-page-ink, var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, inherit)));
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

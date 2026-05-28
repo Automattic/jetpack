@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: default the checkbox-filter Custom Taxonomy label to the taxonomy's display name instead of leaving it empty.

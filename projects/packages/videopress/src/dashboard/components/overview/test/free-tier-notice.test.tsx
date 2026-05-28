@@ -47,7 +47,9 @@ describe( 'FreeTierNotice', () => {
 
 		expect( mockedCheckoutWorkflow ).toHaveBeenCalledWith( {
 			productSlug: 'jetpack_videopress',
-			redirectUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-videopress',
+			// Relative to wp-admin; the REST endpoint makes it absolute via
+			// `admin_url()`. An absolute URL here would be doubled and 404.
+			redirectUrl: 'admin.php?page=jetpack-videopress',
 			useBlogIdSuffix: true,
 			from: 'jetpack-videopress',
 		} );

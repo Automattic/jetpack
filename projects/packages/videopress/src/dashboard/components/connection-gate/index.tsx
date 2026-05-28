@@ -1,23 +1,8 @@
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
 import type { ReactNode } from 'react';
-
-const VIDEOPRESS_ADMIN_PAGE = 'admin.php?page=jetpack-videopress';
-
-/**
- * After connecting, return the user to the VideoPress dashboard — the same
- * redirect the legacy dashboard's connection flow used.
- *
- * @return The absolute VideoPress admin URL, or undefined when the admin URL isn't in the inlined initial state (e.g. tests).
- */
-function getRedirectUri(): string | undefined {
-	const adminUrl =
-		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-			? JPVIDEOPRESS_INITIAL_STATE?.siteData?.adminUrl
-			: undefined;
-	return adminUrl ? `${ adminUrl }${ VIDEOPRESS_ADMIN_PAGE }` : undefined;
-}
 
 /**
  * Gates the whole dashboard behind a WordPress.com connection. VideoPress
@@ -50,7 +35,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		handleRegisterSite,
 	} = useConnection( {
 		from: 'jetpack-videopress',
-		redirectUri: getRedirectUri(),
+		redirectUri: VIDEOPRESS_ADMIN_PAGE,
 	} );
 
 	const canPerformAction = isRegistered && hasConnectedOwner && isUserConnected;

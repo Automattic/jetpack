@@ -45,10 +45,22 @@ wp_interactivity_state(
 $view          = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label         = $config['label'];
 $display_style = Filter_Checkbox::normalize_display_style( $attributes['displayStyle'] ?? null );
+
+// Skip `data-wp-interactive` when an ancestor already owns the
+// `jetpack-search` interactive scope. Nesting two same-namespace interactive
+// scopes is the SEARCH-266 trigger — the Interactivity runtime re-runs its
+// `data-wp-each` pass against the inner scope and the first-rendered item's
+// `data-wp-text` / `data-wp-bind--hidden` bindings end up frozen. Inheriting
+// from the parent's scope keeps every directive resolving against a single
+// store hydration. The `instanceof` check narrows `$block`'s type for static
+// analysis — WP guarantees it's set to a `WP_Block` instance when render.php
+// is included from `WP_Block::render()`.
+$in_interactive_scope = isset( $block ) && $block instanceof \WP_Block
+	&& ! empty( $block->context['jetpack-search/inInteractiveScope'] );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'data-display-style' => $display_style ) ) ); ?>
-	data-wp-interactive="jetpack-search"
+	<?php echo $in_interactive_scope ? '' : 'data-wp-interactive="jetpack-search"'; ?>
 	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
 	data-wp-bind--hidden="context.wrapperHidden"
 	data-wp-watch="callbacks.syncFilterWrapperVisibility"
