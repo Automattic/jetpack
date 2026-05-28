@@ -4,6 +4,7 @@ import { JetpackSeoRoutes } from './constants';
 import Providers from './providers';
 import OverviewScreen from './screens/overview';
 import Shell from './shell';
+import './admin-page-layout.scss';
 import './style.module.scss';
 
 // Data router (`createHashRouter` + `RouterProvider`) rather than declarative

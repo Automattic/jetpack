@@ -1,0 +1,9 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// `-wp-build` variant: the SEO admin page mounts `@wordpress/admin-ui` 2.x
+// components through `<AdminPage>`, so we layer that variant's defensive
+// resets (breadcrumb list/anchor normalization) on top of the shared layout.
+body.jetpack_page_jetpack-seo {
+
+	@include jetpack-admin-page-layout-wp-build;
+}

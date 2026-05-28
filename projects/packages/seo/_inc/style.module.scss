@@ -5,14 +5,15 @@
 }
 
 // Override AdminPage's default `--jp-white` background with the admin-ui
-// neutral-surface token (#fcfcfc). Same approach as
-// `_inc/client/components/settings-nav-tabs/style.scss` — double-class the
-// selector for specificity over AdminPage's own `.background` rule.
+// neutral-surface token (#fcfcfc). Targets the stable `.jp-admin-page__page`
+// hook (passed via `className` from `<AdminPage>`) rather than admin-ui's
+// internal `.admin-ui-page*` classes, which are hashed in the standalone
+// admin-ui build and only literal in some WP core bundles. Double-class on
+// `.neutralBg` for specificity over AdminPage's own `.background` rule.
 .neutralBg.neutralBg {
 
 	&:global(.background),
-	:global(.admin-ui-page),
-	:global(.admin-ui-page__content) {
+	:global(.jp-admin-page__page) {
 		background-color: var(--wpds-color-bg-surface-neutral, #fcfcfc);
 	}
 }
