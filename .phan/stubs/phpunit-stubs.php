@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.27
+ * Stubs automatically generated from PHPUnit 12.5.28
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -7375,7 +7375,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are equal.
+     * Asserts that two XML files are equal, ignoring comments.
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -7385,7 +7385,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML files are not equal.
+     * Asserts that two XML files are not equal, ignoring comments.
      *
      * @throws \PHPUnit\Util\Exception
      * @throws ExpectationFailedException
@@ -7394,7 +7394,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7403,7 +7403,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7412,7 +7412,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -7421,7 +7421,7 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws \PHPUnit\Util\Xml\XmlException
@@ -9800,7 +9800,7 @@ function assertStringEndsNotWith(string $suffix, string $string, string $message
 {
 }
 /**
- * Asserts that two XML files are equal.
+ * Asserts that two XML files are equal, ignoring comments.
  *
  * @throws Exception
  * @throws ExpectationFailedException
@@ -9814,7 +9814,7 @@ function assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile, st
 {
 }
 /**
- * Asserts that two XML files are not equal.
+ * Asserts that two XML files are not equal, ignoring comments.
  *
  * @throws \PHPUnit\Util\Exception
  * @throws ExpectationFailedException
@@ -9827,7 +9827,7 @@ function assertXmlFileNotEqualsXmlFile(string $expectedFile, string $actualFile,
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9840,7 +9840,7 @@ function assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml, s
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9853,7 +9853,7 @@ function assertXmlStringNotEqualsXmlFile(string $expectedFile, string $actualXml
 {
 }
 /**
- * Asserts that two XML documents are equal.
+ * Asserts that two XML documents are equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -9866,7 +9866,7 @@ function assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml, 
 {
 }
 /**
- * Asserts that two XML documents are not equal.
+ * Asserts that two XML documents are not equal, ignoring comments.
  *
  * @throws ExpectationFailedException
  * @throws \PHPUnit\Util\Xml\XmlException
@@ -28847,13 +28847,13 @@ final readonly class Loader
     /**
      * @throws XmlException
      */
-    public function loadFile(string $filename): \DOMDocument
+    public function loadFile(string $filename, bool $ignoreComments = false): \DOMDocument
     {
     }
     /**
      * @throws XmlException
      */
-    public function load(string $actual): \DOMDocument
+    public function load(string $actual, bool $ignoreComments = false): \DOMDocument
     {
     }
 }
